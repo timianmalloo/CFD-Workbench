@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-19T17:33:34Z",
+  "generated": "2026-09-19T17:36:41Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -274,6 +274,45 @@ window.AUDIT_DATA = {
       "fan_out": 3,
       "started_at": "2026-09-19T17:09:13Z",
       "duration_seconds": 1461.0
+    },
+    {
+      "id": "al-01M2XBVR86VS71CCA69YNF32AQ",
+      "shortname": "publish-foil-editing-flow-results",
+      "datetime": "2026-09-19T17:36:41Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "commit and push all",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M2XBVR9M5F5XJ2N4FYF3BEYH",
+      "shortname": "publish-foil-editing-flow-results",
+      "datetime": "2026-09-19T17:36:41Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "commit and push all",
+      "summary": "Publication-only T0 triage: commit the authorization record, fast-forward clean main, and atomically push main plus feature/foil-editing-flow-results. All three existing worktrees inspected clean; fetched origin/main has no commits absent locally and the reviewed feature has one unpublished commit. Existing specification, browser and independent-review evidence remains unchanged. Primary-checkout exception is limited to fast-forward integration. Closing oracle: both remote heads equal the delivery commit and worktrees remain clean.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench.md",
+        "docs/mockups/workbench.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Commit and publish all completed foil-editing and flow-result work.",
+      "done_when": "Remote main and feature/foil-editing-flow-results match the committed delivery and all worktrees are clean.",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-09-19T17:36:41Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
