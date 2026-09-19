@@ -1,0 +1,4 @@
+* text=auto eol=lf
+docs/audit/audit-data.js merge=coord-regen
+docs/audit/index.html merge=coord-regen
+docs/audit/audit-log.jsonl merge=coord-register

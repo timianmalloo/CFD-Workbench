@@ -1,0 +1,90 @@
+{
+  "adddomainexperts": [
+    "SKILL.md"
+  ],
+  "addpacktorepo": [
+    "SKILL.md"
+  ],
+  "adopt": [
+    "SKILL.md"
+  ],
+  "also": [
+    "SKILL.md"
+  ],
+  "apply-learnings": [
+    "SKILL.md"
+  ],
+  "auditlog": [
+    "SKILL.md"
+  ],
+  "code-hygiene": [
+    "SKILL.md"
+  ],
+  "collectknowledge": [
+    "SKILL.md"
+  ],
+  "define-architecture": [
+    "SKILL.md"
+  ],
+  "design-slice": [
+    "SKILL.md",
+    "reference/definition-of-done.md",
+    "reference/flow.md"
+  ],
+  "document": [
+    "SKILL.md"
+  ],
+  "dream": [
+    "SKILL.md"
+  ],
+  "execute-with-coordination": [
+    "SKILL.md"
+  ],
+  "extendaibundle": [
+    "SKILL.md"
+  ],
+  "forensicreview": [
+    "SKILL.md"
+  ],
+  "implement": [
+    "SKILL.md",
+    "reference/definition-of-done.md",
+    "reference/flow.md"
+  ],
+  "investigate": [
+    "SKILL.md"
+  ],
+  "migrate": [
+    "SKILL.md"
+  ],
+  "optimize-graph": [
+    "SKILL.md"
+  ],
+  "prepare-for-coordination": [
+    "SKILL.md"
+  ],
+  "prompts": [
+    "SKILL.md"
+  ],
+  "searchprompts": [
+    "SKILL.md"
+  ],
+  "session-profiler": [
+    "SKILL.md"
+  ],
+  "specify": [
+    "SKILL.md"
+  ],
+  "ui-design": [
+    "SKILL.md",
+    "reference/definition-of-done.md",
+    "reference/flow.md",
+    "reference/triggered-standards.md"
+  ],
+  "updatepack": [
+    "SKILL.md"
+  ],
+  "visualize": [
+    "SKILL.md"
+  ]
+}

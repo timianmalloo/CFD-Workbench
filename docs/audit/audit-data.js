@@ -1,0 +1,46 @@
+// Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
+window.AUDIT_DATA = {
+  "project": "CFD-Workbench",
+  "generated": "2026-09-19T15:21:40Z",
+  "audit": [
+    {
+      "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
+      "shortname": "keep going with the repo creation and ai-forward apply",
+      "datetime": "2026-09-19T15:18:24Z",
+      "session": "prompt-log",
+      "prompt": "keep going with the repo creation and ai-forward apply",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M2X44HFX0SFBVVG17Q36JXVF",
+      "shortname": "addpacktorepo-CFD-Workbench",
+      "datetime": "2026-09-19T15:21:40Z",
+      "session": "cfd-workbench-bootstrap-20260919",
+      "prompt": "create a new repo with local dir under ~/projects/CFD-Workbench ... repo name CFD-Workbench in my tim.ian.malloo account and publicly visible\n----\nthe repo will be for a cross-platform (windows/mac) client application for hydrofoil design and simulation\n----\napply the ai-forward pack to the repo",
+      "summary": "Installed AI-Forward revision 73 (2026.09.19.1), all host surfaces and 27 skills, project README and conventions, documentation CI adapted for the audit-only bootstrap state and installed foundation layout, and portable coordination regeneration commands. Public GitHub repository created; local checks and seven fault/fixture scenarios passed. Primary-checkout exception: initial bootstrap before the first commit. Full inventory and evidence are in docs/ai-forward-pack/install-report.md.",
+      "kind": "command",
+      "skill": "addpacktorepo",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/ai-forward-pack/install-report.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Initialize the public CFD-Workbench repository for a Windows/macOS hydrofoil design and simulation client with AI-Forward installed.",
+      "done_when": "Pack installed, repository documentation and CI configured, local checks passed, and initial commit ready to publish.",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-09-19T15:16:03Z",
+      "duration_seconds": 337.0
+    }
+  ],
+  "changes": []
+};

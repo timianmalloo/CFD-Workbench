@@ -1,0 +1,18 @@
+
+# Operating-system metadata and Python caches
+.DS_Store
+Thumbs.db
+Desktop.ini
+__pycache__/
+*.py[cod]
+
+# AI-Forward Pack (INSTALL 2): local coordination and per-run state, never committed
+*.jsonl.lock
+spikes/
+docs/audit/.run-starts.json
+docs/audit/.run-starts.json.tmp
+.agents/*
+!.agents/artifacts.yml
+!.agents/skills*
+!.agents/hooks.json
+!.agents/rules*

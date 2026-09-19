@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python docs/ai-forward-pack/hooks/reread-guard.py --host claude",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python docs/ai-forward-pack/hooks/reread-guard.py --host claude",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python docs/ai-forward-pack/hooks/session-start.py --host claude",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python docs/ai-forward-pack/hooks/session-start.py --host claude",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "showThinkingSummaries": true
+}

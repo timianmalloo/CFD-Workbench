@@ -1,0 +1,25 @@
+{
+  "reread-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "view_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python ../docs/ai-forward-pack/hooks/reread-guard.py --host agy",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "session-start": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python ../docs/ai-forward-pack/hooks/session-start.py --host agy",
+        "timeout": 15
+      }
+    ]
+  }
+}

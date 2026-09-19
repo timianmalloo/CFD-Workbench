@@ -1,0 +1,19 @@
+# .agents/artifacts.yml - what each artifact IS decides how it merges.
+# Format: pattern: class [regenerate command]. Longest matching pattern wins.
+# Everything not listed stays `authored` - the safe default, resolved by a human through
+# conventional conflict markers. Do not enumerate it.
+#
+# Every `derived` command in the managed block was RUN before it was written: a wrong
+# command resolves the merge silently and leaves the artifact permanently stale while
+# reporting as handled. Re-verify with `coord classify init --force` after changing a
+# generator - it rewrites the managed block and leaves everything else alone.
+#
+# Add THIS repo's own generated and append-only artifacts below the end marker, under the
+# same rule: run the command first.
+
+# >>> coord classify init - managed block. --force regenerates BETWEEN these
+# Use Python 3 on PATH, not an absolute path to the machine that installed the pack.
+docs/audit/audit-data.js: derived python docs/ai-forward-pack/scripts/audit-log.py --root docs --project CFD-Workbench render
+docs/audit/index.html: derived python docs/ai-forward-pack/scripts/audit-log.py --root docs --project CFD-Workbench render
+docs/audit/audit-log.jsonl: register
+# <<< coord classify init - end managed block. Add your own entries BELOW.
