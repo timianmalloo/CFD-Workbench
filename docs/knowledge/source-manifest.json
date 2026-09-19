@@ -1,0 +1,58 @@
+[
+  {
+    "original": "/Users/mallalieut/projects/CFD-WorkBench-Proposal/README.md",
+    "snapshot": "sources/proposal-README.md.txt",
+    "sha256": "44b7a4db99a8cd16d491cdf45bd7703ca5fac55b446521542539de03b14efb39",
+    "bytes": 1794,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/CFD-WorkBench-Proposal/proposal.md",
+    "snapshot": "sources/proposal-proposal.md.txt",
+    "sha256": "6c434cd07ace8e0de22eed2f7ceb2c23050b44eefd1627267a2c030b81b52e19",
+    "bytes": 31587,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/CFD-WorkBench-Proposal/sequence.md",
+    "snapshot": "sources/proposal-sequence.md.txt",
+    "sha256": "8bc340ea66590a688021bd39142c689284dc8c26d03b07a7b037cce91d4479e7",
+    "bytes": 62498,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/CFD-WorkBench-Proposal/inventory.md",
+    "snapshot": "sources/proposal-inventory.md.txt",
+    "sha256": "97eac71db5f87267d7a143d10d87319e144b244c2d9d5be8b8267b2eb09b55ad",
+    "bytes": 22123,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/cfd-bench/docs/knowledge/cfd-hydrofoil-simulation/parametric-geometry.md",
+    "snapshot": "sources/bench-parametric-geometry.md.txt",
+    "sha256": "772913086e9dfb8817b2a7f6809936118b84bb35cea48e1beab944f51759b60b",
+    "bytes": 9128,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/cfd-bench/docs/knowledge/cad-ux-and-geometry/index.md",
+    "snapshot": "sources/bench-cad-ux.md.txt",
+    "sha256": "a1e8ec5dfd0cc09b3b0446aff4a7926602cb2fb48800bff2ce168f70708bf5b1",
+    "bytes": 14248,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/cfd-bench/docs/knowledge/knowledge-gap-register.md",
+    "snapshot": "sources/bench-gap-register.md.txt",
+    "sha256": "d4daf28cdb09e62ba46a3593c2c260743f20f929bf5cd3282ef680131a3e366e",
+    "bytes": 15312,
+    "captured": "2026-09-19"
+  },
+  {
+    "original": "/Users/mallalieut/projects/cfd-bench/docs/notes/decision-0001-defer-geometry-kernel.md",
+    "snapshot": "sources/bench-geometry-kernel-decision.md.txt",
+    "sha256": "ad9fcedf0ec192bc8780403d34f031b9e17196c3f7ab7ebe01baf8258789b517",
+    "bytes": 5882,
+    "captured": "2026-09-19"
+  }
+]

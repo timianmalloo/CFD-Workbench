@@ -1,0 +1,373 @@
+---
+id: cfd-workbench-inventory
+title: "CFD WorkBench — spikes and deeper research"
+type: inventory
+status: draft
+owner: "@timianmalloo"
+created: 2026-09-19
+review-by: 2026-12-19
+summary: >-
+  Weekend-scale spikes with pass/fail criteria, and research that will not fit in a weekend.
+  Ordered by what actually gates a Mac/Windows hydrofoil workbench, not by how interesting it is.
+---
+
+# Spikes and deeper research
+
+Every spike states **the question**, **what would settle it**, **pass**, **fail →**, and **what breaks if we skip it**. An item without those is research, not a spike.
+
+Existing cfd-bench spikes (SPIKE-01..04) are **kept and rewritten** where the Windows/WPF assumption no longer holds. New work starts at SPIKE-00.
+
+---
+
+## Priority order
+
+Do **00, 11, 04-units, 12, 01, 05** before writing a product spec of record. Do **02, 03, 06, 07, 09, 10** before claiming CFD or fabrication. Do not start a language rewrite until 00 and 05 have answers.
+
+---
+
+## Spikes — weekend-scale, pass/fail
+
+### SPIKE-00 · Recover both Windows trees (GHCP + Claude WPF)
+
+**Question.** Do the local Windows working copies still exist, and can we copy **product source** (not just `main` as GitHub has it) off that machine before it rot?
+
+Expected paths (adjust if the folders were renamed):
+
+- `C:\Projects\CFD-Bench-GHCP` — graded SHA `db42694` plus later P2–P4 continuation
+- `C:\Projects\CFD-Bench-ClaudeCode` — operator 2026-09-19: a **functional WPF app**, incomplete, with warts, never pushed
+
+Also walk `git worktree list` in each. GHCP had 61 worktrees at grade time; Claude likely has its own. The good code may live on a worktree branch that `origin/main` never received.
+
+**Why it is uncertain.** Both GitHub remotes are seed copies. GHCP’s implementation is proven by the cfd-bench grade. Claude’s WPF is proven by the operator plus grader asides (C− 0.554, Fable exhaustion, 19/15 review rounds) that cannot come from the seed. Nothing of either product tree is on this Mac.
+
+**Done when.** For **each** arm, either:
+
+- (a) a zip/tarball or a **private** GitHub branch contains `src/`, `tests/`, `*.csproj`/`*.sln`, XAML, samples, `docs/adr/`, `docs/specs/`, `docs/benchmark/run-report.md` if present, and `git log --oneline -20` showing product commits, or
+- (b) a dated note that that arm is gone, with the last known SHA and worktree list.
+
+GHCP pass additionally: `dotnet test` reproduces P0 `measure-wing` (`span_m=1.200000`, `area_m2=0.216000`, `aspect_ratio=6.666667`, `mean_chord_m=0.180000`). Claude pass additionally: the WPF app launches and a screenshot or short note lists what works vs warts.
+
+**Pass.** Recovered. Diff the two Cores; harvest ADRs, file schema, fail-closed codes, polar pipeline, and the **better WPF surface**. Then SPIKE-12 (retarget off `net*-windows`).
+
+**Fail →.** Reimplement Core from the knowledge base. Do not invent architecture from grade file counts. Language choice stays open (see proposal §7). Claude’s WPF lessons become memory only.
+
+**If skipped.** We throw away a graded CLI *and* a functional WPF shell, or we wait on a machine that may already have been wiped.
+
+**Recovery recipe (run on the Windows box, PowerShell).** Do not `git push` to `main` — that would mix seed history with product commits. Bundle first, then we can make private salvage branches.
+
+```powershell
+$stamp = Get-Date -Format 'yyyyMMdd'
+$out   = "C:\Temp\cfd-bench-salvage-$stamp"
+New-Item -ItemType Directory -Force $out | Out-Null
+
+foreach ($name in 'CFD-Bench-GHCP','CFD-Bench-ClaudeCode') {
+  $root = "C:\Projects\$name"
+  if (-not (Test-Path $root)) { Write-Host "MISSING $root"; continue }
+  Push-Location $root
+  git status -sb | Out-File "$out\$name-status.txt"
+  git log --oneline -30 | Out-File "$out\$name-log.txt"
+  git worktree list | Out-File "$out\$name-worktrees.txt"
+  git branch -av | Out-File "$out\$name-branches.txt"
+  git bundle create "$out\$name.bundle" --all
+  # working tree including uncommitted product files
+  tar -a -cf "$out\$name-workdir.zip" --exclude=.git src tests samples docs/adr docs/specs docs/design docs/benchmark docs/lessons 2>$null
+  Get-ChildItem -Recurse -Include *.cs,*.xaml,*.csproj,*.sln |
+    Select-Object -ExpandProperty FullName |
+    Out-File "$out\$name-csharp.txt"
+  Pop-Location
+}
+
+explorer $out
+```
+
+Copy `$out` off that machine (USB, private gist is the wrong shape — use a zip). On this Mac we can `git clone foo.bundle` without touching GitHub.
+
+---
+
+### SPIKE-01 · Five-curve editor (rewritten; replaces Helix CP-drag)
+
+**Question.** Can we edit outline, chord, anhedral, thickness and twist as degree-5 splines in 2D, with **on-curve anchors and spline tangent levers** (CAD-standard), double-click add, delete, keyboard nudge, and curvature comb always on — on **both** macOS and Windows — with live span/area/AR/mean chord from the core?
+
+**Why rewritten.** Original SPIKE-01 asked whether HelixToolkit gizmos can drag a 3D control point. The CAD proposal already called the 2D-only fallback “arguably the better UX.” Mac has no Helix SharpDX. The product interaction is the five curves, not the viewport.
+
+**Done when.** A throwaway app (Avalonia 12 *or* egui — pick during SPIKE-05) on Apple silicon **and** Windows shows all five curves with **on-curve anchors and spline tangent levers** (rotate direction, scale magnitude, break G1 independently), keyboard nudge, add/remove, combs always on, and a live properties strip driven by the core. No 3D required for pass.
+
+**Pass.** 2D editor is the v1 CAD surface.
+
+**Fail →.** The workbench is analysis-only (P2) until this is solved. Do not fake editing in a 3D viewport.
+
+**If skipped.** We will accidentally rebuild Helix-on-Windows and discover Mac has no editor.
+
+---
+
+### SPIKE-02 · STEP writer round-trip (unchanged intent)
+
+**Question.** Can we emit a `B_SPLINE_SURFACE_WITH_KNOTS` AP203 Part 21 file that Fusion 360 (or Mastercam) opens as a smooth surface?
+
+**Done when.** Fusion opens the exported wing; zebra/curvature check shows no faceting and no gaps. “It writes a file” is not the test.
+
+**Pass.** Own writer or STEPcode (BSD) is the fabrication door. Interface stays stubbed until this passes; P0/P3 still keep the loft a real spline.
+
+**Fail →.** STEPcode first. If that also fails, high-density STL (≤ 0.01 mm) and an honest label that CNC is not supported.
+
+**If skipped.** COMMIT-03 and the “do not foreclose fabrication” constraint become theatre.
+
+---
+
+### SPIKE-03 · snappyHexMesh auto-generation (unchanged intent, dual substrate)
+
+**Question.** Can meshing settings be generated from the parametric model across AR 5 / 8 / 12, unattended, on **at least one** substrate per OS (Mac: OpenFOAM.app or Docker; Windows: WSL2 or Docker)?
+
+**Done when.** Three wings spanning the design range mesh unattended and pass `checkMesh`.
+
+**Pass.** “You never see a dictionary file” holds for the CFD tier.
+
+**Fail →.** Mesh-diagnostics UI; P7 is a guided case, not a hidden step. DR (one hand-meshed free-surface run) still happens.
+
+**If skipped.** The orchestration story is an assumption. DR exists specifically so we do not skip this until week 32.
+
+---
+
+### SPIKE-04 · The numeral check (unchanged)
+
+**Question.** Can a mechanical check reject model-generated text containing numbers that were not supplied to the call, without false-positives on legitimate rounding and unit conversion?
+
+**Done when.** Corpus of good and deliberately-poisoned explanations: every fabricated numeral caught; legitimate rounding of supplied values passes.
+
+**Pass.** Q&A in Steps 3, 4 and 6 — and any Step 2 brief that restates a number — may ship.
+
+**Fail →.** Model output is marked prose that never restates a figure; numbers stay in UI chrome beside it.
+
+**If skipped.** An LLM will invent “L/D is around 19” and it will look like engineering data.
+
+This spike now **gates Step 2 NL start as well as Steps 3/4/6 Q&A**, not only old P6.
+
+---
+
+### SPIKE-16 · Natural-language starting design (Claude structured output)
+
+**Question.** Can a Claude structured-output call turn a brief into a schema-valid `StartingDesign` (profile **or** wing) whose inferred/defaulted fields are reviewable, and can the core emit a catalog section or station list from that object **without** the model supplying coordinates or forces?
+
+**Done when.** Three briefs (section-only, full wing, adversarial “span under a metre” that was not stated as a hard cap) produce Accept-able cards. The adversarial case does not silently lock span. Accept writes a document the CAD editor can then lever-edit. Discard is a no-op. **No key:** prompt bar disabled; New / Open / Sample / sliders / CAD levers still produce a wing — this is a pass condition, not a skip.
+
+**Pass.** Step 2 NL start ships behind the schema + numeral-check guards.
+
+**Fail →.** Prompt bar is Q&A-only until this is solved. Manual parameters + CAD remain the start path.
+
+**If skipped.** Either no NL start, or an LLM that emits coordinates — which COMMIT-04 forbids.
+
+---
+
+### SPIKE-17 · Vendor H105 and generate NACA 6/16-series for the catalog picker
+
+**Question.** Can we add Speer H105 (hashed coordinates + source URL + licence note) and analytically generated NACA 63/64/66 and 16-series sections to the picker, with the same Lednicer/Selig parser gate as Phase 0, and keep strut sections out of the front-wing list?
+
+**Done when.** Picker shows lifting vs strut families; H105 polar at Re 6e5 exists; 64A410 still matches Phase 0; 0012 still 12.00% t/c. Discipline presets resolve to catalog ids.
+
+**Pass.** Parameterized start has a real hydrofoil catalog, not five Epplers and an aircraft 4412.
+
+**Fail →.** Ship the 11 vendored files only; H105 is “coming” not a fake polar.
+
+**If skipped.** Wingfoil/SUP/surf users only see ship-scale Epplers. Speer designed H105 *because* E817 is a 40-kn ship section.
+
+---
+
+### SPIKE-05 · Cross-platform UI and 3D viewport bake-off
+
+**Question.** Which UI stack produces a friendly Mac **and** Windows foil app, and does 3D editing matter for v1?
+
+**Candidates (only these):**
+
+| ID | Stack | Why it is in the bake-off |
+|---|---|---|
+| A | .NET 10 + Avalonia 12 + ScottPlot.Avalonia | Operator’s C#; real Mac (not Catalyst); charts already spiked as ScottPlot.WPF 5.1.59 on GHCP |
+| B | Rust + egui/eframe + wgpu | Fastest Metal 3D on this Mac; looks like a researcher tool |
+| C | Rust + iced + wgpu | Retained widgets, still no CAD widget story |
+| D | HelixToolkit SharpDX / WPF | Control — expected to fail on Mac |
+
+**Out:** MAUI (Catalyst), Flutter (wrong language), Tauri+three.js (hostile CAD hit-testing), Slint unless COMMIT-02 is reopened, GPUI (not a product toolkit).
+
+**Done when.** Same five-curve fixture and a lofted ~50k-tri wing on Apple silicon **and** Windows. Score: double-click launch, menu bar / accelerators, 60 fps orbit, pick-a-station, keyboard nudge. Record whether plane-constrained **3D** CP drag works.
+
+**Pass for product UI.** A or, if A’s 3D is hopeless, A for chrome + a small Rust wgpu viewport crate. 3D CP drag is **not** required to pass the product (see SPIKE-01).
+
+**Fail of all 3D →.** 3D is display-and-select; 2D curves are the editor. That is the intended Shape3d UX, not a consolation prize.
+
+**If skipped.** We will pick a stack from a blog post and discover packaging or picking in month two.
+
+---
+
+### SPIKE-06 · Units in the type system (closes GAP-04)
+
+**Question.** Can origin, axis directions, anhedral/twist signs, and SI-in-types be specified and enforced so a knots/m/s or kinematic/dynamic mix fails to compile or fails closed at the boundary?
+
+**Owner decision required (pre-delegated here as a recommendation, not a fact):**
+
+| Convention | Recommendation | Why |
+|---|---|---|
+| Origin | Leading edge, root station | Matches UIUC `.dat`, CST `ψ=0` at LE, CAM “nose” |
+| x | Aft positive | Marine/OpenVSP; chord along +x |
+| y | Starboard / right wing positive | Right-handed with z up |
+| z | Up positive | Anhedral is then **negative z at the tip** |
+| Twist / incidence | Positive nose-up | Matches α |
+| Units | SI internally (`m`, `m²`, `rad`, `kg`, `Pa`); display in kn, cm, cm², deg | ITTC; foil products are sold in cm/cm² |
+| Anhedral sign | Tips-down is **negative z**, not a separate signed “anhedral” stored twice | Derive-don’t-store |
+
+**Done when.** A written ADR (ADR-0002) plus a tiny core in the chosen language where `span_m / area_m2` is the only AR, and a test fails if someone passes feet or stores AR as a field.
+
+**Pass.** P0 may start.
+
+**Fail →.** Do not write geometry code. Retrofitting this is how sign errors become permanent.
+
+**If skipped.** GAP-04 stays open and every later number is untrustworthy.
+
+---
+
+### SPIKE-07 · NeuralFoil / AeroSandbox as optional sidecar (not embedded)
+
+**Question.** Can the app call NeuralFoil for a polar **if** Python/`uv` is present, and fully work from the vendored catalog if it is not — with no CPython inside the `.app` / `.msi`?
+
+**Done when.** (1) Polar generated, hash recorded, `Cp_min` recovered from edge velocity. (2) App launched on a machine with no Python: catalog + closed-form still produce L/D. (3) Bundle size does not grow by a Python runtime.
+
+**Pass.** Python is a detected backend, same shape as `ICfdBackend`.
+
+**Fail →.** Precompute the catalog offline; ship polars as data. Live section-fit waits.
+
+**If skipped.** We will either embed Python (packaging hell) or rewrite NeuralFoil without knowing we needed to.
+
+---
+
+### SPIKE-08 · Provenance admission gate for numerical corpora
+
+**Question.** Can we refuse to admit any polar, validation table, or experimental row that lacks solver/tool id + reproducible generate command + content hash, and re-verify the hash at admission?
+
+**Why.** GHCP’s P1 was disqualified because a delegate committed artificial polars and unauthenticated DTIC coefficients. Catching it later did not clean the run. Prompt §7 makes fabrication disqualifying; a product needs the same fail-closed gate.
+
+**Done when.** A corpus with one missing hash is rejected; a regenerated polar with matching hash is admitted; a bit-flipped file is rejected.
+
+**Pass.** P1 may ingest DTIC extracts and NeuralFoil rows.
+
+**Fail →.** No experimental tables in-tree until this exists. Label every number Inferred.
+
+**If skipped.** We will ship a catalog we cannot defend.
+
+---
+
+### SPIKE-09 · DTIC ADA032272 extraction (the real P1 door)
+
+**Question.** What, exactly, can ADA032272 prove for a **wing-only** tool, and what substitute validation is admissible?
+
+**Known:** DTNSRDC High-Speed Tow + Rotating Arm; NACA 16-309 and 64A309; flaps to 17.5°, pitch to 12°. Independently finds 64A309 higher L/D than 16-309 (third agreeing line with IHS prose and NeuralFoil 64A410). GHCP EFD review: **FAIL wing-only** — foil-plus-strut, non-comparable. Pixel-tracing PDF pages is not admission.
+
+**Done when.** Tables extracted with page citations and uncertainty. A one-page note states: comparable / not comparable / comparable only for ranking. If not comparable, name the substitute: section-level NeuralFoil vs analytic NACA + UIUC geometry (labelled **Inferred** for 3D), plus one published wing-only or T-foil dataset if licence allows.
+
+**Pass.** P1 has an **satisfiable** validation path. COMMIT-01 still requires VLM before optimiser results.
+
+**Fail →.** P1 ships as Inferred estimator with envelope warnings; “validated” is not a word the UI may use.
+
+**If skipped.** The next implementation will halt or fabricate at the same gate.
+
+---
+
+### SPIKE-10 · OpenFOAM detect-only on Mac and Windows
+
+**Question.** Can the app find a solver, stream residuals, and cancel, without bundling OpenFOAM?
+
+**Done when.** One substrate works on this Mac (gerlero OpenFOAM.app **or** Docker) and one on Windows (WSL2 **or** Docker). Missing solver → a single dialog, not a crash. Cancel kills the process tree.
+
+**Pass.** `ICfdBackend` is real. DR can run.
+
+**Fail →.** CFD is “install the solver yourself”; the workbench still designs foils.
+
+**If skipped.** P7 planning will assume WSL2 on a Mac.
+
+---
+
+### SPIKE-11 · Packaging: 30–80 MB native app, no Python, no OpenFOAM
+
+**Question.** Can we ship a signed `.app` (Apple silicon + Intel if required) and a Windows `.msi`/MSIX that double-click, survive Gatekeeper/SmartScreen after ad-hoc sign, and run P0–P4 with zero extra installs?
+
+**Done when.** A volunteer who is not the developer installs from a zip/dmg/msi and measures a wing from a sample file.
+
+**Pass.** Distribution model is “app + optional backends.”
+
+**Fail →.** Ship CLI + a documented dev environment. Do not pretend it is a consumer app.
+
+**If skipped.** We will discover notarization after the UI is done.
+
+---
+
+### SPIKE-12 · Retarget Core off `net*-windows` (only if SPIKE-00 recovers GHCP)
+
+**Question.** Does `CfdBench.Core` build and pass tests on `osx-arm64` with TFM `net10.0` (not `net10.0-windows`)?
+
+**Done when.** `dotnet test` on this Mac reproduces P0 numbers. Any `net*-windows` or WPF reference is confined to a `CfdBench.App` / `CfdBench.Windows` project.
+
+**Pass.** C# remains the domain language.
+
+**Fail →.** Reimplement Core; do not drag WPF into the Mac build.
+
+---
+
+### SPIKE-13 · AppKit/WinUI chrome vs Fluent-default
+
+**Question.** Does Avalonia 12 (or the chosen stack) give a Mac menu bar, Dock, Command-vs-Control, and a Windows window that does not look like a Fluent demo?
+
+**Done when.** A native user (you) can open, save, undo, and quit without thinking “this is a web app.”
+
+**Pass.** Theme pass is scheduled, not a rewrite.
+
+**Fail →.** Budget a native shell (egui will fail this on purpose; that is information).
+
+---
+
+## Deeper research — not a weekend
+
+These change the product if they come out a certain way. They are not spikes because a throwaway app will not settle them.
+
+| ID | Topic | Why it is deeper | What would change |
+|---|---|---|---|
+| **R-01** | **GAP-02 structures / hydroelasticity** | Beam + lifting-line is a research programme: layup, bend–twist, 20% stiffness agreement in the literature is not a code weekend | Thickness becomes a solved quantity; P4 grows; safety claims become possible |
+| **R-02** | **GAP-05 unsteady / pumping** | Strouhal ~0.4, heave/pitch, 3D vs 2D at St≈0.3. Downwind *is* pumping | A third objective appears; steady polars stop being the whole ranking |
+| **R-03** | **GAP-06 multi-fidelity reconciliation** | No method for estimator 19.8 / VLM 17.2 / CFD 15.9. UQ and discrepancy learning are fields | What the UI shows when tiers disagree; trust model |
+| **R-04** | **GAP-07 manufacturing constraints** | Min TE, draft, demold, layup floor, shrinkage. Catalog TEs are 0–0.08 mm at 80 mm chord | Optimiser feasible set; P3 realism check becomes load-bearing |
+| **R-05** | **LBM accuracy above Re 10⁶** | Published airfoil LBM clusters at 2e5–5e5; our envelope is 5.5e5–1.6e6. Bounce-back shear error | P7 may be lift-only, or not worth building |
+| **R-06** | **Metal vs CUDA for the differentiator** | Mac has no NVIDIA. CUDA LBM is Windows-only. A Metal LBM is a solver project | Whether “see the free surface” is a Windows SKU or a product claim |
+| **R-07** | **Fair loft that survives CAM zebra** | Own spline maths is the geometry product; truck/rhino3dm are backups | SPIKE-02 may fail because the loft is ugly, not because STEP is hard |
+| **R-08** | **GAP-12 real product benchmarks** | Axis, Armstrong, Unifoil, F-One published numbers vs our estimator | Sanity bounds; marketing-vs-physics |
+| **R-09** | **GAP-14 safety framing** | A foil failing at 25 kn injures someone. What the tool may not claim | UI copy, export watermarks, “not a structural sign-off” |
+| **R-10** | **GAP-03 user evidence** | Answered as “engineer who thinks in rider requirements” with **zero interviews** | If wrong, three UX proposals are wasted. Observe *your* sessions; one structured debrief is enough to start |
+| **R-11** | **Licensing of UIUC `.dat` + DTIC PDF reuse** | Vendored sections and extracted tables need a use statement | Catalog may need regeneration from original URLs at build |
+| **R-12** | **Colour maps and WCAG** (GAP-15) | Rainbow is known-poor; colour-encoded Cp is the product | Chart defaults; a11y of the analysis screen |
+| **R-13** | **Junction / interference drag** (GAP-11) | Even a wing-only tool has a root at a fuselage | Estimator overstates L/D; must stay labelled wing-only |
+| **R-14** | **Apple notarization + Windows EV/SmartScreen** | Independent of language; weeks of account/cert work | Ship date, not architecture |
+| **R-15** | **OpenFOAM on Apple silicon as supported** | gerlero app often un-notarized; Docker vs “Linux only” policy | Backend matrix in the README |
+| **R-16** | **Helix Nex on macOS** | Vulkan/MoltenVK, macOS not claimed. Watch, don’t wait | Only if SPIKE-05-A 3D fails and we still want a C# viewport |
+| **R-17** | **Recover Claude Windows tree** | Grader asides (C− 0.554, Fable exhaustion, 19/15 review rounds) imply a tree that is not on `origin/main` | Historical; does not gate the product. Recover if cheap |
+
+---
+
+## Explicitly deferred (still true)
+
+From cfd-bench `docs/backlog.md`, unchanged:
+
+- Mold-block generation (CAM)
+- G-code
+- CAD MCP as a geometry path
+- Inverse / latent generative design
+- Grasshopper-style visual programming
+- LIC as v1 (streamlines first)
+
+---
+
+## Do not spike
+
+| Temptation | Why not |
+|---|---|
+| Rewrite the knowledge base | It is the asset. Evolve by ADR, don’t re-research. |
+| Embed OpenFOAM or CPython in the `.app` | Multi-gigabyte, un-notarizable, version drift. |
+| Wrap FluidX3D as a component | Non-commercial licence; OpenCL not CUDA. Reference only. |
+| Vendor Typhoon / Tornado | GPL v2+ and MATLAB. Architecture corroboration only. |
+| OCCT | COMMIT-02 / decision-0001. |
+| ILGPU-on-Blackwell as a Mac story | Even if it works, Mac has no NVIDIA. Windows extra. |
+| A third geometry kernel “just in case” | We generate the surface. Kernel earns its keep on booleans we scoped out. |

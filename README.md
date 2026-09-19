@@ -3,9 +3,30 @@
 A cross-platform client application for hydrofoil design and simulation, targeting
 **Windows and macOS**.
 
-The project is at the repository setup stage. The application framework, geometry
-tools, and simulation backend will be selected during specification and architecture
-work. There is no runnable application yet.
+The project is in specification and interface design. The application framework,
+geometry implementation, and simulation backend remain unselected. There is no
+runnable production application yet.
+
+## Review the product
+
+- [Interactive workbench mockup](docs/mockups/workbench.html) — open directly in a browser; no build or network required.
+- [Full product specification — HTML](docs/specs/cfd-workbench.html)
+- [Full product specification — Markdown](docs/specs/cfd-workbench.md)
+- [Design language](DESIGN.md) and [visual token catalog](docs/mockups/design-language.html)
+- [CFD-Bench and proposal grounding](docs/knowledge/cfd-workbench-grounding.md)
+- [Independent specification review](docs/reviews/specification-gate.md)
+- [Interface review and proof](docs/reviews/ui-workbench.md)
+
+The modeling contract uses **one parametric surface definition** viewed through
+five distribution curves and editable station profiles. Manual edits detach the
+starting recipe while preserving an explicit parametric model. Analysis in the
+mockup is illustrative; it is not numerical validation or a working solver.
+
+The specification HTML is generated from the complete Markdown by
+`tools/render-spec.mjs`. Its documentation-only dependencies are `marked` 17.0.5
+and `@viz-js/viz` 3.25.0. Run `node tools/render-spec.mjs` with those installed,
+or pass the path of a directory containing their installed Node modules. Neither
+dependency is needed to read the committed HTML; this does not select the app stack.
 
 ## Development workflow
 
@@ -19,11 +40,11 @@ and Antigravity.
 - [Installation guide](docs/ai-forward-pack/INSTALL.md)
 - [Installation inventory](docs/ai-forward-pack/install-report.md)
 - [Codex guide](docs/ai-forward-pack/codex.md)
-- [Docs Explorer](docs/index.html) — open locally; the first content workflow creates its index.
+- [Docs Explorer](docs/index.html) — open locally to browse the specification, design and evidence.
 
-Begin with domain knowledge collection and a specification of the first hydrofoil
-design and simulation workflow. In Codex, use `$collectknowledge` and `$specify`.
-Use `$adopt` when bringing existing implementation or documentation into the project.
+Iterate the mockup and specification first, then use `$define-architecture` for the
+cross-platform geometry, file and analysis boundaries. Use `$design-slice` before
+implementing each accepted surface.
 
 ## Repository checks
 

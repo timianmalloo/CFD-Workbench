@@ -1,0 +1,2069 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="f69da574650aacb108dfa2e849d7088cd0b2b350af242fd45b9c936bba4d89b6"><title>CFD-Workbench — Product specification</title>
+<style>
+:root{--paper:#f7f9f7;--surface:#ffffff;--ink:#19302e;--muted:#506762;--line:#c5d1cc;--accent:#096b61;--shade:#e9f1ed;--dark:#142d2a;--on-dark:#eef8f3;--focus:#007d70;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--small:13px;--body:16px;--title:48px;--h2:30px;--h3:22px;--radius:4px;--rail:270px;--measure:1120px}
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans)}a{color:var(--accent);text-underline-offset:3px}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s8);background:var(--dark);color:var(--on-dark)}.top a{color:var(--on-dark)}.brand{font-weight:700;letter-spacing:.02em}.badge{font:var(--small) var(--mono);border:1px solid var(--line);padding:var(--s1) var(--s2)}.layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);max-width:1600px;margin:auto}.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:var(--s8) var(--s6);border-right:1px solid var(--line)}.rail p{font:var(--small) var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.rail nav a{display:block;font-size:var(--small);line-height:1.5;padding:var(--s2) 0;text-decoration:none}.rail nav a.depth2{font-weight:700;border-top:1px solid var(--line);margin-top:var(--s3)}.rail nav a:hover{text-decoration:underline}.rail input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2);background:var(--surface);color:var(--ink)}main{max-width:var(--measure);padding:var(--s12);min-width:0}h1{font-size:var(--title);line-height:1.1;margin:var(--s6) 0;letter-spacing:-.04em}h2{font-size:var(--h2);line-height:1.25;margin:var(--s12) 0 var(--s6);letter-spacing:-.02em;border-top:1px solid var(--line);padding-top:var(--s8)}h3{font-size:var(--h3);line-height:1.4;margin:var(--s8) 0 var(--s4)}h4{font-size:var(--body);margin:var(--s6) 0 var(--s3)}p{margin:var(--s4) 0}main>p,main>ul{max-width:85ch}li{margin:var(--s2) 0}.table-scroll{overflow-x:auto;margin:var(--s6) 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:var(--small);line-height:1.6}th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}th{background:var(--shade);font-weight:650}td:first-child{min-width:160px}tr:last-child td{border-bottom:0}code{font:var(--small)/1.6 var(--mono);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--s4);background:var(--shade);font:var(--small)/1.6 var(--mono)}.flow{padding:var(--s6);margin:var(--s6) 0 var(--s2);background:var(--surface);border:1px solid var(--line);overflow:auto}.flow svg{display:block;width:100%;height:auto;min-width:540px;max-height:1100px}.flow figcaption{font-size:var(--small);color:var(--muted);margin-top:var(--s4)}summary{cursor:pointer;font-size:var(--small);min-height:32px}footer{font-size:var(--small);color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s6);overflow-wrap:anywhere}.jump{position:absolute;left:-9999px}.jump:focus{left:var(--s4);top:var(--s4);background:var(--surface);padding:var(--s4);z-index:10}button{min-height:44px;background:var(--surface);color:var(--accent);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s4);cursor:pointer}@media(max-width:1000px){:root{--rail:220px}main{padding:var(--s8)}}@media(max-width:740px){.layout{display:block}.rail{position:static;height:auto;border-bottom:1px solid var(--line)}.rail nav{max-height:220px;overflow:auto}.top{flex-wrap:wrap}main{padding:var(--s6)}h1{font-size:36px}}@media print{.rail,.top,.jump{display:none}.layout{display:block}main{max-width:none;padding:0;font-size:11pt}h2{break-before:page}.table-scroll{overflow:visible}tr{break-inside:avoid}.flow svg{min-width:0;max-height:240mm}a{color:inherit}button{display:none}}
+</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 0.1</span><a href="../mockups/workbench.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#a-precise-shape-an-explicit-model-evidence-you-can-inspect">A precise shape. An explicit model. Evidence you can inspect.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-and-core-scenario">A1. Problem, users and core scenario</a><a class="depth3" href="#a2-product-scope-and-releases">A2. Product scope and releases</a><a class="depth3" href="#a3-conceptual-domain-model-before-the-screens">A3. Conceptual domain model — before the screens</a><a class="depth3" href="#a4-geometry-contract-curves-and-stations-are-two-views-of-one-model">A4. Geometry contract: curves and stations are two views of one model</a><a class="depth3" href="#a5-functional-requirements-and-acceptance-criteria">A5. Functional requirements and acceptance criteria</a><a class="depth3" href="#a6-scientific-honesty-and-validation-ladder">A6. Scientific honesty and validation ladder</a><a class="depth3" href="#a7-non-functional-requirements-and-governance">A7. Non-functional requirements and governance</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-restore-and-preserve-doc-01-04">B2. Flow F1 — start, restore and preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-12-cat-01-03">B3. Flow F2 — shape through curves and stations (GEO-01–12, CAT-01–03)</a><a class="depth3" href="#b4-flow-f3-analyze-and-compare-ana-01-16">B4. Flow F3 — analyze and compare (ANA-01–16)</a><a class="depth3" href="#b5-flow-f4-setup-simulation-and-results-cfd-01-04-viz-01-02">B5. Flow F4 — setup, simulation and results (CFD-01–04, VIZ-01–02)</a><a class="depth3" href="#b6-flow-f5-optional-language-and-export-ai-01-06-exp-01-02">B6. Flow F5 — optional language and export (AI-01–06, EXP-01–02)</a><a class="depth3" href="#b7-wireframe-structure-and-progressive-disclosure">B7. Wireframe structure and progressive disclosure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-direction-and-archetype">C1. Direction and archetype</a><a class="depth3" href="#c2-design-system-states-and-numeric-integrity">C2. Design system, states and numeric integrity</a><a class="depth3" href="#c3-ui-acceptance-criteria">C3. UI acceptance criteria</a><a class="depth3" href="#c4-mockup-coverage-and-traceability">C4. Mockup coverage and traceability</a><a class="depth2" href="#evidence-decisions-and-remaining-gates">Evidence, decisions and remaining gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-with-owners-and-exit-evidence">Open decisions with owners and exit evidence</a><a class="depth3" href="#gate-record">Gate record</a></nav><p>66 requirement IDs · 5 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
+<h2 id="a-precise-shape-an-explicit-model-evidence-you-can-inspect">A precise shape. An explicit model. Evidence you can inspect.</h2>
+<p>Product specification · revision 0.1 · 19 September 2026 · <strong>Design proposal for iteration, not an implemented or scientifically validated product.</strong></p>
+<p><a href="cfd-workbench.html">Read the HTML edition</a> · <a href="../mockups/workbench.html">Open the interactive workbench</a> · <a href="../knowledge/cfd-workbench-grounding.md">Source grounding</a> · <a href="../../DESIGN.md">Design language</a></p>
+<p>The tool shall let a designer create a three-dimensional hydrofoil with a few meaningful dimensions, fair it through curves and station profiles, and retain a complete parametric description after every accepted edit. It shall explain what its analysis can establish, what it omits, and which shape produced each result.</p>
+<p><strong>Authority.</strong> The current user request and Workbench repository instructions govern. The later WorkBench <code>sequence.md</code> supersedes conflicting sequencing in <code>proposal.md</code>; CFD-Bench supplies the domain knowledge. Toolkit, language, geometry implementation, exact file schema and solver implementation remain architecture decisions. Requirements below use <strong>shall</strong> for mandatory behavior in their named release. Numerical thresholds are proposed acceptance targets unless explicitly marked observed. The <a href="../knowledge/cfd-workbench-grounding.md">grounding ledger</a> distinguishes source facts from proposed decisions.</p>
+<h2 id="part-a-functional-specification">Part A — Functional specification</h2>
+<h3 id="a1-problem-users-and-core-scenario">A1. Problem, users and core scenario</h3>
+<p>Hydrofoil designers must connect rider needs, a fair three-dimensional shape, section characteristics and finite-wing evidence. Today those concerns live in separate modeling, airfoil and CFD workflows. A geometric edit can sever its parametric explanation, while a persuasive chart can outlive the shape or operating conditions that produced it. Workbench joins the workflow without hiding its numerical assumptions.</p>
+<p>The primary user is an engineer or technically fluent maker who knows fluid mechanics and wants to express rider requirements. This persona is <strong>Verified source intent</strong>, not validated interview research. Secondary users are a returning foil designer comparing revisions and an analyst inspecting run provenance. No invented interview, conversion rate or user-satisfaction evidence underpins the design.</p>
+<p>Core scenario: <strong>from a riding brief to a fair, reproducible wing and a defensible comparison</strong>. Open a sample or enter dimensions; select a section; adjust a curve or station; inspect the loft; save the native parametric document; examine section and wing estimates; compare a revision; optionally run a supported local CFD case and inspect its evidence. All non-AI operations shall be reachable without an API key.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>User</th>
+<th>Job</th>
+<th>Information needed at decision time</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Engineer/maker</td>
+<td>Turn area, span, profile and riding conditions into a fair wing</td>
+<td>Active shape driver, units, surface fairness and local profile</td>
+</tr>
+<tr>
+<td>Iterating designer</td>
+<td>Change one dimension without losing previous work</td>
+<td>Reversible edit, dimensional delta, historical comparison</td>
+</tr>
+<tr>
+<td>Analyst</td>
+<td>Decide whether a result is relevant and trustworthy</td>
+<td>Geometry revision, method, operating point, envelope and evidence source</td>
+</tr>
+</tbody></table></div>
+<h3 id="a2-product-scope-and-releases">A2. Product scope and releases</h3>
+<p>The full product covers six stages. Their ordering is a delivery constraint, not a wizard imposed on daily use.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>User-visible capability</th>
+<th>Release boundary / completion proof</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S1 · Workbench</td>
+<td>Launch, files, sample, undo, workspace, settings, backend status, optional assistant chrome</td>
+<td>Install and operate on Mac and Windows; no solver or AI required</td>
+</tr>
+<tr>
+<td>S2 · Shape</td>
+<td>Recipe, curves, stations, section catalog, profile editing, 3D inspection, native archive</td>
+<td>Complete edit/save/reopen loop and identical physical geometry on both platforms</td>
+</tr>
+<tr>
+<td>S3 · Section evidence</td>
+<td>2D polars, Cp where available, transition, cavitation screening</td>
+<td>Provenance-admitted supported data; edited sections show unavailable until actually analyzed</td>
+</tr>
+<tr>
+<td>S4 · Wing evidence</td>
+<td>Live estimate, VLM/strip evidence, operating-point search, sweeps and comparisons</td>
+<td>Separate finite-wing method/envelope labels and headless/GUI parity</td>
+</tr>
+<tr>
+<td>S5 · Local simulation</td>
+<td>Detect/install/configure/test backend; mesh, run, cancel and recover</td>
+<td>One validated single-phase case on each supported platform; supported backend matrix published</td>
+</tr>
+<tr>
+<td>S6 · Read the flow</td>
+<td>Field views, slices, streamline rake, probes, histories, grounded result questions</td>
+<td>Every visible field linked to an actual run and variable; absent fields unavailable</td>
+</tr>
+</tbody></table></div>
+<p><strong>First product = S1–S4.</strong> S5–S6 are specified here and delivered behind explicit readiness gates. SU2 and OpenFOAM are intended integration targets; selecting the first supported version/substrate is a required spike, not settled by this document. Free-surface and ventilation capability requires a separate de-risked, validated extension after initial single-phase CFD. Optional AI ships per capability only after its own eval gate.</p>
+<p>Deferred: goal/Pareto optimization, structural/hydroelastic solver, pumping/unsteady optimization, fins as design targets, whole-craft trim/stability, surfboards, arbitrary CAD reconstruction, video capture, CAM, mold blocks, G-code and general solid modeling. The data vocabulary may describe context surfaces, but v1 authors one lifting wing; context is not a fuselage/strut interference simulation. No fabrication or structural safety certification is implied.</p>
+<p>Retained commitments: <strong>COMMIT-01</strong> no optimizer candidate certified on estimator evidence alone; any future search must re-evaluate with VLM and fabrication-bound candidates with CFD, without calling that a structural sign-off. <strong>COMMIT-02</strong> permissive product dependencies; external solver distribution/interaction needs explicit license review. <strong>COMMIT-03</strong> lossless native project open/save; the completed proposal&#39;s S12 explicitly adds bounded section <code>.dat</code> import in v1, a documented profile-only extension. Arbitrary mesh/CAD fitting stays a separate future operation with accepted fit error. <strong>COMMIT-04</strong> language model handles language and typed proposals; deterministic geometry and solvers handle numbers. No key or network remains a complete geometry workflow.</p>
+<h3 id="a3-conceptual-domain-model-before-the-screens">A3. Conceptual domain model — before the screens</h3>
+<p>The bounded contexts are <strong>Design</strong>, <strong>Profile catalog</strong>, <strong>Analysis</strong>, <strong>Backend environment</strong>, and <strong>Assistance</strong>. A riding brief is design intent; it is never silently a geometry constraint or a solved operating point.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Kind and meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Project</td>
+<td>Entity containing a named design and its revision/run references</td>
+</tr>
+<tr>
+<td>Design revision</td>
+<td>Entity: an accepted target surface, its referenced profiles and optional context</td>
+</tr>
+<tr>
+<td>Surface revision</td>
+<td>Entity: one complete explicit parametric shape definition</td>
+</tr>
+<tr>
+<td>Authored station</td>
+<td>Identity-bearing element within a surface; a span location with values and a profile assignment</td>
+</tr>
+<tr>
+<td>Inspection slice</td>
+<td>Derived section at a location; not an authored station or extra degree of freedom</td>
+</tr>
+<tr>
+<td>Distribution curve</td>
+<td>Owned value definition connecting a station channel along the span</td>
+</tr>
+<tr>
+<td>Profile revision</td>
+<td>Entity: immutable normalized section geometry with origin and usage evidence</td>
+</tr>
+<tr>
+<td>Recipe</td>
+<td>Value object: high-level starting dimensions and generation choices</td>
+</tr>
+<tr>
+<td>Loft rule</td>
+<td>Value object: correspondence, interpolation, continuity and closure intent</td>
+</tr>
+<tr>
+<td>Operating point</td>
+<td>Value object: speed, fluid state, incidence, depth and explicit load/context</td>
+</tr>
+<tr>
+<td>Analysis run</td>
+<td>Entity: immutable input revision, method/settings, execution state and evidence</td>
+</tr>
+<tr>
+<td>Sweep</td>
+<td>Entity: explicit variable samples and held conditions, with a run outcome per sample</td>
+</tr>
+<tr>
+<td>Backend installation</td>
+<td>Entity: detected location/version/capabilities and last smoke-test evidence</td>
+</tr>
+<tr>
+<td>Assistance proposal</td>
+<td>Entity: typed requested change, provenance per field and acceptance state</td>
+</tr>
+<tr>
+<td>Length, angle, ratio, mass, force, pressure, frame</td>
+<td>Value objects with dimensional meaning; display formatting is not geometry</td>
+</tr>
+</tbody></table></div>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Aggregate root</th>
+<th>Owned concepts</th>
+<th>Invariant it protects</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Surface revision</td>
+<td>Stations, channels, section references, symmetry, connecting rules, closures</td>
+<td>Exactly one definition determines the supported surface everywhere on its span</td>
+</tr>
+<tr>
+<td>Profile revision</td>
+<td>Shape, source, normalization, modification provenance</td>
+<td>One revision identifies one immutable normalized section shape</td>
+</tr>
+<tr>
+<td>Design revision</td>
+<td>Target/context references, recipe provenance, accepted edit</td>
+<td>Every accepted design references a mutually consistent set of shape/profile revisions</td>
+</tr>
+<tr>
+<td>Analysis run</td>
+<td>Input snapshot, method, settings, status, evidence and outputs</td>
+<td>A result always identifies the exact inputs and method that produced it</td>
+</tr>
+<tr>
+<td>Sweep</td>
+<td>Sample schedule and outcome references</td>
+<td>Each requested sample has exactly one explicit current outcome or an explicit missing/cancelled state</td>
+</tr>
+<tr>
+<td>Backend installation</td>
+<td>Capability and smoke-test record</td>
+<td>“Ready” refers to the actual detected version that passed the test</td>
+</tr>
+<tr>
+<td>Assistance proposal</td>
+<td>Suggested fields, source context, disposition</td>
+<td>No proposal changes a design before explicit acceptance and deterministic validation</td>
+</tr>
+</tbody></table></div>
+<p>Projects and runs refer to revisions by identity, not copied competing truths. Durable schema, storage grain, serialization and migration machinery are the architecture/design-slice handoff. Requirements here demand immutable evidence and lossless history, without choosing tables or a programming language.</p>
+<h3 id="a4-geometry-contract-curves-and-stations-are-two-views-of-one-model">A4. Geometry contract: curves and stations are two views of one model</h3>
+<p><strong>Chosen synthesis (Inferred product decision): authored stations plus their complete connecting rules form the explicit parametric surface of record.</strong> A list of sampled station rows alone cannot retain curve handles or uniquely determine between-station shape. The explicit definition therefore includes station values, profile references, distribution interpolation, handles, continuity intent, symmetry and closure. Estimation, meshing and export shall evaluate that same definition. Display tessellation and solver sampling are derived views, never alternate editable geometry.</p>
+<p>This refines CFD-Bench&#39;s <a href="https://github.com/timianmalloo/cfd-bench/blob/496a0a8ca2fae9026927167a8f3e5da0a53f2233/docs/knowledge/cfd-hydrofoil-simulation/parametric-geometry.md">assembly → surface → station → loft grammar</a>. It retains the one-way generation rule and makes the unspoken interpolation authority explicit.</p>
+<h4 id="five-channels-with-no-duplicate-outline-authority">Five channels, with no duplicate outline authority</h4>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Parameter</th>
+<th>What it owns</th>
+<th>What the UI derives</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sweep</td>
+<td>Leading-edge aft offset along span</td>
+<td>Planform placement</td>
+<td>Leading-edge rail</td>
+</tr>
+<tr>
+<td>Chord</td>
+<td>Positive local chord</td>
+<td>Local width</td>
+<td>Trailing-edge rail, planform area</td>
+</tr>
+<tr>
+<td>Elevation</td>
+<td>Vertical leading-edge offset</td>
+<td>Dihedral/anhedral shape</td>
+<td>Front view and local depth</td>
+</tr>
+<tr>
+<td>Twist</td>
+<td>Local incidence</td>
+<td>Section rotation</td>
+<td>Oriented section and spanwise incidence</td>
+</tr>
+<tr>
+<td>Thickness</td>
+<td>Effective thickness-to-chord ratio</td>
+<td>Symmetric thickness scaling about the normalized camber line</td>
+<td>Actual effective profile coordinates and thickness</td>
+</tr>
+</tbody></table></div>
+<p>Planform is a view of sweep plus chord, not a sixth independent curve. Moving the trailing edge shall edit chord through the same channel. A station inspector edits the same channel anchor that appears in the curve editor. Inspection slices cannot carry independent overrides. Promotion to an authored station shall preserve the existing surface within geometry tolerance before any new edit.</p>
+<p>A normalized profile defines camber and a unit-thickness shape; the effective t/c channel scales thickness about that camber. Assigning a catalog profile offers <strong>Use source thickness</strong> (sets the station&#39;s thickness anchor) or <strong>Keep current thickness</strong> (retains the channel and labels the effective section Modified). The default is Use source thickness, with a before/after preview. Blending interpolates normalized camber and unit-thickness shape only; it never creates another effective t/c. Changing the effective section by either the profile editor or thickness channel shall update the same definition, create modified provenance and invalidate source-polar applicability. The application shall never show an unchanged catalog identity as though it were analyzed at a new thickness.</p>
+<h4 id="two-editing-states-both-are-parametric">Two editing states; both are parametric</h4>
+<p><strong>Recipe linked:</strong> target area, AR or span, taper, sweep, elevation/anhedral, washout and profile generate the explicit definition. Of area/span/AR, exactly two may be driving inputs; the third is derived. Locks show drivers. An overconstrained inconsistent recipe is rejected, not silently relaxed.</p>
+<p><strong>Direct parametric:</strong> first manual curve/station/profile edit visibly detaches the recipe in the same undoable transaction. The former recipe becomes provenance. Stations, profiles, curves and handles remain editable parameters; the design does not become an uneditable mesh. “Regenerate from recipe” creates a preview/new revision with changed fields shown; it never back-fits or overwrites direct edits without acceptance. A general expression language is not required in v1; unit-aware literal inputs, named dimensions and explicit driver relationships satisfy parametrization.</p>
+<h4 id="curves-profiles-and-fairness">Curves, profiles and fairness</h4>
+<p>Distribution curves shall support selectable on-curve anchors, tangent direction and magnitude, linked/split handles, exact numeric entry, 1 mm default positional nudge and 0.1 mm fine nudge, with angle/ratio steps separately visible. Insertion/removal shall preserve degree-five representation where that curve family is used. A minimum endpoint pair remains; coincident/out-of-order stations and nonpositive chord are invalid. A degree-five curve does <strong>not</strong> by itself guarantee G4 at joins: the tool shall show actual continuity and any intentional break. Curvature combs remain visible while editing, with a legible scale.</p>
+<p>A selected station exposes its profile and channel values; selection is shared by 3D, curve view, table and inspector. Catalog sections are immutable. “Make editable copy” retains the source revision and presents the conversion method, maximum normalized deviation and acceptance tolerance. An exact copy representation can report zero conversion error; a CST/spline fit reports measured error and shall never assume zero. Cancel leaves the source untouched. Interior profile thickness must remain positive; intended leading/trailing-edge zeros are allowed at the declared boundaries.</p>
+<p>Root and tip may use distinct admitted profiles. Blend correspondence shall align leading edge, trailing edge, upper and lower surfaces at normalized chord locations. The first supported blend linearly interpolates normalized camber and unit-thickness shape in normalized span between assigned profiles, renormalizes the blended thickness shape to unit maximum, then applies the one thickness channel. A zero/nonfinite normalization maximum is invalid. This preserves effective t/c even when source thickness peaks occur at different chord positions; that case is a mandatory fixture. Assigned effective profiles match catalog coordinates only when source thickness is selected and no shape modification exists; otherwise they match the explicitly modified profile, with that status visible. Higher-order profile blending is a later explicit option. Validate intermediate profiles and the full loft for crossings, folds, negative thickness and invalid closure; show continuity changes at profile transitions. Do not infer fairness from smooth shading.</p>
+<p>Users shall select open/sharp/finite-thickness trailing-edge and tip/root closure choices supported by the exporter. Draft open geometry may be saved, but meshing/export claims that require a closed manifold shall be blocked until the relevant check passes. “Manufacturing assessed” requires an explicit manufacturing policy; absent minimum thickness/tolerance data shall read <strong>Not assessed</strong>.</p>
+<p>Symmetry is initially a single mirror relationship. <strong>Break symmetry</strong>, invoked at a selected station, materializes two independent half-wing definitions while preserving the current shape. Its preview states that the whole wing becomes independent; v1 does not introduce mixed inboard/outboard mirror-link modes. Subsequent changes affect the selected side only. Undo restores the relationship and shape together. A second native design may be loaded as a read-only ghost with distinct line style, revision and alignment datum; it cannot accidentally become the edit target.</p>
+<p>The selected station shows distance from root, distance to tip, normalized half-span percentage, local trailing-edge thickness in mm, and the applied thickness floor or Not assessed. AR&#39;s displayed value exposes its reference-area convention without leaving the workspace.</p>
+<h4 id="catalog-and-bounded-section-import">Catalog and bounded section import</h4>
+<p>Native project files use <code>.cfdw.json</code>; exact schema/version migration design is a later contract. Section import is a separate <strong>Add profile from DAT</strong> action supporting Selig and Lednicer coordinate layouts with an explicit preview of detected format, normalization, point order, closure and source hash. Ambiguous formats, nonfinite values, self-crossing profiles or malformed counts fail without modifying the library. Preserve original coordinates and the accepted normalization. A locally imported profile is not automatically an admitted polar or a redistributable bundled asset.</p>
+<p>Required initial catalog roles: lifting Eppler E817/E818/E874/E904/E908; admitted NACA 64A410; NACA 0012/4412 regression examples; separate symmetric strut E836/E837/E838 references. Proposed NACA 63/66- and 16-series and Speer H105 are additions only after generation/rights/provenance gates; the picker shows Pending admission instead of claiming they are bundled. Surf, wing/freeride, SUP/downwind and windsurf/race presets each record a complete recipe, context and admitted default section. A missing/unlicensed preferred profile uses a disclosed admitted fallback, never an invented section. These are starting fixtures, not optimum recommendations.</p>
+<h4 id="coordinates-dimensions-and-units">Coordinates, dimensions and units</h4>
+<p>Adopt the proposal&#39;s <strong>right-handed body frame</strong>: +x aft, +y starboard/right when looking forward, +z up; origin at the root leading edge. The positive half-wing editor is labeled <strong>starboard</strong>, and mirroring creates port. Relative to the right-handed forward/starboard/down frame this flips x and z, preserving handedness. An implementation choosing a different frame must migrate this explicit contract, not reinterpret signs.</p>
+<p>Station planes are perpendicular to the fixed span axis; they do not rotate to remain normal to a curved span path. Profiles scale by chord and effective thickness, rotate about their leading edge for incidence, then translate to the station. Positive incidence is nose-up: a trailing-edge point on the chord line moves downward relative to the leading edge. Anhedral means negative tip z. Assembly orientation does not change these local definitions.</p>
+<p>Internal physical semantics are SI; display supports m/cm/mm, m²/cm², m/s/kn, kg, N, Pa, degrees and Celsius with explicit labels. Changing display units shall not change geometry identity. Inputs may contain a unit suffix; a quantity of the wrong dimension is rejected. No “900 cm” fixture is accepted as a reasonable default span.</p>
+<p><strong>Reference dimensions:</strong> full projected span b is the y extent; reference planform area S is the unpitched chord integral across that span (including both halves once), independent of incidence; AR=b²/S; mean geometric chord=S/b. It is not mean aerodynamic chord. Wetted area and volume use the actual loft and are named separately. Projected x–y silhouette area at nonzero incidence, when shown, is a distinct measure. Derived quantities are read-only results, not competing saved design inputs.</p>
+<h3 id="a5-functional-requirements-and-acceptance-criteria">A5. Functional requirements and acceptance criteria</h3>
+<p>Every row is a future product test, not a claim that the HTML prototype implements a solver. <strong>G/W/T = Given / When / Then.</strong> Error and recovery cases are part of each contract.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>ID · Story</th>
+<th>Acceptance criteria (Gherkin)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DOC-01 · As a designer I can start without setup</td>
+<td><strong>Given</strong> no document/key/backend, <strong>when</strong> I launch, <strong>then</strong> New wing, Open and Sample work offline; the assistant explains its missing key. <strong>Given</strong> a missing recent file, <strong>when</strong> restore fails, <strong>then</strong> Locate/Open sample remains available and nothing is overwritten.</td>
+</tr>
+<tr>
+<td>DOC-02 · I can preserve my work</td>
+<td><strong>Given</strong> an edited shape with handles and profile assignments, <strong>when</strong> I save/reopen on either platform, <strong>then</strong> the full explicit definition, editing state and provenance survive within 1 µm model-space geometric tolerance. <strong>Given</strong> write denial or disk full, <strong>when</strong> saving fails, <strong>then</strong> the previous file remains readable, dirty state remains and Save as is offered.</td>
+</tr>
+<tr>
+<td>DOC-03 · I can undo complete operations</td>
+<td><strong>Given</strong> any accepted geometry edit or AI proposal, <strong>when</strong> I Undo, <strong>then</strong> shape and recipe state return together; Redo restores both. <strong>Given</strong> a cancelled drag, <strong>when</strong> Escape is pressed, <strong>then</strong> no undo entry or geometry change remains.</td>
+</tr>
+<tr>
+<td>DOC-04 · I can recover or open safely</td>
+<td><strong>Given</strong> interrupted saving, <strong>when</strong> the app restarts, <strong>then</strong> it offers the last complete recovery revision beside the saved revision. <strong>Given</strong> malformed/unsupported-major-version data, <strong>when</strong> Open is attempted, <strong>then</strong> it leaves the active document intact and identifies the unsupported version/path; migrations preserve an original copy.</td>
+</tr>
+<tr>
+<td>GEO-01 · I can generate a useful wing</td>
+<td><strong>Given</strong> target S=0.14 m² and AR=7, <strong>when</strong> a linked recipe is generated, <strong>then</strong> b=√0.98 m and measured dimensions meet the declared 1 µm/relative 10⁻⁶ reporting tolerance. <strong>Given</strong> inconsistent locked area/span/AR, <strong>when</strong> I apply, <strong>then</strong> the conflict identifies the three fields and nothing changes.</td>
+</tr>
+<tr>
+<td>GEO-02 · I can trust derived dimensions</td>
+<td><strong>Given</strong> a symmetric rectangular wing b=1.2 m, chord=0.18 m, incidence=0°, <strong>when</strong> measured, <strong>then</strong> S=0.216 m², AR=6.666667 and mean chord=0.18 m to displayed precision. <strong>Given</strong> linear chord from 0.19 m root to 0.18 m tip, <strong>then</strong> S=0.222 m² and AR=6.486486. Wetted area is never substituted.</td>
+</tr>
+<tr>
+<td>GEO-03 · I can edit by curve or station</td>
+<td><strong>Given</strong> a selected station, <strong>when</strong> I change its chord in either inspector or curve, <strong>then</strong> both show the same anchor value and loft, with live derived dimensions. <strong>Given</strong> an invalid negative chord, <strong>then</strong> the candidate is marked invalid and accepting it is blocked; Revert returns the last valid shape.</td>
+</tr>
+<tr>
+<td>GEO-04 · I can understand every driver</td>
+<td><strong>Given</strong> a linked recipe, <strong>when</strong> I make the first manual edit, <strong>then</strong> the UI says Direct parametric and records recipe detachment in the same undo item. <strong>Given</strong> retained recipe provenance, <strong>when</strong> it is viewed, <strong>then</strong> its fields cannot silently overwrite direct geometry.</td>
+</tr>
+<tr>
+<td>GEO-05 · I can use anchors and levers precisely</td>
+<td><strong>Given</strong> a distribution curve, <strong>when</strong> I select/drag/nudge/enter a value, <strong>then</strong> its anchor and tangent controls update in the selected plane and the comb remains visible. <strong>Given</strong> a split handle, <strong>then</strong> any continuity break is marked. <strong>Given</strong> endpoint deletion leaving an invalid curve, <strong>then</strong> deletion is blocked with a reason.</td>
+</tr>
+<tr>
+<td>GEO-06 · I can add a station without altering shape</td>
+<td><strong>Given</strong> an inspection slice on a valid loft, <strong>when</strong> I promote it, <strong>then</strong> the surface differs by no more than 1 µm before edits and becomes selectable in all views. <strong>Given</strong> a coincident station, <strong>then</strong> insertion is rejected and the existing station is selected.</td>
+</tr>
+<tr>
+<td>GEO-07 · I can mix section profiles intentionally</td>
+<td><strong>Given</strong> admitted root/tip profile revisions with Use source thickness, <strong>when</strong> assigned, <strong>then</strong> endpoint geometry matches them and interior normalized shapes follow the declared blend before thickness scaling. <strong>Given</strong> Keep current thickness, <strong>then</strong> the channel remains authoritative and endpoints show Modified if different. <strong>Given</strong> a crossing or folded intermediate profile, <strong>then</strong> the location is highlighted and analysis/closed export is blocked until corrected.</td>
+</tr>
+<tr>
+<td>GEO-08 · I can edit a catalog-derived profile honestly</td>
+<td><strong>Given</strong> a locked section, <strong>when</strong> Make editable copy is selected, <strong>then</strong> fit method/error/tolerance and source are shown before acceptance. <strong>Given</strong> rejection or fit error above tolerance, <strong>then</strong> the catalog revision is unchanged. Modified shape loses the original polar&#39;s applicability.</td>
+</tr>
+<tr>
+<td>GEO-09 · I can use units and orientation consistently</td>
+<td><strong>Given</strong> any shape, <strong>when</strong> display units change and I reopen, <strong>then</strong> physical geometry and identity are unchanged. <strong>Given</strong> positive incidence, <strong>then</strong> the trailing edge rotates downward about LE; negative tip z points down. <strong>Given</strong> pressure entered for chord, <strong>then</strong> a dimensional error is shown.</td>
+</tr>
+<tr>
+<td>GEO-10 · I can inspect the actual loft</td>
+<td><strong>Given</strong> valid geometry, <strong>when</strong> I orbit/pan/zoom or select plan/front/section/isometric view, <strong>then</strong> station selection remains linked to its inspector. <strong>Given</strong> reduced motion or keyboard-only input, <strong>then</strong> named views, fit view and numeric edits give the same tasks without pointer drag.</td>
+</tr>
+<tr>
+<td>GEO-11 · I can control symmetry</td>
+<td><strong>Given</strong> a mirrored wing, <strong>when</strong> I edit a station, <strong>then</strong> both halves agree. <strong>Given</strong> Break symmetry at the selected station, <strong>when</strong> its whole-wing effect is accepted, <strong>then</strong> both explicit halves initially preserve shape within 1 µm and subsequent edits affect only the selected side; Undo restores mirror linkage and geometry.</td>
+</tr>
+<tr>
+<td>GEO-12 · I can compare shape and inspect local dimensions</td>
+<td><strong>Given</strong> a second native wing, <strong>when</strong> Ghost overlay is enabled, <strong>then</strong> both shapes share a named alignment datum and distinct line style/revision, with only the current design editable. <strong>Given</strong> an invalid overlay file, <strong>then</strong> the current design is intact. <strong>Given</strong> station selection/drag, <strong>then</strong> root/tip distance, span percentage and TE mm update; a policy-floor violation is flagged, and absent policy says Not assessed. AR exposes its convention beside the value.</td>
+</tr>
+<tr>
+<td>CAT-01 · I can choose an appropriate section</td>
+<td><strong>Given</strong> a catalog, <strong>when</strong> filtered by role/family, <strong>then</strong> entries show source/hash, t/c, camber, available Re/α data and modification state. <strong>Given</strong> missing rights/provenance, <strong>then</strong> the entry is not admitted as bundled analysis data. Ranking requires an explicit operating point.</td>
+</tr>
+<tr>
+<td>CAT-02 · I can add my own section</td>
+<td><strong>Given</strong> a valid Selig/Lednicer DAT file, <strong>when</strong> imported, <strong>then</strong> format/source/hash and normalized profile preview appear before acceptance, with original points retained. <strong>Given</strong> malformed, ambiguous, nonfinite or self-crossing coordinates, <strong>then</strong> the library is unchanged and the offending line/shape is identified. A new profile has No analysis until actually computed.</td>
+</tr>
+<tr>
+<td>CAT-03 · I can start from an admitted preset</td>
+<td><strong>Given</strong> a clean offline installation without Python, <strong>when</strong> any of the four discipline presets is selected, <strong>then</strong> its recipe, context, admitted section and bundled supported polar are usable; preferred sections pending admission show the named fallback. <strong>Given</strong> a custom section without a compatible analysis backend, <strong>then</strong> editing/saving work and analysis explains the optional installation.</td>
+</tr>
+<tr>
+<td>ANA-01 · I can analyze a section</td>
+<td><strong>Given</strong> admitted data supporting profile/Re/α/Ncrit, <strong>when</strong> evaluated, <strong>then</strong> Cl, Cd, Cm and Cl/Cd include method, domain and uncertainty status. <strong>Given</strong> an edited section without a backend or an out-of-domain query, <strong>then</strong> the value is unavailable with Install/Select supported point options, never a nearby profile&#39;s result.</td>
+</tr>
+<tr>
+<td>ANA-02 · I can read Cp and cavitation correctly</td>
+<td><strong>Given</strong> available Cp evidence, <strong>when</strong> shown, <strong>then</strong> x/c and Cp are dimensionless, sign conventions are visible, and the cavitation threshold includes fluid temperature, pressure and depth. <strong>Given</strong> sparse reconstructed Cp, <strong>then</strong> the display says screening estimate and notes unresolved suction peaks; absent uncertainty is “not quantified,” not a fabricated interval.</td>
+</tr>
+<tr>
+<td>ANA-03 · I can distinguish section and wing forces</td>
+<td><strong>Given</strong> only section chord and fluid/speed, <strong>when</strong> lift/drag forces are displayed, <strong>then</strong> they are N/m; N requires a named strip width. <strong>Given</strong> a whole-wing result, <strong>then</strong> force is N and the label says Wing only.</td>
+</tr>
+<tr>
+<td>ANA-04 · I can evaluate the finite wing</td>
+<td><strong>Given</strong> supported attached-flow geometry and operating point, <strong>when</strong> VLM/strip analysis runs, <strong>then</strong> it reports loading, induced drag, computed span efficiency, local Re/α-effective, force and moment about a named datum. <strong>Given</strong> invalid envelope or unavailable convergence, <strong>then</strong> results are qualified/unavailable and no 3D stall or ventilation claim appears.</td>
+</tr>
+<tr>
+<td>ANA-05 · I can find a supporting operating point</td>
+<td><strong>Given</strong> explicit target load, speed and supported α bracket, <strong>when</strong> Find operating α runs, <strong>then</strong> it finds lift=target within 1% or reports no supported solution. <strong>Given</strong> no bracketed crossing, <strong>then</strong> it never extrapolates an answer. The UI never labels this whole-craft trim.</td>
+</tr>
+<tr>
+<td>ANA-06 · I can compare revisions and fidelities</td>
+<td><strong>Given</strong> two run snapshots, <strong>when</strong> compared, <strong>then</strong> geometry, conditions and methods are side by side and incompatible reference quantities block a numeric delta until reconciled. <strong>Given</strong> estimator/VLM/CFD disagreement, <strong>then</strong> all are visible with assumptions; no averaging or automatic “best truth” replaces them.</td>
+</tr>
+<tr>
+<td>ANA-07 · I can trust freshness</td>
+<td><strong>Given</strong> a completed run, <strong>when</strong> geometry/profile/fluid/settings change, <strong>then</strong> that run becomes Historical before any new result is shown. <strong>Given</strong> recompute failure, <strong>then</strong> the old result remains historical; no stale value is labeled current. Display-unit changes alone do not invalidate.</td>
+</tr>
+<tr>
+<td>ANA-08 · I can explore a sweep</td>
+<td><strong>Given</strong> a named independent variable, sample set and held conditions, <strong>when</strong> computed, <strong>then</strong> charts, selection and scrubber share the sample identity. <strong>Given</strong> a failed/cancelled sample, <strong>then</strong> it remains an explicit gap with reason/retry, never a line silently connecting across missing evidence.</td>
+</tr>
+<tr>
+<td>ANA-09 · I can inspect provenance</td>
+<td><strong>Given</strong> any numerical dataset, <strong>when</strong> admitted, <strong>then</strong> source/tool/version, generation command or extraction method, license/evidence citation and content integrity are checked. <strong>Given</strong> a bit flip or missing hash, <strong>then</strong> admission fails closed. Hash integrity alone does not imply scientific validity.</td>
+</tr>
+<tr>
+<td>ANA-10 · I can inspect transition and cavitation sweeps</td>
+<td><strong>Given</strong> supported section results, <strong>when</strong> Cp is displayed, <strong>then</strong> upper/lower curves are distinguished beyond color, more negative Cp plots upward, and the axis direction is named. <strong>Given</strong> available transition locations, <strong>then</strong> upper/lower x_tr/c appear with Re/α/Ncrit; absent locations read Unavailable. <strong>Given</strong> an α sweep with Cp_min, <strong>then</strong> the cavitation bucket shows σ_required=−Cp_min and the selected operating σ, with missing samples as gaps and the screening limitation visible.</td>
+</tr>
+<tr>
+<td>ANA-11 · I can understand wing loads</td>
+<td><strong>Given</strong> a supported wing run, <strong>when</strong> Loads is selected, <strong>then</strong> it exposes center of lift (m in the declared body frame), wing loading (N/m²), root bending moment (N·m), moment about a user-named attachment point (N·m), and drag breakdown (N) whose components reconcile with the reported total to the solver tolerance. <strong>Given</strong> missing terms or reference datum, <strong>then</strong> those values are unavailable rather than assumed zero. Structural adequacy is not inferred from loads.</td>
+</tr>
+<tr>
+<td>ANA-12 · I can find a supported take-off speed</td>
+<td><strong>Given</strong> a target load and supported speed/α brackets, <strong>when</strong> a speed search runs, <strong>then</strong> it returns the lowest supported sampled/bracketed speed meeting load within 1% under the selected attached-flow assumptions, with resolution and bracket reported. <strong>Given</strong> no crossing or a stall/free-surface dependency outside support, <strong>then</strong> it reports No supported solution rather than physical take-off certainty.</td>
+</tr>
+<tr>
+<td>ANA-13 · I can see orientation and depth limits</td>
+<td><strong>Given</strong> a supported sideslip method and β, <strong>when</strong> evaluated, <strong>then</strong> side force (N), yaw moment (N·m), β (degrees), signs and reference datum appear with the run. <strong>Given</strong> sideslip or asymmetry, <strong>when</strong> a method lacks those capabilities, <strong>then</strong> yaw/side-force outputs are explicitly unsupported and the run is blocked or returns only clearly named supported quantities. <strong>Given</strong> a defined root submergence and static orientation, <strong>then</strong> the tip-depth hint derives from actual geometry and is labeled Static geometry, no wave/free-surface prediction; missing depth yields Unavailable.</td>
+</tr>
+<tr>
+<td>ANA-14 · I can compare section behavior at known conditions</td>
+<td><strong>Given</strong> multiple section results, <strong>when</strong> overlaid, <strong>then</strong> each legend identifies profile revision, Re, Ncrit and α or sweep range. <strong>Given</strong> available Cp_min and fluid pressure/temperature/depth, <strong>then</strong> critical-speed screening plots report their model and applicability; missing values remain gaps. <strong>Given</strong> local strip results suggesting separation, <strong>then</strong> the first flagged station is identified as Section-based inference, not resolved 3D separation; unavailable section evidence yields No supported inference.</td>
+</tr>
+<tr>
+<td>ANA-15 · I can reproduce water conditions</td>
+<td><strong>Given</strong> fresh/salt water and temperature, <strong>when</strong> selected, <strong>then</strong> sourced density, kinematic viscosity and vapor pressure are shown and Re/cavitation recompute against a new operating-point identity. <strong>Given</strong> an unsupported temperature/salinity range, <strong>then</strong> computation is unavailable rather than extrapolated. A named water-screening Ncrit preset initially proposes 2.0, visibly labeled a source-based assumption, not a universal water constant; changing Ncrit invalidates the polar.</td>
+</tr>
+<tr>
+<td>ANA-16 · I can compare the intended performance curves</td>
+<td><strong>Given</strong> supported samples, <strong>when</strong> Wing polar is selected, <strong>then</strong> CL, CD, L/D and Cm can be plotted versus α and versus speed with held variables/datum visible. <strong>Given</strong> section cavitation evidence, <strong>then</strong> σ_required versus Cl and V_crit versus Cl are available with screening limits. <strong>Given</strong> a catalog&#39;s documented design Cl, <strong>then</strong> it is distinct from the solved operating Cl; absent design Cl is Unknown and never guessed. Gaps remain explicit on all plots.</td>
+</tr>
+<tr>
+<td>CFD-01 · I can prepare a local backend</td>
+<td><strong>Given</strong> no compatible backend, <strong>when</strong> I open Simulate, <strong>then</strong> detect/install steps show platform, version, download/storage/elevation needs and the exact proposed action. <strong>Given</strong> consent denial/offline/interruption, <strong>then</strong> setup remains recoverable and CAD works. Ready requires detection plus a passing pinned-version smoke test.</td>
+</tr>
+<tr>
+<td>CFD-02 · I can generate a supported case</td>
+<td><strong>Given</strong> a supported single-phase wing and operating point, <strong>when</strong> I prepare a run, <strong>then</strong> the case states geometry revision, domain, boundary conditions, turbulence/mesh choices and solver limits without requiring hand-edited dictionaries. <strong>Given</strong> a failed mesh-quality threshold, <strong>then</strong> solve is blocked with the failed measure and a repair action.</td>
+</tr>
+<tr>
+<td>CFD-03 · I can run without losing the app</td>
+<td><strong>Given</strong> a prepared case, <strong>when</strong> started, <strong>then</strong> process state, residuals, force history and elapsed time are visible. <strong>Given</strong> solver crash or cancellation, <strong>then</strong> the UI/document survive, the process tree terminates, and logs plus partial outputs retain Failed/Cancelled status. A zero exit code without required outputs is not success.</td>
+</tr>
+<tr>
+<td>CFD-04 · I can manage resources</td>
+<td><strong>Given</strong> a queued/run case, <strong>when</strong> launched, <strong>then</strong> estimated storage and available resource limits are visible; estimate gaps read Not recorded. <strong>Given</strong> disk exhaustion or incompatible backend version, <strong>then</strong> new work stops safely with its case retained and retry from a valid stage offered. Resume only where backend checkpoints actually support it.</td>
+</tr>
+<tr>
+<td>VIZ-01 · I can read available fields</td>
+<td><strong>Given</strong> an admitted CFD result, <strong>when</strong> Cp/slice/streamline/probe is selected, <strong>then</strong> variable, units, range, timestep and source run appear with a perceptually uniform legend. <strong>Given</strong> an absent variable, <strong>then</strong> its view is unavailable. Strip Cp is labeled Section reconstruction, never 3D CFD pressure.</td>
+</tr>
+<tr>
+<td>VIZ-02 · I can investigate flow without invented diagnosis</td>
+<td><strong>Given</strong> velocity and a rake, <strong>when</strong> moved, <strong>then</strong> streamlines update from that result field. <strong>Given</strong> a proposed separation overlay, <strong>then</strong> it names its supported wall/skin-friction criterion; a vortex criterion alone cannot be labeled separation. Missing evidence yields No supported criterion.</td>
+</tr>
+<tr>
+<td>EXP-01 · I can share a parametric design</td>
+<td><strong>Given</strong> a native file, <strong>when</strong> opened on the other platform, <strong>then</strong> editable definitions and provenance survive. <strong>Given</strong> unknown optional context, <strong>then</strong> it is retained/read-only or the file is refused before save; it is never silently discarded. External profile DAT import is a distinct CAT-02 operation, not project or arbitrary CAD import.</td>
+</tr>
+<tr>
+<td>EXP-02 · I can export with known fidelity</td>
+<td><strong>Given</strong> accepted geometry, <strong>when</strong> section DAT, mesh, STEP or chart export is requested, <strong>then</strong> units, tolerance, revision and limits are shown. <strong>Given</strong> unsupported closure or unproven STEP compatibility, <strong>then</strong> the unavailable format explains its gate. STEP release requires target CAD/CAM open-and-measure proof, not merely writing bytes.</td>
+</tr>
+<tr>
+<td>AI-01 · I can use the product without AI</td>
+<td><strong>Given</strong> no key/network or a 401/timeout/quota error, <strong>when</strong> I design/save/analyze locally, <strong>then</strong> those actions continue. <strong>Given</strong> key removal, <strong>then</strong> new AI calls stop immediately without restart and the key never enters a document, log or export.</td>
+</tr>
+<tr>
+<td>AI-02 · I can start from a language brief</td>
+<td><strong>Given</strong> opt-in configured AI, <strong>when</strong> a profile/wing brief is submitted, <strong>then</strong> a typed recipe proposal marks every field Stated/Inferred/Defaulted and passes schema/domain validation before showing an editable shape preview. <strong>Given</strong> final Accept on that preview, <strong>then</strong> it applies one undoable revision; Discard/malformed output changes nothing. <strong>Given</strong> the document changed since proposal creation, <strong>then</strong> acceptance is blocked until a refreshed diff/preview is reviewed. Raw coordinates, mesh or invented solver scores are rejected.</td>
+</tr>
+<tr>
+<td>AI-03 · I can ask about a result</td>
+<td><strong>Given</strong> a chosen run and visible sharing summary, <strong>when</strong> I ask a question, <strong>then</strong> supported claims cite that run/knowledge evidence and preserve units/scope. <strong>Given</strong> an unsupported question or numerical what-if, <strong>then</strong> the assistant says evidence is missing and offers a separate draft plus real recomputation, without fabricating a delta.</td>
+</tr>
+<tr>
+<td>AI-04 · I can control egress and actions</td>
+<td><strong>Given</strong> a prompt, <strong>when</strong> submitted, <strong>then</strong> geometry-summary/result fields to be shared are inspectable and secrets are excluded. <strong>Given</strong> instructions inside an imported file or solver log, <strong>then</strong> they remain quoted data and cannot install software, execute commands, spend additional money or mutate geometry. Cancellable per-request limits and usage Not recorded fallback are required.</td>
+</tr>
+<tr>
+<td>AI-05 · I can understand a failed run</td>
+<td><strong>Given</strong> selected failed mesh/run logs and inspectable sharing consent, <strong>when</strong> Diagnose failure is invoked, <strong>then</strong> claims cite that run&#39;s observed error evidence and distinguish hypotheses. <strong>Given</strong> a suggested repair, <strong>then</strong> it is a typed case-parameter diff validated and previewed before acceptance; acceptance creates a draft case and a separate user Run action is required. <strong>Given</strong> missing evidence or command-like output, <strong>then</strong> diagnosis declines unsupported claims and never executes commands.</td>
+</tr>
+<tr>
+<td>AI-06 · I can pin language behavior without changing geometry</td>
+<td><strong>Given</strong> an optional configured provider, <strong>when</strong> I change the model identifier in Settings, <strong>then</strong> subsequent requests use the explicit selected identifier and all saved geometry identities remain unchanged. <strong>Given</strong> an unknown/unavailable model, <strong>then</strong> prompts fail independently. Initial natural-language profile starts may select admitted catalog references only; CST coefficient proposals are a later separately evaluated capability.</td>
+</tr>
+<tr>
+<td>CLI-01 · I can reproduce GUI numbers</td>
+<td><strong>Given</strong> the same native file and operation, <strong>when</strong> measure/estimate/section/wing/check is invoked through the headless surface and GUI, <strong>then</strong> numerical output, envelope status and input identity agree to the operation&#39;s published tolerance. <strong>Given</strong> invalid inputs, <strong>then</strong> machine-readable stable error codes accompany non-success status.</td>
+</tr>
+</tbody></table></div>
+<h3 id="a6-scientific-honesty-and-validation-ladder">A6. Scientific honesty and validation ladder</h3>
+<p>Evidence labels shall distinguish <strong>Illustrative mockup</strong>, <strong>Computed estimate</strong>, <strong>Verified numerical implementation</strong>, and <strong>Experimentally compared</strong>, with named method and applicability. The last two require their specific proof; they are not a global “validated” badge. Deterministic output may have unquantified model error. Display <strong>Model uncertainty not quantified</strong> instead of manufacturing probabilistic ranges. If measured uncertainty exists, display its definition, interval and source.</p>
+<p>Section surrogate comparisons do not establish finite-wing or tow-tank validation. Foil-plus-strut measurements cannot be silently used as wing-only coefficients. Experimental data admission requires a comparable configuration and uncertainty/source review. GUI unit tests and matching hashes do not close these gaps.</p>
+<p>Every wing result shall show omissions relevant to its tier: strut/fuselage interference, free-surface, ventilation, viscous separation or pumping where unsupported. A validity envelope belongs to the method/profile/conditions, never a universal angle limit. Out-of-envelope values remain visible only as explicitly unsupported observations, excluded from recommendations. Method disagreement is a finding; discrepancy tolerances and uncertainty calibration are research gates, not assumed percentages.</p>
+<h3 id="a7-non-functional-requirements-and-governance">A7. Non-functional requirements and governance</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>ISO 25010 / governance lens</th>
+<th>Measurable requirement or explicit boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Functional suitability</td>
+<td>Every mandatory story traces to GUI/headless acceptance evidence; excluded physics never appears as supported</td>
+</tr>
+<tr>
+<td>Performance efficiency</td>
+<td>Proposed reference fixture: 21 authored stations, 201 derived slices, 50k displayed triangles, 10k plot points; 16 GB Apple-silicon Mac and 16 GB Windows x64 laptop with supported graphics. Editing feedback p95 ≤100 ms, preview regeneration p95 ≤250 ms, orbit ≥30 fps, cold launch ≤5 s. Exact machines fixed in architecture spike; no measured claim yet</td>
+</tr>
+<tr>
+<td>Reliability</td>
+<td>Atomic native saves preserve last complete version; fault injection at write/replace stages proves recovery. Cancel acknowledgment ≤250 ms; process shutdown ≤5 s or visible timed-out termination error</td>
+</tr>
+<tr>
+<td>Compatibility</td>
+<td>Same native design opens on both platforms; directory paths and display units do not alter physics identity. Supported backend versions are pinned and tested separately</td>
+</tr>
+<tr>
+<td>Interaction capability / usability</td>
+<td>Keyboard-only New→edit→save→inspect available; five formative users, at least four complete sample edit/save without facilitator rescue. This is a target, not existing research</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td>WCAG 2.2 AA for HTML; corresponding native keyboard, VoiceOver/UIA, focus, high-contrast and scaling proof on both OSes before release</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Hostile file paths/data never become commands; parser size limits published; solver sandbox/process privileges minimized; install/elevation explicit; credentials in OS store; prompt injection cannot authorize actions</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>Local by default; no automatic cloud sync, telemetry egress or geometry upload; AI context is opt-in and inspectable; redact paths/secrets from diagnostics export</td>
+</tr>
+<tr>
+<td>Maintainability</td>
+<td>Versioned geometry and numerical contracts; provenance-required fixtures; regression controls for signs, units, stale results and conversions; architecture remains unselected</td>
+</tr>
+<tr>
+<td>Portability / flexibility</td>
+<td>Mac Apple silicon and Windows x64 required initially; Intel Mac/Windows ARM and minimum OS releases are open support-matrix decisions. No CUDA dependency on core design path</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td>No strength, manufacturing, ride-safety or certification claim from hydrodynamic output; limitations appear at relevant decision/export points</td>
+</tr>
+<tr>
+<td>Release / rollback / supply chain</td>
+<td>Signed/notarized supported packages and platform install/uninstall proof; reversible application update and preserved pre-migration file; SBOM/licenses reviewed; external solver licensing separately assessed</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Local structured records for operation/revision/method, duration, failure code, sample/mesh volume and resource cost. AI tokens/spend recorded only if observed; missing metrics say Not recorded. No geometry payload/secrets logged by default</td>
+</tr>
+</tbody></table></div>
+<p>Operator questions map to named event families: <strong>geometry.preview</strong> (latency/definition size), <strong>document.save</strong> (duration/outcome), <strong>analysis.run</strong> (method/input/result status), <strong>backend.setup</strong> (stage/version/failure), <strong>solver.process</strong> (duration/exit/resource observations), <strong>assistant.request</strong> (provider/model/usage where known), <strong>export.validate</strong> (format/tolerance/outcome). The normal path emits them locally; measuring shall not require a special rerun.</p>
+<p>Threat model: project files, section data, solver output and model responses are untrusted inputs; credentials, local files and launched processes are protected resources. Tampering fails provenance checks; spoofed status requires actual readiness evidence; denial of service meets size/resource limits; egress is explicit; executable commands cannot originate from data. Security review gates implementation; no claim of completed penetration testing is made.</p>
+<p>AI uses LOA <strong>Tool-Mediated Constructor</strong> for typed starting proposals and <strong>Grounded Synthesizer</strong> for result explanations. T0 deterministic code validates geometry, units, numerals and permissions; bounded model calls interpret/summarize only. Model/provider/version and eval thresholds are selected in architecture. Each AI capability must pass extraction, unsupported-answer, prompt-injection, attribution and numerical-meaning evals; a numeral match alone is insufficient.</p>
+<h2 id="part-b-ux-specification">Part B — UX specification</h2>
+<h3 id="b1-information-architecture">B1. Information architecture</h3>
+<p>The workspace is a document with five task destinations, not a six-stage forced wizard:</p>
+<ul>
+<li><strong>Shape</strong> — recipe, five distribution curves, stations, loft checks and 3D selection.</li>
+<li><strong>Sections</strong> — section library, selected station&#39;s profile and editable-copy provenance.</li>
+<li><strong>Analyze</strong> — Section/Wing scope, operating conditions, methods, sweeps and comparison.</li>
+<li><strong>Simulate</strong> — backend readiness, guided setup, case preparation, mesh and run queue.</li>
+<li><strong>Results</strong> — run library, fields, histories, comparison and optional questions.</li>
+</ul>
+<p>Project/New/Open/Save/Export and Undo/Redo are global. Settings holds units, appearance, backend installations and optional AI credentials. The assistant is contextual secondary chrome; it never owns the only route to a task. Native menus expose every primary command. A command search lists commands with Mac/Windows shortcuts. Labels in this section define the product vocabulary alongside A3.</p>
+<p>A single selection links the outline, station list, curve anchor, profile and inspector. Selecting a result pins its geometry/conditions; editing current geometry does not silently change the result selection. A visible <strong>Current design / Run snapshot</strong> distinction explains historical views.</p>
+<h3 id="b2-flow-f1-start-restore-and-preserve-doc-01-04">B2. Flow F1 — start, restore and preserve (DOC-01–04)</h3>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 1; full flow source follows" width="766pt" height="817pt"
+ viewBox="0.00 0.00 766.00 817.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 799.08)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M510.08,-781.08C510.08,-781.08 471.67,-781.08 471.67,-781.08 465.67,-781.08 459.67,-775.08 459.67,-769.08 459.67,-769.08 459.67,-757.08 459.67,-757.08 459.67,-751.08 465.67,-745.08 471.67,-745.08 471.67,-745.08 510.08,-745.08 510.08,-745.08 516.08,-745.08 522.08,-751.08 522.08,-757.08 522.08,-757.08 522.08,-769.08 522.08,-769.08 522.08,-775.08 516.08,-781.08 510.08,-781.08"/>
+<text xml:space="preserve" text-anchor="middle" x="490.87" y="-759.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Launch</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M479.11,-705.74C479.11,-705.74 343.52,-678.74 343.52,-678.74 337.64,-677.57 337.64,-675.23 343.52,-674.06 343.52,-674.06 479.11,-647.06 479.11,-647.06 484.99,-645.89 496.76,-645.89 502.64,-647.06 502.64,-647.06 638.23,-674.06 638.23,-674.06 644.11,-675.23 644.11,-677.57 638.23,-678.74 638.23,-678.74 502.64,-705.74 502.64,-705.74 496.76,-706.91 484.99,-706.91 479.11,-705.74"/>
+<text xml:space="preserve" text-anchor="middle" x="490.87" y="-672.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Recent saved document?</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M490.87,-744.94C490.87,-736.87 490.87,-726.87 490.87,-717.07"/>
+<polygon fill="#597d78" stroke="#597d78" points="493.32,-717.07 490.87,-710.07 488.42,-717.07 493.32,-717.07"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M372.52,-592.83C372.52,-592.83 302.8,-568.93 302.8,-568.93 297.12,-566.99 297.12,-563.09 302.8,-561.15 302.8,-561.15 372.52,-537.25 372.52,-537.25 378.2,-535.31 389.55,-535.31 395.23,-537.25 395.23,-537.25 464.95,-561.15 464.95,-561.15 470.63,-563.09 470.63,-566.99 464.95,-568.93 464.95,-568.93 395.23,-592.83 395.23,-592.83 389.55,-594.77 378.2,-594.77 372.52,-592.83"/>
+<text xml:space="preserve" text-anchor="middle" x="383.87" y="-561.44" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Can reopen?</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M465.52,-649.48C449.56,-633.17 428.92,-612.08 412.39,-595.19"/>
+<polygon fill="#597d78" stroke="#597d78" points="414.21,-593.54 407.56,-590.25 410.71,-596.97 414.21,-593.54"/>
+<text xml:space="preserve" text-anchor="middle" x="449.2" y="-617.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M718.47,-515.36C718.47,-515.36 477.28,-515.36 477.28,-515.36 471.28,-515.36 465.28,-509.36 465.28,-503.36 465.28,-503.36 465.28,-491.36 465.28,-491.36 465.28,-485.36 471.28,-479.36 477.28,-479.36 477.28,-479.36 718.47,-479.36 718.47,-479.36 724.47,-479.36 730.47,-485.36 730.47,-491.36 730.47,-491.36 730.47,-503.36 730.47,-503.36 730.47,-509.36 724.47,-515.36 718.47,-515.36"/>
+<text xml:space="preserve" text-anchor="middle" x="597.87" y="-493.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">New / Open / Sample; optional language start</text>
+</g>
+<!-- B&#45;&gt;F -->
+<g id="edge5" class="edge">
+<title>B&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M507.59,-647.74C528.36,-613.38 563.45,-555.32 583.21,-522.62"/>
+<polygon fill="#597d78" stroke="#597d78" points="585.11,-524.21 586.64,-516.95 580.92,-521.68 585.11,-524.21"/>
+<text xml:space="preserve" text-anchor="middle" x="532.74" y="-617.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M492.42,-388.36C492.42,-388.36 395.33,-388.36 395.33,-388.36 389.33,-388.36 383.33,-382.36 383.33,-376.36 383.33,-376.36 383.33,-364.36 383.33,-364.36 383.33,-358.36 389.33,-352.36 395.33,-352.36 395.33,-352.36 492.42,-352.36 492.42,-352.36 498.42,-352.36 504.42,-358.36 504.42,-364.36 504.42,-364.36 504.42,-376.36 504.42,-376.36 504.42,-382.36 498.42,-388.36 492.42,-388.36"/>
+<text xml:space="preserve" text-anchor="middle" x="443.87" y="-366.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Design workspace</text>
+</g>
+<!-- C&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>C&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M354.6,-542.9C320.04,-515.29 270.58,-465.74 298.64,-425.36 316.04,-400.32 346.51,-386.87 375.05,-379.65"/>
+<polygon fill="#597d78" stroke="#597d78" points="375.31,-382.11 381.57,-378.12 374.19,-377.34 375.31,-382.11"/>
+<text xml:space="preserve" text-anchor="middle" x="307.26" y="-440.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M547.45,-461.36C547.45,-461.36 340.29,-461.36 340.29,-461.36 334.29,-461.36 328.29,-455.36 328.29,-449.36 328.29,-449.36 328.29,-437.36 328.29,-437.36 328.29,-431.36 334.29,-425.36 340.29,-425.36 340.29,-425.36 547.45,-425.36 547.45,-425.36 553.45,-425.36 559.45,-431.36 559.45,-437.36 559.45,-437.36 559.45,-449.36 559.45,-449.36 559.45,-455.36 553.45,-461.36 547.45,-461.36"/>
+<text xml:space="preserve" text-anchor="middle" x="443.87" y="-439.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain failure: Locate / Open / Sample</text>
+</g>
+<!-- C&#45;&gt;E -->
+<g id="edge4" class="edge">
+<title>C&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M373.4,-536.58C368.52,-519 365.82,-496.38 376.18,-479.36 379.14,-474.5 383.01,-470.29 387.41,-466.64"/>
+<polygon fill="#597d78" stroke="#597d78" points="388.76,-468.69 392.97,-462.58 385.87,-464.73 388.76,-468.69"/>
+<text xml:space="preserve" text-anchor="middle" x="414.53" y="-494.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Missing or invalid</text>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M433.08,-304.36C433.08,-304.36 368.67,-304.36 368.67,-304.36 362.67,-304.36 356.67,-298.36 356.67,-292.36 356.67,-292.36 356.67,-280.36 356.67,-280.36 356.67,-274.36 362.67,-268.36 368.67,-268.36 368.67,-268.36 433.08,-268.36 433.08,-268.36 439.08,-268.36 445.08,-274.36 445.08,-280.36 445.08,-280.36 445.08,-292.36 445.08,-292.36 445.08,-298.36 439.08,-304.36 433.08,-304.36"/>
+<text xml:space="preserve" text-anchor="middle" x="400.87" y="-282.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Edit preview</text>
+</g>
+<!-- D&#45;&gt;G -->
+<g id="edge8" class="edge">
+<title>D&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M429.32,-351.87C425.27,-346.47 421.1,-340.36 417.87,-334.36 414.27,-327.66 411.14,-320.03 408.59,-312.9"/>
+<polygon fill="#597d78" stroke="#597d78" points="410.91,-312.12 406.34,-306.28 406.27,-313.7 410.91,-312.12"/>
+</g>
+<!-- E&#45;&gt;D -->
+<g id="edge7" class="edge">
+<title>E&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M443.87,-425.17C443.87,-416.63 443.87,-406.13 443.87,-396.68"/>
+<polygon fill="#597d78" stroke="#597d78" points="446.32,-396.9 443.87,-389.9 441.42,-396.9 446.32,-396.9"/>
+</g>
+<!-- F&#45;&gt;D -->
+<g id="edge6" class="edge">
+<title>F&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M595.54,-479.11C592.57,-463.31 586,-440.18 571.87,-425.36 555.87,-408.57 533.82,-396.77 512.53,-388.58"/>
+<polygon fill="#597d78" stroke="#597d78" points="513.57,-386.35 506.16,-386.25 511.89,-390.96 513.57,-386.35"/>
+</g>
+<!-- G&#45;&gt;D -->
+<g id="edge10" class="edge">
+<title>G&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M409.98,-304.73C416.08,-316.35 424.19,-331.83 430.96,-344.72"/>
+<polygon fill="#597d78" stroke="#597d78" points="428.63,-345.57 434.05,-350.63 432.97,-343.29 428.63,-345.57"/>
+<text xml:space="preserve" text-anchor="middle" x="440.51" y="-325.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M428.07,-220.36C428.07,-220.36 359.68,-220.36 359.68,-220.36 353.68,-220.36 347.68,-214.36 347.68,-208.36 347.68,-208.36 347.68,-196.36 347.68,-196.36 347.68,-190.36 353.68,-184.36 359.68,-184.36 359.68,-184.36 428.07,-184.36 428.07,-184.36 434.07,-184.36 440.07,-190.36 440.07,-196.36 440.07,-196.36 440.07,-208.36 440.07,-208.36 440.07,-214.36 434.07,-220.36 428.07,-220.36"/>
+<text xml:space="preserve" text-anchor="middle" x="393.87" y="-198.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Dirty revision</text>
+</g>
+<!-- G&#45;&gt;H -->
+<g id="edge9" class="edge">
+<title>G&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M399.39,-267.97C398.42,-256.66 397.15,-241.72 396.07,-229.06"/>
+<polygon fill="#597d78" stroke="#597d78" points="398.52,-229 395.49,-222.23 393.64,-229.42 398.52,-229"/>
+<text xml:space="preserve" text-anchor="middle" x="413.08" y="-241.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Accept</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M183.33,-144.07C183.33,-144.07 95.32,-118.97 95.32,-118.97 89.55,-117.33 89.55,-114.03 95.32,-112.39 95.32,-112.39 183.33,-87.29 183.33,-87.29 189.1,-85.65 200.64,-85.65 206.41,-87.29 206.41,-87.29 294.43,-112.39 294.43,-112.39 300.2,-114.03 300.2,-117.33 294.43,-118.97 294.43,-118.97 206.41,-144.07 206.41,-144.07 200.64,-145.71 189.1,-145.71 183.33,-144.07"/>
+<text xml:space="preserve" text-anchor="middle" x="194.87" y="-112.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Save succeeds?</text>
+</g>
+<!-- H&#45;&gt;I -->
+<g id="edge11" class="edge">
+<title>H&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M353.12,-184.02C322.28,-170.89 279.7,-152.78 246.48,-138.64"/>
+<polygon fill="#597d78" stroke="#597d78" points="247.47,-136.4 240.07,-135.91 245.55,-140.91 247.47,-136.4"/>
+</g>
+<!-- L -->
+<g id="node12" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M444.42,-133.68C444.42,-133.68 343.33,-133.68 343.33,-133.68 337.33,-133.68 331.33,-127.68 331.33,-121.68 331.33,-121.68 331.33,-109.68 331.33,-109.68 331.33,-103.68 337.33,-97.68 343.33,-97.68 343.33,-97.68 444.42,-97.68 444.42,-97.68 450.42,-97.68 456.42,-103.68 456.42,-109.68 456.42,-109.68 456.42,-121.68 456.42,-121.68 456.42,-127.68 450.42,-133.68 444.42,-133.68"/>
+<text xml:space="preserve" text-anchor="middle" x="393.87" y="-112.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Interrupted session</text>
+</g>
+<!-- H&#45;&gt;L -->
+<g id="edge15" class="edge">
+<title>H&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M393.87,-184.22C393.87,-172.25 393.87,-156.05 393.87,-142.52"/>
+<polygon fill="#597d78" stroke="#597d78" points="396.32,-142.59 393.87,-135.59 391.42,-142.59 396.32,-142.59"/>
+</g>
+<!-- J -->
+<g id="node10" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M89.75,-36C89.75,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 89.75,0 89.75,0 95.75,0 101.75,-6 101.75,-12 101.75,-12 101.75,-24 101.75,-24 101.75,-30 95.75,-36 89.75,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="50.87" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Saved revision</text>
+</g>
+<!-- I&#45;&gt;J -->
+<g id="edge12" class="edge">
+<title>I&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M162.2,-92.97C138.89,-77.48 107.64,-56.72 84.19,-41.13"/>
+<polygon fill="#597d78" stroke="#597d78" points="85.62,-39.15 78.43,-37.31 82.91,-43.23 85.62,-39.15"/>
+<text xml:space="preserve" text-anchor="middle" x="127.17" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- K -->
+<g id="node11" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M312.77,-36C312.77,-36 138.98,-36 138.98,-36 132.98,-36 126.98,-30 126.98,-24 126.98,-24 126.98,-12 126.98,-12 126.98,-6 132.98,0 138.98,0 138.98,0 312.77,0 312.77,0 318.77,0 324.77,-6 324.77,-12 324.77,-12 324.77,-24 324.77,-24 324.77,-30 318.77,-36 312.77,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="225.87" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Keep dirty state; retry or Save as</text>
+</g>
+<!-- I&#45;&gt;K -->
+<g id="edge13" class="edge">
+<title>I&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M190.1,-84.88C189.61,-74.78 190.37,-63.63 194.09,-54 195.61,-50.08 197.78,-46.33 200.3,-42.84"/>
+<polygon fill="#597d78" stroke="#597d78" points="202.02,-44.61 204.52,-37.63 198.21,-41.53 202.02,-44.61"/>
+<text xml:space="preserve" text-anchor="middle" x="200.48" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- K&#45;&gt;I -->
+<g id="edge14" class="edge">
+<title>K&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M220.24,-36.38C216.45,-48.1 211.29,-64 206.62,-78.42"/>
+<polygon fill="#597d78" stroke="#597d78" points="204.38,-77.38 204.56,-84.79 209.05,-78.89 204.38,-77.38"/>
+</g>
+<!-- M -->
+<g id="node13" class="node">
+<title>M</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M578.77,-36C578.77,-36 378.98,-36 378.98,-36 372.98,-36 366.98,-30 366.98,-24 366.98,-24 366.98,-12 366.98,-12 366.98,-6 372.98,0 378.98,0 378.98,0 578.77,0 578.77,0 584.77,0 590.77,-6 590.77,-12 590.77,-12 590.77,-24 590.77,-24 590.77,-30 584.77,-36 578.77,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="478.87" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compare recovery with saved version</text>
+</g>
+<!-- L&#45;&gt;M -->
+<g id="edge16" class="edge">
+<title>L&#45;&gt;M</title>
+<path fill="none" stroke="#597d78" d="M409.07,-97.57C422.77,-82.16 443.02,-59.36 458.19,-42.29"/>
+<polygon fill="#597d78" stroke="#597d78" points="459.7,-44.27 462.52,-37.41 456.04,-41.02 459.7,-44.27"/>
+</g>
+<!-- M&#45;&gt;D -->
+<g id="edge17" class="edge">
+<title>M&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M483.59,-36.49C488.31,-55.56 494.87,-87.06 494.87,-114.68 494.87,-287.36 494.87,-287.36 494.87,-287.36 494.87,-309.51 481.29,-330.64 468.14,-345.9"/>
+<polygon fill="#597d78" stroke="#597d78" points="466.46,-344.11 463.59,-350.94 470.1,-347.39 466.46,-344.11"/>
+<text xml:space="preserve" text-anchor="middle" x="556.29" y="-199.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Restore or discard recovery</text>
+</g>
+</g>
+</svg>
+<figcaption>Flow 1 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Launch] --&gt; B{Recent saved document?}
+B --&gt;|Yes| C{Can reopen?}
+C --&gt;|Yes| D[Design workspace]
+C --&gt;|Missing or invalid| E[Explain failure: Locate / Open / Sample]
+B --&gt;|No| F[New / Open / Sample; optional language start]
+F --&gt; D
+E --&gt; D
+D --&gt; G[Edit preview]
+G --&gt;|Accept| H[Dirty revision]
+G --&gt;|Cancel| D
+H --&gt; I{Save succeeds?}
+I --&gt;|Yes| J[Saved revision]
+I --&gt;|No| K[Keep dirty state; retry or Save as]
+K --&gt; I
+H --&gt; L[Interrupted session]
+L --&gt; M[Compare recovery with saved version]
+M --&gt;|Restore or discard recovery| D</pre></details><p>New starts with a small parameter form and section picker; Sample loads a labeled design fixture. On first launch the user chooses; no simulated result is smuggled into a sample as evidence. Unsaved close offers Save/Discard/Cancel, with focus on the safe continuing choice. An interrupted AI/install job is not automatically resumed on launch.</p>
+<h3 id="b3-flow-f2-shape-through-curves-and-stations-geo-01-12-cat-01-03">B3. Flow F2 — shape through curves and stations (GEO-01–12, CAT-01–03)</h3>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 2; full flow source follows" width="1197pt" height="999pt"
+ viewBox="0.00 0.00 1197.00 999.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 981.44)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1148.82,-852.08C1148.82,-852.08 997.02,-852.08 997.02,-852.08 991.02,-852.08 985.02,-846.08 985.02,-840.08 985.02,-840.08 985.02,-828.08 985.02,-828.08 985.02,-822.08 991.02,-816.08 997.02,-816.08 997.02,-816.08 1148.82,-816.08 1148.82,-816.08 1154.82,-816.08 1160.82,-822.08 1160.82,-828.08 1160.82,-828.08 1160.82,-840.08 1160.82,-840.08 1160.82,-846.08 1154.82,-852.08 1148.82,-852.08"/>
+<text xml:space="preserve" text-anchor="middle" x="1072.92" y="-830.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Recipe or open native model</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M920.82,-768.08C920.82,-768.08 769.03,-768.08 769.03,-768.08 763.03,-768.08 757.03,-762.08 757.03,-756.08 757.03,-756.08 757.03,-744.08 757.03,-744.08 757.03,-738.08 763.03,-732.08 769.03,-732.08 769.03,-732.08 920.82,-732.08 920.82,-732.08 926.82,-732.08 932.82,-738.08 932.82,-744.08 932.82,-744.08 932.82,-756.08 932.82,-756.08 932.82,-762.08 926.82,-768.08 920.82,-768.08"/>
+<text xml:space="preserve" text-anchor="middle" x="844.92" y="-746.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Evaluate one explicit surface</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M1024.29,-815.59C988.27,-802.64 939.1,-784.95 901.35,-771.38"/>
+<polygon fill="#597d78" stroke="#597d78" points="902.32,-769.12 894.9,-769.06 900.66,-773.73 902.32,-769.12"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M712.81,-679.55C712.81,-679.55 657.3,-656.93 657.3,-656.93 651.74,-654.66 651.74,-650.14 657.3,-647.87 657.3,-647.87 712.81,-625.25 712.81,-625.25 718.37,-622.98 729.48,-622.98 735.03,-625.25 735.03,-625.25 790.55,-647.87 790.55,-647.87 796.1,-650.14 796.1,-654.66 790.55,-656.93 790.55,-656.93 735.03,-679.55 735.03,-679.55 729.48,-681.82 718.37,-681.82 712.81,-679.55"/>
+<text xml:space="preserve" text-anchor="middle" x="723.92" y="-648.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Edit target</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M823.01,-731.75C804.45,-717.08 777.58,-695.83 756.5,-679.16"/>
+<polygon fill="#597d78" stroke="#597d78" points="758.07,-677.28 751.06,-674.86 755.03,-681.13 758.07,-677.28"/>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M744.16,-572.72C744.16,-572.72 585.69,-572.72 585.69,-572.72 579.69,-572.72 573.69,-566.72 573.69,-560.72 573.69,-560.72 573.69,-548.72 573.69,-548.72 573.69,-542.72 579.69,-536.72 585.69,-536.72 585.69,-536.72 744.16,-536.72 744.16,-536.72 750.16,-536.72 756.16,-542.72 756.16,-548.72 756.16,-548.72 756.16,-560.72 756.16,-560.72 756.16,-566.72 750.16,-572.72 744.16,-572.72"/>
+<text xml:space="preserve" text-anchor="middle" x="664.92" y="-551.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Select curve anchor or handle</text>
+</g>
+<!-- C&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>C&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M704.8,-628.34C698.7,-620.47 692.18,-611.44 686.9,-602.72 682.73,-595.81 678.78,-587.98 675.42,-580.72"/>
+<polygon fill="#597d78" stroke="#597d78" points="677.73,-579.9 672.63,-574.52 673.26,-581.91 677.73,-579.9"/>
+<text xml:space="preserve" text-anchor="middle" x="711.91" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Distribution</text>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M536.48,-572.72C536.48,-572.72 399.37,-572.72 399.37,-572.72 393.37,-572.72 387.37,-566.72 387.37,-560.72 387.37,-560.72 387.37,-548.72 387.37,-548.72 387.37,-542.72 393.37,-536.72 399.37,-536.72 399.37,-536.72 536.48,-536.72 536.48,-536.72 542.48,-536.72 548.48,-542.72 548.48,-548.72 548.48,-548.72 548.48,-560.72 548.48,-560.72 548.48,-566.72 542.48,-572.72 536.48,-572.72"/>
+<text xml:space="preserve" text-anchor="middle" x="467.92" y="-551.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Select plane / row / profile</text>
+</g>
+<!-- C&#45;&gt;E -->
+<g id="edge4" class="edge">
+<title>C&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M684.2,-636.55C640.83,-620.35 571.1,-594.28 522.58,-576.15"/>
+<polygon fill="#597d78" stroke="#597d78" points="523.52,-573.88 516.1,-573.73 521.8,-578.47 523.52,-573.88"/>
+<text xml:space="preserve" text-anchor="middle" x="603.81" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Station</text>
+</g>
+<!-- M -->
+<g id="node13" class="node">
+<title>M</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M971.15,-572.72C971.15,-572.72 792.7,-572.72 792.7,-572.72 786.7,-572.72 780.7,-566.72 780.7,-560.72 780.7,-560.72 780.7,-548.72 780.7,-548.72 780.7,-542.72 786.7,-536.72 792.7,-536.72 792.7,-536.72 971.15,-536.72 971.15,-536.72 977.15,-536.72 983.15,-542.72 983.15,-548.72 983.15,-548.72 983.15,-560.72 983.15,-560.72 983.15,-566.72 977.15,-572.72 971.15,-572.72"/>
+<text xml:space="preserve" text-anchor="middle" x="881.92" y="-551.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Make editable copy; show fit error</text>
+</g>
+<!-- C&#45;&gt;M -->
+<g id="edge18" class="edge">
+<title>C&#45;&gt;M</title>
+<path fill="none" stroke="#597d78" d="M739.81,-626.97C748.95,-614.59 761.42,-600.21 775.54,-590.72 783.88,-585.11 793.19,-580.34 802.73,-576.3"/>
+<polygon fill="#597d78" stroke="#597d78" points="803.44,-578.66 809.02,-573.78 801.61,-574.11 803.44,-578.66"/>
+<text xml:space="preserve" text-anchor="middle" x="817.23" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Catalog profile edit</text>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M749.49,-488.72C749.49,-488.72 580.35,-488.72 580.35,-488.72 574.35,-488.72 568.35,-482.72 568.35,-476.72 568.35,-476.72 568.35,-464.72 568.35,-464.72 568.35,-458.72 574.35,-452.72 580.35,-452.72 580.35,-452.72 749.49,-452.72 749.49,-452.72 755.49,-452.72 761.49,-458.72 761.49,-464.72 761.49,-464.72 761.49,-476.72 761.49,-476.72 761.49,-482.72 755.49,-488.72 749.49,-488.72"/>
+<text xml:space="preserve" text-anchor="middle" x="664.92" y="-467.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Drag, nudge or type exact value</text>
+</g>
+<!-- D&#45;&gt;F -->
+<g id="edge5" class="edge">
+<title>D&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M664.92,-536.33C664.92,-525.02 664.92,-510.08 664.92,-497.42"/>
+<polygon fill="#597d78" stroke="#597d78" points="667.37,-497.6 664.92,-490.6 662.47,-497.6 667.37,-497.6"/>
+</g>
+<!-- E&#45;&gt;F -->
+<g id="edge6" class="edge">
+<title>E&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M509.7,-536.33C540.65,-523.45 582.94,-505.85 615.56,-492.27"/>
+<polygon fill="#597d78" stroke="#597d78" points="616.29,-494.62 621.81,-489.67 614.4,-490.09 616.29,-494.62"/>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M694.31,-412.71C694.31,-412.71 595.12,-387.05 595.12,-387.05 589.31,-385.54 589.31,-382.54 595.12,-381.03 595.12,-381.03 694.31,-355.37 694.31,-355.37 700.11,-353.86 711.73,-353.86 717.54,-355.37 717.54,-355.37 816.73,-381.03 816.73,-381.03 822.53,-382.54 822.53,-385.54 816.73,-387.05 816.73,-387.05 717.54,-412.71 717.54,-412.71 711.73,-414.22 700.11,-414.22 694.31,-412.71"/>
+<text xml:space="preserve" text-anchor="middle" x="705.92" y="-380.44" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Recipe still linked?</text>
+</g>
+<!-- F&#45;&gt;G -->
+<g id="edge7" class="edge">
+<title>F&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M673.22,-452.58C677.74,-443.24 683.52,-431.32 688.95,-420.1"/>
+<polygon fill="#597d78" stroke="#597d78" points="691.13,-421.22 691.97,-413.85 686.72,-419.08 691.13,-421.22"/>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M915.48,-304.36C915.48,-304.36 714.36,-304.36 714.36,-304.36 708.36,-304.36 702.36,-298.36 702.36,-292.36 702.36,-292.36 702.36,-280.36 702.36,-280.36 702.36,-274.36 708.36,-268.36 714.36,-268.36 714.36,-268.36 915.48,-268.36 915.48,-268.36 921.48,-268.36 927.48,-274.36 927.48,-280.36 927.48,-280.36 927.48,-292.36 927.48,-292.36 927.48,-298.36 921.48,-304.36 915.48,-304.36"/>
+<text xml:space="preserve" text-anchor="middle" x="814.92" y="-282.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Preview direct&#45;parametric detachment</text>
+</g>
+<!-- G&#45;&gt;H -->
+<g id="edge8" class="edge">
+<title>G&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M733.15,-359.14C750.33,-344.06 772.39,-324.69 789.27,-309.88"/>
+<polygon fill="#597d78" stroke="#597d78" points="790.45,-312.1 794.09,-305.64 787.22,-308.42 790.45,-312.1"/>
+<text xml:space="preserve" text-anchor="middle" x="782.01" y="-325.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M790.13,-220.36C790.13,-220.36 679.71,-220.36 679.71,-220.36 673.71,-220.36 667.71,-214.36 667.71,-208.36 667.71,-208.36 667.71,-196.36 667.71,-196.36 667.71,-190.36 673.71,-184.36 679.71,-184.36 679.71,-184.36 790.13,-184.36 790.13,-184.36 796.13,-184.36 802.13,-190.36 802.13,-196.36 802.13,-196.36 802.13,-208.36 802.13,-208.36 802.13,-214.36 796.13,-220.36 790.13,-220.36"/>
+<text xml:space="preserve" text-anchor="middle" x="734.92" y="-198.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Preview same model</text>
+</g>
+<!-- G&#45;&gt;I -->
+<g id="edge9" class="edge">
+<title>G&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M690.04,-356.08C678.28,-332.49 666.05,-297.52 677.14,-268.36 683.26,-252.26 695.41,-237.59 706.99,-226.29"/>
+<polygon fill="#597d78" stroke="#597d78" points="708.42,-228.3 711.86,-221.73 705.07,-224.73 708.42,-228.3"/>
+<text xml:space="preserve" text-anchor="middle" x="683.53" y="-283.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- H&#45;&gt;I -->
+<g id="edge10" class="edge">
+<title>H&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M797.96,-267.97C786.18,-255.9 770.37,-239.7 757.53,-226.53"/>
+<polygon fill="#597d78" stroke="#597d78" points="759.56,-225.11 752.92,-221.81 756.06,-228.53 759.56,-225.11"/>
+</g>
+<!-- J -->
+<g id="node10" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M723.39,-144.05C723.39,-144.05 636.05,-118.99 636.05,-118.99 630.28,-117.33 630.28,-114.03 636.05,-112.37 636.05,-112.37 723.39,-87.31 723.39,-87.31 729.16,-85.65 740.69,-85.65 746.46,-87.31 746.46,-87.31 833.8,-112.37 833.8,-112.37 839.56,-114.03 839.56,-117.33 833.8,-118.99 833.8,-118.99 746.46,-144.05 746.46,-144.05 740.69,-145.71 729.16,-145.71 723.39,-144.05"/>
+<text xml:space="preserve" text-anchor="middle" x="734.92" y="-112.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Geometry valid?</text>
+</g>
+<!-- I&#45;&gt;J -->
+<g id="edge11" class="edge">
+<title>I&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M734.92,-184.22C734.92,-176.15 734.92,-166.15 734.92,-156.35"/>
+<polygon fill="#597d78" stroke="#597d78" points="737.37,-156.35 734.92,-149.35 732.47,-156.35 737.37,-156.35"/>
+</g>
+<!-- K -->
+<g id="node11" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1131.16,-36C1131.16,-36 910.68,-36 910.68,-36 904.68,-36 898.68,-30 898.68,-24 898.68,-24 898.68,-12 898.68,-12 898.68,-6 904.68,0 910.68,0 910.68,0 1131.16,0 1131.16,0 1137.16,0 1143.16,-6 1143.16,-12 1143.16,-12 1143.16,-24 1143.16,-24 1143.16,-30 1137.16,-36 1131.16,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="1020.92" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">New revision; dependent results historical</text>
+</g>
+<!-- J&#45;&gt;K -->
+<g id="edge12" class="edge">
+<title>J&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M785.07,-97.9C834.13,-81.49 908.9,-56.48 961.05,-39.03"/>
+<polygon fill="#597d78" stroke="#597d78" points="961.6,-41.43 967.47,-36.88 960.05,-36.78 961.6,-41.43"/>
+<text xml:space="preserve" text-anchor="middle" x="938.07" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes, accept</text>
+</g>
+<!-- L -->
+<g id="node12" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M646.5,-36C646.5,-36 445.34,-36 445.34,-36 439.34,-36 433.34,-30 433.34,-24 433.34,-24 433.34,-12 433.34,-12 433.34,-6 439.34,0 445.34,0 445.34,0 646.5,0 646.5,0 652.5,0 658.5,-6 658.5,-12 658.5,-12 658.5,-24 658.5,-24 658.5,-30 652.5,-36 646.5,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="545.92" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Highlight location and failed constraint</text>
+</g>
+<!-- J&#45;&gt;L -->
+<g id="edge13" class="edge">
+<title>J&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M695.76,-94.86C664.23,-78.89 620.01,-56.51 587.78,-40.19"/>
+<polygon fill="#597d78" stroke="#597d78" points="588.98,-38.05 581.62,-37.07 586.76,-42.42 588.98,-38.05"/>
+<text xml:space="preserve" text-anchor="middle" x="641.15" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- K&#45;&gt;B -->
+<g id="edge16" class="edge">
+<title>K&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M1020.92,-36.28C1020.92,-55.45 1020.92,-87.27 1020.92,-114.68 1020.92,-653.4 1020.92,-653.4 1020.92,-653.4 1020.92,-695.14 982.24,-718.77 941.15,-732.1"/>
+<polygon fill="#597d78" stroke="#597d78" points="940.6,-729.71 934.63,-734.11 942.04,-734.39 940.6,-729.71"/>
+<text xml:space="preserve" text-anchor="middle" x="1032.88" y="-381.04" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Undo</text>
+</g>
+<!-- K&#45;&gt;B -->
+<g id="edge17" class="edge">
+<title>K&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M1040.88,-36.25C1059.01,-53.92 1082.92,-83.21 1082.92,-114.68 1082.92,-653.4 1082.92,-653.4 1082.92,-653.4 1082.92,-696.28 1046.61,-695.59 1007.92,-714.08 987.34,-723.92 963.98,-731.02 941.5,-736.13"/>
+<polygon fill="#597d78" stroke="#597d78" points="941.07,-733.72 934.75,-737.6 942.11,-738.5 941.07,-733.72"/>
+</g>
+<!-- L&#45;&gt;B -->
+<g id="edge15" class="edge">
+<title>L&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M433.04,-34.14C389.02,-47 348.92,-70.76 348.92,-114.68 348.92,-555.72 348.92,-555.72 348.92,-555.72 348.92,-640.59 604.19,-703.2 748.47,-731.81"/>
+<polygon fill="#597d78" stroke="#597d78" points="747.71,-734.16 755.05,-733.11 748.65,-729.35 747.71,-734.16"/>
+<text xml:space="preserve" text-anchor="middle" x="363.65" y="-381.04" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Revert</text>
+</g>
+<!-- L&#45;&gt;F -->
+<g id="edge14" class="edge">
+<title>L&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M545.92,-36.28C545.92,-55.45 545.92,-87.27 545.92,-114.68 545.92,-385.04 545.92,-385.04 545.92,-385.04 545.92,-415.3 571.78,-435.75 599.39,-448.96"/>
+<polygon fill="#597d78" stroke="#597d78" points="598.05,-451.04 605.44,-451.7 600.08,-446.58 598.05,-451.04"/>
+<text xml:space="preserve" text-anchor="middle" x="562.31" y="-241.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Correct</text>
+</g>
+<!-- M&#45;&gt;B -->
+<g id="edge20" class="edge">
+<title>M&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M878.59,-573.12C872.03,-607.42 857.4,-683.87 849.77,-723.76"/>
+<polygon fill="#597d78" stroke="#597d78" points="847.4,-723.1 848.49,-730.43 852.21,-724.02 847.4,-723.1"/>
+<text xml:space="preserve" text-anchor="middle" x="884.46" y="-649.4" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+</g>
+<!-- M&#45;&gt;F -->
+<g id="edge19" class="edge">
+<title>M&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M835.64,-536.23C801.5,-523.33 754.95,-505.74 719.08,-492.19"/>
+<polygon fill="#597d78" stroke="#597d78" points="719.97,-489.9 712.55,-489.72 718.23,-494.48 719.97,-489.9"/>
+<text xml:space="preserve" text-anchor="middle" x="801.7" y="-509.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Accept</text>
+</g>
+<!-- Q -->
+<g id="node14" class="node">
+<title>Q</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M306.46,-768.08C306.46,-768.08 195.38,-768.08 195.38,-768.08 189.38,-768.08 183.38,-762.08 183.38,-756.08 183.38,-756.08 183.38,-744.08 183.38,-744.08 183.38,-738.08 189.38,-732.08 195.38,-732.08 195.38,-732.08 306.46,-732.08 306.46,-732.08 312.46,-732.08 318.46,-738.08 318.46,-744.08 318.46,-744.08 318.46,-756.08 318.46,-756.08 318.46,-762.08 312.46,-768.08 306.46,-768.08"/>
+<text xml:space="preserve" text-anchor="middle" x="250.92" y="-746.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Add profile from DAT</text>
+</g>
+<!-- R -->
+<g id="node15" class="node">
+<title>R</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M288.3,-960.43C288.3,-960.43 189.1,-934.77 189.1,-934.77 183.29,-933.26 183.29,-930.26 189.1,-928.75 189.1,-928.75 288.3,-903.09 288.3,-903.09 294.11,-901.58 305.73,-901.58 311.54,-903.09 311.54,-903.09 410.74,-928.75 410.74,-928.75 416.55,-930.26 416.55,-933.26 410.74,-934.77 410.74,-934.77 311.54,-960.43 311.54,-960.43 305.73,-961.94 294.11,-961.94 288.3,-960.43"/>
+<text xml:space="preserve" text-anchor="middle" x="299.92" y="-928.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Parse and validate</text>
+</g>
+<!-- Q&#45;&gt;R -->
+<g id="edge21" class="edge">
+<title>Q&#45;&gt;R</title>
+<path fill="none" stroke="#597d78" d="M257.73,-768.56C262.64,-781.54 269.2,-799.75 273.92,-816.08 281.26,-841.47 287.83,-870.51 292.53,-893.01"/>
+<polygon fill="#597d78" stroke="#597d78" points="290.12,-893.45 293.93,-899.81 294.92,-892.46 290.12,-893.45"/>
+</g>
+<!-- T -->
+<g id="node16" class="node">
+<title>T</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M249.84,-852.08C249.84,-852.08 12,-852.08 12,-852.08 6,-852.08 0,-846.08 0,-840.08 0,-840.08 0,-828.08 0,-828.08 0,-822.08 6,-816.08 12,-816.08 12,-816.08 249.84,-816.08 249.84,-816.08 255.84,-816.08 261.84,-822.08 261.84,-828.08 261.84,-828.08 261.84,-840.08 261.84,-840.08 261.84,-846.08 255.84,-852.08 249.84,-852.08"/>
+<text xml:space="preserve" text-anchor="middle" x="130.92" y="-830.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Show line or shape error; choose another file</text>
+</g>
+<!-- R&#45;&gt;T -->
+<g id="edge22" class="edge">
+<title>R&#45;&gt;T</title>
+<path fill="none" stroke="#597d78" d="M262.42,-909.53C234.65,-893.81 196.97,-872.47 169.06,-856.67"/>
+<polygon fill="#597d78" stroke="#597d78" points="170.44,-854.64 163.14,-853.32 168.03,-858.9 170.44,-854.64"/>
+<text xml:space="preserve" text-anchor="middle" x="224.81" y="-873.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Invalid</text>
+</g>
+<!-- U -->
+<g id="node17" class="node">
+<title>U</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M569.5,-852.08C569.5,-852.08 350.35,-852.08 350.35,-852.08 344.35,-852.08 338.35,-846.08 338.35,-840.08 338.35,-840.08 338.35,-828.08 338.35,-828.08 338.35,-822.08 344.35,-816.08 350.35,-816.08 350.35,-816.08 569.5,-816.08 569.5,-816.08 575.5,-816.08 581.5,-822.08 581.5,-828.08 581.5,-828.08 581.5,-840.08 581.5,-840.08 581.5,-846.08 575.5,-852.08 569.5,-852.08"/>
+<text xml:space="preserve" text-anchor="middle" x="459.92" y="-830.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Source, normalization and profile preview</text>
+</g>
+<!-- R&#45;&gt;U -->
+<g id="edge24" class="edge">
+<title>R&#45;&gt;U</title>
+<path fill="none" stroke="#597d78" d="M336.23,-909.05C362.35,-893.43 397.45,-872.44 423.58,-856.81"/>
+<polygon fill="#597d78" stroke="#597d78" points="424.65,-859.03 429.4,-853.33 422.14,-854.82 424.65,-859.03"/>
+<text xml:space="preserve" text-anchor="middle" x="410.08" y="-873.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Valid</text>
+</g>
+<!-- T&#45;&gt;Q -->
+<g id="edge23" class="edge">
+<title>T&#45;&gt;Q</title>
+<path fill="none" stroke="#597d78" d="M156.37,-815.69C174.51,-803.3 199.03,-786.54 218.56,-773.19"/>
+<polygon fill="#597d78" stroke="#597d78" points="219.86,-775.27 224.26,-769.3 217.1,-771.23 219.86,-775.27"/>
+</g>
+<!-- U&#45;&gt;B -->
+<g id="edge26" class="edge">
+<title>U&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M542.04,-815.59C604.52,-802.28 690.42,-783.99 754.79,-770.28"/>
+<polygon fill="#597d78" stroke="#597d78" points="755.11,-772.71 761.45,-768.86 754.09,-767.92 755.11,-772.71"/>
+<text xml:space="preserve" text-anchor="middle" x="691.04" y="-789.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+</g>
+<!-- U&#45;&gt;E -->
+<g id="edge25" class="edge">
+<title>U&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M460.42,-815.73C461.79,-768.45 465.57,-637.15 467.18,-581.35"/>
+<polygon fill="#597d78" stroke="#597d78" points="469.63,-581.64 467.38,-574.58 464.73,-581.5 469.63,-581.64"/>
+<text xml:space="preserve" text-anchor="middle" x="478.93" y="-705.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Accept</text>
+</g>
+<!-- V -->
+<g id="node18" class="node">
+<title>V</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M948.49,-852.08C948.49,-852.08 683.35,-852.08 683.35,-852.08 677.35,-852.08 671.35,-846.08 671.35,-840.08 671.35,-840.08 671.35,-828.08 671.35,-828.08 671.35,-822.08 677.35,-816.08 683.35,-816.08 683.35,-816.08 948.49,-816.08 948.49,-816.08 954.49,-816.08 960.49,-822.08 960.49,-828.08 960.49,-828.08 960.49,-840.08 960.49,-840.08 960.49,-846.08 954.49,-852.08 948.49,-852.08"/>
+<text xml:space="preserve" text-anchor="middle" x="815.92" y="-830.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Break symmetry preview / read&#45;only ghost overlay</text>
+</g>
+<!-- V&#45;&gt;B -->
+<g id="edge27" class="edge">
+<title>V&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M822.07,-815.69C826.11,-804.27 831.46,-789.16 835.96,-776.41"/>
+<polygon fill="#597d78" stroke="#597d78" points="838.25,-777.29 838.28,-769.87 833.63,-775.65 838.25,-777.29"/>
+</g>
+</g>
+</svg>
+<figcaption>Flow 2 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Recipe or open native model] --&gt; B[Evaluate one explicit surface]
+B --&gt; C{Edit target}
+C --&gt;|Distribution| D[Select curve anchor or handle]
+C --&gt;|Station| E[Select plane / row / profile]
+D --&gt; F[Drag, nudge or type exact value]
+E --&gt; F
+F --&gt; G{Recipe still linked?}
+G --&gt;|Yes| H[Preview direct-parametric detachment]
+G --&gt;|No| I[Preview same model]
+H --&gt; I
+I --&gt; J{Geometry valid?}
+J --&gt;|Yes, accept| K[New revision; dependent results historical]
+J --&gt;|No| L[Highlight location and failed constraint]
+L --&gt;|Correct| F
+L --&gt;|Revert| B
+K --&gt;|Undo| B
+K --&gt; B
+C --&gt;|Catalog profile edit| M[Make editable copy; show fit error]
+M --&gt;|Accept| F
+M --&gt;|Cancel| B
+Q[Add profile from DAT] --&gt; R{Parse and validate}
+R --&gt;|Invalid| T[Show line or shape error; choose another file]
+T --&gt; Q
+R --&gt;|Valid| U[Source, normalization and profile preview]
+U --&gt;|Accept| E
+U --&gt;|Cancel| B
+V[Break symmetry preview / read-only ghost overlay] --&gt; B</pre></details><p>The user can start broad and work locally without choosing between two incompatible CAD systems. Recipe controls are a starting layer; curves describe spanwise intent; station profiles describe cross-section intent. The inspector always identifies the authoritative parameter. Adding an inspection slice is a viewing action; promoting it is an explicit design action. A locked catalog profile shows why it cannot be dragged and gives one clear conversion action.</p>
+<h3 id="b4-flow-f3-analyze-and-compare-ana-01-16">B4. Flow F3 — analyze and compare (ANA-01–16)</h3>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 3; full flow source follows" width="720pt" height="682pt"
+ viewBox="0.00 0.00 720.00 682.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 663.72)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M504.11,-645.72C504.11,-645.72 375.67,-645.72 375.67,-645.72 369.67,-645.72 363.67,-639.72 363.67,-633.72 363.67,-633.72 363.67,-621.72 363.67,-621.72 363.67,-615.72 369.67,-609.72 375.67,-609.72 375.67,-609.72 504.11,-609.72 504.11,-609.72 510.11,-609.72 516.11,-615.72 516.11,-621.72 516.11,-621.72 516.11,-633.72 516.11,-633.72 516.11,-639.72 510.11,-645.72 504.11,-645.72"/>
+<text xml:space="preserve" text-anchor="middle" x="439.89" y="-624.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Choose Section or Wing</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M523.14,-572.72C523.14,-572.72 356.64,-572.72 356.64,-572.72 350.64,-572.72 344.64,-566.72 344.64,-560.72 344.64,-560.72 344.64,-548.72 344.64,-548.72 344.64,-542.72 350.64,-536.72 356.64,-536.72 356.64,-536.72 523.14,-536.72 523.14,-536.72 529.14,-536.72 535.14,-542.72 535.14,-548.72 535.14,-548.72 535.14,-560.72 535.14,-560.72 535.14,-566.72 529.14,-572.72 523.14,-572.72"/>
+<text xml:space="preserve" text-anchor="middle" x="439.89" y="-551.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Set operating point and method</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M439.89,-609.53C439.89,-600.99 439.89,-590.49 439.89,-581.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="442.34,-581.26 439.89,-574.26 437.44,-581.26 442.34,-581.26"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M203.06,-497.72C203.06,-497.72 39.55,-470.04 39.55,-470.04 33.64,-469.04 33.64,-467.04 39.55,-466.04 39.55,-466.04 203.06,-438.36 203.06,-438.36 208.97,-437.36 220.81,-437.36 226.72,-438.36 226.72,-438.36 390.23,-466.04 390.23,-466.04 396.14,-467.04 396.14,-469.04 390.23,-470.04 390.23,-470.04 226.72,-497.72 226.72,-497.72 220.81,-498.72 208.97,-498.72 203.06,-497.72"/>
+<text xml:space="preserve" text-anchor="middle" x="214.89" y="-464.44" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Data and envelope supported?</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M393.54,-536.28C360.64,-523.89 316.01,-507.1 279.6,-493.39"/>
+<polygon fill="#597d78" stroke="#597d78" points="280.79,-491.22 273.38,-491.05 279.07,-495.81 280.79,-491.22"/>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M512.49,-388.36C512.49,-388.36 253.29,-388.36 253.29,-388.36 247.29,-388.36 241.29,-382.36 241.29,-376.36 241.29,-376.36 241.29,-364.36 241.29,-364.36 241.29,-358.36 247.29,-352.36 253.29,-352.36 253.29,-352.36 512.49,-352.36 512.49,-352.36 518.49,-352.36 524.49,-358.36 524.49,-364.36 524.49,-364.36 524.49,-376.36 524.49,-376.36 524.49,-382.36 518.49,-388.36 512.49,-388.36"/>
+<text xml:space="preserve" text-anchor="middle" x="382.89" y="-366.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain: choose supported point / install backend</text>
+</g>
+<!-- C&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>C&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M256.85,-443.14C283.95,-427.71 318.9,-407.8 345.13,-392.87"/>
+<polygon fill="#597d78" stroke="#597d78" points="346.09,-395.14 350.96,-389.54 343.67,-390.88 346.09,-395.14"/>
+<text xml:space="preserve" text-anchor="middle" x="325.27" y="-409.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M203.8,-388.36C203.8,-388.36 29.98,-388.36 29.98,-388.36 23.98,-388.36 17.98,-382.36 17.98,-376.36 17.98,-376.36 17.98,-364.36 17.98,-364.36 17.98,-358.36 23.98,-352.36 29.98,-352.36 29.98,-352.36 203.8,-352.36 203.8,-352.36 209.8,-352.36 215.8,-358.36 215.8,-364.36 215.8,-364.36 215.8,-376.36 215.8,-376.36 215.8,-382.36 209.8,-388.36 203.8,-388.36"/>
+<text xml:space="preserve" text-anchor="middle" x="116.89" y="-366.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compute against pinned revision</text>
+</g>
+<!-- C&#45;&gt;E -->
+<g id="edge5" class="edge">
+<title>C&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M187.85,-440.64C172.98,-426.12 154.7,-408.28 140.43,-394.34"/>
+<polygon fill="#597d78" stroke="#597d78" points="142.37,-392.82 135.65,-389.68 138.95,-396.32 142.37,-392.82"/>
+<text xml:space="preserve" text-anchor="middle" x="171.57" y="-409.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- D&#45;&gt;B -->
+<g id="edge4" class="edge">
+<title>D&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M392.94,-388.78C399.96,-401.59 409.08,-419.6 414.89,-436.36 425.52,-467.04 432.48,-503.86 436.29,-527.98"/>
+<polygon fill="#597d78" stroke="#597d78" points="433.84,-528.21 437.32,-534.76 438.69,-527.47 433.84,-528.21"/>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M274.91,-310.51C274.91,-310.51 225.14,-288.53 225.14,-288.53 219.65,-286.1 219.65,-281.26 225.14,-278.83 225.14,-278.83 274.91,-256.85 274.91,-256.85 280.4,-254.42 291.38,-254.42 296.87,-256.85 296.87,-256.85 346.64,-278.83 346.64,-278.83 352.13,-281.26 352.13,-286.1 346.64,-288.53 346.64,-288.53 296.87,-310.51 296.87,-310.51 291.38,-312.94 280.4,-312.94 274.91,-310.51"/>
+<text xml:space="preserve" text-anchor="middle" x="285.89" y="-280.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Outcome</text>
+</g>
+<!-- E&#45;&gt;F -->
+<g id="edge6" class="edge">
+<title>E&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M151.5,-352.02C178.8,-338.34 216.93,-319.23 245.61,-304.87"/>
+<polygon fill="#597d78" stroke="#597d78" points="246.54,-307.14 251.7,-301.81 244.34,-302.76 246.54,-307.14"/>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M388.8,-204C388.8,-204 182.98,-204 182.98,-204 176.98,-204 170.98,-198 170.98,-192 170.98,-192 170.98,-180 170.98,-180 170.98,-174 176.98,-168 182.98,-168 182.98,-168 388.8,-168 388.8,-168 394.8,-168 400.8,-174 400.8,-180 400.8,-180 400.8,-192 400.8,-192 400.8,-198 394.8,-204 388.8,-204"/>
+<text xml:space="preserve" text-anchor="middle" x="285.89" y="-182.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Evidence with scope, units, uncertainty</text>
+</g>
+<!-- F&#45;&gt;G -->
+<g id="edge7" class="edge">
+<title>F&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M285.89,-251.62C285.89,-238.97 285.89,-224.53 285.89,-212.52"/>
+<polygon fill="#597d78" stroke="#597d78" points="288.34,-212.77 285.89,-205.77 283.44,-212.77 288.34,-212.77"/>
+<text xml:space="preserve" text-anchor="middle" x="304.79" y="-225" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Success</text>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M672.46,-204C672.46,-204 443.32,-204 443.32,-204 437.32,-204 431.32,-198 431.32,-192 431.32,-192 431.32,-180 431.32,-180 431.32,-174 437.32,-168 443.32,-168 443.32,-168 672.46,-168 672.46,-168 678.46,-168 684.46,-174 684.46,-180 684.46,-180 684.46,-192 684.46,-192 684.46,-198 678.46,-204 672.46,-204"/>
+<text xml:space="preserve" text-anchor="middle" x="557.89" y="-182.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Keep historical result; inspect reason / retry</text>
+</g>
+<!-- F&#45;&gt;H -->
+<g id="edge8" class="edge">
+<title>F&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M325.15,-268.87C371.19,-252.67 447.89,-225.69 500.58,-207.16"/>
+<polygon fill="#597d78" stroke="#597d78" points="501.28,-209.51 507.07,-204.88 499.65,-204.89 501.28,-209.51"/>
+<text xml:space="preserve" text-anchor="middle" x="467.87" y="-225" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Failed</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M523.8,-120C523.8,-120 303.98,-120 303.98,-120 297.98,-120 291.98,-114 291.98,-108 291.98,-108 291.98,-96 291.98,-96 291.98,-90 297.98,-84 303.98,-84 303.98,-84 523.8,-84 523.8,-84 529.8,-84 535.8,-90 535.8,-96 535.8,-96 535.8,-108 535.8,-108 535.8,-114 529.8,-120 523.8,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="413.89" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compare compatible snapshots or sweep</text>
+</g>
+<!-- G&#45;&gt;I -->
+<g id="edge10" class="edge">
+<title>G&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M313.04,-167.61C332.47,-155.16 358.77,-138.31 379.65,-124.94"/>
+<polygon fill="#597d78" stroke="#597d78" points="380.94,-127.02 385.51,-121.18 378.29,-122.89 380.94,-127.02"/>
+</g>
+<!-- K -->
+<g id="node11" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M255.45,-120C255.45,-120 62.33,-120 62.33,-120 56.33,-120 50.33,-114 50.33,-108 50.33,-108 50.33,-96 50.33,-96 50.33,-90 56.33,-84 62.33,-84 62.33,-84 255.45,-84 255.45,-84 261.45,-84 267.45,-90 267.45,-96 267.45,-96 267.45,-108 267.45,-108 267.45,-114 261.45,-120 255.45,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="158.89" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Historical banner; recompute current</text>
+</g>
+<!-- G&#45;&gt;K -->
+<g id="edge13" class="edge">
+<title>G&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M247.29,-167.61C236.86,-162.4 225.75,-156.36 215.96,-150 205.03,-142.89 193.79,-134.03 184.21,-125.92"/>
+<polygon fill="#597d78" stroke="#597d78" points="185.91,-124.15 179.01,-121.44 182.72,-127.87 185.91,-124.15"/>
+<text xml:space="preserve" text-anchor="middle" x="252.93" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Geometry edited</text>
+</g>
+<!-- H&#45;&gt;B -->
+<g id="edge9" class="edge">
+<title>H&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M559.34,-204.27C560.81,-223.42 562.89,-255.23 562.89,-282.68 562.89,-469.04 562.89,-469.04 562.89,-469.04 562.89,-499.5 536.98,-519.84 508.94,-532.93"/>
+<polygon fill="#597d78" stroke="#597d78" points="508.19,-530.59 502.77,-535.66 510.17,-535.07 508.19,-530.59"/>
+</g>
+<!-- J -->
+<g id="node10" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M171.78,-36C171.78,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 171.78,0 171.78,0 177.78,0 183.78,-6 183.78,-12 183.78,-12 183.78,-24 183.78,-24 183.78,-30 177.78,-36 171.78,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="91.89" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Gap plus reason; retry sample</text>
+</g>
+<!-- I&#45;&gt;J -->
+<g id="edge11" class="edge">
+<title>I&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M345.21,-83.51C293.38,-70.31 222.28,-52.2 168.59,-38.53"/>
+<polygon fill="#597d78" stroke="#597d78" points="169.32,-36.19 161.93,-36.84 168.11,-40.94 169.32,-36.19"/>
+<text xml:space="preserve" text-anchor="middle" x="306.62" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Missing sample</text>
+</g>
+<!-- L -->
+<g id="node12" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M527.47,-36C527.47,-36 300.31,-36 300.31,-36 294.31,-36 288.31,-30 288.31,-24 288.31,-24 288.31,-12 288.31,-12 288.31,-6 294.31,0 300.31,0 300.31,0 527.47,0 527.47,0 533.47,0 539.47,-6 539.47,-12 539.47,-12 539.47,-24 539.47,-24 539.47,-30 533.47,-36 527.47,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="413.89" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Side&#45;by&#45;side assumptions and discrepancy</text>
+</g>
+<!-- I&#45;&gt;L -->
+<g id="edge15" class="edge">
+<title>I&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M413.89,-83.61C413.89,-72.3 413.89,-57.36 413.89,-44.7"/>
+<polygon fill="#597d78" stroke="#597d78" points="416.34,-44.88 413.89,-37.88 411.44,-44.88 416.34,-44.88"/>
+<text xml:space="preserve" text-anchor="middle" x="453.64" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Methods disagree</text>
+</g>
+<!-- J&#45;&gt;E -->
+<g id="edge12" class="edge">
+<title>J&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M58.43,-36.5C36.5,-50.62 11.89,-72.76 11.89,-101 11.89,-284.68 11.89,-284.68 11.89,-284.68 11.89,-313.67 36.44,-334.42 61.8,-348.13"/>
+<polygon fill="#597d78" stroke="#597d78" points="60.61,-350.27 67.96,-351.29 62.85,-345.91 60.61,-350.27"/>
+</g>
+<!-- K&#45;&gt;E -->
+<g id="edge14" class="edge">
+<title>K&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M156.18,-120.19C149,-165.7 129.49,-289.48 120.96,-343.53"/>
+<polygon fill="#597d78" stroke="#597d78" points="118.55,-343.09 119.88,-350.39 123.39,-343.86 118.55,-343.09"/>
+</g>
+</g>
+</svg>
+<figcaption>Flow 3 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Choose Section or Wing] --&gt; B[Set operating point and method]
+B --&gt; C{Data and envelope supported?}
+C --&gt;|No| D[Explain: choose supported point / install backend]
+D --&gt; B
+C --&gt;|Yes| E[Compute against pinned revision]
+E --&gt; F{Outcome}
+F --&gt;|Success| G[Evidence with scope, units, uncertainty]
+F --&gt;|Failed| H[Keep historical result; inspect reason / retry]
+H --&gt; B
+G --&gt; I[Compare compatible snapshots or sweep]
+I --&gt;|Missing sample| J[Gap plus reason; retry sample]
+J --&gt; E
+G --&gt;|Geometry edited| K[Historical banner; recompute current]
+K --&gt; E
+I --&gt;|Methods disagree| L[Side-by-side assumptions and discrepancy]</pre></details><p>Section-on-wing analysis receives the selected station&#39;s local Reynolds number and effective incidence. A global/section condition override is named and reversible. Switching scope changes available controls and force units; it does not relabel a section plot as a wing result.</p>
+<h3 id="b5-flow-f4-setup-simulation-and-results-cfd-01-04-viz-01-02">B5. Flow F4 — setup, simulation and results (CFD-01–04, VIZ-01–02)</h3>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 4; full flow source follows" width="635pt" height="996pt"
+ viewBox="0.00 0.00 635.00 996.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 977.72)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M415.78,-959.72C415.78,-959.72 337.36,-959.72 337.36,-959.72 331.36,-959.72 325.36,-953.72 325.36,-947.72 325.36,-947.72 325.36,-935.72 325.36,-935.72 325.36,-929.72 331.36,-923.72 337.36,-923.72 337.36,-923.72 415.78,-923.72 415.78,-923.72 421.78,-923.72 427.78,-929.72 427.78,-935.72 427.78,-935.72 427.78,-947.72 427.78,-947.72 427.78,-953.72 421.78,-959.72 415.78,-959.72"/>
+<text xml:space="preserve" text-anchor="middle" x="376.57" y="-938.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Open Simulate</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M364.77,-884.55C364.77,-884.55 215.91,-857.21 215.91,-857.21 210.01,-856.12 210.01,-853.96 215.91,-852.87 215.91,-852.87 364.77,-825.53 364.77,-825.53 370.67,-824.44 382.47,-824.44 388.37,-825.53 388.37,-825.53 537.23,-852.87 537.23,-852.87 543.13,-853.96 543.13,-856.12 537.23,-857.21 537.23,-857.21 388.37,-884.55 388.37,-884.55 382.47,-885.64 370.67,-885.64 364.77,-884.55"/>
+<text xml:space="preserve" text-anchor="middle" x="376.57" y="-851.44" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compatible backend ready?</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M376.57,-923.58C376.57,-915.51 376.57,-905.51 376.57,-895.71"/>
+<polygon fill="#597d78" stroke="#597d78" points="379.02,-895.71 376.57,-888.71 374.12,-895.71 379.02,-895.71"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M352.48,-775.36C352.48,-775.36 180.66,-775.36 180.66,-775.36 174.66,-775.36 168.66,-769.36 168.66,-763.36 168.66,-763.36 168.66,-751.36 168.66,-751.36 168.66,-745.36 174.66,-739.36 180.66,-739.36 180.66,-739.36 352.48,-739.36 352.48,-739.36 358.48,-739.36 364.48,-745.36 364.48,-751.36 364.48,-751.36 364.48,-763.36 364.48,-763.36 364.48,-769.36 358.48,-775.36 352.48,-775.36"/>
+<text xml:space="preserve" text-anchor="middle" x="266.57" y="-753.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Detect / choose supported setup</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M347.09,-828.4C330.12,-813.64 308.99,-795.26 292.64,-781.03"/>
+<polygon fill="#597d78" stroke="#597d78" points="294.43,-779.34 287.54,-776.6 291.21,-783.04 294.43,-779.34"/>
+<text xml:space="preserve" text-anchor="middle" x="324.66" y="-796.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M487.46,-461.36C487.46,-461.36 355.68,-461.36 355.68,-461.36 349.68,-461.36 343.68,-455.36 343.68,-449.36 343.68,-449.36 343.68,-437.36 343.68,-437.36 343.68,-431.36 349.68,-425.36 355.68,-425.36 355.68,-425.36 487.46,-425.36 487.46,-425.36 493.46,-425.36 499.46,-431.36 499.46,-437.36 499.46,-437.36 499.46,-449.36 499.46,-449.36 499.46,-455.36 493.46,-461.36 487.46,-461.36"/>
+<text xml:space="preserve" text-anchor="middle" x="421.57" y="-439.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Case setup and estimate</text>
+</g>
+<!-- B&#45;&gt;I -->
+<g id="edge9" class="edge">
+<title>B&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M415.59,-830.22C437.93,-813.32 461.57,-788.36 461.57,-758.36 461.57,-758.36 461.57,-758.36 461.57,-515.36 461.57,-498.13 452.52,-481.23 443.03,-468.24"/>
+<polygon fill="#597d78" stroke="#597d78" points="445.21,-467.06 439,-463.02 441.34,-470.06 445.21,-467.06"/>
+<text xml:space="preserve" text-anchor="middle" x="470.19" y="-639.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M386.83,-702.36C386.83,-702.36 146.31,-702.36 146.31,-702.36 140.31,-702.36 134.31,-696.36 134.31,-690.36 134.31,-690.36 134.31,-678.36 134.31,-678.36 134.31,-672.36 140.31,-666.36 146.31,-666.36 146.31,-666.36 386.83,-666.36 386.83,-666.36 392.83,-666.36 398.83,-672.36 398.83,-678.36 398.83,-678.36 398.83,-690.36 398.83,-690.36 398.83,-696.36 392.83,-702.36 386.83,-702.36"/>
+<text xml:space="preserve" text-anchor="middle" x="266.57" y="-680.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Review download, disk, elevation and actions</text>
+</g>
+<!-- C&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>C&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M266.57,-739.17C266.57,-730.63 266.57,-720.13 266.57,-710.68"/>
+<polygon fill="#597d78" stroke="#597d78" points="269.02,-710.9 266.57,-703.9 264.12,-710.9 269.02,-710.9"/>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M209.12,-618.36C209.12,-618.36 122.02,-618.36 122.02,-618.36 116.02,-618.36 110.02,-612.36 110.02,-606.36 110.02,-606.36 110.02,-594.36 110.02,-594.36 110.02,-588.36 116.02,-582.36 122.02,-582.36 122.02,-582.36 209.12,-582.36 209.12,-582.36 215.12,-582.36 221.12,-588.36 221.12,-594.36 221.12,-594.36 221.12,-606.36 221.12,-606.36 221.12,-612.36 215.12,-618.36 209.12,-618.36"/>
+<text xml:space="preserve" text-anchor="middle" x="165.57" y="-596.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Return to design</text>
+</g>
+<!-- D&#45;&gt;E -->
+<g id="edge4" class="edge">
+<title>D&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M245.15,-665.97C230.02,-653.68 209.6,-637.11 193.24,-623.82"/>
+<polygon fill="#597d78" stroke="#597d78" points="195.11,-622.19 188.13,-619.68 192.02,-625.99 195.11,-622.19"/>
+<text xml:space="preserve" text-anchor="middle" x="238.79" y="-639.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Decline</text>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M411.46,-618.36C411.46,-618.36 257.68,-618.36 257.68,-618.36 251.68,-618.36 245.68,-612.36 245.68,-606.36 245.68,-606.36 245.68,-594.36 245.68,-594.36 245.68,-588.36 251.68,-582.36 257.68,-582.36 257.68,-582.36 411.46,-582.36 411.46,-582.36 417.46,-582.36 423.46,-588.36 423.46,-594.36 423.46,-594.36 423.46,-606.36 423.46,-606.36 423.46,-612.36 417.46,-618.36 411.46,-618.36"/>
+<text xml:space="preserve" text-anchor="middle" x="334.57" y="-596.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Install stages and smoke test</text>
+</g>
+<!-- D&#45;&gt;F -->
+<g id="edge5" class="edge">
+<title>D&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M280.99,-665.97C290.82,-654.12 303.95,-638.28 314.76,-625.25"/>
+<polygon fill="#597d78" stroke="#597d78" points="316.62,-626.84 319.2,-619.89 312.85,-623.71 316.62,-626.84"/>
+<text xml:space="preserve" text-anchor="middle" x="323.26" y="-639.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Approve</text>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M215.14,-534.36C215.14,-534.36 12,-534.36 12,-534.36 6,-534.36 0,-528.36 0,-522.36 0,-522.36 0,-510.36 0,-510.36 0,-504.36 6,-498.36 12,-498.36 12,-498.36 215.14,-498.36 215.14,-498.36 221.14,-498.36 227.14,-504.36 227.14,-510.36 227.14,-510.36 227.14,-522.36 227.14,-522.36 227.14,-528.36 221.14,-534.36 215.14,-534.36"/>
+<text xml:space="preserve" text-anchor="middle" x="113.57" y="-512.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain stage; resume / repair / cancel</text>
+</g>
+<!-- F&#45;&gt;G -->
+<g id="edge6" class="edge">
+<title>F&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M270.75,-581.89C253.42,-576.69 234.77,-570.69 217.82,-564.36 197.13,-556.63 174.74,-546.75 156.03,-538.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="157.54,-536.04 150.16,-535.28 155.45,-540.47 157.54,-536.04"/>
+<text xml:space="preserve" text-anchor="middle" x="278.7" y="-555.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Interrupted / offline / denied</text>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M387.77,-534.36C387.77,-534.36 329.37,-534.36 329.37,-534.36 323.37,-534.36 317.37,-528.36 317.37,-522.36 317.37,-522.36 317.37,-510.36 317.37,-510.36 317.37,-504.36 323.37,-498.36 329.37,-498.36 329.37,-498.36 387.77,-498.36 387.77,-498.36 393.77,-498.36 399.77,-504.36 399.77,-510.36 399.77,-510.36 399.77,-522.36 399.77,-522.36 399.77,-528.36 393.77,-534.36 387.77,-534.36"/>
+<text xml:space="preserve" text-anchor="middle" x="358.57" y="-512.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Pin version</text>
+</g>
+<!-- F&#45;&gt;H -->
+<g id="edge8" class="edge">
+<title>F&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M339.66,-581.97C343,-570.55 347.43,-555.44 351.16,-542.69"/>
+<polygon fill="#597d78" stroke="#597d78" points="353.45,-543.58 353.06,-536.18 348.74,-542.21 353.45,-543.58"/>
+<text xml:space="preserve" text-anchor="middle" x="359.12" y="-555.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Pass</text>
+</g>
+<!-- G&#45;&gt;C -->
+<g id="edge7" class="edge">
+<title>G&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M107.88,-534.62C97.11,-570.94 78.46,-655.74 121.57,-702.36 135.35,-717.27 153.64,-728.08 172.57,-735.91"/>
+<polygon fill="#597d78" stroke="#597d78" points="171.6,-738.17 179.01,-738.44 173.38,-733.6 171.6,-738.17"/>
+</g>
+<!-- H&#45;&gt;I -->
+<g id="edge10" class="edge">
+<title>H&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M373.82,-498.17C381.95,-489.02 392.06,-477.62 400.88,-467.68"/>
+<polygon fill="#597d78" stroke="#597d78" points="402.64,-469.38 405.46,-462.52 398.98,-466.13 402.64,-469.38"/>
+</g>
+<!-- J -->
+<g id="node10" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M244.93,-385.46C244.93,-385.46 141.11,-359.58 141.11,-359.58 135.29,-358.13 135.29,-355.23 141.11,-353.78 141.11,-353.78 244.93,-327.9 244.93,-327.9 250.75,-326.45 262.39,-326.45 268.21,-327.9 268.21,-327.9 372.03,-353.78 372.03,-353.78 377.85,-355.23 377.85,-358.13 372.03,-359.58 372.03,-359.58 268.21,-385.46 268.21,-385.46 262.39,-386.91 250.75,-386.91 244.93,-385.46"/>
+<text xml:space="preserve" text-anchor="middle" x="256.57" y="-353.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Mesh gate passes?</text>
+</g>
+<!-- I&#45;&gt;J -->
+<g id="edge11" class="edge">
+<title>I&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M387.78,-425.02C363.82,-412.72 331.33,-396.05 304.67,-382.36"/>
+<polygon fill="#597d78" stroke="#597d78" points="306.01,-380.3 298.66,-379.28 303.77,-384.66 306.01,-380.3"/>
+</g>
+<!-- K -->
+<g id="node11" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M441.11,-277C441.11,-277 300.03,-277 300.03,-277 294.03,-277 288.03,-271 288.03,-265 288.03,-265 288.03,-253 288.03,-253 288.03,-247 294.03,-241 300.03,-241 300.03,-241 441.11,-241 441.11,-241 447.11,-241 453.11,-247 453.11,-253 453.11,-253 453.11,-265 453.11,-265 453.11,-271 447.11,-277 441.11,-277"/>
+<text xml:space="preserve" text-anchor="middle" x="370.57" y="-255.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Show metrics; repair mesh</text>
+</g>
+<!-- J&#45;&gt;K -->
+<g id="edge12" class="edge">
+<title>J&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M285.04,-331.78C303.02,-316.7 326.09,-297.33 343.74,-282.52"/>
+<polygon fill="#597d78" stroke="#597d78" points="345.03,-284.63 348.82,-278.26 341.88,-280.88 345.03,-284.63"/>
+<text xml:space="preserve" text-anchor="middle" x="333.52" y="-298" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- L -->
+<g id="node12" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M251.47,-277C251.47,-277 87.67,-277 87.67,-277 81.67,-277 75.67,-271 75.67,-265 75.67,-265 75.67,-253 75.67,-253 75.67,-247 81.67,-241 87.67,-241 87.67,-241 251.47,-241 251.47,-241 257.47,-241 263.47,-247 263.47,-253 263.47,-253 263.47,-265 263.47,-265 263.47,-271 257.47,-277 251.47,-277"/>
+<text xml:space="preserve" text-anchor="middle" x="169.57" y="-255.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Run: residuals, forces, elapsed</text>
+</g>
+<!-- J&#45;&gt;L -->
+<g id="edge14" class="edge">
+<title>J&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M233.48,-330.29C220.3,-315.79 203.88,-297.73 190.99,-283.55"/>
+<polygon fill="#597d78" stroke="#597d78" points="192.87,-281.99 186.35,-278.46 189.25,-285.28 192.87,-281.99"/>
+<text xml:space="preserve" text-anchor="middle" x="219.08" y="-298" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- K&#45;&gt;I -->
+<g id="edge13" class="edge">
+<title>K&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M378.46,-277.37C384.1,-290.29 391.55,-308.49 396.57,-325 406.02,-356.06 413.23,-392.8 417.42,-416.8"/>
+<polygon fill="#597d78" stroke="#597d78" points="414.98,-417.04 418.58,-423.53 419.81,-416.22 414.98,-417.04"/>
+</g>
+<!-- M -->
+<g id="node13" class="node">
+<title>M</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M587.17,-193C587.17,-193 309.97,-193 309.97,-193 303.97,-193 297.97,-187 297.97,-181 297.97,-181 297.97,-169 297.97,-169 297.97,-163 303.97,-157 309.97,-157 309.97,-157 587.17,-157 587.17,-157 593.17,-157 599.17,-163 599.17,-169 599.17,-169 599.17,-181 599.17,-181 599.17,-187 593.17,-193 587.17,-193"/>
+<text xml:space="preserve" text-anchor="middle" x="448.57" y="-171.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Retain case and partial evidence; retry eligible stage</text>
+</g>
+<!-- L&#45;&gt;M -->
+<g id="edge15" class="edge">
+<title>L&#45;&gt;M</title>
+<path fill="none" stroke="#597d78" d="M229.08,-240.51C273.71,-227.39 334.84,-209.43 381.25,-195.79"/>
+<polygon fill="#597d78" stroke="#597d78" points="381.67,-198.21 387.7,-193.89 380.29,-193.51 381.67,-198.21"/>
+<text xml:space="preserve" text-anchor="middle" x="357.73" y="-214" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel / crash</text>
+</g>
+<!-- N -->
+<g id="node14" class="node">
+<title>N</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M215.12,-193C215.12,-193 124.02,-193 124.02,-193 118.02,-193 112.02,-187 112.02,-181 112.02,-181 112.02,-169 112.02,-169 112.02,-163 118.02,-157 124.02,-157 124.02,-157 215.12,-157 215.12,-157 221.12,-157 227.12,-163 227.12,-169 227.12,-169 227.12,-181 227.12,-181 227.12,-187 221.12,-193 215.12,-193"/>
+<text xml:space="preserve" text-anchor="middle" x="169.57" y="-171.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Results snapshot</text>
+</g>
+<!-- L&#45;&gt;N -->
+<g id="edge17" class="edge">
+<title>L&#45;&gt;N</title>
+<path fill="none" stroke="#597d78" d="M169.57,-240.61C169.57,-229.3 169.57,-214.36 169.57,-201.7"/>
+<polygon fill="#597d78" stroke="#597d78" points="172.02,-201.88 169.57,-194.88 167.12,-201.88 172.02,-201.88"/>
+<text xml:space="preserve" text-anchor="middle" x="225.16" y="-214" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Required outputs verified</text>
+</g>
+<!-- M&#45;&gt;I -->
+<g id="edge16" class="edge">
+<title>M&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M454.42,-193.42C458.46,-206.37 463.46,-224.57 465.57,-241 473.86,-305.45 448.25,-379.78 432.66,-417.54"/>
+<polygon fill="#597d78" stroke="#597d78" points="430.56,-416.24 430.09,-423.64 435.07,-418.14 430.56,-416.24"/>
+</g>
+<!-- O -->
+<g id="node15" class="node">
+<title>O</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M272.47,-120C272.47,-120 66.67,-120 66.67,-120 60.67,-120 54.67,-114 54.67,-108 54.67,-108 54.67,-96 54.67,-96 54.67,-90 60.67,-84 66.67,-84 66.67,-84 272.47,-84 272.47,-84 278.47,-84 284.47,-90 284.47,-96 284.47,-96 284.47,-108 284.47,-108 284.47,-114 278.47,-120 272.47,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="169.57" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Choose field / slice / streamline / probe</text>
+</g>
+<!-- N&#45;&gt;O -->
+<g id="edge18" class="edge">
+<title>N&#45;&gt;O</title>
+<path fill="none" stroke="#597d78" d="M169.57,-156.81C169.57,-148.27 169.57,-137.77 169.57,-128.32"/>
+<polygon fill="#597d78" stroke="#597d78" points="172.02,-128.54 169.57,-121.54 167.12,-128.54 172.02,-128.54"/>
+</g>
+<!-- P -->
+<g id="node16" class="node">
+<title>P</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M296.5,-36C296.5,-36 42.64,-36 42.64,-36 36.64,-36 30.64,-30 30.64,-24 30.64,-24 30.64,-12 30.64,-12 30.64,-6 36.64,0 42.64,0 42.64,0 296.5,0 296.5,0 302.5,0 308.5,-6 308.5,-12 308.5,-12 308.5,-24 308.5,-24 308.5,-30 302.5,-36 296.5,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="169.57" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Unavailable with reason; choose supported field</text>
+</g>
+<!-- O&#45;&gt;P -->
+<g id="edge19" class="edge">
+<title>O&#45;&gt;P</title>
+<path fill="none" stroke="#597d78" d="M138.55,-83.52C132.63,-78.66 127.24,-72.81 123.88,-66 119.55,-57.23 123.27,-49.05 130.13,-42.06"/>
+<polygon fill="#597d78" stroke="#597d78" points="131.73,-43.92 135.39,-37.47 128.5,-40.23 131.73,-43.92"/>
+<text xml:space="preserve" text-anchor="middle" x="159.72" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Missing variable</text>
+</g>
+<!-- P&#45;&gt;O -->
+<g id="edge20" class="edge">
+<title>P&#45;&gt;O</title>
+<path fill="none" stroke="#597d78" d="M188.8,-36.47C195.81,-44.98 201.22,-55.6 197.57,-66 196.25,-69.75 194.35,-73.4 192.14,-76.83"/>
+<polygon fill="#597d78" stroke="#597d78" points="190.29,-75.22 188.17,-82.32 194.26,-78.09 190.29,-75.22"/>
+</g>
+</g>
+</svg>
+<figcaption>Flow 4 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Open Simulate] --&gt; B{Compatible backend ready?}
+B --&gt;|No| C[Detect / choose supported setup]
+C --&gt; D[Review download, disk, elevation and actions]
+D --&gt;|Decline| E[Return to design]
+D --&gt;|Approve| F[Install stages and smoke test]
+F --&gt;|Interrupted / offline / denied| G[Explain stage; resume / repair / cancel]
+G --&gt; C
+F --&gt;|Pass| H[Pin version]
+B --&gt;|Yes| I[Case setup and estimate]
+H --&gt; I
+I --&gt; J{Mesh gate passes?}
+J --&gt;|No| K[Show metrics; repair mesh]
+K --&gt; I
+J --&gt;|Yes| L[Run: residuals, forces, elapsed]
+L --&gt;|Cancel / crash| M[Retain case and partial evidence; retry eligible stage]
+M --&gt; I
+L --&gt;|Required outputs verified| N[Results snapshot]
+N --&gt; O[Choose field / slice / streamline / probe]
+O --&gt;|Missing variable| P[Unavailable with reason; choose supported field]
+P --&gt; O</pre></details><p>Setup is sequential because actions depend on prior state; the main workspace remains available. Download progress, mesh progress and solver progress have different labels. Residual decline is not completion; completion requires declared convergence and output checks. A solver unavailable on the chosen platform appears as unsupported, not an inert enabled button.</p>
+<h3 id="b6-flow-f5-optional-language-and-export-ai-01-06-exp-01-02">B6. Flow F5 — optional language and export (AI-01–06, EXP-01–02)</h3>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 5; full flow source follows" width="1039pt" height="966pt"
+ viewBox="0.00 0.00 1039.00 966.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 948.44)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M438.45,-930.44C438.45,-930.44 331.35,-930.44 331.35,-930.44 325.35,-930.44 319.35,-924.44 319.35,-918.44 319.35,-918.44 319.35,-906.44 319.35,-906.44 319.35,-900.44 325.35,-894.44 331.35,-894.44 331.35,-894.44 438.45,-894.44 438.45,-894.44 444.45,-894.44 450.45,-900.44 450.45,-906.44 450.45,-906.44 450.45,-918.44 450.45,-918.44 450.45,-924.44 444.45,-930.44 438.45,-930.44"/>
+<text xml:space="preserve" text-anchor="middle" x="384.9" y="-908.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Contextual assistant</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M373.12,-855.14C373.12,-855.14 234.21,-828.06 234.21,-828.06 228.32,-826.91 228.32,-824.61 234.21,-823.46 234.21,-823.46 373.12,-796.38 373.12,-796.38 379.01,-795.23 390.79,-795.23 396.68,-796.38 396.68,-796.38 535.59,-823.46 535.59,-823.46 541.48,-824.61 541.48,-826.91 535.59,-828.06 535.59,-828.06 396.68,-855.14 396.68,-855.14 390.79,-856.29 379.01,-856.29 373.12,-855.14"/>
+<text xml:space="preserve" text-anchor="middle" x="384.9" y="-822.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Key and consent present?</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M384.9,-894.3C384.9,-886.23 384.9,-876.23 384.9,-866.43"/>
+<polygon fill="#597d78" stroke="#597d78" points="387.35,-866.43 384.9,-859.43 382.45,-866.43 387.35,-866.43"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M481.5,-746.08C481.5,-746.08 246.31,-746.08 246.31,-746.08 240.31,-746.08 234.31,-740.08 234.31,-734.08 234.31,-734.08 234.31,-722.08 234.31,-722.08 234.31,-716.08 240.31,-710.08 246.31,-710.08 246.31,-710.08 481.5,-710.08 481.5,-710.08 487.5,-710.08 493.5,-716.08 493.5,-722.08 493.5,-722.08 493.5,-734.08 493.5,-734.08 493.5,-740.08 487.5,-746.08 481.5,-746.08"/>
+<text xml:space="preserve" text-anchor="middle" x="363.9" y="-724.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain optional setup; manual path remains</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M378.37,-795.01C375.54,-782.08 372.25,-767.09 369.52,-754.67"/>
+<polygon fill="#597d78" stroke="#597d78" points="371.95,-754.33 368.06,-748.02 367.17,-755.38 371.95,-754.33"/>
+<text xml:space="preserve" text-anchor="middle" x="380.16" y="-767.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M705.45,-746.08C705.45,-746.08 530.35,-746.08 530.35,-746.08 524.35,-746.08 518.35,-740.08 518.35,-734.08 518.35,-734.08 518.35,-722.08 518.35,-722.08 518.35,-716.08 524.35,-710.08 530.35,-710.08 530.35,-710.08 705.45,-710.08 705.45,-710.08 711.45,-710.08 717.45,-716.08 717.45,-722.08 717.45,-722.08 717.45,-734.08 717.45,-734.08 717.45,-740.08 711.45,-746.08 705.45,-746.08"/>
+<text xml:space="preserve" text-anchor="middle" x="617.9" y="-724.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Inspect sharing summary; submit</text>
+</g>
+<!-- B&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>B&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M436.32,-803.64C475.52,-787.55 529.2,-765.51 568.01,-749.57"/>
+<polygon fill="#597d78" stroke="#597d78" points="568.62,-751.96 574.17,-747.04 566.76,-747.43 568.62,-751.96"/>
+<text xml:space="preserve" text-anchor="middle" x="537.74" y="-767.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M606.06,-671.12C606.06,-671.12 437.92,-643.36 437.92,-643.36 432,-642.38 432,-640.42 437.92,-639.44 437.92,-639.44 606.06,-611.68 606.06,-611.68 611.98,-610.7 623.82,-610.7 629.74,-611.68 629.74,-611.68 797.89,-639.44 797.89,-639.44 803.81,-640.42 803.81,-642.38 797.89,-643.36 797.89,-643.36 629.74,-671.12 629.74,-671.12 623.82,-672.1 611.98,-672.1 606.06,-671.12"/>
+<text xml:space="preserve" text-anchor="middle" x="617.9" y="-637.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Response valid and supported?</text>
+</g>
+<!-- D&#45;&gt;E -->
+<g id="edge4" class="edge">
+<title>D&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M617.9,-709.94C617.9,-701.87 617.9,-691.87 617.9,-682.07"/>
+<polygon fill="#597d78" stroke="#597d78" points="620.35,-682.07 617.9,-675.07 615.45,-682.07 620.35,-682.07"/>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M241.81,-561.72C241.81,-561.72 12,-561.72 12,-561.72 6,-561.72 0,-555.72 0,-549.72 0,-549.72 0,-537.72 0,-537.72 0,-531.72 6,-525.72 12,-525.72 12,-525.72 241.81,-525.72 241.81,-525.72 247.81,-525.72 253.81,-531.72 253.81,-537.72 253.81,-537.72 253.81,-549.72 253.81,-549.72 253.81,-555.72 247.81,-561.72 241.81,-561.72"/>
+<text xml:space="preserve" text-anchor="middle" x="126.9" y="-540.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Unsupported / error; edit request or dismiss</text>
+</g>
+<!-- E&#45;&gt;F -->
+<g id="edge5" class="edge">
+<title>E&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M531.53,-623.57C445.75,-606.85 314.4,-581.26 224.79,-563.8"/>
+<polygon fill="#597d78" stroke="#597d78" points="225.35,-561.41 218.01,-562.47 224.41,-566.22 225.35,-561.41"/>
+<text xml:space="preserve" text-anchor="middle" x="364.07" y="-582.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M537.5,-561.72C537.5,-561.72 290.31,-561.72 290.31,-561.72 284.31,-561.72 278.31,-555.72 278.31,-549.72 278.31,-549.72 278.31,-537.72 278.31,-537.72 278.31,-531.72 284.31,-525.72 290.31,-525.72 290.31,-525.72 537.5,-525.72 537.5,-525.72 543.5,-525.72 549.5,-531.72 549.5,-537.72 549.5,-537.72 549.5,-549.72 549.5,-549.72 549.5,-555.72 543.5,-561.72 537.5,-561.72"/>
+<text xml:space="preserve" text-anchor="middle" x="413.9" y="-540.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Validated fields, shape preview and explicit diff</text>
+</g>
+<!-- E&#45;&gt;G -->
+<g id="edge6" class="edge">
+<title>E&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M568.78,-617.36C535.27,-601.64 491.24,-580.99 458.69,-565.73"/>
+<polygon fill="#597d78" stroke="#597d78" points="459.85,-563.56 452.47,-562.81 457.77,-568 459.85,-563.56"/>
+<text xml:space="preserve" text-anchor="middle" x="543.14" y="-582.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Starting design</text>
+</g>
+<!-- J -->
+<g id="node11" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M749.79,-561.72C749.79,-561.72 622.01,-561.72 622.01,-561.72 616.01,-561.72 610.01,-555.72 610.01,-549.72 610.01,-549.72 610.01,-537.72 610.01,-537.72 610.01,-531.72 616.01,-525.72 622.01,-525.72 622.01,-525.72 749.79,-525.72 749.79,-525.72 755.79,-525.72 761.79,-531.72 761.79,-537.72 761.79,-537.72 761.79,-549.72 761.79,-549.72 761.79,-555.72 755.79,-561.72 749.79,-561.72"/>
+<text xml:space="preserve" text-anchor="middle" x="685.9" y="-540.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Citations to selected run</text>
+</g>
+<!-- E&#45;&gt;J -->
+<g id="edge12" class="edge">
+<title>E&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M637.57,-612.73C647.46,-598.81 659.32,-582.12 668.82,-568.75"/>
+<polygon fill="#597d78" stroke="#597d78" points="670.62,-570.45 672.68,-563.33 666.63,-567.62 670.62,-570.45"/>
+<text xml:space="preserve" text-anchor="middle" x="709.2" y="-582.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Grounded explanation</text>
+</g>
+<!-- K -->
+<g id="node12" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M991.14,-561.72C991.14,-561.72 798.66,-561.72 798.66,-561.72 792.66,-561.72 786.66,-555.72 786.66,-549.72 786.66,-549.72 786.66,-537.72 786.66,-537.72 786.66,-531.72 792.66,-525.72 798.66,-525.72 798.66,-525.72 991.14,-525.72 991.14,-525.72 997.14,-525.72 1003.14,-531.72 1003.14,-537.72 1003.14,-537.72 1003.14,-549.72 1003.14,-549.72 1003.14,-555.72 997.14,-561.72 991.14,-561.72"/>
+<text xml:space="preserve" text-anchor="middle" x="894.9" y="-540.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Offer copy and actual recomputation</text>
+</g>
+<!-- E&#45;&gt;K -->
+<g id="edge13" class="edge">
+<title>E&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M680.89,-619.74C706.67,-611.2 736.76,-601.11 763.9,-591.72 788.73,-583.13 816.09,-573.36 839.36,-564.96"/>
+<polygon fill="#597d78" stroke="#597d78" points="839.91,-567.37 845.66,-562.68 838.25,-562.76 839.91,-567.37"/>
+<text xml:space="preserve" text-anchor="middle" x="812.17" y="-582.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">What&#45;if</text>
+</g>
+<!-- G&#45;&gt;G -->
+<g id="edge7" class="edge">
+<title>G&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M549.81,-550.34C564.81,-549.09 574.5,-546.88 574.5,-543.72 574.5,-541.2 568.34,-539.29 558.25,-537.98"/>
+<polygon fill="#597d78" stroke="#597d78" points="558.53,-535.55 551.31,-537.25 558.02,-540.42 558.53,-535.55"/>
+<text xml:space="preserve" text-anchor="middle" x="583.11" y="-540.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Edit</text>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M256.13,-477.72C256.13,-477.72 139.67,-477.72 139.67,-477.72 133.67,-477.72 127.67,-471.72 127.67,-465.72 127.67,-465.72 127.67,-453.72 127.67,-453.72 127.67,-447.72 133.67,-441.72 139.67,-441.72 139.67,-441.72 256.13,-441.72 256.13,-441.72 262.13,-441.72 268.13,-447.72 268.13,-453.72 268.13,-453.72 268.13,-465.72 268.13,-465.72 268.13,-471.72 262.13,-477.72 256.13,-477.72"/>
+<text xml:space="preserve" text-anchor="middle" x="197.9" y="-456.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Document unchanged</text>
+</g>
+<!-- G&#45;&gt;H -->
+<g id="edge8" class="edge">
+<title>G&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M320.74,-525.28C303.19,-520.59 285.26,-514.8 269.01,-507.72 254.12,-501.24 238.94,-491.69 226.45,-482.88"/>
+<polygon fill="#597d78" stroke="#597d78" points="228.14,-481.08 221.03,-478.97 225.28,-485.06 228.14,-481.08"/>
+<text xml:space="preserve" text-anchor="middle" x="285.95" y="-498.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Discard</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M424.46,-477.72C424.46,-477.72 305.34,-477.72 305.34,-477.72 299.34,-477.72 293.34,-471.72 293.34,-465.72 293.34,-465.72 293.34,-453.72 293.34,-453.72 293.34,-447.72 299.34,-441.72 305.34,-441.72 305.34,-441.72 424.46,-441.72 424.46,-441.72 430.46,-441.72 436.46,-447.72 436.46,-453.72 436.46,-453.72 436.46,-465.72 436.46,-465.72 436.46,-471.72 430.46,-477.72 424.46,-477.72"/>
+<text xml:space="preserve" text-anchor="middle" x="364.9" y="-456.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">One undoable revision</text>
+</g>
+<!-- G&#45;&gt;I -->
+<g id="edge9" class="edge">
+<title>G&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M331.84,-525.41C324.17,-520.81 317.34,-515.02 312.13,-507.72 305.7,-498.71 310.35,-490.22 319.08,-482.99"/>
+<polygon fill="#597d78" stroke="#597d78" points="320.23,-485.19 324.45,-479.09 317.35,-481.22 320.23,-485.19"/>
+<text xml:space="preserve" text-anchor="middle" x="398.02" y="-498.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Final Accept; base revision unchanged</text>
+</g>
+<!-- R -->
+<g id="node10" class="node">
+<title>R</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M699.81,-477.72C699.81,-477.72 504,-477.72 504,-477.72 498,-477.72 492,-471.72 492,-465.72 492,-465.72 492,-453.72 492,-453.72 492,-447.72 498,-441.72 504,-441.72 504,-441.72 699.81,-441.72 699.81,-441.72 705.81,-441.72 711.81,-447.72 711.81,-453.72 711.81,-453.72 711.81,-465.72 711.81,-465.72 711.81,-471.72 705.81,-477.72 699.81,-477.72"/>
+<text xml:space="preserve" text-anchor="middle" x="601.9" y="-456.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Refresh preview and review changes</text>
+</g>
+<!-- G&#45;&gt;R -->
+<g id="edge10" class="edge">
+<title>G&#45;&gt;R</title>
+<path fill="none" stroke="#597d78" d="M449.23,-525.43C468.22,-516.3 492.11,-505.09 513.73,-495.72 524.9,-490.88 536.97,-485.91 548.5,-481.3"/>
+<polygon fill="#597d78" stroke="#597d78" points="549.36,-483.59 554.96,-478.73 547.55,-479.04 549.36,-483.59"/>
+<text xml:space="preserve" text-anchor="middle" x="564.31" y="-498.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Base revision changed</text>
+</g>
+<!-- X -->
+<g id="node13" class="node">
+<title>X</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M483.16,-404.72C483.16,-404.72 246.65,-404.72 246.65,-404.72 240.65,-404.72 234.65,-398.72 234.65,-392.72 234.65,-392.72 234.65,-380.72 234.65,-380.72 234.65,-374.72 240.65,-368.72 246.65,-368.72 246.65,-368.72 483.16,-368.72 483.16,-368.72 489.16,-368.72 495.16,-374.72 495.16,-380.72 495.16,-380.72 495.16,-392.72 495.16,-392.72 495.16,-398.72 489.16,-404.72 483.16,-404.72"/>
+<text xml:space="preserve" text-anchor="middle" x="364.9" y="-383.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Current design: global Export, no AI required</text>
+</g>
+<!-- I&#45;&gt;X -->
+<g id="edge15" class="edge">
+<title>I&#45;&gt;X</title>
+<path fill="none" stroke="#597d78" d="M364.9,-441.53C364.9,-432.99 364.9,-422.49 364.9,-413.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="367.35,-413.26 364.9,-406.26 362.45,-413.26 367.35,-413.26"/>
+</g>
+<!-- R&#45;&gt;G -->
+<g id="edge11" class="edge">
+<title>R&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M614.7,-477.93C620.22,-487.58 623.97,-499.33 616.9,-507.72 607.83,-518.49 585.14,-525.94 558.07,-531.1"/>
+<polygon fill="#597d78" stroke="#597d78" points="557.88,-528.65 551.42,-532.3 558.74,-533.47 557.88,-528.65"/>
+</g>
+<!-- L -->
+<g id="node14" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M460.14,-331.72C460.14,-331.72 269.66,-331.72 269.66,-331.72 263.66,-331.72 257.66,-325.72 257.66,-319.72 257.66,-319.72 257.66,-307.72 257.66,-307.72 257.66,-301.72 263.66,-295.72 269.66,-295.72 269.66,-295.72 460.14,-295.72 460.14,-295.72 466.14,-295.72 472.14,-301.72 472.14,-307.72 472.14,-307.72 472.14,-319.72 472.14,-319.72 472.14,-325.72 466.14,-331.72 460.14,-331.72"/>
+<text xml:space="preserve" text-anchor="middle" x="364.9" y="-310.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Choose export format and tolerance</text>
+</g>
+<!-- X&#45;&gt;L -->
+<g id="edge14" class="edge">
+<title>X&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M364.9,-368.53C364.9,-359.99 364.9,-349.49 364.9,-340.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="367.35,-340.26 364.9,-333.26 362.45,-340.26 367.35,-340.26"/>
+</g>
+<!-- M -->
+<g id="node15" class="node">
+<title>M</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M227.03,-256.96C227.03,-256.96 36.98,-228.8 36.98,-228.8 31.05,-227.92 31.05,-226.16 36.98,-225.28 36.98,-225.28 227.03,-197.12 227.03,-197.12 232.97,-196.24 244.84,-196.24 250.77,-197.12 250.77,-197.12 440.82,-225.28 440.82,-225.28 446.76,-226.16 446.76,-227.92 440.82,-228.8 440.82,-228.8 250.77,-256.96 250.77,-256.96 244.84,-257.84 232.97,-257.84 227.03,-256.96"/>
+<text xml:space="preserve" text-anchor="middle" x="238.9" y="-223.44" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Format and geometry checks pass?</text>
+</g>
+<!-- L&#45;&gt;M -->
+<g id="edge16" class="edge">
+<title>L&#45;&gt;M</title>
+<path fill="none" stroke="#597d78" d="M339.1,-295.38C323.07,-284.61 302.03,-270.47 283.38,-257.93"/>
+<polygon fill="#597d78" stroke="#597d78" points="285.06,-256.11 277.88,-254.23 282.32,-260.17 285.06,-256.11"/>
+</g>
+<!-- N -->
+<g id="node16" class="node">
+<title>N</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M211.47,-133.68C211.47,-133.68 32.34,-133.68 32.34,-133.68 26.34,-133.68 20.34,-127.68 20.34,-121.68 20.34,-121.68 20.34,-109.68 20.34,-109.68 20.34,-103.68 26.34,-97.68 32.34,-97.68 32.34,-97.68 211.47,-97.68 211.47,-97.68 217.47,-97.68 223.47,-103.68 223.47,-109.68 223.47,-109.68 223.47,-121.68 223.47,-121.68 223.47,-127.68 217.47,-133.68 211.47,-133.68"/>
+<text xml:space="preserve" text-anchor="middle" x="121.9" y="-112.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain failure; return to geometry</text>
+</g>
+<!-- M&#45;&gt;N -->
+<g id="edge17" class="edge">
+<title>M&#45;&gt;N</title>
+<path fill="none" stroke="#597d78" d="M210.28,-199.29C190.71,-180.99 165.04,-157 146.41,-139.59"/>
+<polygon fill="#597d78" stroke="#597d78" points="148.27,-137.98 141.49,-134.99 144.93,-141.56 148.27,-137.98"/>
+<text xml:space="preserve" text-anchor="middle" x="190.3" y="-168.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+</g>
+<!-- O -->
+<g id="node17" class="node">
+<title>O</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M324.62,-143.28C324.62,-143.28 259.47,-119.76 259.47,-119.76 253.82,-117.72 253.82,-113.64 259.47,-111.6 259.47,-111.6 324.62,-88.08 324.62,-88.08 330.26,-86.04 341.55,-86.04 347.19,-88.08 347.19,-88.08 412.34,-111.6 412.34,-111.6 417.98,-113.64 417.98,-117.72 412.34,-119.76 412.34,-119.76 347.19,-143.28 347.19,-143.28 341.55,-145.32 330.26,-145.32 324.62,-143.28"/>
+<text xml:space="preserve" text-anchor="middle" x="335.9" y="-112.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Write export</text>
+</g>
+<!-- M&#45;&gt;O -->
+<g id="edge18" class="edge">
+<title>M&#45;&gt;O</title>
+<path fill="none" stroke="#597d78" d="M263.13,-198.73C277.2,-182.86 294.94,-162.86 309.38,-146.58"/>
+<polygon fill="#597d78" stroke="#597d78" points="311.13,-148.31 313.94,-141.44 307.46,-145.05 311.13,-148.31"/>
+<text xml:space="preserve" text-anchor="middle" x="298.93" y="-168.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+</g>
+<!-- S -->
+<g id="node18" class="node">
+<title>S</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M330.46,-36C330.46,-36 147.34,-36 147.34,-36 141.34,-36 135.34,-30 135.34,-24 135.34,-24 135.34,-12 135.34,-12 135.34,-6 141.34,0 147.34,0 147.34,0 330.46,0 330.46,0 336.46,0 342.46,-6 342.46,-12 342.46,-12 342.46,-24 342.46,-24 342.46,-30 336.46,-36 330.46,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="238.9" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Export with revision and limitations</text>
+</g>
+<!-- O&#45;&gt;S -->
+<g id="edge19" class="edge">
+<title>O&#45;&gt;S</title>
+<path fill="none" stroke="#597d78" d="M312.92,-92.01C297.68,-76.98 277.75,-57.32 262.42,-42.19"/>
+<polygon fill="#597d78" stroke="#597d78" points="264.35,-40.66 257.65,-37.49 260.91,-44.15 264.35,-40.66"/>
+<text xml:space="preserve" text-anchor="middle" x="303.39" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Success</text>
+</g>
+<!-- T -->
+<g id="node19" class="node">
+<title>T</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M602.47,-36C602.47,-36 379.33,-36 379.33,-36 373.33,-36 367.33,-30 367.33,-24 367.33,-24 367.33,-12 367.33,-12 367.33,-6 373.33,0 379.33,0 379.33,0 602.47,0 602.47,0 608.47,0 614.47,-6 614.47,-12 614.47,-12 614.47,-24 614.47,-24 614.47,-30 608.47,-36 602.47,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="490.9" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Preserve existing file; choose path or retry</text>
+</g>
+<!-- O&#45;&gt;T -->
+<g id="edge20" class="edge">
+<title>O&#45;&gt;T</title>
+<path fill="none" stroke="#597d78" d="M356.05,-90.95C367.5,-78.62 382.69,-64.07 398.53,-54 407.1,-48.56 416.64,-43.76 426.25,-39.6"/>
+<polygon fill="#597d78" stroke="#597d78" points="427.03,-41.93 432.56,-36.99 425.15,-37.41 427.03,-41.93"/>
+<text xml:space="preserve" text-anchor="middle" x="435.22" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Denied / disk full</text>
+</g>
+<!-- T&#45;&gt;L -->
+<g id="edge21" class="edge">
+<title>T&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M494.07,-36.19C500.83,-78.24 512.43,-188.02 464.9,-258.72 455.44,-272.79 441.07,-283.5 426.14,-291.52"/>
+<polygon fill="#597d78" stroke="#597d78" points="425.27,-289.21 420.13,-294.56 427.49,-293.58 425.27,-289.21"/>
+</g>
+</g>
+</svg>
+<figcaption>Flow 5 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Contextual assistant] --&gt; B{Key and consent present?}
+B --&gt;|No| C[Explain optional setup; manual path remains]
+B --&gt;|Yes| D[Inspect sharing summary; submit]
+D --&gt; E{Response valid and supported?}
+E --&gt;|No| F[Unsupported / error; edit request or dismiss]
+E --&gt;|Starting design| G[Validated fields, shape preview and explicit diff]
+G --&gt;|Edit| G
+G --&gt;|Discard| H[Document unchanged]
+G --&gt;|Final Accept; base revision unchanged| I[One undoable revision]
+G --&gt;|Base revision changed| R[Refresh preview and review changes]
+R --&gt; G
+E --&gt;|Grounded explanation| J[Citations to selected run]
+E --&gt;|What-if| K[Offer copy and actual recomputation]
+X[Current design: global Export, no AI required] --&gt; L[Choose export format and tolerance]
+I --&gt; X
+L --&gt; M{Format and geometry checks pass?}
+M --&gt;|No| N[Explain failure; return to geometry]
+M --&gt;|Yes| O{Write export}
+O --&gt;|Success| S[Export with revision and limitations]
+O --&gt;|Denied / disk full| T[Preserve existing file; choose path or retry]
+T --&gt; L</pre></details><h3 id="b7-wireframe-structure-and-progressive-disclosure">B7. Wireframe structure and progressive disclosure</h3>
+<p>Persistent top band: document name, save state, Undo/Redo and task destinations. Left: project/surface plus station list or run list. Center: dominant 3D view or evidence plot. Right: one selection inspector with units and driver status. Bottom: focused curve/profile editor in Shape/Sections; sweeps/history in Analyze/Results. Footer: current revision, units, backend availability and operation state. The assistant is a collapsed side/bottom affordance that expands only on request.</p>
+<p>The initial frame shows one curve, one selected station, one inspector and one principal result. Other channels remain one action away. Long labels truncate visually only with full accessible names and a details affordance. A narrow window collapses secondary panels into explicit tabs/drawers; it does not scale the entire interface to illegible text. Native desktop minimum target is 1024×700 logical pixels; the mockup also offers a smaller review viewport to expose reflow failures.</p>
+<h3 id="b8-ux-acceptance-criteria">B8. UX acceptance criteria</h3>
+<ul>
+<li><strong>UX-01:</strong> From Shape, select a station in ≤1 action and reach its section editor in ≤1 additional action; selection agrees across all visible views.</li>
+<li><strong>UX-02:</strong> Exact-value edit, Undo and Save are possible without a pointer; focus returns to the edited parameter after validation/recovery.</li>
+<li><strong>UX-03:</strong> Every error above includes the cause, preserved work and a reachable recovery action; no setup or AI failure forces application restart.</li>
+<li><strong>UX-04:</strong> Switching task destination preserves selection, viewport and current dirty revision; returning to a historical run never overwrites the current model.</li>
+<li><strong>UX-05:</strong> During formative research, users can explain whether a field is driving, derived or historical; at least four of five correctly identify all three on the sample task. Research is pending.</li>
+<li><strong>UX-06:</strong> Every optional dependency has a usable absence state. Installing a solver and configuring AI are never prerequisites to editing or saving geometry.</li>
+</ul>
+<h2 id="part-c-ui-specification">Part C — UI specification</h2>
+<h3 id="c1-direction-and-archetype">C1. Direction and archetype</h3>
+<p><strong>G1 · Parametric Modeling Workbench</strong> is auto-selected because the dominant job is spatial model construction with precise parameter editing. <strong>G2 · Scientific Visualization Pipeline</strong> is the Results specialization because field inspection follows sources, variables and transforms. A dashboard card grid and a chat-first interface were rejected: neither expresses continuous shape editing and its ownership clearly.</p>
+<p><code>ParametricWorkbench { Type:Configurator; Arch:SpatialBounded; Layout:ViewportWorkbench; Density:Compact; Nav:Ribbon+CommandPalette; Viewport:DesktopBound; Input:PrecisionPointer+SpatialGestures+KeyboardFirst; Color:DarkAdaptive; Type:Utilitarian; Depth:Diegetic3D; Sync:LocalFirst; Persistence:LocalDevice; Feedback:Optimistic+Confirmed; Motion:Micro; Pacing:Freeform; Transition:HardCut; A11y:WCAG_2.2_AA; }</code></p>
+<p>Deviations from catalog: LocalDevice replaces Cloud; KeyboardFirst is explicit; task tabs and a slim tool strip specialize Ribbon; domain station/curve history replaces generic sketch/extrude/fillet history. G2 Results retains local persistence, AsyncPipeline and unit-bearing scalar legends. The grammar&#39;s overloaded Type facet is preserved from its published signature; these are design selectors, not an application schema.</p>
+<p>Direction: <strong>precise, composed, tactile</strong>; opposites: vague, crowded, decorative. Use a light technical workspace with a dark model canvas as the initial review direction, plus dark and high-contrast modes. Named references: Shape3d&#39;s orthogonal curve/slice relationship, OpenVSP&#39;s section vocabulary, Fusion&#39;s selection/inspector pattern, ParaView&#39;s source/field provenance. Adapt patterns only; no third-party UI assets or product artwork are copied.</p>
+<p>Medium: native desktop product for macOS and Windows; framework/distribution format unselected. HTML is an interaction/design prototype, not native proof. Apple HIG governs Mac menus, windows and Command shortcuts; Microsoft desktop guidance governs Windows focus, accelerators and UI Automation behavior.</p>
+<p>Trigger union: <strong>UI-T1 applies</strong> (expert quantities), <strong>UI-T2 does not</strong> (no generated imagery), <strong>UI-T3 applies</strong> (optional model-backed assistant), <strong>UI-T4 applies at product handoff</strong> (native desktop); native proof remains Flagged until runtime exists. No toolkit is selected by the mockup.</p>
+<h3 id="c2-design-system-states-and-numeric-integrity">C2. Design system, states and numeric integrity</h3>
+<p><a href="../../DESIGN.md">DESIGN.md</a> is the authoritative token and real-copy system. Typography uses platform UI sans with tabular numbers; plots/values use aligned numerals and explicit units. Teal identifies the active selection consistently across station/curve/profile; warning/error also carry icons and text. Scientific continuous fields use cividis or another documented perceptually uniform map, with a persistent unit-bearing legend. Cp is dimensionless and labeled as such. No rainbow maps or decorative chart gradients.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Required default and hard states</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Document shell</td>
+<td>saved/dirty, first launch, loading/recovery, unsupported file, save denied, long name</td>
+</tr>
+<tr>
+<td>Curve and station editor</td>
+<td>selected/hover/focus, editable/locked, dragging, invalid candidate, recipe detachment, empty stations, regeneration, long table</td>
+</tr>
+<tr>
+<td>Profile library</td>
+<td>catalog/modified, source details, missing polar/license, conversion preview/failure, no matches</td>
+</tr>
+<tr>
+<td>Analysis</td>
+<td>supported result, computing, unavailable, out of envelope, historical, disagreement, failed sweep samples</td>
+</tr>
+<tr>
+<td>Backend/case</td>
+<td>missing, detecting, consent, downloading, denied/interrupted, repair, ready, mesh failure, running/cancelled/failed/completed</td>
+</tr>
+<tr>
+<td>Results</td>
+<td>field present/absent, partial output, loading, stale run, long histories, selected probe and uncertainty unknown</td>
+</tr>
+<tr>
+<td>Assistant</td>
+<td>no key, ready, sharing review, pending/cancelled, proposal review, unsupported answer, 401/timeout/quota, wrong answer/correction</td>
+</tr>
+<tr>
+<td>Export</td>
+<td>format available/unavailable, tolerance entry, failed closure, overwrite choice, progress/success/failure</td>
+</tr>
+</tbody></table></div>
+<p>All interactive components have default/hover/focus/active/disabled states where applicable. Empty/loading/error states belong to the containing task; they are not meaningless decorative variants of a button. The review harness must exercise persona, viewport, state, theme, density, capability and reduced motion, with its controls visually separate from product chrome.</p>
+<h3 id="c3-ui-acceptance-criteria">C3. UI acceptance criteria</h3>
+<ul>
+<li><strong>UI-01:</strong> Every visible input has a persistent label and physical units; numbers use tabular figures and right alignment in tables. Derived quantities cannot be mistaken for editable fields.</li>
+<li><strong>UI-02:</strong> Text contrast ≥4.5:1 (large text ≥3:1), meaningful graphical controls/focus ≥3:1, no color-only state. Non-text plotting marks meet legibility/contrast appropriate to their legend/background.</li>
+<li><strong>UI-03:</strong> All pointer actions have keyboard equivalents, including station selection, view changes and precision curve edits; drag is never the only means. Native accessibility tree names/roles/values are verified separately on both OSes.</li>
+<li><strong>UI-04:</strong> Targets ≥24×24 CSS pixels under WCAG 2.2; standalone primary buttons ≥44 px high; dense scientific controls may use 32 px with clear separation. Focus remains visible and unobscured. At 200% zoom the document remains operable through reflow/panel disclosure.</li>
+<li><strong>UI-05:</strong> Motion only explains selection/regeneration; no continuous decorative motion. Reduced-motion removes animated transitions and preserves status messages; loading indication does not require animation.</li>
+<li><strong>UI-06:</strong> A geometry change immediately shows regeneration/historical status before any result might be mistaken for current. A failed recompute cannot clear historical status.</li>
+<li><strong>UI-07:</strong> Every field view has variable, unit, scale and source run. Unsupported field/physics controls explain their unavailability. Scientific uncertainty is displayed or explicitly Not quantified.</li>
+<li><strong>UI-08:</strong> First launch offers New/Open/Sample; an error state identifies next action; overflow includes a long project name, negative angle and large result count without overlapping controls.</li>
+<li><strong>UI-09:</strong> Optional assistant applies HAX capability/quality disclosure, invocation/dismissal/correction, uncertainty and explanation guidance. Shape-of-AI patterns: Wayfinder prompts, Tuner context, Governor proposal acceptance, Trust-builder citations and Identifier AI labeling. Wrong-answer and absent-evidence paths are first-class.</li>
+<li><strong>UI-10:</strong> Prototype page makes no external request, opens from a local file, and labels sample physics as Illustrative. Its in-artifact check first verifies a nonzero rendered frame, then reports contrast/target findings honestly; it never substitutes for native or scientific validation.</li>
+</ul>
+<h3 id="c4-mockup-coverage-and-traceability">C4. Mockup coverage and traceability</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Screen / route</th>
+<th>Flow</th>
+<th>Functional coverage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Start / document state</td>
+<td>F1</td>
+<td>DOC-01–04</td>
+</tr>
+<tr>
+<td>Shape</td>
+<td>F2</td>
+<td>GEO-01–12, DOC-03</td>
+</tr>
+<tr>
+<td>Sections</td>
+<td>F2</td>
+<td>CAT-01–03, GEO-07–08</td>
+</tr>
+<tr>
+<td>Analyze</td>
+<td>F3</td>
+<td>ANA-01–16</td>
+</tr>
+<tr>
+<td>Simulate</td>
+<td>F4</td>
+<td>CFD-01–04</td>
+</tr>
+<tr>
+<td>Results</td>
+<td>F3/F4</td>
+<td>VIZ-01–02, ANA-06–08</td>
+</tr>
+<tr>
+<td>Assistant and export states</td>
+<td>F5</td>
+<td>AI-01–06, EXP-01–02</td>
+</tr>
+</tbody></table></div>
+<p>The prototype shall make core selection and dimension editing interactive. Solver execution, AI responses, OS dialogs and installation may be deterministic demonstrations, but must be labeled and may not claim work was executed. Remaining native/physics behavior is a specified future acceptance test, not a mockup failure disguised as proof.</p>
+<h2 id="evidence-decisions-and-remaining-gates">Evidence, decisions and remaining gates</h2>
+<h3 id="confidence-ledger">Confidence ledger</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Confidence</th>
+<th>Evidence / next proof</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>User wants Mac/PC design, specification and iterative mockups</td>
+<td>Verified</td>
+<td>Current request</td>
+</tr>
+<tr>
+<td>CFD-Bench requires station/loft grammar and one-way generation</td>
+<td>Verified source contract</td>
+<td>Parametric geometry source, sections “3D grammar” and “Two layers”</td>
+</tr>
+<tr>
+<td>Later proposal requires hand-edited curves and bulkheads</td>
+<td>Verified source intent</td>
+<td>WorkBench sequence §3.1–3.1c</td>
+</tr>
+<tr>
+<td>Curves + complete interpolation + station profiles best meet simplicity/power</td>
+<td>Inferred design decision</td>
+<td>Reconciles non-unique sampled geometry and dual-authority failure; test with user editing sessions</td>
+</tr>
+<tr>
+<td>Primary engineer persona and six-stage sequence</td>
+<td>Verified source intent</td>
+<td>Proposal/sequence; actual usability remains Flagged</td>
+</tr>
+<tr>
+<td>Proposed 1 µm persistence tolerance and performance budgets are achievable</td>
+<td>Flagged targets</td>
+<td>Geometry/toolkit spikes and benchmark fixtures on both platforms</td>
+</tr>
+<tr>
+<td>Numerical, CFD and structural validity</td>
+<td>Flagged by method</td>
+<td>Dataset admission, implementation verification and comparable experiments required</td>
+</tr>
+<tr>
+<td>HTML interaction quality</td>
+<td>Pending independent rendered review</td>
+<td>Recorded in UI review artifact</td>
+</tr>
+<tr>
+<td>Native accessibility, packaging and backend readiness</td>
+<td>Flagged</td>
+<td>No native application exists in this change</td>
+</tr>
+</tbody></table></div>
+<h3 id="open-decisions-with-owners-and-exit-evidence">Open decisions with owners and exit evidence</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Owner lens</th>
+<th>Exit evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Toolkit, viewport and minimum OS support</td>
+<td>Native Desktop / Architect</td>
+<td>Same selection/curve fixture on Mac+Windows; keyboard/a11y/scaling and packaging proof</td>
+</tr>
+<tr>
+<td>Exact shape evaluator and file schema</td>
+<td>Geometry / Data Architect</td>
+<td>Lossless handle/loft round trip, continuity fixtures, version migrations and cross-platform numerical equivalence</td>
+</tr>
+<tr>
+<td>Profile admission / external DAT import</td>
+<td>Domain / Product</td>
+<td>Licensed source inventory and bounded Selig/Lednicer parser/provenance tests before S2 release; arbitrary CAD import remains deferred</td>
+</tr>
+<tr>
+<td>Scientific validity/envelopes</td>
+<td>Hydrofoil domain reviewer</td>
+<td>Comparable datasets, declared tolerances, convergence and uncertainty evaluation</td>
+</tr>
+<tr>
+<td>Local CFD backend/version/substrate</td>
+<td>CFD / SRE</td>
+<td>Install/detect/smoke/cancel/recovery cases on both platforms; license review</td>
+</tr>
+<tr>
+<td>Export/manufacturing</td>
+<td>Geometry / fabrication reviewer</td>
+<td>Target CAD/CAM round-trip and manufacturing policy; no claimed fabrication readiness before proof</td>
+</tr>
+<tr>
+<td>Optional AI capabilities</td>
+<td>AI / Security</td>
+<td>Provider contract spike, egress inspection and capability-specific evals</td>
+</tr>
+<tr>
+<td>User evidence</td>
+<td>UX Researcher</td>
+<td>Observed curve→station→save and analysis interpretation tasks; revise this spec from findings</td>
+</tr>
+</tbody></table></div>
+<h3 id="gate-record">Gate record</h3>
+<p>Independent functional/domain/UX/security review and UI critique are recorded in <code>docs/reviews/</code>. Initial draft authored bottom-up; no product runtime, experimental validation or native accessibility pass is asserted. This document remains <strong>in-review</strong> for user iteration. The specification can be complete while implementation choices and their future proof remain explicit release gates.</p>
+<p><strong>Handoff:</strong> iterate the shape workspace with the user, then run define-architecture for the cross-platform shell, canonical geometry/file contract and numerical/backend boundaries; design-slice each deliverable against this specification and DESIGN.md.</p>
+<footer>Generated from the complete Markdown specification. Source SHA-256: f69da574650aacb108dfa2e849d7088cd0b2b350af242fd45b9c936bba4d89b6. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>

@@ -1,0 +1,21 @@
+{
+  "checkedBlocks": 459,
+  "missing": [],
+  "flows": 5,
+  "frame": {
+    "width": 1120,
+    "height": 26674.515625
+  },
+  "sourceHash": "f69da574650aacb108dfa2e849d7088cd0b2b350af242fd45b9c936bba4d89b6",
+  "overflow": false,
+  "visibleNavAfterFilter": 1,
+  "emptyFilter": {
+    "links": 0,
+    "status": "NO MATCHING SECTIONS. CLEAR THE SEARCH TO BROWSE ALL.",
+    "visible": true
+  },
+  "narrowOverflow": false,
+  "externalRequests": [],
+  "pageErrors": [],
+  "hashMatches": true
+}

@@ -1,0 +1,461 @@
+---
+id: cfd-workbench-proposal
+title: "CFD WorkBench — from the cfd-bench corpus to a Mac/Windows product"
+type: proposal
+status: draft
+owner: "@timianmalloo"
+created: 2026-09-19
+review-by: 2026-12-19
+summary: >-
+  Evolve cfd-bench from a harness-benchmark corpus into a user-friendly hydrofoil design
+  workbench that runs on Mac and Windows. Keep the physics, geometry grammar, commitments
+  and phasing verbs. Drop WPF+Helix+CUDA-as-required. Recover both unpushed Windows
+  trees (Copilot CLI + Claude WPF) before they rot; do not rewrite into Rust to make
+  the app native.
+---
+
+# CFD WorkBench
+
+**From the cfd-bench corpus to a Mac and Windows product.**
+
+19 September 2026 · grounded in `~/projects/cfd-bench`, the GHCP grade snapshot of 8 September, the Claude Code GitHub seed, and the operator’s 19 September correction that Claude **did** land a functional (warts-and-all) WPF app on Windows that never reached `origin/main` · not a plan of record until the open questions at the end are answered.
+
+This packet has two other files: [inventory.md](inventory.md) (spikes and research) and [proposal.html](proposal.html) (the same proposal, designed to be read).
+
+---
+
+## 1. The point
+
+cfd-bench already knows what the tool is. It spent a week becoming a sourced knowledge base and a set of HTML proposals, then another few days becoming a harness benchmark. The benchmark did its job: it showed that an autonomous P0–P6 build, under the AI-Forward loop, **does not produce a product**. It produces a CLI spine, a contaminated validation corpus, 61 leftover worktrees, and a GitHub remote that still looks like the seed.
+
+The product work is therefore not “run the benchmark again with a better prompt.” It is: **take the knowledge as given, close the few decisions the corpus left open, change the three assumptions that make the spec Windows-only, and build a workbench a person would double-click.**
+
+The three assumptions that have to change:
+
+1. **The machine is Windows / NVIDIA.** The original intent line is “C# and WPF and CUDA … local CFD on windows / nvidia machines.” You are now asking for Mac and Windows. Mac has no CUDA. HelixToolkit.Wpf.SharpDX is DirectX 11. WSL2 is not a Mac substrate.
+2. **The first user-visible surface is a WPF shell.** The phasing plan already said P1 should be headless. GHCP accidentally proved that: the only verb a grader could re-execute was `measure-wing` on a JSON file. That is the right spine. The shell comes after the numbers.
+3. **A harness will specify, architect and implement P0–P6 from one prompt.** It will not. Use the pack for slices. Write the spec yourself.
+
+Everything else in the corpus — the estimator chain, the station-and-loft grammar, COMMIT-01..04, “language in / numbers out,” “P3 is arguably the product,” “honest v1 is P5,” the free-surface de-risk slice — still holds.
+
+---
+
+## 2. What cfd-bench already decided
+
+This section is a map, not a rewrite. Citations are to paths under `~/projects/cfd-bench`.
+
+### 2.1 The product
+
+A **local design and analysis tool for one water-sports hydrofoil wing** (front or rear), not a general CFD package and not a whole-craft simulator. Most questions are closed-form in microseconds. Simulation exists for the narrow band the chain cannot see: free-surface proximity, separation, ventilation onset, 3D stall.
+
+The user is **an engineer who understands fluid mechanics and must be able to think in rider requirements.** Full technical register on screen. Rider language is outbound (P6 vocabulary bridge), not a simplification of the UI.
+
+Disciplines in the catalog: surf, wing/freeride, SUP/downwind, windsurf/race. Salt and fresh are ITTC fluid records, not different physics.
+
+The benchmark scenario (wingfoil, front wing only, 70 °F, 5–30 kn, 65–90 kg) is a **test fixture**, not a narrowing of the product. One error in that fixture: “starting wingspan 900 cm” is a unit slip. Domain span is 95–107 cm. GHCP’s working sample was a sane 1.2 m.
+
+### 2.2 Why it is worth building
+
+After dropping surfboards, two gaps remain:
+
+- **Free surface / shallow submergence / ventilation** — no small tool models it; hydrofoils run shallow where it dominates.
+- **Integration** — nothing joins a `Cp_min`-retaining section catalog, a cavitation check, and live L/D over parametric geometry.
+
+If the CFD tier never ships, what remains is “a very good XFLR5-for-hydrofoils.” That is genuinely useful. It is not the thing the project was justified on. **Decide that deliberately.** The phasing plan already named the move: a two-week de-risking slice (DR) after P3, one hand-meshed free-surface run, sixteen weeks before P7.
+
+### 2.3 Geometry
+
+Four concepts: **assembly → surface → station → loft rule.** A strut is a surface with a vertical span axis. A rear wing is the same object in the front wing’s downwash — context, not the design target.
+
+Two layers, one-way: a small generative vector **emits** explicit stations. Stations are the geometry of record. Estimator, VLM, mesher and export read stations only. **Derive, never store:** span, area, aspect ratio, mean chord.
+
+Sections are CST (Kulfan) or a catalog reference. 11 UIUC files are already vendored with hashes. The Eppler set splits: five cambered lifting sections, three symmetric strut sections (E836/E837/E838). Ranking is Reynolds-dependent. Thickness has **no hydrodynamic optimum**; 9% → 12% t/c costs ~14% section L/D and 3.8 kn of cavitation-free speed.
+
+The editable objects are **five 2D distribution curves** — outline, chord, anhedral, thickness, twist — degree-5 splines, curvature comb always on. The 3D viewport displays and selects. That is Shape3d, not Rhino.
+
+No B-Rep kernel (decision-0001). Own loft maths. rhino3dm (MIT) if NURBS gets hard. STEP is a serialisation of `B_SPLINE_SURFACE_WITH_KNOTS`, with OpenVSP as the precedent.
+
+### 2.4 Physics tiers
+
+| Tier | Cost | Job |
+|---|---|---|
+| Estimator | ~10 µs | Helmbold, lifting-line, ITTC 1957, Hoerner form, `V_crit = 13.94/√σᵢ` with ITTC `pv` |
+| VLM | ~10–100 ms | Spanwise loading, **computed** span efficiency, stab downwash, `α_eff` for section views |
+| Beam | with VLM | Thickness as a solved quantity (GAP-02); loads from the lattice |
+| CFD / LBM | minutes | Free surface, separation, ventilation. Behind `ICfdBackend` |
+
+Disagreement between tiers is a **finding**. What the UI shows when they disagree is still GAP-06.
+
+Validity envelopes are enforced in the tool. Linear methods at 30° α are meaningless.
+
+### 2.5 Commitments — these do not move
+
+| ID | Rule |
+|---|---|
+| **COMMIT-01** | No optimiser result on estimator evidence alone. Re-check at VLM; fabrication-bound work at CFD. Confidence beside score. |
+| **COMMIT-02** | Permissive licences only (MIT, BSD, Apache). No LGPL, no OCCT, no Typhoon, no FluidX3D-as-component. |
+| **COMMIT-03** | Import means files this tool wrote. |
+| **COMMIT-04** | The model reads and writes language. The solver reads and writes numbers. No key, no network, the wing still gets designed. |
+
+### 2.6 Phasing verbs (keep)
+
+P0 define a wing → P1 estimate, validated → P2 read a wing → P3 draw a wing → **DR** one free-surface case → P4 trust the numbers (VLM + beam) → P5 state a goal → P6 explain it → P7 prove it (CFD).
+
+Useful tool at end of P3 (~40%). Honest v1 at end of P5 (~72%). P6 is polish. P7 is the differentiator.
+
+### 2.7 What is still open in the corpus
+
+- **GAP-04** units, origin, signs — cheapest to close, most expensive to leave. P0’s actual first deliverable.
+- **GAP-01** DTIC tables located, not extracted; and the report is foil-plus-strut, so the P1 “wing-only vs ADA032272” gate may be unsatisfiable as written.
+- **GAP-02** structures — largest genuine hole.
+- **GAP-08** native file format — load-bearing because it is the only import path.
+- **GAP-16** empty state / first launch — every proposal shows a populated screen.
+- **PROC-02** architecture decisions live in proposal prose. GHCP wrote five ADRs on Windows; they are not here.
+
+---
+
+## 3. What the harnesses actually did
+
+### 3.1 The evidence rule
+
+Neither GitHub remote holds product source. `~/projects/CFD-Bench-GHCP` and `~/projects/CFD-Bench-ClaudeCode` on `origin/main` are seed copies of cfd-bench plus coordination config. Claiming an implementation quality score from those clones would be fabricating evidence.
+
+The **record** is:
+
+- cfd-bench knowledge and proposals (the spec corpus)
+- `docs/benchmark/comparisons/grade-20260908T204118Z.*` (GHCP, graded on a Windows tree the grader could see)
+- Claude Code’s committed runbook and `coord-enablement` audit (what GitHub kept)
+- Grader-debug asides in cfd-bench’s own audit log that mention a two-run pass, **not** filed as a comparison
+- **Operator, 19 September 2026:** Claude Code **did** build a functional WPF implementation on the Windows machine, incomplete and with warts, and it was not pushed. That statement is treated as fact about existence. Source still cannot be inspected from this Mac.
+
+### 3.2 GitHub Copilot (GHCP)
+
+**Where it lived.** `C:\Projects\CFD-Bench-GHCP`, SHA `db42694`, 8 September 2026. Never pushed. Graded SHA is not on GitHub (API 422).
+
+**What the grader could re-execute.** One phase: P0.
+
+```
+measure-wing samples/p0/context-surface-preserved.cfdbench-wing.json
+span_m=1.200000  area_m2=0.216000  aspect_ratio=6.666667  mean_chord_m=0.180000
+```
+
+`CfdBench.Cli` release build clean. 84/84 Core tests, 1/1 CompileGuards. AR is derived (`1.2²/0.216 = 6.6̅`). That is the product’s first verb, demonstrated on the artifact, not inferred from source.
+
+**Tree at that SHA (counts, not files we have):** 26,693 LOC; 63 `.cs`; 2 `.xaml`; 30 `.py`; **8 projects, 0 `.sln`**; 1 spec; 5 ADRs; defect-classes present. Hottest product files: `src/CfdBench.Cli/CliApplication.cs`, `tests/CfdBench.Core.Tests/CliIntegrationTests.cs`.
+
+**P1.** Estimator implemented. `validate-p1` exits 1 with `P1-VALIDATION-DATA-MISSING`. `estimate-wing` fails closed on defaults (`P1-INVALID-OPERATING-POINT`). A delegate committed artificial polars and unauthenticated DTIC coefficients; the owner retracted them. EFD review: PASS approximate numerical source, **FAIL wing-only**. Zero admitted experimental cases. Prompt §7 makes fabrication disqualifying. Official score: P1 **not complete**.
+
+**Then they kept going.** The verdict is frozen on the P1 HALT (“P2–P6 not started”). The extractor snapshot the same afternoon is a live run: P2 WPF + ScottPlot.WPF 5.1.59; P3 quintic curve editing with a current-shape CLI (`L/D 16.75`, cavitation margin 5.67); P4 VLM wake + beam (`CL 0.306` free vs `0.184` in context, computed `e ≈ 1.0017`). P5/P6 not started. Continuing past HALT into “trust the numbers” while P1 is unvalidated **violates COMMIT-01 in spirit**, even though later slices are interesting.
+
+**Process.** 148 commits, +241,927 / −11,042 lines, 61 worktrees still registered, 18 delegations, peak concurrency 2, speedup **1.14**, 6 of 8 planned tracks **struck** (the actual win), 16 fabrication/retraction markers, 52 defect classes, 22.3 hours of audit-measured work per demonstrated phase. Coordination plumbing scored almost perfectly (99.6% edits under lease) and still did not produce a product.
+
+**Grade.** C+, composite 0.665, 1 of 7 phases demonstrated, integrity 0.46. An honest halt over a gate that may have been unsatisfiable.
+
+### 3.3 Claude Code
+
+**Two layers, do not flatten them.**
+
+**What GitHub kept** (`origin/main` as of this clone): no `src/`, no run report, no `BENCHMARK-HALT`, no spec, no ADRs. One extra committed artifact versus the seed: `docs/notes/coordination-enablement-runbook.md`, plus a regenerated `.agents/artifacts.yml`. That runbook is real pack work. It measured, on Windows, Claude Code 2.1.263: the layer ships inert; `classify init` runs generators before writing them; the floor is mutual exclusion not claim-required; no mechanism sets a per-session-unique `AGENT_SESSION`; `python3` is not Python on Windows.
+
+**What Windows kept, and GitHub did not.** The operator (19 September 2026) states Claude Code **did** build a functional WPF implementation on the local Windows tree — incomplete, with warts, but a running app. That matches the grader-debug asides that could not have come from the seed: a GHCP+Claude two-run pass used to debug the grader (Claude letter **C− / 0.554** vs GHCP **C / 0.636**; opus/fable/sonnet mix; Fable exhaustion; 19 author / 15 gate rounds; first-submission-clean 0.77). Those numbers require a product tree the grader could read. The tree is not on `origin/main`, not in this clone, and has no filed comparison.
+
+So the earlier reading “Claude stopped at a runbook” is true of **GitHub** and false of **the Windows working copy**. Same failure mode as GHCP: the implementation lived at something like `C:\Projects\CFD-Bench-ClaudeCode` and never became the remote. Until that tree is copied off the Windows machine, we cannot inspect XAML, Core, tests, or how far past “functional WPF” it got. Do not rank the two WPF apps from `~/projects`. Recover both (SPIKE-00).
+
+### 3.4 What the benchmark taught the product (not the pack)
+
+Keep:
+
+1. **CLI verb per phase, demonstrated on the artifact.** `measure-wing`, `estimate-wing`, `validate-p1`. Headless first.
+2. **Own file format** `*.cfdbench-wing.json` with SI in the field names. Context surface must survive round-trip (the sample name is the invariant).
+3. **Fail closed** on missing science (`P1-VALIDATION-DATA-MISSING`) and invalid operating points. Green unit tests are not empirical validation.
+4. **Provenance-required numerical corpus.** Solver id + regen command + hash. GHCP learned this the expensive way.
+5. **Derive AR.** The sample does. The knowledge base demanded it.
+6. **Strike tracks.** Six of eight planned GHCP tracks were struck. Parallelism is a 15× cost multiplier. A workbench build is one team, not a fleet.
+7. **2D curve editing is the CAD.** P3 evidence (GHCP) is quintic curves, not Helix gizmos. That matches the spec’s own fallback.
+8. **A WPF shell was reachable.** Claude got a functional (warts-and-all) WPF app on Windows; GHCP got ScottPlot.WPF 5.1.59 plus a published EXE in the later snapshot. Harvest the better of the two UIs; do not treat WPF as unproven. Still do not ship WPF as the Mac product.
+
+Drop / do not repeat:
+
+1. **Wing-only DTIC as a hard P1 door** without a pre-staged comparable dataset.
+2. **Any polar without a hash.**
+3. **AGPL pymupdf** in a COMMIT-02 product.
+4. **Eight csproj and no solution.**
+5. **WPF native-proof theatre** (DPI/HWND oracles) before a Mac-capable editor.
+6. **Continuing past an integrity halt** into P4.
+7. **61 leftover worktrees** as a way of working.
+8. **“900 cm wingspan”** as a fixture.
+
+---
+
+## 4. Spec evolution
+
+The cfd-bench proposals stay the domain constitution. The changes below are the deltas that make a **workbench**, on **two operating systems**, for a **human**, not a harness.
+
+### 4.1 Target platform
+
+| Was | Becomes |
+|---|---|
+| Windows + NVIDIA laptop (RTX 5090, CUDA 13.x verified) | **macOS (Apple silicon first) and Windows**. NVIDIA is a Windows optional extra |
+| WSL2 as *the* OpenFOAM substrate | **Detected backends:** Mac OpenFOAM.app or Docker; Windows WSL2 or Docker |
+| CUDA / ILGPU as the GPU path | **wgpu** for visualisation on both OSes. CUDA LBM is a Windows SKU behind the same narrow interface |
+| WPF + Helix SharpDX + ScottPlot.WPF | **OS-neutral core** + a cross-platform shell (bake-off: SPIKE-05). Charts: ScottPlot.Avalonia or equivalent. 3D: display-and-select until a viewport spike passes |
+
+The Windows/NVIDIA machine remains the **CFD and LBM lab**. It is not the only machine the product runs on.
+
+### 4.2 Close GAP-04 before any geometry code
+
+Write **ADR-0002** (recommended conventions in inventory SPIKE-06). Units live in the type system. Display units (kn, cm, cm², degrees) are a formatting layer. Anhedral is negative tip `z`, not a second stored sign.
+
+### 4.3 Native file format is a spec, not a paragraph
+
+COMMIT-03 made this load-bearing. Name it, version it, and gold-master it.
+
+**Proposal:** `*.cfdw.json` (keep GHCP’s `*.cfdbench-wing.json` as an import alias if recovered).
+
+Minimum schema (illustrative, not frozen):
+
+```json
+{
+  "format": "cfdw-wing",
+  "version": 1,
+  "units": "SI",
+  "frame": "le-root-xaft-zup",
+  "surface": {
+    "name": "front",
+    "axis": "y",
+    "mirror": true,
+    "loft": "spline",
+    "stations": [
+      {"y_m": 0.0, "z_m": 0.0, "chord_m": 0.18, "inc_rad": 0.026, "section": "E817"}
+    ]
+  },
+  "context": []
+}
+```
+
+Derived quantities are **absent**. Results (polars, VLM, CFD) live in a sibling run document that **references** a content hash of this file. Changing geometry invalidates results by hash, not by timestamp.
+
+### 4.4 Validation path that an honest build can clear
+
+P1’s verb stays: L/D, Cl/Cd, required α, cavitation margin, **checked against experiment**.
+
+The experiment is no longer “wing-only ADA032272 or halt.”
+
+**Admissible ladder** (fail closed, label confidence):
+
+1. **Verified (section):** NeuralFoil / analytic NACA vs vendored coordinates. Already done in Phase 0.
+2. **Inferred (3D estimator):** chain vs the executed 95 kg / 15 °C discipline table in `estimation-methods.md`.
+3. **Verified (ranking only):** ADA032272 64A309 vs 16-309 L/D ranking — three independent lines already agree. Do not claim 3D coefficient match.
+4. **Verified (3D):** a wing-only or T-foil dataset once extracted and licensed (AMC T-foil is named in the gap register). Until then the UI must not say “validated against towing-tank data.”
+
+Ship the benchmark’s speed / weight / α / section grid as **fixtures**, so nobody has to invent operating points.
+
+### 4.5 CLI is a product surface
+
+P1 was “headless on purpose.” Promote that.
+
+```
+cfdw measure   path.cfdw.json
+cfdw estimate  path.cfdw.json --speed-kn 15 --mass-kg 80 --fluid seawater@15C
+cfdw polar     path.cfdw.json --alpha-deg -5:25:2.5
+cfdw vlm       path.cfdw.json ...
+cfdw check     path.cfdw.json          # manufacturability + envelope
+```
+
+The GUI is a client of the same core. GHCP’s grader could only trust what it could `dotnet run`. A Mac/Windows product needs the same oracle.
+
+### 4.6 First launch (GAP-16)
+
+Every proposal shows a populated screen. v1 opens on a **discipline preset** (wing/freeride, 80 kg, seawater, 15 kn) loaded from a sample file in the bundle, with a one-screen “what this number is” and an obvious **unvalidated** badge until SPIKE-09 says otherwise. Empty-document remains possible; it is not the default.
+
+### 4.7 AI stays additive
+
+No change to COMMIT-04. BYOK, and **optional**. Every product verb (open, save, CAD, estimate, VLM, CFD, viz) is specified to work with no API key and no network. The prompt bar is extra capability, never critical path. Numeral check (SPIKE-04) before any explain ships. Vocabulary bridge may pull forward to P2. The C# Anthropic SDK is not a platform constraint; the boundary is.
+
+### 4.8 What we will not add to the spec
+
+- Whole-craft trim, mast as a design target, mold-block booleans, G-code, Grasshopper, inverse design, embedding OpenFOAM or Python in the installer, OCCT, a third geometry kernel.
+
+---
+
+## 5. Architecture
+
+### 5.1 Shape
+
+```
+                    ┌─────────────────────────────────────┐
+                    │  Workbench shell  (Mac + Windows)   │
+                    │  2D curve editors · charts · 3D view│
+                    │  goal pane · explain (optional)     │
+                    └──────────────────┬──────────────────┘
+                                       │ in-process, typed
+                    ┌──────────────────▼──────────────────┐
+                    │  cfdw-core                          │
+                    │  stations · loft · catalog          │
+                    │  estimator · VLM · beam             │
+                    │  file I/O · provenance gate         │
+                    │  numeral check                      │
+                    └───────┬────────────┬────────┬───────┘
+                            │            │        │
+                     JSON/stdio      files+proc   optional
+                            │            │        │
+                            ▼            ▼        ▼
+                      Python sidecar  OpenFOAM  CUDA LBM
+                      NeuralFoil      / SU2     (Windows)
+                      (detected)      (detected)
+```
+
+Three rules that keep this shippable:
+
+1. **Geometry and estimator are in-process.** No Python on the slider path.
+2. **Heavy backends are detected, never bundled.** Missing solver → one dialog. The wing still gets designed.
+3. **One interface, four fidelities.** Estimator, VLM, OpenFOAM, LBM are `ICfdBackend` (or the Rust equivalent) at different costs. The shell does not know which.
+
+### 5.2 Layers vs the old WPF plan
+
+| Old (cfd-bench prose) | New |
+|---|---|
+| WPF shell | Cross-platform shell (SPIKE-05). Avalonia 12 preferred for a friendly app; egui only if 3D-first beats chrome |
+| HelixToolkit.Wpf.SharpDX | 3D viewer via wgpu (Avalonia host or small Rust crate). Edit in 2D. SPIKE-01 rewritten |
+| ScottPlot.WPF | ScottPlot.Avalonia 5.x (already 5.1.59 on GHCP WPF) or egui_plot |
+| C# core on `net*-windows` | **OS-neutral** class library / crate. Windows-only code lives in a Windows crate/project |
+| Native CUDA P/Invoke as default GPU | wgpu viz everywhere; CUDA LBM Windows-only |
+| rhino3dm .NET | Still MIT and still allowed; also available from Rust. Own maths first |
+| WSL2 OpenFOAM | Detected substrate per OS |
+| Anthropic NuGet | BYOK HTTP; implementation is not the architecture |
+
+### 5.3 Why not a geometry kernel, still
+
+decision-0001 is correct on Mac too. Booleans and arbitrary B-Rep import remain out of scope. STEP is one entity type. rhino3dm / truck are libraries, not kernels, and only if own loft evaluation gets hard.
+
+### 5.4 Multi-fidelity in the UI (interim, until R-03)
+
+Until GAP-06 has a method, the UI rule is:
+
+- **One number is primary**, tagged with its tier and confidence.
+- **Sibling tiers are visible**, not hidden, when they exist.
+- **Disagreement above a stated band** (proposal: 10% on L/D, 0.05 on CL) turns into a warning, not a blended number.
+- Optimiser results show the **VLM-rechecked** value (COMMIT-01), with the estimator value as ghost.
+
+Do not average 19.8, 17.2 and 15.9.
+
+---
+
+## 6. Language: C# stays the product; Rust is a door, not a rewrite
+
+You said moving the main language to Rust is acceptable if it helps. **A full rewrite does not help a friendly Mac/Windows workbench ship.** The thing that cannot ship on Mac is WPF + Helix SharpDX, not C#. The inner loop that ships first is closed-form estimation, five 2D editors, and charts. That is not a GPU or FFI problem.
+
+### 6.1 Recommendation
+
+| Piece | Language | Why |
+|---|---|---|
+| Domain core (stations, estimator, catalog, file, CLI) | **C# / .NET 10**, TFM `net10.0` | Your primary language. GHCP built a graded CLI; Claude built a functional WPF shell. Salvage both if SPIKE-00 succeeds; otherwise reimplement OS-neutral from the knowledge base |
+| Workbench shell | **Avalonia 12** | Real Mac in 2026 (own AppKit backend, Skia on Metal, universal ARM64/x64). Not Catalyst. Charts via ScottPlot.Avalonia |
+| 3D viewport | **C# + wgpu/Silk.NET first**; **Rust crate** if that spike fails | Metal on Mac, DX12/Vulkan on Windows. 3D is display-and-select for v1 |
+| CUDA LBM | **C++/CUDA or Rust+cudarc**, Windows-only | Never a Mac v1 dependency |
+| NeuralFoil / OpenFOAM | **Out of process** | PyO3 embed and OpenFOAM-in-the-.app are packaging traps |
+
+### 6.2 When Rust *does* help
+
+- SPIKE-05 shows Avalonia cannot host a pickable lofted surface at 60 fps on Apple silicon, **and** we have decided 3D picking is required (today’s spec says it is not).
+- Units-in-types (GAP-04) become painful in C# and `uom` would actually prevent a class of silent errors. That is a core rewrite later, not a reason to delay P0.
+- LBM kernels.
+
+### 6.3 Alternative, if SPIKE-00 fails and you would rather not write C# on a Mac
+
+Start `cfdw-core` in **Rust** (nalgebra, own loft, clap CLI, serde JSON) and put a thin **egui** shell on it for v1, with a planned Avalonia or iced pass for polish. This is faster to a 3D viewer on this machine and slower to a Shape3d-class editor and to your own iteration speed. It is a valid owner decision. It is not the default, because it throws away both the operator’s C# fluency and any recoverable GHCP Core for a problem C# does not have.
+
+### 6.4 What a language change will not fix
+
+P1 fabrication, an unsatisfiable DTIC gate, missing ADRs, GAP-04, packaging, or the fact that OpenFOAM is a directory tree. GHCP’s HALT was an integrity stop, not a C# failure.
+
+---
+
+## 7. Product phasing (human build, not harness build)
+
+Same verbs. Different process. One trunk. No fleet of worktrees unless a phase has a genuine machine-time overlap (DR, a long CFD case).
+
+| Phase | Verb | Platform note | Gate |
+|---|---|---|---|
+| **P0** | Define a wing; span, area, AR, mean chord; file format; units ADR; CLI `measure` | OS-neutral core; tests on Mac **and** Windows | ADR-0002 merged |
+| **P1** | Estimate; catalog; fail-closed provenance; admissible validation ladder | Headless. Polar sidecar optional | SPIKE-08, SPIKE-09 |
+| **P2** | Read a wing — charts, presets, overlay, unvalidated badge, empty/first-run | First GUI. Both OSes | SPIKE-05 chrome + charts |
+| **P3** | Draw a wing — five curves, live estimator, manufacturability TE check, 3D viewer | This is still “arguably the product” | SPIKE-01 |
+| **DR** | One hand-meshed shallow free-surface case | Mac *or* Windows lab; not a UI | SPIKE-10 detect |
+| **P4** | VLM + computed e + downwash + beam; multi-fidelity warning | Core. GPU unused | COMMIT-01 unblocked |
+| **P5** | Constraints / objectives / context; Pareto; VLM re-check | GUI | P4 |
+| **P6** | Numeral check, then explain / brief / vocabulary | Optional, BYOK | SPIKE-04 |
+| **P7** | `ICfdBackend` + auto-mesh *if* SPIKE-03 passed; LBM Windows-only | Differentiator | DR result + SPIKE-03 |
+
+**Honest v1** remains end of P5: a designer can state a goal, get VLM-checked candidates, shape by hand, and trust the numbers enough to export a stubbed STEP. P6 is polish. P7 is a second product if DR says the free-surface claim is real.
+
+**Stop and decide after DR.** If the lift-loss trend with depth is not credible, P7 is research, and the workbench is the XFLR5-for-hydrofoils the corpus already admitted might be the destination.
+
+---
+
+## 8. How this evolves the cfd-bench repo itself
+
+cfd-bench should stay the **knowledge and benchmark corpus**, not become the app.
+
+| Stay in cfd-bench | Move to a new product repo (suggested name `cfd-workbench`) |
+|---|---|
+| Knowledge bases, section `.dat` files | Implementation, tests, samples, shipping |
+| HTML proposals (historical) | This proposal, then ADRs and a spec of record |
+| Benchmark prompt + grader | Only if you still want harness experiments |
+| Pack | Optional; use for slices, not for an autonomous P0–P6 |
+
+Concrete updates to make in cfd-bench **before** `/specify` on the product (small, reviewable):
+
+1. Back-fill ADRs for: fidelity tiers, station-and-loft, permissive licensing, **UI toolkit (post SPIKE-05)**, **GPU as optional Windows**, **detected CFD backends**. GHCP’s five ADRs are the first draft if recovered.
+2. Amend the phasing plan header: WPF/Helix/CUDA-as-required → the table in §5.2.
+3. Amend GAP-01 with the satisfiable validation ladder (§4.4).
+4. Write GAP-04 as ADR-0002 (SPIKE-06).
+5. Record SPIKE-01 as rewritten (2D editor, not Helix gizmos).
+6. Note in the knowledge-gap register that GAP-03 was answered as engineer+rider-translation **without interviews** (R-10).
+7. Do not “fix” the fabrication KB vs decision-0001 contradiction by deleting history; point fabrication at decision-0001.
+
+---
+
+## 9. Key decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| D1 | The product is still a **wing design workbench**, not a CFD package | Corpus. Free surface remains the differentiator, not v1 |
+| D2 | **Mac + Windows**, NVIDIA optional | Your request. CUDA cannot be a Mac requirement |
+| D3 | **CLI + OS-neutral core first**, GUI second | GHCP’s only demonstrated verb; P1 was always headless |
+| D4 | **2D curves are the editor**; 3D is a viewer until a spike says otherwise | CAD proposal + GHCP P3 + Mac Helix gap |
+| D5 | **Do not embed Python or OpenFOAM** | Packaging and notarization. Detect or degrade |
+| D6 | **C# / .NET 10 + Avalonia 12** is the default stack; Rust is a viewport/LBM door | Operator language; Avalonia is a real Mac app in 2026; rewrite does not fix P1 |
+| D7 | **Recover both Windows trees this week or declare them gone** | Unpushed GHCP CLI+later WPF, and unpushed Claude WPF, are the only implementations |
+| D8 | **Satisfiable P1 validation ladder**; provenance gate on every corpus | GHCP’s actual failure |
+| D9 | **COMMIT-01..04 unchanged** | They are the product’s ethics |
+| D10 | **Human-authored spec; pack for slices** | The autonomous P0–P6 experiment is over |
+| D11 | **Honest v1 = P5**; DR before committing to P7 | Phasing plan §04, still the bravest paragraph in the corpus |
+
+---
+
+## 10. Open questions for you
+
+These are owner calls. The inventory does not start until 1 and 2 have answers; 3–5 can run in parallel with SPIKE-00.
+
+1. **Are the Windows trees at `C:\Projects\CFD-Bench-GHCP` and `C:\Projects\CFD-Bench-ClaudeCode` still reachable?** If yes, SPIKE-00 is today — bundle both, including worktrees. If no, we reimplement Core and the WPF lessons are memory only.
+2. **Is Mac a v1 requirement or a v1.1 requirement?** If v1.1, a Windows WPF lab tool is a legitimate stop. This proposal assumes **v1**.
+3. **Default stack (D6) or the Rust-core alternative (§6.3)?** Default is C# + Avalonia. Say so if you want Rust as the main language anyway.
+4. **Is the first user still you-as-engineer**, or do you want a rider-facing mode in v1? Corpus says engineer; GAP-03 is unanswered by evidence.
+5. **Non-commercial forever?** FluidX3D and some GPU samples are non-commercial-only. COMMIT-02 plus “might sell later” already rules them out as components; confirm.
+
+---
+
+## 11. First thirty days (if you accept D1–D11)
+
+1. SPIKE-00 recover **both** Windows trees (GHCP + Claude WPF) or declare them gone.
+2. ADR-0002 units/frame (SPIKE-06) — half a day, unblocks everything.
+3. SPIKE-05 bake-off on this Mac (Avalonia app that opens, plots a Cp, shows a mesh).
+4. SPIKE-08 provenance gate as a tiny library with tests.
+5. SPIKE-09 DTIC extraction note — comparable or not.
+6. New repo `cfd-workbench`, pack optional, **not** a clone of the benchmark arms.
+7. P0: file format, `cfdw measure`, tests on Mac and Windows CI.
+
+Do not start P2 GUI chrome until P0 CLI numbers match on both OSes. Do not start P7 until DR has a result. Do not start a Rust rewrite until SPIKE-00 and SPIKE-05 have answers.
+
+The knowledge base is the asset. The benchmark was the experiment. The workbench is the product.

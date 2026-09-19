@@ -1,0 +1,1969 @@
+{
+  "status": "pass",
+  "duration_seconds": 2.584,
+  "scope": "HTML prototype only; not native accessibility or scientific validity",
+  "browser": "153.0.8010.48",
+  "screenshot_directory": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-review-tz1NAq",
+  "errors": [],
+  "external_requests": [],
+  "oracles": [
+    {
+      "name": "Immutable run geometry after current-design edit",
+      "pass": true,
+      "proof": "Snapshot SVG unchanged; historical banner visible."
+    },
+    {
+      "name": "Whole-operation undo",
+      "pass": true,
+      "proof": "Chord142→150→142; recipe linked→direct→linked."
+    },
+    {
+      "name": "Keyboard identity and tangent editing",
+      "pass": true,
+      "proof": "Channel activation, curve nudge and exact tangent input retain focus and accepted value."
+    },
+    {
+      "name": "shape full model in frame",
+      "pass": true,
+      "proof": {
+        "x": 140.98663330078125,
+        "y": 66.99227142333984,
+        "right": 656,
+        "bottom": 319.99999237060547,
+        "width": 800,
+        "height": 410
+      }
+    },
+    {
+      "name": "results full model in frame",
+      "pass": true,
+      "proof": {
+        "x": 144,
+        "y": 89,
+        "right": 656,
+        "bottom": 320,
+        "width": 800,
+        "height": 410
+      }
+    },
+    {
+      "name": "Axes cannot fill a black triangle",
+      "pass": true,
+      "proof": "Both plot axis groups compute fill:none."
+    },
+    {
+      "name": "Missing pressure is visibly masked",
+      "pass": true,
+      "proof": "Partial field has dashed, uncolored missing tiles."
+    },
+    {
+      "name": "Route-specific failure",
+      "pass": true,
+      "proof": "Simulation failure names failed mesh stage and retained data."
+    },
+    {
+      "name": "Narrow project access",
+      "pass": true,
+      "proof": "Project action exposes recipe/history while pane is collapsed."
+    },
+    {
+      "name": "Symmetry break and undo",
+      "pass": true,
+      "proof": "Independent port state is an undoable operation."
+    },
+    {
+      "name": "Editable profile and profile-only import review",
+      "pass": true,
+      "proof": "Camber fixture edits; bounded format/normalization/error contract visible."
+    },
+    {
+      "name": "Area follows connecting curve",
+      "pass": true,
+      "proof": "Changing a chord tangent updates shape and reference area/AR through the same evaluated curve."
+    },
+    {
+      "name": "Profile and loft share accepted revision",
+      "pass": true,
+      "proof": "First camber edit requires detachment review, changes the 3D foil, and Undo restores shape plus recipe."
+    },
+    {
+      "name": "Self-contained runtime",
+      "pass": true,
+      "proof": "No page exceptions and no HTTP(S) requests."
+    }
+  ],
+  "measurements": [
+    {
+      "label": "shape",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "sections",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 37,
+      "state": "default",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "analyze",
+      "frame": {
+        "width": 1600,
+        "height": 975.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 28,
+      "state": "default",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "simulate",
+      "frame": {
+        "width": 1600,
+        "height": 1035.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 25,
+      "state": "default",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "results",
+      "frame": {
+        "width": 1600,
+        "height": 913.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 30,
+      "state": "default",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "narrow",
+      "frame": {
+        "width": 720,
+        "height": 1960.078125
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 33,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/default",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "loading",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/error",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "error",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "partial",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "stale",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "overflow",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/success",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "success",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/light/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "unsupported",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/default",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "loading",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/error",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "error",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "partial",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "stale",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "overflow",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/success",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "success",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/dark/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "unsupported",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/default",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "loading",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/error",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "error",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "partial",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "stale",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "overflow",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/success",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "success",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "shape/contrast/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1168.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 44,
+      "state": "unsupported",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/default",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "default",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "loading",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/error",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "error",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "partial",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "stale",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "overflow",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/success",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "success",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/light/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "unsupported",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/default",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "default",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "loading",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/error",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "error",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "partial",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "stale",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "overflow",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/success",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "success",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/dark/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "unsupported",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/default",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "default",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "loading",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/error",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "error",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "partial",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "stale",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "overflow",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/success",
+      "frame": {
+        "width": 1600,
+        "height": 1175.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 38,
+      "state": "success",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "sections/contrast/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1236.484375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 39,
+      "state": "unsupported",
+      "task": "sections",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/default",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "default",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/loading",
+      "frame": {
+        "width": 1600,
+        "height": 885.96875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "loading",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/error",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "error",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "partial",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "stale",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "overflow",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/success",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "success",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/light/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "unsupported",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/default",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "default",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/loading",
+      "frame": {
+        "width": 1600,
+        "height": 885.96875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "loading",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/error",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "error",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "partial",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "stale",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "overflow",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/success",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "success",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/dark/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "unsupported",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/default",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "default",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/loading",
+      "frame": {
+        "width": 1600,
+        "height": 885.96875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "loading",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/error",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "error",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "partial",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "stale",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "overflow",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/success",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "success",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "analyze/contrast/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1036.296875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 29,
+      "state": "unsupported",
+      "task": "analyze",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/default",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "default",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "loading",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/error",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "error",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "partial",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "stale",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "overflow",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/success",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "success",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/light/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "unsupported",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/default",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "default",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "loading",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/error",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "error",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "partial",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "stale",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "overflow",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/success",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "success",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/dark/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "unsupported",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/default",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "default",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/loading",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "loading",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/error",
+      "frame": {
+        "width": 1600,
+        "height": 1183.859375
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "error",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/partial",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "partial",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/stale",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "stale",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "overflow",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/success",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "success",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "simulate/contrast/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "unsupported",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "results/light/default",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "default",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/loading",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 32,
+      "state": "loading",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/error",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "error",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/partial",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "partial",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/stale",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "stale",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "overflow",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/success",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "success",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/light/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "unsupported",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/default",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "default",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/loading",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 32,
+      "state": "loading",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/error",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "error",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/partial",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "partial",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/stale",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "stale",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "overflow",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/success",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "success",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/dark/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "unsupported",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/default",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "default",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/empty",
+      "frame": {
+        "width": 1600,
+        "height": 862
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 15,
+      "state": "empty",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/loading",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 32,
+      "state": "loading",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/error",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "error",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/partial",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "partial",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/stale",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "stale",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/overflow",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "overflow",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/success",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "success",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "results/contrast/unsupported",
+      "frame": {
+        "width": 1600,
+        "height": 974.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 31,
+      "state": "unsupported",
+      "task": "results",
+      "overflow": false
+    },
+    {
+      "label": "dependency-unavailable",
+      "frame": {
+        "width": 1600,
+        "height": 1096.6875
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 26,
+      "state": "default",
+      "task": "simulate",
+      "overflow": false
+    },
+    {
+      "label": "reviewer/reduced",
+      "frame": {
+        "width": 1600,
+        "height": 1245.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 42,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    },
+    {
+      "label": "comfortable",
+      "frame": {
+        "width": 1600,
+        "height": 1212.890625
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "controls": 43,
+      "state": "default",
+      "task": "shape",
+      "overflow": false
+    }
+  ]
+}

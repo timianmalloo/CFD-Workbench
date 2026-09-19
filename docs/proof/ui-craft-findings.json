@@ -1,0 +1,46 @@
+[
+  {
+    "rule": "gpt-thin-border-wide-shadow",
+    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "dimension": "17 Craft",
+    "cluster": "Generic-AI-look tells",
+    "directive": "DX3",
+    "severity": "Minor",
+    "evidence": "Hairline border with wide shadow - `1px border + 24px shadow blur`",
+    "fix": "A hairline border paired with a wide, diffuse shadow is a recurring generated-UI signature. Commit to one \u2014 a defined edge or a soft elevation \u2014 rather than both at once.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"taskbar\": children flush against border-bottom on bottom (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "flat-type-hierarchy",
+    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Flat type hierarchy - `Sizes: 12px, 13px, 16px (ratio 1.3:1)`",
+    "fix": "Font sizes are too close together \u2014 no clear visual hierarchy. Use fewer sizes with more contrast (aim for at least a 1.25 ratio between steps).",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "flat-type-hierarchy",
+    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/design-language.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Flat type hierarchy - `Sizes: 14px, 18px, 24px (ratio 1.7:1)`",
+    "fix": "Font sizes are too close together \u2014 no clear visual hierarchy. Use fewer sizes with more contrast (aim for at least a 1.25 ratio between steps).",
+    "confidence": "Verified"
+  }
+]

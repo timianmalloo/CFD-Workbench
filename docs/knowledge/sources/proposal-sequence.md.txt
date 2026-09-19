@@ -1,0 +1,765 @@
+---
+id: cfd-workbench-sequence
+title: "CFD WorkBench — sequence, scenarios, and architecture"
+type: proposal
+status: draft
+owner: "@timianmalloo"
+created: 2026-09-19
+review-by: 2026-12-19
+summary: >-
+  Follow-on to the post-benchmark proposal. A six-step product sequence for a cross-platform
+  CAD + simulation workbench: shell, Shape3d/naval-architecture geometry with CAD-style
+  anchor and lever editing, 2D section forces, 3D forces, native OpenFOAM/SU2 with the tool
+  accountable for local install, then simulation visualisation. Claude API infused throughout:
+  natural language to a starting profile or 3D foil in Step 2; questions of results in
+  Steps 3, 4 and 6. Grounded in the cfd-bench knowledge base. Not a specification.
+---
+
+# CFD WorkBench — sequence, scenarios, and architecture
+
+**A follow-on proposal, not a spec.** 19 September 2026.
+
+This sits beside [proposal.md](proposal.md) (what to keep from the benchmark corpus, C# vs Rust, recovery of the Windows trees) and [inventory.md](inventory.md) (spikes). This document is the **product sequence**: what a person can do, in what order, and what that implies for the client, the runtimes, and the simulation backends.
+
+It is grounded in `~/projects/cfd-bench` knowledge and proposals. Where this sequence **reopens** a recorded decision, that is named rather than silently overwritten.
+
+---
+
+## 0. How to read this
+
+Six steps. Step 1 is a shell. Steps 2–6 are **scenarios** — verbs a user can perform. Later surfaces (fins, surfboards) are in the grammar, not in v1 physics.
+
+| Step | Scenario | User verb | Physics / I/O | Claude (BYOK) |
+|---|---|---|---|---|
+| 1 | — | Open a workbench that will hold CAD + simulation | None. Chrome, document, 3D host, **prompt bar (optional)** | Key optional. No key: bar disabled, app fully works |
+| 2 | 1 | Define a wing: **catalog section** + parameters, **or** CAD-edit curves (anchors + levers) and bulkheads. Numeric inspector, per-station section, TE floor, presets. Save / open. Stretch: import mesh | Geometry of record | NL → a **starting** 2D profile **or** 3D foil, then you edit |
+| 3 | 2 | 2D forces on a **section** | Cl/Cd, Cp, transition, separation, cavitation envelope, Ncrit-for-water, forces in N, rank catalog at this Re | Ask questions of the 2D results |
+| 4 | 3 | 3D forces on the **wing** | Trim L = weight, take-off speed, wing polar, drag split, CoL vs attach, computed e, local Re, first-to-separate | Ask questions of the 3D estimate |
+| 5 | 4 | Run SU2 / OpenFOAM from the tool | Tool **owns install + configuration** | Diagnose a failed mesh/run (corpus capability c) |
+| 6 | 5 | See the run | Charts, Cp, streamlines, separation | Ask questions of the simulation pictures and numbers |
+
+Three rules carried from the corpus and not up for grabs here:
+
+- **Language in, numbers out** (COMMIT-04). The model never computes a force, never emits station coordinates, never invents an L/D. Natural language becomes a **typed starting design** or an **explanation of numbers the solvers already produced**.
+- **AI is extra, not the critical path.** Every step in this sequence is fully usable with **no API key, no network, and no Claude**. The prompt bar is an additive capability. Missing key is a disabled control, never a blocked document, solver, or save. This is the corpus line: *“No key, no network — the wing still gets designed.”*
+- **Derive, do not store** span / area / AR / mean chord. The file format stores stations (and optional generative parameters that *emit* stations).
+
+A rule this sequence **does** reopen:
+
+- COMMIT-03 (“import means files this tool wrote”) stays the **default open path**. Mesh/STEP import is an explicit **stretch**, labelled Inferred until the user accepts a fitted station model.
+
+---
+
+## 1. What already exists, and what it is worth
+
+### 1.1 The knowledge base (the asset)
+
+cfd-bench already contains the domain object this sequence needs:
+
+- **Grammar.** Assembly → surface → station → loft. A station *is* a bulkhead: a section at a spanwise (or strut-wise) position carrying chord, incidence, and a foil. A strut is the same object with axis `z`. A fin is the same object again. OpenVSP’s “tails, fins, strakes may be created from a wing” is independent corroboration. (`docs/knowledge/cfd-hydrofoil-simulation/parametric-geometry.md`)
+- **Two layers.** A small planform vector (area, AR, taper, sweep, anhedral, washout, section) **emits** explicit stations. One-way. Hand-edit bursts to stations; never back-fit automatically.
+- **Shape3d as the curve metaphor.** Outline, profile/anhedral, thickness — plus, for a foil, chord and twist. Keyboard nudge, double-click add, live derived quantities. **Handles:** tangent-arrow levers at anchors, as in any CAD program (`kb-cad-ux-and-geometry` §3). (`docs/proposals/cad-modelling-experience.html`)
+- **AI in the product.** Brief → structured intent. Explain results with a numeral check. Never generate geometry as coordinates; never compute a force. **BYOK and fully optional** — no key, no network, the wing still gets designed. (`kb-ai-in-the-product`, COMMIT-04)
+- **2D chain.** NeuralFoil / XFOIL-class polars with `Cp_min` and `Ncrit`; Helmbold; lifting-line; ITTC 1957; Hoerner form; cavitation `V_crit`. Executed on real water-sports geometry. (`estimation-methods.md`, Phase 0)
+- **3D without CFD.** Vortex lattice over the same stations: spanwise loading, **computed** span efficiency, downwash, `α_eff` for strip-theory section views. Typhoon is Tornado VLM under GPL — reference, not a component.
+- **CFD without input files.** Typed case model → serialise dictionaries / SU2 `.cfg` → process runner → stream residuals. `ICfdBackend`. Meshing is the hard part; a single-topology wing can generate it. FoilPilot already does guided WSL2 + Docker install. (`kb-cfd-orchestration`)
+- **Viz.** Chart set (Cp, polars, cavitation bucket, transition). Streamlines first; LIC later. VTK has **no** first-class .NET binding. Sweep is a domain object.
+
+Surfboards were **retired** as a physics problem in knowledge v2 (Savitsky, RANS+VOF, 6-DOF trim). Fins were never a separate concept. This sequence’s “later: fins, surfboards” must not pretend the hydrofoil estimator does a planing board.
+
+### 1.2 The Windows implementations (unpushed)
+
+| Arm | What we can defend |
+|---|---|
+| **Copilot** | Graded CLI: `measure-wing` on `*.cfdbench-wing.json` (P0 numbers re-executed). Estimator implemented, not admitted (DTIC fabrication). Later snapshot: ScottPlot.WPF 5.1.59, quintic curve editing, VLM + beam. 63 `.cs`, 2 XAML, 8 projects, no `.sln`. Tree at `C:\Projects\CFD-Bench-GHCP`. |
+| **Claude Code** | Operator, 19 September 2026: a **functional WPF app**, incomplete, with warts. GitHub `main` is still the seed + coordination runbook. Tree expected at `C:\Projects\CFD-Bench-ClaudeCode`. Source not on this Mac. |
+
+Those trees are still the cheapest way to harvest a file schema, a station type, a polar pipeline, and a WPF interaction sketch. They are **Windows/WPF**. Step 1 of *this* sequence is a cross-platform shell, so they are salvage, not the product.
+
+### 1.3 What this sequence changes relative to the first proposal
+
+| First proposal | This sequence |
+|---|---|
+| CLI + OS-neutral core **first**, GUI second | **Shell first.** A CAD workbench people double-click. CLI remains an oracle *under* the shell, not the v1 face |
+| Detect OpenFOAM; never bundle | Tool is **accountable** for local install and configuration of SU2 and OpenFOAM. Still does not copy a distro into the `.app` |
+| COMMIT-03 absolute | COMMIT-03 for Open/Save. **Stretch:** fit stations from STL/STEP, user-accepted |
+| Honest v1 = P5 (goal-driven, VLM-gated) | Honest first product = **Steps 1–4** (shape + 2D + 3D estimate + charts). CFD is Step 5, viz-of-CFD is Step 6. Goal-driven search (old P5) is *after* this sequence, not inside it |
+| AI as old P6 only | **Infused from Step 1.** Prompt bar in the shell. Step 2: NL starting profile or 3D foil. Steps 3, 4, 6: questions of results. COMMIT-04 still binds |
+| Single wing forever in v1 | Single **hydrofoil wing** in v1. Fins later as the same surface. Surfboards later as a **different physics pack**, same shell |
+
+---
+
+## 2. Step 1 — Cross-platform shell
+
+**Verb.** Launch an application on Mac and Windows that can host a document, a 3D viewport, 2D editors, charts, and later a solver panel. Empty state is designed. Quit, reopen, the last document is there.
+
+This is not a demo window. It is the **product chassis**: menus, docking, file dialogs, undo stack, settings, a plugin/backend status strip (“OpenFOAM: not installed” is a first-class widget even before Step 5).
+
+### 2.1 What the corpus assumed
+
+WPF + HelixToolkit.Wpf.SharpDX (DirectX 11) + ScottPlot.WPF. That is a **Windows** chassis. Claude’s functional WPF app and GHCP’s ScottPlot spike prove the interaction is reachable *on Windows*. They do not port.
+
+### 2.2 Chassis options (same bake-off as SPIKE-05, now with a job)
+
+| Option | Shell quality | 3D host | Charts | Mac | Verdict for Step 1 |
+|---|---|---|---|---|---|
+| **Avalonia 12 + ScottPlot.Avalonia** | Real menus, docking, a11y, Fluent/Cupertino pass | NativeControlHost + wgpu/Silk.NET (spike) | ScottPlot 5.1.x already used on GHCP | Tier-1 Apple silicon | **Recommended chassis** |
+| **egui/eframe + wgpu + egui_plot** | Immediate-mode; feels like a research tool | Native, easy | Adequate | Excellent | Fastest 3D prototype; weaker as a CAD app people live in |
+| **iced + wgpu** | Retained; CAD widgets are DIY | Native | DIY | Good | Only if Avalonia 3D hosting fails and egui is rejected on polish |
+| **WPF + Helix SharpDX** | Proven on your Windows trees | Proven (Helix) | ScottPlot.WPF | **No** | Lab / salvage only |
+| **Tauri + web** | Pretty chrome | WebGPU/three.js, hostile CAD hit-testing | Plenty | Yes | Reject for a bulkhead editor |
+
+**.NET 10** remains the default product language because you write C#, GHCP/Claude already did, and Avalonia is a real Mac app in 2026. **Rust** is the 3D viewport crate if Avalonia cannot host picking, and a candidate for later hot paths — not the shell, unless Step 1’s spike says otherwise.
+
+### 2.3 What Step 1 must actually contain (so Step 2 is not a rewrite)
+
+- Document interface: `New` / `Open` / `Save` / `Save as` against the local filesystem. Even if the schema is a stub (`format`, `version`, empty `surfaces: []`).
+- One 3D viewport that can show *something* (a unit box is enough) and will later show the loft.
+- A placeholder for: curve views, a station/bulkhead list, a chart pane, a backend status strip.
+- **Prompt bar** as chrome, not a later panel. Scoped to the current scenario. **Disabled-but-visible if no API key** (“Add a Claude API key in Settings to enable prompts”). No empty-state, menu, or file path depends on it. “Describe a starting foil…” is an extra tile next to New / Open / Sample, not the only way in.
+- Settings: Claude API key **optional**, stored in the **OS credential store** (macOS Keychain / Windows Credential Manager), never in the document, never in the binary. Model id configurable. Removing the key at any time returns the app to the no-AI path with no restart required.
+- Undo. Empty state (GAP-16): “New wingfoil” / “Open…” / “Sample: 1400 cm² AR 7” — these three work with no key. The NL tile is present only when a key is set, or is visible-and-disabled without one.
+- Process isolation from the start: the UI process must not be the solver process. The Anthropic HTTP call is a third process-class: network, cancellable, **never on the geometry/solver/save path**. A timeout or 401 does not block CAD or a run.
+
+### 2.4 Considerations
+
+- **Do not wait for Helix on Mac.** Helix SharpDX is DirectX. Helix Nex does not claim macOS. 3D in Step 1 is a host, not a CAD kernel.
+- **Signing.** A double-clickable `.app` / `.msi` is a Step 1 deliverable, even if the document is empty. Notarization can be ad-hoc for internal builds.
+- **Recovered WPF is a reference implementation of layout and gestures**, not a codebase to retarget wholesale.
+
+---
+
+## 3. Step 2 / Scenario 1 — Define the shape
+
+**Verb.** Create a hydrofoil wing from a **catalog section + parameters**, by **CAD-editing curves** (anchors and spline levers), and by **editing bulkheads**. Numeric inspector, per-station section, TE thickness floor, discipline presets, ghost overlay. Optionally start from a **natural-language brief**. Save and open a first-class file on disk. Stretch: import a 3D mesh.
+
+This is the scenario the CAD proposal already called “arguably the product,” minus live L/D (that arrives in Steps 3–4).
+
+### 3.1 Metaphors, and they are not the same editor
+
+Naval architecture CAD (Maxsurf, DELFTship, MultiSurf, Rhino+Orca3D) thinks in **stations / bulkheads**: planar sections along a span or length, faired by a loft. Shape3d thinks in **orthogonal master curves** (outline, rocker, thickness) whose derived slices *are* the stations.
+
+A foil needs **both**, and the corpus already named them. **Manual CAD editing of those curves is a v1 requirement**, not a spike fallback.
+
+| Metaphor | In this tool | Edits |
+|---|---|---|
+| Shape3d master curves | Five **distribution curves**: planform outline, anhedral/dihedral, chord, thickness, twist | See §3.1a — anchors, levers, nudge, add/remove |
+| Naval bulkheads | **Stations**: a foil section at spanwise `y` (or `z` for a future fin/strut), with chord, incidence, section id or CST | Select a bulkhead in 3D or in a body-plan view; edit that station’s section (same CAD editor on the 2D profile), chord, twist; add/remove stations |
+| Parameters | Generative layer: area, AR, taper, sweep, anhedral, washout, **section from catalog** | Sliders + **section picker**. Emits stations. Curve/bulkhead edit bursts to explicit and does not write back |
+| Natural language | Prompt bar: a *starting* 2D profile **or** a *starting* 3D foil | See §3.1b. Model fills the generative layer / catalog pick. **You then CAD-edit.** |
+
+Live while dragging: span, area, AR, mean chord, t/c — and, once Step 3 exists, section L/D at the selected bulkhead; once Step 4 exists, wing L/D.
+
+**3D viewport role in v1:** display the lofted surface, the station planes (the bulkheads), and the selected station’s section. Plane-constrained 3D control-point drag is the old SPIKE-01 and remains optional. **The real CAD work is in the 2D views**, as in Shape3d.
+
+### 3.1a CAD curve editing — anchors and spline levers
+
+This has to feel like Rhino / Shape3d / Illustrator, not like “drag a polyline.”
+
+| Gesture | Behaviour |
+|---|---|
+| **Anchor (on-curve point)** | Left-click selects (highlights). Drag in the construction plane of that view. Multi-select + align (Shape3d). |
+| **Spline lever (tangent handle)** | Each selected anchor shows a tangent-arrow grip. Drag **direction** to rotate the tangent; drag **length** to sharpen or flatten curvature at that point. This is the Alias/Rhino handle the CAD knowledge base already named. Independent left/right handles = G1 break (corner); locked = G1 smooth. |
+| **Keyboard nudge** | Arrow keys at a defined step (and a finer modifier). Not optional. Mouse is for sketching; keys are for fairness. |
+| **Add / remove** | Double-click on the curve to insert an anchor at that parameter. Delete / right-click removes. The spline must stay degree-5 (G4 internally); inserting a point does not drop to degree 3. |
+| **Curvature comb** | Always on while editing. A G1 discontinuity is hydrodynamically real and visually invisible without it. |
+| **Section profile (bulkhead)** | The same editor, on the 2D foil at that station: upper/lower (or camber + thickness) as splines with anchors and levers. Catalog sections start locked; “explode to CST / splines” is an explicit burst. |
+
+**Done when (for this slice, not a spec):** a user can take a generated AR-7 wing, pull a tip-chord lever, nudge an outline anchor 1 mm, and see area/AR update live — on Mac and Windows.
+
+SPIKE-01 is rewritten around **this** editor, not Helix 3D gizmos.
+
+### 3.1b Natural language → a starting profile or a starting 3D foil
+
+When a Claude API key is present, the prompt bar in Step 2 accepts briefs like:
+
+- *“Give me an Eppler-style high-cavitation section around 9% thick for a front wing.”* → **starting 2D profile**
+- *“A 1400 cm² wingfoil front wing, AR about 7, some anhedral, for an 80 kg rider in salt water.”* → **starting 3D foil**
+
+**What the model is allowed to output** — a typed object, via structured outputs (JSON schema), never coordinates:
+
+```
+StartingDesign
+  kind: profile | wing
+  provenance[]: { field, value, origin: stated | inferred | defaulted }
+  profile?: { catalog_id? | cst_coeffs? | naca_family? , t_c?, notes }
+  wing?:    { area_m2?, aspect_ratio?, taper?, sweep_rad?, anhedral_rad?,
+              washout_rad?, section, span_hint_m? }
+  context?: { rider_mass_kg?, fluid?, speed_kn_range? }   // stored as context, not geometry
+```
+
+Then **the parametric model emits** the catalog section or the station list. The user sees a review card: every inferred or defaulted field is visually distinct (corpus: an unstated span limit that appears in the intent is worse than no extraction). **Accept** writes the document; **Edit fields** first; **Discard** leaves the file untouched.
+
+**What the model must not output:** raw `(x,y)` section points, a mesh, an L/D, a “this will be fast.” Those are either the loft or the solvers.
+
+**Without a key:** parameters, catalog pick, sample file, and CAD anchors/levers are the whole of Step 2. That is the critical path. NL start is extra.
+
+This is capability (a) from `kb-ai-in-the-product`, pulled into Step 2, plus a catalog/CST pick so a “profile” has somewhere to land. It does **not** reopen “generate geometry directly.” The LLM writes a starting *recipe*; the core cooks it; you fair it with levers.
+
+### 3.1c Section catalog — first-class parameterized start
+
+The generative layer’s **section** field is a picker, not a typed string. The user chooses a foil section the same way they choose AR. NL start (when a key is set) may *propose* a catalog id; the picker is how you do it without AI.
+
+**v1 catalog — vendored, hashed, split by role** (already in `docs/knowledge/cfd-hydrofoil-simulation/sections/`):
+
+| Role in picker | Sections | Why |
+|---|---|---|
+| **Lifting (front-wing default)** | Eppler **E817, E818, E874, E904, E908** | Designed as hydrofoils. E818 best measured cavitation (42.1 kn vs 4412’s 31.4). Ranking **flips with Re**: E874 leads at 6e5, E904 at 1e6. Mean t/c ~9.3% |
+| **Laminar 6-series (practitioner pick)** | **NACA 64A410** (vendored); generate **63-209, 63-412, 66-209, 66-412** analytically | IHS/Tom Speer: a 66-series is a better bet than the matching 16-series on separation. 64A410 best section L/D in Phase 0 |
+| **Classic marine 16-series** | **NACA 16-309, 16-012** (generate or vendor) | DTIC ADA032272 validation family. Shallow rooftop; convex recovery → TE separation risk. In the picker with that warning, not as the default |
+| **Regression / aircraft baseline** | **NACA 0012, 4412** | Parser fixtures. 4412 is a suction-peak cautionary, not a hydrofoil recommendation |
+| **Strut / mast family — not in the front-wing list** | Eppler **E836, E837, E838**; NACA **0009, 0010, 0012** | Zero camber, 12–18% t/c. A separate picker when the surface axis is `z` or the user asks for a strut. Listing them as front-wing candidates is a category error (Phase 0) |
+
+**v1 additions to vendor** (research, not yet in the repo — do this as catalog work, not as a guess in the UI):
+
+| Section | Why it belongs | Discipline lean |
+|---|---|---|
+| **Speer H105** | Designed for *low-Re* sailing/kite hydrofoils (20–30 kn, small chord), not 40-kn ships. Wider max-lift than E817, trades a bit of the high-speed cavitation envelope. Coordinates exist (tspeer.com / Speer’s boatdesign posts), **not** UIUC. Need a hashed vendor + licence note | Surf / wingfoil take-off, SUP |
+| **NACA 66-XXX** generated | Speer’s explicit ranking over 16-series | Wingfoil / race |
+| **NACA 63-209** | Compared directly to E817 and H105 in Speer’s hydrofoil-section write-up | Wingfoil |
+
+**Do not dump UIUC’s 1,650 sections into the picker.** A 1,650-item list is not a catalog; it is a search problem. Optional later: “Add from file…” for a Selig/Lednicer `.dat` with the same parser-and-hash gate as Phase 0.
+
+**Discipline presets** (generative start, including a default section — overridable in the picker):
+
+| Preset | Area / AR band (practice catalog) | Default section | Note |
+|---|---|---|---|
+| Surf foiling | 1500–2000 cm², AR 4–6 | H105 if vendored, else E817 | Take-off CL can be ~0.78, above IHS 0–0.6. Camber and area first |
+| Wingfoil (freeride) | 1200–1500 cm², AR 6–8 | E818 or 64A410 | Broad middle. Rank the two at the session Re |
+| SUP / downwind | 900–1200 cm², AR 9–12 | E874 or E818 | Glide; thinner; Re-dependent ranking |
+| Windsurf / race | 700–900 cm², AR 10–14 | 66-series or E818 | Cavitation can bind; 16-series only with the recovery warning |
+
+The picker UI: thumbnail + t/c + camber + family + **role** (lifting / strut) + “rank at current Re” once Step 3 exists. Per-station override: root E817, tip E818 is legal in the grammar and should be a bulkhead control, not only a global.
+
+**Provenance.** Every catalog row is a coordinate file + SHA + source URL + parser format (Selig vs Lednicer). Phase 0’s silent 6%-thick NACA 0012 is the reason.
+
+### 3.2 File format (geometry of record)
+
+COMMIT-03: the open path reads **files this tool wrote**. GHCP already sketched `*.cfdbench-wing.json` with SI in the names. Keep that idea; name it for the product.
+
+Proposal (illustrative, not frozen):
+
+```json
+{
+  "format": "cfdw-wing",
+  "version": 1,
+  "units": "SI",
+  "frame": "le-root-xaft-zup",
+  "generative": {
+    "area_m2": 0.14,
+    "aspect_ratio": 7.0,
+    "taper": 0.35,
+    "sweep_rad": 0.07,
+    "anhedral_rad": 0.14,
+    "washout_rad": 0.023,
+    "section": "E817"
+  },
+  "surface": {
+    "name": "front",
+    "axis": "y",
+    "mirror": true,
+    "loft": "spline",
+    "stations": [
+      {"y_m": 0.0, "z_m": 0.0, "chord_m": 0.141, "inc_rad": 0.026, "section": "E817"}
+    ]
+  }
+}
+```
+
+- If `generative` is present **and** stations were not hand-edited, regenerating from sliders is legal.
+- If any station was hand-edited, `generative` becomes provenance (“this used to be AR 7”) and is not authoritative.
+- Derived quantities are **absent**. Results (polars, VLM, CFD) live in a sidecar run document keyed by a **content hash** of this file.
+
+GAP-04 (origin, signs, SI-in-types) is a **Step 2 blocker**, not a later cleanup. Recommended frame remains: LE root, +x aft, +y starboard, +z up, anhedral = negative tip z.
+
+`generative.section` is a **catalog id** (§3.1c). A station may override it (root ≠ tip).
+
+### 3.3 Stretch: import from STL / STEP
+
+The corpus scoped this **out**. Fitting stations to an arbitrary B-Rep is a research problem; a kernel earns its keep on booleans and repair, which decision-0001 deferred. rhino3dm reads 3DM, **not** STEP. STEPcode can read Part 21.
+
+If the stretch is in:
+
+| Format | What import actually means | Honest label |
+|---|---|---|
+| **STL / 3MF** | A triangle mesh. Slice at proposed station `y`, fit a section (CST or catalog nearest), estimate chord and twist | **Inferred geometry.** User must accept before it becomes the file of record. Watertight-ness and station count are UI, not magic |
+| **STEP** | Exact surface if it is one `B_SPLINE_SURFACE_WITH_KNOTS` (our export type). Sample isoparametrics → stations | Feasible **without** a B-Rep kernel if we only accept that one entity (OpenVSP precedent in reverse). Arbitrary STEP (booleans, assemblies) is still a kernel, still out |
+| **3DM** | rhino3dm (MIT) if someone saves from Rhino | Optional later; not v1 |
+
+**Recommendation.** Ship Open/Save of our format in Step 2. Treat STL slice-and-fit as a spike (new SPIKE-14). Treat STEP **export** as SPIKE-02 (already in inventory). Treat STEP **import** as “only our own entity type, round-trip,” not Fusion-anything.
+
+### 3.4 Libraries / runtime
+
+| Need | C# path | Rust path | Notes |
+|---|---|---|---|
+| Document + undo | Avalonia + your own model | egui + your own model | The model is the product |
+| Spline curves, loft eval, tessellation | Own maths (decision-0001). rhino3dm if NURBS gets hard | Own maths. `truck` (Apache-2) if NURBS gets hard | Do not take OCCT |
+| 3D mesh in the viewport | wgpu / Silk.NET | wgpu / three-d | Same GPU API both OSes |
+| STL read (stretch) | Tiny parser or `Helix`/`SharpGLTF` is the wrong family — use a small STL reader | `stl_io` | Mesh in, stations out |
+| STEP read (stretch) | STEPcode (BSD) via P/Invoke, or a bounded own reader for one entity | `ruststep` | Not rhino3dm |
+
+**Interop:** geometry is in-process. That is the point of owning the loft. Claude is **HTTPS + structured outputs** from the shell (official Anthropic .NET SDK, or a thin HTTP client). The core never talks to the network. A failed or cancelled prompt leaves the document unchanged.
+
+### 3.5 Considerations
+
+- **Burst is a one-way door.** Editing a bulkhead or pulling a lever after generating from AR 7 must not silently rewrite AR. Show “custom stations” in the chrome.
+- **Minimum TE thickness** is a Step 2 warning, not a Step 5 problem. Catalog TEs are 0–0.08 mm at 80 mm chord — unbuildable.
+- **Mirror.** Define half, mirror. Editing one tip edits both until the user breaks symmetry.
+- **NL is a seed, not a modeller.** After Accept, the prompt bar is not how you fair a trailing edge. Anchors and levers are.
+- Salvage GHCP’s JSON sample and Claude’s WPF curve gestures if SPIKE-00 recovers them.
+
+### 3.6 CAD — v1 scope (not a backlog)
+
+These are **in Step 2**, not a later wish list. Grounded in Shape3d, the CAD knowledge base, and how XFLR5/OpenVSP are actually used.
+
+**v1 (this scenario ships them):**
+
+| Capability | Why it is useful |
+|---|---|
+| **Section catalog picker** on the generative start (§3.1c) | The parameterized start is incomplete if section is a typed string |
+| **Numeric inspector** | Type chord = 142 mm, nudge 1 mm. CAD without a property sheet is a toy |
+| **Distance from root / tip while dragging** | Shape3d shows distance from tail and nose as you drag. Ours: span station `y` and `% span` |
+| **Per-station section override** | Root E817 / tip E818 is how real foils are built |
+| **TE thickness readout + floor** | Catalog TEs are unbuildable; show mm at local chord |
+| **AR definition in the chrome** | Projected vs developed; manufacturers are incomparable. State ours |
+| **Discipline presets** | Surf / wing / SUP / race as starting generative + default section |
+| **Add section from `.dat`** | Same Lednicer/Selig parser + hash. Custom sections without forking the app |
+| **Explode catalog → editable splines** | Explicit burst; locked catalog is the default |
+| **Lock symmetry / break at a station** | Mirror is the default; one-sided anhedral exists |
+| **Overlay a second document (ghost)** | Comparing two planforms is the actual task, not only overlaying charts |
+
+**Not v1 (named so they are not forgotten, and not in this scenario):**
+
+| Capability | Why wait |
+|---|---|
+| Zebra / isophotes / Gaussian curvature | Fairness beyond the comb; after the loft is trusted |
+| Volume / displaced volume | Structural and packing; not a hydro first |
+| Travel-bag / span constraint as a hard stop | Nice; a readout is enough in v1 |
+| Photo planform overlay | Fitting problem adjacent to STL import |
+| Sixth “reflex/camber” distribution curve | Section already carries camber; a spanwise camber curve is a later generative knob |
+
+---
+
+## 4. Step 3 / Scenario 2 — 2D forces on a section
+
+**Verb.** Pick a bulkhead (or a catalog section). Get lift, drag, Cl, Cd, Cl/Cd, Cm, **Cp distribution**, **transition**, **separation onset**, **Cp_min / cavitation envelope**, **forces in newtons**, at a Reynolds number, **Ncrit (water default)**, and α the user sets. Rank the catalog at this Re. Overlay two sections.
+
+This is XFOIL’s job, which the corpus already replaced as a *binary*: NeuralFoil (pure Python, MIT-ish) validated against analytic NACA in Phase 0. `Cp_min` is recovered as `1 − max(u_e/V∞)²` from edge velocity — with the known bias that discrete stations **under-read sharp suction peaks** (optimistic `V_crit`).
+
+### 4.1 What “2D” is allowed to claim
+
+| Quantity | Source | Confidence |
+|---|---|---|
+| Cl, Cd, Cm vs α | NeuralFoil / XFOIL-class polar at `(section, Re, Ncrit)` | High if envelope holds (attached, 2D TS transition) |
+| Cp(x/c) | Same, y-axis inverted | High; the diagnostic chart |
+| x_tr | e^N | Medium; Ncrit must be stored |
+| Separation | Inferred from Cp recovery / BL thickening, or solver flag if the backend exposes it | **Labelled.** Do not draw a 3D stall cell on a 2D polar |
+| Cavitation | `σᵢ = −Cp_min`, `V_crit` with ITTC `pv` | Medium; peak under-read is the wrong direction for safety |
+
+Validity envelope **in the tool**: α and Re outside the polar’s support → no number, not a guessed number.
+
+### 4.2 Interop — this is the first Python question
+
+| Approach | How | For | Against |
+|---|---|---|---|
+| **A. Python sidecar** (`uv run` NeuralFoil) | JSON in (coordinates, Re, α grid), JSON out (polar + Cp + ue). Hash the output. Optional | Uses the exact tool Phase 0 already validated. No XFOIL licence/binary mess | Requires a detected Python. Must **not** embed CPython in the `.app` |
+| **B. Ship precomputed catalog polars** | Offline NeuralFoil over the 11 sections × Re × Ncrit grid, vendored as data | Zero Python on the user’s machine. Step 3 works on a clean install | Custom CST sections cannot be analysed until A exists |
+| **C. Rewrite the BL / panel method in C# or Rust** | Months | No sidecar | You will get it slightly wrong; Phase 0 exists so you don’t have to |
+| **D. Shell out to XFOIL** | Ancient Fortran binary | Familiar | Packaging, licensing, and we already left it |
+
+**Recommended:** **B + A**. Catalog sections work with no Python (B). Custom sections and “recompute this bulkhead” call A if present; otherwise the UI says so. Provenance gate (old SPIKE-08): every polar row carries solver id, command, hash.
+
+Do **not** P/Invoke libxfoil. Do **not** PyO3-embed CPython in the Mac app. Sidecar or nothing.
+
+### 4.3 UI
+
+- Body-plan / selected bulkhead shows the section.
+- Charts: Cp, polar, Cl–α, Cd–α, L/D–α, cavitation bucket, x_tr. Overlay two sections (the actual task).
+- Reynolds is a control, not a footnote. Phase 0: ranking **flips** between Re 6e5 and 1e6.
+
+### 4.4 Ask the 2D results
+
+Prompt bar, scoped to this scenario: *“Why is E818’s cavitation margin better than 4412 here?”* *“Where does this section separate at 8°?”* *“What happens if I drop Re?”*
+
+Context packed into the call (and **only** this): the current polar table, Cp samples, `x_tr`, `Cp_min`, Re, Ncrit, α, section id, geometry hash, plus retrieved snippets from `docs/knowledge/` (catalog findings, validity envelope). Structured citations if the API provides them.
+
+**Numeral check (SPIKE-04) runs on the reply before it is shown.** Any number not present in that context is stripped or the reply is rejected. The model may not “estimate” a Cl the solver did not produce. Capability (b)+(g) from the AI knowledge base, pulled forward to Step 3. Extra; no key required.
+
+### 4.5 2D estimate — v1 scope (not a backlog)
+
+These are **in Step 3**. A polar without Ncrit, Re ranking, or a cavitation envelope is not the product.
+
+**v1 (this scenario ships them):**
+
+| Capability | Why |
+|---|---|
+| **Ncrit control, default for water** | Speer: transition in water is earlier; `1 < Ncrit < 3`, not XFOIL’s air default ~9. A polar without Ncrit is not reproducible (corpus) |
+| **Rank the catalog at this Re** | Phase 0: E874 vs E904 **flip**. A “best section” list with no Re is misinformation |
+| **Cavitation envelope** | σᵢ vs Cl, and V_crit vs Cl (the Speer chart). Width = α tolerance; depth = speed tolerance |
+| **Forces in newtons**, not only coefficients | Need local chord, V, ρ. Riders think in load, not Cl |
+| **Design Cl vs operating Cl** | IHS design Cl ≈ 0.3, band 0–0.6; surf take-off ~0.78. Show where this polar is sitting |
+| **Envelope enforcement** | Outside polar support or stalled recovery → no number, not a guessed number |
+| **Salt / fresh as ITTC fluid** | Density and ν change Re and cavitation `pv`; two-parameter, not different physics |
+| **Overlay two sections** | Already named; keep it |
+
+**Not v1:** trip/roughness (GAP-10), flap deflection, δ* plots, fouling.
+
+---
+
+## 5. Step 4 / Scenario 3 — 3D forces on the wing
+
+**Verb.** Given the lofted station model and an operating point (mass, speed, fluid, depth), **trim so L = weight**, get take-off speed, a **wing polar**, lift, drag, Cl/Cd, **induced vs profile split**, spanwise loading, **centre of lift vs a user-placed attach**, **pitch moment**, **yaw** (if β), computed **e**, local Re, and **first station to separate**.
+
+### 5.1 Honesty about methods — this is the load-bearing consideration
+
+The closed-form 3D chain (Helmbold + lifting-line + ITTC + Hoerner) gives **force coefficients and a single α**. It does **not** give a pressure field, a centre of lift as a point, 3D separation, or yaw. It assumes a span efficiency `e` (0.7–0.85) until VLM computes it.
+
+What actually answers Scenario 3, short of CFD:
+
+| Quantity | Closed-form estimator | VLM + strip theory (quasi-3D) | Full 3D RANS/LBM |
+|---|---|---|---|
+| CL, CD, L/D | Yes (assumed `e`) | Yes (computed `e`, induced from lattice) | Step 5 |
+| Spanwise Cl(y) | Elliptical guess only | **Yes** — this is why VLM exists | Yes |
+| Centre of lift | Crude (quarter chord × area centroid) | First moment of lattice loading | Yes |
+| Pitch (Cm) | Section Cm + lever | Lattice moment about a stated datum (recommend quarter-chord of mean chord) | Yes |
+| Yaw (Cn), side force | No, unless you fake it | **Yes if β ≠ 0** or the wing is asymmetric (anhedral + α). At β = 0, symmetric wing ⇒ Cn ≈ 0 | Yes |
+| Cp on the surface | No | **Station strips at α_eff only** — not a 3D surface field | **Yes** — Step 5/6 |
+| 3D separation / tip stall | No | Local 2D separation on strips; **not** a 3D stall cell | Step 5/6 |
+| Downwash on a future stab | No | Yes — keep the multi-surface grammar even while designing one wing | Yes |
+
+**Recommendation.** Scenario 3 is **VLM + strip theory**, with the closed-form estimator as the live preview while dragging (10 µs vs 10–100 ms). The UI must name the tier on every number. A “pressure distribution” in Step 4 is **the selected bulkhead’s 2D Cp at α_eff**, plus a spanwise load plot — not a flood-fill on the 3D mesh. Flood-fill is Step 6 after CFD.
+
+Quasi-3D chain (corpus, visualisation knowledge): VLM → `α_i(y)` → `α_eff = α_geo − α_i` → run Step 3’s 2D solver at local Re. **Driving the section view from geometric α is a silent, plausible error.**
+
+COMMIT-01 still applies if an optimiser is added later. This sequence does not include the optimiser.
+
+### 5.2 Interop for VLM
+
+| Approach | How | For | Against |
+|---|---|---|---|
+| **Own small VLM in C# or Rust** | Stations → horseshoe/vortex lattice → Γ, forces, moments | Matches the grammar. No GPL. GHCP already sketched this (computed `e ≈ 1.0017` — treat as grid artefact until recovered) | You own the numerics; need analytic tests (elliptical wing → e → 1, known CL_α) |
+| **AeroSandbox / AVL out of process** | Write an AVL-like station file, run AVL or AS `VortexLatticeMethod` | AVL is the decades-old station format; AS is Python | Python/Fortran sidecar. AVL licence/binary. Typhoon/Tornado is **GPL** — do not vendor |
+| **Panel method (3D)** | Heavier | Better fuselage later | Not needed for a thin wing |
+
+**Recommended:** own VLM in the **core language** (C# default), gold-mastered against an elliptical wing and against AeroSandbox on a fixture if Python is present. Do not link Tornado.
+
+Yaw: expose a **sideslip** control. If the user never opens it, show Cn as “—” not 0.00.
+
+### 5.3 Ask the 3D estimate
+
+Prompt bar: *“Why is the tip unloaded?”* *“Where is the centre of lift relative to the quarter chord?”* *“If I add 3° of washout, what should I expect?”*
+
+Context: VLM forces and moments, `e`, Cl(y), CoL, datum, α, β, `α_eff` at selected stations, strip Cp summaries, geometry hash, validity envelope. Same numeral check. The model may talk about **what the VLM already computed**. If the user asks “what would washout do,” the honest reply is either (1) change the geometry and re-run, or (2) a qualitative pointer into the knowledge base — **not** a predicted ΔL/D. A “what if” that needs a number is a button that mutates a copy and re-solves, not a sentence.
+
+### 5.4 Beam / thickness (optional inside Step 4)
+
+GAP-02: thickness is structural. GHCP’s later P4 had a beam. It is the right physics and a research-sized hole (R-01). **Do not block Scenario 3 on a hydroelastic model.** Show t/c as a cost (Phase 0 prices) until a beam exists.
+
+### 5.5 3D estimate — v1 scope (not a backlog)
+
+The closed-form chain already answers “L/D at this α.” A workbench user also asks “will this fly me.” These are **in Step 4**.
+
+**v1 (this scenario ships them):**
+
+| Capability | Why |
+|---|---|
+| **Trim: α such that L = rider weight** | Operating point is mass, speed, fluid, depth — not α as the primary input. Show required α and whether it is inside the envelope |
+| **Take-off speed** | Speed where L(α_max_attached) = weight. The surf/SUP question |
+| **Wing polar**, not one point | Cl, Cd, L/D, Cm vs α and vs speed. Same sweep object as viz |
+| **Drag breakdown** | Induced vs profile. Corpus: 77% induced at surf take-off, 3% at race. That *is* the AR story |
+| **Local Re along span** | Taper changes chord; ranking and transition are local |
+| **First station to separate** | Strip-theory stall onset, labelled Inferred |
+| **Wing loading** | kg/m² or N/m². Speer uses this to size foils |
+| **Root bending moment (simple)** | `∫ y · l(y) dy`. Not a beam model; enough to talk thickness as a cost |
+| **Tip depth / ventilation hint** | Anhedral + ride depth → whether the tip is near the surface. Not a ventilation solver |
+| **CoL vs a stated attach point** | Pitching moment about the mast/fuselage bolt, not only ¼-chord. User places the attach |
+| **e computed**, never an assumed 0.85 in the headline number | Assumed e may live in the live-drag preview; the VLM number is what is shown as “3D” |
+| **Ghost overlay of a second wing** | Same as CAD |
+
+**Not v1:** full hydroelastic beam (R-01), pumping/Strouhal (R-02), junction drag (GAP-11), free-surface lift loss (that is DR / Step 5), Cm-driven stability eigenvalues (whole-craft, out of scope).
+
+---
+
+## 6. Step 5 / Scenario 4 — Native SU2 and OpenFOAM, tool-owned install
+
+**Verb.** From the workbench, set an operating point (speed, α, fluid, depth), press Run, and get a CFD result. The user never sees a dictionary or a `.cfg`. **The tool is accountable for the packages being installed and configured on this machine.**
+
+This is stronger than the first proposal’s “detect or degrade.” It is exactly the original user line in the orchestration base: *“I don’t want to have to worry about input files.”* Accountability for **install** is the onboarding half of that sentence.
+
+### 6.1 What “accountable for install” should mean (and must not)
+
+**Means:**
+
+1. **Detect** a supported substrate, pinned versions.
+2. If missing, **offer a guided install** the tool drives — not a wiki page.
+3. **Smoke-test** (OpenFOAM `icoFoam` cavity *or* a one-cell SU2 check; then `checkMesh` on our generated wing mesh).
+4. **Repair** (re-pull image, re-enable WSL, re-select distro).
+5. **Pin** versions in a lockfile next to the document or in app settings so yesterday’s run is reproducible.
+
+**Does not mean:** copy `OpenFOAM-v2606` or the SU2 source tree into `CFD WorkBench.app`. That is multi-gigabyte, un-notarizable, and a distro. FoilPilot’s lesson is: **install Docker/WSL (or the Mac OpenFOAM.app), then run official images / binaries.**
+
+### 6.2 Substrates the tool should own, per OS
+
+| OS | Primary | Fallback | Tool’s job |
+|---|---|---|---|
+| **Windows** | WSL2 distro with OpenFOAM-v2606 (or vendor pack) + SU2 binary or conda | Docker Desktop official OpenCFD image; SU2 image | Enable WSL, install distro **or** install Docker Desktop (FoilPilot does reboot-inclusive). Commercial Docker licence is a product question |
+| **macOS** | [gerlero OpenFOAM.app](https://github.com/gerlero/openfoam-app) or Docker Desktop; SU2 via Homebrew/conda or Docker | Docker only | Detect the `.app`, mount/case-sensitive volume issues, ARM vs x86 images. Many OpenFOAM.app builds are **not notarized** — the tool must say that before launching someone else’s unsigned app |
+| **Either** | — | Cloud (CFDDFC) later | Not v1. Elasticity for α sweeps, not the install story |
+
+**SU2 first for programmatic control** (corpus): one `.cfg`, `pysu2` SWIG wrapper *or* `SU2_CFD` as a process. **OpenFOAM first for free-surface / marine** (`interFoam`, the differentiator). A wing in unbounded water at moderate α is a fine SU2 RANS case; shallow submergence and ventilation are OpenFOAM (and later LBM).
+
+### 6.3 Interop — files-and-processes, not native bindings
+
+The orchestration knowledge base is explicit and still right:
+
+> OpenFOAM is not a library you call — it is a directory tree of dictionary files and a family of command-line executables. … **there is no FFI problem to solve.**
+
+| Backend | Native binding? | Recommended interop | Why |
+|---|---|---|---|
+| **OpenFOAM** | Possible via a custom C++ wrapper against a *specific* git hash. Breaks every release. LGPL-adjacent packaging pain | **Generate case dir → run `blockMesh` / `snappyHexMesh` / `checkMesh` / solver as processes → parse stdout + fields** | Only approach every serious wrapper uses (PyFoam, fluidsimfoam, FoilPilot) |
+| **SU2** | `pysu2` is SWIG around `CDriver` — that is a **Python** binding, not C#/Rust | **Prefer process + `.cfg`** from the core. Optional: Python sidecar calling `pysu2` if we already have sidecar for NeuralFoil | Process keeps cancellation, streaming, and version pins identical to OpenFOAM. pysu2 ties us to *their* Python and *their* build |
+| **NeuralFoil** (Step 3) | PyO3 embed | Sidecar, not embed | Same sidecar host can exist for pysu2 later |
+| **CUDA LBM** (future) | **Yes** — P/Invoke / Rust `cudarc`, Windows-only | Narrow `upload / step / readback` | This is the one place native bindings earn their keep |
+
+Shared façade (keep the corpus shape):
+
+```
+ISolverBackend
+  Detect() / EnsureInstalled() / SmokeTest()
+  Prepare(geometry, operatingPoint, fidelity) -> CaseHandle
+  Run(case, cancel) -> stream Progress   // residuals, time, checkMesh
+  Harvest(case) -> Result                // forces, fields or paths to fields
+```
+
+Estimator, VLM, SU2, OpenFOAM are four implementations. The shell does not care.
+
+**Cancellation** kills the process tree (including `wsl` / `docker exec` children). Abandoning a Task is not cancellation.
+
+**Always `checkMesh` (or SU2 mesh quality) and refuse to solve a failing mesh.** A bad mesh is the silent-wrong-answer machine.
+
+### 6.4 Case generation from *our* geometry
+
+This is why a purpose-built wing tool can do what a generic CFD GUI cannot:
+
+- STL (or SU2 mesh) from the loft, deviation ≤ 0.01 mm for the solver, not for CAM.
+- Domain extents as multiples of span/chord.
+- Refinement boxes from local chord.
+- First-cell height from target y+ and the Step 3/4 Reynolds number.
+- Boundary names from the model (`wing`, `inlet`, `outlet`, `farfield`, `symmetry` if mirrored).
+
+SPIKE-03 remains: unattended snappyHexMesh across AR 5 / 8 / 12. If it fails, Step 5 still runs but the UI grows mesh diagnostics — the “never see a dictionary” promise is then a guided panel, not a hidden step.
+
+### 6.5 Libraries / runtime
+
+| Piece | In-process (C# or Rust) | Out of process |
+|---|---|---|
+| Typed case model, serialiser, process runner, installer state machine | **Yes** | |
+| OpenFOAM, SU2_CFD, snappyHexMesh | | **Yes** |
+| PyFoam / fluidsimfoam | Avoid depending; reimplement the *shape* (typed dict → text) in core | Optional Python only if we want their parsers |
+| pysu2 | | Optional sidecar |
+| Docker / `wsl.exe` / OpenFOAM.app | Invoked as children | |
+
+Language of the installer state machine: **same as the shell** (C#). It is OS integration, not numerics.
+
+### 6.6 Considerations
+
+- **Version pins are a product feature.** “OpenFOAM-v2606, SU2 v8.x, image digest …” stored with the run. Floating `latest` is how results rot.
+- **Permissions.** WSL install and Docker Desktop need elevation and sometimes a reboot. The tool must survive being quit mid-install (FoilPilot’s reboot path).
+- **Licence.** Docker Desktop commercial use; OpenFOAM GPL (process isolation is the usual interpretation — we generate input, we do not link); SU2 LGPL-2.1 — **running the binary is not linking**. Confirm COMMIT-02 against SU2 **if we ever statically link pysu2**. Process-only keeps COMMIT-02 clean.
+- **Free surface** is still the differentiator and still a later physics pack (`interFoam` + DR case). Step 5 v1 can be a **single-phase wing in a box** (SU2 or `simpleFoam`) so install + orchestration is proven before VOF.
+
+**Ask a failed run.** When `checkMesh` fails or residuals blow up, the prompt bar gets the log (capability c). The suggestion is self-verifying: apply it and the next run either works or it does not. The model still does not invent a Cl from a crashed job.
+
+---
+
+## 7. Step 6 / Scenario 5 — See the run
+
+**Verb.** After (or during) a simulation, see charts **and** spatial flow: streamlines, surface Cp, separation. Scrub α or speed if the run was a sweep. Export a still; video is a close stretch.
+
+### 7.1 Two visual systems, do not merge them
+
+| System | When | Stack |
+|---|---|---|
+| **Analysis charts** | Steps 3–6 | ScottPlot.Avalonia (or egui_plot). Cp, polars, residuals, force history, cavitation bucket. Overlay candidates |
+| **Spatial field** | Step 4 (load / strip Cp) and Step 6 (CFD) | Same 3D viewport as CAD. Surface scalar, evenly-spaced illuminated streamlines. LIC on a 2D cut later |
+
+VTK/.NET does not exist. Do not wait for it. Python+VTK sidecar that returns PNGs is an escape hatch, not the interactive path. ParaView as an external “Open in ParaView” on the case directory is the heavy-hatch (the case dir already exists because we generated it).
+
+**During CFD:** stream residuals in the chart pane (stdout parse). If the backend is LBM-on-GPU later, render from the same buffers; for OpenFOAM/SU2 the field is on disk — harvest slices, don’t live-tail the 43 M-cell volume in the UI process.
+
+### 7.2 What to draw, in order of value
+
+1. Surface Cp on the loft (flood). Pair with the 2D Cp chart at the selected bulkhead.
+2. Spanwise Cl(y) vs elliptical (already a Step 4 chart; CFD should overlay).
+3. Streamlines around the wing, seeded from a rake the user can move. Even spacing + illumination in 3D.
+4. Separation: as a **marked region on the surface / on the Cp plot**, only if the solver produced a criterion we trust (skin friction reversal, or a documented Q/λ₂). Do not invent separation from a pretty picture.
+5. LIC on a station-aligned cut — v2 (corpus).
+6. Video of a sweep — FFMpegCore / ffmpeg pipe, no intermediate PNG forest.
+
+Colour maps: GAP-15 still open. Do not ship rainbow as the default. Propose turbo or a diverging map for Cp, colour-blind-safe, in the spec that follows this proposal.
+
+### 7.3 Interop
+
+- Charts: in-process, data from core.
+- Surface/streamlines: in-process GPU of the **harvested** field (surface mesh + vectors at surface / a reduced volume).
+- Full volume: path on disk; optional ParaView.
+- **No** native VTK binding hunt.
+
+Sweep as domain object (corpus): `{variable: alpha|velocity|station|Re, from, to, steps}`. Charts, 3D, and video bind to one sweep. Estimator sweeps are instant; CFD sweeps are a job queue (embarrassingly parallel — the cloud note in the orchestration base).
+
+### 7.4 Ask the pictures
+
+Prompt bar, with the **harvested** result in context: forces from Harvest, residual history, surface Cp samples (not the whole volume), separation flags if the solver produced them, case pin (OpenFOAM/SU2 version digest), geometry hash.
+
+*“Is that tip vortex or a seeding artefact?”* *“Why did lift drop 8% from the VLM?”* (here the 8% must already be in the context as two harvested numbers). *“What would I change in the mesh if the suction peak is noisy?”*
+
+Same numeral check. Multi-fidelity talk is allowed only as “VLM said X, CFD said Y, both are in the context.” Inventing a reconciliation factor is forbidden (GAP-06 is still open; do not let Claude paper over it).
+
+---
+
+## 8. AI throughout — extra capability, not critical path
+
+COMMIT-04 does not move. Bring-your-own Claude API key if you want prompts. **Do not bring a key if you do not want them.** Every scenario in this sequence — New, Open, Save, CAD edit, 2D estimate, 3D estimate, CFD install/run, charts, streamlines — is specified to work with no key, no network, and Claude unreachable. A 401, a timeout, or an empty Settings field is the same state: the prompt bar is disabled and the rest of the workbench is unaffected.
+
+This is the corpus rule in `kb-ai-in-the-product`: *“The tool must be fully usable offline. AI is additive; if the network is down the wing still gets designed.”* It is now a product-sequence rule, not only an AI-layer rule.
+
+### 8.1 Where the prompt bar lives
+
+One bar in the shell, always visible. Its **system preamble and tool/context pack change with the active scenario**:
+
+| Active step | Pack | Allowed write-back |
+|---|---|---|
+| 2 Shape | Catalog, generative schema, knowledge excerpts on sections and planform bands | A `StartingDesign` object, **after Accept** |
+| 3 2D | Polar + Cp + envelope | None. Text + citations |
+| 4 3D | VLM result + strips | None. Text + citations. “What if” offers a **re-solve** action, not a guessed delta |
+| 5 CFD | `checkMesh` / residual log | Optional: apply a suggested case-parameter change, then **you** re-run |
+| 6 Viz | Harvested forces + sampled field + version pin | None. Text + citations |
+
+### 8.2 The two mechanical guards
+
+1. **Structured outputs** on anything that can mutate the document (Step 2 start; Step 5 suggested repair). Schema-valid or it does not apply.
+2. **Numeral check** on every model reply that is shown as prose (SPIKE-04). Every numeral in the reply must appear in the context blob. Rounding and unit conversion need a corpus of fixtures (the original spike). Fail closed: strip or reject, never “around 19.”
+
+### 8.3 Runtime
+
+| Piece | Where | Notes |
+|---|---|---|
+| Anthropic API | HTTPS from the shell (or a small `cfdw.ai` helper). Official .NET SDK is the default | Matches the AI knowledge base’s C# surface. Rust would use `reqwest` + JSON schema |
+| API key | OS credential store | Settings UI. Never in `*.cfdw.json` |
+| Knowledge prefix | Bundled markdown from `docs/knowledge/` (stable → prompt cache) | Retrieval over the 25 artifacts; citations on |
+| Offline / no key | Core + UI + solvers + file I/O + CFD | **Critical path.** Prompt bar disabled. No feature except NL start and Q&A is even *offered* as requiring the network |
+
+### 8.4 Never (still)
+
+Compute or estimate a physical quantity. Choose the design (no “just pick the best AR”). Emit raw geometry. Judge structural safety (GAP-02). Silently add a constraint the user did not state. Be required for Open / Save / estimate / VLM / CFD.
+
+---
+
+## 9. Client architecture (all steps together)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Shell  (Avalonia 12 default)                            │
+│  document · undo · curve views (anchors + levers)        │
+│  bulkhead list · charts · 3D host · install wizard       │
+│  prompt bar (Claude BYOK) · numeral check on replies     │
+└────────────────────────────┬─────────────────────────────┘
+                             │ in-process, typed model
+┌────────────────────────────▼─────────────────────────────┐
+│  cfdw-core   (.NET 10 net10.0, OS-neutral)               │
+│  stations · loft · file · catalog                        │
+│  2D polar consumer · VLM · ISolverBackend façade         │
+│  StartingDesign apply · provenance                       │
+└───────┬───────────┬────────────┬────────────┬────────────┘
+        │           │            │            │
+     sidecar     process      process      HTTPS
+        ▼           ▼            ▼            ▼
+   Python/uv     OpenFOAM     SU2_CFD     Claude API
+   NeuralFoil    WSL/Docker   binary /    (optional;
+   (optional)    / .app       image       never on
+                                          solver path)
+```
+
+**Process boundaries.** UI must survive a solver crash. Core must not reference Avalonia. Windows-only CUDA lives in a `cfdw.cuda` project. Installer/Wsl/Docker live in `cfdw.host` (can reference OS APIs).
+
+**CLI oracle.** `cfdw measure|estimate|vlm|cfd` remains, even though Step 1 is a shell. It is how CI and the recovered GHCP tests stay honest.
+
+### 9.1 Language / runtime summary
+
+| Layer | Default | Rust instead if… |
+|---|---|---|
+| Shell | C# Avalonia 12 | Avalonia cannot host 3D picking **and** we refuse display-only 3D |
+| Core geometry, file, VLM | C# `net10.0` | SPIKE-00 fails **and** you would rather write Rust on this Mac |
+| 2D polars | Data files + optional Python sidecar | Never rewrite NeuralFoil in v1 |
+| OpenFOAM / SU2 | Child processes from C# | Same processes from Rust — **no advantage** |
+| Viewport GPU | C# wgpu/Silk.NET | Viewport crate in Rust, consumed by Avalonia |
+| Claude API | Official Anthropic .NET SDK from the shell | `reqwest` if the shell were Rust. Not in core |
+| LBM | C++/CUDA or Rust+cudarc, Windows | — |
+
+Python is a **detected optional runtime** (`uv` / python.org / Store). The workbench ships without it. Steps 1, 2, 4 (own VLM), 5 (if SU2/OF binaries exist), 6 (charts + harvested surface) do not require Python. Step 3 on a **custom** section does.
+
+---
+
+## 10. Later: fins and surfboards
+
+**Fins.** Same grammar. A fin is a surface. OpenVSP already treats it as a wing. Step 2’s bulkheads work unchanged. Physics: Step 3–4 apply; yaw becomes interesting (keel/fin side force). Do not special-case the file format.
+
+**Surfboards.** Different physics. Knowledge v2 retired Savitsky, RANS+VOF, 6-DOF trim/sinkage. Shape3d *is* a board tool — we are stealing its **curve UX**, not its planing solver. A board pack would be: the same shell + a different generative vector (outline, rocker, thickness, rails) + a planing / CFD-free-surface backend. **Do not run the hydrofoil estimator on a deck.** When this comes back, it is a new knowledge pass, not a checkbox.
+
+The shell in Step 1 should not hard-code “one wing.” The document is an **assembly of surfaces**. v1 only *creates* one lifting surface. That is enough future-proofing.
+
+---
+
+## 11. Suggested build order (this sequence, not the old P0–P7)
+
+| Order | Delivers | Depends on | Spike / decision |
+|---|---|---|---|
+| Step 1 | Double-clickable Mac + Windows shell, stub file, empty 3D host, prompt bar chrome **disabled without a key** | SPIKE-05 chassis | ADR: Avalonia vs egui. Key optional in credential store |
+| Step 2 | Parameters + **catalog picker** + **anchor/lever CAD** + bulkheads, Open/Save, optional NL start | GAP-04 ADR-0002, SPIKE-01 rewritten as 2D CAD | SPIKE-00 salvage; SPIKE-17 vendor H105 + 6-series; SPIKE-04/16 only if NL is on |
+| Step 3 | 2D forces + Cp + Ncrit-water + cavitation envelope + Re ranking + forces in N + **ask the polar** | Vendored polars; sidecar optional | SPIKE-07, SPIKE-08 |
+| Step 4 | Trim to weight, take-off speed, wing polar, drag split, CoL vs attach, computed e + **ask the estimate** | Step 2–3 | Gold-master elliptical wing |
+| Step 5a | Install wizard + smoke test (SU2 **or** OF) | FoilPilot-style | New SPIKE-15: guided install on Mac and Windows |
+| Step 5b | Generated case, run, harvest forces; **ask a failed log** | SPIKE-03 mesh | Single-phase box first; VOF later |
+| Step 6 | Surface Cp + streamlines + **ask the pictures** | Step 5 harvest | Colour-map decision (R-12) |
+| Stretch | STL slice-and-fit import | Step 2 | SPIKE-14 |
+| After this sequence | Goal-driven search (old P5), DR free-surface, LBM | COMMIT-01, DR | Explain is no longer “after”; it is in 3/4/6 |
+
+Recovering the Windows trees in parallel remains the highest-leverage **non-sequence** task: it can feed Steps 2–4 directly.
+
+---
+
+## 12. Decisions this follow-on is asking you to accept
+
+| # | Decision | Reopens? |
+|---|---|---|
+| S1 | Product sequence is **shell → shape → 2D → 3D estimate → owned CFD install → viz**, not CLI-first | Softens the first proposal’s D3 (CLI is now under the shell, still required as oracle) |
+| S2 | Geometry UX is **Shape3d curves + naval bulkheads + generative parameters**, with **CAD-style anchors and spline levers** as a v1 requirement | No — this *is* the CAD proposal, stated as mandatory |
+| S3 | Scenario 3 is **VLM + strip theory**, not a fake 3D pressure field | No — corpus already said this |
+| S4 | OpenFOAM/SU2 via **processes + generated cases**, never linked libraries | No |
+| S5 | Tool **owns install** (detect / guide / smoke-test / pin / repair), **does not embed** the distros | Strengthens the first proposal’s “detect”; rejects bundling |
+| S6 | SU2 process-first (COMMIT-02 safe). pysu2 only as optional sidecar | Avoids SU2 LGPL-as-link |
+| S7 | STL/STEP import is **stretch**, fitted stations labelled Inferred, user accept to promote | Reopens COMMIT-03 **only** as a side door |
+| S8 | v1 document = one lifting surface; assembly grammar already allows fins later; surfboards are a physics pack | Reopens retired board physics **as future**, not as v1 |
+| S9 | Default stack unchanged: **.NET 10 + Avalonia 12**, Python sidecar optional, Rust viewport/LBM door | No |
+| S10 | **Claude is optional.** BYOK, infused from Step 1 when a key is set. NL → typed starting profile or 3D foil (then CAD-edit). Q&A on results in Steps 3, 4, 6. Numeral check on every reply. Model never emits coordinates or forces. **No key ⇒ full workbench; prompts are the only thing missing** | Pulls old P6 forward. Does **not** reopen “generate geometry directly.” Makes COMMIT-04’s offline rule a sequence-level floor |
+| S11 | **Section catalog is a parameterized-start picker**, not a typed string. v1: Eppler lifting set, NACA 6- and 16-series, 0012/4412 fixtures; strut family separate. Vendor Speer H105 + generated 66-series. Rank at current Re. Discipline presets | Extends the vendored 11 files; does not dump UIUC wholesale |
+| S12 | **CAD v1 = §3.6 table.** Numeric inspector, root/tip readout, per-station section, TE floor, AR definition, presets, `.dat` add, explode, symmetry lock, ghost overlay | Shape3d/XFLR5 practice, not a stretch |
+| S13 | **2D v1 = §4.5 table.** Ncrit-for-water, Re ranking, cavitation envelope, forces in N, design vs operating Cl, envelope enforcement, salt/fresh | Polar without these is not the product |
+| S14 | **3D v1 = §5.5 table.** Trim to weight, take-off speed, wing polar, drag split, local Re, first-to-separate, loading, simple root moment, tip-depth hint, CoL vs attach, computed e | “Will this fly me,” not only “L/D at this α” |
+
+---
+
+## 13. Open questions
+
+1. **Install ambition for v1.** Guided WSL2 + Docker (FoilPilot class) is weeks of OS work. Acceptable v1: wizard that installs **one** substrate per OS (Windows: WSL2 OpenFOAM *or* Docker; Mac: OpenFOAM.app *or* Docker), not both plus conda SU2?
+2. **SU2 vs OpenFOAM as the first CFD backend.** Corpus says SU2 is easier to drive, OpenFOAM is the marine/free-surface one. Recommend **SU2 (or simpleFoam) for Step 5b**, OpenFOAM VOF after DR.
+3. **Python on a clean machine.** Catalog-only 2D (no sidecar) vs requiring `uv` for Step 3 on custom sections. Recommend catalog-only works; custom sections ask to install Python.
+4. **Mesh import in v1 or after CFD?** Recommend after Step 2 is loved; fitting is a product of its own.
+5. **Recover Windows trees before Step 1, or start the Avalonia shell in parallel?** Recommend parallel: shell on this Mac, salvage on Windows when you next sit at it.
+6. **Claude model id.** Pin in Settings; default whatever the operator is on. Changing it must not change a saved foil (geometry is not model output).
+7. **NL starting design: catalog-only vs CST coefficients.** Catalog pick is safer (every section is vendored and hashed). CST from a brief is a fitted shape — label Inferred, same as mesh import.
+8. **H105 licence / redistribution.** Coordinates live on Speer’s site and forum attachments, not UIUC. Confirm we can vendor a hashed copy before the picker claims it.
+
+---
+
+The knowledge base already has the geometry grammar, the 2D chain, the VLM, the process-shaped CFD boundary, the Shape3d metaphor (including tangent levers), and the language-in / numbers-out rule. This sequence is the order to *build a workbench a person uses*: fair the foil with anchors and levers, start it from a sentence if you want, ask the solvers what they computed, and let the tool — not the user — hold the CFD substrate.
