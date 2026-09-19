@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-19T16:37:04Z",
+  "generated": "2026-09-19T16:44:33Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -146,6 +146,45 @@ window.AUDIT_DATA = {
       "fan_out": 3,
       "started_at": "2026-09-19T15:37:54Z",
       "duration_seconds": 3550.0
+    },
+    {
+      "id": "al-01M2X8RTXS6ZHVEE7XJ5FCDMXM",
+      "shortname": "commit and push all",
+      "datetime": "2026-09-19T16:42:39Z",
+      "session": "cfd-publish-20260919",
+      "prompt": "commit and push all\n---\nthen give me a script that updates the codex config to default to full access for everything",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M2X8W9QADQPDE5M0VM56QY1P",
+      "shortname": "publish-spec-ui",
+      "datetime": "2026-09-19T16:44:33Z",
+      "session": "cfd-publish-20260919",
+      "prompt": "commit and push all\n---\nthen give me a script that updates the codex config to default to full access for everything",
+      "summary": "Triage after inventory: two independent deterministic actions, publish existing reviewed commit and deliver a personal config updater. Detailed graph skipped; no delegation or loops. Remote fetched and both worktrees clean before audit. Updater kept outside product repo, validated against actual config without mutation and isolated preservation/backup fixtures. Remaining publish oracle: remote main and feature heads equal local delivery head.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench.md",
+        "docs/mockups/workbench.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Publish all completed CFD-Workbench work and provide a full-access default config script.",
+      "done_when": "Remote main and feature branch contain completed artifacts and the validated updater is delivered.",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-09-19T16:42:39Z",
+      "duration_seconds": 114.0
     }
   ],
   "changes": [
