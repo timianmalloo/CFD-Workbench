@@ -227,7 +227,52 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d5b938fe1c26fb6f95365f76979eecc02674897d2de6d3c73831c50fa931027f"
+      "sourceSha256": "4fb76602b85faec100692cfc90ab371c6ff3db223a0964d1012544e8996fc2b9"
+    },
+    {
+      "id": "note-sweep-replay-semantics",
+      "path": "docs/notes/sweep-replay-semantics.md",
+      "title": "Sweep playback selects an operating point, not physical time",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-03-18",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench",
+          "on": "2026-09-19",
+          "reason": "Revision 0.2 adds editable weighted geometry, water and force semantics, Cartesian sweeps and linked replay; reconcile consumers with the new contract."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
+        }
+      ],
+      "summary": "A velocity-by-incidence sweep has discrete case identities, and every result surface follows one selected case. Playback cannot imply transient fluid time or carry fields from a missing case's predecessor.",
+      "tags": [
+        "decision-note",
+        "simulation",
+        "visualization",
+        "provenance"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-cfd-workbench-grounding",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "93ac732f86f2792b257f31e00ef12869535e32a64fa0c3659ebe99de30c29b19"
     },
     {
       "id": "mockup-workbench",
@@ -250,7 +295,7 @@ window.DOCS_INDEX = {
           "reason": "Initial cross-platform workbench token and interaction language created for review."
         }
       ],
-      "summary": "Self-contained HTML workbench for iterating curves, station profiles and the shape-to-evidence workflow. The prototype includes review controls and illustrative scientific data; it is not a production geometry kernel or solver.",
+      "summary": "Self-contained HTML workbench with editable catalog section curves, weighted smoothing, fluid-aware force previews and linked velocity–angle sweep visualization. The review harness and synthetic field fixtures demonstrate interaction contracts, not a production geometry kernel or solver.",
       "tags": [
         "mockup",
         "hydrofoil",
@@ -276,7 +321,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5e83fa14dbda9c926456952fd5ab4a9ab711e3f4d41034581014bbdb02d3ebee"
+      "sourceSha256": "064b1723e8af100858a07b82387785bb87208fe88b90387717cb8ea13493a4ac"
     },
     {
       "id": "workbench-direction",
@@ -316,7 +361,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8f00e663d839f9d7eb32c661365ae2f9336e919c8370faa1df0fe399c4ec6a1a"
+      "sourceSha256": "829325173208b2f28862e5ff05ad574cd33a5735a67ed7f67ebd806096bcf037"
     },
     {
       "id": "design-language",
@@ -404,7 +449,58 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1375d1db2fd7ddb2df4cd30796efee3f2e17e58a1f287a6d9f4d1b14ba0352f3"
+      "sourceSha256": "10af6a4d1f5556dbd3b44830e19f70e176c3ab33414aa0516229bbcc15fca27c"
+    },
+    {
+      "id": "plan-foil-editing-flow-results",
+      "path": "docs/plans/foil-editing-flow-results.md",
+      "title": "Editable foils and flow-result iteration plan",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench",
+          "on": "2026-09-19",
+          "reason": "Revision 0.2 adds editable weighted geometry, water and force semantics, Cartesian sweeps and linked replay; reconcile consumers with the new contract."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
+        }
+      ],
+      "summary": "Extend the existing specification and interactive prototype with weighted geometry editing, water-aware analysis, two-axis simulation sweeps, and synchronized field inspection. Independent review and rendered behavior checks bound the delivery claim to specification and prototype evidence.",
+      "tags": [
+        "planning",
+        "geometry",
+        "simulation",
+        "visualization"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-cfd-workbench-grounding",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart LR\nG[Ground sources] --> P[Review plan]\nG --> S[Model and specification]\nS --> D[Direction and state contract]\nD --> U[Interactive mockup]\nS --> H[Render spec]\nP --> V[Independent rendered review]\nU --> V\nH --> V\nV --> C[Checks, graph and audit]"
+        }
+      ],
+      "sourceSha256": "55fab0f48f8e1e08783bd946080a3b7cdb614c47fe137011593890e38968ed64"
     },
     {
       "id": "plan-specification-and-ui",
@@ -502,7 +598,7 @@ window.DOCS_INDEX = {
           "reason": "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision."
         }
       ],
-      "summary": "Source map, precedence, evidence confidence, and conflicts carried from CFD-Bench into the Workbench specification. Source statements are distinguished from scientific validation and new product decisions.",
+      "summary": "Source map, precedence, confidence and conflicts carried from CFD-Bench and the proposal into Workbench. Includes the follow-up requirements for weighted section/outline editing, water-dependent loads, Cartesian simulation sweeps and scientifically labeled 2D/3D replay.",
       "tags": [
         "hydrofoils",
         "sources",
@@ -516,7 +612,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f77a67054ed548d8e06784e1fee15ef03da407f5241e5d05892e31a0ca8638d4"
+      "sourceSha256": "16011236c5cfaecedfd1e006c2544e810723b956bea848d352ada80cde3fd153"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -532,6 +628,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench",
           "on": "2026-09-19",
           "reason": "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
         }
       ],
       "summary": "Native-platform evidence remains explicitly unverified because this deliverable is an HTML design prototype. The required Mac and Windows checks are named without choosing an application framework.",
@@ -551,7 +652,57 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bfb0649e82fa9d4adac6f1f258000ed078a3dc85dd0aabfabc118137944451d9"
+      "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
+    },
+    {
+      "id": "review-foil-editing-flow-results",
+      "path": "docs/reviews/foil-editing-flow-results.md",
+      "title": "Editable foils and flow results — review and proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-19",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench",
+          "on": "2026-09-19",
+          "reason": "Revision 0.2 adds editable weighted geometry, water and force semantics, Cartesian sweeps and linked replay; reconcile consumers with the new contract."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
+        }
+      ],
+      "summary": "Review of the specification and interactive mockup iteration for weighted foil editing, dimensional loads, water-aware sweeps and linked field replay. This evidence concerns the HTML design artifact; numerical and native product validation remain separate gates.",
+      "tags": [
+        "review",
+        "geometry",
+        "analysis",
+        "simulation",
+        "visualization"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench",
+          "rel": "documents"
+        },
+        {
+          "to": "plan-foil-editing-flow-results",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-native-ui-workbench",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1ebbb7f2e0ba6243c97ee41db8e4416787407715c381bef63c99106087b77f31"
     },
     {
       "id": "review-specification-gate",
@@ -587,7 +738,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4df8b7d52fbaccef952f7be418d5f1c80593aee37ea8fdea170d16cfdb037abc"
+      "sourceSha256": "4f7269fa4a2586f8fbcc18e814e208fca70da09995d1ad12f37e079f8d74f1dc"
     },
     {
       "id": "review-ui-workbench",
@@ -598,7 +749,18 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-12-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench",
+          "on": "2026-09-19",
+          "reason": "Revision 0.2 adds editable weighted geometry, water and force semantics, Cartesian sweeps and linked replay; reconcile consumers with the new contract."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
+        }
+      ],
       "summary": "Independent review clears the HTML workbench for design iteration after correcting geometry authority, historical results, keyboard focus, narrow navigation and partial-field rendering. Four minor craft findings and unverified native, scientific and full accessibility obligations remain explicit.",
       "tags": [
         "ui",
@@ -629,7 +791,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cc5d2db3c4f8c382deb3cdf7b346d8434bb83369ecdd12d55cf3a274e2c9f12d"
+      "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
       "id": "spec-cfd-workbench",
@@ -645,9 +807,14 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-19",
           "reason": "Initial cross-platform workbench token and interaction language created for review."
+        },
+        {
+          "by": "mockup-workbench",
+          "on": "2026-09-19",
+          "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
         }
       ],
-      "summary": "Full functional, UX and UI specification for a local Mac and Windows hydrofoil workbench. One parametric surface definition supports curves and station profiles, with traceable analysis, guided CFD, optional AI, and explicit scientific limits.",
+      "summary": "Functional, UX and UI specification for a local Mac and Windows hydrofoil workbench. Editable catalog-derived sections and weighted curve fairing feed traceable water-dependent loads, velocity-by-incidence sweeps and synchronized 2D/3D flow inspection with explicit scientific limits.",
       "tags": [
         "hydrofoil",
         "cad",
@@ -671,6 +838,10 @@ window.DOCS_INDEX = {
         {
           "to": "plan-specification-and-ui",
           "rel": "relates-to"
+        },
+        {
+          "to": "plan-foil-editing-flow-results",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [
@@ -681,18 +852,18 @@ window.DOCS_INDEX = {
         },
         {
           "kind": "flowchart",
-          "title": "B3. Flow F2 — shape through curves and stations (GEO-01–12, CAT-01–03)",
-          "mermaid": "flowchart TD\nA[Recipe or open native model] --> B[Evaluate one explicit surface]\nB --> C{Edit target}\nC -->|Distribution| D[Select curve anchor or handle]\nC -->|Station| E[Select plane / row / profile]\nD --> F[Drag, nudge or type exact value]\nE --> F\nF --> G{Recipe still linked?}\nG -->|Yes| H[Preview direct-parametric detachment]\nG -->|No| I[Preview same model]\nH --> I\nI --> J{Geometry valid?}\nJ -->|Yes, accept| K[New revision; dependent results historical]\nJ -->|No| L[Highlight location and failed constraint]\nL -->|Correct| F\nL -->|Revert| B\nK -->|Undo| B\nK --> B\nC -->|Catalog profile edit| M[Make editable copy; show fit error]\nM -->|Accept| F\nM -->|Cancel| B\nQ[Add profile from DAT] --> R{Parse and validate}\nR -->|Invalid| T[Show line or shape error; choose another file]\nT --> Q\nR -->|Valid| U[Source, normalization and profile preview]\nU -->|Accept| E\nU -->|Cancel| B\nV[Break symmetry preview / read-only ghost overlay] --> B"
+          "title": "B3. Flow F2 — shape through curves and stations (GEO-01–14, CAT-01–03)",
+          "mermaid": "flowchart TD\nA[Recipe or open native model] --> B[Evaluate one explicit surface]\nB --> C{Edit target}\nC -->|Distribution| D[Select curve mode, control or handle]\nC -->|Station| E[Select plane / row / profile]\nD --> F[Drag, nudge or type value / influence weight]\nE --> F\nF --> G{Recipe still linked?}\nG -->|Yes| H[Preview direct-parametric detachment]\nG -->|No| I[Preview same model]\nH --> I\nI --> J{Geometry, locks and fit tolerance valid?}\nJ -->|Yes, accept| K[New revision; dependent results historical]\nJ -->|No| L[Highlight location and failed constraint]\nL -->|Correct| F\nL -->|Revert| B\nI -->|Cancel / Escape| B\nK -->|Undo| B\nK --> B\nC -->|Edit section, including NACA 0012| M[Source-linked upper/lower curve draft; show fit error]\nM --> F\nM -->|Cancel| B\nC -->|Smooth section or outline| W[Preview weighted control polygon, curve and comb]\nW --> X[Inspect deviation, evaluated dimensions and explicit locks]\nX --> F\nQ[Add profile from DAT] --> R{Parse and validate}\nR -->|Invalid| T[Show line or shape error; choose another file]\nT --> Q\nR -->|Valid| U[Source, normalization and profile preview]\nU -->|Accept| E\nU -->|Cancel| B\nV[Break symmetry preview / read-only ghost overlay] --> B"
         },
         {
           "kind": "flowchart",
-          "title": "B4. Flow F3 — analyze and compare (ANA-01–16)",
-          "mermaid": "flowchart TD\nA[Choose Section or Wing] --> B[Set operating point and method]\nB --> C{Data and envelope supported?}\nC -->|No| D[Explain: choose supported point / install backend]\nD --> B\nC -->|Yes| E[Compute against pinned revision]\nE --> F{Outcome}\nF -->|Success| G[Evidence with scope, units, uncertainty]\nF -->|Failed| H[Keep historical result; inspect reason / retry]\nH --> B\nG --> I[Compare compatible snapshots or sweep]\nI -->|Missing sample| J[Gap plus reason; retry sample]\nJ --> E\nG -->|Geometry edited| K[Historical banner; recompute current]\nK --> E\nI -->|Methods disagree| L[Side-by-side assumptions and discrepancy]"
+          "title": "B4. Flow F3 — analyze and compare (ANA-01–18)",
+          "mermaid": "flowchart TD\nA[Choose Section or Wing] --> B[Set speed, incidence, fresh/salt water and method]\nB --> C{Data and envelope supported?}\nC -->|No| D[Explain: choose supported point / install backend]\nD --> B\nC -->|Yes| E[Compute against pinned revision]\nE --> F{Outcome}\nF -->|Success| G[Coefficients and scope-correct loads, units and uncertainty]\nF -->|Failed| H[Keep historical result; inspect reason / retry]\nH --> B\nG --> I[Compare compatible snapshots or sweep]\nG --> U[Convert N to lbf; same physical result]\nI -->|Missing sample| J[Gap plus reason; retry sample]\nJ --> E\nG -->|Geometry edited| K[Historical banner; recompute current]\nK --> E\nI -->|Methods disagree| L[Side-by-side assumptions and discrepancy]\nG -->|Water or physical input edited| K"
         },
         {
           "kind": "flowchart",
-          "title": "B5. Flow F4 — setup, simulation and results (CFD-01–04, VIZ-01–02)",
-          "mermaid": "flowchart TD\nA[Open Simulate] --> B{Compatible backend ready?}\nB -->|No| C[Detect / choose supported setup]\nC --> D[Review download, disk, elevation and actions]\nD -->|Decline| E[Return to design]\nD -->|Approve| F[Install stages and smoke test]\nF -->|Interrupted / offline / denied| G[Explain stage; resume / repair / cancel]\nG --> C\nF -->|Pass| H[Pin version]\nB -->|Yes| I[Case setup and estimate]\nH --> I\nI --> J{Mesh gate passes?}\nJ -->|No| K[Show metrics; repair mesh]\nK --> I\nJ -->|Yes| L[Run: residuals, forces, elapsed]\nL -->|Cancel / crash| M[Retain case and partial evidence; retry eligible stage]\nM --> I\nL -->|Required outputs verified| N[Results snapshot]\nN --> O[Choose field / slice / streamline / probe]\nO -->|Missing variable| P[Unavailable with reason; choose supported field]\nP --> O"
+          "title": "B5. Flow F4 — setup, simulation and results (CFD-01–06, VIZ-01–04)",
+          "mermaid": "flowchart TD\nA[Open Simulate] --> B{Compatible backend ready?}\nB -->|No| C[Detect / choose supported setup]\nC --> D[Review download, disk, elevation and actions]\nD -->|Decline| E[Return to design]\nD -->|Approve| F[Install stages and smoke test]\nF -->|Interrupted / offline / denied| G[Explain stage; resume / repair / cancel]\nG --> C\nF -->|Pass| H[Pin version]\nB -->|Yes| I[Water, single point or speed-by-incidence sweep]\nH --> I\nI --> Q{Fluid and resolved sample schedule valid?}\nQ -->|No| R[Show invalid value; preserve draft]\nR --> I\nQ -->|Yes| S[Review Cartesian matrix, held conditions and resource estimate]\nS --> J{Mesh gate passes?}\nJ -->|No| K[Show metrics; repair mesh]\nK --> I\nJ -->|Yes| L[Queue samples: status, residuals, forces, elapsed]\nL -->|Cancel / crash| M[Retain case and partial evidence; retry eligible stage]\nM --> I\nL -->|Required outputs verified per sample| N[Results matrix; pinned snapshot per sample]\nN --> O[Choose 2D / 3D, field / slice / streamline / probe]\nO -->|Missing variable| P[Unavailable with reason; choose supported field]\nP --> O\nO --> T[Choose replay axis and held coordinate; Play or step]\nT --> U{Selected sample has evidence?}\nU -->|Yes| V[Update matrix, charts, metrics and field together]\nV -->|Next sample| T\nU -->|No| W[Pause; clear field/metrics; show reason]\nW -->|Retry| L\nW -->|Skip explicitly| T\nT -->|Pause / leave Results| N"
         },
         {
           "kind": "flowchart",
@@ -700,7 +871,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Contextual assistant] --> B{Key and consent present?}\nB -->|No| C[Explain optional setup; manual path remains]\nB -->|Yes| D[Inspect sharing summary; submit]\nD --> E{Response valid and supported?}\nE -->|No| F[Unsupported / error; edit request or dismiss]\nE -->|Starting design| G[Validated fields, shape preview and explicit diff]\nG -->|Edit| G\nG -->|Discard| H[Document unchanged]\nG -->|Final Accept; base revision unchanged| I[One undoable revision]\nG -->|Base revision changed| R[Refresh preview and review changes]\nR --> G\nE -->|Grounded explanation| J[Citations to selected run]\nE -->|What-if| K[Offer copy and actual recomputation]\nX[Current design: global Export, no AI required] --> L[Choose export format and tolerance]\nI --> X\nL --> M{Format and geometry checks pass?}\nM -->|No| N[Explain failure; return to geometry]\nM -->|Yes| O{Write export}\nO -->|Success| S[Export with revision and limitations]\nO -->|Denied / disk full| T[Preserve existing file; choose path or retry]\nT --> L"
         }
       ],
-      "sourceSha256": "f69da574650aacb108dfa2e849d7088cd0b2b350af242fd45b9c936bba4d89b6"
+      "sourceSha256": "5dcd67855c1e3a004cd0ac67b12ed3c3a2f2609451b871bc8f0aa223226c46a9"
     }
   ],
   "surfaces": [
@@ -736,5 +907,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-cfd-workbench"
     }
   ],
-  "graphSha256": "1ae6ec80456f003e2979b428e1fa6065739024b9a5f905d0d5753a046c489aa9"
+  "graphSha256": "bdb0e8f200ee589f99f15d1cbbf238faf9b09761c1273b824f25963ce32071ff"
 };

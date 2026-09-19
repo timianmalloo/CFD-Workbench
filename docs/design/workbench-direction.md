@@ -21,7 +21,7 @@ review-suggested:
 
 # CFD-Workbench interface direction
 
-Mode: **create**. Written before screens. Status: proposed direction for iteration;
+Mode: **elevate** for the 2026-09-19 geometry/results iteration. The established direction is retained and extended below before changing screens. Status: proposed direction for iteration;
 the product stack and simulation backend remain undecided.
 
 ## Person, need, and register
@@ -123,3 +123,19 @@ an explicit illustrative-data label. Review controls are outside the product she
 scalar distributions; stations anchor section identity and expose evaluated values.
 Editing a station's scalar value updates its owning distribution, never a shadow
 number. This is the interaction to iterate first, before adding commands or panels.
+
+## Geometry and evidence iteration — 2026-09-19
+
+**Verified user intent:** catalog sections must become editable; section and outline curves need a weighted smoothing mode; Analyze needs coefficients and total loads with water and speed context; Simulate needs fresh/salt water and velocity-by-angle sweeps; Results needs richer ParaView-inspired inspection and replay.
+
+**Inferred direction:** retain precise, composed, tactile and G1/G2. Make the curve's control polygon, approximating curve, selected weight and preserved constraints visible together. Exact interpolation and weighted smoothing are named modes. Preview/accept/cancel and Undo explain when the document changes. A catalog name remains provenance for an editable copy, never a claim that a modified section is still the catalog original.
+
+Results gain one dominant field view with a source/field inspector, a compact operating-point metric strip, linked plots/table and a shared sweep transport. Adapt ParaView's field/representation separation, seed controls, scalar legends and synchronized views. Use explicit 2D section and 3D wing choices. Plotting style remains technical and restrained; no new promotional layout or decorative imagery. Coefficients are dimensionless, total force defaults to N with lbf display, and section-only force remains per unit span.
+
+**Verified documentation reference (2026-09-19):** ParaView 6.1's [animation guide](https://docs.paraview.org/en/latest/UsersGuide/animation.html) distinguishes generated sequences from data timesteps. Its [filtering guide](https://docs.paraview.org/en/latest/UsersGuide/filteringData.html) makes operations depend on the input's available data. Workbench adapts these two principles as explicitly named sweep playback and field-capability gating; no ParaView runtime integration is selected.
+
+Replay progresses through discrete operating points. Its speed is a presentation rate, not physical time. Keep camera, seeds and scalar range stable across frames; show missing cases as gaps. Modeled turbulence and separation diagnostics require named source fields and criteria. Illustrative prototype graphics state their limits visibly. Transient physical-time playback is separate and unavailable without time-resolved fields.
+
+Additional state inventory: catalog/editable/conversion-preview; exact/weighted with selected control and invalid constraint; SI/imperial force display; fresh/salt properties; valid/invalid sweep bounds; queued/completed/failed/missing sample; paused/playing/end; 2D/3D and unavailable field. Existing theme, reduced-motion, narrow-window, keyboard and review-persona contracts apply to each.
+
+The trigger union is unchanged: UI-T1 expert quantities and existing UI-T3 optional assistant apply; UI-T2 is absent; UI-T4 remains a future native proof obligation. No framework or CFD implementation is selected by these mockups.

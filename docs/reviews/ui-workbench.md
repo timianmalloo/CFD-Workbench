@@ -13,9 +13,14 @@ links:
   - {to: review-specification-gate, rel: depends-on}
 review-by: 2026-12-19
 summary: Independent review clears the HTML workbench for design iteration after correcting geometry authority, historical results, keyboard focus, narrow navigation and partial-field rendering. Four minor craft findings and unverified native, scientific and full accessibility obligations remain explicit.
+review-suggested:
+  - { by: spec-cfd-workbench, on: 2026-09-19, reason: "Revision 0.2 adds editable weighted geometry, water and force semantics, Cartesian sweeps and linked replay; reconcile consumers with the new contract." }
+  - { by: mockup-workbench, on: 2026-09-19, reason: "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof." }
 ---
 
 # Interface review
+
+This is the **revision 0.1 baseline review**. See [the weighted-editing and flow-results review](foil-editing-flow-results.md) for the current iteration. Counts below describe the original run; the linked generated proof JSON is refreshed by later iterations.
 
 Date: 2026-09-19. Mode: create, followed by independent adversarial review. The UI author did not clear its own veto. `geometry_evidence` inspected rendered screenshots and source, independently exercised the original focus and historical-result failures, and reread the final two fixes with their executable assertions and persisted browser report. Its final verdict was **PASS for HTML design iteration**. The final closure was source/proof inspection, not another independent browser run.
 

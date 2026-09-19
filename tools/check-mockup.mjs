@@ -30,6 +30,8 @@ const measure=async(label)=>{
 };
 try{
  await page.goto(pathToFileURL(path.join(repo,'docs/mockups/workbench.html')).href);
+ // Requested interaction contract: weighted curves and coherent operating-point evidence.
+ assert.equal(await page.locator('#outline-mode').count(),1,'Outline editing must expose weighted Smooth mode');
  for(const name of ['shape','sections','analyze','simulate','results']){
   await task(name); await measure(name);
   await page.screenshot({path:path.join(shots,`${name}.png`),fullPage:true});
@@ -98,6 +100,70 @@ try{
  await task('shape');assert.notEqual(await page.locator('#foil-svg').innerHTML(),shapeBeforeProfile);
  await page.locator('#undo').click();assert.equal(await page.locator('#foil-svg').innerHTML(),shapeBeforeProfile);assert.match(await page.locator('#task-meta').innerText(),/Recipe linked/);
  record('Profile and loft share accepted revision','First camber edit requires detachment review, changes the 3D foil, and Undo restores shape plus recipe.');
+ // Smooth means weighted influence; preview and acceptance are distinct states.
+ await page.reload();const outlineOriginal=await page.locator('#foil-svg').innerHTML();
+ const outlineRevision=await page.locator('#task-meta').innerText();
+ await page.locator('#outline-mode').selectOption('smooth');
+ const smoothShape=await page.locator('#foil-svg').innerHTML();assert.notEqual(smoothShape,outlineOriginal);
+ assert.equal(await page.locator('#task-meta').innerText(),outlineRevision);
+ await page.locator('#outline-weight').fill('4');await page.locator('#outline-weight').press('Tab');
+ assert.notEqual(await page.locator('#foil-svg').innerHTML(),smoothShape);
+ assert.match(await page.locator('.outline-controls + .field-help').innerText(),/Evaluated station/);
+ await page.getByRole('button',{name:'Cancel preview',exact:true}).click();assert.equal(await page.locator('#foil-svg').innerHTML(),outlineOriginal);
+ await page.locator('#outline-mode').selectOption('smooth');await page.getByRole('button',{name:'Apply smooth preview',exact:true}).click();
+ assert.notEqual(await page.locator('#task-meta').innerText(),outlineRevision);
+ await page.locator('#undo').click();assert.equal(await page.locator('#foil-svg').innerHTML(),outlineOriginal);
+ await page.locator('#outline-mode').selectOption('smooth');await page.locator('[data-channel="twist"]').click();assert.equal(await page.locator('#outline-mode').inputValue(),'through');await page.locator('[data-channel="chord"]').click();assert.equal(await page.locator('#foil-svg').innerHTML(),outlineOriginal);
+ record('Weighted outline preview is reversible','Mode and weight change the shared curve/foil without accepting a revision; Cancel and accepted-operation Undo restore the original.');
+ await task('sections');await page.getByRole('button',{name:'Edit section',exact:true}).click();await page.getByRole('button',{name:'Create copy',exact:true}).click();
+ const sourceSection=await page.locator('#section-shape').getAttribute('d');
+ await page.locator('#profile-offset').fill('2');await page.locator('#profile-offset').press('Tab');
+ assert.notEqual(await page.locator('#section-shape').getAttribute('d'),sourceSection);
+ await page.locator('#profile-mode').selectOption('smooth');const weightedSection=await page.locator('#section-shape').getAttribute('d');
+ await page.locator('#profile-weight').fill('4');await page.locator('#profile-weight').press('Tab');assert.notEqual(await page.locator('#section-shape').getAttribute('d'),weightedSection);
+ await page.getByRole('button',{name:'Cancel preview',exact:true}).click();assert.equal(await page.locator('#section-shape').getAttribute('d'),sourceSection);
+ await page.locator('#profile-offset').fill('1.5');await page.locator('#profile-offset').press('Tab');await page.locator('[data-station="1"]').first().click();await page.locator('[data-station="2"]').first().click();assert.equal(await page.locator('#section-shape').getAttribute('d'),sourceSection);
+ await page.locator('[data-profile-point="2"]').focus();await page.keyboard.press('ArrowUp');assert.equal(await page.evaluate(()=>document.activeElement.dataset.profilePoint),'2');
+ await page.getByRole('button',{name:'Apply curve preview',exact:true}).click();await task('shape');assert.notEqual(await page.locator('#foil-svg').innerHTML(),outlineOriginal);
+ await page.locator('#undo').click();assert.equal(await page.locator('#foil-svg').innerHTML(),outlineOriginal);
+ record('Catalog section curve editing','Upper/lower control offsets and Smooth weights alter the actual section path; cancel, keyboard target, accepted loft linkage and whole-operation Undo are verified.');
+ await task('analyze');const force=()=>page.locator('#evidence-metrics').getAttribute('data-lift-newtons');
+ const fresh=Number(await force());await page.locator('#condition-water').selectOption('salt');const salt=Number(await force());assert(Math.abs(salt/fresh-1024.8103/998.2072)<1e-10);
+ await page.locator('#condition-speed').fill('12');await page.locator('#condition-speed').press('Tab');assert(Math.abs(Number(await force())/salt-4)<1e-10);
+ const coefficient=await page.locator('.metric strong').first().innerText(),newtons=Number(await force());await page.locator('#force-unit').selectOption('lbf');
+ assert.equal(await force(),String(newtons));assert.equal(await page.locator('.metric strong').first().innerText(),coefficient);
+ assert.equal(await page.locator('.metric strong').nth(3).innerText(),(newtons/4.4482216152605).toFixed(2));
+ await page.locator('[data-scope="section"]').click();assert.equal(await page.locator('.metric strong').nth(3).innerText(),'Unavailable');
+ record('Water, speed and force dimensional integrity','Fresh→salt scales fixture forces by pinned density; doubling velocity gives four times force; lbf changes display only, and section coefficients do not become wing total forces.');
+ await task('simulate');await page.locator('#setup-water').selectOption('salt');await page.getByRole('button',{name:'Preview sweep results',exact:true}).click();
+ assert.equal(await page.locator('[data-case-row]').count(),12);assert.match(await page.locator('.inspector').innerText(),/Salt water/);
+ await page.locator('[data-case="5"]').click();const caseField=await page.locator('#foil-svg').innerHTML(),caseId=await page.locator('#evidence-metrics').getAttribute('data-case');assert.equal(caseId,'V6-A4');
+ await page.locator('#result-field').selectOption('velocity');assert.notEqual(await page.locator('#foil-svg').innerHTML(),caseField);assert.match(await page.locator('.legend').innerText(),/m\/s/);
+ await page.locator('[data-result-view="2d"]').click();assert.match(await page.locator('#foil-svg').getAttribute('aria-label'),/Span-normal section/);
+ assert.equal(await page.locator('[data-streamline]').count(),10);await page.locator('#flow-lines').uncheck();assert.equal(await page.locator('[data-streamline]').count(),0);await page.locator('#flow-lines').check();
+ await page.locator('#result-field').selectOption('turbulence');assert.match(await page.locator('.legend').innerText(),/Modeled turbulent kinetic energy/);
+ await page.locator('#result-field').selectOption('pathlines');assert.match(await page.locator('dialog').innerText(),/physical time-resolved/);await close();
+ await page.locator('#case-slider').fill('2');assert.equal(await page.locator('#evidence-metrics').getAttribute('data-case'),'V6-A8');assert.equal(await page.locator('.selected-row').getAttribute('data-case-row'),'6');
+ await page.locator('#result-field').selectOption('wall-shear');assert.equal(await page.locator('#wall-reversal').count(),1);assert.match(await page.locator('.v-note').innerText(),/C𝒻 < 0/);
+ const independentForce=await page.locator('#evidence-metrics').getAttribute('data-lift-newtons');assert.notEqual(independentForce,'');
+ await state('partial');assert.equal(await page.locator('#wall-reversal').count(),0);assert.equal(await page.locator('.viewport-state h2').innerText(),'Field unavailable');assert.match(await page.locator('#foil-svg').getAttribute('aria-label'),/force sample retained/);assert.match(await page.locator('.viewport-state').innerText(),/Wall-shear field was not recorded/);assert.match(await page.locator('.viewport-state').innerText(),/independent force sample remains available/);assert.equal(await page.locator('#evidence-metrics').getAttribute('data-lift-newtons'),independentForce);await state('default');
+ record('Signed separation criterion and absent wall data','Synthetic Cf<0 reversal is hatched and defined relative to +x freestream; partial state removes the overlay and explains absent wall evidence.');
+ const lockedLegend=await page.locator('.legend').innerText();await page.locator('[data-case="4"]').click();assert.equal(await page.locator('.legend').innerText(),lockedLegend);
+ await page.getByRole('button',{name:'Play sweep',exact:true}).click();await page.waitForFunction(()=>document.querySelector('#evidence-metrics').dataset.case==='V6-A4');await page.getByRole('button',{name:'Pause',exact:true}).click();assert.equal(await page.locator('#evidence-metrics').getAttribute('data-case'),'V6-A4');
+ await page.locator('[data-case="6"]').click();await page.getByRole('button',{name:'Next operating point',exact:true}).click();assert.equal(await page.locator('[data-streamline]').count(),0);assert.match(await page.locator('.viewport-state').innerText(),/Sample unavailable/);assert.equal(await page.locator('#evidence-metrics').getAttribute('data-lift-newtons'),'');
+ record('Sweep result linkage and evidence gaps','12 Cartesian samples; case selection synchronizes scalar SVG, metrics and row; distinct 2D view, seed visibility, fixed legend, play/pause, modeled k and pathline unavailability verified; failed sample clears fields and quantities.');
+ await page.locator('[data-case="5"]').click();const pinnedField=await page.locator('#foil-svg').innerHTML();await task('simulate');await page.locator('#setup-water').selectOption('fresh');await task('results');assert.equal(await page.locator('#foil-svg').innerHTML(),pinnedField);assert.match(await page.locator('.inspector').innerText(),/Salt water/);
+ await task('simulate');await page.locator('#sweep-speeds').fill('0, 6');await page.locator('#sweep-speeds').press('Tab');await page.getByRole('button',{name:'Preview sweep results',exact:true}).click();assert.match(await page.locator('[role="alert"]').innerText(),/velocity >0/);
+ record('Sweep snapshot and invalid schedule','Editing setup fluid does not rewrite the prior run; zero velocity prevents creating a new sweep.');
+ await task('shape');await page.locator('#input-chord').fill('150');await page.locator('#input-chord').press('Tab');await page.getByRole('button',{name:'Apply edit',exact:true}).click();
+ await task('simulate');await page.locator('#sweep-speeds').fill('4, 6');await page.locator('#sweep-speeds').press('Tab');await page.getByRole('button',{name:'Preview sweep results',exact:true}).click();assert.match(await page.locator('.inspector').innerText(),/Snapshot r13/);
+ assert.match(await page.locator('.sidebar [data-action="results"]').innerText(),/Revision 13/);assert.equal(await page.locator('.sidebar [data-action="results"] .station-number').innerText(),'13');
+ await page.getByRole('button',{name:'Inspect provenance →',exact:true}).click();assert.match(await page.locator('dialog').innerText(),/Revision 13/);await close();
+ await task('shape');await page.locator('#input-chord').fill('152');await page.locator('#input-chord').press('Tab');await task('results');assert.match(await page.locator('.inline-banner').innerText(),/Results belong to revision 13/);
+ record('New run revision provenance','A sweep built from accepted r13 identifies r13 in inspector, provenance and stale banner after a later r14 edit.');
+ await page.reload();
+ await task('results');const resultBounds=await page.locator('.result-evidence').evaluate(el=>({height:el.getBoundingClientRect().height,scroll:el.scrollHeight,overflow:getComputedStyle(el).overflowY}));assert(resultBounds.height<=340&&resultBounds.scroll>resultBounds.height);assert.equal(resultBounds.overflow,'auto');
+ record('Bounded result evidence pane','Metrics remain first in a keyboard-focusable scroll region; plots and full sample table remain reachable beneath the dominant view and replay.');
  // Full state union: task × theme × hard state, and absence/reviewer/motion dimensions.
  for(const name of ['shape','sections','analyze','simulate','results']){
   await task(name);

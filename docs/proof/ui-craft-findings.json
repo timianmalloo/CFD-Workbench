@@ -1,7 +1,7 @@
 [
   {
     "rule": "gpt-thin-border-wide-shadow",
-    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foil-editing-flow-results/docs/mockups/workbench.html",
     "dimension": "17 Craft",
     "cluster": "Generic-AI-look tells",
     "directive": "DX3",
@@ -12,7 +12,7 @@
   },
   {
     "rule": "cramped-padding",
-    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foil-editing-flow-results/docs/mockups/workbench.html",
     "dimension": "17 Craft",
     "cluster": "Hierarchy, rhythm & space",
     "directive": "DX12/DX13/DX17",
@@ -23,7 +23,7 @@
   },
   {
     "rule": "flat-type-hierarchy",
-    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/workbench.html",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foil-editing-flow-results/docs/mockups/workbench.html",
     "dimension": "17 Craft",
     "cluster": "Hierarchy, rhythm & space",
     "directive": "DX12/DX13/DX17",
@@ -34,7 +34,7 @@
   },
   {
     "rule": "flat-type-hierarchy",
-    "location": "/private/tmp/cfd-workbench-spec-ui/docs/mockups/design-language.html",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foil-editing-flow-results/docs/mockups/design-language.html",
     "dimension": "17 Craft",
     "cluster": "Hierarchy, rhythm & space",
     "directive": "DX12/DX13/DX17",

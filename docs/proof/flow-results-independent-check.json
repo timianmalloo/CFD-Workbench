@@ -1,0 +1,156 @@
+{
+  "probe": {
+    "scope": "Independent HTML prototype browser review; no solver/native claim",
+    "browser": "153.0.8010.48",
+    "checks": [
+      {
+        "name": "NACA curve draft changes rendered geometry, is keyboard editable, and cancellation restores shape",
+        "status": "pass",
+        "evidence": "Upper-surface offset and weight changed actual SVG; keyboard target retained; Cancel restored exact original SVG."
+      },
+      {
+        "name": "Outline weighted preview changes curve and can be accepted and undone",
+        "status": "pass",
+        "evidence": "Weight changed evaluated loft; Apply detached recipe; one Undo restored original geometry."
+      },
+      {
+        "name": "Analyze exposes five quantities; water and speed affect loads; lbf only changes force display",
+        "status": "pass",
+        "evidence": {
+          "freshN": 862.6925077495206,
+          "saltN": 885.684021989161,
+          "lbf": 199.11,
+          "coeff": "0.34"
+        }
+      },
+      {
+        "name": "Sweep accepts Cartesian schedule and rejects duplicate/invalid velocities",
+        "status": "pass",
+        "evidence": "12 sample rows; duplicate and nonpositive velocities rejected."
+      },
+      {
+        "name": "Results selects one case across view, metrics, table and discrete replay",
+        "status": "pass",
+        "evidence": "V6-A8 synchronized in all sources; 2D retains it; wall reversal at alpha8; speed stepping holds alpha8."
+      },
+      {
+        "name": "Failed sample clears quantities/field and missing wall variable has explicit absence",
+        "status": "pass",
+        "evidence": "Failed sample has no flow layer or loads; absent wall variable hides reversal and gives reason."
+      },
+      {
+        "name": "Narrow rendered task routes have no horizontal page overflow and expose controls",
+        "status": "pass",
+        "evidence": [
+          {
+            "name": "sections",
+            "inner": 1024,
+            "scroll": 1024
+          },
+          {
+            "name": "analyze",
+            "inner": 1024,
+            "scroll": 1024
+          },
+          {
+            "name": "simulate",
+            "inner": 1024,
+            "scroll": 1024
+          },
+          {
+            "name": "results",
+            "inner": 1024,
+            "scroll": 1024
+          }
+        ]
+      },
+      {
+        "name": "Reduced motion allows manual replay steps without autoplay",
+        "status": "pass",
+        "evidence": "Keyboard step works; playback remains paused."
+      }
+    ],
+    "errors": [],
+    "requests": []
+  },
+  "edge": [
+    {
+      "name": "Smooth tangent control correctly disabled",
+      "disabled": true
+    },
+    {
+      "name": "Invalid outline weight",
+      "input": "1.00",
+      "applyDisabled": false,
+      "error": "Enter a finite value from 0.1 to 10; accepted data retained."
+    },
+    {
+      "name": "Speed change updates load",
+      "at6": 862.6925077495206,
+      "at8": 1533.675569332481,
+      "ratio": 1.7777777777777777
+    },
+    {
+      "name": "Actual playback stops at failed sample",
+      "label": "V6-A12 \u00b7 V 6.00 m/s \u00b7 \u03b1 12.00\u00b0",
+      "playText": "Play sweep",
+      "flowLayers": 0,
+      "lift": ""
+    },
+    {
+      "name": "Leaving Results pauses playback",
+      "label": "V4-A0 \u00b7 V 4.00 m/s \u00b7 \u03b1 0.00\u00b0",
+      "playText": "Play sweep"
+    },
+    {
+      "name": "760 width",
+      "width": 760,
+      "scroll": 760,
+      "audit": {
+        "frame": {
+          "width": 760,
+          "height": 2053.640625
+        },
+        "contrastFailures": 0,
+        "smallTargets": 0,
+        "controls": 38,
+        "state": "default",
+        "task": "results"
+      }
+    }
+  ],
+  "final": {
+    "scope": "Independent final focused HTML review",
+    "source": "/Users/mallalieut/projects/CFD-Workbench-feature-foil-editing-flow-results/docs/mockups/workbench.html",
+    "source_sha256": "7b08b41483f85ce25cce8cffc9124da4226b861c204db8e5fce9759d3d81977b",
+    "browser": "153.0.8010.48",
+    "checks": [
+      {
+        "name": "Station switch cancels unaccepted profile draft",
+        "status": "pass"
+      },
+      {
+        "name": "Channel switch cancels unaccepted outline draft",
+        "status": "pass"
+      },
+      {
+        "name": "Run r13 provenance retained after current geometry r14 edit",
+        "status": "pass"
+      },
+      {
+        "name": "Missing wall field copy now agrees with available force sample",
+        "status": "pass",
+        "message": "Field unavailable\n\nWall-shear field was not recorded for this sample. Wall scalar is absent; the independent force sample remains available.\n\nSkip to next sample"
+      },
+      {
+        "name": "Selected sidebar run revision and field absence heading are accurate",
+        "status": "pass"
+      },
+      {
+        "name": "Browser accessibility tree exposes field selector, replay step and case selection names",
+        "status": "pass"
+      }
+    ],
+    "errors": []
+  }
+}

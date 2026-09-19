@@ -16,6 +16,8 @@ review-suggested:
 
 # Independent specification gate
 
+This is the **revision 0.1 baseline gate**. See [the weighted-editing and flow-results review](foil-editing-flow-results.md) for specification revision 0.2 and the current prototype.
+
 Date: 2026-09-19. Author: main agent. Independent reviewers: `geometry_evidence` (Data/Geometry Architect, Test Architect, Simplifier) and `proposal_evidence` (Product, Test, Security, UX/IA). Both reviewed the actual written artifact after source-grounding and were read-only. Findings were applied by the author and reread by their originating reviewer.
 
 | Finding | Original gate | Resolution inspected | Final |

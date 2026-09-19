@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-19T16:44:33Z",
+  "generated": "2026-09-19T17:33:34Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -185,6 +185,95 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-19T16:42:39Z",
       "duration_seconds": 114.0
+    },
+    {
+      "id": "al-01M2XAG4SKJFJWTBWQVSVDYPNF",
+      "shortname": "foil-editing-flow-results",
+      "datetime": "2026-09-19T17:12:52Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "ground yourself in the cfd-bench knowledge, the cfd-workbench-proposl content and the current spec in this repo (and mockups)\nfor the current spec\n- the foil section should be editable (even when starting with a pre-defined foil section like the naca 0012) i should be able to use splines/curves to reshape\n- in both the foil section and outlines edits i should be able to \"smooth\" to have a constant curve where the splines are anchors for weights for the curve as opposed to locking the curve\n- the analyze needs to  be able to show: Cl, Cd, Cl/Cd, Total Lift (at given speed and water type fresh or saltwater), Total Drag Lift and Drag should be in Netwons by default with ability to convert to imperial\n- the simulation setup should allow me to specify fresh vs salt water, it should allow me to sweep across velocities and angles of attacks\n\nupdate the spec and mockups... have the mockups be richer in terms of the analysis and simulation results... take inspiration from paraview results in terms of being able to visualize streamlines and be able to replay a parametric sweep in a 3d or 2d view to see things like separation and turbulence",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M2XBP1G69S75Z5Y3P1W43GH3",
+      "shortname": "specify-foil-editing-flow-results",
+      "datetime": "2026-09-19T17:33:34Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "ground yourself in the cfd-bench knowledge, the cfd-workbench-proposl content and the current spec in this repo (and mockups)\nfor the current spec\n- the foil section should be editable (even when starting with a pre-defined foil section like the naca 0012) i should be able to use splines/curves to reshape\n- in both the foil section and outlines edits i should be able to \"smooth\" to have a constant curve where the splines are anchors for weights for the curve as opposed to locking the curve\n- the analyze needs to  be able to show: Cl, Cd, Cl/Cd, Total Lift (at given speed and water type fresh or saltwater), Total Drag Lift and Drag should be in Netwons by default with ability to convert to imperial\n- the simulation setup should allow me to specify fresh vs salt water, it should allow me to sweep across velocities and angles of attacks\n\nupdate the spec and mockups... have the mockups be richer in terms of the analysis and simulation results... take inspiration from paraview results in terms of being able to visualize streamlines and be able to replay a parametric sweep in a 3d or 2d view to see things like separation and turbulence",
+      "summary": "Updated canonical three-layer specification to 0.2; reconciled local Bench/proposal sources and current primary references. Independent functional/Data/Test/UX review passed. Full HTML parity: 535 text blocks, 82 requirements, five flows, matching source hash and edition.",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench.md",
+        "docs/specs/cfd-workbench.html",
+        "docs/knowledge/cfd-workbench-grounding.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Update the current specification for editable weighted geometry, water-aware loads and simulation sweeps with richer result inspection.",
+      "done_when": "Full functional, UX and UI contracts plus source reconciliation and independent review are complete in Markdown and HTML.",
+      "tier": "T1",
+      "fan_out": 3,
+      "started_at": "2026-09-19T17:09:13Z",
+      "duration_seconds": 1461.0
+    },
+    {
+      "id": "al-01M2XBP1HH96TVWBH0ZH9DW9G5",
+      "shortname": "ui-design-foil-editing-flow-results",
+      "datetime": "2026-09-19T17:33:34Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "ground yourself in the cfd-bench knowledge, the cfd-workbench-proposl content and the current spec in this repo (and mockups)\nfor the current spec\n- the foil section should be editable (even when starting with a pre-defined foil section like the naca 0012) i should be able to use splines/curves to reshape\n- in both the foil section and outlines edits i should be able to \"smooth\" to have a constant curve where the splines are anchors for weights for the curve as opposed to locking the curve\n- the analyze needs to  be able to show: Cl, Cd, Cl/Cd, Total Lift (at given speed and water type fresh or saltwater), Total Drag Lift and Drag should be in Netwons by default with ability to convert to imperial\n- the simulation setup should allow me to specify fresh vs salt water, it should allow me to sweep across velocities and angles of attacks\n\nupdate the spec and mockups... have the mockups be richer in terms of the analysis and simulation results... take inspiration from paraview results in terms of being able to visualize streamlines and be able to replay a parametric sweep in a 3d or 2d view to see things like separation and turbulence",
+      "summary": "Elevated the self-contained mockup with weighted curve drafts, fresh/salt force fixtures, N/lbf conversion, Cartesian case selection, 2D/3D scalar/streamline views, synthetic signed-wall-shear and modeled-k states, and replay. Independent rendered gate passed; 144 measurements and 22 behavior oracles passed, four baseline Minor craft findings remain, full native/scientific/WCAG proof unclaimed.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench.html",
+        "docs/reviews/foil-editing-flow-results.md",
+        "docs/proof/workbench-browser-check.json",
+        "docs/proof/flow-results-independent-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make the requested editing and analysis/simulation workflow concrete and reviewable in the current interactive mockup.",
+      "done_when": "Requested controls drive rendered geometry or selected evidence, failure/provenance paths are tested, and independent rendered review clears prototype blockers.",
+      "tier": "T1",
+      "fan_out": 3,
+      "started_at": "2026-09-19T17:09:13Z",
+      "duration_seconds": 1461.0
+    },
+    {
+      "id": "al-01M2XBP1JV395YWHSHHWXEWEC2",
+      "shortname": "optimize-graph-foil-editing-flow-results",
+      "datetime": "2026-09-19T17:33:34Z",
+      "session": "cfd-flow-results-20260919",
+      "prompt": "ground yourself in the cfd-bench knowledge, the cfd-workbench-proposl content and the current spec in this repo (and mockups)\nfor the current spec\n- the foil section should be editable (even when starting with a pre-defined foil section like the naca 0012) i should be able to use splines/curves to reshape\n- in both the foil section and outlines edits i should be able to \"smooth\" to have a constant curve where the splines are anchors for weights for the curve as opposed to locking the curve\n- the analyze needs to  be able to show: Cl, Cd, Cl/Cd, Total Lift (at given speed and water type fresh or saltwater), Total Drag Lift and Drag should be in Netwons by default with ability to convert to imperial\n- the simulation setup should allow me to specify fresh vs salt water, it should allow me to sweep across velocities and angles of attacks\n\nupdate the spec and mockups... have the mockups be richer in terms of the analysis and simulation results... take inspiration from paraview results in terms of being able to visualize streamlines and be able to replay a parametric sweep in a 3d or 2d view to see things like separation and turbulence",
+      "summary": "Completed eight-node plan with three-delegate ceiling and distinct spec/UI/reviewer ownership. Source contract preceded UI; spec rendering overlapped UI construction. Independent gates and full prototype checks preserved. Rework and defect controls recorded; actual model tokens and aggregate overlap not recorded.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/foil-editing-flow-results.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Deliver grounded specification and mockup updates with complete cross-surface proof and bounded independent review.",
+      "done_when": "All plan nodes complete with explicit evidence and residual product/native/scientific limits.",
+      "tier": "T1",
+      "fan_out": 3,
+      "started_at": "2026-09-19T17:09:13Z",
+      "duration_seconds": 1461.0
     }
   ],
   "changes": [
@@ -231,6 +320,30 @@ window.AUDIT_DATA = {
         "before": "12022a0",
         "after": "12022a0c6343b6b4651e5d05c48e254c6d9865b9",
         "branch": "feature/specification-and-ui",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M2XBP1EQBWZBKQ54HCFDT7BK",
+      "datetime": "2026-09-19T17:33:34Z",
+      "session": "cfd-flow-results-20260919",
+      "kind": "spec",
+      "skill": "specify",
+      "title": "Weighted foil editing and water-aware sweep evidence",
+      "prompt": "ground yourself in the cfd-bench knowledge, the cfd-workbench-proposl content and the current spec in this repo (and mockups)\nfor the current spec\n- the foil section should be editable (even when starting with a pre-defined foil section like the naca 0012) i should be able to use splines/curves to reshape\n- in both the foil section and outlines edits i should be able to \"smooth\" to have a constant curve where the splines are anchors for weights for the curve as opposed to locking the curve\n- the analyze needs to  be able to show: Cl, Cd, Cl/Cd, Total Lift (at given speed and water type fresh or saltwater), Total Drag Lift and Drag should be in Netwons by default with ability to convert to imperial\n- the simulation setup should allow me to specify fresh vs salt water, it should allow me to sweep across velocities and angles of attacks\n\nupdate the spec and mockups... have the mockups be richer in terms of the analysis and simulation results... take inspiration from paraview results in terms of being able to visualize streamlines and be able to replay a parametric sweep in a 3d or 2d view to see things like separation and turbulence",
+      "summary": "Specification 0.2 and interactive mockup now cover editable catalog sections, weighted smoothing, scoped N/lbf forces, fluid conditions, Cartesian sweeps and linked 2D/3D field replay. Independent review passed for specification and prototype; physical and native validation remain future gates.",
+      "rationale": "Preserve one geometry authority and immutable sample identity while adding the explicitly requested editing and analysis capabilities.",
+      "artifacts": [
+        "docs/specs/cfd-workbench.md",
+        "docs/mockups/workbench.html",
+        "docs/reviews/foil-editing-flow-results.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "e65a96038707",
+        "after": "e65a960387077bcbc9f852955429880e331696e6",
+        "branch": "feature/foil-editing-flow-results",
         "pushed": null,
         "commits": []
       }

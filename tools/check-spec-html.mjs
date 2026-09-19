@@ -39,7 +39,9 @@ try {
  result.narrowOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
  result.externalRequests=external;result.pageErrors=errors;
  result.hashMatches=result.sourceHash===createHash('sha256').update(source).digest('hex');
+ const sourceRevision=source.match(/^Product specification · revision ([0-9.]+) ·/m)?.[1];
+ result.revisionMatches=await page.locator('.badge').innerText()===`PRODUCT SPECIFICATION · ${sourceRevision}`;
  fs.writeFileSync(path.join(root,'docs/proof/spec-html-check.json'),JSON.stringify(result,null,2)+'\n');
  console.log(JSON.stringify(result));
- if(result.missing.length||!result.hashMatches||errors.length||external.length||result.overflow||result.narrowOverflow||result.flows!==5||result.visibleNavAfterFilter!==1||result.emptyFilter.links!==0||!result.emptyFilter.visible||!result.frame.width||!result.frame.height)process.exitCode=1;
+ if(result.missing.length||!result.hashMatches||!result.revisionMatches||errors.length||external.length||result.overflow||result.narrowOverflow||result.flows!==5||result.visibleNavAfterFilter!==1||result.emptyFilter.links!==0||!result.emptyFilter.visible||!result.frame.width||!result.frame.height)process.exitCode=1;
 } finally {await browser.close()}

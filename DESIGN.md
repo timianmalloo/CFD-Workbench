@@ -167,10 +167,12 @@ window chrome, assistive technology, DPI, signing, and distribution remain unpro
 | Camera manipulation | Maintain spatial orientation | Direct response, no inertia | Direct response |
 | Task/state switch | Change work context | Hard cut | Hard cut |
 | Loading skeleton | Reserve shape during wait | Static, no shimmer | Static |
+| Operating-point replay | Inspect a sweep at held speed or held angle | Explicit Play; 900 ms per discrete sample; hard cut | Same explicit controls; no tween or automatic startup |
 
-No decorative motion, automatic rotating model, animated layout dimensions, or
-simulation animation is included. Real transient results require an explicit play
-control and timestamp. The mockup has no transient physics data.
+No decorative motion, automatic rotating model or animated layout dimensions is
+included. Sweep replay changes operating points, never physical transient time.
+Camera, rake, slice and scalar range remain fixed during playback; missing samples
+pause and clear absent quantities. The mockup has no transient physics data.
 
 ## 7. Copy record
 
@@ -196,6 +198,15 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-16 | Data retained. Review the failed step before retrying. |
 | COPY-17 | No estimate is available for discretization or model-form uncertainty. |
 | COPY-18 | Read-only review. Select any item to inspect its definition. |
+| COPY-19 | Through points |
+| COPY-20 | Smooth · weighted controls |
+| COPY-21 | Edit section |
+| COPY-22 | Operating-point replay · not physical transient time. Camera, slice, rake and scalar range stay fixed. Missing samples pause playback. |
+| COPY-23 | Preview sweep results |
+| COPY-24 | Sample unavailable |
+| COPY-25 | Modeled turbulent kinetic energy k · m²/s² |
+| COPY-26 | Signed wall-shear coefficient C𝒻 · dimensionless |
+| COPY-27 | Field unavailable |
 
 Errors state the failing condition, retained state, and recovery. Scientific states
 never use “validated,” “safe,” or “optimized” without evidence. UI fixture values are
@@ -268,13 +279,36 @@ contract and error choices; the prototype does not parse an external file. Produ
 profile fitting, loft validation, mesh generation, solver execution, file I/O and AI
 requests are not implemented by this artifact.
 
+Catalog sections now open an editable analytic copy with upper/lower curve control
+offsets, Through points and Smooth weighted modes, numeric influence weights and
+keyboard/drag alternatives. The original source is dashed. Unaccepted previews
+report normalized deviation, preserve effective t/c and can be cancelled; Apply
+detaches the recipe as one undoable revision. The bounded rational curve preview
+does not certify production spline fitting or continuity. Outline smooth previews
+show evaluated station quantities separately from influence-control ordinates.
+
+Analyze displays Cₗ, C𝒹, their ratio and finite-wing lift/drag at a specified speed
+and water preset. Newtons are the default; lbf is a display conversion. Section
+coefficients alone do not supply wing total forces. Coefficient formula fixtures
+hold shape independent of Reynolds number and explicitly disclose that limitation.
+Fresh/salt presets display density, viscosity, salinity and fixed 20°C temperature.
+
+Simulation setup builds a velocity × angle sample matrix. Results links the selected
+case across field, forces, coefficient plots, row and replay position. The main
+render view stays dominant above a bounded, keyboard-scrollable evidence pane.
+Pressure, velocity, modeled turbulent kinetic energy and a synthetic signed wall
+shear coefficient have fixed unit-bearing legends. The wall-shear example uses
+hatched C𝒻 < 0 areas to explain local reversal relative to +x free stream; it is not
+physical evidence of real foil separation. A partial state shows absent wall data.
+Steady streamlines are not pathlines or resolved turbulent motion.
+
 The executable review control is `tools/check-mockup.mjs`. It accepts an optional
 installed Node module directory containing Playwright and launches local Chrome
 through its cross-platform channel. It writes measured evidence to
 `docs/proof/workbench-browser-check.json` and screenshots to the system temporary
-directory. The final sweep measured 144 combinations and 14 behavioral oracles,
-including snapshot immutability, focus restoration, real partial-field masks,
-curve→area consistency, profile→loft consistency, and undo. It found zero runtime
-errors, external requests, token contrast failures or controls below the 24 px floor
-in those states. This remains HTML evidence; native accessibility and scientific
-validity require their own proof.
+directory. The current measured counts and outcomes live in that JSON, including
+snapshot immutability, focus restoration, real partial-field masks, weighted-curve
+preview/acceptance, curve→area and profile→loft consistency, water/force dimensional
+checks, reversible units, linked sweep replay, unavailable fields and undo. This
+remains HTML evidence; native accessibility and scientific validity require their
+own proof.
