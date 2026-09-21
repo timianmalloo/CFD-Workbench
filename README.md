@@ -9,7 +9,7 @@ runnable production application yet.
 
 ## Review the product
 
-- [Interactive workbench mockup v4 — CAD editing views](docs/mockups/workbench-v4.html) ([hub](docs/mockups/workbench-v4.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
+- [Interactive workbench mockup v5 — control-vertex splines, four viewports, a tool palette](docs/mockups/workbench-v5.html) ([hub](docs/mockups/workbench-v5.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v4](docs/mockups/workbench-v4.md) · [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
 - [Product specification v1.2 (build basis) — HTML](docs/specs/cfd-workbench-v1.html) · [Markdown](docs/specs/cfd-workbench-v1.md); the 0.2 draft it supersedes: [HTML](docs/specs/cfd-workbench.html) · [Markdown](docs/specs/cfd-workbench.md)
 - [Design language](DESIGN.md) and [visual token catalog](docs/mockups/design-language.html)
 - [CFD-Bench and proposal grounding](docs/knowledge/cfd-workbench-grounding.md)

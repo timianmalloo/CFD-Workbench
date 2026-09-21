@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-21T05:15:04Z",
+  "generated": "2026-09-21T15:25:54Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -774,6 +774,56 @@ window.AUDIT_DATA = {
       "started_at": "2026-09-21T04:08:30Z",
       "duration_seconds": 3994.0,
       "change": "cl-01M3166K09E09V1YHRJ56R9KG5"
+    },
+    {
+      "id": "al-01M322AMHPK9SC8HAFYC5HYNCN",
+      "shortname": "the spec and mockup have come along well",
+      "datetime": "2026-09-21T13:26:15Z",
+      "session": "prompt-log",
+      "prompt": "the spec and mockup have come along well\n----\ni still worry that the CAD experience is very \"busy\" and the anchor points seem to be \"through\" points ... i want the spline behaviors to be like Autodesk Fusion 360 control point splines (where the curve is influenced by the point but does not have to go directly through the point... i also dont see the \"levers\" for me to move and shape the curve behavior... again like Fusion 360 control point splines. #D wise the curves should be like Fusion 360 t-spline bodies. Again base curve thinking on Shape3D and Multi-Surf (which i believe is NURB heavy)\n-----\n/ui-design elevate the UX one more time... take a full view across the entire ux, think about tool pallettes, think about how to simplify and streamline the CAD experience (and make the CAD experience a first class CAD experience ...but for the limited paradigm we have for wings / 3D bodies). Again dont be constrained by what exists... really push for the best possible UX/UI for the wing designer... update the spec accordingly based on your iteration on the ui-design",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3295QA9EM12JH22QR2ZD4Z5",
+      "shortname": "ui-design-workbench-v5",
+      "datetime": "2026-09-21T15:25:54Z",
+      "session": "cad-first-class-20260921",
+      "prompt": "the spec and mockup have come along well\n----\ni still worry that the CAD experience is very \"busy\" and the anchor points seem to be \"through\" points ... i want the spline behaviors to be like Autodesk Fusion 360 control point splines (where the curve is influenced by the point but does not have to go directly through the point... i also dont see the \"levers\" for me to move and shape the curve behavior... again like Fusion 360 control point splines. #D wise the curves should be like Fusion 360 t-spline bodies. Again base curve thinking on Shape3D and Multi-Surf (which i believe is NURB heavy)\n-----\n/ui-design elevate the UX one more time... take a full view across the entire ux, think about tool pallettes, think about how to simplify and streamline the CAD experience (and make the CAD experience a first class CAD experience ...but for the limited paradigm we have for wings / 3D bodies). Again dont be constrained by what exists... really push for the best possible UX/UI for the wing designer... update the spec accordingly based on your iteration on the ui-design",
+      "summary": "Mockup v5 (docs/mockups/workbench-v5.html, 343 KB, zero external requests) rebuilds the CAD experience around a control-vertex record: every master curve a degree-3 clamped B-spline with seven vertices (six to ten), the control frame (square vertices, circle levers, diamond ends) in the elevation that shapes it, a vertex pulling the curve and never lying on it (measured gap ≈ 0.3× the move; local support to 1e-12), root vertices coupled by the root-mirror lock, the tip pinned; four viewports (Top · Perspective / Front · Starboard) with WAI-ARIA title menus (any view incl. the η-plot; Frame · Comb · Ghost; Body Smooth · Box · Cage over smooth) and double-click/Return maximise; a nine-verb tool palette with single keys scoped to the focused workspace and an options strip carrying every pointer verb's keyboard twin (Insert at η · Add station at η · Measure between two η · Fair tolerance + PreserveEnds · Rebuild 6–10 · comb scale + monotone-piece count); Fair/Rebuild/Fit points/Insert/Delete as constructions with measured deviations; Add/Remove station as undo items; a NURBS loft with a display cage (never a T-spline); one station transform shared by skin, cage and body plan (LE pivot, nose-up positive, Starboard handedness consistent); Tracing as a pointer probe with graph κ; unit-aware precision entry; a station document whose conversion residual is measured (7.5/7.1 µm with 12 vertices, centripetal parameters + averaging knots; the uniform-index fit measured 841 µm). Visible chrome in CAD at 1280×800 on entry: 45 (v4: 71; the ≤ 35 target not met, floor recorded). Oracle tools/check-mockup-v5.mjs: 16 oracles, 77 measurements, 30 shell cells, 0 page errors (docs/proof/workbench-v5-browser-check.json); craft gate 14 Minors dispositioned; design-lint clean; spec 1.3 rendered with parity (149 ids). Specification 1.3: A4.2 \"Two constructions, one record\", A4.12 geometry kernel (owned evaluator + OCCT/rhino3dm behind a spike; KB item 6 re-decided; honest T-spline position), the abscissa invariant and Newton pin, a distribution-curve oracle in A4.5, GEO-03/05/13/14/15, CAD-01/04/05/06/07/08, B1/B7, UX-14/15/23/24, UI-25–27, glossary rows, Appendix D4. Gates: Computational Geometry PASS-WITH-CONDITIONS (applied), UX Researcher/IA PASS-WITH-CONDITIONS (applied), UX & Accessibility BLOCK → PASS-WITH-CONDITIONS (cleared, second pass; slot-scoped focus fixed), Marine CAD UX BLOCK → BLOCK narrow → PASS-WITH-CONDITIONS (cleared, third pass). Defect classes UI-L (a drawing rendered for one box and shown in another) and UI-M (a rendered quantity it does not carry) registered with controls. DESIGN.md §4 rows, §5, §7 COPY-98–102, §12.0d; hub docs/mockups/workbench-v5.md; decision note docs/notes/control-vertex-workspace.md; review docs/reviews/ui-workbench-v5.md; plan Turn 5; README pointer; docs graph derived and flagged.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v5.html",
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/reviews/ui-workbench-v5.md"
+      ],
+      "tags": [
+        "mockup",
+        "spec",
+        "cad"
+      ],
+      "outcome": "success",
+      "goal": "mockup v5: control-vertex splines with levers, four viewports, a tool palette, a NURBS loft with a display cage, a full-view simplification of the CAD chrome; specification 1.3 naming the geometry kernel",
+      "done_when": "v5 passes the re-targeted oracle plus groups 6 and 13; spec 1.3 renders with parity; the four lenses clear; chrome measured against v4's 71",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-21T13:26:15Z",
+      "duration_seconds": 7179.0
     }
   ],
   "changes": [
@@ -985,6 +1035,34 @@ window.AUDIT_DATA = {
         "before": "19e310d",
         "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
         "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3295QHVDQ763ARKYSKPTK5A",
+      "datetime": "2026-09-21T15:25:54Z",
+      "session": "cad-first-class-20260921",
+      "kind": "design",
+      "skill": "ui-design",
+      "title": "The vertices are the record; four viewports and a palette; the geometry kernel named (mockup v5, spec 1.3)",
+      "prompt": "the spec and mockup have come along well\n----\ni still worry that the CAD experience is very \"busy\" and the anchor points seem to be \"through\" points ... i want the spline behaviors to be like Autodesk Fusion 360 control point splines (where the curve is influenced by the point but does not have to go directly through the point... i also dont see the \"levers\" for me to move and shape the curve behavior... again like Fusion 360 control point splines. #D wise the curves should be like Fusion 360 t-spline bodies. Again base curve thinking on Shape3D and Multi-Surf (which i believe is NURB heavy)\n-----\n/ui-design elevate the UX one more time... take a full view across the entire ux, think about tool pallettes, think about how to simplify and streamline the CAD experience (and make the CAD experience a first class CAD experience ...but for the limited paradigm we have for wings / 3D bodies). Again dont be constrained by what exists... really push for the best possible UX/UI for the wing designer... update the spec accordingly based on your iteration on the ui-design",
+      "summary": "The geometry of record is the control-vertex B-spline (degree stored per curve, default 3 with seven vertices for master curves, degree 5 for sections; weights all 1); the 1.2 Through-points/Smooth modes and influence weights are retired in favour of two constructions with reported residuals (Fit points, Fair; Rebuild as Fair with a count); locks are vertex constraints (root mirror P1.y = P0.y — G1, G2 by even extension; value-at-η pins by KKT projection with a Newton solve for t under the strictly-increasing-abscissa invariant); the CAD workspace is four viewports with title menus and a nine-verb tool palette plus options strip; the 3D body is a NURBS loft with a display cage, never a T-spline; the geometry kernel is an owned evaluator plus OCCT (LGPL 2.1 + exception) and rhino3dm (MIT) with geomdl/scipy as oracles, taken only after a named spike (ThruSections N∈{4,8,16} incl. a zero-chord tip and the maximum-twist example, STEP round trip in FreeCAD, both OS builds, the licence reading that re-decides KB index item 6); export deviation is closest-point A-vs-B at 50×200 samples plus knot lines and the tip ≤ 10 µm; a fourth oracle kind covers distribution-curve deviations. Two open decisions recorded: the master-curve degree ADR and the kernel spike.",
+      "rationale": "The operator asked for Fusion control-point-spline behaviour, levers, T-spline-like bodies, Shape3d/MultiSurf thinking, tool palettes, a simpler CAD experience and the solver named; the computational-geometry lens set the record so no second authority exists beside the vertices",
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/mockups/workbench-v5.html",
+        "docs/notes/control-vertex-workspace.md"
+      ],
+      "tags": [
+        "geometry",
+        "cad",
+        "kernel"
+      ],
+      "git": {
+        "before": null,
+        "after": "a2c7bf90c09e7cf864a2e1277dc623ccd216513d",
+        "branch": "feature/cad-first-class-v5",
         "pushed": null,
         "commits": []
       }

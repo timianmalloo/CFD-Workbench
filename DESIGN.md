@@ -107,6 +107,8 @@ spacing:
   dock-right: 300px
   bottom: "clamp(200px, 30%, 360px)"
   bottom-tabs: 32px
+  palette: 56px
+  viewport-title: 32px
   shell-statusbar: 24px
   w-num-sm: 64px
   w-num-md: 80px
@@ -193,7 +195,9 @@ Coordinates, scales, and chart axes never rely on a tooltip for their unit.
 | Replay timeline | Held variable named, sample ticks, Play · step back · step forward · scrub | Paused on a failed sample with its reason | Empty when no compatible series | Long series compress ticks, never labels |
 | Candidate card | Status, tier, evaluations, objective and constraint values per point, Accept opens an edit draft | — | No candidates: the experiment's terminal reason | Many candidates paginate |
 | View cube | viewport corner, 3 depth-sorted faces of 6, lettered T·F·S·B·K·P | default · face hover · current view filled with {colors.station} · keyboard focus ring | face = named view; label names the camera or "Free · az · el" |
-| Elevation control handle | `role=slider` anchor on the curve it shapes; 20 px hit circle, 6 px dot when its channel is active, 4.5 px otherwise | inactive · active channel · preview open (curve solid) · focus | drag/arrow = preview; Return applies; Escape cancels; never edits another curve |
+| Control vertex (v5) | `role=slider` vertex of the active curve's control frame: 11 px square (interior), circle (lever), diamond (end vertex, on the curve), a 20 px transparent hit circle, the dashed polygon behind; η and value in the accessible value | default · selected · coupled (dashed ring on both root vertices under the root-mirror lock) · locked (a {colors.warning} lock ring, `aria-readonly`, the lock named in the accessible value) · draft open (curve solid, frame dashed) · focus ring {colors.focus-ring-viewport} ≥ 3 px | drag, ↑↓ value, ←→ η, Shift ×10 = draft; Return applies and keeps focus; Escape cancels and returns to Select; Delete removes (focus to the previous vertex); the curve is pulled, never passed through |
+| Tool palette (v5) | vertical strip {spacing.palette} wide beside the workspace; nine verbs, each an icon with its visible name and its key in the accessible name; separators group edit · construct · display; at the 640 × 400 reflow preset a horizontal row above the viewports (names visually hidden, 44 px targets) | `aria-pressed` on the toggle tools only; disabled with the reason while a station document owns the verb; single keys act only with the workspace focused; Enter on a tool keeps focus on it | Escape cancels the draft and returns to Select; the options strip shows the tool's parameters and every pointer verb's keyboard equivalent (Insert at η · Add station at η · Measure between two η); a construction (Fair · Rebuild · Fit points · Insert · Delete) opens the one draft |
+| Viewport title bar (v5) | {spacing.viewport-title} row: the view name as a button (double-click or Return maximises), a `details` menu (`summary` with `aria-haspopup=menu`; View · Display · Body · Maximise) whose closed items are not rendered | current view checked in the menu; opening focuses the first item; arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave; maximised state restores with the same gesture | one viewport below 480 × 240 px; every viewport renders at its own pixel size (a scaled drawing is a defect, class UI-L) |
 | Station document | editor-group tab with a full 2D section view; palette on the toolbar; section Properties | catalog original · draft open (tab dot) · modified · infeasible | Return applies as a Modified Profile revision; Escape or × closes and returns focus to Edit section |
 
 All controls use {rounded.sm}; panels are square joins; floating dialogs use
@@ -224,11 +228,16 @@ entry section). Every dock, pane and document body scrolls internally; the windo
 The toolbar is filled from the verb table per area and **measured**: groups that do not fit move,
 from the tail, into `More ▾`; at 1,280 px and above every group is visible, at the 1,024 × 700
 minimum at most one group is hidden. Numeric inputs use {spacing.w-num-sm} / {spacing.w-num-md} /
-{spacing.w-num-lg}; the parameter row is one row and never wraps. The curve editor's own palette
-(mode · curve · rails · nudge step · fair) lives in its pane, not on the application toolbar, the way a
-sketch palette does, and the pane fills its height (the panel **maximizes** like a VS Code panel). The
-**lines-plan layout** (plan · front · section side by side) is one action away in the document-tab row
-at 1,440 px and above and shares the selection. **Document tabs are documents, not areas**: one tab per
+{spacing.w-num-lg}; the parameter row is one row and never wraps. **The workspace is four viewports (mockup v5, 2026-09-21):** Top · Perspective over Front · Starboard,
+the lines drawing, each with a {spacing.viewport-title} title bar (name button + title menu) and maximised
+by double-click or Return; the **tool palette** {spacing.palette} stands beside them with nine verbs (icon
+*with* name; single keys scoped to the focused workspace); the parameter row is an **options strip** (curve
+selector · the active tool's options · the draft chip · derived readouts); the application toolbar keeps
+Edit · Find · [Draft] · View; the nudge step, the locks and station removal live in Properties; the bottom
+panel is the Checks drawer in CAD (Catalog · Checks on a Station document); the Navigator and the bottom
+panel start collapsed on the first entry to CAD; below 480 × 240 px the workspace shows one viewport. The 1.2
+curve pane and lines-plan toggle are gone. *Earlier rule (v3–v4):* the curve editor's own palette lived in a
+bottom pane and the lines-plan was a toggle at ≥ 1,440 px. **Document tabs are documents, not areas**: one tab per
 open design (dirty dot until saved), Settings opens beside it, and the rail selects the perspective.
 Docks and the bottom panel are resized by **sashes** (pointer drag, arrow keys, double-click resets to
 the token) and collapse behind named toggles that leave a visible expand control in a 24-px gutter;
@@ -369,6 +378,11 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-95 | Explain this failure |
 | COPY-96 | Ask about this result |
 | COPY-97 | gated (SPIKE-03/04) |
+| COPY-98 | <curve> control vertex <i> of <n> (tangent lever · end, on the curve · interior) |
+| COPY-99 | Locked by station value (tip) — release the lock in Properties to move this vertex |
+| COPY-100 | Apply or cancel the open <curve> draft first (one draft at a time) |
+| COPY-101 | Fair · deviation <d> mm above the <t> mm tolerance — Apply disabled |
+| COPY-102 | Conversion residual <r> µm (acceptance 10 µm at local chord · measured at the catalog points) |
 
 COPY-28 to COPY-97 are quoted verbatim from specification v1.1's C2 state table, its
 fixed strings (A5.1, A5.3, A5.4, A5.6, A5.9, A7) and the A5.12 entry-point names; the spec is their authority and this
@@ -431,7 +445,28 @@ Windows/macOS are **Flagged** future implementation obligations.
 
 ## 12. Prototype interaction boundary and verification
 
-### 12.0c Mockup v4 (2026-09-21) — `docs/mockups/workbench-v4.html`
+### 12.0d Mockup v5 (2026-09-21) — `docs/mockups/workbench-v5.html`
+
+The v4 shell and camera with the CAD experience rebuilt around the **control-vertex record** of specification
+1.3: every master curve is a degree-3 clamped B-spline with seven vertices (sections degree 5, the count chosen
+by the conversion to meet its 10 µm acceptance) drawn as a **control frame** — dashed polygon, square vertices,
+circle **levers**, diamond ends — in the elevation that shapes it, one frame at a time, the other curves pickable
+ghosts; a vertex pulls the curve and never lies on it (the oracle measures the gap and the local support). The
+workspace is **four viewports** (Top · Perspective / Front · Starboard) with title menus (any view including the
+η-plot; Frame · Comb · Ghost; Body Smooth · Box · Cage over smooth) and double-click/Return maximise; a **tool
+palette** (Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, icons
+with names, single keys on the focused workspace) replaces the toolbar verbs and the curve pane; an **options
+strip** replaces the parameter row; the nudge step, locks and station removal moved to Properties; the bottom
+panel is the Checks drawer; the 3D body shows the loft or its **display cage** (never a T-spline). Visible chrome
+in CAD at 1280 × 800 on entry: **45** (v4: 71). The section document edits section vertices with the residual
+**measured** and shown identically in the HUD, strip and Properties. The executable control is
+`tools/check-mockup-v5.mjs` (15 groups; group 6 the record — influenced-not-through gap, local support, levers,
+locks, Insert/Delete/Fair/Rebuild, palette keys, one draft; group 13 the workspace — maximise, title menus, cage,
+camera, chrome count); evidence in `docs/proof/workbench-v5-browser-check.json` and
+`docs/proof/ui-craft-findings-v5.json`. Illustrative throughout; the kernel of A4.12 is a dependency, not a
+mockup claim.
+
+### 12.0c Mockup v4 (2026-09-21) — `docs/mockups/workbench-v4.html` (superseded as review artifact by v5)
 
 The v3 shell plus the CAD editing views of specification 1.2: an **icon rail** (inline glyphs, names beneath,
 readiness in the accessible name); **splines** everywhere (Catmull–Rom through the evaluated samples; the control

@@ -424,3 +424,67 @@ polyline where a spline belongs; no numerals in the rail; no camera that a named
 
 **Tells to self-check.** A curve rendered as straight segments; a station editor that hides the shell; a view that
 cannot be orbited back to Top; a control point that edits a curve it does not belong to; a rail icon without a name.
+
+## v5 — a first-class CAD experience for the wing paradigm (2026-09-21, mode: elevate)
+
+**What is being elevated, measured.** In CAD at 1280 × 800 the v4 screen shows **71 interactive controls in ten
+regions** and 203 text-bearing elements (rail 9 · toolbar 6 · navigator 7 · document-tab row 7 · viewport 13 ·
+bottom-tab strip 5 · the curve-editor pane 19 · properties 5). The anchors on the curves are *fit points* —
+the curve is forced through them — and the "Smooth · weighted controls" mode is a second fit, so nothing on
+screen behaves like the control-point spline a Fusion 360, Rhino, Shape3d or MultiSurf user expects: a control
+polygon whose vertices *pull* the curve, tangent levers at the ends, a comb on demand. The 3D view shows sections
+and rails but no body to shape. The operator's diagnosis, verbatim: *busy; through points; no levers*.
+
+**Metaphors, taken specifically.** **Fusion 360 control-point spline** — the curve lies inside its control
+frame; drag a vertex and the curve follows without passing through it; the frame is the lever; the *fit-point*
+spline (through points, with tangent handles) is the other tool, for data you must honour. **Fusion 360 Sculpt
+(T-spline bodies)** — one body, a control cage; *box* and *smooth* display modes; edit the cage, see the body.
+**Rhino** — four viewports (Top · Front · Right · Perspective) over one model, a viewport maximised by a
+double-click on its title; control points as squares on a dashed polygon; `PointsOn`, the comb (`CurvatureGraph`),
+the Gumball; commands typed or clicked, options in a strip. **Shape3d** — the board is three master curves
+(outline · rocker · thickness) with control points, stacked on the elevation they shape; slices edited in their
+own 2D view against a ghost. **MultiSurf** — *relational geometry*: master curves are B-splines (NURBS) defined by
+control points; every dependent curve, section and surface is a function of the masters and updates when they do;
+nothing is edited twice. **NURBS is the representation** the product must own — this iteration names the kernel.
+
+**Who arrives and the job.** A wing designer who *shapes*: pulls a control vertex and watches the outline,
+the section rows and the body change; tunes the twist and thickness distributions the same way; fairs with a comb;
+then reads dimensions. Precision entry, nudge and locks remain, but the pointer path is primary.
+
+**Decisions (direction; the geometry and marine-CAD peers confirm the rows marked ◆).**
+1. **Control vertices are the default.** Each master curve (LE rail, TE rail/chord, dihedral/anhedral, twist,
+   thickness) is a B-spline whose control polygon is the editing frame: CVs as squares on a dashed polygon, dragged
+   directly (no fit); end tangents as levers on the clamped ends; the comb on demand; **Fit points** is the second
+   tool (through anchors with tangent handles) for measured data and DAT imports; the weighted-LSQ "Smooth" mode
+   folds into **Fair** (a tolerance operation), not a mode. ◆
+2. **One focal region.** CAD opens as **four viewports** over one model — Top · Front · Starboard (body plan) ·
+   Perspective — each maximisable by double-click on its title; the elevations edit, the perspective looks (with
+   a cage). The η-plot pane and the bottom tab strip leave the default CAD screen; the η-plot is a twin one action
+   away (View ▸ Curve plot). Target: ≤ 35 visible controls at 1280 px.
+3. **A tool palette, not a verb toolbar.** A vertical palette beside the viewports carries the CAD tools as
+   modes and one-shot commands (Select · Move CV · Insert CV · Delete CV · Lever · Fit points · Fair · Comb ·
+   Station · Section · Measure); the active tool's options sit in the parameter row (Fusion's options strip); the
+   application toolbar keeps only what is not a drawing tool. ◆
+4. **The body has a cage.** The perspective view shows the lofted NURBS surface as a *body* with **box** (cage =
+   the CV net of rails × sections) and **smooth** display modes; selecting a cage row selects that master curve or
+   section everywhere. Cage-vertex dragging in 3D arrives with a Gumball (axis-constrained) or not at all. ◆
+5. **Sections are CV curves too.** The Station document edits the upper and lower curves as control polygons
+   with closure and LE-tangency as CV constraints; the catalog original stays the ghost.
+6. **The kernel is named.** The spec states the geometry kernel the real implementation needs — NURBS curve and
+   surface evaluation, lofting, constraint solving, STEP/3DM I/O — with candidates, licences, the honest T-spline
+   position (a lofted NURBS surface with a cage; true T-splines need a licensed kernel) and the spike that settles
+   the choice.
+7. **The wider UX is cut back around CAD.** What a CAD-first user would hide or merge (a rail entry, a dock
+   section, a duplicated readout) is cut, not restyled.
+
+**Anti-goals.** No third fit mode; no drawing tool on the application toolbar; no readout that appears twice; no
+"T-spline" claim without star points; no control that survives the count only because it was already there.
+
+**Tells to self-check.** A curve passing through its handles by default; a polygon without levers at the ends;
+a viewport that cannot be maximised; a palette item that is really a menu; a body without a cage; a 3D drag with
+no plane; the control count creeping back over 35.
+
+### v5 — measured outcome (2026-09-21)
+
+Visible chrome controls in CAD at 1280 × 800 on entry: **45** (v4: 71; the ≤ 35 target was not met — the remaining set is the rail's seven areas plus Checks and Settings, four toolbar controls, nine palette verbs, four viewport titles with their menus, the Checks tab strip, the options strip's curve selector and Properties' nine controls; cutting further removes a verb or an area). Mid-session with docks open and a station selected: 52. Every vertex is a named slider; the oracle measures that a vertex pulls its curve without reaching it (gap ≈ 0.3 × the move, curve moves ≈ 0.6 × the move) and that a tip-side vertex leaves η 0.10 unchanged to 10⁻¹². The station conversion meets its 10 µm acceptance with twelve vertices per side (7.5 µm upper, 7.1 µm lower at the 89.6 mm chord) once the parameters are centripetal and the knots are placed by averaging — the uniform-index fit the first draft used measured 841 µm and was hidden behind a constant "0.000". Craft gate: fourteen Minors (nine "cramped padding" on the edge-to-edge viewport panes and their 32 px title bars — accepted, a viewport is edge-to-edge in every comparable; one side-tab stripe on the pressed palette tool — accepted as the pressed-state indicator the rail already uses; two clipped positioned children and one monotonous-spacing note carried from v3; the em-dash count, a recorded deviation).
+

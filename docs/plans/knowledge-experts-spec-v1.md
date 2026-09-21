@@ -123,3 +123,19 @@ Objective order: completeness and rigor, then token cost, then speed. The resear
 | X4 · closure | DESIGN.md §12.0c + rows; hub; note; audit; graph | done at close |
 
 **Objective check.** Completeness first: each ask in the brief maps to a story and an oracle assertion. Token cost: one build pass with three screenshot rounds; the two gates ran once in parallel. Speed last.
+
+## Turn 5 (2026-09-21) — a first-class CAD experience: mockup v5 and specification 1.3
+
+**Goal:** control-vertex splines with levers (Fusion/Rhino semantics: influenced by, never through), a four-viewport workspace with a tool palette, a NURBS loft with a display cage for the "T-spline body" ask, a full-view simplification of the CAD chrome, and specification 1.3 naming the geometry kernel. **Done when:** v5 passes the re-targeted oracle plus groups 6 (the record) and 13 (the workspace); the spec renders with parity; the four lenses clear (Computational Geometry on A4.2/A4.12, UX Researcher / IA on the UX delta, UX & Accessibility hard veto, Marine CAD UX); the chrome count is measured against v4's 71. **Not in scope:** 3D vertex dragging (still deferred), the kernel spike itself, a user session. **Tier:** T1. **Fan-out cap:** 2 agents per phase.
+
+| Node | Planned | Actual |
+|---|---|---|
+| B5 · direction | comparables per ask; the T-spline honesty and the degree question named before building | done first (direction brief v5); the geometry peer set the record (CVs, levers, no weights) and the kernel split |
+| U5 · mockup v5 | CV core + elevations (part3g), workspace + palette (part3h); v4 editing model deleted, not overridden | 343 KB; nine patch passes after the first screenshot (captions, tracing strip, pick paths, closed menus, forced single viewport, resize re-render, section residual measured, Fit points as a construction, station undo) |
+| O5 · oracle | v4 groups re-targeted + group 6 + group 13 | 16 oracles, 77 measurements, 30 shell cells, 0 errors; two test-order bugs found in the oracle itself (a baseline read on an open draft; a Rhino orbit asserted from a stale Home) |
+| S5 · spec 1.3 | A4.2 rewritten, A4.12 added, GEO/CAD stories, B1/B7, UX-24, UI-26/27, D4 | rendered with parity (149 ids); both spec lenses returned PASS-WITH-CONDITIONS and every condition was applied in place |
+| G5 · gates | geometry + IA on the spec (parallel), then a11y + marine on the artifact (parallel) | see `docs/reviews/ui-workbench-v5.md` |
+| X5 · closure | DESIGN.md §12.0d + rows; hub; note; two defect classes (UI-L, UI-M); audit; graph | done at close |
+
+**Objective check.** Completeness first: every ask in the prompt maps to a story and an oracle assertion, and the kernel is in the spec as asked. Token cost: one build pass with three screenshot rounds; the four gates ran two-by-two. Speed last: the full oracle ran seven times because the shell matrix (groups 1–2) needed the resize and menu rules — a fast variant without the matrix cut the inner loop to ~70 s.
+

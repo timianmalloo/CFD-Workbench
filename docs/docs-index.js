@@ -249,6 +249,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "4ec81b043f1328c7e8e5547ea5f65f67b3eca7cda7dfdd201775d9eb307d3325"
     },
     {
+      "id": "control-vertex-workspace",
+      "path": "docs/notes/control-vertex-workspace.md",
+      "title": "The vertices are the record; the workspace is four viewports and a palette — the v5 CAD model",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-03-21",
+      "reviewSuggested": [
+        {
+          "by": "mockup-workbench-v5",
+          "on": "2026-09-21",
+          "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/06/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs"
+        }
+      ],
+      "summary": "Specification 1.3 — the geometry of record is a control-vertex B-spline per master curve (degree 3, seven vertices, levers at the ends; Fit points and Fair are constructions with reported residuals; locks are vertex constraints), the CAD workspace is four viewports with title menus and a nine-verb tool palette, the 3D body is a NURBS loft with a display cage (never a T-spline), and the geometry kernel is an owned evaluator plus OCCT and rhino3dm behind a spike gate.",
+      "tags": [
+        "cad",
+        "control-vertex",
+        "splines",
+        "levers",
+        "viewports",
+        "palette",
+        "cage",
+        "kernel",
+        "geometry"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "refines"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-workbench-v5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "cad-editing-views",
+          "rel": "supersedes"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hydrofoil-workbench",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d0433273ab36c1359ff98918bbcd998f4911e01a6ff741516259d333c12915dd"
+    },
+    {
       "id": "decision-catalog-admission-classes",
       "path": "docs/notes/catalog-admission-classes.md",
       "title": "Catalog admission by rights class: GEN, VEND, LINK",
@@ -874,6 +935,66 @@ window.DOCS_INDEX = {
       "sourceSha256": "677b922ee70c58b64594434ab1c0c05b932140e0dba3c9f80f785531ef140b1b"
     },
     {
+      "id": "mockup-workbench-v5",
+      "path": "docs/mockups/workbench-v5.md",
+      "title": "CFD-Workbench interactive design mockup v5 — control-vertex splines, four viewports, a tool palette",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2027-03-21",
+      "reviewSuggested": [],
+      "summary": "The v4 shell and camera with the CAD experience rebuilt around specification 1.3's control-vertex record: every master curve is a clamped B-spline whose vertices and levers are the editing surface (a vertex pulls the curve and never lies on it), a four-viewport lines-drawing workspace with title menus and maximise, a nine-verb tool palette with an options strip, a display cage for the 3D body, and a station document whose conversion residual is measured. Illustrative throughout; no kernel, solver, file I/O or model call.",
+      "tags": [
+        "mockup",
+        "hydrofoil",
+        "cad",
+        "control-vertex",
+        "splines",
+        "levers",
+        "viewports",
+        "palette",
+        "cage",
+        "v5"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-workbench-v4",
+          "rel": "supersedes"
+        },
+        {
+          "to": "review-ui-workbench-v5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        },
+        {
+          "to": "cad-editing-views",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hydrofoil-workbench",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ffdf3ef4008390e0a41641bc0240bc7a649ffa346b9150674d318ea8f3ce1b0e"
+    },
+    {
       "id": "workbench-direction",
       "path": "docs/design/workbench-direction.md",
       "title": "CFD-Workbench — interface direction",
@@ -924,7 +1045,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e2816e64dd48e237115048623b8ae65be89f69edac4110bcefe0974a11d95612"
+      "sourceSha256": "9db9a31adf183a1f42f8fe1f6df890dfd86ee87d56a9406cdd609ed28001b2e7"
     },
     {
       "id": "design-language",
@@ -1030,7 +1151,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4e3d38ce3cfb92762b61cbc85e6c00111c7c2208b4fe9eb9301b0c4c78c3dea"
+      "sourceSha256": "d4a82cbf7a8a60c41a48dc48127ba17b63e6019c877d37389f4487d4f07c8842"
     },
     {
       "id": "domain-experts",
@@ -1156,7 +1277,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG --> R1 --> K\nG --> R2 --> K\nG --> R3 --> K\nK --> E --> C --> S --> D --> U --> X\nK --> X\nE --> X\nS --> X"
         }
       ],
-      "sourceSha256": "5c7321c9c2d7521a70951c50a0c2fcf5cf483b7c34601664c26109bd97275167"
+      "sourceSha256": "30ebe591d4e3a6a2828b705edbed47cd813d7b8f1d98586750313cd7e04f3b3e"
     },
     {
       "id": "plan-specification-and-ui",
@@ -1469,6 +1590,65 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "70dd7670d9661e93e9d0bd1c575766857e81f2e45634d8c40b485dbf91e67c11"
+    },
+    {
+      "id": "review-ui-workbench-v5",
+      "path": "docs/reviews/ui-workbench-v5.md",
+      "title": "UI review — workbench mockup v5 (control-vertex splines, four viewports, a tool palette)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-21",
+      "reviewSuggested": [
+        {
+          "by": "mockup-workbench-v5",
+          "on": "2026-09-21",
+          "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/06/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs"
+        }
+      ],
+      "summary": "Elevate-mode review of the v5 CAD experience (control-vertex splines with levers, four viewports with title menus, a nine-verb tool palette and options strip, the display cage, the measured station residual) against specification 1.3. Four independent lenses: Computational Geometry and UX Researcher / IA on the spec delta, UX & Accessibility (hard veto) and Marine CAD UX on the artifact. All four returned BLOCK or PASS-WITH-CONDITIONS on first read; every Blocker, Major and condition was fixed in place and became an oracle row whose value the proof records. The accessibility veto cleared on the second pass; the marine veto on the third.",
+      "tags": [
+        "ui-review",
+        "ux",
+        "accessibility",
+        "geometry",
+        "marine-cad",
+        "mockup",
+        "v5"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "relates-to"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "relates-to"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v4",
+          "rel": "supersedes"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "770cea7617960829ad069f62bd45d70a2c7290890e8dec01042689ec696d9c33"
     },
     {
       "id": "kb-hw-glossary",
@@ -2633,6 +2813,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v4",
           "on": "2026-09-20",
           "reason": "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs."
+        },
+        {
+          "by": "mockup-workbench-v5",
+          "on": "2026-09-21",
+          "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.1 supersedes 1.0.",
@@ -2745,7 +2930,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Open Results] --> B{Admitted samples?}\nB -->|None| C[Empty: no admitted sample; reasons per case; open Run]\nB -->|Some| D[Sample list with status; layer list from the evidence manifest]\nD --> E{Layer}\nE -->|Present| F[Render with legend fields, isolines, probe, table twin]\nE -->|Absent| G[Unavailable with reason: field missing · not computed · failed]\nE -->|Reduction failed| G2[Reduction failed string; raw case retained]\nE -->|Separation| H{τ_w on wall?}\nH -->|Yes| I[Separation layer with named criterion]\nH -->|No| J[No supported criterion; vortex-core candidates only]\nD --> K[Replay: held speed or held angle; Play, step, scrub]\nK -->|Failed sample| L[Pause; clear fields and metrics; reason one action]\nK -->|Reduced motion| M[Stepping only; no autoplay]\nD --> N[Sweep visuals: small multiples; metric vs α and speed with gaps; difference flood pinned at 0]\nD -->|Optimize| O[Candidates with provenance; Pareto or parallel coordinates]\nO -->|Accept candidate| P[Geometry edit draft in CAD; never direct geometry]\nO -->|Base revision moved| P2[Accept disabled; Rebase offered with deviation]\nO -->|Zero feasible candidates| P3[Terminal reason only]\nD -->|Experiment revision superseded| D2[Historical banner on every layer]\nK -->|Incompatible series| L2[Unavailable — mesh differs; no replay across series]\nD --> Q[Ask about this result: cited answer or No supported criterion]\nD --> R{ParaView 5.12+ present?}\nR -->|Yes| R1[Open in ParaView: case directory hand-off]\nR -->|No| R2[Absence string; surface floods and forces remain]"
         }
       ],
-      "sourceSha256": "d959c54dc727d926b79f942d79c7a97a9374aa0ee2753a959c0cb6f13d304518"
+      "sourceSha256": "ed2231419fcca3e9eba73b6f2e077635f1869b0ea9094f1c35f59c3d818429a0"
     }
   ],
   "surfaces": [
@@ -2819,7 +3004,15 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-workbench-v4"
+    },
+    {
+      "id": "surface-mockups-workbench-v5",
+      "path": "docs/mockups/workbench-v5.html",
+      "title": "CFD-Workbench — workbench v4 mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v5"
     }
   ],
-  "graphSha256": "215ea726c0170242d61fcdbdf1067ded2607c982cc6d8a026640c72b439057a0"
+  "graphSha256": "be38a333121736891c8e436320bf4eef9fcbc9924672088332c4296f6a3c6347"
 };
