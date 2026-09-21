@@ -9,9 +9,10 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createHash} from 'node:crypto';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const deps=process.argv[2];
+const specName=process.env.SPEC_NAME||'cfd-workbench';
 const {chromium}=await import(deps?pathToFileURL(path.join(deps,'playwright/index.mjs')).href:'playwright');
 const {marked}=await import(deps?pathToFileURL(path.join(deps,'marked/lib/marked.esm.js')).href:'marked');
-const source=fs.readFileSync(path.join(root,'docs/specs/cfd-workbench.md'),'utf8');
+const source=fs.readFileSync(path.join(root,`docs/specs/${specName}.md`),'utf8');
 const expected=marked.parse(source.replace(/^---\n[\s\S]*?\n---\n/,''));
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try {
@@ -19,7 +20,7 @@ try {
  const errors=[],external=[];
  page.on('pageerror',e=>errors.push(e.message));
  page.on('request',r=>{if(/^https?:/.test(r.url()))external.push(r.url())});
- await page.goto(pathToFileURL(path.join(root,'docs/specs/cfd-workbench.html')).href);
+ await page.goto(pathToFileURL(path.join(root,`docs/specs/${specName}.html`)).href);
  const result=await page.evaluate(expected=>{
    const normalize=s=>s.replace(/\s+/g,' ').trim();
    const holder=document.createElement('div');holder.innerHTML=expected;
@@ -41,7 +42,7 @@ try {
  result.hashMatches=result.sourceHash===createHash('sha256').update(source).digest('hex');
  const sourceRevision=source.match(/^Product specification · revision ([0-9.]+) ·/m)?.[1];
  result.revisionMatches=await page.locator('.badge').innerText()===`PRODUCT SPECIFICATION · ${sourceRevision}`;
- fs.writeFileSync(path.join(root,'docs/proof/spec-html-check.json'),JSON.stringify(result,null,2)+'\n');
+ fs.writeFileSync(path.join(root,specName==='cfd-workbench'?'docs/proof/spec-html-check.json':`docs/proof/spec-html-check-${specName}.json`),JSON.stringify(result,null,2)+'\n');
  console.log(JSON.stringify(result));
  if(result.missing.length||!result.hashMatches||!result.revisionMatches||errors.length||external.length||result.overflow||result.narrowOverflow||result.flows!==5||result.visibleNavAfterFilter!==1||result.emptyFilter.links!==0||!result.emptyFilter.visible||!result.frame.width||!result.frame.height)process.exitCode=1;
 } finally {await browser.close()}
