@@ -244,6 +244,13 @@ The catalog's change-class→panel table stays; this adds the per-persona predic
 | **Data & Persistence** | changes a schema/persisted format, runs a migration/backfill, adds a hot-path query/index, defines a data-integrity invariant, or makes a retention/lifecycle decision. |
 | **Privacy & Data Governance** | collects/stores/processes personal or work data, sends it to a model or third party, or makes a retention/deletion/residency/consent decision. |
 | **Release Engineer** | carries a migration/backfill/irreversible step, changes CI/CD or rollout, makes a feature-flag decision, or is environment-parity-sensitive. |
+| **Hydrofoil Hydrodynamicist** <!-- cfd-workbench domain experts --> | computes, stores, labels or displays any hydrodynamic quantity, operating point, water record, discipline or class-rule preset, sanity bound, flow-evidence overlay, A6 label, or sign convention. |
+| **CFD & Numerical Verification Expert** | implements, configures, runs, harvests or labels any analysis tier or backend, a mesh/case generator, a golden master, a cross-platform equivalence claim, or an optimizer-in-the-loop evaluation. |
+| **Computational Geometry Expert** | touches the geometry representation, evaluator, constraints, tolerances, loft/blend rule, tessellation/integrals, serialized payload, or any geometry import/export. |
+| **Marine CAD UX Expert** | adds or alters a curve/station editor, comb, viewport navigation, loft option, precision entry, shortcuts, or a CAD-domain readout. |
+| **Structures & Materials Expert** | touches t/c, loads/moments, layup/material, mast/fuselage, the beam tier, export for manufacture, or any strength/safety statement or copy. |
+| **Manufacturing & CAM Expert** | touches manufacturing policy, TE/LE floors, CAM/print export, the mould workflow, or surface finish/roughness. |
+| **Design Optimization Expert** | defines a goal state, objective, constraint, design vector or surrogate-in-the-loop, runs or displays an optimizer, or proposes an "optimized"/"certified" label. |
 
 ### 8.7a Re-convening is earned — the yield rule (normative)
 
@@ -285,6 +292,13 @@ Every BoK Part VIII anti-pattern now has a named owner; this is the auditable pr
 | **Probabilistic Exact Match** | **AI Systems Engineer** + Test Architect |
 | **Prompt/Schema Drift Without a Gate** | **AI Systems Engineer** + Test Architect |
 | *Unsafe data migration* (not yet in the BoK list) | **Data & Persistence Architect** — recommend adding it to BoK Part VIII |
+| *Physically-Plausible-Wrong* <!-- cfd-workbench domain experts --> | **Hydrofoil Hydrodynamicist** |
+| *Converged-but-Unverified* | **CFD & Numerical Verification Expert** + Test Architect |
+| *Silent-Refit* · *Second-Geometry-Authority* (GEO-A/GEO-B) | **Computational Geometry Expert** + Data & Persistence Architect |
+| *False-CAD-Model* | **Marine CAD UX Expert** |
+| *Structure-Unassessed-but-Implied* | **Structures & Materials Expert** |
+| *Exportable-in-Name-Only* | **Manufacturing & CAM Expert** |
+| *Exploited-Model-Optimum* | **Design Optimization Expert** + AI Systems Engineer |
 
 ---
 

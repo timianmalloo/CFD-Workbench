@@ -170,6 +170,25 @@ Their full *veto-clears-when* predicates are consolidated in `persona-audit.md` 
 
 The pack's lenses (§A–§C and §E) are domain-*general*. A given repo also needs *subject-matter* lenses — accounting for a finance system, fluid dynamics for a CFD solver, clinical safety for a medical app. Those are added per project by the **`/adddomainexperts`** skill, which derives the domain from the repo's own evidence, proposes the experts in peer and adversary modes, wires in any existing Claude domain skills that supply the capability, and writes each as a card conforming to **exactly the §8 schema above**. They are not listed here because they are project-specific; the authoritative list for a repo lives in its `docs/domain-experts.md`, and each expert's card sits beside the general ones in that repo's roster. A domain expert is *subject-matter judgment* — distinct from the **Domain Researcher** (P3), whose lens is *research method*.
 
+
+<!-- cfd-workbench domain experts -->
+### D.1 This repository's domain experts (added 2026-09-20 by `/adddomainexperts`)
+
+Seven subject-matter lenses for the hydrofoil workbench, each a §8-conformant dual-mode card in
+`.claude/agents/` (mirrored to `.github/agents/` and `.grok/agents/`); rationale, seams, rejected candidates and
+casting in **`docs/domain-experts.md`**; the evidence base they cite is `docs/knowledge/hydrofoil-workbench/`.
+
+| Persona | Veto | Convene-when (headline) | Card |
+|---|---|---|---|
+| **Hydrofoil Hydrodynamicist** (with design-practice branch) | Hard (narrow) — unsupported physical-validity or safety-relevant claim | any hydrodynamic quantity, operating point, preset, class rule, flow-evidence overlay, A6 label, sign convention | `hydrofoil-hydrodynamicist.md` |
+| **CFD & Numerical Verification Expert** | Hard (narrow) — converged/verified/validated label without evidence | any analysis tier, backend, mesh, golden master, equivalence claim, optimizer-in-the-loop | `cfd-numerical-verification-expert.md` |
+| **Computational Geometry Expert** | Hard (narrow) — second geometry authority, unreported residual, continuity from degree | any change to representation, evaluator, constraints, tolerances, serialization, geometry import/export | `computational-geometry-expert.md` |
+| **Marine CAD UX Expert** | Soft — violated precision-CAD convention | any curve/station editor, viewport, loft option, navigation, CAD readout | `marine-cad-ux-expert.md` |
+| **Structures & Materials Expert** (structural + materials branches) | Hard (narrow) — strength/safety claim without evidence; missing "Not assessed" | t/c, loads, layup, mast, beam tier, export for manufacture, safety copy | `structures-materials-expert.md` |
+| **Manufacturing & CAM Expert** | Advisory (escalates to Structures or Tech Lead) | manufacturing policy, TE/LE floors, CAM/print export, mould workflow, surface state | `manufacturing-cam-expert.md` |
+| **Design Optimization Expert** | Hard (narrow) — certified without next-tier re-verification; single-point objective | goal state, objective, constraints, design vector, surrogate-in-loop, any "optimized" label | `design-optimization-expert.md` |
+
+
 ---
 
 ## E. The UX / UI / app & documentation lenses *(added in the UI/app + documentation expansion; UX/UI split in the specification-layers work)*

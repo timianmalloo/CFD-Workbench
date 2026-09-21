@@ -419,6 +419,7 @@ your-repo/
    │  ├─ spike-protocol.md
    │  ├─ persona-audit.md          # gap analysis + the Persona Operating Standard
    │  ├─ persona-cards.md          # all 23 lenses as uniform §8 cards
+   │  │                            # + §D.1: this repo's 7 hydrofoil domain experts (agents/hydrofoil-hydrodynamicist.md, cfd-numerical-verification-expert.md, computational-geometry-expert.md, marine-cad-ux-expert.md, structures-materials-expert.md, manufacturing-cam-expert.md, design-optimization-expert.md; mirrored to .github/agents/*.agent.md and .grok/agents/) <!-- cfd-workbench domain experts -->
    │  └─ (agent-body-of-knowledge.md, agent-rules-of-the-road.md, persona-catalog.md, …)
    ├─ skills/
    │  ├─ specify/SKILL.md

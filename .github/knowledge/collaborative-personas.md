@@ -158,6 +158,18 @@ This is the swarm's casting sheet. The **five delivery workflows** carry a piece
 
 The four adversaries added by the persona audit — **AI Systems Engineer**, **Data & Persistence Architect**, **Privacy & Data Governance Counsel**, and **Release / Deployment Engineer** — and the three added in the UI/app + documentation expansion — **Mobile App Developer**, **Native Desktop Developer**, and **UX & Accessibility** — appear above by their triggers; their full cards are in `persona-cards.md`, and the rationale (proven against the governance lenses and anti-patterns; §9 for the UI/app reasoning) is in `persona-audit.md`. The platform/UX lenses are conditional-convene — summoned only when the relevant app/UI surface exists. `/collectknowledge` mints no new persona (it is led by the Domain Researcher) and runs before design; `/document` is owned by the **Documentation Steward**. **Per-project domain experts** added by `/adddomainexperts` (finance, CFD, clinical, legal…) join these same workflows by their own convene-when triggers, in peer and adversary modes, recorded in the repo's `docs/domain-experts.md`.
 
+
+<!-- cfd-workbench domain experts -->
+**This repository's domain experts (2026-09-20).** Seven hydrofoil-workbench lenses join the workflows above by
+their convene-when predicates — **Hydrofoil Hydrodynamicist**, **CFD & Numerical Verification Expert**,
+**Computational Geometry Expert** (all hard, narrow), **Structures & Materials Expert** (hard, narrow),
+**Design Optimization Expert** (hard, narrow), **Marine CAD UX Expert** (soft) and **Manufacturing & CAM Expert**
+(advisory). Per-workflow casting, seams against the general lenses, and the rejected candidates are in
+`docs/domain-experts.md`; the hard vetoes add to `/specify` (Hydrodynamicist, Geometry, Structures), to
+`/define-architecture` (CFD & Numerical Verification, Geometry) and to `/implement` (CFD & Numerical Verification
+paired with the Test Architect on every numerical fixture).
+
+
 ---
 
 ## 6. Deploying a peer persona
