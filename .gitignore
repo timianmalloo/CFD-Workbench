@@ -16,3 +16,6 @@ docs/audit/.run-starts.json.tmp
 !.agents/skills*
 !.agents/hooks.json
 !.agents/rules*
+
+# scratch proofs written by debug/fast oracle variants (never evidence)
+docs/proof/_*.json
