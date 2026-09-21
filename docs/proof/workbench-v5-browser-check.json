@@ -1,6 +1,6 @@
 {
  "artifact": "docs/mockups/workbench-v5.html",
- "checkedAt": "2026-09-21T16:57:41.733Z",
+ "checkedAt": "2026-09-21T17:13:05.837Z",
  "measurements": [
   {
    "label": "minimum/setup",
@@ -3380,6 +3380,6 @@
  ],
  "errors": [],
  "externalRequests": [],
- "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v5-review-FJCfV9",
+ "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v5-review-mygxlK",
  "note": "HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof."
 }

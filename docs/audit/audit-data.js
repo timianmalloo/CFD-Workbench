@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-21T16:59:34Z",
+  "generated": "2026-09-21T17:13:43Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -851,6 +851,36 @@ window.AUDIT_DATA = {
       "done_when": "spike note with numbers, ADR-0001 accepted, spec Open decisions updated, frames asserted by the oracle, commit and push",
       "tier": "T1",
       "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      }
+    },
+    {
+      "id": "al-01M32FB4PV5PATFRK5DVBH2JBM",
+      "shortname": "vertex-drag-trackpad-fix",
+      "datetime": "2026-09-21T17:13:43Z",
+      "session": "cad-first-class-20260921",
+      "prompt": "there is some ux goofiness if i attempt to select and manually move (with trackpad) a point in the cad experience — not sure it needs to be fixed as this is just the mockup",
+      "summary": "Reproduced with a twelve-step small-move drag: the vertex jumped ~160 px because the drag mapped the pointer through the SVG captured at press time, which the first re-render detached (box = 0); the direction-only oracle test had passed on the jump. Fixed: the drag resolves the live svg and mapping on every move (glyph stays under the pointer to 0 px); a press retargets to the nearest vertex centre; hit circles never past the midpoint to a same-frame neighbour and never under the 24 px floor; levers paint over the ends they overlap, the active frame on top; the pressed vertex takes focus before the re-render (focus restoration had re-selected the previous vertex). Oracle group 6 gains the pointer-offset bound and a press-every-vertex selection sweep; full run 16 oracles / 77 measurements / 30 cells / 0 errors. Defect class UI-N registered; review item 29; hub note; memory.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v5.html",
+        "tools/check-mockup-v5.mjs"
+      ],
+      "tags": [
+        "mockup",
+        "defect"
+      ],
+      "outcome": "success",
+      "goal": "make a trackpad drag of a vertex behave, or record why not",
+      "done_when": "the glyph stays under the pointer over small moves and every vertex is selectable at its own centre, both oracle-asserted",
+      "tier": "T0",
       "signals": {
         "verification_path": true,
         "verification_executed": true,

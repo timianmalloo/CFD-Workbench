@@ -108,6 +108,8 @@ Nine *cramped-padding* on `.quads`, `.quad` and `.qtitle` (edge-to-edge viewport
 
 28. Control frames · findability · **Major** · the operator: "I still don't see the control handles for the CV splines" — only the *selected* curve carried its frame, so Front and Starboard showed nothing to grab until a curve was clicked · every curve's frame now renders in its elevation (active emphasised, others at 0.62 opacity, all draggable; a press selects), glyphs 13 px; oracle group 6 asserts five frames in their slots with one active · Verified. *Lesson:* the v4 review's "one frame at a time" cut for busyness hid the primary affordance; busyness is measured in chrome, not in handles on the geometry.
 
+29. Vertex drag by trackpad · interaction truth · **Major** · the operator: "some UX goofiness if I attempt to select and manually move (with trackpad) a point" — the drag mapped the pointer through the SVG captured at press time, which the first re-render detached, so the vertex jumped to its ordering limit; the direction-only oracle test had passed on the jump (class UI-N); two overlaps let a press grab the neighbour that painted last, and a focus-restoring re-render re-selected the previously focused vertex · the drag maps through the live SVG and mapping on every move, a press goes to the nearest vertex centre (hit circles never past the midpoint to a same-frame neighbour, never under the 24 px floor; levers paint over the ends they overlap, the active frame paints on top), and the pressed vertex takes focus before the re-render; oracle group 6 asserts the glyph stays under the pointer to ≤ 2 px over twelve moves and that a press at every vertex centre selects that vertex · Verified.
+
 ## 4. Rubric scorecard (DX22)
 
 | Dimension | v4 | v5 | Note |

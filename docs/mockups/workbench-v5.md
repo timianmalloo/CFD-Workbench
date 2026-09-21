@@ -86,7 +86,7 @@ lists what v5 changes.
 differences (the comb is wrong at the two ends; the product uses analytic derivatives, A4.9); Insert CV splits the
 polygon leg rather than inserting a knot (the reported shape change is the honest number; the product's Boehm
 insertion is exact); the knot vector is keyed by vertex count rather than stored; the Measure tool reports Δη and
-Δvalue in one lane; there is no context menu or trackpad orbit; the pointer paths are mouse events only.
+Δvalue in one lane; there is no context menu or trackpad orbit; the pointer paths are mouse events only (a trackpad drag is the same events; the drag maps through the live viewport on every move and a press goes to the nearest vertex centre, both oracle-asserted after the operator found a jump).
 
 ## Executable control
 

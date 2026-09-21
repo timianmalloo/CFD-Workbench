@@ -1078,7 +1078,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "876ed7886fa219196d2357863529f5072e2491bea7e958269400ed0b89227f82"
+      "sourceSha256": "7b36517f9e59e92671a592af4a0e9eb87ee065aa5a7e8b4e668f9c039e60fe87"
     },
     {
       "id": "workbench-direction",
@@ -1131,7 +1131,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9db9a31adf183a1f42f8fe1f6df890dfd86ee87d56a9406cdd609ed28001b2e7"
+      "sourceSha256": "8a69caeb0078c85f4d136cb6bb863ace3c8a5e67cde7d9e77fb8faf35f513b3b"
     },
     {
       "id": "design-language",
@@ -1237,7 +1237,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d4a82cbf7a8a60c41a48dc48127ba17b63e6019c877d37389f4487d4f07c8842"
+      "sourceSha256": "692dd0e0c3cd8358a48dc413d26957eda6ef0f92e8b3bb7bea8bf02e2ba7aeaf"
     },
     {
       "id": "domain-experts",
@@ -1363,7 +1363,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG --> R1 --> K\nG --> R2 --> K\nG --> R3 --> K\nK --> E --> C --> S --> D --> U --> X\nK --> X\nE --> X\nS --> X"
         }
       ],
-      "sourceSha256": "30ebe591d4e3a6a2828b705edbed47cd813d7b8f1d98586750313cd7e04f3b3e"
+      "sourceSha256": "6c59fc20555b4c53c4e869f806b11ffb9c792d04016d9df7688e9b45e8814bcb"
     },
     {
       "id": "plan-specification-and-ui",
@@ -1734,7 +1734,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ecdc46e3049f9731607a8257a2e350724355eb0ab4a6a4f123bd23f878b20785"
+      "sourceSha256": "f48314bb1678364827bc26b8988a4a57e4b14d3269d1bea488aa0725acd655d4"
     },
     {
       "id": "kb-hw-glossary",
@@ -3100,5 +3100,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v5"
     }
   ],
-  "graphSha256": "ef30e0201789aaf0d990a8324c5cb8d8fe35e70506053c91f1724c68c8e77542"
+  "graphSha256": "a6444f33ca5d7c61375926712fba79ae511f5668c30700bb3c2362a075007b00"
 };
