@@ -3,7 +3,7 @@ window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
   "generator": "docs-graph.py derive",
-  "rootId": "audit-log",
+  "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
     "glossary",
@@ -194,6 +194,45 @@ window.DOCS_INDEX = {
     "surfaces": 100
   },
   "artifacts": [
+    {
+      "id": "adr-0001-master-curve-degree",
+      "path": "docs/adr/0001-master-curve-degree.md",
+      "title": "ADR-0001: master curves are degree-3 B-splines with seven vertices; the degree is a record field",
+      "type": "adr",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "specification 1.3",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default is a degree-3 clamped B-spline with seven control vertices (six to ten), the degree is stored per curve, and section curves stay degree 5. Decided on a measured fixture (fairness, anchor residual, support, lever effect) over the five example curves at both degrees, and on the loft spike showing the surface's spanwise continuity is the kernel's, measured, not the master curve's.",
+      "tags": [
+        "geometry",
+        "b-spline",
+        "degree",
+        "control-vertex",
+        "adr"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kernel-spike-occt-loft",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hydrofoil-workbench",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6c05a4276e12966328934deee8bc54ff48a1e124a9e4237d797132dce45d6a08"
+    },
     {
       "id": "cad-editing-views",
       "path": "docs/notes/cad-editing-views.md",
@@ -545,6 +584,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5c9fca11728546c0fd2ec5a4f67bd609e5e669dc564f29d1f405573614456463"
+    },
+    {
+      "id": "kernel-spike-occt-loft",
+      "path": "docs/notes/kernel-spike-occt-loft.md",
+      "title": "Kernel spike — OCCT ThruSections loft against the owned evaluator (A4.12 exit evidence)",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-03-21",
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-09-21",
+          "reason": "ADR-0001 decides the master-curve degree (3, seven vertices, stored per curve); the spec's Open decisions and A4.1/A4.2 cite it"
+        }
+      ],
+      "summary": "The Spike Protocol run on the geometry kernel decision of specification 1.3 A4.12 — OCCT 7.8.1 (via FreeCAD 1.1.1 headless, macOS arm64) lofting N exact section B-splines against the owned evaluator's rule-A surface at 50 × 200 closest-point samples, with a STEP round trip. Base and maximum-twist cases meet the 10 µm acceptance from N = 16 sections (1.1 µm and 0.5 µm; 0.8/0.4 µm at N = 64); the zero-chord tip does not converge with uniform sections (2.5–18 mm) and needs its own rule. Windows x64 and the licence review remain open.",
+      "tags": [
+        "geometry",
+        "kernel",
+        "occt",
+        "loft",
+        "step",
+        "spike",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hydrofoil-workbench",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "18f98f76a2d7d79bf6081e828df32b1c8f28e55116e46400d900124a62eac934"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -992,7 +1078,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ffdf3ef4008390e0a41641bc0240bc7a649ffa346b9150674d318ea8f3ce1b0e"
+      "sourceSha256": "876ed7886fa219196d2357863529f5072e2491bea7e958269400ed0b89227f82"
     },
     {
       "id": "workbench-direction",
@@ -1648,7 +1734,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "770cea7617960829ad069f62bd45d70a2c7290890e8dec01042689ec696d9c33"
+      "sourceSha256": "ecdc46e3049f9731607a8257a2e350724355eb0ab4a6a4f123bd23f878b20785"
     },
     {
       "id": "kb-hw-glossary",
@@ -2930,7 +3016,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Open Results] --> B{Admitted samples?}\nB -->|None| C[Empty: no admitted sample; reasons per case; open Run]\nB -->|Some| D[Sample list with status; layer list from the evidence manifest]\nD --> E{Layer}\nE -->|Present| F[Render with legend fields, isolines, probe, table twin]\nE -->|Absent| G[Unavailable with reason: field missing · not computed · failed]\nE -->|Reduction failed| G2[Reduction failed string; raw case retained]\nE -->|Separation| H{τ_w on wall?}\nH -->|Yes| I[Separation layer with named criterion]\nH -->|No| J[No supported criterion; vortex-core candidates only]\nD --> K[Replay: held speed or held angle; Play, step, scrub]\nK -->|Failed sample| L[Pause; clear fields and metrics; reason one action]\nK -->|Reduced motion| M[Stepping only; no autoplay]\nD --> N[Sweep visuals: small multiples; metric vs α and speed with gaps; difference flood pinned at 0]\nD -->|Optimize| O[Candidates with provenance; Pareto or parallel coordinates]\nO -->|Accept candidate| P[Geometry edit draft in CAD; never direct geometry]\nO -->|Base revision moved| P2[Accept disabled; Rebase offered with deviation]\nO -->|Zero feasible candidates| P3[Terminal reason only]\nD -->|Experiment revision superseded| D2[Historical banner on every layer]\nK -->|Incompatible series| L2[Unavailable — mesh differs; no replay across series]\nD --> Q[Ask about this result: cited answer or No supported criterion]\nD --> R{ParaView 5.12+ present?}\nR -->|Yes| R1[Open in ParaView: case directory hand-off]\nR -->|No| R2[Absence string; surface floods and forces remain]"
         }
       ],
-      "sourceSha256": "ed2231419fcca3e9eba73b6f2e077635f1869b0ea9094f1c35f59c3d818429a0"
+      "sourceSha256": "ff6bb34f2e06053322287aa9781b32227a9f17089f4acb1243b88605fadb6813"
     }
   ],
   "surfaces": [
@@ -3014,5 +3100,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v5"
     }
   ],
-  "graphSha256": "be38a333121736891c8e436320bf4eef9fcbc9924672088332c4296f6a3c6347"
+  "graphSha256": "ef30e0201789aaf0d990a8324c5cb8d8fe35e70506053c91f1724c68c8e77542"
 };

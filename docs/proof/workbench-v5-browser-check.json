@@ -1,6 +1,6 @@
 {
  "artifact": "docs/mockups/workbench-v5.html",
- "checkedAt": "2026-09-21T15:25:32.956Z",
+ "checkedAt": "2026-09-21T16:57:41.733Z",
  "measurements": [
   {
    "label": "minimum/setup",
@@ -34,7 +34,7 @@
     "width": 1024,
     "height": 700
    },
-   "controls": 52,
+   "controls": 80,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -190,7 +190,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 52,
+   "controls": 80,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -346,7 +346,7 @@
     "width": 1440,
     "height": 900
    },
-   "controls": 52,
+   "controls": 80,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -502,7 +502,7 @@
     "width": 1600,
     "height": 1000
    },
-   "controls": 52,
+   "controls": 80,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -658,7 +658,7 @@
     "width": 640,
     "height": 400
    },
-   "controls": 38,
+   "controls": 45,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -814,7 +814,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 54,
+   "controls": 82,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -970,7 +970,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 54,
+   "controls": 82,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1126,7 +1126,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 54,
+   "controls": 82,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1256,7 +1256,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 58,
+   "controls": 86,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1364,7 +1364,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 54,
+   "controls": 82,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1472,7 +1472,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 56,
+   "controls": 84,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1580,7 +1580,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 51,
+   "controls": 58,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1688,7 +1688,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 52,
+   "controls": 59,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1796,7 +1796,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 78,
+   "controls": 106,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -1904,7 +1904,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 54,
+   "controls": 82,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -2012,7 +2012,7 @@
     "width": 1280,
     "height": 800
    },
-   "controls": 60,
+   "controls": 88,
    "contrastFailures": 0,
    "smallTargets": 0,
    "shell": {
@@ -3330,7 +3330,7 @@
      "prompt": false
     },
     "chromeOnEntry": {
-     "total": 65,
+     "total": 93,
      "by": {
       "rail": 9,
       "toolbar": 4,
@@ -3339,14 +3339,14 @@
       "doctabs": 1,
       "palette": 9,
       "quad-titles": 8,
-      "canvas-handles": 20,
+      "canvas-handles": 48,
       "btabs": 3,
       "properties": 9
      },
      "chrome": 45
     },
     "chromeWorking": {
-     "total": 72,
+     "total": 100,
      "by": {
       "rail": 9,
       "toolbar": 4,
@@ -3355,7 +3355,7 @@
       "doctabs": 1,
       "palette": 9,
       "quad-titles": 8,
-      "canvas-handles": 20,
+      "canvas-handles": 48,
       "btabs": 3,
       "properties": 10
      },
@@ -3380,6 +3380,6 @@
  ],
  "errors": [],
  "externalRequests": [],
- "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v5-review-JCDR8y",
+ "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v5-review-FJCfV9",
  "note": "HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof."
 }

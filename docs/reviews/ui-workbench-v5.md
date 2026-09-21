@@ -104,6 +104,10 @@ Location · dimension · severity · evidence · fix · confidence. **Every Bloc
 
 Nine *cramped-padding* on `.quads`, `.quad` and `.qtitle` (edge-to-edge viewport panes and 32 px title bars — accepted: every comparable draws viewports edge to edge); one *side-tab* stripe on the pressed palette tool (accepted: the pressed-state indicator the rail uses); one *monotonous-spacing* (4 px in the palette); two *clipped-overflow-container* on `.app` / `.docbody` (carried from v3, the positioned children are the drawers and the More ▾ menu, both measured visible); the em-dash count (a recorded deviation, the spec's fixed strings).
 
+### Operator finding after publication
+
+28. Control frames · findability · **Major** · the operator: "I still don't see the control handles for the CV splines" — only the *selected* curve carried its frame, so Front and Starboard showed nothing to grab until a curve was clicked · every curve's frame now renders in its elevation (active emphasised, others at 0.62 opacity, all draggable; a press selects), glyphs 13 px; oracle group 6 asserts five frames in their slots with one active · Verified. *Lesson:* the v4 review's "one frame at a time" cut for busyness hid the primary affordance; busyness is measured in chrome, not in handles on the geometry.
+
 ## 4. Rubric scorecard (DX22)
 
 | Dimension | v4 | v5 | Note |

@@ -36,10 +36,11 @@ lists what v5 changes.
 ## What v5 changes
 
 - **The vertices are the record.** Each master curve — LE rail, TE rail (chord), Dihedral/Anhedral, Twist,
-  Thickness t/c — is a degree-3 clamped B-spline with seven control vertices (six to ten allowed). The selected
-  curve shows its **control frame** in the elevation that shapes it: a dashed polygon, square interior vertices,
-  circle **levers** (the second and penultimate vertices set the end tangents), diamond end vertices on the curve.
-  A vertex *pulls* the curve and never lies on it; the oracle measures the gap and the local support. The
+  Thickness t/c — is a degree-3 clamped B-spline with seven control vertices (six to ten allowed). Every curve
+  shows its **control frame** in the elevation that shapes it (the selected one emphasised, the others dimmed but
+  draggable — a press selects the curve): a dashed polygon, square interior vertices, circle **levers** (the second
+  and penultimate vertices set the end tangents), diamond end vertices on the curve. A vertex *pulls* the curve and
+  never lies on it; the oracle measures the gap and the local support. The
   "through points" anchors, Smooth mode and influence weights of v4 are gone; the seed anchors remain as
   provenance for **Fit points**.
 - **Levers and locks.** The root vertex and its lever are coupled by the root-mirror lock (the first leg stays

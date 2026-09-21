@@ -139,3 +139,16 @@ Objective order: completeness and rigor, then token cost, then speed. The resear
 
 **Objective check.** Completeness first: every ask in the prompt maps to a story and an oracle assertion, and the kernel is in the spec as asked. Token cost: one build pass with three screenshot rounds; the four gates ran two-by-two. Speed last: the full oracle ran seven times because the shell matrix (groups 1–2) needed the resize and menu rules — a fast variant without the matrix cut the inner loop to ~70 s.
 
+## Turn 6 (2026-09-21) — the kernel spike, the degree ADR, and the handles the operator could not find
+
+**Goal:** close the two Open decisions that need no human session — the geometry-kernel spike (OCCT loft vs the owned evaluator) and the master-curve degree ADR — and answer the operator's mid-turn finding ("I still don't see the control handles"). **Done when:** a spike note with measured numbers, ADR-0001 accepted on a fixture, the spec's Open decisions updated, every curve's frame visible in its elevation with the oracle asserting it, commit and push. **Not in scope:** the UX-05 session, the screen-reader trace, the Windows build. **Tier:** T1. **Fan-out cap:** 2 (none used: both spikes ran in-process — FreeCAD headless and the mockup's own evaluator).
+
+| Node | Planned | Actual |
+|---|---|---|
+| K6 · kernel spike | ThruSections N∈{4,8,16} + zero-chord tip + max twist; STEP round trip; A-vs-B at 50×200 | N up to 64; regular cases ≤ 1.1 µm from N = 16, STEP ≤ 0.3 µm; the zero-chord tip does not converge with uniform sections (2.5–18 mm) → a section-placement and last-span rule written into A4.12; the first run's 73 µm floor was the spike's own pole-reversal bug, recorded |
+| A6 · degree ADR | fixture on both degrees, five curves | degree 3 fairer at seven vertices on all five; support global at seven for either degree; ADR-0001 accepted; the KB continuity row annotated |
+| H6 · handles | every curve's frame in its elevation, active emphasised | glyphs 13 px, inactive frames at 0.62 opacity and draggable; oracle group 6 asserts five frames with one active; spec CAD-01/04, UI-25, DESIGN row, hub, review §3 item 28 |
+| X6 · closure | spec Open decisions, graph, audit, commit | done at close |
+
+**Objective check.** Completeness first: both decisions closed with measured evidence and the remaining exit evidence named (Windows, the C# boundary, CAM readers, rhino3dm, licence). Token cost: no sub-agents; two in-process spikes. Speed last.
+

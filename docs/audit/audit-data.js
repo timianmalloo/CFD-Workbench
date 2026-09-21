@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-21T15:25:54Z",
+  "generated": "2026-09-21T16:59:34Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -824,6 +824,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-21T13:26:15Z",
       "duration_seconds": 7179.0
+    },
+    {
+      "id": "al-01M32EH73PXZKNS812BQX25KFR",
+      "shortname": "kernel-spike-degree-adr-handles",
+      "datetime": "2026-09-21T16:59:33Z",
+      "session": "cad-first-class-20260921",
+      "prompt": "do next",
+      "summary": "Kernel spike (docs/notes/kernel-spike-occt-loft.md; spikes/kernel-loft/): OCCT 7.8.1 via FreeCAD 1.1.1 headless lofting N exact section B-splines (poles under the station transform, knots kept) against the owned evaluator's rule-A surface (de Boor port of the mockup's evaluator) at 50×200 closest-point samples with a STEP round trip: base 1060/351/1.1/0.9/0.8 µm at N = 4/8/16/32/64, maximum twist 1059/356/0.5/0.4/0.4 µm, STEP round trip ≤ 0.3 µm from N = 8; the zero-chord tip does not converge with uniform sections (18137/6329/7932/2528/3854 µm) → A4.12 now places sections at every chord-channel knot and authored station with refinement and gives a degenerate tip its own last-span rule; the kernel's v-degree (3–5) is read back into the record. The first run's 73 µm floor at the root was the spike's own pole-reversal bug (recorded). Remaining exit evidence: Windows x64, the C# P/Invoke boundary, the two CAM readers, rhino3dm, the licence review. Degree ADR (docs/adr/0001-master-curve-degree.md, accepted): the fixture (spikes/degree-adr/fixture.json) on the five example curves shows degree 3 fairer than degree 5 at seven vertices on every curve (κ' energy 0.918 vs 1.196, 0.251 vs 0.282, 0.117 vs 0.152, 26790 vs 51910, 0.225 vs 0.288), equal anchor residuals and lever effect, support global at seven vertices for either degree and local (65 %) only at nine for degree 3; sections stay degree 5; the KB continuity row annotated. Operator finding mid-turn (\"I still don't see the control handles\"): every curve's control frame now renders in its elevation (active emphasised, others at 0.62 opacity and draggable, glyphs 13 px); oracle group 6 asserts five frames with one active; spec CAD-01/04, UI-25, glossary, DESIGN.md row, hub, review §3 item 28, direction brief. Full oracle: 16 oracles, 77 measurements, 30 shell cells, 0 errors; spec rendered with parity; docs graph derived and flagged (61 entries, 0 problems).",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/kernel-spike-occt-loft.md",
+        "docs/adr/0001-master-curve-degree.md",
+        "docs/mockups/workbench-v5.html"
+      ],
+      "tags": [
+        "spike",
+        "adr",
+        "mockup"
+      ],
+      "outcome": "success",
+      "goal": "close the geometry-kernel spike and the master-curve degree ADR with measured evidence; make every curve's control frame visible after the operator could not find the handles",
+      "done_when": "spike note with numbers, ADR-0001 accepted, spec Open decisions updated, frames asserted by the oracle, commit and push",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      }
     }
   ],
   "changes": [
@@ -1063,6 +1096,59 @@ window.AUDIT_DATA = {
         "before": null,
         "after": "a2c7bf90c09e7cf864a2e1277dc623ccd216513d",
         "branch": "feature/cad-first-class-v5",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M32EH7B19NDB8HCJVN3PYYZD",
+      "datetime": "2026-09-21T16:59:34Z",
+      "session": "cad-first-class-20260921",
+      "kind": "decision",
+      "skill": "ui-design",
+      "title": "ADR-0001: master curves are degree-3 B-splines with seven vertices; the degree is a record field",
+      "prompt": "do next",
+      "summary": "Decided on a measured fixture over the five example curves: at seven vertices degree 3 is fairer than degree 5 on every curve with equal residual and lever effect; support is global at seven for either degree and local only at nine for degree 3; sections stay degree 5; the surface's spanwise continuity is the loft's, measured. Supersedes the knowledge base's degree-5 reading for master curves.",
+      "rationale": "The record's editing model (few vertices, levers) and Alias/Rhino practice favour degree 3 for shaping; the fixture measured it rather than arguing it",
+      "artifacts": [
+        "docs/adr/0001-master-curve-degree.md",
+        "spikes/degree-adr/fixture.json"
+      ],
+      "tags": [
+        "geometry",
+        "adr"
+      ],
+      "git": {
+        "before": null,
+        "after": "25eaff75d989b79a27c30ca7c5ba87162ab5b9d0",
+        "branch": "feature/kernel-spike-degree-adr",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M32EH7JA73QT979PH49BFYTG",
+      "datetime": "2026-09-21T16:59:34Z",
+      "session": "cad-first-class-20260921",
+      "kind": "decision",
+      "skill": "ui-design",
+      "title": "Kernel spike: OCCT ThruSections meets the A-vs-B acceptance from 16 sections on regular wings; a degenerate tip needs its own rule",
+      "prompt": "do next",
+      "summary": "OCCT 7.8.1 loft of exact section B-splines vs the owned evaluator: ≤ 1.1 µm (base) and 0.5 µm (max twist) from N = 16 sections, STEP round trip ≤ 0.3 µm; the zero-chord tip does not converge with uniform sections (2.5–18 mm), so A4.12 now places sections at every chord-channel knot and authored station with refinement and treats the last span into a degenerate tip separately; the kernel's v-degree is read back. Windows x64, the C# boundary, the CAM readers, rhino3dm and the licence review remain exit evidence.",
+      "rationale": "Spike Protocol Move 2: the contract is load-bearing (the export's truth) and was executed, not argued",
+      "artifacts": [
+        "docs/notes/kernel-spike-occt-loft.md",
+        "spikes/kernel-loft/results.json"
+      ],
+      "tags": [
+        "geometry",
+        "kernel",
+        "spike"
+      ],
+      "git": {
+        "before": null,
+        "after": "25eaff75d989b79a27c30ca7c5ba87162ab5b9d0",
+        "branch": "feature/kernel-spike-degree-adr",
         "pushed": null,
         "commits": []
       }
