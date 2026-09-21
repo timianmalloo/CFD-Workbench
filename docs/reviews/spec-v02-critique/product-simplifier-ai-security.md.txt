@@ -1,0 +1,211 @@
+# Critique of specification revision 0.2 — Product Strategist · Simplifier · AI Systems + Security
+
+Artifact: `/Users/mallalieut/projects/CFD-Workbench-feature-knowledge-experts-spec-v1/docs/specs/cfd-workbench.md` (rev 0.2).
+Evidence base: `docs/knowledge/hydrofoil-workbench/index.md` (read in full), area files 03, 04, 05, 06, 09, 10 (headline findings + design implications; 03/04 in full), 08 (grep for substrate/licence/cancellation rows).
+Budget: 13 of ~35 tool calls used. No file edited except this report; no git; no worktree.
+
+Line references are to the spec file as read (593 lines). `KB-n` = index design implication n; `NN·Fm` = area file NN headline finding m; `NN·Im` = area file NN design implication m.
+
+---
+
+## Lens 1 — Product Strategist
+
+```
+PERSONA: product-strategist   MODE: Adversary   TIER: T2
+VERDICT: PASS-WITH-CONDITIONS (advisory veto; two findings below are blocking in practice because they leave the core scenario untestable)
+FINDINGS:
+```
+
+- **[Major] (Verified) The core scenario does not contain the input the KB makes mandatory, and the "riding brief" has no non-AI entry point.** evidence: A1 (line 42) walks "open a sample → select NACA 0012 → reshape → save → coefficients at a chosen speed in fresh/salt water → compare → optional sweep". No step enters rider mass, required load, depth or wind/speed band; A3 (line 88) lists `depth` inside `Operating point` but nothing derives Fr_h, h/c or σ from it, and no criterion labels the deep-water assumption. The only place a "brief" exists is AI-02 (line 257) — a user without a key cannot express the brief the scenario opens with. KB-5 (goal state authored in v1 as intent, evaluated as a feasibility report), index headline 10 (depth and Fr_h mandatory; ≈17 % CL loss at h/c = 4 between Fr_h 2 and 5), 04·I2, 04·I3, 09·I1. fix: v1 A1 core scenario becomes "brief → goal state (typed, offline) → design → feasibility report per operating point → comparison". A3 adds `Goal state` (rider/equipment masses with labels, water record, depth band, wind → speed band with source label, class-rule preset id, operating-point set with per-point required load, critical metric, weight, Ncrit pair; objective definition; typed constraint rows; robustness rule) and `Operating point` gains derived read-outs `Fr_h`, `h/c`, `σ` with "Deep-water assumption (h/c ≥ 5)" when depth is unspecified. New story GOAL-01: *Given a goal state with N operating points, when Feasibility is opened, then each point reports CL_required, Re, σ, and pass/fail per constraint row with method and envelope; a missing depth yields σ/Fr_h Unavailable, never the deep-water value silently.*
+
+- **[Major] (Verified) The user's own goal state is absent from the spec and from the Sample fixture.** evidence: grep of the spec for "goal state", "90 kg", "Froude", "Fr_h", "GWA", "iQFOiL" returns zero hits; index headline 13 and 04 "Goal-state derivation" resolve the user's brief (90 kg rider, race wingfoil, salt water, 10–20 kn wind) to ≈105 kg system, W ≈ 1030 N and seven operating points (CL 0.77 → 0.10, Re 3.9×10⁵–1.1×10⁶, σ 7.7–0.75), with board speeds **Flagged**. fix: DOC-01's "Sample" is that design: a 750–1000 cm² AR ≈ 12 race wing with the seven-point operating set, every Flagged field labelled "source-based assumption" in the UI; it doubles as the fixture for GOAL-01, ANA-05/12, ANA-15 and the cavitation bucket. Record the disconfirming view (10 kn-wind row is the least trustworthy; take-off is pump-assisted) as fixture metadata.
+
+- **[Major] (Inferred) Personas are assumed, not evidenced, and the third persona drives scope.** evidence: A1 line 40 "Verified source intent, not validated interview research"; `bench-gap-register` GAP-03 was answered "engineer who thinks in rider requirements" with zero interviews (R-10); `docs/domain-experts.md` keeps GAP-03 as an open UX-research item. The "Analyst inspecting run provenance" row (line 48) and the "returning designer comparing revisions" row justify ANA-06/07/09, GEO-12 and much of Results, with no evidence a distinct person exists. fix: v1 names one primary user — the operator designing his own race wingfoil — and treats "iterating designer" and "analyst" as **roles of that user**, labelled Flagged. The first user evidence is one structured debrief of the operator's own sessions (R-10). A7 usability target (five formative users, 4/5) stays but is labelled "recruitment criteria unset".
+
+- **[Major] (Verified) Comparables are the wrong set and are unsourced.** evidence: the spec names Shape3d, OpenVSP, Fusion and ParaView once, as "named references" in C1 (line 499), with no table, no source, no confidence label and no borrow/avoid. Area 03's comparables table (Verified from vendor manuals/source) is Shape3d X 9.1, AkuShaper, BoardCAD, MultiSurf, Orca3D, Maxsurf, DELFTship, OpenVSP, AVL, XFLR5/Flow5, **WingHopper** (the only purpose-built hydrofoil-wing tool with the STL/STEP/XFLR5 triad, 03·F14), KaroroCAD/3DFoil (Flagged). Fusion is a general CAD, not a comparable; index "Canonical framing" says the workbench's novelty is water-specific operating points and the influence weight — neither is stated in A1 as the differentiator. fix: A1 gains a comparables table (tool · framing · borrow · avoid · licence · confidence · source id from area 03) and one positioning sentence: "no comparable carries depth/Fr_h/σ/salinity as first-class inputs or an influence-weighted curve mode; Shape3d's Mac build is a wrapped port (03·F6), so native Mac is positioning (03·I15)".
+
+- **[Major] (Verified) Non-goals are partly load-bearing but the deferral of "goal/Pareto optimization" swept in three things the KB says are v1.** evidence: A2 line 65 defers goal/Pareto optimization; KB-5 says the goal state is v1 intent; KB-6 says class-rule presets validate a recipe (spec has none — zero hits for GWA/iQFOiL/Formula Kite); KB-8 says admission has three classes (spec has two: "admitted" and "Pending admission", line 163); KB-17 says COMMIT-01 is a status enum (spec keeps it as prose, line 67). fix: keep the optimizer deferred; add to v1: Goal state (above), a GWA race validator preset (front ≥ 700 cm², rear ≥ 150 cm², mast ≤ 115 cm, fuselage ≤ 100 cm, foil ≥ 3 kg; rule version + date; 04·F3, 04·I6), the three admission classes with a per-entry reason, and `candidate_status` as a field with values `surrogate-candidate → vlm-checked → cfd-checked → experimentally-compared` that the UI shows as a chip. Add the explicit non-goals the spec never states: proprietary native import (`.s3dx`), a rider-facing mode, cloud/sync/accounts, salinity override (see Simplifier), and the words "cavitation-free" / "ventilation-safe" anywhere in product copy (KB-11, 04·I10).
+
+- **[Major] (Verified) The S3 release boundary depends on catalog rights that are not established, and A4 asserts a required Eppler catalog it cannot bundle.** evidence: A4 line 163 "Required initial catalog roles: lifting Eppler E817/E818/E874/E904/E908 …"; S3's proof (line 58) is "provenance-admitted supported data"; CAT-03 (line 225) requires a "bundled supported polar" on a clean install. Index headline 14 and 06·F1/F2: UIUC states no licence; LSAT polars are GPL with pass-through obligations; Airfoil Tools forbids reproduction; H105 has no coordinates. KB-8 / 06·I1–I3: the safe v1 path is generated-at-build NACA (TM 4741 families) with build-time polars; Eppler only after written terms. fix: rewrite the catalog paragraph: "v1 ships **generated** sections (NACA 0012, 4412 fixtures; 63-412, 64A410, 63-209, 66-209, 16-012, 66-012 per role) with polars computed at build under a recorded generator command, Ncrit pair and Re grid; Eppler E817–E908 and E836–E838 are class VEND? and enter only on written terms; H105/LSAT are LINK/PEND with the reason shown". S3's completion proof becomes "every bundled section is class GEN or has a rights record; every bundled polar names generator, version, Ncrit pair, Re grid, surface state". CAT-03's four presets default to generated sections (06 "Discipline presets, corrected").
+
+- **[Major] (Verified) Discipline presets omit the user's own discipline and are dated.** evidence: A4 line 163 lists surf, wing/freeride, SUP/downwind, windsurf/race; the user's goal state is *race wingfoil* (GWA box), which is none of the four (windsurf/race is windfoil). 04·I1 says at least eight presets re-centred on the product table (market AR floor now ≈ 7.1; downwind spans to 1.38 m); the proposal's surf AR 4–6 and freeride 6–8 bands sit below the 2025–26 market. fix: v1 **must** add "wingfoil race (GWA box)" as the fifth preset and re-centre the existing four on the 04 product table with per-field labels; the remaining disciplines (pump, parawing, windfoil slalom, kitefoil, e-foil) are v1 **should** as data rows only where every field has a Verified or Inferred source (Flagged rows ship as "source-based assumption").
+
+- **[Major] (Verified) ANA-15's Ncrit preset contradicts the evidence.** evidence: line 240 "a named water-screening Ncrit preset initially proposes 2.0"; index headline 15, KB-9, 06·F7: the "1 < Ncrit < 3" rule is a 2004 forum post that disclaims test data; the one tank-compared study used 4; the evidence supports a pair (2 and 4) shown together with "practitioner range; no measured water N-factor", plus a clean/tripped surface-state band (headline 31). fix: ANA-15 reads "polars are computed at Ncrit 2 and 4 and displayed as a band labelled 'practitioner range; no measured water N-factor; Day 2019 used 4'; every polar carries surface state (clean / tripped k_s)"; ANA-14's legend shows both.
+
+- **[Minor] (Verified) Sanity bounds exist in the KB and not in the spec.** evidence: KB-7 / 04·I5: area 480–1900 cm², span 690–1380 mm, AR 7–13.1, root t/c 0.09–0.12 (Verified product pages); loading 8–20 kPa, take-off CL 0.6–0.8, cruise CL 0.1–0.45 (Inferred on Flagged speeds). Spec has only "No '900 cm' fixture" (line 171). fix: a DRC rule family `envelope.*` with severity **advisory**, message "outside every catalogued product", never a gate; the product table becomes a machine-readable fixture with source URL + date (04·I11).
+
+- **[Minor] (Verified) Market/pricing context is absent.** evidence: 03·I18: board tools 5–81 EUR/mo (Shape3d), 13–50 USD/mo (AkuShaper); naval tools hundreds–thousands per seat; 03·I15 native Mac is a differentiator. fix: one "Positioning" paragraph in A1 recording the price band and the differentiator; it is context for scope decisions (how much CFD to build for a Shape3d-class price), not a requirement.
+
+- **[Minor] (Verified) Success is not defined measurably for the core scenario.** evidence: A1 "defensible comparison" and "fair, reproducible wing" have no criterion; the only measurable target is A7's 4/5 usability figure. fix: three goal-state-level criteria: (1) the Sample design's feasibility report reproduces the seven-point arithmetic in 04 to displayed precision (formula test); (2) GUI and CLI report the same `run_key` for the same inputs (CLI-01 by key equality, 10·I13); (3) a comparison view blocks a numeric delta when reference quantities differ (ANA-06 already) — name that as the "defensible" test.
+
+```
+CLEARS-THE-VETO: no — acceptance criteria are largely falsifiable, but the core scenario's opening (brief → goal state) has no criterion and no non-AI path, so the Test Architect cannot trace it.
+RESIDUAL RISK: board speeds per wind band are Flagged (no GPS dataset) so every goal-state bound is Inferred-on-Flagged until one instrumented session exists; the single-operator persona means UX evidence is n = 1 until formative research runs.
+```
+
+---
+
+## Lens 2 — The Simplifier
+
+```
+PERSONA: the-simplifier   MODE: Adversary   TIER: T2
+VERDICT: BLOCK (soft — overridable by written rationale per item)
+FINDINGS:
+```
+
+- **[Major] (Verified) The spec specifies S5–S6 at full acceptance depth for a release it says is not the first product.** evidence: A2 line 63 "First product = S1–S4"; yet CFD-01–06 and VIZ-01–04 (10 of 82 stories), flow F4 (37 lines), the Backend/case and Results rows of C2, UX-09/10, UI-13/14 and A4's two sweep/replay subsections (lines 185–197) describe S5–S6. The gating spike (meshing, SPIKE-03b; index headline 19; KB-16) has not run, so the substrate is unknown. fix: move S5–S6 to an appendix "Reserved contracts — not v1 acceptance", keeping in the v1 body only the invariants v1 must not violate (run manifest by hash, evidence labels, field-by-reference, "converged" three-part label).
+
+- **[Major] (Verified) ANA-13 sideslip: no v1 method provides it and nobody asked.** evidence: line 238 "Given a supported sideslip method and β" — no S1–S4 tier is specified to compute side force/yaw; the user's brief is a symmetric wing. fix: `delete:` ANA-13 from v1; keep its third clause (tip-depth hint from static geometry) inside GOAL-01/ANA-02 because depth is mandatory (KB-5).
+
+- **[Major] (Verified) GEO-11 Break symmetry is speculative generality.** evidence: line 155 "v1 does not introduce mixed inboard/outboard mirror-link modes"; A2 "v1 authors one lifting wing"; 03 "Root-mirror tangent invariant" warns Break symmetry inherits a root kink unless the invariant exists first, and the spec has no such invariant. fix: `delete:` Break symmetry from v1; `add` (one line, KB-2) the root-mirror tangent hard constraint. Asymmetric wings are a later story.
+
+- **[Major] (Verified) AI-05 Diagnose failure depends on S5 and on the weakest-evidenced AI behaviour.** evidence: line 260 presupposes failed mesh/run logs (S5); 10·F7: 68.1 % physical fidelity vs 82.1 % execution success (ChatCFD); its eval (10·I15 physical-fidelity) needs a fixture set of failed cases that cannot exist before S5 runs. fix: `delete:` AI-05 from v1 acceptance; it returns with S5 and its own eval.
+
+- **[Minor] (Verified) VIZ-04 / A4 physical-time transient playback describes a capability no target backend in v1 supplies.** evidence: line 195 "Where a backend later supplies supported transient data…"; the recommended v1 backends are steady RANS (KB-16). fix: `shrink:` keep one sentence — "no steady-field animation is ever labelled transient or resolved turbulence" — delete the transient timeline, pathline and averaged-basis contract (≈ 6 lines) into the S6 appendix.
+
+- **[Minor] (Verified) GEO-12 ghost overlay of a second file adds a datum/alignment sub-feature v1 does not need.** evidence: line 155/220 second native design, alignment datum, distinct line style; ANA-06 already compares revisions. 03·I6 confirms ghost boards are universal in board tools, so the idea is comparable-backed. fix: `shrink:` ghost = a prior revision of the *same* document (no second file, no datum choice) in v1; second-file ghost later. The station readouts / TE floor / Not assessed half of GEO-12 stays.
+
+- **[Minor] (Verified) Three story pairs are the same function twice.** evidence: ANA-05 (find α at V for load) and ANA-12 (find lowest V for load) are one bracketed root-find; ANA-03 and ANA-17 both state section vs wing loads (ANA-17 adds the formula fixture); ANA-10 and ANA-14 both state Cp/cavitation overlays. fix: `shrink:` merge into ANA-05 "Find supported operating point (α at held V · V at held load)", ANA-03 (+ the arithmetic fixture), ANA-10 (+ legend rules). −3 stories, same coverage.
+
+- **[Minor] (Verified) Options nobody asked for.** evidence and fixes, one line each:
+  - `delete:` "Fixed-coefficient scaling what-if" (line 183) — a labelled wrong number is still a wrong number; ANA-07 freshness already forbids stale coefficients.
+  - `delete:` "supported salinity override … unit-bearing" (line 177) — ITTC Rev03 tables are fresh and 35 g/kg seawater; an override needs a correlation the KB does not admit (04 "Water properties").
+  - `delete:` lbf/ft line loads (ANA-18, line 243) — user intent is N ↔ lbf (ledger line 560); keep N/m.
+  - `delete:` user-entered strip width → "Strip lift/drag in N" (ANA-03) — per-span N/m is the honest quantity; strip N invites the wing-lift confusion the sentence then has to forbid.
+  - `yagni:` command search / palette (B1 line 308) while native menus already expose every command; return when a user asks.
+  - `yagni:` "Higher-order profile blending is a later explicit option" is already deferred — delete the sentence, it is a placeholder.
+
+- **[Nit] (Verified) The six-stage table (A2) is a delivery plan inside a spec.** fix: keep the row names as the vocabulary for release gates; drop the "user-visible capability" column (duplicates B1) — ≈ 8 lines.
+
+**What the KB adds, ranked so v1 does not sprawl** (KB-1…KB-24; "must" = correctness/rights floor or the core scenario; "should" = cheap data or vocabulary; "later" = needs a spike or a release that is not v1):
+
+| v1 must | v1 should | later |
+|---|---|---|
+| KB-1 record + three tolerances · KB-2 one solver + typed constraints incl. root-mirror tangent · KB-3 loft rule decided (A or B) · KB-5 depth/Fr_h/σ + Goal state as intent + feasibility report · KB-8 admission classes + design-point metadata · KB-9 Ncrit pair + surface state · KB-10 mechanical labels · KB-11 screens say what they are · KB-14 native format (hash JCS form) · KB-19 safety copy at Loads/Export · KB-22 (only if any AI ships) · KB-23 testing floors · KB-24 a11y at product level | KB-4 vocabularies (OpenVSP drivers/closure names, Tracing, Rhino Fair contract, Blender modal rule) · KB-6 wingfoil-race preset + GWA validator (must); other presets (should) · KB-7 advisory envelope DRC · KB-12 depth-only correction as a labelled layer · KB-13 freshness by `run_key` equality + DRC shape (the kernel itself is architecture) · KB-15 export matrix trimmed to `.cfdw.json`, DAT, STL/3MF(mm), AVL only behind the VLM tier; STEP gated · KB-17 only the `candidate_status` enum · KB-18 TE-floor policy + Not assessed only · KB-20 the charts the ANA stories already name (≈ 8), not sixteen | KB-16 backend matrix (S5) · KB-17 design vector / plug-in contract · KB-18 typed LoadCase/Layup objects · KB-21 results renderer/sidecar (S6) · KB-20 remaining charts · KB-12 Froude-aware tier |
+
+**Delete-list (v1 build basis):**
+- `delete:` ANA-13 (sideslip)
+- `delete:` GEO-11 (break symmetry) → `add` root-mirror tangent constraint (1 line)
+- `delete:` AI-05 from v1
+- `delete:` fixed-coefficient what-if · salinity override · lbf/ft · strip-width N
+- `yagni:` command palette · "higher-order blending later" sentence
+- `shrink:` ANA-05+12 → 1 · ANA-03+17 → 1 · ANA-10+14 → 1
+- `shrink:` GEO-12 ghost = same-document prior revision
+- `shrink:` VIZ-04 to one prohibition sentence; move transient contract to appendix
+- `shrink:` CFD-01–06, VIZ-01–04, F4, C2 Backend/Results rows, UX-09/10, UI-13/14 → "Reserved — S5/S6" appendix
+- `shrink:` A2 table to stage names + gates
+
+`net: −14 stories from v1 acceptance (82 → 68) and ≈ −120 lines from the v1 body (≈ 80 relocated to the S5/S6 appendix, ≈ 40 deleted); +1 story (GOAL-01), +1 constraint line, +1 preset row.`
+
+```
+CLEARS-THE-VETO: no — S5/S6 depth, ANA-13, GEO-11 and AI-05 are in the v1 build basis with no written rationale; each is overridable by one recorded sentence ("kept because …") if the author disagrees.
+RESIDUAL RISK: the influence-weight mode (KB-3, novel, no comparable) and the goal-state feasibility report are complexity that stays — both are defended: the first is the user's verified intent (ledger line 560), the second is the only thing that closes the core scenario.
+```
+
+---
+
+## Lens 3 — AI Systems Engineer + Security & Identity Architect
+
+```
+PERSONA: ai-systems-engineer   MODE: Adversary   TIER: T2
+VERDICT: PASS-WITH-CONDITIONS
+FINDINGS:
+```
+
+- **[Major] (Verified) The eval harness is five items; the evidence base requires ten, and the two missing ones that matter most are drift and domain validity.** evidence: A7 line 294 "extraction, unsupported-answer, prompt-injection, attribution and numerical-meaning"; KB-22 / 10·I15 adds schema + domain validity, coordinate/force refusal, physical-fidelity (AI-05), **drift on model change**, cost/latency budget; 10·I15 notes OpenFOAMGPT's authors report fluctuation over time. AI-06 (line 261) lets the user change the model identifier with no consequence for evaluated status. fix: A7 lists all ten; AI-06 gains "Given a changed model identifier, then every AI capability shows *Unevaluated on this model* and is disabled for proposals until the suite has been re-run and its result recorded with model id, date and pass rate".
+
+- **[Major] (Inferred) Prompts, schemas and tool descriptions are not versioned and have no regression gate — the Prompt/Schema Drift anti-pattern.** evidence: no sentence in A7, AI-01–06 or the A3 `Assistance proposal` entity records a prompt/schema version; 10·F1 (Snakemake `params, software-env` rerun triggers) and KB-13 (method id *and version* in the freshness key) are the precedent. fix: `Assistance proposal` carries `prompt_version`, `schema_version`, `model_id`, `sdk_version`; any change to those artifacts triggers the eval suite in CI before merge (Testing Strategy A6).
+
+- **[Major] (Inferred) The tool surface is unspecified: does the model call tools at all, and if so, which?** evidence: AI-03/AI-04 talk about "sharing summary" and "instructions … cannot install software, execute commands", implying a context-packing design, but never say whether tools exist; KB-22 / 10·F11 prescribe read-only MCP-style tools with `outputSchema` and `readOnlyHint`, never a write tool, with the human accepting proposals. fix: one sentence in A7: "The model may call only read-only typed tools over projections (run summary, catalog entry, knowledge snippet); there is no write tool; the only path from model output to the document is an `Assistance proposal` accepted by the user and validated by T0 code."
+
+- **[Minor] (Verified) AI-02's "schema/domain validation" must say who validates numeric bounds.** evidence: 10·F9 / KB-22: constrained decoding guarantees schema validity but the schema subset excludes `minimum`/`maximum`; the SDK's post-parse check raises rather than clamps and is SDK-version-dependent. fix: AI-02 reads "… passes API schema validation **and** the product's own deterministic range/domain validator (T0), which is the authority; a rejected field is shown with its bound, never clamped".
+
+- **[Minor] (Verified) The numeral rule is asserted as a test but not as a requirement.** evidence: A7 "a numeral match alone is insufficient"; 10 §"Guardrails" (2): every numeral in shown prose must exist in the packed context (SPIKE-04 rule; a product rule, not literature). fix: AI-03 gains "Given a response containing a numeral absent from the shared context, then the response is withheld with the reason, not shown".
+
+- **[Minor] (Verified) Retrieval and the commercial model are unstated.** evidence: AI-03 "knowledge evidence" with no corpus definition; KB-22 SQLite FTS5/BM25 over bundled files, no vector index, no network on the critical path; A1 "All non-AI operations reachable without an API key" implies BYO key. fix: "Retrieval is over the bundled, hashed knowledge corpus only (citation ids); no network retrieval. Commercial model: BYO key; the product meters nothing and absorbs nothing; usage shown per request or *Not recorded*."
+
+- **[Minor] (Verified) The "language in, numbers out" rule is stated (COMMIT-04) but its evidential basis and its concrete refusal list are not.** evidence: 10·F7/F8 (agents: 62.5 % OOD; wrong intent header degrades below baseline while executability holds); KB-22 coordinate/force refusal eval. fix: AI-02's rejection list ("raw coordinates, mesh or invented solver scores") becomes an enumerated refusal class with an eval fixture; cite 10·F8 in the ledger.
+
+```
+CLEARS-THE-VETO: yes, conditionally — eval harness present (incomplete: add drift, domain validity, refusal, cost); determinism guarded (T0 validation stated; make the authority explicit); side effects gated (human Accept / user Run). Conditions above are Majors, not Blockers.
+RESIDUAL RISK: no eval measures rubric-graded *quality* of AI-03 explanations, only attribution and refusal; the drift eval catches regressions only on the fixture set; AI-05 returns with S5 and needs a failed-case fixture set that does not yet exist.
+```
+
+```
+PERSONA: security-identity-architect   MODE: Adversary   TIER: T2
+VERDICT: BLOCK
+FINDINGS:
+```
+
+- **[Blocker] (Verified) The threat model names four untrusted inputs and three protected resources but does not enumerate the boundaries, and at least three consequential boundaries are unexamined.** evidence: A7 line 292 is one paragraph; the card's adversarial-analysis rule is every boundary identified and every threat dispositioned. Unexamined: (1) **backend substrate and installer** — Docker image pulls by digest, SU2 GitHub release assets by hash, Homebrew tap, WSL2 distro enable with admin/reboot, an **unsigned, un-notarized** OpenFOAM.app (08 rows 359–363, 414; KB-16); (2) **case generation from data** — CFD-02 promises "inspectable without hand-edited dictionaries", so the product writes solver dictionaries and argv from user-controlled strings (profile names, project paths, `.dat` name lines), and 08 line 278 launches WSL2 runs as `wsl.exe … bash -lc '<source bashrc>; <argv>'`; (3) **the headless CLI** (CLI-01) as a second entry point taking file paths; (4) the **build-time polar pipeline** as a data-provenance boundary (ANA-09 hashes admit data but nothing states who produced it). fix: v1 replaces the paragraph with a boundary table — boundary · what crosses · validated where (trusted side) · threat (STRIDE-lite) · disposition (mitigate with named control / transfer to named upstream control / accept with rationale) · negative test id. For (2): generated dictionaries and argv are templated from typed fields with an allow-list charset; case directory names derive from `run_key`, never from user text; no shell interpolation of user strings (argv arrays only); the `.dat` name line and `#` comments are stored as quoted data with a length cap and never reach a dictionary or a prompt as instruction. `assume:` OpenFOAM dictionaries can execute code via directives (`#codeStream`/`#calc`) — Flagged from recall, not in the KB; confirm at the S5 spike; if true, the case writer must forbid those tokens outright.
+
+- **[Major] (Verified) Supply chain and licensing: the spec asserts bundled assets and implies a sidecar whose rights are unestablished or copyleft, against COMMIT-02.** evidence: A4 line 163 requires Eppler sections as initial catalog (UIUC: no licence, 06·F1; headline 14); CAT-03 requires a bundled polar (LSAT polars are GPL data with pass-through obligations, 06·F2); NeuralFoil 0.3.3 → AeroSandbox → **CasADi LGPL-3.0** + IPOPT EPL-2.0 (09·F8, headline 18) so a shipped NeuralFoil sidecar is not permissive-only; SU2 licence metadata discrepancy (LGPL-2.1 file vs conda-forge "GPL-2.0-or-later", 08 line 432); OpenVSP NOSA-1.3 process-only (10 disconfirming view); Gmsh/cfMesh GPL; Docker Desktop paid above 250 staff / $10 M (08·F10). fix: A7 "Release / supply chain" row becomes a **licence register requirement**: every bundled dataset has a rights record (class GEN/VEND-with-terms/LINK/PEND with reason); polars are generated at build (XFOIL or NeuralFoil may run at build in a separate environment; neither ships in the product unless its transitive graph is reviewed and LGPL obligations met by process separation and offer of relinking); solver binaries are never redistributed in v1 — downloaded from the vendor channel and hash-verified (08·I15); SBOM per release.
+
+- **[Major] (Verified) Consent for installation must include licence terms and the unsigned-binary dialog, and must not accept terms on the user's behalf.** evidence: CFD-01 (line 244) lists platform, version, download/storage/elevation and the proposed action; 08·I13 says the state machine names "the licence it accepts on the user's behalf (Docker Desktop terms; GPL notice; unsigned OpenFOAM.app dialog)". Accepting commercial terms is consequential and not reversible. fix: CFD-01 adds "the licence terms the user must accept, shown verbatim before download; the product never accepts terms for the user; for an unsigned bundle the Gatekeeper dialog is explained and the product never instructs the user to disable Gatekeeper or SmartScreen." (S5, but the contract belongs in the reserved appendix now.)
+
+- **[Major] (Verified) AI-04 egress inspection is under-specified for the two things an attacker or an auditor would ask.** evidence: AI-04 (line 259) "geometry-summary/result fields to be shared are inspectable and secrets are excluded" — no statement of endpoint allow-listing, of path/user-name redaction in the *prompt* (A7 Privacy redacts only diagnostics exports), or of an audit record. 10 §"Guardrails" (4): imported files and solver logs are quoted data; MCP: clients show tool inputs before calling and log tool usage. fix: AI-04 gains "Egress is to exactly one configured provider endpoint; every request's byte-level payload is previewable; file paths, user names and hostnames are redacted before packing; a local audit record stores payload hash, model id, token usage (or Not recorded) and the user's consent action; solver-log excerpts fed to the model are size-capped and quoted".
+
+- **[Minor] (Verified) Credential storage names no control.** evidence: A7 "credentials in OS store"; AI-01 key removal semantics. fix: "OS-native secret store (macOS Keychain; Windows Credential Manager/DPAPI), never a file or environment variable; the key is never written to the document, logs, exports, crash reports or the audit record". Naming the store is a requirement; choosing the API is architecture.
+
+- **[Minor] (Verified) Parser and I/O limits are promised but not enumerated.** evidence: A7 "parser size limits published"; 05·I1 fixture list (BOM, CRLF, `#` comments, unequal Lednicer counts, Lednicer-as-Selig must fail closed, half-profile rejected); DOC-04, EXP-02 write paths. fix: publish caps (`.dat` ≤ N points/lines, `.cfdw.json` ≤ N MB and depth, solver log excerpt ≤ N KB for AI), require fail-closed on any cap; export and recovery writes refuse paths outside the chosen directory and do not follow symlinks; unknown-major-version files never trigger migration code.
+
+- **[Minor] (Verified) Every design-mitigated threat needs a failing-first negative test, and the prompt-injection test is named only as an eval.** evidence: A7 "prompt injection cannot authorize actions"; KB-22 injection eval; card rule "a mitigation without its test is a BLOCK" at implement. fix: the boundary table's last column names the negative test per row (injection via `.dat` name line; injection via solver log; path traversal on export; oversized file; tampered polar hash; spoofed backend "Ready" without smoke test) so the Test Architect can trace them.
+
+```
+CLEARS-THE-VETO: no — boundaries not all named (substrate/installer, case-writer-from-data, CLI, build pipeline); boundary input validation stated only generically; secrets rule stated but store unnamed; no known-exploitable CVE is asserted (none examined — no dependency list exists yet); least privilege for solver processes stated ("minimized") without a control. Clears when the boundary table with dispositions and negative-test ids exists and the licence register replaces the catalog assertion.
+RESIDUAL RISK: solver processes run with the user's full identity on the host or inside a container/WSL the product does not own; cancellation cannot be proven complete across substrates (index headline 20); the H105/UIUC rights e-mails are unanswered, so any Eppler content is a takedown risk until they are.
+```
+
+---
+
+## MISSING:
+
+1. **Goal state** value object + **feasibility report** story (GOAL-01), offline, using the user's own brief as the Sample (KB-5, 09·I1, 04 goal-state derivation).
+2. **Operating point derivations**: Fr_h, h/c, σ from the pinned water record; "Deep-water assumption (h/c ≥ 5)" label; missing depth → Unavailable (KB-5, headline 10).
+3. **Class-rule presets**: GWA race validator with rule version/date; iQFOiL as fixed benchmark; Formula Kite tolerance display; Moth/parawing "open" (KB-6, 04·I6).
+4. **Wingfoil-race discipline preset**; the four existing presets re-centred on the 04 product table with per-field labels (KB-6, 04·I1).
+5. **Catalog admission classes** GEN / VEND-with-terms / LINK / PEND with the reason shown; LSAT GPL ruling under COMMIT-02; generated-at-build NACA as v1 default; strut role never shows E862–E864 (KB-8, 06·I1–I4).
+6. **Design-point metadata** on `Profile revision` (design Cl, design Re, intended σ range, source per field; Unknown for Eppler/H105) (KB-8, 06·I6).
+7. **Ncrit pair** (2 and 4) and **surface state** clean/tripped band on every polar (KB-9, headline 31).
+8. **Advisory envelope DRC** (area, span, AR, t/c, loading, CL bands) with "outside every catalogued product" wording; the product table as a machine-readable fixture (KB-7, 04·I5, 04·I11).
+9. **DRC shape**: rule id · severity policy · located violation · exclusion with reason — the spec has dozens of checks and no rule model (KB-13, 10·I12).
+10. **Freshness by `run_key` equality** (content hash over geometry + profiles + fluid revision + operating point + method id and version); Current/Historical computed by comparison, never a dirty flag (KB-13, 10·I2).
+11. **`candidate_status` enum** for COMMIT-01 as data; "optimized" never shown without the chip (KB-17, 09·I4).
+12. **Three named tolerances** (identity 1 µm and 10⁻⁶; model/join 10 µm; angle 0.1°) and per-knot continuity measurement — GEO-06/GEO-11/DOC-02 currently overload "1 µm" (KB-1, headline 4).
+13. **Root-mirror tangent invariant** as a default hard constraint (KB-2, 03 data section).
+14. **Loft rule decision** (A: channels authoritative, skin is derived export with reported deviation; B: skin the station nets) and the three-word loft vocabulary (KB-3, 03·I7).
+15. **Comparables table** with sources and confidence, and a **positioning** paragraph (price band, native-Mac differentiator, the two genuine novelties) (03 comparables, 03·I15/I18, index "Canonical framing").
+16. **Safety copy** as fixed, tested content at Loads and Export with the regulatory basis (RCD, ISO 25649-1, ISO 12215-9 exclusions) and a yearly regulatory re-check (KB-19, headline 30).
+17. **Free-surface correction as a labelled Computed-estimate layer** (h/c only, "Froude dependence not modelled") and "Find operating point" stating whether it was applied — because the depth-only correction (2–5 %) already exceeds ANA-05's 1 % (KB-12).
+18. **Export matrix for v1** stated explicitly (`.cfdw.json`, DAT, STL/3MF with units, AVL behind VLM; STEP as surface + faces + shell, mm, gated by open-and-measure in ≥ 2 CAM systems) (KB-15, 05·I7–I9, 05·I12).
+19. **Native-format rules**: explicit definition + provenance, nothing derived; hash over the RFC 8785 canonical form, not the bytes; `null` for not-recorded, never NaN; knot-count convention stated (KB-14, 05·F12/F15).
+20. **Threat-model boundary table** with dispositions and negative-test ids; **licence register**; install consent with verbatim terms; named OS secret store; enumerated parser/IO caps (Security findings above).
+21. **AI contract items**: ten-item eval harness; prompt/schema/tool versioning with a CI gate; drift rule on model-id change; read-only tool surface; numeral rule; offline retrieval; BYO-key statement; refusal class list (KB-22, 10·I9–I11, I15).
+22. **Explicit non-goals never stated**: proprietary native import (`.s3dx`); rider-facing mode; cloud/sync/accounts; salinity override; "cavitation-free"/"ventilation-safe" vocabulary; AVL/XFLR5 *import*; stabilizer/mast/fuselage as designed surfaces (currently implied, not listed).
+23. **Pointer-probe "Tracing" readout** in curve editors and **guideline target markers** that never constrain (03·I5, I6) — v1 should, cheap, comparable-backed.
+24. **User-evidence plan**: one structured debrief of the operator's sessions as the first GAP-03 evidence (R-10), recorded in the ledger.
+
+## TIGHTEN:
+
+1. **"defensible comparison" / "fair, reproducible wing"** (A1) — no criterion; define via GOAL-01, CLI-01 key equality and ANA-06's blocked delta.
+2. **"supported"** carries three meanings (supported platform/backend, supported data domain, supported method capability) — split into *supported platform*, *in-envelope*, *method-capable*.
+3. **"admitted" / "bundled" / "supported polar"** (CAT-01–03, ANA-09) — replace with the three admission classes and "generated-at-build".
+4. **"Verified source intent"** (A1, ledger) collides with the pack's *Verified* = observed; relabel as *Stated intent (Verified request text)* and keep Verified for observed behaviour only.
+5. **"1 µm"** is used as identity (DOC-02), operational join (GEO-06 promote), and shape-preservation (GEO-11) tolerance — three tolerances (KB-1).
+6. **ANA-05 "within 1 %"** — meaningless unless the depth/free-surface layer status is stated (KB-12); add "at the declared depth model".
+7. **ANA-15 "Ncrit 2.0"** → the pair; **ANA-14** legend shows both.
+8. **CAT-03 "bundled supported polar"** — name generator, version, Ncrit pair, Re grid, surface state, and rights class.
+9. **A2 "SU2 and OpenFOAM are intended integration targets"** → the KB matrix: ESI OpenFOAM v2512/v2606 by digest + SU2 v8.5.0 release binaries; Foundation line excluded; meshing is the gating spike (KB-16).
+10. **A6 "Verified numerical implementation … require their specific proof"** — name the ring-0 fixtures (flat-plate 2π, elliptic e → 1 within Helmbold–Prandtl band, knot-insertion exactness, DAT both layouts, TMR NACA 0012 with GCI) (KB-10, KB-23).
+11. **A4 "at least G2 to a declared evaluator tolerance"** — per-knot measurement with the three-tolerance pattern; G2 vanishes at repeated knots, curve ends, the LE junction and the mirror plane (headline 4).
+12. **A4 preset sentence "These are starting fixtures, not optimum recommendations"** — also "AR floor ≈ 7; every Flagged field displayed as source-based assumption".
+13. **A7 usability "five formative users, 4/5"** — add recruitment criteria (the primary persona) or label the number a placeholder.
+14. **A7 Security "solver sandbox/process privileges minimized"** — name the control per substrate (container user, WSL process group, host child process with no elevated token) or label *unresolved until the S5 spike*.
+15. **AI-04 "cannot … spend additional money"** — define the per-request cap and the daily cap as settings with defaults; "Not recorded" only when the provider omits usage.
+16. **AI-06 "Initial natural-language profile starts may select admitted catalog references only"** — "admitted" → "class GEN or VEND-with-terms".
+17. **C1 "Named references: Shape3d … Fusion …"** — cite area 03 ids and mark which are borrowed patterns vs avoided (equal-control-count rule, loft option ladder).
+18. **Confidence ledger row "Primary engineer persona and six-stage sequence — Verified source intent"** — persona is Flagged (GAP-03 zero interviews); split the row.
+19. **A1 "Today those concerns live in separate modeling, airfoil and CFD workflows"** — cite the canonical framing (Shape3d → XFLR5 bridge; WingHopper planform → STL/STEP/XFLR5) so the claim is Verified, not asserted.
+20. **ANA-11 "root bending moment (N·m)"** — 09·F10: an optimizer exploits root-BM constraints unless load non-negativity is added; for v1 display only, label "integrated and root bending moments; no structural inference" (KB-18).
+
+**Who should attack this at the gate:** the Hydrodynamicist (goal-state arithmetic, Ncrit pair, depth/Froude labels), the Data & Persistence Architect (Goal state / Operating point / admission-class model, `run_key`), the Test Architect (traceability of GOAL-01 and the boundary table's negative tests), the Geometry lens (tolerances, loft rule, root-mirror invariant), and the UX Researcher (GAP-03 debrief plan). The author does not clear these.

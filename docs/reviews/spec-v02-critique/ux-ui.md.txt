@@ -1,0 +1,92 @@
+# Critique — spec rev 0.2 · UX-IA lens + UX & Accessibility lens
+
+(Returned inline by the agent, which had no write tool; persisted verbatim by the parent.)
+
+```
+PERSONA: ux-researcher-ia   MODE: Adversary   TIER: T2
+VERDICT: BLOCK
+```
+
+- **[Blocker] (Verified) F3 has no depth / Froude path; the operating point is not structurally complete.** A3 line 88 lists depth inside Operating point and ANA-02/ANA-13 mention depth, but flow F3 has no decision node for depth; `Froude|Fr_h` occurs zero times in the spec. KB-5, H-10, KB-12. fix: F3 gains `{Depth h set?}` → No: "σ, Fr_h, V_crit Unavailable — enter depth" / Yes: derive h/c, Fr_h, σ; Analyze conditions band lists Speed · Water · α · Depth h · Fr_h · h/c; new UX-11.
+- **[Blocker] (Verified) Results (G2 inside G1) has no information architecture — only a comma list and prose.** B1 line 306; B5 line 439; F4 fuses setup, queue, results and replay into one 30-node graph. KB-21 / area 11 impl 3, §9–11 (provenance strip, layer list mirroring the reduced-artifact manifest, Open in ParaView with absent state, reduction-failed state). fix: split F4 into F4a (setup/queue) and F4b (Results); draw the Results IA as a tree; add nodes `reduction failed` and `ParaView not detected`.
+- **[Blocker] (Verified) Six KB-load-bearing concepts have no home in the IA or the domain model** — goal state, class-rule presets, DRC/sanity findings, Discrepancy record, run manifest, design-point metadata; the assistant is an orphan node in F5. KB-5, KB-6, KB-7, KB-8, KB-13, KB-17. fix: an IA table concept → destination → panel → entry action; a Brief panel in Shape (goal state + presets + class rule + feasibility report); a cross-cutting Checks drawer (KiCad shape) reachable from every destination and from the status strip count; Discrepancy → Analyze › Compare; manifest → Results › provenance strip; design-point metadata → Sections catalog entry; assistant entry points named per destination plus the command palette; entities added to A3.
+- **[Blocker] (Verified) F2's DAT import node cannot catch the KB's named failure — Lednicer read as Selig.** F2 nodes Q→R→T/U branch only Invalid/Valid; a plausible wrong shape passes "validate". H-16. fix: node U becomes "Preview: detected layout Selig | Lednicer · point order · closure · source hash — Switch layout re-parses"; R gains an `Ambiguous` edge; CAT-02 adds the Lednicer criterion.
+- **[Blocker] (Verified) Infeasible lock set: the flow rejects but does not explain which lock to release.** F2 node L; GEO-13. KB-4 / area 01 impl 5 (SolveSpace DOF count and removable-constraint list); `DOF|removable` occurs zero times. fix: node L → "Show DOF, the conflicting locks and the removable-constraint list; Release lock… | Correct | Cancel"; new UX-12.
+- **[Major] (Verified) First launch is a choice screen, not an open sample; GAP-16 stays open and the no-sample path is undrawn.** F1 node F; B2; UI-08; mockup `firstRun()` splash. Area 01 impl 15; H-13 names the goal-state example. fix: F1 → `{First launch?}` Yes → open the named sample with station selected and curve-tool ToolClips; `{Sample fixture missing/invalid?}` → New with parameter form; UX-13 "first launch reaches an editable, selected station in 0 actions".
+- **[Major] (Verified) The need is admitted unevidenced; no target persona decision and no falsifier.** A1 line 40; GAP-03 (rider, shaper, engineer want three applications); only UX-05 and an open-decision row respond. fix: A1 states the v1 target persona (engineer/maker, Inferred), rider-facing summaries and shaper mold/CAM as v1 non-goals, and a falsifier ("if ≥2 of 5 formative users cannot say what Cp_min or Re means, the target is wrong"); UX-05 names the protocol and is scheduled with KB open question 4.
+- **[Major] (Verified) Wireframe: one-canvas/one-inspector only; the lines-plan three-panel layout is absent.** B7; area 03 impl 16 (plan · front · section at ≥1440 px). fix: named layout mode Lines plan one action from the default; UX-14 shared selection across panels.
+- **[Major] (Verified) The status strip does not carry mode/channel/preview/locks** (novice study's second-ranked difficulty; area 01 impl 12). fix: footer = revision · curve mode · channel · unit family · Preview open/closed · n locks · backend · operation; UX-15.
+- **[Major] (Verified) Findability — buried-export test fails for the polar overlay (8 actions, two destination switches) and the class-rule check (unreachable); Results has no export node.** KB-20. fix: Analyze › Section scope gains a second-series selector ≤2 actions from a computed polar; UX-16; Results IA gets Export.
+- **[Major] (Verified) Flow coverage: out-of-envelope contradicts A6 (dead end vs "unsupported observation"); missing water record, Flagged preset value and Pending admission with reason are undrawn; licence disclosure and substrate choice missing from the install node; optimizer-candidate status vocabulary absent.** fix: F3 splits node C into water-record / data-available / in-envelope decisions with the A6 "Unsupported observation" outcome; F2 adds a preset node with per-field labels and Flagged acknowledgement; catalog picker states the pending-admission reason.
+- **[Major] (Inferred) Precision-input contract contradicts the KB on nudge steps and expressions.** A4 two steps and "expression language not required" vs KB-2 / area 01 impl 7–8. fix: adopt the three-step table, the multiplicative weight nudge and unit-aware expressions over named dimensions with an echoed resolved value, or record the deferral with its trigger.
+- **[Major] (Verified) UX-01–10 falsifiability:** UX-03 "every error above" is unbounded; UX-06 "usable absence state" undefined; UX-05 is a research plan. fix: UX-03 enumerates the error set by flow node id; UX-06 names each optional dependency with its fixed absence string and the action that remains; add UX-11…16 and a step-count table.
+- **[Minor] (Verified) Vocabulary: "Sweep" (channel vs case schedule), "Sample" (case vs example document), "station" (authored vs CFD cut) each carry two meanings; KB loft/closure names and Shape3d Tracing are absent.** fix: rename the entity Case schedule (or the channel LE offset), the document Example; glossary rows; pointer-probe readout in the bottom editor.
+- **[Minor] (Verified) Guidelines as passive targets are missing** (area 03 impl 6). fix: numeric guideline markers that never constrain.
+
+```
+CLEARS-THE-VETO: no — evidenced need? no. coherent IA? no (Results has none; six concepts homeless; assistant orphaned). flows cover happy + alternate + error paths? no.
+RESIDUAL RISK: Part B rests on an Inferred persona; the influence-weight mode has no comparable so its learnability is unknown until the formative session runs; the sample fixture's content and rights are unresolved.
+```
+
+```
+PERSONA: ux-accessibility   MODE: Adversary   TIER: T2   A11Y-OBLIGATION: yes (A7 adopts WCAG 2.2 AA; native VoiceOver/UIA proof declared)
+VERDICT: BLOCK
+```
+
+- **[Blocker] (Verified) The C2 state table omits the KB's hard states** — Not assessed; Flagged preset value; Froude dependence not modelled; converged as a three-part label (residual · artifact oracle · grid uncertainty or "not quantified, single mesh"); citation-only evidence; Pending admission with reason; surface state on polars; exploited candidate. fix: add each as a state with its fixed copy string and the rendering component; CFD states `Completed · convergence unverified` / `Converged (residual + oracle + grid U)` / `Converged · grid uncertainty not quantified`.
+- **[Blocker] (Verified) Colormap policy names cividis only; signed fields have no diverging map; floods have no isolines/table twin; the mockup encodes signed C_f on a sequential map.** C2 line 507; DESIGN.md tokens cividis-0…4 only; KB-20 / area 11 impl 2; area 11 H-5 (dark-ended map competes with 3D shading); WCAG 1.4.1. fix: rewrite UI-07 (sequential batlow/cividis; diverging pinned at the physical zero for Cp, C_f, vorticity, signed components; isolines + probe + table twin on every flood; legend with variable, unit, range + basis, map name/version, association, sample; jet/turbo rejected and gate-asserted); DESIGN.md adds diverging and y+ band tokens with licence files.
+- **[Major] (Verified) Archetype signature: G2 asserted but never written; Nav facet mis-declared (Ribbon vs task tabs + palette).** fix: write the G2 signature for Results; Nav = TaskTabs+CommandPalette with the chord named; record every deviation.
+- **[Major] (Verified) TQ5 uncertainty-first: a polar rendered as a single line is a bare point estimate where the KB says an ensemble exists** (Ncrit 2–4 pair; clean/tripped band). fix: UI-15 band by default with the KB-9 label; ANA-15 changes 2.0 to the pair.
+- **[Major] (Verified) Screen-reader summary and provenance-strip schema missing from UI-13/14** (area 11 §6, §9; `screen reader` occurs zero times). fix: UI-14 adopts the §9 field list verbatim and requires an accessible text summary per field view.
+- **[Major] (Verified) Review harness lacks the area-01 additions and the seven derived checks; UI-10 tests only frame/contrast/targets.** fix: harness += navigation preset · modifier scheme · trackpad · keyboard-only and screen-reader personas; UI-16 lists the seven checks with owner and pass condition.
+- **[Major] (Verified) Copy record lacks the fixed safety and physics-honesty strings** (Froude not modelled; steady analysis cannot predict ventilation onset; practitioner range Ncrit; Not assessed; the four A6 labels + Section reconstruction; one string per state — currently three strings for "uncertainty not quantified" and two for "Undefined"; the three safety strings with the regulatory basis). fix: COPY rows with exact strings and placements; "one state, one string"; safety strings become oracle strings asserted by tests.
+- **[Major] (Verified) Accessibility above the market is claimed, not proven; keyboard orbit is absent** (GEO-10 offers only named views). fix: UI-03 adds keyboard orbit/zoom/fit per the per-OS table; A7 names the proof artefact (VoiceOver and Narrator traces of harness check 6); a toolkit VPAT is not accepted; cite SCs 2.1.1, 2.4.7, 1.4.11, 2.5.8, 1.4.1.
+- **[Major] (Verified) The chart set is not named in the UI layer; table twins are prose.** fix: the sixteen-chart table and UI-17 (table twin in one action, line style + direct label per series, drawn gap + table row for a failed sample).
+- **[Minor] (Verified) Target-size contradiction** (UI-04 32 px vs DESIGN.md 44 px). fix: one rule 24/32/44 with a `target-dense` token.
+- **[Minor] (Verified) UI-09/UI-10 not falsifiable** ("honestly"; no HAX ids). fix: list HAX ids per state; UI-10 states measured outputs.
+- **[Minor] (Inferred) Mockup/spec drift on depth (Simulate shows depth, Analyze never asks) and on the AI wayfinder (rendered enabled without a key).**
+
+```
+CLEARS-THE-VETO: no — keyboard orbit absent; no named proof for the native viewport's accessibility tree; chart ink contrast unmeasured against both canvases; 1.4.1 fails on floods without isolines/table twins; state table incomplete.
+RESIDUAL RISK: the HTML mockup cannot discharge any native obligation; the Avalonia accessibility tree for a custom viewport is an open spike — if it fails, UI-03 is unachievable on the chosen stack.
+```
+
+## MISSING (v1 must add)
+
+1. Depth h as a first-class Analyze input with derived h/c, Fr_h, Fr_c, σ; the Froude-not-modelled layer and string.
+2. Results IA and flow F4b (source/sample → layer list → view → provenance strip; reduction-failed and ParaView-absent states; Open in ParaView; Export).
+3. Homes for Goal state, class-rule presets, ≥8 discipline presets with per-field labels, DRC/sanity findings drawer, Discrepancy record, run manifest, design-point metadata, optimizer-candidate status vocabulary.
+4. DAT two-layout confirm/switch node and the Lednicer fixture in the flow.
+5. DOF readout + removable-constraint list on infeasible locks.
+6. Designed first launch: open the named goal-state sample, ToolClips on curve tools, strategy tip; missing-sample path.
+7. Lines-plan three-panel layout mode at ≥1440 px and four canonical views with keyboard orbit steps.
+8. Status strip contract: mode · channel · unit family · preview open · locks.
+9. Tracing pointer-probe readout in every curve editor; guideline markers that never constrain.
+10. Three-step nudge table + multiplicative weight nudge; unit-aware expressions over named dimensions — or a recorded deferral.
+11. Per-OS convention table and navigation presets (+ trackpad mode).
+12. Colormap policy: sequential + diverging-at-zero + y+ bands + isolines + table twin + full legend; tokens in DESIGN.md.
+13. Chart set of sixteen with conventions, and the table-twin criterion.
+14. Ncrit 2/4 pair and clean/tripped band as default polar rendering with the fixed label.
+15. Hard states: Not assessed · Flagged preset value · Froude not modelled · converged (three-part) · citation-only · Pending admission + reason · surface state · exploited candidate.
+16. Fixed safety copy at Loads / Export / Beam with regulatory basis; regulatory register yearly re-check.
+17. Screen-reader summary per field view and the provenance-strip schema fields.
+18. Harness additions and the seven derived checks with owners; keyboard-only and screen-reader personas.
+19. v1 persona decision + falsifier + research protocol tied to KB open question 4.
+20. Assistant entry points per destination and the read-only-tools rule surfaced in the IA.
+
+## TIGHTEN
+
+1. One word, one meaning: Sweep / Sample / station; adopt KB loft and closure vocabulary and Rhino Fair's words.
+2. A6 vs F3: out-of-envelope values visible as unsupported observations, not a dead end.
+3. UX-03 / UX-06: enumerate the error set and the optional-dependency set.
+4. UI-07 / UI-14: sequential/diverging/discrete rule and full legend field list.
+5. UI-04 vs DESIGN.md target size: one rule (24/32/44).
+6. UI-09 / UI-10: name HAX ids and measured outputs; delete "honestly".
+7. One state, one string.
+8. A7 Accessibility row: named artefact; toolkit VPAT is not proof.
+9. C1 archetype: G2 signature; Nav = TaskTabs+CommandPalette; deviations recorded.
+10. GEO-10: keyboard-only must include orbit/zoom/fit steps.
+11. A1 persona: label Inferred; state v1 target and non-target personas.
+12. A4 nudge and expression sentences: adopt or record the deferral with its trigger.
+13. CFD-03 / C2: "completed" never displayable without the convergence label.
+14. ANA-15 Ncrit "2.0": the labelled pair.
