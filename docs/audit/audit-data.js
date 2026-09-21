@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-19T17:36:41Z",
+  "generated": "2026-09-21T05:15:04Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -313,6 +313,467 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-19T17:36:41Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M30E4KE4PRJ40VZCC65TZFBE",
+      "shortname": "knowledge-experts-spec-v1",
+      "datetime": "2026-09-20T22:14:11Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "research",
+        "specify",
+        "ui-design"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M30HJC4BBM40WVE9ZFZ7Z4V7",
+      "shortname": "collectknowledge-hydrofoil-workbench",
+      "datetime": "2026-09-20T23:14:08Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "Thirteen sourced area files (6,157 lines, 591 sources, 200 glossary terms) under docs/knowledge/hydrofoil-workbench/ with a compiled index, 25 design implications and a 22-row contradiction register; independent Simplifier+Researcher gate BLOCKed on five Majors (JMSA fit constants, AR convention, over-labelled claims, unconsumed value objects, untagged Flagged bounds) — all resolved; PASS-WITH-CONDITIONS.",
+      "kind": "skill",
+      "skill": "collectknowledge",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/knowledge/hydrofoil-workbench/index.md"
+      ],
+      "tags": [
+        "knowledge",
+        "research"
+      ],
+      "outcome": "success",
+      "started_at": "2026-09-20T22:14:02Z",
+      "duration_seconds": 3606.0,
+      "persona_yield": [
+        {
+          "persona": "the-simplifier",
+          "raised": 13,
+          "accepted": 11
+        },
+        {
+          "persona": "domain-researcher",
+          "raised": 9,
+          "accepted": 9
+        }
+      ]
+    },
+    {
+      "id": "al-01M30HJCJN71EQXJR4DVT1STQA",
+      "shortname": "adddomainexperts-hydrofoil-workbench",
+      "datetime": "2026-09-20T23:14:09Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "Seven §8-conformant domain experts added (hydrodynamicist, CFD & numerical verification, computational geometry, marine CAD UX, structures & materials, manufacturing & CAM, design optimization) with mirrors in .github/agents and .grok/agents, roster surfaces updated in both knowledge copies, README and INSTALL; nine candidates merged/split/rejected with reasons in docs/domain-experts.md.",
+      "kind": "skill",
+      "skill": "adddomainexperts",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/domain-experts.md"
+      ],
+      "tags": [
+        "personas"
+      ],
+      "outcome": "success",
+      "started_at": "2026-09-20T22:14:02Z",
+      "duration_seconds": 3607.0
+    },
+    {
+      "id": "al-01M30MJSBCRXMH5JGR4028GSJ7",
+      "shortname": "specify-cfd-workbench-v1",
+      "datetime": "2026-09-21T00:06:47Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "Critiqued spec 0.2 with fourteen lenses (docs/reviews/spec-v02-critique.md: 22 Blockers, 110 Majors, consolidated dispositions), then wrote docs/specs/cfd-workbench-v1.md (revision 1.0, build basis; 87 acceptance criteria; three-layer Functional/UX/UI) and rendered it with browser parity (885 blocks, 6 flows, 0 missing). Gate: three independent Adversary-mode panels covering ten lenses; Test Architect BLOCK on one Blocker (identity tolerance defined two ways) plus 20 Majors across lenses — all fixed in place (85 targeted edits), gate block appended, four decision notes written, KB 04 goal-state arithmetic corrected and roll-ups recompiled. Verdict after fixes PASS-WITH-CONDITIONS; conditions are the fixtures /implement must write red-first.",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/reviews/spec-v02-critique.md",
+        "docs/notes/loft-rule-a.md"
+      ],
+      "tags": [
+        "spec",
+        "gate"
+      ],
+      "outcome": "success",
+      "goal": "One build-basis specification that resolves the 0.2 critique and survives an independent adversarial gate",
+      "done_when": "spec v1 rendered with parity; every gate Blocker and Major fixed or overridden in writing; gate block, decision notes, audit and change entries recorded",
+      "tier": "T2",
+      "fan_out": 6,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-20T22:14:02Z",
+      "duration_seconds": 6765.0,
+      "persona_yield": [
+        {
+          "persona": "test-architect",
+          "raised": 13,
+          "accepted": 13
+        },
+        {
+          "persona": "data-persistence-architect",
+          "raised": 11,
+          "accepted": 11
+        },
+        {
+          "persona": "ux-researcher-ia",
+          "raised": 14,
+          "accepted": 14
+        },
+        {
+          "persona": "ux-accessibility",
+          "raised": 7,
+          "accepted": 7
+        },
+        {
+          "persona": "hydrofoil-hydrodynamicist",
+          "raised": 9,
+          "accepted": 9
+        },
+        {
+          "persona": "computational-geometry-expert",
+          "raised": 6,
+          "accepted": 6
+        },
+        {
+          "persona": "the-simplifier",
+          "raised": 5,
+          "accepted": 4
+        },
+        {
+          "persona": "security-identity-architect",
+          "raised": 5,
+          "accepted": 5
+        }
+      ],
+      "change": "cl-01M30MJCG0FQJRMBAA1A5S5D9C",
+      "git": {
+        "sha": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "short": "19e310dfe",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M30RJ285E3G18NJ16B5XY9GG",
+      "shortname": "ui-design-workbench-v1",
+      "datetime": "2026-09-21T01:16:18Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "Elevate mode. Direction brief appended to docs/design/workbench-direction.md; DESIGN.md updated (batlow/vik tokens sampled from Crameri's 256-row maps, MIT verified; target-dense 32 px; COPY-28…72 verbatim from spec v1; section 12.0). Built docs/mockups/workbench-v1.html (154 KB, self-contained, zero requests): Brief with the seven GOAL-02 triples computed live, Shape with a genuine constrained weighted-LSQ degree-5 B-spline evaluator (GEO-13 monotone property observed), Sections with admission classes and the two-layout DAT detector, Analyze with every number carrying its basis and the fixed strings, Checks drawer, gated Export, assistant states, Settings; harness with persona/viewport (incl. 640 px zoom)/state/theme/density/capability/nav preset/modifiers/trackpad/reduced motion. Browser oracle tools/check-mockup-v1.mjs: 29 oracles, 38 measurements green; craft gate: one recorded deviation (em-dashes in fixed strings); design-lint strict clean. Independent UX & Accessibility lens: BLOCK (5 a11y Blockers, 12 Majors) → fixes → PASS-WITH-CONDITIONS (4 conditions) → fixes → PASS, veto cleared by the lens. Review in docs/reviews/ui-workbench-v1.md; defect classes UI-F and UI-G recorded.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v1.html",
+        "docs/mockups/workbench-v1.md",
+        "docs/reviews/ui-workbench-v1.md",
+        "DESIGN.md",
+        "tools/check-mockup-v1.mjs",
+        "docs/proof/workbench-v1-browser-check.json"
+      ],
+      "tags": [
+        "ui",
+        "mockup",
+        "accessibility"
+      ],
+      "outcome": "success",
+      "goal": "An elevated, self-contained v1 mockup built against spec v1 whose hard states and honest strings are real, with the a11y veto cleared by a non-author",
+      "done_when": "oracle green; craft gate reported; design-lint clean; UX & Accessibility lens returns PASS; review artifact, hub node, DESIGN.md and audit entry written",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-20T22:14:02Z",
+      "duration_seconds": 10936.0,
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 33,
+          "accepted": 31
+        },
+        {
+          "persona": "marine-cad-ux-expert",
+          "raised": 10,
+          "accepted": 9
+        }
+      ],
+      "git": {
+        "sha": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "short": "19e310dfe",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M30RWA3T6R9ZN264Y352NAWH",
+      "shortname": "seven-areas-spec-v11",
+      "datetime": "2026-09-21T01:21:54Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "a few things:\n- we should be explicit in the UX about the different goals and make them discrete and not conflated / but complimentary where useful\n  - Initial Setup: use natural language (AI ... see next point) or some target parameters as a starting point\n    - Natural language: text box where you describe what you want to start from and then the AI model seeds the starting design\n    - Parameters:\n          - intended purpose (wingfoil freeride, wingfoil race, wingfoil surf, windfoil race, windfoil freeride, wakefoil, surffoil, downwind)\n          - general dimensions (max span, max chord, target area, target aspect ratio) these become general specs not hard constraints as they may conflict\n          - rider weight\n          - fresh water or salt water\n  - CAD mode\n      - I like the general mockups but they need to focus on productivity as well as visualization\n      - we should be able to work on the outline curve, the twist, the anhedral/dihedral as distinct curves, we should be able to add and remove stations and then tune the profiles accordingly\n  - Analysis\n      - should be able to see 2D (for a section)  and 3D analysis based on local calculations\n      - should have rich visuals, charts, directions of force etc .. as rich as possible for what local calculations we can do\n      - should be able to seemlessly toggle between cad view and analysis view\n  - Experiment setup\n      - once you have a wing ready then you need to define the setup\n      - can be a parametric sweep or an optimize... sweep => sweep through angles of attack and velocities, optimize => provide a goal and run an optimization loop\n  - Experiment execution\n      - execute an experiment (CFD run) against OpenFoam or SU2 ... this means doing the meshing, driving the cfd simulation, catching the output ... everything end to end for a cfd run\n      - use AI and scripts to make sure the enviornment is set up and configured\n      - drive the entire experiment from the tool and show status\n  - Experiment results\n      - Visualizations of results\n        - tabular\n        - plots\n        - visuals ... animated videos of: streamlines, separation, pressure, forces etc\n        - sweep visuals ... visuals across the experiment sweep\n  - Export\n        - for now just exporting a full 3D wing in 3D formats, stl, step, fusion 360 format, rhino format\n- one of the key experiences is using AI (through API Key to Claude) to have a more interative experience\n    - Allow us to have a prompt entry in all places\n     - initial setup : to describe what you want to build and it comes up with a starting model\n     - Cad : describe changes you want to make and it modifies the shape accordingly\n     - analysis : ask questions of the local calculations\n     - experiment setup : say what you want and have it configure the experiment\n     - experiment results : ask questions of the simulation results\n\nUpdate the spec with this thinking\nRethink the mockups deeply\n/ui-design elevate the spec with each of the areas as first class and really focus on having a very rich representation of the target build state",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "spec",
+        "ui"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M30VE9K8QVD0HJ73TYEMTFT6",
+      "shortname": "specify-cfd-workbench-v1-1",
+      "datetime": "2026-09-21T02:06:40Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "a few things:\n- we should be explicit in the UX about the different goals and make them discrete and not conflated / but complimentary where useful\n  - Initial Setup: use natural language (AI ... see next point) or some target parameters as a starting point\n    - Natural language: text box where you describe what you want to start from and then the AI model seeds the starting design\n    - Parameters:\n          - intended purpose (wingfoil freeride, wingfoil race, wingfoil surf, windfoil race, windfoil freeride, wakefoil, surffoil, downwind)\n          - general dimensions (max span, max chord, target area, target aspect ratio) these become general specs not hard constraints as they may conflict\n          - rider weight\n          - fresh water or salt water\n  - CAD mode\n      - I like the general mockups but they need to focus on productivity as well as visualization\n      - we should be able to work on the outline curve, the twist, the anhedral/dihedral as distinct curves, we should be able to add and remove stations and then tune the profiles accordingly\n  - Analysis\n      - should be able to see 2D (for a section)  and 3D analysis based on local calculations\n      - should have rich visuals, charts, directions of force etc .. as rich as possible for what local calculations we can do\n      - should be able to seemlessly toggle between cad view and analysis view\n  - Experiment setup\n      - once you have a wing ready then you need to define the setup\n      - can be a parametric sweep or an optimize... sweep => sweep through angles of attack and velocities, optimize => provide a goal and run an optimization loop\n  - Experiment execution\n      - execute an experiment (CFD run) against OpenFoam or SU2 ... this means doing the meshing, driving the cfd simulation, catching the output ... everything end to end for a cfd run\n      - use AI and scripts to make sure the enviornment is set up and configured\n      - drive the entire experiment from the tool and show status\n  - Experiment results\n      - Visualizations of results\n        - tabular\n        - plots\n        - visuals ... animated videos of: streamlines, separation, pressure, forces etc\n        - sweep visuals ... visuals across the experiment sweep\n  - Export\n        - for now just exporting a full 3D wing in 3D formats, stl, step, fusion 360 format, rhino format\n- one of the key experiences is using AI (through API Key to Claude) to have a more interative experience\n    - Allow us to have a prompt entry in all places\n     - initial setup : to describe what you want to build and it comes up with a starting model\n     - Cad : describe changes you want to make and it modifies the shape accordingly\n     - analysis : ask questions of the local calculations\n     - experiment setup : say what you want and have it configure the experiment\n     - experiment results : ask questions of the simulation results\n\nUpdate the spec with this thinking\nRethink the mockups deeply\n/ui-design elevate the spec with each of the areas as first class and really focus on having a very rich representation of the target build state",
+      "summary": "Revision 1.1 of docs/specs/cfd-workbench-v1.md: seven discrete, complementary areas (Setup · CAD · Analysis · Experiment setup · Run · Results · Export) as first-class destinations with typed hand-offs, an AI prompt entry per area with six proposal kinds, Experiment (sweep · optimize) with Candidates on the COMMIT-01 ladder, Run and Results specified in full and gated on SPIKE-03/03b/04, Fusion-ready STEP and 3DM export. 33 new stories, 6 UX and 5 UI criteria, flows F6–F8 with 80 enumerated non-happy edges, sixteen C2 rows. Rendered with parity (1,238 blocks, 9 flows). Gated by two independent panels covering six lenses: 3 Blockers (Goal state versioning; environment-step parameter binding; Candidate ladder data path) and 28 Majors fixed in place with 68 edits; PASS-WITH-CONDITIONS.",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/notes/seven-areas.md"
+      ],
+      "tags": [
+        "spec",
+        "gate"
+      ],
+      "outcome": "success",
+      "goal": "Specification revision 1.1 with seven first-class areas and an AI prompt entry each, gated",
+      "done_when": "rendered with parity; every gate Blocker and Major fixed or overridden in writing; gate block, decision note, audit and change entries recorded",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-21T01:21:54Z",
+      "duration_seconds": 2686.0,
+      "persona_yield": [
+        {
+          "persona": "test-architect",
+          "raised": 12,
+          "accepted": 12
+        },
+        {
+          "persona": "data-persistence-architect",
+          "raised": 11,
+          "accepted": 11
+        },
+        {
+          "persona": "security-identity-architect",
+          "raised": 7,
+          "accepted": 7
+        },
+        {
+          "persona": "cfd-numerical-verification-expert",
+          "raised": 12,
+          "accepted": 12
+        },
+        {
+          "persona": "design-optimization-expert",
+          "raised": 8,
+          "accepted": 8
+        },
+        {
+          "persona": "ux-researcher-ia",
+          "raised": 10,
+          "accepted": 10
+        }
+      ],
+      "change": "cl-01M30VDW31KG5K1G55NCXTFYBK",
+      "git": {
+        "sha": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "short": "19e310dfe",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M30X73AAK0RVREEBTXPECAS5",
+      "shortname": "ui-design-workbench-v2",
+      "datetime": "2026-09-21T02:37:42Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "a few things:\n- we should be explicit in the UX about the different goals and make them discrete and not conflated / but complimentary where useful\n  - Initial Setup: use natural language (AI ... see next point) or some target parameters as a starting point\n    - Natural language: text box where you describe what you want to start from and then the AI model seeds the starting design\n    - Parameters:\n          - intended purpose (wingfoil freeride, wingfoil race, wingfoil surf, windfoil race, windfoil freeride, wakefoil, surffoil, downwind)\n          - general dimensions (max span, max chord, target area, target aspect ratio) these become general specs not hard constraints as they may conflict\n          - rider weight\n          - fresh water or salt water\n  - CAD mode\n      - I like the general mockups but they need to focus on productivity as well as visualization\n      - we should be able to work on the outline curve, the twist, the anhedral/dihedral as distinct curves, we should be able to add and remove stations and then tune the profiles accordingly\n  - Analysis\n      - should be able to see 2D (for a section)  and 3D analysis based on local calculations\n      - should have rich visuals, charts, directions of force etc .. as rich as possible for what local calculations we can do\n      - should be able to seemlessly toggle between cad view and analysis view\n  - Experiment setup\n      - once you have a wing ready then you need to define the setup\n      - can be a parametric sweep or an optimize... sweep => sweep through angles of attack and velocities, optimize => provide a goal and run an optimization loop\n  - Experiment execution\n      - execute an experiment (CFD run) against OpenFoam or SU2 ... this means doing the meshing, driving the cfd simulation, catching the output ... everything end to end for a cfd run\n      - use AI and scripts to make sure the enviornment is set up and configured\n      - drive the entire experiment from the tool and show status\n  - Experiment results\n      - Visualizations of results\n        - tabular\n        - plots\n        - visuals ... animated videos of: streamlines, separation, pressure, forces etc\n        - sweep visuals ... visuals across the experiment sweep\n  - Export\n        - for now just exporting a full 3D wing in 3D formats, stl, step, fusion 360 format, rhino format\n- one of the key experiences is using AI (through API Key to Claude) to have a more interative experience\n    - Allow us to have a prompt entry in all places\n     - initial setup : to describe what you want to build and it comes up with a starting model\n     - Cad : describe changes you want to make and it modifies the shape accordingly\n     - analysis : ask questions of the local calculations\n     - experiment setup : say what you want and have it configure the experiment\n     - experiment results : ask questions of the simulation results\n\nUpdate the spec with this thinking\nRethink the mockups deeply\n/ui-design elevate the spec with each of the areas as first class and really focus on having a very rich representation of the target build state",
+      "summary": "Elevate mode against spec 1.1. Direction brief v2 appended; DESIGN.md gained COPY-73…97, area strip / prompt entry / case preview / run console / results layer list / timeline / candidate rows and 12.0a. Built docs/mockups/workbench-v2.html (237 KB, self-contained, zero requests): area strip in flow order with readiness chips; Setup from language or parameters with soft targets and deviations; CAD with Outline/Twist/Dihedral/Thickness curves, add/remove stations, section dialog; Analysis as a layer set on the shared canvas with the CAD ⇄ Analysis toggle as navigation; Experiment with sweep preview and the optimize form (single-point refusal, thickness frozen); Run as a process console over a stepped fixture (readiness, allow-listed steps, C2 state strings, cancel, retry); Results with manifest layers, separation only with τ_w, series-fixed replay, small multiples, computed difference flood, candidates with the A_cav bound from data; Export incl. 3DM and Fusion-ready STEP; a prompt entry per area. Oracle tools/check-mockup-v2.mjs: 13 groups, 84 measurements green; craft gate: one recorded deviation. Independent UX & Accessibility lens: BLOCK (4 Blockers, 17 Majors) → fixes → PASS-WITH-CONDITIONS with the veto cleared; residuals closed or recorded. Review docs/reviews/ui-workbench-v2.md; defect class UI-I recorded.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v2.html",
+        "docs/mockups/workbench-v2.md",
+        "docs/reviews/ui-workbench-v2.md",
+        "DESIGN.md",
+        "tools/check-mockup-v2.mjs",
+        "docs/proof/workbench-v2-browser-check.json"
+      ],
+      "tags": [
+        "ui",
+        "mockup",
+        "accessibility"
+      ],
+      "outcome": "success",
+      "goal": "A rethought mockup v2 rendering the seven areas' target build state richly, with the a11y veto cleared by a non-author",
+      "done_when": "oracle green; craft gate reported; design-lint clean; UX & Accessibility lens clears the veto; review artifact, hub node, DESIGN.md and audit entry written",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-21T01:21:54Z",
+      "duration_seconds": 4548.0,
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 47,
+          "accepted": 44
+        },
+        {
+          "persona": "marine-cad-ux-expert",
+          "raised": 8,
+          "accepted": 6
+        }
+      ],
+      "git": {
+        "sha": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "short": "19e310dfe",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M30XAYEJM05AJ1Y0SK5HA97W",
+      "shortname": "thick-client-mockup-v3",
+      "datetime": "2026-09-21T02:39:48Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "/ui-design elevate the mockups\n- the mockup seems to scroll a lot but this is a client appliction not a web app: think about metaphors from Eclipse/VSCode as well as Autodesk Fusion 360, Shape3D and Rhino\n- the current mockup top toolbar is not functional as it has scrolling and spacing issues\n- you dont need to work linearly from the existing mockups... step back and think what is the best thick client experience for each vignette/scenario and how to optimize the UX and UI for that... dont constrain yourself to working from what is there today",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "ui"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M311R7VY9M2QFGYCSF76NW8V",
+      "shortname": "ui-design-workbench-v3",
+      "datetime": "2026-09-21T03:56:58Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "/ui-design elevate the mockups\n- the mockup seems to scroll a lot but this is a client appliction not a web app: think about metaphors from Eclipse/VSCode as well as Autodesk Fusion 360, Shape3D and Rhino\n- the current mockup top toolbar is not functional as it has scrolling and spacing issues\n- you dont need to work linearly from the existing mockups... step back and think what is the best thick client experience for each vignette/scenario and how to optimize the UX and UI for that... dont constrain yourself to working from what is there today",
+      "summary": "Elevated the mockup into a thick-client shell (mockup v3, docs/mockups/workbench-v3.html, 281 KB): measured v2 first (1,450–6,500 px tall at every width, a wrapping area strip, a clipping toolbar), wrote the direction (Eclipse/VS Code · Fusion 360 · Shape3d · Rhino metaphors per region, per-vignette arrangements), then built a fixed window that never scrolls — macOS title bar / Windows menu strip, one-row toolbar filled from the verb table and measured into More ▾, parameter row, 68 px activity rail (six areas as a tablist with readiness in the name, Export as a dialog, Checks, Settings), Navigator and Properties docks with sashes and gutter expand controls, document tabs that are documents, a collapsible/maximizable bottom panel, status bar, drawers at 640 × 400 — with the v2 content re-homed per vignette. Oracle tools/check-mockup-v3.mjs: 15 groups, 78 measurements, 30 shell cells (no window scroll, toolbar one row, rows never clip, More ▾ only when hidden and never at ≥ 1280, panes ≥ 120 px, docks internal) plus an observed accessibility group (focus survives every re-render incl. document forms, ARIA tabs/listbox/toolbar patterns, More ▾ hit-testable, drawer focus, ⌘Z guard, computed-colour scan, sashes, maximize). Craft gate at its recorded floor (em-dash); design-lint clean. Gates: UX & Accessibility BLOCK → PASS-WITH-CONDITIONS → PASS (veto cleared, third read); Native Desktop PASS-WITH-CONDITIONS (four Majors built; one finding wrong and recorded). Docs: DESIGN.md §5 rewritten + shell tokens + §12.0b; spec 1.1a (B1 rail, B7 window, C1, UI-18, UI-23, D2a) rendered with parity; hub docs/mockups/workbench-v3.md; review docs/reviews/ui-workbench-v3.md; note docs/notes/thick-client-shell.md; defect class UI-H2 + UI-C recurrence; plan Turn 3; README; graph derived and flagged. Incident: the borrowed playwright root vanished mid-turn (another repo's worktree cleanup); replaced by a scratchpad pnpm install and recorded in memory.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v3.html",
+        "docs/mockups/workbench-v3.md",
+        "docs/reviews/ui-workbench-v3.md",
+        "tools/check-mockup-v3.mjs",
+        "docs/proof/workbench-v3-browser-check.json",
+        "docs/notes/thick-client-shell.md",
+        "DESIGN.md",
+        "docs/specs/cfd-workbench-v1.md"
+      ],
+      "tags": [
+        "ui-design",
+        "thick-client",
+        "mockup"
+      ],
+      "outcome": "success",
+      "goal": "Elevate the mockup into a thick-client shell (Eclipse/VS Code · Fusion 360 · Shape3d · Rhino), arranged per vignette, with a functional one-row toolbar and no page scroll",
+      "done_when": "Shell contract proven by an oracle at five presets × six areas; every v2 contract still green; craft gate at its floor; the UX & Accessibility lens clears the veto; DESIGN.md, spec Part B/C, hub, review, note, register and graph updated",
+      "tier": "T1",
+      "started_at": "2026-09-21T02:39:48Z",
+      "duration_seconds": 4630.0,
+      "change": "cl-01M311NBBSK8869JBTS06NPFTS"
+    },
+    {
+      "id": "al-01M312DJ9C19HY6NR8053R46C2",
+      "shortname": "do one more round of /ui-design elevate on the mockups... look for the l…",
+      "datetime": "2026-09-21T04:08:36Z",
+      "session": "prompt-log",
+      "prompt": "do one more round of /ui-design elevate on the mockups... look for the little things\n- icons instead of numbers on the sidebar\n- splines\n- ability to change viewpoint in the cade view and to free-rotate a 3D model\n- editing a station should not be a model view it should be a full 2D cad editing view\n- like cad programs i should be able to see top, side, isometric etc in 2D elevation for editing curves and any given station for editing the profile and free-form 3D\n- i also need to be able to edit the dihedral/anhedral curve, the thickness curve and the twist curve as explict control cruves that help refine the shape\n---\nexplore these as part of the /ui-design elevate and reflect the iterations also in the specification",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M316789QZER7W0R172VQ6NNT",
+      "shortname": "ui-design-workbench-v4",
+      "datetime": "2026-09-21T05:15:04Z",
+      "session": "kb-experts-spec-20260920",
+      "prompt": "do one more round of /ui-design elevate on the mockups... look for the little things\n- icons instead of numbers on the sidebar\n- splines\n- ability to change viewpoint in the cade view and to free-rotate a 3D model\n- editing a station should not be a model view it should be a full 2D cad editing view\n- like cad programs i should be able to see top, side, isometric etc in 2D elevation for editing curves and any given station for editing the profile and free-form 3D\n- i also need to be able to edit the dihedral/anhedral curve, the thickness curve and the twist curve as explict control cruves that help refine the shape\n---\nexplore these as part of the /ui-design elevate and reflect the iterations also in the specification",
+      "summary": "Elevated the mockup to v4 (docs/mockups/workbench-v4.html, 321 KB) with the CAD editing views the brief asked for: an icon rail with names; every curve a spline; one camera over one model (named presets Top · Front · Starboard · Port · Bottom · Back · Iso, a depth-sorted view cube with orbit chevrons, pointer orbit/pan/zoom in both navigation presets and by keyboard, sections selectable in 3D, analysis layers projected into any camera with the free-surface plane at its true height and a tip → surface dimension); editing elevations (Top: outline rails; Front: dihedral/anhedral and thickness as control curves; Starboard: a body plan with a twist handle per station) opening the same Preview → Return/Escape draft as the curve pane, refusing with the reason when locked or when another draft is open; the station editor as a document tab (full 2D section editor with grid and chord dimension, palette on the toolbar, Properties, discard onto the undo stack, Delete/Escape/× close). Direction written before pixels (brief v4); the old v3 views and the dialog deleted, not overridden. Oracle tools/check-mockup-v4.mjs: 16 groups, 78 measurements, 30 shell cells, group 13 for the CAD views incl. measured handle spacing (twist 56.8 px, front 39.4/39.0 px), focus-ring contrast in three themes (9.35 / 9.31 / 17.6:1), keyboard pan, no sliver cube faces, refusal path, one-draft invariant, undo restore, station-document edges. Craft gate at its floor (em-dash); design-lint clean. Spec revision 1.2 (CAD-04–06, UX-23, UI-24–25, the B7 pointer contract and lines-plan rule, a Viewport verb row, E-Refused/E-Locked edges, glossary rows, an open-decisions row for free-form 3D, Appendix D3) rendered with parity. Gates: UX & Accessibility BLOCK → BLOCK → PASS-WITH-CONDITIONS with the veto cleared and both conditions landed; UX Researcher / IA PASS-WITH-CONDITIONS → veto cleared. Docs: DESIGN.md §12.0c, three component rows, viewport focus/danger tokens (§2); hub, review, decision note, defect classes UI-J and UI-K, plan Turn 4, README; graph derived and flagged.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v4.html",
+        "docs/mockups/workbench-v4.md",
+        "docs/reviews/ui-workbench-v4.md",
+        "tools/check-mockup-v4.mjs",
+        "docs/proof/workbench-v4-browser-check.json",
+        "docs/notes/cad-editing-views.md",
+        "docs/specs/cfd-workbench-v1.md",
+        "DESIGN.md"
+      ],
+      "tags": [
+        "ui-design",
+        "cad",
+        "mockup"
+      ],
+      "outcome": "success",
+      "goal": "Mockup v4: icon rail, splines, a free-orbit camera with named views, the station editor as a 2D CAD document, editing elevations for the outline, dihedral/anhedral, twist and thickness as explicit control curves; specification 1.2 for those stories",
+      "done_when": "v4 passes the re-targeted oracle plus the CAD-views group; craft gate at floor; the UX & Accessibility lens clears the veto; the IA lens clears the UX-layer delta; the spec renders with parity; hub, review, note, register, plan and audit land",
+      "tier": "T1",
+      "started_at": "2026-09-21T04:08:30Z",
+      "duration_seconds": 3994.0,
+      "change": "cl-01M3166K09E09V1YHRJ56R9KG5"
     }
   ],
   "changes": [
@@ -383,6 +844,147 @@ window.AUDIT_DATA = {
         "before": "e65a96038707",
         "after": "e65a960387077bcbc9f852955429880e331696e6",
         "branch": "feature/foil-editing-flow-results",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M30HJCBP1RB712A13ZB80H4J",
+      "datetime": "2026-09-20T23:14:08Z",
+      "session": null,
+      "kind": "knowledge",
+      "skill": "collectknowledge",
+      "title": "Hydrofoil workbench knowledge base established as the evidence floor for the v1 specification",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf",
+      "summary": "Depth and Froude number become mandatory operating-point inputs; the geometry of record is a B-spline payload with measured continuity and reported residuals; catalog coordinates have no established redistribution right; every low-order tier is Computed estimate until per-method fixtures exist; structural and manufacturing vocabulary is reserved in v1; seven expert lenses derived.",
+      "rationale": "Design was resting on the CFD-Bench corpus and two proposals; the base overturns or refines 22 prior claims and grounds the spec critique.",
+      "artifacts": [
+        "docs/knowledge/hydrofoil-workbench/index.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M30MJCG0FQJRMBAA1A5S5D9C",
+      "datetime": "2026-09-21T00:06:34Z",
+      "session": "kb-experts-spec-20260920",
+      "kind": "spec",
+      "skill": "specify",
+      "title": "Specification v1 (build basis) supersedes revision 0.2",
+      "prompt": "ground yourself in this repo and its specs\ndo /deep-research on\n- CAD programs and UI/UX\n- Parametric ways to describe curves, lofts, splines etc for 3D modeling of 2D foil profiles and 3D Wings\n- UX/UI and tooling experiences for CAD of surfboards, boats, fins and hydrofoil wings .. particularly interest are: Shape3D, Multisurf, Aku Shaper ... the key paradigms are stations or ships lines and the ability to loft and then the ability to describe those and tune those with splines and then describe the entire 2D or 3D shape as curves\n- Hydrofoil design and data for Wingfoiling, Windfoiling, Surf foiling, pump foiling, e-foiling, downwind foiling and parawing foiling\n- File formats and grammars for describing 2D and 3D surfaces and models\n- Catalog of foil families (e.g. eppler) that are interesting for hydrofoils, fins and hydrofoil masts\n- Effective mathematics/algorithms and theories for calculation of hydrodynamic forces on 2D foil sections and 3D bodies without needing full simulation\n- Simulation techniques with OpenFoam and SU2 and interop techniques for driving simulations through C# and or Rust\n- Optimization strategies for 2D and 3D foil sections ... provide a goal state e.g. 90KG man on a wingfoil for racing in salt water at wind speeds of 10-20 knots and effective ways to take a candidate shape and optimize it for the desired criteria\n- Integration and composition of simulation, optimization, simple algorithms and AI for 2D and 3D modeling and optimization workflows\n- Visualization for hydrofoil design and optimization from simple charts (like Cl/Cd) to streamline, pressure field visualization ... consider research and existing tools like paraview\n\nbased on all of this research\n/collectknowledge in this repo for the ultimate knowledge base on the latest research and applications for 2D and 3D modeling of hydrofoils, simulation and optimization and design workflows. With all of the sections outlined in the deep-research task and anything you think i may have missed\n\n/adddomainexperts ... consider what domain experts i need for this exercise (building a 2D/3D workbench for designing, simulating and optimizing hydrofoils for water sports)\n- CFD expert\n- Applied Mathematician\n- Structural engineer\n- Materials engineer\n- CAD/CAM additive and subtractive manufacturing expert (for when we get to mold design)\n- Numerical Methods Expert\n- CAD expert\n- 3D modeling expert\n- UI/EX workbench expert\nthe above are just candidates ... you choose the right domain experts to add\n\nOnce you have done all of this\nGround your self in the existing spec(s) and ui mockups in the repo\n\nFully critique the spec and any related proposals, think about what is missing that needs to be added and what needs to be tightened up\n/specify Write a new spec which will be the one we will use as the basis for building the project\n---\nOnce you have done the spec\n/ui-design the new mockups, really focus on elevating beyond the current mockups which were a good starting point. Use the new spec and the existing mockups as the starting points",
+      "summary": "docs/specs/cfd-workbench-v1.md: A3 domain model with grain, aggregates and one-definition run key; A4 geometry contract (degree-5 clamped B-spline record, constrained weighted LSQ Smooth, loft rule A, three tolerances with one identity definition and three oracles, psi-aligned thickness); A5 analysis contract (depth/Fr_h/sigma derivations, JMSA correction layer beside, Ncrit pair, cavitation and ventilation strings, goal state with preset-written constraint set, tiers and safety strings); 54 stories + 16 UX + 17 UI criteria; A7 label ladder; A8 NFR/threat/licence/testing floors; Part B IA and five redrawn flows with 41 enumerated non-happy edges; Part C archetype signatures and the state-string-component table. Gated by three independent Adversary-mode panels: 1 Blocker + 20 Majors fixed in place; PASS-WITH-CONDITIONS. Four decision notes added (loft rule A, Ncrit pair, admission classes, freshness by run key); KB 04 goal-state row corrected.",
+      "rationale": "Revision 0.2's fourteen-lens critique (22 Blockers, 110 Majors) showed the spec could not reproduce its own surface, carried no depth in any computed number, wore labels no fixture earned, and had a data model that could not be enforced; v1 was written bottom-up from the knowledge base so every criterion has a failing input and every number its basis.",
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/notes/loft-rule-a.md",
+        "docs/notes/ncrit-pair.md",
+        "docs/notes/catalog-admission-classes.md",
+        "docs/notes/freshness-by-run-key.md"
+      ],
+      "tags": [
+        "spec",
+        "build-basis"
+      ],
+      "git": {
+        "before": "19e310d",
+        "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null,
+        "commits": []
+      },
+      "supersedes": "spec-cfd-workbench"
+    },
+    {
+      "id": "cl-01M30VDW31KG5K1G55NCXTFYBK",
+      "datetime": "2026-09-21T02:06:26Z",
+      "session": "kb-experts-spec-20260920",
+      "kind": "spec",
+      "skill": "specify",
+      "title": "Specification revision 1.1: seven first-class areas with an AI prompt entry each",
+      "prompt": "a few things:\n- we should be explicit in the UX about the different goals and make them discrete and not conflated / but complimentary where useful\n  - Initial Setup: use natural language (AI ... see next point) or some target parameters as a starting point\n    - Natural language: text box where you describe what you want to start from and then the AI model seeds the starting design\n    - Parameters:\n          - intended purpose (wingfoil freeride, wingfoil race, wingfoil surf, windfoil race, windfoil freeride, wakefoil, surffoil, downwind)\n          - general dimensions (max span, max chord, target area, target aspect ratio) these become general specs not hard constraints as they may conflict\n          - rider weight\n          - fresh water or salt water\n  - CAD mode\n      - I like the general mockups but they need to focus on productivity as well as visualization\n      - we should be able to work on the outline curve, the twist, the anhedral/dihedral as distinct curves, we should be able to add and remove stations and then tune the profiles accordingly\n  - Analysis\n      - should be able to see 2D (for a section)  and 3D analysis based on local calculations\n      - should have rich visuals, charts, directions of force etc .. as rich as possible for what local calculations we can do\n      - should be able to seemlessly toggle between cad view and analysis view\n  - Experiment setup\n      - once you have a wing ready then you need to define the setup\n      - can be a parametric sweep or an optimize... sweep => sweep through angles of attack and velocities, optimize => provide a goal and run an optimization loop\n  - Experiment execution\n      - execute an experiment (CFD run) against OpenFoam or SU2 ... this means doing the meshing, driving the cfd simulation, catching the output ... everything end to end for a cfd run\n      - use AI and scripts to make sure the enviornment is set up and configured\n      - drive the entire experiment from the tool and show status\n  - Experiment results\n      - Visualizations of results\n        - tabular\n        - plots\n        - visuals ... animated videos of: streamlines, separation, pressure, forces etc\n        - sweep visuals ... visuals across the experiment sweep\n  - Export\n        - for now just exporting a full 3D wing in 3D formats, stl, step, fusion 360 format, rhino format\n- one of the key experiences is using AI (through API Key to Claude) to have a more interative experience\n    - Allow us to have a prompt entry in all places\n     - initial setup : to describe what you want to build and it comes up with a starting model\n     - Cad : describe changes you want to make and it modifies the shape accordingly\n     - analysis : ask questions of the local calculations\n     - experiment setup : say what you want and have it configure the experiment\n     - experiment results : ask questions of the simulation results\n\nUpdate the spec with this thinking\nRethink the mockups deeply\n/ui-design elevate the spec with each of the areas as first class and really focus on having a very rich representation of the target build state",
+      "summary": "docs/specs/cfd-workbench-v1.md revision 1.1 (1,700 lines; 131 criteria): Setup (language or parameters; purpose enum; soft targets), CAD (four curves; add/remove stations), Analysis (2D/3D local visuals; CAD ⇄ Analysis toggle as navigation), Experiment setup (sweep · optimize with the Candidate ladder), Run (pinned backend end to end; typed case model; mesh gate; evidence by files; cancellation to the substrate; environment-step proposals bound by the tool), Results (sequences over admitted samples; layers with bases; sweep visuals), Export (STL, STEP gated, Fusion-ready STEP, 3DM). COMMIT-04 enumerates six proposal kinds; COMMIT-05 added. Two independent gate panels: 3 Blockers and 28 Majors fixed in place; PASS-WITH-CONDITIONS (Run/Results acceptance on SPIKE-03/03b/04).",
+      "rationale": "The operator asked for the goals to be discrete and complementary, an AI prompt entry in every area, and a rich representation of the target build state including simulation and results; revision 1.0 had folded setup into a brief and held Run and Results in reserve.",
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/notes/seven-areas.md"
+      ],
+      "tags": [
+        "spec",
+        "ai",
+        "experiment"
+      ],
+      "git": {
+        "before": "19e310d",
+        "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null,
+        "commits": []
+      },
+      "supersedes": "cl-01M30MJCG0FQJRMBAA1A5S5D9C"
+    },
+    {
+      "id": "cl-01M311NBBSK8869JBTS06NPFTS",
+      "datetime": "2026-09-21T03:55:23Z",
+      "session": "kb-experts-spec-20260920",
+      "kind": "design",
+      "skill": "ui-design",
+      "title": "Thick-client shell: the window is the unit (mockup v3, spec 1.1a Part B/C, DESIGN.md §5)",
+      "prompt": "/ui-design elevate the mockups\n- the mockup seems to scroll a lot but this is a client appliction not a web app: think about metaphors from Eclipse/VSCode as well as Autodesk Fusion 360, Shape3D and Rhino\n- the current mockup top toolbar is not functional as it has scrolling and spacing issues\n- you dont need to work linearly from the existing mockups... step back and think what is the best thick client experience for each vignette/scenario and how to optimize the UX and UI for that... dont constrain yourself to working from what is there today",
+      "summary": "The client's shell is a fixed window whose regions scroll inside themselves: menu bar (macOS title bar / Windows strip) · one-row toolbar filled from the B1 verb table and measured into `More ▾` · optional parameter row · activity rail of the six document areas (readiness in the accessible name; Export as a dialog; Checks and Settings at the foot) · Navigator dock · document tabs that are documents · viewport or document · tabbed, collapsible, maximizable bottom panel · Properties dock with the prompt entry · status bar; sashes resize docks and panel; at 640 × 400 the docks are drawers. Each vignette is arranged for its scenario (Setup and Experiment as documents; CAD/Analysis/Results as viewport + parameter row + docks + tabs; Run as a console with the queue in the navigator and the environment in Properties). The v2 page (1,450–6,500 px tall, a wrapping area strip, a clipping toolbar) is superseded; the shell contract is the oracle `tools/check-mockup-v3.mjs` (UI-23, defect class UI-H2). Gated: UX & Accessibility BLOCK → PASS-WITH-CONDITIONS with the veto cleared on the observed proof; Native Desktop PASS-WITH-CONDITIONS, its majors built.",
+      "rationale": "Measured before deciding: v2 scrolled as a page at every width and its strip wrapped; the operator named Eclipse/VS Code, Fusion 360, Shape3d and Rhino; ViewportWorkbench became a build rule with an oracle.",
+      "artifacts": [
+        "docs/mockups/workbench-v3.html",
+        "docs/notes/thick-client-shell.md",
+        "DESIGN.md",
+        "docs/specs/cfd-workbench-v1.md"
+      ],
+      "tags": [
+        "shell",
+        "thick-client",
+        "ui"
+      ],
+      "git": {
+        "before": "19e310d",
+        "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "branch": "feature/knowledge-experts-spec-v1",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3166K09E09V1YHRJ56R9KG5",
+      "datetime": "2026-09-21T05:14:42Z",
+      "session": "kb-experts-spec-20260920",
+      "kind": "design",
+      "skill": "ui-design",
+      "title": "CAD editing model: elevations edit, 3D looks, a station is a document (mockup v4, spec 1.2)",
+      "prompt": "do one more round of /ui-design elevate on the mockups... look for the little things\n- icons instead of numbers on the sidebar\n- splines\n- ability to change viewpoint in the cade view and to free-rotate a 3D model\n- editing a station should not be a model view it should be a full 2D cad editing view\n- like cad programs i should be able to see top, side, isometric etc in 2D elevation for editing curves and any given station for editing the profile and free-form 3D\n- i also need to be able to edit the dihedral/anhedral curve, the thickness curve and the twist curve as explict control cruves that help refine the shape\n---\nexplore these as part of the /ui-design elevate and reflect the iterations also in the specification",
+      "summary": "The CAD editing model (specification 1.2, CAD-04–06, UX-23, UI-24–25): the four control curves are edited in the elevation that shapes them — Top (Outline LE/TE rails), Front (Dihedral/Anhedral on the centre line and Thickness as its own curve offset below the band), Starboard as a body plan (one row per station, a Twist handle each) — with one draft model (at most one preview, Return/Escape, one undo item, refusals with the reason at the handle); the 3D viewport is one camera (named presets Top · Front · Starboard · Port · Bottom · Back · Iso, a view cube with orbit chevrons, pointer orbit/pan/zoom per navigation preset and by keyboard, sections selectable in 3D, in CAD the ortho presets are the editing elevations); a station is a document tab with a full 2D section editor (palette on the toolbar, Properties, discard onto the undo stack); every curve is a spline; the rail carries icons with names. Direct 3D handle dragging deferred with the risk named and an open-decisions row. Mockup v4 supersedes v3; oracle tools/check-mockup-v4.mjs (16 groups). Gated: UX & Accessibility BLOCK → BLOCK → PASS-WITH-CONDITIONS (veto cleared, conditions landed); UX Researcher / IA PASS-WITH-CONDITIONS → veto cleared.",
+      "rationale": "The operator's list of little things was one class: the drawing had been an illustration, not the interface (UI-J). Rhino edits in ortho views and looks in perspective; Fusion's sketch mode; Shape3d's control curves on the elevation they shape.",
+      "artifacts": [
+        "docs/mockups/workbench-v4.html",
+        "docs/notes/cad-editing-views.md",
+        "docs/specs/cfd-workbench-v1.md",
+        "DESIGN.md"
+      ],
+      "tags": [
+        "cad",
+        "camera",
+        "elevations",
+        "ui"
+      ],
+      "git": {
+        "before": "19e310d",
+        "after": "19e310dfe9247dcd09f7eb8847ce1ac1a8595625",
+        "branch": "feature/knowledge-experts-spec-v1",
         "pushed": null,
         "commits": []
       }

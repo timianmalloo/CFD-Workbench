@@ -9,9 +9,8 @@ runnable production application yet.
 
 ## Review the product
 
-- [Interactive workbench mockup](docs/mockups/workbench.html) — open directly in a browser; no build or network required.
-- [Full product specification — HTML](docs/specs/cfd-workbench.html)
-- [Full product specification — Markdown](docs/specs/cfd-workbench.md)
+- [Interactive workbench mockup v4 — CAD editing views](docs/mockups/workbench-v4.html) ([hub](docs/mockups/workbench-v4.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
+- [Product specification v1.2 (build basis) — HTML](docs/specs/cfd-workbench-v1.html) · [Markdown](docs/specs/cfd-workbench-v1.md); the 0.2 draft it supersedes: [HTML](docs/specs/cfd-workbench.html) · [Markdown](docs/specs/cfd-workbench.md)
 - [Design language](DESIGN.md) and [visual token catalog](docs/mockups/design-language.html)
 - [CFD-Bench and proposal grounding](docs/knowledge/cfd-workbench-grounding.md)
 - [Independent specification review](docs/reviews/specification-gate.md)
@@ -36,6 +35,7 @@ documentation tools, and integrations for Codex, Claude Code, GitHub Copilot, Gr
 and Antigravity.
 
 - [Project instructions](AGENTS.md)
+- [Domain-expert roster](docs/domain-experts.md) — the pack's twenty-three general lenses plus **seven** hydrofoil domain experts (`.claude/agents/`), derived from the [knowledge base](docs/knowledge/hydrofoil-workbench/index.md). <!-- cfd-workbench domain experts -->
 - [Pack overview](docs/ai-forward-pack/OVERVIEW.md)
 - [Installation guide](docs/ai-forward-pack/INSTALL.md)
 - [Installation inventory](docs/ai-forward-pack/install-report.md)
