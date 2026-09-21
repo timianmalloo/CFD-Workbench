@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="compact" data-state="default" data-persona="designer" data-viewport="desktop" data-capability="key-none" data-nav="workbench" data-mods="mac" data-trackpad="off" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — workbench v1 mockup</title>
+<!--
+  CFD-Workbench · interactive design mockup v1 (2026-09-20) · built against docs/specs/cfd-workbench-v1.md
+  Self-contained: one file, no build, no CDN, no network, opens over file://.
+  Everything inside .window is the design under review; the <header class="harness"> is review chrome and never ships.
+  Every value in the design region resolves to a token mirrored from DESIGN.md.
+  Geometry: a genuine clamped degree-5 B-spline evaluator with constrained weighted least squares (KKT rows) —
+  an ILLUSTRATIVE evaluator for review, never the production kernel. Physics: labelled fixtures; every result view
+  carries "Illustrative — not computed for this design" (A7). No solver, no file I/O, no AI request is made.
+-->
+<style>
+:root{
+  --primary:#006c67;--on-primary:#ffffff;--canvas:#f0f2f1;--surface:#fbfcfb;--soft:#e8edeb;--ink:#1b2929;--mute:#526362;
+  --line:#c9d3cf;--control:#788d87;--selection:#d8eeea;--ok:#24653f;--warn:#895900;--danger:#a92e37;--focus:#006c67;
+  --viewport:#17272c;--viewport-soft:#243a40;--viewport-ink:#edf4f2;--viewport-mute:#afc6c7;--viewport-grid:#344b50;
+  --foil:#85c9c4;--foil-edge:#c4e7df;--station:#66ddc8;
+  --cividis-0:#00224e;--cividis-1:#434e6c;--cividis-2:#7d7c78;--cividis-3:#bcae6c;--cividis-4:#fee838;
+  --batlow-0:#011959;--batlow-1:#215f61;--batlow-2:#818232;--batlow-3:#f19d6b;--batlow-4:#faccfa;
+  --vik-neg2:#001261;--vik-neg1:#2d7ba5;--vik-zero:#ebe6e2;--vik-pos1:#c37243;--vik-pos2:#590008;
+  --font-sans:system-ui,sans-serif;--font-mono:ui-monospace,monospace;
+  --fs-welcome:32px;--fs-title:24px;--fs-heading:18px;--fs-body:14px;--fs-label:13px;--fs-caption:12px;--fs-numeric:13px;
+  --r-none:0px;--r-sm:4px;--r-md:8px;--r-pill:9999px;
+  --sp-2:2px;--sp-4:4px;--sp-8:8px;--sp-12:12px;--sp-16:16px;--sp-24:24px;--sp-32:32px;--sp-48:48px;--sp-64:64px;
+  --target:44px;--target-dense:32px;--dense-gap:8px;--sidebar:216px;--inspector:286px;--titlebar:64px;--taskbar:52px;--statusbar:36px;
+  --popover:0 8px 24px rgba(0,0,0,0.16);--fast:120ms;--base:200ms;--ease:cubic-bezier(0.2,0,0,1);
+  --pad:var(--sp-8);--gap:var(--sp-12);
+}
+[data-theme="dark"]{--canvas:#172326;--surface:#1e2d31;--soft:#2a3d40;--ink:#ebf3f0;--mute:#b2c4bf;--line:#49605b;--control:#79928c;
+  --primary:#88d8c6;--on-primary:#172326;--selection:#274c47;--ok:#92d1a5;--warn:#efc576;--danger:#ffaeb5;--focus:#88d8c6}
+[data-theme="contrast"]{--canvas:#000000;--surface:#000000;--soft:#000000;--ink:#ffffff;--mute:#ffffff;--line:#ffffff;--control:#ffffff;
+  --primary:#ffee58;--on-primary:#000000;--selection:#000000;--ok:#ffffff;--warn:#ffffff;--danger:#ffffff;--focus:#ffee58;
+  --viewport:#000000;--viewport-soft:#000000;--viewport-ink:#ffffff;--viewport-mute:#ffffff;--viewport-grid:#ffffff;--foil:#ffffff;--foil-edge:#ffee58;--station:#ffee58}
+[data-density="comfortable"]{--pad:var(--sp-12);--gap:var(--sp-16)}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;background:var(--canvas);color:var(--ink);font:var(--fs-body)/1.5 var(--font-sans)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[data-motion="reduced"] *{animation:none!important;transition:none!important}
+/* ---- review harness (chrome; never ships) ---- */
+/* harness colours are DESIGN.md dark-theme tokens (dark-canvas · dark-ink · dark-mute · dark-line · dark-soft · dark-success · dark-danger) so the craft gate reads one palette */
+.harness{position:sticky;top:0;z-index:99;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:12px 16px;background:#172326;color:#ebf3f0;border-bottom:2px solid #49605b;font-size:12px}
+.harness strong{letter-spacing:.04em;text-transform:uppercase;color:#b2c4bf;font-size:12px}
+.harness label{display:flex;gap:6px;align-items:center;color:#ebf3f0}
+.harness select,.harness button{background:#2a3d40;color:#ebf3f0;border:1px solid #49605b;border-radius:4px;padding:3px 8px;font:inherit;cursor:pointer;min-height:24px}
+.harness .spacer{flex:1}.harness .verdict{font-family:var(--font-mono)}.harness .pass{color:#92d1a5}.harness .fail{color:#ffaeb5}
+.frame{margin:0 auto;padding:var(--sp-16)}
+[data-viewport="minimum"] .frame{max-width:1024px}[data-viewport="desktop"] .frame{max-width:1280px}
+[data-viewport="lines"] .frame{max-width:1440px}[data-viewport="wide"] .frame{max-width:1600px}[data-viewport="zoom"] .frame{max-width:640px}
+[data-viewport="zoom"] .workspace{grid-template-columns:1fr}[data-viewport="zoom"] .project,[data-viewport="zoom"] .inspector{border:0;border-top:1px solid var(--line)}[data-viewport="zoom"] .editor{grid-template-columns:1fr}[data-viewport="zoom"] .titlebar{flex-wrap:wrap;height:auto}[data-viewport="zoom"] .window{grid-template-rows:auto 1fr auto var(--statusbar)}[data-viewport="zoom"] .result{grid-template-columns:1fr 1fr}[data-viewport="zoom"] .grid2,[data-viewport="zoom"] .grid3{grid-template-columns:1fr}[data-viewport="zoom"] .doc .name{max-width:100%}
+/* ---- window ---- */
+.window{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;display:grid;grid-template-rows:var(--titlebar) 1fr auto var(--statusbar);min-height:760px}
+.titlebar{display:flex;align-items:center;gap:var(--gap);padding:var(--sp-8) var(--sp-16);border-bottom:1px solid var(--line);background:var(--surface)}
+.doc{display:flex;flex-direction:column;min-width:0}
+.doc .name{font-size:var(--fs-heading);font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.doc .save{font-size:var(--fs-caption);color:var(--mute)}
+.tabs{display:flex;gap:var(--sp-8);margin-left:var(--sp-24)}
+.tab{min-height:var(--target);padding:0 var(--sp-12);border:0;background:none;color:var(--ink);font:500 var(--fs-label)/1 var(--font-sans);border-bottom:3px solid transparent;border-radius:var(--r-none);cursor:pointer}
+.tab:hover{background:var(--soft)}.tab[aria-selected="true"]{border-bottom-color:var(--primary);color:var(--primary)}
+.tab .count{display:inline-block;min-width:18px;padding:0 5px;border-radius:var(--r-pill);background:var(--soft);color:var(--ink);font:500 var(--fs-caption)/18px var(--font-mono);margin-left:4px}
+.tools{margin-left:auto;display:flex;gap:var(--sp-8);align-items:center}
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{min-height:var(--target);min-width:var(--target);padding:0 var(--sp-12);border:1px solid var(--control);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);cursor:pointer;font-weight:500;font-size:var(--fs-label)}
+.btn:hover{background:var(--soft)}.btn.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.05)}.btn[disabled],.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.btn.dense{min-height:var(--target-dense);min-width:var(--target-dense);padding:0 var(--sp-8);font-size:var(--fs-caption)}
+.dense-group{display:flex;gap:var(--dense-gap);flex-wrap:wrap;align-items:center}
+:is(button,a,input,select,textarea,[tabindex]):focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.canvas :is(button,[tabindex]):focus-visible,.canvas [role="slider"]:focus,.canvas:focus-visible{outline:3px solid var(--station);outline-offset:2px}
+#editor-svg [role="slider"]:focus{outline:3px solid var(--focus);outline-offset:2px}
+.workspace{display:grid;grid-template-columns:var(--sidebar) 1fr var(--inspector);min-height:0}
+[data-viewport="minimum"] .workspace{grid-template-columns:1fr var(--inspector)}
+[data-viewport="minimum"] .project{display:none}
+.project,.inspector{padding:var(--pad) var(--sp-12);overflow:auto;background:var(--surface)}
+.project{border-right:1px solid var(--line)}.inspector{border-left:1px solid var(--line)}
+.centre{display:flex;flex-direction:column;min-width:0;background:var(--canvas)}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.3}
+h2{font-size:var(--fs-title);line-height:1.2}h3{font-size:var(--fs-heading)}h4{font-size:var(--fs-label);color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:var(--sp-16) 0 var(--sp-8)}
+.project h4:first-child,.inspector h4:first-child{margin-top:0}
+.tree{list-style:none;margin:0;padding:0}
+.tree li{display:flex;align-items:center;gap:var(--sp-8);min-height:var(--target-dense);padding:0 var(--sp-8);border-radius:var(--r-sm);cursor:pointer;font-size:var(--fs-label)}
+.tree li:hover{background:var(--soft)}.tree li[aria-selected="true"]{background:var(--selection);font-weight:600}.tree li.static{cursor:default}.tree li.static:hover{background:none}
+.tree .num{margin-left:auto}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;font-size:var(--fs-numeric)}
+.mute{color:var(--mute)}.cap{font-size:var(--fs-caption);color:var(--mute)}
+.task{display:none;flex-direction:column;min-height:0;flex:1}
+.window[data-task="brief"] .task-brief,.window[data-task="shape"] .task-shape,.window[data-task="sections"] .task-sections,.window[data-task="analyze"] .task-analyze,.window[data-task="settings"] .task-settings{display:flex}
+.taskhead{display:flex;align-items:baseline;gap:var(--gap);padding:var(--pad) var(--sp-16);border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.taskhead h2{font-size:var(--fs-heading)}
+.canvas{position:relative;background:var(--viewport);color:var(--viewport-ink);min-height:360px;flex:1;display:grid}
+.canvas svg{width:100%;height:100%;display:block}
+.canvas .caption{position:absolute;right:var(--sp-12);bottom:var(--sp-8);font:var(--fs-caption)/1.4 var(--font-mono);color:var(--viewport-mute);text-align:right;max-width:70%}
+.lines .caption{font-size:var(--fs-caption)}
+.canvas .hud{position:absolute;left:var(--sp-12);top:var(--sp-12);font:var(--fs-caption)/1.4 var(--font-mono);color:var(--viewport-mute);background:var(--viewport-soft);padding:var(--sp-4) var(--sp-8);border-radius:var(--r-sm);max-width:360px}
+.canvas .hud b{color:var(--viewport-ink);font-weight:500}
+.canvas .views{position:absolute;right:var(--sp-12);top:var(--sp-12);display:flex;gap:var(--dense-gap)}
+.canvas .views .btn{background:var(--viewport-soft);color:var(--viewport-ink);border-color:var(--viewport-grid)}
+.canvas .views .btn:hover{background:var(--viewport-grid)}
+.lines{display:none}
+.window[data-layout="lines"] .lines{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--viewport-grid)}
+.window[data-layout="lines"] .single{display:none}
+.lines > div{background:var(--viewport);position:relative}
+.lines .vlabel{position:absolute;left:var(--sp-8);top:var(--sp-8);font:var(--fs-caption) var(--font-mono);color:var(--viewport-mute)}
+.editor{border-top:1px solid var(--line);background:var(--surface);padding:var(--pad) var(--sp-16);display:grid;grid-template-columns:1fr 320px;gap:var(--gap);min-height:250px}
+.editor .plot{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);position:relative;min-height:220px}
+.editor .plot svg{width:100%;height:220px;display:block}
+.plot .tracing{position:absolute;right:var(--sp-8);top:var(--sp-8);font:var(--fs-caption)/1.4 var(--font-mono);color:var(--ink);background:var(--soft);padding:var(--sp-4) var(--sp-8);border-radius:var(--r-sm)}
+.legend{display:flex;gap:var(--sp-16);flex-wrap:wrap;font-size:var(--fs-caption);color:var(--mute);margin-top:var(--sp-12)}
+.legend i{display:inline-block;width:18px;height:0;border-top:2px solid var(--primary);vertical-align:middle;margin-right:4px}
+.legend i.dash{border-top-style:dashed;border-top-color:var(--control)}.legend i.lock{width:10px;height:10px;border:2px solid var(--warn);border-radius:var(--r-none);transform:rotate(45deg)}
+.legend i.ctl{width:10px;height:10px;border:2px solid var(--primary);border-radius:var(--r-pill)}
+.field{display:grid;grid-template-columns:1fr auto;gap:var(--sp-4) var(--sp-8);align-items:center;padding:var(--sp-4) 0;font-size:var(--fs-label)}
+.field label{color:var(--ink)}.field .unit{color:var(--mute);font-size:var(--fs-caption)}
+.field input[type="checkbox"]{width:24px;height:24px;min-height:0;margin:0 var(--sp-8) 0 0;accent-color:var(--primary)}
+.field input,.field select{min-height:var(--target-dense);width:120px;padding:0 var(--sp-8);border:1px solid var(--control);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);font-family:var(--font-mono);font-size:var(--fs-numeric);text-align:right}
+.field select{font-family:var(--font-sans);text-align:left}
+.field .derived{font-family:var(--font-mono);font-size:var(--fs-numeric);text-align:right;padding:0 var(--sp-8);min-height:var(--target-dense);display:flex;align-items:center;justify-content:flex-end;border:1px dashed var(--line);border-radius:var(--r-sm);min-width:120px}
+.field .err{grid-column:1/-1;color:var(--danger);font-size:var(--fs-caption)}
+.field .echo{grid-column:1/-1;color:var(--mute);font-size:var(--fs-caption)}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px var(--sp-8);border:1px solid var(--control);border-radius:var(--r-pill);font-size:var(--fs-caption);color:var(--ink);background:var(--surface);white-space:nowrap}
+.chip.gen{border-color:var(--ok);color:var(--ok)}.chip.pending,.chip.warn{border-color:var(--warn);color:var(--warn)}.chip.link{border-color:var(--control);color:var(--mute)}
+.chip.tier{border-color:var(--primary);color:var(--primary)}.chip.hist{border-color:var(--danger);color:var(--danger)}.chip.illus{border-color:var(--mute);color:var(--mute);border-style:dashed}
+.banner{display:flex;gap:var(--sp-12);align-items:flex-start;padding:var(--sp-8) var(--sp-12);border:1px solid var(--control);border-radius:var(--r-sm);background:var(--soft);font-size:var(--fs-label);margin:var(--sp-8) var(--sp-16)}
+.banner.danger{border-color:var(--danger)}.banner.warn{border-color:var(--warn)}.banner.ok{border-color:var(--ok)}
+.banner .actions{margin-left:auto;display:flex;gap:var(--dense-gap);flex-shrink:0}
+.panel{padding:var(--pad) var(--sp-16)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:var(--gap)}
+.panel.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:var(--gap)}
+table.data{border-collapse:collapse;width:100%;font-size:var(--fs-label)}
+table.data th,table.data td{text-align:left;padding:var(--sp-4) var(--sp-8);border-bottom:1px solid var(--line);vertical-align:top}
+table.data th{color:var(--mute);font-weight:500;font-size:var(--fs-caption);white-space:nowrap}
+table.data td.num,table.data th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--fs-numeric)}
+table.data tr.selected td{background:var(--selection)}
+table.data tr.gap td{color:var(--mute);font-style:italic}
+.matrix{overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface)}
+.matrix table{min-width:860px}.matrix th:first-child,.matrix td:first-child{position:sticky;left:0;background:var(--surface);z-index:1}
+.cell{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-caption);white-space:nowrap}
+.cell::before{content:"";width:9px;height:9px;border-radius:var(--r-none);border:2px solid currentColor;flex-shrink:0}
+.cell.sat{color:var(--ok)}.cell.sat::before{background:currentColor}.cell.vio{color:var(--danger)}.cell.vio::before{border-radius:var(--r-pill)}
+.cell.una{color:var(--mute)}.cell.una::before{border-style:dashed}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:var(--sp-8)}
+.chart svg{width:100%;height:auto;display:block}
+.chart h3{font-size:var(--fs-label);font-weight:600;margin-bottom:var(--sp-4)}
+.chart .foot{display:flex;flex-wrap:wrap;gap:var(--sp-8) var(--sp-16);font-size:var(--fs-caption);color:var(--mute);margin-top:var(--sp-8);align-items:center}
+.provenance{display:flex;flex-wrap:wrap;gap:var(--sp-8) var(--sp-16);padding:var(--sp-12) var(--sp-16);border-top:1px solid var(--line);background:var(--surface);font:var(--fs-caption)/1.5 var(--font-mono);color:var(--mute)}
+.provenance b{color:var(--ink);font-weight:500}
+.band{display:flex;gap:var(--sp-16);flex-wrap:wrap;align-items:flex-end;padding:var(--pad) var(--sp-16);border-bottom:1px solid var(--line);background:var(--surface)}
+.band .field{grid-template-columns:auto auto;padding:0}
+.result{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap);padding:var(--pad) var(--sp-16)}
+.quant{padding:var(--sp-8) var(--sp-12);border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);min-width:0}
+.quant .l{font-size:var(--fs-caption);color:var(--mute);display:flex;justify-content:space-between;gap:4px}
+.quant .v{font:500 var(--fs-title)/1.2 var(--font-mono);font-variant-numeric:tabular-nums;margin:var(--sp-8) 0;overflow-wrap:anywhere}
+.quant .v.small{font-size:var(--fs-body)}
+.quant .b{font-size:var(--fs-caption);color:var(--mute)}
+.quant.unav .v{color:var(--mute);font-size:var(--fs-body)}
+.strings{margin:0 var(--sp-16) var(--sp-8);display:grid;gap:0;border:1px solid var(--control);border-radius:var(--r-sm);background:var(--surface)}
+.strings .string{border:0;border-radius:0;border-top:1px solid var(--line)}.strings .string:first-child{border-top:0}
+.string{font-size:var(--fs-label);padding:var(--sp-8) var(--sp-12);border:1px solid var(--control);border-radius:var(--r-sm);background:var(--surface)}
+.string.safety{border-color:var(--warn)}.strings .string.safety{border-left:3px solid var(--warn)}
+.status{display:flex;align-items:center;gap:var(--sp-16);padding:0 var(--sp-16);border-top:1px solid var(--line);background:var(--surface);font:var(--fs-caption)/1 var(--font-mono);color:var(--ink);white-space:nowrap;overflow:auto}
+.status #status{display:flex;gap:var(--sp-16)}.status span b{font-weight:500;color:var(--mute)}
+.status .count{margin-left:auto}
+.drawer{position:absolute;right:0;bottom:0;top:0;width:420px;max-width:100%;background:var(--surface);color:var(--ink);box-shadow:var(--popover);padding:var(--sp-16);overflow:auto;z-index:50;display:none}
+.drawer[data-open="true"]{display:block}
+.drawer .head{display:flex;align-items:center;gap:var(--sp-8);margin-bottom:var(--sp-12)}
+.finding{border:1px solid var(--line);border-radius:var(--r-sm);padding:var(--sp-8) var(--sp-12);margin-bottom:var(--sp-8);font-size:var(--fs-label)}
+.finding .id{font-family:var(--font-mono);font-size:var(--fs-caption);color:var(--mute)}
+.finding.excluded{color:var(--mute);text-decoration:line-through}
+.finding .act{display:flex;gap:var(--dense-gap);margin-top:var(--sp-12)}
+dialog{border:0;border-radius:var(--r-md);background:var(--surface);color:var(--ink);padding:var(--sp-24);max-width:640px;width:calc(100% - 32px);box-shadow:var(--popover)}
+[data-theme="contrast"] dialog,[data-theme="contrast"] .drawer,[data-theme="contrast"] .assist{outline:2px solid var(--line)}
+dialog::backdrop{background:rgba(0,0,0,0.4)}
+dialog h3{margin-bottom:var(--sp-12)}
+.assist{position:absolute;left:50%;transform:translateX(-50%);bottom:var(--sp-16);width:min(560px,calc(100% - 32px));background:var(--surface);color:var(--ink);border-radius:var(--r-md);box-shadow:var(--popover);padding:var(--sp-16);z-index:50;display:none}
+.assist[data-open="true"]{display:block}
+.assist .head{display:flex;gap:var(--sp-8);align-items:center;margin-bottom:var(--sp-8)}
+.assist textarea{width:100%;min-height:64px;padding:var(--sp-8);border:1px solid var(--control);border-radius:var(--r-sm);background:var(--surface);resize:vertical}
+.proposal{border:1px solid var(--line);border-radius:var(--r-sm);padding:var(--sp-8) var(--sp-12);margin-top:var(--sp-8);font-size:var(--fs-label)}
+.proposal .row{display:grid;grid-template-columns:1fr auto auto;gap:var(--sp-8);padding:2px 0}
+.proposal .row .prov{font-size:var(--fs-caption);color:var(--mute)}
+.proposal .row.rej{color:var(--danger)}
+.skeleton{height:14px;border-radius:var(--r-sm);background:var(--soft);margin:var(--sp-8) 0}
+.skeleton.tall{height:120px}
+.window [data-show]{display:none}
+.window[data-state="default"] [data-show~="default"],.window[data-state="first-launch"] [data-show~="first-launch"],.window[data-state="loading"] [data-show~="loading"],
+.window[data-state="empty"] [data-show~="empty"],.window[data-state="error"] [data-show~="error"],.window[data-state="partial"] [data-show~="partial"],
+.window[data-state="overflow"] [data-show~="overflow"],.window[data-state="success"] [data-show~="success"]{display:block}
+.window[data-state="loading"] .hide-loading,.window[data-state="empty"] .hide-empty{display:none!important}
+[data-persona="keyboard"] .kbd-hint{display:inline}.kbd-hint{display:none;font:var(--fs-caption) var(--font-mono);color:var(--mute);margin-left:4px}
+[data-persona="screen-reader"] .sr-view{display:block}.sr-view{display:none;border:1px dashed var(--control);padding:var(--sp-8) var(--sp-12);margin:var(--sp-8) var(--sp-16);font-size:var(--fs-label);background:var(--surface)}
+.sr-view b{font-weight:600}
+[data-persona="reviewer"] .review-only{display:block}.review-only{display:none}
+[data-persona="reviewer"] .btn.primary.apply{display:none}
+[data-capability="key-none"] .needs-key{display:none}[data-capability="key-unevaluated"] .needs-eval{display:none}
+.kbd{font:var(--fs-caption) var(--font-mono);border:1px solid var(--control);border-radius:var(--r-sm);padding:0 4px;color:var(--ink);background:var(--surface)}
+.audit{margin:var(--sp-32) auto 0;max-width:1120px;font-size:var(--fs-caption);border-top:1px dashed var(--line);padding-top:var(--sp-16);color:var(--ink)}
+.audit table{border-collapse:collapse;width:100%}.audit td,.audit th{text-align:left;padding:3px 6px;border-bottom:1px solid var(--line)}
+.audit .pass{color:var(--ok)}.audit .fail{color:var(--danger)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.strip{display:flex;gap:var(--dense-gap);align-items:center;flex-wrap:wrap;padding:var(--sp-8) var(--sp-16);font-size:var(--fs-caption);color:var(--mute);background:var(--surface);border-bottom:1px solid var(--line)}
+.pv{display:inline-block;padding:0 var(--sp-8);border-radius:var(--r-sm);font-family:var(--font-mono);font-size:var(--fs-caption)}
+.pv.stated{background:var(--soft)}.pv.inferred{border:1px dashed var(--control)}.pv.flagged{border:1px solid var(--warn);color:var(--warn)}
+.overflow-name{max-width:100%;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<header class="harness" role="region" aria-label="Review harness">
+  <strong>Review</strong>
+  <label>Persona <select id="h-persona"><option value="designer">designer</option><option value="keyboard">keyboard-only</option><option value="screen-reader">screen-reader</option><option value="reviewer">reviewer (read-only)</option></select></label>
+  <label>Viewport <select id="h-viewport"><option value="minimum">1024 minimum</option><option value="desktop" selected>1280</option><option value="lines">1440 lines-plan</option><option value="wide">1600</option><option value="zoom">640 (200 % zoom of 1280)</option></select></label>
+  <label>State <select id="h-state"><option value="default">default</option><option value="first-launch">first launch</option><option value="loading">loading</option><option value="empty">empty</option><option value="error">error</option><option value="partial">partial / degraded</option><option value="overflow">overflow</option><option value="success">success</option></select></label>
+  <label>Theme <select id="h-theme"><option value="light">light</option><option value="dark">dark</option><option value="contrast">high-contrast</option></select></label>
+  <label>Density <select id="h-density"><option value="compact">compact</option><option value="comfortable">comfortable</option></select></label>
+  <label>Capability <select id="h-capability"><option value="key-none">no key · no backend</option><option value="key-unevaluated">key · unevaluated model</option><option value="key-evaluated">key · evaluated model</option></select></label>
+  <label>Nav preset <select id="h-nav"><option value="workbench">Workbench</option><option value="rhino">Rhino</option></select></label>
+  <label>Modifiers <select id="h-mods"><option value="mac">macOS ⌘</option><option value="win">Windows Ctrl</option></select></label>
+  <label><input type="checkbox" id="h-trackpad"> Trackpad mode</label>
+  <label><input type="checkbox" id="h-motion"> Reduced motion</label>
+  <label><input type="checkbox" id="h-depth" checked> Depth set</label>
+  <button id="h-secdemo" type="button">Section demo: weight ×2 + raise</button>
+  <span class="spacer"></span>
+  <span class="verdict" id="h-verdict">audit —</span>
+</header>
+
+<div class="frame">
+<div class="window" id="window" data-task="shape" data-layout="single">
+  <div class="titlebar">
+    <div class="doc"><span class="name" id="doc-name">Example · race light</span><span class="save" id="save-state">Saved · Design revision r4 · Illustrative</span></div>
+    <div class="dense-group">
+      <button class="btn dense" id="undo" aria-label="Undo" title="Undo">Undo<span class="kbd-hint" data-kbd="Z"></span></button>
+      <button class="btn dense" id="redo" aria-label="Redo" title="Redo">Redo<span class="kbd-hint" data-kbd="⇧Z"></span></button>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Destinations">
+      <button class="tab" role="tab" data-task="brief" aria-selected="false">Brief</button>
+      <button class="tab" role="tab" data-task="shape" aria-selected="true">Shape</button>
+      <button class="tab" role="tab" data-task="sections" aria-selected="false">Sections</button>
+      <button class="tab" role="tab" data-task="analyze" aria-selected="false">Analyze</button>
+      <button class="tab" role="tab" data-task="settings" aria-selected="false">Settings</button>
+    </nav>
+    <button class="tab" id="tab-checks" aria-pressed="false" aria-controls="checks">Checks<span class="count" id="checks-count">0</span></button>
+    <div class="tools">
+      <button class="btn dense" id="palette" aria-label="Command palette">⌘K<span class="sr-only"> command palette</span></button>
+      <button class="btn dense" id="assist-toggle" aria-controls="assist" aria-expanded="false">Assistant</button>
+      <button class="btn dense primary" id="export-open">Export…</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <aside class="project" aria-label="Project">
+      <h4>Design revisions</h4>
+      <ul class="tree" id="rev-list"></ul>
+      <h4>Authored stations</h4>
+      <ul class="tree" id="station-list"></ul>
+      <h4>Runs</h4>
+      <ul class="tree" id="run-list"></ul>
+      <div data-show="overflow"><h4>Overflow fixture</h4><p class="cap overflow-name">Project name: Race-light front wing — salt 15 °C — 2026-09 iteration 07 (seven-point brief, class GWA)</p></div>
+    </aside>
+
+    <section class="centre">
+      <div class="banner ok" data-show="first-launch"><span><b>Example · race light — Illustrative, not computed for this design</b> · A station is selected. Drag a control, then type the exact value. <span class="mute">Five curves. One parametric shape.</span></span><span class="actions"><button class="btn dense" id="dismiss-tip">Dismiss tip</button><button class="btn dense">Open Example · race strong</button><button class="btn dense">New</button><button class="btn dense">Open</button></span></div>
+      <div class="banner danger" data-show="error"><span id="error-text"><b>Save failed: disk full — the previous file is intact and your changes are kept</b></span><span class="actions"><button class="btn dense">Retry</button><button class="btn dense">Save as</button></span></div>
+      <div class="banner danger" data-show="error"><span><b>This file was saved by a newer version (3) — not opened; your active document is unchanged</b> · ~/Foils/race-strong-2027.cfdw.json</span><span class="actions"><button class="btn dense">Open another</button></span></div>
+      <div class="banner warn" data-show="partial"><span><b>Historical — Water record changed (seawater → fresh, 15 °C)</b> · results below belong to run k-0312; recompute to refresh.</span><span class="actions"><button class="btn dense">Recompute</button></span></div>
+      <div class="banner warn" data-show="partial"><span><b>A recovery revision from 21:14 exists beside the saved one</b></span><span class="actions"><button class="btn dense">Compare</button><button class="btn dense">Keep saved</button><button class="btn dense">Use recovery</button></span></div>
+      <div class="banner warn" data-show="empty"><span><b>Example fixture missing or corrupt: examples/race-light.cfdw.json — nothing was overwritten</b></span><span class="actions"><button class="btn dense">New</button><button class="btn dense">Open</button></span></div>
+      <div class="banner ok" data-show="success"><span><b>Saved.</b> Design revision r5 written · run key unchanged for k-0314 (Current).</span></div>
+
+      <!-- BRIEF -->
+      <div class="task task-brief">
+        <div class="taskhead"><h2>Brief</h2><span class="cap">Goal state · authored intent · never edits geometry</span></div>
+        <div class="sr-view"><b>Target native reading (not delivered by this artifact).</b> Brief: form with 9 labelled fields; each carries a provenance token read as "Stated", "Inferred" or "Flagged". Feasibility matrix: table, 7 columns (operating points), 6 rows (constraints); each cell reads status then reason.</div>
+        <div class="panel grid2">
+          <div>
+            <h3>Rider, water, wind, depth</h3>
+            <div id="brief-form"></div>
+          </div>
+          <div>
+            <h3>Operating-point set</h3>
+            <p class="cap">Speeds per wind band are <span class="pv flagged">Flagged</span> — no race GPS dataset; the disconfirming view "light-wind take-off is pump-assisted" travels with the fixture. Required load W = 1050 N (Flagged trim share). Depth h_ref defaults to the band's deep end (0.5 m); any point may be set inside the band.</p>
+            <table class="data" id="op-table"></table>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Constraint set <span class="cap">written by the discipline preset · wingfoil race · edit any row</span></h3>
+          <table class="data" id="constraint-table"></table>
+        </div>
+        <div class="panel">
+          <h3>Feasibility <span class="cap">constraint × operating point · tier chip and both Ncrit per cell</span></h3>
+          <div data-show="loading"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+          <div class="matrix hide-loading" id="feasibility"></div>
+          <p class="cap" id="feas-note"></p>
+        </div>
+        <div class="provenance" id="brief-prov"></div>
+      </div>
+
+      <!-- SHAPE -->
+      <div class="task task-shape">
+        <div class="banner" data-show="loading"><span><b>Rebuilding preview…</b> · the last valid shape stays visible; the run list reserves its rows</span></div>
+        <div class="taskhead"><h2>Shape</h2><span class="cap" id="shape-meta"></span><span class="dense-group" style="margin-left:auto"><button class="btn dense" id="layout-toggle" aria-pressed="false">Lines-plan layout</button><button class="btn dense" id="ghost-toggle" aria-pressed="false">Ghost r3</button></span></div>
+        <div class="sr-view"><b>Target native reading (not delivered by this artifact).</b> Viewport: group "Wing, race light". Station "η 0.50, chord 0.104 m, profile NACA 66-209 GEN, selected". Curve editor: slider group "Chord distribution, Through points, 6 anchors"; each anchor reads η and value with unit; arrow keys nudge by the current step.</div>
+        <div class="canvas" id="shape-canvas" tabindex="0" role="group" aria-label="Wing viewport. Option or Alt with arrows orbits 15°, Shift 90°, Control 5°; Z and Shift+Z zoom; F fits">
+          <div class="single" id="canvas-single"></div>
+          <div class="lines" id="canvas-lines"><div id="lines-plan"><span class="vlabel">plan</span></div><div id="lines-front"><span class="vlabel">front</span></div><div id="lines-section"><span class="vlabel">section</span></div></div>
+          <div class="hud" id="shape-hud"></div>
+          <div class="views"><button class="btn dense" data-view="plan" aria-pressed="true">Plan</button><button class="btn dense" data-view="front">Front</button><button class="btn dense" data-view="iso">Iso</button><button class="btn dense" data-view="fit">Fit</button></div>
+        </div>
+        <div class="strip" id="derived-strip"></div>
+      </div>
+
+      <!-- SECTIONS -->
+      <div class="task task-sections">
+        <div class="taskhead"><h2>Sections</h2><span class="cap">Catalog by admission class · Edit section opens a source-linked draft</span><span class="dense-group" style="margin-left:auto"><button class="btn dense" id="dat-open">Add profile from DAT…</button></span></div>
+        <div class="sr-view"><b>Target native reading (not delivered by this artifact).</b> Catalog: table, 8 rows; each row reads name, admission class with reason, design Cl, design Re, σ range or "Unknown", and an "Assign to station" button. Section editor: same anchor/weight semantics as the channel editor.</div>
+        <div class="panel">
+          <table class="data" id="catalog"></table>
+        </div>
+        <div class="canvas" style="min-height:300px">
+          <div id="section-canvas"></div>
+          <div class="hud" id="section-hud"></div>
+        </div>
+        <div class="strip" id="section-strip"></div>
+      </div>
+
+      <!-- ANALYZE -->
+      <div class="task task-analyze">
+        <div class="taskhead"><h2>Analyze</h2><div class="dense-group" role="group" aria-label="Scope"><button class="btn dense" data-scope="section" aria-pressed="true">Section</button><button class="btn dense" data-scope="wing" aria-pressed="false">Wing</button><button class="btn dense" data-scope="compare" aria-pressed="false">Compare</button></div></div>
+        <div class="sr-view"><b>Target native reading (not delivered by this artifact).</b> Conditions band: 5 inputs then 7 derived readouts, each read as name, value, unit and basis. Results: 5 quantity groups; each reads value, unit, tier and depth basis. Charts have a "Table twin" button that opens the same data as a table.</div>
+        <div class="band" id="cond-band"></div>
+        <div id="analyze-body"></div>
+        <div class="provenance" id="analyze-prov"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="task task-settings">
+        <div class="taskhead"><h2>Settings</h2><span class="cap">Application defaults · copied into the document on first use where the spec says so</span></div>
+        <div class="panel grid2" id="settings-body"></div>
+      </div>
+    </section>
+
+    <aside class="inspector" aria-label="Inspector" id="inspector"></aside>
+  </div>
+
+  <div class="editor" id="editor">
+    <div class="plot" id="editor-plot"><svg id="editor-svg" viewBox="0 0 640 220" role="group" aria-labelledby="editor-title"><title id="editor-title">Distribution editor</title></svg><div class="tracing" id="tracing">Tracing —</div></div>
+    <div id="editor-side"></div>
+  </div>
+
+  <footer class="status" aria-label="Status strip"><span id="status"></span><span class="count" id="status-msg" role="status"></span></footer>
+<aside class="drawer" id="checks" data-open="false" aria-label="Checks">
+  <div class="head"><h3>Checks</h3><span class="cap" id="checks-meta"></span><button class="btn dense" id="checks-close" style="margin-left:auto">Close</button></div>
+  <div id="findings"></div>
+</aside>
+<div class="assist" id="assist" data-open="false" role="dialog" aria-label="Assistant">
+  <div class="head"><h3 id="assist-title">Assistant</h3><span class="chip illus">AI · optional</span><button class="btn dense" id="assist-close" style="margin-left:auto">Close</button></div>
+  <div id="assist-body"></div>
+</div>
+</div>
+</div>
+
+
+
+
+
+<dialog id="export-dialog" aria-labelledby="export-title">
+  <h3 id="export-title">Export · Design revision r4</h3>
+  <div id="export-body"></div>
+</dialog>
+
+<dialog id="dat-dialog" aria-labelledby="dat-title">
+  <h3 id="dat-title">Add profile from DAT</h3>
+  <div id="dat-body"></div>
+</dialog>
+
+<dialog id="table-dialog" aria-labelledby="table-title">
+  <h3 id="table-title">Table twin</h3>
+  <div id="table-body"></div>
+  <p><button class="btn dense" id="table-close">Close</button></p>
+</dialog>
+
+<section class="audit" aria-label="Mechanical audit">
+  <table><thead><tr><th>Pairing (token on token)</th><th>Contrast</th><th>WCAG AA</th></tr></thead><tbody id="audit-rows"></tbody></table>
+  <p id="audit-targets"></p>
+  <p class="mute">Computed live from the rendered tokens — a measurement, not a claim (a smoke signal; the deterministic craft gate is the measurement of record). Primary actions need 44 px; dense scientific controls need 32 px with 8 px separation (SC 2.5.8). The frame box is measured first; a hidden page reports "not rendered", never a pass.</p>
+</section>
+<script>
+/* ===================== B-spline core (illustrative evaluator; not the production kernel) ===================== */
+const BS = (() => {
+  function clampedKnots(n, p) { const k = []; const inner = n - p - 1; for (let i = 0; i <= p; i++) k.push(0); for (let i = 1; i <= inner; i++) k.push(i / (inner + 1)); for (let i = 0; i <= p; i++) k.push(1); return k; }
+  function findSpan(u, p, U) { const n = U.length - p - 2; if (u >= U[n + 1]) return n; if (u <= U[p]) return p; let lo = p, hi = n + 1, mid = (lo + hi) >> 1; while (u < U[mid] || u >= U[mid + 1]) { if (u < U[mid]) hi = mid; else lo = mid; mid = (lo + hi) >> 1; } return mid; }
+  function basisFuns(span, u, p, U) { const N = [1], left = [], right = []; for (let j = 1; j <= p; j++) { left[j] = u - U[span + 1 - j]; right[j] = U[span + j] - u; let saved = 0; for (let r = 0; r < j; r++) { const t = N[r] / (right[r + 1] + left[j - r]); N[r] = saved + right[r + 1] * t; saved = left[j - r] * t; } N[j] = saved; } return N; }
+  function basisRow(u, p, U, n) { const row = new Array(n).fill(0); const s = findSpan(u, p, U); const N = basisFuns(s, u, p, U); for (let i = 0; i <= p; i++) row[s - p + i] = N[i]; return row; }
+  function derivRows(u, p, U, n) { const h = 1e-5, um = Math.max(0, u - h), up = Math.min(1, u + h); const r1 = basisRow(up, p, U, n), r0 = basisRow(um, p, U, n), rc = basisRow(u, p, U, n); return [rc, r1.map((v, i) => (v - r0[i]) / (up - um)), r1.map((v, i) => (v - 2 * rc[i] + r0[i]) / ((up - um) / 2) ** 2)]; }
+  function evalCurve(P, p, U, u) { const n = P.length, row = basisRow(u, p, U, n); let x = 0, y = 0; for (let i = 0; i < n; i++) { x += row[i] * P[i][0]; y += row[i] * P[i][1]; } return [x, y]; }
+  function curvature(P, p, U, u) { const n = P.length, rows = derivRows(u, p, U, n); const d = [0, 0], dd = [0, 0]; for (let i = 0; i < n; i++) { d[0] += rows[1][i] * P[i][0]; d[1] += rows[1][i] * P[i][1]; dd[0] += rows[2][i] * P[i][0]; dd[1] += rows[2][i] * P[i][1]; } const den = Math.pow(d[0] * d[0] + d[1] * d[1], 1.5); return den < 1e-12 ? 0 : (d[0] * dd[1] - d[1] * dd[0]) / den; }
+  function solve(A, b) { const n = A.length, M = A.map((r, i) => [...r, b[i]]); for (let c = 0; c < n; c++) { let piv = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[piv][c])) piv = r; if (Math.abs(M[piv][c]) < 1e-12) return null; [M[c], M[piv]] = [M[piv], M[c]]; for (let r = 0; r < n; r++) { if (r === c) continue; const f = M[r][c] / M[c][c]; if (!f) continue; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; } } return M.map((r, i) => r[n] / r[i]); }
+  /* constrained weighted least squares: min (NP−Q)ᵀW(NP−Q) + λPᵀFP  s.t. A·P = b (KKT) */
+  function fitWeighted(nCtrl, p, targets, constraints, lambda = 1e-4) {
+    const U = clampedKnots(nCtrl, p), n = nCtrl; const A = [], W = [], Q = [];
+    for (const t of targets) { A.push(basisRow(t.u, p, U, n)); W.push(t.w); Q.push([t.x, t.y]); }
+    const H = Array.from({ length: n }, () => new Array(n).fill(0)); const g = Array.from({ length: n }, () => [0, 0]);
+    for (let k = 0; k < A.length; k++) for (let i = 0; i < n; i++) { if (!A[k][i]) continue; for (let j = 0; j < n; j++) H[i][j] += W[k] * A[k][i] * A[k][j]; g[i][0] += W[k] * A[k][i] * Q[k][0]; g[i][1] += W[k] * A[k][i] * Q[k][1]; }
+    for (let i = 1; i < n - 1; i++) { const rows = [[i - 1, 1], [i, -2], [i + 1, 1]]; for (const [a, va] of rows) for (const [b, vb] of rows) H[a][b] += lambda * va * vb; }
+    const C = [], d = []; for (const c of constraints) { const rows = derivRows(c.u, p, U, n); C.push(rows[c.order]); d.push([c.x, c.y]); }
+    const m = C.length, K = Array.from({ length: n + m }, () => new Array(n + m).fill(0));
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) K[i][j] = 2 * H[i][j];
+    for (let r = 0; r < m; r++) for (let i = 0; i < n; i++) { K[n + r][i] = C[r][i]; K[i][n + r] = C[r][i]; }
+    const out = []; for (const dim of [0, 1]) { const rhs = []; for (let i = 0; i < n; i++) rhs.push(2 * g[i][dim]); for (let r = 0; r < m; r++) rhs.push(d[r][dim]); const s = solve(K, rhs); if (!s) return { feasible: false, reason: 'conflicting or insufficient constraints (rank deficiency)', U }; out.push(s.slice(0, n)); }
+    const P = []; for (let i = 0; i < n; i++) P.push([out[0][i], out[1][i]]); return { feasible: true, P, U };
+  }
+  function sample(P, p, U, m = 100) { const pts = []; for (let i = 0; i <= m; i++) pts.push(evalCurve(P, p, U, i / m)); return pts; }
+  return { clampedKnots, evalCurve, curvature, fitWeighted, sample };
+})();
+
+/* ===================== Domain fixtures (Illustrative — labelled everywhere) ===================== */
+const KN = 0.514444, G = 9.80665, P_ATM = 101325;
+const WATER = { sea15: { name: 'Seawater 35.16504 g/kg · 15 °C', rho: 1026.02, nu: 1.1892e-6, pv: 1670.9, src: 'ITTC 7.5-02-01-03 Rev 03 (2024)', T: 15 }, fresh15: { name: 'Fresh water · 15 °C', rho: 999.10, nu: 1.1386e-6, pv: 1705.8, src: 'ITTC 7.5-02-01-03 Rev 03 (2024)', T: 15 }, out: { name: 'Seawater · 60 °C', rho: NaN, nu: NaN, pv: NaN, src: 'ITTC 7.5-02-01-03 Rev 03 (2024)', T: 60 } };
+const GOAL = { rider: 90, board: 5.5, foil: 4.5, wing: 2.4, kit: 3, W: 1050, hBand: [0.3, 0.5], preset: 'wingfoil race', rule: 'GWA race · v2026-03 (2026-03-01)',
+  points: [ { id: 'P1', wind: '10 kn', role: 'take-off', vkn: 10, ex: 'light', metric: 'CL ≤ CL_max at Ncrit 2' }, { id: 'P2', wind: '10 kn', role: 'upwind', vkn: 14, ex: 'light', metric: 'L/D' }, { id: 'P3', wind: '10 kn', role: 'downwind', vkn: 18, ex: 'light', metric: 'σ margin' },
+    { id: 'P4', wind: '20 kn', role: 'post take-off', vkn: 15, ex: 'strong', metric: 'CL ≤ CL_max' }, { id: 'P5', wind: '20 kn', role: 'upwind', vkn: 22, ex: 'strong', metric: 'L/D' }, { id: 'P6', wind: '20 kn', role: 'downwind', vkn: 28, ex: 'strong', metric: 'σ margin' }, { id: 'P7', wind: '20 kn', role: 'top end', vkn: 32, ex: 'strong', metric: '−Cp_min < σ' } ] };
+GOAL.points.forEach(p => p.h = 0.5);
+const EXAMPLES = {
+  light: { name: 'Example · race light', S: 0.100, b: 1.10, chord: [0.118, 0.114, 0.104, 0.088, 0.064, 0.028], le: [0, 0.004, 0.012, 0.024, 0.040, 0.062], elev: [0, -0.002, -0.006, -0.012, -0.020, -0.030], twist: [0, 0, -0.2, -0.5, -1.0, -1.5], tc: [0.100, 0.100, 0.098, 0.095, 0.092, 0.090] },
+  strong: { name: 'Example · race strong', S: 0.075, b: 0.95, chord: [0.102, 0.099, 0.090, 0.076, 0.055, 0.024], le: [0, 0.003, 0.010, 0.020, 0.034, 0.052], elev: [0, -0.002, -0.005, -0.010, -0.017, -0.026], twist: [0, 0, -0.2, -0.5, -1.0, -1.5], tc: [0.100, 0.100, 0.098, 0.095, 0.092, 0.090] } };
+const ETA = [0, 0.2, 0.4, 0.6, 0.8, 1];
+const CHANNELS = [ { id: 'le', name: 'LE offset', unit: 'm', dp: 4 }, { id: 'chord', name: 'Chord', unit: 'm', dp: 4 }, { id: 'elev', name: 'Elevation', unit: 'm', dp: 4 }, { id: 'twist', name: 'Twist', unit: '°', dp: 2 }, { id: 'tc', name: 'Effective t/c', unit: '–', dp: 4 } ];
+const CATALOG = [ { name: 'NACA 66-209', cls: 'GEN', reason: 'generated at build from TM 4741; generator hash 9f3a…c1', cl: '0.2', re: '—', sig: 'Unknown', role: 'wing', assigned: true },
+  { name: 'NACA 63-209', cls: 'GEN', reason: 'generated at build from TM 4741; generator hash 9f3a…c1', cl: '0.2', re: '—', sig: 'Unknown', role: 'wing' },
+  { name: 'NACA 0012', cls: 'GEN', reason: 'closed-form 4-digit; generator hash 2b77…e0', cl: '0', re: '—', sig: 'Unknown', role: 'strut' },
+  { name: 'NACA 4412', cls: 'GEN', reason: 'closed-form 4-digit; generator hash 2b77…e0', cl: '0.4 (Inferred)', re: '—', sig: 'Unknown', role: 'wing' },
+  { name: 'Eppler E817', cls: 'PENDING', reason: 'terms requested from UIUC · GEN sections remain', cl: 'Unknown', re: 'Unknown', sig: 'Unknown', role: 'wing' },
+  { name: 'Eppler E836', cls: 'PENDING', reason: 'terms requested from UIUC · strut role', cl: 'Unknown', re: 'Unknown', sig: 'Unknown', role: 'strut' },
+  { name: 'Speer H105', cls: 'LINK', reason: 'cite only; author terms pending', cl: 'Unknown', re: 'Unknown', sig: 'Unknown', role: 'wing' },
+  { name: 'NACA 66-018', cls: 'GEN', reason: 'generated at build from TM 4741; generator hash 9f3a…c1', cl: '0', re: '—', sig: 'Unknown', role: 'strut' } ];
+const RULES = [ { id: 'class.gwa.front_area', v: '2026-03', sev: 'error', text: 'Front wing area ≥ 700 cm²' }, { id: 'envelope.ar', v: 'fixture 2026-09-20', sev: 'advisory', text: 'AR inside 7–13.1 (catalogued product range)' }, { id: 'manufacturing.te_floor', v: 'practitioner value, unverified', sev: 'advisory', text: 'Trailing edge ≥ TE floor setting' }, { id: 'geometry.root_mirror', v: '1', sev: 'warning', text: 'Root-mirror tangent lock present' }, { id: 'label.forbidden', v: '1', sev: 'error', text: 'No forbidden claim in product copy' } ];
+
+/* ===================== Model ===================== */
+const M = { ex: 'light', mode: 'through', channel: 'chord', station: 1, view: 'plan', ghost: false, layout: 'single', stepIdx: 1, azimuth: 0, zoom: 1, sectionModified: false, secStep: 1, units: 'mm', teFloor: 0.8, water: 'sea15', scope: 'section', opFrom: 'P2', custom: { vkn: 14, h: 0.5, alpha: 3 }, depthSet: true, ncrit: 'pair', surface: 'clean', findings: [], exclusions: {}, revision: 4, history: [], future: [], preview: null, run: { key: 'k-0314', rev: 4, current: true }, tipDismissed: false, alphaSec: 3,
+  curves: {}, weights: {}, locks: { rootMirror: true, tipValue: true, conflict: false }, sectionMode: 'through', sectionWeights: { upper: [1, 1, 1, 1, 1, 1], lower: [1, 1, 1, 1, 1, 1] }, sectionPreview: null };
+function loadExample(id) { const e = EXAMPLES[id]; M.ex = id; for (const c of CHANNELS) { M.curves[c.id] = e[c.id].slice(); M.weights[c.id] = [1, 1, 1, 1, 1, 1]; } scaleChordToArea(e.S); }
+/* fit one channel: Through points → every anchor a zero-residual row; Smooth → weighted LSQ with the locks as KKT rows */
+function fitChannel(id, values, weights, mode) {
+  const targets = ETA.map((u, i) => ({ u, x: u, y: values[i], w: mode === 'smooth' ? weights[i] : 1e6 }));
+  const cons = lockRows(values).map(r => ({ u: r.u, order: r.order, x: r.x, y: r.y }));
+  return BS.fitWeighted(8, 5, targets, cons, mode === 'smooth' ? 1e-4 : 1e-9);
+}
+function channelCurve(id) { const f = fitChannel(id, M.curves[id], M.weights[id], M.mode); return f.feasible ? f : null; }
+function chanAt(id, u) { const f = channelCurve(id); return f ? BS.evalCurve(f.P, 5, f.U, u)[1] : NaN; }
+function integrateChord() { let s = 0; const n = 200; for (let i = 0; i < n; i++) { const u0 = i / n, u1 = (i + 1) / n; s += 0.5 * (chanAt('chord', u0) + chanAt('chord', u1)) / n; } return s; }
+function scaleChordToArea(S) { const b = EXAMPLES[M.ex].b; const S0 = 2 * (b / 2) * integrateChord(); const k = S / S0; M.curves.chord = M.curves.chord.map(v => v * k); }
+function derived() {
+  const e = EXAMPLES[M.ex], b = e.b, S = 2 * (b / 2) * integrateChord(); const AR = b * b / S, cbar = S / b;
+  const tc = chanAt('tc', ETA[M.station]) || 0.1, c = chanAt('chord', ETA[M.station]) || 0.1, te = 0.0025 * c * 1000 + 0.35, tipZ = chanAt('elev', 1), rootChord = chanAt('chord', 0);
+  return { b, S, AR, cbar, tc, chord: c, teMM: te, tipZ, rootChord, stiff: Math.pow(tc / 0.10, 3) };
+}
+/* ===================== Physics fixtures ===================== */
+function water() { return WATER[M.water]; }
+function opPoint() { if (M.opFrom === 'custom') return { vkn: M.custom.vkn, h: M.depthSet ? M.custom.h : null, W: null, id: 'Custom', ex: M.ex }; const p = GOAL.points.find(p => p.id === M.opFrom); return { vkn: p.vkn, h: M.depthSet ? p.h : null, W: GOAL.W, id: p.id, ex: p.ex }; }
+function conditions(op, S, cbar, tipZ) {
+  const w = water(), V = op.vkn * KN, q = 0.5 * w.rho * V * V; const Re = V * cbar / w.nu; const out = { V, q, Re, w };
+  if (op.h == null) { out.hc = null; out.Fr = null; out.sigma = null; out.Vcrit = null; out.hTip = null; return out; }
+  out.hTip = op.h - tipZ; out.hc = op.h / cbar; out.Fr = V / Math.sqrt(G * op.h); out.sigma = (P_ATM + w.rho * G * op.h - w.pv) / q; out.sigmaTip = (P_ATM + w.rho * G * out.hTip - w.pv) / q; return out;
+}
+function jmsa(hc, kind) { const [a, n] = kind === 'lift' ? [0.45, 0.70] : kind === 'drag' ? [0.50, 0.40] : [0.45, 0.90]; return 1 - a * Math.exp(-Math.pow(hc, n)); }
+/* section polar fixture: thin-airfoil slope with a smooth Ncrit-dependent roll-off; Cd = Cd0(Re, Ncrit) + k Cl²; −Cp_min = a + b·Cl² — ILLUSTRATIVE (A7) */
+function polar(alpha, Re, ncrit, surface) { if (!Number.isFinite(Re)) return { cl: NaN, cd: NaN, cm: NaN, cpmin: NaN, xtr: NaN }; const a0 = -2.0, clMax = ncrit === 2 ? 1.05 : 1.18, k = 2 * Math.PI * Math.PI / 180; let cl = k * (alpha - a0); cl = clMax * Math.tanh(cl / clMax); const cd0 = (surface === 'tripped' ? 0.0125 : 0.0068) * Math.pow(5e5 / Re, 0.2) * (ncrit === 2 ? 1.08 : 1); const cd = cd0 + 0.022 * cl * cl; const cpmin = 0.32 + 1.35 * cl * cl; const xtr = surface === 'tripped' ? 0.05 : Math.max(0.05, 0.62 - 0.35 * cl - (ncrit === 2 ? 0.08 : 0)); return { cl, cd, cm: -0.045 - 0.02 * cl, cpmin, xtr }; }
+function wingResult(cond, alpha, S, AR, e = 0.93) { const a0 = 2 * Math.PI, aW = a0 / (1 + a0 / (Math.PI * e * AR)); const CL = aW * (alpha + 2.0 - 0.7) * Math.PI / 180; const CDi = CL * CL / (Math.PI * e * AR); const CDp = 0.0085; const L = cond.q * S * CL, D = cond.q * S * (CDi + CDp); return { CL, CDi, CDp, CD: CDi + CDp, L, D, e, LD: CL / (CDi + CDp) }; }
+function fmt(v, dp = 3) { return (v == null || Number.isNaN(v)) ? '—' : Number(v).toFixed(dp); }
+function fmtSci(v) { if (v == null || Number.isNaN(v) || !(v > 0)) return v === 0 ? '0' : '—'; const e = Math.floor(Math.log10(v)); return (v / Math.pow(10, e)).toFixed(2) + '×10' + String(e).replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]); }
+const esc = s => String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+</script>
+<script>
+/* ===================== Renderers: Brief · Shape · inspector · status ===================== */
+const $ = id => document.getElementById(id);
+const win = $('window');
+function pv(kind) { return `<span class="pv ${kind.toLowerCase()}">${kind}</span>`; }
+function renderBrief() {
+  const rows = [['Rider mass', GOAL.rider, 'kg', 'Stated', 'user'], ['Board', GOAL.board, 'kg', 'Flagged', 'no product page opened'], ['Foil', GOAL.foil, 'kg', 'Inferred', 'product ladder'], ['Hand wing', GOAL.wing, 'kg', 'Inferred', 'product ladder'], ['Kit', GOAL.kit, 'kg', 'Flagged', 'assumption'], ['Water', WATER.sea15.name, '', 'Stated', WATER.sea15.src], ['Depth band', '0.3 – 0.5', 'm', 'Flagged', 'mast 85–95 cm'], ['Wind band', '10 – 20', 'kn', 'Stated', 'user'], ['Class rule', GOAL.rule, '', 'Stated', 'GWA published rule']];
+  $('brief-form').innerHTML = rows.map(([l, v, u, k, s], i) => `<div class="field"><span>${l}</span><span><span class="derived">${esc(v)}${u ? ' <span class="unit">' + u + '</span>' : ''}</span></span><span class="echo">${pv(k)} · ${esc(s)}${k === 'Flagged' ? (M['ack' + i] ? ' · acknowledged' : ` · <span class="chip warn">Flagged — ${esc(s)} · Acknowledge to continue</span> <button class="btn dense" data-ack="${i}">Acknowledge</button>`) : ''}</span></div>`).join('') + `<div class="field"><span>System mass</span><span class="derived">${(GOAL.rider + GOAL.board + GOAL.foil + GOAL.wing + GOAL.kit).toFixed(1)} <span class="unit">kg</span></span><span class="echo">derived · W = ${((GOAL.rider + GOAL.board + GOAL.foil + GOAL.wing + GOAL.kit) * G).toFixed(0)} N · front-wing load 1050 N ${pv('Flagged')} trim share</span></div>`;
+  const w = WATER.sea15;
+  $('op-table').innerHTML = `<thead><tr><th>Point</th><th>Wind</th><th>Role</th><th class="num">V kn</th><th>Wing</th><th class="num">h_ref m</th><th class="num">q Pa</th><th class="num">required CL</th><th class="num">σ</th><th>Critical metric</th></tr></thead><tbody>` + GOAL.points.map(p => { const V = p.vkn * KN, q = 0.5 * w.rho * V * V, S = EXAMPLES[p.ex].S, cl = GOAL.W / (q * S), s = (P_ATM + w.rho * G * p.h - w.pv) / q; return `<tr data-point="${p.id}"><td>${p.id}</td><td>${p.wind}</td><td>${p.role}</td><td class="num">${p.vkn}</td><td>${p.ex === 'light' ? 'light 1000 cm²' : 'strong 750 cm²'}</td><td class="num"><input aria-label="h_ref for ${p.id}" data-h="${p.id}" value="${p.h.toFixed(2)}" style="width:64px;min-height:var(--target-dense);text-align:right;font-family:var(--font-mono);border:1px solid var(--control);border-radius:var(--r-sm);background:var(--surface);color:var(--ink)"></td><td class="num">${q.toFixed(0)}</td><td class="num">${cl.toFixed(3)}</td><td class="num">${s.toFixed(2)}</td><td>${p.metric}</td></tr>`; }).join('') + `</tbody>`;
+  $('brief-form').querySelectorAll('[data-ack]').forEach(b => b.onclick = () => { M['ack' + b.dataset.ack] = true; renderBrief(); status('Flagged field acknowledged · recorded on the goal state'); });
+  $('op-table').querySelectorAll('[data-h]').forEach(inp => inp.addEventListener('change', () => { const p = GOAL.points.find(p => p.id === inp.dataset.h); const v = parseFloat(inp.value); if (!(v >= 0.3 && v <= 0.5)) { inp.value = p.h.toFixed(2); status(`h_ref must be inside the depth band 0.30–0.50 m`); return; } p.h = v; renderBrief(); renderAnalyze(); }));
+  const cons = [['required load per point', 'W = 1050 N', 'preset', true], ['σ margin against −Cp_min', '≥ 15 % (practitioner assumption, not sourced)', 'preset', true], ['Re inside polar envelope', '2×10⁵ – 2×10⁶', 'preset', true], ['h/c ≥ 5', 'deep-water basis', 'preset', true], ['class rule rows', GOAL.rule, 'class preset', true], ['sanity bounds (advisory)', 'area 480–1900 cm² · AR 7–13.1', 'preset', false]];
+  $('constraint-table').innerHTML = `<thead><tr><th>Constraint row</th><th>Bound</th><th>Source</th><th>Hard</th><th></th></tr></thead><tbody>` + cons.map(([n, b, s, h], i) => `<tr><td>${n}</td><td class="num" style="text-align:left">${b}</td><td>${s}${M['consEdited' + i] ? ' · <span class="chip warn">edited by user</span>' : ''}</td><td>${h ? 'yes' : 'advisory'}</td><td><button class="btn dense" data-edit-cons="${i}">Edit</button></td></tr>`).join('') + `</tbody>`;
+  $('constraint-table').querySelectorAll('[data-edit-cons]').forEach(b => b.addEventListener('click', () => { M['consEdited' + b.dataset.editCons] = true; renderBrief(); status('Constraint row edited by user · feasibility recomputed'); }));
+  const d = derived(); const cells = [];
+  const head = `<thead><tr><th>Constraint</th>${GOAL.points.map(p => `<th>${p.id} · ${p.vkn} kn</th>`).join('')}</tr></thead>`;
+  const body = cons.map(([n], ci) => `<tr><td>${n}</td>` + GOAL.points.map(p => { const V = p.vkn * KN, q = 0.5 * w.rho * V * V, S = EXAMPLES[p.ex].S, cl = GOAL.W / (q * S), sig = (P_ATM + w.rho * G * p.h - w.pv) / q, Re = V * (S / EXAMPLES[p.ex].b) / w.nu; let k, t; const pol2 = polar(3, Re, 2, 'clean'); const cp = 0.32 + 1.35 * cl * cl;
+    if (ci === 0) { k = cl <= 1.05 ? 'sat' : 'vio'; t = `CL ${cl.toFixed(3)}${cl > 1.05 ? ' > CL_max 1.05 (Ncrit 2)' : ''}`; }
+    else if (ci === 1) { const m = (sig - cp) / cp; k = m >= 0.15 ? 'sat' : 'vio'; t = `σ ${sig.toFixed(2)} vs −Cp_min ${cp.toFixed(2)} (${(m * 100).toFixed(0)} %)`; }
+    else if (ci === 2) { k = Re >= 2e5 && Re <= 2e6 ? 'sat' : 'vio'; t = `Re ${fmtSci(Re)}`; }
+    else if (ci === 3) { const hc = p.h / (S / EXAMPLES[p.ex].b); k = hc >= 5 ? 'sat' : 'vio'; t = `h/c ${hc.toFixed(1)}`; }
+    else if (ci === 4) { k = S >= 0.07 ? 'sat' : 'vio'; t = `front ${(S * 1e4).toFixed(0)} cm² ≥ 700`; }
+    else { k = 'una'; t = 'Unavailable — L/D needs the wing tier at this point'; }
+    if (M.partialFeas && p.id === 'P7') { k = 'una'; t = 'Unavailable — polar not converged at Ncrit 2'; }
+    return `<td><span class="cell ${k}">${k === 'sat' ? 'satisfied' : k === 'vio' ? 'violated' : 'Unavailable'}</span><br><span class="cap">${t}</span><br><span class="chip tier">${ci === 5 ? 'VLM + strip' : 'estimator'}</span> <span class="cap">Ncrit {2, 4}</span></td>`; }).join('') + `</tr>`).join('');
+  $('feasibility').innerHTML = `<table class="data">${head}<tbody>${body}</tbody></table>`;
+  $('feas-note').innerHTML = `Formula test on Flagged speeds: pinned inputs 1 kn = 0.514444 m/s, ρ = ${w.rho} kg/m³, p_v = ${(w.pv / 1000).toFixed(3)} kPa, p_atm = 101.325 kPa, W = 1050 N. Both Examples share this goal state; the open document is <b>${EXAMPLES[M.ex].name}</b> (S_ref ${d.S.toFixed(4)} m²).`;
+  $('brief-prov').innerHTML = `<span><b>evidence</b> Illustrative — not computed for this design</span><span><b>goal state</b> v1 · preset wingfoil race · rule ${GOAL.rule}</span><span><b>water</b> ${w.src}</span><span><b>tier</b> estimator (closed form) · Ncrit {2, 4}</span>`;
+}
+/* ---- Shape canvas ---- */
+function wingOutline(n = 60) { const pts = []; for (let i = 0; i <= n; i++) { const u = i / n; pts.push({ u, le: chanAt('le', u), c: chanAt('chord', u), z: chanAt('elev', u), tw: chanAt('twist', u), tc: chanAt('tc', u) }); } return pts; }
+function planSVG(w, h, ghost) { const e = EXAMPLES[M.ex], half = e.b / 2, pts = wingOutline(); const sx = (w - 80) / e.b, cx = w / 2, y0 = 40, sy = sx; const X = y => cx + y * sx, Y = x => y0 + x * sy;
+  const side = s => pts.map(p => `${X(s * p.u * half).toFixed(1)},${Y(p.le).toFixed(1)}`).join(' ') + ' ' + pts.slice().reverse().map(p => `${X(s * p.u * half).toFixed(1)},${Y(p.le + p.c).toFixed(1)}`).join(' ');
+  const stations = ETA.map((u, i) => `<g role="img" aria-label="Station η ${u.toFixed(2)}, chord ${(chanAt('chord', u) * 1000).toFixed(1)} mm${i === M.station ? ', selected' : ''}"><line x1="${X(u * half)}" y1="${Y(chanAt('le', u)) - 6}" x2="${X(u * half)}" y2="${Y(chanAt('le', u) + chanAt('chord', u)) + 6}" stroke="${i === M.station ? 'var(--station)' : 'var(--viewport-mute)'}" stroke-width="${i === M.station ? 2 : 1}" ${i === 0 || i === 3 || i === 5 ? '' : 'stroke-dasharray="3 3"'}/></g>`).join('');
+  const ghostPoly = ghost ? `<polygon points="${pts.map(p => `${X(p.u * half)},${Y(p.le * 0.9)}`).join(' ')} ${pts.slice().reverse().map(p => `${X(p.u * half)},${Y(p.le * 0.9 + p.c * 1.04)}`).join(' ')}" fill="none" stroke="var(--viewport-mute)" stroke-dasharray="6 4"/>` : '';
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Plan view: ${e.name}, span ${e.b} m, starboard authored, port mirrored"><rect width="${w}" height="${h}" fill="var(--viewport)"/><line x1="${cx}" y1="${y0 - 20}" x2="${cx}" y2="${h - 20}" stroke="var(--viewport-grid)"/><polygon points="${side(-1)}" fill="var(--viewport-soft)" stroke="var(--foil-edge)"/><polygon points="${side(1)}" fill="var(--foil)" fill-opacity="0.35" stroke="var(--foil-edge)" stroke-width="1.5"/>${ghostPoly}${stations}</svg><div class="caption">+y starboard → · +x aft ↓ · origin root LE</div>`; }
+function frontSVG(w, h) { const e = EXAMPLES[M.ex], half = e.b / 2, pts = wingOutline(); const sx = (w - 80) / e.b, cx = w / 2, y0 = h * 0.45; const X = y => cx + y * sx, Y = z => y0 - z * sx * 4; const line = s => pts.map(p => `${X(s * p.u * half).toFixed(1)},${Y(p.z).toFixed(1)}`).join(' ');
+  const thick = pts.map(p => `${X(p.u * half).toFixed(1)},${(Y(p.z) + p.c * p.tc * sx * 4 / 2).toFixed(1)}`).join(' ') + ' ' + pts.slice().reverse().map(p => `${X(p.u * half).toFixed(1)},${(Y(p.z) - p.c * p.tc * sx * 4 / 2).toFixed(1)}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Front view: elevation channel, anhedral tip z ${chanAt('elev', 1).toFixed(3)} m (exaggerated ×4)"><rect width="${w}" height="${h}" fill="var(--viewport)"/><line x1="20" y1="${y0}" x2="${w - 20}" y2="${y0}" stroke="var(--viewport-grid)"/><polygon points="${thick}" fill="var(--foil)" fill-opacity="0.35" stroke="var(--foil-edge)"/><polyline points="${line(-1)}" fill="none" stroke="var(--viewport-mute)"/></svg><div class="caption">z ×4 · +z up</div>`; }
+function isoSVG(w, h) { const e = EXAMPLES[M.ex], half = e.b / 2, pts = wingOutline(40); const s = (w - 120) / e.b * M.zoom; const az = M.azimuth * Math.PI / 180, ca = Math.cos(az), sa = Math.sin(az); const P = (y0, x0, z) => { const y = y0 * ca - x0 * sa, x = y0 * sa + x0 * ca; return [w / 2 + (y * 0.9 - x * 0.5) * s, h * 0.55 + (x * 0.55 + y * 0.28 - z * 1.0) * s]; }; const poly = (sign) => pts.map(p => P(sign * p.u * half, p.le, p.z).join(',')).join(' ') + ' ' + pts.slice().reverse().map(p => P(sign * p.u * half, p.le + p.c, p.z).join(',')).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Isometric view of the loft (rule A, channel-evaluated)"><rect width="${w}" height="${h}" fill="var(--viewport)"/><polygon points="${poly(-1)}" fill="var(--viewport-soft)" stroke="var(--foil-edge)"/><polygon points="${poly(1)}" fill="var(--foil)" fill-opacity="0.4" stroke="var(--foil-edge)"/>${ETA.map((u, i) => { const a = P(u * half, chanAt('le', u), chanAt('elev', u)), b = P(u * half, chanAt('le', u) + chanAt('chord', u), chanAt('elev', u)); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${i === M.station ? 'var(--station)' : 'var(--viewport-mute)'}" stroke-width="${i === M.station ? 2 : 1}"/>`; }).join('')}</svg><div class="caption">azimuth ${M.azimuth}° · zoom ×${M.zoom.toFixed(2)} · ${document.documentElement.dataset.trackpad === 'on' ? 'two-finger drag (pointer mapping not in this artifact) · ' : ''}keys: Option/Alt+←→ 15° · Shift 90° · Ctrl 5° · Z/⇧Z · F</div>`; }
+function sectionSVG(w, h, u, label) { const c = chanAt('chord', u) || 0.1, tc = chanAt('tc', u) || 0.1, s = (w - 60) / 1; const pts = profilePoints(tc / 0.09).map(([x, y]) => `${30 + x * s * 0.9},${h / 2 - y * s * 0.9}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}"><rect width="${w}" height="${h}" fill="var(--viewport)"/><polygon points="${pts}" fill="var(--foil)" fill-opacity="0.4" stroke="var(--foil-edge)"/></svg><div class="caption">η ${u.toFixed(2)} · chord ${(c * 1000).toFixed(1)} mm · t/c ${(tc * 100).toFixed(1)} %</div>`; }
+/* illustrative stand-in profile: closed-form NACA 4-digit 2409 scaled to the channel's t/c; the product generates 66-209 through the TM 4741 generator */
+function profilePoints(tScale = 1, n = 40) { const m = 0.02, p = 0.4, t = 0.09 * tScale; const up = [], lo = []; for (let i = 0; i <= n; i++) { const x = 0.5 * (1 - Math.cos(Math.PI * i / n)); const yt = 5 * t * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4); const yc = x < p ? m / (p * p) * (2 * p * x - x * x) : m / ((1 - p) ** 2) * ((1 - 2 * p) + 2 * p * x - x * x); up.push([x, yc + yt]); lo.push([x, yc - yt]); } return up.slice().reverse().concat(lo.slice(1)); }
+function renderShape() {
+  const d = derived(); const u = ETA[M.station];
+  $('canvas-single').innerHTML = M.view === 'front' ? frontSVG(900, 380) : M.view === 'iso' ? isoSVG(900, 380) : planSVG(900, 380, M.ghost);
+  $('lines-plan').innerHTML = '<span class="vlabel">plan</span>' + planSVG(460, 380, M.ghost); $('lines-front').innerHTML = '<span class="vlabel">front</span>' + frontSVG(460, 380); $('lines-section').innerHTML = '<span class="vlabel">section</span>' + sectionSVG(460, 380, u, `Section at η ${u.toFixed(2)}`);
+  $('shape-hud').innerHTML = (win.dataset.state === 'loading' ? '<b>Rebuilding preview…</b> · last valid shape shown<br>' : '') + `<b>${EXAMPLES[M.ex].name}</b> · Design revision r${M.revision} · ${M.recipe === false ? 'Direct parametric' : 'Recipe linked'}<br>station η ${u.toFixed(2)} · ${(u * 100).toFixed(0)} % half-span · chord ${(d.chord * 1000).toFixed(1)} mm · t/c ${(d.tc * 100).toFixed(1)} %${M.ghost ? '<br>ghost: r3 (dashed, not editable)' : ''}`;
+  $('shape-meta').textContent = `${M.mode === 'through' ? 'Through points' : 'Smooth · weighted controls'} · ${CHANNELS.find(c => c.id === M.channel).name}`;
+  $('derived-strip').innerHTML = [`span b ${d.b.toFixed(3)} m`, `S ${d.S.toFixed(4)} m² (${(d.S * 1e4).toFixed(0)} cm²)`, `AR (projected, b²/S) ${d.AR.toFixed(2)}`, `mean chord ${(d.cbar * 1000).toFixed(1)} mm`, `TE ${d.teMM.toFixed(2)} mm at local chord${d.teMM < M.teFloor ? ' · <span class="chip warn">Trailing edge ' + d.teMM.toFixed(2) + ' mm below the floor ' + M.teFloor.toFixed(1) + ' mm (practitioner value, unverified)</span>' : ''}`, `EI/EI_ref ${d.stiff.toFixed(2)} at this station's chord, relative to t/c = 10 % · geometry only (Structural: Not assessed)`].map(s => `<span>${s}</span>`).join('<span aria-hidden="true">·</span>');
+  renderProject(); renderEditor(); renderInspector(); renderStatus();
+}
+function renderProject() {
+  $('rev-list').innerHTML = [4, 3, 2, 1].map(r => `<li class="static" ${r === M.revision ? 'style="font-weight:600"' : ''}>r${r} <span class="cap">${r === 4 ? 'current' : r === 3 ? 'chord fair' : r === 2 ? 'preset generated' : 'new'}</span></li>`).join('');
+  $('station-list').setAttribute('role', 'listbox'); $('station-list').setAttribute('aria-label', 'Stations');
+  $('station-list').innerHTML = [0, 3, 5].map(i => `<li role="option" data-station="${i}" aria-selected="${i === M.station}" tabindex="0">η ${ETA[i].toFixed(2)} <span class="cap">${i === 0 ? 'root' : i === 5 ? 'tip' : 'mid'} · NACA 66-209</span><span class="num">${(chanAt('chord', ETA[i]) * 1000).toFixed(1)} mm</span></li>`).join('') + [1, 2, 4].map(i => `<li role="option" data-station="${i}" aria-selected="${i === M.station}" tabindex="0" class="mute">η ${ETA[i].toFixed(2)} <span class="cap">inspection slice</span><span class="num">${(chanAt('chord', ETA[i]) * 1000).toFixed(1)} mm</span></li>`).join('');
+  $('station-list').querySelectorAll('[data-station]').forEach(li => { const go = () => { M.station = +li.dataset.station; renderShape(); }; li.addEventListener('click', go); li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }); });
+  $('run-list').innerHTML = [['k-0314', 'r4 · P2 · VLM + strip', M.run.current ? 'Current' : 'Historical'], ['k-0312', 'r3 · P2 · VLM + strip', 'Historical'], ['k-0301', 'r2 · P1 · estimator', 'Historical']].map(([k, d, s]) => `<li class="static">${k} <span class="cap">${d}</span><span class="chip ${s === 'Current' ? 'tier' : 'hist'}">${s}</span></li>`).join('');
+}
+/* ---- distribution editor ---- */
+let hover = null;
+function lockRows(values) { const rows = []; if (M.locks.rootMirror) rows.push({ id: 'rootMirror', name: 'root-mirror tangent (Locked by symmetry)', u: 0, order: 1, x: 1, y: 0 }); rows.push({ id: 'rootValue', name: 'root value (Locked by closure)', u: 0, order: 0, x: 0, y: values[0], fixed: true }); if (M.locks.tipValue) rows.push({ id: 'tipValue', name: 'value at station η 1 (Locked by station value)', u: 1, order: 0, x: 1, y: values[5] }); if (M.locks.conflict) rows.push({ id: 'conflict', name: 'value at station η 1 = 1.10 × tip (Locked by user lock — conflicts)', u: 1, order: 0, x: 1, y: values[5] * 1.1 + 0.001 }); return rows; }
+function stepFor(ch) { return ch.unit === 'm' ? { steps: [0.1, 1, 10], unit: 'mm', k: 1 / 1000 } : ch.unit === '°' ? { steps: [0.01, 0.1, 1], unit: '°', k: 1 } : { steps: [0.0001, 0.001, 0.01], unit: 'chord', k: 1 }; }
+function monotonePieces(fit) { let n = 1, prev = 0; for (let i = 1; i < 60; i++) { const k = BS.curvature(fit.P, 5, fit.U, i / 60); if (prev && Math.sign(k) !== Math.sign(prev) && Math.abs(k) > 1e-6) n++; if (Math.abs(k) > 1e-6) prev = k; } return n; }
+function renderEditor() {
+  const ch = CHANNELS.find(c => c.id === M.channel); const vals = M.curves[M.channel], wts = M.weights[M.channel]; const fit = M.preview ? M.preview.fit : channelCurve(M.channel);
+  const st = stepFor(ch); const disp = v => (v / st.k); const W = 640, H = 220, pad = { l: 60, r: 16, t: 18, b: 30 }; const ys = vals.concat(M.preview ? M.preview.values : []); let ymin = Math.min(...ys), ymax = Math.max(...ys); if (ymax - ymin < 1e-9) { ymax += 1; ymin -= 1; } const span = (ymax - ymin) * 0.25 || 1; ymin -= span; ymax += span;
+  const X = u => pad.l + u * (W - pad.l - pad.r), Y = v => H - pad.b - (v - ymin) / (ymax - ymin) * (H - pad.t - pad.b);
+  const curvePts = fit ? BS.sample(fit.P, 5, fit.U, 120).map(([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`).join(' ') : '';
+  const base = M.preview ? channelCurve(M.channel) : null; const basePts = base ? BS.sample(base.P, 5, base.U, 120).map(([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`).join(' ') : '';
+  const comb = fit ? Array.from({ length: 25 }, (_, i) => { const u = i / 24; const k = BS.curvature(fit.P, 5, fit.U, u); const [x, y] = BS.evalCurve(fit.P, 5, fit.U, u); const len = Math.max(-40, Math.min(40, k * 6)); return `<line x1="${X(x)}" y1="${Y(y)}" x2="${X(x)}" y2="${Y(y) - len}" stroke="var(--control)" stroke-width="1"/>`; }).join('') : '';
+  const shown = M.preview ? M.preview.values : vals; const F = 14;
+  const anchors = ETA.map((u, i) => { const v = shown[i]; const text = `${disp(v).toFixed(ch.unit === 'm' ? 2 : ch.unit === '°' ? 2 : 4)} ${st.unit}`; const common = `data-point="${i}" tabindex="0" role="slider" aria-orientation="vertical" aria-valuemin="${ymin.toFixed(4)}" aria-valuemax="${ymax.toFixed(4)}" aria-valuenow="${v.toFixed(5)}" aria-valuetext="${text}${M.mode === 'smooth' ? ', weight ' + wts[i] : ''}"`;
+    if (M.mode === 'smooth') { const ev = fit ? BS.evalCurve(fit.P, 5, fit.U, u)[1] : v; return `<g ${common} aria-label="Influence control ${i + 1} at η ${u}, ${ch.name}"><circle cx="${X(u)}" cy="${Y(v)}" r="16" fill="transparent" stroke="none"/><circle cx="${X(u)}" cy="${Y(v)}" r="6" fill="none" stroke="var(--primary)" stroke-width="2"/></g><rect x="${X(u) - 4}" y="${Y(ev) - 4}" width="8" height="8" fill="var(--station)" stroke="var(--ink)" transform="rotate(45 ${X(u)} ${Y(ev)})"><title>Evaluated station value ${disp(ev).toFixed(3)} ${st.unit}</title></rect>`; }
+    return `<g ${common} aria-label="Anchor ${i + 1} at η ${u}, ${ch.name}"><circle cx="${X(u)}" cy="${Y(v)}" r="16" fill="transparent" stroke="none"/><circle cx="${X(u)}" cy="${Y(v)}" r="6" fill="${i === M.station ? 'var(--primary)' : 'var(--surface)'}" stroke="var(--primary)" stroke-width="2"/></g>`; }).join('');
+  const polygon = M.mode === 'smooth' && fit ? `<polyline points="${fit.P.map(([u, v]) => `${X(u).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--control)" stroke-dasharray="4 3"/>` : '';
+  const rows = lockRows(shown); const locks = rows.filter(r => !r.fixed).map(r => `<rect x="${X(r.u) - 5}" y="${Y(shown[r.u === 0 ? 0 : 5]) - 5}" width="10" height="10" fill="none" stroke="var(--warn)" stroke-width="2" transform="rotate(45 ${X(r.u)} ${Y(shown[r.u === 0 ? 0 : 5])})"><title>${r.name}</title></rect>`).join('');
+  const breakMarker = !M.locks.rootMirror ? `<g><line x1="${X(0)}" y1="${Y(shown[0]) - 14}" x2="${X(0)}" y2="${Y(shown[0]) + 14}" stroke="var(--danger)" stroke-width="2"/><text x="${X(0) + 6}" y="${Y(shown[0]) - 8}" fill="var(--danger)" font-size="${F}" font-family="ui-monospace, monospace">break at root plane</text></g>` : '';
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map(u => `<line x1="${X(u)}" y1="${H - pad.b}" x2="${X(u)}" y2="${H - pad.b + 4}" stroke="var(--control)"/><text x="${X(u)}" y="${H - 8}" text-anchor="middle" fill="var(--mute)" font-size="${F}" font-family="ui-monospace, monospace">${u}</text>`).join('') + [ymin + span, ymax - span].map(v => `<text x="${pad.l - 6}" y="${Y(v) + 4}" text-anchor="end" fill="var(--mute)" font-size="${F}" font-family="ui-monospace, monospace">${disp(v).toFixed(ch.unit === 'm' ? 0 : 2)}</text>`).join('');
+  $('editor-svg').innerHTML = `<title id="editor-title">${ch.name} distribution over normalised span η, ${st.unit}</title><g stroke="var(--control)" fill="none"><line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H - pad.b}"/><line x1="${pad.l}" y1="${H - pad.b}" x2="${W - pad.r}" y2="${H - pad.b}"/></g>${ticks}${comb}${basePts ? `<polyline points="${basePts}" fill="none" stroke="var(--control)" stroke-dasharray="6 4"/>` : ''}${polygon}<polyline points="${curvePts}" fill="none" stroke="var(--primary)" stroke-width="2"/>${locks}${breakMarker}${anchors}<text x="${pad.l + 4}" y="${pad.t + 12}" fill="var(--mute)" font-size="${F}" font-family="ui-monospace, monospace">${ch.name} · ${st.unit} · η →</text>`;
+  $('editor-svg').querySelectorAll('[data-point]').forEach(el => { el.addEventListener('keydown', e => { const i = +el.dataset.point; const map = { ArrowUp: 1, ArrowDown: -1, PageUp: 10, PageDown: -10 }; let dir = map[e.key]; if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); setPreview(i, e.key === 'Home' ? ymax - span : ymin + span); focusPoint(i); return; } if (!dir) return; e.preventDefault(); if (e.shiftKey) dir *= 10; nudge(i, dir); focusPoint(i); }); el.addEventListener('focus', () => { M.station = +el.dataset.point; renderInspector(); tracingAt(ETA[+el.dataset.point]); }); el.addEventListener('mousedown', e => { const i = +el.dataset.point; const move = ev => { const rect = $('editor-svg').getBoundingClientRect(); const v = ymax - ((ev.clientY - rect.top) / rect.height * H - pad.t) / (H - pad.t - pad.b) * (ymax - ymin); setPreview(i, v); }; const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); }; window.addEventListener('mousemove', move); window.addEventListener('mouseup', up); }); });
+  $('editor-svg').onmousemove = e => { const rect = $('editor-svg').getBoundingClientRect(); const u = Math.max(0, Math.min(1, ((e.clientX - rect.left) / rect.width * W - pad.l) / (W - pad.l - pad.r))); tracingAt(u); };
+  const dev = M.preview && fit && base ? Math.max(...Array.from({ length: 41 }, (_, i) => Math.abs(BS.evalCurve(fit.P, 5, fit.U, i / 40)[1] - BS.evalCurve(base.P, 5, base.U, i / 40)[1]))) : 0;
+  const nLocks = rows.filter(r => !r.fixed).length; const removable = rows.filter(r => !r.fixed);
+  $('editor-side').innerHTML = `<div class="dense-group" role="group" aria-label="Curve mode"><button class="btn dense" data-mode="through" aria-pressed="${M.mode === 'through'}">Through points</button><button class="btn dense" data-mode="smooth" aria-pressed="${M.mode === 'smooth'}">Smooth · weighted controls</button></div>
+  <div class="dense-group" role="group" aria-label="Channel" style="margin-top:var(--sp-8)">${CHANNELS.map(c => `<button class="btn dense" data-channel="${c.id}" aria-pressed="${c.id === M.channel}">${c.name}</button>`).join('')}</div>
+  <div class="legend"><span><i></i>evaluated curve</span>${M.mode === 'smooth' ? '<span><i class="dash"></i>control polygon (solver control points, not draggable)</span><span><i class="ctl"></i>Influence control (weight w)</span><span>◆ Evaluated station value</span>' : '<span><i class="ctl"></i>on-curve anchor</span>'}<span><i class="lock"></i>Locked by symmetry · Locked by station value</span><span>| comb (κ, clipped, live)</span>${basePts ? '<span><i class="dash"></i>accepted (base)</span>' : ''}${fit ? `<span>monotone pieces: ${monotonePieces(fit)}</span>` : ''}</div>
+  ${M.preview ? `<div class="banner ${M.preview.fit ? 'warn' : 'danger'}" style="margin:var(--sp-8) 0"><span>${M.preview.fit ? `<b>Preview open — deviation ${(dev / st.k).toFixed(ch.unit === 'm' ? 3 : 4)} ${st.unit} · ${nLocks} locks</b>${M.preview.fair ? ` · Fair: achieved ${(M.preview.achieved / st.k).toFixed(3)} ${st.unit} against tolerance ${(M.preview.tol / st.k).toFixed(3)} ${st.unit} (λ ${M.preview.lambda}) · PreserveEnds: tangency${M.preview.achieved > M.preview.tol ? ' · not achieved — Apply disabled' : ''}` : ''}` : `<b>Locks conflict at η 1 (two values) — release one: ${removable.map(r => r.name.split(' (')[0]).join(', ')}</b> · ${rows.length} locks, 8 degrees of freedom · solver: ${M.preview.reason || 'rank deficiency'}`}</span><span class="actions">${M.preview.fit ? '' : removable.map(r => `<button class="btn dense" data-release="${r.id}">Release ${r.name.split(' (')[0]}</button>`).join('')}<button class="btn dense primary apply" id="apply" ${M.preview.fit && !(M.preview.fair && M.preview.achieved > M.preview.tol) ? '' : 'disabled'}>Apply <span class="kbd">↩</span></button><button class="btn dense" id="cancel">Cancel <span class="kbd">Esc</span></button></span></div>` : ''}
+  ${M.mode === 'smooth' ? `<div class="field"><label for="w-in">Influence weight · control ${M.station + 1}</label><span><input id="w-in" value="${wts[M.station]}" aria-describedby="w-echo"> <span class="dense-group" style="display:inline-flex"><button class="btn dense" data-w="0.5">×0.5</button><button class="btn dense" data-w="2">×2</button></span></span><span class="echo" id="w-echo">weights are relative; a raised weight moves the curve toward its control monotonically and never reaches it (GEO-13)</span><span class="err" id="w-err"></span></div>` : ''}
+  <div class="field"><label for="v-in">${ch.name} at η ${ETA[M.station]}</label><span><input id="v-in" value="${disp(shown[M.station]).toFixed(ch.unit === 'm' ? 2 : ch.unit === '°' ? 2 : 4)}" aria-describedby="v-echo"> <span class="unit">${st.unit}</span></span><span class="echo" id="v-echo">accepts <code>value [unit]</code> or <code>#root_chord * 0.35</code> · model value ${shown[M.station].toFixed(5)} ${ch.unit === '–' ? '(chord fraction)' : ch.unit}</span><span class="err" id="v-err"></span></div>
+  <div class="dense-group"><span class="cap">Nudge step</span>${st.steps.map((s, i) => `<button class="btn dense" data-step="${i}" aria-pressed="${M.stepIdx === i}">${s} ${st.unit}</button>`).join('')}<span class="cap">↑↓ step · ⇧ ×10 · PgUp/PgDn ×10 · Home/End</span><button class="btn dense" id="fair">Fair within tolerance</button></div>`;
+  wireEditor();
+}
+function focusPoint(i) { const el = document.querySelector(`#editor-svg [data-point="${i}"]`); if (el) el.focus(); }
+function tracingAt(u) { hover = u; $('tracing').innerHTML = `Tracing · η ${u.toFixed(3)} · ${(u * 100).toFixed(1)} % half-span<br>chord ${(chanAt('chord', u) * 1000).toFixed(1)} mm · t/c ${(chanAt('tc', u) * 100).toFixed(1)} % · twist ${chanAt('twist', u).toFixed(2)}° · z ${(chanAt('elev', u) * 1000).toFixed(1)} mm`; }
+function setPreview(i, v, extra) { const values = M.curves[M.channel].slice(); values[i] = v; const fit = fitChannel(M.channel, values, M.weights[M.channel], M.mode); M.preview = Object.assign({ values, fit: fit.feasible ? fit : null, reason: fit.reason, weights: M.weights[M.channel].slice() }, extra || {}); renderEditor(); renderStatus(); }
+function nudge(i, dir) { const ch = CHANNELS.find(c => c.id === M.channel); const st = stepFor(ch); const cur = (M.preview ? M.preview.values : M.curves[M.channel])[i]; setPreview(i, cur + dir * st.steps[M.stepIdx] * st.k); }
+function applyPreview() { if (!M.preview || !M.preview.fit) return; if (M.preview.fair && M.preview.achieved > M.preview.tol) return; M.history.push({ curves: JSON.parse(JSON.stringify(M.curves)), weights: JSON.parse(JSON.stringify(M.weights)), recipe: M.recipe, revision: M.revision }); M.future = []; M.curves[M.channel] = M.preview.values; M.weights[M.channel] = M.preview.weights; M.preview = null; M.recipe = false; M.revision++; M.run.current = false; renderShape(); renderAnalyze(); status(`Applied · Design revision r${M.revision} · dependents Historical`); }
+function cancelPreview() { M.preview = null; renderEditor(); renderStatus(); }
+function undo() { const h = M.history.pop(); if (!h) return; M.future.push({ curves: JSON.parse(JSON.stringify(M.curves)), weights: JSON.parse(JSON.stringify(M.weights)), recipe: M.recipe, revision: M.revision }); Object.assign(M, { curves: h.curves, weights: h.weights, recipe: h.recipe, revision: h.revision }); M.run.current = M.revision === M.run.rev; renderShape(); renderAnalyze(); status(`Undo · r${M.revision} · run k-0314 ${M.run.current ? 'Current' : 'Historical'}`); }
+function redo() { const f = M.future.pop(); if (!f) return; M.history.push({ curves: JSON.parse(JSON.stringify(M.curves)), weights: JSON.parse(JSON.stringify(M.weights)), recipe: M.recipe, revision: M.revision }); Object.assign(M, { curves: f.curves, weights: f.weights, recipe: f.recipe, revision: f.revision }); M.run.current = M.revision === M.run.rev; renderShape(); renderAnalyze(); }
+function parseExpr(text, unitFamily) { const t = text.trim().replace('#root_chord', String(derived().rootChord * 1000)); const m = t.match(/^([-+*/().\d\s]+)\s*(mm|cm|m|°|deg)?$/); if (!m) return { error: 'Expression must be a number or an expression over named dimensions, optionally with a unit' }; let v; try { v = Function('"use strict";return (' + m[1] + ')')(); } catch { return { error: 'Cannot evaluate expression' }; } if (!Number.isFinite(v)) return { error: 'Result is not finite' }; const u = m[2] || (unitFamily === 'm' ? 'mm' : unitFamily); if (unitFamily === 'm') { if (u === 'mm') v /= 1000; else if (u === 'cm') v /= 100; else if (u !== 'm') return { error: 'Dimensional error: a length was expected, got ' + u }; } else if (unitFamily === '°' && !(u === '°' || u === 'deg')) return { error: 'Dimensional error: an angle was expected, got ' + u }; else if (unitFamily === '–' && m[2]) return { error: 'Dimensional error: a chord fraction was expected, got ' + u }; return { value: v }; }
+function wireEditor() {
+  $('editor-side').querySelectorAll('[data-mode]').forEach(b => b.onclick = () => { M.mode = b.dataset.mode; M.preview = null; renderShape(); });
+  $('editor-side').querySelectorAll('[data-channel]').forEach(b => b.onclick = () => { M.channel = b.dataset.channel; M.preview = null; renderEditor(); renderInspector(); renderStatus(); });
+  $('editor-side').querySelectorAll('[data-step]').forEach(b => b.onclick = () => { M.stepIdx = +b.dataset.step; renderEditor(); renderStatus(); });
+  $('editor-side').querySelectorAll('[data-release]').forEach(b => b.onclick = () => { const id = b.dataset.release; if (id === 'conflict') M.locks.conflict = false; else M.locks[id] = false; const values = M.preview.values; const fit = fitChannel(M.channel, values, M.weights[M.channel], M.mode); M.preview.fit = fit.feasible ? fit : null; refreshFindings(); renderEditor(); renderInspector(); renderStatus(); status(`Released ${id} · preview ${M.preview.fit ? 'feasible' : 'still infeasible'}`); });
+  const apply = $('apply'), cancel = $('cancel'); if (apply) apply.onclick = applyPreview; if (cancel) cancel.onclick = cancelPreview;
+  const v = $('v-in'); if (v) v.onchange = () => { const ch = CHANNELS.find(c => c.id === M.channel); const r = parseExpr(v.value, ch.unit); if (r.error) { $('v-err').textContent = r.error; return; } if (ch.id === 'chord' && r.value <= 0) { $('v-err').textContent = 'Chord must be greater than 0 mm. Your last valid shape is still visible.'; return; } $('v-err').textContent = ''; setPreview(M.station, r.value); $('v-in').focus(); };
+  const w = $('w-in'); if (w) { w.onchange = () => { const x = parseFloat(w.value); if (!(x > 0) || !Number.isFinite(x)) { $('w-err').textContent = 'Weight must be a positive finite number'; return; } $('w-err').textContent = ''; const weights = M.weights[M.channel].slice(); weights[M.station] = x; const values = (M.preview ? M.preview.values : M.curves[M.channel]).slice(); const fit = fitChannel(M.channel, values, weights, 'smooth'); M.preview = { values, fit: fit.feasible ? fit : null, weights }; renderEditor(); renderStatus(); $('w-in').focus(); }; $('editor-side').querySelectorAll('[data-w]').forEach(b => b.onclick = () => { w.value = (parseFloat(w.value) * parseFloat(b.dataset.w)).toString(); w.onchange(); }); }
+  const fair = $('fair'); if (fair) fair.onclick = () => { const ch = CHANNELS.find(c => c.id === M.channel); const values = M.curves[M.channel].slice(); const base = channelCurve(M.channel); const tol = ch.unit === 'm' ? 10e-6 : ch.unit === '°' ? 0.1 : 1e-4; let chosen = null; for (const lambda of [5e-3, 1e-3, 2e-4, 5e-5, 1e-5]) { const fit = BS.fitWeighted(8, 5, ETA.map((u, i) => ({ u, x: u, y: values[i], w: 1 })), lockRows(values).map(r => ({ u: r.u, order: r.order, x: r.x, y: r.y })), lambda); if (!fit.feasible) break; const achieved = Math.max(...Array.from({ length: 41 }, (_, i) => Math.abs(BS.evalCurve(fit.P, 5, fit.U, i / 40)[1] - BS.evalCurve(base.P, 5, base.U, i / 40)[1]))); chosen = { fit, achieved, lambda }; if (achieved <= tol) break; } if (!chosen) { status('Fair: infeasible under the current locks'); return; } M.preview = { values, fit: chosen.fit, weights: M.weights[M.channel].slice(), fair: true, achieved: chosen.achieved, tol, lambda: chosen.lambda }; renderEditor(); renderStatus(); };
+}
+function renderInspector() {
+  const ch = CHANNELS.find(c => c.id === M.channel), u = ETA[M.station], d = derived();
+  const task = win.dataset.task;
+  const ro = (label, val, echo) => `<div class="field"><span>${label}</span><span class="derived">${val}</span>${echo ? `<span class="echo">${echo}</span>` : ''}</div>`;
+  if (task === 'analyze') { $('inspector').innerHTML = `<h4>Run manifest</h4>${ro('Run key', 'k-0314')}${ro('Surface revision', `r${M.run.rev} · 7c1e…a9`)}${ro('Profile revisions', '66-209 · 3 stations')}${ro('Method', 'VLM + strip 1.2.0')}${ro('Settings hash', 'lattice 24×8 · TE 0.8 mm · e41b…')}${ro('Reconciliation tolerance', '0.5 %')}${ro('Freshness', M.run.current ? 'Current' : 'Historical — definition changed')}<p class="cap">Freshness is derived by run-key equality, never written.</p>`; return; }
+  if (task === 'sections') { $('inspector').innerHTML = `<h4>Profile revision</h4>${ro('Section', M.sectionModified ? 'Modified from NACA 66-209' : 'Catalog original · NACA 66-209')}<div class="field"><span>Admission</span><span><span class="chip gen">GEN</span></span><span class="echo">generated at build from TM 4741 · generator hash 9f3a…c1</span></div>${ro('Design Cl', '0.2', 'source: NACA designation')}${ro('Design Re', 'Unknown')}${ro('Intended σ range', 'Unknown')}<div class="field"><label for="tc-policy">Thickness policy</label><span><select id="tc-policy"><option>Use source thickness</option><option>Keep current thickness (channel)</option></select></span></div>${ro('Conversion residual', '0.000 (exact copy)', 'Conversion residual 0.000 (acceptance 10 µm at local chord)')}<h4>Drawing basis</h4><p class="cap">Illustrative stand-in geometry: closed-form NACA 2409 scaled to the channel t/c. The product generates 66-209 through the TM 4741 generator; there is no closed form.</p>`; return; }
+  if (task === 'brief' || task === 'settings') { $('inspector').innerHTML = `<h4>Selection</h4><p class="cap">${task === 'brief' ? 'Goal state · intent only. Evaluating it never mutates a revision.' : 'Application settings. Values marked "copied into the document" are Type-2: a change versions, never rewrites, past results.'}</p>`; return; }
+  const st = stepFor(ch);
+  $('inspector').innerHTML = `<h4>Station η ${u.toFixed(2)}</h4>
+  ${ro('Kind', [0, 3, 5].includes(M.station) ? 'Authored station' : 'Inspection slice')}
+  ${ro('Profile', 'NACA 66-209 <span class="chip gen">GEN</span>')}
+  ${CHANNELS.map(c => { const v = chanAt(c.id, u); const isDriver = c.id === M.channel && M.mode === 'through'; const s = stepFor(c); return `<div class="field"><span>${c.name}${isDriver ? ' <span class="chip tier">driver</span>' : ' <span class="chip">derived</span>'}</span><span class="derived">${(v / s.k).toFixed(c.unit === 'm' ? 2 : c.dp)} <span class="unit">${s.unit}</span></span></div>`; }).join('')}
+  ${M.mode === 'smooth' ? ro(`Influence control ${M.station + 1}`, `${(M.curves[M.channel][M.station] / st.k).toFixed(2)} <span class="unit">${st.unit}</span>`, `Influence control (weight ${M.weights[M.channel][M.station]}) — separately labelled from the Evaluated station value`) : ''}
+  <h4>Locks</h4>
+  <div class="field"><label for="lock-root"><input type="checkbox" id="lock-root" ${M.locks.rootMirror ? 'checked' : ''}> Root-mirror tangent</label><span class="cap">Locked by symmetry (default)</span></div>
+  <div class="field"><label for="lock-tip"><input type="checkbox" id="lock-tip" ${M.locks.tipValue ? 'checked' : ''}> Value at station η 1</label><span class="cap">Locked by station value</span></div>
+  <div class="field"><label for="lock-conflict"><input type="checkbox" id="lock-conflict" ${M.locks.conflict ? 'checked' : ''}> Second value at η 1 (conflicting user lock)</label><span class="cap">review fixture: makes the lock set infeasible</span></div>
+  <h4>Readouts</h4>
+  ${ro('Root / tip distance', `${(u * d.b / 2 * 1000).toFixed(0)} / ${((1 - u) * d.b / 2 * 1000).toFixed(0)} <span class="unit">mm</span>`)}
+  ${ro('TE thickness', `${d.teMM.toFixed(2)} <span class="unit">mm</span>`, `TE floor ${M.teFloor.toFixed(1)} mm · practitioner value, unverified`)}
+  ${ro('Relative stiffness', d.stiff.toFixed(2), 'EI/EI_ref ∝ (t/c)³ · geometry only (Structural: Not assessed)')}
+  ${ro('Degree · controls', '5 · 8')}`;
+  const lr = $('lock-root'), lt = $('lock-tip'), lc = $('lock-conflict'); if (lr) lr.onchange = () => { M.locks.rootMirror = lr.checked; M.preview = null; refreshFindings(); renderShape(); }; if (lt) lt.onchange = () => { M.locks.tipValue = lt.checked; M.preview = null; renderShape(); }; if (lc) lc.onchange = () => { M.locks.conflict = lc.checked; const values = M.curves[M.channel].slice(); const fit = fitChannel(M.channel, values, M.weights[M.channel], M.mode); M.preview = lc.checked ? { values, fit: fit.feasible ? fit : null, reason: fit.reason, weights: M.weights[M.channel].slice() } : null; renderEditor(); renderStatus(); };
+}
+function renderStatus() {
+  const ch = CHANNELS.find(c => c.id === M.channel); const st = stepFor(ch); const nLocks = lockRows(M.curves[M.channel]).filter(r => !r.fixed).length; const mods = document.documentElement.dataset.mods === 'mac' ? '⌘' : 'Ctrl';
+  const dev = M.preview && M.preview.fit ? (() => { const base = channelCurve(M.channel); return Math.max(...Array.from({ length: 41 }, (_, i) => Math.abs(BS.evalCurve(M.preview.fit.P, 5, M.preview.fit.U, i / 40)[1] - BS.evalCurve(base.P, 5, base.U, i / 40)[1]))); })() : 0;
+  $('status').innerHTML = `<span><b>rev</b> r${M.revision}</span><span><b>mode</b> ${M.mode === 'through' ? 'Through points' : 'Smooth'}</span><span><b>channel</b> ${ch.name}</span><span><b>units</b> ${M.units}</span><span><b>step</b> ${st.steps[M.stepIdx]} ${st.unit}</span><span>${M.preview ? `Preview open — deviation ${(dev / st.k).toFixed(3)} ${st.unit} · ${nLocks} locks` : `Preview closed · ${nLocks} locks`}</span><span><b>checks</b> ${openFindings()}</span><span><b>backend</b> reserved</span><span><b>shortcuts</b> ${mods}Z undo · ${mods}K palette · ${document.documentElement.dataset.nav === 'rhino' ? 'viewport: RMB orbit · MMB pan (pointer mapping not in this artifact)' : 'viewport focused: Option/Alt+arrows orbit · Z/⇧Z zoom · F fit'}</span>`;
+}
+function status(msg) { const el = $('status-msg'); if (el) el.textContent = msg; }
+</script>
+<script>
+/* ===================== Sections ===================== */
+function renderSections() {
+  $('catalog').innerHTML = `<thead><tr><th>Section</th><th>Admission</th><th>Reason</th><th class="num">design Cl</th><th class="num">design Re</th><th>σ range</th><th>Role</th><th></th></tr></thead><tbody>` + CATALOG.map((c, i) => `<tr class="${c.assigned ? 'selected' : ''}"><td>${c.name}${c.assigned ? ' <span class="chip tier">assigned η 0, 0.6, 1</span>' : ''}</td><td><span class="chip ${c.cls === 'GEN' ? 'gen' : c.cls === 'PENDING' ? 'pending' : 'link'}">${c.cls === 'PENDING' ? 'Pending admission' : c.cls}</span></td><td class="cap">${c.cls === 'PENDING' ? 'Pending admission — ' + c.reason : c.reason}</td><td class="num">${c.cl}</td><td class="num">${c.re}</td><td>${c.sig}</td><td>${c.role}</td><td><div class="dense-group"><button class="btn dense" ${c.cls === 'GEN' ? '' : 'disabled'} aria-label="Assign ${c.name} to station">Assign</button><button class="btn dense" ${c.cls === 'GEN' ? '' : 'disabled'} aria-label="Edit section ${c.name}" data-edit-section="${i}">Edit section</button><button class="btn dense" aria-label="Details ${c.name}">Details</button></div></td></tr>`).join('') + `</tbody>`;
+  renderSectionEditor();
+}
+const PROF = (() => { const pts = profilePoints(1, 12); const half = (pts.length - 1) / 2; const upper = pts.slice(0, half + 1).reverse(), lower = pts.slice(half); return { upper, lower }; })();
+function fitProfileCurve(side, weights, mode, offsets) { const pts = PROF[side]; const targets = pts.map(([x, y], i) => ({ u: i / (pts.length - 1), x, y: y + (offsets ? offsets[i] || 0 : 0), w: mode === 'smooth' ? (weights[i] ?? 1) : 1e6 })); const cons = [{ u: 0, order: 0, x: 0, y: 0 }, { u: 1, order: 0, x: 1, y: pts[pts.length - 1][1] }, { u: 0, order: 1, x: 0, y: side === 'upper' ? 1 : -1 }]; return BS.fitWeighted(9, 5, targets, cons, mode === 'smooth' ? 2e-5 : 1e-9); }
+function renderSectionEditor() {
+  const W = 900, H = 300, sx = (W - 120) / 1, ox = 60, oy = H / 2; const X = x => ox + x * sx, Y = y => oy - y * sx;
+  const mode = M.sectionMode; const prev = M.sectionPreview;
+  const curves = ['upper', 'lower'].map(side => { const f = fitProfileCurve(side, prev ? prev.weights[side] : M.sectionWeights[side], mode, prev ? prev.offsets[side] : null); return { side, f }; });
+  const path = c => c.f.feasible ? BS.sample(c.f.P, 5, c.f.U, 80).map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' ') : '';
+  const comb = c => c.f.feasible ? Array.from({ length: 30 }, (_, i) => { const u = i / 29; const [x, y] = BS.evalCurve(c.f.P, 5, c.f.U, u); const [x2, y2] = BS.evalCurve(c.f.P, 5, c.f.U, Math.min(1, u + 1e-3)); const k = BS.curvature(c.f.P, 5, c.f.U, u); const len = Math.max(-30, Math.min(30, k * 2)); const tx = x2 - x, ty = y2 - y, tl = Math.hypot(tx, ty) || 1; const nx = -ty / tl, ny = tx / tl; const out = c.side === 'upper' ? 1 : -1; return `<line x1="${X(x)}" y1="${Y(y)}" x2="${X(x + out * nx * Math.abs(len) / sx)}" y2="${Y(y + out * ny * Math.abs(len) / sx)}" stroke="var(--viewport-mute)"/>`; }).join('') : '';
+  const src = profilePoints(1, 40).map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' ');
+  const controls = curves.map(c => PROF[c.side].map(([x, y], i) => { const off = prev ? (prev.offsets[c.side][i] || 0) : 0; return `<g tabindex="0" role="slider" aria-orientation="vertical" data-sec="${c.side}:${i}" aria-label="${c.side} control ${i + 1} at x/c ${x.toFixed(3)}" aria-valuemin="-0.2" aria-valuemax="0.2" aria-valuenow="${(y + off).toFixed(5)}" aria-valuetext="y/c ${(y + off).toFixed(4)}${mode === 'smooth' ? ', weight ' + (prev ? prev.weights[c.side][i] : M.sectionWeights[c.side][i]) : ''}"><circle cx="${X(x)}" cy="${Y(y + off)}" r="20" fill="transparent" stroke="none"/><circle cx="${X(x)}" cy="${Y(y + off)}" r="5" fill="${mode === 'smooth' ? 'none' : 'var(--station)'}" stroke="var(--station)" stroke-width="2"/></g>`; }).join('')).join('');
+  const poly = mode === 'smooth' ? curves.map(c => c.f.feasible ? `<polyline points="${c.f.P.map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--viewport-mute)" stroke-dasharray="4 3"/>` : '').join('') : '';
+  const dev = prev ? Math.max(...curves.map(c => { if (!c.f.feasible) return 0; const b = fitProfileCurve(c.side, M.sectionWeights[c.side], 'through', null); return Math.max(...Array.from({ length: 41 }, (_, i) => Math.abs(BS.evalCurve(c.f.P, 5, c.f.U, i / 40)[1] - BS.evalCurve(b.P, 5, b.U, i / 40)[1]))); })) : 0;
+  $('section-canvas').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="group" aria-label="Section editor: NACA 66-209 draft, upper and lower degree-5 B-spline curves with controls; source shown dashed"><rect width="${W}" height="${H}" fill="var(--viewport)"/><line x1="${X(0)}" y1="${oy}" x2="${X(1)}" y2="${oy}" stroke="var(--viewport-grid)"/><polyline points="${src}" fill="none" stroke="var(--viewport-mute)" stroke-dasharray="6 4"/>${comb(curves[0])}${comb(curves[1])}${poly}${curves.map(c => `<polyline points="${path(c)}" fill="none" stroke="var(--foil-edge)" stroke-width="2"/>`).join('')}${controls}<rect x="${X(0) - 5}" y="${Y(0) - 5}" width="10" height="10" fill="none" stroke="var(--warn)" stroke-width="2" transform="rotate(45 ${X(0)} ${Y(0)})"><title>Locked by closure (LE position) and axis-locked tangent (vertical)</title></rect><rect x="${X(1) - 5}" y="${Y(PROF.upper[PROF.upper.length - 1][1]) - 5}" width="10" height="10" fill="none" stroke="var(--warn)" stroke-width="2" transform="rotate(45 ${X(1)} ${Y(PROF.upper[PROF.upper.length - 1][1])})"><title>Locked by closure (TE)</title></rect></svg><div class="caption">x/c → · y/c ↑ · dashed = catalog original · comb on the normal</div>`;
+  $('section-hud').innerHTML = `<b>${M.sectionModified ? 'Modified from NACA 66-209' : 'Catalog original · NACA 66-209'} → draft</b> · ${mode === 'through' ? 'Through points' : 'Smooth · weighted controls'}<br>source GEN · Conversion residual 0.000 (acceptance 10 µm at local chord) · t/c policy: Use source thickness${prev ? `<br><b>Preview open — deviation ${(dev * 1000).toFixed(2)} ‰ chord · 2 locks</b>` : ''}`;
+  const SEC_STEPS = [0.0001, 0.001, 0.01];
+  $('section-canvas').querySelectorAll('[data-sec]').forEach(el => { el.addEventListener('keydown', e => { let dir = ({ ArrowUp: 1, ArrowDown: -1, PageUp: 10, PageDown: -10, Home: 100, End: -100 })[e.key] || 0; if (!dir) return; e.preventDefault(); if (e.shiftKey) dir *= 10; const [side, i] = el.dataset.sec.split(':'); sectionNudge(side, +i, dir * SEC_STEPS[M.secStep]); const again = document.querySelector(`#section-canvas [data-sec="${side}:${i}"]`); if (again) again.focus(); }); el.addEventListener('focus', () => { M.secSel = el.dataset.sec; renderSectionStrip(); }); });
+  M.secDev = dev; renderSectionStrip();
+}
+function renderSectionStrip() {
+  const mode = M.sectionMode, prev = M.sectionPreview, dev = M.secDev || 0; const SEC_STEPS = [0.0001, 0.001, 0.01]; const sel = M.secSel || 'upper:5'; const [side, i] = sel.split(':'); const cur = PROF[side][+i][1] + (prev && prev.offsets[side][+i] || 0);
+  $('section-strip').innerHTML = `<div class="dense-group" role="group" aria-label="Section curve mode"><button class="btn dense" data-smode="through" aria-pressed="${mode === 'through'}">Through points</button><button class="btn dense" data-smode="smooth" aria-pressed="${mode === 'smooth'}">Smooth · weighted controls</button></div><div class="field" style="padding:0"><label for="sec-v">y/c · ${side} control ${+i + 1}</label><span><input id="sec-v" value="${cur.toFixed(4)}" aria-describedby="sec-echo"> <span class="unit">chord</span></span><span class="echo" id="sec-echo">model value ${cur.toFixed(5)} c</span><span class="err" id="sec-err"></span></div><div class="dense-group"><span class="cap">Nudge step</span>${SEC_STEPS.map((s, k) => `<button class="btn dense" data-secstep="${k}" aria-pressed="${M.secStep === k}">${s} c</button>`).join('')}</div>${prev ? `<div class="dense-group"><button class="btn dense primary apply" id="sec-apply">Apply</button><button class="btn dense" id="sec-cancel">Cancel</button></div>` : ''}<span>${prev ? `Preview open — deviation ${(dev * 1000).toFixed(2)} ‰ chord · 2 locks · source polars detach on Apply` : 'No preview · Apply creates a Modified Profile revision; the catalog original stays intact'}</span>`;
+  $('section-strip').querySelectorAll('[data-smode]').forEach(b => b.onclick = () => { M.sectionMode = b.dataset.smode; M.sectionPreview = null; renderSectionEditor(); });
+  $('section-strip').querySelectorAll('[data-secstep]').forEach(b => b.onclick = () => { M.secStep = +b.dataset.secstep; renderSectionStrip(); });
+  $('sec-v').onchange = () => { const v = parseFloat($('sec-v').value); if (!Number.isFinite(v) || Math.abs(v) > 0.2) { $('sec-err').textContent = 'y/c must be a finite chord fraction within ±0.2'; return; } const p = M.sectionPreview || { weights: { upper: M.sectionWeights.upper.slice(), lower: M.sectionWeights.lower.slice() }, offsets: { upper: [], lower: [] } }; p.offsets[side][+i] = v - PROF[side][+i][1]; M.sectionPreview = p; renderSectionEditor(); $('sec-v').focus(); };
+  const a = $('sec-apply'), c = $('sec-cancel'); if (a) a.onclick = () => { M.sectionPreview = null; M.sectionModified = true; M.revision++; M.run.current = false; status('Applied · Modified Profile revision · source polars detached · catalog original intact'); renderSectionEditor(); renderInspector(); renderShape(); }; if (c) c.onclick = () => { M.sectionPreview = null; renderSectionEditor(); };
+}
+function sectionDemo() { const p = M.sectionPreview || { weights: { upper: M.sectionWeights.upper.slice(), lower: M.sectionWeights.lower.slice() }, offsets: { upper: [], lower: [] } }; M.sectionMode = 'smooth'; p.weights.upper[5] *= 2; p.offsets.upper[5] = (p.offsets.upper[5] || 0) + 0.002; M.sectionPreview = p; showTask('sections'); renderSectionEditor(); }
+function sectionNudge(side, i, d) { const p = M.sectionPreview || { weights: { upper: M.sectionWeights.upper.slice(), lower: M.sectionWeights.lower.slice() }, offsets: { upper: [], lower: [] } }; p.offsets[side][i] = (p.offsets[side][i] || 0) + d; M.sectionPreview = p; renderSectionEditor(); }
+/* ===================== Analyze ===================== */
+function renderAnalyze() {
+  const d = derived(), op = opPoint(), cond = conditions(op, d.S, d.cbar, d.tipZ); const w = cond.w; const st = win.dataset.state;
+  const opts = GOAL.points.map(p => `<option value="${p.id}" ${M.opFrom === p.id ? 'selected' : ''}>From Goal state point ${p.id} · ${p.vkn} kn · ${p.role}</option>`).join('') + `<option value="custom" ${M.opFrom === 'custom' ? 'selected' : ''}>Custom</option>`;
+  const unav = (r) => `<span class="derived">Unavailable — ${r}</span>`; const undef = (c) => `<span class="derived">Undefined — ${c}</span>`;
+  const waterOut = Number.isNaN(w.rho);
+  $('cond-band').innerHTML = `<div class="field"><label for="op-from">Operating point</label><select id="op-from">${opts}</select></div>
+  <div class="field"><label for="op-v">Speed</label><span><input id="op-v" value="${op.vkn}" ${M.opFrom !== 'custom' ? 'readonly aria-readonly="true"' : ''}> <span class="unit">kn</span></span></div>
+  <div class="field"><label for="op-w">Water</label><select id="op-w">${Object.entries(WATER).map(([k, v]) => `<option value="${k}" ${M.water === k ? 'selected' : ''}>${v.name}</option>`).join('')}</select></div>
+  <div class="field">${M.depthSet ? `<label for="op-h">Depth h_ref</label><span><input id="op-h" value="${op.h.toFixed(2)}" ${M.opFrom !== 'custom' ? 'readonly aria-readonly="true"' : ''}> <span class="unit">m at still-water datum</span></span>` : `<span id="depth-label">Depth h_ref</span><span><button class="btn dense" id="set-depth" aria-labelledby="depth-label set-depth">Set depth</button></span>`}<span class="err" id="op-err"></span></div>
+  <div class="field"><label for="op-a">Incidence α</label><span><input id="op-a" value="${M.alphaSec}"> <span class="unit">°</span></span></div>
+  <div class="field"><span>q</span>${waterOut ? unav('outside the ITTC table (0–50 °C)') : `<span class="derived">${cond.q.toFixed(0)} <span class="unit">Pa</span></span>`}</div>
+  <div class="field"><span>Re (c̄)</span>${waterOut ? unav('outside the ITTC table (0–50 °C)') : cond.q === 0 ? undef('q = 0 (V ≤ 0)') : `<span class="derived">${fmtSci(cond.Re)}</span>`}</div>
+  <div class="field"><span>h/c</span>${!M.depthSet ? unav('depth not set') : `<span class="derived">${cond.hc.toFixed(1)}</span>`}</div>
+  <div class="field"><span>Fr_h</span>${!M.depthSet ? unav('depth not set') : `<span class="derived">${cond.Fr.toFixed(2)}</span>`}</div>
+  <div class="field"><span>σ (h_ref)</span>${!M.depthSet || waterOut ? unav(!M.depthSet ? 'depth not set' : 'outside the ITTC table (0–50 °C)') : cond.q === 0 ? undef('q = 0 (V ≤ 0)') : `<span class="derived">${cond.sigma.toFixed(2)}</span>`}</div>
+  <div class="field"><span>V_crit (governing station)</span>${!M.depthSet || waterOut ? unav(!M.depthSet ? 'depth not set' : 'outside the ITTC table (0–50 °C)') : `<span class="derived">${vcrit(cond, d).toFixed(1)} <span class="unit">kn</span></span>`}</div>`;
+  $('op-from').onchange = e => { M.opFrom = e.target.value; renderAnalyze(); }; $('op-w').onchange = e => { M.water = e.target.value; M.run.current = false; renderAnalyze(); }; $('op-a').onchange = e => { const a = parseFloat(e.target.value); if (!Number.isFinite(a) || Math.abs(a) > 20) { $('op-err').textContent = 'Incidence must be a number within ±20°; the previous value is kept'; return; } M.alphaSec = a; renderAnalyze(); };
+  const hv = $('op-v'); if (hv && M.opFrom === 'custom') hv.onchange = e => { const v = parseFloat(e.target.value); if (!(v >= 0) || v > 60) { $('op-err').textContent = 'Speed must be 0–60 kn; the previous value is kept'; return; } M.custom.vkn = v; renderAnalyze(); }; const hh = $('op-h'); if (hh && M.opFrom === 'custom') hh.onchange = e => { const v = parseFloat(e.target.value); if (!(v > 0) || v > 5) { $('op-err').textContent = 'Depth must be 0–5 m at the still-water datum; the previous value is kept'; return; } M.custom.h = v; renderAnalyze(); };
+  const sd = $('set-depth'); if (sd) sd.onclick = () => { M.depthSet = true; $('h-depth').checked = true; renderAnalyze(); };
+  const body = st === 'loading' ? loadingView() : waterOut ? unavailableView('Unavailable — outside the ITTC table (0–50 °C)') : cond.q === 0 ? undefinedView('Undefined — q = 0 (V ≤ 0)') : M.scope === 'section' ? sectionView(cond, d, st) : M.scope === 'wing' ? wingView(cond, d, op, st) : compareView(cond, d, op);
+  $('analyze-body').innerHTML = body;
+  $('analyze-prov').innerHTML = `<span><b>evidence</b> Illustrative — not computed for this design (mockup fixture)</span><span><b>product label</b> Computed estimate · Model uncertainty not quantified</span><span><b>method</b> ${M.scope === 'section' ? 'XFOIL-class surrogate fixture 0.0 · XFOIL-class surrogate; accuracy relative to XFOIL, not experiment' : 'VLM + strip 1.2.0 (fixture)'}</span><span><b>run</b> k-0314 · ${M.run.current ? 'Current' : 'Historical — definition changed'}</span><span><b>depth basis</b> ${M.depthSet ? `h_ref ${op.h.toFixed(2)} m · h/c ${cond.hc.toFixed(1)} · Fr_h ${cond.Fr.toFixed(2)}` : 'Unavailable — depth not set'}</span><span><b>water</b> ${w.name} · ${w.src}</span><span><b>map</b> vik (Crameri, cmcrameri) pinned at Cp = 0 · batlow for magnitude</span><span><b>S_ref</b> ${d.S.toFixed(4)} m² · AR (projected, b²/S) ${d.AR.toFixed(2)}</span>`;
+  document.querySelectorAll('[data-twin]').forEach(b => b.onclick = () => openTable(b.dataset.twin));
+  document.querySelectorAll('[data-scope]').forEach(b => { b.setAttribute('aria-pressed', b.dataset.scope === M.scope); b.onclick = () => { M.scope = b.dataset.scope; renderAnalyze(); }; });
+  renderInspector();
+}
+function loadingView() { return `<div class="result">${['Cl', 'Cd', 'Cl/Cd', 'x_tr/c', 'Cp_min'].map(l => `<div class="quant"><div class="l"><span>${l}</span><span class="chip illus">Illustrative</span></div><div class="skeleton" style="height:28px"></div><div class="b">awaiting run k-0315</div></div>`).join('')}</div><div class="strings"><div class="string">Run k-0315 in progress (VLM + strip 1.2.0) · results shown elsewhere are k-0314 — Historical until it completes · <button class="btn dense">Cancel run</button></div></div><div class="panel charts"><div class="chart"><h3>Cl – α · Ncrit band</h3><div class="skeleton tall"></div></div><div class="chart"><h3>Cd – α</h3><div class="skeleton tall"></div></div></div>`; }
+function unavailableView(reason) { return `<div class="result">${['Cl', 'Cd', 'Cl/Cd', 'x_tr/c', 'Cp_min'].map(l => quant(l, null, 'no water properties', reason)).join('')}</div><div class="strings"><div class="string">${reason} · choose a temperature in range · nothing is extrapolated</div></div>`; }
+function undefinedView(cause) { return `<div class="result">${['CL', 'CD', 'CL/CD', 'Total lift', 'Total drag'].map(l => quant(l, null, 'ratio with a non-physical denominator', cause)).join('')}</div><div class="strings"><div class="string">${cause} · Undefined is never rendered as 0, ∞ or a nearby value</div></div>`; }
+function vcrit(cond, d) { const cp = 0.32 + 1.35 * 0.35 * 0.35; const h = cond.hTip; return Math.sqrt(2 * (P_ATM + cond.w.rho * G * h - cond.w.pv) / (cond.w.rho * cp)) / KN; }
+function line(pts, X, Y, stroke, dash = '', width = 2) { return `<polyline points="${pts.map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' ')}" fill="none" stroke="${stroke}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`; }
+function axes(W, H, pad, xl, yl) { return `<g stroke="var(--control)" fill="none"><line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H - pad.b}"/><line x1="${pad.l}" y1="${H - pad.b}" x2="${W - pad.r}" y2="${H - pad.b}"/></g><text x="${W - pad.r}" y="${H - 6}" text-anchor="end" fill="var(--mute)" font-size="13" font-family="ui-monospace, monospace">${xl}</text><text x="${pad.l + 4}" y="${pad.t + 12}" fill="var(--mute)" font-size="13" font-family="ui-monospace, monospace">${yl}</text>`; }
+let TWIN = {};
+function sectionView(cond, d, st) {
+  const Re = cond.Re, alphas = Array.from({ length: 19 }, (_, i) => -4 + i); const W = 420, H = 200, pad = { l: 44, r: 12, t: 14, b: 24 };
+  const series = [[2, 'clean'], [4, 'clean']].map(([n, s]) => ({ n, s, pts: alphas.map(a => polar(a, Re, n, s)) }));
+  const tripped = M.surface === 'tripped' ? [[2, 'tripped'], [4, 'tripped']].map(([n, s]) => ({ n, s, pts: alphas.map(a => polar(a, Re, n, s)) })) : [];
+  const Xa = a => pad.l + (a + 4) / 22 * (W - pad.l - pad.r), Ycl = c => H - pad.b - (c + 0.4) / 1.8 * (H - pad.t - pad.b), Ycd = c => H - pad.b - c / 0.06 * (H - pad.t - pad.b);
+  const band = (key, Y) => `<polygon points="${series[0].pts.map((p, i) => `${Xa(alphas[i]).toFixed(1)},${Y(p[key]).toFixed(1)}`).join(' ')} ${series[1].pts.slice().reverse().map((p, i) => `${Xa(alphas[18 - i]).toFixed(1)},${Y(p[key]).toFixed(1)}`).join(' ')}" fill="var(--primary)" fill-opacity="0.18" stroke="none"/>`;
+  const cur = polar(M.alphaSec, Re, 2, M.surface), cur4 = polar(M.alphaSec, Re, 4, M.surface); const sigma = cond.sigma; const cp = cur.cpmin;
+  TWIN.polar = { head: ['α °', 'Cl (Ncrit 2)', 'Cl (Ncrit 4)', 'Cd (Ncrit 2)', 'Cd (Ncrit 4)', 'x_tr (2)', 'x_tr (4)'], rows: alphas.map((a, i) => [a, series[0].pts[i].cl.toFixed(3), series[1].pts[i].cl.toFixed(3), series[0].pts[i].cd.toFixed(4), series[1].pts[i].cd.toFixed(4), series[0].pts[i].xtr.toFixed(2), series[1].pts[i].xtr.toFixed(2)]) };
+  const cpPts = profilePoints(1, 30); const cpVals = cpPts.map(([x, y], i) => { const upper = i <= 30; const base = upper ? -(cur.cpmin * 4 * x * (1 - x) * (1 + 0.6 * (1 - x))) : (0.25 - 0.9 * x * (1 - x) * cur.cl); return { x, y, cp: upper ? Math.max(-cur.cpmin, base) : base, upper }; });
+  TWIN.cp = { head: ['x/c', 'surface', 'Cp'], rows: cpVals.map(v => [v.x.toFixed(3), v.upper ? 'upper' : 'lower', v.cp.toFixed(3)]) };
+  const vik = t => { const stops = ['var(--vik-neg2)', 'var(--vik-neg1)', 'var(--vik-zero)', 'var(--vik-pos1)', 'var(--vik-pos2)']; const i = Math.max(0, Math.min(4, Math.round((t + 1) / 2 * 4))); return stops[i]; };
+  const cpMax = cur.cpmin; const cpSeg = cpVals.slice(1).map((v, i) => { const a = cpVals[i]; const t = -v.cp / cpMax; return `<line x1="${(60 + a.x * 300).toFixed(1)}" y1="${(110 - a.y * 300).toFixed(1)}" x2="${(60 + v.x * 300).toFixed(1)}" y2="${(110 - v.y * 300).toFixed(1)}" stroke="var(--ink)" stroke-width="7" stroke-linecap="round"/><line x1="${(60 + a.x * 300).toFixed(1)}" y1="${(110 - a.y * 300).toFixed(1)}" x2="${(60 + v.x * 300).toFixed(1)}" y2="${(110 - v.y * 300).toFixed(1)}" stroke="${vik(t)}" stroke-width="5" stroke-linecap="round"/>`; }).join('');
+  const cpCurve = cpVals.map(v => `${(pad.l + v.x * (W - pad.l - pad.r)).toFixed(1)},${(pad.t + (v.cp + cpMax) / (cpMax + 1) * (H - pad.t - pad.b)).toFixed(1)}`);
+  const margin = M.depthSet ? (sigma - cp) / cp : null;
+  const empty = st === 'empty';
+  return `<div class="result">
+    ${quant('Cl', empty ? null : `${cur.cl.toFixed(3)} – ${cur4.cl.toFixed(3)}`, 'per span · Ncrit {2, 4} band', empty ? 'Unavailable — no polar computed for this profile' : '')}
+    ${quant('Cd', empty ? null : `${cur.cd.toFixed(4)} – ${cur4.cd.toFixed(4)}`, `Re ${fmtSci(Re)} · ${M.surface}`, empty ? 'Unavailable — no polar computed for this profile' : '')}
+    ${quant('Cl/Cd', empty ? null : `${(cur.cl / cur.cd).toFixed(1)} – ${(cur4.cl / cur4.cd).toFixed(1)}`, 'dimensionless', 'Unavailable — no polar computed for this profile')}
+    ${quant('x_tr/c', empty ? null : `${cur.xtr.toFixed(2)} / ${cur4.xtr.toFixed(2)}`, 'upper · per Ncrit', 'Unavailable — no polar computed for this profile')}
+    ${quant('Cp_min', empty ? null : `−${cur.cpmin.toFixed(2)}`, 'resolution: 61 stations', 'Unavailable — no polar computed for this profile')}
+  </div>
+  <div class="strings">
+    ${M.depthSet && cond.hc < 5 ? `<div class="string">Deep-water result; free surface not modelled (h/c = ${cond.hc.toFixed(1)}, Fr_h = ${cond.Fr.toFixed(2)}; effects measured below h/c 5)</div>` : ''}
+    <div class="string">Cavitation screening (sheet, by −Cp_min): inception is possible above V_crit; not a prediction of inception, extent, tip-vortex or cloud cavitation; Cp_min resolution: 61 stations · margin setting 15 % (practitioner assumption, not sourced) · governing station η 0.20 at h(y) ${M.depthSet ? (cond.hTip - 0.004).toFixed(2) + ' m' : 'Unavailable — depth not set'} · ${M.depthSet ? `σ ${sigma.toFixed(2)} vs −Cp_min ${cp.toFixed(2)} → ${margin >= 0.15 ? 'screen passes' : 'screen fails'} (${(margin * 100).toFixed(0)} %)` : 'σ Unavailable — depth not set'}</div>
+    <div class="string">Ncrit band: practitioner range; no measured water N-factor; Day 2019 used 4 · surface state: ${M.surface === 'clean' ? 'Clean · tripped band Unavailable — not computed' : 'Tripped at x/c = 0.05'} <button class="btn dense" id="surface-toggle">${M.surface === 'clean' ? 'Show tripped band' : 'Clean only'}</button></div>
+    <div class="string">Computed estimate · Model uncertainty not quantified · XFOIL-class surrogate; accuracy relative to XFOIL, not experiment · analysis_confidence: not recorded</div>
+  </div>
+  <div class="panel charts">
+    <div class="chart"><h3>Cl – α · Ncrit band</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cl versus alpha, band between Ncrit 2 and Ncrit 4">${axes(W, H, pad, 'α °', 'Cl')}${band('cl', Ycl)}${line(series[0].pts.map((p, i) => [alphas[i], p.cl]), Xa, Ycl, 'var(--primary)')}${line(series[1].pts.map((p, i) => [alphas[i], p.cl]), Xa, Ycl, 'var(--primary)', '5 3')}${tripped.map(s => line(s.pts.map((p, i) => [alphas[i], p.cl]), Xa, Ycl, 'var(--warn)', s.n === 4 ? '5 3' : '')).join('')}<line x1="${Xa(M.alphaSec)}" y1="${pad.t}" x2="${Xa(M.alphaSec)}" y2="${H - pad.b}" stroke="var(--primary)" stroke-dasharray="2 2"/><text x="${Xa(14)}" y="${Ycl(series[0].pts[18].cl) - 4}" fill="var(--ink)" font-size="13" font-family="ui-monospace, monospace">Ncrit 2 ──</text><text x="${Xa(14)}" y="${Ycl(series[1].pts[18].cl) - 4}" fill="var(--ink)" font-size="13" font-family="ui-monospace, monospace">Ncrit 4 ╌╌</text></svg><div class="foot"><span>profile 66-209 r4 · Re ${fmtSci(Re)} · Ncrit {2, 4} · ${M.surface} · range α −4…14°</span><button class="btn dense" data-twin="polar">Table twin</button><button class="btn dense" aria-label="Add series: overlay a second admitted section at the same Re">Add series</button></div></div>
+    <div class="chart"><h3>Cd – α</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cd versus alpha, band between Ncrit 2 and 4">${axes(W, H, pad, 'α °', 'Cd')}${band('cd', Ycd)}${line(series[0].pts.map((p, i) => [alphas[i], p.cd]), Xa, Ycd, 'var(--primary)')}${line(series[1].pts.map((p, i) => [alphas[i], p.cd]), Xa, Ycd, 'var(--primary)', '5 3')}</svg><div class="foot"><span>drag from the surrogate; Total drag is a wing quantity</span><button class="btn dense" data-twin="polar">Table twin</button></div></div>
+    <div class="chart"><h3>Cp · x/c (−Cp up) and Cp on the section, vik pinned at Cp = 0</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pressure coefficient: line chart with negative Cp upward, and the section coloured by Cp with the diverging vik map pinned at zero">${axes(W, H, pad, 'x/c', '−Cp ↑')}${line(cpVals.map(v => [v.x, v.cp]), x => pad.l + x * (W - pad.l - pad.r), c => pad.t + (c + cpMax) / (cpMax + 1) * (H - pad.t - pad.b), 'var(--primary)')}<line x1="${pad.l}" y1="${pad.t + cpMax / (cpMax + 1) * (H - pad.t - pad.b)}" x2="${W - pad.r}" y2="${pad.t + cpMax / (cpMax + 1) * (H - pad.t - pad.b)}" stroke="var(--control)" stroke-dasharray="2 2"/><text x="${W - pad.r - 4}" y="${pad.t + cpMax / (cpMax + 1) * (H - pad.t - pad.b) - 3}" text-anchor="end" fill="var(--mute)" font-size="13" font-family="ui-monospace, monospace">Cp = 0</text><g transform="translate(20,80) scale(0.85)">${cpSeg}</g><text x="${pad.l + 4}" y="${H - pad.b - 6}" fill="var(--ink)" font-size="13" font-family="ui-monospace, monospace">upper ── lower (below the axis)</text></svg><div class="foot"><span>Cp · dimensionless · range −${cpMax.toFixed(2)}…+1.00 (per-run) · vik v8 (Crameri) diverging, zero pinned · sample: 61 stations</span><span style="display:inline-flex;gap:2px;align-items:center">${['--vik-neg2', '--vik-neg1', '--vik-zero', '--vik-pos1', '--vik-pos2'].map(v => `<i style="width:16px;height:10px;background:var(${v});border:1px solid var(--control);display:inline-block"></i>`).join('')} <span>−Cp_min … 0 … +1</span></span><button class="btn dense" data-twin="cp">Table twin</button></div></div>
+  </div>`;
+}
+function quant(label, value, basis, unav) { return `<div class="quant ${value == null ? 'unav' : ''}"><div class="l"><span>${label}</span><span class="chip illus">Illustrative</span></div><div class="v ${value != null && String(value).length > 12 ? 'small' : ''}">${value == null ? esc(unav || 'Unavailable — not computed') : value}</div><div class="b">${basis}</div></div>`; }
+function wingView(cond, d, op, st) {
+  const w = cond.w; const alpha = M.alphaSec; const r = wingResult(cond, alpha, d.S, d.AR); const jl = M.depthSet ? jmsa(cond.hc, 'lift') : null; const partial = st === 'partial';
+  const W = 420, H = 200, pad = { l: 44, r: 12, t: 14, b: 24 }; const n = 40; const load = Array.from({ length: n + 1 }, (_, i) => { const u = i / n; const c = chanAt('chord', u); return [u, Math.sqrt(Math.max(0, 1 - u * u)) * 1.15 * (0.9 + 0.1 * c / d.cbar) * (1 + chanAt('twist', u) * 0.02)]; }); const ell = Array.from({ length: n + 1 }, (_, i) => [i / n, Math.sqrt(Math.max(0, 1 - (i / n) ** 2)) * 1.15]);
+  TWIN.load = { head: ['η', 'Cl·c/c̄', 'elliptical', 'Cl_max(Re_local)'], rows: load.map(([u, v], i) => [u.toFixed(3), v.toFixed(3), ell[i][1].toFixed(3), (1.05 + 0.02 * Math.log10(Math.max(1, cond.Re * chanAt('chord', u) / d.cbar / 1e5))).toFixed(3)]) };
+  const yc = 4 * d.b / 2 / (3 * Math.PI); const Mroot = r.L / 2 * yc; const batlow = t => ['var(--batlow-0)', 'var(--batlow-1)', 'var(--batlow-2)', 'var(--batlow-3)', 'var(--batlow-4)'][Math.max(0, Math.min(4, Math.round(t * 4)))];
+  const strips = Array.from({ length: 16 }, (_, i) => { const u = (i + 0.5) / 16; const v = load[Math.round(u * n)][1] / 1.15; return `<rect x="${pad.l + i / 16 * (W - pad.l - pad.r)}" y="${H - pad.b - 14}" width="${(W - pad.l - pad.r) / 16 - 1}" height="10" fill="${batlow(v)}" stroke="var(--ink)" stroke-width="0.5"/>`; }).join('');
+  return `<div class="result">
+    ${quant('CL', r.CL.toFixed(3), `Wing only · S_ref ${d.S.toFixed(4)} m² · VLM + strip`)}
+    ${quant('CD', partial ? null : (r.CD).toFixed(4), `CDi ${r.CDi.toFixed(4)} + profile ${r.CDp.toFixed(4)}`, 'Unavailable — profile drag strip missing (partial run)')}
+    ${quant('CL/CD', partial ? null : r.LD.toFixed(1), 'wing only', 'Unavailable — CD unavailable')}
+    ${quant('Total lift', `${r.L.toFixed(0)} N`, `q ${cond.q.toFixed(0)} Pa · ${w.name.split(' ·')[0]} · force axes: body frame`)}
+    ${quant('Total drag', partial ? null : `${r.D.toFixed(1)} N`, 'omits: junction, mast, wave, spray, tip-vortex cavitation', 'Unavailable — omitted components: junction, mast, wave, spray, profile strip')}
+  </div>
+  <div class="strings">
+    <div class="string">attached flow; no stall; no ventilation; deep water · omissions: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state · separation only as "Section-based inference" · computed e ${r.e.toFixed(3)}${r.e > 1.005 || r.e < 0.7 ? ' · flags the lattice' : ''}</div>
+    ${M.depthSet ? `<div class="string">${cond.hc < 5 ? `Deep-water result; free surface not modelled (h/c = ${cond.hc.toFixed(1)}, Fr_h = ${cond.Fr.toFixed(2)}; effects measured below h/c 5) · ` : ''}Correction layer beside (never instead): JMSA 2026 depth-only fit, lift factor ${jl.toFixed(3)} → CL ${(r.CL * jl).toFixed(3)} · h/c ${cond.hc.toFixed(1)} · Fr_h ${cond.Fr.toFixed(2)} · id jmsa-2026-lift · model-scale Re 10⁵ data · Froude dependence not modelled · finding beside: ≈ 17 % lift loss measured between Fr_h 2 and 5 at h/c 4</div>
+    <div class="string">Static geometry; steady analysis cannot predict ventilation onset; onset is dynamic and hysteretic · tip-depth margin ${cond.hTip.toFixed(2)} m · Fr_h ${cond.Fr.toFixed(2)}</div>` : `<div class="string">σ, Fr_h, V_crit: Unavailable — depth not set · no deep-water value or label is printed</div>`}
+  </div>
+  <div class="panel grid2">
+    <div class="chart"><h3>Spanwise Cl·c/c̄ vs elliptical · strip colour = batlow magnitude</h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spanwise loading compared with the elliptical distribution; strips coloured with the batlow map">${axes(W, H, pad, 'η', 'Cl·c/c̄')}${line(ell, u => pad.l + u * (W - pad.l - pad.r), v => H - pad.b - 20 - v / 1.4 * (H - pad.t - pad.b - 20), 'var(--control)', '5 3')}${line(load, u => pad.l + u * (W - pad.l - pad.r), v => H - pad.b - 20 - v / 1.4 * (H - pad.t - pad.b - 20), 'var(--primary)')}${strips}<text x="${W - pad.r - 4}" y="${pad.t + 12}" text-anchor="end" fill="var(--ink)" font-size="13" font-family="ui-monospace, monospace">── computed  ╌╌ elliptical</text></svg><div class="foot"><span>Cl·c/c̄ · dimensionless · range 0…1.4 (fixed for this schedule) · batlow v8 (Crameri, MIT) sequential · 16 strips</span><span style="display:inline-flex;gap:2px;align-items:center">${['--batlow-0', '--batlow-1', '--batlow-2', '--batlow-3', '--batlow-4'].map(v => `<i style="width:16px;height:10px;background:var(${v});border:1px solid var(--control);display:inline-block"></i>`).join('')} <span>0 … 1</span></span><button class="btn dense" data-twin="load">Table twin</button></div></div>
+    <div class="chart"><h3>Loads <span class="chip warn">Structural: Not assessed</span></h3>
+      <table class="data"><tbody>
+      <tr><td>Center of lift</td><td class="num">${(yc * 1000).toFixed(0)} mm</td><td class="cap">from root plane, starboard</td></tr>
+      <tr><td>Wing loading (computed L/S_ref)</td><td class="num">${(r.L / d.S / 1000).toFixed(2)} kPa</td><td class="cap">distinct from the goal state's design W/S ${(GOAL.W / d.S / 1000).toFixed(2)} kPa</td></tr>
+      <tr><td>Root bending moment (steady, n = 1)</td><td class="num">${Mroot.toFixed(1)} N·m</td><td class="cap">about the root plane · positive tip-up</td></tr>
+      <tr><td>Attachment moment</td><td class="num">${partial ? 'Unavailable — attachment point not named' : (Mroot * 0.62).toFixed(1) + ' N·m'}</td><td class="cap">about user-named point</td></tr>
+      <tr><td>Strip → total reconciliation</td><td class="num">${partial ? 'Unavailable — strips missing' : '0.21 %'}</td><td class="cap">≤ 0.5 % (manifest tolerance)</td></tr>
+      </tbody></table>
+      <p class="cap">Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue. Relative stiffness EI/EI_ref ${d.stiff.toFixed(2)} at this station's chord, relative to t/c = 10 % · geometry only (Structural: Not assessed).</p>
+      <div class="string safety">Loads are hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated.</div>
+    </div>
+  </div>`;
+}
+function compareView(cond, d, op) {
+  const r4 = wingResult(cond, M.alphaSec, d.S, d.AR), r3 = wingResult(cond, M.alphaSec, d.S * 0.985, d.AR * 1.02); const est = { CL: r4.CL * 1.06, CD: r4.CD * 0.92 }; const rows = [['CL', r3.CL, r4.CL], ['CD', r3.CD, r4.CD], ['L/D', r3.LD, r4.LD], ['Total lift N', r3.L, r4.L]];
+  return `<div class="panel"><h3>Compare · r3 (k-0312) → r4 (k-0314) · per-point deltas normalised to the base value</h3><table class="data"><thead><tr><th>Quantity</th><th class="num">r3 (base)</th><th class="num">r4</th><th class="num">δ / base</th><th>reference quantities</th></tr></thead><tbody>${rows.map(([q, a, b]) => `<tr><td>${q}</td><td class="num">${a.toFixed(q === 'Total lift N' ? 0 : 3)}</td><td class="num">${b.toFixed(q === 'Total lift N' ? 0 : 3)}</td><td class="num">${((b - a) / a * 100).toFixed(2)} %</td><td class="cap">S_ref ${(d.S * 0.985).toFixed(4)} vs ${d.S.toFixed(4)} m² · <span class="chip warn">reference quantities differ — coefficient delta blocked until reconciled</span> <button class="btn dense">Reconcile</button></td></tr>`).join('')}</tbody></table>
+  <h3 style="margin-top:var(--sp-16)">Tiers disagree at ${op.id}</h3><table class="data"><thead><tr><th>Tier</th><th class="num">CL</th><th class="num">CD</th><th>envelope · omissions</th><th>uncertainty</th></tr></thead><tbody><tr><td>estimator (closed form)</td><td class="num">${est.CL.toFixed(3)}</td><td class="num">${est.CD.toFixed(4)}</td><td class="cap">inviscid + turbulent-friction bound; deep water; steady</td><td class="cap">not reported</td></tr><tr><td>VLM + strip 1.2.0</td><td class="num">${r4.CL.toFixed(3)}</td><td class="num">${r4.CD.toFixed(4)}</td><td class="cap">attached flow; no stall; no ventilation; deep water</td><td class="cap">reported: lattice ±1 %</td></tr></tbody></table>
+  <div class="string" style="margin-top:var(--sp-8)">Tiers disagree: δ = ${((est.CL - r4.CL) / r4.CL * 100).toFixed(1)} % — Discrepancy record stored · value preferred by reported uncertainty: VLM + strip</div><p class="cap">Nothing is averaged. Both values stay visible with method, version, inputs, envelope and omissions.</p></div>`;
+}
+function openTable(key) { const t = TWIN[key]; if (!t) return; $('table-body').innerHTML = `<div style="max-height:360px;overflow:auto"><table class="data"><thead><tr>${t.head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="cap">Same data as the chart · CSV export carries units in headers.</p>`; $('table-dialog').showModal(); }
+/* ===================== Checks · Export · DAT · Assistant · Settings ===================== */
+function refreshFindings() { const d = derived(); const f = []; if (d.S < 0.07) f.push({ rule: RULES[0], loc: 'recipe · front wing area', text: `front wing ${(d.S * 1e4).toFixed(0)} cm² < 700 cm²` }); if (d.AR < 7 || d.AR > 13.1) f.push({ rule: RULES[1], loc: 'derived · AR', text: `Out-of-envelope observation — AR 7–13.1, catalogued products (fixture 2026-09-20)` }); if (d.teMM < M.teFloor) f.push({ rule: RULES[2], loc: `station η ${ETA[M.station]}`, text: `Trailing edge ${d.teMM.toFixed(2)} mm below the floor ${M.teFloor.toFixed(1)} mm (practitioner value, unverified)` }); if (!M.locks.rootMirror) f.push({ rule: RULES[3], loc: 'η 0 · every channel', text: 'Root-mirror tangent lock released — break marker at the root plane' }); if (win.dataset.state === 'overflow') f.push({ rule: RULES[4], loc: 'export · chart legend', text: 'Forbidden word "optimized" in a legend string — one of a 12-item finding list that must scroll without clipping the drawer header' }); M.findings = f; renderChecks(); }
+function openFindings() { return M.findings.filter(f => !M.exclusions[f.rule.id]).length; }
+function renderChecks() { $('checks-count').textContent = openFindings(); $('checks-meta').textContent = `${M.findings.length} finding(s) · ${Object.keys(M.exclusions).length} excluded · Design revision r${M.revision}`; $('findings').innerHTML = M.findings.length ? M.findings.map(f => `<div class="finding ${M.exclusions[f.rule.id] ? 'excluded' : ''}"><div class="id">${f.rule.id} · v${f.rule.v} · ${f.rule.sev}</div><div>${f.text}</div><div class="cap">at ${f.loc}</div>${M.exclusions[f.rule.id] ? `<div class="cap">excluded: ${esc(M.exclusions[f.rule.id])}</div>` : `<div class="act"><button class="btn dense" data-jump="${f.rule.id}">Jump</button><button class="btn dense" data-exclude="${f.rule.id}">Exclude with reason…</button></div>`}</div>`).join('') : '<p class="cap">No findings on this revision. Zero is a stated result of the evaluated rule families: geometry, envelope, class, manufacturing, label, catalog.</p>'; $('findings').querySelectorAll('[data-exclude]').forEach(b => b.onclick = () => { /* simplify: native prompt() stands in for the exclusion form; ceiling — the product uses an inline field; upgrade trigger: the Checks drawer is designed in /design-slice */ const reason = prompt('Exclusion reason (stored on the finding; free-text attribution, never the OS user name):', 'Reviewed: tip TE will be rounded in post-processing'); if (reason) { M.exclusions[b.dataset.exclude] = reason; renderChecks(); renderStatus(); } }); $('findings').querySelectorAll('[data-jump]').forEach(b => b.onclick = () => { showTask('shape'); $('checks').dataset.open = 'false'; }); renderStatus(); }
+function renderExport() { const d = derived(); const te = d.teMM < M.teFloor; $('export-body').innerHTML = `<table class="data"><thead><tr><th>Format</th><th>Unit</th><th>Fidelity</th><th></th></tr></thead><tbody>
+<tr><td>.cfdw.json native</td><td>m (SI)</td><td class="cap">record payload + provenance; nothing derived as authority; RFC 8785 canonical hash</td><td><button class="btn dense">Save</button></td></tr>
+<tr><td>Selig / Lednicer DAT</td><td>normalised chord</td><td class="cap">shortest-round-trip digits · deviation 0 (exact copy)</td><td><button class="btn dense">Write</button></td></tr>
+<tr><td>AVL .avl + AFILE</td><td>m</td><td class="cap">3 authored + 12 sampled sections · Sref/Bref/Cref from the same evaluation as the AR readout</td><td><button class="btn dense">Write</button></td></tr>
+<tr><td>STL / 3MF (print)</td><td>mm · declared</td><td class="cap">chordal deviation 0.020 mm · unscaled</td><td><button class="btn dense">Write</button></td></tr>
+<tr><td>STEP AP203</td><td>mm</td><td class="cap">STEP export unavailable until the open-and-measure fixture exists</td><td><button class="btn dense" disabled aria-disabled="true">Unavailable</button></td></tr>
+<tr><td>Chart / table CSV</td><td>units in headers</td><td class="cap">legend fields of C2 carried</td><td><button class="btn dense">Write</button></td></tr></tbody></table>
+<p class="cap">Skin for STL/3MF is a derived approximation of the rule-A record; its maximum deviation from the record is measured and reported (0.020 mm at revision r${M.revision}).</p>
+${te ? `<div class="banner warn" style="margin:var(--sp-8) 0"><span>Trailing edge ${d.teMM.toFixed(2)} mm below the floor ${M.teFloor.toFixed(1)} mm (practitioner value, unverified)</span></div>` : ''}
+<div class="string safety">This geometry has not been checked for strength, manufacturability or ride safety. No standard for hydrofoil-wing strength applies (RCD 2013/53/EU excludes hydrofoils and surfboards; ISO 25649 excludes rigid surf-sport devices). Test before use.</div>
+<p style="margin-top:var(--sp-12)"><button class="btn dense" id="export-close">Close</button></p>`; $('export-close').onclick = () => $('export-dialog').close(); }
+function renderDat(layout = 'selig') { $('dat-body').innerHTML = `<p class="cap">Two-layout detector · file e817.dat · 8.2 kB · SHA-256 4d1e…9b · CRLF · BOM absent · 2 comment lines</p><div class="dense-group" role="group" aria-label="Detected layout"><button class="btn dense" data-layout="selig" aria-pressed="${layout === 'selig'}">Selig (detected): TE→LE→TE, 61 points</button><button class="btn dense" data-layout="lednicer" aria-pressed="${layout === 'lednicer'}">Read as Lednicer</button></div>
+<div class="canvas" style="min-height:160px;margin:var(--sp-8) 0">${layout === 'selig' ? `<svg viewBox="0 0 600 160" role="img" aria-label="Selig preview: closed profile, 61 points, normalised"><rect width="600" height="160" fill="var(--viewport)"/><polygon points="${profilePoints(1.1, 30).map(([x, y]) => `${40 + x * 520},${80 - y * 520}`).join(' ')}" fill="var(--foil)" fill-opacity="0.4" stroke="var(--foil-edge)"/></svg>` : `<svg viewBox="0 0 600 160" role="img" aria-label="Lednicer reading rejected: self-crossing"><rect width="600" height="160" fill="var(--viewport)"/><polyline points="40,80 300,40 560,80 300,120 40,80 560,80" fill="none" stroke="var(--danger)" stroke-width="2"/><text x="300" y="150" text-anchor="middle" fill="var(--viewport-ink)" font-size="13" font-family="ui-monospace, monospace">rejected: self-crossing after Lednicer split — library unchanged</text></svg>`}</div>
+<table class="data"><tbody><tr><td>Point order</td><td>${layout === 'selig' ? 'TE → LE (upper) → TE (lower)' : 'upper LE→TE 31, lower LE→TE 30 (unequal counts)'}</td></tr><tr><td>Closure</td><td>${layout === 'selig' ? 'open TE, gap 0.0021 c' : 'Unavailable — shape rejected'}</td></tr><tr><td>Normalisation</td><td>${layout === 'selig' ? 'chord 1.000, LE at (0, 0), rotation 0.03°' : '—'}</td></tr><tr><td>Admission</td><td><span class="chip pending">Pending admission — terms requested from UIUC · GEN sections remain</span></td></tr></tbody></table>
+<p class="dense-group" style="margin-top:var(--sp-12)"><button class="btn dense primary" ${layout === 'selig' ? '' : 'disabled'}>Add to library</button><button class="btn dense" id="dat-cancel">Cancel</button></p>`; $('dat-body').querySelectorAll('[data-layout]').forEach(b => b.onclick = () => renderDat(b.dataset.layout)); $('dat-cancel').onclick = () => $('dat-dialog').close(); }
+function renderAssist() { const cap = document.documentElement.dataset.capability; const task = win.dataset.task; const entry = task === 'brief' ? 'Describe a starting design' : task === 'analyze' ? 'Ask about this result' : null; $('assist-title').textContent = entry ? `Assistant · ${entry}` : 'Assistant';
+  if (cap === 'key-none') { $('assist-body').innerHTML = `<div class="string">No API key configured — every design and analysis tool works without it · <button class="btn dense">Configure key</button></div><p class="cap">HAX G17: global off. The key lives only in the OS credential store (macOS Keychain; Windows Credential Manager).</p>`; return; }
+  if (win.dataset.state === 'error') { $('assist-body').innerHTML = `<div class="string">Assistant cap reached (daily) — raise it in Settings or wait</div><p class="cap">U15a: the meter is 40/40 requests today; the manual path remains.</p>`; return; }
+  if (!entry) { $('assist-body').innerHTML = `<div class="string">No assistant action here</div><p class="cap">Entry points are named per destination: Brief "Describe a starting design"; Analyze "Ask about this result"; Checks "Ask about this finding".</p>`; return; }
+  if (cap === 'key-unevaluated') { $('assist-body').innerHTML = `<div class="string">Unevaluated on this model — proposals disabled until the eval suite passes</div><p class="cap">Model id claude-opus-5 · last eval on claude-sonnet-5 · 9 of 10 items · thresholds fixed at design; a threshold change is a versioned event.</p><textarea aria-label="Question" disabled>Explanations are labelled "Unevaluated"; proposals are disabled.</textarea>`; return; }
+  if (task === 'brief') { $('assist-body').innerHTML = `<textarea aria-label="Brief in language">90 kg rider, race wingfoil, salt 15 °C, 10–20 kn, depth 0.3–0.5 m, GWA class. Make the tip a bit fuller.</textarea><div class="dense-group" style="margin-top:var(--sp-8)"><button class="btn dense" id="assist-preview">Preview payload (redacted)</button><button class="btn dense primary" id="assist-send">Propose</button></div><div class="proposal" id="proposal"><div class="cap">Typed proposal · prompt v3 · schema v2 · every field labelled; the product's validator is the authority</div><div class="row"><span>area</span><span class="num">1000 cm²</span><span class="prov">Stated</span></div><div class="row"><span>AR</span><span class="num">12.0</span><span class="prov">Inferred (preset)</span></div><div class="row"><span>tip chord</span><span class="num">34 mm</span><span class="prov">Inferred ("fuller tip")</span></div><div class="row rej"><span>root t/c</span><span class="num">0.24</span><span class="prov">root t/c: 0.24 outside 0.06–0.14 — not applied</span></div><div class="row"><span>profile</span><span class="num">NACA 66-209 GEN</span><span class="prov">Defaulted</span></div><div class="dense-group" style="margin-top:var(--sp-8)"><button class="btn dense">Show diff</button><button class="btn dense primary">Accept → one Design revision</button><button class="btn dense">Discard</button></div><p class="cap">Egress: exactly one endpoint · paths, user names, hostnames and DRC attributions redacted · usage: Not recorded (mockup) · consent action logged.</p></div>`; return; }
+  $('assist-body').innerHTML = `<textarea aria-label="Question about this result">Why does CL drop between P2 and P3?</textarea><div class="dense-group" style="margin-top:var(--sp-8)"><button class="btn dense primary">Ask</button></div><div class="proposal"><div class="cap">Grounded explanation · cites run k-0314 and knowledge id kb-hw-07 §Operating points</div><p style="margin:var(--sp-4) 0">Required CL falls because q rises with V² while the required load stays 1050 N (run k-0314; kb-hw-07). The shown values are the run's own readouts.</p><div class="string">Response withheld: it contains a number not in the shared context</div><p class="cap">The second draft named "CL 0.25", a numeral absent from the shared run — withheld with the reason (AI-03). What-if offers a real recomputation, never a model number.</p></div>`; }
+function renderSettings() { const mods = document.documentElement.dataset.mods; $('settings-body').innerHTML = `<div><h3>Units and geometry</h3><div class="field"><label for="s-units">Length display</label><select id="s-units"><option ${M.units === 'mm' ? 'selected' : ''}>mm</option><option ${M.units === 'cm' ? 'selected' : ''}>cm</option><option ${M.units === 'm' ? 'selected' : ''}>m</option></select></div><div class="field"><label for="s-force">Force display</label><select id="s-force"><option>N</option><option>lbf (1 lbf = 4.4482216152605 N)</option></select></div><div class="field"><label for="s-te">TE floor setting</label><span><input id="s-te" value="${M.teFloor.toFixed(1)}"> <span class="unit">mm</span></span><span class="echo">practitioner value, unverified · copied into the document on first use and into every Run manifest</span><span class="err" id="s-te-err"></span></div><div class="field"><label for="s-margin">Cavitation margin</label><span><input id="s-margin" value="${M.margin || 15}"> <span class="unit">%</span></span><span class="echo">practitioner assumption, not sourced</span><span class="err" id="s-margin-err"></span></div></div>
+<div><h3>Navigation and keys</h3><div class="field"><label for="s-nav">Navigation preset</label><select id="s-nav"><option ${document.documentElement.dataset.nav === 'workbench' ? 'selected' : ''} value="workbench">Workbench</option><option ${document.documentElement.dataset.nav === 'rhino' ? 'selected' : ''} value="rhino">Rhino</option></select><span class="echo">two presets ship; Fusion, Onshape and Blender schemes are deferred until a formative-study participant asks</span></div><div class="field"><span>Modifier scheme</span><span class="derived">${mods === 'mac' ? '⌘ (macOS) · native menu bar' : 'Ctrl (Windows) · per-monitor DPI v2'}</span></div><div class="field"><span>Trackpad mode</span><span class="derived">${document.documentElement.dataset.trackpad === 'on' ? 'on · two-finger orbit' : 'off · Option/Alt+arrows orbit'}</span></div><div class="field"><span>Assistant key</span><span><button class="btn dense">Configure key…</button></span><span class="echo">stored in the OS credential store only; never a file, environment variable or the document</span></div><div class="field"><label for="s-model">Model identifier</label><span><input id="s-model" value="claude-opus-5" style="text-align:left;font-family:var(--font-sans)"></span><span class="echo">a change shows "Unevaluated on this model" until the eval suite re-runs and every item meets its threshold</span></div><div class="field"><span>Per-request / daily caps</span><span class="derived">32 kB · 40 requests</span></div></div>`; $('s-te').onchange = e => { const v = parseFloat(e.target.value); if (!(v > 0) || v > 10) { $('s-te-err').textContent = 'TE floor must be 0–10 mm; the previous value is kept'; return; } M.teFloor = v; M.run.current = false; refreshFindings(); renderShape(); }; $('s-margin').onchange = e => { const v = parseFloat(e.target.value); if (!(v >= 0) || v > 100) { $('s-margin-err').textContent = 'Margin must be 0–100 %; the previous value is kept'; return; } M.margin = v; renderAnalyze(); }; $('s-nav').onchange = e => { document.documentElement.dataset.nav = e.target.value; $('h-nav').value = e.target.value; renderStatus(); }; }
+/* ===================== Harness wiring · tasks · audit ===================== */
+function showTask(t) { win.dataset.task = t; document.querySelectorAll('.tab[data-task]').forEach(b => b.setAttribute('aria-selected', b.dataset.task === t)); $('editor').style.display = (t === 'shape') ? 'grid' : 'none'; if (t === 'analyze') renderAnalyze(); if (t === 'sections') renderSections(); if (t === 'brief') renderBrief(); if (t === 'settings') renderSettings(); renderInspector(); renderAssist(); audit(); }
+document.querySelectorAll('.tab[data-task]').forEach(b => b.onclick = () => showTask(b.dataset.task));
+$('tab-checks').onclick = () => { const o = $('checks').dataset.open !== 'true'; $('checks').dataset.open = o; $('tab-checks').setAttribute('aria-pressed', o); if (o) $('checks-close').focus(); };
+$('checks-close').onclick = () => { $('checks').dataset.open = 'false'; $('tab-checks').setAttribute('aria-pressed', 'false'); $('tab-checks').focus(); };
+$('assist-toggle').onclick = () => { const o = $('assist').dataset.open !== 'true'; $('assist').dataset.open = o; $('assist-toggle').setAttribute('aria-expanded', o); renderAssist(); if (o) $('assist-close').focus(); };
+$('h-depth').addEventListener('change', e => { M.depthSet = e.target.checked; renderAnalyze(); });
+$('h-secdemo').addEventListener('click', sectionDemo);
+$('shape-canvas').addEventListener('keydown', e => { const alt = e.altKey; if (alt && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); const step = e.shiftKey ? 90 : e.ctrlKey ? 5 : 15; M.azimuth = (M.azimuth + (e.key === 'ArrowRight' ? step : -step) + 360) % 360; M.view = 'iso'; renderShape(); } else if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); M.zoom = Math.min(4, Math.max(0.25, M.zoom * (e.shiftKey ? 1 / 1.25 : 1.25))); M.view = 'iso'; renderShape(); } else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); M.zoom = 1; M.azimuth = 0; renderShape(); } });
+$('assist-close').onclick = () => { $('assist').dataset.open = 'false'; $('assist-toggle').setAttribute('aria-expanded', 'false'); $('assist-toggle').focus(); };
+$('export-open').onclick = () => { renderExport(); $('export-dialog').showModal(); };
+$('dat-open').onclick = () => { renderDat(); $('dat-dialog').showModal(); };
+$('table-close').onclick = () => $('table-dialog').close();
+$('undo').onclick = undo; $('redo').onclick = redo;
+$('layout-toggle').onclick = () => { const l = win.dataset.layout === 'lines' ? 'single' : 'lines'; win.dataset.layout = l; $('layout-toggle').setAttribute('aria-pressed', l === 'lines'); };
+$('ghost-toggle').onclick = () => { M.ghost = !M.ghost; $('ghost-toggle').setAttribute('aria-pressed', M.ghost); renderShape(); };
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { if (b.dataset.view === 'fit') { M.zoom = 1; M.azimuth = 0; } else M.view = b.dataset.view; document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x.dataset.view === M.view)); renderShape(); });
+$('palette').onclick = () => status('Command palette: plain-language names · every command also in the native menus (parity path)');
+const dt = $('dismiss-tip'); if (dt) dt.onclick = () => { M.tipDismissed = true; $('h-state').value = 'default'; win.dataset.state = 'default'; status('Tip dismissed · persists per installation'); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && M.preview && e.target.closest('#editor')) { cancelPreview(); } if (e.key === 'Escape' && $('checks').dataset.open === 'true') { $('checks').dataset.open = 'false'; $('tab-checks').setAttribute('aria-pressed', 'false'); $('tab-checks').focus(); } if (e.key === 'Escape' && $('assist').dataset.open === 'true') { $('assist').dataset.open = 'false'; $('assist-toggle').setAttribute('aria-expanded', 'false'); $('assist-toggle').focus(); } if (e.key === 'Enter' && M.preview && e.target.closest('#editor') && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') applyPreview(); const mod = document.documentElement.dataset.mods === 'mac' ? e.metaKey : e.ctrlKey; if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); } if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('palette').click(); } });
+document.querySelectorAll('.kbd-hint').forEach(k => k.textContent = (document.documentElement.dataset.mods === 'mac' ? '⌘' : 'Ctrl+') + k.dataset.kbd);
+const root = document.documentElement;
+const bindH = (id, attr, after) => { const el = $(id); el.addEventListener('change', () => { root.dataset[attr] = el.value; if (after) after(el.value); audit(); }); };
+bindH('h-persona', 'persona', () => { renderShape(); });
+bindH('h-viewport', 'viewport', v => { if (v === 'lines') { win.dataset.layout = 'lines'; $('layout-toggle').setAttribute('aria-pressed', 'true'); } });
+bindH('h-theme', 'theme'); bindH('h-density', 'density'); bindH('h-capability', 'capability', () => renderAssist()); bindH('h-nav', 'nav', () => { renderStatus(); renderSettings(); }); bindH('h-mods', 'mods', () => { document.querySelectorAll('.kbd-hint').forEach(k => k.textContent = (root.dataset.mods === 'mac' ? '⌘' : 'Ctrl+') + k.dataset.kbd); renderStatus(); renderSettings(); });
+$('h-state').addEventListener('change', e => { win.dataset.state = e.target.value; M.partialFeas = e.target.value === 'partial'; if (e.target.value === 'partial') { M.run.current = false; M.water = 'fresh15'; } if (e.target.value === 'error') M.water = 'out'; else if (M.water === 'out') M.water = 'sea15'; renderAssist(); if (e.target.value === 'overflow') $('doc-name').textContent = 'Race-light front wing — salt 15 °C — 2026-09 iteration 07 (seven-point brief, class GWA)'; else $('doc-name').textContent = EXAMPLES[M.ex].name; refreshFindings(); renderShape(); renderBrief(); renderAnalyze(); audit(); });
+$('h-trackpad').addEventListener('change', e => { root.dataset.trackpad = e.target.checked ? 'on' : 'off'; renderShape(); renderSettings(); });
+$('h-motion').addEventListener('change', e => { root.dataset.motion = e.target.checked ? 'reduced' : 'full'; });
+/* --- in-artifact audit (smoke signal; the deterministic craft gate is the measurement of record) --- */
+const AUDIT = { pairs: [['--primary', '--surface', 'chart cursor and series', 'ui'], ['--station', '--viewport', 'focus ring on the viewport (overrides --focus there)', 'ui'], ['--focus', '--surface', 'focus ring on chrome', 'ui'], ['--ink', '--canvas', 'body text on canvas', 'text'], ['--mute', '--canvas', 'muted text on canvas', 'text'], ['--ink', '--surface', 'text on surface', 'text'], ['--mute', '--surface', 'caption on surface', 'text'], ['--ink', '--soft', 'text on soft', 'text'], ['--ink', '--selection', 'selected row text', 'text'], ['--on-primary', '--primary', 'primary button label', 'text'], ['--ok', '--surface', 'success text', 'text'], ['--warn', '--surface', 'warning text', 'text'], ['--danger', '--surface', 'error text', 'text'], ['--primary', '--surface', 'selected tab text / chip', 'text'], ['--focus', '--surface', 'focus ring', 'ui'], ['--control', '--surface', 'control boundary', 'ui'], ['--viewport-ink', '--viewport', 'viewport text', 'text'], ['--viewport-mute', '--viewport', 'viewport caption', 'text'], ['--station', '--viewport', 'selected station line', 'ui'], ['--foil-edge', '--viewport', 'foil edge', 'ui'], ['--line', '--surface', 'panel dividers', 'decorative']] };
+const THRESHOLD = { text: 4.5, large: 3, ui: 3, decorative: 3 };
+const srgb = c => { c /= 255; return c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); }; const lum = ([r, g, b]) => .2126 * srgb(r) + .7152 * srgb(g) + .0722 * srgb(b);
+function parseColor(v) { const p = document.createElement('span'); p.style.color = v.trim(); document.body.appendChild(p); const m = getComputedStyle(p).color.match(/\d+(\.\d+)?/g); p.remove(); return m ? m.slice(0, 3).map(Number) : null; }
+function audit() { const frame = win; const box = frame.getBoundingClientRect(); const v = $('h-verdict'); if (!box.width || !box.height) { v.textContent = 'audit: page not rendered — no number is reported'; v.className = 'verdict fail'; window.workbenchAudit = { frame: { width: 0, height: 0 } }; return; }
+  const cs = getComputedStyle(root), rows = []; for (const [fg, bg, label, kind] of AUDIT.pairs) { const a = parseColor(cs.getPropertyValue(fg)), b = parseColor(cs.getPropertyValue(bg)); if (!a || !b) continue; const l1 = lum(a), l2 = lum(b); const ratio = (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05); const needed = THRESHOLD[kind]; rows.push({ label, fg, bg, kind, ratio, needed, required: kind !== 'decorative', pass: ratio >= needed }); }
+  $('audit-rows').innerHTML = rows.map(r => `<tr><td>${r.label} <span class="mute">(${r.fg} on ${r.bg} · ${r.kind})</span></td><td>${r.ratio.toFixed(2)}:1</td><td class="${r.required ? (r.pass ? 'pass' : 'fail') : 'mute'}">${r.required ? (r.pass ? 'PASS' : 'FAIL') + ` (needs ${r.needed}:1)` : 'not required (decorative)'}</td></tr>`).join('');
+  const failures = rows.filter(r => r.required && !r.pass).length;
+  const controls = [...win.querySelectorAll('button, a, input, select, [role=slider], [role=option]')].filter(el => el.getBoundingClientRect().width > 0 && el.offsetParent !== null);
+  const small = controls.filter(el => { const r = el.getBoundingClientRect(); const dense = el.classList.contains('dense') || el.closest('.field, .dense-group, table, .tree, .foot, .strip, .banner, .harness') || el.getAttribute('role') === 'slider' || el.getAttribute('role') === 'option'; const min = dense ? 24 : 44; return r.height < min - 0.5 || r.width < min - 0.5; });
+  const denseUnder = controls.filter(el => el.classList.contains('dense') && (el.getBoundingClientRect().height < 31.5));
+  $('audit-targets').textContent = `${controls.length} visible controls · ${small.length} under the 24 px floor · ${denseUnder.length} dense control(s) under 32 px · primary actions 44 px.`;
+  v.textContent = `audit: ${failures} contrast fail · ${small.length} small target · ${denseUnder.length} dense<32`; v.className = 'verdict ' + (failures || small.length || denseUnder.length ? 'fail' : 'pass');
+  window.workbenchAudit = { frame: { width: box.width, height: box.height }, contrastFailures: failures, smallTargets: small.length, denseUnder: denseUnder.length, controls: controls.length, pairs: rows.map(r => ({ label: r.label, ratio: +r.ratio.toFixed(2), pass: r.pass, required: r.required })), theme: root.dataset.theme, state: win.dataset.state, task: win.dataset.task }; }
+/* ===================== init ===================== */
+loadExample('light'); M.recipe = true; refreshFindings(); renderBrief(); renderShape(); renderSections(); renderAnalyze(); renderSettings(); showTask('shape'); audit();
+</script>
+</body>
+</html>

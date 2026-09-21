@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "em-dash-overuse",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-knowledge-experts-spec-v1/docs/mockups/workbench-v1.html",
+    "dimension": "16 Content & copy",
+    "cluster": "Copy",
+    "directive": "U11/DX21",
+    "severity": "Minor",
+    "evidence": "Em-dash overuse - `12 em-dashes in body text`",
+    "fix": "Em-dash saturation in body copy is an AI cadence tell. Advisory only: humans use em-dashes legitimately, so this fires only on saturation \u2014 at least 8 em-dashes (\u2014 or --) at a density near one per 500 characters of body text \u2014 never on a long article that uses a few. Prefer commas, colons, periods, or parentheses.",
+    "confidence": "Verified"
+  }
+]

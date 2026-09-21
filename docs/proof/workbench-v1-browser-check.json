@@ -1,0 +1,787 @@
+{
+ "artifact": "docs/mockups/workbench-v1.html",
+ "checkedAt": "2026-09-21T01:15:26.672Z",
+ "measurements": [
+  {
+   "label": "light/brief",
+   "frame": {
+    "width": 1248,
+    "height": 2423.5625
+   },
+   "controls": 33,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "task": "brief"
+  },
+  {
+   "label": "light/shape",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "task": "shape"
+  },
+  {
+   "label": "light/sections",
+   "frame": {
+    "width": 1248,
+    "height": 1741.5
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "task": "sections"
+  },
+  {
+   "label": "light/analyze",
+   "frame": {
+    "width": 1248,
+    "height": 2248.171875
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "task": "analyze"
+  },
+  {
+   "label": "light/settings",
+   "frame": {
+    "width": 1248,
+    "height": 760
+   },
+   "controls": 24,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "task": "settings"
+  },
+  {
+   "label": "dark/brief",
+   "frame": {
+    "width": 1248,
+    "height": 2423.5625
+   },
+   "controls": 33,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "dark",
+   "task": "brief"
+  },
+  {
+   "label": "dark/shape",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "dark",
+   "task": "shape"
+  },
+  {
+   "label": "dark/sections",
+   "frame": {
+    "width": 1248,
+    "height": 1741.5
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "dark",
+   "task": "sections"
+  },
+  {
+   "label": "dark/analyze",
+   "frame": {
+    "width": 1248,
+    "height": 2248.171875
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "dark",
+   "task": "analyze"
+  },
+  {
+   "label": "dark/settings",
+   "frame": {
+    "width": 1248,
+    "height": 760
+   },
+   "controls": 24,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "dark",
+   "task": "settings"
+  },
+  {
+   "label": "contrast/brief",
+   "frame": {
+    "width": 1248,
+    "height": 2423.5625
+   },
+   "controls": 33,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "contrast",
+   "task": "brief"
+  },
+  {
+   "label": "contrast/shape",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "contrast",
+   "task": "shape"
+  },
+  {
+   "label": "contrast/sections",
+   "frame": {
+    "width": 1248,
+    "height": 1741.5
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "contrast",
+   "task": "sections"
+  },
+  {
+   "label": "contrast/analyze",
+   "frame": {
+    "width": 1248,
+    "height": 2248.171875
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "contrast",
+   "task": "analyze"
+  },
+  {
+   "label": "contrast/settings",
+   "frame": {
+    "width": 1248,
+    "height": 760
+   },
+   "controls": 24,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "contrast",
+   "task": "settings"
+  },
+  {
+   "label": "state/first-launch",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 48,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "first-launch",
+   "task": "shape"
+  },
+  {
+   "label": "state/loading",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "loading",
+   "task": "shape"
+  },
+  {
+   "label": "state/empty",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 46,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "empty",
+   "task": "shape"
+  },
+  {
+   "label": "state/error",
+   "frame": {
+    "width": 1248,
+    "height": 1101.984375
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "error",
+   "task": "analyze"
+  },
+  {
+   "label": "state/partial",
+   "frame": {
+    "width": 1248,
+    "height": 2438.671875
+   },
+   "controls": 34,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "partial",
+   "task": "analyze"
+  },
+  {
+   "label": "state/overflow",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "overflow",
+   "task": "shape"
+  },
+  {
+   "label": "state/success",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "success",
+   "task": "shape"
+  },
+  {
+   "label": "lines-plan",
+   "frame": {
+    "width": 1408,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/minimum/shape",
+   "frame": {
+    "width": 992,
+    "height": 1412.171875
+   },
+   "controls": 38,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/minimum/sections",
+   "frame": {
+    "width": 992,
+    "height": 1741.5
+   },
+   "controls": 69,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "sections"
+  },
+  {
+   "label": "viewport/minimum/analyze",
+   "frame": {
+    "width": 992,
+    "height": 1243.171875
+   },
+   "controls": 23,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "analyze"
+  },
+  {
+   "label": "viewport/desktop/shape",
+   "frame": {
+    "width": 1248,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/desktop/sections",
+   "frame": {
+    "width": 1248,
+    "height": 1741.5
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "sections"
+  },
+  {
+   "label": "viewport/desktop/analyze",
+   "frame": {
+    "width": 1248,
+    "height": 2284.671875
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "analyze"
+  },
+  {
+   "label": "viewport/lines/shape",
+   "frame": {
+    "width": 1408,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/lines/sections",
+   "frame": {
+    "width": 1408,
+    "height": 1578.828125
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "sections"
+  },
+  {
+   "label": "viewport/lines/analyze",
+   "frame": {
+    "width": 1408,
+    "height": 1575.25
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "analyze"
+  },
+  {
+   "label": "viewport/wide/shape",
+   "frame": {
+    "width": 1568,
+    "height": 1412.171875
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/wide/sections",
+   "frame": {
+    "width": 1568,
+    "height": 1632.15625
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "sections"
+  },
+  {
+   "label": "viewport/wide/analyze",
+   "frame": {
+    "width": 1568,
+    "height": 1504.140625
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "analyze"
+  },
+  {
+   "label": "viewport/zoom/shape",
+   "frame": {
+    "width": 608,
+    "height": 2525.234375
+   },
+   "controls": 44,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "shape"
+  },
+  {
+   "label": "viewport/zoom/sections",
+   "frame": {
+    "width": 608,
+    "height": 2880.34375
+   },
+   "controls": 75,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "sections"
+  },
+  {
+   "label": "viewport/zoom/analyze",
+   "frame": {
+    "width": 608,
+    "height": 3425.765625
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "theme": "light",
+   "state": "default",
+   "task": "analyze"
+  }
+ ],
+ "oracles": [
+  {
+   "name": "Every destination, theme and hard state renders and audits clean",
+   "pass": true,
+   "proof": "22 measurements; 0 contrast failures; 0 small targets"
+  },
+  {
+   "name": "GOAL-02: seven (V, CL, σ) triples reproduce the pinned arithmetic; h_ref 0.3 m gives σ 7.56",
+   "pass": true,
+   "proof": [
+    [
+     10,
+     "0.773",
+     "7.71"
+    ],
+    [
+     14,
+     "0.395",
+     "3.93"
+    ],
+    [
+     18,
+     "0.239",
+     "2.38"
+    ],
+    [
+     15,
+     "0.458",
+     "3.43"
+    ],
+    [
+     22,
+     "0.213",
+     "1.59"
+    ],
+    [
+     28,
+     "0.132",
+     "0.98"
+    ],
+    [
+     32,
+     "0.101",
+     "0.75"
+    ]
+   ]
+  },
+  {
+   "name": "Feasibility matrix: satisfied · violated · Unavailable with reason, tier chip and both Ncrit per cell",
+   "pass": true,
+   "proof": "matrix text contains all three states"
+  },
+  {
+   "name": "GEO-13: gap to the influence control decreases strictly and stays > 0 over weights 1→16",
+   "pass": true,
+   "proof": [
+    "1.027e-5",
+    "5.176e-6",
+    "2.599e-6",
+    "1.302e-6",
+    "6.518e-7"
+   ]
+  },
+  {
+   "name": "Modal rule: ArrowUp previews, Escape cancels with an unchanged undo stack, invalid weight names its cause",
+   "pass": true,
+   "proof": {
+    "hist0": 0
+   }
+  },
+  {
+   "name": "Apply appends one Design revision, detaches the recipe and makes the run Historical; Undo restores shape, recipe and Currency together",
+   "pass": true,
+   "proof": {
+    "rev0": 4
+   }
+  },
+  {
+   "name": "Derived strip: AR carries its convention; stiffness readout carries the Not-assessed qualifier; S_ref = 0.1000 m²",
+   "pass": true,
+   "proof": "span b 1.100 m · S 0.1000 m² (1000 cm²) · AR (projected, b²/S) 12.10 · mean chord 90.9 mm · TE 0.61 mm at local chord · Trailing edge 0.61 mm below the floor 0."
+  },
+  {
+   "name": "Lines-plan layout renders plan · front · section side by side at 1440 px",
+   "pass": true,
+   "proof": "three SVG panes"
+  },
+  {
+   "name": "ANA-19/UX-11: with depth unset σ, Fr_h and V_crit read \"Unavailable — depth not set\" and no deep-water value or label is printed",
+   "pass": true,
+   "proof": "band text"
+  },
+  {
+   "name": "A5.1/A5.3/A5.4 strings render verbatim on the section result at h/c < 5; the tripped band reads Unavailable — not computed",
+   "pass": true,
+   "proof": "strings matched"
+  },
+  {
+   "name": "Wing result: ventilation string, Loads Not-assessed state and safety string, JMSA correction beside the deep-water value, batlow legend fields",
+   "pass": true,
+   "proof": "strings matched"
+  },
+  {
+   "name": "UI-07/UI-17: vik pinned at Cp = 0 with legend fields; every chart has a table twin in one action",
+   "pass": true,
+   "proof": "dialogs opened with the same data"
+  },
+  {
+   "name": "ANA-06/A5.7: incompatible reference quantities block the delta; tiers disagree with a stored Discrepancy record and no \"recommended\"",
+   "pass": true,
+   "proof": "compare text"
+  },
+  {
+   "name": "ANA-15: a temperature outside 0–50 °C reads Unavailable with the ITTC reason",
+   "pass": true,
+   "proof": "band text"
+  },
+  {
+   "name": "CAT-01/CAT-02: admission classes with reasons; Lednicer forced through Selig is rejected as self-crossing with the library unchanged",
+   "pass": true,
+   "proof": "dialog text"
+  },
+  {
+   "name": "GEO-08: a section edit opens a source-linked draft with deviation and locks; Cancel leaves the catalog original intact",
+   "pass": true,
+   "proof": "strip text"
+  },
+  {
+   "name": "DRC-01: findings carry rule id, version and severity; an exclusion needs a reason, is stored on the finding and lowers the status-strip count",
+   "pass": true,
+   "proof": {
+    "before": 2
+   }
+  },
+  {
+   "name": "EXP-02/GEO-12: STEP is gated with its string, the export safety string is verbatim, and a TE below the floor repeats in the export dialog",
+   "pass": true,
+   "proof": "dialog text"
+  },
+  {
+   "name": "AI-01/02/03/06: no-key, unevaluated-model, rejected-field, withheld-numeral and no-action states render with their fixed strings",
+   "pass": true,
+   "proof": "assistant text per capability"
+  },
+  {
+   "name": "Harness: reduced motion removes transitions; modifier scheme flips the shortcut table; screen-reader and reviewer personas change the surface",
+   "pass": true,
+   "proof": "computed styles and text"
+  },
+  {
+   "name": "A11y: ArrowUp/PageUp/Home keep focus on the handle in both editors (SC 2.1.1, 2.4.3)",
+   "pass": true,
+   "proof": "activeElement re-queried after render"
+  },
+  {
+   "name": "A11y: six sliders with name, min, max, valuetext and vertical orientation in the accessibility tree; one status region",
+   "pass": true,
+   "proof": {
+    "name": "Anchor 1 at η 0, Chord",
+    "min": "0.0056",
+    "max": "0.1430",
+    "text": "120.09 mm",
+    "orient": "vertical",
+    "underImg": false
+   }
+  },
+  {
+   "name": "A11y/UI-17: smallest rendered SVG text (font-size × applied viewBox scale) and every HTML caption ≥ 12 CSS px on Shape, Sections and Analyze at 1024, 1280, 1440, 1600 and the 640 px (200 % zoom) viewport",
+   "pass": true,
+   "proof": {
+    "minimum": {
+     "shape": {
+      "text": "+y starboard → · +x aft ",
+      "px": 12
+     },
+     "sections": {
+      "text": "x/c → · y/c ↑ · dashed =",
+      "px": 12
+     },
+     "analyze": {
+      "text": "α °",
+      "px": 20.242421875
+     }
+    },
+    "desktop": {
+     "shape": {
+      "text": "+y starboard → · +x aft ",
+      "px": 12
+     },
+     "sections": {
+      "text": "x/c → · y/c ↑ · dashed =",
+      "px": 12
+     },
+     "analyze": {
+      "text": "α °",
+      "px": 21.48046875
+     }
+    },
+    "lines": {
+     "shape": {
+      "text": "+y starboard → · +x aft ",
+      "px": 12
+     },
+     "sections": {
+      "text": "x/c → · y/c ↑ · dashed =",
+      "px": 12
+     },
+     "analyze": {
+      "text": "α °",
+      "px": 12.7521875
+     }
+    },
+    "wide": {
+     "shape": {
+      "text": "+y starboard → · +x aft ",
+      "px": 12
+     },
+     "sections": {
+      "text": "x/c → · y/c ↑ · dashed =",
+      "px": 12
+     },
+     "analyze": {
+      "text": "α °",
+      "px": 15.22828125
+     }
+    },
+    "zoom": {
+     "shape": {
+      "text": "+y starboard → · +x aft ",
+      "px": 12
+     },
+     "sections": {
+      "text": "x/c → · y/c ↑ · dashed =",
+      "px": 12
+     },
+     "analyze": {
+      "text": "α °",
+      "px": 17.20875
+     }
+    }
+   }
+  },
+  {
+   "name": "UI-12: no NaN and no placeholder string in 8 states × 5 destinations × 3 scopes; out-of-range water yields Unavailable on every result",
+   "pass": true,
+   "proof": "window text scanned"
+  },
+  {
+   "name": "C2 completeness: unsupported version, recovery, Flagged-with-Acknowledge, cap exceeded, Undefined with cause, Catalog original → Modified from — all render with their strings",
+   "pass": true,
+   "proof": "six states matched"
+  },
+  {
+   "name": "UX-12/GEO-05: a conflicting lock yields the DOF count and the removable list with one-action Release; nudge steps are labelled per unit family; the expression echo shows the resolved model value",
+   "pass": true,
+   "proof": "editor text"
+  },
+  {
+   "name": "UI-03: Option/Alt+arrows orbit in 15°/90° steps, Z zooms, F fits, on the focused viewport; the Checks drawer takes and returns focus and closes on Escape",
+   "pass": true,
+   "proof": "model state and activeElement"
+  },
+  {
+   "name": "Re-gate: viewport focus ring is the audited --station pair (≥ 3:1 on --viewport in every theme); Analyze and Shape render a loading state with a Cancel affordance",
+   "pass": true,
+   "proof": {
+    "ring2": "rgb(102, 221, 200)",
+    "audit": [
+     {
+      "label": "focus ring on the viewport (overrides --focus there)",
+      "ratio": 9.35,
+      "pass": true,
+      "required": true
+     },
+     {
+      "label": "focus ring on chrome",
+      "ratio": 6.11,
+      "pass": true,
+      "required": true
+     },
+     {
+      "label": "focus ring",
+      "ratio": 6.11,
+      "pass": true,
+      "required": true
+     }
+    ]
+   }
+  },
+  {
+   "name": "UI-10: zero external requests and zero page errors across the walk",
+   "pass": true,
+   "proof": {
+    "requests": 0,
+    "errors": 0
+   }
+  }
+ ],
+ "errors": [],
+ "externalRequests": [],
+ "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v1-review-tCbH1G",
+ "note": "HTML review artifact evidence only; native accessibility, scientific validity and the production kernel require their own proof."
+}
