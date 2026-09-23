@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T19:45:33Z",
+  "generated": "2026-09-23T20:31:27Z",
   "audit": [
     {
       "actor": null,
@@ -4603,6 +4603,76 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "9d0766856820dfb2b1244d087156c540ff0e5e24",
         "short": "9d0766856",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37ZEMHZ5ZRSBS5YZ400M93Y",
+      "shortname": "c-final-independent-regressions",
+      "datetime": "2026-09-23T20:31:27Z",
+      "session": "cfd-application-20260923",
+      "prompt": "i see the arch spike open",
+      "summary": "Independent follow-up reproduced MainWindow.DraftField failing on an invalid recovery diagnostic projection, then verified TryDraftField returns unavailable without data loss and binds fresh LE/TE values and units. Corrected the initial prediction that InspectDraft throws: it returns empty rails with diagnostics; retained original oracle and actual converter result. Inspected complete stable native semantic controls, real-state review selectors and startup control. Independently verified230-file review-copy parity with only bundle ID changed and52 current product input hashes against final e7 receipt. Final11-step gate and immutable smoke env readback passed; preceding csc139 fault and one successful same-profile retry remain recorded. A patch-context mismatch was atomically rejected, then corrected without partial mutation. Docs checks passed; C candidate de105f0 remains unjoined and UI acceptance blocked.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver a verified offline application increment with independent evidence and coordinated ownership.",
+      "done_when": "Candidate source, native workflows and required proof pass independent review and join, or a genuine external blocker is recorded after dependency-ready work.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T19:52:59Z",
+      "duration_seconds": 2308.0,
+      "git": {
+        "sha": "20f0f1265e5ec5b68f5e2163b6b61feaedb328b6",
+        "short": "20f0f1265",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37ZEMKXQQSTAJ93GHF0AB2J",
+      "shortname": "c-final-native-inspection-blocked",
+      "datetime": "2026-09-23T20:31:27Z",
+      "session": "cfd-application-20260923",
+      "prompt": "i see the arch spike open",
+      "summary": "Native UI independent disposition BLOCK. Final unique named review copy /private/tmp/cfd-c-final-ui-aw8xt0s_/CFD Workbench.app has verified package parity except CFBundleIdentifier and logs actual Window.Opened; root exact-path CUA call still returns cgWindowNotFound -10005 with no handle, screenshot or AX. No keyboard/rendered/layout/performance proof claimed. New user visibility question names the final review window; pending. Source fixes include complete/stable accessible annotations, persistent errors, real invalid input/geometry/recovery harness states, dynamic themes and transition suppression. Real runtime XAML type error was repaired with typed GridLength and a loader-only real-app startup gate; no-lifetime and immediate-close smoke experiments are retained failures. User-facing work remains bounded to M1; no production claims for simulation, Windows runtime or public distribution.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Independently exercise and assess the actual native workbench.",
+      "done_when": "Rendered, keyboard, accessibility and hard-state proof are observed or a concrete external inspection blocker remains explicitly open.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T19:52:59Z",
+      "duration_seconds": 2308.0,
+      "git": {
+        "sha": "20f0f1265e5ec5b68f5e2163b6b61feaedb328b6",
+        "short": "20f0f1265",
         "branch": "feature/application-foundation",
         "pushed": null
       }
