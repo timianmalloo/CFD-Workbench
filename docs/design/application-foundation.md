@@ -251,22 +251,30 @@ Tests put a unique personal marker into source/path and require it absent from c
 Operating-system access control is a named transfer, not application encryption; shared-device exposure is
 a recorded residual. No credential, rider record or third-party data flow is added by this slice.
 
-## Proposed downstream ownership and gates
+## Original downstream ownership and gates
 
-After Owner freezes contracts, B owns: `src/CfdWorkbench.Core/CfdWorkbench.Core.csproj`, `Contracts.cs`,
+This section records the design-time path and sequencing proposal. Owner
+Rulings 13 and 22 later accepted and joined the bounded B core. The serial C
+desktop/CLI candidate is now at `feature/application-native-adapters` checkpoint
+`4b4bd9b`, under the [independent native review](../reviews/ui-application-native.md).
+Its source and package evidence does not clear rendered macOS UI, AX/keyboard,
+Windows runtime or final M1 delivery.
+
+At design time B was assigned: `src/CfdWorkbench.Core/CfdWorkbench.Core.csproj`, `Contracts.cs`,
 `FoilSource.cs`, `Geometry.cs`, `Identity.cs`, `AuthoringSession.cs`; `src/CfdWorkbench.Persistence/` project
 and `ProjectStore.cs`; `tests/CfdWorkbench.Core.Tests/` project and parser/geometry/identity/history/store tests.
 C owns `src/CfdWorkbench.Desktop/` project, `Program.cs`, `App.axaml`, `App.axaml.cs`, `MainWindow.axaml`,
 `MainWindow.axaml.cs`, `Viewport.cs`; `src/CfdWorkbench.Cli/` project and `Program.cs`; native/CLI adapter tests.
-These are **path proposals**; Coordinator must issue exact file leases, including shared solution/global.json
-and package pins, before writing. No downstream author may change Core contracts unilaterally.
+These were **path proposals**; Coordinator subsequently issued exact B and C
+file leases. No downstream author may change Core contracts unilaterally.
 
-Shortest safe sequence: approve ADR → B first completes the exact session/schema design and compiling fixture
-at a serial pre-code gate → B builds core+real store with negative tests
-→ C binds native/CLI → integrated same-source save/edit/reopen test → root/Owner native review. Only a
-compiled stable fixture removes B→C's decision edge. B is an internal technical track, not a delivered
-increment or runnable CLI. Only the integrated M1 is the vertical delivery. G3 is not a full contract freeze
-while that serial design gate is open; no downstream parallel implementation is authorized by this document.
+The original safe sequence was ADR → exact session/schema design and compiling
+fixture → core and real store with negative tests → serial native/CLI binding
+→ integrated same-source save/edit/reopen → independent native review. B was
+an internal technical track, not a delivered application. Its design and
+implementation gates have now passed within the [core review](../reviews/application-core.md);
+the final integrated M1 remains the vertical delivery. The C candidate is
+still gated by real native interaction and independent review.
 
 ## Definition-of-done disposition
 
@@ -275,5 +283,9 @@ snapshots, owned transaction, memento history), failure/security/privacy, UI sta
 are specified. Standard library handles bytes/history/files; small rational certificate logic is bounded;
 Avalonia supplies native UI and Blake3 supplies required hashing. No ORM/messenger framework dependency.
 `simplify:` conservative certificate admission until a valid requested foil is rejected; extending admission
-requires proof/oracles, never sampling fallback. Native performance/craft/AT, complete C# parser/JCS/store,
-independent veto and security/privacy rollup join remain explicit gates. This author clears none of them.
+requires proof/oracles, never sampling fallback. The complete C# parser/JCS/store
+and bounded admitted geometry have since passed the core gate; the
+[native adapter review](../reviews/ui-application-native.md) tracks the
+separate product-performance, craft, AT and platform obligations. The linked
+security/privacy dispositions retain their scope. This design author did not
+clear the later product vetoes.

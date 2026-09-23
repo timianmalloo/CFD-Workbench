@@ -3,11 +3,24 @@
 A cross-platform client application for hydrofoil design and simulation, targeting
 **Windows and macOS**.
 
-The project is entering implementation from the reviewed specification and mockups.
+The project is implementing the reviewed specification and mockups.
 The first offline milestone uses C#/.NET 10 and Avalonia, with a shared core for
-the native workbench and CLI. Architecture and executable contract spikes are
-verified within their recorded limits; there is no runnable production application
-yet. The simulation backend and export geometry kernel remain unselected.
+the native workbench and CLI. The shared core has passed its bounded independent
+gate. A buildable desktop and runnable CLI **candidate** exists on
+`feature/application-native-adapters` at checkpoint `4b4bd9b`; it has not been
+joined or accepted as a product. The simulation backend and export geometry
+kernel remain unselected.
+
+On macOS, the candidate branch's argument-free
+`python3 tools/verify-application-adapters.py` builds and tests the shared-core
+adapters and publishes self-contained macOS ARM64 and Windows x64 development
+packages in a fresh local scratch directory. The verifier has not run its
+checks on a Windows host. The CLI, controller, recovery and package contents
+have bounded independent evidence in the
+[native adapter review](docs/reviews/ui-application-native.md). Live native
+rendering, keyboard/AX inspection, minimum-window behavior, Windows runtime,
+signing and distribution are still open. A successful package build is not a
+release or a validated solver.
 
 ## Review the product
 
@@ -49,9 +62,10 @@ and Antigravity.
 
 Follow the [coordination plan](docs/coordination/application-build.md) and its
 isolated worktree assignments. The accepted architecture and `$design-slice`
-contracts govern `$implement` increments. Shared core implementation precedes
-native GUI and CLI adapters; independent review and live workflow proof gate
-delivery. Further load-bearing decisions use `$define-architecture`.
+contracts govern `$implement` increments. The shared core has been joined;
+the native GUI and CLI adapter candidate is under independent review. Live
+workflow proof and the remaining platform gates still govern delivery.
+Further load-bearing decisions use `$define-architecture`.
 
 ## Repository checks
 
