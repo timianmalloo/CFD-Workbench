@@ -1,0 +1,14 @@
+{
+  "checks": [
+    ["python3", "tools/check-docs.py"]
+  ],
+  "recount": [
+    ["python3", "tools/recount-architecture-spike.py"]
+  ],
+  "regenerate": [
+    ["python3", "docs/ai-forward-pack/scripts/coord-core.py", "regen"]
+  ],
+  "gates": [
+    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py"]
+  ]
+}
