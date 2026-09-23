@@ -28,7 +28,8 @@ review lenses, not separately claimed model sessions.
 
 **Disposition: OPEN.** Named CLI and controller defects below are independently
 cleared on their frozen checkpoints. Native UI/accessibility acceptance remains
-withheld. The final candidate is `de105f025eedd0f2df8acc2fbeb16c22750a6ec6`;
+withheld. The latest review-only combined candidate is `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`,
+combining B `ee6d73ad` and complete C `6f168c44` under Ruling 27;
 earlier binaries and successful gates do not verify later changes. No C join or M1 completion follows from this
 document. The Owner cannot clear this independent veto by accepting its own work.
 
@@ -398,3 +399,127 @@ cause. The author must check it before fixing the actual model/UI contract.
 are useful and independently verified. Remaining native tab navigation,
 keyboard activation parity and recovery-state consistency require bounded
 repair and recheck. The independent storage permission veto also remains.
+
+## Additional ae777e9 observations and independent store consumer
+
+Root continued the same native checkpoint before the next author repair:
+
+| Flow | Native observation | Limit |
+|---|---|---|
+| Cancel invalid recovery | Accepted coordinates and identity return; Save enables; recovery offer clears. | Cancel is verified; Resume defect remains. |
+| Select TE cv-6 after an LE control displaying 0 mm | Field changes to 120 mm and draft generation becomes 1 before a user numeric edit. | Same programmatic-event hypothesis; author must establish cause. |
+| Preview LE cv-2 = 1000 mm or TE cv-6 = -120 mm | Both return NotAssessed with the positive-chord hull diagnostic; Apply remains disabled. | These are not evidence of an Invalid geometry verdict. |
+| Open explicit-ID source with root tangent locks violated | Reports Invalid, root tangent lock unsatisfied, original source retained read-only; accepted identity unchanged. | Fixture follows the existing tested root-lock violation recipe. |
+| Scroll rail list through TE cv-5 and cv-6 | Items, eta and 120 mm units remain exposed. | Bounded list scrolling, not a dense-list performance benchmark. |
+| Open missing-ID source | Pending-import state offers original/candidate comparison and Accept IDs; existing accepted identity stays intact. Typing into the original/candidate source view does not change it. | Acceptance and complete visual comparison remain due. |
+
+The root-lock fixture replaces all three matching root pairs (leading, dihedral,
+twist) in the copied explicit source. An initial scratch assertion incorrectly
+expected two matches and stopped before writing; the observed count was three.
+This is a probe preparation correction, not a product failure. Native screenshot
+and AX evidence is in the CUA transcript; no standalone screenshot file was
+exported. The minimum-window screenshot is 1024 × 728 including title bar; it
+does not establish mixed-DPI behavior or a complete theme verdict.
+
+After context recovery, the existing `fixedWorkbench` CUA binding returned
+`cgWindowNotFound`; supported inventory still listed the exact interaction-review
+bundle as running. No relaunch variant was attempted. This recurrence is a tool
+limitation, not evidence that the application closed or failed. Remaining native
+flows are deferred to the next combined frozen candidate.
+
+Root independently consumed the R26 persistence candidate from
+`/private/tmp/cfd-application-core-20260923-4e1mdsbv/published` through public
+`ProjectStore` and `AuthoringSession` APIs. The independent program, runner and
+receipts are under `/tmp/cfd-native-review.czEz9w/store-consumer/`.
+It used the original native Save image without changing its bytes or 0454 mode.
+
+| Child umask | Create / overwrite / reopen | Independent Python OS-stat final mode |
+|---|---|---|
+| 0000 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0022 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0077 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0400 | DOC-UNSUPPORTED-PERSISTENCE; no publication or residual file | No file |
+
+Frozen Persistence DLL SHA-256 is
+`c3245fbae2ebed15d488f56613e15099958b212ba30638846797a91266b56e71`;
+helper SHA-256 is
+`90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88`.
+The runner verified copied assembly hashes, unchanged frozen inputs and unchanged
+original evidence. Build took 1.371 s; the four managed consumer processes took
+0.384, 0.232, 0.227 and 0.152 s. Each observed process group was quiescent on exit.
+These are process timings, not UI latency. Receipt:
+`store-consumer/receipts/independent-store.json` under the scratch path above.
+
+**Verified source review:** the fixed-signature C bridge calls system-header
+`open`/`openat`; managed calls bind assembly-local exports. The held-inode guard
+requires exactly 0600 before any project-byte write, including rejecting zero
+mode. The public-store consumer clears its named byte/identity/final-mode cases.
+**Independent disposition remains BLOCK:** the actual combined native package
+must still exercise Save/Reopen and the remaining C interaction repairs.
+
+## Combined review-only candidate and current blocker
+
+C author committed `6f168c44a560b574980b56a0fc3c889c91a2acc2` clean with exactly
+MainWindow, Desktop tests and its proof changed. Root read the final source and
+tests. Selected TabItem headers are now F6 candidates; Enter/Space can restart
+the selected editable CV; the numeric guard suppresses repeated programmatic
+text and duplicate queued user text while permitting a later distinct edit.
+Controller tests retain accepted source while invalid recovery Preview reports
+diagnostics. The retained pre-fix apphost trace measures TE generation 0 → 1
+without a user edit; the corrected native event behavior is still unverified.
+Targeted receipt `cfd-c-targeted-sr0sfxpa/receipts/targeted.json` records build
+and Desktop test success. **Source plausibility PASS for staging, not native
+interaction acceptance.**
+
+Ruling 27 permits one isolated combined review package without canonical B/C
+integration. Coordinator composed review-only worktree
+`/Users/mallalieut/projects/CFD-Workbench-feature-application-combined-review-20260923`,
+clean HEAD `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`, tree
+`097878e383da4bdbd65e53316a129f9a32641feb`. Input manifest
+`/tmp/cfd-combined-review-20260923.muHX8h/combined-input-manifest.json` has SHA-256
+`4fa156928a6bd0ae8b0d44fc97099488c7337b27c90e1827a18cfe306e9b3799`.
+Its 55 inputs include the gate's 53 plus the core verifier and XAML lint script;
+the count difference is declared coverage, not source drift.
+
+Root independently read the full combined gate receipt at
+`/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-nko701v2/receipts/verification.json`:
+eleven commands exit zero, each retained process group empty, no collector
+observed, source inputs and source outputs unchanged. The commands include XAML
+lint, solution build, CLI/Desktop tests, actual apphost startup, macOS/Windows
+publishes and packaging. This is not a Windows runtime verdict. Inventory also
+contains the macOS helper in Windows publish output; no Windows loading was
+observed, and the store's platform guard remains fail-closed. Target-specific
+release packaging remains a residual, not an inferred runtime failure.
+
+The unique-ID review copy is
+`/private/tmp/cfd-combined-review-20260923.muHX8h/CFD Workbench.app`, bundle
+`com.cfdworkbench.desktop.reviewcombined27`. Root read its launch receipt and
+independently observed PID 71600/start `Wed Sep 23 15:00:25 2026`, exact apphost
+path, and these SHA-256 values:
+
+| Runtime artifact | SHA-256 |
+|---|---|
+| Desktop DLL | `afa101185562dfdc31e177d5a3ab865f5837dd8bedd59f3828069e72964bab45` |
+| Persistence DLL | `35b38f817c739efd5ccc669316acee6234040ece5e66755fb405b3d18365b3be` |
+| Native store helper | `90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88` |
+
+The launch receipt declares keyboard/example/high-contrast/reduced-motion,
+1024 × 700 and task-local caches, with certificate generation disabled and
+Avalonia telemetry opted out. Copy-manifest SHA-256 is
+`4bd4cea5765d4e79d7cbe0aea1a09cbb1463a3f0c0c4627366434728b631840b`;
+Coordinator reports 231 files with only CFBundleIdentifier changed.
+
+**Current blocker:** one supported CUA exact-path attachment returned
+`cgWindowNotFound -10005`. Root did not substitute another automation API or
+try another launch variant. An asynchronous request asks the user to bring the
+newest review window forward; the process remains running. Earlier visibility
+confirmation concerns an older binary and cannot prove this one's interactions.
+
+**Independent disposition: BLOCK for final B/C/M1 acceptance.** B code and named
+managed-package filesystem cases pass independent review; the R26 actual
+app-bundle Save/Reopen/mode obligation remains open. C must still prove F6 tabs,
+selected-CV keyboard activation, stable generation after programmatic binding,
+real numeric edits/Cancel/reselection, invalid recovery Preview, missing-ID
+acceptance and the remaining rendered/accessibility review states. Owner cannot
+waive this evidence by accepting its own staging decision. No canonical product
+join, remote push or release acceptance follows from this checkpoint.

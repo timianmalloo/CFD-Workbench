@@ -114,3 +114,41 @@ prove ACL inheritance, release signing or every filesystem's durability. A
 managed comparison that fails to reproduce the mismatch or a corrected ABI
 that retains it would reopen the diagnosis. No production code was changed by
 this investigation, and this report does not accept the store repair.
+
+## R26 repaired managed candidate: independent checkpoint
+
+Owner selected a minimal fixed-signature C bridge, compiled against the installed
+system headers. The isolated author retained a managed before-first-write RED
+(0456 instead of 0600), then the corrected packaged test and mutation results.
+Those author results are evidence to review, not a substitute for root execution.
+
+Root inspected the corrected source: both variadic boundaries now sit behind
+fixed C exports; assembly-directory loading is explicit; unsupported architecture
+and missing/unloadable helper fail closed. An exact held-fstat 0600 guard runs
+before writing project bytes. A weaker draft of that guard admitted 0000 and was
+rejected during review; zero and owner-bit-loss cases are required regressions.
+No post-creation chmod masks the defect.
+
+Root's separate public-API consumer against frozen Persistence DLL
+`c3245fbae2ebed15d488f56613e15099958b212ba30638846797a91266b56e71`
+and helper `90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88`
+verified create, overwrite, exact native image bytes/hash and accepted revision
+under child umasks 0000, 0022 and 0077. Independent Python OS stat measured 0600
+each time. Owner-read-stripping umask 0400 returned
+`DOC-UNSUPPORTED-PERSISTENCE`, with no published or residual file. Parent
+directories were created before applying each child mask. Original 0454 evidence
+and frozen assemblies were verified unchanged.
+
+Receipt: `/tmp/cfd-native-review.czEz9w/store-consumer/receipts/independent-store.json`.
+The [native review](../reviews/ui-application-native.md) records process ownership,
+timings and boundaries. **Verified:** the repaired managed production store path
+now passes these independent permission and round-trip cases. **Still due:**
+actual Save/Reopen through the combined packaged UI, author-proof reconciliation
+and final independent disposition. This checkpoint does not accept B/C/M1.
+
+Ruling 27 subsequently authorized one combined review-only B/C package, now
+staged at `e6e5628` with exact B helper hash preserved. Root verified the running
+process and DLL/helper hashes, but supported CUA attachment returned
+`cgWindowNotFound`. Actual app-bundle Save/Reopen/mode therefore remains open;
+the independent managed consumer is not relabeled as GUI proof. The full binding
+and pending user visibility request are in the native review above.

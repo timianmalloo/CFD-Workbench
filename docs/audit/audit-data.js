@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:50:22Z",
+  "generated": "2026-09-23T22:04:24Z",
   "audit": [
     {
       "actor": null,
@@ -5729,100 +5729,164 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3827D9T119XAWGCMKJN6R8X",
-      "shortname": "join-native-investigation",
-      "datetime": "2026-09-23T21:19:56Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join root native UI regression and macOS save-permission investigation as documentation only; B and C product gates remain open. recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/investigations/native-save-permissions.md",
         "docs/reviews/ui-application-native.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Preserve independent native and permission evidence in the integrated documentation branch.",
+      "datetime": "2026-09-23T21:19:56Z",
       "done_when": "The root investigation and fixed/native UI review are discoverable with clean docs checks, while both product branches remain isolated.",
-      "tier": "T1",
+      "duration_seconds": 1.0,
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-09-23T21:19:55Z",
-      "duration_seconds": 1.0
-    },
-    {
-      "id": "al-01M383BAFCTBHNSG0YTGD2GT0H",
-      "shortname": "native-ffi-mode-class",
-      "datetime": "2026-09-23T21:39:32Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Record the reproduced macOS variadic-FFI permission defect class",
-      "summary": "FFI-A records real Save mode 0454, fixed-four versus variadic-three arm64 probe, both Open/OpenAt sibling sweep, strict prewrite mode and executable candidate controls; production acceptance remains open.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Make the native ABI creation-mode defect recur as a failing control rather than only a review finding.",
-      "done_when": "The always-loaded register names the class, sweep, derivation, named permission tests and remaining gate accurately.",
-      "tier": "T1",
-      "fan_out": 0
-    },
-    {
-      "id": "al-01M383DXNZXC49FJ8Q9PFDZJCS",
-      "shortname": "native-ffi-control-map-correction",
-      "datetime": "2026-09-23T21:40:58Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Correct the FFI-A control-to-oracle map after independent source review",
-      "summary": "Root found the register assigned zero/owner-bit loss to the 0777 extra-bit test. Corrected to the named missing-owner test and separated owner-stripping umask0600 from normal 0000/0022/0077 matrix; no product change.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Keep the always-loaded native ABI recurrence control executable and accurately named.",
-      "done_when": "Every mode failure shape maps to the actual named source test and isolated umask run.",
-      "tier": "T1",
-      "fan_out": 0
-    },
-    {
-      "id": "al-01M383Z4XHQPSSPDSE4NKVB971",
-      "shortname": "owner-review-only-composition-r27",
-      "datetime": "2026-09-23T21:50:22Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule req-01M383WPHECQWJ4M4H181CKW78: may Coordinator combine clean B ee6d73ad and C6f168c44 in one disposable review-only tree/package to obtain R26 app-bundle Save/Reopen/mode proof before any canonical join? No gate waiver; record ruling and yield.",
-      "summary": "Ruling27 permits isolated exact-blob review composition and one contained combined gate/package, followed by root supported CUA proof with original anomaly preserved. Directly observed both clean candidate HEADs and read independent managed-store checkpoint. No build, product edit, native acceptance or canonical join performed.",
+      "goal": "Preserve independent native and permission evidence in the integrated documentation branch.",
+      "id": "al-01M3827D9T119XAWGCMKJN6R8X",
       "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-native-investigation",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T21:19:55Z",
+      "summary": "Join root native UI regression and macOS save-permission investigation as documentation only; B and C product gates remain open. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-23T21:39:32Z",
+      "done_when": "The always-loaded register names the class, sweep, derivation, named permission tests and remaining gate accurately.",
+      "fan_out": 0,
+      "goal": "Make the native ABI creation-mode defect recur as a failing control rather than only a review finding.",
+      "id": "al-01M383BAFCTBHNSG0YTGD2GT0H",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Record the reproduced macOS variadic-FFI permission defect class",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "native-ffi-mode-class",
+      "skill": null,
+      "summary": "FFI-A records real Save mode 0454, fixed-four versus variadic-three arm64 probe, both Open/OpenAt sibling sweep, strict prewrite mode and executable candidate controls; production acceptance remains open.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-23T21:40:58Z",
+      "done_when": "Every mode failure shape maps to the actual named source test and isolated umask run.",
+      "fan_out": 0,
+      "goal": "Keep the always-loaded native ABI recurrence control executable and accurately named.",
+      "id": "al-01M383DXNZXC49FJ8Q9PFDZJCS",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Correct the FFI-A control-to-oracle map after independent source review",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "native-ffi-control-map-correction",
+      "skill": null,
+      "summary": "Root found the register assigned zero/owner-bit loss to the 0777 extra-bit test. Corrected to the named missing-owner test and separated owner-stripping umask0600 from normal 0000/0022/0077 matrix; no product change.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
       "actor": null,
       "artifacts": [
         "docs/notes/rulings.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Resolve review-package dependency without weakening storage or native acceptance gates.",
+      "datetime": "2026-09-23T21:50:22Z",
       "done_when": "Canonical ruling names temporary composition, evidence binding and cleanup limits; notify root/Coordinator and yield.",
-      "tier": "T2",
+      "duration_seconds": 62.0,
       "fan_out": 0,
+      "goal": "Resolve review-package dependency without weakening storage or native acceptance gates.",
+      "id": "al-01M383Z4XHQPSSPDSE4NKVB971",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule req-01M383WPHECQWJ4M4H181CKW78: may Coordinator combine clean B ee6d73ad and C6f168c44 in one disposable review-only tree/package to obtain R26 app-bundle Save/Reopen/mode proof before any canonical join? No gate waiver; record ruling and yield.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-review-only-composition-r27",
+      "skill": "define-architecture",
       "started_at": "2026-09-23T21:49:20Z",
-      "duration_seconds": 62.0
+      "summary": "Ruling27 permits isolated exact-blob review composition and one contained combined gate/package, followed by root supported CUA proof with original anomaly preserved. Directly observed both clean candidate HEADs and read independent managed-store checkpoint. No build, product edit, native acceptance or canonical join performed.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "datetime": "2026-09-23T21:34:38Z",
+      "done_when": "Frozen combined package passes native interaction and Save/Reopen checks with review findings resolved.",
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "15c796b6be37d1c26dca3f4c66a0bbc87c3621ed",
+        "short": "15c796b6b"
+      },
+      "goal": "Independently verify repaired native persistence and remaining rendered workflows.",
+      "id": "al-01M3832AESSWRXMQD3BJTHN3FP",
+      "kind": "command",
+      "outcome": "partial",
+      "prompt": "Continue the authorized coordinated implementation with independent native and persistence review; provide periodic work and agent status tables.",
+      "session": "cfd-application-20260923",
+      "shortname": "independent-permission-review",
+      "skill": null,
+      "summary": "Independent frozen public-store consumer verifies create/overwrite/reopen exact bytes and identity with mode0600 under umasks0000/0022/0077; owner-read-stripping0400 refuses without residual files. Strict prewrite guard source reviewed. Native CUA binding recurrence and remaining UI flows recorded; no B/C/M1 acceptance. Initial append omitted required prompt and was rejected before writing; corrected here. Docs check passed104artifacts0defects77existingflags.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "independent-store-consumer"
+    },
+    {
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T22:02:42Z",
+      "done_when": "Source-bound combined app passes remaining native interactions and Save/Reopen/mode checks, with independent vetoes resolved.",
+      "duration_seconds": 3758.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "ee0930440dc6216cf3af6dc08a274a8cf064bd10",
+        "short": "ee0930440"
+      },
+      "goal": "Independently verify the repaired offline workbench and native persistence boundary.",
+      "id": "al-01M384NPZ1Z1WKV8BB1KP29GP6",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "Continue the authorized coordinated implementation and independent native review; provide periodic tables of completed and in-flight work, agent ownership, and running agents.",
+      "session": "cfd-application-20260923",
+      "shortname": "combined-native-review-blocked",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "ui-design",
+      "started_at": "2026-09-23T21:00:04Z",
+      "summary": "Recorded native interaction defects and first fixes, independently verified frozen B repair code and real public-store create/overwrite/reopen with exact mode0600, reviewed final C event/keyboard repair, and read combined eleven-step passing gate. Verified live combined app PID/start/DLL/helper identity. One exact-path CUA bind failed cgWindowNotFound; user visibility requested. B/C/M1 acceptance and canonical product joins remain blocked. Measurement covers evidence-writing phase beginning at the existing ui-design marker, not earlier UI actions.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [
