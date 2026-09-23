@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:29:41Z",
+  "generated": "2026-09-23T16:02:27Z",
   "audit": [
     {
       "actor": null,
@@ -3879,6 +3879,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T15:28:18Z",
       "duration_seconds": 83.0
+    },
+    {
+      "id": "al-01M37G22NV3EWZM2ZAXAWQJS7Q",
+      "shortname": "owner-numeric-phase-order",
+      "datetime": "2026-09-23T16:02:27Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve precise parser phase conflict between exact post-unit binary64 overflow and blocking syntax/unit association errors without silently waiving normative validation order.",
+      "summary": "Ruling15 establishes dependency-aware interpretation: lexical spelling first; numeric overflow only after trustworthy quantity/unit binding, retaining DSL-LEX category; blocking syntax emits syntax without invented overflow. Inspected current LexicalScale unknown-to-zero sibling and prohibited guessed scale for unknown unit/channel/interpretation. Named mixed-case diagnostics and preservation tests required. Exact one-round SI conversion and resource-versus-invalid distinctions unchanged; root owns normative prose seam, core author stays in leased proof/tests/code.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make diagnostic ordering executable without violating exact dimensional conversion or fabricating dependent errors.",
+      "done_when": "Canonical request resolves with precise precedence, binding and negative-test requirements.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T16:00:38Z",
+      "duration_seconds": 109.0
     }
   ],
   "changes": [
