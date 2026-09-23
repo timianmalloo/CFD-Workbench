@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="0f70b6cede292db0adcf81a5e5975dd9d0574ff65c9c59cd2d6d34f6b6792aaf"><title>FoilDSL 4.0 — Language specification</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed"><title>FoilDSL 4.0 — Language specification</title>
 <style>
 :root{--paper:#f7f9f7;--surface:#ffffff;--ink:#19302e;--muted:#506762;--line:#c5d1cc;--accent:#096b61;--shade:#e9f1ed;--dark:#142d2a;--on-dark:#eef8f3;--focus:#007d70;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--small:13px;--body:16px;--title:48px;--h2:30px;--h3:22px;--radius:4px;--rail:270px;--measure:1120px}
 [hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans)}a{color:var(--accent);text-underline-offset:3px}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s8);background:var(--dark);color:var(--on-dark)}.top a{color:var(--on-dark)}.brand{font-weight:700;letter-spacing:.02em}.badge{font:var(--small) var(--mono);border:1px solid var(--line);padding:var(--s1) var(--s2)}.layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);max-width:1600px;margin:auto}.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:var(--s8) var(--s6);border-right:1px solid var(--line)}.rail p{font:var(--small) var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.rail nav a{display:block;font-size:var(--small);line-height:1.5;padding:var(--s2) 0;text-decoration:none}.rail nav a.depth2{font-weight:700;border-top:1px solid var(--line);margin-top:var(--s3)}.rail nav a:hover{text-decoration:underline}.rail input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2);background:var(--surface);color:var(--ink)}main{max-width:var(--measure);padding:var(--s12);min-width:0}h1{font-size:var(--title);line-height:1.1;margin:var(--s6) 0;letter-spacing:-.04em}h2{font-size:var(--h2);line-height:1.25;margin:var(--s12) 0 var(--s6);letter-spacing:-.02em;border-top:1px solid var(--line);padding-top:var(--s8)}h3{font-size:var(--h3);line-height:1.4;margin:var(--s8) 0 var(--s4)}h4{font-size:var(--body);margin:var(--s6) 0 var(--s3)}p{margin:var(--s4) 0}main>p,main>ul{max-width:85ch}li{margin:var(--s2) 0}.table-scroll{overflow-x:auto;margin:var(--s6) 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:var(--small);line-height:1.6}th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}th{background:var(--shade);font-weight:650}td:first-child{min-width:160px}tr:last-child td{border-bottom:0}code{font:var(--small)/1.6 var(--mono);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--s4);background:var(--shade);font:var(--small)/1.6 var(--mono)}.flow{padding:var(--s6);margin:var(--s6) 0 var(--s2);background:var(--surface);border:1px solid var(--line);overflow:auto}.flow svg{display:block;width:100%;height:auto;min-width:540px;max-height:1100px}.flow figcaption{font-size:var(--small);color:var(--muted);margin-top:var(--s4)}summary{cursor:pointer;font-size:var(--small);min-height:32px}footer{font-size:var(--small);color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s6);overflow-wrap:anywhere}.jump{position:absolute;left:-9999px}.jump:focus{left:var(--s4);top:var(--s4);background:var(--surface);padding:var(--s4);z-index:10}button{min-height:44px;background:var(--surface);color:var(--accent);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s4);cursor:pointer}@media(max-width:1000px){:root{--rail:220px}main{padding:var(--s8)}}@media(max-width:740px){.layout{display:block}.rail{position:static;height:auto;border-bottom:1px solid var(--line)}.rail nav{max-height:220px;overflow:auto}.top{flex-wrap:wrap}main{padding:var(--s6)}h1{font-size:36px}}@media print{.rail,.top,.jump{display:none}.layout{display:block}main{max-width:none;padding:0;font-size:11pt}h2{break-before:page}.table-scroll{overflow:visible}tr{break-inside:avoid}.flow svg{min-width:0;max-height:240mm}a{color:inherit}button{display:none}}
@@ -263,6 +263,51 @@ explicitly removed in the source; the change is reviewable. Removing an assertio
 → geometric/locks → assertions. Diagnostics have stable code, phase, severity, source span, affected entity,
 plain reason and recovery action. Multiple independent errors may be reported in source order; dependent
 phases do not fabricate follow-on errors. Parse success alone is never labelled “valid foil”.</p>
+<p>This ordering applies to failures whose dependencies have been established. Malformed encoding or token
+spelling is lexical and precedes syntax. A well-spelled decimal remains exact until the grammar establishes
+its quantity role, actual unit and supported interpretation; only then can conversion after unit scaling
+establish binary64 overflow. Such overflow has code <code>DSL-LEX</code> and phase <strong>Lexical</strong> even though the range
+check is deferred. Do not test the unscaled token for overflow, or substitute a dimensionless scale for an
+unknown unit, channel or evaluator. A syntax error that prevents trustworthy binding is reported as
+<code>DSL-SYNTAX</code> without speculative overflow; an implementation may stop there without a recovering parser.
+Unknown units and unsupported version/evaluator contracts retain their own diagnostics. Once binding is
+established, known overflow precedes unrelated structural or reference failures; independently established
+failures of equal priority use source order. Every refusal retains the exact draft and accepted geometry.</p>
+<p>The following mixed-error cases are normative diagnostic acceptance criteria (the remaining document is
+otherwise well formed unless stated). They clarify diagnostic timing without changing the grammar or the
+finite-after-scaling rule in §3; the rationale is recorded in <a href="../notes/rulings.md#ruling-15--dependency-aware-numeric-overflow-diagnostic-ordering">Ruling 15</a>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Input or condition</th>
+<th>Required outcome</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Length <code>1e309 mm</code> under the supported evaluator</td>
+<td>No overflow diagnostic: exact scaling yields a finite binary64 value. This alone does not establish valid geometry.</td>
+</tr>
+<tr>
+<td>Length <code>1e309 m</code></td>
+<td><code>DSL-LEX</code>, Lexical, on <code>1e309</code>; no accepted-state change.</td>
+</tr>
+<tr>
+<td>Known length overflow plus bad curve degree or missing profile reference</td>
+<td>The established <code>DSL-LEX</code> overflow precedes the unrelated structural/reference failure.</td>
+</tr>
+<tr>
+<td>Missing required unit prevents binding of <code>1e309</code></td>
+<td><code>DSL-SYNTAX</code> on the blocking syntax; no guessed-scale overflow.</td>
+</tr>
+<tr>
+<td>Unknown unit, unknown quantity channel, or unsupported evaluator with a large decimal</td>
+<td>Report the unit, syntax or version/evaluator failure, respectively; do not invent overflow using a fallback interpretation.</td>
+</tr>
+<tr>
+<td>Malformed token spelling plus blocking syntax</td>
+<td>Report the lexical spelling error first, at its source span.</td>
+</tr>
+</tbody></table></div>
 <p>Before parsing, limit source to 1 MiB UTF-8 and reject with <code>DSL-LIMIT</code> above that bound. Limits per document
 are 4096 profiles, 4096 assignments, 4096 assertions/locks combined, 4096 Unicode scalars per string and the
 curve point bounds in §5. Geometry validation has a one-second interactive work budget before cancellation
@@ -722,4 +767,4 @@ unrotated planform rails, not an assertion that every placed 3D point on the oth
 The review mockup advertises its supported subset and illustrative calculations. A valid 4.0 document outside
 that subset is retained verbatim and rejected with DSL-UNSUPPORTED; it is never partially applied.
 No browser check in this task certifies a production geometry kernel or Windows/macOS native accessibility.</p>
-<footer>Generated from the complete Markdown specification. Source SHA-256: 0f70b6cede292db0adcf81a5e5975dd9d0574ff65c9c59cd2d6d34f6b6792aaf. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>
+<footer>Generated from the complete Markdown specification. Source SHA-256: 2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>

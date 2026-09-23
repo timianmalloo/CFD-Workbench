@@ -2888,7 +2888,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "739619e671fc225e9e4557da0350d210f22331d21c7e324bfcf6219d5ca5815b"
+      "sourceSha256": "a2d089e7ee48f587023e4b00f39537d3561f36d39512712452740a7d3f0f30f3"
     },
     {
       "id": "kb-hw-glossary",
@@ -4832,6 +4832,10 @@ window.DOCS_INDEX = {
           "rel": "relates-to"
         },
         {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
           "to": "kb-hw-parametric-curves-lofts-and-surfaces",
           "rel": "depends-on"
         },
@@ -4847,7 +4851,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "0f70b6cede292db0adcf81a5e5975dd9d0574ff65c9c59cd2d6d34f6b6792aaf"
+      "sourceSha256": "2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed"
     },
     {
       "id": "threat-model",
@@ -5007,5 +5011,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "63b96aa5a5f5d73711f5d159927e13bff7b5b61ca858e9e9e896a20620bbda52"
+  "graphSha256": "d15bbfa651b781db5f69f440823a93f93c7b728c24a784b88fed2563ff305e93"
 };

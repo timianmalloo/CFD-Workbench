@@ -11,6 +11,7 @@ links:
   - {to: decision-foildsl-reconciliation, rel: depends-on}
   - {to: decision-parametric-authority, rel: refines}
   - {to: decision-design-iteration, rel: relates-to}
+  - {to: rulings, rel: depends-on}
   - {to: kb-hw-parametric-curves-lofts-and-surfaces, rel: depends-on}
   - {to: kb-hw-file-formats-and-grammars, rel: depends-on}
 review-by: 2027-03-22
@@ -277,6 +278,30 @@ Validation phases are ordered: lexical → syntactic → version/evaluator → d
 → geometric/locks → assertions. Diagnostics have stable code, phase, severity, source span, affected entity,
 plain reason and recovery action. Multiple independent errors may be reported in source order; dependent
 phases do not fabricate follow-on errors. Parse success alone is never labelled “valid foil”.
+
+This ordering applies to failures whose dependencies have been established. Malformed encoding or token
+spelling is lexical and precedes syntax. A well-spelled decimal remains exact until the grammar establishes
+its quantity role, actual unit and supported interpretation; only then can conversion after unit scaling
+establish binary64 overflow. Such overflow has code `DSL-LEX` and phase **Lexical** even though the range
+check is deferred. Do not test the unscaled token for overflow, or substitute a dimensionless scale for an
+unknown unit, channel or evaluator. A syntax error that prevents trustworthy binding is reported as
+`DSL-SYNTAX` without speculative overflow; an implementation may stop there without a recovering parser.
+Unknown units and unsupported version/evaluator contracts retain their own diagnostics. Once binding is
+established, known overflow precedes unrelated structural or reference failures; independently established
+failures of equal priority use source order. Every refusal retains the exact draft and accepted geometry.
+
+The following mixed-error cases are normative diagnostic acceptance criteria (the remaining document is
+otherwise well formed unless stated). They clarify diagnostic timing without changing the grammar or the
+finite-after-scaling rule in §3; the rationale is recorded in [Ruling 15](../notes/rulings.md#ruling-15--dependency-aware-numeric-overflow-diagnostic-ordering).
+
+| Input or condition | Required outcome |
+|---|---|
+| Length `1e309 mm` under the supported evaluator | No overflow diagnostic: exact scaling yields a finite binary64 value. This alone does not establish valid geometry. |
+| Length `1e309 m` | `DSL-LEX`, Lexical, on `1e309`; no accepted-state change. |
+| Known length overflow plus bad curve degree or missing profile reference | The established `DSL-LEX` overflow precedes the unrelated structural/reference failure. |
+| Missing required unit prevents binding of `1e309` | `DSL-SYNTAX` on the blocking syntax; no guessed-scale overflow. |
+| Unknown unit, unknown quantity channel, or unsupported evaluator with a large decimal | Report the unit, syntax or version/evaluator failure, respectively; do not invent overflow using a fallback interpretation. |
+| Malformed token spelling plus blocking syntax | Report the lexical spelling error first, at its source span. |
 
 Before parsing, limit source to 1 MiB UTF-8 and reject with `DSL-LIMIT` above that bound. Limits per document
 are 4096 profiles, 4096 assignments, 4096 assertions/locks combined, 4096 Unicode scalars per string and the

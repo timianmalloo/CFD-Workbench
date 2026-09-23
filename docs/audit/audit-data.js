@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T16:02:27Z",
+  "generated": "2026-09-23T16:16:45Z",
   "audit": [
     {
       "actor": null,
@@ -3903,6 +3903,31 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T16:00:38Z",
       "duration_seconds": 109.0
+    },
+    {
+      "id": "al-01M37GW8FXWPE2KNEZPR7HZ3TX",
+      "shortname": "specify-foildsl-diagnostic-dependencies",
+      "datetime": "2026-09-23T16:16:45Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.",
+      "summary": "Independent Owner Test/Domain review PASS. Nine named Ruling15_* cases observed passing in retained 83ry315v test log; bounded diagnostic evidence only. Docs gate passed:99 artifacts/0 defects/68 review suggestions. HTML source SHA256 2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed,18 requirement IDs/1 flow preserved. Rendered browser review remains not assessed because CUA surfaces unavailable; no new visual design. Typed rulings link added; Coordinator owns V16 inbound flags at join. Full parser/geometry/product acceptance remains open. Cost not recorded.",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/foildsl.md",
+        "docs/specs/foildsl.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Reconcile FoilDSL §7 with Owner Ruling 15 without changing grammar or valid-value semantics.",
+      "done_when": "Normative wording and acceptance cases reviewed independently, HTML and index regenerated, documentation checks passed, and decision/audit recorded; Coordinator owns inbound V16 propagation at join.",
+      "tier": "T2",
+      "fan_out": 1,
+      "started_at": "2026-09-23T16:14:25Z",
+      "duration_seconds": 140.0
     }
   ],
   "changes": [
@@ -4339,6 +4364,29 @@ window.AUDIT_DATA = {
       "git": {
         "before": "598716f",
         "after": "598716f2931cab8ed94c0e618554c340134f25b0",
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M37GW8EA07MZFW3E5MNEGTWE",
+      "datetime": "2026-09-23T16:16:45Z",
+      "session": "cfd-application-20260923",
+      "kind": "decision",
+      "skill": "specify",
+      "title": "Clarify dependency-aware FoilDSL numeric diagnostics",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.",
+      "summary": "FoilDSL §7 incorporates Ruling 15 with mixed-error acceptance cases. Well-spelled decimals are scaled only after trustworthy quantity/unit/evaluator binding. Known post-scale overflow remains DSL-LEX; blocked binding does not invent overflow. Grammar and valid-value semantics are unchanged.",
+      "rationale": "Independent mixed-case parser review exposed ambiguity in phase ordering versus exact unit conversion; preserve finite-after-scaling values and actionable diagnostics.",
+      "artifacts": [
+        "docs/specs/foildsl.md",
+        "docs/specs/foildsl.html"
+      ],
+      "tags": [],
+      "git": {
+        "before": "60fa4ae",
+        "after": "60fa4aed78b39fc602ce3beccc012bac060dcb14",
         "branch": "feature/application-foundation",
         "pushed": null,
         "commits": []
