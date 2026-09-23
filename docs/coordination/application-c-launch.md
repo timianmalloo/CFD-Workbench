@@ -90,3 +90,35 @@ processes were absent at direct readback. All original 150 source-tree files
 remained hash-identical, with no extras or missing paths. Coordinator accepted
 this **output containment only** and resumed normal same-scope Ruling 21 work.
 It is not a CLI, native UI, global zero-effect or M1 pass.
+
+## Ruling 24 Avalonia child-process correction
+
+The first Desktop.Tests build used the corrected Ruling 23 output layout, but
+Avalonia.BuildServices 11.3.2 started collector PID `22494` after its parent
+exited with a missing-`partial` compiler error. The author identified and
+terminated only that owned child, then read back its absence. The failed
+build's 114 output files and raw receipt remain at
+`/private/tmp/cfd-adapters-desktop-build.mwdf8T`; that compiler failure is not
+a behavioral test result. A bounded read-only check found a pre-existing
+BuildServices ID file (mtime 13:44:43 UTC, before C launch) and a directory
+mtime during the build. It did not read the ID or license contents. Any first
+transmission or transient global effect is **Not recorded**; no global cleanup
+was attempted.
+
+Owner [Ruling 24](../notes/rulings.md) authorized one same-worker correction:
+make the window class `partial`, set the pinned package's process-local
+`AVALONIA_TELEMETRY_OPTOUT=1`, and measure one build with exact child and output
+receipts. The retained raw receipt at
+`/private/tmp/cfd-adapters-r24-avalonia.ljA0p3/receipts/receipt.json`
+has SHA-256 `3b9294108330cf702dd4f411af1f22649dd8e8672a7023e37d7d19f48d08b05d`.
+It records the opt-out in the actual child environment, six local cache/temp
+roots, disabled ASP.NET certificate generation and the unique `--artifacts-path`
+root. Build PID `24214` exited 1 with four ordinary C# errors (two CLI class
+qualifications and two `Func<Task>` method-group mismatches). Live group
+sampling saw MSBuild and compiler children, **no collector**; all observed
+PIDs and the build group were absent at Coordinator readback. The 114 actual
+artifact files match the receipt exactly, with no symlinks. The original 150
+source-tree output files still match their pre-retry hashes with no added or
+missing files. This clears **Ruling 24 containment only**; the author resumed
+ordinary C repair. It does not prove zero historical telemetry, a successful
+Desktop build, native interaction or M1 acceptance.

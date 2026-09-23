@@ -275,6 +275,16 @@ failure path reports descendant quiescence **Not assessed**, reaps the exact
 `Popen` child, and stops the route. Windows fails closed before child launch
 until a measured process-tree adapter exists. The [drill receipt](../coordination/application-cancel-drill.md)
 retains the original survival/cleanup sequence.
+The first Avalonia build is a sibling of this class: a package task launched
+collector PID `22494` that outlived its failed compiler parent even with
+`--disable-build-servers`. Sweep now includes dependency build tasks, not
+only test runners. The pinned package documents process-local
+`AVALONIA_TELEMETRY_OPTOUT=1`; the Ruling 24 measured retry recorded that
+setting in the child environment and observed no collector in its sampled
+process group, then verified the group empty. Prevent: the C gate keeps the
+opt-out and exact PID/start/descendant sampling on every Avalonia build or
+publish, and stops on an observed collector or override. Sampled absence is
+not proof of zero prior network effect or a universal no-child guarantee.
 
 **EVID-TZ · A local timestamp is given a UTC suffix.** A first read-only
 `stat -t ...Z` printed the PFX's Pacific local clock while labeling it `Z`.
@@ -561,7 +571,9 @@ must make this recurrence control executable before C handback.
 path before using installed `coord-core.py`; a Coordinator read-only command
 also used a shell glob for nonexistent `*log` filenames and failed before
 inspection. Root had likewise guessed a nonexisting ADR path before `rg`
-inventory. None wrote files. The existing inventory-first control applies:
+inventory. During this Ruling 24 handoff, Coordinator also guessed unsupported
+`claim list` and `precommit --json` forms before reading the advertised CLI;
+both failed before writes. The existing inventory-first control applies:
 list exact paths or inspect script dispatch before constructing a command,
 and read returned receipt paths rather than guessing suffixes. The C launch
 brief now names `coord-core.py` and exact receipt paths; failed guesses remain

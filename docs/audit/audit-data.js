@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:36:09Z",
+  "generated": "2026-09-23T18:50:25Z",
   "audit": [
     {
       "actor": null,
@@ -5077,6 +5077,54 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M37S7R7HJTP1F79YT7H63H76",
+      "shortname": "owner-avalonia-collector-lifecycle",
+      "datetime": "2026-09-23T18:42:50Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve typed lifecycle request req-01M37S2ZQHERGYS6SQ4EAEDG1H after Avalonia Desktop.Tests compile failure left owned CollectorPID22494 after parent22486. Author captured identity, exactTERM and absence, then stopped. Read installed local targets/SDK contract; rule supported suppression versus monitored explicit-owned cleanup versus hold. No modelprobe, broadkill or unapprovedretry.",
+      "summary": "Ruling24 permits one same-worker bounded compile repair/build with documented AVALONIA_TELEMETRY_OPTOUT=1, subject to retained R23 path/cache/process controls. Independently read installed11.3.2README/targets, failedrawreceipt and pinned upstream task; directps showed bothPIDsabsent. Source defaultpath returnsbeforecollection onoptout, Community/Trial overrides, POSIXchildstartdoesnotwait. Actualsuppression stillneedsmeasuredretry. Exactownedcleanup authorizedifseen, thenholdoncollector/override ratherthanlicensebypass or repeatedmodeprobe. Firsttelemetrytransmission Notrecorded; boundedread-only globalmetadata accountrequested, no identifiers/licensecontents/globalcleanup. No productionacceptance/sourcewrites/build or newagent byOwner.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve the pinned Avalonia collector lifecycle anomaly using supported configuration and exact owned-process evidence.",
+      "done_when": "Canonical ruling defines one measured correction, privacy/provenance limits and stop criteria; Coordinator receives handoff and Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T18:40:32Z",
+      "duration_seconds": 138.0
+    },
+    {
+      "id": "al-01M37SNN1KMK51W1ZSWCCWNBR3",
+      "shortname": "coordinate-c-r24-containment",
+      "datetime": "2026-09-23T18:50:25Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Supervise Owner Ruling 24 Avalonia telemetry opt-out retry and resume bounded C authoring only after actual containment readback.",
+      "summary": "Verified raw R24 build receipt SHA 3b929410, actual process-local Avalonia opt-out, four compiler errors, no collector in sampled process group, observed child absence, unique scratch114 artifacts and original150 source outputs unchanged. Resumed same worker for ordinary fixes; retained historical telemetry effects as Not recorded. Updated launch/packet/PROC-C control.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-c-launch.md",
+        "docs/coordination/contract-c-native.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver first runnable native workbench through the authorized C track with bounded process/output containment.",
+      "done_when": "C author has actual native and CLI implementation independently reviewed, accepted and joined with required macOS/Windows evidence honestly classified.",
+      "tier": "T2",
+      "fan_out": 1
     }
   ],
   "changes": [

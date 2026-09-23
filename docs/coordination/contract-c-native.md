@@ -199,7 +199,14 @@ wrong extension/type, keyboard and accessible labels. An argument-free
 `tools/verify-application-adapters.py` must build once into unique task-local
 scratch using the accepted `dotnet build --artifacts-path` per-project layout,
 all six task-local .NET/NuGet/temp roots, disabled certificate generation,
-build servers and shared compilation. It must fail if a build creates new
+build servers and shared compilation. Every Avalonia build and publish also
+sets the pinned package's supported process-local
+`AVALONIA_TELEMETRY_OPTOUT=1`; the gate records actual child environment,
+PID/start identities and descendants, and refuses an observed collector or
+opt-out override for a typed decision. The first observed collector and
+Ruling 24 corrected no-collector attempt are recorded in
+[the launch receipt](application-c-launch.md#ruling-24-avalonia-child-process-correction).
+The gate must fail if a build creates new
 source-tree `bin/obj` outputs or resolves assets outside the invocation root;
 the Ruling 23 first-run drift is the negative control. It then runs named
 tests without implicit rebuild, checks both publish targets where available, inspects
