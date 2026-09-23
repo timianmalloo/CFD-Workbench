@@ -27,7 +27,10 @@ The review mockup may reject a syntactically valid feature with DSL-UNSUPPORTED 
 |---|---|
 | `foil-basic.foil` | Accept: full span 0.9 m, constant chord 0.12 m, S=0.108 m², AR=7.5, mean chord=MAC=0.12 m. Twist does not change reference area. Two endpoint assignments share one manufactured symmetric profile. |
 | `section-basic.foil` | Accept as standalone normalized 2D section; no assumed span, loads or NACA designation. |
-| `foil-precision.foil` | Accept; leading CV at eta-coordinate 0.3 is 14.049 mm and survives parse/emit; identity differs from a 14 mm counterpart. |
+| `foil-precision.foil` | Accept; leading CV at eta-coordinate 0.3 is 14.049 mm and trailing CV is 134.049 mm, preserving the old fixture's 120 mm chord by exact common-basis conversion. Values survive parse/emit; identity differs from a 14 mm counterpart. |
+| `foil-leading-only.foil` | Accept; relative to foil-basic only leading CV at eta-coordinate 0.3 changes to 14.049 mm. Trailing record and evaluated rail stay identical; derived chord/area change. |
+| `foil-trailing-only.foil` | Accept; relative to foil-basic only trailing CV at eta-coordinate 0.3 changes to 134.049 mm. Leading record and evaluated rail stay identical; derived chord/area change. |
+| `foil-independent-bases.foil` | Accept; leading uses seven CVs and trailing eight, with different knot and abscissa arrays and nonconstant ordinates on both rails. Rail independence and derived chord cannot depend on matching point indexes or a shared inverse mapping. Positive chord is guaranteed here by disjoint ordinate ranges: LE 0–30 mm, TE 120–151 mm. |
 | `foil-comment.foil` | Accept; same geometry identity as foil-basic, different exact source identity. |
 | `foil-assertions.foil` | Accept with both explicit-tolerance assertions passing, or prototype DSL-UNSUPPORTED before any mutation. |
 | `invalid-syntax.foil` | Missing final brace → DSL-SYNTAX; preserve accepted shape and draft. |
@@ -35,6 +38,7 @@ The review mockup may reject a syntactically valid feature with DSL-UNSUPPORTED 
 | `invalid-units.foil` | Area unit in half-span → DSL-UNIT; no reinterpretation. |
 | `invalid-version.foil` | Version 9.0 → DSL-VERSION; read-only source. |
 | `invalid-reference.foil` | Unknown profile reference → DSL-REFERENCE; never substitute default. |
+| `invalid-legacy-draft.foil` | Earlier unapproved 4.0 `planform chord cv` → reject with explicit legacy-draft conversion message; never reinterpret as trailing x. |
 
 Additional mandatory production vectors (define expected failures before implementation):
 
@@ -50,6 +54,12 @@ Additional mandatory production vectors (define expected failures before impleme
 10. Unit spellings representing the same exact dimensional decimal, and canonical SI round trips: equal identity.
 11. Cancel after text and GUI draft: restore exact source and geometry; Undo/Redo restore source + definition + freshness.
 12. A base-revision conflict, incomplete recovery draft and interrupted save: preserve last accepted source.
+13. Edit each rail in Source and Visual, including unequal bases, then Apply/Cancel/Undo/Redo: the untouched
+    rail's CVs, knots and evaluated unrotated x are invariant, and every chord reader uses trailing minus leading.
+
+**Review correction:** the prior leading+chord fixtures were converted to independent leading/trailing by
+adding ordinates only after comparing degree, knots and CV abscissae for equality. The reference files and
+their measured observations were not changed. Different bases cannot be converted by adding same-index CVs.
 
 `reference-probe.cjs` executes supplied v3 functions without changing them. Run from repository root:
 

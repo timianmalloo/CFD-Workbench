@@ -70,7 +70,7 @@ claimed implemented.
 |---|---|---|---|
 | Source text is the authored foil | One complete parametric authority | **Retain** | Source owns the record; parsed arrays are projections. Language §2/8, spec A3/A4, native document, CAD Source. |
 | `linear/smooth/monotone` through-anchor curves | v1.3 direct B-spline CVs and levers | **Adapt** | Anchors remain construction/import inputs. Accepted 4.0 emits degree/knots/CVs. No regression to through-points. |
-| Independently authored LE and TE | LE plus positive chord, TE derived | **Adapt** | Preserve one nonredundant model. Dragging a TE computes a chord edit with LE held; source names `leading` and `chord`. |
+| Independently authored LE and TE | Previous spec stored LE plus chord, so LE edits moved TE | **Retain reference; correct existing model** | User review requires independent edges. Source owns `leading` and `trailing`, each with separate CV abscissae/knots; chord is derived as TE−LE. Text/GUI/identity/history/compute readers all use this contract. |
 | Full span input and physical station distances | Span derived from record; eta stations | **Adapt** | `half_span` is the single extent; full span derived. Root/tip/length/% station syntax resolves to eta. UI displays distance and eta. |
 | `drop/rise/level` and extrema at distances | Signed elevation with readouts | **Retain UX, adapt syntax** | Plain-language drop/rise summaries remain; CV ordinate is signed. Extrema are derived, not additional station anchors. |
 | Bank defaults true; rotate about quarter chord | Fixed span-axis planes; LE pivot | **Replace** | Different surfaces otherwise share a misleading name. 4.0 rule A fixes unbanked LE rotation; v3 migration measures deviation. |
@@ -132,6 +132,15 @@ No new broad knowledge base is needed: the repository already contains the curve
 These two sources close the narrow serialization/notation gap. This task does not research or select a stack.
 
 ## Choice, alternatives and residual risk
+
+**User correction, 22 September 2026:** retaining the old leading+chord model was incorrect for the requested
+independent rail behavior. Changing LE while keeping chord fixed moved TE. The normative draft now stores two
+independent absolute x rails and derives chord. This supersedes the earlier reconciliation choice above; it
+does not rewrite what v3 actually proposed. The earlier unapproved 4.0 `chord cv` planform field is rejected,
+not relabelled. Legacy conversion can add ordinates only when degree, knots and parametric abscissae agree;
+different mappings require an exact proven common representation or measured fitting and an explicit preview.
+Controls are the DSL-13/SRC-11 independence fixtures in text, visual edits and history, including rails with
+different abscissae. The independent edge record is compatible with preserving the v1.3 CV editing model.
 
 **Inferred design choice:** retain v3's core insight—an inspectable, diffable authored language—but evolve its
 semantics to the already accepted CV product model. Reject an unmodified v3 runtime beside the existing evaluator

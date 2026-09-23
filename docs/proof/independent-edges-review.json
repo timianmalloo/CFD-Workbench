@@ -1,0 +1,28 @@
+{
+  "reviewer": "independent review agent",
+  "scope": "Bounded HTML prototype, unrotated planform edges",
+  "checks": [
+    {
+      "name": "LE absolute-position crossing rejected through actual numeric UI Apply",
+      "pass": true
+    },
+    {
+      "name": "Delete le CV changes its knot vector but leaves opposite record, knots and 301 evaluated points unchanged",
+      "pass": true
+    },
+    {
+      "name": "Delete te CV changes its knot vector but leaves opposite record, knots and 301 evaluated points unchanged",
+      "pass": true
+    },
+    {
+      "name": "Legacy draft fails closed",
+      "pass": true,
+      "diagnostic": {
+        "code": "DSL-LEGACY",
+        "message": "Earlier 4.0 draft uses leading plus chord. Preserve it and request an explicit conversion to independent leading/trailing curves; no automatic reinterpretation."
+      }
+    }
+  ],
+  "errors": [],
+  "screenshot": "/tmp/independent-edges-review.png"
+}

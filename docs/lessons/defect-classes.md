@@ -55,6 +55,18 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 
 ## FoilDSL boundary sweep — 2026-09-22
 
+**GEO-R · An independently presented control has a coupled authority.** User correction: moving
+LE carried TE because the record stored LE plus chord. Sweep: both pointer maps, keyboard/numeric
+editors, cage, seeds, source grammar/identity/examples, preview/history, station/area/analysis readers.
+Derive: author the two absolute rails independently; chord is TE−LE. Per-index compensation is invalid
+when the rails' abscissae/knots differ. Prevent: `tools/check-independent-edges.mjs` (observed RED at
+1.602926 mm unwanted TE motion) asserts opposite controls, 401 samples and rendered path unchanged
+for unequal six/nine-CV bases, both-coordinate pointer moves, keyboard/source/numeric editing and
+history. It also rejects positive-ordinate TE curves that cross LE. Native/full geometry certification
+remains separate. Rename sweeps must distinguish authored channel identifiers from physical units
+and brief targets: the unchanged source/CAD regressions caught a chord-target rename and sorted
+test-identifier mismatch before handoff; the v5 oracle remains an archived-contract regression.
+
 **DATA-D · A projection omits part of its source.** Class: a fitted spline is carried as points
 while its reader uses a stale knot vector. Sweep: upper/lower fitting, section editor, source
 serialization, skin, cage, residual and undo snapshots. Derive: every spline record carries degree,

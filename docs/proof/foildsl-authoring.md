@@ -31,8 +31,13 @@ profile-to-skin reach, metadata preservation and fifteen layout/theme cells. Ini
 RED was observed on v5. The [preserved CAD oracle](workbench-v6-browser-check.json) covers sixteen
 groups, 77 measurements and thirty shell cells. Neither browser run made network requests or
 reported a page error. Commands are `node tools/check-foildsl.mjs <node_modules>` and
-`MOCKUP_NAME=workbench-v6 node tools/check-mockup-v5.mjs <node_modules>`; Playwright is a local
+`node tools/check-mockup-v6.mjs <node_modules>`; Playwright is a local
 verification tool, not a mockup dependency.
+
+The independent-edge correction adds [six transaction/invariance checks](independent-edges.json)
+and an [independent review](../reviews/independent-edges.md). The previous source-plus-chord model
+failed the new oracle: moving LE moved TE by 1.602926 mm. Authored independent rails now leave
+the opposite controls and sampled planform exactly unchanged; chord is only their difference.
 
 **Verified:** the [independent review](../reviews/foildsl-independent.md) records fourteen findings,
 resolutions, actual negative GUI interaction and rendered screenshot inspection. Its

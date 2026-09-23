@@ -1,6 +1,6 @@
 {
  "artifact": "docs/mockups/workbench-v6.html",
- "checkedAt": "2026-09-23T03:01:24.587Z",
+ "checkedAt": "2026-09-23T03:29:07.960Z",
  "measurements": [
   {
    "label": "minimum/setup",
@@ -3194,17 +3194,17 @@
      ],
      "cv": {
       "le": 7,
-      "chord": 7,
+      "te": 7,
       "elev": 7,
       "twist": 7,
       "tc": 7
      }
     },
-    "delta": 0.010000000000000009,
-    "gap": 0.005131508842654675,
-    "moved": 0.006666661839549504,
+    "delta": 0.009999999999999995,
+    "gap": 0.0035982973378216043,
+    "moved": 0.006666665416035167,
     "fair": {
-     "dev": 0.0000050895547348134285,
+     "dev": 0.00001761144623373123,
      "tol": 0.0005,
      "applyDisabled": false
     },
@@ -3221,7 +3221,7 @@
      "twist": [
       "d"
      ],
-     "chord": [
+     "te": [
       "a"
      ]
     },
@@ -3380,6 +3380,6 @@
  ],
  "errors": [],
  "externalRequests": [],
- "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v5-review-MyYbJu",
+ "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v6-review-OsAZ3b",
  "note": "HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof."
 }

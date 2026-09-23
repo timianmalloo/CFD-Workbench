@@ -277,7 +277,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5fc9f94d0dee100cdebbeb391a5e0331254ac32019516a5500904deeb0b0c76c"
+      "sourceSha256": "e7347b59af9f1b93e290f8c760c4e2933c551849d4b2d8d776910c4d1cff1b62"
     },
     {
       "id": "cad-editing-views",
@@ -499,7 +499,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "634e5be4e94ea325c6a21cd9bfe87e082386db9564beac45d9a584862106dc1a"
+      "sourceSha256": "77807591931aea0cfc7e53dfa374e86f2a009314dff8b7ef568b98ed8c79f696"
     },
     {
       "id": "decision-freshness-by-run-key",
@@ -1321,7 +1321,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7b26b4c0919d052a94bf22c9f044e2f6121ea67834770950b7cc26fd15b50c73"
+      "sourceSha256": "40979b907d351c5b27cc5022842c765d1967ddaf72f20b1f1679b36b04433c2b"
     },
     {
       "id": "workbench-direction",
@@ -1480,7 +1480,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "29a976925b053206f9750823eab34e2f9b57a17657f083227dbb27ae1a3d9420"
+      "sourceSha256": "a52838c3d884edef7df274de2ffeee688ca17a6dfbc659e6bd4a662f2ad37832"
     },
     {
       "id": "domain-experts",
@@ -1549,7 +1549,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "11139336edb00987356b4e053452a1aae2ce72b8fb079a210f484e79967edc4b"
+      "sourceSha256": "a04703f1c8b3a7ed7fc9e44ff25a79462e5486ba27b8216ba1aeb82f53b10087"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -1639,6 +1639,47 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "d200118e5d5e5665823b3da56a471362087a0a34f4630f350e2ce2fe6147991a"
+    },
+    {
+      "id": "plan-independent-edges",
+      "path": "docs/plans/independent-edges.md",
+      "title": "Independent leading and trailing edge correction",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "User review correction: independent leading/trailing rails replace authored chord; chord is derived. Earlier unapproved chord draft requires explicit conversion."
+        }
+      ],
+      "summary": "Correct the authored planform to independent leading and trailing rails, derive chord, and prove the untouched rail remains unchanged through edits and history.",
+      "tags": [
+        "plan",
+        "geometry",
+        "foildsl"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Independent edges",
+          "mermaid": "flowchart LR\n G --> C\n C --> D\n C --> U\n D --> V\n U --> V\n V --> R\n R --> J"
+        }
+      ],
+      "sourceSha256": "ecf93d2224ddb2468bd7ebc3a354fdd6bdaf559f9dfbe15fc8b6e00c61e478e9"
     },
     {
       "id": "plan-knowledge-experts-spec-v1",
@@ -1780,6 +1821,44 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5f36aa3e3bdece229e8019c66a45c8f74589242d3a9b2225a5617c27954ed07a"
+    },
+    {
+      "id": "review-independent-edges",
+      "path": "docs/reviews/independent-edges.md",
+      "title": "Independent foil edges — adversarial review",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [],
+      "summary": "Independent geometry, test and simplification gates for separately authored leading and trailing planform rails. Includes observed browser proof, resolved findings and bounded residual risks.",
+      "tags": [
+        "foildsl",
+        "review",
+        "geometry",
+        "testing"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a47956260e80b989c4da5b3d352b77e846a043101c1b385fa5df09eaa05f54b6"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -3019,7 +3098,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e1659c24554411bf1f8c4618abd6755905ca5898e0839b1eaa66360f4da1f820"
+      "sourceSha256": "d27480c3eef7cd0d6edc90728a2930f60f9e7a9d6ac17600beffec353f961108"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -3483,11 +3562,11 @@ window.DOCS_INDEX = {
         },
         {
           "kind": "flowchart",
-          "title": "B9. FoilDSL authoring flow (SRC-01–10)",
+          "title": "B9. FoilDSL authoring flow (SRC-01–11)",
           "mermaid": "flowchart TD\nA[Accepted foil and source] --> B{Edit route}\nB -->|Visual| C[Shared geometry draft and source patch]\nB -->|FoilDSL| D[Editable source draft]\nB -->|Open or New| D\nC --> E[Validate candidate and base revision]\nD --> E\nE -->|Invalid or incomplete| F[Diagnostic with location and repair; accepted shape retained]\nF -->|Edit again| D\nF -->|Cancel| A\nE -->|Unsupported| G[Explain unsupported feature or migration requirement]\nG -->|Cancel or keep original| A\nE -->|Valid| H[Labelled candidate preview and change summary]\nH -->|Apply| I[Append accepted source and semantic revision if changed]\nH -->|Cancel| A\nI --> J[Geometry and text projections agree; run freshness recomputed]\nJ -->|Undo or Redo| K[Select matching historical source and definition]\nK --> A\nJ -->|Save| L[Write project or explicit shape-only source]\nL -->|Failure| M[Previous file intact; retry or save elsewhere]\nM --> L\nL -->|Reopen and validate| A"
         }
       ],
-      "sourceSha256": "38eb00b93c901bbe03999cc748aab2b0b20a0a8c12605ba8233c4c5088e21f7b"
+      "sourceSha256": "e67b5867ea7dca1535b68e421da8e72a169f2301ce030ec6ad40b5ac9d4e592b"
     },
     {
       "id": "spec-foildsl",
@@ -3541,7 +3620,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "b7ebafb9f389995fc01455fc7a99e679ce01ce80a7b7a9bbb0a84802077b6cf9"
+      "sourceSha256": "d812f02ba978081eec7a33f9e3cac727c461ba8068cc121f1c3374b40ec3436b"
     }
   ],
   "surfaces": [
@@ -3641,5 +3720,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3cb9bf6eac28524118e9a0fd578c5fbb992a82936356c4101a5bdb49b1999031"
+  "graphSha256": "7bce60790cca1967b6bf7680eb2ba0c7d57d05aaf79b33d053d03507d785d97d"
 };

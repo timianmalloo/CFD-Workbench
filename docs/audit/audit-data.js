@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T03:02:53Z",
+  "generated": "2026-09-23T03:31:38Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1004,6 +1004,87 @@ window.AUDIT_DATA = {
         "branch": "feature/foildsl-authoring",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M364JA6WH6V8NCW8V410WKE9",
+      "shortname": "Independent LE and TE editing",
+      "datetime": "2026-09-23T03:22:21Z",
+      "session": "independent-edges-20260922",
+      "prompt": "looks good\nin the cad view, moving a point on the LE moves the TE and vice versa... that should not be the case the LE and TE cuves should be independent",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3652N7GV8JG6NYXJDY4232E",
+      "shortname": "independent-edges-plan",
+      "datetime": "2026-09-23T03:31:17Z",
+      "session": "independent-edges-20260922",
+      "prompt": "looks good\nin the cad view, moving a point on the LE moves the TE and vice versa... that should not be the case the LE and TE cuves should be independent",
+      "summary": "Seven-node plan completed with disjoint spec/UI authors after independent geometry contract gate; modeled span7to6, no measured speedup claimed. Red opposite-edge test then six edge groups, thirteen source groups and sixteen CAD groups passed.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/independent-edges.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make LE and TE independent authored planform curves.",
+      "done_when": "Opposite rail remains unchanged through edits and history; grammar, mockup and verification agree.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-23T03:22:21Z",
+      "duration_seconds": 536.0,
+      "git": {
+        "sha": "71a5b4571e2287cfdb3ca41a7bca4a9383b1fdc4",
+        "short": "71a5b4571",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M36539RVYCNN0PF4SSJPH1R8",
+      "shortname": "independent-edges-ui",
+      "datetime": "2026-09-23T03:31:38Z",
+      "session": "independent-edges-20260922",
+      "prompt": "looks good\nin the cad view, moving a point on the LE moves the TE and vice versa... that should not be the case the LE and TE cuves should be independent",
+      "summary": "Independent LE/TE authored curves, derived chord, absolute aft-position controls and explicit old-draft rejection. Edge6, independent4, source13/15cells, CAD16/77measurements/30cells all PASS; rendered specs and craft/design checks pass. Independent geometry/Test/Simplifier PASS. Minor Properties wrapping and inherited title freshness noted; native/scientific interval proof unverified.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v6.html",
+        "docs/reviews/independent-edges.md",
+        "docs/proof/independent-edges.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make LE and TE independent authored planform curves.",
+      "done_when": "Opposite rail remains unchanged through edits and history; grammar, mockup and verification agree.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-23T03:22:21Z",
+      "duration_seconds": 557.0,
+      "git": {
+        "sha": "71a5b4571e2287cfdb3ca41a7bca4a9383b1fdc4",
+        "short": "71a5b4571",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -1320,6 +1401,30 @@ window.AUDIT_DATA = {
       "git": {
         "before": "034f0b8482c2",
         "after": "034f0b8482c2908683a1e9345ca2184ee0b8c550",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3652N3XHYJM7YPS8CSQM7D2",
+      "datetime": "2026-09-23T03:31:17Z",
+      "session": "independent-edges-20260922",
+      "kind": "design",
+      "skill": "ui-design",
+      "title": "Author leading and trailing edges independently",
+      "prompt": "looks good\nin the cad view, moving a point on the LE moves the TE and vice versa... that should not be the case the LE and TE cuves should be independent",
+      "summary": "Replace authored LE plus chord with independent absolute LE and TE curves in the unapproved FoilDSL4 draft and v6 mockup. Derive chord, retain LE twist pivot, reject old draft syntax explicitly, preserve opposite rail through editing/history.",
+      "rationale": "User-observed coupling reproduced: LE edit moved TE1.602926mm. Opposite rail must retain its own control basis; compensating chord by index cannot be exact when abscissae differ.",
+      "artifacts": [
+        "docs/specs/foildsl.md",
+        "docs/mockups/workbench-v6.html",
+        "docs/proof/independent-edges.json"
+      ],
+      "tags": [],
+      "git": {
+        "before": "71a5b45",
+        "after": "71a5b4571e2287cfdb3ca41a7bca4a9383b1fdc4",
         "branch": "feature/foildsl-authoring",
         "pushed": null,
         "commits": []

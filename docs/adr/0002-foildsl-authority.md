@@ -18,7 +18,8 @@ review-suggested:
 # ADR 0002: FoilDSL is the authored surface definition
 
 **Status: proposed for human review.** This decision replaces the representation ambiguity in the
-earlier parametric-authority note; it preserves the five channels, control vertices and section model.
+earlier parametric-authority note; it preserves control-vertex and section editing while its five channels
+are independent leading/trailing rails, elevation, twist and effective thickness. Chord is derived.
 It does not select an application language, toolkit, database, geometry kernel or simulation backend.
 
 ## Problem and candidates
@@ -37,6 +38,15 @@ station schedule, live diagnostics and integrated explanation; future concise co
 through a reviewable transaction rather than acquire a second hidden geometry authority.
 
 ## Model and durable representation
+
+**Review correction, 22 September 2026:** source stores independent leading/trailing absolute x curves in
+the unrotated planform. Each owns its own CV abscissae, knot vector and ordinates. `chord(η)=TE(η)−LE(η)` is
+a derived quantity read by sections, integration, analysis and export, never a third authored curve.
+The earlier unapproved draft used leading+chord; that coupled TE motion to LE edits and is superseded.
+Its `planform chord cv` spelling is rejected, never reinterpreted. A migration adds CV ordinates only where
+degree, knots and abscissa controls are identical; otherwise explicit exact conversion or measured fitting
+with a deviation preview is required. No input is silently converted. A rail edit must preserve the other
+rail's record and unrotated evaluated curve across Source/Visual, Apply/Cancel and Undo/Redo.
 
 Design owns the Foil definition, its profile definitions and assignments. The **accepted definition**
 is the single semantic record. Its lossless concrete source preserves comments, names and formatting;

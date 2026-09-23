@@ -58,5 +58,29 @@
     "expected": "accept",
     "diagnostic": null,
     "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "foil-leading-only.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "independent rail record; earlier unapproved chord draft rejected"
+  },
+  {
+    "file": "foil-trailing-only.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "independent rail record; earlier unapproved chord draft rejected"
+  },
+  {
+    "file": "invalid-legacy-draft.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-LEGACY",
+    "scope": "independent rail record; earlier unapproved chord draft rejected"
+  },
+  {
+    "file": "foil-independent-bases.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "independent degree-3 rail bases; leading N7 and trailing N8"
   }
 ]

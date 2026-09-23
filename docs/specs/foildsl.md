@@ -43,6 +43,9 @@ solver setup, network requests, filesystem commands or AI instructions. It canno
 Multi-surface assemblies and independent port/starboard halves remain outside 4.0.
 
 Version 4.0 is deliberately source-incompatible with v3. A missing header is never guessed to be 4.0.
+This remains an unapproved 4.0 draft. The 22 September review correction makes leading and trailing rails
+independent: the earlier draft's `planform chord cv` field is rejected, never reinterpreted as a trailing
+edge. See §10 for explicit conversion; no released 4.0 compatibility claim exists yet.
 An unknown major or minor version is read-only until a compatible parser or an explicit migration is selected.
 No keyword is silently ignored. A newer version may add syntax; it may not change the meaning of a valid 4.0
 document. Migration creates a new source revision and preserves the original (§10).
@@ -116,7 +119,7 @@ are errors, replacing v3's last-writer-wins semantics.
 document = "foildsl", '"4.0"', (foil | standalone-profile), EOF ;
 foil = "foil", string, "{", "units", length-unit,
        "half_span", length, evaluator, "symmetry", "mirror_y",
-       "planform", "{", "leading", curve, "chord", curve, "}",
+       "planform", "{", "leading", curve, "trailing", curve, "}",
        "dihedral", curve, "twist", curve, "thickness", curve,
        "profiles", "{", profile, {profile}, "}",
        "sections", "{", assignment, assignment, {assignment}, "}",
@@ -142,7 +145,7 @@ lock = "root_mirror", channel
      | "freeze", channel, string, "at", point
      | "value", channel, "at", station, number
      | "bounds", channel, string, number, number ;
-channel = "leading" | "chord" | "dihedral" | "twist" | "thickness" ;
+channel = "leading" | "trailing" | "dihedral" | "twist" | "thickness" ;
 assertion = metric, (">=" | "<="), quantity
           | metric, "==", quantity, "tolerance", quantity ;
 metric = "area" | "aspect" | "taper" | "mean_chord" | "mac"
@@ -157,13 +160,16 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
 
 ## 5. Static and geometric semantics
 
-1. `units` governs the ordinates of leading, chord and dihedral CVs and their lock values. Half-span and station
+1. `units` governs the ordinates of leading, trailing and dihedral CVs and their lock values. Half-span and station
    distances always have an explicit suffix. Twist ordinates/locks are degrees; thickness is a dimensionless
    chord fraction. Profile coordinates and all CV abscissae/knots are dimensionless. Conversion to SI occurs
    before evaluation. Unit changes convert values; relabelling them is a geometric edit.
 2. Half-span is finite and strictly positive. Full projected span is derived as twice half-span. The frame is
    fixed to +x aft, +y starboard, +z up, root leading edge at the origin. `leading(0)=dihedral(0)=0`.
    Symmetry is exactly `(x,y,z) → (x,-y,z)`. Positive twist is nose-up about the leading edge.
+   Leading and trailing are **independent absolute x positions in the unrotated planform**, not offsets from
+   one another. Each has its own degree, knot vector, CV abscissae, ordinates, IDs and locks. Chord is only
+   `trailing(eta)-leading(eta)`; it has no saved CVs, knots or independent geometric identity.
 3. For N points and degree p, `knots` has **N+p+1** entries (N is count, not highest index).
    End values are 0 and 1, each repeated p+1 times; interior knots are in (0,1), nondecreasing,
    with multiplicity at most p. All rational weights are exactly one by language definition.
@@ -192,7 +198,7 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
    No assignment or inspection slice duplicates a channel value. Promotion inserts the evaluated blended
    shape as a profile revision with a measured deviation; it must satisfy the exact-operation gate before Apply.
 8. Default tip is `open`, meaning nonzero terminal chord and a boundary section, not a manufacturability claim.
-   Chord is strictly positive everywhere for an open tip. A declared `point` tip has chord zero only at eta=1
+   Derived chord `trailing(eta)-leading(eta)` is strictly positive everywhere for an open tip. A declared `point` tip has chord zero only at eta=1
    and positive chord on [0,1); normals use the limiting surface. Thickness is in (0,1) throughout.
    Negative/crossing chord, crossing profiles or a folded/self-intersecting surface block acceptance.
    These are geometric obligations over intervals, not proof from 91 samples. An unresolved numerical test
@@ -232,7 +238,7 @@ This is the product's linear normalized-camber/unit-thickness blend, with shared
 A computational shared-knot conversion must preserve these functions and report any approximation residual.
 There is no mid-span family switch and no cosine interpolation of four nominal section parameters.
 
-For q=(x,z), c=chord(eta), L=leading(eta), Z=dihedral(eta), phi=twist(eta) converted to radians.
+For q=(x,z), c=trailing(eta)-leading(eta), L=leading(eta), Z=dihedral(eta), phi=twist(eta) converted to radians.
 The pinned binary64 radians-per-degree constant is `0.017453292519943295`; multiplication rounds once to
 binary64, ties-to-even. Trigonometric evaluation must meet the identity oracle, not promise bit-identical libm:
 
@@ -276,6 +282,7 @@ inserts source names/diagnostics as text, never HTML or script. Comments cannot 
 |---|---|---|
 | DSL-LEX | unterminated string, nonfinite number | Keep draft; select offending span. |
 | DSL-SYNTAX | missing brace, duplicate field, unknown keyword | Complete/remove syntax; accepted geometry remains. |
+| DSL-LEGACY | earlier unapproved 4.0 `planform chord cv` | Preserve the original; request explicit conversion to independent leading/trailing rails. |
 | DSL-VERSION | 3.0/no header/unknown evaluator | Choose explicit migration or open read-only. |
 | DSL-UNIT | `half_span 20 cm2` | Enter a length. |
 | DSL-CURVE | bad knot count, unordered abscissa | Name curve and required count/order. |
@@ -321,7 +328,7 @@ Foil = {
   "evaluator": [id, version],
   "frame": "aft-starboard-up-root-le", "symmetry": "mirror_y",
   "half_span_m": h,
-  "channels": {"leading": Curve, "chord": Curve, "dihedral": Curve,
+  "channels": {"leading": Curve, "trailing": Curve, "dihedral": Curve,
                "twist": Curve, "thickness": Curve},
   "profiles": [Profile, ...],
   "assignments": [[eta, profileIndex], ...], "tip": "open"
@@ -393,6 +400,8 @@ flowchart TD
 | DSL-10 | Given save/reopen on either OS, then accepted source bytes, dependency hashes, recovery draft and historical runs survive; a missing evaluator never substitutes another. |
 | DSL-11 | Given asset substitution or an invalid checksum, then the document cannot be accepted or analyzed; no nominal profile is shown as resolved. |
 | DSL-12 | Given a v3 file, then migration previews every semantic departure and the maximum surface deviation, preserving the original; absent comparison evidence blocks migration acceptance. |
+| DSL-13 | Given different valid leading/trailing knot vectors and CV abscissae, when a leading CV moves in Source or Visual and is applied, then every trailing CV/knot/ID and the evaluated unrotated trailing rail remain unchanged; chord and dependent dimensions update from trailing minus leading. The inverse holds for a trailing-only edit. Cancel changes neither rail; Undo/Redo restore both rail definitions and matching source together. |
+| DSL-14 | Given the earlier unapproved 4.0 draft containing `planform chord cv`, when opened, then it is rejected with an explicit legacy-draft conversion message; it is never treated as a trailing curve. |
 
 UI follows existing DESIGN.md tokens and the C spatial/canvas archetype, with an E authoring facet inside the
 document. Source editor has a visible name, keyboard selection, line/column diagnostics and a polite status
@@ -414,6 +423,17 @@ the 4.0 model; LE pivot, fixed planes and linear profile blending may make faith
 Report maximum surface deviation, sample set, tolerances and all changed conventions; no zero residual is assumed.
 A conversion above A4.6 tolerance remains a draft. The user may intentionally redesign it as a new shape,
 but the action cannot be labelled lossless migration. Old v3 FNV hashes are provenance labels only.
+
+The v3 concept of independently authored leading/trailing edges is retained. Its anchor curves still require
+conversion into explicit CV records with residuals. For legacy native records or the earlier unapproved 4.0
+draft with leading+chord, the proposed new trailing function is `oldLeading(eta)+oldChord(eta)`. Adding CV
+ordinates is exact **only when degree, knots and parametric abscissa control arrays are identical**, so both
+curves have the same inverse mapping. If they differ, coefficient-wise addition is forbidden: use a proved
+exact common representation or fit the evaluated sum with a measured deviation, preview and explicit Apply.
+Source imports never perform this conversion automatically. A chord precision edit is an explicit command
+whose preview names the rail held fixed (default leading) and the trailing changes; it is not a third authority.
+At nonzero twist, changing leading also changes the LE rotation pivot: independence concerns the authored
+unrotated planform rails, not an assertion that every placed 3D point on the other edge stays stationary.
 
 Conformance has separate claims: **syntax**, **static semantics**, **evaluated geometry**, **serialization**,
 **editor transactions**, and **scientific analysis**. Passing one never grants the others. The fixtures in

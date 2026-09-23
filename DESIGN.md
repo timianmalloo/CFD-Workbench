@@ -429,8 +429,11 @@ do not become trustworthy because the fixture looks plausible.
 Use the same selection in tree, plot, canvas, and inspector. Editing a scalar at a
 station updates the owning distribution. Explicit stations, handles, and interpolation
 rules remain the parametric definition after a starter recipe is detached. A station
-profile is section identity in a fixed span-normal plane. The trailing edge follows
-leading-edge offset plus chord; thickness has one authority.
+profile is section identity in a fixed span-normal plane. Leading and trailing rails are
+independently authored absolute aft positions. Chord is derived as TE minus LE; thickness
+has one authority. Moving either planform rail leaves the other unchanged, including its
+control abscissae. Properties labels the rail coordinate **aft position** and exposes
+**Chord (TE − LE)** as a readout. The top-view transform stays fixed during a rail edit.
 
 Keep units and validity beside the number. Keep supporting explanation accessible
 through named help, not an always-open second inspector. Iterate the curve–station
