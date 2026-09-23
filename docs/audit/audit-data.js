@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:04:50Z",
+  "generated": "2026-09-23T15:06:12Z",
   "audit": [
     {
       "actor": null,
@@ -3279,24 +3279,372 @@ window.AUDIT_DATA = {
       "tool": "verify-portable-text-io.py"
     },
     {
-      "id": "al-01M37AK7P8JXF8XFBTFGGX42GQ",
-      "shortname": "join-application-independent-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/application-architecture.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-23T14:26:57Z",
+      "done_when": "Root review, link generation and portable gates are present with integrated recount",
+      "duration_seconds": 10.0,
+      "fan_out": 0,
+      "goal": "Join independent findings and generator repair after conditional architecture",
+      "id": "al-01M37AK7P8JXF8XFBTFGGX42GQ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-application-independent-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T14:26:47Z",
+      "summary": "Integrated root technical review and portability controls recount_seconds=9 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/plans/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-23T14:31:17Z",
+      "done_when": "B0 author has an isolated exact-path contract and the joined architecture plus coordination controls pass their gates; production remains behind G3.",
+      "fan_out": 2,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "short": "73cabb89e"
+      },
+      "goal": "Advance the first working offline application from conditional architecture through a reviewable contract gate while preserving worktree ownership.",
+      "id": "al-01M37AV56MD64CVVNTHJ6X9SEQ",
+      "kind": "script",
+      "outcome": "success",
+      "prompt": "Integrate reviewed architecture, repair linked-worktree derived regeneration, and dispatch the next serial contract gate.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-contract-dispatch-and-regen-control",
+      "skill": null,
+      "summary": "Architecture and independent review joined at 73cabb89 with 10/10 gates; restored primary derived view, corrected invoking-worktree regen dispatch, proved real-CLI RED/GREEN linked worktree regression, recorded recurrence, and launched B0 requested Astra author in isolated feature/application-contracts at that base. Owner Ruling 8 still gates production.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "coord-core.py"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T14:34:20Z",
+      "done_when": "Numbered ruling resolves request and author/coordinator receive amended contract obligations.",
+      "duration_seconds": 120.0,
+      "fan_out": 0,
+      "goal": "Resolve B0 policy seams without changing normative numeric semantics or overclaiming runner identity.",
+      "id": "al-01M37B0QQB2XTXZP9ZD3P55A8D",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Review and rule on B0 native-v1 resource, growth, missing-ID, platform persistence and requested-versus-effective model evidence policy; preserve independent technical veto and design-only scope.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-b0-contract-policy",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T14:32:20Z",
+      "summary": "Ruling 9 amends and approves design policy. Read normative FoilDSL decimal and ID rules. Raw exponent cap rejected in favor of normalized effective work domain, bounded scanning, exact SI one-round conversion, explicit resource-unsupported classification and zero shortcut. Growth preflight preserves history/draft/file; missing IDs appear before acceptance diff; new-file atomic no-replace and verified cooperative overwrite adapters required. Requested Astra and effective Not recorded distinguished; exception limited to serial B0 design. No production or executable-contract gate cleared.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-spikes.md"
+      ],
+      "datetime": "2026-09-23T14:35:06Z",
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "f574551bdba43d01d8af541bba4f68f107b56e50",
+        "short": "f574551bd"
+      },
+      "id": "al-01M37B24T27YQZFBSBR98NNBMT",
+      "kind": "script",
+      "outcome": "success",
+      "prompt": "Recompute architecture spike source fingerprints after portable text I/O integration.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "architecture-spike-integrated-fingerprints",
+      "skill": null,
+      "summary": "Compared all three integrated source SHA-256 values against author handback. C# project and Program unchanged; Python oracle changed only guarded UTF-8 console and explicit subprocess decoding. Proof now carries both author and integrated fingerprints; 30-case integrated recount had passed after repair. Owner Ruling 9 recorded separately.",
+      "tags": [],
+      "tool": "shasum"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-b0.md"
+      ],
+      "datetime": "2026-09-23T14:37:01Z",
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "ccf8dd549e9e871562d4b4a44ec744a1a39b8d12",
+        "short": "ccf8dd549"
+      },
+      "id": "al-01M37B5NEQ9A1HA9AMSGYBYKSV",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Record the exact serial B0 author assignment for independent review.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-b0-assignment-record",
+      "skill": null,
+      "summary": "Published post-dispatch packet with assigned session, worktree, base, eight exact substantive paths, Ruling9 amendments, author budget, required executable fixtures and Owner/root review gate. The packet expressly does not claim a prelaunch fingerprint.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T14:45:42Z",
+      "done_when": "Canonical request resolved with explicit schema, retry lifetime and executable review obligations.",
+      "duration_seconds": 119.0,
+      "fan_out": 0,
+      "goal": "Close durable replay policy without losing draft/target identity or overpromising no-op durability.",
+      "id": "al-01M37BNHNPMPC0CJ56K14285CS",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Resolve native-v1 accepted-row edit receipt and retry lifetime request against root BC-03 and current session/reopen source; no production gate clearance.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-durable-edit-receipt",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T14:43:43Z",
+      "summary": "Read root BC-03 and live session/native source. Ruling 10 approves receipt with edit null only Open, non-null every rail Apply including unchanged geometry, base/candidate target validation and exact durable payload reconstruction. Generic source command remains out of scope. Persisted operation identities remain protected across reopen; only unpersisted no-op IDs expire with explicit fresh-command-ID rule. Added writer-reader line/string limit closure to growth preflight and required fixtures. Root and author concurred with narrowed scope; executable proof remains independently gated.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-23T14:49:23Z",
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "a706b511f0b7a125f3a76770524f073166cd2840",
+        "short": "a706b511f"
+      },
+      "id": "al-01M37BW9W5BM33EKCWWPSQCNH8",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Correct a review finding that missed configured native JSON indentation.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-review-config-correction",
+      "skill": null,
+      "summary": "Coordinator initially inferred compact one-line JSON from a SerializeToUtf8Bytes call without following Native.Options. Root read WriteIndented=true and disconfirmed the concern. Recorded REVIEW-B class and required positive emitted-line and long-scalar fixtures; no B0 technical veto was raised from the withdrawn suspicion.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T14:52:27Z",
+      "done_when": "Canonical routing request resolved with explicit launch prerequisites and remaining technical gate.",
+      "duration_seconds": 80.0,
+      "fan_out": 0,
+      "goal": "Choose an evidence-qualified route for difficult core work without treating harness routing as product approval.",
+      "id": "al-01M37C1X1BH33S2280KVBKW6DP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Choose conditional first-core production harness route from existing evidence, apply equal observed-only threshold, specify model/cwd/HEAD/cancellation/path/cache/diff prerequisites, and keep B0/G3 technical gate separate.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-first-core-routing",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T14:51:07Z",
+      "summary": "Ruling 11 selects conditional serial built-in Codex with requested gpt-6-astra and effective Not recorded when unexposed, exception first-core-only with root concurrence. Requires actual harmless same-harness cancellation and owned-process quiescence, resolved B0/G3 approval, exact worker/coordinator cwd/branch/base/path/cache receipts and independent precommit/join review. No dispatch authorized. Current Grok ACP remains unqualified without additional probes; failed sentinel is not comparative proof of Codex confinement. Later routine adapters require a fresh bounded routing decision.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-b-core.md",
+        "docs/coordination/application-build.md"
+      ],
+      "datetime": "2026-09-23T14:54:53Z",
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "392daa55b47e7b8bedee68c5421b1d29327443dc",
+        "short": "392daa55b"
+      },
+      "id": "al-01M37C6BRKKR9JKXBGGCWEB6N7",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Prepare the first production core assignment and route decision while B0 completes.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "proposed-first-core-production-packet",
+      "skill": null,
+      "summary": "Drafted 18 provisional exact core/build/test/proof/gate paths, serial core-to-adapter dependency, full FoilDSL recognition versus certified admitted geometry, normal-path event acceptance, budget/checkpoints and join floors. Owner Ruling11 conditionally selects first-core Codex only after B0 independent PASS, G3 technical freeze and observed harmless cancellation/quiescence. No production worker dispatched.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:00:42Z",
+      "done_when": "Bounded review findings communicated and precise final evidence conditions retained for subsequent gate request.",
+      "fan_out": 0,
+      "goal": "Identify contract correctness gaps before B0 freeze without authoring track fixes or self-clearing implementation gates.",
+      "id": "al-01M37CH19K6Q9CTANP6WHPSP4J",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Independently review B0 contract/design/ADR/source/oracle/security candidate; provide findings and reserve final ruling until clean committed handback and root final disposition.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-b0-review-checkpoint",
+      "skill": "define-architecture",
+      "summary": "Read B0 design/ADR, session/identity/native sources, Python oracle, security refinements and root retained81 CSharp/42 Python/2505-vector receipt. Found first-cursor Apply allowed malformed root and partial Reopen risk, Unicode digit acceptance at standalone numeric boundary, and truncated half_span token exhaustion leaking implementation exception. First two source guards and regression cases inspected; final truncation correction and executed fingerprints pending. No further policy blocker found. Reviewed provisional18-path core packet and communicated seam refinements. Final executable gate remains held, no production clearance.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md",
+        "tools/recount-application-contracts.py"
+      ],
+      "datetime": "2026-09-23T15:04:39Z",
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "bc8b529eed473ee764c29baa6fb171e690991d23",
+        "short": "bc8b529ee"
+      },
+      "id": "al-01M37CR89QR1EK38X3ETJW00PC",
+      "kind": "script",
+      "outcome": "partial",
+      "prompt": "Verify the serial B0 author handback before coordination join.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-contract-author-handback",
+      "skill": null,
+      "summary": "Author cb73079e clean with eight substantive and four official metadata paths. Coordinator independently rebuilt final source using task-local caches and recounted 89 C# checks, 42 Python checks and 2505 cross-runtime vectors; source SHA256s match proof. Root independently reported bounded technical PASS. Recorded advisory/unset commit-hook identity and twelve structured post-commit allow decisions without retrospective enforcement. Owner final ruling and join remain pending.",
+      "tags": [],
+      "tool": "recount-application-contracts.py"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:04:50Z",
+      "done_when": "Final evidence inspected and readiness reported with precise remaining integration prerequisite.",
+      "duration_seconds": 132.0,
+      "fan_out": 0,
+      "goal": "Bind final technical readiness to exact source and clean handback without overclaiming hook enforcement or product correctness.",
+      "id": "al-01M37CRKEG1K5AHXPC6EA8SG0K",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Verify final committed B0 artifacts against clean handback and independent root evidence; reserve canonical technical ruling until Coordinator join/recount receipt.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-b0-final-evidence",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T15:02:38Z",
+      "summary": "Directly observed clean author HEAD cb73079e041668221618b8dfc08753ff00b1d9f6 and exact eight substantive plus four official metadata files. All three source fingerprints match committed proof. Root final receipt hash796be000f955f8a9308ef4d1ed18cf7cad2bf353e29188ddfd6464a1383c3e48 reports89 CSharp/42 Python/2505 vectors, including all Owner refusal/no-adoption regressions; final guards inspected. Root independent technical PASS received. No Owner technical blocker remains for bounded B0 contracts. Commit hook was advisory because author AGENT_SESSION was unset; no enforced commit-boundary identity claim. Canonical final ruling awaits Coordinator join/recount request; production G3 and cancellation separate.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-09-23T15:01:05Z",
+      "done_when": "Committed design/schema/session/identity/persistence contract and proof, with independent review and explicit product gates.",
+      "fan_out": 1,
+      "goal": "Complete exact native M1 shared contracts and executable fixture evidence under Rulings 8-10.",
+      "id": "al-01M37CHQ2EZ4F48YEX5QXY0Q0C",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "session": "cfd-contracts-author-20260923",
+      "shortname": "b0-contract-prompt",
+      "skill": null,
+      "summary": "Assigned serial B0 design-only contract completion, no production code.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/design/application-contracts.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:01:05Z",
+      "done_when": "Committed design/schema/session/identity/persistence contract and proof, with independent review and explicit product gates.",
+      "duration_seconds": 1897.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/application-contracts",
+        "pushed": null,
+        "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "short": "73cabb89e"
+      },
+      "goal": "Complete exact native M1 shared contracts and executable fixture evidence under Rulings 8-10.",
+      "id": "al-01M37CHQ5T3M8GA7ENRA5ZG9MN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "session": "cfd-contracts-author-20260923",
+      "shortname": "design-slice-application-contracts",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "design-slice",
+      "started_at": "2026-09-23T14:29:28Z",
+      "summary": "Produced eight-path design/ADR/proof/security and executable contract candidate. Build clean; 89 C# checks, 42 Python checks, 2505 vectors pass; five constructed mutants fail. Root/Owner gate retained. Tool count Not recorded; Coordinator approved bounded 20-call/20-minute finalization after 30-minute checkpoint.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M37CV3EDZ4WR67ARNFCPT7Z6",
+      "shortname": "join-application-contracts",
+      "datetime": "2026-09-23T15:06:12Z",
       "session": "cfd-coordinator-20260923",
       "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Integrated root technical review and portability controls recount_seconds=9 (docs_only=False).",
+      "summary": "Join B0 contract design, ADR, executable fixtures, security rollups and proof after independent 89 C#/42 Python/2505-vector recount and root technical PASS; production remains gated. recount_seconds=13 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/application-architecture.md"
+        "docs/proof/application-contracts.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Join independent findings and generator repair after conditional architecture",
-      "done_when": "Root review, link generation and portable gates are present with integrated recount",
+      "goal": "Integrate reviewed serial application contracts without losing source/proof or worktree ownership.",
+      "done_when": "Integrated branch passes independent contract and architecture recounts, docs checks and verification gates with exact provenance.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -3304,273 +3652,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-23T14:26:47Z",
-      "duration_seconds": 10.0
-    },
-    {
-      "id": "al-01M37AV56MD64CVVNTHJ6X9SEQ",
-      "shortname": "application-contract-dispatch-and-regen-control",
-      "datetime": "2026-09-23T14:31:17Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Integrate reviewed architecture, repair linked-worktree derived regeneration, and dispatch the next serial contract gate.",
-      "summary": "Architecture and independent review joined at 73cabb89 with 10/10 gates; restored primary derived view, corrected invoking-worktree regen dispatch, proved real-CLI RED/GREEN linked worktree regression, recorded recurrence, and launched B0 requested Astra author in isolated feature/application-contracts at that base. Owner Ruling 8 still gates production.",
-      "kind": "script",
-      "skill": null,
-      "tool": "coord-core.py",
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/application-build.md",
-        "docs/plans/application-build.md",
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Advance the first working offline application from conditional architecture through a reviewable contract gate while preserving worktree ownership.",
-      "done_when": "B0 author has an isolated exact-path contract and the joined architecture plus coordination controls pass their gates; production remains behind G3.",
-      "tier": "T2",
-      "fan_out": 2,
-      "git": {
-        "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
-        "short": "73cabb89e",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37B0QQB2XTXZP9ZD3P55A8D",
-      "shortname": "owner-b0-contract-policy",
-      "datetime": "2026-09-23T14:34:20Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Review and rule on B0 native-v1 resource, growth, missing-ID, platform persistence and requested-versus-effective model evidence policy; preserve independent technical veto and design-only scope.",
-      "summary": "Ruling 9 amends and approves design policy. Read normative FoilDSL decimal and ID rules. Raw exponent cap rejected in favor of normalized effective work domain, bounded scanning, exact SI one-round conversion, explicit resource-unsupported classification and zero shortcut. Growth preflight preserves history/draft/file; missing IDs appear before acceptance diff; new-file atomic no-replace and verified cooperative overwrite adapters required. Requested Astra and effective Not recorded distinguished; exception limited to serial B0 design. No production or executable-contract gate cleared.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Resolve B0 policy seams without changing normative numeric semantics or overclaiming runner identity.",
-      "done_when": "Numbered ruling resolves request and author/coordinator receive amended contract obligations.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T14:32:20Z",
-      "duration_seconds": 120.0
-    },
-    {
-      "id": "al-01M37B24T27YQZFBSBR98NNBMT",
-      "shortname": "architecture-spike-integrated-fingerprints",
-      "datetime": "2026-09-23T14:35:06Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Recompute architecture spike source fingerprints after portable text I/O integration.",
-      "summary": "Compared all three integrated source SHA-256 values against author handback. C# project and Program unchanged; Python oracle changed only guarded UTF-8 console and explicit subprocess decoding. Proof now carries both author and integrated fingerprints; 30-case integrated recount had passed after repair. Owner Ruling 9 recorded separately.",
-      "kind": "script",
-      "skill": null,
-      "tool": "shasum",
-      "actor": null,
-      "artifacts": [
-        "docs/proof/application-spikes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "git": {
-        "sha": "f574551bdba43d01d8af541bba4f68f107b56e50",
-        "short": "f574551bd",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37B5NEQ9A1HA9AMSGYBYKSV",
-      "shortname": "application-b0-assignment-record",
-      "datetime": "2026-09-23T14:37:01Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Record the exact serial B0 author assignment for independent review.",
-      "summary": "Published post-dispatch packet with assigned session, worktree, base, eight exact substantive paths, Ruling9 amendments, author budget, required executable fixtures and Owner/root review gate. The packet expressly does not claim a prelaunch fingerprint.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/contract-b0.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "git": {
-        "sha": "ccf8dd549e9e871562d4b4a44ec744a1a39b8d12",
-        "short": "ccf8dd549",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37BNHNPMPC0CJ56K14285CS",
-      "shortname": "owner-durable-edit-receipt",
-      "datetime": "2026-09-23T14:45:42Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Resolve native-v1 accepted-row edit receipt and retry lifetime request against root BC-03 and current session/reopen source; no production gate clearance.",
-      "summary": "Read root BC-03 and live session/native source. Ruling 10 approves receipt with edit null only Open, non-null every rail Apply including unchanged geometry, base/candidate target validation and exact durable payload reconstruction. Generic source command remains out of scope. Persisted operation identities remain protected across reopen; only unpersisted no-op IDs expire with explicit fresh-command-ID rule. Added writer-reader line/string limit closure to growth preflight and required fixtures. Root and author concurred with narrowed scope; executable proof remains independently gated.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Close durable replay policy without losing draft/target identity or overpromising no-op durability.",
-      "done_when": "Canonical request resolved with explicit schema, retry lifetime and executable review obligations.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T14:43:43Z",
-      "duration_seconds": 119.0
-    },
-    {
-      "id": "al-01M37BW9W5BM33EKCWWPSQCNH8",
-      "shortname": "application-review-config-correction",
-      "datetime": "2026-09-23T14:49:23Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Correct a review finding that missed configured native JSON indentation.",
-      "summary": "Coordinator initially inferred compact one-line JSON from a SerializeToUtf8Bytes call without following Native.Options. Root read WriteIndented=true and disconfirmed the concern. Recorded REVIEW-B class and required positive emitted-line and long-scalar fixtures; no B0 technical veto was raised from the withdrawn suspicion.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "git": {
-        "sha": "a706b511f0b7a125f3a76770524f073166cd2840",
-        "short": "a706b511f",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37C1X1BH33S2280KVBKW6DP",
-      "shortname": "owner-first-core-routing",
-      "datetime": "2026-09-23T14:52:27Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Choose conditional first-core production harness route from existing evidence, apply equal observed-only threshold, specify model/cwd/HEAD/cancellation/path/cache/diff prerequisites, and keep B0/G3 technical gate separate.",
-      "summary": "Ruling 11 selects conditional serial built-in Codex with requested gpt-6-astra and effective Not recorded when unexposed, exception first-core-only with root concurrence. Requires actual harmless same-harness cancellation and owned-process quiescence, resolved B0/G3 approval, exact worker/coordinator cwd/branch/base/path/cache receipts and independent precommit/join review. No dispatch authorized. Current Grok ACP remains unqualified without additional probes; failed sentinel is not comparative proof of Codex confinement. Later routine adapters require a fresh bounded routing decision.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Choose an evidence-qualified route for difficult core work without treating harness routing as product approval.",
-      "done_when": "Canonical routing request resolved with explicit launch prerequisites and remaining technical gate.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T14:51:07Z",
-      "duration_seconds": 80.0
-    },
-    {
-      "id": "al-01M37C6BRKKR9JKXBGGCWEB6N7",
-      "shortname": "proposed-first-core-production-packet",
-      "datetime": "2026-09-23T14:54:53Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Prepare the first production core assignment and route decision while B0 completes.",
-      "summary": "Drafted 18 provisional exact core/build/test/proof/gate paths, serial core-to-adapter dependency, full FoilDSL recognition versus certified admitted geometry, normal-path event acceptance, budget/checkpoints and join floors. Owner Ruling11 conditionally selects first-core Codex only after B0 independent PASS, G3 technical freeze and observed harmless cancellation/quiescence. No production worker dispatched.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/contract-b-core.md",
-        "docs/coordination/application-build.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "git": {
-        "sha": "392daa55b47e7b8bedee68c5421b1d29327443dc",
-        "short": "392daa55b",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37CH19K6Q9CTANP6WHPSP4J",
-      "shortname": "owner-b0-review-checkpoint",
-      "datetime": "2026-09-23T15:00:42Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Independently review B0 contract/design/ADR/source/oracle/security candidate; provide findings and reserve final ruling until clean committed handback and root final disposition.",
-      "summary": "Read B0 design/ADR, session/identity/native sources, Python oracle, security refinements and root retained81 CSharp/42 Python/2505-vector receipt. Found first-cursor Apply allowed malformed root and partial Reopen risk, Unicode digit acceptance at standalone numeric boundary, and truncated half_span token exhaustion leaking implementation exception. First two source guards and regression cases inspected; final truncation correction and executed fingerprints pending. No further policy blocker found. Reviewed provisional18-path core packet and communicated seam refinements. Final executable gate remains held, no production clearance.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Identify contract correctness gaps before B0 freeze without authoring track fixes or self-clearing implementation gates.",
-      "done_when": "Bounded review findings communicated and precise final evidence conditions retained for subsequent gate request.",
-      "tier": "T2",
-      "fan_out": 0
-    },
-    {
-      "id": "al-01M37CR89QR1EK38X3ETJW00PC",
-      "shortname": "application-contract-author-handback",
-      "datetime": "2026-09-23T15:04:39Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Verify the serial B0 author handback before coordination join.",
-      "summary": "Author cb73079e clean with eight substantive and four official metadata paths. Coordinator independently rebuilt final source using task-local caches and recounted 89 C# checks, 42 Python checks and 2505 cross-runtime vectors; source SHA256s match proof. Root independently reported bounded technical PASS. Recorded advisory/unset commit-hook identity and twelve structured post-commit allow decisions without retrospective enforcement. Owner final ruling and join remain pending.",
-      "kind": "script",
-      "skill": null,
-      "tool": "recount-application-contracts.py",
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/application-build.md",
-        "docs/lessons/defect-classes.md",
-        "tools/recount-application-contracts.py"
-      ],
-      "tags": [],
-      "outcome": "partial",
-      "git": {
-        "sha": "bc8b529eed473ee764c29baa6fb171e690991d23",
-        "short": "bc8b529ee",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M37CRKEG1K5AHXPC6EA8SG0K",
-      "shortname": "owner-b0-final-evidence",
-      "datetime": "2026-09-23T15:04:50Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Verify final committed B0 artifacts against clean handback and independent root evidence; reserve canonical technical ruling until Coordinator join/recount receipt.",
-      "summary": "Directly observed clean author HEAD cb73079e041668221618b8dfc08753ff00b1d9f6 and exact eight substantive plus four official metadata files. All three source fingerprints match committed proof. Root final receipt hash796be000f955f8a9308ef4d1ed18cf7cad2bf353e29188ddfd6464a1383c3e48 reports89 CSharp/42 Python/2505 vectors, including all Owner refusal/no-adoption regressions; final guards inspected. Root independent technical PASS received. No Owner technical blocker remains for bounded B0 contracts. Commit hook was advisory because author AGENT_SESSION was unset; no enforced commit-boundary identity claim. Canonical final ruling awaits Coordinator join/recount request; production G3 and cancellation separate.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Bind final technical readiness to exact source and clean handback without overclaiming hook enforcement or product correctness.",
-      "done_when": "Final evidence inspected and readiness reported with precise remaining integration prerequisite.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T15:02:38Z",
-      "duration_seconds": 132.0
+      "started_at": "2026-09-23T15:05:58Z",
+      "duration_seconds": 14.0
     }
   ],
   "changes": [
@@ -3963,6 +4046,28 @@ window.AUDIT_DATA = {
         "before": "a25c175",
         "after": "a25c175c2dff173028eeb23ffcbad1c94b5a70f9",
         "branch": "feature/application-architecture-codex",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M37CHQ49FC8FX5BR94T7PY20",
+      "datetime": "2026-09-23T15:01:05Z",
+      "session": "cfd-contracts-author-20260923",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Complete unshipped native-v1 durable receipts and bounded admission",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "summary": "Exact session/store ports, native replay and edit receipts, resource-safe identity and source patch contracts; no production implementation.",
+      "rationale": "Rulings 9 and 10 close missing durable retry, growth and safe persistence policies while retaining geometry/native runtime gates.",
+      "artifacts": [
+        "docs/design/application-contracts.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "after": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "branch": "feature/application-contracts",
         "pushed": null,
         "commits": []
       }
