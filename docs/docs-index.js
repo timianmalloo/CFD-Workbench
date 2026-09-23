@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -3944,6 +3944,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6b1c7d0ceac3633ca30b47dd0dd073c335aa2cfa8926a2e1d2b59038efd1f5d"
     },
     {
+      "id": "coordination-application-core-launch",
+      "path": "docs/coordination/application-core-launch.md",
+      "title": "First-core G3 launch and prewrite receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Records the exact Ruling 13 serial worker lease, compiled brief identity and read-only prewrite gate; implementation evidence remains pending.",
+      "tags": [
+        "coordination",
+        "application",
+        "implementation"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-application-cancel-drill",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "116ba8643a27ab780f870d175f90511b56f745ba0a96ceccc23373ffc5f33d33"
+    },
+    {
       "id": "coordination-architecture-qualification",
       "path": "docs/coordination/qualification-architecture.md",
       "title": "Architecture author harness qualification, 2026-09-23",
@@ -4974,5 +5007,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "455979ff21f97b6276629983acf9abd4ed249c12dc67362c82394311b57ee6a2"
+  "graphSha256": "2a7c3be08524428923d4e35e4488a37c97ab5ab6bb4571b85af082b4b636b04c"
 };
