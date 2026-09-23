@@ -9,6 +9,33 @@ internal static class FoilSourceTests
     internal static byte[] Example => File.ReadAllBytes("docs/examples/foildsl/foil-basic.foil");
     internal static void Run()
     {
+        Check("Ruling15_UnknownUnits_DoNotInventOverflow", () => DiagnosticCase(Text.Replace("units mm", "units alien").Replace("(0.5, 0)", "(0.5, 1e309)"), "DSL-UNIT", "Structural", "alien"));
+        Check("Ruling15_MissingUnit_PreventsOverflowBinding", () => DiagnosticCase(Text.Replace("450 mm", "1e309"), "DSL-SYNTAX", "Syntactic", "\"cfdw-cv\""));
+        Check("Ruling15_UnknownChannel_DoesNotInventOverflow", () => DiagnosticCase(Text.TrimEnd()[..^1] + " locks { value alien at root 1e309 } }", "DSL-SYNTAX", "Syntactic", "alien"));
+        Check("Ruling15_KnownOverflow_PrecedesBadReference", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m").Replace("at tip profile \"section-a\"", "at tip profile \"missing\""), "DSL-LEX", "Lexical", "1e309"));
+        Check("Ruling15_KnownOverflow_PrecedesBadDegree", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m").Replace("degree 3", "degree 2"), "DSL-LEX", "Lexical", "1e309"));
+        Check("Ruling15_BoundMillimeters_CompensateLargeDecimal", () => Equal(true, Parse(Text.Replace("450 mm", "1e309 mm")).IsParsed));
+        Check("Ruling15_BoundMeters_OverflowLexically", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m"), "DSL-LEX", "Lexical", "1e309"));
+        Check("Ruling15_MalformedToken_PrecedesBlockingSyntax", () => DiagnosticCase(Text.Replace("450 mm", "1e309") + "@", "DSL-LEX", "Lexical", "@"));
+        Check("Ruling15_UnknownEvaluator_PreventsGuessedConversion", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m").Replace("cfdw-cv", "unknown"), "DSL-VERSION", "Version", "\"unknown\""));
+        Check("Patch_LeadingRail_ExactSiAndOnlyOwnedToken", () =>
+        {
+            var source = FoilSource.MaterializeIds(FoilSource.Parse(Example));
+            var parsed = FoilSource.Parse(source);
+            var patched = FoilSource.PatchRail(parsed, "leading", "cv-2", 0.014049);
+            Equal(true, FoilSource.Parse(patched).IsParsed);
+            Equal(true, source.AsSpan().SequenceEqual(parsed.Source));
+            var originalText = Encoding.UTF8.GetString(source);
+            var resultText = Encoding.UTF8.GetString(patched);
+            int end = originalText.IndexOf("trailing", StringComparison.Ordinal);
+            Equal(originalText[end..], resultText[resultText.IndexOf("trailing", StringComparison.Ordinal)..]);
+            var twice = FoilSource.PatchRail(FoilSource.Parse(patched), "leading", "cv-2", 0.014049);
+            Equal(true, patched.AsSpan().SequenceEqual(twice));
+            Equal(false, source.AsSpan().SequenceEqual(patched));
+        });
+        Check("Patch_MissingIds_RefusesImplicitIdentityInsertion", () => Refuses("DSL-PATCH", () => FoilSource.PatchRail(FoilSource.Parse(Example), "leading", "cv-2", 1)));
+        Check("Patch_NonRailTarget_Refuses", () => Refuses("DSL-PATCH", () => FoilSource.PatchRail(FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(Example))), "twist", "cv-2", 1)));
+        Check("Patch_Nonfinite_Refuses", () => Refuses("DSL-PATCH", () => FoilSource.PatchRail(FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(Example))), "leading", "cv-2", double.NaN)));
         Check("Parse_FoilGrammar_RecognizesAllChannels", () => Equal(true, FoilSource.Parse(Example).IsParsed));
         Check("Parse_StandaloneSection_RecognizesWholeGrammar", () => Equal(true, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/section-basic.foil")).IsParsed));
         Check("Parse_Assertions_RecognizesWholeGrammar", () => Equal(true, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/foil-assertions.foil")).IsParsed));
@@ -69,6 +96,15 @@ internal static class FoilSourceTests
     }
 
     private static string Text => Encoding.UTF8.GetString(Example);
+    private static void DiagnosticCase(string text, string code, string phase, string span)
+    {
+        var result = Parse(text);
+        Equal(false, result.IsParsed);
+        Equal(text, Encoding.UTF8.GetString(result.Source));
+        Equal(code, result.Diagnostics[0].Code);
+        Equal(phase, result.Diagnostics[0].Phase);
+        Equal(span, Encoding.UTF8.GetString(result.Source.AsSpan(result.Diagnostics[0].ByteStart, result.Diagnostics[0].ByteLength)));
+    }
     private static SourceParse Parse(string text) => FoilSource.Parse(Encoding.UTF8.GetBytes(text));
     private static void Code(string file, string code) => Equal(code, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/" + file)).Diagnostics[0].Code);
 }

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -112,6 +113,41 @@ public static class FoilSource
         byte[] candidate = Utf8.GetBytes(text);
         var result = Parse(candidate);
         Guard.Require(result.IsParsed && result.SurfaceHash == parsed.SurfaceHash, "DSL-PATCH");
+        return candidate;
+    }
+
+    public static byte[] PatchRail(SourceParse parsed, string rail, string vertexId, double ordinateSi)
+    {
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
+        Guard.Require(rail is "leading" or "trailing" && double.IsFinite(ordinateSi), "DSL-PATCH");
+        Guard.Require(definition.Curves.TryGetValue(rail, out var curve) && !curve.MissingIds, "DSL-PATCH");
+        int index = Array.IndexOf(curve!.Ids, vertexId);
+        Guard.Require(index >= 0, "DSL-PATCH");
+        // A finite binary64 is an integer divided by a power of two. Multiplying
+        // by the inverse decimal unit gives a terminating decimal without rounding.
+        ulong bits = BitConverter.DoubleToUInt64Bits(ordinateSi);
+        int exponent = (int)((bits >> 52) & 2047);
+        BigInteger integer = bits & 0xfffffffffffffUL;
+        if (exponent != 0) integer += BigInteger.One << 52;
+        int shift = exponent == 0 ? -1074 : exponent - 1075;
+        int places = Math.Max(0, -shift);
+        if (shift >= 0) integer <<= shift;
+        else integer *= BigInteger.Pow(5, places);
+        integer *= BigInteger.Pow(10, -definition.UnitScale);
+        string digits = integer.ToString(CultureInfo.InvariantCulture);
+        if (places != 0)
+        {
+            digits = digits.PadLeft(places + 1, '0').Insert(Math.Max(1, digits.Length - places), ".");
+            digits = digits.TrimEnd('0').TrimEnd('.');
+        }
+        if (ordinateSi < 0) digits = "-" + digits;
+        var token = curve.Ordinates[index];
+        string source = Utf8.GetString(parsed.Source);
+        byte[] candidate = Utf8.GetBytes(source[..token.Start] + digits + source[token.End..]);
+        var result = Parse(candidate);
+        Guard.Require(result.IsParsed && result.Definition is not null &&
+            BitConverter.DoubleToUInt64Bits(result.Definition.Curves[rail].Points[index][1]) ==
+            BitConverter.DoubleToUInt64Bits(ordinateSi == 0 ? 0 : ordinateSi), "DSL-PATCH");
         return candidate;
     }
 
@@ -308,6 +344,7 @@ public static class FoilSource
             foreach (var assignment in assignments) _ = Eta(assignment.Station, halfSpan);
             foreach (var constraint in locks)
             {
+                if (constraint.Channel.Text is not ("leading" or "trailing" or "dihedral" or "twist" or "thickness")) continue;
                 if (constraint.Station is not null) _ = Eta(constraint.Station, halfSpan);
                 int ordinateScale = constraint.Channel.Text is "leading" or "trailing" or "dihedral" ? scale : 0;
                 for (int index = 0; index < constraint.Values.Length; index++)
@@ -327,9 +364,9 @@ public static class FoilSource
         }
         internal Definition Validate()
         {
-            CheckNumericRange();
             Need(version.String == "4.0", "DSL-VERSION", "Version", version);
             Need(evaluator.String == "cfdw-cv" && evaluatorVersion.String == "1", "DSL-VERSION", "Version", evaluator);
+            CheckNumericRange();
             Need(profiles.Count <= 4096 && assignments.Count <= 4096 && locks.Count + assertions.Count <= 4096, "DSL-LIMIT", "Resource", version);
             int scale = kind == "foil" ? Scale(units) : 0;
             double h = kind == "foil" ? ConvertNumber(halfSpan, Scale(halfSpanUnit)) : 1;
@@ -375,31 +412,42 @@ public static class FoilSource
             }
             return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic);
         }
-        private static int LexicalScale(SourceToken? unit) => unit?.Text switch
-        { "cm" or "%" => -2, "mm" => -3, "cm2" => -4, "mm2" => -6, _ => 0 };
+        private static int? BoundLengthScale(SourceToken? unit) => unit?.Text switch
+        { "m" => 0, "cm" => -2, "mm" => -3, _ => null };
         private void CheckNumericRange()
         {
-            var scaled = tokens.Where(NumberToken).ToDictionary(token => token, _ => 0);
-            if (kind == "foil") scaled[halfSpan] = LexicalScale(halfSpanUnit);
+            // Only established grammar roles enter this map. Unknown interpretation
+            // remains unavailable; it is never replaced by a dimensionless guess.
+            var scaled = new Dictionary<SourceToken, int>();
+            void Bind(SourceToken token, int? scale) { if (scale.HasValue) scaled[token] = scale.Value; }
+            void Station(StationSource station)
+            { if (station.Unit is not null) Bind(station.Value, station.Unit.Text == "%" ? -2 : BoundLengthScale(station.Unit)); }
+            void Assertion(QuantitySource quantity, string metric)
+            {
+                int? scale = metric is "aspect" or "taper" ? quantity.Unit is null ? 0 : null : metric == "area" ?
+                    quantity.Unit?.Text switch { "m2" => 0, "cm2" => -4, "mm2" => -6, _ => null } : BoundLengthScale(quantity.Unit);
+                Bind(quantity.Number, scale);
+            }
+            if (kind == "foil") Bind(halfSpan, BoundLengthScale(halfSpanUnit));
             foreach (var raw in rawCurves)
             {
-                scaled.Remove(raw.Degree); // Integer cardinality belongs to structural validation.
-                int scale = raw.Path is "leading" or "trailing" or "dihedral" ? LexicalScale(units) : 0;
-                foreach (var point in raw.Points) scaled[point.Y] = scale;
+                int? scale = raw.Path is "leading" or "trailing" or "dihedral" ? BoundLengthScale(units) : 0;
+                foreach (var knot in raw.Knots) Bind(knot, 0);
+                foreach (var point in raw.Points) { Bind(point.X, 0); Bind(point.Y, scale); }
             }
-            foreach (var assignment in assignments)
-                if (assignment.Station.Unit is not null) scaled[assignment.Station.Value] = LexicalScale(assignment.Station.Unit);
+            foreach (var assignment in assignments) Station(assignment.Station);
             foreach (var constraint in locks)
             {
-                if (constraint.Station?.Unit is not null) scaled[constraint.Station.Value] = LexicalScale(constraint.Station.Unit);
-                int scale = constraint.Channel.Text is "leading" or "trailing" or "dihedral" ? LexicalScale(units) : 0;
+                if (constraint.Station is not null) Station(constraint.Station);
+                int? scale = constraint.Channel.Text switch
+                { "leading" or "trailing" or "dihedral" => BoundLengthScale(units), "twist" or "thickness" => 0, _ => null };
                 for (int index = 0; index < constraint.Values.Length; index++)
-                    scaled[constraint.Values[index]] = constraint.Kind == "freeze" && index == 0 ? 0 : scale;
+                    Bind(constraint.Values[index], constraint.Kind == "freeze" && index == 0 && scale.HasValue ? 0 : scale);
             }
             foreach (var assertion in assertions)
             {
-                scaled[assertion.Value.Number] = LexicalScale(assertion.Value.Unit);
-                if (assertion.Tolerance is not null) scaled[assertion.Tolerance.Number] = LexicalScale(assertion.Tolerance.Unit);
+                Assertion(assertion.Value, assertion.Metric.Text);
+                if (assertion.Tolerance is not null) Assertion(assertion.Tolerance, assertion.Metric.Text);
             }
             foreach (var pair in scaled.OrderBy(pair => pair.Key.Start)) _ = ConvertNumber(pair.Key, pair.Value);
         }

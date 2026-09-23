@@ -43,7 +43,7 @@ public static class DecimalSi
         return cmp > 0 || cmp == 0 && !q.IsEven ? q + 1 : q;
     }
 
-    static double Round(BigInteger n, BigInteger d)
+    internal static double Round(BigInteger n, BigInteger d)
     {
         int e = (int)n.GetBitLength() - (int)d.GetBitLength();
         if (e >= 0 ? n < (d << e) : (n << -e) < d) e--;

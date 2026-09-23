@@ -12,12 +12,12 @@ links:
   - {to: spec-foildsl, rel: depends-on}
 review-by: 2026-10-23
 summary: >-
-  Records an isolated, incomplete production core increment and executed parser/identity boundaries.
-  Continuous geometry certificates, sessions, native persistence and telemetry are not implemented yet.
+  Records isolated, incomplete core increments with parser, identity and continuous subset evidence.
+  Placed preview, sessions, native persistence and telemetry remain incomplete or unimplemented.
   This checkpoint is not a join candidate or M1 acceptance claim.
 ---
 
-# First implementation checkpoint
+# Production implementation checkpoints
 
 Goal: implement the UI-free source, certified geometry, owned authoring session and native persistence
 contract frozen by Owner Ruling 13. Done when the entire required boundary set is implemented, exercised
@@ -40,8 +40,9 @@ Every verification node consumes a prior failing behavior or a named fault/guard
 The loop variant is the remaining failed contract assertions; a budget cap triggers a report and replan.
 
 The required surface chain is native bytes → immutable rows → owned draft → certificate binding →
-immutable projection → future GUI/CLI → geometry reader. At this checkpoint, only source bytes → static
-parse projection → semantic identity exists. No acceptance/session or file-store boundary can be invoked.
+immutable projection → future GUI/CLI → geometry reader. The current increment reaches source bytes → static
+parse projection → semantic identity → continuous subset proof → enclosed normalized section ordinate.
+No acceptance/session or file-store boundary can be invoked.
 No parsing success is a geometry certificate. No analysis or solver values are exposed.
 
 Reuse decision: the reviewed B0 exact-decimal and canonical-number routines are moved into Core, with
@@ -131,17 +132,74 @@ must be a structural end condition rather than a forgeable spelling; shared gram
 their caller's narrower production; owned projections must not retain mutable caller collections.
 Named tests/gate guards above implement the current controls. No control is inferred from a green exit alone.
 
+## Second bounded increment
+
+Coordinator authorized at most 60 additional tool calls or 35 minutes, no fan-out and a checkpoint before
+session/native work. Audit start: 2026-09-23T15:59:58Z. First checkpoint commit:
+`5f40af0888c529b057c6630ac3b1b130c47515ee`. Exact aggregate tool count remains Not recorded;
+the author checkpoints conservatively rather than claiming a measured call count.
+
+Owner Ruling 15, read at the coordination worktree `docs/notes/rulings.md:108`, resolves dependent numeric
+phases. Malformed token/encoding errors precede syntax; a well-spelled decimal is bound to its known role
+and actual unit before finite conversion. Unknown units/evaluator/roles never become implicit scale zero.
+Blocking syntax may prevent binding, so no recovering parser or speculative overflow is introduced.
+Named cases check exact diagnostic code, category, source span, retained bytes and no parsed adoption:
+unknown unit/channel/evaluator, missing unit, malformed-plus-syntax, compensated `1e309 mm`, overflowing
+`1e309 m`, and known overflow with bad degree/reference. `3bbh88ex` was RED; `83ry315v` is GREEN.
+The missing-unit test initially expected the wrong span: `Word()` consumes `evaluator` as the prospective
+unit, and the next required keyword fails at the quoted `"cfdw-cv"` token. Inspection corrected this exact
+oracle; neither the span assertion nor production error reporting was weakened.
+
+`PatchRail` owns only an explicit leading/trailing CV ordinate token. It emits the terminating decimal of
+the exact binary64 rational after inverse SI scaling, reparses and compares requested SI bits. The caller's
+source remains unchanged, the other rail suffix is byte-identical, and repeated patching is idempotent.
+Executable RED `4d94zl4g` precedes GREEN `0jn8g1l8`. Missing IDs, non-rail targets and nonfinite values refuse.
+
+The scientific candidate uses exact rational recovery of Bernstein span coefficients from p+1 rational
+evaluations, derivative hull monotonicity, globally separated independent rail hulls, thickness hulls in
+(0,1), common-basis profile separation and branch-and-bound maximum enclosure. Repeated zero-length knot
+spans are excluded. Inconclusive sufficient bounds are Not assessed. Proven nonpositive chord is Invalid /
+DSL-GEOMETRY; a violated root tangent lock is Invalid / DSL-LOCK; unsupported subset shapes remain distinct.
+Result distinction RED `024eavzz` precedes GREEN `3bbh88ex` (that run still had parser RED failures).
+The geometry-positive case was RED `vtkmd5he`, then GREEN `5pqhauab`.
+
+Certificates retain source/Surface binding, algorithm version, domain intervals and rational hull/max
+witnesses; doubles are outward presentation enclosures. Maximum convergence is relative, so its propagated
+normalization error is at most 1e-12. `SectionAt` uses exact inverse-abscissa subdivision and interval
+arithmetic through camber, effective thickness and normalization; no midpoint clears a proof obligation.
+Normalized-section behavior was RED `oavl6s_y` then GREEN `hvrkd70l`. The independent dyadic polynomial
+maximum is 25/128. At the symmetric peak, camber is exactly zero and normalized thickness is exactly one;
+the fixture's constant binary64 0.12 thickness channel therefore gives exactly half that value, ±0.06,
+independently of the implementation output. Tests enclose those values. Repeated interior
+knots, subnormal positive chord, thickness immediately below one and unsupported independent profile bases
+are named cases. These tests are bounded evidence, not a full scientific acceptance verdict.
+
+The exact arithmetic ceiling is 32768 bits; maximum subdivision has a 4096-node/64-depth cap and inverse
+evaluation a 128-depth cap. Time checks run at span, interpolation-row, elimination-row and subdivision
+boundaries. The one-second limit is currently cooperative; no hard wall-time guarantee or adversarial
+budget completion is claimed. Placed 3D preview/trigonometric error and final admission binding remain
+unimplemented. `ProofScope` explicitly records that limitation; there is no session Apply path.
+
+Normalized-section gate `hvrkd70l`: build exit 0, zero warnings/errors, test exit 0, 93 named PASS. This includes all
+24 finite binary64/serialization pairs in [RFC 8785 Appendix B](https://www.rfc-editor.org/rfc/rfc8785.txt),
+first observed GREEN in `juj8kses`; no historical RED is claimed for those independent published vectors.
+Every receipt root is `/tmp/cfd-application-core-20260923-<suffix>`, with canonical `/private/tmp` alias.
+Latest build PID 81652 and children 81655, 81657, 81675, 81689, 81702, plus test PID 81719 were recorded by
+PID/start identity; retained process receipts show empty live sets.
+No new containment incident or certificate/trust banner occurred. Old incident scratch and certificate
+evidence remain preserved. The four later session/store implementation and test paths remain absent.
+
 ## Open obligations before handback
 
 This is an isolated checkpoint, not a partial join. Remaining work includes full language boundary/fuzz and
-phase-order proof, exact rail token patching, complete independent identity vectors, continuous rational
-geometry certification and bounded preview error, session transaction/certificate ownership, immutable
+phase-order breadth, complete independent identity corpus, adversarial continuous rational
+geometry and bounded placed-preview error, session transaction/certificate ownership, immutable
 native history and replay, growth/recovery admission, actual native primitive/fault/race proof, normal-path
 256-event telemetry and redaction, architecture checks, cross-platform evidence and independent veto review.
 The native persistence project is currently only a project-reference boundary, with no file operations.
 No Windows runtime, native UI, whole-language conformance, M1 delivery or product acceptance is claimed.
 
-## Checkpoint source fingerprints
+## First checkpoint source fingerprints (commit 5f40af0)
 
 | Path | SHA-256 |
 |---|---|
@@ -156,3 +214,18 @@ No Windows runtime, native UI, whole-language conformance, M1 delivery or produc
 | `tests/CfdWorkbench.Core.Tests/IdentityTests.cs` | `cc08a357994a6c31f62732a316b0599647af5718dd7356f4201e16c8a892d24e` |
 | `tests/CfdWorkbench.Core.Tests/FoilSourceTests.cs` | `326513b7176408f2b90a5a8b99a09b0c3f7dd503afc0f7d29e45610eeb7a97cf` |
 | `tools/verify-application-core.py` | `7b3581f7d25bb813ce06ece440b9b63ec1701ff5cda2fe72dbd898e5de171dbe` |
+
+## Second checkpoint source fingerprints
+
+The focused thickness boundary now edits only its channel and asserts exactly seven token replacements.
+Final gate `ux3t5axm` again reports build/test exit 0, zero warnings and 93 PASS; all owned children are quiescent.
+The final build PID is 82345; test/process identities are retained in that unique receipt root.
+
+| Path | SHA-256 |
+|---|---|
+| `src/CfdWorkbench.Core/FoilSource.cs` | `8f1d653898d6b419e5ce71c845bd44043e73d6c804e596446be814531bc23c8b` |
+| `src/CfdWorkbench.Core/Identity.cs` | `7abc1e0284d6b9043a5c938c5bf704888bde4d9d9c371a2198017940d70195b6` |
+| `src/CfdWorkbench.Core/Geometry.cs` | `4e16f6f88701c7d9a718223ac3ce72e7704c81167d5464c61d8b8ec00b34b461` |
+| `tests/CfdWorkbench.Core.Tests/FoilSourceTests.cs` | `1f7745276f2f549e2d05e95f4ea7a612f8308e25be12e53447fa9ea89f36fea6` |
+| `tests/CfdWorkbench.Core.Tests/IdentityTests.cs` | `02e4ac2ca399687a7948a69d572670fe438fe663d78e88a26717c28df27926b7` |
+| `tests/CfdWorkbench.Core.Tests/GeometryTests.cs` | `9254fb961bf57ddd1a683beafbc502cbeee3d899b24784b2fe67d03cd1b8a878` |

@@ -3968,7 +3968,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Records an isolated, incomplete production core increment and executed parser/identity boundaries. Continuous geometry certificates, sessions, native persistence and telemetry are not implemented yet. This checkpoint is not a join candidate or M1 acceptance claim.",
+      "summary": "Records isolated, incomplete core increments with parser, identity and continuous subset evidence. Placed preview, sessions, native persistence and telemetry remain incomplete or unimplemented. This checkpoint is not a join candidate or M1 acceptance claim.",
       "tags": [
         "application",
         "core",
@@ -3991,7 +3991,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "00a49d8c12e61e217d1aacd89cffd7f71b40574a1c95f9ca4bc3c7f4841ef8ea"
+      "sourceSha256": "298d459ebe35fdda935ffd56881c0e1c71f8cf4bb8706abf91bd8efd92bcdd09"
     },
     {
       "id": "proof-application-spikes",
@@ -4908,5 +4908,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "5862ed78d3603e0381b185ba29c660a44069419782ea7cd6616955164a83604c"
+  "graphSha256": "c46f04fc6cb53a96432ae4477ff6eaf1cade6b0de6f8ed77826228590d501ab2"
 };
