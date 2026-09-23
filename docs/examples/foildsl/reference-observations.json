@@ -1,0 +1,23 @@
+{
+  "id": "d801dac9",
+  "area": 831.7494675925924,
+  "aspect": 9.738509389665811,
+  "precision": {
+    "before": 14.049,
+    "after": 14,
+    "hash": "d801dac9",
+    "baseHash": "d801dac9"
+  },
+  "nominal": {
+    "src": "file",
+    "name": "missing.dat",
+    "family": "naca",
+    "t": 0.1,
+    "xt": 0.3,
+    "cam": 0.02,
+    "xc": 0.4,
+    "nominal": true
+  },
+  "fractional": 3.5,
+  "duplicate": 900
+}

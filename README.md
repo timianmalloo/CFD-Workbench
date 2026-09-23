@@ -9,7 +9,7 @@ runnable production application yet.
 
 ## Review the product
 
-- [Interactive workbench mockup v5 — control-vertex splines, four viewports, a tool palette](docs/mockups/workbench-v5.html) ([hub](docs/mockups/workbench-v5.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v4](docs/mockups/workbench-v4.md) · [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
+- [Interactive workbench mockup v6 — FoilDSL and visual authoring](docs/mockups/workbench-v6.html) ([hub](docs/mockups/workbench-v6.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v5](docs/mockups/workbench-v5.md) · [v4](docs/mockups/workbench-v4.md) · [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
 - [Product specification v1.2 (build basis) — HTML](docs/specs/cfd-workbench-v1.html) · [Markdown](docs/specs/cfd-workbench-v1.md); the 0.2 draft it supersedes: [HTML](docs/specs/cfd-workbench.html) · [Markdown](docs/specs/cfd-workbench.md)
 - [Design language](DESIGN.md) and [visual token catalog](docs/mockups/design-language.html)
 - [CFD-Bench and proposal grounding](docs/knowledge/cfd-workbench-grounding.md)
@@ -70,3 +70,13 @@ on `PATH`; activate a Python virtual environment if needed. If regenerating the
 artifact registry, retain portable interpreter commands instead of machine-specific paths.
 The `docs-health` GitHub Actions workflow checks documentation and pack readiness
 on relevant pull requests, pushes to `main`, and manual runs.
+
+
+### FoilDSL authoring proposal
+
+[Review workbench v6](docs/mockups/workbench-v6.html) · [Product specification 1.4](docs/specs/cfd-workbench-v1.html)
+· [Normative FoilDSL 4.0](docs/specs/foildsl.md) · [Reference reconciliation](docs/notes/foildsl-reconciliation.md)
+· [Review walkthrough and prototype limits](docs/mockups/workbench-v6.md).
+
+The source files in `reference/` are preserved originals. The language and mockup changes are proposed
+for review; no production application, backend or stack is selected by this change.

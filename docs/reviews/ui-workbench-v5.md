@@ -24,6 +24,7 @@ summary: >-
   proof records. The accessibility veto cleared on the second pass; the marine veto on the third.
 review-suggested:
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/06/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs" }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
 ---
 
 # UI review — workbench mockup v5 (control-vertex splines, four viewports, a tool palette)

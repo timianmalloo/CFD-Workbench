@@ -21,6 +21,8 @@ summary: >-
   camera with named views, a view cube and free orbit, editing elevations (Top over Front, Starboard beside) where the
   outline rails, dihedral/anhedral, twist and thickness are explicit control curves, and a Station document that
   replaces the modal section editor. Illustrative throughout; no kernel, solver, file I/O or model call.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
 ---
 
 # Interactive workbench mockup v4 — CAD editing views

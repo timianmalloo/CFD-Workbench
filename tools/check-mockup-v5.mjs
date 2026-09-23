@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const moduleRoot = process.argv[2];
+// Run the same regression contract against a later review artifact without duplicating its assertions.
+const mockupName = process.env.MOCKUP_NAME || 'workbench-v5';
 const { chromium } = await import(moduleRoot ? pathToFileURL(path.join(moduleRoot, 'playwright', 'index.mjs')).href : 'playwright');
 const shots = await fs.mkdtemp(path.join(os.tmpdir(), 'cfd-workbench-v5-review-'));
 const browser = await chromium.launch({ headless: true, channel: 'chrome' });
@@ -51,7 +53,7 @@ const measure = async label => {
 const smallestText = () => page.evaluate(() => { const out = []; for (const t of document.querySelectorAll('#window svg text')) { const svg = t.ownerSVGElement; const r = svg.getBoundingClientRect(); if (!r.width || !r.height || t.getBoundingClientRect().width === 0) continue; const vb = svg.viewBox.baseVal; const scale = vb && vb.width ? Math.min(r.width / vb.width, r.height / vb.height) : 1; out.push({ px: +(parseFloat(t.getAttribute('font-size') || getComputedStyle(t).fontSize) * scale).toFixed(1), text: t.textContent.slice(0, 40) }); } return out.sort((a, b) => a.px - b.px)[0] || { px: 99, text: '(no svg text)' }; });
 const shellNumbers = () => page.evaluate(() => { const win = document.getElementById('window'); const tb = document.getElementById('toolbar'); const pr = document.getElementById('paramrow'); const more = document.getElementById('tb-more'); return { window: [win.clientWidth, win.clientHeight], scrollH: win.scrollHeight, scrollW: win.scrollWidth, toolbarH: Math.round(tb.getBoundingClientRect().height), toolbarOverflow: tb.scrollWidth > tb.clientWidth + 1, paramrowH: Math.round(pr.getBoundingClientRect().height), moreVisible: more ? getComputedStyle(more).display !== 'none' : false, hiddenGroups: document.querySelectorAll('#tb-menu .tb-group').length, rowGroups: document.querySelectorAll('#toolbar > .tb-group').length, docks: [...document.querySelectorAll('#window .dbody, #window .bpane, #window .docbody.scroll')].filter(e => e.offsetParent !== null).map(e => ({ id: e.id || e.className, overflowY: getComputedStyle(e).overflowY, scrolls: e.scrollHeight > e.clientHeight })) }; });
 try {
-  await page.goto(pathToFileURL(path.join(repo, 'docs/mockups/workbench-v5.html')).href);
+  await page.goto(pathToFileURL(path.join(repo, `docs/mockups/${mockupName}.html`)).href);
   await page.waitForTimeout(250);
   /* v5 helpers: quadrant menus, the CV record, the chrome count */
   const quad = s => `.quad[data-slot="${s}"]`;
@@ -308,9 +310,9 @@ try {
 } catch (e) {
   oracles.push({ name: 'FAILED', pass: false, proof: e.message }); console.error(e); process.exitCode = 1;
 } finally {
-  const evidence = { artifact: 'docs/mockups/workbench-v5.html', checkedAt: new Date().toISOString(), measurements, shell, oracles, errors, externalRequests: requests, screenshots: shots, note: 'HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof.' };
+  const evidence = { artifact: `docs/mockups/${mockupName}.html`, checkedAt: new Date().toISOString(), measurements, shell, oracles, errors, externalRequests: requests, screenshots: shots, note: 'HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof.' };
   await fs.mkdir(path.join(repo, 'docs/proof'), { recursive: true });
-  await fs.writeFile(path.join(repo, 'docs/proof/workbench-v5-browser-check.json'), JSON.stringify(evidence, null, 1));
+  await fs.writeFile(path.join(repo, `docs/proof/${mockupName}-browser-check.json`), JSON.stringify(evidence, null, 1));
   console.log(JSON.stringify({ measurements: measurements.length, shellCells: shell.length, oracles: oracles.filter(o => o.pass).length, failed: oracles.filter(o => !o.pass).length, errors: errors.length, requests: requests.length, screenshots: shots }));
   await browser.close();
 }

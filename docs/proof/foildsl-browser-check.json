@@ -1,0 +1,2761 @@
+{
+  "artifact": "docs/mockups/workbench-v6.html",
+  "scope": "bounded prototype; not full language/native/scientific conformance",
+  "checks": [
+    {
+      "name": "SourceDocument_Opened_EditableAndValid",
+      "pass": true,
+      "proof": "RED observed on v5; one textarea exists and initial v6 source validates."
+    },
+    {
+      "name": "RecipeSeeds_EveryGenerator_EmitsValidSource",
+      "pass": true,
+      "proof": [
+        {
+          "id": "light",
+          "valid": true
+        },
+        {
+          "id": "strong",
+          "valid": true
+        }
+      ]
+    },
+    {
+      "name": "Emit_FiniteVariantCorpus_RoundTripAndIdempotent",
+      "pass": true,
+      "proof": {
+        "examples": [
+          "foil-basic.foil",
+          "foil-precision.foil",
+          "foil-comment.foil"
+        ],
+        "generated": 64
+      }
+    },
+    {
+      "name": "Parse_InvalidBoundaryCorpus_RejectsAll",
+      "pass": true,
+      "proof": [
+        "DSL-INCOMPLETE",
+        "DSL-SYNTAX",
+        "DSL-GEOMETRY",
+        "DSL-VERSION",
+        "DSL-SYNTAX",
+        "DSL-SYNTAX",
+        "DSL-SYNTAX",
+        "DSL-LIMIT",
+        "DSL-REFERENCE",
+        "DSL-REFERENCE"
+      ]
+    },
+    {
+      "name": "Source_InvalidDraft_AcceptedShapeAndRunUnchanged",
+      "pass": true,
+      "proof": "Four rendered recovery paths; Apply disabled; Cancel restores accepted source."
+    },
+    {
+      "name": "Source_GeometricApplyUndoRedo_AllReadersAndFreshnessAgree",
+      "pass": true,
+      "proof": {
+        "readout": 1.2,
+        "point": 0.6
+      }
+    },
+    {
+      "name": "Apply_CommentOnly_SourceChangesGeometryDoesNot",
+      "pass": true,
+      "proof": "Semantic identity/revision/freshness unchanged."
+    },
+    {
+      "name": "SaveOpen_RealFile_SourceBytesPreserved",
+      "pass": true,
+      "proof": "reviewed-foil.foil"
+    },
+    {
+      "name": "GeometryWriter_SourceDraft_RefusesCompetingEdit",
+      "pass": true,
+      "proof": {
+        "same": true,
+        "noStation": true,
+        "preview": null
+      }
+    },
+    {
+      "name": "VisualApply_NegativeChord_RefusedBeforeCommit",
+      "pass": true,
+      "proof": {
+        "same": true,
+        "retained": true,
+        "valid": true
+      }
+    },
+    {
+      "name": "SectionEdit_Applied_SourceAnd3DReaderAgree",
+      "pass": true,
+      "proof": {
+        "changed": true,
+        "rev": 1,
+        "knots": true,
+        "source": true
+      }
+    },
+    {
+      "name": "SourcePreview_NoEdit_PreservesResidualMetadata",
+      "pass": true,
+      "proof": "{\"upper\":0.00008327876187442818,\"lower\":0.00007978628707258716}"
+    },
+    {
+      "name": "SourceHarness_15LayoutThemeCells_KeyboardAndNoNetwork",
+      "pass": true,
+      "proof": {
+        "cells": 15,
+        "screenshot": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/foildsl-v6-final-source.png"
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "window": "minimum",
+      "theme": "light",
+      "frame": {
+        "width": 1024,
+        "height": 700
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1024,
+          "h": 700
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 13.38,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 5.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 14.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 6.15,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 12.71,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 5.34,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 12.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 6.29,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 6.79,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 5.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 6.52,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 3.43,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 1.49,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 371,
+        "height": 251
+      }
+    },
+    {
+      "window": "minimum",
+      "theme": "dark",
+      "frame": {
+        "width": 1024,
+        "height": 700
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1024,
+          "h": 700
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 14.26,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 8.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 12.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 7.83,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 10.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 6.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 8.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 9.72,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 8.06,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 8.76,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 8.12,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 4.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.31,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 2.11,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 371,
+        "height": 251
+      }
+    },
+    {
+      "window": "minimum",
+      "theme": "contrast",
+      "frame": {
+        "width": 1024,
+        "height": 700
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1024,
+          "h": 700
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 21,
+          "pass": true,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 371,
+        "height": 251
+      }
+    },
+    {
+      "window": "desktop",
+      "theme": "light",
+      "frame": {
+        "width": 1280,
+        "height": 800
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1280,
+          "h": 800
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 13.38,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 5.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 14.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 6.15,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 12.71,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 5.34,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 12.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 6.29,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 6.79,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 5.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 6.52,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 3.43,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 1.49,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 501,
+        "height": 409
+      }
+    },
+    {
+      "window": "desktop",
+      "theme": "dark",
+      "frame": {
+        "width": 1280,
+        "height": 800
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1280,
+          "h": 800
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 14.26,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 8.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 12.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 7.83,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 10.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 6.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 8.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 9.72,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 8.06,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 8.76,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 8.12,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 4.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.31,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 2.11,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 501,
+        "height": 409
+      }
+    },
+    {
+      "window": "desktop",
+      "theme": "contrast",
+      "frame": {
+        "width": 1280,
+        "height": 800
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1280,
+          "h": 800
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 21,
+          "pass": true,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 501,
+        "height": 409
+      }
+    },
+    {
+      "window": "lines",
+      "theme": "light",
+      "frame": {
+        "width": 1440,
+        "height": 900
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1440,
+          "h": 900
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 13.38,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 5.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 14.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 6.15,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 12.71,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 5.34,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 12.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 6.29,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 6.79,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 5.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 6.52,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 3.43,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 1.49,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 597,
+        "height": 527
+      }
+    },
+    {
+      "window": "lines",
+      "theme": "dark",
+      "frame": {
+        "width": 1440,
+        "height": 900
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1440,
+          "h": 900
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 14.26,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 8.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 12.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 7.83,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 10.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 6.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 8.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 9.72,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 8.06,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 8.76,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 8.12,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 4.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.31,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 2.11,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 597,
+        "height": 527
+      }
+    },
+    {
+      "window": "lines",
+      "theme": "contrast",
+      "frame": {
+        "width": 1440,
+        "height": 900
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1440,
+          "h": 900
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 21,
+          "pass": true,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 597,
+        "height": 527
+      }
+    },
+    {
+      "window": "wide",
+      "theme": "light",
+      "frame": {
+        "width": 1600,
+        "height": 1000
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1600,
+          "h": 1000
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 13.38,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 5.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 14.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 6.15,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 12.71,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 5.34,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 12.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 6.29,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 6.79,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 5.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 6.52,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 3.43,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 1.49,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 669,
+        "height": 627
+      }
+    },
+    {
+      "window": "wide",
+      "theme": "dark",
+      "frame": {
+        "width": 1600,
+        "height": 1000
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1600,
+          "h": 1000
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 14.26,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 8.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 12.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 7.83,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 10.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 6.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 8.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 9.72,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 8.06,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 8.76,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 8.12,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 4.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.31,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 2.11,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 669,
+        "height": 627
+      }
+    },
+    {
+      "window": "wide",
+      "theme": "contrast",
+      "frame": {
+        "width": 1600,
+        "height": 1000
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 40,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 44,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 1600,
+          "h": 1000
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 21,
+          "pass": true,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 669,
+        "height": 627
+      }
+    },
+    {
+      "window": "zoom",
+      "theme": "light",
+      "frame": {
+        "width": 640,
+        "height": 400
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 28,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 1,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 640,
+          "h": 400
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 13.38,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 5.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 14.63,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 6.15,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 12.71,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 5.34,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 12.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 6.29,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 6.79,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 5.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 6.52,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 6.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 3.43,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 1.49,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 520,
+        "height": 163
+      }
+    },
+    {
+      "window": "zoom",
+      "theme": "dark",
+      "frame": {
+        "width": 640,
+        "height": 400
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 28,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 1,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 640,
+          "h": 400
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 14.26,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 8.85,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 12.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 7.83,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 10.11,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 6.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 8.42,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 9.72,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 8.06,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 8.76,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 8.12,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 4.27,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 13.81,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 8.6,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 9.35,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 9.31,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 8.78,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 11.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 10.73,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 2.11,
+          "pass": false,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 520,
+        "height": 163
+      }
+    },
+    {
+      "window": "zoom",
+      "theme": "contrast",
+      "frame": {
+        "width": 640,
+        "height": 400
+      },
+      "contrastFailures": 0,
+      "smallTargets": 0,
+      "denseUnder": 0,
+      "controls": 28,
+      "shell": {
+        "doctabsOverflow": false,
+        "statusOverflow": false,
+        "paramrowOverflow": false,
+        "windowScroll": false,
+        "toolbarRows": 1,
+        "toolbarOverflow": false,
+        "docksScrollInternally": true,
+        "pageBox": {
+          "w": 640,
+          "h": 400
+        }
+      },
+      "pairs": [
+        {
+          "label": "chart cursor and series",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on the viewport and rail",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on chrome",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "body text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "muted text on canvas",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on surface",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "text on soft",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "caption on soft (menu bar, tabs)",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected row text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "primary button label",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "success text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "warning text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "error text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected tab text / chip",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "control boundary",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "viewport and rail text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "rail labels and captions",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "selected station line",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "focus ring on viewport controls",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "refusal ring on a viewport handle",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "foil edge",
+          "ratio": 17.62,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "HUD text",
+          "ratio": 21,
+          "pass": true,
+          "required": true
+        },
+        {
+          "label": "panel dividers",
+          "ratio": 21,
+          "pass": true,
+          "required": false
+        }
+      ],
+      "task": "cad",
+      "sourceBox": {
+        "width": 520,
+        "height": 163
+      }
+    }
+  ],
+  "errors": [],
+  "requests": []
+}

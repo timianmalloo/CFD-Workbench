@@ -203,7 +203,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "specification 1.3",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
       "summary": "Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default is a degree-3 clamped B-spline with seven control vertices (six to ten), the degree is stored per curve, and section curves stay degree 5. Decided on a measured fixture (fairness, anchor residual, support, lever effect) over the five example curves at both degrees, and on the loft spike showing the surface's spanwise continuity is the kernel's, measured, not the master curve's.",
       "tags": [
         "geometry",
@@ -231,7 +237,47 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6c05a4276e12966328934deee8bc54ff48a1e124a9e4237d797132dce45d6a08"
+      "sourceSha256": "8424795f2e4f93b339c1f09df4eb9966d470d08991c428044f20afabb62690be"
+    },
+    {
+      "id": "adr-foildsl-authority",
+      "path": "docs/adr/0002-foildsl-authority.md",
+      "title": "FoilDSL is the authored surface definition",
+      "type": "adr",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
+      "summary": "Proposed adoption of a versioned FoilDSL control-vertex language as the sole authored shape representation, with concrete source preservation, deterministic semantic identity and append-only project revisions.",
+      "tags": [
+        "foildsl",
+        "geometry",
+        "persistence",
+        "authority"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "decision-parametric-authority",
+          "rel": "supersedes"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5fc9f94d0dee100cdebbeb391a5e0331254ac32019516a5500904deeb0b0c76c"
     },
     {
       "id": "cad-editing-views",
@@ -247,6 +293,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v4",
           "on": "2026-09-20",
           "reason": "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "CAD-04–06 (spec 1.2) — the four control curves are edited in the elevation that shapes them (Top · Front · Starboard), the 3D viewport is one free camera used for looking and selecting, and a station is a document tab with a full 2D section editor; every curve is a spline and the rail carries icons.",
@@ -285,7 +336,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4ec81b043f1328c7e8e5547ea5f65f67b3eca7cda7dfdd201775d9eb307d3325"
+      "sourceSha256": "0422a9e44ee6368fe267e23d7d8b0565cf8884f2906efc423911459a97fa2cee"
     },
     {
       "id": "control-vertex-workspace",
@@ -301,6 +352,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v5",
           "on": "2026-09-21",
           "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/06/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "Specification 1.3 — the geometry of record is a control-vertex B-spline per master curve (degree 3, seven vertices, levers at the ends; Fit points and Fair are constructions with reported residuals; locks are vertex constraints), the CAD workspace is four viewports with title menus and a nine-verb tool palette, the 3D body is a NURBS loft with a display cage (never a T-spline), and the geometry kernel is an owned evaluator plus OCCT and rhino3dm behind a spike gate.",
@@ -346,7 +402,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d0433273ab36c1359ff98918bbcd998f4911e01a6ff741516259d333c12915dd"
+      "sourceSha256": "12c1eaedb0441a751fe7d6662e96ed5137b908e499370ceb0bff8332ad34c4a5"
     },
     {
       "id": "decision-catalog-admission-classes",
@@ -386,6 +442,64 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "30b00b57ded67222f1a865a406aaaf716b8bb4a6a3dd5f4f2dcd1a257b806dc8"
+    },
+    {
+      "id": "decision-foildsl-reconciliation",
+      "path": "docs/notes/foildsl-reconciliation.md",
+      "title": "Reconcile FoilDSL v3 with the control-vertex workbench",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+        }
+      ],
+      "summary": "Compares the supplied FoilDSL v3 PDF, executable checker and JSX with the authoritative revision 1.3 workbench. Retains textual authoring and physical station language while evolving the record to explicit control vertices, transactional source editing and precise identity; records executable reference defects and compatibility costs.",
+      "tags": [
+        "foildsl",
+        "reference",
+        "geometry",
+        "ux",
+        "reconciliation"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "decision-parametric-authority",
+          "rel": "refines"
+        },
+        {
+          "to": "control-vertex-workspace",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hw-parametric-curves-lofts-and-surfaces",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-file-formats-and-grammars",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "634e5be4e94ea325c6a21cd9bfe87e082386db9564beac45d9a584862106dc1a"
     },
     {
       "id": "decision-freshness-by-run-key",
@@ -599,6 +713,11 @@ window.DOCS_INDEX = {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-09-21",
           "reason": "ADR-0001 decides the master-curve degree (3, seven vertices, stored per curve); the spec's Open decisions and A4.1/A4.2 cite it"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "The Spike Protocol run on the geometry kernel decision of specification 1.3 A4.12 — OCCT 7.8.1 (via FreeCAD 1.1.1 headless, macOS arm64) lofting N exact section B-splines against the owned evaluator's rule-A surface at 50 × 200 closest-point samples, with a STEP round trip. Base and maximum-twist cases meet the 10 µm acceptance from N = 16 sections (1.1 µm and 0.5 µm; 0.8/0.4 µm at N = 64); the zero-chord tip does not converge with uniform sections (2.5–18 mm) and needs its own rule. Windows x64 and the licence review remain open.",
@@ -630,7 +749,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18f98f76a2d7d79bf6081e828df32b1c8f28e55116e46400d900124a62eac934"
+      "sourceSha256": "a0497aba81c724c9def09e07ce847aae730a1d5e1977c51647b84bfaad562acd"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -691,6 +810,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v3",
           "on": "2026-09-20",
           "reason": "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "The CFD-Workbench client is a fixed window whose regions scroll inside themselves — menu bar, one-row measured toolbar, parameter row, activity rail, docks, editor with document tabs and a tabbed bottom panel, status bar — with each area's content arranged for that vignette; page scroll and toolbar wrapping are defects the oracle fails.",
@@ -724,7 +848,51 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad3d2a3bbb4d401082ee9df820ac4efa4496d921b48e82851c1bcb4c9916642e"
+      "sourceSha256": "9b1ffbd9e99ff22ca37a14147836b4f1c32cda41835874392bfd71f3cab807eb"
+    },
+    {
+      "id": "design-foildsl-authoring",
+      "path": "docs/design/foildsl-authoring-direction.md",
+      "title": "FoilDSL authoring direction and transaction contract",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
+      "summary": "Keep the spatial CAD workbench and add a source document with explicit validation and shared transactions, drawing useful authoring ideas from the supplied JSX without importing its scrolling page or alternate geometry model.",
+      "tags": [
+        "foildsl",
+        "ux",
+        "cad",
+        "direction"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3deacf0f9830a514900ce967928790c7cc0876d95b688cf9c90773359543f4f8"
     },
     {
       "id": "mockup-workbench",
@@ -908,7 +1076,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2027-03-21",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
       "summary": "Self-contained HTML workbench rebuilt as a thick-client shell: a fixed window that never scrolls — menu bar, one-row toolbar with measured overflow, parameter row, activity rail of the six document areas plus Export as a dialog, Navigator and Properties docks, document tabs over one viewport, a tabbed bottom panel and a status bar — with the v2 content re-homed per vignette. Illustrative throughout; no kernel, solver, file I/O or model call.",
       "tags": [
         "mockup",
@@ -959,7 +1133,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9b08459358cf211d33b4fc402ed192c24a6be2917debc2f01330dbfd6c11a1ff"
+      "sourceSha256": "411ab0d450324c252130bcb522410f64e718e7b724d0493a633eb08672842c54"
     },
     {
       "id": "mockup-workbench-v4",
@@ -970,7 +1144,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2027-03-21",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
       "summary": "The v3 thick-client shell with the CAD editing views of specification 1.2: an icon rail, splines everywhere, one camera with named views, a view cube and free orbit, editing elevations (Top over Front, Starboard beside) where the outline rails, dihedral/anhedral, twist and thickness are explicit control curves, and a Station document that replaces the modal section editor. Illustrative throughout; no kernel, solver, file I/O or model call.",
       "tags": [
         "mockup",
@@ -1018,7 +1198,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "677b922ee70c58b64594434ab1c0c05b932140e0dba3c9f80f785531ef140b1b"
+      "sourceSha256": "c05f28a260ea27f96a207ac19f95f7253f5cb9074dff969ebf0c14c2eda003fd"
     },
     {
       "id": "mockup-workbench-v5",
@@ -1029,7 +1209,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2027-03-21",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
       "summary": "The v4 shell and camera with the CAD experience rebuilt around specification 1.3's control-vertex record: every master curve is a clamped B-spline whose vertices and levers are the editing surface (a vertex pulls the curve and never lies on it), a four-viewport lines-drawing workspace with title menus and maximise, a nine-verb tool palette with an options strip, a display cage for the 3D body, and a station document whose conversion residual is measured. Illustrative throughout; no kernel, solver, file I/O or model call.",
       "tags": [
         "mockup",
@@ -1078,7 +1264,64 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7b36517f9e59e92671a592af4a0e9eb87ee065aa5a7e8b4e668f9c039e60fe87"
+      "sourceSha256": "ca8c3e283ffbe77fa75d1593a717c5fd596061ceba5a4ffaf2f61d65e5e28c95"
+    },
+    {
+      "id": "mockup-workbench-v6",
+      "path": "docs/mockups/workbench-v6.md",
+      "title": "CFD-Workbench v6 — FoilDSL and spatial authoring",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+        }
+      ],
+      "summary": "The four-viewport workbench gains a FoilDSL source document, validation, shared transactions, file round-trip and revision freshness. A bounded language prototype, not the product evaluator or a CFD solver.",
+      "tags": [
+        "mockup",
+        "foildsl",
+        "cad",
+        "language"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-foildsl-authoring",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-workbench-v5",
+          "rel": "supersedes"
+        },
+        {
+          "to": "review-foildsl-independent",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7b26b4c0919d052a94bf22c9f044e2f6121ea67834770950b7cc26fd15b50c73"
     },
     {
       "id": "workbench-direction",
@@ -1237,7 +1480,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "692dd0e0c3cd8358a48dc413d26957eda6ef0f92e8b3bb7bea8bf02e2ba7aeaf"
+      "sourceSha256": "29a976925b053206f9750823eab34e2f9b57a17657f083227dbb27ae1a3d9420"
     },
     {
       "id": "domain-experts",
@@ -1272,6 +1515,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "993e63742245c5842ec3872b2bbe9d9342d356d7d8895c22c964c92a94e7cd30"
+    },
+    {
+      "id": "examples-foildsl",
+      "path": "docs/examples/foildsl/README.md",
+      "title": "FoilDSL language conformance examples",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-03-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+        }
+      ],
+      "summary": "Complete foil and section examples, invalid documents and precision/comment variants with explicit expected outcomes. A reproducible probe records the supplied v3 checker behavior; normative 4.0 fixtures are acceptance vectors, not a claim of an implemented production evaluator.",
+      "tags": [
+        "foildsl",
+        "fixtures",
+        "conformance"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "decision-foildsl-reconciliation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "11139336edb00987356b4e053452a1aae2ce72b8fb079a210f484e79967edc4b"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -1323,6 +1601,44 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "55fab0f48f8e1e08783bd946080a3b7cdb614c47fe137011593890e38968ed64"
+    },
+    {
+      "id": "plan-foildsl-authoring",
+      "path": "docs/plans/foildsl-authoring.md",
+      "title": "FoilDSL specification and workbench evolution",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
+      "summary": "Bounded T2 plan to reconcile the supplied language with the control-vertex workbench, publish the normative contract, and demonstrate its transactions without implementing the product.",
+      "tags": [
+        "plan",
+        "foildsl",
+        "specification",
+        "mockup"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart TD\n  G[Ground references and baseline] --> P[Independent plan review]\n  P --> C[Settle language and model]\n  C --> S[Product spec and ADR]\n  S --> U[Evolve interactive mockup]\n  U --> V[Execute verification]\n  V --> R[Independent artifact review]\n  R --> J[Join and review handoff]"
+        }
+      ],
+      "sourceSha256": "d200118e5d5e5665823b3da56a471362087a0a34f4630f350e2ce2fe6147991a"
     },
     {
       "id": "plan-knowledge-experts-spec-v1",
@@ -1409,6 +1725,61 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
+    },
+    {
+      "id": "review-foildsl-independent",
+      "path": "docs/reviews/foildsl-independent.md",
+      "title": "FoilDSL authoring — independent review",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+        }
+      ],
+      "summary": "Independent review of the FoilDSL contract and authoring experience. Separates observed baseline evidence, pre-build contract findings and final rendered-surface gates from unverified production obligations.",
+      "tags": [
+        "foildsl",
+        "review",
+        "geometry",
+        "data",
+        "security",
+        "accessibility"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "plan-foildsl-authoring",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5f36aa3e3bdece229e8019c66a45c8f74589242d3a9b2225a5617c27954ed07a"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -1575,6 +1946,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v3",
           "on": "2026-09-20",
           "reason": "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "Elevate-mode review of the thick-client shell rebuild. The v2 page was measured first (1,450–6,500 px tall, a wrapping area strip, a clipping toolbar); the v3 shell was built to a shell contract proven by its oracle at five window presets × six areas. The independent UX & Accessibility lens returned BLOCK on its first read (a clipped overflow menu, a 0-px bottom panel at the reflow preset, focus dropped on re-render, composite roles without keyboards, one-way dock collapse) and the Native Desktop lens PASS-WITH-CONDITIONS (sashes, maximize, real document tabs, the macOS title bar, platform key labels); both sets were built and are observed by the oracle. The veto cleared on the third read; the review artifact passes.",
@@ -1617,7 +1993,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "360af509367cb3a07595074a2b6978560c516983e799fbbd5f7e5f9daeea01c2"
+      "sourceSha256": "3883f3cc2b8cbdc06dd2f16596befe6a3c566a9aad3d4af348c950e7620b3b32"
     },
     {
       "id": "review-ui-workbench-v4",
@@ -1633,6 +2009,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v4",
           "on": "2026-09-20",
           "reason": "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "Elevate-mode review of the CAD editing views (icon rail, splines, one free camera with named views and a view cube, editing elevations for the four control curves, the Station document) against specification 1.2. Two independent lenses: UX & Accessibility (hard veto) on the surface and UX Researcher / IA (UX-specification veto) on the 1.2 stories; both cleared their vetoes after two fix passes, with every clearing observation now an oracle assertion whose values the proof records.",
@@ -1675,7 +2056,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "70dd7670d9661e93e9d0bd1c575766857e81f2e45634d8c40b485dbf91e67c11"
+      "sourceSha256": "1ae4a8040535683cd008337fa94b61e23e939bcfb901e795df67fd92565834f7"
     },
     {
       "id": "review-ui-workbench-v5",
@@ -1691,6 +2072,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v5",
           "on": "2026-09-21",
           "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/06/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
         }
       ],
       "summary": "Elevate-mode review of the v5 CAD experience (control-vertex splines with levers, four viewports with title menus, a nine-verb tool palette and options strip, the display cage, the measured station residual) against specification 1.3. Four independent lenses: Computational Geometry and UX Researcher / IA on the spec delta, UX & Accessibility (hard veto) and Marine CAD UX on the artifact. All four returned BLOCK or PASS-WITH-CONDITIONS on first read; every Blocker, Major and condition was fixed in place and became an oracle row whose value the proof records. The accessibility veto cleared on the second pass; the marine veto on the third.",
@@ -1734,7 +2120,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f48314bb1678364827bc26b8988a4a57e4b14d3269d1bea488aa0725acd655d4"
+      "sourceSha256": "5ebdd6015332c1dcd86b2d01dc46b67e1e42de985e82dcb9af43f4016d1eb98c"
     },
     {
       "id": "kb-hw-glossary",
@@ -1745,7 +2131,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "knowledge",
       "reviewBy": "2026-12-19",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
       "summary": "The ubiquitous language of hydrofoil design, analysis, simulation and optimization as used by CFD-Workbench, merged alphabetically from every area file. A term defined by more than one area lists every definition so a conflict is visible rather than silently resolved.",
       "tags": [
         "glossary",
@@ -1763,7 +2155,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b12d965852f6bf34964b36567dac7bd080f891c1eb74f37165dbb5aec7b7dacc"
+      "sourceSha256": "e9d1bad471fecefcf6f13f37492b4d1ad1f90dd6e959aea1becda47190b72491"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -2577,6 +2969,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "e369034ec7fc41f5aac86db9473f6754ecca1afa302501fa17fb329e22779f7b"
     },
     {
+      "id": "proof-foildsl-authoring",
+      "path": "docs/proof/foildsl-authoring.md",
+      "title": "FoilDSL authoring specification and mockup proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+        }
+      ],
+      "summary": "Executed browser and documentation evidence for the bounded review artifact, independent findings and explicit production obligations; no scientific or full-language certification.",
+      "tags": [
+        "foildsl",
+        "proof",
+        "specification",
+        "mockup"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "documents"
+        },
+        {
+          "to": "review-foildsl-independent",
+          "rel": "relates-to"
+        },
+        {
+          "to": "examples-foildsl",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e1659c24554411bf1f8c4618abd6755905ca5898e0839b1eaa66360f4da1f820"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -2883,7 +3328,7 @@ window.DOCS_INDEX = {
     {
       "id": "spec-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.md",
-      "title": "CFD-Workbench — product specification v1.2 (build basis)",
+      "title": "CFD-Workbench — product specification v1.4 (FoilDSL authoring)",
       "type": "spec",
       "status": "in-review",
       "owner": "@timianmalloo",
@@ -2904,9 +3349,14 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v5",
           "on": "2026-09-21",
           "reason": "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.1 supersedes 1.0.",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.4 adds FoilDSL as the canonical authored foil/section language and the source/CAD transaction contract.",
       "tags": [
         "hydrofoil",
         "cad",
@@ -2916,6 +3366,22 @@ window.DOCS_INDEX = {
         "build-basis"
       ],
       "links": [
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-foildsl-authoring",
+          "rel": "relates-to"
+        },
         {
           "to": "spec-cfd-workbench",
           "rel": "refines"
@@ -3014,9 +3480,68 @@ window.DOCS_INDEX = {
           "kind": "flowchart",
           "title": "B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)",
           "mermaid": "flowchart TD\nA[Open Results] --> B{Admitted samples?}\nB -->|None| C[Empty: no admitted sample; reasons per case; open Run]\nB -->|Some| D[Sample list with status; layer list from the evidence manifest]\nD --> E{Layer}\nE -->|Present| F[Render with legend fields, isolines, probe, table twin]\nE -->|Absent| G[Unavailable with reason: field missing · not computed · failed]\nE -->|Reduction failed| G2[Reduction failed string; raw case retained]\nE -->|Separation| H{τ_w on wall?}\nH -->|Yes| I[Separation layer with named criterion]\nH -->|No| J[No supported criterion; vortex-core candidates only]\nD --> K[Replay: held speed or held angle; Play, step, scrub]\nK -->|Failed sample| L[Pause; clear fields and metrics; reason one action]\nK -->|Reduced motion| M[Stepping only; no autoplay]\nD --> N[Sweep visuals: small multiples; metric vs α and speed with gaps; difference flood pinned at 0]\nD -->|Optimize| O[Candidates with provenance; Pareto or parallel coordinates]\nO -->|Accept candidate| P[Geometry edit draft in CAD; never direct geometry]\nO -->|Base revision moved| P2[Accept disabled; Rebase offered with deviation]\nO -->|Zero feasible candidates| P3[Terminal reason only]\nD -->|Experiment revision superseded| D2[Historical banner on every layer]\nK -->|Incompatible series| L2[Unavailable — mesh differs; no replay across series]\nD --> Q[Ask about this result: cited answer or No supported criterion]\nD --> R{ParaView 5.12+ present?}\nR -->|Yes| R1[Open in ParaView: case directory hand-off]\nR -->|No| R2[Absence string; surface floods and forces remain]"
+        },
+        {
+          "kind": "flowchart",
+          "title": "B9. FoilDSL authoring flow (SRC-01–10)",
+          "mermaid": "flowchart TD\nA[Accepted foil and source] --> B{Edit route}\nB -->|Visual| C[Shared geometry draft and source patch]\nB -->|FoilDSL| D[Editable source draft]\nB -->|Open or New| D\nC --> E[Validate candidate and base revision]\nD --> E\nE -->|Invalid or incomplete| F[Diagnostic with location and repair; accepted shape retained]\nF -->|Edit again| D\nF -->|Cancel| A\nE -->|Unsupported| G[Explain unsupported feature or migration requirement]\nG -->|Cancel or keep original| A\nE -->|Valid| H[Labelled candidate preview and change summary]\nH -->|Apply| I[Append accepted source and semantic revision if changed]\nH -->|Cancel| A\nI --> J[Geometry and text projections agree; run freshness recomputed]\nJ -->|Undo or Redo| K[Select matching historical source and definition]\nK --> A\nJ -->|Save| L[Write project or explicit shape-only source]\nL -->|Failure| M[Previous file intact; retry or save elsewhere]\nM --> L\nL -->|Reopen and validate| A"
         }
       ],
-      "sourceSha256": "ff6bb34f2e06053322287aa9781b32227a9f17089f4acb1243b88605fadb6813"
+      "sourceSha256": "38eb00b93c901bbe03999cc748aab2b0b20a0a8c12605ba8233c4c5088e21f7b"
+    },
+    {
+      "id": "spec-foildsl",
+      "path": "docs/specs/foildsl.md",
+      "title": "FoilDSL 4.0 — canonical foil and section authoring language",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-03-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+        }
+      ],
+      "summary": "Normative proposed FoilDSL 4.0 language contract for lossless control-vertex foil and section documents. Defines complete syntax, evaluation, identity, draft transactions and migration from the supplied v3 references. Production conformance remains an acceptance obligation; the workbench demonstrates a declared subset.",
+      "tags": [
+        "foildsl",
+        "geometry",
+        "language",
+        "canonical-authority"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "decision-foildsl-reconciliation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-parametric-authority",
+          "rel": "refines"
+        },
+        {
+          "to": "kb-hw-parametric-curves-lofts-and-surfaces",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-file-formats-and-grammars",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "9. UX contract and acceptance cases",
+          "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
+        }
+      ],
+      "sourceSha256": "b7ebafb9f389995fc01455fc7a99e679ce01ce80a7b7a9bbb0a84802077b6cf9"
     }
   ],
   "surfaces": [
@@ -3098,7 +3623,23 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-workbench-v5"
+    },
+    {
+      "id": "surface-mockups-workbench-v6",
+      "path": "docs/mockups/workbench-v6.html",
+      "title": "CFD-Workbench — workbench v4 mockup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v6"
+    },
+    {
+      "id": "surface-specs-foildsl",
+      "path": "docs/specs/foildsl.html",
+      "title": "FoilDSL 4.0 — Language specification",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a6444f33ca5d7c61375926712fba79ae511f5668c30700bb3c2362a075007b00"
+  "graphSha256": "3cb9bf6eac28524118e9a0fd578c5fbb992a82936356c4101a5bdb49b1999031"
 };

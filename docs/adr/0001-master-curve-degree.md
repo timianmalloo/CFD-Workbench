@@ -18,6 +18,8 @@ summary: >-
   section curves stay degree 5. Decided on a measured fixture (fairness, anchor residual, support, lever effect)
   over the five example curves at both degrees, and on the loft spike showing the surface's spanwise continuity is
   the kernel's, measured, not the master curve's.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
 ---
 
 # ADR-0001: master curves are degree-3 B-splines with seven vertices; the degree is a record field

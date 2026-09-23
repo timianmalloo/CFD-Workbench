@@ -7,6 +7,8 @@ owner: Product and UX
 phase: specify
 tags: [ui, hydrofoil, tokens]
 links:
+  - { to: mockup-workbench-v6, rel: relates-to }
+  - { to: design-foildsl-authoring, rel: relates-to }
   - { to: spec-cfd-workbench-v1, rel: implements }
   - { to: spec-cfd-workbench, rel: relates-to }
   - { to: workbench-direction, rel: refines }
@@ -593,3 +595,40 @@ preview/acceptance, curve→area and profile→loft consistency, water/force dim
 checks, reversible units, linked sweep replay, unavailable fields and undo. This
 remains HTML evidence; native accessibility and scientific validity require their
 own proof.
+
+
+## 13. FoilDSL source authoring (v6)
+
+The [FoilDSL direction and transaction contract](docs/design/foildsl-authoring-direction.md) extends
+the existing ParametricWorkbench archetype. All existing colors, fonts, sizes, spacing and focus
+tokens apply. Source uses the mono caption token; actions use compact 32px targets; diagnostics
+use readable text and a labelled status, not color alone. No new motion or decorative asset.
+
+The FoilDSL tab is a CAD document. At 640×400 it replaces redundant area toolbar/options space
+with source editing; secondary file/history actions use a named disclosure. Internal document
+scrolling keeps several source lines available. The preview is inert geometry with all readouts
+outside the scaled drawing, preventing scaled text and controls from appearing undersized.
+
+### Source state matrix and copy
+
+| State | Surface / exact copy |
+|---|---|
+| Accepted | FoilDSL tab; editable source with accepted geometry and revision labels |
+| Dirty | Source draft. Validate before Apply. Accepted geometry is unchanged. |
+| Validating | Validate measures input bytes and elapsed milliseconds; Apply waits for the current generation |
+| Valid | Valid prototype subset. Preview is illustrative; full geometry proof is not performed. |
+| Error / incomplete | Source rejected. Accepted geometry is unchanged. Diagnostic adds code, line and repair. |
+| Applied | Source applied. Geometry and text share one definition. |
+| Cancelled | Draft cancelled. Accepted source and geometry restored. |
+| Other visual draft | Apply or cancel the visual draft before editing FoilDSL. |
+| Other source draft | Apply or cancel the FoilDSL draft before editing geometry. |
+| Unsupported v3 | FoilDSL 3 requires migration preview; no automatic conversion is performed. |
+| Session tip pin | session-only prototype pin; not saved in .foil |
+| Empty | New foil creates an editable candidate; the empty harness retains the existing recovery banner |
+| Read-only | Source is read-only; Apply is disabled; inspection and saving accepted source remain available |
+| Overflow | Source scrolls internally, names use textContent/escaping, the reflow layout stacks panes |
+
+Production diagnostics additionally expose full source ranges and byte offsets per the language spec.
+The prototype reports lines and an explicit support boundary. The mockup is not proof of native
+accessibility, stable IDs, immutable archive history or certified geometry. Performance budget remains
+A8; the prototype emits measured per-validation duration and source bytes, never an invented percentile.

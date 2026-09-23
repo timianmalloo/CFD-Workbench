@@ -1,13 +1,13 @@
 {
-  "checkedBlocks": 1350,
+  "checkedBlocks": 153,
   "missing": [],
-  "flows": 10,
+  "flows": 1,
   "expectedGeometryNav": 1,
   "frame": {
     "width": 1120,
-    "height": 73379.5625
+    "height": 11791.015625
   },
-  "sourceHash": "38eb00b93c901bbe03999cc748aab2b0b20a0a8c12605ba8233c4c5088e21f7b",
+  "sourceHash": "b7ebafb9f389995fc01455fc7a99e679ce01ce80a7b7a9bbb0a84802077b6cf9",
   "overflow": false,
   "visibleNavAfterFilter": 1,
   "emptyFilter": {
@@ -20,8 +20,8 @@
   "pageErrors": [],
   "hashMatches": true,
   "revisionMatches": true,
-  "expectedFlows": 10,
-  "requirementIds": 163,
+  "expectedFlows": 1,
+  "requirementIds": 12,
   "requirementCountMatches": true,
   "mockupLinkMatches": true
 }

@@ -1,0 +1,179 @@
+{
+  "artifact": "docs/mockups/workbench-v5.html",
+  "checkedAt": "2026-09-23T02:37:56.531Z",
+  "screenshot": "/tmp/foildsl-v5-baseline.png",
+  "audit": {
+    "frame": {
+      "width": 1280,
+      "height": 800
+    },
+    "contrastFailures": 0,
+    "smallTargets": 0,
+    "denseUnder": 0,
+    "controls": 80,
+    "shell": {
+      "doctabsOverflow": false,
+      "statusOverflow": false,
+      "paramrowOverflow": false,
+      "windowScroll": false,
+      "toolbarRows": 44,
+      "toolbarOverflow": false,
+      "docksScrollInternally": true,
+      "pageBox": {
+        "w": 1280,
+        "h": 800
+      }
+    },
+    "pairs": [
+      {
+        "label": "chart cursor and series",
+        "ratio": 6.11,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "focus ring on the viewport and rail",
+        "ratio": 9.35,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "focus ring on chrome",
+        "ratio": 6.11,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "body text on canvas",
+        "ratio": 13.38,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "muted text on canvas",
+        "ratio": 5.63,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "text on surface",
+        "ratio": 14.63,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "caption on surface",
+        "ratio": 6.15,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "text on soft",
+        "ratio": 12.71,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "caption on soft (menu bar, tabs)",
+        "ratio": 5.34,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "selected row text",
+        "ratio": 12.42,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "primary button label",
+        "ratio": 6.29,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "success text",
+        "ratio": 6.79,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "warning text",
+        "ratio": 5.85,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "error text",
+        "ratio": 6.52,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "selected tab text / chip",
+        "ratio": 6.11,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "control boundary",
+        "ratio": 3.43,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "viewport and rail text",
+        "ratio": 13.81,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "rail labels and captions",
+        "ratio": 8.6,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "selected station line",
+        "ratio": 9.35,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "focus ring on viewport controls",
+        "ratio": 9.35,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "refusal ring on a viewport handle",
+        "ratio": 8.78,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "foil edge",
+        "ratio": 11.62,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "HUD text",
+        "ratio": 10.73,
+        "pass": true,
+        "required": true
+      },
+      {
+        "label": "panel dividers",
+        "ratio": 1.49,
+        "pass": false,
+        "required": false
+      }
+    ],
+    "theme": "light",
+    "task": "cad",
+    "window": "desktop"
+  },
+  "sourceEntryCount": 0,
+  "text": "Example · race light — Design revision r4 · Saved · Illustrative\nSetup\nCAD\nAnalysis\nExperiment\nRun\nResults\nExport\nChecks 1\nSettings\nEdit\nUndo\nRedo\nFind\nSearch…\nView\nCAD ⇄ Analysis\ncurve\nLE rail\nTE rail (chord)\nDihedral / anhedral\nTwist\nThickness t/c\n·\nb\n1.100 m\nS\n1000 cm²\nAR\n12.10\nc̄\n90.9 mm\nTE 0.57 mm below the 0.8 mm floor\nNavigator ›\nExample · race light — r4\nSelect\nInsert CV\nAdd station\nMeasure\nFair\nRebuild\nFit points\nEdit section\nGhost\nTop\n▾\nTop · TE rail (chord) · root ← → tip · +x aft ↓\nPerspective · Iso\n▾\nTOP\nSTB\nFRT\n‹\n›\n˄\n˅\nIso\nIso · smooth · zoom ×1.00 · Option-drag orbit · wheel zoom · F fit\nFront\n▾\nt/c lane · 9 % reference\nFront · Dihedral / anhedral (z ×4) · +z up\nStarboard\n▾\nη 0.00\nη 0.60\nη 1.00\ntwist ±6° · nose-up →\nStarboard · body plan (authored stations) · nose → · twist lane at right\nTracing · η 0.600 · 60.0 % half-span · TE rail (chord) graph κ -2.00e-1 (graph units: η, model) · R 5.01 · chord 89.6 mm · t/c 9.5 % · twist -0.50° · z -12.0 mm\nChecks\n1\n⤒\n▴\nProperties\n▸\nTE RAIL (CHORD)\nCurve\ndegree 3 · 7 vertices · clamped knots\na control-vertex B-spline; the vertices are the record\nSelection\nno vertex selected\nclick a square or lever in an elevation; arrows nudge, Delete removes\nNudge step\n0.1 mm\n1 mm\n10 mm\nLOCKS\n Root-mirror tangent\nthe first leg stays horizontal (G1 across the root plane)\n Value at the tip\nthe last vertex is pinned\nSTATION Η 0.60\nKind\nAuthore"
+}

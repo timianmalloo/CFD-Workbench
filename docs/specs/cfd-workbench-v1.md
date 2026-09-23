@@ -1,12 +1,16 @@
 ---
 id: spec-cfd-workbench-v1
-title: CFD-Workbench — product specification v1.2 (build basis)
+title: CFD-Workbench — product specification v1.4 (FoilDSL authoring)
 type: spec
 status: in-review
 owner: "@timianmalloo"
 phase: specification
 tags: [hydrofoil, cad, parametric, cross-platform, simulation, build-basis]
 links:
+  - {to: adr-foildsl-authority, rel: depends-on}
+  - {to: spec-foildsl, rel: depends-on}
+  - {to: mockup-workbench-v6, rel: relates-to}
+  - {to: design-foildsl-authoring, rel: relates-to}
   - {to: spec-cfd-workbench, rel: refines}
   - {to: kb-hydrofoil-workbench, rel: depends-on}
   - {to: kb-hw-glossary, rel: uses-term}
@@ -28,33 +32,33 @@ summary: >-
   that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a
   catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with
   evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for
-  every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.1
-  supersedes 1.0.
+  every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.4 adds FoilDSL as the canonical authored foil/section language and the source/CAD transaction contract.
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs." }
+  - { by: spec-foildsl, on: 2026-09-22, reason: "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions." }
 ---
 
 # CFD-Workbench
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.3 · 21 September 2026 · *(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.4 · 22 September 2026 · *(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
 the Run and Results areas are specified in full and are **first-class in the model and the UI**, while their
 *acceptance* still waits on the two spikes named in A2 (unattended meshing; the mesh-convergence oracle).
 
-[Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
+[FoilDSL language specification](foildsl.md) · [Current interactive mockup v6](../mockups/workbench-v6.html) · [Reference reconciliation](../notes/foildsl-reconciliation.md) · [Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
 
 **Authority and citations.** The knowledge base `docs/knowledge/hydrofoil-workbench/` is the evidence floor; a
 design implication is cited as **KB-n** (its index) and an area file as **NN** (01–13). Revision 0.2's story
 identifiers are kept where the story survives so the critique map stays traceable; deleted and merged stories are
 listed in Appendix D. Requirements use **shall** for mandatory behaviour in their named release. Terms in
-**bold small caps** in A3 are the ubiquitous language and match the glossary. Toolkit, language, exact file schema,
-geometry evaluator implementation and solver substrate remain `/define-architecture` decisions; this document says
+**bold small caps** in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion. Application language, toolkit, native envelope encoding details,
+geometry evaluator implementation and solver substrate remain separate architecture decisions; this document says
 what they must satisfy.
 
 **Tier:** T2 (cost of error: a foil ridden at speed; a record format that cannot be changed once files exist).
@@ -194,7 +198,7 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 | **Distribution curve** | owned value | One channel along normalised span η: LE offset (was "sweep"), chord, elevation, twist, effective thickness; a clamped B-spline whose **control vertices** are the record — degree stored per curve (default 3, seven vertices; sections keep degree 5), the full knot vector, weights all 1 — plus its **Constraint rows** and the provenance of the construction that produced the vertices (A4.2) |
 | **Authored station** | identity-bearing element | A span location η, a Profile revision reference, a thickness policy, closure choices; its channel values are readouts of the distributions |
 | **Inspection slice** | derived | A section evaluated at any η; never a degree of freedom |
-| **Control vertex** | owned value | One vertex (η, value) of a distribution curve's control polygon with a **stable id**. The first and last vertices lie on the curve (clamped ends); the second and penultimate are the **levers** — they set the end tangent's direction and magnitude; every interior vertex *pulls* the curve and never lies on it. Fit-points anchors, when a curve was built from measured points or a DAT, are kept as **construction provenance** and are never a second authority; optional bounds and a `frozen` flag are *reserved* fields (the design-vector contract, 09) with no v1 writer or reader |
+| **Control vertex** | owned value | One vertex (η, value) of a distribution curve's control polygon with a **stable id**. The first and last vertices lie on the curve (clamped ends); the second and penultimate are the **levers** — they set the end tangent's direction and magnitude; an interior vertex *pulls* the curve and need not lie on it. Fit-points anchors, when a curve was built from measured points or a DAT, are kept as **construction provenance** and are never a second authority; optional bounds and a `frozen` flag are *reserved* fields (the design-vector contract, 09) with no v1 writer or reader |
 | **Constraint row** | owned value | A typed hard constraint (endpoint, tangent linked/split/axis-locked/fixed-angle, curvature match at the LE junction, value at a station, root-mirror tangent, symmetry, closure) with its **source** (user lock · symmetry · closure · station value · assistant-proposal <id>); a class rule is never a Constraint row — it is a DRC finding (A5.8) |
 | **Profile revision** | entity, immutable | The editable record of a section — a clamped degree-5 B-spline pair in normalised chord — plus provenance (admission class, source, original bytes and hash, detected DAT layout, normalisation, conversion residual) and **design-point metadata** (design Cl, design Re, intended σ range, source per field; Unknown when unsourced) |
 | **Geometry edit draft** | transient | A candidate over one base Design revision with proposed controls, constraints, measured deviation and validation; never persisted as a record |
@@ -536,7 +540,8 @@ self-crossing (05).
 
 | Format | v1 | Contract |
 |---|---|---|
-| `.cfdw.json` native | read + write | A3/A4.1 payload + provenance + history; nothing derived; RFC 8785 canonical hash; `null` for not-recorded, never NaN; knot-count convention stated; JSON Schema 2020-12 committed as a fixture |
+| `.cfdw.json` native | read + write | Project envelope with immutable FoilDSL source revisions, pinned profiles/assets, provenance, history and runs (A4.13); no second writable geometry payload. Derived checks remain labelled caches. Semantic hash normalization follows the language companion. Native schema and atomic-save fixtures are implementation obligations. |
+| `.foil` | read + write | FoilDSL 4.0 complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history. |
 | Selig / Lednicer DAT | read + write | shortest-round-trip digits; original bytes retained on import |
 | AVL `.avl` + `AFILE` | write (behind the VLM tier) | one SECTION per authored station **plus** sampled stations so linear interpolation error is bounded; documents that `Ainc` is a camber-line boundary condition; Sref/Bref/Cref from the same evaluation as the AR readout |
 | STL / 3MF (print) | write | millimetres; 3MF `unit` attribute; STL unit in the file name and dialog; never pre-scaled |
@@ -575,6 +580,54 @@ opened and measured in FreeCAD, builds on macOS ARM64 and Windows x64, and the l
 (Security). This **re-decides knowledge-base index item 6**, which excluded OCCT with SISL and NLopt on
 licence grounds: the LGPL 2.1 exception permits dynamic linking from a closed application, and the kernel ADR
 records that reading explicitly before the dependency is taken.
+
+#### A4.13 FoilDSL: the canonical authored foil and section document (revision 1.4)
+
+**Normative:** [FoilDSL 4.0 language specification](foildsl.md). Its complete EBNF, lexical rules,
+static/geometric semantics, evaluation order, canonical identity objects, diagnostics, limits and
+conformance cases are part of this specification. [ADR 0002](../adr/0002-foildsl-authority.md) records
+the durable representation. [Reconciliation](../notes/foildsl-reconciliation.md) maps each material
+reference proposal to the retained or evolved contract. These explicit amendments supersede earlier
+statements that leave the authored language unspecified; they do not authorize a product stack choice.
+
+The **Foil definition** is the accepted language document plus pinned immutable section dependencies.
+It belongs to Design; the language companion's Shape authoring context is a subcontext of Design,
+not an independently synchronized store. A parsed tree, CV view, station table, skin and mesh are
+projections of that definition. Existing Surface/Profile aggregates and A3 invariants remain; the
+language supplies their authored representation. A source revision records one accepted spelling.
+Comments, display names and formatting can create source history without changing surface identity.
+Control values, knots, half-span, profiles, assignments, evaluator and closure changes participate in
+the identity rules defined in the companion. A draft is bound to one base revision and source generation.
+
+The native project carries immutable source revisions, content-addressed profile assets, provenance
+and history. It never persists independently editable geometry in both JSON fields and FoilDSL.
+Save/reopen reproduces source bytes and accepted geometry; canonical export is an explicit separate
+operation. Unresolved references, incompatible versions, unknown fields and resource-limit violations
+leave the accepted project unchanged. A `.foil` file is shape interchange, not the complete project.
+The legacy record and FoilDSL v3 require explicit migration preview with originals retained and measured
+geometry deltas. No implicit approximation, nominal substitute profile or inverse fit is accepted.
+
+Version 4.0 retains readable foil/planform/dihedral/twist/sections blocks but writes the existing CV
+geometry directly. It specifies a fixed frame, leading-edge twist pivot and unbanked station planes.
+Independent trailing-edge and four-parameter section descriptions are constructions to convert with
+reported error, not competing records. The five-channel effective-thickness owner is retained. The
+reference's rounded emitter and short UI hash do not define product serialization or geometry identity.
+
+| ID | Falsifiable acceptance criterion |
+|---|---|
+| SRC-01 | Given a complete foil and standalone section from the conformance corpus, when parsed and reopened on both target OSes, then all grammar productions, units, curves, references and semantic invariants follow the language companion; unsupported constructs fail closed rather than disappear. |
+| SRC-02 | Given accepted source with comments and nontrivial binary64 values, when saved/reopened, then source bytes are identical; canonical export is idempotent and preserves semantic identity. A comment-only Apply changes source history but not geometry identity or run freshness. |
+| SRC-03 | Given an accepted foil, when a CV, station assignment, section or precision field is edited, then one shared draft updates both source and geometry projections; Apply commits one semantic revision, Cancel changes neither, and Undo/Redo restore matching source and geometry. |
+| SRC-04 | Given invalid syntax, truncated input, zero/negative chord, crossing sections, unresolved asset, unknown field or future version, when validated, then Apply is disabled, accepted geometry remains labelled, and a code/location/repair diagnostic identifies the failure. |
+| SRC-05 | Given a source draft, when a conflicting visual/section edit is attempted, then it is refused with a route back to Apply/Cancel; the inverse is also true. A late validation result cannot apply a different source generation or base revision. |
+| SRC-06 | Given a pinned analysis run, when a geometry-bearing source edit is accepted, then its original input and evidence remain intact and freshness is recomputed from the run key. Undo to identical inputs can make it Current again; a new edit after Undo creates a new history branch. |
+| SRC-07 | Given an imported `.foil`, when Preview is chosen, then candidate shape, station/profile relationships and validation status are inspectable before Apply; missing dependencies never become nominal section geometry. New/Open/Save cannot silently discard a dirty draft. |
+| SRC-08 | Given v3 or a legacy project, when migration is requested, then the original, conversion rules, unsupported features and measured delta are shown; only explicit acceptance creates a new version. Cancel preserves the old project. |
+| SRC-09 | Given text at, below and above each declared limit, when parsed, then the limits in the companion are enforced before expensive evaluation; code-like strings and asset hashes cause no execution, network request or filesystem traversal. |
+| SRC-10 | Given multiple stations referring to a shared profile, when editing it, then the UI names the affected assignments; “make independent” creates a new profile revision and changes only the selected assignment. Inspection slices remain derived. |
+
+These are product criteria. The review mockup supports a declared subset and demonstrates transactions;
+it does not clear full language, native archive, geometry certification, migration or solver release gates.
 
 ### A5. Analysis contract
 
@@ -1497,6 +1550,44 @@ menu bar is native; Windows declares per-monitor DPI v2.
 
 ---
 
+### B9. FoilDSL authoring flow (SRC-01–10)
+
+The CAD document group includes a **FoilDSL** tab next to the spatial foil and station documents.
+The spatial ParametricWorkbench remains the primary authoring archetype: source is an alternate precision
+view, not a new workflow area or a mandatory programming step. The supplied JSX's named source blocks,
+section schedule and diagnostics are retained inside the existing window shell.
+
+```mermaid
+flowchart TD
+A[Accepted foil and source] --> B{Edit route}
+B -->|Visual| C[Shared geometry draft and source patch]
+B -->|FoilDSL| D[Editable source draft]
+B -->|Open or New| D
+C --> E[Validate candidate and base revision]
+D --> E
+E -->|Invalid or incomplete| F[Diagnostic with location and repair; accepted shape retained]
+F -->|Edit again| D
+F -->|Cancel| A
+E -->|Unsupported| G[Explain unsupported feature or migration requirement]
+G -->|Cancel or keep original| A
+E -->|Valid| H[Labelled candidate preview and change summary]
+H -->|Apply| I[Append accepted source and semantic revision if changed]
+H -->|Cancel| A
+I --> J[Geometry and text projections agree; run freshness recomputed]
+J -->|Undo or Redo| K[Select matching historical source and definition]
+K --> A
+J -->|Save| L[Write project or explicit shape-only source]
+L -->|Failure| M[Previous file intact; retry or save elsewhere]
+M --> L
+L -->|Reopen and validate| A
+```
+
+UX-25: reaching FoilDSL takes one document-tab action from CAD; returning preserves the camera and
+selection. Source errors focus a readable diagnostic and expose the relevant range; typing never steals
+focus. Text editor Cmd/Ctrl+Z remains native text undo; document Undo/Redo are explicit actions outside
+the editor. New/Open with a dirty draft offers Apply/Cancel first. A second editing route cannot overwrite
+the current draft. A source-only comment edit never produces a geometry-change warning.
+
 ## Part C — UI specification
 
 ### C1. Archetype and direction
@@ -1696,6 +1787,23 @@ exactly one rendering; "Model uncertainty not quantified" is the only uncertaint
   names the held variable and the current sample, and reduced motion replaces Play with stepping.
 - **UI-22:** every prompt entry renders the area's fixed entry name, the capability disclosure (HAX G1/G2), the
   proposal preview with per-field provenance, and the Accept · Discard pair; the model identifier is visible.
+
+### C4a. Source-authoring surface acceptance (revision 1.4)
+
+UI-28: the source document uses DESIGN.md tokens, an accessible textarea, visible action labels and a
+live validation status. Source and preview panes scroll internally; the application window does not.
+At the reflow preset the panes stack inside the document scroll region. Preview explicitly distinguishes
+candidate from accepted geometry and illustrative data from validated evidence.
+
+UI-29: default, dirty, validating, valid, incomplete, invalid geometry, unsupported version, unresolved
+reference, read-only, overflow, save failure and stale-validation states have recovery paths. Syntax
+color is supplementary; source remains legible without color. Diagnostic rows expose code, range and
+repair in the accessibility tree. Theme, keyboard and reduced-motion behavior are measured in the
+review harness; native proof remains the separate A8 obligation.
+
+UI-30: each assignment displays the profile identity and authored span position; derived slices have
+different labels. Shared-profile edits disclose their reach. A product may offer both inline source
+and structured Properties, but they may never have independent Apply states or hidden overrides.
 
 ### C5. Traceability
 
@@ -1898,3 +2006,13 @@ and 17 UI criteria = 87 acceptance criteria in the body, with 10 stories reserve
 
 **Gate on revision 1.0 (2026-09-20, three independent panels, Adversary Mode):** one Blocker (identity tolerance
 defined two ways) and 20 Majors fixed in place before acceptance — see the gate record.
+
+
+## Appendix E — revision 1.4 review boundary
+
+**Proposed**, awaiting human review. The normative language companion, ADR 0002 and v6 mockup replace
+representation ambiguity with an explicit language and one transaction model. Existing requirements
+outside those amendments remain. The source reference corpus is tracked unchanged. The complete
+reconciliation, independent findings and executable prototype proof are linked from the v6 hub.
+Full conformance, lossless native archives, cross-platform numerical identity and scientific validation
+are future product gates; a passing browser demonstrator does not satisfy them.

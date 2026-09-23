@@ -1,0 +1,62 @@
+[
+  {
+    "file": "foil-basic.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "section-basic.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "invalid-syntax.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-SYNTAX",
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "invalid-geometry.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-GEOMETRY",
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "invalid-units.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-UNIT",
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "invalid-version.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-VERSION",
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "invalid-reference.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-REFERENCE",
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "foil-precision.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "foil-comment.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  },
+  {
+    "file": "foil-assertions.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "product normative; prototype may explicitly reject unsupported features"
+  }
+]

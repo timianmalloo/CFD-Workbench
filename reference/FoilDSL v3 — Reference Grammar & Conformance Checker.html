@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FoilDSL v3 — Reference Grammar & Conformance Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #F4EEE2; --bg2: #EBE3D2; --panel: #EFE8D8; --panel2: #E7DFCC;
+  --ink: #211D17; --inks: #4A4338; --mute: #857A66;
+  --copper: #B0703C; --copperD: #8A5326; --copperL: #C98A52;
+  --sage: #5E6B55; --slate: #46596B; --rust: #9E4A33; --teal: #3E6B66;
+  --rule: #C7BCA3; --hair: #D8CEB8; --onAccent: #F4EEE2;
+  --serif: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1814; --bg2: #221E19; --panel: #26221C; --panel2: #2C2721;
+    --ink: #EDE5D6; --inks: #CFC5B3; --mute: #9A8F7C;
+    --copper: #C98A52; --copperD: #D9A06C; --copperL: #B0703C;
+    --sage: #8FA083; --slate: #8FA3B8; --rust: #D07A60; --teal: #7FB0A9;
+    --rule: #4A4338; --hair: #3A342C; --onAccent: #1B1814;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1B1814; --bg2: #221E19; --panel: #26221C; --panel2: #2C2721;
+  --ink: #EDE5D6; --inks: #CFC5B3; --mute: #9A8F7C;
+  --copper: #C98A52; --copperD: #D9A06C; --copperL: #B0703C;
+  --sage: #8FA083; --slate: #8FA3B8; --rust: #D07A60; --teal: #7FB0A9;
+  --rule: #4A4338; --hair: #3A342C; --onAccent: #1B1814;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif); line-height: 1.55; }
+a { color: var(--copperD); }
+header { background: var(--bg2); border-bottom: 1px solid var(--rule); position: relative; }
+header::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--copper); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
+.hd { padding: 26px 0 20px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--copperD); }
+h1 { font-family: var(--sans); font-weight: 700; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.12; margin: 8px 0 10px; letter-spacing: -.02em; }
+h1 span { color: var(--copperD); font-weight: 500; }
+.lede { max-width: 760px; color: var(--inks); font-size: 15px; margin: 0 0 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--mono); font-size: 11px; }
+.pill { border: 1px solid var(--rule); background: var(--bg); border-radius: 999px; padding: 4px 11px; color: var(--inks); text-decoration: none; }
+.pill b { color: var(--copperD); font-weight: 600; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 16px; }
+nav.toc a { font-family: var(--mono); font-size: 11px; text-decoration: none; color: var(--inks); border: 1px solid var(--rule); background: var(--bg); padding: 6px 11px; border-radius: 4px; }
+nav.toc a:hover { border-color: var(--copperD); color: var(--copperD); }
+main { padding: 26px 0 60px; }
+section { margin-bottom: 34px; scroll-margin-top: 16px; }
+h2 { font-family: var(--sans); font-weight: 600; font-size: 20px; margin: 0 0 6px; padding-bottom: 7px; border-bottom: 2px solid var(--copper); letter-spacing: -.01em; }
+.sub { color: var(--inks); font-size: 14px; margin: 8px 0 14px; max-width: 820px; }
+.card { background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 18px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.label { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--copperD); font-weight: 600; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.editor { position: relative; display: flex; border: 1px solid var(--hair); border-left: 3px solid var(--copper); border-radius: 3px; background: var(--panel); overflow: hidden; }
+.editor.bad { border-left-color: var(--rust); }
+.gutter { font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--mute); text-align: right; padding: 12px 8px 12px 10px; user-select: none; background: var(--panel2); min-width: 40px; white-space: pre; overflow: hidden; }
+.gutter .err { color: var(--onAccent); background: var(--rust); border-radius: 2px; padding: 0 3px; }
+textarea { flex: 1; min-height: 520px; resize: vertical; border: 0; outline: none; background: transparent; color: var(--ink); font-family: var(--mono); font-size: 12px; line-height: 1.55; padding: 12px; tab-size: 2; white-space: pre; overflow: auto; }
+textarea:focus-visible { box-shadow: inset 0 0 0 2px var(--copper); }
+.btns { display: flex; gap: 6px; flex-wrap: wrap; }
+button { cursor: pointer; font-family: var(--mono); font-size: 10.5px; padding: 5px 10px; border-radius: 3px; border: 1px solid var(--rule); background: var(--bg); color: var(--inks); }
+button:hover { border-color: var(--copperD); color: var(--copperD); }
+button:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+.status { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 3px; color: var(--onAccent); background: var(--sage); }
+.status.bad { background: var(--rust); }
+.msg { margin-top: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--rust); background: color-mix(in srgb, var(--rust) 10%, transparent); border: 1px solid color-mix(in srgb, var(--rust) 35%, transparent); border-radius: 3px; padding: 8px 10px; }
+.msg[hidden] { display: none; }
+.panel { background: var(--panel); border: 1px solid var(--hair); border-radius: 4px; padding: 10px 12px; font-family: var(--mono); font-size: 11.5px; color: var(--inks); }
+.panel + .panel { margin-top: 10px; }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.kv div { background: var(--bg); border: 1px solid var(--hair); border-radius: 4px; padding: 5px 9px; display: flex; flex-direction: column; }
+.kv span { font-family: var(--sans); font-size: 9px; letter-spacing: .05em; color: var(--mute); text-transform: uppercase; }
+.kv b { font-size: 13px; color: var(--ink); font-weight: 600; }
+.feat { display: grid; grid-template-columns: 16px 64px 1fr; gap: 6px; line-height: 1.8; }
+.feat .y { color: var(--copperD); }
+.idline { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.idline b { color: var(--copperD); font-size: 15px; }
+pre { margin: 0; font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--ink); white-space: pre; overflow-x: auto; }
+.pre { background: var(--panel); border: 1px solid var(--hair); border-left: 3px solid var(--copper); border-radius: 3px; padding: 12px 14px; overflow-x: auto; max-height: 420px; overflow-y: auto; }
+.tw { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; background: var(--panel); border: 1px solid var(--hair); }
+th { text-align: left; font-family: var(--sans); font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; background: var(--copperD); color: var(--onAccent); padding: 7px 10px; }
+td { padding: 6px 10px; border-top: 1px solid var(--hair); color: var(--inks); vertical-align: top; }
+tr:nth-child(even) td { background: var(--panel2); }
+td.ok { color: var(--sage); font-weight: 700; text-align: center; }
+td.no { color: var(--rust); font-weight: 700; text-align: center; }
+code { font-family: var(--mono); font-size: .92em; color: var(--copperD); background: var(--panel); padding: 0 4px; border-radius: 2px; }
+.refgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.ref h3 { font-family: var(--sans); font-size: 13px; font-weight: 600; margin: 0 0 6px; color: var(--ink); }
+.ref .panel { line-height: 1.8; }
+.ref .panel i { color: var(--mute); font-style: normal; }
+.suite-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.score { font-family: var(--mono); font-size: 12px; }
+.score b { color: var(--sage); }
+footer { border-top: 1px solid var(--rule); padding: 14px 0 26px; font-family: var(--mono); font-size: 10.5px; color: var(--mute); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hd">
+    <div class="eyebrow">ENGINEERING LEDGER · LANGUAGE REFERENCE</div>
+    <h1>FoilDSL v3 <span>— reference grammar &amp; conformance checker</span></h1>
+    <p class="lede">The grammar, running. Every program you type below is tokenized, parsed, checked against the static semantics,
+      canonicalized and hashed by the reference implementation — the same code the FoilDSL Explorer uses. Errors come back with a line
+      and the rule that failed.</p>
+    <div class="meta">
+      <a class="pill" href="https://claude.ai/code/artifact/cbfb931a-3b57-429b-b5cc-ef306e5cdc6e" target="_blank" rel="noopener">normative spec <b>↗</b></a>
+      <span class="pill">version <b>3.0</b></span>
+      <span class="pill">grammar <b>LL(1)</b></span>
+      <span class="pill">identity <b>H(canon(⟦parse(s)⟧))</b></span>
+    </div>
+  </div>
+  <div class="wrap"><nav class="toc" aria-label="sections">
+    <a href="#check">Checker</a><a href="#suite">Conformance suite</a><a href="#ref">Quick reference</a><a href="#grammar">Grammar</a><a href="#rules">Static rules</a>
+  </nav></div>
+</header>
+
+<main class="wrap">
+  <section id="check">
+    <h2>Conformance checker</h2>
+    <p class="sub">Edit the program. The right column is the program's meaning: its canonical form, identity, derived geometry,
+      out-of-plane features and constraint results. Comments and spacing leave the identity unchanged; geometry does not.</p>
+    <div class="card grid2">
+      <div>
+        <div class="label"><span>SOURCE</span>
+          <span class="btns"><button id="bRef" type="button">load gull-90</button><button id="bSugar" type="button">load chord-law example</button><span class="status" id="status" role="status">✓ well-formed</span></span></div>
+        <div class="editor" id="editor"><div class="gutter" id="gutter" aria-hidden="true"></div>
+          <textarea id="src" spellcheck="false" aria-label="FoilDSL source" autocapitalize="off" autocomplete="off"></textarea></div>
+        <div class="msg" id="msg" hidden></div>
+      </div>
+      <div>
+        <div class="label"><span>IDENTITY</span></div>
+        <div class="panel idline"><span>id(F) = <b id="fid">—</b></span><span id="fidNote" style="color:var(--mute);font-size:10.5px"></span></div>
+        <div class="label" style="margin-top:14px"><span>DERIVED GEOMETRY</span></div>
+        <div class="kv" id="kv"></div>
+        <div class="label" style="margin-top:14px"><span>OUT-OF-PLANE FEATURES · mm from center</span></div>
+        <div class="panel" id="feat"></div>
+        <div class="label" style="margin-top:14px"><span>CONSTRAINTS</span></div>
+        <div class="tw"><table><thead><tr><th>metric</th><th>asserted</th><th>projected</th><th></th></tr></thead><tbody id="cons"></tbody></table></div>
+        <div class="label" style="margin-top:14px"><span>CANONICAL FORM · canon(F)</span><button id="bCopy" type="button">copy</button></div>
+        <div class="pre"><pre id="canon"></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="suite">
+    <h2>Conformance suite</h2>
+    <p class="sub">The reference program and the negative tests from section 14 of the spec, run live against this page's implementation.
+      A conforming implementation must pass all of them.</p>
+    <div class="card">
+      <div class="suite-head"><span class="score" id="score"></span><button id="bRun" type="button">run again</button></div>
+      <div class="tw"><table><thead><tr><th>#</th><th>test</th><th>expected</th><th>got</th><th></th></tr></thead><tbody id="suiteBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="ref">
+    <h2>Quick reference</h2>
+    <p class="sub">The whole language on one screen. Stations are distances from the center line; every spanwise quantity is a curve.</p>
+    <div class="refgrid">
+      <div class="ref"><h3>Stations</h3><div class="panel">
+        <code>center</code> <i>y = 0</i><br><code>tip</code> <i>y = b/2</i><br><code>225 mm</code> <i>or cm, m</i><br><code>50 %</code> <i>of half span</i></div></div>
+      <div class="ref"><h3>Curve modes</h3><div class="panel">
+        <code>linear</code> <i>corners, C⁰</i><br><code>smooth</code> <i>Catmull-Rom, may overshoot</i><br><code>monotone</code> <i>never overshoots —<br>each drop/rise is the extreme</i></div></div>
+      <div class="ref"><h3>Out-of-plane values</h3><div class="panel">
+        <code>level</code> <i>z = 0</i><br><code>drop 16 mm</code> <i>z = −16</i><br><code>rise 46 mm</code> <i>z = +46</i><br><code>bank true|false</code></div></div>
+      <div class="ref"><h3>Sections</h3><div class="panel">
+        <code>naca 4412</code> <i>12% @ 30%, 4% @ 40%</i><br><code>naca 0012-64</code> <i>peak moved to 40%</i><br>
+        <code>profile { thickness 10% at 33%</code><br><code>&nbsp;&nbsp;camber 2% at 40% }</code></div></div>
+      <div class="ref"><h3>Planform</h3><div class="panel">
+        <code>leading &lt;mode&gt; { at … x … }</code><br><code>trailing &lt;mode&gt; { … }</code><br><code>chord elliptic center 132</code><br><code>&nbsp;&nbsp;taper 0.2 sweep 3 deg</code></div></div>
+      <div class="ref"><h3>Derived, never authored</h3><div class="panel">
+        chord <i>x_TE − x_LE</i><br>taper λ <i>c_tip / c₀</i><br>Γ(y) <i>atan z′(y)</i><br>turns, zeros, inflections</div></div>
+    </div>
+  </section>
+
+  <section id="grammar">
+    <h2>Grammar (EBNF)</h2>
+    <p class="sub">Every choice is decided by the next token, so a recursive-descent parser needs no backtracking.</p>
+    <div class="pre" style="max-height:none"><pre id="ebnf"></pre></div>
+  </section>
+
+  <section id="rules">
+    <h2>Static semantics</h2>
+    <p class="sub">A program that parses is accepted only if it satisfies every rule. The first failure is reported with its line.</p>
+    <div class="tw"><table><thead><tr><th>#</th><th>rule</th></tr></thead><tbody id="rulesBody"></tbody></table></div>
+  </section>
+
+  <footer><span>FoilDSL v3 · reference implementation, running in this page</span><span>engineering ledger</span></footer>
+</main>
+
+<script>
+
+/* ============================================================================
+   FoilDSL Explorer · v3
+   Stations measured from the center line · every edge and law is a curve ·
+   sections carry thickness AND where that thickness peaks.
+
+   What changed from v2, and why:
+   - Spanwise position is a physical distance from the center (mm), not a
+     normalized fraction. Out-of-plane shape is authored as drop / rise from 0.
+   - Where the foil turns down, bottoms out, comes back through 0 or lifts is
+     computed and reported as "distance from center + magnitude".
+   - Leading and trailing edges are independent anchor-spline curves; chord,
+     spine and taper (c_tip / c_center) are derived from them.
+   - A section is (thickness, max-thickness position, camber, max-camber
+     position); the foil carries a schedule of sections that blend out the span.
+============================================================================ */
+
+const C = {
+  cream: "#F4EEE2", cream2: "#EBE3D2", panel: "#EFE8D8", panel2: "#E7DFCC",
+  ink: "#211D17", inks: "#4A4338", mute: "#857A66",
+  copper: "#B0703C", copperD: "#8A5326", copperL: "#C98A52",
+  sage: "#5E6B55", slate: "#46596B", rust: "#9E4A33", teal: "#3E6B66",
+  rule: "#C7BCA3", hair: "#D8CEB8",
+};
+const FONT = {
+  serif: "'IBM Plex Serif', Georgia, serif",
+  sans: "'IBM Plex Sans', system-ui, -apple-system, sans-serif",
+  mono: "'IBM Plex Mono', ui-monospace, monospace",
+};
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const f1 = (v) => { const r = Math.round(v * 10) / 10; return r === 0 ? "0" : String(r); };
+const pctStr = (v) => `${Math.round(v * 1000) / 10}%`;
+function lerpColor(a, b, t) {
+  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+  return "#" + pa.map((v, i) => Math.round(v + (pb[i] - v) * clamp(t, 0, 1)).toString(16).padStart(2, "0")).join("");
+}
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
+  const step = (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+  return out;
+}
+
+/* ============================================================================
+   ANCHOR-SPLINE — the one curve primitive (x = mm from center)
+   linear   : C0, keeps corners
+   smooth   : Catmull-Rom interpolating cubic, C1, may overshoot anchors
+   monotone : Fritsch-Carlson, C1, never overshoots — every authored drop or
+              rise IS the extreme of the curve
+============================================================================ */
+function hermite(xs, ys, m) {
+  const n = xs.length;
+  return (x) => {
+    if (x <= xs[0]) return ys[0];
+    if (x >= xs[n - 1]) return ys[n - 1];
+    let i = 0; while (i < n - 2 && x > xs[i + 1]) i++;
+    const h = xs[i + 1] - xs[i], t = (x - xs[i]) / h, t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * ys[i] + (t3 - 2 * t2 + t) * h * m[i]
+      + (-2 * t3 + 3 * t2) * ys[i + 1] + (t3 - t2) * h * m[i + 1];
+  };
+}
+function fcTangents(xs, ys) {
+  const n = xs.length, d = [], m = [];
+  for (let i = 0; i < n - 1; i++) d[i] = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]);
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+    const a = m[i] / d[i], b = m[i + 1] / d[i], s = a * a + b * b;
+    if (s > 9) { const t = 3 / Math.sqrt(s); m[i] = t * a * d[i]; m[i + 1] = t * b * d[i]; }
+  }
+  return m;
+}
+function makeSpline(anchors, mode) {
+  const pts = [...anchors].sort((a, b) => a.x - b.x);
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y), n = xs.length;
+  if (n === 1) return () => ys[0];
+  if (mode === "linear") {
+    return (x) => {
+      if (x <= xs[0]) return ys[0];
+      if (x >= xs[n - 1]) return ys[n - 1];
+      let i = 0; while (i < n - 2 && x > xs[i + 1]) i++;
+      return ys[i] + (ys[i + 1] - ys[i]) * (x - xs[i]) / (xs[i + 1] - xs[i]);
+    };
+  }
+  let m;
+  if (mode === "monotone") m = fcTangents(xs, ys);
+  else {
+    m = [];
+    for (let i = 0; i < n; i++) {
+      if (i === 0) m[i] = (ys[1] - ys[0]) / (xs[1] - xs[0]);
+      else if (i === n - 1) m[i] = (ys[n - 1] - ys[n - 2]) / (xs[n - 1] - xs[n - 2]);
+      else m[i] = (ys[i + 1] - ys[i - 1]) / (xs[i + 1] - xs[i - 1]);
+    }
+  }
+  return hermite(xs, ys, m);
+}
+function slopeAt(f, x, x0, x1) {
+  const h = (x1 - x0) / 2000, a = Math.max(x0, x - h), b = Math.min(x1, x + h);
+  return (f(b) - f(a)) / (b - a || 1);
+}
+// where the slope changes sign: a local low (min) or high (max)
+function turningPoints(f, x0, x1, N = 400) {
+  const dx = (x1 - x0) / N, out = [];
+  let ps = 0, px = null;
+  for (let i = 1; i < N; i++) {
+    const x = x0 + dx * i, d = (f(x + dx) - f(x - dx)) / (2 * dx);
+    const s = Math.abs(d) < 1e-6 ? 0 : Math.sign(d);
+    if (s !== 0) {
+      if (ps !== 0 && s !== ps) { const xz = (px + x) / 2; out.push({ x: xz, y: f(xz), kind: ps < 0 ? "min" : "max" }); }
+      ps = s; px = x;
+    }
+  }
+  return out;
+}
+// where the curve passes through 0
+function zeroCrossings(f, x0, x1, N = 400) {
+  const out = []; let ps = 0, px = 0, py = 0;
+  for (let i = 0; i <= N; i++) {
+    const x = x0 + (x1 - x0) * i / N, y = f(x), s = Math.abs(y) < 1e-6 ? 0 : Math.sign(y);
+    if (s !== 0) {
+      if (ps !== 0 && s !== ps) out.push({ x: px + (x - px) * (0 - py) / (y - py), dir: s > 0 ? "up" : "down" });
+      ps = s; px = x; py = y;
+    }
+  }
+  return out;
+}
+// where curvature flips: bowl (concave-up) <-> crest (concave-down)
+function inflections(f, x0, x1, N = 400) {
+  const dx = (x1 - x0) / N, d2 = [];
+  for (let i = 1; i < N; i++) { const x = x0 + dx * i; d2[i] = (f(x + dx) - 2 * f(x) + f(x - dx)) / (dx * dx); }
+  let mx = 0; for (let i = 1; i < N; i++) mx = Math.max(mx, Math.abs(d2[i]));
+  const tol = mx * 1e-3 + 1e-12, raw = [];
+  let ps = 0, pi = 0;
+  for (let i = 2; i < N - 1; i++) {
+    const s = Math.abs(d2[i]) < tol ? 0 : Math.sign(d2[i]);
+    if (s !== 0) {
+      if (ps !== 0 && s !== ps) raw.push({ x: x0 + dx * (pi + i) / 2, from: ps > 0 ? "bowl" : "crest", to: s > 0 ? "bowl" : "crest" });
+      ps = s; pi = i;
+    }
+  }
+  const out = [];
+  for (const q of raw) if (!out.length || q.x - out[out.length - 1].x > (x1 - x0) * 0.02) out.push(q);
+  return out;
+}
+function extrema(f, x0, x1, N = 400) {
+  let mn = Infinity, mx = -Infinity, a = x0, b = x0;
+  for (let i = 0; i <= N; i++) { const x = x0 + (x1 - x0) * i / N, y = f(x); if (y < mn) { mn = y; a = x; } if (y > mx) { mx = y; b = x; } }
+  return { min: mn, minAt: a, max: mx, maxAt: b };
+}
+// contiguous stretches that rise (dihedral), fall (anhedral) or stay level
+function slopeSegments(f, x0, x1, N = 300) {
+  const tol = 0.0035, segs = [];
+  let cur = null;
+  for (let i = 0; i < N; i++) {
+    const xa = x0 + (x1 - x0) * i / N, xb = x0 + (x1 - x0) * (i + 1) / N;
+    const s = (f(xb) - f(xa)) / (xb - xa), g = Math.atan(s) * 180 / Math.PI;
+    const sense = s > tol ? "up" : s < -tol ? "down" : "level";
+    if (!cur || cur.sense !== sense) { if (cur) segs.push(cur); cur = { sense, x0: xa, x1: xb, gMin: g, gMax: g, z0: f(xa), z1: f(xb) }; }
+    else { cur.x1 = xb; cur.z1 = f(xb); cur.gMin = Math.min(cur.gMin, g); cur.gMax = Math.max(cur.gMax, g); }
+  }
+  if (cur) segs.push(cur);
+  const minW = (x1 - x0) * 0.015, merged = [];
+  for (const s of segs) {
+    const p = merged[merged.length - 1];
+    if (p && (s.x1 - s.x0) < minW) { p.x1 = s.x1; p.z1 = s.z1; }
+    else if (p && p.sense === s.sense) { p.x1 = s.x1; p.z1 = s.z1; p.gMin = Math.min(p.gMin, s.gMin); p.gMax = Math.max(p.gMax, s.gMax); }
+    else merged.push({ ...s });
+  }
+  return merged;
+}
+
+/* ============================================================================
+   SECTIONS — thickness t at chordwise position xt, camber m at position xc.
+   The base thickness family is stretched so its maximum lands exactly at xt;
+   because the base has zero slope at its own maximum, the stretch stays C1.
+============================================================================ */
+const BASE = {
+  naca: (u) => 0.2969 * Math.sqrt(u) - 0.1260 * u - 0.3516 * u * u + 0.2843 * u ** 3 - 0.1036 * u ** 4,
+  cst: (u) => Math.sqrt(u) * (1 - u) * (1 + 0.35 * u),
+};
+const PEAK = {};
+for (const k of Object.keys(BASE)) {
+  let best = 0, at = 0;
+  for (let i = 1; i < 4000; i++) { const u = i / 4000, v = BASE[k](u); if (v > best) { best = v; at = u; } }
+  PEAK[k] = { u: at, v: best };
+}
+function thicknessFn(family, t, xt) {
+  const base = BASE[family] || BASE.naca, { u: us, v: pv } = PEAK[family] || PEAK.naca;
+  const X = clamp(xt, 0.1, 0.7);
+  return (x) => {
+    if (x <= 0 || x >= 1) return 0;
+    const u = x <= X ? us * x / X : us + (1 - us) * (x - X) / (1 - X);
+    return (t / 2) * Math.max(0, base(u)) / pv;
+  };
+}
+function camberFn(m, p) {
+  if (!(m > 0)) return () => ({ yc: 0, dy: 0 });
+  const P = clamp(p, 0.15, 0.85);
+  return (x) => x < P
+    ? { yc: m / (P * P) * (2 * P * x - x * x), dy: 2 * m / (P * P) * (P - x) }
+    : { yc: m / ((1 - P) ** 2) * ((1 - 2 * P) + 2 * P * x - x * x), dy: 2 * m / ((1 - P) ** 2) * (P - x) };
+}
+function profile(spec, n = 90) {
+  const th = thicknessFn(spec.family, spec.t, spec.xt), cf = camberFn(spec.cam, spec.xc);
+  const up = [], lo = [], cm = [];
+  for (let i = 0; i <= n; i++) {
+    const x = 0.5 * (1 - Math.cos(Math.PI * i / n)), yt = th(x), { yc, dy } = cf(x), a = Math.atan(dy);
+    up.push([x - yt * Math.sin(a), yc + yt * Math.cos(a)]);
+    lo.push([x + yt * Math.sin(a), yc - yt * Math.cos(a)]);
+    cm.push([x, yc]);
+  }
+  return { up, lo, cm, loop: up.concat(lo.slice().reverse()) };
+}
+// NACA 4-digit MPTT, optional modifier -IT (I = LE radius index, T = max-thickness position in tenths)
+function nacaSpec(d, mod) {
+  return { src: "naca", digits: d, mod: mod || null, family: "naca",
+    t: +d.slice(2) / 100, xt: mod ? +mod[1] / 10 : 0.3, cam: +d[0] / 100, xc: +d[1] / 10 || 0.4 };
+}
+function blendSection(secs, y) {
+  const st = secs.stations;
+  if (st.length === 1) return st[0].spec;
+  let i = 0; while (i < st.length - 2 && y > st[i + 1].y) i++;
+  const a = st[i].spec, b = st[i + 1].spec;
+  let w = clamp((y - st[i].y) / ((st[i + 1].y - st[i].y) || 1), 0, 1);
+  if (secs.blend === "cosine") w = 0.5 * (1 - Math.cos(Math.PI * w));
+  const L = (p, q) => p + (q - p) * w;
+  const xa = a.cam > 0 ? a.xc : b.xc, xb = b.cam > 0 ? b.xc : a.xc;
+  return { family: w < 0.5 ? a.family : b.family, t: L(a.t, b.t), xt: L(a.xt, b.xt), cam: L(a.cam, b.cam), xc: L(xa, xb) };
+}
+
+/* ============================================================================
+   GEOMETRY — everything derived from the curves (half span, mirrored)
+============================================================================ */
+function deriveGeom(M) {
+  const b = M.span, hs = b / 2;
+  const fLE = makeSpline(M.leading.anchors, M.leading.mode);
+  const fTE = makeSpline(M.trailing.anchors, M.trailing.mode);
+  const fZ = M.dihedral ? makeSpline(M.dihedral.anchors, M.dihedral.mode) : () => 0;
+  const fTw = M.twist ? makeSpline(M.twist.anchors, M.twist.mode) : () => 0;
+  const chord = (y) => fTE(y) - fLE(y);
+  const quarter = (y) => fLE(y) + 0.25 * chord(y);
+  const dz = (y) => slopeAt(fZ, y, 0, hs);
+  const N = 360; let I1 = 0, I2 = 0, Id = 0;
+  for (let i = 0; i <= N; i++) {
+    const y = hs * i / N, w = (i === 0 || i === N) ? 0.5 : 1, c = Math.max(0, chord(y));
+    I1 += w * c; I2 += w * c * c; Id += w * c * Math.sqrt(1 + dz(y) ** 2);
+  }
+  const dy = hs / N; I1 *= dy; I2 *= dy; Id *= dy;
+  const S = 2 * I1, MAC = 2 * I2 / S, AR = b * b / S, Sdev = 2 * Id;
+  const c0 = chord(0), ct = chord(hs);
+  const ex = extrema(fZ, 0, hs);
+  const secAt = (y) => blendSection(M.sections, y);
+  const linearZ = M.dihedral && M.dihedral.mode === "linear";
+  return {
+    b, hs, fLE, fTE, fZ, fTw, chord, quarter, dz, S, MAC, AR, Sdev, c0, ct, taper: ct / c0,
+    tipZ: fZ(hs), maxDrop: Math.max(0, -ex.min), maxDropAt: ex.minAt, maxRise: Math.max(0, ex.max), maxRiseAt: ex.maxAt,
+    turns: turningPoints(fZ, 0, hs), zeros: zeroCrossings(fZ, 0, hs),
+    infl: M.dihedral && !linearZ ? inflections(fZ, 0, hs) : [],
+    kinks: linearZ ? M.dihedral.anchors.slice(1, -1).map((a) => a.x) : [],
+    segs: slopeSegments(fZ, 0, hs), secAt,
+    rootThick: c0 * secAt(0).t, tipThick: ct * secAt(hs).t,
+    sweep: (f, y) => Math.atan(slopeAt(f, y, 0, hs)) * 180 / Math.PI,
+    dih: (y) => Math.atan(dz(y)) * 180 / Math.PI,
+  };
+}
+
+const showLen = (v) => `${v.toFixed(1)} mm`;
+const METRICS = {
+  area: { dim: "area", get: (g) => g.S / 100, show: (v) => `${v.toFixed(0)} cm²` },
+  dev_area: { dim: "area", get: (g) => g.Sdev / 100, show: (v) => `${v.toFixed(0)} cm²` },
+  aspect: { dim: "none", get: (g) => g.AR, show: (v) => v.toFixed(2) },
+  taper: { dim: "none", get: (g) => g.taper, show: (v) => v.toFixed(3) },
+  mac: { dim: "len", get: (g) => g.MAC },
+  center_chord: { dim: "len", get: (g) => g.c0 },
+  tip_chord: { dim: "len", get: (g) => g.ct },
+  tip_rise: { dim: "len", get: (g) => g.tipZ },
+  max_drop: { dim: "len", get: (g) => g.maxDrop },
+  max_rise: { dim: "len", get: (g) => g.maxRise },
+  root_thick: { dim: "len", get: (g) => g.rootThick },
+  tip_thick: { dim: "len", get: (g) => g.tipThick },
+};
+function evalConstraints(M, g) {
+  return M.constraints.map((c) => {
+    const d = METRICS[c.metric], v = d.get(g), show = d.show || showLen;
+    let ok;
+    if (c.relop === ">=") ok = v >= c.value - 1e-9;
+    else if (c.relop === "<=") ok = v <= c.value + 1e-9;
+    else if (c.relop === "==") ok = Math.abs(v - c.value) <= 1e-6 * Math.max(1, Math.abs(c.value));
+    else ok = Math.abs(v - c.value) <= 0.05 * Math.abs(c.value || 1);
+    return { ...c, actual: v, label: show(v), ok };
+  });
+}
+
+/* ============================================================================
+   FoilDSL v3 — tokenizer, recursive-descent parser, canonical emitter
+============================================================================ */
+const LEN = { mm: 1, cm: 10, m: 1000 };
+const AREA = { mm2: 0.01, cm2: 1, m2: 10000 };
+const MODES = ["linear", "smooth", "monotone"];
+
+function tokenize(src) {
+  const re = /\s+|#[^\n]*|"[^"\n]*"|>=|<=|==|~|[{}()\[\]:,%]|[A-Za-z_][A-Za-z0-9_]*|[+-]?\d+(?:\.\d+)?|[+-]?\.\d+/y;
+  const toks = []; let i = 0, line = 1;
+  while (i < src.length) {
+    re.lastIndex = i;
+    const m = re.exec(src);
+    if (!m) throw { line, msg: `unexpected character "${src[i]}"` };
+    const s = m[0];
+    if (!/^\s/.test(s) && s[0] !== "#") {
+      let kind = "sym";
+      if (s[0] === '"') kind = "str";
+      else if (/^[+-]?\.?\d/.test(s)) kind = "num";
+      else if (/^[A-Za-z_]/.test(s)) kind = "word";
+      toks.push({ s, kind, line });
+    }
+    for (let k = 0; k < s.length; k++) if (s[k] === "\n") line++;
+    i = re.lastIndex;
+  }
+  toks.push({ s: "end of input", kind: "eof", line });
+  return toks;
+}
+
+// chord-law sugar -> two edge curves about a (possibly swept) straight quarter-chord line
+function chordSugar(s, hs) {
+  const c0 = s.c0, ct = s.ct != null ? s.ct : s.taper * s.c0;
+  const fr = s.law === "elliptic" ? [0, 0.3, 0.55, 0.75, 0.88, 0.96, 1] : [0, 1];
+  const cAt = (e) => s.law === "elliptic" ? ct + (c0 - ct) * Math.sqrt(Math.max(0, 1 - e * e)) : c0 + (ct - c0) * e;
+  const tan = Math.tan((s.sweep || 0) * Math.PI / 180), LE = [], TE = [];
+  for (const e of fr) {
+    const y = e * hs, c = cAt(e), q = 0.25 * c0 + tan * y;
+    LE.push({ x: +y.toFixed(1), y: +(q - 0.25 * c).toFixed(1) });
+    TE.push({ x: +y.toFixed(1), y: +(q + 0.75 * c).toFixed(1) });
+  }
+  LE[LE.length - 1].x = hs; TE[TE.length - 1].x = hs;
+  const mode = s.law === "elliptic" ? "smooth" : "linear";
+  return { leading: { mode, anchors: LE }, trailing: { mode, anchors: TE } };
+}
+
+function parseFoil(src) {
+  const T = tokenize(src); let p = 0;
+  const pk = () => T[p], at = (s) => T[p].s === s, nx = () => T[p++];
+  const fail = (msg, tok = T[p]) => { throw { line: tok.line, msg }; };
+  const eat = (s) => (T[p].s === s ? T[p++] : fail(`expected "${s}" but found "${T[p].s}"`));
+  const word = (what = "a name") => (T[p].kind === "word" ? T[p++].s : fail(`expected ${what}, found "${T[p].s}"`));
+  const num = (what = "a number") => (T[p].kind === "num" ? parseFloat(T[p++].s) : fail(`expected ${what}, found "${T[p].s}"`));
+  const str = () => (T[p].kind === "str" ? T[p++].s.slice(1, -1) : fail(`expected a quoted string, found "${T[p].s}"`));
+  const notEof = (what) => { if (pk().kind === "eof") fail(`unterminated ${what} (missing "}")`); };
+  const len = () => { const v = num("a length"); return LEN[T[p].s] != null ? v * LEN[nx().s] : v; };
+  const frac = (what) => {
+    const tok = T[p], v = num(what);
+    if (at("%")) { nx(); return v / 100; }
+    if (Math.abs(v) > 1) fail(`${what} ${v} needs a % sign (or write it as a fraction ≤ 1)`, tok);
+    return v;
+  };
+  const station = () => {
+    const tok = T[p];
+    if (at("center") || at("root")) { nx(); return { k: "mm", v: 0, tok }; }
+    if (at("tip")) { nx(); return { k: "tip", tok }; }
+    const v = num("a station (center, tip, or a distance from center)");
+    if (at("%")) { nx(); return { k: "frac", v: v / 100, tok }; }
+    if (LEN[T[p].s] != null) return { k: "mm", v: v * LEN[nx().s], tok };
+    return { k: "mm", v, tok };
+  };
+  const value = (kind) => {
+    if (kind === "z") {
+      if (at("level")) { nx(); return 0; }
+      if (at("drop")) { nx(); return -Math.abs(len()); }
+      if (at("rise") || at("raise")) { nx(); return Math.abs(len()); }
+      if (at("z")) nx();
+      return len();
+    }
+    if (kind === "x") { if (at("x")) nx(); return len(); }
+    const v = num("an angle"); if (at("deg")) nx(); return v;
+  };
+  const curve = (what, kind, extra) => {
+    const tok = T[p], mode = word("an interpolation mode (linear, smooth or monotone)");
+    if (!MODES.includes(mode)) fail(`unknown curve mode "${mode}" — use linear, smooth or monotone`, tok);
+    eat("{"); const pts = [];
+    while (!at("}")) { notEof(what); if (extra && extra()) continue; eat("at"); const st = station(); pts.push({ st, y: value(kind) }); }
+    eat("}");
+    if (pts.length < 2) fail(`${what} needs at least two stations (center and tip)`, tok);
+    return { mode, pts, tok, what };
+  };
+  const sectionSource = () => {
+    const tok = T[p], kind = word("a section source");
+    if (kind === "naca") {
+      const d = T[p];
+      if (d.kind !== "num" || !/^\d{4}$/.test(d.s)) fail(`expected a 4-digit NACA designation, found "${d.s}"`, d);
+      nx(); let mod = null;
+      if (T[p].kind === "num" && /^-\d{2}$/.test(T[p].s)) mod = nx().s.slice(1);
+      return nacaSpec(d.s, mod);
+    }
+    if (kind === "profile") {
+      eat("{");
+      const sp = { src: "profile", family: "naca", t: null, xt: 0.3, cam: 0, xc: 0.4 };
+      while (!at("}")) {
+        notEof("profile block");
+        const t = T[p], k = word("thickness, camber or family");
+        if (k === "family") { const f = word("naca or cst"); if (!BASE[f]) fail(`unknown family "${f}" — use naca or cst`, t); sp.family = f; }
+        else if (k === "thickness") { sp.t = frac("thickness"); if (at("at")) { nx(); sp.xt = frac("max-thickness position"); } }
+        else if (k === "camber") { sp.cam = frac("camber"); if (at("at")) { nx(); sp.xc = frac("max-camber position"); } }
+        else fail(`unknown profile field "${k}" — use thickness, camber or family`, t);
+      }
+      eat("}");
+      if (sp.t == null) fail("a profile needs a thickness, e.g. thickness 10% at 33%", tok);
+      return sp;
+    }
+    if (kind === "eppler") return { src: "eppler", name: word("an Eppler designation"), family: "naca", t: 0.1, xt: 0.3, cam: 0.02, xc: 0.4, nominal: true };
+    if (kind === "file") return { src: "file", name: str(), family: "naca", t: 0.1, xt: 0.3, cam: 0.02, xc: 0.4, nominal: true };
+    return fail(`unknown section source "${kind}" — use naca, profile, eppler or file`, tok);
+  };
+
+  const t0 = eat("foil"); const name = str(); eat("{");
+  const M = { name, span: null, context: {}, leading: null, trailing: null, dihedral: null, twist: null, sections: null,
+    loft: { degree: 3, stations: 21, stationSpacing: "cosine", points: 81, pointSpacing: "cosine" }, constraints: [] };
+  const raw = { leading: null, trailing: null, dihedral: null, twist: null, sugar: null, sections: null, bank: true };
+  let planTok = t0;
+
+  while (!at("}")) {
+    notEof("foil block");
+    const tok = T[p], kw = word("a statement");
+    if (kw === "units") { const u = word("a unit"); if (u !== "mm") fail(`only "units mm" is supported (individual lengths may still say cm or m)`, tok); }
+    else if (kw === "span") { M.span = len(); if (!(M.span > 0)) fail("span must be positive", tok); }
+    else if (kw === "context") {
+      eat("{");
+      while (!at("}")) { notEof("context block"); const k = word(); const v = num(); const u = word("a unit"); M.context[k] = { v, u }; }
+      eat("}");
+    }
+    else if (kw === "planform") {
+      planTok = tok; eat("{");
+      while (!at("}")) {
+        notEof("planform block");
+        const t = T[p], k = word("leading, trailing or chord");
+        if (k === "leading") raw.leading = curve("the leading edge", "x");
+        else if (k === "trailing") raw.trailing = curve("the trailing edge", "x");
+        else if (k === "chord") {
+          const law = word("a chord law");
+          if (!["elliptic", "linear"].includes(law)) fail(`unknown chord law "${law}" — use elliptic or linear`, t);
+          if (!(at("center") || at("root"))) fail(`expected "center" after "chord ${law}"`);
+          nx();
+          const s = { law, c0: len() };
+          if (at("tip")) { nx(); s.ct = len(); }
+          else if (at("taper")) { nx(); s.taper = num("a taper ratio"); }
+          else fail(`"chord ${law}" needs "tip <length>" or "taper <ratio>"`);
+          if (at("sweep")) { nx(); s.sweep = num("a sweep angle"); eat("deg"); }
+          raw.sugar = s;
+        }
+        else fail(`unknown planform statement "${k}"`, t);
+      }
+      eat("}");
+    }
+    else if (kw === "dihedral") {
+      raw.dihedral = curve("the dihedral curve", "z", () => {
+        if (!at("bank")) return false;
+        nx(); const b = word("true or false");
+        if (b !== "true" && b !== "false") fail("bank must be true or false");
+        raw.bank = b === "true"; return true;
+      });
+    }
+    else if (kw === "twist") raw.twist = curve("the twist curve", "deg");
+    else if (kw === "sections") {
+      const blend = (at("linear") || at("cosine")) ? nx().s : "cosine";
+      eat("{"); const list = [];
+      while (!at("}")) { notEof("sections block"); eat("at"); const st = station(); list.push({ st, spec: sectionSource() }); }
+      eat("}"); raw.sections = { blend, list, tok };
+    }
+    else if (kw === "loft") {
+      eat("{");
+      while (!at("}")) {
+        notEof("loft block");
+        const t = T[p], k = word();
+        if (k === "surface") { eat("bspline"); eat("degree"); M.loft.degree = num(); }
+        else if (k === "stations" || k === "points") {
+          const n = num(), sp = word("uniform or cosine");
+          if (!["uniform", "cosine"].includes(sp)) fail("spacing must be uniform or cosine", t);
+          if (k === "stations") { M.loft.stations = n; M.loft.stationSpacing = sp; } else { M.loft.points = n; M.loft.pointSpacing = sp; }
+        }
+        else fail(`unknown loft statement "${k}"`, t);
+      }
+      eat("}");
+    }
+    else if (kw === "constrain") {
+      eat("{");
+      while (!at("}")) {
+        notEof("constrain block");
+        const t = T[p], metric = word("a metric"), d = METRICS[metric];
+        if (!d) fail(`unknown metric "${metric}" — try ${Object.keys(METRICS).join(", ")}`, t);
+        const r = T[p];
+        if (![">=", "<=", "==", "~"].includes(r.s)) fail(`expected >=, <=, == or ~ after "${metric}"`, r);
+        nx();
+        const rawv = num(); let unit = null;
+        if (LEN[T[p].s] != null || AREA[T[p].s] != null) unit = nx().s;
+        let factor = 1;
+        if (d.dim === "len") { if (unit && LEN[unit] == null) fail(`${metric} is a length; "${unit}" is not a length unit`, t); factor = LEN[unit || "mm"]; }
+        else if (d.dim === "area") { if (unit && AREA[unit] == null) fail(`${metric} is an area; use cm2, mm2 or m2`, t); factor = AREA[unit || "cm2"]; }
+        else if (unit) fail(`${metric} is dimensionless; drop the unit "${unit}"`, t);
+        M.constraints.push({ metric, relop: r.s, raw: rawv, unit, value: rawv * factor });
+      }
+      eat("}");
+    }
+    else fail(`unknown statement "${kw}"`, tok);
+  }
+  eat("}");
+  if (pk().kind !== "eof") fail(`unexpected "${pk().s}" after the foil block`);
+
+  /* ---- static semantics: resolve stations, then check well-formedness ---- */
+  if (M.span == null) fail(`the foil needs a span, e.g. "span 900 mm"`, t0);
+  const hs = M.span / 2;
+  const res = (st) => (st.k === "tip" ? hs : st.k === "frac" ? st.v * hs : st.v);
+  const resolve = (c) => {
+    const a = c.pts.map((q) => ({ x: res(q.st), y: q.y, tok: q.st.tok }));
+    if (Math.abs(a[0].x) > 1e-9) fail(`${c.what} must start at the center`, a[0].tok);
+    if (Math.abs(a[a.length - 1].x - hs) > 1e-6) fail(`${c.what} must end at the tip (${f1(hs)} mm from center)`, a[a.length - 1].tok);
+    for (let i = 1; i < a.length; i++) if (a[i].x <= a[i - 1].x) fail(`stations in ${c.what} must move outward from the center`, a[i].tok);
+    return { mode: c.mode, anchors: a.map(({ x, y }) => ({ x, y })) };
+  };
+  if (raw.sugar) { const e = chordSugar(raw.sugar, hs); M.leading = e.leading; M.trailing = e.trailing; }
+  if (raw.leading) M.leading = resolve(raw.leading);
+  if (raw.trailing) M.trailing = resolve(raw.trailing);
+  if (!M.leading || !M.trailing) fail("the planform needs a leading and a trailing edge curve (or a chord law)", planTok);
+  {
+    const fL = makeSpline(M.leading.anchors, M.leading.mode), fT = makeSpline(M.trailing.anchors, M.trailing.mode);
+    for (let i = 0; i <= 90; i++) {
+      const y = hs * i / 90;
+      if (fT(y) - fL(y) < 0.5) fail(`the trailing edge meets or crosses the leading edge ${f1(y)} mm from center`, planTok);
+    }
+  }
+  if (raw.dihedral) M.dihedral = { ...resolve(raw.dihedral), bank: raw.bank };
+  if (raw.twist) M.twist = resolve(raw.twist);
+  if (!raw.sections) fail("the foil needs a sections block", t0);
+  const sts = raw.sections.list.map((q) => ({ y: res(q.st), spec: q.spec, tok: q.st.tok }));
+  if (!sts.length) fail("the sections block needs at least one station", raw.sections.tok);
+  if (Math.abs(sts[0].y) > 1e-9) fail("the first section must be at the center", sts[0].tok);
+  if (sts.length > 1 && Math.abs(sts[sts.length - 1].y - hs) > 1e-6) fail(`the last section must be at the tip (${f1(hs)} mm from center)`, sts[sts.length - 1].tok);
+  for (let i = 1; i < sts.length; i++) if (sts[i].y <= sts[i - 1].y) fail("section stations must move outward from the center", sts[i].tok);
+  for (const s of sts) {
+    const q = s.spec, where = `section at ${f1(s.y)} mm`;
+    if (!(q.t >= 0.01 && q.t <= 0.35)) fail(`${where}: thickness ${pctStr(q.t)} is outside 1%–35%`, s.tok);
+    if (!(q.xt >= 0.15 && q.xt <= 0.65)) fail(`${where}: max-thickness position ${pctStr(q.xt)} is outside 15%–65% of chord`, s.tok);
+    if (!(q.cam >= 0 && q.cam <= 0.09)) fail(`${where}: camber ${pctStr(q.cam)} is outside 0%–9%`, s.tok);
+    if (q.cam > 0 && !(q.xc >= 0.15 && q.xc <= 0.85)) fail(`${where}: max-camber position ${pctStr(q.xc)} is outside 15%–85%`, s.tok);
+  }
+  M.sections = { blend: raw.sections.blend, stations: sts.map(({ y, spec }) => ({ y, spec })) };
+  if (M.loft.degree < 1 || M.loft.degree >= M.loft.stations) fail("B-spline degree must be at least 1 and less than the station count", t0);
+  return M;
+}
+
+/* ---- canonical emitter: canon(F). UI edits write the program through this ---- */
+const padR = (s, n) => s + " ".repeat(Math.max(1, n - s.length));
+function stStr(y, hs) {
+  if (Math.abs(y) < 1e-6) return "center";
+  if (Math.abs(y - hs) < 1e-6) return "tip";
+  return `${f1(y)} mm`;
+}
+function valStr(v, kind) {
+  if (kind === "x") return `x ${f1(v)}`;
+  if (kind === "deg") return `${f1(v)} deg`;
+  if (Math.abs(v) < 0.05) return "level";
+  return v < 0 ? `drop ${f1(-v)} mm` : `rise ${f1(v)} mm`;
+}
+function specStr(s) {
+  if (s.src === "naca") return `naca ${s.digits}${s.mod ? "-" + s.mod : ""}`;
+  if (s.src === "eppler") return `eppler ${s.name}`;
+  if (s.src === "file") return `file "${s.name}"`;
+  return `profile { ${s.family !== "naca" ? `family ${s.family}  ` : ""}thickness ${pctStr(s.t)} at ${pctStr(s.xt)}  camber ${pctStr(s.cam)}${s.cam > 0 ? ` at ${pctStr(s.xc)}` : ""} }`;
+}
+function emitDSL(M) {
+  const hs = M.span / 2, L = [];
+  const curve = (head, c, kind, ind, extra = []) => {
+    L.push(`${ind}${head} ${c.mode} {`);
+    for (const a of c.anchors) L.push(`${ind}  at ${padR(stStr(a.x, hs), 10)} ${valStr(a.y, kind)}`);
+    for (const e of extra) L.push(`${ind}  ${e}`);
+    L.push(`${ind}}`);
+  };
+  L.push(`foil "${M.name}" {`, "  units mm", `  span  ${f1(M.span)} mm`);
+  const ctx = Object.entries(M.context || {});
+  if (ctx.length) L.push(`  context { ${ctx.map(([k, v]) => `${k} ${f1(v.v)} ${v.u}`).join("  ")} }`);
+  L.push("", "  planform {");
+  curve("leading", M.leading, "x", "    ");
+  curve("trailing", M.trailing, "x", "    ");
+  L.push("  }");
+  if (M.dihedral) { L.push(""); curve("dihedral", M.dihedral, "z", "  ", [`bank ${M.dihedral.bank ? "true" : "false"}`]); }
+  if (M.twist) { L.push(""); curve("twist", M.twist, "deg", "  "); }
+  L.push("", `  sections ${M.sections.blend} {`);
+  for (const s of M.sections.stations) L.push(`    at ${padR(stStr(s.y, hs), 10)} ${specStr(s.spec)}`);
+  L.push("  }");
+  const lf = M.loft;
+  L.push("", "  loft {", `    surface  bspline degree ${lf.degree}`, `    stations ${lf.stations} ${lf.stationSpacing}`, `    points   ${lf.points} ${lf.pointSpacing}`, "  }");
+  if (M.constraints.length) {
+    L.push("", "  constrain {");
+    for (const c of M.constraints) L.push(`    ${padR(c.metric, 12)}${padR(c.relop, 3)}${c.raw}${c.unit ? " " + c.unit : ""}`);
+    L.push("  }");
+  }
+  L.push("}");
+  return L.join("\n");
+}
+function fnv1a(s) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16).padStart(8, "0");
+}
+
+const DEFAULT_DSL = `foil "gull-90" {
+  units mm
+  span  900 mm
+  context { rider_mass 90 kg }
+
+  # Stations are distances out from the center line (0) to the tip.
+  # Edge positions are mm aft of the center leading edge.
+  planform {
+    leading smooth {
+      at center   x 0
+      at 225 mm   x 14
+      at tip      x 96            # LE sweeps aft, progressively
+    }
+    trailing monotone {
+      at center   x 132
+      at 225 mm   x 116           # TE sweeps forward ...
+      at tip      x 122           # ... then back: a crescent
+    }
+  }
+
+  # Out-of-plane: drop / rise measured from 0 at the center.
+  # monotone = each authored drop or rise is exactly the extreme.
+  dihedral monotone {
+    at center   level
+    at 135 mm   drop 16 mm        # bottoms out here, turns back up
+    at 270 mm   level             # comes back through 0
+    at tip      rise 46 mm        # tip lift
+    bank true
+  }
+
+  twist linear {
+    at center   0 deg
+    at tip      -2 deg            # washout
+  }
+
+  # Each section: thickness AND where it peaks; camber AND where it peaks.
+  sections cosine {
+    at center   naca 4412         # 12% at 30%, camber 4% at 40%
+    at 250 mm   profile { thickness 10% at 33%  camber 2% at 40% }
+    at tip      profile { thickness 8% at 30%  camber 0% }
+  }
+
+  loft {
+    surface  bspline degree 3
+    stations 21 cosine
+    points   81 cosine
+  }
+
+  constrain {
+    area      >= 740 cm2
+    aspect    ~  9.5
+    taper     <= 0.25
+    max_drop  <= 20 mm
+    tip_rise  >= 30 mm
+    tip_thick >= 1.2 mm
+  }
+}`;
+
+
+const EBNF_FULL = `program     = "foil" string "{" { statement } "}" ;
+
+statement   = "units" "mm"
+            | "span" length
+            | "context" "{" { word number word } "}"
+            | planform
+            | "dihedral" zcurve
+            | "twist" degcurve
+            | sections
+            | loft
+            | constrain ;
+
+(* ---- stations, lengths, percentages ---- *)
+station     = "center" | "root" | "tip" | number [ lenunit | "%" ] ;
+length      = number [ lenunit ] ;
+lenunit     = "mm" | "cm" | "m" ;
+pct         = number [ "%" ] ;              (* without % : fraction <= 1 *)
+
+(* ---- curves ---- *)
+mode        = "linear" | "smooth" | "monotone" ;
+xcurve      = mode "{" { "at" station [ "x" ] length } "}" ;
+zcurve      = mode "{" { "at" station zvalue | "bank" ( "true" | "false" ) } "}" ;
+zvalue      = "level" | "drop" length | ( "rise" | "raise" ) length | [ "z" ] length ;
+degcurve    = mode "{" { "at" station number [ "deg" ] } "}" ;
+
+(* ---- planform ---- *)
+planform    = "planform" "{" { planstmt } "}" ;
+planstmt    = "leading" xcurve
+            | "trailing" xcurve
+            | "chord" ( "elliptic" | "linear" ) ( "center" | "root" ) length
+              ( "tip" length | "taper" number ) [ "sweep" number "deg" ] ;
+
+(* ---- sections ---- *)
+sections    = "sections" [ "linear" | "cosine" ] "{" { "at" station source } "}" ;
+source      = "naca" number [ number ]      (* 4 digits, optional -IT modifier *)
+            | "profile" "{" { profstmt } "}"
+            | "eppler" word
+            | "file" string ;
+profstmt    = "family" ( "naca" | "cst" )
+            | "thickness" pct [ "at" pct ]
+            | "camber" pct [ "at" pct ] ;
+
+(* ---- loft ---- *)
+loft        = "loft" "{" { loftstmt } "}" ;
+loftstmt    = "surface" "bspline" "degree" number
+            | ( "stations" | "points" ) number ( "uniform" | "cosine" ) ;
+
+(* ---- constraints ---- *)
+constrain   = "constrain" "{" { metric relation number [ unit ] } "}" ;
+metric      = "area" | "dev_area" | "aspect" | "taper" | "mac"
+            | "center_chord" | "tip_chord" | "tip_rise"
+            | "max_drop" | "max_rise" | "root_thick" | "tip_thick" ;
+relation    = ">=" | "<=" | "==" | "~" ;
+unit        = lenunit | "mm2" | "cm2" | "m2" ;`;
+
+const RULES = [
+  ["S1", "span is present and positive"],
+  ["S2", "the planform has a leading and a trailing edge, explicitly or from a chord law"],
+  ["S3", "every curve starts at center, ends at tip, and its stations strictly increase"],
+  ["S4", "every curve has at least two anchors and a mode of linear, smooth or monotone"],
+  ["S5", "the trailing edge stays at least 0.5 mm aft of the leading edge at 91 stations"],
+  ["S6", "sections exist; the first is at center, the last (if more than one) at tip, strictly increasing"],
+  ["S7", "every section has 1% ≤ t ≤ 35% and 15% ≤ x_t ≤ 65%"],
+  ["S8", "every section has 0% ≤ m ≤ 9%, and 15% ≤ x_m ≤ 85% when m > 0"],
+  ["S9", "a value without % in a percentage position does not exceed 1"],
+  ["S10", "a NACA designation has four digits; a modifier has two"],
+  ["S11", "bank is true or false"],
+  ["S12", "every constraint names a known metric, a relation, and a unit of the metric's dimension"],
+  ["S13", "1 ≤ loft degree < loft stations"],
+  ["S14", "units, if present, is mm"],
+];
+
+const SUGAR = `foil "elliptic-80" {
+  span 800 mm
+  planform { chord elliptic center 120 taper 0.2 sweep 3 deg }
+  dihedral linear { at center level  at tip drop 30 mm }
+  sections { at center naca 2412  at tip naca 0009-64 }
+  constrain { taper ~ 0.2  max_drop <= 35 mm }
+}`;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const REF_ID = fnv1a(emitDSL(parseFoil(DEFAULT_DSL)));
+let lastGood = null;
+
+function fz(v) { return Math.abs(v) < 0.05 ? "at 0" : v < 0 ? `${f1(-v)} mm below 0` : `${f1(v)} mm above 0`; }
+function features(g) {
+  const ev = [{ x: 0, s: "·", c: "var(--mute)", t: `starts ${fz(g.fZ(0))}` }];
+  for (const t of g.turns) ev.push({ x: t.x, s: t.kind === "min" ? "▼" : "▲", c: t.kind === "min" ? "var(--rust)" : "var(--teal)", t: t.kind === "min" ? `bottoms out ${fz(t.y)}, turns back up` : `peaks ${fz(t.y)}, turns back down` });
+  for (const z of g.zeros) ev.push({ x: z.x, s: "○", c: "var(--ink)", t: `passes through 0 heading ${z.dir}` });
+  for (const q of g.infl) ev.push({ x: q.x, s: "∿", c: "var(--copper)", t: `curvature flips ${q.from === "bowl" ? "∪" : "∩"} → ${q.to === "bowl" ? "∪" : "∩"}` });
+  for (const k of g.kinks) ev.push({ x: k, s: "∿", c: "var(--copper)", t: "kink (linear mode)" });
+  ev.push({ x: g.hs, s: "·", c: "var(--mute)", t: `tip ends ${fz(g.tipZ)}` });
+  ev.sort((a, b) => a.x - b.x);
+  const rows = ev.map((e) => `<div class="feat"><span style="color:${e.c}">${e.s}</span><span class="y">${Math.round(e.x)} mm</span><span>${esc(e.t)}</span></div>`).join("");
+  const segs = g.segs.map((s) => `${Math.round(s.x0)}–${Math.round(s.x1)} mm <span style="color:${s.sense === "up" ? "var(--teal)" : s.sense === "down" ? "var(--rust)" : "var(--mute)"}">${s.sense === "up" ? "rising · dihedral" : s.sense === "down" ? "falling · anhedral" : "level"}</span>`).join("<br>");
+  return rows + `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--hair)">${segs}</div>`;
+}
+
+function render(M, g) {
+  const canon = emitDSL(M), id = fnv1a(canon);
+  $("fid").textContent = id;
+  $("fidNote").textContent = id === REF_ID ? "same foil as the gull-90 reference" : "comments and spacing never change this";
+  const kv = [["span", `${f1(g.b)} mm`], ["area", `${(g.S / 100).toFixed(0)} cm²`], ["dev area", `${(g.Sdev / 100).toFixed(0)} cm²`], ["aspect", g.AR.toFixed(2)],
+    ["MAC", `${g.MAC.toFixed(0)} mm`], ["c₀ · c_tip", `${f1(g.c0)} · ${f1(g.ct)}`], ["taper λ", g.taper.toFixed(3)], ["max drop", g.maxDrop > 0 ? `${f1(g.maxDrop)} @ ${Math.round(g.maxDropAt)}` : "0"],
+    ["tip z", `${g.tipZ > 0 ? "+" : ""}${f1(g.tipZ)} mm`], ["tip thick", `${g.tipThick.toFixed(2)} mm`]];
+  $("kv").innerHTML = kv.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("");
+  $("feat").innerHTML = features(g);
+  const cons = evalConstraints(M, g);
+  $("cons").innerHTML = cons.length ? cons.map((c) => `<tr><td>${c.metric}</td><td>${esc(c.relop)} ${c.raw} ${c.unit || ""}</td><td>${esc(c.label)}</td><td class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "✕"}</td></tr>`).join("")
+    : `<tr><td colspan="4" style="color:var(--mute)">no constraints declared</td></tr>`;
+  $("canon").textContent = canon;
+}
+
+function gutter(src, errLine) {
+  const n = src.split("\n").length; let s = "";
+  for (let i = 1; i <= n; i++) s += (i === errLine ? `<span class="err">${i}</span>` : i) + "\n";
+  $("gutter").innerHTML = s;
+}
+
+function check() {
+  const src = $("src").value;
+  try {
+    const M = parseFoil(src), g = deriveGeom(M);
+    lastGood = { M, g }; render(M, g);
+    $("status").textContent = "✓ well-formed"; $("status").classList.remove("bad");
+    $("editor").classList.remove("bad"); $("msg").hidden = true; gutter(src, null);
+  } catch (e) {
+    const line = e && e.line ? e.line : "?", msg = e && e.msg ? e.msg : String((e && e.message) || e);
+    $("status").textContent = `✕ line ${line}`; $("status").classList.add("bad");
+    $("editor").classList.add("bad");
+    $("msg").hidden = false; $("msg").textContent = `line ${line}: ${msg} — the right column shows the last well-formed program`;
+    gutter(src, line);
+  }
+}
+
+function runSuite() {
+  const tests = [];
+  const expectOk = (name, fn, want) => { try { const got = fn(); tests.push({ name, want, got: got.text, ok: got.ok }); } catch (e) { tests.push({ name, want, got: e.msg || String(e), ok: false }); } };
+  const expectErr = (name, src, want, needle) => {
+    try { parseFoil(src); tests.push({ name, want, got: "accepted", ok: false }); }
+    catch (e) { const m = e.msg || String(e); tests.push({ name, want, got: `line ${e.line}: ${m}`, ok: m.includes(needle) }); }
+  };
+  const M = parseFoil(DEFAULT_DSL), g = deriveGeom(M);
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+  expectOk("chords c₀ / c_tip", () => ({ text: `${g.c0.toFixed(1)} / ${g.ct.toFixed(1)} mm`, ok: near(g.c0, 132, 0.7) && near(g.ct, 26, 0.2) }), "132.0 / 26.0 mm");
+  expectOk("taper λ", () => ({ text: g.taper.toFixed(3), ok: near(g.taper, 0.197, 0.001) }), "0.197");
+  expectOk("area / developed", () => ({ text: `${(g.S / 100).toFixed(0)} / ${(g.Sdev / 100).toFixed(0)} cm²`, ok: near(g.S / 100, 832, 4.2) && near(g.Sdev / 100, 843, 4.2) }), "832 / 843 cm²");
+  expectOk("aspect / MAC", () => ({ text: `${g.AR.toFixed(2)} / ${g.MAC.toFixed(0)} mm`, ok: near(g.AR, 9.74, 0.05) && near(g.MAC, 103, 0.6) }), "9.74 / 103 mm");
+  expectOk("max drop", () => ({ text: `${f1(g.maxDrop)} mm @ ${Math.round(g.maxDropAt)} mm`, ok: near(g.maxDrop, 16, 0.08) && near(g.maxDropAt, 136, 1) }), "16.0 mm @ 136 mm");
+  expectOk("return through 0", () => ({ text: g.zeros.map((z) => `${Math.round(z.x)} mm ${z.dir}`).join(", "), ok: g.zeros.length === 1 && near(g.zeros[0].x, 270, 1) && g.zeros[0].dir === "up" }), "270 mm up");
+  expectOk("inflections", () => ({ text: g.infl.map((q) => `${Math.round(q.x)} mm`).join(", "), ok: g.infl.length === 2 && near(g.infl[0].x, 45, 1) && near(g.infl[1].x, 390, 1) }), "45, 390 mm");
+  expectOk("section at 125 mm", () => { const b = g.secAt(125); return { text: `t ${(b.t * 100).toFixed(1)}% @ ${(b.xt * 100).toFixed(1)}%, m ${(b.cam * 100).toFixed(1)}%`, ok: near(b.t, 0.11, 5e-4) && near(b.xt, 0.315, 5e-4) && near(b.cam, 0.03, 5e-4) }; }, "t 11.0% @ 31.5%, m 3.0%");
+  expectOk("constraints", () => { const c = evalConstraints(M, g); const n = c.filter((x) => x.ok).length; return { text: `${n} of ${c.length}`, ok: n === 6 && c.length === 6 }; }, "6 of 6");
+  expectOk("canonical idempotent", () => { const a = emitDSL(M), b = emitDSL(parseFoil(a)); return { text: a === b ? "canon(parse(canon)) = canon" : "differs", ok: a === b }; }, "idempotent");
+  expectOk("id(F)", () => { const id = fnv1a(emitDSL(M)); return { text: id, ok: id === "d801dac9" }; }, "d801dac9");
+  expectOk("comments don't change id", () => { const id = fnv1a(emitDSL(parseFoil(DEFAULT_DSL.replace("# washout", "# a different comment")))); return { text: id, ok: id === "d801dac9" }; }, "d801dac9");
+  expectErr("S9 · missing %", DEFAULT_DSL.replace("thickness 10% at 33%", "thickness 10 at 33%"), "reject", "needs a % sign");
+  expectErr("S7 · x_t out of range", DEFAULT_DSL.replace("at 33%", "at 80%"), "reject", "outside 15%–65%");
+  expectErr("S5 · edges cross", DEFAULT_DSL.replace("x 122", "x 60"), "reject", "crosses the leading edge");
+  expectErr("S3 · station not outward", DEFAULT_DSL.replace("at 270 mm   level", "at 100 mm   level"), "reject", "must move outward");
+  expectErr("S4 · unknown mode", DEFAULT_DSL.replace("dihedral monotone", "dihedral wiggly"), "reject", "unknown curve mode");
+  expectErr("S12 · unit dimension", DEFAULT_DSL.replace("max_drop  <= 20 mm", "max_drop  <= 20 cm2"), "reject", "is a length");
+  const pass = tests.filter((t) => t.ok).length;
+  $("score").innerHTML = `<b>${pass}</b> / ${tests.length} passing`;
+  $("suiteBody").innerHTML = tests.map((t, i) => `<tr><td>${i + 1}</td><td>${esc(t.name)}</td><td>${esc(t.want)}</td><td>${esc(t.got)}</td><td class="${t.ok ? "ok" : "no"}">${t.ok ? "✓" : "✕"}</td></tr>`).join("");
+}
+
+$("ebnf").textContent = EBNF_FULL;
+$("rulesBody").innerHTML = RULES.map(([k, r]) => `<tr><td>${k}</td><td>${esc(r)}</td></tr>`).join("");
+$("src").value = DEFAULT_DSL;
+let timer = null;
+$("src").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(check, 120); gutter($("src").value, null); });
+$("src").addEventListener("scroll", () => { $("gutter").scrollTop = $("src").scrollTop; });
+$("src").addEventListener("keydown", (e) => {
+  if (e.key === "Tab") { e.preventDefault(); const t = e.target, s = t.selectionStart; t.setRangeText("  ", s, t.selectionEnd, "end"); t.dispatchEvent(new Event("input")); }
+});
+$("bRef").addEventListener("click", () => { $("src").value = DEFAULT_DSL; check(); });
+$("bSugar").addEventListener("click", () => { $("src").value = SUGAR; check(); });
+$("bRun").addEventListener("click", runSuite);
+$("bCopy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("canon").textContent); $("bCopy").textContent = "copied"; }
+  catch (err) { $("bCopy").textContent = "select + copy"; }
+  setTimeout(() => { $("bCopy").textContent = "copy"; }, 1400);
+});
+check(); runSuite();
+</script>
+</body>
+</html>

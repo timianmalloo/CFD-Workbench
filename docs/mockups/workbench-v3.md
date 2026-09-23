@@ -21,6 +21,8 @@ summary: >-
   one-row toolbar with measured overflow, parameter row, activity rail of the six document areas plus Export as a
   dialog, Navigator and Properties docks, document tabs over one viewport, a tabbed bottom panel and a status bar —
   with the v2 content re-homed per vignette. Illustrative throughout; no kernel, solver, file I/O or model call.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
 ---
 
 # Interactive workbench mockup v3 — thick-client shell

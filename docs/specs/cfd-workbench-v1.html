@@ -1,23 +1,23 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="ff6bb34f2e06053322287aa9781b32227a9f17089f4acb1243b88605fadb6813"><title>CFD-Workbench — Product specification</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="38eb00b93c901bbe03999cc748aab2b0b20a0a8c12605ba8233c4c5088e21f7b"><title>CFD-Workbench — Product specification</title>
 <style>
 :root{--paper:#f7f9f7;--surface:#ffffff;--ink:#19302e;--muted:#506762;--line:#c5d1cc;--accent:#096b61;--shade:#e9f1ed;--dark:#142d2a;--on-dark:#eef8f3;--focus:#007d70;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--small:13px;--body:16px;--title:48px;--h2:30px;--h3:22px;--radius:4px;--rail:270px;--measure:1120px}
 [hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans)}a{color:var(--accent);text-underline-offset:3px}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s8);background:var(--dark);color:var(--on-dark)}.top a{color:var(--on-dark)}.brand{font-weight:700;letter-spacing:.02em}.badge{font:var(--small) var(--mono);border:1px solid var(--line);padding:var(--s1) var(--s2)}.layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);max-width:1600px;margin:auto}.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:var(--s8) var(--s6);border-right:1px solid var(--line)}.rail p{font:var(--small) var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.rail nav a{display:block;font-size:var(--small);line-height:1.5;padding:var(--s2) 0;text-decoration:none}.rail nav a.depth2{font-weight:700;border-top:1px solid var(--line);margin-top:var(--s3)}.rail nav a:hover{text-decoration:underline}.rail input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2);background:var(--surface);color:var(--ink)}main{max-width:var(--measure);padding:var(--s12);min-width:0}h1{font-size:var(--title);line-height:1.1;margin:var(--s6) 0;letter-spacing:-.04em}h2{font-size:var(--h2);line-height:1.25;margin:var(--s12) 0 var(--s6);letter-spacing:-.02em;border-top:1px solid var(--line);padding-top:var(--s8)}h3{font-size:var(--h3);line-height:1.4;margin:var(--s8) 0 var(--s4)}h4{font-size:var(--body);margin:var(--s6) 0 var(--s3)}p{margin:var(--s4) 0}main>p,main>ul{max-width:85ch}li{margin:var(--s2) 0}.table-scroll{overflow-x:auto;margin:var(--s6) 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:var(--small);line-height:1.6}th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}th{background:var(--shade);font-weight:650}td:first-child{min-width:160px}tr:last-child td{border-bottom:0}code{font:var(--small)/1.6 var(--mono);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--s4);background:var(--shade);font:var(--small)/1.6 var(--mono)}.flow{padding:var(--s6);margin:var(--s6) 0 var(--s2);background:var(--surface);border:1px solid var(--line);overflow:auto}.flow svg{display:block;width:100%;height:auto;min-width:540px;max-height:1100px}.flow figcaption{font-size:var(--small);color:var(--muted);margin-top:var(--s4)}summary{cursor:pointer;font-size:var(--small);min-height:32px}footer{font-size:var(--small);color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s6);overflow-wrap:anywhere}.jump{position:absolute;left:-9999px}.jump:focus{left:var(--s4);top:var(--s4);background:var(--surface);padding:var(--s4);z-index:10}button{min-height:44px;background:var(--surface);color:var(--accent);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s4);cursor:pointer}@media(max-width:1000px){:root{--rail:220px}main{padding:var(--s8)}}@media(max-width:740px){.layout{display:block}.rail{position:static;height:auto;border-bottom:1px solid var(--line)}.rail nav{max-height:220px;overflow:auto}.top{flex-wrap:wrap}main{padding:var(--s6)}h1{font-size:36px}}@media print{.rail,.top,.jump{display:none}.layout{display:block}main{max-width:none;padding:0;font-size:11pt}h2{break-before:page}.table-scroll{overflow:visible}tr{break-inside:avoid}.flow svg{min-width:0;max-height:240mm}a{color:inherit}button{display:none}}
-</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.3</span><a href="../mockups/workbench.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a></nav><p>149 requirement IDs · 9 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
+</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.4</span><a href="../mockups/workbench-v6.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth3" href="#b9-foildsl-authoring-flow-src-01-10">B9. FoilDSL authoring flow (SRC-01–10)</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c4a-source-authoring-surface-acceptance-revision-1-4">C4a. Source-authoring surface acceptance (revision 1.4)</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a><a class="depth2" href="#appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</a></nav><p>163 requirement IDs · 10 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
 <h2 id="one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</h2>
-<p>Product specification · revision 1.3 · 21 September 2026 · <em>(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
+<p>Product specification · revision 1.4 · 22 September 2026 · <em>(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.</strong> Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
 the Run and Results areas are specified in full and are <strong>first-class in the model and the UI</strong>, while their
 <em>acceptance</em> still waits on the two spikes named in A2 (unattended meshing; the mesh-convergence oracle).</p>
-<p><a href="cfd-workbench.md">Revision 0.2 (superseded)</a> · <a href="../reviews/spec-v02-critique.md">Critique that produced revision 1.0</a> · <a href="../knowledge/hydrofoil-workbench/index.md">Knowledge base</a> · <a href="../domain-experts.md">Domain experts</a> · <a href="../../DESIGN.md">Design language</a> · <a href="../mockups/workbench-v1.html">Mockup v1</a> · <a href="../mockups/workbench-v2.html">Mockup v2 (seven areas)</a></p>
+<p><a href="foildsl.html">FoilDSL language specification</a> · <a href="../mockups/workbench-v6.html">Current interactive mockup v6</a> · <a href="../notes/foildsl-reconciliation.md">Reference reconciliation</a> · <a href="cfd-workbench.md">Revision 0.2 (superseded)</a> · <a href="../reviews/spec-v02-critique.md">Critique that produced revision 1.0</a> · <a href="../knowledge/hydrofoil-workbench/index.md">Knowledge base</a> · <a href="../domain-experts.md">Domain experts</a> · <a href="../../DESIGN.md">Design language</a> · <a href="../mockups/workbench-v1.html">Mockup v1</a> · <a href="../mockups/workbench-v2.html">Mockup v2 (seven areas)</a></p>
 <p><strong>Authority and citations.</strong> The knowledge base <code>docs/knowledge/hydrofoil-workbench/</code> is the evidence floor; a
 design implication is cited as <strong>KB-n</strong> (its index) and an area file as <strong>NN</strong> (01–13). Revision 0.2&#39;s story
 identifiers are kept where the story survives so the critique map stays traceable; deleted and merged stories are
 listed in Appendix D. Requirements use <strong>shall</strong> for mandatory behaviour in their named release. Terms in
-<strong>bold small caps</strong> in A3 are the ubiquitous language and match the glossary. Toolkit, language, exact file schema,
-geometry evaluator implementation and solver substrate remain <code>/define-architecture</code> decisions; this document says
+<strong>bold small caps</strong> in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion. Application language, toolkit, native envelope encoding details,
+geometry evaluator implementation and solver substrate remain separate architecture decisions; this document says
 what they must satisfy.</p>
 <p><strong>Tier:</strong> T2 (cost of error: a foil ridden at speed; a record format that cannot be changed once files exist).</p>
 <hr>
@@ -266,7 +266,7 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 <tr>
 <td><strong>Control vertex</strong></td>
 <td>owned value</td>
-<td>One vertex (η, value) of a distribution curve&#39;s control polygon with a <strong>stable id</strong>. The first and last vertices lie on the curve (clamped ends); the second and penultimate are the <strong>levers</strong> — they set the end tangent&#39;s direction and magnitude; every interior vertex <em>pulls</em> the curve and never lies on it. Fit-points anchors, when a curve was built from measured points or a DAT, are kept as <strong>construction provenance</strong> and are never a second authority; optional bounds and a <code>frozen</code> flag are <em>reserved</em> fields (the design-vector contract, 09) with no v1 writer or reader</td>
+<td>One vertex (η, value) of a distribution curve&#39;s control polygon with a <strong>stable id</strong>. The first and last vertices lie on the curve (clamped ends); the second and penultimate are the <strong>levers</strong> — they set the end tangent&#39;s direction and magnitude; an interior vertex <em>pulls</em> the curve and need not lie on it. Fit-points anchors, when a curve was built from measured points or a DAT, are kept as <strong>construction provenance</strong> and are never a second authority; optional bounds and a <code>frozen</code> flag are <em>reserved</em> fields (the design-vector contract, 09) with no v1 writer or reader</td>
 </tr>
 <tr>
 <td><strong>Constraint row</strong></td>
@@ -1135,7 +1135,12 @@ self-crossing (05).</p>
 <tbody><tr>
 <td><code>.cfdw.json</code> native</td>
 <td>read + write</td>
-<td>A3/A4.1 payload + provenance + history; nothing derived; RFC 8785 canonical hash; <code>null</code> for not-recorded, never NaN; knot-count convention stated; JSON Schema 2020-12 committed as a fixture</td>
+<td>Project envelope with immutable FoilDSL source revisions, pinned profiles/assets, provenance, history and runs (A4.13); no second writable geometry payload. Derived checks remain labelled caches. Semantic hash normalization follows the language companion. Native schema and atomic-save fixtures are implementation obligations.</td>
+</tr>
+<tr>
+<td><code>.foil</code></td>
+<td>read + write</td>
+<td>FoilDSL 4.0 complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history.</td>
 </tr>
 <tr>
 <td>Selig / Lednicer DAT</td>
@@ -1209,6 +1214,83 @@ opened and measured in FreeCAD, builds on macOS ARM64 and Windows x64, and the l
 (Security). This <strong>re-decides knowledge-base index item 6</strong>, which excluded OCCT with SISL and NLopt on
 licence grounds: the LGPL 2.1 exception permits dynamic linking from a closed application, and the kernel ADR
 records that reading explicitly before the dependency is taken.</p>
+<h4 id="a4-13-foildsl-the-canonical-authored-foil-and-section-document-revision-1-4">A4.13 FoilDSL: the canonical authored foil and section document (revision 1.4)</h4>
+<p><strong>Normative:</strong> <a href="foildsl.html">FoilDSL 4.0 language specification</a>. Its complete EBNF, lexical rules,
+static/geometric semantics, evaluation order, canonical identity objects, diagnostics, limits and
+conformance cases are part of this specification. <a href="../adr/0002-foildsl-authority.md">ADR 0002</a> records
+the durable representation. <a href="../notes/foildsl-reconciliation.md">Reconciliation</a> maps each material
+reference proposal to the retained or evolved contract. These explicit amendments supersede earlier
+statements that leave the authored language unspecified; they do not authorize a product stack choice.</p>
+<p>The <strong>Foil definition</strong> is the accepted language document plus pinned immutable section dependencies.
+It belongs to Design; the language companion&#39;s Shape authoring context is a subcontext of Design,
+not an independently synchronized store. A parsed tree, CV view, station table, skin and mesh are
+projections of that definition. Existing Surface/Profile aggregates and A3 invariants remain; the
+language supplies their authored representation. A source revision records one accepted spelling.
+Comments, display names and formatting can create source history without changing surface identity.
+Control values, knots, half-span, profiles, assignments, evaluator and closure changes participate in
+the identity rules defined in the companion. A draft is bound to one base revision and source generation.</p>
+<p>The native project carries immutable source revisions, content-addressed profile assets, provenance
+and history. It never persists independently editable geometry in both JSON fields and FoilDSL.
+Save/reopen reproduces source bytes and accepted geometry; canonical export is an explicit separate
+operation. Unresolved references, incompatible versions, unknown fields and resource-limit violations
+leave the accepted project unchanged. A <code>.foil</code> file is shape interchange, not the complete project.
+The legacy record and FoilDSL v3 require explicit migration preview with originals retained and measured
+geometry deltas. No implicit approximation, nominal substitute profile or inverse fit is accepted.</p>
+<p>Version 4.0 retains readable foil/planform/dihedral/twist/sections blocks but writes the existing CV
+geometry directly. It specifies a fixed frame, leading-edge twist pivot and unbanked station planes.
+Independent trailing-edge and four-parameter section descriptions are constructions to convert with
+reported error, not competing records. The five-channel effective-thickness owner is retained. The
+reference&#39;s rounded emitter and short UI hash do not define product serialization or geometry identity.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Falsifiable acceptance criterion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SRC-01</td>
+<td>Given a complete foil and standalone section from the conformance corpus, when parsed and reopened on both target OSes, then all grammar productions, units, curves, references and semantic invariants follow the language companion; unsupported constructs fail closed rather than disappear.</td>
+</tr>
+<tr>
+<td>SRC-02</td>
+<td>Given accepted source with comments and nontrivial binary64 values, when saved/reopened, then source bytes are identical; canonical export is idempotent and preserves semantic identity. A comment-only Apply changes source history but not geometry identity or run freshness.</td>
+</tr>
+<tr>
+<td>SRC-03</td>
+<td>Given an accepted foil, when a CV, station assignment, section or precision field is edited, then one shared draft updates both source and geometry projections; Apply commits one semantic revision, Cancel changes neither, and Undo/Redo restore matching source and geometry.</td>
+</tr>
+<tr>
+<td>SRC-04</td>
+<td>Given invalid syntax, truncated input, zero/negative chord, crossing sections, unresolved asset, unknown field or future version, when validated, then Apply is disabled, accepted geometry remains labelled, and a code/location/repair diagnostic identifies the failure.</td>
+</tr>
+<tr>
+<td>SRC-05</td>
+<td>Given a source draft, when a conflicting visual/section edit is attempted, then it is refused with a route back to Apply/Cancel; the inverse is also true. A late validation result cannot apply a different source generation or base revision.</td>
+</tr>
+<tr>
+<td>SRC-06</td>
+<td>Given a pinned analysis run, when a geometry-bearing source edit is accepted, then its original input and evidence remain intact and freshness is recomputed from the run key. Undo to identical inputs can make it Current again; a new edit after Undo creates a new history branch.</td>
+</tr>
+<tr>
+<td>SRC-07</td>
+<td>Given an imported <code>.foil</code>, when Preview is chosen, then candidate shape, station/profile relationships and validation status are inspectable before Apply; missing dependencies never become nominal section geometry. New/Open/Save cannot silently discard a dirty draft.</td>
+</tr>
+<tr>
+<td>SRC-08</td>
+<td>Given v3 or a legacy project, when migration is requested, then the original, conversion rules, unsupported features and measured delta are shown; only explicit acceptance creates a new version. Cancel preserves the old project.</td>
+</tr>
+<tr>
+<td>SRC-09</td>
+<td>Given text at, below and above each declared limit, when parsed, then the limits in the companion are enforced before expensive evaluation; code-like strings and asset hashes cause no execution, network request or filesystem traversal.</td>
+</tr>
+<tr>
+<td>SRC-10</td>
+<td>Given multiple stations referring to a shared profile, when editing it, then the UI names the affected assignments; “make independent” creates a new profile revision and changes only the selected assignment. Inspection slices remain derived.</td>
+</tr>
+</tbody></table></div>
+<p>These are product criteria. The review mockup supports a declared subset and demonstrates transactions;
+it does not clear full language, native archive, geometry certification, migration or solver release gates.</p>
 <h3 id="a5-analysis-contract">A5. Analysis contract</h3>
 <h4 id="a5-1-operating-point-derivations">A5.1 Operating point derivations</h4>
 <p>From V, the Water record, p_atm, h_ref and the geometry&#39;s static orientation the product derives and displays:
@@ -5642,6 +5724,266 @@ the console and from the status strip; a failed case&#39;s reason is ≤ 1 actio
 the viewport, the plots and the table; a missing artifact clears its values before its label.</li>
 </ul>
 <hr>
+<h3 id="b9-foildsl-authoring-flow-src-01-10">B9. FoilDSL authoring flow (SRC-01–10)</h3>
+<p>The CAD document group includes a <strong>FoilDSL</strong> tab next to the spatial foil and station documents.
+The spatial ParametricWorkbench remains the primary authoring archetype: source is an alternate precision
+view, not a new workflow area or a mandatory programming step. The supplied JSX&#39;s named source blocks,
+section schedule and diagnostics are retained inside the existing window shell.</p>
+<figure class="flow">
+
+<!-- Generated by graphviz version 14.1.3 (20260303.0454)
+ -->
+<!-- Pages: 1 -->
+<svg role="img" aria-label="Workflow 10; full flow source follows" width="1358pt" height="738pt"
+ viewBox="0.00 0.00 1358.00 738.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 720.36)">
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M571.23,-702.36C571.23,-702.36 440.77,-702.36 440.77,-702.36 434.77,-702.36 428.77,-696.36 428.77,-690.36 428.77,-690.36 428.77,-678.36 428.77,-678.36 428.77,-672.36 434.77,-666.36 440.77,-666.36 440.77,-666.36 571.23,-666.36 571.23,-666.36 577.23,-666.36 583.23,-672.36 583.23,-678.36 583.23,-678.36 583.23,-690.36 583.23,-690.36 583.23,-696.36 577.23,-702.36 571.23,-702.36"/>
+<text xml:space="preserve" text-anchor="middle" x="506" y="-680.76" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Accepted foil and source</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M183.96,-624.66C183.96,-624.66 131.64,-602.38 131.64,-602.38 126.12,-600.03 126.12,-595.33 131.64,-592.98 131.64,-592.98 183.96,-570.7 183.96,-570.7 189.48,-568.35 200.52,-568.35 206.04,-570.7 206.04,-570.7 258.36,-592.98 258.36,-592.98 263.88,-595.33 263.88,-600.03 258.36,-602.38 258.36,-602.38 206.04,-624.66 206.04,-624.66 200.52,-627.01 189.48,-627.01 183.96,-624.66"/>
+<text xml:space="preserve" text-anchor="middle" x="195" y="-594.08" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Edit route</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="#597d78" d="M428.36,-674.03C391.42,-668.48 346.92,-660.17 308,-648.36 283.16,-640.82 256.53,-629.3 235.36,-619.24"/>
+<polygon fill="#597d78" stroke="#597d78" points="236.56,-617.1 229.19,-616.27 234.43,-621.52 236.56,-617.1"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M619.92,-518C619.92,-518 406.08,-518 406.08,-518 400.08,-518 394.08,-512 394.08,-506 394.08,-506 394.08,-494 394.08,-494 394.08,-488 400.08,-482 406.08,-482 406.08,-482 619.92,-482 619.92,-482 625.92,-482 631.92,-488 631.92,-494 631.92,-494 631.92,-506 631.92,-506 631.92,-512 625.92,-518 619.92,-518"/>
+<text xml:space="preserve" text-anchor="middle" x="513" y="-496.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Shared geometry draft and source patch</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="#597d78" d="M237.89,-583.78C291.62,-567.61 384.25,-539.74 447.03,-520.85"/>
+<polygon fill="#597d78" stroke="#597d78" points="447.47,-523.27 453.47,-518.91 446.06,-518.58 447.47,-523.27"/>
+<text xml:space="preserve" text-anchor="middle" x="405.45" y="-539" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Visual</text>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M221.55,-277C221.55,-277 112.45,-277 112.45,-277 106.45,-277 100.45,-271 100.45,-265 100.45,-265 100.45,-253 100.45,-253 100.45,-247 106.45,-241 112.45,-241 112.45,-241 221.55,-241 221.55,-241 227.55,-241 233.55,-247 233.55,-253 233.55,-253 233.55,-265 233.55,-265 233.55,-271 227.55,-277 221.55,-277"/>
+<text xml:space="preserve" text-anchor="middle" x="167" y="-255.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Editable source draft</text>
+</g>
+<!-- B&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>B&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M186.49,-569.46C173.39,-525.95 148.84,-437.8 140,-361 138.17,-345.11 136.87,-340.69 140,-325 142.76,-311.14 148.54,-296.53 154.05,-284.69"/>
+<polygon fill="#597d78" stroke="#597d78" points="156.1,-286.07 156.93,-278.7 151.69,-283.94 156.1,-286.07"/>
+<text xml:space="preserve" text-anchor="middle" x="171.97" y="-424" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">FoilDSL</text>
+</g>
+<!-- B&#45;&gt;D -->
+<g id="edge4" class="edge">
+<title>B&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M150.31,-584.5C112.02,-571.02 63,-545.15 63,-501 63,-501 63,-501 63,-342 63,-314.17 86.25,-294.32 110.77,-281.13"/>
+<polygon fill="#597d78" stroke="#597d78" points="111.58,-283.47 116.7,-278.11 109.35,-279.11 111.58,-283.47"/>
+<text xml:space="preserve" text-anchor="middle" x="92.46" y="-424" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Open or New</text>
+</g>
+<!-- E -->
+<g id="node5" class="node">
+<title>E</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M631.59,-445C631.59,-445 436.41,-445 436.41,-445 430.41,-445 424.41,-439 424.41,-433 424.41,-433 424.41,-421 424.41,-421 424.41,-415 430.41,-409 436.41,-409 436.41,-409 631.59,-409 631.59,-409 637.59,-409 643.59,-415 643.59,-421 643.59,-421 643.59,-433 643.59,-433 643.59,-439 637.59,-445 631.59,-445"/>
+<text xml:space="preserve" text-anchor="middle" x="534" y="-423.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Validate candidate and base revision</text>
+</g>
+<!-- C&#45;&gt;E -->
+<g id="edge5" class="edge">
+<title>C&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M518.08,-481.81C520.64,-473.18 523.78,-462.56 526.6,-453.03"/>
+<polygon fill="#597d78" stroke="#597d78" points="528.9,-453.89 528.53,-446.48 524.2,-452.5 528.9,-453.89"/>
+</g>
+<!-- D&#45;&gt;E -->
+<g id="edge6" class="edge">
+<title>D&#45;&gt;E</title>
+<path fill="none" stroke="#597d78" d="M234.01,-264.38C321.82,-271.5 469.22,-288.61 508,-325 528.49,-344.23 533.69,-377.25 534.61,-400.29"/>
+<polygon fill="#597d78" stroke="#597d78" points="532.16,-400.11 534.75,-407.06 537.06,-400.02 532.16,-400.11"/>
+</g>
+<!-- F -->
+<g id="node6" class="node">
+<title>F</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M483.95,-361C483.95,-361 164.05,-361 164.05,-361 158.05,-361 152.05,-355 152.05,-349 152.05,-349 152.05,-337 152.05,-337 152.05,-331 158.05,-325 164.05,-325 164.05,-325 483.95,-325 483.95,-325 489.95,-325 495.95,-331 495.95,-337 495.95,-337 495.95,-349 495.95,-349 495.95,-355 489.95,-361 483.95,-361"/>
+<text xml:space="preserve" text-anchor="middle" x="324" y="-339.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Diagnostic with location and repair; accepted shape retained</text>
+</g>
+<!-- E&#45;&gt;F -->
+<g id="edge7" class="edge">
+<title>E&#45;&gt;F</title>
+<path fill="none" stroke="#597d78" d="M473.72,-408.58C457.21,-403.37 439.42,-397.34 423.29,-391 403.87,-383.38 382.92,-373.69 365.29,-365.09"/>
+<polygon fill="#597d78" stroke="#597d78" points="366.68,-363.04 359.31,-362.15 364.51,-367.44 366.68,-363.04"/>
+<text xml:space="preserve" text-anchor="middle" x="469.14" y="-382" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Invalid or incomplete</text>
+</g>
+<!-- G -->
+<g id="node7" class="node">
+<title>G</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M867.6,-361C867.6,-361 584.4,-361 584.4,-361 578.4,-361 572.4,-355 572.4,-349 572.4,-349 572.4,-337 572.4,-337 572.4,-331 578.4,-325 584.4,-325 584.4,-325 867.6,-325 867.6,-325 873.6,-325 879.6,-331 879.6,-337 879.6,-337 879.6,-349 879.6,-349 879.6,-355 873.6,-361 867.6,-361"/>
+<text xml:space="preserve" text-anchor="middle" x="726" y="-339.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Explain unsupported feature or migration requirement</text>
+</g>
+<!-- E&#45;&gt;G -->
+<g id="edge10" class="edge">
+<title>E&#45;&gt;G</title>
+<path fill="none" stroke="#597d78" d="M559.41,-408.72C574.44,-399.04 594.12,-387.29 612.74,-379 625.23,-373.44 638.87,-368.4 652.22,-364"/>
+<polygon fill="#597d78" stroke="#597d78" points="652.69,-366.42 658.6,-361.94 651.18,-361.76 652.69,-366.42"/>
+<text xml:space="preserve" text-anchor="middle" x="641.37" y="-382" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Unsupported</text>
+</g>
+<!-- H -->
+<g id="node8" class="node">
+<title>H</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1179.6,-361C1179.6,-361 916.4,-361 916.4,-361 910.4,-361 904.4,-355 904.4,-349 904.4,-349 904.4,-337 904.4,-337 904.4,-331 910.4,-325 916.4,-325 916.4,-325 1179.6,-325 1179.6,-325 1185.6,-325 1191.6,-331 1191.6,-337 1191.6,-337 1191.6,-349 1191.6,-349 1191.6,-355 1185.6,-361 1179.6,-361"/>
+<text xml:space="preserve" text-anchor="middle" x="1048" y="-339.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Labelled candidate preview and change summary</text>
+</g>
+<!-- E&#45;&gt;H -->
+<g id="edge12" class="edge">
+<title>E&#45;&gt;H</title>
+<path fill="none" stroke="#597d78" d="M643.64,-408.51C727.89,-395.07 844.07,-376.53 930.29,-362.78"/>
+<polygon fill="#597d78" stroke="#597d78" points="930.51,-365.22 937.04,-361.7 929.74,-360.39 930.51,-365.22"/>
+<text xml:space="preserve" text-anchor="middle" x="832.89" y="-382" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Valid</text>
+</g>
+<!-- F&#45;&gt;A -->
+<g id="edge9" class="edge">
+<title>F&#45;&gt;A</title>
+<path fill="none" stroke="#597d78" d="M325,-361.27C325.87,-377.86 327,-403.63 327,-426 327,-598.68 327,-598.68 327,-598.68 327,-643.92 374.3,-665.03 420.27,-674.86"/>
+<polygon fill="#597d78" stroke="#597d78" points="419.7,-677.24 427.04,-676.21 420.66,-672.43 419.7,-677.24"/>
+<text xml:space="preserve" text-anchor="middle" x="342.56" y="-497" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+</g>
+<!-- F&#45;&gt;D -->
+<g id="edge8" class="edge">
+<title>F&#45;&gt;D</title>
+<path fill="none" stroke="#597d78" d="M290.7,-324.61C266.45,-311.94 233.47,-294.72 207.67,-281.24"/>
+<polygon fill="#597d78" stroke="#597d78" points="208.93,-279.13 201.59,-278.07 206.66,-283.48 208.93,-279.13"/>
+<text xml:space="preserve" text-anchor="middle" x="277.14" y="-298" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Edit again</text>
+</g>
+<!-- G&#45;&gt;A -->
+<g id="edge11" class="edge">
+<title>G&#45;&gt;A</title>
+<path fill="none" stroke="#597d78" d="M713.06,-361.22C702.39,-377.16 689,-401.95 689,-426 689,-598.68 689,-598.68 689,-598.68 689,-645.34 639.39,-666.37 591.83,-675.81"/>
+<polygon fill="#597d78" stroke="#597d78" points="591.53,-673.37 585.1,-677.05 592.43,-678.19 591.53,-673.37"/>
+<text xml:space="preserve" text-anchor="middle" x="740.14" y="-497" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel or keep original</text>
+</g>
+<!-- H&#45;&gt;A -->
+<g id="edge14" class="edge">
+<title>H&#45;&gt;A</title>
+<path fill="none" stroke="#597d78" d="M1019.53,-361.48C999.78,-376.01 977,-398.7 977,-426 977,-598.68 977,-598.68 977,-598.68 977,-637.36 727.76,-664.58 591.89,-676.54"/>
+<polygon fill="#597d78" stroke="#597d78" points="591.78,-674.09 585.02,-677.14 592.21,-678.97 591.78,-674.09"/>
+<text xml:space="preserve" text-anchor="middle" x="992.56" y="-497" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+</g>
+<!-- I -->
+<g id="node9" class="node">
+<title>I</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1172.95,-277C1172.95,-277 863.05,-277 863.05,-277 857.05,-277 851.05,-271 851.05,-265 851.05,-265 851.05,-253 851.05,-253 851.05,-247 857.05,-241 863.05,-241 863.05,-241 1172.95,-241 1172.95,-241 1178.95,-241 1184.95,-247 1184.95,-253 1184.95,-253 1184.95,-265 1184.95,-265 1184.95,-271 1178.95,-277 1172.95,-277"/>
+<text xml:space="preserve" text-anchor="middle" x="1018" y="-255.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Append accepted source and semantic revision if changed</text>
+</g>
+<!-- H&#45;&gt;I -->
+<g id="edge13" class="edge">
+<title>H&#45;&gt;I</title>
+<path fill="none" stroke="#597d78" d="M1041.64,-324.61C1037.46,-313.19 1031.93,-298.08 1027.27,-285.33"/>
+<polygon fill="#597d78" stroke="#597d78" points="1029.58,-284.52 1024.87,-278.79 1024.98,-286.2 1029.58,-284.52"/>
+<text xml:space="preserve" text-anchor="middle" x="1047.3" y="-298" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Apply</text>
+</g>
+<!-- J -->
+<g id="node10" class="node">
+<title>J</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1179.61,-204C1179.61,-204 840.39,-204 840.39,-204 834.39,-204 828.39,-198 828.39,-192 828.39,-192 828.39,-180 828.39,-180 828.39,-174 834.39,-168 840.39,-168 840.39,-168 1179.61,-168 1179.61,-168 1185.61,-168 1191.61,-174 1191.61,-180 1191.61,-180 1191.61,-192 1191.61,-192 1191.61,-198 1185.61,-204 1179.61,-204"/>
+<text xml:space="preserve" text-anchor="middle" x="1010" y="-182.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Geometry and text projections agree; run freshness recomputed</text>
+</g>
+<!-- I&#45;&gt;J -->
+<g id="edge15" class="edge">
+<title>I&#45;&gt;J</title>
+<path fill="none" stroke="#597d78" d="M1016.06,-240.81C1015.1,-232.27 1013.92,-221.77 1012.85,-212.32"/>
+<polygon fill="#597d78" stroke="#597d78" points="1015.31,-212.21 1012.09,-205.53 1010.44,-212.76 1015.31,-212.21"/>
+</g>
+<!-- K -->
+<g id="node11" class="node">
+<title>K</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M576.59,-120C576.59,-120 327.41,-120 327.41,-120 321.41,-120 315.41,-114 315.41,-108 315.41,-108 315.41,-96 315.41,-96 315.41,-90 321.41,-84 327.41,-84 327.41,-84 576.59,-84 576.59,-84 582.59,-84 588.59,-90 588.59,-96 588.59,-96 588.59,-108 588.59,-108 588.59,-114 582.59,-120 576.59,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="452" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Select matching historical source and definition</text>
+</g>
+<!-- J&#45;&gt;K -->
+<g id="edge16" class="edge">
+<title>J&#45;&gt;K</title>
+<path fill="none" stroke="#597d78" d="M890.98,-167.51C799.32,-154.04 672.88,-135.46 579.23,-121.7"/>
+<polygon fill="#597d78" stroke="#597d78" points="579.62,-119.28 572.34,-120.68 578.9,-124.13 579.62,-119.28"/>
+<text xml:space="preserve" text-anchor="middle" x="795.54" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Undo or Redo</text>
+</g>
+<!-- L -->
+<g id="node12" class="node">
+<title>L</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1298.9,-120C1298.9,-120 1077.1,-120 1077.1,-120 1071.1,-120 1065.1,-114 1065.1,-108 1065.1,-108 1065.1,-96 1065.1,-96 1065.1,-90 1071.1,-84 1077.1,-84 1077.1,-84 1298.9,-84 1298.9,-84 1304.9,-84 1310.9,-90 1310.9,-96 1310.9,-96 1310.9,-108 1310.9,-108 1310.9,-114 1304.9,-120 1298.9,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="1188" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Write project or explicit shape&#45;only source</text>
+</g>
+<!-- J&#45;&gt;L -->
+<g id="edge18" class="edge">
+<title>J&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M1047.75,-167.61C1075.48,-154.84 1113.28,-137.42 1142.65,-123.89"/>
+<polygon fill="#597d78" stroke="#597d78" points="1143.6,-126.15 1148.93,-121 1141.55,-121.7 1143.6,-126.15"/>
+<text xml:space="preserve" text-anchor="middle" x="1121.05" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Save</text>
+</g>
+<!-- K&#45;&gt;A -->
+<g id="edge17" class="edge">
+<title>K&#45;&gt;A</title>
+<path fill="none" stroke="#597d78" d="M315.16,-114.86C182.12,-128.29 0,-152.6 0,-185 0,-598.68 0,-598.68 0,-598.68 0,-640.73 275.4,-666.83 419.85,-677.62"/>
+<polygon fill="#597d78" stroke="#597d78" points="419.65,-680.06 426.81,-678.13 420.01,-675.18 419.65,-680.06"/>
+</g>
+<!-- L&#45;&gt;A -->
+<g id="edge21" class="edge">
+<title>L&#45;&gt;A</title>
+<path fill="none" stroke="#597d78" d="M1202.93,-120.26C1215,-136.02 1230,-160.53 1230,-185 1230,-598.68 1230,-598.68 1230,-598.68 1230,-662.28 783.62,-678.21 591.86,-682.12"/>
+<polygon fill="#597d78" stroke="#597d78" points="591.94,-679.67 584.99,-682.26 592.04,-684.57 591.94,-679.67"/>
+<text xml:space="preserve" text-anchor="middle" x="1275.87" y="-382" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Reopen and validate</text>
+</g>
+<!-- M -->
+<g id="node13" class="node">
+<title>M</title>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1300.9,-36C1300.9,-36 1073.1,-36 1073.1,-36 1067.1,-36 1061.1,-30 1061.1,-24 1061.1,-24 1061.1,-12 1061.1,-12 1061.1,-6 1067.1,0 1073.1,0 1073.1,0 1300.9,0 1300.9,0 1306.9,0 1312.9,-6 1312.9,-12 1312.9,-12 1312.9,-24 1312.9,-24 1312.9,-30 1306.9,-36 1300.9,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="1187" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Previous file intact; retry or save elsewhere</text>
+</g>
+<!-- L&#45;&gt;M -->
+<g id="edge19" class="edge">
+<title>L&#45;&gt;M</title>
+<path fill="none" stroke="#597d78" d="M1172.07,-83.7C1168.15,-78.4 1164.49,-72.3 1162.43,-66 1159.91,-58.25 1162.06,-50.25 1165.96,-43.08"/>
+<polygon fill="#597d78" stroke="#597d78" points="1167.82,-44.74 1169.53,-37.52 1163.69,-42.09 1167.82,-44.74"/>
+<text xml:space="preserve" text-anchor="middle" x="1177.72" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Failure</text>
+</g>
+<!-- M&#45;&gt;L -->
+<g id="edge20" class="edge">
+<title>M&#45;&gt;L</title>
+<path fill="none" stroke="#597d78" d="M1191.77,-36.31C1193.09,-41.91 1194.34,-48.18 1195,-54 1195.78,-60.92 1195.29,-68.38 1194.27,-75.28"/>
+<polygon fill="#597d78" stroke="#597d78" points="1191.87,-74.82 1193.04,-82.14 1196.69,-75.68 1191.87,-74.82"/>
+</g>
+</g>
+</svg>
+<figcaption>Flow 10 · happy, alternate and recovery paths</figcaption></figure><details><summary>Read the full flow definition</summary><pre>flowchart TD
+A[Accepted foil and source] --&gt; B{Edit route}
+B --&gt;|Visual| C[Shared geometry draft and source patch]
+B --&gt;|FoilDSL| D[Editable source draft]
+B --&gt;|Open or New| D
+C --&gt; E[Validate candidate and base revision]
+D --&gt; E
+E --&gt;|Invalid or incomplete| F[Diagnostic with location and repair; accepted shape retained]
+F --&gt;|Edit again| D
+F --&gt;|Cancel| A
+E --&gt;|Unsupported| G[Explain unsupported feature or migration requirement]
+G --&gt;|Cancel or keep original| A
+E --&gt;|Valid| H[Labelled candidate preview and change summary]
+H --&gt;|Apply| I[Append accepted source and semantic revision if changed]
+H --&gt;|Cancel| A
+I --&gt; J[Geometry and text projections agree; run freshness recomputed]
+J --&gt;|Undo or Redo| K[Select matching historical source and definition]
+K --&gt; A
+J --&gt;|Save| L[Write project or explicit shape-only source]
+L --&gt;|Failure| M[Previous file intact; retry or save elsewhere]
+M --&gt; L
+L --&gt;|Reopen and validate| A</pre></details><p>UX-25: reaching FoilDSL takes one document-tab action from CAD; returning preserves the camera and
+selection. Source errors focus a readable diagnostic and expose the relevant range; typing never steals
+focus. Text editor Cmd/Ctrl+Z remains native text undo; document Undo/Redo are explicit actions outside
+the editor. New/Open with a dirty draft offers Apply/Cancel first. A second editing route cannot overwrite
+the current draft. A source-only comment edit never produces a geometry-change warning.</p>
 <h2 id="part-c-ui-specification">Part C — UI specification</h2>
 <h3 id="c1-archetype-and-direction">C1. Archetype and direction</h3>
 <p>Per area: Setup — <strong>Configurator</strong> (G1 Type facet; a form and a language box with a live preview); CAD and
@@ -6157,6 +6499,19 @@ names the held variable and the current sample, and reduced motion replaces Play
 <li><strong>UI-22:</strong> every prompt entry renders the area&#39;s fixed entry name, the capability disclosure (HAX G1/G2), the
 proposal preview with per-field provenance, and the Accept · Discard pair; the model identifier is visible.</li>
 </ul>
+<h3 id="c4a-source-authoring-surface-acceptance-revision-1-4">C4a. Source-authoring surface acceptance (revision 1.4)</h3>
+<p>UI-28: the source document uses DESIGN.md tokens, an accessible textarea, visible action labels and a
+live validation status. Source and preview panes scroll internally; the application window does not.
+At the reflow preset the panes stack inside the document scroll region. Preview explicitly distinguishes
+candidate from accepted geometry and illustrative data from validated evidence.</p>
+<p>UI-29: default, dirty, validating, valid, incomplete, invalid geometry, unsupported version, unresolved
+reference, read-only, overflow, save failure and stale-validation states have recovery paths. Syntax
+color is supplementary; source remains legible without color. Diagnostic rows expose code, range and
+repair in the accessibility tree. Theme, keyboard and reduced-motion behavior are measured in the
+review harness; native proof remains the separate A8 obligation.</p>
+<p>UI-30: each assignment displays the profile identity and authored span position; derived slices have
+different labels. Shared-profile edits disclose their reach. A product may offer both inline source
+and structured Properties, but they may never have independent Apply states or hidden overrides.</p>
 <h3 id="c5-traceability">C5. Traceability</h3>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
 <thead>
@@ -6412,4 +6767,11 @@ CLI-02, UX-11–16, UI-15–17. <strong>Renamed:</strong> sweep channel → LE o
 and 17 UI criteria = 87 acceptance criteria in the body, with 10 stories reserved in Appendix R.</p>
 <p><strong>Gate on revision 1.0 (2026-09-20, three independent panels, Adversary Mode):</strong> one Blocker (identity tolerance
 defined two ways) and 20 Majors fixed in place before acceptance — see the gate record.</p>
-<footer>Generated from the complete Markdown specification. Source SHA-256: ff6bb34f2e06053322287aa9781b32227a9f17089f4acb1243b88605fadb6813. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>
+<h2 id="appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</h2>
+<p><strong>Proposed</strong>, awaiting human review. The normative language companion, ADR 0002 and v6 mockup replace
+representation ambiguity with an explicit language and one transaction model. Existing requirements
+outside those amendments remain. The source reference corpus is tracked unchanged. The complete
+reconciliation, independent findings and executable prototype proof are linked from the v6 hub.
+Full conformance, lossless native archives, cross-platform numerical identity and scientific validation
+are future product gates; a passing browser demonstrator does not satisfy them.</p>
+<footer>Generated from the complete Markdown specification. Source SHA-256: 38eb00b93c901bbe03999cc748aab2b0b20a0a8c12605ba8233c4c5088e21f7b. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>

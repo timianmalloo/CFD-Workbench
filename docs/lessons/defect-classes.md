@@ -53,6 +53,36 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 | UI-M · A drawing rendered from a quantity it does not carry | The v5 station document printed "8 per side", "6 controls each" and "conversion residual 0.000" for a section whose fit had nine vertices and, once measured, an 841 µm residual: three surfaces, three constants, no operand. Swept every rendered count, residual and deviation in the workspace. Derive: a rendered number is computed from its operands at render time, or it reads "not recorded"; the same quantity on two surfaces comes from one function; and the conversion chooses its vertex count *by* the measured residual (centripetal parameters, knots by averaging) rather than asserting one. | `tools/check-mockup-v5.mjs` group 6 asserts the residual shown in the HUD, the strip and Properties equals the residual measured and meets the acceptance, and that Delete, Rebuild and Fit points report a deviation from the curves. |
 | UI-N · An assertion the failure mode also satisfies | The v5 oracle's pointer-drag test asserted only the *direction* of the change ("dragging aft lengthens the chord"); the drag mapped the pointer through the SVG captured at press time, which the first re-render detached (its box read zero), so every drag slammed the vertex to its ordering limit — aft — and the test stayed green. The operator found it with a trackpad. Two siblings in the same sweep: hit circles that overlapped at the tip (a press grabbed whichever painted last) and a focus-preserving re-render whose restored focus re-selected the *previous* vertex through its focus handler. Swept every pointer test for direction-only assertions. Derive: a drag test asserts the **relation** (the glyph stays under the pointer to ≤ 2 px over a dozen small moves), a hit test **presses** every vertex at its own centre and reads the selection back, and any handler that calls `preventDefault` on a press focuses its target itself before the re-render. | `tools/check-mockup-v5.mjs` group 6: the twelve-step drag with the pointer-offset bound, the press-every-vertex selection sweep, focus on the dragged vertex on release; the mockup's `liveMap` resolves the svg and mapping per move and retargets a press to the nearest vertex centre. |
 
+## FoilDSL boundary sweep — 2026-09-22
+
+**DATA-D · A projection omits part of its source.** Class: a fitted spline is carried as points
+while its reader uses a stale knot vector. Sweep: upper/lower fitting, section editor, source
+serialization, skin, cage, residual and undo snapshots. Derive: every spline record carries degree,
+points and its own knots; every reader consumes that record. Prevent: `tools/check-foildsl.mjs`
+asserts knot cardinality, source/record round-trip and a profile edit reaching the 3D reader;
+the preserved CAD oracle recomputes residuals from the same curve operands. Archived v5 is unchanged.
+
+**DATA-E · One authoring route bypasses acceptance.** Class: visual Apply could accept negative
+chord that the text validator rejects; re-seeding could emit near-endpoint floats outside the exact
+language contract. Sweep: master/section Apply, source Apply, recipe seeds, station edits and locks.
+Derive: shared pre-acceptance validation, one draft, and explicit normalization only at recipe conversion.
+Prevent: the source oracle rejects negative visual Apply without changing revision, rejects competing
+writers, round-trips both recipe generators, and checks malformed/version/reference/resource boundaries.
+
+**EVID-A/UI-M recurrence:** read-only preview erased residual evidence, and undo restored geometry
+without that evidence. Sweep: preview save/restore and both history directions. Derive: restore complete
+accepted state, including evidence, or say not recorded. Prevent: the source-preview preservation
+assertion and existing CAD residual oracle both run on v6. **UI-L/UI-H2 recurrence:** source preview
+microtext and source chrome consumed the reflow editor; fifteen layout/theme cells now assert readable
+editor height, target/contrast floors and no window scroll, with independent screenshot inspection.
+
+**SPEC-A recurrence:** reused acceptance IDs made cross-specification evidence ambiguous. Product
+criteria now use SRC and language criteria DSL; rendered-spec checks count actual source IDs and
+blocks. **NG protocol correction:** an assumed pack graph node did not exist locally; graph inventory
+rejected the dangling link before derivation. The control is the existing whole-graph validator,
+not an invented local knowledge node. Measured normalizations and bounded prototype limitations
+remain disclosed in the review hub; no full-language or scientific conformance claim follows.
+
 ## Coverage correction — weighted editing and linked flow evidence
 
 The 2026-09-19 user iteration extends **SPEC-A**: the earlier mockup's profile edit was a camber fixture, its analysis condition handler only reported that conditions changed, and Results was a static pressure view. A visually populated control is not proof that the requested quantity has a compute reader. Sweep: section/outline editing, analysis inputs and metrics, simulation setup, Results field/plot/table selection, and unit conversion. Derive all views from accepted curve definitions or one selected immutable sample. Prevent: the extended `tools/check-mockup.mjs` must change weights/conditions/samples and assert the resulting geometry, load or field changes, then assert Cancel, Undo and historical isolation. A missing-control assertion was observed failing before this iteration's UI edits. Production curve and CFD validation remains a separate obligation.

@@ -22,6 +22,8 @@ summary: >-
   never lies on it), a four-viewport lines-drawing workspace with title menus and maximise, a nine-verb tool
   palette with an options strip, a display cage for the 3D body, and a station document whose conversion residual
   is measured. Illustrative throughout; no kernel, solver, file I/O or model call.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
 ---
 
 # Interactive workbench mockup v5 — control-vertex splines, four viewports, a tool palette
