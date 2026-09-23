@@ -108,6 +108,55 @@ its value and inspect the emitted artifact before raising a boundary finding. Th
 B0 contract gate must execute a positive encoded-envelope/line-cap case as well
 as the long-scalar negative case; this mistaken compact-output finding is withdrawn.
 
+**DATA-F · Outward DTO arrays alias session-owned state.** In the first B0
+candidate, `Snapshot`, `CaptureRecovery` and `Envelope` returned nested mutable
+arrays that a caller could alter without a command, generation or accepted
+revision. Sweep: every public return and async save request carrying source,
+draft, recovery or base64 chunks. Derive: the session retains authority and
+returns defensive images at every boundary. Prevent: B0's named
+`Draft_ExternalRetargetMutation_PreservesOwnedTarget`,
+`RecoveryAndEnvelope_CallerMutation_PreservesOwnedBytes`,
+`Snapshot_CallerMutation_DoesNotChangeSession` and
+`SaveRequest_AsyncBoundary_CapturesDefensiveImage` checks. These are contract
+fixture assertions; production core tests must repeat the class.
+
+**DATA-G · Retry semantics are not reconstructable from durable facts.** The
+first B0 candidate lost Open/Apply operation IDs or their target-sensitive
+payload binding at Reopen, allowing duplicate or conflicting use of an ID.
+Sweep: Open, rail Apply, Undo/Redo, no-op and branch replay, before and after
+save/reopen. Derive: every persisted transaction retains exactly the facts
+needed to compare its ID, action and immutable payload; a rail Apply carries
+its edit receipt even when geometry is unchanged. Prevent: Ruling 10's schema
+plus `Open_Retry_ExactlyOnce`, `Reopen_OpenRetry_DurableExactlyOnce`,
+`Reopen_ApplyRetry_DurableExactlyOnce`, `Reopen_OperationKindReuse_Refused`,
+`Reopen_ApplyTargetReuse_Refused`, `Reopen_ApplyDraftReuse_Refused` and
+`NoOp_Reopen_VolatileIdExpired`. The final oracle passed; no preserved
+historical pre-fix execution is claimed.
+
+**DATA-E recurrence · Alternate admission entry skips its proof binding.**
+The first B0 candidate guarded Apply but could Open or Reopen a source with an
+unrelated or unavailable geometry authority after hash/schema checks. Sweep:
+every way a source becomes accepted or active, including Open, Apply, Undo,
+Redo and Reopen. Derive: byte integrity and semantic hash are necessary but do
+not establish geometric admission; each entry verifies an opaque certificate
+bound to the exact candidate/evaluator or preserves the prior state with Not
+assessed. Prevent: `Open_UnrelatedCertificate_Refused`,
+`Reopen_UnknownGeometry_Refused` and `Reopen_UnrelatedCertificate_Refused`
+in the B0 contract fixture, with production analogues required.
+
+**DATA-H · Dirty state compares a disk image with reserialized state.** A
+valid native file may use different harmless JSON whitespace from the
+writer's normalized envelope. Comparing raw disk SHA with a reserialized
+current image falsely marks it dirty; acknowledging an older async save can
+also falsely clear a newer revision. Sweep: raw file conflict token, normalized
+session image, captured save request and post-save current state. Derive: keep
+the exact on-disk hash for external-conflict detection, but compare normalized
+session images for dirty state and acknowledge only the captured image.
+Prevent: `Reopen_DifferentWhitespace_Clean`,
+`Save_LateAcknowledgement_NewerRevisionRemainsDirty` and
+`SaveRequest_AsyncBoundary_CapturesDefensiveImage`; a future native store must
+exercise the same split with real files.
+
 **EVID-C · A partial worker stream is mistaken for final execution evidence.**
 Coordinator initially interpreted an early Grok stream prefix as containing no tool use;
 the closed 117-row stream contained a completed read and successful `pwd`. Sweep: final
@@ -159,7 +208,10 @@ checked with explicit identity and each returned structured `decision: allow`. P
 always-loaded rule: export the task identity in every mutating shell batch, or prefix
 each Git mutation individually; inspect the hook result and never treat its advisory
 exit zero as an ownership check. A post-commit check does not retroactively strengthen
-the original commit-boundary evidence.
+the original commit-boundary evidence. B0's `cb73079e` commit repeated the
+advisory/no-identity shape; Coordinator explicitly checked all twelve committed
+paths under `cfd-contracts-author-20260923` afterward and observed twelve
+`allow` decisions, again without a retrospective enforcement claim.
 
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:54:53Z",
+  "generated": "2026-09-23T15:04:50Z",
   "audit": [
     {
       "actor": null,
@@ -3500,6 +3500,77 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M37CH19K6Q9CTANP6WHPSP4J",
+      "shortname": "owner-b0-review-checkpoint",
+      "datetime": "2026-09-23T15:00:42Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review B0 contract/design/ADR/source/oracle/security candidate; provide findings and reserve final ruling until clean committed handback and root final disposition.",
+      "summary": "Read B0 design/ADR, session/identity/native sources, Python oracle, security refinements and root retained81 CSharp/42 Python/2505-vector receipt. Found first-cursor Apply allowed malformed root and partial Reopen risk, Unicode digit acceptance at standalone numeric boundary, and truncated half_span token exhaustion leaking implementation exception. First two source guards and regression cases inspected; final truncation correction and executed fingerprints pending. No further policy blocker found. Reviewed provisional18-path core packet and communicated seam refinements. Final executable gate remains held, no production clearance.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Identify contract correctness gaps before B0 freeze without authoring track fixes or self-clearing implementation gates.",
+      "done_when": "Bounded review findings communicated and precise final evidence conditions retained for subsequent gate request.",
+      "tier": "T2",
+      "fan_out": 0
+    },
+    {
+      "id": "al-01M37CR89QR1EK38X3ETJW00PC",
+      "shortname": "application-contract-author-handback",
+      "datetime": "2026-09-23T15:04:39Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Verify the serial B0 author handback before coordination join.",
+      "summary": "Author cb73079e clean with eight substantive and four official metadata paths. Coordinator independently rebuilt final source using task-local caches and recounted 89 C# checks, 42 Python checks and 2505 cross-runtime vectors; source SHA256s match proof. Root independently reported bounded technical PASS. Recorded advisory/unset commit-hook identity and twelve structured post-commit allow decisions without retrospective enforcement. Owner final ruling and join remain pending.",
+      "kind": "script",
+      "skill": null,
+      "tool": "recount-application-contracts.py",
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md",
+        "tools/recount-application-contracts.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "git": {
+        "sha": "bc8b529eed473ee764c29baa6fb171e690991d23",
+        "short": "bc8b529ee",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37CRKEG1K5AHXPC6EA8SG0K",
+      "shortname": "owner-b0-final-evidence",
+      "datetime": "2026-09-23T15:04:50Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Verify final committed B0 artifacts against clean handback and independent root evidence; reserve canonical technical ruling until Coordinator join/recount receipt.",
+      "summary": "Directly observed clean author HEAD cb73079e041668221618b8dfc08753ff00b1d9f6 and exact eight substantive plus four official metadata files. All three source fingerprints match committed proof. Root final receipt hash796be000f955f8a9308ef4d1ed18cf7cad2bf353e29188ddfd6464a1383c3e48 reports89 CSharp/42 Python/2505 vectors, including all Owner refusal/no-adoption regressions; final guards inspected. Root independent technical PASS received. No Owner technical blocker remains for bounded B0 contracts. Commit hook was advisory because author AGENT_SESSION was unset; no enforced commit-boundary identity claim. Canonical final ruling awaits Coordinator join/recount request; production G3 and cancellation separate.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Bind final technical readiness to exact source and clean handback without overclaiming hook enforcement or product correctness.",
+      "done_when": "Final evidence inspected and readiness reported with precise remaining integration prerequisite.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T15:02:38Z",
+      "duration_seconds": 132.0
     }
   ],
   "changes": [

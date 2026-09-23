@@ -114,13 +114,13 @@ Capability values are **per actual worker fingerprint**: worktree isolation = ob
 | track | budget / reason for separate track | actual calls, time, tokens | seams, boundary correction, result |
 |---|---|---|---|
 | A | 70 calls / design needs independent Owner veto and isolated spike artifacts | Commit `a92c4e7`, clean; exact calls/tokens not recorded | Nine authored + four generated/audit paths, 30/30 primitive checks, nine native mismatch refusals, macOS/Windows publish; Ruling 8 conditionally accepts architecture only. Model ID `Not recorded` by Ruling 7; existing Codex author natural completion, cancellation not exercised. |
-| B0 · contract completion | Serial prerequisite under Ruling 8 | Started from integrated `73cabb89`; call/time/token totals not yet recorded | Fresh requested Astra author in `feature/application-contracts`; exact eight substantive path allowances above, no product code. Owner/root gate pending. |
+| B0 · contract completion | Serial prerequisite under Ruling 8 | Clean author commit `cb73079e` from integrated `73cabb89`; exact calls/tokens not recorded, 50-minute first window was replanned to a bounded ≤20-call/20-minute same-scope continuation near its estimated cap | Eight substantive plus four official metadata paths. Coordinator independently recounted 89 C# / 42 Python checks and 2505 vectors from final source; root technical PASS for bounded contracts. Owner final gate and join pending. Requested Astra, effective model Not recorded under Ruling 9. Commit hook was advisory because identity was unset; twelve post-commit `allow` checks are detection, not retroactive enforcement. |
 | B | 90 calls / one coherent core invariant, isolated from UI | Not recorded | Pending |
 | C | 90 calls / native UI machine time and disjoint files after G3 | Not recorded | Pending |
 | D | deterministic join / independent integrated proof | Not recorded | Pending |
 
 | status | item |
 |---|---|
-| Completed | Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–11, failed native boundary evidence, architecture handback `a92c4e7`, conditional independent approval, architecture/review joins through clean `73cabb89` with final 10/10 verification gates and 30/30 primitive recount plus nine native mismatch refusals. |
-| Remaining | B0 serial contract completion and G3 freeze, production implementation and integrated application proof. |
-| Best next action | Supervise B0 fixtures and Owner/root vetoes; freeze compiling public contracts before any production B/C dispatch. |
+| Completed | Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–11, failed native boundary evidence, architecture/review joins through clean `73cabb89` with 10/10 verification gates and 30/30 primitive recount plus nine native mismatch refusals; B0 clean author commit `cb73079e` and independent root technical PASS, with final join/Owner ruling still open. |
+| Remaining | Join and Owner-gate B0, freeze G3 and execute harmless same-harness cancellation, then production implementation and integrated application proof. |
+| Best next action | Join reviewed B0 with source-fingerprint and independent recount gates; request Owner's technical disposition, then freeze first-core exact paths and run Ruling 11's cancellation drill before production dispatch. |
