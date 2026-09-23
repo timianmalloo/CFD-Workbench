@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:31:24Z",
+  "generated": "2026-09-23T14:35:06Z",
   "audit": [
     {
       "actor": null,
@@ -3332,6 +3332,53 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
         "short": "73cabb89e",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37B0QQB2XTXZP9ZD3P55A8D",
+      "shortname": "owner-b0-contract-policy",
+      "datetime": "2026-09-23T14:34:20Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Review and rule on B0 native-v1 resource, growth, missing-ID, platform persistence and requested-versus-effective model evidence policy; preserve independent technical veto and design-only scope.",
+      "summary": "Ruling 9 amends and approves design policy. Read normative FoilDSL decimal and ID rules. Raw exponent cap rejected in favor of normalized effective work domain, bounded scanning, exact SI one-round conversion, explicit resource-unsupported classification and zero shortcut. Growth preflight preserves history/draft/file; missing IDs appear before acceptance diff; new-file atomic no-replace and verified cooperative overwrite adapters required. Requested Astra and effective Not recorded distinguished; exception limited to serial B0 design. No production or executable-contract gate cleared.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve B0 policy seams without changing normative numeric semantics or overclaiming runner identity.",
+      "done_when": "Numbered ruling resolves request and author/coordinator receive amended contract obligations.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T14:32:20Z",
+      "duration_seconds": 120.0
+    },
+    {
+      "id": "al-01M37B24T27YQZFBSBR98NNBMT",
+      "shortname": "architecture-spike-integrated-fingerprints",
+      "datetime": "2026-09-23T14:35:06Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Recompute architecture spike source fingerprints after portable text I/O integration.",
+      "summary": "Compared all three integrated source SHA-256 values against author handback. C# project and Program unchanged; Python oracle changed only guarded UTF-8 console and explicit subprocess decoding. Proof now carries both author and integrated fingerprints; 30-case integrated recount had passed after repair. Owner Ruling 9 recorded separately.",
+      "kind": "script",
+      "skill": null,
+      "tool": "shasum",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-spikes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "git": {
+        "sha": "f574551bdba43d01d8af541bba4f68f107b56e50",
+        "short": "f574551bd",
         "branch": "feature/application-coordination",
         "pushed": null
       }

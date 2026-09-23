@@ -157,11 +157,17 @@ not claimed. This author has not launched another author or changed shared prima
 The nine authored paths are the four linked architecture/ADR/design/proof documents, two security
 registers `docs/security/{threat-model,privacy-review}.md`, and these three source files:
 
-| Source | SHA-256 |
-|---|---|
-| `tools/spikes/ApplicationNativeUi/ApplicationNativeUi.csproj` | `bc4f360f18a131cdf5354862fbc62183756a7bd950477f9fffacd1ed00fbb6b6` |
-| `tools/spikes/ApplicationNativeUi/Program.cs` | `665f2fd7e9838d7651a671b049c3c887015b2f7f8bdac8a8b108ba972e0373a3` |
-| `tools/spikes/application-contract-vectors.py` | `3ad2f0a01c2c4838f6ad6a713dbf037a97a1ef77ce05a25ccae692f5fed38562` |
+| Source | Author handback SHA-256 | Integrated SHA-256 |
+|---|---|---|
+| `tools/spikes/ApplicationNativeUi/ApplicationNativeUi.csproj` | `bc4f360f18a131cdf5354862fbc62183756a7bd950477f9fffacd1ed00fbb6b6` | `bc4f360f18a131cdf5354862fbc62183756a7bd950477f9fffacd1ed00fbb6b6` |
+| `tools/spikes/ApplicationNativeUi/Program.cs` | `665f2fd7e9838d7651a671b049c3c887015b2f7f8bdac8a8b108ba972e0373a3` | `665f2fd7e9838d7651a671b049c3c887015b2f7f8bdac8a8b108ba972e0373a3` |
+| `tools/spikes/application-contract-vectors.py` | `3ad2f0a01c2c4838f6ad6a713dbf037a97a1ef77ce05a25ccae692f5fed38562` | `ff5b446f6bd3009fc9e6efc3690ca5e6652157d10673943a8f99bdb73655989f` |
+
+The Coordinator's post-handback portability repair added a guarded UTF-8 console
+configuration and explicit UTF-8 decoding for the native subprocess in the Python
+oracle. It changed that source fingerprint, not the 30 check algorithms or their
+reported result. The integrated 30-case recount was run after the repair; future
+recounts must match the integrated fingerprints above.
 
 Derived graph and append-only audit outputs are mechanical additions, not new authored ownership.
 `python3 tools/check-docs.py` passed: 89 artifacts, zero defects, zero index drift; 56 existing
