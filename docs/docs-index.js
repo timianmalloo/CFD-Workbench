@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "b872a1453b5ada4061d08e8869dc625cca99d98431394a7bbc3c3dc0361d276d"
+      "sourceSha256": "c7b49967f17a0dd39cabec8147846ca0eefb7cd5eb31d70e55d7a14c47fc4a79"
     },
     {
       "id": "cad-editing-views",
@@ -1220,7 +1220,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3da5773f5f06495d4d698b3075f0b3d7b8a14d11704c20454b7deb94d7341c31"
+      "sourceSha256": "bcfc775b03a55e950a419eef6ac328d4934340a4f026161996acf1c9045e0dd5"
     },
     {
       "id": "design-authoring-decisions",
@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2e56256adbd705013024e3943e7df6f83a8cb85e50e92b5cabc066f4676923f2"
+      "sourceSha256": "8dafc1daf14337840090df1cbaae4c3e876d5455c97d193f7b9cf545e6f977d3"
     },
     {
       "id": "domain-experts",
@@ -2046,6 +2046,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
+    },
+    {
+      "id": "investigation-native-save-permissions",
+      "path": "docs/investigations/native-save-permissions.md",
+      "title": "Native save creates a file with unintended permissions",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "A real macOS Save created mode 0454 despite the store requesting 0600. A controlled ABI probe isolates fixed-versus-variadic argument passing; the managed production repair still requires independent native proof.",
+      "tags": [
+        "application",
+        "persistence",
+        "native-interop",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d3aec773faefbb3340529b965a6550938cb2d5b5e56bb9812fa6b69950b59452"
     },
     {
       "id": "plan-application-build",
@@ -2971,7 +3001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b28043a3eab8946eecfd40a03b71d8d8d4e7e6b3b5a2b928e45a3d6309785bc1"
+      "sourceSha256": "74f4c36f264ae6eb51dc5649c275d2fc42d185f6cf06b95135aa9ca806f13aac"
     },
     {
       "id": "kb-hw-glossary",
@@ -3871,7 +3901,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "090db6e20edcc5aafa532985b9f0f9a24e91771443279a16d1cc56f78060b668"
+      "sourceSha256": "4647d26c38a088709ed07a8f9c2c445032e68c74737ac9d6498d11941285776f"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4999,7 +5029,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0100302b95d97f4535c3a3a369b301c0f3935d02ea4ca82be7ee09a013383243"
+      "sourceSha256": "7fa9480e2f39d4a713418629ac1bbbab6b41444ddcc9fbd249f243c9a8e1f306"
     },
     {
       "id": "review-ui-workbench",
@@ -5559,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "585d3be3ec7e955c209d90e044062bce5b9b1671a65a1b3727617684eed58650"
+  "graphSha256": "5b11a6f1b03f770f0e35b4a5eca59965aebdffe72daee890e5ff65e3cd18ea24"
 };
