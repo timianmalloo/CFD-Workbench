@@ -20,6 +20,7 @@ summary: >-
   Owner and independent review retain the production gate.
 review-suggested:
   - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
+  - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
 ---
 
 # Native M1 contract completion

@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py derive",
+  "generator": "docs-graph.py flag",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -1058,6 +1058,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "adr-application-project-contract",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
         }
       ],
       "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
@@ -1095,7 +1100,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5630bc97f7d4643b445fd8aa176d8b2ea82c4d9e30a8b9bbbf94e2948489611e"
+      "sourceSha256": "61d15cc124df2d412fc94191cac6f372568df60d0d6a3ed70b0e2a8c8e63b141"
     },
     {
       "id": "design-application-foundation",
@@ -3778,7 +3783,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "adr-application-project-contract",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
+        }
+      ],
       "summary": "Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.",
       "tags": [
         "coordination",
@@ -3813,7 +3824,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9"
+      "sourceSha256": "e31c79d883a78e6da04095e58291ff15e5335a03116a28a7e4dd19ffc5b774c8"
     },
     {
       "id": "coordination-contract-b0",
@@ -3976,6 +3987,11 @@ window.DOCS_INDEX = {
           "by": "design-application-contracts",
           "on": "2026-09-23",
           "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        },
+        {
+          "by": "adr-application-project-contract",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
         }
       ],
       "summary": "Records actual C# build/session assertions and independent decimal, RFC 8785, BLAKE3 and history oracles. Distinguishes fixture geometry authority and persistence models from live local filesystem primitives. Native Windows, full language/kernel/store and production telemetry remain unassessed.",
@@ -4001,7 +4017,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e741506806b96f7a9dcaa4b7532ed60c51baf71b77cbeb34e35f76b48690d1e2"
+      "sourceSha256": "6832ef8c08b4f80ad8353a04dd014f46fb3019ba5383ee379ac74fac049913db"
     },
     {
       "id": "proof-application-spikes",
@@ -4581,6 +4597,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        },
+        {
+          "by": "adr-application-project-contract",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.",
@@ -4735,7 +4756,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Inspect accepted design] --> B[Pin immutable baseline]\nB --> C[Create and name alternative]\nC --> D[Select middle authored station]\nD --> E[Persistent thumbnail and Edit section]\nE --> F{Shared or independent scope}\nF -->|Shared| G[Show all assignments and adjacent intervals]\nF -->|Independent| H[Copy profile and preview selected assignment intervals]\nG --> I[Choose thickness policy and edit section]\nH --> I\nI --> J[Inspect another station or 3D impact without retargeting draft]\nJ --> K{Valid supported change}\nK -->|No| L[Explain lock or geometry failure; retain draft]\nL --> I\nK -->|Cancel| D\nK -->|Apply| M[Accepted alternative revision and source]\nM --> N[Compare geometry and compatible evidence with pinned baseline]\nN --> O{Evidence available and compatible}\nO -->|Yes| P[Show provenance and difference basis]\nO -->|No| Q[Show missing or incompatible reason without a number]\nP --> R[Write decision rationale]\nQ --> R\nR --> S{Keep or discard}\nS -->|Keep| T[Record decision; chosen alternative stays active]\nS -->|Discard| U[Record decision; archive alternative; return to baseline]\nS -->|No rationale| R"
         }
       ],
-      "sourceSha256": "f7c8922d8d5cb775266c9b578ec03576ad82009990f951f819540501d77eedd9"
+      "sourceSha256": "6d47325f22ced266a11b71c855c6de7041f589c3348088316fbd4ec11480b67e"
     },
     {
       "id": "spec-foildsl",
@@ -4953,5 +4974,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "98c7b695e319a2450515e738ed3bc9c78f82b0b59afd349bacda745cdead6243"
+  "graphSha256": "455979ff21f97b6276629983acf9abd4ed249c12dc67362c82394311b57ee6a2"
 };

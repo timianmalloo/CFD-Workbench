@@ -17,6 +17,7 @@ summary: >-
   Native Windows, full language/kernel/store and production telemetry remain unassessed.
 review-suggested:
   - { by: design-application-contracts, on: 2026-09-23, reason: "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams." }
+  - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
 ---
 
 # Application contract proof

@@ -14,6 +14,8 @@ links:
   - {to: coordination-application-cancel-drill, rel: relates-to}
 review-by: 2026-10-23
 summary: Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.
+review-suggested:
+  - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
 ---
 
 # B · first production core packet (G3 frozen, not dispatched)
