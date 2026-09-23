@@ -631,6 +631,23 @@ template/linter and named native proof rows, with the authoritative pack-source
 knowledge read only where available. Pack deployment reconciliation remains a
 separate exact-source change; no speculative local KB is created in C.
 
+**UI-XAML · A typed XAML resource compiles but fails when the native window loads.**
+The adapter gate built, tested and published the Desktop package, but the first
+real app launch threw `InvalidCastException` at `MainWindow.axaml`'s section
+`RowDefinition.Height`: its `SectionPanelHeight` resource was `x:Double`, while
+the property requires `GridLength`. Sweep the Desktop XAML's static-resource
+assignments to typed properties, including window dimensions and viewport
+dimensions; the section row was the mismatched shape. Derive: source lint and
+assembly compilation do not prove XAML resource conversion at window creation.
+Prevent: `tools/verify-application-adapters.py` now runs the real Desktop
+apphost's `native-xaml-startup-smoke` before publish and requires its
+`NATIVE-STARTUP smoke-opened` marker plus exit zero. The resource is now a
+`GridLength`. The original package launch is retained as RED at
+`/private/tmp/cfd-c-final-ui-31t13mk0/launch-receipt.json`; the targeted
+startup receipt is `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c-targeted-pronye03/receipts/targeted.json`.
+This control proves loader startup only; rendered UI, AX and keyboard behavior
+still require native inspection.
+
 ## Authoring decisions boundary sweep — 2026-09-22
 
 **GEO-C / DATA-D recurrence:** introducing multiple profiles makes a selected-profile singleton unsafe as a
