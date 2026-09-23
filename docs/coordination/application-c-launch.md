@@ -122,3 +122,56 @@ source-tree output files still match their pre-retry hashes with no added or
 missing files. This clears **Ruling 24 containment only**; the author resumed
 ordinary C repair. It does not prove zero historical telemetry, a successful
 Desktop build, native interaction or M1 acceptance.
+
+## First C implementation checkpoint
+
+The author reached its first measured checkpoint at 19:11:15 UTC, about 54
+minutes after the 18:17 launch marker. Total tool calls across resumed turns
+are **Not recorded**; the last slice estimated about 60. Eighteen of 23
+author-owned candidate paths exist. The independent native UI review is the
+24th path and belongs to root. The solution, argument-free verifier and proof
+document remain to be authored; PNG and AX JSON require real capture and are
+open. The original ten generated `bin/obj` directories remain retained for
+exact-manifest quarantine before any clean author commit. No partial join was
+requested. The author appended partial audit
+`al-01M37TWEA3C7BNJB90HYJFM6HA` and resumed the same C scope with a fresh
+19:11:57 UTC audit marker, bounded by the next 50 minutes, 80 tool calls and
+100k context; hitting a cap requires another measured handback and replan.
+
+Root independently ran 15 CLI subprocess cases against the frozen corrected
+CLI, covering three `/2` source/Surface identity oracles, accepted source
+preservation, a native reopen, normalized `z/c` versus physical metres, the
+15-point certified projection, size boundaries, and truthful refusal classes.
+The retained summary at
+`/tmp/cfd-adapter-review.3sSb4H/cli-bounded-results/summary.json` has SHA-256
+`33cb7fd27f69930ccc367eaeca824ed59ff9746e0cce76b97d3fd2c5a13a8a7c`.
+A separate invalid-recovery native file CLI case passed without changing its
+original bytes or accepted identities; summary SHA-256
+`0e584c2c4f0f0668e9cb5b927e645190338d3b4478c88a62c56b848dd2b31045`.
+These are bounded CLI results, not native authoring acceptance.
+
+The first desktop build and direct test run passed under task-local output and
+the process-local Avalonia opt-out (raw receipt SHA-256
+`7ade683705dd62be3f525501b4e21102ed24656a3123e2db91e9c681bb028831`).
+An exact owned launch logged `Window.Opened`, but root `cua_repl` returned
+`cgWindowNotFound` for the original and a single copied review-only unique-ID
+bundle. A pre-correction direct CoreGraphics window query and denied System
+Events count are retained **only as diagnostics**; neither is accepted AX,
+rendered or keyboard proof. The author stopped the launch-isolation loop,
+terminated its exact-owned PID `27098` after identity readback, and left one
+exact-owned review PID `27716` live for the pending visibility check. The
+separate PID `25730` has unknown ownership and was not touched. Root's
+supported CUA inspection remains open.
+
+Root independently reproduced three controller failures against an earlier
+frozen DLL, then reran the same cases green against the corrected DLL:
+rejected FoilDSL and missing-native opens preserve the active accepted source;
+a definite Save As conflict preserves disk bytes and does not enter uncertain
+save. The green log at
+`/tmp/cfd-controller-review.B2SeOB/receipts/controller-green.log` has SHA-256
+`ba24e3564219bfcea6fdd01d43ded3deb53cc615bb6a8221f98cbbc64cf6f770`.
+The author separately observed red/green stale-frame, uncertain-durability
+and delayed cross-session save cases in its isolated scratch. Its latest
+targeted build/test passed, but the later one-line viewport orientation edit
+had not been rebuilt at this checkpoint. Controller completion, native
+rendering, Windows runtime and full M1 acceptance remain open.

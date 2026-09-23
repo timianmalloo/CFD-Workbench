@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:59:02Z",
+  "generated": "2026-09-23T19:13:27Z",
   "audit": [
     {
       "actor": null,
@@ -5146,6 +5146,28 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Keep native UI evidence bound to the supported inspection surface and preserve actual application progress.",
       "done_when": "Root CUA captures visible/AX/keyboard evidence and the C adapter is independently reviewed and joined.",
+      "tier": "T2",
+      "fan_out": 1
+    },
+    {
+      "id": "al-01M37TZTWDZYW0B6PP8PRCFJKY",
+      "shortname": "coordinate-c-first-checkpoint",
+      "datetime": "2026-09-23T19:13:27Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record measured first C implementation checkpoint and continue same-scope native adapter work after its time cap.",
+      "summary": "First C checkpoint at 19:11:15 UTC (~54m); author18/23 candidate paths, root independent CLI15+recovery and controller RED/GREEN, native CUA binding open. Fresh worker marker19:11:57 and next50min/80calls/100k bounded continuation; no partial join. R24 process-local optout retained and old generated outputs preserved.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-c-launch.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete native adapter M1 implementation with truthful platform and UI evidence.",
+      "done_when": "C author delivers complete exact-path handback, independent review and conductor join with required gates.",
       "tier": "T2",
       "fan_out": 1
     }
