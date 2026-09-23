@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -1852,6 +1852,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "381158f5628b3b25a0947736f892f07e5b86d26749e0c43dc00f53460312c41e"
     },
     {
+      "id": "plan-foildsl-publish",
+      "path": "docs/plans/foildsl-publish.md",
+      "title": "Publish the reviewed FoilDSL work",
+      "type": "doc",
+      "status": "approved",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Fast-forward integration and remote verification of the reviewed FoilDSL specification and mockup.",
+      "tags": [
+        "plan",
+        "git"
+      ],
+      "links": [
+        {
+          "to": "plan-authoring-decisions",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-authoring-decisions",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart LR\n A --> B --> C --> D"
+        }
+      ],
+      "sourceSha256": "d40fef2158e997b9ae4658dac9da63f9531003c95d4c51fff4123a022112df54"
+    },
+    {
       "id": "plan-independent-edges",
       "path": "docs/plans/independent-edges.md",
       "title": "Independent leading and trailing edge correction",
@@ -3428,7 +3462,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8251871feba8b8330cafae9acba77aec2e7cb6e9df625a346147a07cbd99f7dc"
+      "sourceSha256": "8f2a1a5a494b4feeb9597c4f022bd747970ef1e1ce40af8d49aa603bf55c6880"
     },
     {
       "id": "proof-foildsl-authoring",
@@ -4128,5 +4162,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d23cbf235cc7b3c8dd9f83171aef62e8ef853c180e3b78ba7cc180db0a9dcd29"
+  "graphSha256": "da3d12ef39036bff585ed708be2a9687e8c7f380ef64841fe0a5b95cadbe2bb1"
 };

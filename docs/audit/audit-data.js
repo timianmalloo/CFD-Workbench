@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T04:54:08Z",
+  "generated": "2026-09-23T12:50:47Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1214,6 +1214,51 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "bac5f8aa09fb06643870378a4e9ef3bc2d7b92da",
         "short": "bac5f8aa0",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37517E8VWXAJA5GBEP3KNHE",
+      "shortname": "commit and push all make sure origin main is up to date",
+      "datetime": "2026-09-23T12:49:44Z",
+      "session": "prompt-log",
+      "prompt": "commit and push all make sure origin main is up to date",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M375350J7WGDB41TB0NDY2EA",
+      "shortname": "foildsl-publish",
+      "datetime": "2026-09-23T12:50:47Z",
+      "session": "foildsl-push-20260923",
+      "prompt": "commit and push all make sure origin main is up to date",
+      "summary": "Four-node serial integration plan independently cleared. Verified remote main ancestry, clean sibling worktrees and byte-identical reference originals. Metadata-only commit follows docs checks; normal push, primary fast-forward and live remote equality checks follow the commit. No force or deletion; retained worktree preserves review links.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/foildsl-publish.md",
+        "docs/proof/authoring-decisions.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Commit and push all completed FoilDSL work and bring origin/main up to date.",
+      "done_when": "Remote main and feature refs contain all completed work; local main matches and references are preserved.",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-09-23T12:49:44Z",
+      "duration_seconds": 63.0,
+      "git": {
+        "sha": "b0f0188f9da3779d74dcc05658757acf49635379",
+        "short": "b0f0188f9",
         "branch": "feature/foildsl-authoring",
         "pushed": null
       }
