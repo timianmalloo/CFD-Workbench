@@ -4039,7 +4039,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/contract-c-native.md",
       "title": "Provisional native desktop and CLI adapter assignment",
       "type": "plan",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -4098,12 +4098,16 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
+          "to": "coordination-application-c-launch",
+          "rel": "relates-to"
+        },
+        {
           "to": "mockup-workbench-v7",
           "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61170241d39bc0cd31629b1f01a3fbbe4c086aaf651a9289c0bca8188671b149"
+      "sourceSha256": "2780e7bd465f86ba7dd2017ff28743c7998e13ae8945911aa63b78b84979867f"
     },
     {
       "id": "coordination-r17-companions",
@@ -4217,6 +4221,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "be49bb94a74fde6c72386fd3f89d3439b63918c42699873823cb5e85332f8ba9"
+    },
+    {
+      "id": "coordination-application-c-launch",
+      "path": "docs/coordination/application-c-launch.md",
+      "title": "Native adapter author launch and monitoring receipt",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Actual conditional Sol collaborator launch after joined B and independently reviewed API freeze.",
+      "tags": [
+        "coordination",
+        "application",
+        "native",
+        "launch"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-contract-c-api-freeze",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-application-cancel-drill",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "74aa8b160741796fff551f81d94819e5e9d96a557fc624b7945ba45c319fe612"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -5474,5 +5512,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "f80d091070a29d2793c7f43cc03d1dc5f06b0ba6d877a0a1570c4356d113401b"
+  "graphSha256": "dc0717e295ccc6e30f0e05c6665ab6e3138b5add1a0dfc520ce0c8a5d7dcfa89"
 };
