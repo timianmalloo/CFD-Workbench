@@ -16,6 +16,7 @@ summary: >-
 review-suggested:
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: plan-application-build, on: 2026-09-23, reason: "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims." }
+  - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # First application increment: coordination plan

@@ -11,6 +11,8 @@ links:
   - {to: design-application-contracts, rel: depends-on}
 review-by: 2026-10-23
 summary: Records the exact Ruling 13 serial worker lease, compiled brief identity and read-only prewrite gate; implementation evidence remains pending.
+review-suggested:
+  - { by: design-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # First-core G3 launch receipt

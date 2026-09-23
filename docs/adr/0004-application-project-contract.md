@@ -10,6 +10,8 @@ links:
   - {to: adr-application-stack, rel: refines}
   - {to: design-application-contracts, rel: documents}
   - {to: proof-application-contracts, rel: tested-by}
+  - {to: review-application-core, rel: tested-by}
+  - {to: rulings, rel: depends-on}
 review-by: 2026-12-23
 summary: >-
   Records Owner-approved unshipped native-v1 policy for durable rail edit receipts, bounded immutable history,
@@ -18,6 +20,8 @@ summary: >-
 review-suggested:
   - { by: design-application-contracts, on: 2026-09-23, reason: "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams." }
   - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
+  - { by: proof-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: review-application-core, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # ADR 0004: native project contract completion
@@ -64,3 +68,20 @@ process exposure remains explicit.
 
 No released format is migrated. Reversibility: amend this unshipped contract before implementation; future
 format changes require versioned forward/backward readers, preserved originals and tested rollback.
+
+## 23 September evaluator and admission amendment
+
+Owner Rulings 17–19 correct counterexamples found during independent implementation review. The current
+evaluator becomes `cfdw-cv/2`: canonical twist ordinates preserve parsed degree values while evaluation
+retains the exact degree spline followed by one rounded radians conversion. The native-v1 envelope shape
+is unchanged, but an unavailable `/1` evaluator refuses adoption with original bytes preserved. No saved
+history is silently rehashed, and no automatic migration is authorized. Certificates must also establish
+deterministic arithmetic/query feasibility across their declared domain; failed pre-admission proof is
+Not assessed, distinct from invalid geometry and environmental deadlines.
+
+Cooperative overwrite claims are directory-wide to prevent case/Unicode target aliases acquiring separate
+claims. This accepts false contention between different targets in one directory. Confirmed durability
+covers owned cleanup followed by final directory flush. Actual I/O events use the existing session ring;
+capture timing is not disk timing. These are amended contract decisions, not claims of completed production
+or Windows proof. See [independent evidence](../reviews/application-core.md) and
+[canonical rulings](../notes/rulings.md).

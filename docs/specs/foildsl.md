@@ -52,6 +52,14 @@ An unknown major or minor version is read-only until a compatible parser or an e
 No keyword is silently ignored. A newer version may add syntax; it may not change the meaning of a valid 4.0
 document. Migration creates a new source revision and preserves the original (§10).
 
+The current evaluator is **`cfdw-cv/2`** (23 September 2026, Owner Ruling 17). It preserves the
+degree-curve evaluation formula but corrects definition identity: twist control ordinates remain degrees
+in the canonical input. The earlier `/1` draft rounded controls to radians before hashing, collapsing
+distinct evaluated curves. An unavailable `/1` evaluator produces `DSL-VERSION`, read-only original
+source and no adoption; native projects with unavailable evaluator records produce `DOC-VERSION`.
+No automatic `/1` conversion, rehashing of saved history, certificate reuse or transfer of run freshness
+is permitted. An explicitly authorized future migration must preserve originals and create new history.
+
 ## 2. Conceptual domain model, settled before the UI
 
 **Bounded context:** Shape authoring. Analysis consumes accepted Surface revisions by identity and cannot edit them.
@@ -226,7 +234,7 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
 
 ## 6. Deterministic evaluation and derived geometry
 
-`evaluator "cfdw-cv" "1"` names the **proposed mathematical contract in this section**, not an installed kernel.
+`evaluator "cfdw-cv" "2"` names the **proposed mathematical contract in this section**, not an installed kernel.
 A different identifier/version requires its own published contract and compatible evaluator. No fallback occurs.
 The kernel used for a derived skin is recorded with the export/cache, not treated as a second authored surface.
 
@@ -247,8 +255,11 @@ A computational shared-knot conversion must preserve these functions and report 
 There is no mid-span family switch and no cosine interpolation of four nominal section parameters.
 
 For q=(x,z), c=trailing(eta)-leading(eta), L=leading(eta), Z=dihedral(eta), phi=twist(eta) converted to radians.
-The pinned binary64 radians-per-degree constant is `0.017453292519943295`; multiplication rounds once to
-binary64, ties-to-even. Trigonometric evaluation must meet the identity oracle, not promise bit-identical libm:
+The pinned binary64 radians-per-degree constant is `0.017453292519943295`. Evaluate the spline defined
+by binary64 degree controls as a mathematical function after inverse abscissa; multiply that value by
+the exact binary64 constant, then round once to binary64, ties-to-even. There is no intermediate
+rounding of the evaluated degree value and no conversion of individual controls to radians before
+evaluation. Trigonometric evaluation must meet the identity oracle, not promise bit-identical libm:
 
 ```
 X = L + c*(x*cos(phi) + z*sin(phi))
@@ -343,8 +354,9 @@ Canonical semantic input is a labelled object containing format `foildsl-geometr
 SI half-span, fixed frame/symmetry, five ordered curves (degree, complete knots, ordered point pairs), resolved
 ordered profile definitions and eta assignments, closure and tip mode. Resolve profile names to their numeric
 definitions; sort profiles by first assignment occurrence and replace references by their resulting index.
-Strip unused metadata, source names, comments, IDs, locks, provenance and assertions. Convert degrees to radians
-using the evaluator's pinned conversion constant before canonicalization. Normalize negative zero to zero.
+Strip unused metadata, source names, comments, IDs, locks, provenance and assertions. Under `cfdw-cv/2`,
+retain the parsed binary64 degree ordinates of twist controls; do not convert them to radians for hashing.
+The canonical record must retain the defining inputs used by §6. Normalize negative zero to zero.
 Serialize this object with RFC 8785 canonical JSON and shortest-round-trip numbers; BLAKE3 hashes UTF-8 bytes.
 This specifies content identity, not tolerance-quantized shape equivalence: distinct input records can produce
 equivalent shapes but need not share a hash. Never round inputs to an identity tolerance before hashing.
@@ -352,7 +364,8 @@ equivalent shapes but need not share a hash. Never round inputs to an identity t
 The **exact canonical object shape** uses these literal keys, with no additional/omitted keys. In the following
 type notation `Curve` is `{"degree": p, "knots": [u0,...], "points": [[x0,y0],...]}`: actual arrays contain every
 value, never ellipses. `Profile` is `{"evaluator":[id,version],"upper":Curve,"lower":Curve,"closure":"closed"}`
-or the same keys with closure `"open"`. Strings `id`/`version` are the resolved profile evaluator.
+or the same keys with closure `"open"`. Strings `id`/`version` are the resolved profile evaluator;
+the current foil and profile evaluator arrays are `["cfdw-cv","2"]`, including standalone sections.
 
 ```
 Foil = {
@@ -371,7 +384,7 @@ Section = {
 ```
 
 `tip` is `"point"` only when declared; default `"open"` and default `"closed"` closure always materialize.
-Channels' first coordinates remain eta; dimensional ordinates use metres, twist ordinates radians and thickness
+Channels' first coordinates remain eta; dimensional ordinates use metres, twist ordinates degrees and thickness
 fractions. Profile coordinates remain dimensionless. Assignment indexes are zero-based integers. Arrays preserve
 order; profile ordering is first assignment occurrence as above, and inline/asset spellings with identical
 resolved contents produce identical Profile objects. Standalone Section carries no assumed span or wing fields.
@@ -480,6 +493,8 @@ flowchart TD
 | DSL-16 | Given any open draft, when another station or baseline is inspected by pointer or keyboard, then its readouts appear without changing the draft target/base; a competing write is refused with the original draft named. |
 | DSL-17 | Given chord and span commands, then the held rail is byte-for-byte unchanged, each station policy follows the formula above, invalid interior locations block Apply, and Undo/Redo restore all source and records together; no chord or per-station t/c authority is added. |
 | DSL-18 | Given a project with named alternatives, pinned baseline and decision rationale, when saved/reopened, then those records and historical evidence survive. Exporting and reopening only its `.foil` reconstructs the shape and declared dependencies, never fabricated project history or scientific evidence. |
+| DSL-19 | Given otherwise identical `/2` documents with twist degree-3 knots `[0,0,0,0,0.5,0.5,0.5,1,1,1,1]`, CV abscissae `[0,0.125,0.25,0.5,0.75,0.875,1]` and only CV2 nonzero at `1.791` versus `1.7910000000000001`, then their Surface hashes differ. At eta `0.203125`, inverse abscissa gives local parameter `0.5`, weight `3/8`, and rounded angle bits `3f8801bd477ae01e` versus `3f8801bd477ae01f`. Hashing preserves this distinction while geometry keeps the §6 formula. |
+| DSL-20 | Given an unavailable `/1` source, native project or validation binding, when opened or applied, then the implementation reports the version/evaluator refusal, retains original bytes and accepted state, and creates no replacement history or current analysis claim. `/2` save/reopen and Undo/Redo retain exact source and matching identity bindings. |
 
 UI follows existing DESIGN.md tokens and the C spatial/canvas archetype, with an E authoring facet inside the
 document. Source editor has a visible name, keyboard selection, line/column diagnostics and a polite status

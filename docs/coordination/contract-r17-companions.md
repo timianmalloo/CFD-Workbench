@@ -13,7 +13,10 @@ links:
   - {to: review-application-core, rel: relates-to}
 review-by: 2026-10-23
 summary: Root owns 30 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.
-review-suggested: []
+review-suggested:
+  - { by: design-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: review-application-core, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: spec-foildsl, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # R17–19 · root companion assignment

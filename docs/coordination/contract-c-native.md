@@ -14,7 +14,10 @@ links:
   - {to: mockup-workbench-v7, rel: relates-to}
 review-by: 2026-10-23
 summary: A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.
-review-suggested: []
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # C · native desktop and CLI adapters (preparation only)

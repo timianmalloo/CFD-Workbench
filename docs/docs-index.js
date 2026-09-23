@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py derive",
+  "generator": "docs-graph.py flag",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -259,6 +259,16 @@ window.DOCS_INDEX = {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        },
+        {
+          "by": "proof-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "review-application-core",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Records Owner-approved unshipped native-v1 policy for durable rail edit receipts, bounded immutable history, exact numeric resource admission and fail-closed platform persistence. Independent executable-contract acceptance remains separate from these design-policy rulings.",
@@ -280,10 +290,18 @@ window.DOCS_INDEX = {
         {
           "to": "proof-application-contracts",
           "rel": "tested-by"
+        },
+        {
+          "to": "review-application-core",
+          "rel": "tested-by"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c81671ce91ee62b19a9ce011fe4fb06849d822a94c35629717f2490b473f8ee3"
+      "sourceSha256": "e95a6df05d22c0140a448f08fa59bc8137d9913f7ff69c7e97970b049b70e404"
     },
     {
       "id": "adr-application-stack",
@@ -398,6 +416,11 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-23",
           "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
@@ -431,6 +454,10 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-application-build",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [
@@ -440,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "f5b8c7ae914429c10e2630ea866eafa2756d1b7f2f3d74af5be00a9f3dd8bc14"
+      "sourceSha256": "3d2ab5b87f5012774474d34229e5b920006897908bdb0c490644105273fc36ab"
     },
     {
       "id": "cad-editing-views",
@@ -1083,6 +1110,16 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "proof-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
@@ -1120,7 +1157,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7bacf957efbbf5d672e24329cdedfeff2eea7e4961714434e27bf1728374437"
+      "sourceSha256": "3ee3893d53c36b68c0be7da96a3ab687d131292eb3f7fd1d6b6b2b2d68ce2bcb"
     },
     {
       "id": "design-application-foundation",
@@ -1183,7 +1220,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1e9671b9c92dc2b115deab5c108b63be0c07af3c9c027f6b2c7d069df8418ccd"
+      "sourceSha256": "7a4aff5b7c634e015ab11e3a0d1edb19140ff1638c3a8453842bfbe74878d06f"
     },
     {
       "id": "design-authoring-decisions",
@@ -1780,7 +1817,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8af9f35ff69ff91dfa7151b712ec01cf908f85029d325f47d0f894391bf0e09"
+      "sourceSha256": "2aecc843d0c4caca591af48e65eb8af2ed28818782762f4c65a42ed17367016e"
     },
     {
       "id": "workbench-direction",
@@ -2008,7 +2045,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4534eab42e99119b372eb9f3244f871ec942ee0c5097fc5460a2d9ed8b13a85e"
+      "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
     },
     {
       "id": "plan-application-build",
@@ -2024,6 +2061,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.",
@@ -2053,7 +2095,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "7b1cfd2e4e4b92b554945352597cd8738f5c8952f09673f342bc5b9a98b03ec9"
+      "sourceSha256": "caae3ebc95d1f770fe5af32a61df3d7c61173c5986e4075eccb0c4766bc7633a"
     },
     {
       "id": "plan-authoring-decisions",
@@ -2365,6 +2407,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "A bounded post-change review separates three remaining design decisions from already declared validation and production obligations. No additional implementation is authorized or performed by this review.",
@@ -2394,7 +2441,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9fb2dba4772a3a0b946defcdff37c97edd1d58aaa396cbec56638778226445c8"
+      "sourceSha256": "991423f295c46b0298f878890a83fd106452da094d9e57b870640d0d7f1b5620"
     },
     {
       "id": "review-authoring-v7-independent",
@@ -2415,6 +2462,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Independent adversarial review of the five authorized authoring improvements, with runtime geometry, transaction, keyboard and rendered-surface evidence. Native persistence, certified geometry and formative usability remain explicitly unverified.",
@@ -2448,7 +2500,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3c08aecfb43da43366b44ac45116231a4ef54a6de33bcdc7c89416cf38e94e83"
+      "sourceSha256": "cda5910b12c1444c1d1448485de6a49156906ac8dacae775efba846007a4782f"
     },
     {
       "id": "review-foildsl-independent",
@@ -2919,7 +2971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f617149769aba0bfde851aeb44e4d4e228c277eda27120f5aca615314455a38a"
+      "sourceSha256": "0b19ac97ff9e1fe01e26173a5f67011871c3a56a1be1548c888bd5bd74174466"
     },
     {
       "id": "kb-hw-glossary",
@@ -3786,6 +3838,11 @@ window.DOCS_INDEX = {
           "by": "plan-application-build",
           "on": "2026-09-23",
           "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
@@ -3814,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0b183053b6dc475951a76734e1087fbc7e52fc624cc7883a062ee9ef726184f3"
+      "sourceSha256": "717b604bb2630c1778ab4e9465346d3bc3a01510eceee84627e4d7aafd837589"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3835,6 +3892,16 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-23",
           "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
+        },
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.",
@@ -3871,7 +3938,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b0c82b65faf27ea57d038acc4850fe115924adffb68c0630055e2b7ed1885d08"
+      "sourceSha256": "ec2fdf7147bd79c730d4fd15e4818865354e9e2d3bb6653decaac95fe6f694f9"
     },
     {
       "id": "coordination-contract-b0",
@@ -3897,6 +3964,11 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-23",
           "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.",
@@ -3925,7 +3997,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3e4c658740d07732e1451cdd3e4cfb9f70a045e4fa471b37725732dd121741b9"
+      "sourceSha256": "aa0d8e3b1d8c04070200458210cc829ab562fc8f2b6476e7e328139f17607a73"
     },
     {
       "id": "coordination-contract-c-native",
@@ -3936,7 +4008,23 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        }
+      ],
       "summary": "A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.",
       "tags": [
         "coordination",
@@ -3971,7 +4059,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0524c891ec0a849c729d233066bad74fd7751912801dc28a63d0e3bcb981a8b4"
+      "sourceSha256": "64547b5041ce51fcbcb032d658e6aea512e14ad3541eb1689ac3eb704a164aab"
     },
     {
       "id": "coordination-r17-companions",
@@ -3982,7 +4070,23 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "review-application-core",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        }
+      ],
       "summary": "Root owns 30 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.",
       "tags": [
         "coordination",
@@ -4014,7 +4118,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32059d7ab318c492f6be34c49a2df86749e4853b56471492f476043017b04fa9"
+      "sourceSha256": "e040c3a4a6eb4c9778eca79a3334bf1494edc8f8848cae958e2e0a95815e729c"
     },
     {
       "id": "privacy-review",
@@ -4035,6 +4139,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Captures identifying source comments, names, local paths and retained recovery/history for the offline slice. No personal-data transfer is introduced; metadata minimization and explicit local retention remain testable implementation obligations rather than assumed properties of the toolkit.",
@@ -4058,7 +4167,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bb1054131ef913bf87aaf6649cfd514942e89d8da4225c36bec36ff695277aa8"
+      "sourceSha256": "be49bb94a74fde6c72386fd3f89d3439b63918c42699873823cb5e85332f8ba9"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -4104,7 +4213,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        }
+      ],
       "summary": "Records the exact Ruling 13 serial worker lease, compiled brief identity and read-only prewrite gate; implementation evidence remains pending.",
       "tags": [
         "coordination",
@@ -4126,7 +4241,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f97218b3e15906a00680dc685d8cadfca8548b89d1fc19fbcd2c939239ae0795"
+      "sourceSha256": "fb6f988d2a8c3486f864c93667bc23cb59e9014da9afed9fd27505de64542500"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -4218,7 +4333,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2923b77dbae7ffdf222ea83ccd1686a0b8da68652e49f6f51b2e41207bcaf050"
+      "sourceSha256": "d7f4daf06dc318eb17178a7a872b4a5ff902448e7cfb514ae73f66b7c6147a7b"
     },
     {
       "id": "proof-application-spikes",
@@ -4239,6 +4354,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Records actual pinned SDK/package builds, native macOS accessibility and picker observations, exact identity vectors, conservative rational geometry bounds and filesystem fault injection. Separates the bounded architecture spike from unfinished production and Windows evidence.",
@@ -4268,7 +4388,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3217ff0d84e2058e115f3752d28235732026e89c1f7cc2ace4eb390012b7ed78"
+      "sourceSha256": "113fbe36ed36611cb9ef6b51eefd0f4f5a3799a81c73c3ba3d256af6a1fd03d1"
     },
     {
       "id": "proof-authoring-decisions",
@@ -4289,6 +4409,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Observed source, profile-bank, dimension, comparison, history and rendered browser proof for v7, with explicit prototype and production limits.",
@@ -4325,7 +4450,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8f2a1a5a494b4feeb9597c4f022bd747970ef1e1ce40af8d49aa603bf55c6880"
+      "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
     },
     {
       "id": "proof-foildsl-authoring",
@@ -4346,6 +4471,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "examples-foildsl",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Executed browser and documentation evidence for the bounded review artifact, independent findings and explicit production obligations; no scientific or full-language certification.",
@@ -4378,7 +4508,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1e24200a1ec34806328ade29ad170ffdf3eec285698a82eeae37915ae0f3a6b5"
+      "sourceSha256": "e69dd7c13a60ed21e352a98b34f038ce4ffbc3b49950b6d7fd97a0ee0c244583"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -4520,7 +4650,23 @@ window.DOCS_INDEX = {
       "owner": "@cfd-application-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        }
+      ],
       "summary": "Records independent observations against named frozen production-core checkpoints, including numeric and continuous-geometry oracles and a reproduced cancelled-assessment defect. Review remains open; these partial results do not authorize integration or application acceptance.",
       "tags": [
         "application",
@@ -4553,7 +4699,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "155ef5db483af75778cf2bb8347467e041b07cec7048bf5fd08e6127426a7fc8"
+      "sourceSha256": "c27cf9cb945fcfd854928f26a1595bdf748db6e4b7447ed3db94fafd3a4ef296"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -4858,6 +5004,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-project-contract",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "mockup-workbench-v7",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.",
@@ -5012,7 +5163,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Inspect accepted design] --> B[Pin immutable baseline]\nB --> C[Create and name alternative]\nC --> D[Select middle authored station]\nD --> E[Persistent thumbnail and Edit section]\nE --> F{Shared or independent scope}\nF -->|Shared| G[Show all assignments and adjacent intervals]\nF -->|Independent| H[Copy profile and preview selected assignment intervals]\nG --> I[Choose thickness policy and edit section]\nH --> I\nI --> J[Inspect another station or 3D impact without retargeting draft]\nJ --> K{Valid supported change}\nK -->|No| L[Explain lock or geometry failure; retain draft]\nL --> I\nK -->|Cancel| D\nK -->|Apply| M[Accepted alternative revision and source]\nM --> N[Compare geometry and compatible evidence with pinned baseline]\nN --> O{Evidence available and compatible}\nO -->|Yes| P[Show provenance and difference basis]\nO -->|No| Q[Show missing or incompatible reason without a number]\nP --> R[Write decision rationale]\nQ --> R\nR --> S{Keep or discard}\nS -->|Keep| T[Record decision; chosen alternative stays active]\nS -->|Discard| U[Record decision; archive alternative; return to baseline]\nS -->|No rationale| R"
         }
       ],
-      "sourceSha256": "6d47325f22ced266a11b71c855c6de7041f589c3348088316fbd4ec11480b67e"
+      "sourceSha256": "abb66411cb65a2ceccffc8dd481603aec70b9313e4c68a601ba78b7cf56fbd47"
     },
     {
       "id": "spec-foildsl",
@@ -5074,7 +5225,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed"
+      "sourceSha256": "42025b2b4d9782e848ac6a73246c7fce856771607916fcb634bb67d4fef59e78"
     },
     {
       "id": "threat-model",
@@ -5095,6 +5246,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "design-application-foundation",
+          "on": "2026-09-23",
+          "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
       "summary": "Rolls up the offline application's file, command, rendering and telemetry threat analysis. Mitigations are proposed and tested only to the extent recorded in the architecture spike proof; filesystem race handling and distribution trust remain independent release gates.",
@@ -5118,7 +5274,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6dbe33ffed3ff87515c1f59160f801d39fd097c09ec03089e229061e048e7681"
+      "sourceSha256": "41ddfe6c84794e0cbf2c2f8e17710dc03ba832c597fc1b53b67d986724236786"
     }
   ],
   "surfaces": [
@@ -5234,5 +5390,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "7efda8c7e8d73a55eed5af2ef87bb23c2b28c8fb49ad545791519f2f6adf8410"
+  "graphSha256": "9017ee72000bf1bdc1df27217bf0c0220338761f6595226ec6e099d2c60ef11c"
 };

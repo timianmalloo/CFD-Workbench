@@ -13,7 +13,9 @@ const browser=await chromium.launch({headless:true,channel:'chrome'});
 const page=await browser.newPage({viewport:{width:1700,height:1200},acceptDownloads:true});
 const errors=[],requests=[],checks=[],measurements=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
-const artifact=`docs/mockups/${process.env.MOCKUP_NAME||'workbench-v6'}.html`;
+const mockupName=process.env.MOCKUP_NAME||'workbench-v7';
+const proofDir=process.env.PROOF_DIR?path.resolve(process.env.PROOF_DIR):path.join(root,'docs/proof');
+const artifact=`docs/mockups/${mockupName}.html`;
 const url=pathToFileURL(path.join(root,artifact)).href;
 const record=(name,proof)=>checks.push({name,pass:true,proof});
 const reload=async()=>{await page.goto(url);await page.locator('[data-doc="source"]').click();};
@@ -22,8 +24,17 @@ try{
   await reload();
   assert.equal(await page.locator('#dsl-source').count(),1);
   assert.equal(await page.evaluate(()=>dcheck()),true);
-  record('SourceDocument_Opened_EditableAndValid','RED observed on v5; one textarea exists and initial v6 source validates.');
+  record('SourceDocument_Opened_EditableAndValid',`One textarea exists and initial ${mockupName} source validates; historical RED was observed on v5.`);
   const initial=await accepted();
+  if(mockupName==='workbench-v7'){
+    assert.match(initial.source,/evaluator "cfdw-cv" "2"/);
+    await page.locator('#dsl-source').fill(initial.source.replace('evaluator "cfdw-cv" "2"','evaluator "cfdw-cv" "1"'));
+    await page.locator('#dsl-validate').click();
+    assert(await page.locator('#dsl-apply').isDisabled());assert.deepEqual(await accepted(),initial);
+    assert.match(await page.locator('#dsl-message').innerText(),/Evaluator unavailable/);
+    await page.locator('#dsl-cancel').click();assert.equal(await page.locator('#dsl-source').inputValue(),initial.source);
+    record('Ruling17_LegacyEvaluator_RefusesWithoutAdoption','Actual textarea Validate/Cancel preserves accepted source and history; emitter pins /2.');
+  }
   const recipes=await page.evaluate(()=>{const saved=dsnapshot(),ex=M.ex;const results=Object.keys(EXAMPLES).map(id=>{loadExample(id);const r=drecord();return {id,valid:dmeaning(dparse(demit(r)))===dmeaning(r)};});M.ex=ex;drestore(saved);return results;});assert(recipes.every(r=>r.valid));record('RecipeSeeds_EveryGenerator_EmitsValidSource',recipes);
   // Lexer rejects malformed/oversize/unknown input; production-valid but unsupported input is explicit.
   const fixtureNames=['foil-basic.foil','foil-precision.foil','foil-comment.foil'];
@@ -62,8 +73,9 @@ try{
   }
   await page.locator('#h-window').selectOption('desktop');await page.locator('#h-theme').selectOption('light');await page.locator('#h-motion').check();await page.locator('#dsl-source').focus();await page.keyboard.type('\n# keyboard edit');assert.equal(await page.evaluate(()=>document.activeElement.id),'dsl-source');assert.equal(await page.evaluate(()=>M.tool),'select');
   await page.locator('#dsl-cancel').click();
-  const shot=path.join(os.tmpdir(),'foildsl-v6-final-source.png');await page.screenshot({path:shot});
+  await fs.mkdir(proofDir,{recursive:true});
+  const shot=path.join(proofDir,`${mockupName}-final-source.png`);await page.screenshot({path:shot});
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);record('SourceHarness_15LayoutThemeCells_KeyboardAndNoNetwork',{cells:measurements.length,screenshot:shot});
   const report={artifact,scope:'bounded prototype; not full language/native/scientific conformance',checks,measurements,errors,requests};
-  await fs.writeFile(path.join(root,`docs/proof/foildsl${process.env.MOCKUP_NAME==='workbench-v7'?'-v7':''}-browser-check.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({checks:checks.length,cells:measurements.length,errors,requests,screenshot:shot}));
+  await fs.writeFile(path.join(proofDir,`foildsl${mockupName==='workbench-v7'?'-v7':''}-browser-check.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({checks:checks.length,cells:measurements.length,errors,requests,screenshot:shot}));
 }finally{await browser.close();}

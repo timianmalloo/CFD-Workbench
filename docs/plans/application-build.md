@@ -13,6 +13,7 @@ review-by: 2026-10-23
 summary: A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.
 review-suggested:
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
+  - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # Application build execution graph

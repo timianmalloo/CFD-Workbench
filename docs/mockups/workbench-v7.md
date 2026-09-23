@@ -35,6 +35,10 @@ review-suggested:
 · [Remaining decisions](../reviews/authoring-v7-gaps.md)
 
 Open the HTML directly in a browser. It is self-contained and needs no server, network, key or solver.
+The current source emitter/parser pins evaluator `cfdw-cv/2`. An unavailable `/1` draft receives a version
+diagnostic and retains the accepted source. This compatibility update does not turn sampled prototype
+geometry or its illustrative identity into production certification. Historical v6/native-spike outputs
+remain `/1` evidence, not current contract implementations.
 The seven-area desktop workbench, four spatial viewports, Properties and review harness remain the context.
 FoilDSL and visual editing read the same accepted definition. The persistent section card exposes the
 selected station's shape and the action that edits it.

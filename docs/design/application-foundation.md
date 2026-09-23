@@ -87,7 +87,7 @@ decoded chunks, not encoded strings. Nonfinal chunks encode complete byte triple
   "format": "cfdw-project-1",
   "projectId": "uuid",
   "sources": [{"id": "64-lowercase-sha256", "utf8Base64Chunks": ["Zm9pbGRzbCAuLi4="]}],
-  "designs": [{"id": "uuid", "parent": null, "surfaceHash": "64-lowercase-blake3", "evaluator": "cfdw-cv/1"}],
+  "designs": [{"id": "uuid", "parent": null, "surfaceHash": "64-lowercase-blake3", "evaluator": "cfdw-cv/2"}],
   "accepted": [{"id": "uuid", "parent": null, "sourceId": "64-lowercase-sha256", "designId": "uuid", "operationId": "uuid"}],
   "cursors": [{"sequence": 0, "target": "uuid", "reason": "open", "operationId": "uuid"}],
   "recovery": null
@@ -159,12 +159,22 @@ profile separation and bounded maximum normalization. A proof object records the
 domain intervals, rational lower/upper witnesses and source binding. Invalid is reserved for an actual
 counterexample or violated structural rule; insufficient sufficient bounds say Not assessed.
 
+Under Rulings 17–18, the current binding is `cfdw-cv/2`, whose canonical twist controls remain degrees.
+Before issuing a certificate, admission also proves deterministic query feasibility for every finite
+binary64 eta/x in `[0,1]`, both section sides and span halves: arithmetic intermediates as constructed,
+inverse/subdivision depth, normalization, trigonometry, outward conversion and operation caps. A
+computable conservative bound or proved analytic reduction establishes this; a sample grid does not.
+If that proof is unavailable, refuse admission as Not assessed before Apply. The certificate carries
+the bound/algorithm and supported domain. Deterministic cap exhaustion after admission is a defect.
+
 M1 one-profile restriction and supported lock/ID forms are feature admission, not changes to grammar.
 Station root/tip/interior positions remain authored assignments; slices remain derived. Source preserves
 unmodified unsupported input bytes in a read-only view. No duplicate chord/t/c authority is introduced.
 Memory/time bounds: source1MiB, native8MB, language point/count caps, token/nesting bounds derived from grammar,
-at most4096 subdivision nodes per scalar bound and one-second overall validation. The first exhausted cap
-returns Not assessed and releases CPU. Display sampling is independently bounded and cannot clear that gate.
+at most4096 subdivision nodes per scalar bound and a one-second cooperatively checked validation deadline.
+This is not a scheduler or hard wall-clock completion guarantee. Cancellation, environmental failure and
+elapsed-time refusal remain observable outcomes that retain accepted state; they do not make certified
+geometry invalid. Display sampling is independently bounded and cannot clear the admission gate.
 
 ## Native and CLI UI
 
