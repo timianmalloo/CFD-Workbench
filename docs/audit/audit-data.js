@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:40:58Z",
+  "generated": "2026-09-23T21:50:22Z",
   "audit": [
     {
       "actor": null,
@@ -5799,6 +5799,30 @@ window.AUDIT_DATA = {
       "done_when": "Every mode failure shape maps to the actual named source test and isolated umask run.",
       "tier": "T1",
       "fan_out": 0
+    },
+    {
+      "id": "al-01M383Z4XHQPSSPDSE4NKVB971",
+      "shortname": "owner-review-only-composition-r27",
+      "datetime": "2026-09-23T21:50:22Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M383WPHECQWJ4M4H181CKW78: may Coordinator combine clean B ee6d73ad and C6f168c44 in one disposable review-only tree/package to obtain R26 app-bundle Save/Reopen/mode proof before any canonical join? No gate waiver; record ruling and yield.",
+      "summary": "Ruling27 permits isolated exact-blob review composition and one contained combined gate/package, followed by root supported CUA proof with original anomaly preserved. Directly observed both clean candidate HEADs and read independent managed-store checkpoint. No build, product edit, native acceptance or canonical join performed.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve review-package dependency without weakening storage or native acceptance gates.",
+      "done_when": "Canonical ruling names temporary composition, evidence binding and cleanup limits; notify root/Coordinator and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T21:49:20Z",
+      "duration_seconds": 62.0
     }
   ],
   "changes": [
