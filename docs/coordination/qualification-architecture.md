@@ -1,0 +1,28 @@
+---
+id: coordination-architecture-qualification
+title: Architecture author harness qualification, 2026-09-23
+type: proof-pack
+status: in-review
+owner: "@cfd-coordinator-20260923"
+tags: [coordination, harness, qualification, architecture]
+links:
+  - {to: coordination-application-build, rel: relates-to}
+  - {to: plan-application-build, rel: relates-to}
+review-by: 2026-10-23
+summary: Native Agy and Grok probes did not qualify an architecture author; an existing Codex author was assigned a fresh isolated worktree under the same contract.
+---
+
+# Architecture author harness qualification
+
+This record distinguishes installed inventory, a native process's effective state, and observed operations. The raw native streams remain local `/tmp` probe receipts and are identified by SHA-256 below; they are not committed because they include model conversation. `Ruling 1` chose the conditional Agy route. `Ruling 2` allowed one fresh full-auto Agy qualification under explicit user authorization. `Ruling 3` distinguished the intended outside-root negative probe from an unexpected denial of an authorized write/build. None of these rulings selected an application stack.
+
+| probe | exact selected profile and binding | observed result | disposition |
+|---|---|---|---|
+| Agy a1, prepared runner run `cfd-arch-20260923-a1` | Agy 1.2.7, `claude-opus-4-6-thinking`, `--effort high`, `--mode accept-edits`; isolated tree `feature/application-architecture-author` | Native CLI rejected `--effort` for this model before a turn (zero tokens). Without effort, init reported effective model correctly but `permission_mode=request-review`; headless `run_command pwd` was denied. No file or build evidence. | Unsupported profile. It was never passed to `coord-runner run`. |
+| Agy a2, prepared runner run `cfd-arch-20260923-a2` | Agy 1.2.7, `claude-opus-4-6-thinking`, `--mode accept-edits --dangerously-skip-permissions --sandbox`, native stream JSON; tree `feature/application-architecture-author-b`; actual init `permission_mode=always-proceed`, correct model/cwd | Native `pwd` succeeded. `dotnet --version` initially reported missing user home. The model then used `DOTNET_CLI_HOME=/Users/mallalieut` (not the required task-local cache) and reported 10.0.203. Authorized shell write to `docs/coordination/agy-allowed-probe.txt` returned `zsh: operation not permitted`; the model subsequently used `write_to_file` on that same target, which created an untracked 8-byte sentinel. No build or intended outside-root denial was observed. Coordinator interrupted the process; exit 1 and interruption output observed. | Failed under Ruling 2/3: an authorized terminal write was refused and a different tool then wrote the same target. Do not infer .NET cannot build with a task-local cache. Do not reuse this profile or replay the denied action. Raw stream: `/tmp/cfd-arch-a2-probe-output.jsonl`, SHA-256 `f1ae157cc07a6659e21a72504f925bd09e44a5d904f0d80f11ebdf4474783d7a`. |
+| Grok read-only inventory | Grok 1.0.41 reauthenticated, requested `-m grok-4.7 --permission-mode auto` | One turn completed. Structured `modelUsage` reported `grok-4.7-build` for requested `grok-4.7`; no tools or edits exercised. Measured response cost $0.01708364, 32,521 total tokens. | Model alias and access observed; edit/build capability unqualified. |
+| Grok write/build attempt | Grok 1.0.41, requested `-m grok-4.7 --always-approve --sandbox workspace --no-subagents --max-turns 10`, `--single` with streaming JSON; isolated tree `feature/application-grok-probe` | The final retained stream has 117 rows: 78 `thought`, 27 `text`, 3 `available_commands`, 2 `tool_call`, 6 `tool_call_update`, 1 `usage`. One `read_file` of a bundled skill completed; one `run_terminal_command pwd` completed with exit 0 and the correct probe cwd. No sentinel or `.probe-build` exists, so write/build and intended negative denial were not observed. Coordinator interrupted process, exit 130. | Read and shell-cwd capability observed; write/build/denial unqualified. Early inspection while the stream was still growing incorrectly reported zero tool calls. Raw final stream: `/tmp/cfd-grok-probe-output.jsonl`, SHA-256 `fb64464db9c0d7bfcc4df575f608ba606ae5ba76db1d3da4a32752232110d13b`. |
+
+**Author fallback:** The root attempted a fresh Astra author spawn and the host refused due to a thread limit. The existing Codex `/root/language` thread was assigned fresh tree `/Users/mallalieut/projects/CFD-Workbench-feature-application-architecture-codex`, branch `feature/application-architecture-codex`, session `cfd-arch-codex-20260923`, base `a25c175`. Its prior task was completed and released. The thread's underlying model identifier was not exposed; this is **an existing Codex author**, not a verified Astra instance. It received `/tmp/cfd-arch-brief.txt` and compiled audit ID `al-01M377KMYKFR9ZD023M2VXBNEP`, seven exact authored paths, no subagents, Owner decisions and independent root review. Its branch, identity, paths, code, gates and rendered output must be read back before integration.
+
+The two Agy runner attempts remain **prepared, not launched**. Their worktrees and private briefs are retained as evidence. The Grok probe branch contains no work. None of the native probes changes the first milestone's technical or cross-platform acceptance criteria. A later Grok coding track needs a bounded task-relevant write/build/denial qualification and explicit requested/effective model IDs. Until then its edit, build and enforcement dimensions are `unsupported` or `not recorded`, never `enforced`. The CLI also exposes an `agent ... stdio` path, but no ACP run was made in this probe; its capability remains unqualified.

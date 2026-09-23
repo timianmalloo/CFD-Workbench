@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T13:34:45Z",
+  "generated": "2026-09-23T13:37:36Z",
   "audit": [
     {
       "actor": null,
@@ -2765,6 +2765,28 @@ window.AUDIT_DATA = {
       },
       "mode": "pass-through",
       "dispatchable": true
+    },
+    {
+      "id": "al-01M377RVNHCNDRSSJGRH9ZD17J",
+      "shortname": "owner-routing-ruling-3",
+      "datetime": "2026-09-23T13:37:36Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Clarify Ruling 2: expected protected-path negative-probe denial is success evidence, while unexpected denial of authorized in-scope commands ends the route.",
+      "summary": "Ruling 3 distinguishes expected test rejection from operational refusal, preserves unchanged-sentinel oracle and forbids retry of protected action. Ordinary sandbox-local dotnet cache initialization failure may use task-local DOTNET_CLI_HOME/NUGET_PACKAGES within existing budget; no HOME or policy change. Request resolved. Root received generalized ambiguous-stop-condition defect/control.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make qualification stop and success conditions unambiguous.",
+      "done_when": "Canonical clarification closes request without weakening protected-path refusal.",
+      "tier": "T2",
+      "fan_out": 0
     }
   ],
   "changes": [

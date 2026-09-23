@@ -1651,7 +1651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a2ff53e7ed17e4510b8515af5204da202f0412f4d5606cd9a8f5eaf07fb2931e"
+      "sourceSha256": "a96d25eb8c2189dbd436073c2a57413c67a3bf6c4180e2474a45fcb7c22dad9d"
     },
     {
       "id": "domain-experts",
@@ -2625,7 +2625,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "225db9f7a879be2b34a0c11b1bb07926ae1e18c316a4d10ef3a9b337d965036c"
+      "sourceSha256": "5f65d144f93445409968358e55604391c5cfa985ef6ad3b443206aa62c0a48e9"
     },
     {
       "id": "kb-hw-glossary",
@@ -3509,7 +3509,37 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fa3feca9c4f64f11adb81610b58a64de389774c595d5ae342e81fc4ee4642136"
+      "sourceSha256": "418beb31a1bc519c7ed823b2a02f7bf23c7bc9c5b2f42b5860f2b25306028f57"
+    },
+    {
+      "id": "coordination-architecture-qualification",
+      "path": "docs/coordination/qualification-architecture.md",
+      "title": "Architecture author harness qualification, 2026-09-23",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Native Agy and Grok probes did not qualify an architecture author; an existing Codex author was assigned a fresh isolated worktree under the same contract.",
+      "tags": [
+        "coordination",
+        "harness",
+        "qualification",
+        "architecture"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fb0755f432fee4759f527b941bc00818bbdafafd525d973eb42d36911e09e23a"
     },
     {
       "id": "proof-authoring-decisions",
@@ -4274,5 +4304,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "1614369ac874d5cde1d78f078b7c6343cfe18a4012440abc6ae4d66bd7636dd9"
+  "graphSha256": "16b1b7f673e907ea874d86e07b77b8fc38404acf6bc4b84ef89368b8ba18a0f0"
 };
