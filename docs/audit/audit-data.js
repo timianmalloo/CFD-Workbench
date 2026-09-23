@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:16:12Z",
+  "generated": "2026-09-23T17:23:46Z",
   "audit": [
     {
       "actor": null,
@@ -4366,6 +4366,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M37MPZRETD7HE17R6J5YYCG3",
+      "shortname": "r17-recount-lease",
+      "datetime": "2026-09-23T17:23:46Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Grant the exact R17 B0 recount-validator companion path and update the assignment inventory",
+      "summary": "Granted tools/recount-application-contracts.py as the 30th root companion lease; packet requires 93 C# cases including four Ruling 17 names while preserving 42 Python and 2505 vector floors; actual recount remains root handback work.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-r17-companions.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Allow the versioned companion to run its required B0 recount without weakening validation",
+      "done_when": "Exact path claimed, contract count and required names stated, docs gate passes, root notified",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:23:39Z",
+      "duration_seconds": 7.0
     }
   ],
   "changes": [

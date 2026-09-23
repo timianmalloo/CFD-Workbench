@@ -3814,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6696d9025579181a6e163b84e007f5bb0b183ce496382fef2a85e1d4d88d843f"
+      "sourceSha256": "0b183053b6dc475951a76734e1087fbc7e52fc624cc7883a062ee9ef726184f3"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3983,7 +3983,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Root owns 29 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.",
+      "summary": "Root owns 30 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.",
       "tags": [
         "coordination",
         "application",
@@ -4014,7 +4014,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "50da72f572d26d62f166d22c2a78f3ad2c36b7f36f72e63018cf99f92224b6c8"
+      "sourceSha256": "32059d7ab318c492f6be34c49a2df86749e4853b56471492f476043017b04fa9"
     },
     {
       "id": "privacy-review",
@@ -5234,5 +5234,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "da65ebd5e6fe783aefa9ce60ea20f883cbc0adf0e08665c78b45b5e79a901ad0"
+  "graphSha256": "7efda8c7e8d73a55eed5af2ef87bb23c2b28c8fb49ad545791519f2f6adf8410"
 };

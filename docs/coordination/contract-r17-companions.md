@@ -12,7 +12,7 @@ links:
   - {to: design-application-contracts, rel: depends-on}
   - {to: review-application-core, rel: relates-to}
 review-by: 2026-10-23
-summary: Root owns 29 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.
+summary: Root owns 30 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.
 review-suggested: []
 ---
 
@@ -32,7 +32,7 @@ Root writes no production Core/Persistence source. The companion commit must
 be reviewed and joined before the worker begins a dedicated `/2` R17/R18 code
 continuation. Neither branch joins a partial production core.
 
-## Exact authored and derived paths (29)
+## Exact authored and derived paths (30)
 
 No wildcard or neighboring directory is granted. A new affected path needs a
 typed seam and an exact claim before writing. `docs/docs-index.js` and official
@@ -48,6 +48,7 @@ audit/change render outputs are generated/register exceptions at the join.
 | Current illustrative UI contract (2) | `docs/mockups/workbench-v7.html`, `docs/mockups/workbench-v7.md` |
 | B0 fixture and proof (2) | `tools/spikes/ApplicationContracts/Program.cs`, `docs/proof/application-contracts.md` |
 | Independent review and mockup gate (2) | `docs/reviews/application-core.md`, `tools/check-foildsl.mjs` |
+| B0 recount validator (1) | `tools/recount-application-contracts.py` |
 
 The supplied/v3 references, earlier mockups, historical native spike, original
 audit/receipt payloads, `docs/examples/foildsl/reference-probe.cjs`, and
@@ -84,6 +85,11 @@ current example cannot quietly remain on the unsupported evaluator.
   unsupported behavior. Root cannot clear its own normative/scientific veto:
   Owner independently reviews the companion commit and root later reviews
   the production worker's executable `/2` result.
+- **Recount update:** the B0 C# contract gains four named Ruling 17 checks.
+  Update the validator's expected C# count from 89 to 93 and require all four
+  names. Keep its 42 Python cases, 2,505 vectors and existing required names;
+  run the actual recount after the candidate changes. A green B0 program alone
+  is not a passed recount.
 
 Before running an unfamiliar local companion command, inventory its exact
 path with `rg --files` and inspect the script's advertised arguments/dispatch.
@@ -92,7 +98,7 @@ read-only, or batch a dependent read with the initial inventory. The known
 recount entry is `tools/recount-application-contracts.py`; the coordination
 leader readback is `coord leader who`.
 
-At handback root supplies clean branch/HEAD, 29-path authored diff inventory
+At handback root supplies clean branch/HEAD, 30-path authored diff inventory
 plus official metadata exceptions, source fingerprints and retained gate
 receipts. The Coordinator joins the reviewed companion through the supported
 conductor and gives the resulting commit to the core author **after** its
