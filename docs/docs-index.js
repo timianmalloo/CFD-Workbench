@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3c5ca21390193caa635bdeec63a5811e864d5779317d8cf7a5a148e46db43f0b"
+      "sourceSha256": "908586d9ad1157bc60712ea3b4a874443efb36f71ec640ea7a923a90bf296c0a"
     },
     {
       "id": "domain-experts",
@@ -2971,7 +2971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dc2e9178ffe2ba669714c5508e63d3f3c3c3032fde35009dd1915df95adce5ec"
+      "sourceSha256": "b28043a3eab8946eecfd40a03b71d8d8d4e7e6b3b5a2b928e45a3d6309785bc1"
     },
     {
       "id": "kb-hw-glossary",
@@ -4107,7 +4107,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9ea11bbf4182cbe1def17a38f6a5bccb9b8804bda031ae581b9421e43ae987fd"
+      "sourceSha256": "f9781067596c0022645e787882ef55ad101e5c9c04e9a95ffd0730f26fb0d489"
     },
     {
       "id": "coordination-r17-companions",
@@ -4254,7 +4254,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "588901b85fdea95331bbc37db999f34599a04b9a911e2439eb1207ba41369181"
+      "sourceSha256": "c809d415e38d07ecebb08b622bc50ed4214f14339d3a79388c7d40158c239c46"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -4955,6 +4955,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "4f7269fa4a2586f8fbcc18e814e208fca70da09995d1ad12f37e079f8d74f1dc"
     },
     {
+      "id": "review-ui-application-native",
+      "path": "docs/reviews/ui-application-native.md",
+      "title": "Independent native application and adapter review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Actual native rendered interaction and accessibility verification remain open; these partial results do not accept track C or milestone M1.",
+      "tags": [
+        "application",
+        "native-ui",
+        "independent-review",
+        "accessibility",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7223221cf830bbe0cc8dcc97140563bf150b239c72617e0e342554ed4f189a71"
+    },
+    {
       "id": "review-ui-workbench",
       "path": "docs/reviews/ui-workbench.md",
       "title": "CFD-Workbench interface review and proof",
@@ -5512,5 +5559,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "00764086cb43defe9e8c5acc34ad12a029bfe2f1a1c840d68a912dddfdc66f20"
+  "graphSha256": "78add3a05b3d81f4159fcfb82dfe2d16c0a0b3d781501c6cce3471f75be431d9"
 };
