@@ -1,6 +1,9 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("CfdWorkbench.Persistence")]
 
 namespace CfdWorkbench.Core;
 
@@ -16,26 +19,62 @@ public sealed record SessionBinding(string SourceHash, string Base, string Draft
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
-    int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action);
+    int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
+    bool? PublicationKnown = null, bool? DurabilityConfirmed = null);
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
 public sealed class SessionAssessment
 {
-    internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate)
-    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; }
+    internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
+        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null)
+    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); }
     internal Guid Owner { get; }
     public GeometryStatus Status { get; }
     public string Code { get; }
     public SessionBinding? Key { get; }
     public GeometryCertificate? Certificate { get; }
+    public AuthoredBinding? SourceBinding { get; }
+    public IReadOnlyList<Diagnostic> Diagnostics { get; }
 }
 
 public sealed class AuthoringSession : IDisposable
 {
+    public AcceptedInspection InspectAccepted() => Run("inspect-accepted", () =>
+    {
+        byte[] bytes; AcceptedRow revision; DesignRow design;
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            bytes = CurrentBytes; revision = Current; design = designs.Single(item => item.Id == revision.DesignId);
+        }
+        var parsed = ParseOwned(bytes);
+        var binding = new AuthoredBinding(parsed.SourceHash, "Accepted", revision.Id, design.Id, parsed.SurfaceHash, design.Evaluator, null, null, null);
+        return new AcceptedInspection(parsed.Authored().Rebind(binding), AssessOwned(parsed));
+    });
+    public AuthoredProjection InspectDraft() => Run("inspect-draft", () =>
+    {
+        SessionDraft capture;
+        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is not null, "DSL-DRAFT-OWNED"); capture = Copy(draft!); }
+        var parsed = FoilSource.Parse(capture.Bytes); return parsed.Authored().Rebind(DraftBinding(capture, parsed));
+    });
+    private static AuthoredBinding DraftBinding(SessionDraft capture, SourceParse? parsed = null) =>
+        new(parsed?.SourceHash ?? Identity.Sha256(capture.Bytes), "Draft", null, null, parsed?.SurfaceHash,
+            parsed?.IsParsed == true ? "cfdw-cv/1" : null, capture.Base, capture.Id, capture.Generation);
     private readonly Queue<SessionEvent> events = new();
     private readonly AsyncLocal<string?> trace = new();
     private long eventSequence;
     private bool closed;
+    internal void RecordPersistence(string action, string outcome, double milliseconds, int? inputBytes, int? outputBytes,
+        string traceId, bool? publicationKnown, bool? durabilityConfirmed)
+    {
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new(eventSequence++, action == "store.read" ? "document.reopen" : "document.save", outcome,
+                milliseconds, inputBytes, outputBytes, traceId, null, null, sources.Count, accepted.Count, action, publicationKnown, durabilityConfirmed));
+        }
+    }
     public IReadOnlyList<SessionEvent> ReadLocalEvents()
     { lock (sync) return Array.AsReadOnly(events.ToArray()); }
     public void Dispose()
@@ -219,14 +258,21 @@ public sealed class AuthoringSession : IDisposable
         }
         try
         {
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null);
-            var parsed = ParseOwned(capture.Bytes); var key = Key(parsed, capture);
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
+            var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
+            Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/1" : null);
+            if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
+                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics);
+            timer.Restart(); var key = Key(parsed, capture);
+            Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/1");
             var result = AssessOwned(parsed, generation);
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null);
-            return new(authorityId, result.Status, result.Code, key, result.Certificate);
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed));
+            Diagnostic[] diagnostics = result.Status == GeometryStatus.Certified ? [] :
+                [new(result.Code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, result.Reason, "Revise the authored curves or retain the last accepted revision.")];
+            return new(authorityId, result.Status, result.Code, key, result.Certificate, DraftBinding(capture, parsed), diagnostics);
         }
         catch (ContractError error)
-        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null); }
+        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture)); }
         finally { Interlocked.Exchange(ref validating, 0); }
     }
     private string ApplyCore(string operationId, SessionAssessment assessment)

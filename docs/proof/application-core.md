@@ -13,7 +13,7 @@ links:
 review-by: 2026-10-23
 summary: >-
   Records isolated, incomplete core increments with parser, identity and continuous subset evidence.
-  Includes placed enclosures and session/history candidates; the native adapter and full platform proof remain open.
+  Includes placed enclosures, session/history, authored projection and macOS store candidates; scientific and platform review remain open.
   This checkpoint is not a join candidate or M1 acceptance claim.
 ---
 
@@ -36,13 +36,13 @@ The compiled packet, design and architecture fix the graph: contract grounding a
 geometry proof and preview → session/history/recovery → native primitive reproducers → native adapter
 fault/race proof → full contract and architecture checks → independent review → handback.
 Data dependencies make this one serial track. There is no parallel author or speculative adapter work.
-Every verification node consumes a prior failing behavior or a named fault/guard-removal control.
+Named behavioral REDs and controls first observed GREEN are distinguished in the receipts below.
 The loop variant is the remaining failed contract assertions; a budget cap triggers a report and replan.
 
 The required surface chain is native bytes → immutable rows → owned draft → certificate binding →
 immutable projection → future GUI/CLI → geometry reader. The current increment reaches source bytes → static
 parse projection → semantic identity → continuous subset proof → enclosed normalized section ordinate.
-The third increment adds candidate session/history and preview boundaries. The file-store adapter remains absent.
+The third increment adds candidate session/history and preview boundaries; the fourth adds authored projection and a macOS store candidate.
 No parsing success is a geometry certificate. No analysis or solver values are exposed.
 
 Reuse decision: the reviewed B0 exact-decimal and canonical-number routines are moved into Core, with
@@ -344,3 +344,136 @@ cross-platform gate/runtime proof, architecture checks and independent whole-dom
 review. Session/native serialization and local telemetry now have the bounded executable evidence above;
 they are not blanket contract acceptance. Coordinator requested this clean checkpoint yield the active seat
 for review before another bounded serial continuation. No partial join or acceptance is requested.
+
+## Fourth increment: native store and authored consumer boundary
+
+Audit start 2026-09-23T16:57:22Z. Own preflight observed assigned cwd, clean branch and
+`a8a635168f01cab38b87c91e7e7dd3675e4d9796`; ProjectStore, tests and Contracts exact leases allowed writes.
+One serial author, requested gpt-6-astra, effective identity and aggregate tool-call count Not recorded.
+The bounded graph was primitive prerequisite → immutable port RED → native handle implementation → fault/race
+and lifecycle controls → authored public consumer RED → projection/diagnostics → checkpoint. Width stayed one;
+no gate was removed to shorten the chain. Root/Owner review remains a separate node, not author clearance.
+
+### Native adapter and limits of the evidence
+
+`CfdWorkbench.Persistence.ProjectStore` now implements defensive SaveRequest/ReadResult and asynchronous
+SaveAsync/ReadAsync. Null expected disk SHA means create-only; a non-null token is the exact original file
+SHA, not normalized native history identity. The store moves bounded native I/O to a worker task. It does
+not interpret or adopt native project contents; the session remains the parser and adoption authority.
+The public save/reopen composition test captures an actual session image, publishes it, acknowledges exactly
+that captured image, reads exact bytes/token and reopens another session with the same accepted revision.
+
+On this measured macOS host, path resolution starts at an opened root and opens each directory component
+relative to its retained predecessor with O_NOFOLLOW/O_DIRECTORY/O_CLOEXEC. Every chain link is rechecked
+by device/inode/type before publication. Dot segments, relative paths, invalid UTF-8 strings, symlink ancestors,
+symlink/nonregular targets and the case-insensitive reserved ASCII `.cfd-` target namespace are refused.
+The native adapter rejects `/tmp` as a symlink ancestor; test fixtures use its canonical `/private/tmp` alias.
+Directory/file handles remain owned through the operation. Read captures at most 8 MB through a held regular
+file and checks metadata stability plus entry identity before exposing copied bytes.
+
+New files use an exclusive same-directory owned temp, complete bounded writes, file fsync and atomic linkat
+no-replace. Two actual concurrent creators are synchronized immediately before publication; exactly one wins,
+the other gets DOC-CONFLICT, and the complete winner's bytes survive. Existing files use an exclusive fixed
+directory-relative `.cfd-writer.claim`, exact held-file SHA checks and final entry/parent identity checks, then
+renameat. Per Ruling19, all cooperating overwrites in the selected directory contend, including different
+filenames. That conservative false contention avoids a guessed filesystem normalization policy. Case aliases
+and equivalent parent spellings were measured; no Windows or universal filesystem claim follows.
+
+Root's raw-filename claim finding was reproduced: `z8ih576w` records a second differently cased writer reaching
+ClaimCreated while the first held its claim. The fixed directory claim closes that named test in `va2ff7_0`.
+The final directory fsync now follows owned temp/claim cleanup; its ordering test was RED in `3bvkqqi6` and
+GREEN in `va2ff7_0`. Cleanup verifies retained identity, preserves collided/replaced names and is idempotent
+after its own successful unlink. It never removes a stale claim by name or age.
+
+Cancellation before publication retains the old file. Cancellation after publication resolves the operation
+without manufacturing a not-saved result. Failures after known publication return DOC-SAVE-UNCERTAIN with
+publication-known true and durability false. A publication I/O error whose result is not established also
+returns uncertainty, with no invented published hash; that named control was RED `x81f9kl0`, GREEN `0iub1e8v`.
+Atomic no-replace collision remains a known DOC-CONFLICT. DurabilityConfirmed means the file fsync and final
+directory fsync succeeded after owned cleanup; hardware power-loss durability has not been established.
+Hash-check/rename is not OS compare-and-swap. Noncooperating or malicious same-user writers remain outside
+the cooperative overwrite guarantee.
+
+Primitive signatures/flags were grounded in installed MacOSX.sdk headers. Read/write/unlink were executed
+in `y187xato` before their adapter code; prior linkat/renameat/fsync/stat probes remain retained. O_NONBLOCK
+was initially authored before its separate FIFO probe, an ordering defect rather than retroactive preflight
+proof. Its header value 4 and actual FIFO open/stat/refusal passed later in `x81f9kl0`. Another native-assumption
+class was caught at review: Darwin ELOOP is 62, not the transcribed 40. Read-symlink refusal was RED `0c3x978a`
+and GREEN `z7h0f5_c` after reading errno.h and correcting the map. Coordinator owns defect-register capture;
+the named platform refusal and FIFO tests prevent silent recurrence of these measured boundary errors.
+
+The suite exercises real parent-directory replacement, held readers across native rename, competing creators,
+case aliases, separate-name contention, unowned temp/claim collisions, replaced-owned-temp preservation,
+prepublication cancellation, before/after-publication failures, native read limits and nonregular files.
+Partial writes are real writes deliberately fragmented by the test seam; disk-full and publication EIO are
+injected boundary errors, not claims that a real volume was exhausted. The real storage-device/power-loss
+boundary and Windows sharing/reparse/native primitives remain Not assessed. Missing/unknown platform
+capabilities fail closed with DOC-UNSUPPORTED-PERSISTENCE; no path-only portable fallback exists.
+
+### Actual I/O telemetry and lifecycle (Ruling19)
+
+`ProjectStore(session)` writes measured store.read/save/publish/file-flush/final-directory-flush events into
+the existing session ring via an internal friend-assembly hook. The app gets no second hidden ring. A standalone
+store owns an otherwise empty private session/ring and disposes it. Each dispatched operation creates one
+ephemeral trace ID before Task.Run; its native phase events share that ID. Fields carry actual elapsed time,
+known byte counts and publication/durability facts. Generation/evaluator remain null at this opaque byte-store
+boundary. No path, source, name, content hash, vertex identity or raw exception text is recorded.
+
+Telemetry was behavioral RED `va2ff7_0` / `333ls0b1`, then GREEN `0yl6fbav`. Later named tests prove 256-event
+retention, cancelled/conflicted outcomes, distinct operation traces, private-path redaction, injected-store
+disposal retaining the caller session, owned-ring disposal clearing events and refusing new I/O, and in-flight
+publication completing truthfully after disposal without retaining events. Telemetry failure cannot mask an
+I/O result. Session capture/ack spans remain separate actions and are not presented as disk latency.
+
+### Immutable authored projection (Ruling16)
+
+SourceParse.Authored exposes source-bound parsed/IdCandidate/invalid facts. InspectAccepted binds them to the
+captured accepted revision, Design/Surface identity and evaluator, alongside a fresh geometry assessment;
+InspectDraft binds to base/draft/generation, including incomplete recovery. Availability does not certify
+geometry. No projection can be passed as Apply authority. Old snapshots retain their old revision and bytes
+after a later Apply. Missing-ID controls are explicitly unaccepted and not editable until existing acceptance.
+
+The projection includes labels, ordered leading/trailing custom CV IDs, normalized authored abscissae,
+authoritative binary64 SI ordinates and their exact rational representation, declared/default display units,
+applicable lock kinds, authored lock values, typed assertions, normalized/physical assignments and profile
+name/semantic identity. Profile identities are computed once per profile rather than once per assignment.
+The SI rational describes the authoritative once-rounded binary64 value, not an invented exact pre-rounding
+decimal. Nested lists are defensive read-only copies; DTO replacements cannot change session targets or history.
+Derived section/point queries are separate from assignments and add no authored station.
+
+The public consumer uses custom IDs/names/assignments, discovers the target only through public DTOs, queries
+the bound certificate, begins the correct numeric rail draft and keeps ownership through unrelated inspection.
+Its initial RED and missing-ID state RED are retained in `333ls0b1`; GREEN is `0yl6fbav`. Later controls prove
+old accepted snapshots survive Apply, incomplete recovery diagnostics carry exact source hash/base/draft/
+generation plus byte span/recovery text without a certificate, and every outward nested collection resists
+mutation. Assertion projection is inspection-only; it cannot clear the unsupported geometry gate.
+
+### Latest receipt, fingerprints and remaining work
+
+Latest command: `python3 tools/verify-application-core.py`, assigned cwd. Logical scratch
+`/tmp/cfd-application-core-20260923-z7h0f5_c`, canonical `/private/tmp/cfd-application-core-20260923-z7h0f5_c`.
+Its environment.json records all six cache/temp variables under that unique root, artifacts under that root,
+and DOTNET_GENERATE_ASPNET_CERTIFICATE=false. No certificate banner occurred. All scratch/native test fixtures
+are retained for review; no old containment artifacts or global trust state were cleaned.
+
+Build exit 0, zero warnings/errors, 4.439434374973644 seconds. Test exit 0, 159 PASS, 0.9770575420116074 seconds.
+Build PID/start receipts include 99743/99746/99748/99765/99782/99796; test PID 99813. Both receipts end with
+live={} and quiescent=true. Direct ps readback for all seven PIDs returned no rows, exit 1.
+Compiler-only failures `jo4dic1p`, `jkeh055e`, `kasfnz9s` are retained separately and are not behavioral RED.
+Controls without a specifically named earlier failure were first observed GREEN; no universal red-first claim.
+
+| Tested path | SHA-256 |
+|---|---|
+| `src/CfdWorkbench.Persistence/ProjectStore.cs` | `613d31240b55dadba2a04c7e0017024542349e60b52d4473ebb8fd8c34254ee0` |
+| `src/CfdWorkbench.Core/Contracts.cs` | `32dccc65bf06185e20faf8089e14471ca1a7b62981c36342d3b6a8a922b00eac` |
+| `src/CfdWorkbench.Core/FoilSource.cs` | `36014a20a4843245464c82111c248c645e6bb69a353da3dcc28379589885b573` |
+| `src/CfdWorkbench.Core/AuthoringSession.cs` | `ba3b5b1ecae5209e0da570af9764d6bad1b77eb633450e3c3246453b9b573b06` |
+| `tests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs` | `072e37b0d44ec3a14480717f8fa06359caf878952ce8050909aa4ee5d513e17d` |
+| `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` | `cd1e49282930cbf664ece364a8262ecb7ca204f0eebe65aa83e9bea871cf268d` |
+
+Rulings17–19 were read from the Coordinator's canonical ruling file during this run. By explicit sequencing,
+this checkpoint retains evaluator /1 and does not repair or clear the two verified scientific findings.
+Next dependency is the reviewed /2 normative/examples/B0 companion commit, then a dedicated R17 identity/
+compatibility sweep and R18 all-query deterministic arithmetic-feasibility proof. Root's scientific veto,
+independent native-store/R16/Data review, Windows runtime/gate and full acceptance remain open. This is an
+isolated progress checkpoint, never a partial B join, C release or complete implementation claim.

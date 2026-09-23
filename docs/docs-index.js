@@ -3968,7 +3968,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Records isolated, incomplete core increments with parser, identity and continuous subset evidence. Includes placed enclosures and session/history candidates; the native adapter and full platform proof remain open. This checkpoint is not a join candidate or M1 acceptance claim.",
+      "summary": "Records isolated, incomplete core increments with parser, identity and continuous subset evidence. Includes placed enclosures, session/history, authored projection and macOS store candidates; scientific and platform review remain open. This checkpoint is not a join candidate or M1 acceptance claim.",
       "tags": [
         "application",
         "core",
@@ -3991,7 +3991,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "acd77c903e776888ec0d148ed71fa6e2b95b9f1e182cf7e49ff89806da9804d9"
+      "sourceSha256": "20020b558ca9443f44da3c223f694478a48a5fa238403ae844c4483b27ec4c97"
     },
     {
       "id": "proof-application-spikes",
@@ -4908,5 +4908,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "53d7a3e31c304cf4d8470038caf9d06521101325cd82f4c4013ad53d18a24d21"
+  "graphSha256": "c79a926ce56cf68839b8289dcd43efa7f620cba7e37b03b634bfc7d968638f4f"
 };

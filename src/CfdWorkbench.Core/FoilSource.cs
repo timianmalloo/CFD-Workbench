@@ -29,6 +29,50 @@ public sealed class SourceParse
     public bool IsParsed => Definition is not null && Diagnostics.Count == 0;
     public string SourceHash => sourceIdentity.Value;
     public string? SurfaceHash => surfaceIdentity.Value;
+    public AuthoredProjection Authored()
+    {
+        var definition = Definition;
+        if (definition is null) return new(new(SourceHash, "Invalid", null, null, null, null, null, null, null), null, null, null, [], [], [], Diagnostics);
+        bool candidate = definition.Curves.Values.Any(curve => curve.MissingIds);
+        string unit = definition.UnitScale switch { -3 => "mm", -2 => "cm", _ => "m" };
+        var rails = new List<AuthoredRail>();
+        foreach (string name in new[] { "leading", "trailing" })
+        {
+            if (!definition.Curves.TryGetValue(name, out var curve)) continue;
+            var controls = curve.Points.Select((point, index) =>
+            {
+                string id = curve.Ids[index];
+                string[] locks = definition.Locks.Where(item => item.Channel.Text == name &&
+                    (item.Kind == "root_mirror" ? index < 2 : item.Id is null || item.Id.String == id)).Select(item => item.Kind).Distinct(StringComparer.Ordinal).ToArray();
+                return new AuthoredControl(id, point[0], point[1], Rational.From(point[1]).Exact,
+                    !candidate && !locks.Contains("root_mirror") && !locks.Contains("freeze"), Array.AsReadOnly(locks));
+            }).ToArray();
+            rails.Add(new(name, unit, Array.AsReadOnly(controls)));
+        }
+        var profileIdentities = definition.Profiles.Select(profile => Identity.Blake3(Encoding.UTF8.GetBytes(Jcs.Write(profile.Semantic)))).ToArray();
+        var assignments = definition.Assignments.Select(item => new AuthoredAssignment(item.Eta, item.Eta * definition.HalfSpan,
+            definition.Profiles[item.Profile].Name, profileIdentities[item.Profile]));
+        var constraints = definition.Locks.Select(item =>
+        {
+            int scale = item.Channel.Text is "leading" or "trailing" or "dihedral" ? definition.UnitScale : 0;
+            double? eta = item.Station is null ? null : StationEta(item.Station, definition.HalfSpan);
+            double[] values = item.Values.Select((value, index) => DecimalSi.Parse(value.Text, item.Kind == "freeze" && index == 0 ? 0 : scale)).ToArray();
+            return new AuthoredConstraint(item.Kind, item.Channel.Text, item.Id?.String, eta, Array.AsReadOnly(values));
+        });
+        return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, "cfdw-cv/1", null, null, null),
+            definition.Name, definition.Kind == "foil" ? unit : null, definition.Kind == "foil" ? definition.HalfSpan : null, rails, assignments, constraints, Diagnostics,
+            definition.Assertions.Select(item => new AuthoredAssertion(item.Metric.Text, item.Comparison, QuantitySi(item.Value), item.Value.Unit?.Text,
+                item.Tolerance is null ? null : QuantitySi(item.Tolerance))));
+    }
+    private static double QuantitySi(QuantitySource quantity) => DecimalSi.Parse(quantity.Number.Text,
+        quantity.Unit?.Text switch { "mm" => -3, "cm" => -2, "mm2" => -6, "cm2" => -4, null or "m" or "m2" => 0, _ => throw new ContractError("DSL-UNIT") });
+    private static double StationEta(StationSource station, double halfSpan)
+    {
+        if (station.Value.Text is "root" or "center") return 0;
+        if (station.Value.Text == "tip") return 1;
+        return station.Unit!.Text == "%" ? DecimalSi.Parse(station.Value.Text, -2) :
+            DecimalSi.Parse(station.Value.Text, station.Unit.Text switch { "mm" => -3, "cm" => -2, "m" => 0, _ => throw new ContractError("DSL-UNIT") }) / halfSpan;
+    }
 }
 
 internal sealed record SourceToken(string Text, int Start, int End)
@@ -56,7 +100,7 @@ internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, 
 }
 internal sealed record Definition(string Kind, int UnitScale, double HalfSpan, Dictionary<string, Curve> Curves,
     ProfileDefinition[] Profiles, (double Eta, int Profile)[] Assignments, string Tip, LockSource[] Locks,
-    AssertionSource[] Assertions, object Semantic);
+    AssertionSource[] Assertions, object Semantic, string Name);
 internal sealed class SourceFailure(string code, string phase, SourceToken token, string? entity = null, string? reason = null) : Exception(code)
 {
     internal string Code { get; } = code;
@@ -169,6 +213,7 @@ public static class FoilSource
         private string kind = "", tip = "open";
         private SourceToken version = new("", 0, 0), evaluator = new("", 0, 0), evaluatorVersion = new("", 0, 0);
         private SourceToken units = new("m", 0, 0), halfSpan = new("1", 0, 0), halfSpanUnit = new("m", 0, 0);
+        private string documentName = "";
 
         internal Grammar(string text)
         {
@@ -281,6 +326,7 @@ public static class FoilSource
         {
             if (Current.Text != "foildsl") throw Failure("DSL-VERSION", "Version", Current);
             Expect("foildsl"); version = Name(); kind = Choice("foil", "section"); var name = Name(); Expect("{");
+            documentName = name.String;
             if (kind == "section")
             {
                 ReadEvaluator(); Need(Current.Text == "upper", "DSL-SYNTAX", "Syntactic", Current);
@@ -415,7 +461,7 @@ public static class FoilSource
                     ["assignments"] = resolved.Select(item => new object[] { item.Eta, Array.IndexOf(ordering, item.Profile) }).ToArray(), ["tip"] = tip
                 };
             }
-            return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic);
+            return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic, documentName);
         }
         private static int? BoundLengthScale(SourceToken? unit) => unit?.Text switch
         { "m" => 0, "cm" => -2, "mm" => -3, _ => null };

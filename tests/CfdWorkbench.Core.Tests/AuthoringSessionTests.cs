@@ -10,6 +10,70 @@ internal static class AuthoringSessionTests
     { var session = new AuthoringSession(); session.Open(FoilSourceTests.Example, Id(), true); return session; }
     internal static void Run()
     {
+        Check("Ruling16_PublicConsumer_CustomIdsAssignmentsAndOwnedInspection", () =>
+        {
+            // Consumer discovers targets through public DTOs, never internal Definition or reparsing bytes.
+            byte[] candidate = FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
+            string text = System.Text.Encoding.UTF8.GetString(candidate).Replace("cv-2", "rail-middle-custom").Replace("Basic foil", "My authored foil").Replace("section-a", "Custom profile");
+            using var session = new AuthoringSession(); session.Open(System.Text.Encoding.UTF8.GetBytes(text), Id(), false);
+            var old = session.InspectAccepted(); Equal("Accepted", old.Authored.Binding.State); Equal("My authored foil", old.Authored.Name);
+            Equal("mm", old.Authored.SourceUnit); Equal(.45, old.Authored.HalfSpanMeters);
+            var leading = old.Authored.Rails.Single(r => r.Name == "leading"); var selected = leading.Controls.Single(c => c.Id == "rail-middle-custom");
+            Equal(.3, selected.Eta); Equal(0d, selected.OrdinateSi); Equal(true, selected.Editable);
+            Equal(false, leading.Controls[0].Editable); Equal(true, leading.Controls[0].ApplicableLocks.Contains("root_mirror"));
+            Equal("Custom profile", old.Authored.Assignments[1].ProfileName); Equal(.45, old.Authored.Assignments[1].SpanMeters);
+            Equal(old.Authored.Binding.SourceHash, old.Geometry.Certificate!.SourceHash);
+            _ = Geometry.PointAt(old.Geometry.Certificate, .4, .5, true);
+            string draft = Id(); session.BeginRailEdit(draft, leading.Name, selected.Id); session.UpdateDraft(draft, 0, .001);
+            var view = session.InspectDraft(); Equal(draft, view.Binding.DraftId); Equal(1L, view.Binding.Generation); Equal("Draft", view.Binding.State);
+            Equal(.001, view.Rails.Single(r => r.Name == "leading").Controls.Single(c => c.Id == selected.Id).OrdinateSi);
+            _ = session.InspectAccepted(); Equal(draft, session.Snapshot().Draft!.Id);
+            Equal(0d, old.Authored.Rails[0].Controls[2].OrdinateSi); Equal(old.Authored.Binding.AcceptedId, session.Snapshot().AcceptedId);
+            RefusesCollectionMutation(old.Authored.Rails); RefusesCollectionMutation(leading.Controls);
+            RefusesCollectionMutation(leading.Controls[0].ApplicableLocks); RefusesCollectionMutation(old.Authored.Assignments);
+            RefusesCollectionMutation(old.Authored.Constraints); RefusesCollectionMutation(old.Authored.Constraints[0].Values);
+            var replaced = selected with { Id = "forged", OrdinateSi = 99 }; Equal("forged", replaced.Id);
+            Equal(selected.Id, session.Snapshot().Draft!.VertexId);
+        });
+        Check("Ruling16_MissingIdsAreUnaccepted_AndInvalidSourceHasDiagnostics", () =>
+        {
+            var candidate = FoilSource.Parse(FoilSourceTests.Example).Authored(); Equal("IdCandidate", candidate.Binding.State);
+            Equal(true, candidate.Rails.All(r => r.Controls.All(c => !c.Editable)));
+            var invalid = FoilSource.Parse([0xff]).Authored(); Equal("Invalid", invalid.Binding.State); Equal(0, invalid.Rails.Count);
+            Equal("DSL-LEX", invalid.Diagnostics[0].Code); Equal(null, invalid.HalfSpanMeters);
+        });
+        Check("Ruling16_IncompleteRecovery_DiagnosticsRemainSourceAndGenerationBound", () =>
+        {
+            using var original = Opened(); var envelope = original.Envelope(); string draft = Id();
+            byte[] incomplete = System.Text.Encoding.UTF8.GetBytes("foildsl \"4.0\" foil");
+            envelope = envelope with { Recovery = new(draft, original.Snapshot().AcceptedId, 4, "leading", "cv-2", AuthoringSession.Chunks(incomplete)) };
+            using var session = new AuthoringSession(); session.Reopen(NativeProject.Encode(envelope)); session.ResumeRecovery();
+            string accepted = session.Snapshot().AcceptedId; var projection = session.InspectDraft(); var assessment = session.Validate(draft, 4);
+            Equal("Draft", projection.Binding.State); Equal(0, projection.Rails.Count); Equal(null, projection.HalfSpanMeters);
+            Equal("DSL-SYNTAX", assessment.Code); Equal(Identity.Sha256(incomplete), assessment.SourceBinding!.SourceHash);
+            Equal(draft, assessment.SourceBinding.DraftId); Equal(4L, assessment.SourceBinding.Generation); Equal(accepted, assessment.SourceBinding.BaseAcceptedId);
+            Equal(null, assessment.Certificate); Equal(null, assessment.Key); Equal(true, assessment.Diagnostics.Count > 0);
+            Equal(incomplete.Length, assessment.Diagnostics[0].ByteStart); Equal(true, assessment.Diagnostics[0].Recovery.Length > 0);
+            RefusesCollectionMutation(assessment.Diagnostics); Equal(accepted, session.Snapshot().AcceptedId);
+        });
+        Check("Ruling16_OldAcceptedProjection_RemainsBoundAfterApply", () =>
+        {
+            using var session = Opened(); var old = session.InspectAccepted(); string draft = Id();
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
+            var current = session.InspectAccepted(); Equal(false, old.Authored.Binding.AcceptedId == current.Authored.Binding.AcceptedId);
+            Equal(false, old.Authored.Binding.SourceHash == current.Authored.Binding.SourceHash);
+            Equal(0d, old.Authored.Rails[0].Controls[2].OrdinateSi); Equal(.001, current.Authored.Rails[0].Controls[2].OrdinateSi);
+        });
+        Check("Ruling16_AuthoredAssertionsAndExactSi_AreInspectionOnly", () =>
+        {
+            var parsed = FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/foil-assertions.foil")); var view = parsed.Authored();
+            Equal("mm", view.DisplayUnit); Equal("area", view.Assertions[0].Metric); Equal("==", view.Assertions[0].Comparison);
+            Equal(.108, view.Assertions[0].ValueSi); Equal("cm2", view.Assertions[0].DeclaredUnit); Equal(.0000001, view.Assertions[0].ToleranceSi);
+            RefusesCollectionMutation(view.Assertions);
+            var trailing = view.Rails.Single(rail => rail.Name == "trailing").Controls[0];
+            Equal(.12, trailing.OrdinateSi); Equal("1080863910568919", trailing.ExactOrdinateSi.Numerator); Equal("9007199254740992", trailing.ExactOrdinateSi.Denominator);
+            Equal(null, Geometry.Assess(parsed).Certificate);
+        });
         Check("Session_Preview_HasOwnedBindingAndMeasuredRedactedEvents", () =>
         {
             using var session = new AuthoringSession(); const string marker = "PRIVATE-SOURCE-MARKER";
@@ -186,5 +250,11 @@ internal static class AuthoringSessionTests
             Refuses("DSL-NOT-ASSESSED", () => session.Apply(Id(), assessment));
             Equal(root, session.Snapshot().AcceptedId);
         });
+    }
+    private static void RefusesCollectionMutation<T>(IReadOnlyList<T> values)
+    {
+        bool refused = false;
+        try { ((IList<T>)values).Clear(); } catch (NotSupportedException) { refused = true; }
+        Equal(true, refused);
     }
 }
