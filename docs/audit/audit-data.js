@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T20:31:27Z",
+  "generated": "2026-09-23T21:14:57Z",
   "audit": [
     {
       "actor": null,
@@ -4675,6 +4675,33 @@ window.AUDIT_DATA = {
         "short": "20f0f1265",
         "branch": "feature/application-foundation",
         "pushed": null
+      }
+    },
+    {
+      "id": "al-01M381Y9SD3PBWR1KJVW69D097",
+      "shortname": "investigate-native-save-permissions",
+      "datetime": "2026-09-23T21:14:57Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Investigate the native Save permission mismatch observed during the authorized application review.",
+      "summary": "Observed actual saved file mode0454 versus requested0600. Controlled fixed-versus-variadic openat probe reproduced0000/0000 versus0600/0600, preserving original bytes and mode. Report separates verified native ABI mechanism from inferred production cause and pending managed repair. Owner R26 authorizes separate bounded repair; root changed no production source. Investigation phase duration was not captured at grounding.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Explain the native Save permission mismatch and hand off a bounded repair with independent proof obligations.",
+      "done_when": "Measured evidence and repair phases recorded; production acceptance remains withheld pending managed and packaged native checks.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
       }
     }
   ],

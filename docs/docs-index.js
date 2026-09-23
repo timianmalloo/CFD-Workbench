@@ -2048,6 +2048,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
     },
     {
+      "id": "investigation-native-save-permissions",
+      "path": "docs/investigations/native-save-permissions.md",
+      "title": "Native save creates a file with unintended permissions",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "A real macOS Save created mode 0454 despite the store requesting 0600. A controlled ABI probe isolates fixed-versus-variadic argument passing; the managed production repair still requires independent native proof.",
+      "tags": [
+        "application",
+        "persistence",
+        "native-interop",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d3aec773faefbb3340529b965a6550938cb2d5b5e56bb9812fa6b69950b59452"
+    },
+    {
       "id": "plan-application-build",
       "path": "docs/plans/application-build.md",
       "title": "Coordinated application build execution graph",
@@ -4877,7 +4907,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0100302b95d97f4535c3a3a369b301c0f3935d02ea4ca82be7ee09a013383243"
+      "sourceSha256": "40fab8899175dbffe1d052d96a0013c44e6e8f448e8e4ce204c62e2384a1657d"
     },
     {
       "id": "review-ui-workbench",
@@ -5437,5 +5467,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d23a96a48317fd2a559613c70fe8ebec3efabd7df774e249dcfe66f497520332"
+  "graphSha256": "bb97ceb49a1a94a9711365c43e84d9234168ee2a40b891deea8cb59e747d15fe"
 };
