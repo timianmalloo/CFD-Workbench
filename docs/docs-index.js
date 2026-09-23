@@ -2625,7 +2625,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "027d2d5a71722f1dd16e6c9898454314a609b1edd025af9b4960151a5f652d46"
+      "sourceSha256": "cc42c7befae897a3038dc3eee641a08552d86001949e5b845190ee91c4295b3c"
     },
     {
       "id": "kb-hw-glossary",
@@ -3509,7 +3509,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6af4c4aa5f7e9fc951f4f32d69734e98b91f6bdf67c1e466feb81652b3beccbc"
+      "sourceSha256": "5c8e32cdda091cb41650112ad464021917381a2ad6c5398fdf1d9fa06084d5b9"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -4304,5 +4304,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9e11c478974761480fdb896c948153f050c3eb04d61623ea1d6396d204cfeb41"
+  "graphSha256": "f24d2675ecd8ee6d6cb9aa409d1057ecdf0253d54c85fe0a7d88276681394410"
 };
