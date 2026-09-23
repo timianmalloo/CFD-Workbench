@@ -10,6 +10,31 @@ internal static class AuthoringSessionTests
     { var session = new AuthoringSession(); session.Open(FoilSourceTests.Example, Id(), true); return session; }
     internal static void Run()
     {
+        Check("Ruling17_LegacySourceAndNative_NoAdoptionOrSilentRehash", () =>
+        {
+            using var current = Opened(); var before = current.Snapshot();
+            byte[] legacy = System.Text.Encoding.UTF8.GetBytes(System.Text.Encoding.UTF8.GetString(before.Source).Replace("\"cfdw-cv\" \"2\"", "\"cfdw-cv\" \"1\""));
+            Refuses("DSL-VERSION", () => current.Open(legacy, Id(), true)); Equal(before.AcceptedId, current.Snapshot().AcceptedId);
+            var envelope = current.Envelope(); envelope.Designs[0] = envelope.Designs[0] with { Evaluator = "cfdw-cv/1" };
+            byte[] saved = NativeProject.Encode(envelope); using var reopened = new AuthoringSession();
+            Refuses("DOC-VERSION", () => reopened.Reopen(saved)); Refuses("DOC-EMPTY", () => reopened.Snapshot());
+            Equal(true, saved.AsSpan().SequenceEqual(NativeProject.Encode(envelope)));
+        });
+        Check("Ruling17_NativeUnsupportedEvaluator_PrecedesSourceAdoption", () =>
+        {
+            using var current = Opened(); var before = current.Snapshot();
+            foreach (string evaluator in new[] { "cfdw-cv/1", "cfdw-cv/999", "other/2" })
+            {
+                var envelope = current.Envelope(); envelope.Designs[0] = envelope.Designs[0] with { Evaluator = evaluator };
+                // An unsupported evaluator is a native compatibility boundary,
+                // even when a source would subsequently fail source validation.
+                envelope.Sources[0] = envelope.Sources[0] with { Utf8Base64Chunks = [Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("foil unsupported"))] };
+                byte[] saved = NativeProject.Encode(envelope); byte[] copy = saved.ToArray();
+                using var reopened = new AuthoringSession();
+                Refuses("DOC-VERSION", () => reopened.Reopen(saved)); Refuses("DOC-EMPTY", () => reopened.Snapshot());
+                Equal(before.AcceptedId, current.Snapshot().AcceptedId); Equal(true, saved.AsSpan().SequenceEqual(copy));
+            }
+        });
         Check("Ruling16_PublicConsumer_CustomIdsAssignmentsAndOwnedInspection", () =>
         {
             // Consumer discovers targets through public DTOs, never internal Definition or reparsing bytes.
@@ -82,7 +107,7 @@ internal static class AuthoringSessionTests
             var preview = session.Preview(draft, 0, .5, .5, true); Equal(draft, preview.Binding.DraftId);
             var events = session.ReadLocalEvents(); var measured = events.Last(item => item.Operation == "geometry.preview");
             Equal(0L, measured.Generation); Equal(true, measured.TraceId is not null); Equal(true, measured.DurationMilliseconds >= 0);
-            Equal(true, events.Any(item => item.Operation == "geometry.validate" && item.Evaluator == "cfdw-cv/1"));
+            Equal(true, events.Any(item => item.Operation == "geometry.validate" && item.Evaluator == "cfdw-cv/2"));
             Equal(false, System.Text.Json.JsonSerializer.Serialize(events).Contains(marker, StringComparison.Ordinal));
             Equal(false, System.Text.Json.JsonSerializer.Serialize(events).Contains(draft, StringComparison.Ordinal));
         });

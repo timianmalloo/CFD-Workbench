@@ -59,7 +59,7 @@ public sealed class AuthoringSession : IDisposable
     });
     private static AuthoredBinding DraftBinding(SessionDraft capture, SourceParse? parsed = null) =>
         new(parsed?.SourceHash ?? Identity.Sha256(capture.Bytes), "Draft", null, null, parsed?.SurfaceHash,
-            parsed?.IsParsed == true ? "cfdw-cv/1" : null, capture.Base, capture.Id, capture.Generation);
+            parsed?.IsParsed == true ? "cfdw-cv/2" : null, capture.Base, capture.Id, capture.Generation);
     private readonly Queue<SessionEvent> events = new();
     private readonly AsyncLocal<string?> trace = new();
     private long eventSequence;
@@ -126,15 +126,15 @@ public sealed class AuthoringSession : IDisposable
         var timer = System.Diagnostics.Stopwatch.StartNew(); SourceParse parsed;
         try { parsed = SessionSource.Parse(bytes); }
         catch (ContractError error) { Record("language.parse", error.Code, timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, null); throw; }
-        Record("language.parse", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, bytes.Length, null, "cfdw-cv/1");
+        Record("language.parse", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, bytes.Length, null, "cfdw-cv/2");
         timer.Restart(); _ = parsed.SourceHash; _ = parsed.SurfaceHash;
-        Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/1");
+        Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/2");
         return parsed;
     }
     private GeometryAssessment AssessOwned(SourceParse parsed, long? generation = null)
     {
         var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed);
-        Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, "cfdw-cv/1");
+        Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, "cfdw-cv/2");
         return result;
     }
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
@@ -187,7 +187,7 @@ public sealed class AuthoringSession : IDisposable
     static byte[] Decode(string[] chunks) => chunks.SelectMany(Convert.FromBase64String).ToArray();
     AcceptedRow Current => accepted.Single(a => a.Id == current);
     byte[] CurrentBytes => Decode(sources.Single(s => s.Id == Current.SourceId).Utf8Base64Chunks);
-    SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/1", p.SurfaceHash!, d.Rail, d.VertexId);
+    SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/2", p.SurfaceHash!, d.Rail, d.VertexId);
     void RequireAdmission(SourceParse p, SessionBinding key)
     {
         var assessment = AssessOwned(p);
@@ -209,7 +209,7 @@ public sealed class AuthoringSession : IDisposable
             p = ParseOwned(candidate);
             if (Retry(operationId, "open:" + p.SourceHash, out _)) return candidate;
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY");
-            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/1", p.SurfaceHash!, "", "");
+            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash!, "", "");
             RequireAdmission(p, key);
             string id = Commit(p, operationId, "open"); operations.Add(operationId, ("open:" + p.SourceHash, id)); return candidate;
         }
@@ -220,7 +220,7 @@ public sealed class AuthoringSession : IDisposable
         string? parent = current; string? priorDesign = current is null ? null : Current.DesignId;
         string design = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash! == p.SurfaceHash! ? priorDesign : Guid.NewGuid().ToString("D");
         var nextDesigns = designs.ToList(); var nextSources = sources.ToList();
-        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, "cfdw-cv/1"));
+        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, "cfdw-cv/2"));
         if (!nextSources.Any(s => s.Id == p.SourceHash)) nextSources.Add(new(p.SourceHash, Chunks(p.Source)));
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId));
@@ -260,11 +260,11 @@ public sealed class AuthoringSession : IDisposable
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
-            Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/1" : null);
+            Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
                 parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics);
             timer.Restart(); var key = Key(parsed, capture);
-            Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/1");
+            Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             var result = AssessOwned(parsed, generation);
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed));
             Diagnostic[] diagnostics = result.Status == GeometryStatus.Certified ? [] :
@@ -301,7 +301,7 @@ public sealed class AuthoringSession : IDisposable
             if (target is null) { operations.Add(op, (payload, current!)); return current!; }
             var targetRow = accepted.Single(a => a.Id == target);
             var targetParsed = ParseOwned(Decode(sources.Single(s => s.Id == targetRow.SourceId).Utf8Base64Chunks));
-            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/1", targetParsed.SurfaceHash!, "", ""));
+            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/2", targetParsed.SurfaceHash!, "", ""));
             var cursor = new CursorRow(cursors.Count, target, payload, op);
             NativeProject.Preflight(EnvelopeCore() with { Cursors = [.. cursors, cursor] }, envelopeCap);
             if (forward) redo.Pop(); else redo.Push(current!);
@@ -362,7 +362,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY"); var env = NativeProject.Read(image);
             var replay = NativeProject.Replay(env); var active = env.Accepted.Single(a => a.Id == replay.Current);
             var p = ParseOwned(Decode(env.Sources.Single(s => s.Id == active.SourceId).Utf8Base64Chunks));
-            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/1", p.SurfaceHash!, "", "");
+            var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash!, "", "");
             RequireAdmission(p, key);
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
@@ -449,10 +449,13 @@ public static class NativeProject
         Uuid(e.ProjectId);
         Guard.Require(e.Sources.Length > 0 && e.Designs.Length > 0 && e.Accepted.Length > 0 && e.Cursors.Length > 0, "DOC-REFERENCE");
         Guard.Require(e.Sources.Select(x => x.Id).Distinct().Count() == e.Sources.Length && e.Designs.Select(x => x.Id).Distinct().Count() == e.Designs.Length && e.Accepted.Select(x => x.Id).Distinct().Count() == e.Accepted.Length, "DOC-REFERENCE");
+        // Native compatibility is checked before parsing any retained source or
+        // considering adoption. An older evaluator is not a broken reference.
+        foreach (var design in e.Designs) Guard.Require(design.Evaluator == "cfdw-cv/2", "DOC-VERSION");
         var parsed = new Dictionary<string, SourceParse>();
         foreach (var s in e.Sources) { Hash(s.Id); byte[] bytes = Decode(s.Utf8Base64Chunks); Guard.Require(Identity.Sha256(bytes) == s.Id, "DOC-INTEGRITY"); var p = SessionSource.Parse(bytes); Guard.Require(p.Definition!.Curves.Values.All(c => !c.MissingIds), "DOC-INTEGRITY"); parsed.Add(s.Id, p); }
         var designs = new Dictionary<string, DesignRow>();
-        foreach (var d in e.Designs) { Uuid(d.Id); Hash(d.SurfaceHash!); Guard.Require(d.Evaluator == "cfdw-cv/1" && (designs.Count == 0 ? d.Parent is null : d.Parent is not null && designs.ContainsKey(d.Parent)), "DOC-REFERENCE"); designs.Add(d.Id, d); }
+        foreach (var d in e.Designs) { Uuid(d.Id); Hash(d.SurfaceHash!); Guard.Require(designs.Count == 0 ? d.Parent is null : d.Parent is not null && designs.ContainsKey(d.Parent), "DOC-REFERENCE"); designs.Add(d.Id, d); }
         var accepted = new Dictionary<string, AcceptedRow>();
         foreach (var a in e.Accepted)
         {

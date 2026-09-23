@@ -59,7 +59,7 @@ public sealed class SourceParse
             double[] values = item.Values.Select((value, index) => DecimalSi.Parse(value.Text, item.Kind == "freeze" && index == 0 ? 0 : scale)).ToArray();
             return new AuthoredConstraint(item.Kind, item.Channel.Text, item.Id?.String, eta, Array.AsReadOnly(values));
         });
-        return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, "cfdw-cv/1", null, null, null),
+        return new(new(SourceHash, candidate ? "IdCandidate" : "Parsed", null, null, SurfaceHash, "cfdw-cv/2", null, null, null),
             definition.Name, definition.Kind == "foil" ? unit : null, definition.Kind == "foil" ? definition.HalfSpan : null, rails, assignments, constraints, Diagnostics,
             definition.Assertions.Select(item => new AuthoredAssertion(item.Metric.Text, item.Comparison, QuantitySi(item.Value), item.Value.Unit?.Text,
                 item.Tolerance is null ? null : QuantitySi(item.Tolerance))));
@@ -90,13 +90,13 @@ internal sealed record AssertionSource(SourceToken Metric, string Comparison, Qu
 internal sealed record Curve(string Path, int Degree, double[] Knots, double[][] Points, string[] Ids,
     SourceToken[] Ordinates, int InsertAt, bool MissingIds)
 {
-    internal object Semantic(double factor = 1) => new Dictionary<string, object?>
-    { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] * factor }).ToArray() };
+    internal object Semantic() => new Dictionary<string, object?>
+    { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] }).ToArray() };
 }
 internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure)
 {
     internal object Semantic => new Dictionary<string, object?>
-    { ["evaluator"] = new[] { "cfdw-cv", "1" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
+    { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
 }
 internal sealed record Definition(string Kind, int UnitScale, double HalfSpan, Dictionary<string, Curve> Curves,
     ProfileDefinition[] Profiles, (double Eta, int Profile)[] Assignments, string Tip, LockSource[] Locks,
@@ -416,7 +416,7 @@ public static class FoilSource
         internal Definition Validate()
         {
             Need(version.String == "4.0", "DSL-VERSION", "Version", version);
-            Need(evaluator.String == "cfdw-cv" && evaluatorVersion.String == "1", "DSL-VERSION", "Version", evaluator);
+            Need(evaluator.String == "cfdw-cv" && evaluatorVersion.String == "2", "DSL-VERSION", "Version", evaluator);
             CheckNumericRange();
             Need(profiles.Count <= 4096 && assignments.Count <= 4096 && locks.Count + assertions.Count <= 4096, "DSL-LIMIT", "Resource", version);
             int scale = kind == "foil" ? Scale(units) : 0;
@@ -454,9 +454,9 @@ public static class FoilSource
                 var ordering = resolved.Select(item => item.Profile).Distinct().ToArray();
                 semantic = new Dictionary<string, object?>
                 {
-                    ["format"] = "foildsl-geometry-4.0", ["kind"] = "foil", ["evaluator"] = new[] { "cfdw-cv", "1" },
+                    ["format"] = "foildsl-geometry-4.0", ["kind"] = "foil", ["evaluator"] = new[] { "cfdw-cv", "2" },
                     ["frame"] = "aft-starboard-up-root-le", ["symmetry"] = "mirror_y", ["half_span_m"] = h,
-                    ["channels"] = curves.Where(pair => !pair.Key.StartsWith("profile:", StringComparison.Ordinal)).ToDictionary(pair => pair.Key, pair => (object?)pair.Value.Semantic(pair.Key == "twist" ? 0.017453292519943295 : 1)),
+                    ["channels"] = curves.Where(pair => !pair.Key.StartsWith("profile:", StringComparison.Ordinal)).ToDictionary(pair => pair.Key, pair => (object?)pair.Value.Semantic()),
                     ["profiles"] = ordering.Select(index => definitions[index].Semantic).ToArray(),
                     ["assignments"] = resolved.Select(item => new object[] { item.Eta, Array.IndexOf(ordering, item.Profile) }).ToArray(), ["tip"] = tip
                 };

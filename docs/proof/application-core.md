@@ -477,3 +477,142 @@ Next dependency is the reviewed /2 normative/examples/B0 companion commit, then 
 compatibility sweep and R18 all-query deterministic arithmetic-feasibility proof. Root's scientific veto,
 independent native-store/R16/Data review, Windows runtime/gate and full acceptance remain open. This is an
 isolated progress checkpoint, never a partial B join, C release or complete implementation claim.
+
+## Fifth increment: versioned identity and deterministic query admission
+
+This run began at 2026-09-23T17:35:27Z on clean `2407b61`. Requested model gpt-6-astra;
+effective identity and aggregate tool-call count Not recorded. The planned bound was 60 calls/35 minutes;
+after context continuation the author explicitly limited remaining work to gate/proof/commit closure rather
+than inventing a remaining-call measurement. No subagents or Windows executions occurred.
+
+Owner Ruling 20's reviewed Rulings 17–19 companions were joined from Coordinator `1582d69` through the
+supported conductor into isolated core `65ac0b9`. Generated index conflict used official derivation;
+audit rows were retained. The first merge commit was refused by Root's review-document lease. An incorrectly
+sequenced dependent conductor continuation also ran before that refusal was inspected. Both raw receipts
+remain in task scratch. Work stopped; Root released the exact lease and Coordinator authorized separately
+checked commit/continue operations. This is a sequencing defect, not an approved general lease bypass.
+Control: never issue a dependent commit/conductor command before reading the prior exit and index state.
+The conductor's generated audit success fields precede its final gate; they do not establish final success.
+The retained `join-fbabb0os` run exited 8: 2/11 gates failed. The exact causes were the expected `/1`
+production versus authoritative `/2` examples, and two missing LF text-write arguments/stdio encoding guard
+in the leased production gate. Coordinator authorized those same-scope repairs. No `/1` fixture restoration
+or gate skip occurred. Final integrated verification below closes both failures.
+
+Ruling 17 implementation stores the original binary64 **degree** CV ordinates in `/2` semantic identity,
+including profile evaluator version and session/native bindings. The evaluator still evaluates the degree
+spline, multiplies by the pinned binary64 radians factor, and rounds exactly once. The collision inputs
+1.791 and 1.7910000000000001 now have distinct semantic hashes. `/1` text refuses `DSL-VERSION` without
+source replacement. Native unsupported evaluator bindings refuse `DOC-VERSION` before retained-source
+parsing or adoption. Existing save/reopen/Undo/Redo/store controls now consume the authoritative `/2` example.
+
+Root's authentic historical `/1` native file exposed a diagnostic-boundary defect: native source parsing
+leaked `DSL-VERSION`; the first authored test had mutated only a binding and incorrectly expected
+`DOC-REFERENCE`. The class is compatibility checks delegated past the container boundary. The sweep
+separated source and native version checks, and the native loader now checks all design evaluators before
+source parsing. Named controls assert unsupported `/1`, unknown evaluator/version, untouched input bytes,
+and empty session after refusal. Root's authentic-file consumer remains separate evidence from those tests.
+
+### All-query feasibility derivation
+
+Admission now produces an immutable `QueryFeasibilityWitness` bound to the certificate's exact source and
+surface. Its algorithm is `common-denominator-dyadic-128/taylor-grid-64/v1`. It records the actual span count,
+degrees, common-denominator bit bounds, refined numerator/denominator bounds, maximum intermediate path,
+32768-bit ceiling, operation bound, inverse depth 128 and angle grid 64. The certificate retains the exact
+polynomial spans and exact maximum witnesses internally. Display sampling never supplies admission authority.
+
+For each computed span let D be the LCM of the reduced denominators of all X/Y Bernstein coefficients and
+M the largest absolute numerator when represented over D. Every subdivision coefficient is a convex
+combination of its ancestors. At dyadic depth d its denominator divides D·2^(p·d), and the corresponding
+numerator magnitude is at most M·2^(p·d). The implementation uses d=128, conservatively beyond the last
+successful query depth 127. It also bounds the *uncancelled* addition and division-by-two operands of each
+triangular split. Existing whole-domain derivative/hull proof establishes that every span meets the query
+ordinate tolerance by depth 127. Endpoint returns and interval selection are covered by the same bounds.
+
+Every finite binary64 query in [0,1] has an exact reduced numerator of at most 53 bits and a denominator
+dividing 2^1074. The abstraction adds one-bit slack, covers construction, scans, endpoint comparisons and
+cross-products against refined coefficients, and bounds tolerance comparisons. It propagates actual
+expression bounds for camber, difference, maximum reciprocal, thickness, normalized section, rotation,
+chord scaling, translation and mirrored span. For sizes (N,D), addition/subtraction use
+(max(Na+Db,Nb+Da)+1,Da+Db); product uses (Na+Nb,Da+Db); division uses (Na+Db,Da+Nb).
+Interval extrema additionally account for cross-products before comparison. Reduced outputs cannot exceed
+these uncancelled bounds. Normalized section range and placed coordinate range are bounded before admission.
+
+The once-rounded binary64 angle is enclosed outward on the dyadic grid 2^-64. This widens a query interval;
+it never changes source identity, source CV values, the degree spline or the once-rounded evaluator angle.
+Because the admitted angle hull lies in [-1,1], outward grid endpoints also lie there. Center and radius
+denominators divide 2^65. Taylor term k has denominator dividing 2^(65k)·k!, k≤33. All sums and remainder
+1/32! plus radius divide 2^(65·33)·33!, below 2270 bits; 2400-bit result bounds and 5000-bit intermediate
+bounds include pre-reduction recurrence, sums and comparisons. Grid rounding shifts/divrem are bounded too.
+`PlacementWidth` includes the added interval width 2/2^64; `Trigonometry` propagates its actual radius.
+Tiny angles may share an enclosure containing zero, but are not silently evaluated as zero.
+
+`DecimalSi.Round` exponent alignment and normal/subnormal numerator shifts, denominator shifts, divrem and
+doubled remainder are included. Outward conversion comparisons include the full finite-binary64 rational
+range (including denominators 2^1074). The witness records the largest such path, rather than estimating from
+the successful samples. Arithmetic bounds above 32768 or the operation ceiling refuse before certificate
+issuance with `GEOMETRY-QUERY-RESOURCE`; the expensive subnormal-knot fixture exercises this route.
+
+The operation measure counts rational primitive arithmetic/comparisons and bounded conversion calls; it
+does **not** count internal BigInteger limb instructions or GCD iterations, and is not a CPU-time estimate.
+Per curve the upper bound is 8·spanCount + 128·(8p(p+1)+32(p+1)+64), covering two-coordinate triangular
+splits, extrema, comparisons, interval selection and tolerances. A fixed 10000 reserve covers the remaining
+straight-line query: fewer than 64 interval operators at a conservative 32 primitive units each, 16 Taylor
+iterations at 16 units each, 32 factorial steps at two units each, and fewer than 32 conversions plus fixed
+construction/normalization/sign/range checks. These conservative sub-bounds are below the reserve; the
+32768-bit operand limit bounds the size of each underlying BigInteger/GCD input. The admitted ceiling is
+one million primitive units. The dyadic fixture records 321472 units and a maximum 20502-bit bound at
+`placed-X/round-shift-divrem`. This mathematical work bound is independent of OS scheduling.
+
+Queries retain cooperative time and cancellation checks, with `GEOMETRY-BUDGET` and `GEOMETRY-CANCELLED`
+distinct from deterministic proof failures. A deterministic refusal after certificate admission now reports
+`GEOMETRY-CERTIFICATE-DEFECT`, not ordinary uncertainty. Tests cover both environmental outcomes and a
+subsequent normal query. No hard one-second wall-time guarantee is claimed.
+
+### Executable evidence and final frozen source
+
+R17 initial RED `blk4_xki` and GREEN `bsbgn0ac` are retained. The initial R18 test incorrectly supplied four
+CVs where the grammar requires at least six; its `DSL-PATCH` failure was fixture rejection, not tiny-angle
+proof. Corrected seven-CV run `_vat6wvz` built successfully and failed for certified ±1e-300 query arithmetic
+and absent feasibility witness; zero and minimum-subnormal cases passed. `iujqm0c6` first closed those
+failures; `iy15m3m1` added environmental outcomes, all four side/port combinations at ten finite-binary64
+domain boundary pairs, and pre-admission expensive-span refusal. Root's native diagnostic finding generated
+named RED `u8xzpxk0` (wrong DOC-REFERENCE/DOC-INTEGRITY), followed by the final native guard GREEN below.
+An intermediate native test used a nonempty session and correctly hit DOC-SESSION-NOT-EMPTY; it was corrected
+to a fresh-session fixture before the meaningful RED. None of these fixture mistakes is claimed as proof.
+
+Final supported `run-verify-gates.py` receipt is `/tmp/cfd-application-core-20260923-integrated-1b_1cn36`:
+exit 0, all 11 gates passed, 6.687411791994236 seconds. Nested production run
+`/tmp/cfd-application-core-20260923-9ty5gkbm` records build exit 0 with zero warnings/errors (4.383033499994781s),
+172 PASS/test exit 0 (1.264692583004944s). Core DLL SHA-256
+`86a9e74ba2c4054840df81fa5d7438ec50306d5fd21805674b43f0dcb5eaa261`.
+The literal `/tmp` roots resolve through macOS `/private/tmp`; all six cache/temp variables and artifacts
+are task-local, certificate generation=false before launch. No certificate banner occurred. Outer PID9030,
+build PID9036 and descendants 9040/9043/9072/9103/9130, and test PID9159 have recorded start identities,
+exit codes, live={} and quiescent=true. Scratch and earlier containment evidence remain preserved.
+Documentation check: 103 artifacts, zero defects/index drift, 77 existing nonblocking review suggestions.
+
+| Tested path | SHA-256 |
+|---|---|
+| `src/CfdWorkbench.Core/FoilSource.cs` | `c8daf453b21fbdc705e83cf6d64ec0f583ebd96a6275bc0314598f3463e38c1f` |
+| `src/CfdWorkbench.Core/Geometry.cs` | `59aef82a565822c39166cd630091a506eb8e21c86183d5da1185d4a2211a8f9e` |
+| `src/CfdWorkbench.Core/AuthoringSession.cs` | `2d95f0139cd807cc739815ca474ff8f9cd95930281eb086b17ec9693e6e8b405` |
+| `tests/CfdWorkbench.Core.Tests/FoilSourceTests.cs` | `560b97d5c63c4121ced586cf0d8d06728c5089e95dac6eda5333e603e3bfa469` |
+| `tests/CfdWorkbench.Core.Tests/GeometryTests.cs` | `163964fb3c75f2a4b9367a73d1b4cd61b7c9b8961297de8f1ec1bddbd7c5158d` |
+| `tests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs` | `79b437cdb52b96d35c6f20bb8190167ca058b3093f2731d58d84ea1fef8e1673` |
+| `tools/verify-application-core.py` | `416ef8c6adacb2aed27e3150c76f7bf0c1be83d13adb2a81cf49e314cfd9180a` |
+
+Root's bounded frozen scientific review found no mathematical blocker in the common-denominator,
+intermediate/rounding, Taylor-grid and propagated-width argument. Its exact rational trig oracle enclosed
+the collision cases and constant tiny-angle point. This is independent bounded evidence, not universal
+sample coverage or a replacement for the derivation. Final independent frozen-DLL follow-up reports 204
+assertions PASS, including authentic historical `/1` native DOC-VERSION with bytes/session preserved and
+`/2` Example edit/save/reopen/Undo/Redo. The author read its retained results and verified hashes:
+`/tmp/cfd-evaluator2-review.O3NdvG/receipts/tests.log` SHA-256
+`7101da3d92f3ae608a3c662548cc83d58b58f9df81585f78af6c9d6fca727be0`, and
+`exact-placement-final.json` SHA-256 `e1b2cf19a1ff4750aefcb944187a4e6b2fe794bea85850b3cd40982db8be99e5`.
+The latter records exact rational X/Y/Z enclosure for the two distinct-angle collision inputs and constant
+tiny angle; reviewer reports build/run exit 0 and three owned PID/start pairs absent. Review disposition
+remains the independent reviewer's decision. Cross-platform execution/Windows store capability,
+remaining full-contract review and acceptance remain open. The commit is an isolated progress checkpoint,
+not a production B join, C dispatch, or complete implementation claim. Defect-class register integration
+belongs to the Coordinator's ledger lease; the classes and executable controls above are handed back.

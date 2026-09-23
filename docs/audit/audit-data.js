@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:38:57Z",
+  "generated": "2026-09-23T17:57:47Z",
   "audit": [
     {
       "actor": null,
@@ -4663,6 +4663,41 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T17:38:46Z",
       "duration_seconds": 11.0
+    },
+    {
+      "id": "al-01M37PN8JWNSF0XHGJDMVEBWXQ",
+      "shortname": "core-r17-r18-checkpoint",
+      "datetime": "2026-09-23T17:57:47Z",
+      "session": "cfd-application-core-20260923",
+      "prompt": "Resume isolated serial core after reviewed R17-R19 companion join; implement versioned degree identity and all-query arithmetic feasibility with bounded proof and clean checkpoint.",
+      "summary": "Joined reviewed companion at65ac0b9; repaired /2 identity/native compatibility and all-query feasibility. Proper RED then172PASS; all11 integrated gatesPASS. Root final204 assertion consumerPASS reported, review disposition pending. Preserve join lease refusal and premature continuation incident. Isolated checkpoint only; Windows/full acceptance remain open; call count Not recorded.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Implement R17 versioned identity and R18 deterministic query admission in exact leased core paths.",
+      "done_when": "Versioned legacy refusal and deterministic query controls pass, source proof and lifecycle receipts bind a clean isolated checkpoint for independent review.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T17:35:27Z",
+      "duration_seconds": 1340.0,
+      "git": {
+        "sha": "65ac0b94a50d421d9f26ff415fe2866d37a724d4",
+        "short": "65ac0b94a",
+        "branch": "feature/application-core",
+        "pushed": null
+      }
     }
   ],
   "changes": [

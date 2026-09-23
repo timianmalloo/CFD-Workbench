@@ -4368,7 +4368,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "20020b558ca9443f44da3c223f694478a48a5fa238403ae844c4483b27ec4c97"
+      "sourceSha256": "f9470005ce24d78e009a1c399d28d68cff213ad85c1b86a72e80db1d955c69c9"
     },
     {
       "id": "proof-application-spikes",
@@ -5425,5 +5425,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6752804a44c10e01e83167a9ff394fee6421aad109bd5e0e92d6ac8b53ea5bbe"
+  "graphSha256": "0e67eeaff3a2277f7d08e32e4f9caa01511a011236e09fc034ffdd0d676e31c4"
 };

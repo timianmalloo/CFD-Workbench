@@ -11,6 +11,10 @@ import sys
 import tempfile
 import time
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parents[1]
 
 def process_table() -> dict[int, dict[str, object]]:
@@ -70,7 +74,7 @@ def terminate_owned(group: int, owned: dict[int, str]) -> None:
 
 def write_receipt(scratch: Path, receipt: dict[str, object]) -> None:
     path = scratch / "receipts" / f"process-{receipt['pid']}.json"
-    path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def reap_direct_child(child: subprocess.Popen[str]) -> None:
@@ -163,7 +167,7 @@ def main() -> None:
         "DOTNET_SKIP_FIRST_TIME_EXPERIENCE", "DOTNET_CLI_TELEMETRY_OPTOUT",
         "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER", "DOTNET_GENERATE_ASPNET_CERTIFICATE",
     )}
-    (scratch / "receipts" / "environment.json").write_text(json.dumps(receipt_environment, indent=2), encoding="utf-8")
+    (scratch / "receipts" / "environment.json").write_text(json.dumps(receipt_environment, indent=2), encoding="utf-8", newline="\n")
     artifacts = scratch / "artifacts"
     # SIGTERM follows the same finally/owned-cleanup path as an interactive interrupt.
     signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(128 + signum))

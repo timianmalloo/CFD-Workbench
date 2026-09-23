@@ -9,6 +9,18 @@ internal static class FoilSourceTests
     internal static byte[] Example => File.ReadAllBytes("docs/examples/foildsl/foil-basic.foil");
     internal static void Run()
     {
+        Check("Ruling17_DegreeIdentity_DoesNotCollapseDistinctInputs", () =>
+        {
+            var a = Parse(Text.Replace("(0.3, -0.25)", "(0.3, 1.791)"));
+            var b = Parse(Text.Replace("(0.3, -0.25)", "(0.3, 1.7910000000000001)"));
+            Equal(true, a.IsParsed); Equal(true, b.IsParsed); Equal(false, a.SurfaceHash == b.SurfaceHash);
+        });
+        Check("Ruling17_LegacySource_RefusedWithOriginalBytes", () =>
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(Text.Replace("\"cfdw-cv\" \"2\"", "\"cfdw-cv\" \"1\""));
+            var legacy = FoilSource.Parse(bytes); Equal(false, legacy.IsParsed); Equal("DSL-VERSION", legacy.Diagnostics[0].Code);
+            Equal(true, bytes.AsSpan().SequenceEqual(legacy.Source)); Equal(null, legacy.SurfaceHash);
+        });
         Check("Ruling15_UnknownUnits_DoNotInventOverflow", () => DiagnosticCase(Text.Replace("units mm", "units alien").Replace("(0.5, 0)", "(0.5, 1e309)"), "DSL-UNIT", "Structural", "alien"));
         Check("Ruling15_MissingUnit_PreventsOverflowBinding", () => DiagnosticCase(Text.Replace("450 mm", "1e309"), "DSL-SYNTAX", "Syntactic", "\"cfdw-cv\""));
         Check("Ruling15_UnknownChannel_DoesNotInventOverflow", () => DiagnosticCase(Text.TrimEnd()[..^1] + " locks { value alien at root 1e309 } }", "DSL-SYNTAX", "Syntactic", "alien"));

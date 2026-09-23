@@ -8,6 +8,60 @@ internal static class GeometryTests
 {
     internal static void Run()
     {
+        foreach (string value in new[] { "0", "1e-300", "-1e-300", "5e-324", "-5e-324" })
+            Check("Ruling18_ConstantTwist_" + value + "_QueriesComplete", () =>
+            {
+                string source = System.Text.RegularExpressions.Regex.Replace(DyadicProfile(), @"twist cv \{[^}]+\}",
+                    "twist cv { degree 3 knots [0,0,0,0,.5,.5,.5,1,1,1,1] points [" +
+                    string.Join(",", new[] { "0", ".125", ".25", ".5", ".75", ".875", "1" }.Select(x => "(" + x + "," + value + ")")) + "] }");
+                var certificate = Geometry.Assess(Prepared(source)).Certificate ?? throw new InvalidOperationException("Constant twist expected admitted");
+                var point = Geometry.PointAt(certificate, .203125, 1, true); Contains(point.X, .12);
+                // Tiny angles perturb Z by much less than the declared enclosure, but are never replaced by zero.
+                Contains(point.Z, -.12 * Math.Sin(double.Parse(value, System.Globalization.CultureInfo.InvariantCulture) * 0.017453292519943295));
+                _ = Geometry.SectionAt(certificate, double.Epsilon, Math.BitDecrement(1));
+            });
+        Check("Ruling18_Certificate_CarriesActualAllQueryArithmeticWitness", () =>
+        {
+            var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
+            Equal(true, certificate.QueryFeasibility is not null);
+            Equal(true, certificate.QueryFeasibility!.MaximumIntermediateBits <= certificate.QueryFeasibility.RationalBitLimit);
+            Equal(true, certificate.QueryFeasibility.Spans.Count > 0);
+            Equal(true, certificate.QueryFeasibility.RationalOperationsUpper <= 1000000);
+            Console.WriteLine("QUERY FEASIBILITY RECEIPT " + System.Text.Json.JsonSerializer.Serialize(certificate.QueryFeasibility));
+        });
+        Check("Ruling18_QueryEnvironmentalOutcomes_SeparateFromDeterministicCaps", () =>
+        {
+            var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
+            Refuses("GEOMETRY-BUDGET", () => Geometry.PointAt(certificate, .5, .5, true, timeBudget: TimeSpan.Zero));
+            Refuses("GEOMETRY-BUDGET", () => Geometry.SectionAt(certificate, .5, .5, TimeSpan.Zero));
+            using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
+            Refuses("GEOMETRY-CANCELLED", () => Geometry.PointAt(certificate, .5, .5, true, cancellationToken: cancellation.Token));
+            Refuses("GEOMETRY-CANCELLED", () => Geometry.SectionAt(certificate, .5, .5, cancellationToken: cancellation.Token));
+            _ = Geometry.PointAt(certificate, .5, .5, true);
+        });
+        Check("Ruling18_FiniteBinary64QueryBoundaries_CompleteBothSidesAndPorts", () =>
+        {
+            var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
+            double[] queries = [0, double.Epsilon, Math.ScaleB(1, -1022), Math.ScaleB(1, -512), Math.ScaleB(1, -53),
+                Math.BitDecrement(.5), .5, Math.BitIncrement(.5), Math.BitDecrement(1), 1];
+            foreach (double x in queries)
+                foreach (bool upper in new[] { false, true })
+                    foreach (bool port in new[] { false, true })
+                    {
+                        var point = Geometry.PointAt(certificate, x, 1 - x, upper, port);
+                        foreach (var coordinate in new[] { point.X, point.Y, point.Z })
+                            Equal(true, double.IsFinite(coordinate.Lower) && double.IsFinite(coordinate.Upper) &&
+                                coordinate.Upper - coordinate.Lower <= certificate.PlacementWidthUpper);
+                        _ = Geometry.SectionAt(certificate, x, 1 - x);
+                    }
+        });
+        Check("Ruling18_ExpensiveExactSpan_PreAdmissionRefusal", () =>
+        {
+            var assessment = Geometry.Assess(Prepared(Text.Replace("0.25, 0.5, 0.75", "5e-324, 0.5, 0.75")));
+            Equal(GeometryStatus.NotAssessed, assessment.Status);
+            Equal("GEOMETRY-QUERY-RESOURCE", assessment.Code);
+            Equal(null, assessment.Certificate);
+        });
         Check("Geometry_TwistOutsideWholeDomainTaylorProof_NotAssessed", () => Equal(GeometryStatus.NotAssessed,
             Geometry.Assess(Prepared(Text.Replace("(1, -2)", "(1, -90)"))).Status));
         Check("Geometry_PlacementWidthBeyondBudget_NotAssessed", () => Equal(GeometryStatus.NotAssessed,

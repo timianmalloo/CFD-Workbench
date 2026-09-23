@@ -11,13 +11,16 @@ public sealed record GeometryWitness(string Curve, ExactRatio DomainStart, Exact
 public sealed record EnclosedOrdinate(double Lower, double Upper);
 public sealed record SectionEnclosure(EnclosedOrdinate Upper, EnclosedOrdinate Lower);
 public sealed record PlacedPointEnclosure(EnclosedOrdinate X, EnclosedOrdinate Y, EnclosedOrdinate Z);
+public sealed record QuerySpanBound(string Curve, int Span, int Degree, int CommonDenominatorBits, int RefinedNumeratorBits, int RefinedDenominatorBits);
+public sealed record QueryFeasibilityWitness(string Algorithm, int RationalBitLimit, int MaximumIntermediateBits, long RationalOperationsUpper,
+    int InverseDepth, int AngleGridBits, IReadOnlyList<QuerySpanBound> Spans, string MaximumBitPath);
 
 /// <summary>Authority-produced enclosure; source parsing alone cannot construct it.</summary>
 public sealed class GeometryCertificate
 {
     internal GeometryCertificate(string sourceHash, string surfaceHash, Rational lower, Rational upper,
         IEnumerable<GeometryWitness> witnesses, int nodes, Dictionary<string, PolynomialSpan[]> spans, string upperPath, string lowerPath, double halfSpan,
-        Rational placementWidth)
+        Rational placementWidth, QueryFeasibilityWitness feasibility)
     {
         SourceHash = sourceHash; SurfaceHash = surfaceHash;
         ThicknessMaximumLower = lower.Down(); ThicknessMaximumUpper = upper.Up();
@@ -27,6 +30,7 @@ public sealed class GeometryCertificate
         Spans = spans; UpperPath = upperPath; LowerPath = lowerPath; Maximum = new(lower, upper);
         HalfSpan = Rational.From(halfSpan);
         ExactPlacementWidthUpper = placementWidth.Exact; PlacementWidthUpper = placementWidth.Up();
+        QueryFeasibility = feasibility;
     }
     public string AlgorithmVersion => "cfdw-rational-bernstein-subset-1";
     public string ProofScope => "Continuous source-shape proof with pointwise interval evaluation; no tessellation/export certificate";
@@ -42,6 +46,7 @@ public sealed class GeometryCertificate
     public ExactRatio ExactPlacementWidthUpper { get; }
     public double PlacementWidthUpper { get; }
     public string PlacementDomain => "eta and normalized x in [0,1], either side, port or starboard";
+    public QueryFeasibilityWitness QueryFeasibility { get; }
     internal Dictionary<string, PolynomialSpan[]> Spans { get; }
     internal string UpperPath { get; }
     internal string LowerPath { get; }
@@ -61,11 +66,12 @@ public sealed class GeometryAssessment
 
 public static class Geometry
 {
-    public static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port = false)
+    public static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port = false,
+        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(certificate);
         Domain(eta, x);
-        var watch = new ProofBudget();
+        var watch = new ProofBudget(timeBudget, cancellationToken);
         try
         {
             var section = SectionExact(certificate, eta, x, watch);
@@ -78,6 +84,9 @@ public static class Geometry
             var angular = degrees * RationalInterval.Point(Rational.From(0.017453292519943295));
             // Monotone nearest/ties-even conversion encloses the specified once-rounded angle.
             angular = new(Rational.From(angular.Lower.Nearest()), Rational.From(angular.Upper.Nearest()));
+            // Enclose, never replace, the once-rounded evaluator angle. This fixed
+            // outward grid bounds Taylor arithmetic even for subnormal angles.
+            angular = new(angular.Lower.DyadicDown(64), angular.Upper.DyadicUp(64));
             var (sin, cos) = Trigonometry(angular);
             var chord = trailing - leading;
             var abscissa = RationalInterval.Point(Rational.From(x));
@@ -90,14 +99,15 @@ public static class Geometry
             watch.Check();
             return result;
         }
-        catch (ProofRefusal) { throw new ContractError("GEOMETRY-NOT-ASSESSED"); }
+        catch (ProofRefusal failure) { throw new ContractError(failure.Code is "GEOMETRY-BUDGET" or "GEOMETRY-CANCELLED" ? failure.Code : "GEOMETRY-CERTIFICATE-DEFECT"); }
     }
 
-    public static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x)
+    public static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x,
+        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(certificate);
         Domain(eta, x);
-        var watch = new ProofBudget();
+        var watch = new ProofBudget(timeBudget, cancellationToken);
         try
         {
             var section = SectionExact(certificate, eta, x, watch);
@@ -105,7 +115,7 @@ public static class Geometry
             watch.Check();
             return result;
         }
-        catch (ProofRefusal) { throw new ContractError("GEOMETRY-NOT-ASSESSED"); }
+        catch (ProofRefusal failure) { throw new ContractError(failure.Code is "GEOMETRY-BUDGET" or "GEOMETRY-CANCELLED" ? failure.Code : "GEOMETRY-CERTIFICATE-DEFECT"); }
     }
 
     private static void Domain(double eta, double x) => Guard.Require(double.IsFinite(eta) && double.IsFinite(x) &&
@@ -198,10 +208,11 @@ public static class Geometry
             Require(profile.Closure == "closed" || differences[^1][^1] > 0, "Open trailing endpoints are not separated.");
             var maximum = Bernstein.Maximum(differences, watch);
             var placementWidth = PlacementWidth(spans, profile, maximum.Lower, maximum.Upper, definition.HalfSpan, watch);
+            var feasibility = QueryFeasibility.Prove(spans, profile, maximum.Lower, maximum.Upper, definition.HalfSpan, watch);
             var witnesses = spans.SelectMany(pair => pair.Value.Select(span => Witness(pair.Key, span))).ToList();
             witnesses.AddRange(differences.Select((values, index) => Witness("profile-separation", new(upper[index].Start, upper[index].End, upper[index].X, values))));
             var result = new GeometryAssessment(new(source.SourceHash, source.SurfaceHash!, maximum.Lower, maximum.Upper, witnesses, maximum.Nodes,
-                spans, profile.Upper.Path, profile.Lower.Path, definition.HalfSpan, placementWidth), "Continuous conservative subset certified.");
+                spans, profile.Upper.Path, profile.Lower.Path, definition.HalfSpan, placementWidth, feasibility), "Continuous conservative subset certified.");
             watch.Check();
             return result;
         }
@@ -253,7 +264,7 @@ public static class Geometry
         Rational zMagnitude = profileValues.Select(Abs).Max() + profileDelta + (1 + normalizedWidth) * (1 + delta) / 2;
         Rational factorial = 1;
         for (int i = 2; i <= 32; i++) factorial *= i;
-        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + (Rational)2 / factorial;
+        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << 64) + (Rational)2 / factorial;
         Rational componentWidth = trigWidth + zWidth * (1 + trigWidth) + zMagnitude * trigWidth;
         Rational componentMagnitude = (1 + zMagnitude) * (1 + trigWidth);
         Rational chordMagnitude = spans["trailing"].SelectMany(span => span.Y).Max() - spans["leading"].SelectMany(span => span.Y).Min();
@@ -271,6 +282,124 @@ public static class Geometry
     private static Rational Abs(Rational value) => value < 0 ? 0 - value : value;
 }
 
+/// <summary>Admission-time abstract interpretation of every finite binary64 query path.</summary>
+internal sealed class QueryFeasibility
+{
+    private readonly record struct Size(int N, int D);
+    private int maximum;
+    private string maximumPath = "binary64 input";
+    private void Observe(int bits, string path)
+    {
+        if (bits > maximum) { maximum = bits; maximumPath = path; }
+        Geometry.Require(bits <= 32768, "All-query arithmetic bound exceeds 32768 bits at " + path,
+            GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
+    }
+    private Size Track(Size size, string path)
+    {
+        Observe(Math.Max(size.N, size.D), path);
+        // Interval extrema compare every product with another product. Record
+        // those uncancelled cross-products as well as constructor operands.
+        Observe(size.N + size.D, path + "/comparison");
+        return size;
+    }
+    private Size Add(Size a, Size b, string path) => Track(new(Math.Max(a.N + b.D, b.N + a.D) + 1, a.D + b.D), path);
+    private Size Multiply(Size a, Size b, string path) => Track(new(a.N + b.N, a.D + b.D), path);
+    private Size Divide(Size a, Size b, string path) => Track(new(a.N + b.D, a.D + b.N), path);
+    private Size Actual(Rational value, string path) => Track(new(Bits(value.Numerator), Bits(value.Denominator)), path);
+    private static int Bits(BigInteger value) => checked((int)BigInteger.Abs(value).GetBitLength() + 1);
+    private static Size Union(Size a, Size b) => new(Math.Max(a.N, b.N), Math.Max(a.D, b.D));
+    private void Conversion(Size value, string path)
+    {
+        // DecimalSi.Round aligns the ratio for exponent selection, then scales
+        // by 52-e (normal) or 1074 (subnormal), divides and doubles remainder.
+        // Positive alignment is <= D+1; negative alignment is <= N+1.
+        Observe(Math.Max(value.N + 1075, value.N + value.D + 3), path + "/round-shift-divrem");
+        // Outward conversion compares against a finite binary64 rational.
+        Observe(Math.Max(value.N + 1075, value.D + 1025), path + "/outward-comparison");
+    }
+    internal static QueryFeasibilityWitness Prove(Dictionary<string, PolynomialSpan[]> spans, ProfileDefinition profile,
+        Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch)
+    {
+        var proof = new QueryFeasibility();
+        var bounds = new Dictionary<string, Size>();
+        var witnesses = new List<QuerySpanBound>();
+        long operations = 10000; // fixed interval placement, 16 Taylor steps, conversions and comparisons
+        Size query = proof.Track(new(54, 1076), "finite-binary64-domain-input");
+        var tolerance = Rational.From(1e-14);
+        var profileTolerance = maximumLower < 1 ? tolerance * maximumLower : tolerance;
+        foreach (var pair in spans)
+        {
+            Size combined = new(1, 1);
+            for (int index = 0; index < pair.Value.Length; index++)
+            {
+                watch.Check();
+                var span = pair.Value[index];
+                BigInteger common = BigInteger.One;
+                foreach (var coefficient in span.X.Concat(span.Y))
+                {
+                    proof.Observe(Bits(common) + Bits(coefficient.Denominator), pair.Key + "/lcm-product");
+                    common = common / BigInteger.GreatestCommonDivisor(common, coefficient.Denominator) * coefficient.Denominator;
+                }
+                BigInteger magnitude = BigInteger.Zero;
+                foreach (var coefficient in span.X.Concat(span.Y))
+                {
+                    proof.Observe(Bits(coefficient.Numerator) + Bits(common), pair.Key + "/common-numerator-product");
+                    magnitude = BigInteger.Max(magnitude, BigInteger.Abs(coefficient.Numerator) * (common / coefficient.Denominator));
+                }
+                int degree = span.Y.Length - 1;
+                // Convex hull bounds numerator magnitude. Every split averages
+                // at most degree times, so denominators divide D*2^(degree*d).
+                var refined = proof.Track(new(Bits(magnitude) + degree * 128, Bits(common) + degree * 128), pair.Key + "/refined-hull");
+                proof.Divide(proof.Add(refined, refined, pair.Key + "/split-add"), new(2, 1), pair.Key + "/split-half");
+                proof.Observe(Math.Max(refined.N + query.D, query.N + refined.D), pair.Key + "/query-comparison");
+                var difference = proof.Add(refined, refined, pair.Key + "/hull-width");
+                var accuracy = proof.Actual(pair.Key == profile.Upper.Path || pair.Key == profile.Lower.Path ? profileTolerance : tolerance, pair.Key + "/accuracy");
+                proof.Observe(Math.Max(difference.N + accuracy.D, accuracy.N + difference.D), pair.Key + "/accuracy-comparison");
+                combined = Union(combined, refined);
+                witnesses.Add(new(pair.Key, index, degree, Bits(common), refined.N, refined.D));
+            }
+            bounds.Add(pair.Key, combined);
+            int p = pair.Value[0].Y.Length - 1;
+            // Two-coordinate triangular splits + extrema/endpoint/width tests.
+            // Counts primitive rational operations and comparison products.
+            operations += 8L * pair.Value.Length + 128L * (8L * p * (p + 1) + 32L * (p + 1) + 64);
+        }
+        Geometry.Require(operations <= 1000000, "All-query operation bound exceeds one million.", GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
+        Size half = new(1, 2);
+        var up = bounds[profile.Upper.Path]; var lo = bounds[profile.Lower.Path];
+        var maximum = Union(proof.Actual(maximumLower, "maximum-lower"), proof.Actual(maximumUpper, "maximum-upper"));
+        var reciprocal = proof.Divide(new(1, 1), maximum, "maximum-reciprocal");
+        var camber = proof.Multiply(proof.Add(up, lo, "camber-sum"), half, "camber");
+        var normalized = proof.Multiply(proof.Multiply(proof.Multiply(proof.Add(up, lo, "profile-difference"), reciprocal,
+            "normalization"), bounds["thickness"], "thickness"), half, "half-thickness");
+        var section = proof.Add(camber, normalized, "section");
+        proof.Conversion(section, "section");
+        var largestProfile = spans[profile.Upper.Path].Concat(spans[profile.Lower.Path]).SelectMany(s => s.Y)
+            .Select(value => value < 0 ? 0 - value : value).Max();
+        Geometry.Require(largestProfile + 2 < Rational.From(double.MaxValue), "Normalized section outward range is not finite.",
+            GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
+        var angular = proof.Multiply(bounds["twist"], proof.Actual(Rational.From(0.017453292519943295), "degree-factor"), "angular-product");
+        proof.Conversion(angular, "once-rounded-angle");
+        proof.Observe(1141, "angle-grid-shift-divrem");
+        // Grid endpoints have denominator 2^64 and |angle|<=1; center/radius
+        // denominator divides 2^65. Taylor term k denominator divides
+        // 2^(65*k)*k!, k<=33. All sums and error (1/32! + radius)
+        // divide 2^(65*33)*33!, <2^2270. Pre-reduction recurrence/sums
+        // and comparisons fit 5000 bits. 2400 includes signed numerators.
+        proof.Observe(5000, "Taylor-33-common-denominator-intermediates");
+        Size trig = proof.Track(new(2400, 2400), "Taylor-result");
+        var chord = proof.Add(bounds["trailing"], bounds["leading"], "chord");
+        var rotated = proof.Add(proof.Multiply(query, trig, "x-trig"), proof.Multiply(section, trig, "z-trig"), "rotated-section");
+        var scaled = proof.Multiply(chord, rotated, "placed-scale");
+        proof.Conversion(proof.Add(bounds["leading"], scaled, "placed-X"), "placed-X");
+        proof.Conversion(proof.Add(bounds["dihedral"], scaled, "placed-Z"), "placed-Z");
+        proof.Conversion(proof.Multiply(proof.Multiply(proof.Actual(Rational.From(halfSpan), "half-span"), query, "placed-Y"), new(2, 1), "port-sign"), "placed-Y");
+        watch.Check();
+        return new("common-denominator-dyadic-128/taylor-grid-64/v1", 32768, proof.maximum, operations, 128, 64,
+            Array.AsReadOnly(witnesses.ToArray()), proof.maximumPath);
+    }
+}
+
 internal sealed class ProofRefusal(string reason, GeometryStatus status = GeometryStatus.NotAssessed, string code = "DSL-GEOMETRY") : Exception(reason)
 {
     internal GeometryStatus Status { get; } = status;
@@ -281,13 +410,18 @@ internal sealed class ProofBudget
 {
     private readonly Stopwatch watch = Stopwatch.StartNew();
     private readonly TimeSpan limit;
-    internal ProofBudget(TimeSpan? requested = null)
+    private readonly CancellationToken cancellation;
+    internal ProofBudget(TimeSpan? requested = null, CancellationToken cancellationToken = default)
     {
+        cancellation = cancellationToken;
         limit = requested ?? TimeSpan.FromSeconds(1);
         Guard.Require(limit >= TimeSpan.Zero && limit <= TimeSpan.FromSeconds(1), "DSL-RANGE");
     }
     internal void Check()
-    { Geometry.Require(watch.Elapsed < limit, "Cooperative proof time budget exhausted.", GeometryStatus.NotAssessed, "GEOMETRY-BUDGET"); }
+    {
+        Geometry.Require(!cancellation.IsCancellationRequested, "Query cancelled.", GeometryStatus.NotAssessed, "GEOMETRY-CANCELLED");
+        Geometry.Require(watch.Elapsed < limit, "Cooperative proof time budget exhausted.", GeometryStatus.NotAssessed, "GEOMETRY-BUDGET");
+    }
 }
 
 /// <summary>Bounded exact arithmetic for binary64-defined polynomial coefficients.</summary>
@@ -295,6 +429,8 @@ internal readonly struct Rational : IComparable<Rational>
 {
     private readonly BigInteger numerator;
     private readonly BigInteger denominator;
+    internal BigInteger Numerator => numerator;
+    internal BigInteger Denominator => denominator;
     internal Rational(BigInteger n, BigInteger d)
     {
         Geometry.Require(d != 0, "Exact arithmetic denominator is zero.");
@@ -326,6 +462,20 @@ internal readonly struct Rational : IComparable<Rational>
     public static bool operator <=(Rational a, Rational b) => a.CompareTo(b) <= 0;
     internal double Nearest() => numerator == 0 ? 0 : numerator.Sign * DecimalSi.Round(BigInteger.Abs(numerator), denominator);
     internal ExactRatio Exact => new(numerator.ToString(System.Globalization.CultureInfo.InvariantCulture), denominator.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    internal Rational DyadicDown(int bits)
+    {
+        var scaled = numerator << bits;
+        var quotient = BigInteger.DivRem(scaled, denominator, out var remainder);
+        if (remainder.Sign < 0) quotient--;
+        return new(quotient, BigInteger.One << bits);
+    }
+    internal Rational DyadicUp(int bits)
+    {
+        var scaled = numerator << bits;
+        var quotient = BigInteger.DivRem(scaled, denominator, out var remainder);
+        if (remainder.Sign > 0) quotient++;
+        return new(quotient, BigInteger.One << bits);
+    }
     internal double Down() { double value = Nearest(); return From(value) > this ? Math.BitDecrement(value) : value; }
     internal double Up() { double value = Nearest(); return From(value) < this ? Math.BitIncrement(value) : value; }
 }
