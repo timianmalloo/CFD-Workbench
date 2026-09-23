@@ -1,0 +1,49 @@
+{
+  "artifact": "workbench-v7",
+  "scope": "unrotated planform rails; placed sections retain LE-pivot twist",
+  "red": "Prior LE edit moved TE by 0.001602926112762984 m",
+  "checks": [
+    {
+      "name": "le: independent basis pointer/cancel/keyboard/apply/undo/redo/source",
+      "pass": true,
+      "opposite": "te",
+      "points": 6,
+      "oppositePoints": 9,
+      "samples": 401
+    },
+    {
+      "name": "te: independent basis pointer/cancel/keyboard/apply/undo/redo/source",
+      "pass": true,
+      "opposite": "le",
+      "points": 9,
+      "oppositePoints": 6,
+      "samples": 401
+    },
+    {
+      "name": "Positive TE controls with crossing rails rejected",
+      "pass": true,
+      "positive": true,
+      "rejected": true,
+      "held": true,
+      "diagnostic": "DSL-GEOMETRY · line 34: LE and TE cross or touch at a sampled span location, or thickness controls are outside (0, 0.5]. Move the selected edge to keep positive chord.. Source rejected. Accepted geometry is unchanged."
+    },
+    {
+      "name": "Superseded draft chord field rejected explicitly",
+      "pass": true,
+      "diagnostic": {
+        "code": "DSL-LEGACY",
+        "message": "Earlier 4.0 draft uses leading plus chord. Preserve it and request an explicit conversion to independent leading/trailing curves; no automatic reinterpretation."
+      }
+    },
+    {
+      "name": "Numeric TE aft-position edit keeps LE fixed",
+      "pass": true
+    },
+    {
+      "name": "Root TE preview leaves opposite screen transform fixed",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "screenshot": "/tmp/independent-edges-cad.png"
+}

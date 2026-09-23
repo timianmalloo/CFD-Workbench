@@ -51,7 +51,7 @@ try {
  result.expectedFlows=expectedFlows;
  result.requirementIds=expectedIds.length;
  result.requirementCountMatches=await page.locator('.rail').textContent().then(text=>text.includes(`${expectedIds.length} requirement IDs`));
- const expectedMockup=['cfd-workbench-v1','foildsl'].includes(specName)?'../mockups/workbench-v6.html':'../mockups/workbench.html';
+ const expectedMockup=['cfd-workbench-v1','foildsl'].includes(specName)?'../mockups/workbench-v7.html':'../mockups/workbench.html';
  result.mockupLinkMatches=await page.locator('header a').getAttribute('href')===expectedMockup;
  fs.writeFileSync(path.join(root,specName==='cfd-workbench'?'docs/proof/spec-html-check.json':`docs/proof/spec-html-check-${specName}.json`),JSON.stringify(result,null,2)+'\n');
  console.log(JSON.stringify(result));

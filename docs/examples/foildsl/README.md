@@ -15,7 +15,7 @@ summary: >-
   A reproducible probe records the supplied v3 checker behavior; normative 4.0 fixtures are acceptance vectors,
   not a claim of an implemented production evaluator.
 review-suggested:
-  - { by: spec-foildsl, on: 2026-09-22, reason: "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions." }
+  - { by: spec-foildsl, on: 2026-09-22, reason: "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts." }
 ---
 
 # Conformance fixtures

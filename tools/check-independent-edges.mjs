@@ -8,7 +8,7 @@ const {chromium}=await import(pathToFileURL(path.join(process.argv[2],'playwrigh
 const b=await chromium.launch({channel:'chrome',headless:true});
 const p=await b.newPage({viewport:{width:1700,height:1200}});
 const errors=[],checks=[];p.on('pageerror',e=>errors.push(e.message));
-const url=pathToFileURL(path.join(root,'docs/mockups/workbench-v6.html')).href;
+const url=pathToFileURL(path.join(root,`docs/mockups/${process.env.MOCKUP_NAME||'workbench-v6'}.html`)).href;
 const state=()=>p.evaluate(()=>({record:drecord(),source:DSL.accepted,revision:M.revision,current:M.run.current,samples:Array.from({length:401},(_,i)=>{const u=i/400;return [chanAt('le',u),chanAt('te',u),chanAt('chord',u)];})}));
 const unchanged=(a,z,ch)=>{assert.deepEqual(z.record.cv[ch],a.record.cv[ch],`${ch} authored controls changed`);const j=ch==='le'?0:1;assert.deepEqual(z.samples.map(s=>s[j]),a.samples.map(s=>s[j]),`${ch} evaluated curve changed`);};
 const coherent=z=>{for(const s of z.samples)assert(Math.abs(s[2]-(s[1]-s[0]))<1e-14);};
@@ -41,5 +41,5 @@ try {
  const desired=before.record.cv.te[3][1]+.001;await p.locator('#cv-val').fill(`${desired} m`);await p.locator('#cv-val').press('Tab');await p.locator('#shape-canvas').focus();await p.keyboard.press('Enter');const after=await state();unchanged(before,after,'le');assert.equal(after.record.cv.te[3][1],desired);coherent(after);checks.push({name:'Numeric TE aft-position edit keeps LE fixed',pass:true});
  const fixed=await p.locator('#quads .quad[data-slot="a"] [data-pick="le"]').getAttribute('d');await p.locator('#quads [data-cv="te:0"]').focus();await p.keyboard.press('ArrowUp');assert.equal(await p.locator('#quads .quad[data-slot="a"] [data-pick="le"]').getAttribute('d'),fixed);await p.keyboard.press('Escape');checks.push({name:'Root TE preview leaves opposite screen transform fixed',pass:true});
  const screenshot='/tmp/independent-edges-cad.png';await p.screenshot({path:screenshot});assert.deepEqual(errors,[]);
- await fs.writeFile(path.join(root,'docs/proof/independent-edges.json'),JSON.stringify({scope:'unrotated planform rails; placed sections retain LE-pivot twist',red:'Prior LE edit moved TE by 0.001602926112762984 m',checks,errors,screenshot},null,2)+'\n');console.log(JSON.stringify({checks:checks.length,errors,screenshot}));
+ await fs.writeFile(path.join(root,`docs/proof/independent-edges${process.env.MOCKUP_NAME==='workbench-v7'?'-v7':''}.json`),JSON.stringify({artifact:process.env.MOCKUP_NAME||'workbench-v6',scope:'unrotated planform rails; placed sections retain LE-pivot twist',red:'Prior LE edit moved TE by 0.001602926112762984 m',checks,errors,screenshot},null,2)+'\n');console.log(JSON.stringify({checks:checks.length,errors,screenshot}));
 } finally {await b.close();}

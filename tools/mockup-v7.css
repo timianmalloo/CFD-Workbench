@@ -1,0 +1,46 @@
+/* v7 adds context without changing the desktop shell's scrolling ownership. */
+.ux-context{pointer-events:auto;display:flex;align-items:center;gap:var(--sp-8);padding:var(--sp-8);border-bottom:1px solid var(--line);background:var(--surface);min-width:0;flex-wrap:wrap}
+.ux-context svg{width:80px;height:32px;flex-shrink:0}
+.ux-copy{flex:1;min-width:120px;font-size:var(--fs-caption)}
+.ux-copy strong{display:block;color:var(--ink)}
+.ux-context .btn{min-height:32px}
+.ux-owner{flex-basis:100%;font-size:var(--fs-caption);color:var(--mute)}
+.ux-scope{display:flex;gap:var(--sp-8);align-items:end;flex-wrap:wrap;flex-basis:100%;font-size:var(--fs-caption)}
+.ux-scope label{display:flex;flex-direction:column;gap:var(--sp-4)}
+.ux-dialog{width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;padding:var(--sp-24);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md)}
+.ux-dialog::backdrop{background:rgba(0,0,0,0.16)}
+.ux-dialog h2{margin:0 0 var(--sp-16);font-size:var(--fs-heading)}
+.ux-dialog h3{font-size:var(--fs-body);margin:var(--sp-16) 0 var(--sp-8)}
+.ux-dialog p{font-size:var(--fs-body);line-height:1.5}
+.ux-fields{display:flex;gap:var(--sp-12);align-items:end;flex-wrap:wrap;margin:var(--sp-12) 0}
+.ux-fields label{display:flex;flex-direction:column;gap:var(--sp-4);flex:1;min-width:160px;font-size:var(--fs-caption)}
+.ux-dialog input,.ux-dialog select,.ux-scope select,.ux-dialog textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:var(--sp-8);min-height:36px;max-width:100%}
+.ux-dialog textarea{width:100%;min-height:72px;resize:vertical;box-sizing:border-box}
+.ux-dialog footer{display:flex;gap:var(--sp-8);flex-wrap:wrap;justify-content:flex-end;margin-top:var(--sp-16)}
+.ux-dialog [role=status]{border-left:3px solid var(--primary);padding:var(--sp-8);font-size:var(--fs-caption);white-space:pre-line}
+.ux-compare{width:100%;border-collapse:collapse;font-size:var(--fs-caption)}
+.ux-compare th,.ux-compare td{padding:var(--sp-8);text-align:left;border-bottom:1px solid var(--line)}
+.ux-overlay{width:100%;height:180px;background:var(--viewport)}
+.ux-hidden{display:none!important}
+#doc-station{overflow:auto}
+#doc-station #section-canvas{grid-template-rows:minmax(0,1fr) auto;min-height:320px;min-width:600px;height:100%}
+#doc-station #section-canvas svg{min-height:0}
+#doc-station #section-canvas .caption{position:static;padding:var(--sp-8);text-align:left}
+#doc-station .vtitle{display:none}
+[data-window="zoom"] .ux-context{max-height:96px;overflow:auto;flex-shrink:0}
+[data-window="zoom"] .ux-owner{display:none}
+.cube>text{pointer-events:none}
+.ux-span-impact{flex-basis:100%;height:24px}
+.ux-span-impact svg{width:100%;height:24px}
+.ux-dialog input,.ux-dialog select{min-height:44px}
+.ux-dialog summary{min-height:32px;cursor:pointer}
+.doctabs .dt-wrap{min-width:0;max-width:40%;flex:0 1 320px}
+.doctabs .dt-wrap .dt{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:1}
+.doctabs .dt-close{flex-shrink:0}
+.ux-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-window="zoom"] .ux-context{padding:var(--sp-4);flex-wrap:nowrap}
+[data-window="zoom"] .ux-copy{min-width:0}
+[data-window="zoom"] .ux-copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[data-window="zoom"] .ux-context:has(.ux-scope:not(.ux-hidden)){flex-wrap:wrap}
+[data-window="zoom"] .quads{overflow:auto}
+[data-window="zoom"] .quad{min-height:112px}

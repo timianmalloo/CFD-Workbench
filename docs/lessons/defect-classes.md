@@ -13,8 +13,8 @@ review-by: 2027-03-19
 summary: Design-time failure classes and their mandatory checks, loaded at session grounding under AGENTS.md. Product-runtime controls remain explicitly pending until the corresponding implementation exists.
 review-suggested:
   - { by: spec-cfd-workbench, on: 2026-09-19, reason: "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision." }
-  - { by: spec-cfd-workbench-v1, on: 2026-09-20, reason: "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)." }
   - { by: mockup-workbench-v1, on: 2026-09-20, reason: "Mockup v1 built against spec v1 and cleared by the UX & Accessibility lens 2026-09-20; supersedes the 2026-09-19 prototype as the review artifact." }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
 ---
 
 # Defect classes
@@ -35,7 +35,7 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 | DOC-C · Generated edition repeats canonical metadata | The HTML header hardcoded revision 0.1 while the updated Markdown declared 0.2. Swept renderer, visible body, source hash and browser parity. Derive the header from the canonical visible revision. | `tools/check-spec-html.mjs` now checks edition-label equality as well as full text/hash. Observed red: stale HTML returned `revisionMatches:false` and `hashMatches:false`; final regenerated evidence is recorded in the iteration proof. |
 | TEST-A · Sensitivity oracle omits degeneracy and constraints | Draft GEO-13 required every weight increase to change the curve, including zero-influence or fully locked fixtures. Independent review disconfirmed the universal condition. Swept weighted-control, endpoint and lock acceptance wording. Derive expected sensitivity from a nondegenerate unlocked fixture; locks use a separate preservation/rejection oracle. | Always-loaded rule: geometry property tests name nondegeneracy, nonzero influence and applicable constraints before requiring a change. GEO-13 carries those preconditions; the mockup check exercises a specific off-curve control. Production evaluator tests remain required. |
 | UI-E · Render failure leaves plausible prior evidence | A slice-preview local-name collision threw during a 2D switch, leaving the prior 3D view visible. Swept view selection, field selection and sample replay: selected controls alone are not proof of rendered state. Derive field/view presentation from selected identity and reject stale evidence after errors. | `tools/check-mockup.mjs` checks actual 2D SVG identity and fails on page exceptions, alongside sample/metric linkage. The author observed the view oracle fail on this transient defect before fixing its variable scope. |
-| GEO-C · A draft follows mutable selection instead of its edit target | New curve drafts could be retargeted when station/channel selection changed. Swept section, outline and selection handlers. Keep target ownership explicit; cancel an unaccepted draft when switching targets in this prototype. | Browser regression switches target with an active draft and requires no cross-station/channel application. Production edit drafts must bind base revision and target identity. |
+| GEO-C · A draft follows mutable selection instead of its edit target | New curve drafts could be retargeted when station/channel selection changed. Swept section, outline and selection handlers. Keep target ownership explicit. V7 preserves a draft during read-only inspection and refuses competing writes; selection never transfers ownership. | Browser regression switches target with an active draft and requires unchanged draft/base/source and no cross-station/channel application. `tools/check-authoring-v7.mjs` covers another station and Source; the CAD oracle covers another curve. Production edit drafts bind base revision and target identity. |
 | EVID-B · Missing-variable status overstates missing-result scope | The partial wall-shear state hid only a field but said coefficients and forces were absent while showing them. Swept missing case versus missing variable messages and metric rendering. Derive availability and copy at their actual scope. | Independent rendered review identified the mismatch; the missing-wall-field oracle requires field-specific copy with valid metrics retained, while failed-sample checks require all sample evidence cleared. |
 | SPEC-B · One quantity, two definitions in one artifact | Specification v1 defined the identity tolerance as "1 µm AND 10⁻⁶ relative, both must fail" in A4.1 and "pass iff ≤ 1 µm AND ≤ 10⁻⁶" in A4.5 (opposite logic), and the run key with two member lists neither of which held the settings hash. Swept every term the spec defines more than once (identity tolerance, run key, Example, revision, supported, Unavailable). Derive: one section owns the definition; every other mention cites it. | Gate rule at `/specify` Stage 4: a Test Architect sweep greps each defined term for a second definition; the v1 gate observed the Blocker before the fix. A future `tools/check-spec-terms.py` lint is the pending mechanical control. |
 | DATA-B · Derived number printed from rounded intermediates | KB 04's goal-state row printed CL 0.774 because q had been rounded to 13,570 Pa before the division; exact arithmetic gives 0.773, and the spec promised reproduction "to displayed precision". Swept the seven-point table and every figure the spec cites from it. Derive every displayed number from pinned inputs in one executed script, never by hand. | `scratchpad/goal_fixture.py` re-executed the table (pinned 1 kn = 0.514444 m/s); GOAL-02 now names its pinned inputs; the mockup's Brief computes the triples live and the browser oracle asserts them. Rule: a KB table of derived numbers carries its inputs and its generating script. |
@@ -94,6 +94,51 @@ blocks. **NG protocol correction:** an assumed pack graph node did not exist loc
 rejected the dangling link before derivation. The control is the existing whole-graph validator,
 not an invented local knowledge node. Measured normalizations and bounded prototype limitations
 remain disclosed in the review hub; no full-language or scientific conformance claim follows.
+
+## Authoring decisions boundary sweep — 2026-09-22
+
+**GEO-C / DATA-D recurrence:** introducing multiple profiles makes a selected-profile singleton unsafe as a
+whole-wing geometry source. Sweep: profile bank, assignments, equal-x span blend, 2D inspection, 3D skin/cage,
+source emit/parse, Apply/Cancel, undo/redo and retained alternatives. Derive: geometry reads assignments;
+selection reads geometry. Prevent: `check-authoring-v7.mjs` requires exact geometry/source invariance while
+selecting profiles, local blend reach for a fork, full-thickness reconstruction, unequal parameterization,
+bank history, held t/c and explicit constrained source-thickness targets. Its missing-entry oracle was
+observed RED on v6 before v7 authoring.
+
+**UI-H2 / UI-M recurrence:** contextual controls reduced the available section canvas to a scaled 13.8 px
+SVG at the reflow preset, shrinking its 24 CV targets to 2.1 px. Sweep: entry, section and dialog geometry at
+the inherited viewport/theme cells. Derive: a precision editor scrolls internally at its minimum working
+size rather than scaling targets below the floor. Prevent: the authoring oracle measures section targets,
+contrast and shell overflow, including 640×400; the initial failure was observed before the CSS correction.
+Identity/policy labels also retained old catalog text after a profile fork. The same oracle checks inspected
+profile identity; all section/Properties/source projections now name the selected record and owned draft.
+
+**UI-M recurrence:** focus restoration after picking a different curve reselected the old focused vertex.
+Sweep: pointer picking, options selection and keyboard edits during an owned draft. Derive: transfer focus
+before replacing the old focused subtree. Prevent: the v7 CAD oracle requires selecting elevation/twist
+while retaining an unchanged TE draft and refuses a competing nudge. Native button/select Return must not
+be intercepted as a global section Apply; contextual actions retain their own keyboard semantics.
+
+**DATA-D recurrence:** a coarse equal-x table interpolated requested display points near a sharp leading
+edge, creating an observed ~0.0068 chord error for a stress profile. Derive: evaluate the inverse-x curve at
+each requested chord position and cache those evaluations; retain the declared sampled maximum-thickness
+limit. The independent differing-parameterization probe is the control; it does not certify the continuous
+kernel. Exact thickness extrema and geometry certification remain unverified production obligations.
+
+**DATA-D / UI-M recurrence:** a profile-bank editor must derive its CV count, knot vector and valid selected
+index from the inspected profile, not a previously visited profile. The source parser permits different
+six/twelve-CV profile records. The authoring oracle visits both, requiring correct metadata, bounded
+selection and unchanged accepted geometry/source. Draft-title and bottom-status projections are included
+in active-draft reflow checks; an accepted-only screenshot misses those states.
+
+**Test-fixture integrity:** a legacy lifecycle test directly appended station 0.7 after its earlier proposal
+had already created that station. Sweep: direct station-list mutations in the CAD oracle. Derive: use the
+public add operation only when absent; never corrupt the model to establish an unrelated lifecycle setup.
+The full flow now runs without the observed DSL-STATION error, and source reconciliation validates emitted
+records before replacing accepted text. Historical v6 remains available as its original contract oracle.
+
+**Graph metadata recurrence:** an unregistered `follows` relation was rejected by the whole-repository docs
+gate; it was corrected to the registered `relates-to`. The validator remains the preventive control.
 
 ## Coverage correction — weighted editing and linked flow evidence
 

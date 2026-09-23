@@ -1,0 +1,16 @@
+<div class="ux-context" id="ux-context">
+  <svg id="ux-thumbnail" viewBox="0 0 120 40" aria-label="Selected normalized section" role="img"></svg>
+  <div class="ux-copy"><strong id="ux-station-title">Selected section</strong><span id="ux-station-detail"></span></div>
+  <button class="btn dense primary" id="ux-section-open">Edit section</button>
+  <button class="btn dense" id="ux-intent-open">Edit intent…</button>
+  <button class="btn dense" id="ux-alternatives-open">Alternatives…</button>
+  <div class="ux-owner" id="ux-owner" role="status" aria-live="polite"></div>
+  <div class="ux-scope ux-hidden" id="ux-scope">
+    <label>Profile scope<select class="dense" id="ux-profile-scope"><option value="shared">Edit shared profile</option><option value="fork">Make independent</option></select></label>
+    <label>Effective thickness<select class="dense" id="ux-thickness-policy"><option value="keep">Keep current t/c</option><option value="source">Use source thickness</option></select></label>
+    <button class="btn dense" id="ux-section-start">Start section draft</button>
+    <button class="btn dense" id="ux-section-apply">Apply section</button>
+    <button class="btn dense" id="ux-section-cancel">Cancel section</button>
+    <span id="ux-scope-impact"></span>
+  </div>
+</div>

@@ -1,12 +1,14 @@
 ---
 id: spec-cfd-workbench-v1
-title: CFD-Workbench — product specification v1.4 (FoilDSL authoring)
+title: CFD-Workbench — product specification v1.5 (section editing and design decisions)
 type: spec
 status: in-review
 owner: "@timianmalloo"
 phase: specification
 tags: [hydrofoil, cad, parametric, cross-platform, simulation, build-basis]
 links:
+  - {to: decision-design-iteration, rel: depends-on}
+  - {to: mockup-workbench-v7, rel: relates-to}
   - {to: adr-foildsl-authority, rel: depends-on}
   - {to: spec-foildsl, rel: depends-on}
   - {to: mockup-workbench-v6, rel: relates-to}
@@ -32,26 +34,26 @@ summary: >-
   that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a
   catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with
   evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for
-  every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.4 adds FoilDSL as the canonical authored foil/section language and the source/CAD transaction contract.
+  every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs." }
-  - { by: spec-foildsl, on: 2026-09-22, reason: "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions." }
+  - { by: spec-foildsl, on: 2026-09-22, reason: "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts." }
 ---
 
 # CFD-Workbench
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.4 · 22 September 2026 · *(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.5 · 22 September 2026 · *(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
 the Run and Results areas are specified in full and are **first-class in the model and the UI**, while their
 *acceptance* still waits on the two spikes named in A2 (unattended meshing; the mesh-convergence oracle).
 
-[FoilDSL language specification](foildsl.md) · [Current interactive mockup v6](../mockups/workbench-v6.html) · [Reference reconciliation](../notes/foildsl-reconciliation.md) · [Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
+[FoilDSL language specification](foildsl.md) · [Current interactive mockup v7](../mockups/workbench-v7.html) · [Reference reconciliation](../notes/foildsl-reconciliation.md) · [Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
 
 **Authority and citations.** The knowledge base `docs/knowledge/hydrofoil-workbench/` is the evidence floor; a
 design implication is cited as **KB-n** (its index) and an area file as **NN** (01–13). Revision 0.2's story
@@ -169,7 +171,7 @@ the evidence ladder; and the words "cavitation-free", "ventilation-safe", "valid
 status (surrogate-candidate → vlm-checked → cfd-checked → experimentally-compared) with stored promotion evidence,
 never prose (09, KB-17); an optimize experiment emits Candidates, never accepted geometry. **COMMIT-02** — permissive licences (MIT, BSD, Apache) may be linked; GPL, LGPL, AGPL
 and NOSA components are process-invoked or excluded; the licence register (A8.5) is a release artefact.
-**COMMIT-03** — the native document is the only open path and is additive: fields are added by expand-migrate, a
+**COMMIT-03** — the native project is the full-fidelity project open path; FoilDSL is the explicit shape-only open path (A4.11). Native fields are added by expand-migrate; a
 saved file is never rewritten by a later version without an original copy. **COMMIT-04** — language in,
 typed proposals out, exactly six kinds: setup-seed (Setup), geometry-edit (CAD: parameter deltas, station
 add/remove, profile assignment, lock changes — the same edit-draft path a pointer edit takes), experiment-config
@@ -196,12 +198,12 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 | **Design revision** | entity, append-only | A node with a parent, referencing by identity and content hash exactly one Surface revision, plus recipe provenance; it holds no other reference (the Surface revision's stations are the only home of Profile revision references). *This* is the "revision" the footer shows |
 | **Surface revision** | entity, immutable | One complete explicit parametric definition: the five **Distribution curves**, the **Authored stations**, the loft rule, the blend rule, the correspondence rule, the symmetry mode, the tolerance triple, the frame and the evaluator id + version (A4.1) |
 | **Distribution curve** | owned value | One channel along normalised span η: independent leading-edge x, independent trailing-edge x, elevation, twist, effective thickness; a clamped B-spline whose **control vertices** are the record — degree stored per curve (default 3, seven vertices; sections keep degree 5), the full knot vector, weights all 1 — plus its **Constraint rows** and the provenance of the construction that produced the vertices (A4.2). Chord is derived as trailing minus leading, not an authored channel. |
-| **Authored station** | identity-bearing element | A span location η, a Profile revision reference, a thickness policy, closure choices; its channel values are readouts of the distributions |
+| **Authored station** | identity-bearing element | A span location η and a Profile revision reference; its channel values are readouts of the distributions. Thickness policy is transaction provenance, never a second live thickness field; closure is part of the referenced profile definition |
 | **Inspection slice** | derived | A section evaluated at any η; never a degree of freedom |
 | **Control vertex** | owned value | One vertex (η, value) of a distribution curve's control polygon with a **stable id**. The first and last vertices lie on the curve (clamped ends); the second and penultimate are the **levers** — they set the end tangent's direction and magnitude; an interior vertex *pulls* the curve and need not lie on it. Fit-points anchors, when a curve was built from measured points or a DAT, are kept as **construction provenance** and are never a second authority; optional bounds and a `frozen` flag are *reserved* fields (the design-vector contract, 09) with no v1 writer or reader |
 | **Constraint row** | owned value | A typed hard constraint (endpoint, tangent linked/split/axis-locked/fixed-angle, curvature match at the LE junction, value at a station, root-mirror tangent, symmetry, closure) with its **source** (user lock · symmetry · closure · station value · assistant-proposal <id>); a class rule is never a Constraint row — it is a DRC finding (A5.8) |
 | **Profile revision** | entity, immutable | The editable record of a section — a clamped degree-5 B-spline pair in normalised chord — plus provenance (admission class, source, original bytes and hash, detected DAT layout, normalisation, conversion residual) and **design-point metadata** (design Cl, design Re, intended σ range, source per field; Unknown when unsourced) |
-| **Geometry edit draft** | transient | A candidate over one base Design revision with proposed controls, constraints, measured deviation and validation; never persisted as a record |
+| **Geometry edit draft** | transient | A candidate over one base Design revision with proposed controls, constraints, measured deviation and validation; never an accepted geometry record. Optional recovery persistence is explicitly labelled a draft and retains its base |
 | **Recipe** | value | High-level drivers (a valid driver set from {area, span, AR, taper, root chord, tip chord, sweep, elevation, washout, profile}) that emit a Surface revision one way; provenance after detachment |
 | **Water record** | value, pinned | Temperature (admitted range 0–50 °C, the table's tabulated band, 07), absolute salinity (0 or 35.16504 g/kg), pressure basis, ρ, ν, p_v and the ITTC 7.5-02-01-03 revision they came from |
 | **Operating point** | value | Speed V; Water record; p_atm (default 101.325 kPa); reference depth h_ref at the named datum; incidence α; target load W with its source; Ncrit pair; static orientation. **Derived, never stored:** q, Re_ref, Re(y), h(y) per station, h/c, Fr_h, σ(y), V_crit |
@@ -224,6 +226,10 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 | **Candidate** | entity | A designated **Evaluation** of an optimize Experiment on the COMMIT-01 ladder: references its Evaluation by id; status enum (surrogate-candidate → vlm-checked → cfd-checked → experimentally-compared); **promotion evidence** = 0..* Analysis run ids at the higher tier (one per multipoint point, on the Candidate's own Design revision) and 0..* Discrepancy record keys against the lower tier; 0..1 Design revision set when the user applies it (that revision's recipe provenance names the Candidate); Accept opens a Geometry edit draft at that moment — nothing transient is stored, and a Candidate never becomes geometry on its own (COMMIT-01) |
 | **Evaluation** | fact | One design-vector evaluation of one optimize Experiment: design-vector values, objective and constraint values at every multipoint point (α solved per point to the required load), tier, feasible · infeasible · non-computable; append-only, owned by the Experiment |
 | **Station document** | document view | The editor-group tab that edits one station's section in 2D (CAD-05); opened by the verb **Edit section**; its draft is a section draft, distinct from a geometry draft |
+| **Design alternative** | entity | A named project branch referencing an accepted Design revision and its parent alternative; edits append revisions on that branch. It is a human design option, distinct from an optimizer Candidate. |
+| **Pinned baseline** | immutable value | A project reference to one accepted Design revision, fixed until explicitly repinned; it never follows later edits or the current selection. |
+| **Comparison** | derived view | A selected baseline/alternative pair: geometric differences and only compatible run evidence, each with its revision, basis and availability. Missing evidence has no numeric substitute. |
+| **Design decision** | append-only fact | One Keep or Discard disposition of a named alternative at a particular accepted revision, with its baseline and a user-entered rationale. Discard archives the branch without deleting source or evidence. |
 | **Control frame** | control | The control polygon of a curve drawn in the elevation that shapes it (CAD-04): dashed polygon, square vertices, circle levers, diamond ends; every curve's frame is shown, the active one emphasised, the others dimmed but draggable |
 | **Tool palette** | control | The vertical strip of CAD verbs beside the workspace (CAD-07): Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its name and a single key that acts only while the workspace has focus; the active tool is pressed |
 | **Viewport** | document view | One of the four quadrants of the workspace (CAD-08), each showing any view (Top · Front · Starboard · Perspective · η-plot) chosen from its title menu, maximised by double-click or Return on its title; the default arrangement is the lines drawing |
@@ -242,8 +248,9 @@ input inside a method's validity range) and *method-capable* (a quantity a tier 
 |---|---|---|
 | Surface revision | curves, controls, constraint rows, stations, rules, tolerances, frame, evaluator version | The payload alone reproduces the evaluated surface, every station readout and every derived dimension within the identity tolerance, on both platforms |
 | Profile revision | B-spline pair, provenance, residual, design-point metadata | One revision identifies one immutable normalised shape; coordinates are provenance with a measured residual, never a second authority |
-| Geometry edit draft | base revision, candidate, deviation, validation, DRC findings | Nothing replaces accepted geometry until every hard constraint row is satisfied and Apply is chosen; Cancel leaves no trace |
+| Geometry edit draft | base revision, candidate, deviation, validation, DRC findings | Nothing replaces accepted geometry until every hard constraint row is satisfied and Apply is chosen; Cancel changes no accepted definition or analysis input |
 | Design revision | Surface revision reference, recipe provenance, parent | Append-only: every accepted design references exactly one Surface revision by identity and hash and names its parent; nothing on the node is ever updated in place |
+| Project design choices | named alternatives, pinned baseline references, decision facts | Every alternative, baseline and decision resolves to an immutable accepted revision; changing active choice never rewrites the revisions or their evidence. |
 | Setup brief | entry kind, text or parameters, soft targets, provenance | A brief seeds exactly one Goal state version and one Design revision and is never edited afterwards; a new seed is a new brief version |
 | Goal state | versions of operating-point set, constraint set, soft targets | Intent only: evaluating a goal state never mutates a revision; every edit is a new version and a referenced version always resolves |
 | Experiment | kind, definition, optimizer record, backend pin, attempts with state events, evaluations, candidates | Definition and execution are separate: an Experiment version is immutable once Queued; its status is the function in A3.1; a Candidate advances a rung only with a promotion run at every multipoint point on its own Design revision (CAND-01) and never becomes geometry without a Geometry edit draft and an explicit Accept |
@@ -353,11 +360,12 @@ A Surface revision shall store, and nothing else may be needed to reproduce the 
   Constraint rows with sources, continuity intent (deliberate breaks as knot multiplicity), and the
   **construction provenance** — which construction (Fit points · Fair · Rebuild · direct) produced the vertices,
   its inputs (anchors, tolerance, vertex count) and its reported residual;
-- **stations** — η, Profile revision reference and hash (the only home of that reference), thickness policy
-  (source | channel), locks, closure;
+- **stations** — η, Profile revision reference and hash (the only home of that reference). Thickness intent is
+  transaction provenance; accepted effective t/c remains solely in its channel. Closure belongs to the profile;
 - **blend** — id `linear-normalised-camber-unit-thickness`, version, renormalise = true;
 - **loft** — rule `channel-evaluated` (rule A, A4.4), the kernel id and version, the v-degree the kernel chose for the derived skin (read back, never assumed), the section placement (knots + stations + refinement count) and the measured A-vs-B deviation, parameterisation;
-- **correspondence** — u_TE-upper = 0, u_LE = 0.5, u_TE-lower = 1, cosine spacing, feature alignment none;
+- **correspondence** — equal normalized chord x on independently evaluated upper/lower sides; cosine spacing
+  is a derived sampling choice, never the definition of the blend or a shared spline-parameter constraint;
 - every Curve control carries a **stable id**, optional bounds and a `frozen` flag.
 
 Evaluated coordinates, tessellations, station readouts, span, area, AR, wetted area and volume are never persisted
@@ -417,9 +425,9 @@ curvature shading apply to the loft.
 
 Five channels and no duplicate authority: independent leading-edge and trailing-edge x positions in the unrotated
 planform, elevation (dihedral/anhedral; anhedral is negative tip z), twist (positive nose-up about the station
-LE), effective thickness — **t/c is the maximum of the ψ-aligned (vertical in normalised chord) half-difference
-between upper and lower at equal ψ**; the t/c channel scales the unit-thickness shape linearly on the shared knot
-vector, which is an exact control-point operation. Catalog sections whose *definition* applies thickness normal to
+LE), effective thickness — **t/c is the maximum of the ψ-aligned (vertical in normalised chord) full difference
+between upper and lower at equal ψ**; the t/c channel scales the unit-thickness shape evaluated at the same
+normalized chord coordinate. It does not imply shared knots or equal spline parameters. Catalog sections whose *definition* applies thickness normal to
 the camber line (cambered NACA 4- and 5-digit) are conversions and report their residual, because the definition,
 not the record, carries the cos θ term (02). Each rail owns its own CV abscissae, knots and ordinates; moving
 leading does not rewrite trailing and vice versa. At every η, chord = trailing(η) − leading(η); there is no
@@ -427,16 +435,17 @@ saved chord curve. Both rails use absolute x aft in the unrotated planform. A ch
 that names which rail is held (default leading) and previews the change to trailing. Station planes are perpendicular to the span axis. A zero-chord tip is a legal declared state with
 limit normals; an interior chord ≤ 0 or coincident/out-of-order stations are rejected at input.
 
-**Blend** — normalised camber and unit-thickness shape interpolate linearly in η between assigned profiles **on a
-shared knot vector and fixed u correspondence**, renormalise to unit maximum thickness, then the single t/c channel
+**Blend** — normalised camber and unit-thickness shape interpolate linearly in η between assigned profiles **at
+the same normalized chord x**, using each profile side's own monotone x inversion, renormalise to unit maximum thickness, then the single t/c channel
 scales; mandatory fixtures: different thickness-peak positions, different control counts at root and tip (the
 equal-count slice rule is rejected, 03).
 
 **Loft rule A, recorded** — the surface between stations is the channel-evaluated analytic surface (twist rotation
 makes it non-polynomial in η); any B-spline skin for display, STEP or 3DM is a **derived approximation** whose
 maximum deviation from the record is measured and reported like any conversion (02 §5). Rule B is not offered.
-The user-facing loft vocabulary is three words — **Straight · Through stations · Blended** — plus per-station
-tangent locks; Loose/Tight/Rebuild/Refit/rails are never exposed. Trailing-edge closure uses OpenVSP's names:
+The product exposes one loft meaning: **Rule A · linear normalized profile blend**. The former
+Straight/Through stations/Blended choices had no defined mapping to this evaluator and are removed, not
+retained as inert modes. Profile/channel tangent locks constrain their explicit CVs; they do not select another loft. Trailing-edge closure uses OpenVSP's names:
 **None · Skew lower · Skew upper · Skew both · Extrapolate**, trim **by x · by thickness**.
 
 **Recipe and detachment** — a recipe names a valid driver set (OpenVSP's driver rule: exactly the drivers that
@@ -539,7 +548,14 @@ non-finite, self-crossing, half-profile or malformed input leaves the library un
 UIUC layouts, `#` comments, CRLF, BOM, unequal Lednicer counts, Lednicer forced through Selig rejected as
 self-crossing (05).
 
-#### A4.11 Export matrix (v1 write; import is the native document only)
+#### A4.11 Native projects and shape interchange
+
+**Open project** opens `.cfdw.json` with its alternatives, source history, baseline pins, decision rationale,
+assets and run references. **Open foil/section source** opens `.foil` as a shape preview or a standalone 2D
+section document. It never invents project history or imports analysis evidence. Adding that shape to the
+current project creates a named alternative only after validation and Apply. A dirty draft is retained until
+explicit Apply/Cancel; choosing either Open action cannot silently discard it. **Save project** preserves the
+workspace/history; **Export FoilDSL source** exports only accepted shape source and its declared dependencies.
 
 | Format | v1 | Contract |
 |---|---|---|
@@ -640,6 +656,66 @@ the existing LE twist pivot still governs how edits affect placed 3D geometry.
 
 These are product criteria. The review mockup supports a declared subset and demonstrates transactions;
 it does not clear full language, native archive, geometry certification, migration or solver release gates.
+
+#### A4.14 Section scope, dimensions and design decisions (revision 1.5)
+
+**Section scope before editing.** A persistent selected-station card shows the actual section thumbnail,
+profile name/revision, station position, effective full t/c and the visible **Edit section** verb. Opening it
+shows **Edit shared profile** and **Make independent at this station**. Shared editing names every referencing
+assignment and the union of its adjacent blend intervals. Independent editing creates a new Profile revision
+and changes only the selected assignment; the shape may still change in both neighboring interpolation
+intervals. The preview lists those intervals in η and physical root distance. No promise of plane-only impact.
+
+**Thickness intent.** Default **Keep current thickness** holds the accepted effective t/c channel unchanged;
+the edited profile supplies camber and normalized thickness shape. **Use source thickness** proposes t/c targets
+at the assignments in the chosen edit scope, equal to the edited profile's maximum full upper-minus-lower
+distance. This is an explicit edit of the existing t/c channel with constraints, residuals and a highlighted
+affected span; no station field becomes a second t/c authority. A channel fit may affect a wider span than the
+profile blend intervals, which the preview must disclose. Infeasible locks or unassessed residuals block Apply.
+The chosen policy and affected assignments are provenance of the accepted transaction, not a live alternate
+evaluator. Source polars detach from changed profile revisions.
+
+**Chord intent.** A chord command requires a visible **Hold leading edge / Hold trailing edge** choice (initial
+default Hold leading edge). At the selected station, target chord c* implies TE*=LE+c* or LE*=TE−c* respectively.
+The held rail's complete record stays unchanged. Solving a pin on the other rail may affect neighboring η;
+show its actual changed curve and derived area/AR before Apply. Existing bounds/root-origin/locks can reject
+the command. Independent rail edits remain available and never invoke this command implicitly.
+
+**Span intent.** A span command explicitly chooses **Keep relative station positions** or **Keep absolute station
+positions**. Both set the new half-span; root and tip assignments remain boundary anchors at 0 and the new
+half-span. Keep relative station positions retains all station η, rail/channel CVs and profile assignments. Keep absolute
+station positions retains each interior station's old distance d and sets η'=d/newHalfSpan; channel CVs still retain
+their normalized coordinates and values. Thus profile transitions move relative to the channels, which is
+shown in preview. An interior station at/outside the new tip, duplicate η or unsupported conversion blocks
+Apply and names the station; nothing is clamped or dropped. These choices describe station layout, not uniform
+3D scaling of chord or thickness. No unconstrained “scale everything” inference occurs.
+
+Every dimension preview states **unrotated planform · x aft, y starboard, z up · twist about leading edge**.
+It distinguishes unchanged authored rail coordinates from the transformed 3D edge under a moved LE pivot.
+
+**Alternatives and decisions.** Create alternative copies an accepted revision by reference and requires a
+nonempty distinguishable name. Pin baseline captures the accepted revision currently inspected; repinning is
+explicit. Edit the alternative, compare against the fixed baseline, then Keep or Discard with a nonempty
+rationale. Keep records that choice and leaves the chosen accepted alternative active. Discard records its
+rationale, archives that branch and returns to the pinned baseline; source/history/run evidence remain readable.
+While a draft exists, selection/navigation/inspection stay enabled, but switching the active writable branch,
+repinning, Keep/Discard or starting another edit requires finishing the draft. Inspection never changes its base.
+
+Comparison displays baseline and alternative names/revisions, span, reference area, AR and section/rail overlays
+with units and fixed alignment. Any maximum deviation names its sample set and whether sampled or certified.
+Comparison uses accepted records; a draft may be overlaid only with an explicit **Unaccepted preview** label.
+Scientific evidence is compared only for compatible operating point, water/depth, method/version, reference
+quantities and declared uncertainty. Show **Not run**, **Historical** or **Incompatible — <reason>** for missing
+or mismatched evidence, never fabricated improvement percentages. Keep/Discard is a user's design decision,
+not a claim of hydrodynamic superiority. `.foil` contains no alternatives or decision history; those are project data.
+
+| ID | Falsifiable acceptance criterion |
+|---|---|
+| CAD-09 · Find section editing | Given any selected authored station, when inspecting CAD at each supported viewport, then its actual thumbnail and labelled Edit section action remain visible without opening a menu; an inspection slice is labelled and offers Promote, and a competing draft gives a disabled edit reason. |
+| CAD-10 · Edit the intended scope | Given a profile used at three stations, when Edit shared or Make independent is chosen, then preview names all affected assignments and adjacent blend intervals; independent Apply changes only the selected assignment's reference. Keep current thickness leaves the t/c record byte-for-byte unchanged; Use source thickness previews explicit channel targets and refuses infeasible constraints. Cancel and Undo restore profile assignments, source and t/c together. |
+| CAD-11 · Inspect during a draft | Given a draft on the middle section, when selecting another station, orbiting, changing views, reading Source or inspecting a baseline, then the draft's base/target/values remain unchanged and visible; trying to edit the newly selected item is refused with the original target named. Return to the target restores its draft view; Apply affects only its declared scope. |
+| CAD-12 · Compare and decide | Given a named alternative and pinned baseline, when geometry changes are accepted and compared, then geometry differences have explicit basis and any missing/incompatible scientific evidence has a reason with no substituted number. Keep/Discard without rationale is refused. Keep records the alternative/revision/baseline/rationale; Discard archives it and returns to baseline without deleting evidence. |
+| CAD-13 · State dimension intent | Given a chord change at an unlocked interior station, when Hold LE or Hold TE is selected, then only the other rail changes and target chord is met within the stated tolerance. Given a span change, each station-policy fixture follows its named mapping; an out-of-range absolute station blocks Apply. Cancel/Undo restore rails, span, assignments and source together. |
 
 ### A5. Analysis contract
 
@@ -892,7 +968,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | GEO-04 · I can understand every driver | **Given** a linked recipe, **when** I make the first manual edit, **then** the status strip reads Direct parametric and the detachment is in the same undo item; retained recipe provenance never overwrites direct geometry. |
 | GEO-05 · I can use vertices and levers precisely | **Given** any curve, **when** I select a vertex or lever, drag it, nudge it at each of the three steps (↑↓ the value, ←→ η, Shift ×10), or type a unit expression for η or value (mm · m · in · ° · % · chord), **then** the resolved model value is echoed and the comb updates within the 100 ms edit budget. **Given** the levers, **then** they set the end tangents; the root vertex and its lever are coupled by the root-mirror lock (either moves, both are named as coupled) and no vertex claims a lock that Properties does not list. **Given** Insert CV on the curve, **then** the shape is preserved to 10⁻¹² relative (the A4.5 exact path); **given** Delete leaving fewer than p + 2 vertices, **then** it is blocked with the reason, and otherwise the shape change is reported. |
 | GEO-06 · I can add a station without altering shape | **Given** an inspection slice, **when** I promote it, **then** the reported deviation is ≤ 10⁻¹² relative (exact under rule A) and the station is selectable in every view. **Given** a coincident η, **then** insertion is rejected and the existing station selected. |
-| GEO-07 · I can mix profiles intentionally | **Given** admitted root and tip profiles with Use source thickness, **then** the endpoint sections match their profiles within the A4.6 acceptance for the conversion path and interior sections follow the blend on the shared knot vector. **Given** Keep current thickness, **then** the channel is authoritative and the endpoints show Modified. **Given** the different-peak and different-control-count fixtures, **then** effective t/c is preserved. **Given** a crossing or fold, **then** the location is a DRC finding and closed export is blocked. |
+| GEO-07 · I can mix profiles intentionally | **Given** admitted root and tip profiles with Use source thickness, **then** the endpoint sections match their profiles within the A4.6 acceptance for the conversion path and interior sections follow the blend at shared normalized chord x. **Given** Keep current thickness, **then** the channel is authoritative and the endpoints show Modified. **Given** the different-peak and different-control-count fixtures, **then** effective t/c is preserved. **Given** a crossing or fold, **then** the location is a DRC finding and closed export is blocked. |
 | GEO-08 · I can reshape a predefined section | **Given** an assigned GEN NACA 0012, **when** Edit section opens and a control moves, **then** the draft shows the source, the conversion residual, the tolerance and the t/c policy before Apply. **Given** Apply, **then** the assignment becomes a Modified Profile revision, source polars detach, and the catalog original is intact. **Given** Cancel, a crossing or a residual above the A4.6 acceptance, **then** accepted geometry is unchanged. |
 | GEO-09 · I can use units and orientation consistently | **Given** display-unit changes, **then** geometry, identity and physics are unchanged. **Given** the sign fixture (A4.7), **then** every sign holds. **Given** a pressure entered for a length, **then** a dimensional error is shown. |
 | GEO-10 · I can inspect the actual loft | **Given** valid geometry, **when** I orbit, pan, zoom, fit or select a named view by pointer, trackpad or keyboard (15°/90°/5° stepped orbit; Z / Shift+Z zoom; fit-all and fit-selection), **then** station selection stays linked to its inspector; reduced motion changes nothing about reachability. |
@@ -938,12 +1014,12 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | SET-03 · Both entries seed one thing | **Given** the parameters of SET-01 entered by form, and the recorded setup-seed proposal fixture whose fields equal those parameters (no Inferred field), **then** the two Setup briefs differ only in entry kind and provenance, and the seeded Goal state versions and Surface revisions are equal by hash; **given** a re-seed on a document that already has r2…rn, **then** a new brief version and a new Design revision are appended with the earlier ones as history and the earlier runs Historical. The live-model equivalent is an A8.6 eval with a threshold, never an A6 row. |
 | SET-04 · Purpose sets the preset, never the geometry alone | **Given** each of the eight purposes, **then** its discipline preset (context, per-field labels, class-rule preset where one exists, GEN default section) is applied and named; a purpose with a Flagged field requires acknowledgement; the eight purposes map onto the nine discipline presets of A5.5 with the mapping shown (wakefoil → surf preset with the wake note, Flagged). |
 | CAD-01 · I can work the outline, twist and dihedral as distinct curves | **Given** CAD, **then** the five master curves — LE rail and TE rail of the Outline, Dihedral/Anhedral, Twist, Thickness t/c — are separately selectable from the options strip, by a click on the curve in any elevation, or from the η-plot view, sharing the span coordinate, with independent CV abscissae, knots and locks; every curve shows its **control frame** (dashed polygon, square vertices, circle levers, diamond ends) in the elevation that shapes it — the selected curve's frame emphasised, the others dimmed but draggable (a press selects the curve) — so no handle has to be found by first finding a curve; editing one never rewrites another; each carries its own unit family, nudge ladder and Tracing readout; the 3D view updates within the preview budget. |
-| CAD-02 · I can add and remove stations and tune their profiles | **Given** an inspection slice at η 0.35, **when** I add a station there, **then** it becomes an authored station with the profile the blend produced (deviation ≤ 10⁻¹² relative under rule A), selectable in every view, with its own thickness policy and closure; **when** I assign or edit its profile, **then** the neighbouring blend updates and the endpoint sections stay within the conversion acceptance; **when** I remove it, **then** the shape is refit through the remaining stations with the measured deviation reported and Apply disabled above the acceptance; root and tip stations cannot be removed. |
+| CAD-02 · I can add and remove stations and tune their profiles | **Given** an inspection slice at η 0.35, **when** I add a station there, **then** it becomes an authored station with the profile the blend produced (deviation ≤ 10⁻¹² relative under rule A), selectable in every view, with an explicit thickness command policy and referenced profile closure; **when** I assign or edit its profile, **then** the neighbouring blend updates and the endpoint sections stay within the conversion acceptance; **when** I remove it, **then** the shape is refit through the remaining stations with the measured deviation reported and Apply disabled above the acceptance; root and tip stations cannot be removed. |
 | CAD-03 · CAD is productive as well as visual | **Given** any curve, **then** the keyboard path selects a station in ≤ 1 action, opens its profile in ≤ 1 more, nudges at three steps, types an exact value or expression with echo, applies with Return and cancels with Escape; the command palette and native menus expose every CAD verb; a numeric change is echoed in the inspector, the status strip and the canvas within 100 ms p95 on the reference fixture (A8.1). |
-| CAD-04 · I can edit the master curves in the elevation that shapes them | **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve cannot be picked, selected or nudged (the status line says which draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named `role=slider` with η and value in its accessible value. |
+| CAD-04 · I can edit the master curves in the elevation that shapes them | **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named `role=slider` with η and value in its accessible value. |
 | CAD-05 · A station is a document, not a modal | **Given** an authored station selected (from the list, the toolbar, an elevation or a 3D pick, which select only), **when** I choose Edit section (the palette, or Return on the workspace) with no geometry draft open, **then** a **Station document tab** opens in the editor group — a full 2D section view with grid, chord and thickness dimensions, the upper and lower control points, the catalog original ghosted, the comb, the section's own control vertices and levers (degree 5, the vertex count the conversion chose to meet its acceptance, the residual **measured** at the catalog points and shown identically in the HUD, the options strip and Properties), the section strip (vertex · value · step · comb) on the toolbar and the section's own Properties; **then** Return applies as a Modified Profile revision (the catalog original intact, source polars detached) and closes the tab, Escape, Delete on the tab or the tab's close button discards the draft **onto the undo stack** (⌘/Ctrl+Z restores it and reopens the tab) and returns focus to the Edit section tool; the document does not follow a change of selection (its station is fixed in its title); removing its station closes it with the draft discarded and the reason in the status line; CAD ⇄ Analysis with a section draft open follows the ANA-22 rule (the draft is hidden, not lost, and the tab is back on return); Edit section is disabled with the reason while a geometry draft is open (one draft at a time, UX-23); the design document stays open beside it and the shell never becomes modal. |
 | CAD-06 · One camera over one model | **Given** the Perspective viewport, **then** Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport's title menu and the keyboard; free orbit, pan and zoom follow the navigation preset's pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; `[` `]` 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are **Starboard** and **Port** everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or "Free · az · el"; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; **Body** shows the loft as Smooth, as the **display cage** (Box: every station's section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it. |
-| CAD-07 · The verbs are a palette, the parameters an options strip | **Given** CAD or Analysis, **then** a vertical **tool palette** beside the workspace carries Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its visible name, its key in the accessible name, the active tool pressed, and a single key (S · I · A · M · ⇧F · R · P · Return · G) that acts only while the workspace has focus (SC 2.1.4) — Escape cancels the draft and returns to Select in one press; every pointer verb has a keyboard equivalent on the options strip (Insert at η; Add station at η; Measure between two η values) and the pointer path is the same verb; at the 640 × 400 reflow preset the palette becomes a row above the viewports, never hidden (a 44 px row: the reflow preset is for orientation, and the palette keeps its own target class rather than shrinking to a 32 px dense row that would leave a 12 px taller viewport); the application toolbar keeps only Edit (Undo · Redo), Find (⌘/Ctrl+K) and View (CAD ⇄ Analysis) plus **Draft (Apply · Cancel) while a draft is open**; the row beneath the toolbar is an **options strip** — the curve selector, the active tool's options (η for Add station and Insert CV, two η values for Measure, tolerance and PreserveEnds for Fair, vertex count for Rebuild, the comb scale and the monotone-piece count while the comb is shown), the draft chip and the derived b · S · AR · c̄ · TE readouts; the nudge step and the locks live in Properties; the bottom panel is the Checks drawer only; the Navigator starts collapsed on first entry; at 1280 × 800 the CAD area shows at most 48 visible chrome controls (v4 measured 71). |
+| CAD-07 · The verbs are a palette, the parameters an options strip | **Given** CAD or Analysis, **then** a vertical **tool palette** beside the workspace carries Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its visible name, its key in the accessible name, the active tool pressed, and a single key (S · I · A · M · ⇧F · R · P · Return · G) that acts only while the workspace has focus (SC 2.1.4) — Escape cancels the draft and returns to Select in one press; every pointer verb has a keyboard equivalent on the options strip (Insert at η; Add station at η; Measure between two η values) and the pointer path is the same verb; at the 640 × 400 reflow preset the palette becomes a row above the viewports, never hidden (a 44 px row: the reflow preset is for orientation, and the palette keeps its own target class rather than shrinking to a 32 px dense row that would leave a 12 px taller viewport); the application toolbar keeps only Edit (Undo · Redo), Find (⌘/Ctrl+K) and View (CAD ⇄ Analysis) plus **Draft (Apply · Cancel) while a draft is open**; the row beneath the toolbar is an **options strip** — the curve selector, the active tool's options (η for Add station and Insert CV, two η values for Measure, tolerance and PreserveEnds for Fair, vertex count for Rebuild, the comb scale and the monotone-piece count while the comb is shown), the draft chip and the derived b · S · AR · c̄ · TE readouts; the nudge step and the locks live in Properties; the bottom panel is the Checks drawer only; the Navigator starts collapsed on first entry; at 1280 × 800 the CAD area shows at most 51 visible chrome controls (revision 1.5 permits three approved persistent entry actions—Edit section, Edit intent and Alternatives—above the previous 48 ceiling; v4 measured 71). Existing target-size, viewport, overflow and keyboard requirements remain unchanged. |
 | CAD-08 · Four viewports, one model | **Given** the workspace, **then** it is **four viewports** in the lines-drawing arrangement (Top · Perspective over Front · Starboard), each with a **title menu** (View: Top · Front · Starboard · Perspective · η-plot; Display: Control frame · Curvature comb · Ghost; Body: Smooth · Box · Cage over smooth; Maximise / restore — a WAI-ARIA menu: opening focuses the first item, arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave) and **double-click or Return on its title to maximise** it to the whole workspace and back; the η-plot is a view like any other (the active curve's vertices against η) and the 1.2 curve pane is gone; every viewport renders at its own pixel size so a vertex target is never scaled below 24 px, and the workspace re-renders when a dock, the bottom panel or the window changes its box; below 480 × 240 px the workspace shows one viewport (the title menu still reaches every view); the tracing readout is a strip beneath the viewports, never an overlay, and it is a **pointer probe**: moving over any elevation writes η, % half-span, the evaluated channels and the active curve's graph curvature κ and radius at the pointer, and returns to the selected station on leave. |
 | ANA-21 · I can read 2D and 3D local analysis with rich visuals | **Given** a Design revision and an operating point, **then** the section view draws Cp on the profile (vik pinned at 0), the transition point and the cavitation margin, and the wing view draws per-strip lift vectors (length ∝ local load, direction along the local normal), the total force vector at the center of lift, the spanwise loading strips (batlow), the depth band and the ventilation margin on the geometry, each with its legend fields and a table twin; every visual carries the tier chip and "local calculation". |
 | ANA-22 · I can toggle between the CAD view and the analysis view seamlessly | **Given** CAD and Analysis, **when** I switch (one action: the toggle or a shortcut — the toggle *is* navigation between areas 2 and 3 and the area strip follows), **then** the camera, selection, station and viewport size are preserved and the analysis layers appear over the accepted Design revision within the preview budget; **given** an open edit preview, **then** the preview is hidden with "Preview hidden — Apply or Cancel in CAD" and the layers draw over the accepted revision, never the preview; switching back restores the preview untouched; a Historical run's layers carry the Historical banner in either view. |
@@ -1505,7 +1581,7 @@ menu bar is native; Windows declares per-monitor DPI v2.
 - **UX-02:** exact-value edit, Undo and Save are possible without a pointer; focus returns to the edited parameter.
 - **UX-03:** every non-happy edge of F1–F8 shows cause, preserved work and a reachable recovery; no failure forces
   a restart. The edges, by node: F1 — C-No, F-None, F-Missing, F-Unsupported, F-Migratable, F-Unknown, K-No, N,
-  Z-Discard; F2 — K-No, J-Infeasible, J-Residual, J-Crossing, J-Insufficient, R-Invalid, R-Ambiguous, V2-Pending, E-Refused (an elevation handle of another curve, or Edit section, while a draft is open), E-Locked (an elevation draft that violates a lock);
+  Z-Discard; F2 — K-No, J-Infeasible, J-Residual, J-Crossing, J-Insufficient, R-Invalid, R-Ambiguous, V2-Pending, E-Refused (a competing write to another curve or Edit section while a draft is open; read-only selection remains available), E-Locked (an elevation draft that violates a lock);
   F3 — C-Flagged, G-Violation, I-Unavailable; F4 — C-No, E2-Yes, F-No, H-No, M-Out-of-envelope, M-Failed,
   M-No-crossing, P-Incompatible, N-changed, U-Attempt-failed; F5 — M-No, M-STEP, O-Denied, B-No, B2-No, B3-No,
   D2-error, E-failure, G-Base-changed, K-No; F6 — C-No, F-error, G-Rejected, K-Conflict, I-Base-changed,
@@ -1539,8 +1615,8 @@ menu bar is native; Windows declares per-monitor DPI v2.
 - **UX-13:** first launch reaches an editable, selected station in zero actions; the strategy tip stays until
   dismissed.
 - **UX-14:** editing in any viewport updates the other three within the preview budget.
-- **UX-24:** a tool is a mode the user can always see and always leave: the palette shows the pressed tool, the options strip shows its parameters, Escape returns to Select, and a single-key tool shortcut acts only while the workspace has focus (SC 2.1.4); one draft at a time across every entry point (a pick, the curve selector, a vertex, a tool) with the refusal naming the open draft.
-- **UX-23:** an elevation edit (CAD-04), an η-plot edit, a Properties edit, a palette construction (Fair · Rebuild · Fit points · Insert · Delete) and a station-document edit (CAD-05) are one draft model — a nudge or drag continues the open vertex draft on the same curve; *every construction, every lock change, every pick or selection of another curve refuses while a draft is open*, naming the draft to apply or cancel; Add station and Remove station are their own undo items: at most one preview open, the same Apply/Cancel keys, the same status-bar line, the same undo item; opening the Station document never loses the design document's selection or camera.
+- **UX-24:** a tool is a mode the user can always see and always leave: the palette shows the pressed tool, the options strip shows its parameters, Escape returns to Select, and a single-key tool shortcut acts only while the workspace has focus (SC 2.1.4); one draft at a time across writing entry points, with a refusal naming the open draft; read-only picks and curve selection remain available and never retarget it.
+- **UX-23:** an elevation edit (CAD-04), an η-plot edit, a Properties edit, a palette construction (Fair · Rebuild · Fit points · Insert · Delete) and a station-document edit (CAD-05) are one draft model — a nudge or drag continues the open vertex draft on the same curve; every competing construction, lock change or edit refuses while a draft is open, naming the draft to apply or cancel. Read-only picking, station/curve selection, orbit, pan, zoom, view switching, baseline inspection and source reading remain available. Selection never retargets the draft; its pinned target and base remain visible; Add station and Remove station are their own undo items: at most one preview open, the same Apply/Cancel keys, the same status-bar line, the same undo item; opening the Station document never loses the design document's selection or camera.
 - **UX-15:** with a draft open on the TE rail and two locks the strip reads "TE rail · mm · 1 mm · Draft
   open · 2 locks" without opening Properties.
 - **UX-16:** step budgets — overlay a second admitted section at the same Re ≤ 2 actions from a computed polar
@@ -1599,6 +1675,58 @@ selection. Source errors focus a readable diagnostic and expose the relevant ran
 focus. Text editor Cmd/Ctrl+Z remains native text undo; document Undo/Redo are explicit actions outside
 the editor. New/Open with a dirty draft offers Apply/Cancel first. A second editing route cannot overwrite
 the current draft. A source-only comment edit never produces a geometry-change warning.
+
+### B10. Flow F10 — one uninterrupted design decision (revision 1.5)
+
+```mermaid
+flowchart TD
+A[Inspect accepted design] --> B[Pin immutable baseline]
+B --> C[Create and name alternative]
+C --> D[Select middle authored station]
+D --> E[Persistent thumbnail and Edit section]
+E --> F{Shared or independent scope}
+F -->|Shared| G[Show all assignments and adjacent intervals]
+F -->|Independent| H[Copy profile and preview selected assignment intervals]
+G --> I[Choose thickness policy and edit section]
+H --> I
+I --> J[Inspect another station or 3D impact without retargeting draft]
+J --> K{Valid supported change}
+K -->|No| L[Explain lock or geometry failure; retain draft]
+L --> I
+K -->|Cancel| D
+K -->|Apply| M[Accepted alternative revision and source]
+M --> N[Compare geometry and compatible evidence with pinned baseline]
+N --> O{Evidence available and compatible}
+O -->|Yes| P[Show provenance and difference basis]
+O -->|No| Q[Show missing or incompatible reason without a number]
+P --> R[Write decision rationale]
+Q --> R
+R --> S{Keep or discard}
+S -->|Keep| T[Record decision; chosen alternative stays active]
+S -->|Discard| U[Record decision; archive alternative; return to baseline]
+S -->|No rationale| R
+```
+
+**UX-26:** the formative task is uninterrupted: create named alternative → select the middle station → edit
+its section with explicit sharing/thickness scope → inspect affected 3D span → compare against pinned baseline
+→ Keep/Discard with rationale. Five participants matching A1 perform it without moderator directions after
+the task statement. Pass target: at least four complete in ≤10 minutes, all five correctly name the edited
+assignments and distinguish unavailable scientific evidence, zero unintended edits to another target or lost
+drafts. Record action sequence, completion/time, help requests, wrong-target attempts, scope prediction and
+confidence interpretation. These are acceptance targets; no formative results are claimed in this prototype.
+
+**UX-27:** while any draft is open, the read/write distinction is consistent across viewport, station list,
+Source and comparison: read-only selection/navigation is allowed, starting a competing write is refused with
+the original target and Apply/Cancel route named. Pinning/changing the writable alternative and deciding its
+fate require an accepted state. A comparison can be inspected without switching the editing base.
+
+The existing ISO 25010/governance table applies. Specific additions: reliability tests cover draft target
+retention and archived decision history; usability uses UX-26; compatibility distinguishes project/shape
+files; functional suitability uses CAD-09–13; performance records preview/compare durations and byte/sample
+counts; security treats names/rationale as inert bounded text. Product instrumentation emits the normal-path
+events `section.scope`, `dimension.preview`, `alternative.create`, `comparison.open`, `decision.record`
+with revision identities, elapsed time/outcome and counts. User source/rationale text is excluded by default;
+missing timing or scientific evidence reads Not recorded/Not run rather than an invented value.
 
 ## Part C — UI specification
 
@@ -1800,7 +1928,7 @@ exactly one rendering; "Model uncertainty not quantified" is the only uncertaint
 - **UI-22:** every prompt entry renders the area's fixed entry name, the capability disclosure (HAX G1/G2), the
   proposal preview with per-field provenance, and the Accept · Discard pair; the model identifier is visible.
 
-### C4a. Source-authoring surface acceptance (revision 1.4)
+### C4a. Source-authoring surface acceptance (revision 1.5)
 
 UI-28: the source document uses DESIGN.md tokens, an accessible textarea, visible action labels and a
 live validation status. Source and preview panes scroll internally; the application window does not.
@@ -1816,6 +1944,30 @@ review harness; native proof remains the separate A8 obligation.
 UI-30: each assignment displays the profile identity and authored span position; derived slices have
 different labels. Shared-profile edits disclose their reach. A product may offer both inline source
 and structured Properties, but they may never have independent Apply states or hidden overrides.
+
+UI-31: the persistent station card contains a section thumbnail with text alternative, name/revision,
+η and distance, effective t/c and visible Edit section. It survives viewport maximization and narrow layout
+in a docked or stacked region; it never covers the geometry. Empty/no selection, inspection slice, shared,
+independent, editing, unavailable profile and blocked-edit states each name the next available action.
+
+UI-32: section edit scope and thickness policy are labelled controls with the default visibly selected.
+The affected assignment list and highlighted span intervals have a text equivalent; color alone never
+encodes reach. The draft banner names its pinned target even when another station is inspected. Keyboard
+users can select/read another station and return to the editing target without losing their place.
+
+UI-33: the alternative selector, Pin baseline, Compare, Keep and Discard are named keyboard-accessible
+actions. Baseline and candidate are distinguished by labels and line style, not color alone. Decision
+rationale is a labelled field with an inline empty-state error. Archived alternatives remain inspectable.
+No scientific value appears where evidence is missing/incompatible; its explanatory text occupies that cell.
+
+UI-34: chord previews expose Hold LE/Hold TE, span previews expose both location policies, and their
+before/after dimensions include units. The frame/LE-pivot disclosure and changed-span summary remain
+adjacent to Apply/Cancel. Error/infeasible states show the blocking station/lock and keep Cancel available.
+
+UI-35: theme, persona, viewport, reduced-motion and state harnesses exercise the complete design-decision
+flow. The prototype labels its geometry differences sampled/illustrative and its runs Not run unless
+fixture evidence is explicitly shown as illustrative. Existing WCAG 2.2 AA, keyboard-target, focus and
+preview-latency floors apply to every added control; no new animation is required to understand state.
 
 ### C5. Traceability
 
@@ -1833,6 +1985,7 @@ and structured Properties, but they may never have independent Apply states or h
 | Prompt entry (every area) | F2, F4, F5, F6, F7, F8 | AI-01–11, CAND-01, UI-22 |
 | Activity rail (area strip in 1.1) | all | UX-17, UI-18, UI-23, UI-24 |
 | Viewports · elevations · Station document | F2 | CAD-04–08, UX-14, UX-23, UX-24, UI-25–27 |
+| Station card · edit scope · design alternatives · comparison | F10 | CAD-09–13, UX-26–27, UI-31–35 |
 
 ---
 
@@ -2028,3 +2181,13 @@ outside those amendments remain. The source reference corpus is tracked unchange
 reconciliation, independent findings and executable prototype proof are linked from the v6 hub.
 Full conformance, lossless native archives, cross-platform numerical identity and scientific validation
 are future product gates; a passing browser demonstrator does not satisfy them.
+
+## Appendix F — revision 1.5 review boundary
+
+The five authorized improvements are specified in A4.14, CAD-09–13, F10, UX-26–27 and UI-31–35, and
+demonstrated by the bounded v7 mockup. This revision corrects full-thickness semantics, removes undefined
+loft modes, distinguishes native project versus `.foil` opening, and permits inspection during drafts.
+Source syntax remains the unapproved FoilDSL 4.0 draft; alternatives/baselines/decisions are project records,
+not hidden language geometry. [Design-iteration decision](../notes/design-iteration.md) records the boundaries.
+Functional prototype evidence does not constitute scientific or native-product validation. A further-gap
+review follows these changes as a separate artifact; findings do not authorize additional implementation.

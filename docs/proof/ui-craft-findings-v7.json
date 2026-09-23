@@ -1,0 +1,156 @@
+[
+  {
+    "rule": "em-dash-overuse",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "16 Content & copy",
+    "cluster": "Copy",
+    "directive": "U11/DX21",
+    "severity": "Minor",
+    "evidence": "Em-dash overuse - `12 em-dashes in body text`",
+    "fix": "Em-dash saturation in body copy is an AI cadence tell. Advisory only: humans use em-dashes legitimately, so this fires only on saturation \u2014 at least 8 em-dashes (\u2014 or --) at a density near one per 500 characters of body text \u2014 never on a long article that uses a few. Prefer commas, colons, periods, or parentheses.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "side-tab",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Generic-AI-look tells",
+    "directive": "DX3",
+    "severity": "Minor",
+    "evidence": "Side-tab accent border - `.palette .pt[aria-pressed=\"true\"] \u2014 inset box-shadow 3px stripe (left)`",
+    "fix": "Thick colored border on one side of a card \u2014 the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"quads\": children flush against bg on all sides (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"quad\": children flush against bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"qtitle\": children flush against border-bottom+bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"quad\": children flush against bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"qtitle\": children flush against border-bottom+bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"quad\": children flush against bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"qtitle\": children flush against border-bottom+bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"quad\": children flush against bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "cramped-padding",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Cramped padding - `<div> \"qtitle\": children flush against border-bottom+bg on top (no inset)`",
+    "fix": "Text is too close to the edge of its container. Two shapes: (1) an element with its own text where the padding is too low for the font size, and (2) a wrapper with text-bearing children and near-zero padding against a visible boundary (border, outline, or non-transparent background) \u2014 children land flush against the boundary line. Add at least 8px (ideally 12\u201316px) of padding inside bordered, outlined, or colored containers.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "monotonous-spacing",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "17 Craft",
+    "cluster": "Hierarchy, rhythm & space",
+    "directive": "DX12/DX13/DX17",
+    "severity": "Minor",
+    "evidence": "Monotonous spacing - `~4px used 9/14 times (64%)`",
+    "fix": "The same spacing value used everywhere \u2014 no rhythm, no variation. Use tight groupings for related items and generous separations between sections.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "clipped-overflow-container",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "12 State completeness",
+    "cluster": "State & overflow integrity",
+    "directive": "U9/DX9/DX16",
+    "severity": "Minor",
+    "evidence": "Positioned child clipped by overflow container - `div.app clips a positioned child`",
+    "fix": "A clipping container (overflow hidden or clip) wrapping an absolutely-positioned child cuts off tooltips, menus, and popovers that need to escape. Let the overflow be visible, or move the positioned layer out of the clip.",
+    "confidence": "Verified"
+  },
+  {
+    "rule": "clipped-overflow-container",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-foildsl-authoring/docs/mockups/workbench-v7.html",
+    "dimension": "12 State completeness",
+    "cluster": "State & overflow integrity",
+    "directive": "U9/DX9/DX16",
+    "severity": "Minor",
+    "evidence": "Positioned child clipped by overflow container - `div.docbody clips a positioned child`",
+    "fix": "A clipping container (overflow hidden or clip) wrapping an absolutely-positioned child cuts off tooltips, menus, and popovers that need to escape. Let the overflow be visible, or move the positioned layer out of the clip.",
+    "confidence": "Verified"
+  }
+]

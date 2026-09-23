@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py derive",
+  "generator": "docs-graph.py flag",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -207,7 +207,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default is a degree-3 clamped B-spline with seven control vertices (six to ten), the degree is stored per curve, and section curves stay degree 5. Decided on a measured fixture (fairness, anchor residual, support, lever effect) over the five example curves at both degrees, and on the loft spike showing the surface's spanwise continuity is the kernel's, measured, not the master curve's.",
@@ -237,7 +237,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8424795f2e4f93b339c1f09df4eb9966d470d08991c428044f20afabb62690be"
+      "sourceSha256": "812913d53b18e115062df46ffc3b64b38cdb42b1c60c5d0218d41bfc5629f613"
     },
     {
       "id": "adr-foildsl-authority",
@@ -252,7 +252,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Proposed adoption of a versioned FoilDSL control-vertex language as the sole authored shape representation, with concrete source preservation, deterministic semantic identity and append-only project revisions.",
@@ -277,7 +277,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e7347b59af9f1b93e290f8c760c4e2933c551849d4b2d8d776910c4d1cff1b62"
+      "sourceSha256": "92398ca5bc964c8c8eb81ff70ee0f089720e2943c5f07e9da764a6934112255c"
     },
     {
       "id": "cad-editing-views",
@@ -297,7 +297,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "CAD-04–06 (spec 1.2) — the four control curves are edited in the elevation that shapes them (Top · Front · Starboard), the 3D viewport is one free camera used for looking and selecting, and a station is a document tab with a full 2D section editor; every curve is a spline and the rail carries icons.",
@@ -336,7 +336,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0422a9e44ee6368fe267e23d7d8b0565cf8884f2906efc423911459a97fa2cee"
+      "sourceSha256": "2f8cd6b99d71e47a774f14afc8b83b0b21d26c7dff36b11fd8f55da01f224bff"
     },
     {
       "id": "control-vertex-workspace",
@@ -356,7 +356,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Specification 1.3 — the geometry of record is a control-vertex B-spline per master curve (degree 3, seven vertices, levers at the ends; Fit points and Fair are constructions with reported residuals; locks are vertex constraints), the CAD workspace is four viewports with title menus and a nine-verb tool palette, the 3D body is a NURBS loft with a display cage (never a T-spline), and the geometry kernel is an owned evaluator plus OCCT and rhino3dm behind a spike gate.",
@@ -402,7 +402,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12c1eaedb0441a751fe7d6662e96ed5137b908e499370ceb0bff8332ad34c4a5"
+      "sourceSha256": "0bd1cb70fa9d7cb3baad606c1682f57024573f3d274e3899079bc7b6d2378bd8"
     },
     {
       "id": "decision-catalog-admission-classes",
@@ -416,8 +416,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Every bundled section carries an admission class with its reason: GEN generated at build from a public-domain definition, VEND redistributed under written terms, LINK cited only. Eppler sections are pending until UIUC terms exist.",
@@ -441,7 +441,53 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "30b00b57ded67222f1a865a406aaaf716b8bb4a6a3dd5f4f2dcd1a257b806dc8"
+      "sourceSha256": "c2197a2b1bb99b6e7914332e68972004b55fc6cf928b0f1812e79d7f588b222a"
+    },
+    {
+      "id": "decision-design-iteration",
+      "path": "docs/notes/design-iteration.md",
+      "title": "Section scope and evidence-based design alternatives",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "Defines visible section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit dimensional intent. Corrects thickness, interpolation and file-opening inconsistencies without adding a competing shape authority or a simulation implementation.",
+      "tags": [
+        "geometry",
+        "authoring",
+        "ux",
+        "provenance",
+        "alternatives"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8e8f167ff5a13afa1f66823b6c18e0b8e85e59841329f1fc3970b93ddef96199"
     },
     {
       "id": "decision-foildsl-reconciliation",
@@ -456,12 +502,12 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         },
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "Compares the supplied FoilDSL v3 PDF, executable checker and JSX with the authoritative revision 1.3 workbench. Retains textual authoring and physical station language while evolving the record to explicit control vertices, transactional source editing and precise identity; records executable reference defects and compatibility costs.",
@@ -499,7 +545,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77807591931aea0cfc7e53dfa374e86f2a009314dff8b7ef568b98ed8c79f696"
+      "sourceSha256": "0b58151806b63dd37284a1a155228a5038216fe0422ab2ec2743ec6ff0101941"
     },
     {
       "id": "decision-freshness-by-run-key",
@@ -513,8 +559,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "A run is Current when the BLAKE3 key over its canonical inputs, method id + version and settings hash equals the key recomputed from the current design; nothing ever writes a freshness flag.",
@@ -538,7 +584,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7f61ece5a53f819c3da518ac2e29ae41bd2aa28c2717e32a5b096d8e8f05ca0"
+      "sourceSha256": "99ccc9c75ee9ae182b65d059e600a08edb82b65855cc00e7a9ea083c55d793c3"
     },
     {
       "id": "decision-loft-rule-a",
@@ -552,8 +598,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The surface of record between stations is the channel-evaluated analytic surface; every B-spline skin (display, STEP, 3DM) is a derived approximation with a measured, reported deviation. Rule B (skin as record) is not offered.",
@@ -577,7 +623,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bbbe525f2c6c1dd751e140e3f52e3965f731712631e91b5b2c4fb2b1b8d55bec"
+      "sourceSha256": "58f0b17a4bd1da52acae9adde617644b6ae4d397d81938baf6c9cd0b688fc08f"
     },
     {
       "id": "decision-ncrit-pair",
@@ -591,8 +637,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Section polars are computed at Ncrit 2 and 4 and shown as a band labelled as a practitioner range with no measured water N-factor; a single-Ncrit polar needs a recorded user override.",
@@ -616,7 +662,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6dd4255a7413ab14e1e230a35cafd87076ee302eb78f2fe59f5d0ecca158a007"
+      "sourceSha256": "76f4c1cda8859d11ef377bf72f4a5eefd5e085f7db25201a6ffd3aa7abf725ea"
     },
     {
       "id": "decision-parametric-authority",
@@ -664,14 +710,14 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-03-20",
       "reviewSuggested": [
         {
-          "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table."
-        },
-        {
           "by": "mockup-workbench-v2",
           "on": "2026-09-20",
           "reason": "Mockup v2 (seven areas) cleared by the UX & Accessibility lens 2026-09-21; supersedes v1 as the review artifact."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The product is seven discrete, complementary areas — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — each owning a typed input and output object and a verb set, with one AI prompt entry per area whose output is a validated, previewed proposal the user accepts.",
@@ -697,7 +743,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5c9fca11728546c0fd2ec5a4f67bd609e5e669dc564f29d1f405573614456463"
+      "sourceSha256": "04018cb7f4c10afcdceac3190c8ee9624cbd69b9fc47f7ccf6dbabf3d7c5b4d6"
     },
     {
       "id": "kernel-spike-occt-loft",
@@ -717,7 +763,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The Spike Protocol run on the geometry kernel decision of specification 1.3 A4.12 — OCCT 7.8.1 (via FreeCAD 1.1.1 headless, macOS arm64) lofting N exact section B-splines against the owned evaluator's rule-A surface at 50 × 200 closest-point samples, with a STEP round trip. Base and maximum-twist cases meet the 10 µm acceptance from N = 16 sections (1.1 µm and 0.5 µm; 0.8/0.4 µm at N = 64); the zero-chord tip does not converge with uniform sections (2.5–18 mm) and needs its own rule. Windows x64 and the licence review remain open.",
@@ -749,7 +795,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a0497aba81c724c9def09e07ce847aae730a1d5e1977c51647b84bfaad562acd"
+      "sourceSha256": "6d3771f50f16013e3003d30d25b5733c133cf180dbe079923198dede8ff9f2c2"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -814,7 +860,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The CFD-Workbench client is a fixed window whose regions scroll inside themselves — menu bar, one-row measured toolbar, parameter row, activity rail, docks, editor with document tabs and a tabbed bottom panel, status bar — with each area's content arranged for that vignette; page scroll and toolbar wrapping are defects the oracle fails.",
@@ -848,7 +894,61 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9b1ffbd9e99ff22ca37a14147836b4f1c32cda41835874392bfd71f3cab807eb"
+      "sourceSha256": "af80f93138c0217e9fcb08a801465b4cc802dd53b4725e83091a73c5eb2dec7f"
+    },
+    {
+      "id": "design-authoring-decisions",
+      "path": "docs/design/authoring-decisions.md",
+      "title": "Section authoring and design-decision interaction direction",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "Elevates the existing spatial workbench around the complete alternative-to-decision task: visible section entry, explicit shared scope and thickness intent, read-only draft inspection, and honest baseline evidence. Reuses the established design language and separates prototype proof from native/scientific obligations.",
+      "tags": [
+        "ux",
+        "cad",
+        "profiles",
+        "authoring",
+        "comparison"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "decision-design-iteration",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-foildsl-authoring",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c6179366b67c2049617b62f39b8c939c65135bf1ddaeb16a4c258f496206a056"
     },
     {
       "id": "design-foildsl-authoring",
@@ -863,7 +963,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Keep the spatial CAD workbench and add a source document with explicit validation and shared transactions, drawing useful authoring ideas from the supplied JSX without importing its scrolling page or alternate geometry model.",
@@ -892,7 +992,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3deacf0f9830a514900ce967928790c7cc0876d95b688cf9c90773359543f4f8"
+      "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
     },
     {
       "id": "mockup-workbench",
@@ -955,8 +1055,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Self-contained HTML workbench built against specification v1: Brief with the seven-point goal state computed live, Shape with a genuine constrained weighted least-squares B-spline evaluator, Sections with admission classes and a two-layout DAT detector, Analyze where every number carries its basis (tier, depth, Ncrit band, surface state, omissions, fixed strings), a Checks drawer, a gated export dialog and the assistant's honest states. A review harness switches persona, viewport, state, theme, density, capability, navigation preset, modifier scheme, trackpad mode and reduced motion. Illustrative throughout; no kernel, solver or file I/O.",
@@ -999,7 +1099,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "292a55b70408d461c973819ba15ffab3d2708f967407c4fc6fecd408fe7efcaf"
+      "sourceSha256": "a2f9efd56da20d32a6dbbcf813c9f8911ff97d2ac8901cc95714a6e1bcb68b96"
     },
     {
       "id": "mockup-workbench-v2",
@@ -1013,8 +1113,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Self-contained HTML workbench built against specification v1.1: an area strip in flow order — Setup · CAD · Analysis · Experiment · Run · Results · Export — with readiness chips, a prompt entry in every area whose output is that area's typed proposal, one canvas shared by CAD and Analysis, a process console for Run over a stepped fixture, and Results as sequences over admitted samples with every layer's basis. Run and Results render their full target state and carry the \"gated (SPIKE-03/04)\" chip. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -1065,7 +1165,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "625839c24e5965b987030b1dffda9c39c7f31c597b2057d86ce30b7d2a4a1766"
+      "sourceSha256": "d4c02c1c9a9c5498f9e03c6099c48d021e2b5d1576a4ed854df7b797de220d17"
     },
     {
       "id": "mockup-workbench-v3",
@@ -1080,7 +1180,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Self-contained HTML workbench rebuilt as a thick-client shell: a fixed window that never scrolls — menu bar, one-row toolbar with measured overflow, parameter row, activity rail of the six document areas plus Export as a dialog, Navigator and Properties docks, document tabs over one viewport, a tabbed bottom panel and a status bar — with the v2 content re-homed per vignette. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -1133,7 +1233,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "411ab0d450324c252130bcb522410f64e718e7b724d0493a633eb08672842c54"
+      "sourceSha256": "daff514c8b00be90581313a6c5e2d9761dfabd220c080fd00123a11a4facae47"
     },
     {
       "id": "mockup-workbench-v4",
@@ -1148,7 +1248,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The v3 thick-client shell with the CAD editing views of specification 1.2: an icon rail, splines everywhere, one camera with named views, a view cube and free orbit, editing elevations (Top over Front, Starboard beside) where the outline rails, dihedral/anhedral, twist and thickness are explicit control curves, and a Station document that replaces the modal section editor. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -1198,7 +1298,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c05f28a260ea27f96a207ac19f95f7253f5cb9074dff969ebf0c14c2eda003fd"
+      "sourceSha256": "16639b0da04226bcb2f0d966b718791533e8dd9c685c12c96bc9df7defa4fcaf"
     },
     {
       "id": "mockup-workbench-v5",
@@ -1213,7 +1313,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The v4 shell and camera with the CAD experience rebuilt around specification 1.3's control-vertex record: every master curve is a clamped B-spline whose vertices and levers are the editing surface (a vertex pulls the curve and never lies on it), a four-viewport lines-drawing workspace with title menus and maximise, a nine-verb tool palette with an options strip, a display cage for the 3D body, and a station document whose conversion residual is measured. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -1264,7 +1364,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ca8c3e283ffbe77fa75d1593a717c5fd596061ceba5a4ffaf2f61d65e5e28c95"
+      "sourceSha256": "265b80ea566c82d3618751de8f89775b5a35255eb8006fe02074a28649a3f988"
     },
     {
       "id": "mockup-workbench-v6",
@@ -1279,12 +1379,12 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         },
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "The four-viewport workbench gains a FoilDSL source document, validation, shared transactions, file round-trip and revision freshness. A bounded language prototype, not the product evaluator or a CFD solver.",
@@ -1321,7 +1421,77 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "40979b907d351c5b27cc5022842c765d1967ddaf72f20b1f1679b36b04433c2b"
+      "sourceSha256": "6c3177c75961af68532eca6c2933397a3762fe855dd0875aca2239c471aa4e5c"
+    },
+    {
+      "id": "mockup-workbench-v7",
+      "path": "docs/mockups/workbench-v7.md",
+      "title": "CFD-Workbench v7 — section scope and design alternatives",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "The spatial workbench adds persistent section editing, shared and independent profiles, draft-safe inspection, explicit chord/span intent, and page-session alternatives with baseline comparison and decision rationale. Geometry remains sampled; scientific, native persistence and full language conformance are not proven.",
+      "tags": [
+        "mockup",
+        "foildsl",
+        "cad",
+        "profiles",
+        "alternatives"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "decision-design-iteration",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-authoring-decisions",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v6",
+          "rel": "supersedes"
+        },
+        {
+          "to": "proof-authoring-decisions",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-authoring-v7-independent",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-authoring-v7-gaps",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d8af9f35ff69ff91dfa7151b712ec01cf908f85029d325f47d0f894391bf0e09"
     },
     {
       "id": "workbench-direction",
@@ -1345,8 +1515,8 @@ window.DOCS_INDEX = {
         },
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Words-first creative direction for the hydrofoil workbench, extended on 2026-09-20 with the v1 elevation brief (candid, not reassuring; the basis travels with the number). A bounded parametric canvas joins scalar span distributions and station section anchors in one model, with precision editing and visible evidence limits.",
@@ -1374,7 +1544,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8a69caeb0078c85f4d136cb6bb863ace3c8a5e67cde7d9e77fb8faf35f513b3b"
+      "sourceSha256": "eae7d84bb0b644648e74cd377ca1f2495fc7a1ced55e57395069f744bca4dc3e"
     },
     {
       "id": "design-language",
@@ -1448,14 +1618,14 @@ window.DOCS_INDEX = {
           "reason": "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision."
         },
         {
-          "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
-        },
-        {
           "by": "mockup-workbench-v1",
           "on": "2026-09-20",
           "reason": "Mockup v1 built against spec v1 and cleared by the UX & Accessibility lens 2026-09-20; supersedes the 2026-09-19 prototype as the review artifact."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Design-time failure classes and their mandatory checks, loaded at session grounding under AGENTS.md. Product-runtime controls remain explicitly pending until the corresponding implementation exists.",
@@ -1480,7 +1650,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a52838c3d884edef7df274de2ffeee688ca17a6dfbc659e6bd4a662f2ad37832"
+      "sourceSha256": "a2ff53e7ed17e4510b8515af5204da202f0412f4d5606cd9a8f5eaf07fb2931e"
     },
     {
       "id": "domain-experts",
@@ -1529,7 +1699,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "Complete foil and section examples, invalid documents and precision/comment variants with explicit expected outcomes. A reproducible probe records the supplied v3 checker behavior; normative 4.0 fixtures are acceptance vectors, not a claim of an implemented production evaluator.",
@@ -1549,7 +1719,48 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a04703f1c8b3a7ed7fc9e44ff25a79462e5486ba27b8216ba1aeb82f53b10087"
+      "sourceSha256": "4534eab42e99119b372eb9f3244f871ec942ee0c5097fc5460a2d9ed8b13a85e"
+    },
+    {
+      "id": "plan-authoring-decisions",
+      "path": "docs/plans/authoring-decisions.md",
+      "title": "Complete the authoring decisions and review remaining gaps",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        }
+      ],
+      "summary": "Bounded T2 continuation covering section discovery, edit scope, inspection, alternatives and edit intent.",
+      "tags": [
+        "plan",
+        "foildsl",
+        "ux"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-foildsl-authoring",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Graph and ownership",
+          "mermaid": "flowchart TD\n G --> C\n C --> S\n C --> U\n C --> T\n S --> V\n U --> V\n T --> V\n V --> R\n R --> J"
+        }
+      ],
+      "sourceSha256": "fea1a95fa83dafa9631a491ba7e99a607d3ab747ac241c939a509691158569f9"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -1615,7 +1826,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Bounded T2 plan to reconcile the supplied language with the control-vertex workbench, publish the normative contract, and demonstrate its transactions without implementing the product.",
@@ -1638,7 +1849,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  G[Ground references and baseline] --> P[Independent plan review]\n  P --> C[Settle language and model]\n  C --> S[Product spec and ADR]\n  S --> U[Evolve interactive mockup]\n  U --> V[Execute verification]\n  V --> R[Independent artifact review]\n  R --> J[Join and review handoff]"
         }
       ],
-      "sourceSha256": "d200118e5d5e5665823b3da56a471362087a0a34f4630f350e2ce2fe6147991a"
+      "sourceSha256": "381158f5628b3b25a0947736f892f07e5b86d26749e0c43dc00f53460312c41e"
     },
     {
       "id": "plan-independent-edges",
@@ -1653,7 +1864,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "User review correction: independent leading/trailing rails replace authored chord; chord is derived. Earlier unapproved chord draft requires explicit conversion."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "Correct the authored planform to independent leading and trailing rails, derive chord, and prove the untouched rail remains unchanged through edits and history.",
@@ -1679,7 +1890,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n G --> C\n C --> D\n C --> U\n D --> V\n U --> V\n V --> R\n R --> J"
         }
       ],
-      "sourceSha256": "ecf93d2224ddb2468bd7ebc3a354fdd6bdaf559f9dfbe15fc8b6e00c61e478e9"
+      "sourceSha256": "2fe14b0815e3579130998f28954eb6974b3399ad2b6943f4dad624672d3b7e39"
     },
     {
       "id": "plan-knowledge-experts-spec-v1",
@@ -1768,6 +1979,110 @@ window.DOCS_INDEX = {
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
     },
     {
+      "id": "review-authoring-v7-gaps",
+      "path": "docs/reviews/authoring-v7-gaps.md",
+      "title": "Remaining specification and UX decisions after v7",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "A bounded post-change review separates three remaining design decisions from already declared validation and production obligations. No additional implementation is authorized or performed by this review.",
+      "tags": [
+        "review",
+        "ux",
+        "geometry",
+        "foildsl",
+        "gaps"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-design-iteration",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9fb2dba4772a3a0b946defcdff37c97edd1d58aaa396cbec56638778226445c8"
+    },
+    {
+      "id": "review-authoring-v7-independent",
+      "path": "docs/reviews/authoring-v7-independent.md",
+      "title": "Authoring decisions v7 — independent review",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "Independent adversarial review of the five authorized authoring improvements, with runtime geometry, transaction, keyboard and rendered-surface evidence. Native persistence, certified geometry and formative usability remain explicitly unverified.",
+      "tags": [
+        "review",
+        "ux",
+        "geometry",
+        "testing",
+        "foildsl"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "decision-design-iteration",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-authoring-v7-gaps",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3c08aecfb43da43366b44ac45116231a4ef54a6de33bcdc7c89416cf38e94e83"
+    },
+    {
       "id": "review-foildsl-independent",
       "path": "docs/reviews/foildsl-independent.md",
       "title": "FoilDSL authoring — independent review",
@@ -1780,12 +2095,12 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         },
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "Independent review of the FoilDSL contract and authoring experience. Separates observed baseline evidence, pre-build contract findings and final rendered-surface gates from unverified production obligations.",
@@ -1820,7 +2135,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5f36aa3e3bdece229e8019c66a45c8f74589242d3a9b2225a5617c27954ed07a"
+      "sourceSha256": "19b2415080b3bbbc0ba2f9eb3e7c2be17d261a55ce0099dc7b56c31ba0f68782"
     },
     {
       "id": "review-independent-edges",
@@ -1831,7 +2146,18 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2026-12-22",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
       "summary": "Independent geometry, test and simplification gates for separately authored leading and trailing planform rails. Includes observed browser proof, resolved findings and bounded residual risks.",
       "tags": [
         "foildsl",
@@ -1858,7 +2184,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a47956260e80b989c4da5b3d352b77e846a043101c1b385fa5df09eaa05f54b6"
+      "sourceSha256": "09bc219f3ec625d9029e88ced4f4253d3a6930b26739c8ef436214a076d3e6e2"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -1912,8 +2238,8 @@ window.DOCS_INDEX = {
         },
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Elevate-mode review of the v1 interactive mockup against specification v1. The independent UX & Accessibility lens returned BLOCK on the first pass (focus loss on nudge, handles under role=img, page-wide live region, sub-12 px chart text, NaN in the error state), PASS-WITH-CONDITIONS on the second, and PASS (veto cleared) after the conditions were applied and re-measured. Highest-leverage change: re-query the SVG handle after every rerender so keyboard editing survives — one line per editor that unblocked the keyboard-only persona entirely.",
@@ -1951,7 +2277,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cfe6b712cb87c965447917043bca109cfbd96d28d8ac18ae92f535562919830a"
+      "sourceSha256": "be5aa9401740c48b3e02ad8bac4ec6692610a4550ae8cea2b258dd24d6793934"
     },
     {
       "id": "review-ui-workbench-v2",
@@ -1964,14 +2290,14 @@ window.DOCS_INDEX = {
       "reviewBy": "2026-12-21",
       "reviewSuggested": [
         {
-          "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table."
-        },
-        {
           "by": "mockup-workbench-v2",
           "on": "2026-09-20",
           "reason": "Mockup v2 (seven areas) cleared by the UX & Accessibility lens 2026-09-21; supersedes v1 as the review artifact."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Elevate-mode review of the seven-area mockup against specification v1.1. The independent UX & Accessibility lens returned BLOCK on the first pass (layer names presentational under role=img, a bare character-key shortcut, a false inequality on the candidate card, and a Major list across state completeness, copy truth and the marine CAD idiom) and PASS-WITH-CONDITIONS with the veto cleared after the fixes were applied and re-measured. Highest-leverage change: the outer SVGs of the plan view and the Results viewport became role=group, which exposed every authored layer name to assistive technology with one attribute in two places.",
@@ -2009,7 +2335,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "37e6a766999b27e62db74e5bb7daba92f8208419c433f5e0649e2c62476902ff"
+      "sourceSha256": "84dae2946fb5ec3d419fb1d6157d879043805f23f37fc4c4fafc225ef4c9124b"
     },
     {
       "id": "review-ui-workbench-v3",
@@ -2029,7 +2355,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Elevate-mode review of the thick-client shell rebuild. The v2 page was measured first (1,450–6,500 px tall, a wrapping area strip, a clipping toolbar); the v3 shell was built to a shell contract proven by its oracle at five window presets × six areas. The independent UX & Accessibility lens returned BLOCK on its first read (a clipped overflow menu, a 0-px bottom panel at the reflow preset, focus dropped on re-render, composite roles without keyboards, one-way dock collapse) and the Native Desktop lens PASS-WITH-CONDITIONS (sashes, maximize, real document tabs, the macOS title bar, platform key labels); both sets were built and are observed by the oracle. The veto cleared on the third read; the review artifact passes.",
@@ -2072,7 +2398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3883f3cc2b8cbdc06dd2f16596befe6a3c566a9aad3d4af348c950e7620b3b32"
+      "sourceSha256": "7923da6ed2abac1ff63e9d2b495e2839bea31b35f2b7d9e51affedbd5d23b4bc"
     },
     {
       "id": "review-ui-workbench-v4",
@@ -2092,7 +2418,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Elevate-mode review of the CAD editing views (icon rail, splines, one free camera with named views and a view cube, editing elevations for the four control curves, the Station document) against specification 1.2. Two independent lenses: UX & Accessibility (hard veto) on the surface and UX Researcher / IA (UX-specification veto) on the 1.2 stories; both cleared their vetoes after two fix passes, with every clearing observation now an oracle assertion whose values the proof records.",
@@ -2135,7 +2461,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1ae4a8040535683cd008337fa94b61e23e939bcfb901e795df67fd92565834f7"
+      "sourceSha256": "db37c5dd964711b64e76738a66033b6653189d88b17a36f7a36b319fcb5b943a"
     },
     {
       "id": "review-ui-workbench-v5",
@@ -2155,7 +2481,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Elevate-mode review of the v5 CAD experience (control-vertex splines with levers, four viewports with title menus, a nine-verb tool palette and options strip, the display cage, the measured station residual) against specification 1.3. Four independent lenses: Computational Geometry and UX Researcher / IA on the spec delta, UX & Accessibility (hard veto) and Marine CAD UX on the artifact. All four returned BLOCK or PASS-WITH-CONDITIONS on first read; every Blocker, Major and condition was fixed in place and became an oracle row whose value the proof records. The accessibility veto cleared on the second pass; the marine veto on the third.",
@@ -2199,7 +2525,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5ebdd6015332c1dcd86b2d01dc46b67e1e42de985e82dcb9af43f4016d1eb98c"
+      "sourceSha256": "3a554be0ca38a6ea5db47de4dd013bfe01075724007573536abc6b3500e08d24"
     },
     {
       "id": "kb-hw-glossary",
@@ -2214,7 +2540,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "The ubiquitous language of hydrofoil design, analysis, simulation and optimization as used by CFD-Workbench, merged alphabetically from every area file. A term defined by more than one area lists every definition so a conflict is visible rather than silently resolved.",
@@ -2234,7 +2560,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e9d1bad471fecefcf6f13f37492b4d1ad1f90dd6e959aea1becda47190b72491"
+      "sourceSha256": "77bf858e2aa70c85722484f0d28b738e239d0d836e1e0fb662916e0bb3ef0560"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -3048,6 +3374,63 @@ window.DOCS_INDEX = {
       "sourceSha256": "e369034ec7fc41f5aac86db9473f6754ecca1afa302501fa17fb329e22779f7b"
     },
     {
+      "id": "proof-authoring-decisions",
+      "path": "docs/proof/authoring-decisions.md",
+      "title": "V7 authoring decisions proof and review boundary",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-12-22",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        }
+      ],
+      "summary": "Observed source, profile-bank, dimension, comparison, history and rendered browser proof for v7, with explicit prototype and production limits.",
+      "tags": [
+        "proof",
+        "foildsl",
+        "ux",
+        "authoring"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "documents"
+        },
+        {
+          "to": "plan-authoring-decisions",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-authoring-v7-independent",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-authoring-v7-gaps",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8251871feba8b8330cafae9acba77aec2e7cb6e9df625a346147a07cbd99f7dc"
+    },
+    {
       "id": "proof-foildsl-authoring",
       "path": "docs/proof/foildsl-authoring.md",
       "title": "FoilDSL authoring specification and mockup proof",
@@ -3060,12 +3443,12 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         },
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
       "summary": "Executed browser and documentation evidence for the bounded review artifact, independent findings and explicit production obligations; no scientific or full-language certification.",
@@ -3098,7 +3481,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d27480c3eef7cd0d6edc90728a2930f60f9e7a9d6ac17600beffec353f961108"
+      "sourceSha256": "1e24200a1ec34806328ade29ad170ffdf3eec285698a82eeae37915ae0f3a6b5"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -3202,8 +3585,8 @@ window.DOCS_INDEX = {
       "reviewSuggested": [
         {
           "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-20",
-          "reason": "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)."
+          "on": "2026-09-22",
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Fourteen lenses (the seven new domain experts and seven pack lenses) attacked specification revision 0.2 in Adversary Mode against the hydrofoil knowledge base. Every veto-holding lens returned BLOCK: 22 Blockers and 110 Majors, resolved into a consolidated list of what v1 must add and what it must tighten. Revision 1.0 is written against this list; each finding names the v1 section that resolves it.",
@@ -3233,7 +3616,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bee8e6e46887d9583a7161be28e3d9ad3151f1c7a60f84264531a47e300840f4"
+      "sourceSha256": "bf8fd669bc3c11218fbd3d6b6979c7a33bc7af8565b70edeaa38e7b1d2807a34"
     },
     {
       "id": "review-specification-gate",
@@ -3407,7 +3790,7 @@ window.DOCS_INDEX = {
     {
       "id": "spec-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.md",
-      "title": "CFD-Workbench — product specification v1.4 (FoilDSL authoring)",
+      "title": "CFD-Workbench — product specification v1.5 (section editing and design decisions)",
       "type": "spec",
       "status": "in-review",
       "owner": "@timianmalloo",
@@ -3432,10 +3815,10 @@ window.DOCS_INDEX = {
         {
           "by": "spec-foildsl",
           "on": "2026-09-22",
-          "reason": "New normative FoilDSL 4.0 contract is ready for human review; compare dependent examples, source UI and persistence decisions."
+          "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit; 131 falsifiable acceptance criteria (87 stories, 22 UX, 22 UI) traced to the knowledge base. Revision 1.4 adds FoilDSL as the canonical authored foil/section language and the source/CAD transaction contract.",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.",
       "tags": [
         "hydrofoil",
         "cad",
@@ -3445,6 +3828,14 @@ window.DOCS_INDEX = {
         "build-basis"
       ],
       "links": [
+        {
+          "to": "decision-design-iteration",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        },
         {
           "to": "adr-foildsl-authority",
           "rel": "depends-on"
@@ -3564,9 +3955,14 @@ window.DOCS_INDEX = {
           "kind": "flowchart",
           "title": "B9. FoilDSL authoring flow (SRC-01–11)",
           "mermaid": "flowchart TD\nA[Accepted foil and source] --> B{Edit route}\nB -->|Visual| C[Shared geometry draft and source patch]\nB -->|FoilDSL| D[Editable source draft]\nB -->|Open or New| D\nC --> E[Validate candidate and base revision]\nD --> E\nE -->|Invalid or incomplete| F[Diagnostic with location and repair; accepted shape retained]\nF -->|Edit again| D\nF -->|Cancel| A\nE -->|Unsupported| G[Explain unsupported feature or migration requirement]\nG -->|Cancel or keep original| A\nE -->|Valid| H[Labelled candidate preview and change summary]\nH -->|Apply| I[Append accepted source and semantic revision if changed]\nH -->|Cancel| A\nI --> J[Geometry and text projections agree; run freshness recomputed]\nJ -->|Undo or Redo| K[Select matching historical source and definition]\nK --> A\nJ -->|Save| L[Write project or explicit shape-only source]\nL -->|Failure| M[Previous file intact; retry or save elsewhere]\nM --> L\nL -->|Reopen and validate| A"
+        },
+        {
+          "kind": "flowchart",
+          "title": "B10. Flow F10 — one uninterrupted design decision (revision 1.5)",
+          "mermaid": "flowchart TD\nA[Inspect accepted design] --> B[Pin immutable baseline]\nB --> C[Create and name alternative]\nC --> D[Select middle authored station]\nD --> E[Persistent thumbnail and Edit section]\nE --> F{Shared or independent scope}\nF -->|Shared| G[Show all assignments and adjacent intervals]\nF -->|Independent| H[Copy profile and preview selected assignment intervals]\nG --> I[Choose thickness policy and edit section]\nH --> I\nI --> J[Inspect another station or 3D impact without retargeting draft]\nJ --> K{Valid supported change}\nK -->|No| L[Explain lock or geometry failure; retain draft]\nL --> I\nK -->|Cancel| D\nK -->|Apply| M[Accepted alternative revision and source]\nM --> N[Compare geometry and compatible evidence with pinned baseline]\nN --> O{Evidence available and compatible}\nO -->|Yes| P[Show provenance and difference basis]\nO -->|No| Q[Show missing or incompatible reason without a number]\nP --> R[Write decision rationale]\nQ --> R\nR --> S{Keep or discard}\nS -->|Keep| T[Record decision; chosen alternative stays active]\nS -->|Discard| U[Record decision; archive alternative; return to baseline]\nS -->|No rationale| R"
         }
       ],
-      "sourceSha256": "e67b5867ea7dca1535b68e421da8e72a169f2301ce030ec6ad40b5ac9d4e592b"
+      "sourceSha256": "522227e5e178ad7b15cdbfde031d406736a21006c8100a8ff72437fb8ee1a002"
     },
     {
       "id": "spec-foildsl",
@@ -3581,7 +3977,7 @@ window.DOCS_INDEX = {
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
-          "reason": "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts."
+          "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
         }
       ],
       "summary": "Normative proposed FoilDSL 4.0 language contract for lossless control-vertex foil and section documents. Defines complete syntax, evaluation, identity, draft transactions and migration from the supplied v3 references. Production conformance remains an acceptance obligation; the workbench demonstrates a declared subset.",
@@ -3605,6 +4001,10 @@ window.DOCS_INDEX = {
           "rel": "refines"
         },
         {
+          "to": "decision-design-iteration",
+          "rel": "relates-to"
+        },
+        {
           "to": "kb-hw-parametric-curves-lofts-and-surfaces",
           "rel": "depends-on"
         },
@@ -3620,7 +4020,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "d812f02ba978081eec7a33f9e3cac727c461ba8068cc121f1c3374b40ec3436b"
+      "sourceSha256": "0f70b6cede292db0adcf81a5e5975dd9d0574ff65c9c59cd2d6d34f6b6792aaf"
     }
   ],
   "surfaces": [
@@ -3712,6 +4112,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v6"
     },
     {
+      "id": "surface-mockups-workbench-v7",
+      "path": "docs/mockups/workbench-v7.html",
+      "title": "CFD-Workbench — workbench v7 authoring review",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v7"
+    },
+    {
       "id": "surface-specs-foildsl",
       "path": "docs/specs/foildsl.html",
       "title": "FoilDSL 4.0 — Language specification",
@@ -3720,5 +4128,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "7bce60790cca1967b6bf7680eb2ba0c7d57d05aaf79b33d053d03507d785d97d"
+  "graphSha256": "d23cbf235cc7b3c8dd9f83171aef62e8ef853c180e3b78ba7cc180db0a9dcd29"
 };

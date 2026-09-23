@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T03:31:38Z",
+  "generated": "2026-09-23T04:54:08Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1085,6 +1085,138 @@ window.AUDIT_DATA = {
         "branch": "feature/foildsl-authoring",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M367HMJJC2P3JX3154PJE9F2",
+      "shortname": "Complete editing and comparison UX, then review gaps",
+      "datetime": "2026-09-23T04:14:25Z",
+      "session": "authoring-decisions-20260922",
+      "prompt": "do all of these \nthen step back and check for any other gaps you see",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M369TB9T9M3X2K0V53ST9ZZX",
+      "shortname": "authoring-v7-optimize-graph",
+      "datetime": "2026-09-23T04:54:07Z",
+      "session": "authoring-decisions-20260922",
+      "prompt": "do all of these\nthen step back and check for any other gaps you see",
+      "summary": "Completed the bounded three-agent execution graph; joined language, UI and independent review proof, captured rework and stopped new gaps at findings.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/authoring-decisions.md",
+        "docs/proof/authoring-decisions.md",
+        "docs/reviews/authoring-v7-independent.md",
+        "docs/reviews/authoring-v7-gaps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Incorporate the five approved authoring additions, resolve specification contradictions, and independently review remaining gaps.",
+      "done_when": "Specification and mockup agree, changed flows have observed proof and independent veto review, and further gaps are recorded for user review.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-23T04:14:25Z",
+      "duration_seconds": 2382.0,
+      "change": "cl-01M369F05ZHPDHNJF8VG0ZD4GY",
+      "git": {
+        "sha": "bac5f8aa09fb06643870378a4e9ef3bc2d7b92da",
+        "short": "bac5f8aa0",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M369TBDQN11MX975HBJJBTZA",
+      "shortname": "authoring-v7-specify",
+      "datetime": "2026-09-23T04:54:08Z",
+      "session": "authoring-decisions-20260922",
+      "prompt": "do all of these\nthen step back and check for any other gaps you see",
+      "summary": "Evolved product and language contracts for explicit section scope, draft ownership, held quantities and alternatives; reconciled geometry contradictions and recorded three remaining decisions.",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/proof/authoring-decisions.md",
+        "docs/reviews/authoring-v7-independent.md",
+        "docs/reviews/authoring-v7-gaps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Incorporate the five approved authoring additions, resolve specification contradictions, and independently review remaining gaps.",
+      "done_when": "Specification and mockup agree, changed flows have observed proof and independent veto review, and further gaps are recorded for user review.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-23T04:14:25Z",
+      "duration_seconds": 2383.0,
+      "change": "cl-01M369F05ZHPDHNJF8VG0ZD4GY",
+      "git": {
+        "sha": "bac5f8aa09fb06643870378a4e9ef3bc2d7b92da",
+        "short": "bac5f8aa0",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M369TBHHK3M0F30T9ZXYYB5J",
+      "shortname": "authoring-v7-ui-design",
+      "datetime": "2026-09-23T04:54:08Z",
+      "session": "authoring-decisions-20260922",
+      "prompt": "do all of these\nthen step back and check for any other gaps you see",
+      "summary": "Elevated v7 authoring workflow; rendered and exercised source, independent rails, section scope, navigation, alternatives and intent controls. Independent eight-persona review passed; browser, token and craft checks passed within documented prototype limits.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v7.html",
+        "docs/proof/authoring-decisions.md",
+        "docs/reviews/authoring-v7-independent.md",
+        "docs/reviews/authoring-v7-gaps.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Incorporate the five approved authoring additions, resolve specification contradictions, and independently review remaining gaps.",
+      "done_when": "Specification and mockup agree, changed flows have observed proof and independent veto review, and further gaps are recorded for user review.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-23T04:14:25Z",
+      "duration_seconds": 2383.0,
+      "change": "cl-01M369F05ZHPDHNJF8VG0ZD4GY",
+      "git": {
+        "sha": "bac5f8aa09fb06643870378a4e9ef3bc2d7b92da",
+        "short": "bac5f8aa0",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -1425,6 +1557,32 @@ window.AUDIT_DATA = {
       "git": {
         "before": "71a5b45",
         "after": "71a5b4571e2287cfdb3ca41a7bca4a9383b1fdc4",
+        "branch": "feature/foildsl-authoring",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M369F05ZHPDHNJF8VG0ZD4GY",
+      "datetime": "2026-09-23T04:47:56Z",
+      "session": "authoring-decisions-20260922",
+      "kind": "design",
+      "skill": "specify",
+      "title": "Make section scope, draft ownership and design alternatives explicit",
+      "prompt": "do all of these\nthen step back and check for any other gaps you see",
+      "summary": "Product revision 1.5 and mockup v7 incorporate persistent section editing, shared and independent profile scope, explicit held/source thickness, draft-safe inspection, named alternatives with immutable baseline and rationale, and held-edge/station-position dimension intent. Full-thickness, Rule A and native versus shape-only opening contradictions are corrected. Three further design gaps are captured separately.",
+      "rationale": "The approved additions clarify authoring authority and the consequences of an edit without adding another shape representation. Existing grammar productions express shape edits; alternatives and decisions remain project data. Prototype geometry and persistence limits remain explicit.",
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/foildsl.md",
+        "docs/notes/design-iteration.md",
+        "docs/mockups/workbench-v7.html",
+        "docs/reviews/authoring-v7-gaps.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "bac5f8a",
+        "after": "bac5f8aa09fb06643870378a4e9ef3bc2d7b92da",
         "branch": "feature/foildsl-authoring",
         "pushed": null,
         "commits": []

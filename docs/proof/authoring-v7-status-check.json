@@ -1,0 +1,7 @@
+{
+  "checks": 2,
+  "pass": true,
+  "draft": "area cad\nrev r4\ncurve TE rail\nunits mm\nstep 1 mm\nDraft open · Section “shared-section copy 1” at 60% · 2 locks\nchecks 1\nbackend Ready\nrun 10/12 completed",
+  "accepted": "area cad\nrev r4\ncurve TE rail\nunits mm\nstep 1 mm\nNo draft · 2 locks\nchecks 1\nbackend Ready\nrun 10/12 completed",
+  "errors": []
+}

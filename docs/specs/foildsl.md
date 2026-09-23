@@ -10,6 +10,7 @@ links:
   - {to: spec-cfd-workbench-v1, rel: refines}
   - {to: decision-foildsl-reconciliation, rel: depends-on}
   - {to: decision-parametric-authority, rel: refines}
+  - {to: decision-design-iteration, rel: relates-to}
   - {to: kb-hw-parametric-curves-lofts-and-surfaces, rel: depends-on}
   - {to: kb-hw-file-formats-and-grammars, rel: depends-on}
 review-by: 2027-03-22
@@ -18,12 +19,12 @@ summary: >-
   Defines complete syntax, evaluation, identity, draft transactions and migration from the supplied v3 references.
   Production conformance remains an acceptance obligation; the workbench demonstrates a declared subset.
 review-suggested:
-  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "FoilDSL 4.0 canonical authoring proposal changes source ownership, editing transactions and provenance; review dependent artifacts." }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
 ---
 
 # FoilDSL 4.0
 
-**Status:** proposed normative companion to product specification revision 1.4, for review.
+**Status:** proposed normative companion to product specification revision 1.5, for review.
 Requirements below are product contracts, not claims that a production parser or geometry kernel exists.
 **Verified:** the source comparisons and executable v3 observations in the [reconciliation](../notes/foildsl-reconciliation.md).
 **Inferred:** the chosen authoring contract reconciles the user's request with the established control-vertex CAD model.
@@ -66,8 +67,11 @@ document. Migration creates a new source revision and preserves the original (§
 | Inspection slice | derived view | A query at a span position; moving it changes selection only. It is not syntax and is not an authored station. |
 | Assertion | value | An authored acceptance bound on a derived measure; it checks geometry and never solves or modifies it. |
 
-The native project remains `.cfdw.json`. It contains source revisions, profile assets, provenance and run
-references. It shall not persist a second editable channel table beside FoilDSL. Cached parsed records and
+The native project remains `.cfdw.json`. It contains source revisions, profile assets, provenance, named design
+alternatives, pinned accepted baselines, append-only Keep/Discard decisions with rationale, and run references.
+An alternative references accepted Design revisions; it is not another shape representation or an optimizer
+Candidate. A baseline never follows later edits. Discard archives its alternative and retains evidence.
+These project records have no `.foil` syntax. It shall not persist a second editable channel table beside FoilDSL. Cached parsed records and
 meshes carry source/evaluator keys, are labelled derived, and are discarded/rebuilt on any mismatch.
 Operating conditions remain outside FoilDSL. A standalone `.foil` export includes inline profiles or its
 explicit content-addressed dependencies; a missing dependency is an error, never a nominal section.
@@ -235,6 +239,9 @@ For each profile derive camber C and unit-thickness shape T=(upper-lower)/max(up
 Evaluate their linear combinations `C=(1-w)C_a+w C_b`, `T0=(1-w)T_a+w T_b`, then
 `T=T0/max_x(T0)`. The placed upper/lower profile is `q=(x,C ± thickness(eta)*T/2)`.
 This is the product's linear normalized-camber/unit-thickness blend, with shared x correspondence.
+It is the sole Rule A evaluator, displayed as **Rule A · linear normalized profile blend**. There are no
+Straight, Through stations or Blended mode switches. Different knots/control counts do not imply shared
+spline parameter u; corresponding upper/lower ordinates are evaluated at equal normalized chord x.
 A computational shared-knot conversion must preserve these functions and report any approximation residual.
 There is no mid-span family switch and no cosine interpolation of four nominal section parameters.
 
@@ -368,6 +375,48 @@ CAD remains the spatial workbench. **Visual / Source / Split** are editing views
 authorities or a new eighth activity. A section document offers the same source view for its Profile revision.
 Selection in either view identifies the same CV/station/profile. Source line selection alone changes no geometry.
 
+**Opening and saving.** Open project restores the native envelope, accepted/recovery source, alternatives,
+baselines, decisions, assets and run provenance. Open FoilDSL previews one shape; a standalone section opens
+as 2D. Adding a foil to a project creates a named alternative only after validation and Apply. A source file
+does not reconstruct prior runs or decisions. Save project persists the envelope; Export FoilDSL exports shape
+and declared dependencies. An open draft must be applied or cancelled before either opening route replaces it.
+
+**Section scope.** The selected station has a persistent thumbnail and Edit section action. Before editing,
+choose Edit shared profile or Make independent at this station. Shared replaces every assignment referencing
+that profile with the new immutable profile revision; independent clones a new profile record and changes
+only the chosen assignment. Inline source uses a distinct noncolliding profile name for the clone. Names are
+references, not geometry identity. Both previews list the union of the edited assignments' neighboring blend
+intervals, in eta and physical distance. An independent assignment change can affect both adjacent intervals.
+Default Keep current thickness leaves the entire effective t/c curve unchanged. Use source thickness proposes
+an explicit edit to that curve with targets equal to the edited profile's maximum full upper-minus-lower
+distance at the scoped assignments. Report constraints, fit residuals and actual affected span; the t/c edit
+may extend beyond the profile intervals. Infeasible or unassessed changes block Apply. The choice is transaction
+provenance, never an extra live station thickness authority. All resulting source changes commit together.
+
+**Read while drafting.** Selection, orbit/pan/zoom, view switching, another station's section inspection and
+baseline/source reading remain available during every draft. The draft keeps its original target and base,
+shown in a persistent banner. Selecting another station never redirects a pending edit. Competing writes,
+active branch changes, baseline repinning and decision recording require Apply or Cancel first. The same rule
+applies to visual, section and source drafts, with keyboard access and a named refusal.
+
+**Dimension commands.** These are previewed edits to existing syntax, never new authored channels. Hold leading
+edge sets a selected chord target by solving trailing=leading+target; Hold trailing edge solves
+leading=trailing−target. The held rail's complete record is unchanged; actual changed support, derived area/AR,
+locks and residuals are shown. Default Hold leading edge is visible. Span commands name Keep relative station
+positions (retain eta) or Keep absolute station positions (interior eta becomes oldDistance/newHalfSpan).
+Both keep root/tip boundary assignments at 0/1 and leave channel normalized coordinates and dimensional
+ordinates unchanged. A coincident/outside interior assignment blocks Apply rather than being clamped/dropped.
+Preview discloses profile transitions relative to channels; these are station-layout policies, not uniform
+3D scaling. Each command states the unrotated x-aft/y-starboard/z-up frame and LE twist pivot. Apply and
+Undo/Redo preserve source, all affected records, command intent and provenance together.
+
+**Design decisions.** The project lets the user name an alternative, pin an accepted baseline, edit its middle
+section, inspect span impact, compare accepted geometry/evidence, then Keep or Discard with rationale.
+Geometry comparison labels alignment, units, sample basis and sampled/certified status. Only compatible
+scientific evidence can be differenced; absent, historical or incompatible evidence has its actual state and
+reason, never a generated performance improvement. Unaccepted previews remain labelled. The complete
+functional, UX, UI and formative-research obligations are product A4.14, B10 and C4a.
+
 ```mermaid
 flowchart TD
   A[Accepted source and shape] --> B[Visual edit or source draft bound to base]
@@ -402,6 +451,10 @@ flowchart TD
 | DSL-12 | Given a v3 file, then migration previews every semantic departure and the maximum surface deviation, preserving the original; absent comparison evidence blocks migration acceptance. |
 | DSL-13 | Given different valid leading/trailing knot vectors and CV abscissae, when a leading CV moves in Source or Visual and is applied, then every trailing CV/knot/ID and the evaluated unrotated trailing rail remain unchanged; chord and dependent dimensions update from trailing minus leading. The inverse holds for a trailing-only edit. Cancel changes neither rail; Undo/Redo restore both rail definitions and matching source together. |
 | DSL-14 | Given the earlier unapproved 4.0 draft containing `planform chord cv`, when opened, then it is rejected with an explicit legacy-draft conversion message; it is never treated as a trailing curve. |
+| DSL-15 | Given three stations sharing a profile, when the middle station is made independent, then only its assignment changes but both neighboring blend intervals are disclosed; Keep current thickness preserves the complete t/c record. Shared edit changes all referencing assignments. Cancel changes none; Undo/Redo restore matching source, assignments and thickness together. |
+| DSL-16 | Given any open draft, when another station or baseline is inspected by pointer or keyboard, then its readouts appear without changing the draft target/base; a competing write is refused with the original draft named. |
+| DSL-17 | Given chord and span commands, then the held rail is byte-for-byte unchanged, each station policy follows the formula above, invalid interior locations block Apply, and Undo/Redo restore all source and records together; no chord or per-station t/c authority is added. |
+| DSL-18 | Given a project with named alternatives, pinned baseline and decision rationale, when saved/reopened, then those records and historical evidence survive. Exporting and reopening only its `.foil` reconstructs the shape and declared dependencies, never fabricated project history or scientific evidence. |
 
 UI follows existing DESIGN.md tokens and the C spatial/canvas archetype, with an E authoring facet inside the
 document. Source editor has a visible name, keyboard selection, line/column diagnostics and a polite status

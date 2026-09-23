@@ -17,7 +17,7 @@ summary: >-
   110 Majors, resolved into a consolidated list of what v1 must add and what it must tighten. Revision 1.0 is
   written against this list; each finding names the v1 section that resolves it.
 review-suggested:
-  - { by: spec-cfd-workbench-v1, on: 2026-09-20, reason: "Specification v1 (build basis) written and gated 2026-09-20; supersedes revision 0.2 — re-read against the new contracts (identity oracle, run key, C2 state table)." }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
 ---
 
 # Critique of specification revision 0.2

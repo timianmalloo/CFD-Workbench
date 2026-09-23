@@ -20,7 +20,7 @@ const revision = isLanguage ? body.match(/^# FoilDSL ([0-9.]+)\s*$/m)?.[1] : bod
 if (!revision) throw new Error('Canonical specification revision is missing');
 const documentLabel = isLanguage ? 'LANGUAGE SPECIFICATION' : 'PRODUCT SPECIFICATION';
 const documentTitle = isLanguage ? `FoilDSL ${revision} — Language specification` : 'CFD-Workbench — Product specification';
-const mockupName = ['cfd-workbench-v1', 'foildsl'].includes(specName) ? 'workbench-v6' : 'workbench';
+const mockupName = ['cfd-workbench-v1', 'foildsl'].includes(specName) ? 'workbench-v7' : 'workbench';
 const sha = createHash('sha256').update(source).digest('hex');
 const escape = s => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const quote = s => JSON.stringify(s);

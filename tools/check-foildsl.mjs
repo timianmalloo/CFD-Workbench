@@ -13,7 +13,8 @@ const browser=await chromium.launch({headless:true,channel:'chrome'});
 const page=await browser.newPage({viewport:{width:1700,height:1200},acceptDownloads:true});
 const errors=[],requests=[],checks=[],measurements=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});
-const url=pathToFileURL(path.join(root,'docs/mockups/workbench-v6.html')).href;
+const artifact=`docs/mockups/${process.env.MOCKUP_NAME||'workbench-v6'}.html`;
+const url=pathToFileURL(path.join(root,artifact)).href;
 const record=(name,proof)=>checks.push({name,pass:true,proof});
 const reload=async()=>{await page.goto(url);await page.locator('[data-doc="source"]').click();};
 const accepted=()=>page.evaluate(()=>({source:DSL.accepted,meaning:DSL.semantic,rev:M.revision,current:M.run.current,run:M.run.key,record:drecord()}));
@@ -63,6 +64,6 @@ try{
   await page.locator('#dsl-cancel').click();
   const shot=path.join(os.tmpdir(),'foildsl-v6-final-source.png');await page.screenshot({path:shot});
   assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);record('SourceHarness_15LayoutThemeCells_KeyboardAndNoNetwork',{cells:measurements.length,screenshot:shot});
-  const report={artifact:'docs/mockups/workbench-v6.html',scope:'bounded prototype; not full language/native/scientific conformance',checks,measurements,errors,requests};
-  await fs.writeFile(path.join(root,'docs/proof/foildsl-browser-check.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({checks:checks.length,cells:measurements.length,errors,requests,screenshot:shot}));
+  const report={artifact,scope:'bounded prototype; not full language/native/scientific conformance',checks,measurements,errors,requests};
+  await fs.writeFile(path.join(root,`docs/proof/foildsl${process.env.MOCKUP_NAME==='workbench-v7'?'-v7':''}-browser-check.json`),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({checks:checks.length,cells:measurements.length,errors,requests,screenshot:shot}));
 }finally{await browser.close();}

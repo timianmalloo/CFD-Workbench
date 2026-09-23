@@ -1,0 +1,3386 @@
+{
+ "artifact": "docs/mockups/workbench-v7.html",
+ "checkedAt": "2026-09-23T04:47:38.740Z",
+ "measurements": [
+  {
+   "label": "minimum/setup",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 41,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "minimum"
+  },
+  {
+   "label": "minimum/cad",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 84,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "minimum"
+  },
+  {
+   "label": "minimum/analysis",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 47,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "minimum"
+  },
+  {
+   "label": "minimum/experiment",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "minimum"
+  },
+  {
+   "label": "minimum/run",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "minimum"
+  },
+  {
+   "label": "minimum/results",
+   "frame": {
+    "width": 1024,
+    "height": 700
+   },
+   "controls": 26,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1024,
+     "h": 700
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "minimum"
+  },
+  {
+   "label": "desktop/setup",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 38,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "desktop"
+  },
+  {
+   "label": "desktop/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 84,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "desktop/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 47,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "desktop/experiment",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "desktop"
+  },
+  {
+   "label": "desktop/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "desktop/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 26,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "lines/setup",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 38,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "lines"
+  },
+  {
+   "label": "lines/cad",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 84,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "lines"
+  },
+  {
+   "label": "lines/analysis",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 47,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "lines"
+  },
+  {
+   "label": "lines/experiment",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "lines"
+  },
+  {
+   "label": "lines/run",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "lines"
+  },
+  {
+   "label": "lines/results",
+   "frame": {
+    "width": 1440,
+    "height": 900
+   },
+   "controls": 26,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1440,
+     "h": 900
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "lines"
+  },
+  {
+   "label": "wide/setup",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 38,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "wide"
+  },
+  {
+   "label": "wide/cad",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 84,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "wide"
+  },
+  {
+   "label": "wide/analysis",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 47,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "wide"
+  },
+  {
+   "label": "wide/experiment",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "wide"
+  },
+  {
+   "label": "wide/run",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "wide"
+  },
+  {
+   "label": "wide/results",
+   "frame": {
+    "width": 1600,
+    "height": 1000
+   },
+   "controls": 26,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1600,
+     "h": 1000
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "wide"
+  },
+  {
+   "label": "zoom/setup",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 33,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "zoom"
+  },
+  {
+   "label": "zoom/cad",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "zoom"
+  },
+  {
+   "label": "zoom/analysis",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 37,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "zoom"
+  },
+  {
+   "label": "zoom/experiment",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 24,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "zoom"
+  },
+  {
+   "label": "zoom/run",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 24,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "zoom"
+  },
+  {
+   "label": "zoom/results",
+   "frame": {
+    "width": 640,
+    "height": 400
+   },
+   "controls": 22,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 640,
+     "h": 400
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "zoom"
+  },
+  {
+   "label": "light/setup",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 43,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "setup",
+   "window": "desktop"
+  },
+  {
+   "label": "light/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 86,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "light/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "light/experiment",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "experiment",
+   "window": "desktop"
+  },
+  {
+   "label": "light/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "light/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/setup",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 40,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "setup",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 86,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/experiment",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "experiment",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "dark/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "dark",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/setup",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 40,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "setup",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 86,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/experiment",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 30,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "experiment",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "contrast/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "contrast",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/first-launch/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 87,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "first-launch",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/first-launch/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 53,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "first-launch",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/first-launch/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 36,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "first-launch",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/first-launch/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "first-launch",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/loading/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 83,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "loading",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/loading/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "loading",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/loading/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "loading",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/loading/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "loading",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/empty/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 85,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "empty",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/empty/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 51,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "empty",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/empty/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 34,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "empty",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/empty/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 31,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "empty",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/error/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 59,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "error",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/error/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 46,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "error",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/error/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 35,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "error",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/error/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 31,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "error",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/partial/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 63,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "partial",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/partial/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 47,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "partial",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/partial/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 36,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "partial",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/partial/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "partial",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/overflow/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 110,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "overflow",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/overflow/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 73,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "overflow",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/overflow/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 56,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "overflow",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/overflow/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 52,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "overflow",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "state/success/cad",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 86,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "success",
+   "task": "cad",
+   "window": "desktop"
+  },
+  {
+   "label": "state/success/analysis",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 49,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "success",
+   "task": "analysis",
+   "window": "desktop"
+  },
+  {
+   "label": "state/success/run",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 32,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "success",
+   "task": "run",
+   "window": "desktop"
+  },
+  {
+   "label": "state/success/results",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 28,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "success",
+   "task": "results",
+   "window": "desktop"
+  },
+  {
+   "label": "docks/collapsed-restored",
+   "frame": {
+    "width": 1280,
+    "height": 800
+   },
+   "controls": 92,
+   "contrastFailures": 0,
+   "smallTargets": 0,
+   "shell": {
+    "doctabsOverflow": false,
+    "statusOverflow": false,
+    "paramrowOverflow": false,
+    "windowScroll": false,
+    "toolbarRows": 44,
+    "toolbarOverflow": false,
+    "docksScrollInternally": true,
+    "pageBox": {
+     "w": 1280,
+     "h": 800
+    }
+   },
+   "theme": "light",
+   "state": "default",
+   "task": "cad",
+   "window": "desktop"
+  }
+ ],
+ "shell": [
+  {
+   "preset": "minimum",
+   "area": "setup",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 0,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-setup",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "minimum",
+   "area": "cad",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "minimum",
+   "area": "analysis",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "minimum",
+   "area": "experiment",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-experiment",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "minimum",
+   "area": "run",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 1,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-run",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "minimum",
+   "area": "results",
+   "window": [
+    1022,
+    698
+   ],
+   "scrollH": 698,
+   "scrollW": 1022,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 1,
+   "rowGroups": 4,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "setup",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 0,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-setup",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "cad",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "analysis",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "experiment",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-experiment",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "run",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 4,
+   "docks": [
+    {
+     "id": "doc-run",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "desktop",
+   "area": "results",
+   "window": [
+    1278,
+    798
+   ],
+   "scrollH": 798,
+   "scrollW": 1278,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 5,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "setup",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 0,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-setup",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "cad",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "analysis",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "experiment",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-experiment",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "run",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 4,
+   "docks": [
+    {
+     "id": "doc-run",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "lines",
+   "area": "results",
+   "window": [
+    1438,
+    898
+   ],
+   "scrollH": 898,
+   "scrollW": 1438,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 5,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "setup",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 0,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-setup",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "cad",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "analysis",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "experiment",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": [
+    {
+     "id": "doc-experiment",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "run",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 4,
+   "docks": [
+    {
+     "id": "doc-run",
+     "overflowY": "auto",
+     "scrolls": true
+    },
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "wide",
+   "area": "results",
+   "window": [
+    1598,
+    998
+   ],
+   "scrollH": 998,
+   "scrollW": 1598,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 5,
+   "docks": [
+    {
+     "id": "inspector",
+     "overflowY": "auto",
+     "scrolls": false
+    },
+    {
+     "id": "prompt-entry",
+     "overflowY": "auto",
+     "scrolls": false
+    }
+   ]
+  },
+  {
+   "preset": "zoom",
+   "area": "setup",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 0,
+   "moreVisible": true,
+   "hiddenGroups": 2,
+   "rowGroups": 1,
+   "docks": [
+    {
+     "id": "doc-setup",
+     "overflowY": "auto",
+     "scrolls": true
+    }
+   ]
+  },
+  {
+   "preset": "zoom",
+   "area": "cad",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": false,
+   "hiddenGroups": 0,
+   "rowGroups": 3,
+   "docks": []
+  },
+  {
+   "preset": "zoom",
+   "area": "analysis",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 2,
+   "rowGroups": 1,
+   "docks": []
+  },
+  {
+   "preset": "zoom",
+   "area": "experiment",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 2,
+   "rowGroups": 1,
+   "docks": [
+    {
+     "id": "doc-experiment",
+     "overflowY": "auto",
+     "scrolls": true
+    }
+   ]
+  },
+  {
+   "preset": "zoom",
+   "area": "run",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 3,
+   "rowGroups": 1,
+   "docks": [
+    {
+     "id": "doc-run",
+     "overflowY": "auto",
+     "scrolls": true
+    }
+   ]
+  },
+  {
+   "preset": "zoom",
+   "area": "results",
+   "window": [
+    638,
+    398
+   ],
+   "scrollH": 398,
+   "scrollW": 638,
+   "toolbarH": 44,
+   "toolbarOverflow": false,
+   "paramrowH": 40,
+   "moreVisible": true,
+   "hiddenGroups": 3,
+   "rowGroups": 2,
+   "docks": []
+  }
+ ],
+ "oracles": [
+  {
+   "name": "UI-H2 / DX-shell: at 1024×700, 1280×800, 1440×900, 1600×1000 and 640×400 the window never scrolls, the toolbar is one row (44 px) that overflows into More ▾ only where measured, the parameter row is one row and every dock scrolls internally",
+   "pass": true,
+   "proof": {
+    "cells": 30,
+    "minimumHiddenByArea": {
+     "setup": 0,
+     "cad": 0,
+     "analysis": 0,
+     "experiment": 0,
+     "run": 1,
+     "results": 1
+    },
+    "overflowAreaExercised": "run",
+    "hiddenByWindow": {
+     "minimum": 1,
+     "desktop": 0,
+     "lines": 0,
+     "wide": 0,
+     "zoom": 3
+    }
+   }
+  },
+  {
+   "name": "Six areas audit clean in three themes, eight states and five windows; no NaN or placeholder; smallest SVG text ≥ 12 CSS px",
+   "pass": true,
+   "proof": {
+    "measurements": 76,
+    "textSizes": {
+     "minimum": {
+      "setup": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "cad": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "analysis": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "experiment": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "run": {
+       "px": 12.4,
+       "text": "iteration"
+      },
+      "results": {
+       "px": 99,
+       "text": "(no svg text)"
+      }
+     },
+     "desktop": {
+      "setup": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "cad": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "analysis": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "experiment": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "run": {
+       "px": 12.6,
+       "text": "iteration"
+      },
+      "results": {
+       "px": 13,
+       "text": "Cp -0.08"
+      }
+     },
+     "lines": {
+      "setup": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "cad": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "analysis": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "experiment": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "run": {
+       "px": 12.7,
+       "text": "iteration"
+      },
+      "results": {
+       "px": 13,
+       "text": "Cp -0.08"
+      }
+     },
+     "wide": {
+      "setup": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "cad": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "analysis": {
+       "px": 12,
+       "text": "TOP"
+      },
+      "experiment": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "run": {
+       "px": 12.7,
+       "text": "iteration"
+      },
+      "results": {
+       "px": 13,
+       "text": "Cp -0.08"
+      }
+     },
+     "zoom": {
+      "setup": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "cad": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "analysis": {
+       "px": 15,
+       "text": "L 1038 N · D 33.8 N"
+      },
+      "experiment": {
+       "px": 99,
+       "text": "(no svg text)"
+      },
+      "run": {
+       "px": 12.3,
+       "text": "iteration"
+      },
+      "results": {
+       "px": 99,
+       "text": "(no svg text)"
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "UI-18 (v3): the activity rail is a vertical tablist of the six document areas in flow order with readiness in the accessible name and the ARIA tabs keyboard pattern (arrows, Home/End, roving tabindex — also on the bottom tabs); Run and Results carry the gated label and follow the backend; Export opens a dialog; Checks and Settings sit at the foot",
+   "pass": true,
+   "proof": [
+    [
+     "Setup",
+     "Setup · seeded v1",
+     "false"
+    ],
+    [
+     "CAD",
+     "CAD · r4 · 3 stations",
+     "true"
+    ],
+    [
+     "Analysis",
+     "Analysis · Historical",
+     "false"
+    ],
+    [
+     "Experiment",
+     "Experiment · Draft",
+     "false"
+    ],
+    [
+     "Run",
+     "Run · gated (SPIKE-03/04) · Ready",
+     "false"
+    ],
+    [
+     "Results",
+     "Results · gated (SPIKE-03/04) · 10 of 12",
+     "false"
+    ]
+   ]
+  },
+  {
+   "name": "SC 2.4.3 / 2.4.7 / 2.4.11 / 1.4.10 (observed): focus survives rail, toolbar and bottom-tab re-renders; ⌘Z is undo in the viewport; drawers take and return focus; More ▾ renders in front of the row; a collapsed dock leaves a visible expand control; the bottom pane is ≥ 120 px at every preset; no viewport-only colour on dock text",
+   "pass": true,
+   "proof": "observed in the browser"
+  },
+  {
+   "name": "B1 verb table → toolbar groups per area (CAD: Edit · Find · [Draft] · View; the verbs are on the palette); document tabs name the document; bottom tabs per area (CAD: Checks only); bottom and dock collapse give the viewport its space; menu bar and ⌘K are parity paths; modifier labels follow the OS in the toolbar and the viewport caption",
+   "pass": true,
+   "proof": {
+    "groups": {
+     "setup": [
+      "Seed",
+      "Goal",
+      "Go"
+     ],
+     "cad": [
+      "Edit",
+      "Find",
+      "View"
+     ],
+     "analysis": [
+      "Scope",
+      "Ask",
+      "View"
+     ],
+     "experiment": [
+      "New",
+      "Describe",
+      "Queue"
+     ],
+     "run": [
+      "Backend",
+      "Run",
+      "Explain",
+      "Go"
+     ],
+     "results": [
+      "Hold",
+      "Compare",
+      "Ask",
+      "ParaView",
+      "Go"
+     ]
+    },
+    "bottoms": {
+     "setup": [
+      "feas",
+      "points",
+      "checks"
+     ],
+     "cad": [
+      "checks"
+     ],
+     "analysis": [
+      "results",
+      "charts",
+      "checks"
+     ],
+     "experiment": [
+      "cases",
+      "checks"
+     ],
+     "run": [
+      "queue",
+      "log",
+      "checks"
+     ],
+     "results": [
+      "timeline",
+      "sweep",
+      "cand",
+      "checks"
+     ]
+    },
+    "before": 328,
+    "after": 496,
+    "narrow": 642,
+    "wide": 878
+   }
+  },
+  {
+   "name": "SET-01..04 / GOAL-02: parameters and language seed the same objects with per-field provenance; soft-target conflict string; purpose → preset; seven pinned triples in the Operating points tab",
+   "pass": true,
+   "proof": "setup text and table"
+  },
+  {
+   "name": "CAD-01..03 / GEO-03 / GEO-05 / GEO-13′ (v5): one construction — a degree-3 control-vertex B-spline with clamped knots per master curve, vertices as named sliders with levers; the curve is pulled by a vertex and never passes through it (measured gap); local support measured; Shift+arrows move η; root mirror couples, the tip pin refuses; Insert, Delete, Fair (tolerance-gated), Rebuild (deviation reported), Ghost, Add/Remove station and Measure from the palette with single keys on the focused canvas; the options strip selects the curve; a click on a curve selects it; one draft at a time; the station document with its own vertices, a measured conversion residual that meets its acceptance and agrees across HUD, strip and Properties",
+   "pass": true,
+   "proof": {
+    "record": {
+     "deg": 3,
+     "n": 7,
+     "knots": [
+      0,
+      0,
+      0,
+      0,
+      0.25,
+      0.5,
+      0.75,
+      1,
+      1,
+      1,
+      1
+     ],
+     "cv": {
+      "le": 7,
+      "te": 7,
+      "elev": 7,
+      "twist": 7,
+      "tc": 7
+     }
+    },
+    "delta": 0.009999999999999995,
+    "gap": 0.0035982973378216043,
+    "moved": 0.006666665416035167,
+    "fair": {
+     "dev": 0.00001761144623373123,
+     "tol": 0.0005,
+     "applyDisabled": false
+    },
+    "slotOf": {
+     "le": [
+      "a"
+     ],
+     "elev": [
+      "c"
+     ],
+     "tc": [
+      "c"
+     ],
+     "twist": [
+      "d"
+     ],
+     "te": [
+      "a"
+     ]
+    },
+    "section": {
+     "n": 12,
+     "residualUm": 7.461777063948765,
+     "gap": 0.005871237554398284
+    }
+   }
+  },
+  {
+   "name": "ANA-22 / UX-18: the toggle is navigation between areas 2 and 3 in the same four-viewport workspace (one camera); camera, station and selection survive; the preview is hidden in Analysis and restored on return; the options strip swaps derived strip ↔ operating point",
+   "pass": true,
+   "proof": {
+    "az": 50
+   }
+  },
+  {
+   "name": "ANA-21 / ANA-23 / UI-19: force vectors, resultant, loading strips and the depth band render on the geometry (Top and 3D) with accessible names; layers toggle from the dock; depth-unset absence in dock and Properties; charts in their tab; fixed strings verbatim",
+   "pass": true,
+   "proof": 20
+  },
+  {
+   "name": "XS-01..03: 12-case preview with derived quantities in the Cases tab; invalid sample blocked with the input named; single-point objective refused; Queue from the toolbar makes the version immutable; Experiment has no Run verb",
+   "pass": true,
+   "proof": "experiment text"
+  },
+  {
+   "name": "RUN-01..06: environment readiness in the Properties dock with allow-listed steps and a refused step; Unsupported and Failed-no-outputs strings; the state machine stepped through mesh gate, solving, cancel from the toolbar; retry keeps provenance; the Log tab renders line breaks",
+   "pass": true,
+   "proof": "run text"
+  },
+  {
+   "name": "RES-01..05: layers in the dock with absent reasons; separation only with τ_w; replay over admitted samples with the held variable on the toolbar; reduced motion removes Play and the dash animation; candidates with the ladder and Accept → CAD draft",
+   "pass": true,
+   "proof": "results text"
+  },
+  {
+   "name": "A5.12 / AI-07..10 / UI-22: the Prompt entry section of the Properties dock names its fixed entry point and proposal kind per area; no-key and unevaluated states; a geometry-edit Accept is one Apply on the vertex record; an experiment-config proposal fills the definition without queueing; explanations cite or withhold",
+   "pass": true,
+   "proof": {
+    "setup": "Prompt entry · Describe a starting design HAX G1/G2: setup-s",
+    "cad": "Prompt entry · Describe a change to the shape HAX G1/G2: geo",
+    "analysis": "Prompt entry · Ask about this calculation HAX G1/G2: explana",
+    "experiment": "Prompt entry · Describe the experiment HAX G1/G2: experiment",
+    "run": "Prompt entry · Explain this failure HAX G1/G2: explanation o",
+    "results": "Prompt entry · Ask about this result HAX G1/G2: explanation "
+   }
+  },
+  {
+   "name": "CAD-07..08 / UX-24 / UI-26..27 (v5): four viewports in the lines-drawing arrangement, each with a title menu (any view incl. the η-plot; Frame · Comb · Ghost; Smooth · Box · Frame body) and double-click / Return maximize; a nine-verb palette with visible names and single keys; the display cage as a named group; one camera with named views, a sliver-free cube with chevrons, keyboard and pointer orbit in both presets, keyboard pan and wheel zoom; 3D sections are pressed buttons; Return opens the selected station; the station tab survives behind the design document and closes with its station; the focused vertex ring measures ≥ 3:1 on the viewport in three themes; visible chrome counted",
+   "pass": true,
+   "proof": {
+    "railIcons": 9,
+    "quadNames": [
+     "Top",
+     "Perspective · Free · az 50° · el 28°",
+     "Front",
+     "Starboard"
+    ],
+    "palette": [
+     "Select (S)",
+     "Insert CV (I)",
+     "Add station (A)",
+     "Measure (M)",
+     "Fair (⇧F)",
+     "Rebuild (R)",
+     "Fit points (P)",
+     "Edit section (⏎)",
+     "Ghost (G)"
+    ],
+    "cam": [
+     55,
+     18
+    ],
+    "rings": {
+     "light": {
+      "stroke": "rgb(102, 221, 200)",
+      "width": "3px",
+      "ratio": 9.348112797127879
+     },
+     "dark": {
+      "stroke": "rgb(136, 216, 198)",
+      "width": "3px",
+      "ratio": 9.306348836201577
+     },
+     "contrast": {
+      "stroke": "rgb(255, 238, 88)",
+      "width": "3px",
+      "ratio": 17.62273039588189
+     }
+    },
+    "sliverFaces": 0,
+    "forcedSingleAtReflow": {
+     "forced": true,
+     "max": "a",
+     "box": [
+      590,
+      69
+     ],
+     "visible": 1
+    },
+    "quietEntry": {
+     "navigator": 0,
+     "bottom": true,
+     "prompt": false
+    },
+    "chromeOnEntry": {
+     "total": 97,
+     "by": {
+      "rail": 9,
+      "toolbar": 4,
+      "options": 1,
+      "other": 4,
+      "doctabs": 2,
+      "palette": 9,
+      "quad-titles": 8,
+      "canvas-handles": 48,
+      "btabs": 3,
+      "properties": 9
+     },
+     "chrome": 49
+    },
+    "chromeWorking": {
+     "total": 104,
+     "by": {
+      "rail": 9,
+      "toolbar": 4,
+      "options": 1,
+      "navigator": 7,
+      "doctabs": 2,
+      "other": 3,
+      "palette": 9,
+      "quad-titles": 8,
+      "canvas-handles": 48,
+      "btabs": 3,
+      "properties": 10
+     },
+     "chrome": 56
+    },
+    "v4ChromeAt1280": 71
+   }
+  },
+  {
+   "name": "SC 2.1.4: single-key tools are scoped to the focused workspace; the CAD ⇄ Analysis toggle is a modifier chord (⌘⇧A / Ctrl+Shift+A)",
+   "pass": true,
+   "proof": "observed only with focus / the modifier"
+  },
+  {
+   "name": "UI-10 / HYG-A: zero external requests and zero page errors across the walk; no retired markup",
+   "pass": true,
+   "proof": {
+    "requests": 0,
+    "errors": 0
+   }
+  }
+ ],
+ "errors": [],
+ "externalRequests": [],
+ "screenshots": "/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-workbench-v7-review-DDsTKh",
+ "note": "HTML review artifact evidence only; native accessibility, scientific validity, solvers and the production kernel require their own proof."
+}

@@ -22,8 +22,8 @@ summary: >-
   change: the outer SVGs of the plan view and the Results viewport became role=group, which exposed every
   authored layer name to assistive technology with one attribute in two places.
 review-suggested:
-  - { by: spec-cfd-workbench-v1, on: 2026-09-20, reason: "Revision 1.1 (2026-09-21): seven first-class areas, AI prompt entry per area, Experiment/Run/Results contracts — re-read against the new stories and the verb × area table." }
   - { by: mockup-workbench-v2, on: 2026-09-20, reason: "Mockup v2 (seven areas) cleared by the UX & Accessibility lens 2026-09-21; supersedes v1 as the review artifact." }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
 ---
 
 # UI review — workbench mockup v2 (seven areas)

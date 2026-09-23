@@ -11,7 +11,7 @@ links:
 review-by: 2026-12-22
 summary: Correct the authored planform to independent leading and trailing rails, derive chord, and prove the untouched rail remains unchanged through edits and history.
 review-suggested:
-  - { by: spec-foildsl, on: 2026-09-22, reason: "User review correction: independent leading/trailing rails replace authored chord; chord is derived. Earlier unapproved chord draft requires explicit conversion." }
+  - { by: spec-foildsl, on: 2026-09-22, reason: "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts." }
 ---
 
 # Independent edges
