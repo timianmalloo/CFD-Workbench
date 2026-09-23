@@ -24,6 +24,20 @@ SOURCE_PATHS = (
     "tools/spikes/ApplicationContracts/Program.cs",
     "tools/spikes/application-session-contract-vectors.py",
 )
+REQUIRED_CSHARP_CHECKS = {
+    "Decimal_ZeroHugeExponent_Zero",
+    "Draft_ExternalRetargetMutation_PreservesOwnedTarget",
+    "Reopen_ApplyRetry_DurableExactlyOnce",
+    "Reopen_OpenRetry_DurableExactlyOnce",
+    "Reopen_UnknownGeometry_Refused",
+    "Reopen_UnrelatedCertificate_Refused",
+    "Native_LongEscapedId_ApplyLineOverflow_PreflightRefused",
+    "Native_LongEscapedId_RecoveryLineOverflow_PreflightRefused",
+    "Native_WriterLines_WithinReaderLimit",
+    "Reopen_FirstApplyInsteadOfOpen_Refused",
+    "SaveRequest_AsyncBoundary_CapturesDefensiveImage",
+    "Reopen_DifferentWhitespace_Clean",
+}
 
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 180) -> str:
@@ -83,12 +97,13 @@ def recount(root: Path) -> dict[str, object]:
         independent = receipt.get("pythonChecks")
         if (
             receipt.get("scope") != "independent-contract-oracle"
-            or not isinstance(csharp, list) or len(csharp) < 87
-            or not isinstance(independent, list) or len(independent) < 42
+            or not isinstance(csharp, list) or len(csharp) != 89
+            or not isinstance(independent, list) or len(independent) != 42
             or len(csharp) != receipt.get("csharpCheckCount")
             or len(independent) != receipt.get("pythonCheckCount")
             or len(set(csharp)) != len(csharp)
             or len(set(independent)) != len(independent)
+            or not REQUIRED_CSHARP_CHECKS.issubset(csharp)
             or receipt.get("batchVectorCount") != 2505
             or receipt.get("nativeLiveWindows") != "Not assessed"
             or receipt.get("nativeHandlePolicy") != "Not assessed"
