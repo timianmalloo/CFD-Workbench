@@ -1,0 +1,74 @@
+{
+  "schema": "coord-run/1",
+  "run_id": "cfd-arch-20260923-a2",
+  "owner": "cfd-coordinator-20260923",
+  "parallelism": 1,
+  "workers": [
+    {
+      "session": "cfd-arch-author-20260923-b",
+      "branch": "feature/application-architecture-author-b",
+      "harness": "agy",
+      "transport": "agy",
+      "argv": [
+        "/Users/mallalieut/.local/bin/agy",
+        "--model",
+        "claude-opus-4-6-thinking",
+        "--mode",
+        "accept-edits",
+        "--dangerously-skip-permissions",
+        "--sandbox",
+        "--add-dir",
+        "{worktree}",
+        "--input-format",
+        "stream-json",
+        "--output-format",
+        "stream-json"
+      ],
+      "prompts": [
+        "al-01M377KMYKFR9ZD023M2VXBNEP"
+      ],
+      "deadline_seconds": 3000,
+      "output_limit": 4194304,
+      "fallback": "Retain the compiled brief; Coordinator and Owner review the failed receipt before any new attempt or route.",
+      "runtime": {
+        "unattended": true,
+        "mailbox": false,
+        "max_turns": 1,
+        "max_retries": 1,
+        "permissions": "deny"
+      },
+      "required_capabilities": {
+        "worktree_isolation": "observed-only",
+        "instructions": "observed-only",
+        "hooks": "observed-only",
+        "permissions": "observed-only"
+      },
+      "binding_files": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        ".agents/hooks.json",
+        ".agents/rules/agy-surface.md",
+        ".agents/skills.json",
+        ".agents/skills/define-architecture/SKILL.md",
+        ".agents/skills/design-slice/SKILL.md",
+        "docs/ai-forward-pack/codex.md",
+        "docs/ai-forward-pack/scripts/coord-core.py"
+      ],
+      "evidence": [
+        {
+          "kind": "commit"
+        },
+        {
+          "kind": "file",
+          "path": "docs/architecture/application.md",
+          "max_bytes": 262144
+        },
+        {
+          "kind": "file",
+          "path": "docs/proof/application-spikes.md",
+          "max_bytes": 262144
+        }
+      ]
+    }
+  ]
+}
