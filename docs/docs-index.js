@@ -1914,7 +1914,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5e1dfe1275dc3065655652941a0f8460f3241166b23ab8cd5bc1760288277170"
+      "sourceSha256": "09da7b8a0be9079092b49d43b71789ea4d4fd71cf5c2801e81f960ad3a1ef5fb"
     },
     {
       "id": "domain-experts",
@@ -2888,7 +2888,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9706357872c1ca0e0cb25e292bbb2453129f8cffc87386f4f5333b94f6798dc1"
+      "sourceSha256": "739619e671fc225e9e4557da0350d210f22331d21c7e324bfcf6219d5ca5815b"
     },
     {
       "id": "kb-hw-glossary",
@@ -3974,7 +3974,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "116ba8643a27ab780f870d175f90511b56f745ba0a96ceccc23373ffc5f33d33"
+      "sourceSha256": "f97218b3e15906a00680dc685d8cadfca8548b89d1fc19fbcd2c939239ae0795"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -5007,5 +5007,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "2a7c3be08524428923d4e35e4488a37c97ab5ab6bb4571b85af082b4b636b04c"
+  "graphSha256": "34811d5a53dcdff6bc3c6b34434ff5864480216a0c5ea96003f6f6aa5413905a"
 };

@@ -213,6 +213,56 @@ advisory/no-identity shape; Coordinator explicitly checked all twelve committed
 paths under `cfd-contracts-author-20260923` afterward and observed twelve
 `allow` decisions, again without a retrospective enforcement claim.
 
+**ENV-C · A declared build scratch is silently replaced by a host temp default.**
+The first core gate used `tempfile.gettempdir()` at import, which resolved to
+macOS `/var/folders/.../T` despite the approved task-specific `/tmp` plan.
+Sweep: core gate and both joined .NET recount scripts; unrelated unique temp
+directories without an exact-root promise are not mislabeled violations.
+Derive: pass the scratch parent explicitly, make it unique per invocation,
+resolve the macOS `/tmp`→`/private/tmp` alias, and assert the canonical parent
+before launching a child. Prevent: `tools/verify-application-core.py` records
+logical and canonical scratch, checks its parent, and records all six .NET
+cache/temp paths and build outputs under that unique root on every normal run.
+The Ruling 14 retry receipt
+`/tmp/cfd-application-core-20260923-uj2qxazf/receipts/environment.json`
+shows the corrected paths; its six observed owned PIDs ended quiescent. The
+old task-named `/var/folders` scratch remains retained for review, not erased
+as if it were unowned clutter.
+
+**ENV-D · A skip-first-run switch does not disable every SDK first-run effect.**
+The first .NET build printed a certificate-installation banner even with
+`DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`; no new global certificate was proved,
+and a matching PFX predates this session. Sweep: both joined .NET recount
+scripts and the first-core verification gate. Derive: set Microsoft's
+`DOTNET_GENERATE_ASPNET_CERTIFICATE=false` before invoking `dotnet`, retain
+task-local CLI and NuGet caches, and inspect the actual command output rather
+than inferring trust from a banner. Prevent: all three scripts now set that
+variable; the Ruling 14 retry's environment receipt records it and its build
+log contains no certificate/trust banner. No broad certificate clean or trust
+change is a legitimate repair for this class.
+
+**PROC-C · Agent interruption leaves an owned build child running.** The
+built-in cancellation drill interrupted its active worker, but PID `70844`
+survived until the Coordinator sent TERM to that exact observed PID and read
+back absence. Sweep: every build/test runner and worktree handback. Derive:
+track PID with start identity, stop dispatch on interruption, terminate only
+verified owned children and read back quiescence; an interrupt API return is
+not process proof. Prevent: the first-core gate writes process/environment
+receipts and checks live descendants before success. Its post-launch observer
+failure path reports descendant quiescence **Not assessed**, reaps the exact
+`Popen` child, and stops the route. Windows fails closed before child launch
+until a measured process-tree adapter exists. The [drill receipt](../coordination/application-cancel-drill.md)
+retains the original survival/cleanup sequence.
+
+**EVID-TZ · A local timestamp is given a UTC suffix.** A first read-only
+`stat -t ...Z` printed the PFX's Pacific local clock while labeling it `Z`.
+Sweep: evidence commands that attach `Z` to host-formatted timestamps.
+Derive: set `TZ=UTC` on the command or retain an explicit numeric offset;
+never add a UTC label after formatting. Preventive always-loaded command
+pattern: `TZ=UTC stat -f '%Sm' -t '%Y-%m-%dT%H:%M:%SZ' <path>`. The corrected
+readback was `2026-05-05T18:32:31Z`, before this task; the first mislabeled
+output is not reused as UTC evidence.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,

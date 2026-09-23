@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:24:32Z",
+  "generated": "2026-09-23T15:29:41Z",
   "audit": [
     {
       "actor": null,
@@ -3855,6 +3855,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T15:24:32Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M37E62S7KG2HBXJ9PHB9GACY",
+      "shortname": "owner-core-gate-repair",
+      "datetime": "2026-09-23T15:29:41Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule on stopped first-core cache-path/certificate-banner anomaly from actual receipt, leased gate and process effects; narrow repair plus one retry only after independent preflight.",
+      "summary": "Ruling14 approves leased gate correction and one measured retry. Inspected gate, retained73926 exit1/4.381522s receipt, absent child and seven in-lease files. Require unique explicit/canonical task scratch before launch, exact environment, documented DOTNET_GENERATE_ASPNET_CERTIFICATE=false, platform-correct owned-process cleanup and Coordinator readback before normal work resumes. Preserve old scratch/evidence; no certificate trust/cleanup or HOME/global cache change. Banner does not establish new global/trusted certificate. Compiler RED is not behavioral regression RED. Root concurs; production integration and model gates unchanged.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Restore observed task-local verification behavior without bypassing a denial or concealing prior side-effect uncertainty.",
+      "done_when": "Canonical request resolved with bounded repair, retry, evidence and stop conditions.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T15:28:18Z",
+      "duration_seconds": 83.0
     }
   ],
   "changes": [
