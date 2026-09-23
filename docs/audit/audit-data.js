@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:10:43Z",
+  "generated": "2026-09-23T21:15:50Z",
   "audit": [
     {
       "actor": null,
@@ -5685,6 +5685,21 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T21:08:36Z",
       "duration_seconds": 127.0
+    },
+    {
+      "id": "al-01M381ZX8W9BEHMCC1S9JRPHY8",
+      "shortname": "periodic-work-table",
+      "datetime": "2026-09-23T21:15:50Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "one thing\nprovide me a periodic table of what work is in flight and what is done etc and what agents did what work and what agents are running now and what they are doing",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
