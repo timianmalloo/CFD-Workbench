@@ -197,8 +197,13 @@ Red-first adapter tests cover the normal Example/edit/save/CLI route plus
 cancel, stale validation, unsupported geometry, file conflict, recovery,
 wrong extension/type, keyboard and accessible labels. An argument-free
 `tools/verify-application-adapters.py` must build once into unique task-local
-scratch, run named tests, check both publish targets where available, inspect
-nonempty native token corpus and return actual subprocess statuses with owned
+scratch using the accepted `dotnet build --artifacts-path` per-project layout,
+all six task-local .NET/NuGet/temp roots, disabled certificate generation,
+build servers and shared compilation. It must fail if a build creates new
+source-tree `bin/obj` outputs or resolves assets outside the invocation root;
+the Ruling 23 first-run drift is the negative control. It then runs named
+tests without implicit rebuild, checks both publish targets where available, inspects
+nonempty native token corpus and returns actual subprocess statuses with owned
 process quiescence. The proof names exact commands, package versions, source
 fingerprints, durations, screenshots and unrun platform obligations. Root/Owner
 review before join; one integrated recount and actual rendered app exercise

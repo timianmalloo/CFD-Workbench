@@ -543,6 +543,40 @@ requires separate tool boundaries and explicit exit, `HEAD`, `MERGE_HEAD`,
 staged-path and owned-child readback before continuation; an interrupted join
 cannot be labelled complete from its partial gate output.
 
+**CO-ARTIFACT · A task-local package cache is mistaken for task-local build outputs.**
+The first C `dotnet run` calls bound NuGet, CLI home and TMPDIR to unique
+scratch, but default MSBuild `bin/obj` still appeared in five projects under
+the isolated source tree. Ruling 21's path-drift stop fired; the 150 files
+were inventoried and preserved. Sweep every build, restore, publish and test
+entry point, including transitive project references and implicit rebuilds.
+Derive: environment cache variables do not relocate MSBuild output or
+intermediate paths. Prevent: the always-read C packet requires the accepted
+`--artifacts-path` per-project layout, all six local cache/temp roots and a
+gate assertion that no new source-tree `bin/obj` or outside-root assets appear.
+The one Ruling 23 corrected build produced four distinct project outputs under
+fresh task scratch while preserving the first files; the full adapter gate
+must make this recurrence control executable before C handback.
+
+**NG-LOCAL recurrence:** this C worker first attempted an absent `coord.py`
+path before using installed `coord-core.py`; a Coordinator read-only command
+also used a shell glob for nonexistent `*log` filenames and failed before
+inspection. Root had likewise guessed a nonexisting ADR path before `rg`
+inventory. None wrote files. The existing inventory-first control applies:
+list exact paths or inspect script dispatch before constructing a command,
+and read returned receipt paths rather than guessing suffixes. The C launch
+brief now names `coord-core.py` and exact receipt paths; failed guesses remain
+recorded so a future gate cannot call them verified.
+
+**CO-DECISION-VIS · A new ruling is assumed visible in an older isolated worktree.**
+Ruling 23 was recorded after the C worktree fork, so that tree's local
+`docs/notes/rulings.md` did not yet contain it. The Coordinator detected this
+before the worker's corrected attempt and supplied the canonical Coordinator
+tree path read-only. Sweep every post-fork ruling and contract amendment before
+asking a paused worker to resume. Prevent: the resume packet explicitly names
+the ruling's current absolute path and verified request ID, or joins the
+reviewed decision before source work; a local stale copy cannot silently act
+as current authority.
+
 **PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
 The installed `ui-design` UI-T4 text references
 `docs/knowledge/native-client-ui-design/`, but this project checkout does not

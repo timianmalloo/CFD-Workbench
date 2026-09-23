@@ -55,3 +55,38 @@ Current execution has root, Coordinator and one C worker active, meeting the
 three-seat cap. Root owns independent native UI/AX and technical review and
 will inspect the first runnable window as soon as the author supplies its
 bundle path. Windows runtime, signing and full M1 acceptance remain open.
+
+## Ruling 23 build-output containment correction
+
+The first three `dotnet run` invocations set task-local NuGet, CLI-home and
+TMPDIR but did not override MSBuild output/intermediate paths. The author
+stopped under Ruling 21 after untracked `bin/obj` appeared in five projects of
+its fresh isolated tree. First CLI RED, CLI GREEN and Desktop RED are
+transcribed in `/tmp/cfd-c-first-build-transcribed.json` (SHA-256
+`722b23187df5beb1a6dc8d436280692faa83352dba492086daf1994f916a3ac6`);
+the original tool transcript, not a separately retained raw stdout file, is
+the source. The exact no-symlink inventory
+`/tmp/cfd-c-output-drift-manifest.json` (SHA-256
+`4270e13ccea2e2fec27126b6e4ca7f59367cc47b623042b013ffe4c0edee4a80`)
+records ten directories, 150 files and 11,232,864 bytes. No original files
+were deleted. Read-only global directory metadata predated the first observed
+build, but this limited check cannot establish zero certificate/cache effect.
+
+Owner [Ruling 23](../notes/rulings.md) resolved typed request
+`req-01M37R2NXSX4C8Z6V9TP3BEBPD` and authorized one same-worker, ten-minute
+corrected build. The worker used the accepted core gate's
+`dotnet build --artifacts-path` convention, a fresh canonical task-local
+scratch with all six cache/temp roots, disabled certificate generation, build
+servers and shared compilation, then ran the built test DLL without a rebuild.
+Raw retained receipt
+`/private/tmp/cfd-adapters-r23-cfd-adapters-20260923/receipts/receipt.json`
+(SHA-256 `c1f300ac24d7aeb98ea697b1ddb2e2374cbca4fe275289d9044d693b0b887e2a`)
+binds exact argv/env, stdout/stderr hashes, PID/start identities and exits.
+Build and test exited 0; build had zero compiler warnings/errors. Four projects
+placed their assets in distinct `artifacts/obj/<project>` and binaries in
+`artifacts/bin/<project>/debug`; 136 artifact files contained no symlinks, and
+the four asset files name the task-local NuGet cache. Both observed child
+processes were absent at direct readback. All original 150 source-tree files
+remained hash-identical, with no extras or missing paths. Coordinator accepted
+this **output containment only** and resumed normal same-scope Ruling 21 work.
+It is not a CLI, native UI, global zero-effect or M1 pass.

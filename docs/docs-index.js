@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8e06f8bfed0acaa7dbc373e17012602a391e096454b95d53d878785bc67de09e"
+      "sourceSha256": "3c5ca21390193caa635bdeec63a5811e864d5779317d8cf7a5a148e46db43f0b"
     },
     {
       "id": "domain-experts",
@@ -2971,7 +2971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "93096110ee5a4ffa9ed357c991be1612f64730728c7a4595daf7dc5399e6af14"
+      "sourceSha256": "dc2e9178ffe2ba669714c5508e63d3f3c3c3032fde35009dd1915df95adce5ec"
     },
     {
       "id": "kb-hw-glossary",
@@ -4107,7 +4107,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2780e7bd465f86ba7dd2017ff28743c7998e13ae8945911aa63b78b84979867f"
+      "sourceSha256": "9ea11bbf4182cbe1def17a38f6a5bccb9b8804bda031ae581b9421e43ae987fd"
     },
     {
       "id": "coordination-r17-companions",
@@ -4254,7 +4254,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "74aa8b160741796fff551f81d94819e5e9d96a557fc624b7945ba45c319fe612"
+      "sourceSha256": "588901b85fdea95331bbc37db999f34599a04b9a911e2439eb1207ba41369181"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -5512,5 +5512,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "dc0717e295ccc6e30f0e05c6665ab6e3138b5add1a0dfc520ce0c8a5d7dcfa89"
+  "graphSha256": "507d05aebef4e48252fe2c4ce8b315295b1566ddccc5511eb307eb789f7a56b5"
 };
