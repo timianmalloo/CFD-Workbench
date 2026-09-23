@@ -616,3 +616,138 @@ remains the independent reviewer's decision. Cross-platform execution/Windows st
 remaining full-contract review and acceptance remain open. The commit is an isolated progress checkpoint,
 not a production B join, C dispatch, or complete implementation claim. Defect-class register integration
 belongs to the Coordinator's ledger lease; the classes and executable controls above are handed back.
+
+## Ruling 26 repair: macOS arm64 creation permissions
+
+Goal: restore intended creation permissions without weakening descriptor-relative publication, ownership,
+cleanup, durability or acknowledgement. Done when managed/native/published mode controls and existing store
+regressions pass and independent Security/Data/Test review clears this reopened boundary. Tier T2; one serial
+author, no subagents. Requested gpt-6-astra; effective model Not recorded. Isolated branch
+`feature/application-permissions`, clean base `7417713175daa5c4d9f71970d64ef16485f891ff`, session
+`cfd-permissions-20260923`; audit start observed 2026-09-23T21:15:50Z. First window is 45 calls/25 minutes.
+No changes to C adapters, Windows implementation, saved-file format or the original anomalous saved file.
+
+Authority: [Ruling 26](../notes/rulings.md#ruling-26--reopen-macos-creation-mode-boundary-with-a-serial-abi-repair)
+and the root-owned investigation `investigation-native-save-permissions`, read from the independent
+foundation tree. The investigation joins through Coordinator; this isolated branch does not author it.
+Required contract anchors are application-contracts §Native persistence: held-parent no-follow traversal,
+exclusive same-directory creation, atomic no-replace/create or verified replace, exact-owned cleanup,
+and explicit publication/durability. Ruling 26 adds the executable creation-mode floor.
+
+The bounded execution graph was grounding/RED → ABI/errno/package spike → bridge/guard → real-filesystem
+and published regressions → proof → independent review. These are decision/data dependencies; no parallel
+authoring was allowed. Read-only grounding was batched. The naive graph's separate build/load/package checks
+were consolidated into one managed publish spike and one build-once matrix, without removing the independent
+review gate. Work/span in seconds were not predicted; actual process durations are retained below.
+Remaining failing boundary cases decrease to zero; a failed ABI spike would stop for a typed alternative,
+and the call/time cap requires checkpoint/replan. Surfaces: C bridge → managed Native imports → owned entry
+guard → existing ProjectStore result/telemetry → session save image → actual package consumer/reopen.
+No public DTO, entity grain, source identity or append-only history representation changed. C's rendered
+native Save remains an independent downstream gate; this author does not claim UI proof.
+
+### Contracts established and smallest repair
+
+Installed platform: arm64; Apple clang21.0.0 (`clang-2100.3.34.2`), target arm64-apple-darwin27.0.0;
+SDK MacOSX.sdk `sys/fcntl.h` lines619/621 declare `open(const char*,int,...)` and
+`openat(int,const char*,int,...)`. Both old production imports and both historical MacProbe imports used
+fixed managed signatures against those variadic entrypoints. The repaired managed signatures call two
+fixed C exports; the compiler invokes the genuine variadic functions and promotes `mode_t` correctly.
+The bridge performs no work after the native call, preserving errno for `SetLastError=true` capture.
+Explicit UTF-8 marshalling and assembly-directory loading are used. No guessed dummy-register layout,
+runtime-private entrypoint, post-create chmod or application-wide umask change was introduced.
+
+The sibling sweep read installed declarations for fstat/fstatat, read/write, close/fsync; existing remaining
+store imports have fixed native signatures. The native Open/OpenAt test helpers now use the same fixed bridge,
+and the primitive creation test has its own independent pre-write mode assertion. Native C exports are only
+`cfd_store_open` and `cfd_store_openat` (`nm -gU`); `file` reports Mach-O arm64. Runtime store support is
+explicitly limited to the measured macOS arm64 ABI. Windows and other ABI capability remain fail-closed.
+
+The project compiles the 17-line bridge against system headers before `AssignTargetPaths`, placing its output
+under `IntermediateOutputPath`. Content metadata copies it to build and publish output; the installed SDK
+10.0.203 `Microsoft.Common.CurrentVersion.targets` and `Microsoft.NET.Publish.targets` copy contracts were
+read before adoption. The real tests project receives the helper transitively through its existing reference;
+no edit to the held seventh candidate project file was needed. The helper is a build-produced artifact,
+not a committed binary or external package dependency. Builds require the macOS command-line C toolchain.
+The bridge keeps the existing no-follow/exclusive flags and all linkat/renameat/parent-identity code intact.
+
+The held descriptor is fstat-checked immediately after exclusive creation and before returning the entry
+to any writer: regular file and exact mode0600 (permission/special-bit mask07777). The initial subset-of0600
+check was insufficient: it admitted mode0000, another reproduced wrong-ABI outcome. Coordinator review
+caught this; named zero/owner-bit-loss RED preceded correction. The chosen stricter fail-closed policy refuses
+an owner-stripping umask instead of repairing permissions. Requested0600 under required masks0000/0022/0077
+is exactly0600. Actual child umask0600 now refuses before bytes. Guard failure attempts cleanup only when
+the directory entry still matches its retained owned descriptor; failed cleanup is DOC-IO. Missing, invalid
+or wrong-architecture native helper produces DOC-UNSUPPORTED-PERSISTENCE before publication. Normal save,
+publish, flush, uncertain-outcome and redacted session telemetry contracts are unchanged and exercised.
+
+### Claims, negative controls and measured receipts
+
+All scratch names below are under literal `/tmp`, canonical `/private/tmp` on this host. They are retained;
+neither the original wrong-mode saved file nor prior investigation/probe artifacts were altered.
+
+| Claim | Executed oracle/control | RED / GREEN | Confidence and limit |
+|---|---|---|---|
+| Production mode defect reproduced before repair | `/usr/bin/stat -f %Lp:%z:%i` at TempCreated before first byte under child umask0000 | `j7_uuix8`: expected600, observed456:0:47830421; build0/test1 | Verified real managed production failure; not just ctypes |
+| Fixed bridge establishes actual ABI/errno/loading | `cfd-permissions-20260923-sy3kjhhc`: .NET10.0.7 arm64 publish and run from published cwd; direct open and openat create Unicode names; errno17/2/62; Python OS stat | publish0, three child-mask runs0; six files0600 | Verified installed arm64 boundary; two CA1416 warnings in throwaway spike, no production warnings |
+| Temp/claim/final permissions survive real packaging | `Store_CreationPermissions_BeforeWriteAndAfterPublication`, independent stat while empty and after publication; `NativePrimitive_MacReadWriteUnlink` before-write stat | Original RED above; final six runs GREEN | Mode/type checks are before writes; no ACL guarantee |
+| Extra bits cannot pass guard | `Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup`, actual native creation with injected0777 | Scratch-copy guard deletion gives named failure/actualOK; final GREEN | Mutation killed, production candidate was not mutated |
+| Zero/missing-owner bits cannot pass guard | `Store_MissingOwnerPermissions_RefusedBeforeBytes`, injected0000/0200/0400, create and overwrite | `ldp5881t` test1/actualOK before strict guard; final GREEN | No writing/publication; owned entries removed, prior bytes preserved |
+| Owner-stripping umask is unsupported | `Store_OwnerStrippingUmask_FailsClosedWithoutRepair`, real isolated child mask0600 and precreated private parent | Final GREEN, unsupported/no bytes/no entries | Explicit stricter policy, no chmod/global umask |
+| Helper absence/corruption is fail-closed | `Store_MissingOrUnloadableHelper_FailsClosed`, fresh copies of actual package with owned helper removed or replaced by invalid bytes | Final missing/unloadable processes0 with expected unsupported | Actual loader negative, not a mocked exception |
+| Save/Reopen preserves source/history | Permission test creates image, edits accepted rail, overwrites exact prior hash, compares exact bytes/source and revision, then Undo/Redo | Six final matrix runs GREEN | Real package cwd, retained source/history; no format change |
+| Atomicity/ownership/durability unaffected | Existing no-clobber, case-alias claim, parent replacement, collided/replaced temp, partial write/disk-full, cancellation and post-publication uncertainty suite | Six final matrix runs GREEN | Real filesystem plus explicitly labeled injected failures; no hardware power-loss claim |
+
+The spike helper SHA256 is `90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88`;
+its managed consumer SHA256 is `e6240395b2bd11c820e742d5026c3a7c4773c53f185cfaa23bc8b0e7c0609f82`.
+Source/command/process receipts live in `/tmp/cfd-permissions-20260923-sy3kjhhc`; mutation receipts are in
+its `mutation/receipts`. The mutation uses a copied source/package; current production source stays frozen.
+The normal gate owns and clears inherited fault-probe selectors so they cannot silently bypass normal tests.
+
+Harness mistakes are not product findings: `0045jnm9` published only one test fixture, producing11
+FileNotFound failures while native mode checks passed; copying the complete authoritative fixture corpus
+corrected the package test setup. `lb0tumwj` first created its parent under owner-stripping mask0600, causing
+an earlier DOC-IO directory refusal; the gate now precreates that private parent before launching the child.
+Neither failure was called an ABI repair RED. Class controls: complete fixture packaging, isolated parent
+setup, and exact positive/negative mode checks. Shared lesson/security register integration belongs to
+Coordinator; no out-of-lease register edit occurred.
+
+Final integrated receipt: `/tmp/cfd-permissions-integrated-yon72wbr/receipts/integrated.log`, supported
+`python3 docs/ai-forward-pack/scripts/run-verify-gates.py`: exit0, all11 gates PASS, 21.39166316599585s.
+Nested source-bound run: `/tmp/cfd-application-core-20260923-4e1mdsbv/receipts`.
+Build0/zero warnings/errors (4.511957375041675s), publish0 (3.7344907079823315s).
+Each of `tests-0000`, `tests-0022`, `tests-0077`, `published-0000`, `published-0022`, `published-0077`
+has175 PASS, RESULT failures=0. `missing`, `unloadable`, `owner-stripping` each has144 PASS, RESULT failures=0;
+these intentionally run the relevant capability control in place of the ordinary store suite, after that
+ordinary suite already ran six times. Published runs use the actual published directory as cwd. Permission
+receipts include stat child PID/start/exit, stage, inode, length and declared child-only umask.
+
+All six .NET/NuGet/temp variables and artifacts remain under the unique task root; certificate generation
+is false before dotnet, no build servers are used, and no certificate/trust banner was observed. Twelve final
+process receipts (build, publish, nine consumers and outer gate) have live={} and quiescent=true. Direct ps
+readback of their25 recorded owned PIDs returned no rows, exit1. Publish/helper loading does not establish
+distribution signing, notarization, ACL behavior or any unexecuted platform capability.
+
+| Frozen source or published artifact | SHA-256 |
+|---|---|
+| `src/CfdWorkbench.Persistence/ProjectStore.cs` | `183b265127e1a09d5a6ff3c7fc330429321583f7981596fc920d865004d2a681` |
+| `src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj` | `8acdf1f628e322df0a6aa48518f1bd9c31b7019bc519a4b9d4793a1a601de05c` |
+| `src/CfdWorkbench.Persistence/native/cfd_store.c` | `c402bb59223fc54a521ec9bf8aabea6eb1a00b4ff1f95bc6bbc7f7898dad9a7b` |
+| `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` | `7569f087fabccc3089a521b3f1b3c14acb8a89a9c5e0cc39b38620d008db0ba8` |
+| `tools/verify-application-core.py` | `face7f84802b196e31fb31c7916668ec8ee67198f7959766bc7f1319f612270c` |
+| Published `CfdWorkbench.Persistence.dll` | `c3245fbae2ebed15d488f56613e15099958b212ba30638846797a91266b56e71` |
+| Published `libcfd_store.dylib` | `90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88` |
+| Published `CfdWorkbench.Core.Tests.dll` | `5974c1eef435b217f238f105b428acbfee292c3d644b80ff834a87b40ee8a00f` |
+
+Testing Strategy: D0 hygiene; T3/D3 existing project/provider seams and actual transitive package copying;
+T4/D4 real filesystem; T6/D5-provider public store consumed from published tests; T8/D7 mode/fault injection
+paired with real native calls and mutation. No AI/HTTP/UI boundary was added. Simplifier review: reuse existing
+store and ownership gate; two native functions, no dependency framework or format change; no delete-only
+candidate removes a required boundary. Author's review does not clear the Security/Data/Test veto.
+Remaining: independent Root packaged/native review, Owner disposition, Coordinator register/graph handoff,
+then clean B-to-C integration and affected native recount. Windows, ACL/signing, UI accessibility and M1
+acceptance remain open. This is a bounded repair candidate, not a production join or acceptance claim.
+
+At the first checkpoint (21:34:25Z), 18m35s had elapsed; aggregate tool-call count was Not recorded.
+Coordinator approved a separate close-only bound of eight further calls/six minutes for proof/audit/commit
+and lease release. No product code or tests changed after the final integrated run. Documentation check
+reported106 artifacts, zero defects/index drift and77 existing nonblocking review suggestions.

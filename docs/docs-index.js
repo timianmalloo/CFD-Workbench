@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "b872a1453b5ada4061d08e8869dc625cca99d98431394a7bbc3c3dc0361d276d"
+      "sourceSha256": "c7b49967f17a0dd39cabec8147846ca0eefb7cd5eb31d70e55d7a14c47fc4a79"
     },
     {
       "id": "cad-editing-views",
@@ -1220,7 +1220,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3da5773f5f06495d4d698b3075f0b3d7b8a14d11704c20454b7deb94d7341c31"
+      "sourceSha256": "bcfc775b03a55e950a419eef6ac328d4934340a4f026161996acf1c9045e0dd5"
     },
     {
       "id": "design-authoring-decisions",
@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2e56256adbd705013024e3943e7df6f83a8cb85e50e92b5cabc066f4676923f2"
+      "sourceSha256": "8dafc1daf14337840090df1cbaae4c3e876d5455c97d193f7b9cf545e6f977d3"
     },
     {
       "id": "domain-experts",
@@ -2971,7 +2971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b28043a3eab8946eecfd40a03b71d8d8d4e7e6b3b5a2b928e45a3d6309785bc1"
+      "sourceSha256": "74f4c36f264ae6eb51dc5649c275d2fc42d185f6cf06b95135aa9ca806f13aac"
     },
     {
       "id": "kb-hw-glossary",
@@ -3871,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "090db6e20edcc5aafa532985b9f0f9a24e91771443279a16d1cc56f78060b668"
+      "sourceSha256": "58d25c9688d7eba7608145ab9918cd2da1673af9bce21b06182570be99146ba2"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4455,7 +4455,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f9470005ce24d78e009a1c399d28d68cff213ad85c1b86a72e80db1d955c69c9"
+      "sourceSha256": "f68917bfc2937c3f069bd7028813652cd4f720fdc4889385662f8227fcc84a63"
     },
     {
       "id": "proof-application-spikes",
@@ -5559,5 +5559,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "585d3be3ec7e955c209d90e044062bce5b9b1671a65a1b3727617684eed58650"
+  "graphSha256": "181edb1c469e9196a9963d4c6ff9d4474ce40e7bc0bdd53a2e39eef24937a8cf"
 };

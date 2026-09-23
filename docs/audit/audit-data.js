@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:10:43Z",
+  "generated": "2026-09-23T21:35:56Z",
   "audit": [
     {
       "actor": null,
@@ -5685,6 +5685,41 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T21:08:36Z",
       "duration_seconds": 127.0
+    },
+    {
+      "id": "al-01M3834PGZ7CVHJ47TYDCZR7B5",
+      "shortname": "permissions-abi-repair",
+      "datetime": "2026-09-23T21:35:55Z",
+      "session": "cfd-permissions-20260923",
+      "prompt": "FIRST COMMAND: AGENT_SESSION=cfd-permissions-20260923 python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-permissions-20260923 --skill implement. Resume as requested gpt-6-astra B persistence author (effective model Not recorded if host cannot expose it); use ONLY the new clean isolated /Users/mallalieut/projects/CFD-Workbench-feature-application-permissions, branch feature/application-permissions, base 7417713175daa5c4d9f71970d64ef16485f891ff. Read Owner Ruling 26 in docs/notes/rulings.md and root read-only report /Users/mallalieut/projects/CFD-Workbench-feature-application-foundation/docs/investigations/native-save-permissions.md before writes. Goal: correct macOS native Save creation permissions through a minimal fixed-signature C bridge making real variadic open/openat calls, without weakening directory-relative atomicity/ownership/durability. Done when real .NET arm64 ABI/errno/package-loading spike, production-path RED, corrected temp/claim/final prewrite/final modes under umasks 0000/0022/0077, existing store regressions, packaged Save/Reopen, gate/proof/clean commit are source-bound for independent Root Security/Data review. Initial exact authored paths (claim for edit minutes, release promptly): src/CfdWorkbench.Persistence/ProjectStore.cs; src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj; src/CfdWorkbench.Persistence/native/cfd_store.c; tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs; tools/verify-application-core.py; docs/proof/application-core.md. R26 seventh candidate tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj is HELD until a measured build need and Coordinator seam freeze. No C adapter/UI/review/register/security files, Windows support, migration/chmod/global umask, original anomalous /tmp/cfd-native-review.czEz9w/accepted.cfdw.json alteration, or unrelated cleanup. Preserve current task-local .NET/NuGet/temp/cache roots, DOTNET_GENERATE_ASPNET_CERTIFICATE=false, no build servers, PID/start/child quiescence, no Avalonia telemetry where applicable. Check actual compiler/header/.NET10/package contracts before bridge choice; failed spike stops for typed alternative. First checkpoint <=45 tool calls or 25 minutes for RED+spike+patch proposal, then measured replan rather than silent extension; context ceiling 100k. Send RED/spike receipt early, final clean HEAD/path inventory/commands/hashes and exact remaining gaps. Root owns independent native review; no B/C join until Owner gate.",
+      "summary": "R26 isolated arm64 permissions repair: production RED0456, managed C ABI and published-load spike, strict0600 held-descriptor guard, zero/extra-bit negative controls and actual child umasks. Six175PASS matrix runs plus three144PASS capability runs; all11 integrated gates PASS. Independent review remains open. First checkpoint18m35s; tool count Not recorded; approved close-only replan. Six authored paths, no held seventh path.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Repair the macOS arm64 creation permission ABI while preserving atomic publication and ownership.",
+      "done_when": "Source-bound RED/spike/mode/package/regression proof and clean exact-path commit are ready for independent Security/Data review.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T21:15:50Z",
+      "duration_seconds": 1205.0,
+      "git": {
+        "sha": "7417713175daa5c4d9f71970d64ef16485f891ff",
+        "short": "741771317",
+        "branch": "feature/application-permissions",
+        "pushed": null
+      }
     }
   ],
   "changes": [
