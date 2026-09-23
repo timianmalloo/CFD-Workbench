@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T13:57:42Z",
+  "generated": "2026-09-23T14:10:51Z",
   "audit": [
     {
       "actor": null,
@@ -3078,6 +3078,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T13:56:23Z",
       "duration_seconds": 79.0
+    },
+    {
+      "id": "al-01M379NQM71AX9XE2Q5DX7189B",
+      "shortname": "owner-architecture-conditional",
+      "datetime": "2026-09-23T14:10:51Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Owner rule on architecture-only unexposed model exception and independently review committed architecture, contracts, security and measured spikes; no track authorship or self-cleared hard veto.",
+      "summary": "Recorded Rulings 7 and 8. Model Not recorded exception is architecture-A-only. Independently inspected nine substantive authored artifacts, final 30 Python primitive checks, source fingerprints and cleanup ownership correction; executed native binding probe with nine refusals. Root independently granted conditional architecture PASS. Selected bounded native M1 architecture with mandatory serial complete session/schema/identity/persistence contract gate before production implementation or B/C fan-out. Observed clean author handback a92c4e74a939ed9afd4ffddbe52e5eeead6206c2, nine substantive paths plus four official metadata exceptions. Windows live, viewport AX, full evaluator and product gates remain open; no full G3 clearance.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve routing and architecture decisions from measured evidence without owner authorship or product gate overclaim.",
+      "done_when": "Canonical requests resolved and independent review disposition communicated with remaining gates and committed handback identity.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T13:59:54Z",
+      "duration_seconds": 657.0
     }
   ],
   "changes": [

@@ -17,7 +17,7 @@ summary: >-
 
 # First application increment: coordination plan
 
-**Authority and status, 2026-09-23.** User request: `al-01M376G6MEVMMTPKPYP4GGBGVD` (compiled `al-01M376HFY6J6F4SNW84C5J5Q4H`, dispatchable). The root Codex session leads; `cfd-owner-20260923` is the Astra technical Owner and ruling seat; `cfd-coordinator-20260923` is the Sol Coordinator and designated leader at launch. The Owner does not author track code or clear its own veto. Root performs independent review. The [execution graph](../plans/application-build.md) and [normative specification](../specs/cfd-workbench-v1.md) define scope. Review by root is conditional pass for the first architecture author only; downstream tracks remain behind Owner gates.
+**Authority and status, 2026-09-23.** User request: `al-01M376G6MEVMMTPKPYP4GGBGVD` (compiled `al-01M376HFY6J6F4SNW84C5J5Q4H`, dispatchable). The root Codex session leads; `cfd-owner-20260923` is the Astra technical Owner and ruling seat; `cfd-coordinator-20260923` is the Sol Coordinator and designated leader at launch. The Owner does not author track code or clear its own veto. Root performs independent review. The [execution graph](../plans/application-build.md) and [normative specification](../specs/cfd-workbench-v1.md) define scope. Owner Ruling 8 and root conditionally accept the bounded native M1 architecture; the next track is serial session/schema/identity/persistence contract completion, and production B/C remain behind a later G3 Owner gate.
 
 ## Layer state
 
@@ -112,13 +112,14 @@ Capability values are **per actual worker fingerprint**: worktree isolation = ob
 
 | track | budget / reason for separate track | actual calls, time, tokens | seams, boundary correction, result |
 |---|---|---|---|
-| A | 70 calls / design needs independent Owner veto and isolated spike artifacts | Author started; calls/tokens not recorded | Two Agy profiles and Grok ACP negative boundary failed as detailed in [qualification](qualification-architecture.md); existing Codex author assigned with model ID unobserved. |
+| A | 70 calls / design needs independent Owner veto and isolated spike artifacts | Commit `a92c4e7`, clean; exact calls/tokens not recorded | Nine authored + four generated/audit paths, 30/30 primitive checks, nine native mismatch refusals, macOS/Windows publish; Ruling 8 conditionally accepts architecture only. Model ID `Not recorded` by Ruling 7; existing Codex author natural completion, cancellation not exercised. |
+| B0 · contract completion | Serial prerequisite under Ruling 8 | Not started | Complete session/schema/identity/persistence contracts and executable fixtures before production B; freeze exact paths and route through a newly evidenced author profile. |
 | B | 90 calls / one coherent core invariant, isolated from UI | Not recorded | Pending |
 | C | 90 calls / native UI machine time and disjoint files after G3 | Not recorded | Pending |
 | D | deterministic join / independent integrated proof | Not recorded | Pending |
 
 | status | item |
 |---|---|
-| Completed | Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–7, actual failed native boundary evidence, existing Codex author assignment and architecture-only model-ID exception. |
-| Remaining | Architecture author's evidence and Owner veto, downstream G3 contracts, implementation and integrated application proof. |
-| Best next action | Verify the author branch's exact paths, spike results and Owner request; do not dispatch B/C before G3. |
+| Completed | Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–8, failed native boundary evidence, clean architecture handback `a92c4e7` and conditional independent approval. |
+| Remaining | Join A after mechanical gates, serial contract completion and G3 freeze, implementation and integrated application proof. |
+| Best next action | Join reviewed A, then issue a bounded B0 serial contract with exact paths; do not dispatch production B/C before G3. |
