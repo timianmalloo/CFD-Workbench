@@ -2048,7 +2048,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "1ef8ef551efc4f952a861b5bbcc8ece7670d7463645c025624a76ec7f61305f5"
+      "sourceSha256": "65c840043995846a55d305335cda5c76c9aea90f42dc8940f1b23e3524b97f1b"
     },
     {
       "id": "plan-authoring-decisions",
@@ -3776,6 +3776,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "plan-application-build",
+          "on": "2026-09-23",
+          "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
         }
       ],
       "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
@@ -3804,7 +3809,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a1c0a8c4bb7744194f9a49f1dd531050627b1bfd5022b6295a135d619611922b"
+      "sourceSha256": "0e61f71ef9918e8e14658efdd44214f6f04b0581a3086b8a899f950708f0fcc8"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3872,6 +3877,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "plan-application-build",
+          "on": "2026-09-23",
+          "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
         }
       ],
       "summary": "Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.",
@@ -3900,7 +3910,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d131535eee266685431146006403b088828087b395e97eb5fbaaeb82cd428b91"
+      "sourceSha256": "1de8239095e62cedd22251dca283a38012f1ca9fd1a9dd022f117773f8b0a2c5"
     },
     {
       "id": "privacy-review",
@@ -4017,7 +4027,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "plan-application-build",
+          "on": "2026-09-23",
+          "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
+        }
+      ],
       "summary": "Native Agy and Grok probes did not qualify an architecture author; an existing Codex author was assigned a fresh isolated worktree under the same contract.",
       "tags": [
         "coordination",
@@ -4036,7 +4052,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7209d491a6c421c4dd5a26180472505de228633c3573f4398534175c71060e5f"
+      "sourceSha256": "b2f3cee568fcd5a66fbeabe35d17db28a73fa252ce2ca9572066b89b04a18b80"
     },
     {
       "id": "proof-application-contracts",
@@ -5059,5 +5075,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b6b31a0d0207d373ed734138bdab0a0c97665d41f89b917ddfe9d34568695aba"
+  "graphSha256": "0dba35efba7a6cd88ccf3d98fe2adc0f0ef683588b4caa33a2f26a7897c91521"
 };

@@ -10,6 +10,8 @@ links:
   - {to: plan-application-build, rel: relates-to}
 review-by: 2026-10-23
 summary: Native Agy and Grok probes did not qualify an architecture author; an existing Codex author was assigned a fresh isolated worktree under the same contract.
+review-suggested:
+  - { by: plan-application-build, on: 2026-09-23, reason: "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims." }
 ---
 
 # Architecture author harness qualification

@@ -57,6 +57,18 @@ identity, bounded growth and OS-specific persistence fixtures. B0 started in iso
 fan-out is admitted yet. The original width-two estimate is still a planning model,
 not measured elapsed improvement; actual A required a serial mechanical join and B0.
 
+**Execution readback, 2026-09-23:** B0 is joined at `c13db27`; root Test review and Owner
+Ruling 12 accepted its bounded contracts, not a product implementation. Ruling 13 then
+froze 18 exact paths for one serial G4 core worker. The worker's first two isolated
+checkpoints are `5f40af0` (parser/identity) and `5b5b489` (continuous source-shape
+certificate and interval section query). Neither is joined or M1-ready. Their named
+oracles and root's separate frozen-source reviews establish specific boundaries, not
+the missing placed-surface, session, native-store, UI or Windows runtime obligations.
+G5 is currently serial after G4: the compiling G3 contract did not remove remaining
+core admission and adapter data dependencies. Ruling 15 and the independently reviewed
+FoilDSL diagnostic clarification were joined as a documentation seam; they do not
+relax G4. The next measured gate is the complete G4 handoff and independent review.
+
 **Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 build/tests may come from a separate runner; an unrun Windows native workflow remains a release obligation and cannot be called M1 pass on both platforms.
 
 **Naive → optimized:** A naive serial walk would be G0→G1→G2→G3→G4→G5→G6→G7: 8 nodes, width 1, no bounded loop. The optimized graph keeps all 8 nodes and every floor, moves only the disjoint adapter construction after frozen G3 alongside core construction, and makes G6 a single integrated join. Its maximum width is 2. A parser and its evaluator stay in G4 because their invariants and identity are coupled. The implementation branches are admitted only after G3 proves no decision edge remains. Architecture and spike work stay serial because their results alter each other's shape.
@@ -71,9 +83,9 @@ not measured elapsed improvement; actual A required a serial mechanical join and
 
 | measure | plan | actual |
 |---|---|---|
-| Nodes / max width | 8 / 2 | Not recorded until execution |
-| Wall time, tokens, spend | Not modeled as facts | Not recorded |
-| Rework passes and budget firings | 0 intended | Not recorded |
-| Completeness/rigor floors | All immovable nodes above | Pending independent review and execution |
+| Nodes / max width | 8 / 2 | G0–G3 complete through Ruling 13; implementation width 1 so far |
+| Wall time, tokens, spend | Not modeled as facts | Measured receipts per track; aggregate tokens/spend Not recorded |
+| Rework passes and budget firings | 0 intended | A and B0 required serial contract completion; G4 has two isolated non-joinable checkpoints |
+| Completeness/rigor floors | All immovable nodes above | B0 independent gate passed; G4/G5/G6 and platform proof pending |
 
 The initial qualification/plan budget is 70 tool calls or 30 minutes; at either cap, record what estimate failed and re-plan the remainder. Do not drop a gate. Later worker budgets appear in the coordination plan. The graph is closed when M1 is independently verified and every dependency-ready next slice has either a new bounded contract or a recorded genuine blocker; the user asked for continued increments, so M1 is a checkpoint, not an automatic stop.
