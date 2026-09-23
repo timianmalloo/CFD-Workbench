@@ -1939,7 +1939,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d5d09ad86aedf03f07530b1eac1245c662ba793280d71ebb212a96d8a86bc860"
+      "sourceSha256": "a405aec8d1f1ec8758cd45c196f450284546cd9324efcbab5fe7506ddec9d27d"
     },
     {
       "id": "domain-experts",
@@ -3814,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18f5321f0b72a4ec147f8b1515a0a36ad08afb2af6be14d55cd8a779568a757f"
+      "sourceSha256": "b51f9928f8adac45de175eb74ee6cfa6e7509ea90bdcd5fde498c6e0143ebca8"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4421,6 +4421,50 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "83bb9fdef821577fdf37b50f58c403a8f0c241c26c182e557d1be58cff6f3264"
+    },
+    {
+      "id": "review-application-core",
+      "path": "docs/reviews/application-core.md",
+      "title": "Independent review of the production application core",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Records independent observations against named frozen production-core checkpoints, including numeric and continuous-geometry oracles and a reproduced cancelled-assessment defect. Review remains open; these partial results do not authorize integration or application acceptance.",
+      "tags": [
+        "application",
+        "core",
+        "independent-review",
+        "geometry",
+        "persistence",
+        "identity"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "155ef5db483af75778cf2bb8347467e041b07cec7048bf5fd08e6127426a7fc8"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5101,5 +5145,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a0eace23ad9f361da0b1074de1390618d3f32bbf9febc79bc3c837649ddecde9"
+  "graphSha256": "a628e194bb150471cfcc647b0a9c97d8f552190f4ac9f2fc2a00853843c6150e"
 };
