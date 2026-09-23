@@ -163,13 +163,17 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    only while focus is in that draft; they must not intercept native dialogs or
    unrelated buttons. Unsaved window close offers Save/Discard/Cancel and
    preserves safe continuing focus after Cancel. Root independently
-   inspects the live macOS app through native AX, keyboard and screenshot, then
+   inspects the live macOS app through the supported `cua_repl` native UI
+   surface for AX, keyboard and screenshot, then
    reviews the committed proof image/AX record. The native review harness must
    select persona, window size, state, theme and reduced-motion setting and
    expose the hard states for repeatable structure, focus and accessibility
    critique. Record rubric findings with location, severity, evidence and fix
    in `docs/reviews/ui-application-native.md`; the author cannot clear its own
-   UX/accessibility veto. A headless render
+   UX/accessibility veto. The worker may instrument its own startup and window
+   lifecycle properties, but direct CoreGraphics, System Events, AppleScript
+   or other external UI inspection calls do not substitute for or bypass CUA.
+   A headless render
    alone is not native interaction evidence.
 5. **UI tokens and platform.** `Styles.axaml` maps the active `DESIGN.md` colors,
    type and spacing; the argument-free gate scans a nonempty C#/XAML corpus for

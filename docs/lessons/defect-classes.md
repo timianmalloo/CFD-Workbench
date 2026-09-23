@@ -450,6 +450,21 @@ states, independent accessibility veto, and browser-only checks that are
 inapplicable. Prevent: the always-read C launch packet carries those explicit
 conditions; its independent pre-dispatch review checks them against the
 actual compiled brief before any adapter lease is issued.
+**CO-UI recurrence · A native window diagnostic leaves the supported UI
+inspection surface.** After an Avalonia `Window.Opened` event and CUA
+`cgWindowNotFound`, the author made one direct read-only CoreGraphics window
+query (two onscreen same-bundle windows) and attempted a System Events count
+(assistive access denied) before the CUA-only tool boundary was recalled. No
+file/UI mutation or AX proof followed. Sweep: all native UI visibility,
+accessibility, keyboard and screenshot observations; process state, stdout,
+and application-internal lifecycle instrumentation remain distinct allowed
+diagnostics. Derive: a window count or framework callback cannot certify the
+user-visible or accessible surface, and a denied alternate inspection route
+is not an invitation to retry. Prevent: the always-read C packet now names
+`cua_repl` as the UI observation path, forbids direct external UI inspection
+for worker proof, and reserves independent root CUA readback as the rendered
+gate. The retained CoreGraphics result is diagnostic only, while CUA window
+binding remains open.
 
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8

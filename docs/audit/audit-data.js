@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:50:25Z",
+  "generated": "2026-09-23T18:59:02Z",
   "audit": [
     {
       "actor": null,
@@ -5123,6 +5123,29 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Deliver first runnable native workbench through the authorized C track with bounded process/output containment.",
       "done_when": "C author has actual native and CLI implementation independently reviewed, accepted and joined with required macOS/Windows evidence honestly classified.",
+      "tier": "T2",
+      "fan_out": 1
+    },
+    {
+      "id": "al-01M37T5DKMNB0N0WV01M607X5X",
+      "shortname": "coordinate-native-ui-tool-boundary",
+      "datetime": "2026-09-23T18:59:02Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Correct the native UI inspection boundary after direct diagnostic calls and keep independent rendered proof in CUA.",
+      "summary": "Author made one read-only CoreGraphics window-list query and one denied System Events count before CUA-only restriction was relayed. Retained diagnostics are not rendered/AX acceptance. Added always-read C packet and CO-UI recurrence control; review-only unique bundle ID launched for one supported root CUA binding attempt.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-c-native.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Keep native UI evidence bound to the supported inspection surface and preserve actual application progress.",
+      "done_when": "Root CUA captures visible/AX/keyboard evidence and the C adapter is independently reviewed and joined.",
       "tier": "T2",
       "fan_out": 1
     }
