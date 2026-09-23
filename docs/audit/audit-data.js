@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T20:33:57Z",
+  "generated": "2026-09-23T20:34:22Z",
   "audit": [
     {
       "actor": null,
@@ -5445,6 +5445,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M37ZKZPN9P3F740TYWZBABG6",
+      "shortname": "join-native-review",
+      "datetime": "2026-09-23T20:34:22Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Join root independent native adapter review, retaining BLOCK disposition and source-bound proof limits without integrating the unaccepted C production branch. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make final independent native review visible in the coordination branch.",
+      "done_when": "The review and audit are joined, docs graph is consistent, and product C remains unjoined pending native proof.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T20:34:21Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
