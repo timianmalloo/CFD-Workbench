@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T19:46:26Z",
+  "generated": "2026-09-23T19:47:16Z",
   "audit": [
     {
       "actor": null,
@@ -5263,6 +5263,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M37WXQV5XHWR80DB3R8TT5BN",
+      "shortname": "join-native-review-checkpoint",
+      "datetime": "2026-09-23T19:47:16Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined root independent CLI, controller, recovery and package evidence with native UI/AX gates open; no production adapter join. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Carry independent C review into the coordination branch without claiming C acceptance.",
+      "done_when": "Review artifact and official audit/index state join cleanly with docs checks passing.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T19:47:15Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
