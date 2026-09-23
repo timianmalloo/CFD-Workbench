@@ -97,11 +97,14 @@ the variadic call behind a fixed managed bridge, and the held descriptor must
 show regular-file mode exactly `0600` **before any project byte write**; a
 post-create chmod cannot establish safe creation. Prevent: candidate
 `ee6d73ad` adds `Store_CreationPermissions_BeforeWriteAndAfterPublication`,
-`Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup` (zero, missing
-owner bits and extra bits on create/overwrite), and
-`Store_OwnerStrippingUmask_FailsClosedWithoutRepair`; the core gate runs these
-under isolated child umasks `0000`, `0022` and `0077` in build and published
-layouts. Root's [investigation](../investigations/native-save-permissions.md)
+`Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup` (extra `0777`
+bits on create/overwrite), `Store_MissingOwnerPermissions_RefusedBeforeBytes`
+(zero/one owner-bit loss on create/overwrite), and
+`Store_OwnerStrippingUmask_FailsClosedWithoutRepair`. The core gate runs the
+normal mode matrix under isolated child umasks `0000`, `0022` and `0077` in
+build and published layouts; it separately exercises owner-stripping umask
+`0600` as a fail-closed capability case. Root's
+[investigation](../investigations/native-save-permissions.md)
 retains the original file unchanged. The candidate is unjoined; independent
 packaged native Save and Owner review still gate production acceptance.
 

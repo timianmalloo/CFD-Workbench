@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:39:32Z",
+  "generated": "2026-09-23T21:40:58Z",
   "audit": [
     {
       "actor": null,
@@ -5776,6 +5776,27 @@ window.AUDIT_DATA = {
       "outcome": "success",
       "goal": "Make the native ABI creation-mode defect recur as a failing control rather than only a review finding.",
       "done_when": "The always-loaded register names the class, sweep, derivation, named permission tests and remaining gate accurately.",
+      "tier": "T1",
+      "fan_out": 0
+    },
+    {
+      "id": "al-01M383DXNZXC49FJ8Q9PFDZJCS",
+      "shortname": "native-ffi-control-map-correction",
+      "datetime": "2026-09-23T21:40:58Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Correct the FFI-A control-to-oracle map after independent source review",
+      "summary": "Root found the register assigned zero/owner-bit loss to the 0777 extra-bit test. Corrected to the named missing-owner test and separated owner-stripping umask0600 from normal 0000/0022/0077 matrix; no product change.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Keep the always-loaded native ABI recurrence control executable and accurately named.",
+      "done_when": "Every mode failure shape maps to the actual named source test and isolated umask run.",
       "tier": "T1",
       "fan_out": 0
     }
