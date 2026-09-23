@@ -14,6 +14,11 @@ links:
   - {to: coordination-application-cancel-drill, rel: relates-to}
 review-by: 2026-10-23
 summary: Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.
+review-suggested:
+  - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
+  - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }
+  - { by: design-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # B · first production core packet (G3 frozen, not dispatched)
@@ -120,6 +125,13 @@ API consistency before any C adapter launch or join. No B code is integrated
 on a partial pass; a failed branch remains isolated with its receipt. This
 track alone is an internal core increment, not a runnable M1 delivery or a CLI
 proof.
+
+Independent geometry and identity oracles must invert each authored channel's
+abscissa before assigning spline basis weights at a physical station. For the
+twist-collision review fixture, `eta=0.203125` is reached at first-span local
+`u=1/2`, not `u=eta/0.5`; the CV2 weight is `3/8`. A reviewer computation that
+uses the station as the parameter cannot clear a geometry or Surface-identity
+veto even if its qualitative result happens to agree.
 
 The selected application stack also needs a separate root-owned project-doc
 reconciliation of the `AGENTS.md` preamble and specification's still-open

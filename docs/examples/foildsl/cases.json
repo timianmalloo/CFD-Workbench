@@ -82,5 +82,11 @@
     "expected": "accept",
     "diagnostic": null,
     "scope": "independent degree-3 rail bases; leading N7 and trailing N8"
+  },
+  {
+    "file": "invalid-evaluator.foil",
+    "expected": "reject",
+    "diagnostic": "DSL-VERSION",
+    "scope": "unavailable legacy evaluator /1; original bytes retained, no automatic /2 migration"
   }
 ]

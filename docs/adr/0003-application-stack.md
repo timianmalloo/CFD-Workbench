@@ -2,7 +2,7 @@
 id: adr-application-stack
 title: Native modular monolith and source-snapshot persistence for M1
 type: adr
-status: proposed
+status: accepted
 owner: "@cfd-owner-20260923"
 phase: architecture
 tags: [adr, native, stack, persistence]
@@ -13,16 +13,22 @@ links:
   - {to: proof-application-spikes, rel: depends-on}
 review-by: 2026-12-23
 summary: >-
-  Proposes C#/.NET with Avalonia for the offline native milestone after actual candidate spikes.
+  Selects C#/.NET with Avalonia for the conditional offline native milestone after actual candidate spikes.
   Retains lossless source snapshots and append-only project facts without a database or editable AST shadow;
-  Owner approval and named cross-platform/numerical/persistence gates remain required.
+  Owner Ruling 13 accepts the direction; named cross-platform/numerical/persistence product gates remain required.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
 ---
 
 # ADR 0003: native offline composition
 
-**Proposed; Owner ruling pending.** This is a proposal, not selection through mockup inheritance.
+**Accepted for the conditional first offline milestone, 2026-09-23.**
+[Owner Ruling 13](../notes/rulings.md#ruling-13--g3-serial-first-core-implementation-freeze)
+authorizes the serial core implementation after worker preflight. Independent review
+and the named product gates remain required; acceptance does not claim a delivered application.
 
-## Decision requested
+## Decision
 
 1. Select a native modular monolith with C#/.NET 10 and Avalonia 11.3.14 for the first offline editor,
    with one UI-free deterministic core consumed by native GUI and CLI. Pin .NET SDK 10.0.203 for the
@@ -36,8 +42,9 @@ summary: >-
    Save As for external conflicts. Make any guarantee against arbitrary uncooperative writers a separate
    required OS-specific contract before shipping overwrite. Do not claim hash-check-then-replace is CAS.
 
-These are load-bearing decisions submitted together because serialization, GUI state and accepted geometry
-share one invariant. The Owner may split/amend them. No simulation backend or export geometry kernel is selected.
+These decisions are coupled because serialization, GUI state and accepted geometry share one invariant.
+[ADR 0004](0004-application-project-contract.md) supplies the reviewed native document contract.
+No simulation backend or export geometry kernel is selected.
 
 ## Evidence before recommendation
 
@@ -72,20 +79,22 @@ Source-preserving parser and JCS need exact tests; generic JSON or `.ToString("R
 Source snapshot growth is bounded by the 8 MB M1 envelope; Save overflow retains the dirty session and last
 complete saved file. Save As of the same oversized envelope cannot resolve the cap. No history is pruned.
 Explicit shape-only source export, if implemented and clearly labelled, or a future expanded format are
-recovery options. The serial core design gate must decide pre-Apply growth refusal versus a dirty Save
-failure. Future format expansion preserves original files and has rollback tests.
+recovery options. ADR 0004 requires prospective size admission before Apply or recovery mutation;
+refusal retains the draft and prior complete file. Future format expansion preserves original files and has rollback tests.
 No branch is allowed to change the same aggregate through another authority. Local metadata telemetry has
 no egress. Rendering and validation have separate statuses and budgets.
 
-## Owner seams and gate
+## Owner disposition and remaining gates
 
-- Amend AGENTS.md's stack-unselected line only after selection; simulation backend remains unselected.
+- Ruling 13 accepts the conditional M1 direction; the simulation backend remains unselected.
 - Reconcile product A4.12/A8.4/A8.5 older proposed kernel/library wording with the selected M1 scope without
   silently deleting future manufacturing/numerical obligations. This author does not own those files.
-- Rule external-writer semantics, envelope line-cap interpretation and conservative certificate admission.
-- Approve public contract readiness or require serial B→C; a compiling type sketch is not a completed core.
+- ADR 0004 and Rulings 9–12 settle external-writer semantics, line-cap admission and the bounded contract gate.
+- B→C remains serial until the production core passes independent review; a compiling type sketch is not a completed core.
 - Owner Ruling 5 extends the author's lease to the two security/privacy rollup files. The author writes
   their dispositions from the design tables; Coordinator only regenerates derived surfaces at join.
 
-Independent Data, Geometry, Security, Test and UX review must record its own disposition. Author verdict:
-**proposal ready for review; implementation gate not self-cleared**.
+The [independent architecture review](../reviews/application-architecture.md) and
+[contract review](../reviews/application-contracts.md) record their bounded dispositions.
+Independent Data, Geometry, Security, Test and UX product gates remain; the architecture
+author has not cleared its own veto or claimed production acceptance.

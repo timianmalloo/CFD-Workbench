@@ -16,6 +16,10 @@ summary: >-
   Records actual pinned SDK/package builds, native macOS accessibility and picker observations,
   exact identity vectors, conservative rational geometry bounds and filesystem fault injection.
   Separates the bounded architecture spike from unfinished production and Windows evidence.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
+  - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # Architecture spike evidence

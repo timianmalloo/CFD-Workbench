@@ -120,6 +120,18 @@ returns defensive images at every boundary. Prevent: B0's named
 `SaveRequest_AsyncBoundary_CapturesDefensiveImage` checks. These are contract
 fixture assertions; production core tests must repeat the class.
 
+**DATA-F production recurrence:** the first `SourceParse` retained a caller's
+mutable `IReadOnlyList<Diagnostic>` and exposed it while `IsParsed` read its
+changing count; a public constructor could also manufacture apparent success.
+Sweep: source bytes, diagnostics, session snapshots and every returned view
+that could carry authority. Derive: parser construction stays internal, bytes
+and diagnostic collections are copied into immutable outward images, and
+success requires an internal parsed definition rather than an empty list
+alone. Prevent: production `Source_OutwardMutation_PreservesAuthority`,
+`Source_DiagnosticsMutation_Refused` and
+`Source_PublicConstructor_CannotForgeSuccess` pass in the isolated core
+checkpoint. These are API ownership controls, not geometry acceptance.
+
 **DATA-G · Retry semantics are not reconstructable from durable facts.** The
 first B0 candidate lost Open/Apply operation IDs or their target-sensitive
 payload binding at Reopen, allowing duplicate or conflicting use of an ID.
@@ -213,6 +225,186 @@ advisory/no-identity shape; Coordinator explicitly checked all twelve committed
 paths under `cfd-contracts-author-20260923` afterward and observed twelve
 `allow` decisions, again without a retrospective enforcement claim.
 
+**TOOL-PATCH · A replace operation is expressed as delete-plus-add in one patch.**
+The first full parser patch asked `apply_patch` to delete and add the same
+path in one transaction; the tool rejected it and changed no file. Sweep:
+large rewrites within a leased file and any staged path after patch failure.
+Derive: use one `Update File` operation (or bounded sequential updates), then
+read back the intended path and status before compiling. Preventive
+always-loaded procedure: on any patch error, check `git status --short` and
+the file contents before retrying; never count a prepared patch as applied.
+The parser's first build and tests were reported only after that readback.
+
+**ENV-C · A declared build scratch is silently replaced by a host temp default.**
+The first core gate used `tempfile.gettempdir()` at import, which resolved to
+macOS `/var/folders/.../T` despite the approved task-specific `/tmp` plan.
+Sweep: core gate and both joined .NET recount scripts; unrelated unique temp
+directories without an exact-root promise are not mislabeled violations.
+Derive: pass the scratch parent explicitly, make it unique per invocation,
+resolve the macOS `/tmp`→`/private/tmp` alias, and assert the canonical parent
+before launching a child. Prevent: `tools/verify-application-core.py` records
+logical and canonical scratch, checks its parent, and records all six .NET
+cache/temp paths and build outputs under that unique root on every normal run.
+The Ruling 14 retry receipt
+`/tmp/cfd-application-core-20260923-uj2qxazf/receipts/environment.json`
+shows the corrected paths; its six observed owned PIDs ended quiescent. The
+old task-named `/var/folders` scratch remains retained for review, not erased
+as if it were unowned clutter.
+
+**ENV-D · A skip-first-run switch does not disable every SDK first-run effect.**
+The first .NET build printed a certificate-installation banner even with
+`DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1`; no new global certificate was proved,
+and a matching PFX predates this session. Sweep: both joined .NET recount
+scripts and the first-core verification gate. Derive: set Microsoft's
+`DOTNET_GENERATE_ASPNET_CERTIFICATE=false` before invoking `dotnet`, retain
+task-local CLI and NuGet caches, and inspect the actual command output rather
+than inferring trust from a banner. Prevent: all three scripts now set that
+variable; the Ruling 14 retry's environment receipt records it and its build
+log contains no certificate/trust banner. No broad certificate clean or trust
+change is a legitimate repair for this class.
+
+**PROC-C · Agent interruption leaves an owned build child running.** The
+built-in cancellation drill interrupted its active worker, but PID `70844`
+survived until the Coordinator sent TERM to that exact observed PID and read
+back absence. Sweep: every build/test runner and worktree handback. Derive:
+track PID with start identity, stop dispatch on interruption, terminate only
+verified owned children and read back quiescence; an interrupt API return is
+not process proof. Prevent: the first-core gate writes process/environment
+receipts and checks live descendants before success. Its post-launch observer
+failure path reports descendant quiescence **Not assessed**, reaps the exact
+`Popen` child, and stops the route. Windows fails closed before child launch
+until a measured process-tree adapter exists. The [drill receipt](../coordination/application-cancel-drill.md)
+retains the original survival/cleanup sequence.
+
+**EVID-TZ · A local timestamp is given a UTC suffix.** A first read-only
+`stat -t ...Z` printed the PFX's Pacific local clock while labeling it `Z`.
+Sweep: evidence commands that attach `Z` to host-formatted timestamps.
+Derive: set `TZ=UTC` on the command or retain an explicit numeric offset;
+never add a UTC label after formatting. Preventive always-loaded command
+pattern: `TZ=UTC stat -f '%Sm' -t '%Y-%m-%dT%H:%M:%SZ' <path>`. The corrected
+readback was `2026-05-05T18:32:31Z`, before this task; the first mislabeled
+output is not reused as UTC evidence.
+
+**NUM-G · A secondary numeric parameter bypasses the token resource bound.**
+The first production `DecimalSi.Parse(token, int decimalScale)` checked the
+token's effective exponent, then added an arbitrary public `decimalScale`
+before `BigInteger.Pow`; a small token with an extreme caller scale could
+allocate without bound. Sweep: production `Identity.cs` and the B0 fixture's
+same helper shape. Derive: grammar-supported length and area unit exponents
+are a closed set `0, -2, -3, -4, -6`; reject any other scale **before** token
+scanning or exponent construction. Prevent: production
+`Decimal_UnsupportedScale_RefusesBeforeScaling` and extreme-int boundary tests
+in `IdentityTests.cs`. The +1-scale case was observed failing before the guard
+and passing after it; deliberately running `int.MaxValue` against the unsafe
+version would defeat the resource control and is not claimed. The B0 source
+remains a design fixture, not a production numeric API, and retains this
+residual sibling pending any separately scoped spike maintenance.
+
+**LEX-D · End-of-line anchor mistaken for full-token acceptance.** .NET regex
+`$` can match before a final newline, so the first numeric helper could accept
+`1\n` as one token. Sweep: production numeric lexer and B0 fixture token,
+integer, hash and UUID regexes using terminal `$`; parser admission must
+check complete spans rather than trust a prefix. Derive: use `\A...\z` or
+check exact match length for a single token. Prevent: production
+`Decimal_TrailingNewline_RefusesNonToken` was observed RED with `$` and GREEN with
+`\z`; whole-source parser tests must retain the same byte-span boundary.
+The B0 fixture's remaining `$` forms are recorded as design-only residuals,
+not promoted to a production admission claim.
+
+**LEX-E · A synthetic end marker is forgeable source text.** The first whole-
+source parser used a token spelling `EOF` and `Expect("EOF")` without proving
+the reader reached the actual final token index. A user identifier `EOF`
+could end parsing early and hide trailing text. Sweep: foil, standalone
+section and every alternate root production. Derive: success requires the
+structural end sentinel **and** complete token consumption, never a word
+equality alone. Prevent: production `Parse_FoilSpoofedEof_RejectsTail` and
+`Parse_SectionSpoofedEof_RejectsTail` were observed RED before the index
+check and GREEN afterward; the independent frozen-DLL consumer also checked
+the spoofed-tail boundary.
+
+**GRAMMAR-B · A shared helper admits its caller's forbidden supergrammar.**
+`ReadProfile` accepted asset references when called by standalone section,
+whose normative production permits profile body only. Sweep: shared profile,
+lock, assertion and assignment readers at each root grammar entry. Derive:
+pass the root production's allowed variant explicitly and reject a forbidden
+variant in the syntactic phase, even if the shared helper can parse it for
+another caller. Prevent: `Parse_StandaloneAsset_IsSyntaxError` was observed
+RED then GREEN. `Parse_OneAssignment_ReportsSyntax` likewise makes a missing
+required second assignment a syntax error; root independently reproduced
+and then closed that named finding against frozen DLLs. The parser's full
+language conformance remains a separate gate.
+
+**DIAG-A · A generic parse failure erases actionable context.** The first
+parser emitted null entity and generic reason/recovery for every failure.
+Sweep: curve count/order, missing profile/asset, lock and assertion failures.
+Derive: carry the failing curve or reference identity and the specific
+required count/order/action into stable diagnostic fields while preserving
+the original source span and phase. Prevent: production
+`Diagnostic_CurveError_NamesCurveAndRequirement` and
+`Diagnostic_MissingReference_NamesTarget` were observed RED before context
+propagation and GREEN afterward. Uncovered diagnostic families remain
+explicitly open; two named examples do not clear the full diagnostic contract.
+
+**TEST-SPAN · A diagnostic oracle guesses the failure token.** An initial
+missing-unit case expected the `evaluator` keyword. The parser consumed that
+word as the prospective unit and correctly stopped at the following quoted
+evaluator value. Sweep: mixed syntax/lexical cases where a missing token lets
+the next token fill its slot. Derive the expected span by tracing the frozen
+grammar and checking the exact source slice, rather than weakening the span
+assertion after a mismatch. Prevent: `Ruling15_MissingUnit_PreventsOverflowBinding`
+checks code, phase and the quoted token span; its first wrong-oracle receipt
+`ac71hlaw` and corrected 63-case receipt `83ry315v` remain retained.
+
+**CAP-SEAT · An optional review silently exceeds the agreed active-agent cap.**
+During serial core work, root activated the Owner for an optional math review
+while root, Coordinator and core author already occupied the three active
+execution seats. Root stopped that review without a new writer or process.
+Sweep: optional review activation, worker resume, and replacement after a
+checkpoint. Derive: count actual active team members with `list_agents`
+immediately before activation; schedule an optional reviewer only when a seat
+is free, or explicitly replace a paused active seat. Prevent: the Coordinator
+records the observed count and cap in the dispatch checkpoint, and refuses a
+fourth active execution turn. The Owner review is deferred to a seat change;
+its pending finding is not treated as already delivered or cleared.
+
+**GRAPH-REG · Generic graph propagation crosses an exclusive register writer.**
+`docs-graph.py flag --changed coordination-application-build` included the
+inbound `rulings` artifact and added review-suggested frontmatter to
+`docs/notes/rulings.md`, whose writer is `coord decide rule`. Sweep: V16 inbound
+neighbors of coordination changes and other register-class targets. Derive:
+metadata provenance does not override an exclusive register write path.
+Prevent: the always-read coordination plan requires restoring only that
+generated flag, deriving the index again, and checking the ruling-register
+diff is empty before commit. The current flag was removed; no ruling prose
+or numbered decision changed. A future graph-tool class-aware exclusion may
+replace this local join control after separate review.
+
+**ORACLE-X · A reviewer equates a physical station with its spline parameter.**
+In the independent twist-collision calculation, I first used `eta=0.203125`
+as the cubic span parameter and reported CV2 weight `9633/32768`. The authored
+abscissa is nonuniform: its first span reaches that eta at local `u=1/2`, so
+the correct weight is `3/8`. The initial angle bits were withdrawn before a
+technical ruling; this was a reviewer-oracle error, not a product regression.
+Sweep: section, twist, rail and placed-point oracles that evaluate a B-spline
+at a physical x/eta. Derive: solve or prove `x(u)=requested position` before
+using basis weights, then compare exact/interval outputs. Prevent: the
+always-read B packet requires that inverse-abscissa check, and
+root's retained `exact-oracle.py` plus nonlinear-x section consumer provide
+the corrected named evidence. Matching a qualitative outcome from a wrong
+parameter is not counted as a valid oracle.
+
+**CO-UI · A native adapter packet names UI outcomes but omits its review workflow.**
+The first provisional C packet required keyboard, accessibility and token
+proof, yet did not bind the author to `$implement` and the triggered
+`$ui-design` review contract or its companion lenses. Sweep: native adapter
+assignments that mention a prior mockup or design tokens as if those alone
+review the running interface. Derive: a worker packet for a user-facing native
+surface must name the implementation and UI review workflows, native harness
+states, independent accessibility veto, and browser-only checks that are
+inapplicable. Prevent: the always-read C launch packet carries those explicit
+conditions; its independent pre-dispatch review checks them against the
+actual compiled brief before any adapter lease is issued.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,
@@ -275,6 +467,19 @@ blocks. **NG protocol correction:** an assumed pack graph node did not exist loc
 rejected the dangling link before derivation. The control is the existing whole-graph validator,
 not an invented local knowledge node. Measured normalizations and bounded prototype limitations
 remain disclosed in the review hub; no full-language or scientific conformance claim follows.
+
+**NG-LOCAL recurrence · A local path or subcommand is constructed before inventory.**
+During the R17 companion handoff, three read-only attempts named absent
+`verify-application-contracts.py`, `specify/reference/flow.md`, and
+`coord leader show`; each failed before a write. The installed inventory instead
+contains `recount-application-contracts.py`, the inline `specify` flow, and
+`coord leader who`. Sweep unknown local files, skill references and custom CLI
+subcommands in coordination packets. Derive: first inventory with `rg --files`
+or read the actual skill/script dispatcher, then call the discovered path or
+advertised subcommand. A guessed `--help` on a custom script is not presumed
+read-only until its dispatch is inspected. Prevent: the always-read R17
+companion packet requires this inventory gate before its recount/render/mockup
+commands; dependent reads are sequential after inventory, not batched with it.
 
 ## Authoring decisions boundary sweep — 2026-09-22
 

@@ -1,7 +1,9 @@
 # CFD-Workbench
 
 CFD-Workbench is a client application for hydrofoil design and simulation, targeting
-Windows and macOS. The application stack and simulation backend are not yet selected.
+Windows and macOS. The first offline milestone uses C#/.NET 10 and Avalonia,
+as accepted in `docs/adr/0003-application-stack.md`. The simulation backend remains
+unselected. Platform and product acceptance gates remain open until verified.
 Keep future implementation and developer tooling compatible with both target platforms.
 Run repository checks with `python3 tools/check-docs.py` (Windows: `py -3`).
 

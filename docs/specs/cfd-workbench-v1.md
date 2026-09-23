@@ -7,6 +7,8 @@ owner: "@timianmalloo"
 phase: specification
 tags: [hydrofoil, cad, parametric, cross-platform, simulation, build-basis]
 links:
+  - {to: adr-application-stack, rel: relates-to}
+  - {to: adr-application-project-contract, rel: relates-to}
   - {to: decision-design-iteration, rel: depends-on}
   - {to: mockup-workbench-v7, rel: relates-to}
   - {to: adr-foildsl-authority, rel: depends-on}
@@ -40,6 +42,9 @@ review-suggested:
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs." }
   - { by: spec-foildsl, on: 2026-09-22, reason: "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts." }
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
+  - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
+  - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # CFD-Workbench
@@ -60,8 +65,12 @@ design implication is cited as **KB-n** (its index) and an area file as **NN** (
 identifiers are kept where the story survives so the critique map stays traceable; deleted and merged stories are
 listed in Appendix D. Requirements use **shall** for mandatory behaviour in their named release. Terms in
 **bold small caps** in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion. Application language, toolkit, native envelope encoding details,
-geometry evaluator implementation and solver substrate remain separate architecture decisions; this document says
-what they must satisfy.
+geometry evaluator implementation and solver substrate are separate architecture decisions; this document says
+what they must satisfy. On 23 September 2026, [ADR 0003](../adr/0003-application-stack.md)
+selected C#/.NET and Avalonia for the conditional first offline milestone, and
+[ADR 0004](../adr/0004-application-project-contract.md) accepted its unshipped native
+document contract. These decisions do not establish product, geometry, accessibility
+or Windows runtime acceptance. The simulation backend remains unselected.
 
 **Tier:** T2 (cost of error: a foil ridden at speed; a record format that cannot be changed once files exist).
 
@@ -1755,7 +1764,9 @@ Persistence:LocalDevice; Feedback:Confirmed; Motion:None; Pacing:Freeform; Trans
 A11y:WCAG_2.2_AA+HighLegibility; }`. Declared G2 deviations: a permanent provenance strip; **Nav is the G1 task
 tabs** (Analysis charts live inside the workbench's tabs, not a pipeline's own navigation); Depth is Flat for
 charts while the 3D Results viewport inherits Diegetic3D. Direction: precise, composed, tactile — not vague, crowded,
-decorative. Medium: native desktop for macOS and Windows, framework unselected; HTML is the interaction prototype.
+decorative. Medium: native desktop for macOS and Windows; Avalonia is selected for the first offline milestone
+in [ADR 0003](../adr/0003-application-stack.md), with native accessibility and both-platform proof still required.
+HTML is the interaction prototype.
 Triggers: UI-T1 (expert quantities) applies; UI-T3 (optional model) applies; UI-T4 (native client) applies at
 handoff; UI-T2 (generated assets) does not.
 
@@ -2013,7 +2024,9 @@ preview-latency floors apply to every added control; no new animation is require
 
 Evaluator and constraint solver (Computational Geometry · Test) — the owned evaluator: real-time constrained solve, KKT
 pin projection, knot insertion, analytic derivatives, geomdl/scipy oracles green · **Master-curve degree** — *decided*: ADR-0001 (`docs/adr/0001-master-curve-degree.md`, 2026-09-21) on a measured fixture: degree 3 with seven vertices, the degree a record field, sections degree 5 · **Geometry kernel** (Computational Geometry · Security · Native Desktop) — *spiked 2026-09-21* (`docs/notes/kernel-spike-occt-loft.md`): ThruSections ≤ 1.1 µm from 16 sections on the regular cases, STEP round trip ≤ 0.3 µm, the zero-chord tip needs its own rule (above); **remaining exit evidence:** the Windows x64 build, the C# P/Invoke boundary, the two CAM readers of A4.11, rhino3dm's 3DM write, and the licence review (LGPL 2.1 + OCCT exception; MIT) recorded by Security · Loft skin deviation (Geometry) — A-vs-B fixture on a representative wing ·
-Toolkit and viewport (Native Desktop · Marine CAD UX) — same fixture on both OSes, accessibility tree, DPI, packaging
+Toolkit — *decided for the first offline milestone*: C#/.NET and Avalonia, [ADR 0003](../adr/0003-application-stack.md), Owner Ruling 13, 2026-09-23.
+Viewport and platform acceptance (Native Desktop · Marine CAD UX) — same product fixture on both OSes,
+accessibility tree, DPI and packaging remain unverified; the native architecture spike is bounded evidence
 · Catalog rights (Product · Security) — written UIUC terms or GEN-only release · Speed axis (Hydrodynamicist · UX
 Researcher) — instrumented session · UX-05 formative study (UX Researcher) — five sessions recorded as
 `ux.formative` events · Backend matrix, meshing, cancellation *(reserved)* — SPIKE-03/03b, in-substrate

@@ -136,7 +136,7 @@ static class Jcs
 sealed record Token(string Value, int Start, int End);
 sealed record Curve(string Path, int Degree, double[] Knots, double[][] Points, string[] Ids, Token[] Ordinates, int InsertAt, bool MissingIds)
 {
-    public object Semantic(double factor = 1) => new Dictionary<string, object?> { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(p => new[] { p[0], p[1] * factor }).ToArray() };
+    public object Semantic() => new Dictionary<string, object?> { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(p => new[] { p[0], p[1] }).ToArray() };
 }
 sealed record Parsed(byte[] Source, int UnitScale, Dictionary<string, Curve> Curves, object Semantic, bool Supported)
 {
@@ -183,7 +183,7 @@ sealed class FoilParser
     int Integer() { string s = Take().Value; Guard.Require(Regex.IsMatch(s, "^[0-9]+$") && s.Length <= 4, "DSL-CURVE"); return int.Parse(s, CultureInfo.InvariantCulture); }
     int Unit() => Take().Value switch { "m" => 0, "cm" => -2, "mm" => -3, _ => throw new ContractError("DSL-UNIT") };
     double Length() { string n = Take().Value; return DecimalSi.Parse(n, Unit()); }
-    void Evaluator() { Expect("evaluator"); Guard.Require(Name() == "cfdw-cv" && Name() == "1", "DSL-VERSION"); }
+    void Evaluator() { Expect("evaluator"); Guard.Require(Name() == "cfdw-cv" && Name() == "2", "DSL-VERSION"); }
     double[] Numbers()
     {
         Expect("["); var list = new List<double> { Number() };
@@ -234,7 +234,7 @@ sealed class FoilParser
             string closure = Optional("closure") ? Take().Value : "closed"; Guard.Require(closure is "open" or "closed", "DSL-SYNTAX");
             if (Optional("provenance")) _ = Name(); Expect("}");
             Guard.Require(upper.Points[0][1] == 0 && lower.Points[0][1] == 0 && (closure != "closed" || upper.Points[^1][1] == 0 && lower.Points[^1][1] == 0), "DSL-GEOMETRY");
-            profiles.Add(name, new Dictionary<string, object?> { ["evaluator"] = new[] { "cfdw-cv", "1" }, ["upper"] = upper.Semantic(), ["lower"] = lower.Semantic(), ["closure"] = closure });
+            profiles.Add(name, new Dictionary<string, object?> { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = upper.Semantic(), ["lower"] = lower.Semantic(), ["closure"] = closure });
         } while (Peek == "profile");
         Expect("}"); Expect("sections"); Expect("{"); var assignedNames = new List<string>(); var assignments = new List<object>(); var etas = new List<double>();
         do
@@ -262,8 +262,8 @@ sealed class FoilParser
         if (Peek == "constrain") throw new ContractError("DSL-UNSUPPORTED");
         Expect("}"); Expect("EOF");
         supported = profiles.Count == 1 && tip == "open";
-        var channels = new Dictionary<string, object?> { ["leading"] = leading.Semantic(), ["trailing"] = trailing.Semantic(), ["dihedral"] = dihedral.Semantic(), ["twist"] = twist.Semantic(0.017453292519943295), ["thickness"] = thickness.Semantic() };
-        object semantic = new Dictionary<string, object?> { ["format"] = "foildsl-geometry-4.0", ["kind"] = "foil", ["evaluator"] = new[] { "cfdw-cv", "1" }, ["frame"] = "aft-starboard-up-root-le", ["symmetry"] = "mirror_y", ["half_span_m"] = h, ["channels"] = channels, ["profiles"] = assignedNames.Select(n => profiles[n]).ToArray(), ["assignments"] = assignments, ["tip"] = tip };
+        var channels = new Dictionary<string, object?> { ["leading"] = leading.Semantic(), ["trailing"] = trailing.Semantic(), ["dihedral"] = dihedral.Semantic(), ["twist"] = twist.Semantic(), ["thickness"] = thickness.Semantic() };
+        object semantic = new Dictionary<string, object?> { ["format"] = "foildsl-geometry-4.0", ["kind"] = "foil", ["evaluator"] = new[] { "cfdw-cv", "2" }, ["frame"] = "aft-starboard-up-root-le", ["symmetry"] = "mirror_y", ["half_span_m"] = h, ["channels"] = channels, ["profiles"] = assignedNames.Select(n => profiles[n]).ToArray(), ["assignments"] = assignments, ["tip"] = tip };
         return new(bytes.ToArray(), units, curves, semantic, supported);
     }
 
@@ -418,7 +418,7 @@ sealed class Session(ICertificateAuthority authority, int envelopeCap = Native.M
     static byte[] Decode(string[] chunks) => chunks.SelectMany(Convert.FromBase64String).ToArray();
     AcceptedRow Current => accepted.Single(a => a.Id == current);
     byte[] CurrentBytes => Decode(sources.Single(s => s.Id == Current.SourceId).Utf8Base64Chunks);
-    Binding Key(Parsed p, Draft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/1", p.SurfaceHash, d.Rail, d.VertexId);
+    Binding Key(Parsed p, Draft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/2", p.SurfaceHash, d.Rail, d.VertexId);
     void RequireAdmission(Parsed p, Binding key)
     {
         var assessment = authority.Assess(p, key, default);
@@ -440,7 +440,7 @@ sealed class Session(ICertificateAuthority authority, int envelopeCap = Native.M
             p = FoilParser.Parse(candidate);
             if (Retry(operationId, "open:" + p.SourceHash, out _)) return candidate;
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY");
-            var key = new Binding(p.SourceHash, "", "", 0, "cfdw-cv/1", p.SurfaceHash, "", "");
+            var key = new Binding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash, "", "");
             RequireAdmission(p, key);
             string id = Commit(p, operationId, "open"); operations.Add(operationId, ("open:" + p.SourceHash, id)); return candidate;
         }
@@ -451,7 +451,7 @@ sealed class Session(ICertificateAuthority authority, int envelopeCap = Native.M
         string? parent = current; string? priorDesign = current is null ? null : Current.DesignId;
         string design = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash == p.SurfaceHash ? priorDesign : Guard.Id(1000 + designs.Count);
         var nextDesigns = designs.ToList(); var nextSources = sources.ToList();
-        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash, "cfdw-cv/1"));
+        if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash, "cfdw-cv/2"));
         if (!nextSources.Any(s => s.Id == p.SourceHash)) nextSources.Add(new(p.SourceHash, Chunks(p.Source)));
         string id = Guard.Id(2000 + accepted.Count);
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId));
@@ -513,7 +513,7 @@ sealed class Session(ICertificateAuthority authority, int envelopeCap = Native.M
             if (target is null) { operations.Add(op, (payload, current!)); return current!; }
             var targetRow = accepted.Single(a => a.Id == target);
             var targetParsed = FoilParser.Parse(Decode(sources.Single(s => s.Id == targetRow.SourceId).Utf8Base64Chunks));
-            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/1", targetParsed.SurfaceHash, "", ""));
+            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/2", targetParsed.SurfaceHash, "", ""));
             var cursor = new CursorRow(cursors.Count, target, payload, op);
             Native.Preflight(Envelope() with { Cursors = [.. cursors, cursor] }, envelopeCap);
             if (forward) redo.Pop(); else redo.Push(current!);
@@ -554,7 +554,7 @@ sealed class Session(ICertificateAuthority authority, int envelopeCap = Native.M
             Guard.Require(current is null, "DOC-SESSION-NOT-EMPTY"); var env = Native.Read(image);
             var replay = Native.Replay(env); var active = env.Accepted.Single(a => a.Id == replay.Current);
             var p = FoilParser.Parse(Decode(env.Sources.Single(s => s.Id == active.SourceId).Utf8Base64Chunks));
-            var key = new Binding(p.SourceHash, "", "", 0, "cfdw-cv/1", p.SurfaceHash, "", "");
+            var key = new Binding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash, "", "");
             RequireAdmission(p, key);
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
@@ -637,11 +637,12 @@ static class Native
     {
         Uuid(e.ProjectId);
         Guard.Require(e.Sources.Length > 0 && e.Designs.Length > 0 && e.Accepted.Length > 0 && e.Cursors.Length > 0, "DOC-REFERENCE");
+        Guard.Require(e.Designs.All(d => d.Evaluator == "cfdw-cv/2"), "DOC-VERSION");
         Guard.Require(e.Sources.Select(x => x.Id).Distinct().Count() == e.Sources.Length && e.Designs.Select(x => x.Id).Distinct().Count() == e.Designs.Length && e.Accepted.Select(x => x.Id).Distinct().Count() == e.Accepted.Length, "DOC-REFERENCE");
         var parsed = new Dictionary<string, Parsed>();
         foreach (var s in e.Sources) { Hash(s.Id); byte[] bytes = Decode(s.Utf8Base64Chunks); Guard.Require(Guard.Sha(bytes) == s.Id, "DOC-INTEGRITY"); var p = FoilParser.Parse(bytes); Guard.Require(p.Curves.Values.All(c => !c.MissingIds), "DOC-INTEGRITY"); parsed.Add(s.Id, p); }
         var designs = new Dictionary<string, DesignRow>();
-        foreach (var d in e.Designs) { Uuid(d.Id); Hash(d.SurfaceHash); Guard.Require(d.Evaluator == "cfdw-cv/1" && (designs.Count == 0 ? d.Parent is null : d.Parent is not null && designs.ContainsKey(d.Parent)), "DOC-REFERENCE"); designs.Add(d.Id, d); }
+        foreach (var d in e.Designs) { Uuid(d.Id); Hash(d.SurfaceHash); Guard.Require(d.Evaluator == "cfdw-cv/2" && (designs.Count == 0 ? d.Parent is null : d.Parent is not null && designs.ContainsKey(d.Parent)), "DOC-REFERENCE"); designs.Add(d.Id, d); }
         var accepted = new Dictionary<string, AcceptedRow>();
         foreach (var a in e.Accepted)
         {
@@ -701,7 +702,7 @@ static class Program
 foildsl "4.0"
 # Built-in manufactured contract Example. No simulation results.
 foil "Example" {
- units mm half_span 450 mm evaluator "cfdw-cv" "1" symmetry mirror_y
+ units mm half_span 450 mm evaluator "cfdw-cv" "2" symmetry mirror_y
  planform {
  leading cv { degree 3 knots [0,0,0,0,0.3333333333333333,0.6666666666666666,1,1,1,1] points [(0,0),(0.2,0),(0.4,0),(0.6,0),(0.8,0),(1,0)] }
  trailing cv { degree 3 knots [0,0,0,0,0.3333333333333333,0.6666666666666666,1,1,1,1] points [(0,120),(0.2,120),(0.4,120),(0.6,120),(0.8,120),(1,120)] }
@@ -742,6 +743,13 @@ foil "Example" {
             return;
         }
         var clock = System.Diagnostics.Stopwatch.StartNew();
+        string TwistPair(string ordinate) => Regex.Replace(Example, @"twist cv \{[^}]+\}",
+            "twist cv { degree 3 knots [0,0,0,0,0.5,0.5,0.5,1,1,1,1] points [(0,0),(0.125,0),(0.25," + ordinate + "),(0.5,0),(0.75,0),(0.875,0),(1,0)] }");
+        var twistA = FoilParser.Parse(Encoding.UTF8.GetBytes(TwistPair("1.791")));
+        var twistB = FoilParser.Parse(Encoding.UTF8.GetBytes(TwistPair("1.7910000000000001")));
+        Check("Ruling17_TwistDegreeInputs_DoNotCollapseIdentity", twistA.SurfaceHash != twistB.SurfaceHash);
+        Reject("Ruling17_LegacyEvaluator_NoSilentAdoption", "DSL-VERSION", () =>
+            FoilParser.Parse(Encoding.UTF8.GetBytes(Example.Replace("\"cfdw-cv\" \"2\"", "\"cfdw-cv\" \"1\""))));
         var numbers = new[] { ("14.049", -3), ("1.4049", -2), ("0.014049", 0), ("-0", 0), ("1e-400", 0), ("5e-324", 0), ("9007199254740993", 0), ("1.00000000000000011102230246251565404236316680908203125", 0), ("0e1000000000", 0), ("-1e-400", 0), ("1" + new string('0', 401) + "e-401", 0), ("0." + new string('0', 400) + "1e401", 0) };
         var numberRows = numbers.Select(x => new { token = x.Item1, scale = x.Item2, bits = BitConverter.DoubleToUInt64Bits(DecimalSi.Parse(x.Item1, x.Item2)).ToString("x16"), canonical = Jcs.Number(DecimalSi.Parse(x.Item1, x.Item2)) }).ToArray();
         Check("Decimal_Units_14_049_ExactEquivalent", numberRows.Take(3).Select(x => x.bits).Distinct().Count() == 1);
@@ -875,6 +883,9 @@ foil "Example" {
         var rootApply = Native.Encode(env with { Cursors = env.Cursors.Select((c, i) => i == 0 ? c with { Reason = "apply" } : c).ToArray() });
         Reject("Native_FirstApplyInsteadOfOpen_Refused", "DOC-REFERENCE", () => Native.Read(rootApply));
         var refusedReopen = new Session(authority);
+        var legacyNative = Native.Encode(env with { Designs = env.Designs.Select(d => d with { Evaluator = "cfdw-cv/1" }).ToArray() });
+        Reject("Ruling17_LegacyNativeEvaluator_NoAdoption", "DOC-VERSION", () => refusedReopen.Reopen(legacyNative));
+        Reject("Ruling17_LegacyNative_LeavesSessionEmpty", "DOC-EMPTY", () => refusedReopen.Snapshot());
         Reject("Reopen_FirstApplyInsteadOfOpen_Refused", "DOC-REFERENCE", () => refusedReopen.Reopen(rootApply));
         Reject("Reopen_MalformedRoot_NoAdoption", "DOC-EMPTY", () => refusedReopen.Snapshot());
         Reject("Native_SourceTamper_Refused", "DOC-INTEGRITY", () => Native.Read(Native.Encode(env with { Sources = env.Sources.Select((s, i) => i == 0 ? s with { Id = new string('0', 64) } : s).ToArray() })));

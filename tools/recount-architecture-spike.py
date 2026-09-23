@@ -44,6 +44,7 @@ def main() -> int:
         scratch = Path(directory)
         venv = scratch / "venv"
         env = os.environ.copy()
+        env["DOTNET_GENERATE_ASPNET_CERTIFICATE"] = "false"
         env["DOTNET_CLI_HOME"] = str(scratch / "dotnet-home")
         env["NUGET_PACKAGES"] = str(scratch / "nuget-packages")
         env["PIP_CACHE_DIR"] = str(scratch / "pip-cache")

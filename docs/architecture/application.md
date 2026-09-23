@@ -2,7 +2,7 @@
 id: architecture-application
 title: CFD-Workbench application architecture and offline first milestone
 type: architecture
-status: proposed
+status: accepted
 owner: "@cfd-owner-20260923"
 phase: architecture
 tags: [application, native, offline, architecture]
@@ -13,18 +13,27 @@ links:
   - {to: design-application-foundation, rel: relates-to}
   - {to: proof-application-spikes, rel: tested-by}
   - {to: coordination-application-build, rel: relates-to}
+  - {to: rulings, rel: depends-on}
 review-by: 2026-12-23
 summary: >-
-  Proposes a native modular monolith with one deterministic source-authoring core and GUI/CLI adapters.
+  Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters.
   Defines the whole application's boundaries, durable source/history invariants and vertical delivery;
   the first offline slice stays behind independently reviewed numerical, persistence and native gates.
+review-suggested:
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
+  - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }
+  - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # Application architecture
 
-**Proposed, not Owner-approved.** Author seat: `cfd-arch-codex-20260923`; Owner:
-`cfd-owner-20260923`; independent reviewer: root. No production application is implemented by this change.
-The [ADR](../adr/0003-application-stack.md) proposes a stack after actual SDK/native spikes. The
+**Accepted direction for the conditional first offline milestone, 2026-09-23.**
+[Owner Ruling 13](../notes/rulings.md#ruling-13--g3-serial-first-core-implementation-freeze)
+authorizes one serial core implementation track after worker preflight. Author seat:
+`cfd-arch-codex-20260923`; Owner: `cfd-owner-20260923`; independent reviewer: root.
+No production application is implemented by this architecture change.
+The [ADR](../adr/0003-application-stack.md) selects a stack after actual SDK/native spikes. The
 [proof](../proof/application-spikes.md) distinguishes observed results from implementation obligations.
 
 ## 1. Intent and authoritative grounding
@@ -153,6 +162,14 @@ self-intersection is excluded. This proof depends on the exact subset and does n
 banking, multiple profile blends, point tips, folds or independent x mappings. Full-language conformance
 remains future work. M1 must block Apply when any precondition or enclosure budget is unproven.
 
+Ruling 18 adds deterministic execution feasibility to that admission: every supported finite binary64
+eta/x query in `[0,1]`, on either side/span half, must fit the declared arithmetic, depth, iteration and
+operation caps. Bound pre-reduction rational intermediates and all inverse/normalization/trigonometric
+steps, or use a proved analytic reduction with propagated error. Record the computable bound and domain
+in the authority-bound certificate. A finite successful query grid is not proof. Inconclusive feasibility
+returns Not assessed before acceptance. Cooperative elapsed-time/cancellation/environmental failures remain
+distinct observable outcomes; this contract does not promise hard wall-clock completion.
+
 ## 6. File boundary, safety and failure
 
 Native JSON: at most 8 MB; source: at most 1 MiB; each source decoded/hashed before parse. A base64 source
@@ -161,11 +178,14 @@ line endings or impose a second undocumented FoilDSL line cap. Unknown required 
 without modifying original. Unknown optional content is retained read-only; M1 cannot overwrite it.
 
 Persistence uses same-directory exclusive temporary creation, write+flush, recheck expected on-disk hash,
-atomic replacement, then directory flush where supported. App instances cooperate through one exclusive
-sidecar write claim; a stale claim is reported, never age-deleted blindly. No symlink in the chosen path
+atomic publication, owned temporary/claim cleanup, then final directory flush where supported. Under
+Ruling 19, cooperative overwrites share one fixed reserved claim in the held parent directory, even
+for different targets. This intentionally conservative contention also excludes equivalent filename/parent
+aliases without guessed filesystem normalization. New-file publication remains atomic no-replace. User
+targets cannot alias internal names; a stale claim is reported, never age-deleted blindly. No symlink in the chosen path
 chain is accepted, and the opened parent identity is checked. External changes produce Conflict and offer
 reload/compare/Save As. An arbitrary noncooperating writer can race between final check and replace: the
-Owner must rule supported writer semantics before M1 claims conflict safety. Platform-specific handle-relative
+accepted cooperative policy does not exclude that writer. Platform-specific handle-relative
 no-follow/replace behavior needs actual tests, not a portable-path-string assertion. Preserve originals.
 
 ## 7. LOA, quality and operations
@@ -183,6 +203,9 @@ Normal-path events: `language.parse`, `geometry.validate`, `geometry.preview`, `
 status and stable code. No source, names, file paths or rationale text in telemetry. Local-only by default;
 no telemetry exporter in M1. An operator distinguishes parse failure, unsupported geometry, exhausted proof,
 stale draft and disk conflict by code and duration. Missing measurement says Not recorded.
+Native I/O records measured publication/flush outcomes in the same injected session ring; capture and
+acknowledgment duration cannot stand in for disk latency. Store-owned standalone rings are disposed with
+their store; injected rings remain caller-owned. Telemetry disposal cannot falsify an in-flight save result.
 
 ## 8. Vertical delivery and release gates
 

@@ -2,7 +2,7 @@
 id: adr-application-project-contract
 title: Native-v1 immutable receipts and bounded admission
 type: adr
-status: in-review
+status: accepted
 owner: "@cfd-owner-20260923"
 phase: design
 tags: [adr, persistence, contracts, identity]
@@ -10,6 +10,8 @@ links:
   - {to: adr-application-stack, rel: refines}
   - {to: design-application-contracts, rel: documents}
   - {to: proof-application-contracts, rel: tested-by}
+  - {to: review-application-core, rel: tested-by}
+  - {to: rulings, rel: depends-on}
 review-by: 2026-12-23
 summary: >-
   Records Owner-approved unshipped native-v1 policy for durable rail edit receipts, bounded immutable history,
@@ -17,12 +19,18 @@ summary: >-
   acceptance remains separate from these design-policy rulings.
 review-suggested:
   - { by: design-application-contracts, on: 2026-09-23, reason: "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams." }
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
+  - { by: proof-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: review-application-core, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
 ---
 
 # ADR 0004: native project contract completion
 
-Rulings 9 and 10 approve the following **design policy**, subject to Ruling 8's independent executable gate.
-They do not authorize production implementation or claim a supported native overwrite adapter.
+**Accepted as an unshipped contract, 2026-09-23.** Rulings 9 and 10 establish the design policy;
+Ruling 12 accepts the bounded executable contract gate following independent review.
+[Ruling 13](../notes/rulings.md#ruling-13--g3-serial-first-core-implementation-freeze) authorizes
+serial core implementation after worker preflight. A supported native overwrite adapter,
+production geometry and application acceptance still require their own observed proof.
 
 Native-v1 retains exact UTF-8 source snapshots, immutable Design/accepted facts and append-only cursor facts.
 Add required `accepted.edit`: null only initial Open; every numeric rail Apply stores draft ID, generation,
@@ -60,3 +68,20 @@ process exposure remains explicit.
 
 No released format is migrated. Reversibility: amend this unshipped contract before implementation; future
 format changes require versioned forward/backward readers, preserved originals and tested rollback.
+
+## 23 September evaluator and admission amendment
+
+Owner Rulings 17–19 correct counterexamples found during independent implementation review. The current
+evaluator becomes `cfdw-cv/2`: canonical twist ordinates preserve parsed degree values while evaluation
+retains the exact degree spline followed by one rounded radians conversion. The native-v1 envelope shape
+is unchanged, but an unavailable `/1` evaluator refuses adoption with original bytes preserved. No saved
+history is silently rehashed, and no automatic migration is authorized. Certificates must also establish
+deterministic arithmetic/query feasibility across their declared domain; failed pre-admission proof is
+Not assessed, distinct from invalid geometry and environmental deadlines.
+
+Cooperative overwrite claims are directory-wide to prevent case/Unicode target aliases acquiring separate
+claims. This accepts false contention between different targets in one directory. Confirmed durability
+covers owned cleanup followed by final directory flush. Actual I/O events use the existing session ring;
+capture timing is not disk timing. These are amended contract decisions, not claims of completed production
+or Windows proof. See [independent evidence](../reviews/application-core.md) and
+[canonical rulings](../notes/rulings.md).

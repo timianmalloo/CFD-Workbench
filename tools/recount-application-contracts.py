@@ -25,6 +25,10 @@ SOURCE_PATHS = (
     "tools/spikes/application-session-contract-vectors.py",
 )
 REQUIRED_CSHARP_CHECKS = {
+    "Ruling17_TwistDegreeInputs_DoNotCollapseIdentity",
+    "Ruling17_LegacyEvaluator_NoSilentAdoption",
+    "Ruling17_LegacyNativeEvaluator_NoAdoption",
+    "Ruling17_LegacyNative_LeavesSessionEmpty",
     "Decimal_ZeroHugeExponent_Zero",
     "Draft_ExternalRetargetMutation_PreservesOwnedTarget",
     "Reopen_ApplyRetry_DurableExactlyOnce",
@@ -64,6 +68,7 @@ def recount(root: Path) -> dict[str, object]:
         scratch = Path(directory)
         env = os.environ.copy()
         env["DOTNET_SKIP_FIRST_TIME_EXPERIENCE"] = "1"
+        env["DOTNET_GENERATE_ASPNET_CERTIFICATE"] = "false"
         env["DOTNET_CLI_HOME"] = str(scratch / "dotnet-home")
         env["NUGET_PACKAGES"] = str(scratch / "nuget-packages")
         env["PIP_CACHE_DIR"] = str(scratch / "pip-cache")
@@ -71,7 +76,7 @@ def recount(root: Path) -> dict[str, object]:
         output = scratch / "bin"
         obj = scratch / "obj"
         build = run(
-            ["dotnet", "build", str(project),
+            ["dotnet", "build", str(project), "--disable-build-servers", "-p:UseSharedCompilation=false",
              f"-p:BaseIntermediateOutputPath={obj}{os.sep}",
              f"-p:OutputPath={output}{os.sep}", "--nologo"],
             cwd=root, env=env,
@@ -97,7 +102,7 @@ def recount(root: Path) -> dict[str, object]:
         independent = receipt.get("pythonChecks")
         if (
             receipt.get("scope") != "independent-contract-oracle"
-            or not isinstance(csharp, list) or len(csharp) != 89
+            or not isinstance(csharp, list) or len(csharp) != 93
             or not isinstance(independent, list) or len(independent) != 42
             or len(csharp) != receipt.get("csharpCheckCount")
             or len(independent) != receipt.get("pythonCheckCount")
