@@ -18,7 +18,7 @@
         "--always-approve",
         "stdio"
       ],
-      "prompts": ["al-01M378F9RN5XTFAEVCWZJGQK93"],
+      "prompts": ["al-01M378HYSBEAZ64NJXBSCTPE3W"],
       "deadline_seconds": 300,
       "output_limit": 4194304,
       "fallback": "Retain all receipts and continue with isolated Codex author routing; no automatic Grok variant.",
