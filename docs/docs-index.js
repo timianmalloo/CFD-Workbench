@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1c931ae9950459bb8bbc0e2439d494a55b7a08e1ed9c050c5d7c96ca461f7e9f"
+      "sourceSha256": "ebb329fb03410a007284e0fdb9669b4392e000b4b38ef699b2e70dcaed39a62a"
     },
     {
       "id": "domain-experts",
@@ -4059,7 +4059,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64547b5041ce51fcbcb032d658e6aea512e14ad3541eb1689ac3eb704a164aab"
+      "sourceSha256": "2031d3eafc72241b507772f63aaa04280aa0cc72fd8bc48d84db53e9c8f00fc8"
     },
     {
       "id": "coordination-r17-companions",
@@ -4118,7 +4118,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e040c3a4a6eb4c9778eca79a3334bf1494edc8f8848cae958e2e0a95815e729c"
+      "sourceSha256": "ab0ac93cdb32e8940a80deab7370f9e1e82b854535eb15d3b4d3b75ee83e0352"
     },
     {
       "id": "privacy-review",
@@ -5390,5 +5390,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9017ee72000bf1bdc1df27217bf0c0220338761f6595226ec6e099d2c60ef11c"
+  "graphSha256": "60a9dcaf9a37d01d375ea23a613b67dc656e827db31a8caf55b2db2f966c5099"
 };

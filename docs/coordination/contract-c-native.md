@@ -175,6 +175,27 @@ fingerprints, durations, screenshots and unrun platform obligations. Root/Owner
 review before join; one integrated recount and actual rendered app exercise
 follow in D. A green C test run is not M1 acceptance.
 
+## Provisional public API readback · 2026-09-23
+
+This is a source read of clean B checkpoint `2407b61`, after the companion
+handoff at `65ac0b9` but **before** its `/2` production repair. It is a
+consumer map, not an API freeze or a C dispatch claim. Re-read the exact
+signatures and compile a consumer after the complete B gate.
+
+| Consumer need | Observed B entry point | Freeze question |
+|---|---|---|
+| Parse/import and show authored controls | `FoilSource.Parse(byte[])` returns `SourceParse`; `SourceParse.Authored()` gives immutable binding, named rail controls/units, assignments, locks, assertions and diagnostics; `MaterializeIds(SourceParse)` creates the explicit-accept candidate. | Preserve original missing-ID bytes until the user accepts; verify `/2` binding and custom IDs in the final consumer fixture. |
+| Accepted and draft views | `AuthoringSession.InspectAccepted()` gives `AcceptedInspection(AuthoredProjection, GeometryAssessment)`; `InspectDraft()` gives a draft projection. | Bind the projection to current accepted/draft revision; never parse a second adapter-owned copy. |
+| Numeric edit and history | `BeginRailEdit(id, rail, vertexId)`, `UpdateDraft(id, generation, si)`, `Validate(id, generation, cancellation)`, `Apply(operationId, assessment)`, `Cancel(id)`, `Undo(operationId)`, `Redo(operationId)`. | Test stale assessment and inspected-target changes through these exact calls; UI does not supply a substituted target. |
+| Derived display | `Geometry.PointAt(certificate, eta, x, upper, port)` and `SectionAt(certificate, eta, x)` consume a certificate; session `Preview(...)` currently validates again for one point. | Measure one-assessment bounded viewport projection. If the final API cannot provide it without repeat validation per vertex, obtain a reviewed B seam before C code. |
+| Native file lifecycle | `ProjectStore.ReadAsync(path, cancellation)` returns image plus disk SHA; `SaveAsync(path, SaveRequest(image, expectedDiskSha256, operationId), cancellation)` returns code, published SHA, publication-known and durability-confirmed facts. `AuthoringSession.SaveImage()`, `AcknowledgeSaved(image)`, `Reopen(image)` own session state. | Distinguish published from durable and preserve external-conflict/recovery semantics; acknowledge only the exact captured image after a confirmed save result. |
+
+The current public APIs live in `src/CfdWorkbench.Core/{FoilSource,Contracts,Geometry,AuthoringSession}.cs`
+and `src/CfdWorkbench.Persistence/ProjectStore.cs`. The 159-test checkpoint
+proved its bounded `/1` behavior; joining `/2` fixtures deliberately produced
+`DSL-VERSION` failures until the authorized R17/R18 code repair. Neither this
+snapshot nor the earlier architecture UI spike closes that gate.
+
 ## Routing and launch hold
 
 The user's routine-coding preference is Grok or Agy to conserve Codex/Claude
@@ -188,6 +209,14 @@ observed-only containment, exact model/cwd/HEAD/path/cache readback,
 same-harness lifecycle, independent diff/root review and honest unsupported
 fields remain floors. No fourth active reviewer/worker is activated to decide
 this while root, Coordinator and B author occupy the cap of three.
+
+Decision request `req-01M37NS4W345FRFM14Z4F0XNSP` is pending on existing
+evidence. It recommends a conditional one-track built-in Codex route only
+after complete B, with requested model recorded and effective model **Not
+recorded** if the host does not expose it. This is a request, not an exception
+or C authorization. Grok/Agy remain the user's preferred routine route when
+qualified; actual relative coding cost is Not recorded, and no new native
+probe is authorized by this request.
 
 Before any worker write: assign a fresh session/branch/worktree and base after
 B join; compile an exact brief with no open decision line, path inventory,

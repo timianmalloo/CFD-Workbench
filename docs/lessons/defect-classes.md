@@ -393,6 +393,42 @@ root's retained `exact-oracle.py` plus nonlinear-x section consumer provide
 the corrected named evidence. Matching a qualitative outcome from a wrong
 parameter is not counted as a valid oracle.
 
+**IDENT-CV · A derived-unit transform erases an authored distinction before identity.**
+The `/1` twist hasher converted individual degree controls to rounded radians;
+the adjacent binary64 degree values `1.791` and `1.7910000000000001`
+collapsed to one Surface hash although degree-curve-then-convert evaluation
+produced different placed coordinates. Sweep semantic hashes, cache keys and
+certificate bindings that canonicalize a derived representation instead of
+the inputs defining its evaluator. Derive identity from the exact defining
+degree CVs under an explicit evaluator version; retain source SHA separately.
+Prevent: FoilDSL DSL-19/20 and the B0 recount's four required Ruling 17 checks
+exercise the collision and `/1` refusal. Production `/2` hash, native history
+and no-adoption controls remain an open B gate; a green B0 fixture alone does
+not close the class in the application.
+
+**CERT-FEAS · A shape certificate omits deterministic query executability.**
+The frozen `/1` evaluator certified a foil with constant `1e-300`-degree
+twist, yet a subsequent `PointAt` exhausted its rational arithmetic cap and
+returned Not assessed. Sweep certification preconditions against every public
+finite-binary64 query path, inverse, trigonometric range reduction, rounding
+and result conversion; a sampled grid cannot quantify the full domain.
+Derive a whole-domain bound tied to actual operations and caps, or refuse
+before certification. Prevent: Owner Ruling 18 is an always-read B admission
+floor; a named tiny-angle counterexample plus an inspectable all-query bound
+witness are required of the production B proof. This control is **open** until
+the executable `/2` gate and independent science review pass.
+
+**STORE-ALIAS · A lock key follows a path spelling rather than a directory entry.**
+On the measured Mac volume, case-equivalent target names could acquire
+different raw-spelling overwrite claims for the same file. Sweep case,
+Unicode and parent-path aliases plus noncooperating-writer limits across
+filesystem publication paths. Derive a single fixed reserved claim relative
+to the held actual parent directory, with owned cleanup before final
+directory durability and no CAS claim. Prevent: Ruling 19's fixed-claim
+contract and production `Store_EquivalentCaseAlias_CannotAcquireSecondWriterClaim`
+plus root's 23-assertion frozen store composition probe cover the observed
+Mac recurrence. Windows and final integrated store acceptance remain open.
+
 **CO-UI · A native adapter packet names UI outcomes but omits its review workflow.**
 The first provisional C packet required keyboard, accessibility and token
 proof, yet did not bind the author to `$implement` and the triggered
@@ -480,6 +516,32 @@ advertised subcommand. A guessed `--help` on a custom script is not presumed
 read-only until its dispatch is inspected. Prevent: the always-read R17
 companion packet requires this inventory gate before its recount/render/mockup
 commands; dependent reads are sequential after inventory, not batched with it.
+
+**CO-LEASE · A source-review lease is reclaimed before the downstream merge ends.**
+The R17 companion was accepted and joined into coordination, but the root
+reviewer reclaimed `docs/reviews/application-core.md` while that same committed
+file still had to merge into the clean core worker tree. The core commit hook
+refused the staged merge. Root released only that path, and the author resumed
+without a bypass. Sweep multi-tree handoffs where a reviewed source branch has
+more than one destination, including generated index and audit joins. Derive:
+lease lifetime follows the last downstream integration fence, not the source
+author's commit or the first join. Prevent: the always-read companion packet
+requires the coordinator to name every destination, check `coord check` before
+each destination commit, and notify the reviewer to reclaim only after the
+final clean destination HEAD and conductor gate receipt. The refusal remains a
+valid control observation, not a product failure.
+
+**CO-EXIT · A dependent join step runs after its prerequisite fails.** The core
+handoff initially batched `git commit --no-edit` and conductor continuation;
+the commit was refused by the live review lease, but the conductor still ran
+recounts and appended an audit entry before its own commit refusal. No hook was
+bypassed; the author retained both raw attempts and checked exact child-process
+quiescence. Sweep merge, audit, recount, release and launch command groups where
+a later mutation depends on a prior exit and state. Derive: a successful probe
+or recount does not imply the merge commit exists. Prevent: the companion packet
+requires separate tool boundaries and explicit exit, `HEAD`, `MERGE_HEAD`,
+staged-path and owned-child readback before continuation; an interrupted join
+cannot be labelled complete from its partial gate output.
 
 ## Authoring decisions boundary sweep — 2026-09-22
 

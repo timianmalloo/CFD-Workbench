@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:34:31Z",
+  "generated": "2026-09-23T17:43:14Z",
   "audit": [
     {
       "actor": null,
@@ -4476,6 +4476,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T17:34:16Z",
       "duration_seconds": 15.0
+    },
+    {
+      "id": "al-01M37NTMP7GWF7S9QEY2ZZN8ZT",
+      "shortname": "application-c-route-readiness",
+      "datetime": "2026-09-23T17:43:14Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Prepare C routing and actual B consumer seam while serial R17/R18 repair proceeds",
+      "summary": "Recorded current public B API readback and one conditional Owner model-route request req-01M37NS4W345FRFM14Z4F0XNSP; captured identity, query-feasibility, filesystem-alias, downstream-lease and dependent-command defect classes. C remains held; core joined companion HEAD65ac0b9 but integrated gates expose expected /1-to-/2 RED plus verifier portability defects, both under repair.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-c-native.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the native adapter route and consumer contract reviewable without dispatching C before B passes",
+      "done_when": "Exact provisional API and routing evidence recorded, typed Owner request queued, existing B repair continues, no C worker launched",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:43:06Z",
+      "duration_seconds": 8.0
     }
   ],
   "changes": [

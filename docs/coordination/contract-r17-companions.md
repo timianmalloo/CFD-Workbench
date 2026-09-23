@@ -107,3 +107,12 @@ receipts. The Coordinator joins the reviewed companion through the supported
 conductor and gives the resulting commit to the core author **after** its
 current store/Ruling 16 checkpoint is clean. C remains held until complete B
 and independent scientific, Data, native, accessibility and platform gates.
+
+The review-document lease remains released through **both** destination joins:
+root companion into coordination, then the reviewed coordination HEAD into the
+core worktree. Before each destination commit, read `coord check` for staged
+paths. Do not reclaim `docs/reviews/application-core.md` until the core author
+reports a clean post-conductor HEAD and final gate receipt. A failed merge
+commit stops the next conductor call: run dependent commit, continuation and
+worker dispatch as separate exit-checked steps, with HEAD/MERGE_HEAD/staged
+state and owned-child absence read back after any refusal.
