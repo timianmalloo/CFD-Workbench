@@ -3875,7 +3875,7 @@ window.DOCS_INDEX = {
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
-      "summary": "Track accepted architecture and core, one active native adapter author, and the independent M1 join gates.",
+      "summary": "Track accepted architecture and core, isolated permission and adapter repairs, and the independent M1 join gates.",
       "tags": [
         "coordination",
         "worktrees",
@@ -3901,7 +3901,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4647d26c38a088709ed07a8f9c2c445032e68c74737ac9d6498d11941285776f"
+      "sourceSha256": "ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7"
     },
     {
       "id": "coordination-contract-b-core",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "312f082ba7fc64270596ba4548395764dbbf7d82b949cf6a6ed8fb645425cacf"
+  "graphSha256": "3e36b915096620cf605976701db2a671de1b09dcbd6d01553e022f04ca094dcd"
 };

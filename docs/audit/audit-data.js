@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T22:04:51Z",
+  "generated": "2026-09-23T22:07:02Z",
   "audit": [
     {
       "actor": null,
@@ -5917,6 +5917,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T22:04:50Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M384XGY61TGCZ0GJHCXX6EWQ",
+      "shortname": "combined-native-review-status",
+      "datetime": "2026-09-23T22:06:57Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Ruling 27 review-only B and C composition and native gate handoff",
+      "summary": "Review-only B+C composition e6e5628 passed one 11-step contained gate; 55-input and 231-file copy manifests bind package/helper/launch PID71600. Root independently verified the hashes but exact-path CUA returned cgWindowNotFound; native Save and interaction gates remain open pending visibility. Original0454 evidence preserved; B/C product branches unjoined. Read-only command-interface guesses during staging failed before writes and use the existing NG-LOCAL inventory control.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html",
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Bind one isolated combined package to both clean candidates and make the independent native review status durable without joining product branches.",
+      "done_when": "The combined manifest, gate, launch and root native disposition are recorded in the plan, official views pass, and the status commit is clean.",
+      "tier": "T1",
+      "fan_out": 0
     }
   ],
   "changes": [
