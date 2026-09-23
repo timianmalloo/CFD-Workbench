@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T16:17:21Z",
+  "generated": "2026-09-23T16:18:36Z",
   "audit": [
     {
       "actor": null,
@@ -3827,25 +3827,172 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M37DWNF98RBC2MHKDEN6RY5R",
-      "shortname": "application-frontdoor-join",
-      "datetime": "2026-09-23T15:24:32Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of feature/application-foundation into feature/application-coordination",
-      "summary": "Joined Ruling 13 architecture and project-document status reconciliation recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/adr/0003-application-stack.md",
         "docs/adr/0004-application-project-contract.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:24:32Z",
+      "done_when": "Managed regions, spec requirements and derived views remain consistent on the joined branch",
+      "duration_seconds": 0.0,
+      "fan_out": 0,
+      "goal": "Keep selected bounded M1 architecture status consistent across project frontdoors and ADRs",
+      "id": "al-01M37DWNF98RBC2MHKDEN6RY5R",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of feature/application-foundation into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-frontdoor-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T15:24:32Z",
+      "summary": "Joined Ruling 13 architecture and project-document status reconciliation recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:29:41Z",
+      "done_when": "Canonical request resolved with bounded repair, retry, evidence and stop conditions.",
+      "duration_seconds": 83.0,
+      "fan_out": 0,
+      "goal": "Restore observed task-local verification behavior without bypassing a denial or concealing prior side-effect uncertainty.",
+      "id": "al-01M37E62S7KG2HBXJ9PHB9GACY",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule on stopped first-core cache-path/certificate-banner anomaly from actual receipt, leased gate and process effects; narrow repair plus one retry only after independent preflight.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-core-gate-repair",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T15:28:18Z",
+      "summary": "Ruling14 approves leased gate correction and one measured retry. Inspected gate, retained73926 exit1/4.381522s receipt, absent child and seven in-lease files. Require unique explicit/canonical task scratch before launch, exact environment, documented DOTNET_GENERATE_ASPNET_CERTIFICATE=false, platform-correct owned-process cleanup and Coordinator readback before normal work resumes. Preserve old scratch/evidence; no certificate trust/cleanup or HOME/global cache change. Banner does not establish new global/trusted certificate. Compiler RED is not behavioral regression RED. Root concurs; production integration and model gates unchanged.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T16:02:27Z",
+      "done_when": "Canonical request resolves with precise precedence, binding and negative-test requirements.",
+      "duration_seconds": 109.0,
+      "fan_out": 0,
+      "goal": "Make diagnostic ordering executable without violating exact dimensional conversion or fabricating dependent errors.",
+      "id": "al-01M37G22NV3EWZM2ZAXAWQJS7Q",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Resolve precise parser phase conflict between exact post-unit binary64 overflow and blocking syntax/unit association errors without silently waiving normative validation order.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-numeric-phase-order",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T16:00:38Z",
+      "summary": "Ruling15 establishes dependency-aware interpretation: lexical spelling first; numeric overflow only after trustworthy quantity/unit binding, retaining DSL-LEX category; blocking syntax emits syntax without invented overflow. Inspected current LexicalScale unknown-to-zero sibling and prohibited guessed scale for unknown unit/channel/interpretation. Named mixed-case diagnostics and preservation tests required. Exact one-round SI conversion and resource-versus-invalid distinctions unchanged; root owns normative prose seam, core author stays in leased proof/tests/code.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T16:16:12Z",
+      "done_when": "Root receives independent PASS or precise blocking wording findings.",
+      "duration_seconds": 46.0,
+      "fan_out": 0,
+      "goal": "Validate faithful, falsifiable diagnostic semantics without widening the normative language or product acceptance.",
+      "id": "al-01M37GV8N5JSW3H2XEYK5RM0VN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Independently review narrow FoilDSL section7/Ruling15 specification clarification and generated HTML against root HEAD60fa4ae; Test/Domain veto, no grammar or valid-input semantic change and no root edits.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-foildsl-phase-review",
+      "skill": "define-architecture",
+      "started_at": "2026-09-23T16:15:26Z",
+      "summary": "PASS bounded Test/Domain review. Only typed rulings link and section7 dependency-aware overflow prose/table changed; exact post-unit conversion and grammar unchanged. Unknown-channel syntax diagnosis matches literal EBNF. Read9 named Ruling15 test definitions and retained PASS log lines, with no fullimplementation acceptance inferred. Generated HTML sourceSHA matches, ID sequence and one flow unchanged. No blocking finding; V16 propagation remains Coordinator join responsibility.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-23T16:17:21Z",
+      "done_when": "The observed oracle correction is a durable class with a named failing control.",
+      "fan_out": 0,
+      "goal": "Keep core evidence and controls accurate during coordinated implementation.",
+      "id": "al-01M37GXC4G5W1EJMT56HZMCAH3",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.\n\nThis Codex session leads execution. Work autonomously through verified implementation increments. Use the owner for decisions and involve me only when a consequential issue genuinely requires human authority or information.\n\n1. Update and ground\n\n- Read AGENTS.md, docs/ai-forward-pack/codex.md, recent audit history, and the defect-class register.\n- Use $updatepack to locate the authoritative AI-Forward source, inspect its revision, and apply the latest available update, including coordination tooling and standards.\n- Preserve project-specific instructions and decisions. Verify the update using its required checks.\n- Reload the updated instructions and relevant skill contracts before planning implementation.\n- Identify the authoritative specification, FoilDSL contract, mockups, decisions, and proof through metadata, links, and history—not filenames alone.\n- Distinguish normative requirements from illustrative prototype behavior. Account explicitly for known gaps, unresolved decisions, and unverified obligations.\n\n2. Establish the execution model\n\nUse the updated repository workflows, including:\n- $optimize-graph for the overall execution graph.\n- $prepare-for-coordination to decompose the work and establish ownership.\n- $execute-with-coordination to launch, supervise, integrate, and verify tracks.\n- $define-architecture and $design-slice for the necessary architecture and detailed design.\n- $implement for verified implementation increments.\n- $specify, $collectknowledge, and $ui-design where their contracts are triggered.\n\nFollow the updated skills’ required ordering and companion files. Reuse existing artifacts rather than creating competing plans.\n\nThe application stack and simulation backend are not yet selected. Resolve those decisions through the architecture workflow, evidence, and required spikes. Preserve Windows and macOS compatibility. Do not silently convert the mockup’s implementation choices into production architecture.\n\nSet a concrete first delivery milestone, its acceptance criteria, non-goals, and proof obligations. Prefer an end-to-end working increment over disconnected scaffolding. Continue through dependency-ready increments within the approved product scope.\n\n3. Roles and model routing\n\nUse this hierarchy:\n- Codex is the lead harness and control plane.\n- GPT-6 Astra is the technical owner: accountable for architecture, ambiguity, cross-track decisions, and escalation.\n- GPT-6 Sol is the coordinator: accountable for decomposition, scheduling, worker supervision, handoffs, integration, and completion evidence.\n\nRoute work by difficulty and cost:\n- The most difficult or ambiguous tasks: Claude/Fable or Codex/Astra.\n- Complex analysis and design: Claude Code with Opus 5.5 or Codex/Astra; use Sol where the task is sufficiently bounded.\n- Routine implementation and other coding tasks: the strongest suitable currently available Grok or Antigravity models, conserving Claude and Codex budgets.\n- Deterministic work: repository scripts, checks, generators, and other mechanical tools.\n\nTreat these model names as requested preferences, not proof of availability. Verify actual harnesses, model identifiers, access, and supported launch options. Never invent a model name or claim to launch a session that was not launched.\n\nPublish the resolved routing table, including fallbacks. If a preferred model is unavailable, use the closest suitable available option and record the substitution. Escalate only if no available option can meet the task’s quality or capability requirements.\n\nThe owner must not clear its own independent hard veto.\n\n4. Decompose for efficient parallel execution\n\nOptimize completeness and rigor first, cost second, and elapsed time third.\n\nUse the latest coordination standards to establish:\n- A dependency graph with real sequencing constraints.\n- Explicit ownership of artifacts and shared contracts.\n- Stable interfaces before dependent implementation fans out.\n- One responsible writer for each shared surface.\n- Bounded concurrency based on coupling, resource limits, model budgets, and integration capacity.\n- Per-task acceptance criteria, required evidence, join conditions, retry limits, and escalation paths.\n- A model and reasoning-effort choice appropriate to each task.\n\nDo not maximize session count. Maximize useful independent progress. Avoid duplicated exploration, excessive context transfer, idle workers, and parallel work that creates integration contention.\n\nUse the repository’s coordination artifacts as the durable source of truth. Give workers concise task packets containing the goal, relevant evidence, owned surfaces, contracts, constraints, checks, and completion conditions.\n\n5. Launch and supervise the sessions\n\nThis Codex session must launch and manage the other harness sessions through the repository’s supported coordination mechanisms. Do not stop after producing a plan or asking me to start terminals.\n\nUse the required worktree and branch isolation for every writing session. Let the coordination workflow create, register, assign, and release worktrees. Never share an index or working directory between concurrent writers.\n\nUse each harness’s supported unattended/full-auto approval mode—YOLO where that is its actual supported name—within the authorized repository scope. Verify the launch configuration rather than assuming a flag works.\n\nThis authorizes unattended repository work, required local tooling, implementation, testing, integration, and commits. It does not authorize overriding platform restrictions, accessing unrelated credentials, destructive operations outside task scope, purchasing services, or deploying publicly.\n\nA successful process launch is not evidence that a worker is progressing. Monitor session state, output, heartbeat, completion, and approval waits. Detect blocked or silently idle sessions promptly. Resolve them through supported configuration, task rerouting, or owner escalation. Do not leave unattended approval prompts holding the execution graph.\n\n6. Implement to the repository standards\n\nApply the constitution and all triggered standards, including:\n- Rigor Protocol and no guessing.\n- Domain-first modelling and a single authoritative representation.\n- End-to-end integrity across persistence, model, services, UI, and compute.\n- FoilDSL compatibility, deterministic evaluation, round trips, revisions, and analysis provenance.\n- Windows/macOS compatibility.\n- Accessibility, complete interaction states, and the established design language.\n- Meaningful tests, independent reviews, measurable behavior, and proof packs.\n- Defect-class capture and executable recurrence controls.\n- Audit history, typed documentation links, decision records, and derived documentation surfaces.\n\nPreserve the distinction between authored foil controls, evaluated geometry, and derived inspection slices. Preserve independent leading/trailing curves, section-edit scope, draft ownership, and analysis freshness.\n\nPrototype calculations and illustrative scientific results must not become production claims. Replace them with verified behavior or expose the capability honestly as unavailable until implemented.\n\nUse the owner to resolve technical tradeoffs within the product’s intent. Record material decisions and compatibility consequences. Do not silently expand product scope or remove requirements to make a gate pass.\n\n7. Execute autonomously and close each increment\n\nKeep the coordinator scheduling dependency-ready work, reviewing worker evidence, integrating completed tracks, and running the required checks.\n\nContinue without routine permission requests. Ask me only when:\n- Required information or access cannot be obtained independently.\n- A decision changes the product’s intended scope or requires human authority.\n- A material cost or external action falls outside the authorization above.\n- Conflicting requirements cannot be resolved from the specification, evidence, and owner decisions.\n\nProvide concise progress updates with completed outcomes, current blockers, budget or routing changes, and the next meaningful milestone. Report measured cost and usage where available; mark unavailable measurements explicitly.\n\nFor each completed milestone, provide:\n- The runnable result and launch instructions.\n- What works and what remains.\n- Verification results and independent review disposition.\n- Material decisions and residual risks.\n- Commit, branch, and worktree status.\n- Actual harness/model allocation and available cost measurements.\n\nDo not claim completion from a green gate alone: inspect the resulting application and exercise the user workflows.\n\nBegin with the pack update, then carry the coordinated implementation forward. Stop only at a genuine blocker requiring my input or a clearly completed delivery boundary with no remaining dependency-ready work in the agreed scope.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "geometry-diagnostic-oracle",
+      "skill": null,
+      "summary": "Recorded TEST-SPAN class after missing-unit diagnostic oracle expected the wrong token; retained red and corrected 63-case receipt.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/specs/foildsl.md",
+        "docs/specs/foildsl.html"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T16:16:45Z",
+      "done_when": "Normative wording and acceptance cases reviewed independently, HTML and index regenerated, documentation checks passed, and decision/audit recorded; Coordinator owns inbound V16 propagation at join.",
+      "duration_seconds": 140.0,
+      "fan_out": 1,
+      "goal": "Reconcile FoilDSL §7 with Owner Ruling 15 without changing grammar or valid-value semantics.",
+      "id": "al-01M37GW8FXWPE2KNEZPR7HZ3TX",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.",
+      "session": "cfd-application-20260923",
+      "shortname": "specify-foildsl-diagnostic-dependencies",
+      "skill": "specify",
+      "started_at": "2026-09-23T16:14:25Z",
+      "summary": "Independent Owner Test/Domain review PASS. Nine named Ruling15_* cases observed passing in retained 83ry315v test log; bounded diagnostic evidence only. Docs gate passed:99 artifacts/0 defects/68 review suggestions. HTML source SHA256 2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed,18 requirement IDs/1 flow preserved. Rendered browser review remains not assessed because CUA surfaces unavailable; no new visual design. Typed rulings link added; Coordinator owns V16 inbound flags at join. Full parser/geometry/product acceptance remains open. Cost not recorded.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M37GZNMKN5ZKG9BWNQV459DT",
+      "shortname": "join-foildsl-r15",
+      "datetime": "2026-09-23T16:18:36Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-foundation into feature/application-coordination",
+      "summary": "Integrated independently reviewed Ruling 15 grammar-binding clarification without changing accepted FoilDSL syntax. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/foildsl.md"
+      ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Keep selected bounded M1 architecture status consistent across project frontdoors and ADRs",
-      "done_when": "Managed regions, spec requirements and derived views remain consistent on the joined branch",
+      "goal": "Keep normative diagnostic phase prose aligned with executable core cases.",
+      "done_when": "Joined FoilDSL Markdown and HTML pass the integrated docs gate with unchanged grammar and accepted-value semantics.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -3853,101 +4000,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-23T15:24:32Z",
+      "started_at": "2026-09-23T16:18:36Z",
       "duration_seconds": 0.0
-    },
-    {
-      "id": "al-01M37E62S7KG2HBXJ9PHB9GACY",
-      "shortname": "owner-core-gate-repair",
-      "datetime": "2026-09-23T15:29:41Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule on stopped first-core cache-path/certificate-banner anomaly from actual receipt, leased gate and process effects; narrow repair plus one retry only after independent preflight.",
-      "summary": "Ruling14 approves leased gate correction and one measured retry. Inspected gate, retained73926 exit1/4.381522s receipt, absent child and seven in-lease files. Require unique explicit/canonical task scratch before launch, exact environment, documented DOTNET_GENERATE_ASPNET_CERTIFICATE=false, platform-correct owned-process cleanup and Coordinator readback before normal work resumes. Preserve old scratch/evidence; no certificate trust/cleanup or HOME/global cache change. Banner does not establish new global/trusted certificate. Compiler RED is not behavioral regression RED. Root concurs; production integration and model gates unchanged.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Restore observed task-local verification behavior without bypassing a denial or concealing prior side-effect uncertainty.",
-      "done_when": "Canonical request resolved with bounded repair, retry, evidence and stop conditions.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T15:28:18Z",
-      "duration_seconds": 83.0
-    },
-    {
-      "id": "al-01M37G22NV3EWZM2ZAXAWQJS7Q",
-      "shortname": "owner-numeric-phase-order",
-      "datetime": "2026-09-23T16:02:27Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Resolve precise parser phase conflict between exact post-unit binary64 overflow and blocking syntax/unit association errors without silently waiving normative validation order.",
-      "summary": "Ruling15 establishes dependency-aware interpretation: lexical spelling first; numeric overflow only after trustworthy quantity/unit binding, retaining DSL-LEX category; blocking syntax emits syntax without invented overflow. Inspected current LexicalScale unknown-to-zero sibling and prohibited guessed scale for unknown unit/channel/interpretation. Named mixed-case diagnostics and preservation tests required. Exact one-round SI conversion and resource-versus-invalid distinctions unchanged; root owns normative prose seam, core author stays in leased proof/tests/code.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Make diagnostic ordering executable without violating exact dimensional conversion or fabricating dependent errors.",
-      "done_when": "Canonical request resolves with precise precedence, binding and negative-test requirements.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-23T16:00:38Z",
-      "duration_seconds": 109.0
-    },
-    {
-      "id": "al-01M37GV8N5JSW3H2XEYK5RM0VN",
-      "shortname": "owner-foildsl-phase-review",
-      "datetime": "2026-09-23T16:16:12Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Independently review narrow FoilDSL section7/Ruling15 specification clarification and generated HTML against root HEAD60fa4ae; Test/Domain veto, no grammar or valid-input semantic change and no root edits.",
-      "summary": "PASS bounded Test/Domain review. Only typed rulings link and section7 dependency-aware overflow prose/table changed; exact post-unit conversion and grammar unchanged. Unknown-channel syntax diagnosis matches literal EBNF. Read9 named Ruling15 test definitions and retained PASS log lines, with no fullimplementation acceptance inferred. Generated HTML sourceSHA matches, ID sequence and one flow unchanged. No blocking finding; V16 propagation remains Coordinator join responsibility.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Validate faithful, falsifiable diagnostic semantics without widening the normative language or product acceptance.",
-      "done_when": "Root receives independent PASS or precise blocking wording findings.",
-      "tier": "T1",
-      "fan_out": 0,
-      "started_at": "2026-09-23T16:15:26Z",
-      "duration_seconds": 46.0
-    },
-    {
-      "id": "al-01M37GXC4G5W1EJMT56HZMCAH3",
-      "shortname": "geometry-diagnostic-oracle",
-      "datetime": "2026-09-23T16:17:21Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.\n\nThis Codex session leads execution. Work autonomously through verified implementation increments. Use the owner for decisions and involve me only when a consequential issue genuinely requires human authority or information.\n\n1. Update and ground\n\n- Read AGENTS.md, docs/ai-forward-pack/codex.md, recent audit history, and the defect-class register.\n- Use $updatepack to locate the authoritative AI-Forward source, inspect its revision, and apply the latest available update, including coordination tooling and standards.\n- Preserve project-specific instructions and decisions. Verify the update using its required checks.\n- Reload the updated instructions and relevant skill contracts before planning implementation.\n- Identify the authoritative specification, FoilDSL contract, mockups, decisions, and proof through metadata, links, and history—not filenames alone.\n- Distinguish normative requirements from illustrative prototype behavior. Account explicitly for known gaps, unresolved decisions, and unverified obligations.\n\n2. Establish the execution model\n\nUse the updated repository workflows, including:\n- $optimize-graph for the overall execution graph.\n- $prepare-for-coordination to decompose the work and establish ownership.\n- $execute-with-coordination to launch, supervise, integrate, and verify tracks.\n- $define-architecture and $design-slice for the necessary architecture and detailed design.\n- $implement for verified implementation increments.\n- $specify, $collectknowledge, and $ui-design where their contracts are triggered.\n\nFollow the updated skills’ required ordering and companion files. Reuse existing artifacts rather than creating competing plans.\n\nThe application stack and simulation backend are not yet selected. Resolve those decisions through the architecture workflow, evidence, and required spikes. Preserve Windows and macOS compatibility. Do not silently convert the mockup’s implementation choices into production architecture.\n\nSet a concrete first delivery milestone, its acceptance criteria, non-goals, and proof obligations. Prefer an end-to-end working increment over disconnected scaffolding. Continue through dependency-ready increments within the approved product scope.\n\n3. Roles and model routing\n\nUse this hierarchy:\n- Codex is the lead harness and control plane.\n- GPT-6 Astra is the technical owner: accountable for architecture, ambiguity, cross-track decisions, and escalation.\n- GPT-6 Sol is the coordinator: accountable for decomposition, scheduling, worker supervision, handoffs, integration, and completion evidence.\n\nRoute work by difficulty and cost:\n- The most difficult or ambiguous tasks: Claude/Fable or Codex/Astra.\n- Complex analysis and design: Claude Code with Opus 5.5 or Codex/Astra; use Sol where the task is sufficiently bounded.\n- Routine implementation and other coding tasks: the strongest suitable currently available Grok or Antigravity models, conserving Claude and Codex budgets.\n- Deterministic work: repository scripts, checks, generators, and other mechanical tools.\n\nTreat these model names as requested preferences, not proof of availability. Verify actual harnesses, model identifiers, access, and supported launch options. Never invent a model name or claim to launch a session that was not launched.\n\nPublish the resolved routing table, including fallbacks. If a preferred model is unavailable, use the closest suitable available option and record the substitution. Escalate only if no available option can meet the task’s quality or capability requirements.\n\nThe owner must not clear its own independent hard veto.\n\n4. Decompose for efficient parallel execution\n\nOptimize completeness and rigor first, cost second, and elapsed time third.\n\nUse the latest coordination standards to establish:\n- A dependency graph with real sequencing constraints.\n- Explicit ownership of artifacts and shared contracts.\n- Stable interfaces before dependent implementation fans out.\n- One responsible writer for each shared surface.\n- Bounded concurrency based on coupling, resource limits, model budgets, and integration capacity.\n- Per-task acceptance criteria, required evidence, join conditions, retry limits, and escalation paths.\n- A model and reasoning-effort choice appropriate to each task.\n\nDo not maximize session count. Maximize useful independent progress. Avoid duplicated exploration, excessive context transfer, idle workers, and parallel work that creates integration contention.\n\nUse the repository’s coordination artifacts as the durable source of truth. Give workers concise task packets containing the goal, relevant evidence, owned surfaces, contracts, constraints, checks, and completion conditions.\n\n5. Launch and supervise the sessions\n\nThis Codex session must launch and manage the other harness sessions through the repository’s supported coordination mechanisms. Do not stop after producing a plan or asking me to start terminals.\n\nUse the required worktree and branch isolation for every writing session. Let the coordination workflow create, register, assign, and release worktrees. Never share an index or working directory between concurrent writers.\n\nUse each harness’s supported unattended/full-auto approval mode—YOLO where that is its actual supported name—within the authorized repository scope. Verify the launch configuration rather than assuming a flag works.\n\nThis authorizes unattended repository work, required local tooling, implementation, testing, integration, and commits. It does not authorize overriding platform restrictions, accessing unrelated credentials, destructive operations outside task scope, purchasing services, or deploying publicly.\n\nA successful process launch is not evidence that a worker is progressing. Monitor session state, output, heartbeat, completion, and approval waits. Detect blocked or silently idle sessions promptly. Resolve them through supported configuration, task rerouting, or owner escalation. Do not leave unattended approval prompts holding the execution graph.\n\n6. Implement to the repository standards\n\nApply the constitution and all triggered standards, including:\n- Rigor Protocol and no guessing.\n- Domain-first modelling and a single authoritative representation.\n- End-to-end integrity across persistence, model, services, UI, and compute.\n- FoilDSL compatibility, deterministic evaluation, round trips, revisions, and analysis provenance.\n- Windows/macOS compatibility.\n- Accessibility, complete interaction states, and the established design language.\n- Meaningful tests, independent reviews, measurable behavior, and proof packs.\n- Defect-class capture and executable recurrence controls.\n- Audit history, typed documentation links, decision records, and derived documentation surfaces.\n\nPreserve the distinction between authored foil controls, evaluated geometry, and derived inspection slices. Preserve independent leading/trailing curves, section-edit scope, draft ownership, and analysis freshness.\n\nPrototype calculations and illustrative scientific results must not become production claims. Replace them with verified behavior or expose the capability honestly as unavailable until implemented.\n\nUse the owner to resolve technical tradeoffs within the product’s intent. Record material decisions and compatibility consequences. Do not silently expand product scope or remove requirements to make a gate pass.\n\n7. Execute autonomously and close each increment\n\nKeep the coordinator scheduling dependency-ready work, reviewing worker evidence, integrating completed tracks, and running the required checks.\n\nContinue without routine permission requests. Ask me only when:\n- Required information or access cannot be obtained independently.\n- A decision changes the product’s intended scope or requires human authority.\n- A material cost or external action falls outside the authorization above.\n- Conflicting requirements cannot be resolved from the specification, evidence, and owner decisions.\n\nProvide concise progress updates with completed outcomes, current blockers, budget or routing changes, and the next meaningful milestone. Report measured cost and usage where available; mark unavailable measurements explicitly.\n\nFor each completed milestone, provide:\n- The runnable result and launch instructions.\n- What works and what remains.\n- Verification results and independent review disposition.\n- Material decisions and residual risks.\n- Commit, branch, and worktree status.\n- Actual harness/model allocation and available cost measurements.\n\nDo not claim completion from a green gate alone: inspect the resulting application and exercise the user workflows.\n\nBegin with the pack update, then carry the coordinated implementation forward. Stop only at a genuine blocker requiring my input or a clearly completed delivery boundary with no remaining dependency-ready work in the agreed scope.",
-      "summary": "Recorded TEST-SPAN class after missing-unit diagnostic oracle expected the wrong token; retained red and corrected 63-case receipt.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Keep core evidence and controls accurate during coordinated implementation.",
-      "done_when": "The observed oracle correction is a durable class with a named failing control.",
-      "tier": "T1",
-      "fan_out": 0
     }
   ],
   "changes": [
@@ -4384,6 +4438,29 @@ window.AUDIT_DATA = {
       "git": {
         "before": "598716f",
         "after": "598716f2931cab8ed94c0e618554c340134f25b0",
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M37GW8EA07MZFW3E5MNEGTWE",
+      "datetime": "2026-09-23T16:16:45Z",
+      "session": "cfd-application-20260923",
+      "kind": "decision",
+      "skill": "specify",
+      "title": "Clarify dependency-aware FoilDSL numeric diagnostics",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.",
+      "summary": "FoilDSL §7 incorporates Ruling 15 with mixed-error acceptance cases. Well-spelled decimals are scaled only after trustworthy quantity/unit/evaluator binding. Known post-scale overflow remains DSL-LEX; blocked binding does not invent overflow. Grammar and valid-value semantics are unchanged.",
+      "rationale": "Independent mixed-case parser review exposed ambiguity in phase ordering versus exact unit conversion; preserve finite-after-scaling values and actionable diagnostics.",
+      "artifacts": [
+        "docs/specs/foildsl.md",
+        "docs/specs/foildsl.html"
+      ],
+      "tags": [],
+      "git": {
+        "before": "60fa4ae",
+        "after": "60fa4aed78b39fc602ce3beccc012bac060dcb14",
         "branch": "feature/application-foundation",
         "pushed": null,
         "commits": []
