@@ -19,6 +19,13 @@ import time
 import blake3
 import rfc8785
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 
 def split(coeff):
     levels = [list(coeff)]
@@ -162,7 +169,7 @@ def run(output_dir, native=None):
     checks.append(check('Source_Trivia_SeparateIdentity',hash_bytes(b'a\r\n')!=hash_bytes(b'a\n')))
     canonical_path=output_dir/'canonical.json';canonical_path.write_bytes(canonical)
     if native:
-        actual=json.loads(subprocess.check_output([native,'--hash',str(canonical_path)],text=True))
+        actual=json.loads(subprocess.check_output([native,'--hash',str(canonical_path)],text=True,encoding='utf-8',errors='replace'))
         checks.append(check('CSharpPython_SameCanonicalBytes_SameDigests',actual=={'sha256':hash_bytes(canonical),'blake3':blake3.blake3(canonical).hexdigest()},actual))
     knots=list(map(F,[0,0,0,0,.25,.75,1,1,1,1]))
     x=list(map(F,[0,.125,.375,.625,.875,1]))

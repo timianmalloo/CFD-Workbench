@@ -12,6 +12,13 @@ import json
 from pathlib import Path
 import sys
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)

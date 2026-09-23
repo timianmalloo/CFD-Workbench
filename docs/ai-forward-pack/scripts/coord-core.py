@@ -4210,11 +4210,13 @@ def cmd_merge_derived(root, repo, result_path, base_path, theirs_path, real_path
         return 0
 
 
-def cmd_regen(root, repo, timeout=120):
+def cmd_regen(root, checkout, timeout=120):
     """Run the regenerations the driver deferred. Returns (exit_code, results).
 
     A failed regeneration STAYS OWED and reports non-zero: a stale derived artifact looks
-    finished, which is worse than a conflict.
+    finished, which is worse than a conflict. The debt and registry are repository-wide,
+    but the generated file belongs to the invoking checkout, never the primary checkout
+    merely because it owns the shared coordination store.
     """
     results, done = [], []
     for path in regen_owed(root):
@@ -4231,7 +4233,7 @@ def cmd_regen(root, repo, timeout=120):
             # shell operators (&&, |, >) and must run identically on POSIX and Windows; a shlex
             # arg-list split mishandles Windows path separators and would break the regen path.
             # The interpreter token is resolved to THIS machine's Python first (PLAT-B).
-            proc = subprocess.run(resolve_interpreter(command), cwd=str(repo), shell=True,
+            proc = subprocess.run(resolve_interpreter(command), cwd=str(checkout), shell=True,
                                   capture_output=True, text=True, encoding="utf-8",
                                   errors="replace", timeout=timeout)
             ok = proc.returncode == 0
@@ -4723,7 +4725,7 @@ def main(argv=None):
                                  args.theirs, args.realpath)
 
     if args.cmd == "regen":
-        code, results = cmd_regen(root, repo, args.timeout)
+        code, results = cmd_regen(root, checkout_top(os.getcwd()), args.timeout)
         for r in results:
             print("{:<10} {}  {}".format(r["status"], r["path"], r.get("detail", "")))
         if not results:
