@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:34:38Z",
+  "generated": "2026-09-23T22:02:42Z",
   "audit": [
     {
       "actor": null,
@@ -4728,6 +4728,42 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "15c796b6be37d1c26dca3f4c66a0bbc87c3621ed",
         "short": "15c796b6b",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M384NPZ1Z1WKV8BB1KP29GP6",
+      "shortname": "combined-native-review-blocked",
+      "datetime": "2026-09-23T22:02:42Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Continue the authorized coordinated implementation and independent native review; provide periodic tables of completed and in-flight work, agent ownership, and running agents.",
+      "summary": "Recorded native interaction defects and first fixes, independently verified frozen B repair code and real public-store create/overwrite/reopen with exact mode0600, reviewed final C event/keyboard repair, and read combined eleven-step passing gate. Verified live combined app PID/start/DLL/helper identity. One exact-path CUA bind failed cgWindowNotFound; user visibility requested. B/C/M1 acceptance and canonical product joins remain blocked. Measurement covers evidence-writing phase beginning at the existing ui-design marker, not earlier UI actions.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Independently verify the repaired offline workbench and native persistence boundary.",
+      "done_when": "Source-bound combined app passes remaining native interactions and Save/Reopen/mode checks, with independent vetoes resolved.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T21:00:04Z",
+      "duration_seconds": 3758.0,
+      "git": {
+        "sha": "ee0930440dc6216cf3af6dc08a274a8cf064bd10",
+        "short": "ee0930440",
         "branch": "feature/application-foundation",
         "pushed": null
       }

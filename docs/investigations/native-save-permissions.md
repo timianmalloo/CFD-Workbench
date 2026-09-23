@@ -145,3 +145,10 @@ timings and boundaries. **Verified:** the repaired managed production store path
 now passes these independent permission and round-trip cases. **Still due:**
 actual Save/Reopen through the combined packaged UI, author-proof reconciliation
 and final independent disposition. This checkpoint does not accept B/C/M1.
+
+Ruling 27 subsequently authorized one combined review-only B/C package, now
+staged at `e6e5628` with exact B helper hash preserved. Root verified the running
+process and DLL/helper hashes, but supported CUA attachment returned
+`cgWindowNotFound`. Actual app-bundle Save/Reopen/mode therefore remains open;
+the independent managed consumer is not relabeled as GUI proof. The full binding
+and pending user visibility request are in the native review above.
