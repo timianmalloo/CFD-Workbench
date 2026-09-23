@@ -4833,6 +4833,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "4f7269fa4a2586f8fbcc18e814e208fca70da09995d1ad12f37e079f8d74f1dc"
     },
     {
+      "id": "review-ui-application-native",
+      "path": "docs/reviews/ui-application-native.md",
+      "title": "Independent native application and adapter review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Actual native rendered interaction and accessibility verification remain open; these partial results do not accept track C or milestone M1.",
+      "tags": [
+        "application",
+        "native-ui",
+        "independent-review",
+        "accessibility",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7223221cf830bbe0cc8dcc97140563bf150b239c72617e0e342554ed4f189a71"
+    },
+    {
       "id": "review-ui-workbench",
       "path": "docs/reviews/ui-workbench.md",
       "title": "CFD-Workbench interface review and proof",
@@ -5390,5 +5437,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9d22291a1e7e29825dc55df05e654c60abadaac6e55a15c47d3838cd630637ed"
+  "graphSha256": "9aa3927dfff985d60d2c0f130d581d728c628d7663a628258ce50e3fb4723c71"
 };

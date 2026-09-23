@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:00:20Z",
+  "generated": "2026-09-23T19:45:33Z",
   "audit": [
     {
       "actor": null,
@@ -4533,6 +4533,76 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "0ac8b2da5f978d664d6d13ea4dbf9f5a285c8865",
         "short": "0ac8b2da5",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37WTKAJ1ZKZV677CJEVNH6B",
+      "shortname": "c-native-independent-checkpoint",
+      "datetime": "2026-09-23T19:45:33Z",
+      "session": "cfd-application-20260923",
+      "prompt": "i see the arch spike open",
+      "summary": "Continued the previously authorized coordinated application implementation. Independent CLI 16-case, controller failed-open/conflict, selected-eta and invalid-recovery probes passed on named frozen checkpoints; macOS packaged CLI executed successfully. Review records source/binary/output hashes, initial RED results, corrections and native UI blocker. Current C source remains unaccepted. Reviewer setup corrections: raw native resolver mapping, observed DOC-CONFLICT rather than guessed DOC-IO, mistaken log path, and implicit MSBuild candidate resolution now prevented by explicit items and runtime hashes (TEST-A). Read-only path/CLI discovery also corrected absent launch/coord.py and unsupported wi/claims guesses before any mutation. check-docs passed with zero defects and 77 preexisting review suggestions. No production source edits by root; only independent review and derived/audit surfaces.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver a verified native offline authoring increment through coordinated worktrees and independent review.",
+      "done_when": "C source, real app workflows and required evidence pass independent review and join; unresolved native or platform proof is explicitly held.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T18:20:17Z",
+      "duration_seconds": 5116.0,
+      "git": {
+        "sha": "9d0766856820dfb2b1244d087156c540ff0e5e24",
+        "short": "9d0766856",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37WTKCG1RZ1HH7VNJZSCHNR",
+      "shortname": "c-native-ui-review-open",
+      "datetime": "2026-09-23T19:45:33Z",
+      "session": "cfd-application-20260923",
+      "prompt": "i see the arch spike open",
+      "summary": "Native review reused v7 and DESIGN.md. Actual CUA binding failed cgWindowNotFound -10005 across observed app paths/IDs and one supported reset; no root screenshot, AX tree or native keyboard proof. User visibility question remains pending. Source review covers keyboard/unsaved focus corrections and virtual semantic peers, while error persistence, review harness and actual render/latency/platform obligations remain open. Initial editable near-root CV hypothesis was corrected by inspecting locks; measured eta .9 editable CV counterexample led to selected-slice fix and independent all-eight-control data proof. No native UI acceptance or Windows runtime pass.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Independently assess the native workbench against the frozen UI contract.",
+      "done_when": "Native rendered workflow, keyboard, accessibility and hard-state proof meet the contract or carry an explicit unresolved veto.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T17:50:37Z",
+      "duration_seconds": 6896.0,
+      "git": {
+        "sha": "9d0766856820dfb2b1244d087156c540ff0e5e24",
+        "short": "9d0766856",
         "branch": "feature/application-foundation",
         "pushed": null
       }
