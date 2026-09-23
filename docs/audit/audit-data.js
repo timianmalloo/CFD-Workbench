@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:16:42Z",
+  "generated": "2026-09-23T15:22:31Z",
   "audit": [
     {
       "actor": null,
@@ -3769,6 +3769,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T15:15:39Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M37DRZ3TX3FQGYHBPSTWK0SC",
+      "shortname": "owner-frontdoor-review",
+      "datetime": "2026-09-23T15:22:31Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review root uncommitted documentation seam against Ruling13: AGENTS preamble, README, DESIGN intro, specification architecture references, ADR3/4 dispositions and architecture; factual wording only, no root edits or redesign.",
+      "summary": "PASS bounded content review. Changes match conditional native M1 selection and accepted unshipped contract while simulation/export backend remain unselected and product/geometry/AX/Windows proof explicitly unclaimed. AGENTS managed area and DESIGN token region not changed in diff; requirements/layers unchanged. README renderer command matches actual SPEC_NAME default. Generated HTML607242bytes has new status text, unchanged entire id-attribute sequence and11 SVG flows. No browser visual proof claimed. Neighbor metadata edits are review-suggested propagation only. No root files edited.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently clear factual architecture-status wording without implying implementation or platform acceptance.",
+      "done_when": "Root receives PASS or exact wording blockers and evidence limits.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-23T15:21:12Z",
+      "duration_seconds": 79.0
     }
   ],
   "changes": [
