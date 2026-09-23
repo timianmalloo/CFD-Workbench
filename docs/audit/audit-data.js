@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:26:24Z",
+  "generated": "2026-09-23T14:26:57Z",
   "audit": [
     {
       "actor": null,
@@ -3277,6 +3277,35 @@ window.AUDIT_DATA = {
       "summary": "Swept7projecttools including newrollupregression; explicitUTF8reads/writes, LFwrites and guardedUTF8stdout/stderr. Gate reported10findings beforefix; standalonegateGREEN and negativefixture selftestPASS. PLAT-A recurrencecaptured. Coordinator separatelyowns3joined scripts/subprocessencoding and completeintegrationrecount.",
       "tags": [],
       "tool": "verify-portable-text-io.py"
+    },
+    {
+      "id": "al-01M37AK7P8JXF8XFBTFGGX42GQ",
+      "shortname": "join-application-independent-review",
+      "datetime": "2026-09-23T14:26:57Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrated root technical review and portability controls recount_seconds=9 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/application-architecture.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join independent findings and generator repair after conditional architecture",
+      "done_when": "Root review, link generation and portable gates are present with integrated recount",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T14:26:47Z",
+      "duration_seconds": 10.0
     }
   ],
   "changes": [
