@@ -62,7 +62,7 @@ Example, open/import, draft/preview/apply/cancel, error, Not assessed,
 recovery and unavailable-analysis states must be reachable and legible in the
 actual desktop shell.
 
-## Provisional exact path inventory (23)
+## Provisional exact path inventory (24)
 
 These paths are **reserved candidates**, not live leases. The solution file is
 sequentially shared only after B is joined; C cannot edit B's core/store/tests.
@@ -77,6 +77,7 @@ derived/register exceptions and remain subject to the join gate.
 | Adapter proof (4) | `tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj`, `tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs`, `tests/CfdWorkbench.Cli.Tests/CfdWorkbench.Cli.Tests.csproj`, `tests/CfdWorkbench.Cli.Tests/CliTests.cs` |
 | Packaging/gate (2) | `tools/package-application.py`, `tools/verify-application-adapters.py` |
 | Durable evidence (3) | `docs/proof/application-adapters.md`, `docs/proof/application-macos-ui.png`, `docs/proof/application-macos-ax.json` |
+| Independent UI review (1) | `docs/reviews/ui-application-native.md` |
 
 At freeze, check the actual core/store API and whether Avalonia's headless test
 package or packaging APIs need a focused spike. The A spike established .NET
@@ -120,8 +121,9 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    reviews the committed proof image/AX record. The native review harness must
    select persona, window size, state, theme and reduced-motion setting and
    expose the hard states for repeatable structure, focus and accessibility
-   critique. Record rubric findings with location, severity, evidence and fix;
-   the author cannot clear its own UX/accessibility veto. A headless render
+   critique. Record rubric findings with location, severity, evidence and fix
+   in `docs/reviews/ui-application-native.md`; the author cannot clear its own
+   UX/accessibility veto. A headless render
    alone is not native interaction evidence.
 5. **UI tokens and platform.** `Styles.axaml` maps the active `DESIGN.md` colors,
    type and spacing; the argument-free gate scans a nonempty C#/XAML corpus for
