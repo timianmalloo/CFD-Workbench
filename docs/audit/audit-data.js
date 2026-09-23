@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:26:57Z",
+  "generated": "2026-09-23T14:31:24Z",
   "audit": [
     {
       "actor": null,
@@ -3306,6 +3306,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T14:26:47Z",
       "duration_seconds": 10.0
+    },
+    {
+      "id": "al-01M37AV56MD64CVVNTHJ6X9SEQ",
+      "shortname": "application-contract-dispatch-and-regen-control",
+      "datetime": "2026-09-23T14:31:17Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Integrate reviewed architecture, repair linked-worktree derived regeneration, and dispatch the next serial contract gate.",
+      "summary": "Architecture and independent review joined at 73cabb89 with 10/10 gates; restored primary derived view, corrected invoking-worktree regen dispatch, proved real-CLI RED/GREEN linked worktree regression, recorded recurrence, and launched B0 requested Astra author in isolated feature/application-contracts at that base. Owner Ruling 8 still gates production.",
+      "kind": "script",
+      "skill": null,
+      "tool": "coord-core.py",
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/plans/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Advance the first working offline application from conditional architecture through a reviewable contract gate while preserving worktree ownership.",
+      "done_when": "B0 author has an isolated exact-path contract and the joined architecture plus coordination controls pass their gates; production remains behind G3.",
+      "tier": "T2",
+      "fan_out": 2,
+      "git": {
+        "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "short": "73cabb89e",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

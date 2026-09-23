@@ -45,6 +45,16 @@ G3 --> G4 --> G6 --> G7
 G3 --> G5 --> G6
 ```
 
+**Observed graph refinement, 2026-09-23:** A returned commit `a92c4e7` and Owner Ruling 8
+conditionally selected the native M1 direction. Its spike's compiling vocabulary was a
+sketch, not the complete session contract. G3 therefore has an admitted **serial B0
+contract-completion/design step before its Owner freeze**: full session operations,
+native-v1 replay/operation IDs, missing-ID `.foil` acceptance, exact decimal/JCS
+identity, bounded growth and OS-specific persistence fixtures. B0 started in isolated
+`feature/application-contracts` at integrated base `73cabb89`; no G4/G5 production
+fan-out is admitted yet. The original width-two estimate is still a planning model,
+not measured elapsed improvement; actual A required a serial mechanical join and B0.
+
 **Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 build/tests may come from a separate runner; an unrun Windows native workflow remains a release obligation and cannot be called M1 pass on both platforms.
 
 **Naive → optimized:** A naive serial walk would be G0→G1→G2→G3→G4→G5→G6→G7: 8 nodes, width 1, no bounded loop. The optimized graph keeps all 8 nodes and every floor, moves only the disjoint adapter construction after frozen G3 alongside core construction, and makes G6 a single integrated join. Its maximum width is 2. A parser and its evaluator stay in G4 because their invariants and identity are coupled. The implementation branches are admitted only after G3 proves no decision edge remains. Architecture and spike work stay serial because their results alter each other's shape.

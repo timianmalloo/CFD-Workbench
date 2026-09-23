@@ -1788,7 +1788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2abcf4779d5bee5dfb90cff8cff2f12eac99a6194a78811861b0d513d8ca25ea"
+      "sourceSha256": "e5fb447dfcce52d93a6e085aec72afc81474cde23055568b1d0e83cbe9021ed2"
     },
     {
       "id": "domain-experts",
@@ -1896,7 +1896,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "0d0663f3a7be88225b32a7693cfc27e1b8bea865cf59883db61664b90eb8cbaa"
+      "sourceSha256": "9a9f3c4bd6554d78a019ead669169bd43fb82658ac69f8ce78e718df92aaea9a"
     },
     {
       "id": "plan-authoring-decisions",
@@ -3646,7 +3646,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1b9d602da6632dcb65f4f7859f12e61170a333000673dec2b81c173e5c238c7f"
+      "sourceSha256": "3290dc323ae20235d4a5c6e4311c7f2fb328c7d12f025aa18a8cacd7c7011da0"
     },
     {
       "id": "privacy-review",
@@ -4573,5 +4573,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "ba9fa01ca35627b74f85d852fff5839fea159200177942b980da4c8318cb311b"
+  "graphSha256": "ed68a3810e7e818987fa91b7bc9bc55cb259baeea59b9346a31e012c49abeb76"
 };

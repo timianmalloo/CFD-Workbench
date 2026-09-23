@@ -107,6 +107,30 @@ correlates calls/updates and checks required successful commands. The complete r
 passes its `pwd` requirement; the partial prefix and missing-build requirement fail.
 No successful read/shell probe is promoted to write/build or containment qualification.
 
+**COORD-REGEN · Shared ledger target mistaken for the invoking checkout.**
+`coord regen` reads the shared primary registry and debt correctly, but its dispatcher
+passed the primary path to the generator, changing primary `docs/audit/audit-data.js`
+while leaving the linked author's derived file stale. Sweep: every coord command that
+combines a shared registry/ledger root with checkout-local file effects. Derive: keep
+`repo_root()` as the shared state root and pass `checkout_top(os.getcwd())` only to
+the generator target; fail closed when the invoking checkout is unknown. Prevent:
+`tools/verify-coord-regen-worktree.py` invokes the real CLI in a temporary primary and
+linked Git worktree. Its reverted-dispatch RED case changes primary only; the fixed
+GREEN case changes linked only and clears shared debt. The primary was restored and
+both checkout statuses read back. No global `repo_root()` change is authorized by
+this class.
+
+**UI-N / TEST-A recurrence · A helper-level oracle bypasses the failing caller.**
+The first regen regression called `cmd_regen(store, linked)` directly; that passed even
+with the faulty dispatcher because the helper already honored its second argument.
+Sweep: the public CLI entry point, dispatcher, helper and output tree for controls
+whose stated failure arises at a boundary. Derive: inject or revert the actual faulty
+call site and assert the wrong side effect before the fix, then invoke the same public
+entry point after the fix. Prevent: the argument-free `verify-coord-regen-worktree.py`
+is auto-discovered by `run-verify-gates.py`; it proves RED with only the dispatch line
+reverted and GREEN in the current CLI. A direct-helper test alone cannot certify the
+worktree routing behavior.
+
 **PACK-I · Generated links are relative to the input root instead of their destination.**
 Security/privacy rollups embedded under `docs/security/` contained `design/...` links,
 which resolved below the wrong directory. Sweep: both rollup tables and the shared link
@@ -133,9 +157,9 @@ their text-read siblings, and the Coordinator-owned spike/recount scripts. Deriv
 repository text is UTF-8/LF; console encoding must not depend on a Windows code page.
 Prevent: explicit read/write encodings and LF writes, plus the pack's guarded stream
 reconfiguration. `verify-portable-text-io.py --root .` reported ten findings before
-root's fixes and passed as a standalone gate afterward. The Coordinator separately
-fixes subprocess encoding and its newly joined scripts, then recounts the integrated
-tree. The initial root diagnostic batch continued after the failing command, so its
+root's fixes and passed as a standalone gate afterward. The Coordinator fixed
+subprocess encoding and its newly joined scripts; the integrated gate then passed
+10/10 checks on the joined branch. The initial root diagnostic batch continued after the failing command, so its
 final shell exit is not claimed as the gate result; standalone checks preserve it.
 
 ## FoilDSL boundary sweep — 2026-09-22
