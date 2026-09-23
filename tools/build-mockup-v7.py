@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-s = (ROOT / 'docs/mockups/workbench-v6.html').read_text()
+s = (ROOT / 'docs/mockups/workbench-v6.html').read_text(encoding='utf-8')
 
 def replace(old, new, count=1):
     global s
@@ -24,8 +24,8 @@ replace("$('dsl-stations').textContent=`One shared profile “${r.profile}” at
 start=s.index('function dCageY(x,y,tc){')
 end=s.index('const dOriginalProfile',start)
 s=s[:start]+s[end:]
-replace('</style>', (ROOT / 'tools/mockup-v7.css').read_text() + '\n</style>')
-replace('<div class="banners" id="banners">', '<div class="banners" id="banners">' + (ROOT / 'tools/mockup-v7.html').read_text())
+replace('</style>', (ROOT / 'tools/mockup-v7.css').read_text(encoding='utf-8') + '\n</style>')
+replace('<div class="banners" id="banners">', '<div class="banners" id="banners">' + (ROOT / 'tools/mockup-v7.html').read_text(encoding='utf-8'))
 # The parser uses the same bounded curve/geometry validation for every named profile.
 start = s.index("  expect('profiles');expect('{');expect('profile');")
 end = s.index("  if(stations.length<2", start)
@@ -62,7 +62,7 @@ replace("if (M.preview && M.preview.ch !== ch) { status(`Apply or cancel the ope
 # Snapshot restoration must not overwrite a bank restored from its authoritative source snapshot.
 replace('if (h.sectionCV) { M.secCV = h.sectionCV;', 'if (h.sectionCV && !h.dsl) { M.secCV = h.sectionCV;')
 replace('if (f.sectionCV) { M.secCV = f.sectionCV;', 'if (f.sectionCV && !f.dsl) { M.secCV = f.sectionCV;')
-replace('/* ===================== init ===================== */', (ROOT / 'tools/mockup-v7-authoring.js').read_text() + '\n/* ===================== init ===================== */')
+replace('/* ===================== init ===================== */', (ROOT / 'tools/mockup-v7-authoring.js').read_text(encoding='utf-8') + '\n/* ===================== init ===================== */')
 replace("showTask('cad'); audit(); dinit();", "showTask('cad'); audit(); dinit(); uxInit();")
-(ROOT / 'docs/mockups/workbench-v7.html').write_text(s)
+(ROOT / 'docs/mockups/workbench-v7.html').write_text(s, encoding='utf-8', newline='\n')
 print('Built docs/mockups/workbench-v7.html')

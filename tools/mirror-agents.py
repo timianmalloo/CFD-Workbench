@@ -11,6 +11,13 @@ import re
 import sys
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT = Path(__file__).resolve().parents[1]
 EXPERTS = [
     "hydrofoil-hydrodynamicist",
@@ -40,7 +47,7 @@ def main() -> int:
                 if not target.exists() or target.read_text(encoding="utf-8") != text:
                     drift.append(str(target.relative_to(ROOT)))
             else:
-                target.write_text(text, encoding="utf-8")
+                target.write_text(text, encoding="utf-8", newline="\n")
     if check:
         if drift:
             print("agent mirrors drift: " + ", ".join(drift))

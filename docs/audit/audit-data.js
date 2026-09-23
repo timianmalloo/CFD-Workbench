@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:14:51Z",
+  "generated": "2026-09-23T14:20:42Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1345,6 +1345,30 @@ window.AUDIT_DATA = {
       "tool": null,
       "actor": null,
       "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M37A7RX6AX21KA0C6KRMG8S8",
+      "shortname": "project-tool-portable-text-io",
+      "datetime": "2026-09-23T14:20:42Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Resolve the integrated architecture join portable-text-I/O findings in root-owned repository tools.",
+      "summary": "Swept7projecttools including newrollupregression; explicitUTF8reads/writes, LFwrites and guardedUTF8stdout/stderr. Gate reported10findings beforefix; standalonegateGREEN and negativefixture selftestPASS. PLAT-A recurrencecaptured. Coordinator separatelyowns3joined scripts/subprocessencoding and completeintegrationrecount.",
+      "kind": "script",
+      "skill": null,
+      "tool": "verify-portable-text-io.py",
+      "actor": null,
+      "artifacts": [
+        "tools/build-mockup-v7.py",
+        "tools/check-docs.py",
+        "tools/check-pack-hooks.py",
+        "tools/check-rollup-links.py",
+        "tools/compile-knowledge.py",
+        "tools/derive-v7-oracle.py",
+        "tools/mirror-agents.py",
         "docs/lessons/defect-classes.md"
       ],
       "tags": [],

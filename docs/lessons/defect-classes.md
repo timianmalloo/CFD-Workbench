@@ -126,6 +126,18 @@ each Git mutation individually; inspect the hook result and never treat its advi
 exit zero as an ownership check. A post-commit check does not retroactively strengthen
 the original commit-boundary evidence.
 
+**PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
+pack gate found text writes without LF selection and printing CLIs without a UTF-8
+console guard, including root's new rollup regression. Sweep: seven project scripts,
+their text-read siblings, and the Coordinator-owned spike/recount scripts. Derive:
+repository text is UTF-8/LF; console encoding must not depend on a Windows code page.
+Prevent: explicit read/write encodings and LF writes, plus the pack's guarded stream
+reconfiguration. `verify-portable-text-io.py --root .` reported ten findings before
+root's fixes and passed as a standalone gate afterward. The Coordinator separately
+fixes subprocess encoding and its newly joined scripts, then recounts the integrated
+tree. The initial root diagnostic batch continued after the failing command, so its
+final shell exit is not claimed as the gate result; standalone checks preserve it.
+
 ## FoilDSL boundary sweep — 2026-09-22
 
 **PACK-H · Additive hook refresh duplicates a logical callback.** Revision 92 changed the
