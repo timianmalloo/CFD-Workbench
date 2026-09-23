@@ -328,8 +328,73 @@ repeated editing without displaying cancelled numeric values as the selected
 accepted value. Root must rerun the native reproducers against a newly bound
 fixed binary; author/controller tests alone cannot clear this veto.
 
-Apply/Undo/Redo, native Save/Open/recovery dialogs, other themes, dense states,
+At this first resumed checkpoint, Apply/Undo/Redo, native Save/Open/recovery dialogs, other themes, dense states,
 minimum-window dimensions, OS high contrast, Windows runtime and distribution
 trust remain unverified in this resumed native pass. The screenshot alone does
 not establish the requested 1024×700 logical window dimensions. No additional
 native flows are marked passed by extrapolation from the observations above.
+
+## Additional frozen n1 native workflows
+
+On the same n1 review instance, root selected leading cv-3, entered 6 mm,
+previewed and applied with Return. Source changed to
+`8d5f26ac7efa01acaea9c1b8571f20e91a94a5dc5e6e2aaf3ae4fda844298cfa`,
+accepted revision `62360ae5-cf8b-4650-bb0d-080505195283`, and the eta 0.5
+LE sample moved to x = 0.004 m. Cmd-Z restored the original source/revision;
+Cmd-Shift-Z restored that applied source/revision. Analysis remained unavailable.
+
+The native Save picker wrote `/tmp/cfd-native-review.czEz9w/accepted.cfdw.json`;
+the app reported durability confirmation. A native Open picker reopened this
+file with the same applied source and accepted revision. Independent file
+readback found 7836 bytes and SHA-256
+`b5fa3b7cdc6360ce559881caa443b4f44e3db3bb4c9d38ecff8d6f902c5ce150`.
+**Content round trip passed; permission semantics failed:** the OS reported
+mode 0454, whereas the source requests 0600. The separate
+[storage investigation](../investigations/native-save-permissions.md) records
+the controlled native ABI comparison and repair obligations. No native Save
+acceptance follows from content round trip alone.
+
+Opening a copied `invalid-syntax.foil` through the native picker reported
+DSL-SYNTAX, retained the original import bytes, and preserved the current
+accepted source/revision. Source fixture SHA-256 was
+`ffabd20221e8dcfe53971739a10ff65d0bdb90c1a1893be46e808c525b902ea5`.
+CUA paste timed out in a picker once; direct typing succeeded. An early batched
+Go-To/typing action dropped characters; root observed and corrected the input
+before submission. These are automation interaction limitations, not claimed
+application defects or successful operations before visible confirmation.
+
+## First fixed native interaction checkpoint: ae777e9
+
+The isolated author supplied a changed-source eleven-step passing gate at
+`cfd-adapters-verify-_674s2ub`, then a unique review copy at
+`/private/tmp/cfd-c-final-ui-gbbwv3q_/CFD Workbench.app`.
+Root read its launch receipt, independently checked live PID 56920/start
+`Wed Sep 23 14:10:43 2026`, and hashed Desktop DLL
+`72c52759e0585e8da6a5b8b2bf536302e18c89ff5d8229367ef21e7db635c65f`.
+CUA exact-path attachment succeeded with the same explicit keyboard/example/
+high-contrast/reduced-motion review title. Initial accepted revision was
+`50045eab-3d77-4baa-81ae-df956bb2d048`. This is a distinct process from n1.
+
+| Native regression / flow | Independently observed result | Disposition |
+|---|---|---|
+| F6 Open → navigator → viewport; Shift-F6 viewport → navigator | Actual focus reaches station item and viewport in the expected directions. | Named navigator-skip defect cleared on this binary. |
+| Tab to rail list, Down to locked cv-1, Down to editable cv-2 | Focus stays on the selected item; cv-2 creates a generation-0 draft. | Named selection-focus defect cleared. |
+| Numeric 5 mm → Return preview → Escape | Accepted geometry/identity restored and disabled selected-control field displays 0 mm. | Named stale-cancel-value defect cleared. |
+| Click the same selected cv-2 | New generation-0 draft appears immediately. | Pointer repeat-edit defect cleared. |
+| Full F6 cycle during draft | Navigator → viewport → numeric editor → navigator; DocumentTabs is skipped. | Remaining region-navigation failure. |
+| After Cancel, F6/Tab to selected cv-2; Return, then Space | Neither key creates a draft; pointer does. Moving selection away/back remains a workaround. | Direct keyboard activation parity gap; not a claim that all keyboard editing is impossible. |
+| Open while Example is unsaved | Unsaved dialog focuses Cancel; Escape preserves accepted identity and returns focus to selected cv-2. | Verified default/cancel/focus behavior. |
+| Discard test Example in unsaved dialog, open copied recovery project | Separate recovery offered, accepted source `443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d`, revision `df7b6fea-3b33-4943-aff2-acbabd10707f`. | Native recovery offer verified. |
+| Resume that invalid recovery | Numeric field clears and disables. Banner incorrectly demands finite numeric input; Save and Preview disable, while recovery/draft copy directs the user to Preview diagnostics. Accepted identity remains unchanged. | Failed recovery action/diagnostic contract; cannot correct the disabled numeric field as instructed. |
+
+Recovery fixture is `/tmp/cfd-native-review.czEz9w/invalid-recovery.cfdw.json`,
+copied from the previously independently tested controller fixture; initial
+SHA-256 `7080cef5a76eb9652989378fa9c4bbd2db7b22329bd854b4aa85c69e2a326064`.
+No native save was attempted after the incorrect disabled-save state.
+Queued programmatic TextChanged handling is a **hypothesis**, not a confirmed
+cause. The author must check it before fixing the actual model/UI contract.
+
+**Independent disposition: BLOCK.** The named focus/value/pointer corrections
+are useful and independently verified. Remaining native tab navigation,
+keyboard activation parity and recovery-state consistency require bounded
+repair and recheck. The independent storage permission veto also remains.
