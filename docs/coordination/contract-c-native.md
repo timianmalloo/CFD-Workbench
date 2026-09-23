@@ -51,6 +51,17 @@ FoilDSL own behavior. Accepted versus draft versus recovery remains visibly
 labelled in every view. No second editable curve table or copied identity
 algorithm belongs in an adapter.
 
+The C author runs `$implement` for red → green → refactor, its triggered
+Testing Strategy union, Proof Pack and independent pre-merge review. Because
+this track builds a user-facing native surface, the author also runs the
+triggered `$ui-design` **review** contract with the UX & Accessibility,
+UX Researcher/IA, Native Desktop, Test Architect and Simplifier lenses. Reuse
+the existing v7 direction, flows and `DESIGN.md` tokens; a new speculative
+browser mockup is not an admission artifact. Review structure before polish:
+Example, open/import, draft/preview/apply/cancel, error, Not assessed,
+recovery and unavailable-analysis states must be reachable and legible in the
+actual desktop shell.
+
 ## Provisional exact path inventory (23)
 
 These paths are **reserved candidates**, not live leases. The solution file is
@@ -106,13 +117,19 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    modes. The viewport needs an accessible name and an inspectable data/section
    equivalent; the A spike's AX `role=unknown` is an open gap. Root independently
    inspects the live macOS app through native AX, keyboard and screenshot, then
-   reviews the committed proof image/AX record. A headless render alone is not
-   native interaction evidence.
+   reviews the committed proof image/AX record. The native review harness must
+   select persona, window size, state, theme and reduced-motion setting and
+   expose the hard states for repeatable structure, focus and accessibility
+   critique. Record rubric findings with location, severity, evidence and fix;
+   the author cannot clear its own UX/accessibility veto. A headless render
+   alone is not native interaction evidence.
 5. **UI tokens and platform.** `Styles.axaml` maps the active `DESIGN.md` colors,
    type and spacing; the argument-free gate scans a nonempty C#/XAML corpus for
    off-token literals, measures critical contrast and runs interaction tests.
    The existing 59-rule browser/CSS gate is not a native Avalonia verdict; record
-   its scoped coverage gap rather than a zero-file PASS. Build and self-contained
+   browser-specific checks as inapplicable to the native corpus rather than
+   skipped or a zero-file PASS, and apply the equivalent token/contrast/state
+   checks to actual XAML and rendered controls. Build and self-contained
    publish for osx-arm64 and win-x64, and create a reviewable `.app`/Windows
    portable bundle. macOS live proof and Windows cross-build/publish proof are
    separate; Windows runtime tests remain Not assessed unless actually run on

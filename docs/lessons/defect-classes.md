@@ -379,6 +379,18 @@ diff is empty before commit. The current flag was removed; no ruling prose
 or numbered decision changed. A future graph-tool class-aware exclusion may
 replace this local join control after separate review.
 
+**CO-UI · A native adapter packet names UI outcomes but omits its review workflow.**
+The first provisional C packet required keyboard, accessibility and token
+proof, yet did not bind the author to `$implement` and the triggered
+`$ui-design` review contract or its companion lenses. Sweep: native adapter
+assignments that mention a prior mockup or design tokens as if those alone
+review the running interface. Derive: a worker packet for a user-facing native
+surface must name the implementation and UI review workflows, native harness
+states, independent accessibility veto, and browser-only checks that are
+inapplicable. Prevent: the always-read C launch packet carries those explicit
+conditions; its independent pre-dispatch review checks them against the
+actual compiled brief before any adapter lease is issued.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,
