@@ -256,9 +256,12 @@ a recorded residual. No credential, rider record or third-party data flow is add
 This section records the design-time path and sequencing proposal. Owner
 Rulings 13 and 22 later accepted and joined the bounded B core. The serial C
 desktop/CLI candidate is now at `feature/application-native-adapters` checkpoint
-`4b4bd9b`, under the [independent native review](../reviews/ui-application-native.md).
-Its source and package evidence does not clear rendered macOS UI, AX/keyboard,
-Windows runtime or final M1 delivery.
+`de105f0`, under the [independent native review](../reviews/ui-application-native.md).
+Its source and package gate passed, including actual XAML startup, but the
+supported native inspection tool returned `cgWindowNotFound`. This does not
+clear rendered macOS UI, AX/keyboard, Windows runtime or final M1 delivery.
+[Owner Ruling 25](../notes/rulings.md) keeps the production adapter branch
+unjoined until actual native proof clears the independent veto.
 
 At design time B was assigned: `src/CfdWorkbench.Core/CfdWorkbench.Core.csproj`, `Contracts.cs`,
 `FoilSource.cs`, `Geometry.cs`, `Identity.cs`, `AuthoringSession.cs`; `src/CfdWorkbench.Persistence/` project

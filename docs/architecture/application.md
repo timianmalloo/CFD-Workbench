@@ -39,9 +39,13 @@ The [ADR](../adr/0003-application-stack.md) selects a stack after actual SDK/nat
 **Implementation status, 2026-09-23:** the bounded shared core and native store
 passed [independent review](../reviews/application-core.md) and joined under
 Owner Ruling 22. A desktop/CLI [candidate checkpoint](../reviews/ui-application-native.md)
-now exists on `feature/application-native-adapters` at `4b4bd9b`; it is not
-joined or accepted. The architecture below remains the contract, while its
-original sequencing and spike-status paragraphs are dated decision evidence.
+now exists on `feature/application-native-adapters` at `de105f0`; it is not
+joined or accepted. Its 11-step source/package gate passed, but independent
+native inspection returned `cgWindowNotFound` and yielded no rendered, AX or
+keyboard proof. [Owner Ruling 25](../notes/rulings.md) retains this
+source-bound candidate in its isolated branch and blocks native M1 acceptance.
+The architecture below remains the contract; its original sequencing and
+spike-status paragraphs are dated decision evidence.
 
 ## 1. Intent and authoritative grounding
 
@@ -242,7 +246,8 @@ Subsequently, the shared C# parser/identity/session/geometry/store passed the
 bounded [core review](../reviews/application-core.md), and the selected stack
 was reconciled in AGENTS.md and the product-spec pointers. The current
 [adapter review](../reviews/ui-application-native.md) records CLI/controller/
-package evidence but leaves rendered macOS UI, native AX/keyboard, Windows
+package evidence and the native inspection blocker, leaving rendered macOS UI,
+native AX/keyboard, Windows
 runtime, signing/notarization and product performance open. Full geometry
 coverage outside the conservative admitted subset remains out of M1 scope.
 Root/Owner issue the independent product gate; neither architecture status nor

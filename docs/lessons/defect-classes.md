@@ -608,6 +608,12 @@ list exact paths or inspect script dispatch before constructing a command,
 and read returned receipt paths rather than guessing suffixes. The C launch
 brief now names `coord-core.py` and exact receipt paths; failed guesses remain
 recorded so a future gate cannot call them verified.
+At final C handoff, the author also used `for path in ...` in zsh: lowercase
+`path` is tied to `PATH`, so the loop body could not find `python3`. No repo or
+external write occurred, and the author reran with `artifact_file`. Sweep
+task-local shell variable names used around executable lookup. The always-read
+CT26/no-guessing control now names this tied-variable hazard: use a task-specific
+name, then check the executable resolves before a mutating loop.
 
 **CO-DECISION-VIS · A new ruling is assumed visible in an older isolated worktree.**
 Ruling 23 was recorded after the C worktree fork, so that tree's local

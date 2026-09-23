@@ -7,20 +7,27 @@ The project is implementing the reviewed specification and mockups.
 The first offline milestone uses C#/.NET 10 and Avalonia, with a shared core for
 the native workbench and CLI. The shared core has passed its bounded independent
 gate. A buildable desktop and runnable CLI **candidate** exists on
-`feature/application-native-adapters` at checkpoint `4b4bd9b`; it has not been
-joined or accepted as a product. The simulation backend and export geometry
-kernel remain unselected.
+`feature/application-native-adapters` at checkpoint `de105f0`.
+[Ruling 25](docs/notes/rulings.md) keeps that candidate isolated and the native
+M1 gate blocked pending actual rendered and accessibility evidence. The
+simulation backend and export geometry kernel remain unselected.
 
 On macOS, the candidate branch's argument-free
 `python3 tools/verify-application-adapters.py` builds and tests the shared-core
 adapters and publishes self-contained macOS ARM64 and Windows x64 development
 packages in a fresh local scratch directory. The verifier has not run its
-checks on a Windows host. The CLI, controller, recovery and package contents
+checks on a Windows host. It prints a receipt path; that JSON's `packages`
+map locates the macOS `CFD Workbench.app` and Windows portable folder, while
+its `publish` map locates the CLI apphosts. These are local development
+candidates. The CLI, controller, recovery and package contents
 have bounded independent evidence in the
-[native adapter review](docs/reviews/ui-application-native.md). Live native
-rendering, keyboard/AX inspection, minimum-window behavior, Windows runtime,
-signing and distribution are still open. A successful package build is not a
-release or a validated solver.
+[native adapter review](docs/reviews/ui-application-native.md). The final
+11-step source and package gate passed, including real apphost XAML startup.
+The supported native inspection tool returned `cgWindowNotFound` on the
+running review app, so rendered layout, keyboard and AX behavior remain
+unverified. Minimum-window behavior, Windows runtime, signing and distribution
+also remain open. A successful package build is not a release or a validated
+solver.
 
 ## Review the product
 
