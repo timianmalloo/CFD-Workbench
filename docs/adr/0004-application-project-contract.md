@@ -2,7 +2,7 @@
 id: adr-application-project-contract
 title: Native-v1 immutable receipts and bounded admission
 type: adr
-status: in-review
+status: accepted
 owner: "@cfd-owner-20260923"
 phase: design
 tags: [adr, persistence, contracts, identity]
@@ -17,12 +17,16 @@ summary: >-
   acceptance remains separate from these design-policy rulings.
 review-suggested:
   - { by: design-application-contracts, on: 2026-09-23, reason: "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams." }
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
 ---
 
 # ADR 0004: native project contract completion
 
-Rulings 9 and 10 approve the following **design policy**, subject to Ruling 8's independent executable gate.
-They do not authorize production implementation or claim a supported native overwrite adapter.
+**Accepted as an unshipped contract, 2026-09-23.** Rulings 9 and 10 establish the design policy;
+Ruling 12 accepts the bounded executable contract gate following independent review.
+[Ruling 13](../notes/rulings.md#ruling-13--g3-serial-first-core-implementation-freeze) authorizes
+serial core implementation after worker preflight. A supported native overwrite adapter,
+production geometry and application acceptance still require their own observed proof.
 
 Native-v1 retains exact UTF-8 source snapshots, immutable Design/accepted facts and append-only cursor facts.
 Add required `accepted.edit`: null only initial Open; every numeric rail Apply stores draft ID, generation,

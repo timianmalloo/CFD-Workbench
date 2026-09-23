@@ -3,14 +3,17 @@
 A cross-platform client application for hydrofoil design and simulation, targeting
 **Windows and macOS**.
 
-The project is in specification and interface design. The application framework,
-geometry implementation, and simulation backend remain unselected. There is no
-runnable production application yet.
+The project is entering implementation from the reviewed specification and mockups.
+The first offline milestone uses C#/.NET 10 and Avalonia, with a shared core for
+the native workbench and CLI. Architecture and executable contract spikes are
+verified within their recorded limits; there is no runnable production application
+yet. The simulation backend and export geometry kernel remain unselected.
 
 ## Review the product
 
 - [Interactive workbench mockup v7 — section scope and design alternatives](docs/mockups/workbench-v7.html) ([hub](docs/mockups/workbench-v7.md)) — open directly in a browser; no build or network required. Earlier review artifacts: [v6](docs/mockups/workbench-v6.md) · [v5](docs/mockups/workbench-v5.md) · [v4](docs/mockups/workbench-v4.md) · [v3](docs/mockups/workbench-v3.md) · [v2](docs/mockups/workbench-v2.md) · [v1](docs/mockups/workbench-v1.md) · [prototype](docs/mockups/workbench.html).
-- [Product specification v1.2 (build basis) — HTML](docs/specs/cfd-workbench-v1.html) · [Markdown](docs/specs/cfd-workbench-v1.md); the 0.2 draft it supersedes: [HTML](docs/specs/cfd-workbench.html) · [Markdown](docs/specs/cfd-workbench.md)
+- [Product specification v1.5 (build basis) — HTML](docs/specs/cfd-workbench-v1.html) · [Markdown](docs/specs/cfd-workbench-v1.md); the 0.2 draft it supersedes: [HTML](docs/specs/cfd-workbench.html) · [Markdown](docs/specs/cfd-workbench.md)
+- [Application architecture](docs/architecture/application.md) · [Accepted stack decision](docs/adr/0003-application-stack.md) · [Authoring and native document contracts](docs/design/application-contracts.md) · [Independent contract review](docs/reviews/application-contracts.md)
 - [Design language](DESIGN.md) and [visual token catalog](docs/mockups/design-language.html)
 - [CFD-Bench and proposal grounding](docs/knowledge/cfd-workbench-grounding.md)
 - [Independent specification review](docs/reviews/specification-gate.md)
@@ -24,13 +27,15 @@ mockup is illustrative; it is not numerical validation or a working solver.
 The specification HTML is generated from the complete Markdown by
 `tools/render-spec.mjs`. Its documentation-only dependencies are `marked` 17.0.5
 and `@viz-js/viz` 3.25.0. Run `node tools/render-spec.mjs` with those installed,
-or pass the path of a directory containing their installed Node modules. Neither
+or pass the path of a directory containing their installed Node modules. Set
+`SPEC_NAME=cfd-workbench-v1` to render the current product specification (the
+default selects the historical document). Neither
 dependency is needed to read the committed HTML; this does not select the app stack.
 
 ## Development workflow
 
 This repository includes the [AI-Forward Pack](https://timianmalloo.github.io/ai-forward/),
-revision **73** (`2026.09.19.1`), with skills, personas, engineering guidance,
+revision **92** (`2026.09.21.3`), with skills, personas, engineering guidance,
 documentation tools, and integrations for Codex, Claude Code, GitHub Copilot, Grok,
 and Antigravity.
 
@@ -42,9 +47,11 @@ and Antigravity.
 - [Codex guide](docs/ai-forward-pack/codex.md)
 - [Docs Explorer](docs/index.html) — open locally to browse the specification, design and evidence.
 
-Iterate the mockup and specification first, then use `$define-architecture` for the
-cross-platform geometry, file and analysis boundaries. Use `$design-slice` before
-implementing each accepted surface.
+Follow the [coordination plan](docs/coordination/application-build.md) and its
+isolated worktree assignments. The accepted architecture and `$design-slice`
+contracts govern `$implement` increments. Shared core implementation precedes
+native GUI and CLI adapters; independent review and live workflow proof gate
+delivery. Further load-bearing decisions use `$define-architecture`.
 
 ## Repository checks
 
@@ -79,5 +86,7 @@ on relevant pull requests, pushes to `main`, and manual runs.
 · [Review walkthrough and prototype limits](docs/mockups/workbench-v7.md)
 · [Section and decision workflow](docs/notes/design-iteration.md).
 
-The source files in `reference/` are preserved originals. The language and mockup changes are proposed
-for review; no production application, backend or stack is selected by this change.
+The source files in `reference/` are preserved originals. FoilDSL and mockup v7
+form the current build basis. The separate architecture decision selects the
+application stack; prototype computations remain illustrative, and no simulation
+backend is selected.

@@ -12,6 +12,8 @@ links:
   - {to: architecture-application, rel: depends-on}
 review-by: 2026-10-23
 summary: Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
 ---
 
 # B0 serial contract-completion packet

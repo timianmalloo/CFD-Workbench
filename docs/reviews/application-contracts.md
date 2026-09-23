@@ -12,6 +12,8 @@ links:
   - {to: spec-cfd-workbench-v1, rel: depends-on}
 review-by: 2026-10-23
 summary: Independent review of the serial B0 contract fixture, its durable identity and session boundaries, with explicit limits on what fixture evidence establishes.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
 ---
 
 # Independent application contract review
