@@ -263,6 +263,32 @@ pattern: `TZ=UTC stat -f '%Sm' -t '%Y-%m-%dT%H:%M:%SZ' <path>`. The corrected
 readback was `2026-05-05T18:32:31Z`, before this task; the first mislabeled
 output is not reused as UTC evidence.
 
+**NUM-G · A secondary numeric parameter bypasses the token resource bound.**
+The first production `DecimalSi.Parse(token, int decimalScale)` checked the
+token's effective exponent, then added an arbitrary public `decimalScale`
+before `BigInteger.Pow`; a small token with an extreme caller scale could
+allocate without bound. Sweep: production `Identity.cs` and the B0 fixture's
+same helper shape. Derive: grammar-supported length and area unit exponents
+are a closed set `0, -2, -3, -4, -6`; reject any other scale **before** token
+scanning or exponent construction. Prevent: production
+`Decimal_UnsupportedScale_RefusesBeforeScaling` and extreme-int boundary tests
+in `IdentityTests.cs`. The +1-scale case was observed failing before the guard
+and passing after it; deliberately running `int.MaxValue` against the unsafe
+version would defeat the resource control and is not claimed. The B0 source
+remains a design fixture, not a production numeric API, and retains this
+residual sibling pending any separately scoped spike maintenance.
+
+**LEX-D · End-of-line anchor mistaken for full-token acceptance.** .NET regex
+`$` can match before a final newline, so the first numeric helper could accept
+`1\n` as one token. Sweep: production numeric lexer and B0 fixture token,
+integer, hash and UUID regexes using terminal `$`; parser admission must
+check complete spans rather than trust a prefix. Derive: use `\A...\z` or
+check exact match length for a single token. Prevent: production
+`Decimal_TrailingNewline_RefusesNonToken` was observed RED with `$` and GREEN with
+`\z`; whole-source parser tests must retain the same byte-span boundary.
+The B0 fixture's remaining `$` forms are recorded as design-only residuals,
+not promoted to a production admission claim.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,
