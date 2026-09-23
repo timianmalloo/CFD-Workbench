@@ -543,6 +543,18 @@ requires separate tool boundaries and explicit exit, `HEAD`, `MERGE_HEAD`,
 staged-path and owned-child readback before continuation; an interrupted join
 cannot be labelled complete from its partial gate output.
 
+**PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
+The installed `ui-design` UI-T4 text references
+`docs/knowledge/native-client-ui-design/`, but this project checkout does not
+contain that directory; the installed native proof template and XAML token
+linter do exist. Sweep triggered skill references before C dispatch, not after
+UI authoring. Derive: an absent referenced path is a deployment-link gap, not
+evidence that the native design standard is satisfied or absent. Prevent: the
+always-read C packet requires path inventory at UI-T4 preflight, the installed
+template/linter and named native proof rows, with the authoritative pack-source
+knowledge read only where available. Pack deployment reconciliation remains a
+separate exact-source change; no speculative local KB is created in C.
+
 ## Authoring decisions boundary sweep — 2026-09-22
 
 **GEO-C / DATA-D recurrence:** introducing multiple profiles makes a selected-profile singleton unsafe as a

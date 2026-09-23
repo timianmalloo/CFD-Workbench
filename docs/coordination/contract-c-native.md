@@ -18,6 +18,7 @@ review-suggested:
   - { by: architecture-application, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: coordination-application-build, on: 2026-09-23, reason: "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review" }
 ---
 
 # C · native desktop and CLI adapters (preparation only)
@@ -73,6 +74,20 @@ browser mockup is not an admission artifact. Review structure before polish:
 Example, open/import, draft/preview/apply/cancel, error, Not assessed,
 recovery and unavailable-analysis states must be reachable and legible in the
 actual desktop shell.
+
+UI-T4 from the installed `ui-design` trigger table applies. At Stage 1 declare
+medium `native-desktop`, platforms macOS/Windows, framework Avalonia,
+distribution, accessibility APIs and official platform HIG sources. At Stage 3
+use the installed `docs/ai-forward-pack/templates/native-ui-proof-pack.template.md`
+rows inside the C-owned `docs/proof/application-adapters.md` and independent
+`docs/reviews/ui-application-native.md`: keyboard traversal, native AX/UIA
+tree, theme/high contrast, DPI/windowing, dense-list responsiveness, OS
+integration and signing/Gatekeeper/SmartScreen posture. Run the installed
+`docs/ai-forward-pack/scripts/xaml-token-lint.py` over a nonempty `.axaml`
+corpus. The skill references `docs/knowledge/native-client-ui-design/`, which
+is absent from this consuming checkout; that deployment-link gap is recorded,
+not treated as an existing local source or reason to invent product facts.
+The authoritative pack-source KB may inform review read-only where available.
 
 ## Provisional exact path inventory (24)
 
@@ -147,7 +162,8 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    alone is not native interaction evidence.
 5. **UI tokens and platform.** `Styles.axaml` maps the active `DESIGN.md` colors,
    type and spacing; the argument-free gate scans a nonempty C#/XAML corpus for
-   off-token literals, measures critical contrast and runs interaction tests.
+   off-token literals using the installed `xaml-token-lint.py`, measures
+   critical contrast and runs interaction tests.
    The existing 59-rule browser/CSS gate is not a native Avalonia verdict; record
    browser-specific checks as inapplicable to the native corpus rather than
    skipped or a zero-file PASS, and apply the equivalent token/contrast/state
@@ -210,13 +226,17 @@ same-harness lifecycle, independent diff/root review and honest unsupported
 fields remain floors. No fourth active reviewer/worker is activated to decide
 this while root, Coordinator and B author occupy the cap of three.
 
-Decision request `req-01M37NS4W345FRFM14Z4F0XNSP` is pending on existing
-evidence. It recommends a conditional one-track built-in Codex route only
-after complete B, with requested model recorded and effective model **Not
-recorded** if the host does not expose it. This is a request, not an exception
-or C authorization. Grok/Agy remain the user's preferred routine route when
-qualified; actual relative coding cost is Not recorded, and no new native
-probe is authorized by this request.
+Owner Ruling 21 resolves `req-01M37NS4W345FRFM14Z4F0XNSP` with a
+**conditional** one-track built-in Codex route requested as `gpt-6-sol`.
+Effective model stays **Not recorded** if the host does not expose it; a
+rejected model selection returns as a typed failure, never a silent substitute.
+This is not C dispatch. Full B acceptance/join and a compiling one-assessment
+consumer freeze remain mandatory before assigning the 24 paths. Grok/Agy
+remain the user's preferred routine route when qualified, but current R6
+receipts disqualify those profiles; actual relative coding cost is Not
+recorded and no new native probe is authorized. The existing built-in
+interruption plus explicit owned-child cleanup receipt is reusable only as
+the unchanged harness lifecycle path, not proof of automatic child kill.
 
 Before any worker write: assign a fresh session/branch/worktree and base after
 B join; compile an exact brief with no open decision line, path inventory,

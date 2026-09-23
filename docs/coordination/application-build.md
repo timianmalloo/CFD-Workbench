@@ -25,6 +25,16 @@ review-suggested:
 
 **Later gate, 2026-09-23:** Rulings 17–19 choose evaluator `/2` degree-CV identity, whole-query deterministic feasibility, and a fixed directory-relative cooperative overwrite claim with measured native I/O. They authorize repair, not B acceptance. Root has the [30-path exact companion assignment](contract-r17-companions.md) in a disjoint tree while the serial core author finishes its `/1` store/Ruling 16 checkpoint. The reviewed companion commit must precede a dedicated `/2` core continuation; C remains held.
 
+**Current gate:** Owner Ruling 20 accepted the bounded companion handoff and
+the conductor joined it at `1582d69`; the clean core branch received it at
+`65ac0b9`. Its first integrated verify run exposed the expected `/1` source
+against `/2` fixtures plus a portable text-I/O control failure. R17 source
+repair is compiling green; R18 all-query proof and the full B gate are still
+open. Owner Ruling 21 conditionally routes **one future C adapter** to a fresh
+requested `gpt-6-sol` built-in author under the same observed-only controls;
+it does not launch C before independent B acceptance and a compiling API
+freeze. See the [held C packet](contract-c-native.md).
+
 ## Layer state
 
 | check | result | meaning |
@@ -98,7 +108,7 @@ and their canonical prose remain untouched.
 | task difficulty | requested preference | installed observation | launch choice / fallback |
 |---|---|---|---|
 | Architecture, hard ambiguity | Opus 5.5 or Codex Astra | No Opus 5.5 ID observed. Agy lists `claude-opus-4-6-thinking`; two actual profiles failed qualification. A fresh Astra spawn hit the host thread limit. Existing Codex thread model ID is not exposed. | Existing Codex author in fresh assigned tree under Ruling 7 architecture-only `Not recorded` exception; Astra Owner and root independently review, with no unsupported model claim. |
-| Routine implementation | strongest available Grok or Agy | Grok 1.0.41 ACP wrote a fixture and built a .NET probe, but changed the protected outside-root sentinel without denial; loaded cwd, inference alias and cancellation unverified. Agy Gemini 3.1 Pro High has no task-bound write/build qualification. | Ruling 6 rejects this Grok profile for production and allows no further probe now. A later observed-only route, including Codex, needs G3 risk acceptance plus exact identity/cwd/HEAD, cancellation, paths/cache, serial isolation, diff and independent root review. |
+| Routine implementation | strongest qualified Grok or Agy preferred by the user | Grok 1.0.41 ACP wrote a fixture and built a .NET probe, but changed the protected outside-root sentinel without denial; loaded cwd, inference alias and cancellation unverified. Agy Gemini 3.1 Pro High has no task-bound write/build qualification. Relative coding costs are Not recorded. | Ruling 6 rejects those observed profiles and bars further probe churn. Ruling 21 conditionally chooses one requested `gpt-6-sol` built-in C author after complete B and compiling API freeze, with effective model Not recorded if unexposed; observed-only identity/cwd/HEAD, lifecycle, exact path/cache, serial isolation, diff and independent root review remain floors. |
 | Deterministic checks/join | scripts | Python 3.14.4, Node 22.22.2, `coord` drivers effective | Execute scripts, no model. |
 
 Capability values are **per actual worker fingerprint**: worktree isolation = observed-only until runner verifies checkout identity; instructions = observed-only until actual loaded bytes inspected; ownership hook = unsupported until an unleased edit succeeds and a leased edit is denied with unchanged bytes; permissions = unsupported until effective native policy and denial are observed; lifecycle/cancellation = observed-only until run receipts exist. A model list and `--help` flag are inventory, not qualification. Native Codex built-in collaborators remain observed-only; their hook behavior is not inferred from CLI hooks. Grok ACP edit/build succeeded, but outside-root protection failed in its selected profile; the runner's `ready_for_review` is structural, not semantic acceptance. Claude dispatch waits on a qualified adapter/native profile; root repaired the duplicate hook definitions in pack commit `62950e6`. Agy `ask` is refused by the unattended runner; `accept-edits` blocked ordinary headless shell commands, and the single Owner-approved full-auto sandbox probe unexpectedly denied an authorized shell write. No permission request will be left unattended; an unknown action causes a blocked receipt and fallback. Observed-only isolated serial Codex work remains under exact owned-path diff, precommit identity and independent root review; no enforced sandbox claim follows from that.

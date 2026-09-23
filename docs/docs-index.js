@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ebb329fb03410a007284e0fdb9669b4392e000b4b38ef699b2e70dcaed39a62a"
+      "sourceSha256": "8e06f8bfed0acaa7dbc373e17012602a391e096454b95d53d878785bc67de09e"
     },
     {
       "id": "domain-experts",
@@ -2095,7 +2095,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "caae3ebc95d1f770fe5af32a61df3d7c61173c5986e4075eccb0c4766bc7633a"
+      "sourceSha256": "c3c6c7189b5fbf021e60be4d71078d533c92babb147a5d1cbef54b93b41157fb"
     },
     {
       "id": "plan-authoring-decisions",
@@ -2971,7 +2971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0b19ac97ff9e1fe01e26173a5f67011871c3a56a1be1548c888bd5bd74174466"
+      "sourceSha256": "c419f2f13fdb1537dc68f87e10f8cdc85f512829f38ea071b48f83c144a22fe4"
     },
     {
       "id": "kb-hw-glossary",
@@ -3871,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "717b604bb2630c1778ab4e9465346d3bc3a01510eceee84627e4d7aafd837589"
+      "sourceSha256": "140ce9d5bff48b12d1492562ce5862a95e7b1fea45aa48f8a3580672bb38b5fd"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4023,6 +4023,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v7",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review"
         }
       ],
       "summary": "A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.",
@@ -4059,7 +4064,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2031d3eafc72241b507772f63aaa04280aa0cc72fd8bc48d84db53e9c8f00fc8"
+      "sourceSha256": "9f4eee9b6614eb77f5f449ba38e01739f4024d033dd4a4f8a6d462a02907568e"
     },
     {
       "id": "coordination-r17-companions",
@@ -4085,6 +4090,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review"
         }
       ],
       "summary": "Root owns 30 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.",
@@ -4118,7 +4128,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ab0ac93cdb32e8940a80deab7370f9e1e82b854535eb15d3b4d3b75ee83e0352"
+      "sourceSha256": "00f11106030f8afe3b2eb66526a744b92064898ecc9bf5d4e6a502dd4d6348b3"
     },
     {
       "id": "privacy-review",
@@ -5390,5 +5400,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "60a9dcaf9a37d01d375ea23a613b67dc656e827db31a8caf55b2db2f966c5099"
+  "graphSha256": "c8ec0b2cc5708c26b1713321de0ce331873581a6ff4cb8a803b744f88014ab83"
 };

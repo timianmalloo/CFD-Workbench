@@ -17,6 +17,7 @@ review-suggested:
   - { by: design-application-contracts, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: review-application-core, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: spec-foildsl, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: coordination-application-build, on: 2026-09-23, reason: "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review" }
 ---
 
 # R17–19 · root companion assignment

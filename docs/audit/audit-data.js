@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:43:14Z",
+  "generated": "2026-09-23T17:49:54Z",
   "audit": [
     {
       "actor": null,
@@ -4501,6 +4501,78 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T17:43:06Z",
       "duration_seconds": 8.0
+    },
+    {
+      "id": "al-01M37NZAJ672D057BEKHKV8YH4",
+      "shortname": "owner-conditional-c-route",
+      "datetime": "2026-09-23T17:45:48Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve one conditional C route request req-01M37NS4W345FRFM14Z4F0XNSP against clean coordination a494d9c, current contract-c-native API/routing map and existing qualification receipts. No new Grok/Agy probe loop or C dispatch until full B independent scientific/data/security acceptance and conductor join. Decide closest suitable available bounded unattended route/fallback with honest model claims within20calls/12minutes; record canonical ruling/audit then yield. Do not edit root review or core source.",
+      "summary": "Ruling21 conditionally selects one fresh built-in Codex C author requested gpt-6-sol, effective model Not recorded if unexposed; root concurred. Explicitly applies same observed-only threshold to all harnesses and retains Grok/Agy preference when qualified, without claiming comparative cost. Existing rejected profiles stay rejected; no new probes. Read exact provisional24path packet, typed request, qualification receipts and actual cancellation/owned-child cleanup record. Launch still requires complete B independent acceptance/conductor join, compiled final API freeze, exact live leases and fresh identity/path/cache/lifecycle preflight. C author cannot clear its own scientific/UI veto. No production write or worker activation. Return/yield after recorded conditional route.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve one evidence-based conditional native adapter route without bypassing B acceptance or inventing harness/model guarantees.",
+      "done_when": "Numbered ruling identifies requested/effective model, qualification limits, exact dispatch prerequisites and lifecycle controls; Coordinator/root receive handoff and Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:44:16Z",
+      "duration_seconds": 92.0
+    },
+    {
+      "id": "al-01M37P3WYYGKH45WWY0R4H9ZS4",
+      "shortname": "application-r21-c-route",
+      "datetime": "2026-09-23T17:48:18Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record Owner Ruling 21 and keep native adapter launch held while B R18 proof advances",
+      "summary": "Ruling 21 conditionally selects a fresh requested gpt-6-sol built-in C author with effective model Not recorded if unexposed. C remains held until complete B scientific acceptance, conductor join and compiling API/one-assessment viewport freeze. Updated routing table, C packet and graph; no new model probe or C worker launch.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-c-native.md",
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the model routing decision durable without bypassing the B-to-C gate",
+      "done_when": "Ruling register and audit clean, C packet explicitly conditional, docs gate passes",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:46:27Z",
+      "duration_seconds": 111.0
+    },
+    {
+      "id": "al-01M37P6TEZVRR5SAS6JEG0EDJS",
+      "shortname": "application-r21-route-record",
+      "datetime": "2026-09-23T17:49:54Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record conditional C routing and native UI-T4 preflight while R18 remains open",
+      "summary": "Owner Ruling 21 resolved the single existing-evidence C route request: one future requested-gpt-6-sol built-in author, effective model Not recorded if host-unexposed, no new Grok/Agy probe or C dispatch before complete B and compiling API freeze. C packet now includes actual API snapshot and installed UI-T4 template/XAML lint/native proof rows; missing consuming-repo native KB link recorded. V16 inbound flags applied to plan neighbors; ruling-register generated flag restored without changing ruling prose.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-c-native.md",
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Keep C launch conditions reviewable and accurate without crossing the B scientific gate",
+      "done_when": "Canonical ruling and C packet/plan/HTML agree, docs gate passes, C remains held",
+      "tier": "T2",
+      "fan_out": 0
     }
   ],
   "changes": [
