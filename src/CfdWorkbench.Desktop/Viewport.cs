@@ -27,16 +27,37 @@ public sealed class Viewport : Grid
             Margin = new Thickness(8) };
         Children.Add(drawing);
         Children.Add(annotationScroll);
+        PropertyChanged += (_, args) =>
+        {
+            if (args.Property == BackgroundBrushProperty || args.Property == GridBrushProperty ||
+                args.Property == FoilBrushProperty || args.Property == StationBrushProperty)
+            {
+                drawing.InvalidateVisual();
+                if (args.Property == StationBrushProperty)
+                    foreach (var label in semanticControls.Values) label.Foreground = StationBrush;
+            }
+        };
     }
-    public IBrush? BackgroundBrush { get; set; }
-    public IBrush? GridBrush { get; set; }
-    public IBrush? FoilBrush { get; set; }
-    public IBrush? StationBrush { get; set; }
+    public static readonly StyledProperty<IBrush?> BackgroundBrushProperty =
+        AvaloniaProperty.Register<Viewport, IBrush?>(nameof(BackgroundBrush));
+    public static readonly StyledProperty<IBrush?> GridBrushProperty =
+        AvaloniaProperty.Register<Viewport, IBrush?>(nameof(GridBrush));
+    public static readonly StyledProperty<IBrush?> FoilBrushProperty =
+        AvaloniaProperty.Register<Viewport, IBrush?>(nameof(FoilBrush));
+    public static readonly StyledProperty<IBrush?> StationBrushProperty =
+        AvaloniaProperty.Register<Viewport, IBrush?>(nameof(StationBrush));
+    public IBrush? BackgroundBrush { get => GetValue(BackgroundBrushProperty); set => SetValue(BackgroundBrushProperty, value); }
+    public IBrush? GridBrush { get => GetValue(GridBrushProperty); set => SetValue(GridBrushProperty, value); }
+    public IBrush? FoilBrush { get => GetValue(FoilBrushProperty); set => SetValue(FoilBrushProperty, value); }
+    public IBrush? StationBrush { get => GetValue(StationBrushProperty); set => SetValue(StationBrushProperty, value); }
     public bool SectionMode { get; set; }
     private double annotationWidth;
     public double AnnotationWidth { get => annotationWidth; set { annotationWidth = value; annotationScroll.Width = value; drawing.InvalidateVisual(); } }
     public double AnnotationHeight { get => annotationScroll.Height; set => annotationScroll.Height = value; }
     public IReadOnlyList<TextBlock> SemanticControls => annotationPanel.Children.OfType<TextBlock>().ToArray();
+    public ScrollViewer AnnotationScroller => annotationScroll;
+    public static double PlotWidth(double viewportWidth, double annotationWidth) =>
+        Math.Max(1, viewportWidth - annotationWidth - 12);
 
     public DisplayFrame? Frame
     {
@@ -98,7 +119,7 @@ public sealed class Viewport : Grid
         var projected = selected.Select(Project).ToArray();
         double minH = projected.Min(p => p.Horizontal), maxH = projected.Max(p => p.Horizontal);
         double minV = projected.Min(p => p.Vertical), maxV = projected.Max(p => p.Vertical);
-        double plotWidth = Math.Max(1, Bounds.Width - viewport.AnnotationWidth - 12);
+        double plotWidth = PlotWidth(Bounds.Width, viewport.AnnotationWidth);
         double availableWidth = Math.Max(1, plotWidth - 48), availableHeight = Math.Max(1, Bounds.Height - 48);
         double scale = Math.Min(availableWidth / Math.Max(1e-9, maxH - minH),
             availableHeight / Math.Max(1e-9, maxV - minV));

@@ -23,6 +23,9 @@ public sealed class WorkbenchController : IDisposable
     private IProjectStore store;
     private readonly Func<AuthoringSession, IProjectStore> storeFactory;
     private SessionDraft? draft;
+    private AuthoredProjection? draftProjection;
+    private string? projectedDraftId;
+    private long projectedDraftGeneration;
     private SessionAssessment? currentAssessment;
     private CancellationTokenSource? activeSampling;
     private long stateVersion;
@@ -57,6 +60,21 @@ public sealed class WorkbenchController : IDisposable
     public IReadOnlyList<DisplayPoint> Points => Frame?.Points ?? [];
     public SectionEnclosure? CenterSection => Frame?.CenterSection;
     public SessionDraft? Draft => draft;
+    public AuthoredProjection? DraftProjection
+    {
+        get
+        {
+            if (draft is null) return null;
+            if (draftProjection is null || projectedDraftId != draft.Id || projectedDraftGeneration != draft.Generation)
+            {
+                try { draftProjection = session.InspectDraft(); }
+                catch (ContractError) { draftProjection = null; }
+                projectedDraftId = draft.Id;
+                projectedDraftGeneration = draft.Generation;
+            }
+            return draftProjection;
+        }
+    }
     public bool DraftInputValid => draftInputValid;
     public bool HasRecovery => Inspection is not null && session.Snapshot().Recovery is not null;
     public bool IsDirty

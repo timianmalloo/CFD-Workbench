@@ -3,7 +3,84 @@ using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using Avalonia.Input;
 using Avalonia.Automation.Peers;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls;
+using Avalonia.Animation;
 using System.Text;
+using System.Text.Json.Nodes;
+
+var reviewValues = new Dictionary<string, string>
+{
+    ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "keyboard",
+    ["CFDW_REVIEW_SIZE"] = "1024x700", ["CFDW_REVIEW_STATE"] = "invalid-input",
+    ["CFDW_REVIEW_THEME"] = "dark", ["CFDW_REVIEW_REDUCED_MOTION"] = "1"
+};
+var review = NativeReviewOptions.Parse(key => reviewValues.GetValueOrDefault(key))
+    ?? throw new Exception("Review selector was ignored");
+if (review.Persona != "keyboard" || review.Width != 1024 || review.Height != 700 ||
+    review.State != "invalid-input" || review.Theme != "dark" || !review.ReducedMotion ||
+    NativeReviewOptions.Parse(_ => null) is not null)
+    throw new Exception("Native review selectors did not round-trip");
+if (MainWindow.ReviewFocusTarget("designer") != "viewport" ||
+    MainWindow.ReviewFocusTarget("keyboard") != "numeric-or-open" ||
+    MainWindow.ReviewFocusTarget("screen-reader") != "stations" ||
+    MainWindow.ReviewFocusTarget("dense") != "controls")
+    throw new Exception("Review persona did not select a real initial focus region");
+var motionControl = new Button { Transitions = new Transitions { new DoubleTransition { Property = Button.OpacityProperty, Duration = TimeSpan.FromSeconds(1) } } };
+MainWindow.SuppressTransitions(motionControl);
+if (motionControl.Transitions is { Count: > 0 }) throw new Exception("Reduced-motion review retained a control transition");
+using (var reviewController = new WorkbenchController())
+{
+    await review.ApplyStateAsync(reviewController);
+    if (reviewController.Draft is null || reviewController.DraftInputValid || !reviewController.IsDirty ||
+        reviewController.Inspection?.Geometry.Status != GeometryStatus.Certified)
+        throw new Exception("Invalid-input review state bypassed the real accepted/draft controller route");
+    var field = MainWindow.DraftField(reviewController.DraftProjection!, reviewController.Draft);
+    if (field.Unit != "mm" || !double.TryParse(field.Text, out _))
+        throw new Exception("Fresh review draft did not provide its owned numeric value and unit");
+}
+bool reviewInvalidSizeRefused = false;
+try { NativeReviewOptions.Parse(key => key == "CFDW_REVIEW_MODE" ? "1" : key == "CFDW_REVIEW_SIZE" ? "900x600" : null); }
+catch (ArgumentException) { reviewInvalidSizeRefused = true; }
+if (!reviewInvalidSizeRefused) throw new Exception("Review harness accepted a window below its minimum size");
+using (var refusedReview = new WorkbenchController())
+{
+    await new NativeReviewOptions("designer", 1280, 800, "refused-open", "system", false, null)
+        .ApplyStateAsync(refusedReview);
+    if (refusedReview.Inspection?.Geometry.Status != GeometryStatus.Certified ||
+        string.IsNullOrEmpty(refusedReview.AcceptedSource) || refusedReview.PendingOriginal is null)
+        throw new Exception("Refused-open review state did not preserve a real accepted source and refused bytes");
+}
+using (var denseFileReview = new WorkbenchController())
+{
+    await new NativeReviewOptions("dense", 1024, 700, "file", "dark", true,
+        "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(denseFileReview);
+    if (denseFileReview.Inspection?.Geometry.Status != GeometryStatus.Certified)
+        throw new Exception("File review state did not admit the real certified source");
+}
+bool falseNotAssessedRefused = false;
+try
+{
+    using var notAssessedReview = new WorkbenchController();
+    await new NativeReviewOptions("designer", 1024, 700, "not-assessed", "system", false,
+        "src/CfdWorkbench.Desktop/Assets/example.foil").ApplyStateAsync(notAssessedReview);
+}
+catch (ArgumentException) { falseNotAssessedRefused = true; }
+if (!falseNotAssessedRefused) throw new Exception("Review harness falsely labelled certified source Not assessed");
+string geometryPath = Path.Combine(Path.GetTempPath(), $"geometry-{Guid.NewGuid():N}.foil");
+try
+{
+    var validBytes = await File.ReadAllTextAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
+    var invalidGeometry = validBytes.Replace("points [(0, 0), (0.1, 0)", "points [(0, 1), (0.1, 0)", StringComparison.Ordinal);
+    if (invalidGeometry == validBytes) throw new Exception("Invalid geometry fixture construction failed");
+    await File.WriteAllTextAsync(geometryPath, invalidGeometry);
+    using var invalidGeometryReview = new WorkbenchController();
+    await new NativeReviewOptions("designer", 1024, 700, "invalid-geometry", "system", false, geometryPath)
+        .ApplyStateAsync(invalidGeometryReview);
+    if (invalidGeometryReview.Inspection is not null || invalidGeometryReview.PendingOriginal is null)
+        throw new Exception("Invalid geometry review was accepted or original bytes were lost");
+}
+finally { File.Delete(geometryPath); }
 
 using var workbench = new WorkbenchController();
 await workbench.OpenExampleAsync();
@@ -12,8 +89,10 @@ accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspec
 var viewportPeer = ControlAutomationPeer.CreatePeerForElement(accessibleViewport);
 var visualChildren = accessibleViewport.SemanticControls;
 var semanticChildren = visualChildren.Select(ControlAutomationPeer.CreatePeerForElement).ToArray();
+int authoredSemanticCount = workbench.Inspection!.Authored.Assignments.Count +
+    workbench.Inspection.Authored.Rails.Sum(rail => rail.Controls.Count);
 if (viewportPeer.GetAutomationControlType() != AutomationControlType.Group ||
-    semanticChildren.Length != accessibleViewport.Semantics.Count ||
+    semanticChildren.Length != authoredSemanticCount ||
     !semanticChildren.Any(child => child.GetName().Contains("station", StringComparison.OrdinalIgnoreCase)) ||
     !semanticChildren.Any(child => child.GetName().Contains("locked", StringComparison.OrdinalIgnoreCase)) ||
     !semanticChildren.Any(child => child.GetName().Contains("editable", StringComparison.OrdinalIgnoreCase)) ||
@@ -23,6 +102,14 @@ var stableChild = visualChildren.First();
 accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspection!);
 if (!ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
     throw new Exception("Refresh replaced a stable semantic station peer");
+accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspection!, "trailing", "cv-5");
+if (accessibleViewport.SemanticControls.Count != authoredSemanticCount ||
+    !accessibleViewport.SemanticControls[workbench.Inspection.Authored.Assignments.Count].Text!.Contains("trailing control vertex cv-5") ||
+    !ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
+    throw new Exception("Selected tip CV did not remain accessible with all authored controls");
+if (accessibleViewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto ||
+    Viewport.PlotWidth(1024 - 240 - 300 - 24, 178) < 250)
+    throw new Exception("Minimum-window geometry or dense annotation scrolling regressed");
 if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
 if (workbench.Points.Count != 15) throw new Exception("Expected 15 certified samples");
 string source = workbench.AcceptedSource;
@@ -130,10 +217,35 @@ try
         throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
     if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
         throw new Exception("Native recovery offer does not expose exact retained draft bytes");
+    using var recoveryReview = new WorkbenchController();
+    await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
+        .ApplyStateAsync(recoveryReview);
+    if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
+        recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+        throw new Exception("Recovery review state bypassed the saved-project offer");
+    recoveryReview.ResumeRecovery();
+    var recoveryField = MainWindow.DraftField(recoveryReview.DraftProjection!, recoveryReview.Draft!);
+    if (recoveryField.Unit != "mm" ||
+        recoveryField.Text != ((recoveryTarget.OrdinateSi + .005) * 1000).ToString("G9", System.Globalization.CultureInfo.InvariantCulture))
+        throw new Exception("Resumed recovery did not bind its current draft value and unit");
     reopenedDraft.ResumeRecovery();
     if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
         reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
         throw new Exception("Resume did not keep recovery separate from accepted identity");
+    var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
+    invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
+    string invalidRecoveryPath = Path.Combine(Path.GetTempPath(), $"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
+    await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
+    using var invalidRecovery = new WorkbenchController();
+    try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
+    finally { File.Delete(invalidRecoveryPath); }
+    invalidRecovery.ResumeRecovery();
+    if (invalidRecovery.Draft is null ||
+        invalidRecovery.DraftProjection is not { } unprojectable ||
+        MainWindow.TryDraftField(unprojectable, invalidRecovery.Draft) is not null ||
+        invalidRecovery.RecoverySource != "not FoilDSL" ||
+        invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+        throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
 }
 finally { File.Delete(recoveryPath); }
 foreach (string railName in new[] { "leading", "trailing" })

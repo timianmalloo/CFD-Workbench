@@ -1,5 +1,49 @@
-<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:CfdWorkbench.Desktop">
   <Styles.Resources>
+    <ResourceDictionary>
+    <Color x:Key="DarkCanvasColor">#101a1d</Color>
+    <Color x:Key="DarkSurfaceColor">#17272c</Color>
+    <Color x:Key="DarkSoftColor">#21353a</Color>
+    <Color x:Key="DarkInkColor">#edf4f2</Color>
+    <Color x:Key="DarkMutedColor">#b2c6c2</Color>
+    <Color x:Key="DarkLineColor">#4e696b</Color>
+    <Color x:Key="DarkPrimaryColor">#66ddc8</Color>
+    <Color x:Key="DarkOnPrimaryColor">#101a1d</Color>
+    <Color x:Key="DarkDangerColor">#ff98a1</Color>
+    <Color x:Key="HighContrastBackgroundColor">#000000</Color>
+    <Color x:Key="HighContrastInkColor">#ffffff</Color>
+    <Color x:Key="HighContrastAccentColor">#ffff00</Color>
+    <Color x:Key="HighContrastStationColor">#00ffff</Color>
+    <ResourceDictionary.ThemeDictionaries>
+      <ResourceDictionary x:Key="Dark">
+        <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource DarkCanvasColor}" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource DarkSurfaceColor}" />
+        <SolidColorBrush x:Key="SurfaceSoftBrush" Color="{StaticResource DarkSoftColor}" />
+        <SolidColorBrush x:Key="InkBrush" Color="{StaticResource DarkInkColor}" />
+        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource DarkMutedColor}" />
+        <SolidColorBrush x:Key="LineBrush" Color="{StaticResource DarkLineColor}" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource DarkPrimaryColor}" />
+        <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource DarkOnPrimaryColor}" />
+        <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DarkDangerColor}" />
+      </ResourceDictionary>
+      <ResourceDictionary x:Key="{x:Static local:NativeReviewThemes.HighContrast}">
+        <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="SurfaceSoftBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="InkBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="LineBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="ViewportBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="ViewportGridBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="StationBrush" Color="{StaticResource HighContrastStationColor}" />
+      </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
     <Color x:Key="CanvasColor">#f0f2f1</Color>
     <Color x:Key="SurfaceColor">#fbfcfb</Color>
     <Color x:Key="SurfaceSoftColor">#e8edeb</Color>
@@ -39,6 +83,7 @@
     <x:Double x:Key="ControlHeight">32</x:Double>
     <x:Double x:Key="StationListHeight">120</x:Double>
     <x:Double x:Key="SectionViewportHeight">96</x:Double>
+    <GridLength x:Key="SectionPanelHeight">300</GridLength>
     <x:Double x:Key="ViewportAnnotationWidth">178</x:Double>
     <x:Double x:Key="ViewportAnnotationHeight">160</x:Double>
     <x:Double x:Key="SectionAnnotationHeight">72</x:Double>
@@ -46,10 +91,11 @@
     <x:Double x:Key="WindowHeight">800</x:Double>
     <x:Double x:Key="WindowMinWidth">1024</x:Double>
     <x:Double x:Key="WindowMinHeight">700</x:Double>
+    </ResourceDictionary>
   </Styles.Resources>
-  <Style Selector="Window"><Setter Property="Background" Value="{StaticResource CanvasBrush}" /><Setter Property="Foreground" Value="{StaticResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
+  <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
   <Style Selector="Button"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Padding" Value="{StaticResource Space3}" /></Style>
   <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /></Style>
   <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="{StaticResource HeadingSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
-  <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /></Style>
+  <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
 </Styles>

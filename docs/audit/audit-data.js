@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T19:54:46Z",
+  "generated": "2026-09-23T20:29:07Z",
   "audit": [
     {
       "actor": null,
@@ -5031,6 +5031,42 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "21f2f5bf6e9e2e09fde346a042fdcb65f0f04939",
         "short": "21f2f5bf6",
+        "branch": "feature/application-native-adapters",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37ZABSZKYZZ37P33EFDCBN8",
+      "shortname": "native-adapters-review-harness",
+      "datetime": "2026-09-23T20:29:07Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Finish C native adapters and review-only harness under Owner R21, preserving isolated build and CUA evidence.",
+      "summary": "Implemented fail-closed real-state review harness, theme/keyboard/motion and recovery binding fixes, corrected XAML GridLength runtime failure, added executable native startup smoke. Final isolated full gate passed 11 steps with 52 input hashes unchanged; native CUA still cgWindowNotFound, so M1 UI acceptance and join remain blocked. Retained Roslyn csc139 crash and prior startup RED receipts.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "tools/verify-application-adapters.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete native CLI, controller, desktop UI, review harness and source-bound proof within C track.",
+      "done_when": "Core API untouched; macOS and Windows packages pass source-bound gates; root reviews rendered native UI and AX; Owner accepts C proof.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T19:56:02Z",
+      "duration_seconds": 1985.0,
+      "git": {
+        "sha": "4b4bd9b3cd61f4f91ef955add22fa8ed6aa3bdf8",
+        "short": "4b4bd9b3c",
         "branch": "feature/application-native-adapters",
         "pushed": null
       }

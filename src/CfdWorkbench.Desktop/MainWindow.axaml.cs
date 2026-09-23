@@ -1,12 +1,15 @@
 using Avalonia;
 using Avalonia.Automation;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using System.Globalization;
 
@@ -27,10 +30,25 @@ public sealed partial class MainWindow : Window
     private bool refreshing;
     private bool closeApproved;
     private string? adapterError;
+    private string? boundDraftId;
+    private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
 
     public MainWindow()
     {
         AvaloniaXamlLoader.Load(this);
+        if (review is not null)
+        {
+            Width = review.Width;
+            Height = review.Height;
+            Title += $" · REVIEW {review.Persona} / {review.State} / {review.Theme} / {(review.ReducedMotion ? "reduced motion" : "motion default")}";
+            RequestedThemeVariant = review.Theme switch
+            {
+                "dark" => ThemeVariant.Dark,
+                "light" => ThemeVariant.Light,
+                "high-contrast" => NativeReviewThemes.HighContrast,
+                _ => ThemeVariant.Default
+            };
+        }
         T Find<T>(string name) where T : Control => this.FindControl<T>(name) ?? throw new InvalidOperationException($"Missing {name}");
         exampleButton = Find<Button>("ExampleButton"); openButton = Find<Button>("OpenButton");
         saveButton = Find<Button>("SaveButton"); undoButton = Find<Button>("UndoButton"); redoButton = Find<Button>("RedoButton");
@@ -67,7 +85,25 @@ public sealed partial class MainWindow : Window
         KeyDown += OnWindowKeyDown;
         Closing += OnClosing;
         Closed += (_, _) => workbench.Dispose();
-        Opened += async (_, _) => { Console.Error.WriteLine("NATIVE-STARTUP window-opened"); await Guarded(workbench.OpenExampleAsync); };
+        Opened += async (_, _) =>
+        {
+            Console.Error.WriteLine("NATIVE-STARTUP window-opened");
+            if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
+            {
+                Console.Error.WriteLine("NATIVE-STARTUP smoke-opened");
+                Dispatcher.UIThread.Post(Close, DispatcherPriority.Background);
+                return;
+            }
+            await Guarded(() => review is null ? workbench.OpenExampleAsync() : review.ApplyStateAsync(workbench));
+            if (review is not null)
+            {
+                if (review.State == "invalid-input" && workbench.Draft is not null)
+                    numericInput.Text = "-";
+                ApplyReviewMotionPreference();
+                Dispatcher.UIThread.Post(() => ReviewFocusControl(review.Persona).Focus(), DispatcherPriority.Input);
+            }
+        };
+        if (review?.ReducedMotion == true) LayoutUpdated += (_, _) => ApplyReviewMotionPreference();
         Refresh();
     }
 
@@ -79,6 +115,8 @@ public sealed partial class MainWindow : Window
         catch (OperationCanceledException) { adapterError = "Operation cancelled. Accepted source retained."; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         { adapterError = "DOC-IO: File operation failed. Accepted source retained."; }
+        catch (Exception error) when (review is not null && (error is ArgumentException or InvalidOperationException))
+        { adapterError = $"REVIEW-REFUSED: {error.Message}"; }
         Refresh();
     }
 
@@ -253,8 +291,38 @@ public sealed partial class MainWindow : Window
         dialog.Content = new StackPanel { Margin = new Thickness(20), Spacing = 18,
             Children = { new TextBlock { Text = "Save this foil before closing or opening another file?", TextWrapping = Avalonia.Media.TextWrapping.Wrap }, buttons } };
         dialog.Opened += (_, _) => cancelButton?.Focus();
+        if (review?.ReducedMotion == true)
+            dialog.LayoutUpdated += (_, _) => SuppressTransitions(dialog);
         await dialog.ShowDialog(this);
         return result;
+    }
+
+    public static string ReviewFocusTarget(string persona) => persona switch
+    {
+        "designer" => "viewport",
+        "keyboard" => "numeric-or-open",
+        "screen-reader" => "stations",
+        "dense" => "controls",
+        _ => throw new ArgumentException("Unknown review persona")
+    };
+
+    private Control ReviewFocusControl(string persona) => ReviewFocusTarget(persona) switch
+    {
+        "viewport" => viewport,
+        "stations" => stationList,
+        "controls" => controlList,
+        _ => numericInput.IsEnabled ? numericInput : openButton
+    };
+
+    private void ApplyReviewMotionPreference()
+    {
+        if (review?.ReducedMotion == true) SuppressTransitions(this);
+    }
+
+    public static void SuppressTransitions(Visual root)
+    {
+        foreach (var animation in root.GetVisualDescendants().OfType<Animatable>().Prepend(root).OfType<Animatable>())
+            if (animation.Transitions is { Count: > 0 }) animation.Transitions = null;
     }
 
     private async void OnClosing(object? sender, WindowClosingEventArgs args)
@@ -280,6 +348,8 @@ public sealed partial class MainWindow : Window
     {
         if (refreshing) return;
         refreshing = true;
+        try
+        {
         stateBanner.Text = adapterError ?? workbench.Status;
         viewportProvenance.Text = workbench.Provenance;
         viewport.Frame = workbench.Frame;
@@ -294,7 +364,8 @@ public sealed partial class MainWindow : Window
         acceptIdsButton.IsEnabled = workbench.PendingCandidate is not null;
         resumeRecoveryButton.IsEnabled = workbench.HasRecovery && workbench.Draft is null;
         discardRecoveryButton.IsEnabled = workbench.HasRecovery && workbench.Draft is null;
-        numericInput.IsEnabled = workbench.Draft is not null;
+        numericInput.IsEnabled = workbench.Draft is { } numericDraft &&
+            workbench.DraftProjection is { } numericProjection && TryDraftField(numericProjection, numericDraft) is not null;
         if (workbench.Inspection is { } inspected)
         {
             viewport.Semantics = ViewportSemantics.FromInspection(inspected,
@@ -320,6 +391,23 @@ public sealed partial class MainWindow : Window
             controlList.ItemsSource = Array.Empty<ListBoxItem>();
             targets.Clear();
         }
+        if (workbench.Draft is { } activeDraft && boundDraftId != activeDraft.Id)
+        {
+            var projection = workbench.DraftProjection;
+            var field = projection is null ? null : TryDraftField(projection, activeDraft);
+            if (field is null)
+            {
+                numericInput.Text = "";
+                unitLabel.Text = "—";
+            }
+            else
+            {
+                numericInput.Text = field.Value.Text;
+                unitLabel.Text = field.Value.Unit;
+            }
+            boundDraftId = activeDraft.Id;
+        }
+        else if (workbench.Draft is null) boundDraftId = null;
         sourceLabel.Text = workbench.PendingCandidate is not null ? "Pending import: original and explicit-ID candidate — compare before accepting"
             : workbench.PendingOriginal is not null ? "Rejected import: original bytes retained; accepted document unchanged"
             : workbench.HasRecovery ? "Separate recovery draft and unchanged accepted source"
@@ -341,7 +429,10 @@ public sealed partial class MainWindow : Window
             : "Physical X/Z section · awaiting certified slice";
         sectionReadout.Text = section is null ? "Section sample unavailable."
             : $"Upper z/c [{section.Upper.Lower:G7}, {section.Upper.Upper:G7}] · Lower z/c [{section.Lower.Lower:G7}, {section.Lower.Upper:G7}]";
-        draftReadout.Text = workbench.Draft is null ? "No draft." : $"Draft {workbench.Draft.Id} · {workbench.Draft.Rail} {workbench.Draft.VertexId} · generation {workbench.Draft.Generation}";
+        draftReadout.Text = workbench.Draft is null ? "No draft." :
+            workbench.DraftProjection is not { } displayProjection || TryDraftField(displayProjection, workbench.Draft) is null
+                ? $"Draft {workbench.Draft.Id} cannot be projected. Inspect retained source bytes and Preview diagnostics; numeric editing is unavailable."
+                : $"Draft {workbench.Draft.Id} · {workbench.Draft.Rail} {workbench.Draft.VertexId} · generation {workbench.Draft.Generation}";
         importReadout.Text = workbench.PendingCandidate is not null ? "Original bytes retained; candidate adds explicit control IDs only. Accepted source remains unchanged until acceptance."
             : workbench.PendingOriginal is not null ? "Import refused. Original bytes retained; accepted source remains unchanged."
             : "No import pending.";
@@ -353,7 +444,8 @@ public sealed partial class MainWindow : Window
         var last = workbench.LocalEvents.LastOrDefault();
         eventReadout.Text = last is null ? "No operation recorded." : $"{last.Operation} · {last.Outcome} · {last.DurationMilliseconds:F1} ms · {last.InputBytes?.ToString() ?? "not recorded"} input bytes";
         statusBar.Text = $"{workbench.Provenance} · {workbench.Status} · Analysis Unavailable — no method implemented";
-        refreshing = false;
+        }
+        finally { refreshing = false; }
     }
 
     private static ListBoxItem NamedItem(string text, string name)
@@ -361,5 +453,19 @@ public sealed partial class MainWindow : Window
         var item = new ListBoxItem { Content = text };
         AutomationProperties.SetName(item, name);
         return item;
+    }
+
+    public static (string Text, string Unit) DraftField(AuthoredProjection projection, SessionDraft draft)
+    {
+        return TryDraftField(projection, draft) ?? throw new ContractError("DSL-NOT-ASSESSED");
+    }
+
+    public static (string Text, string Unit)? TryDraftField(AuthoredProjection projection, SessionDraft draft)
+    {
+        var rail = projection.Rails.SingleOrDefault(item => item.Name == draft.Rail);
+        var control = rail?.Controls.SingleOrDefault(item => item.Id == draft.VertexId);
+        if (rail is null || control is null) return null;
+        double scale = rail.SourceUnit switch { "mm" => 1000, "cm" => 100, _ => 1 };
+        return ((control.OrdinateSi * scale).ToString("G9", CultureInfo.InvariantCulture), rail.SourceUnit);
     }
 }

@@ -3,7 +3,7 @@
         Title="CFD Workbench — Offline Foil" Width="{StaticResource WindowWidth}" Height="{StaticResource WindowHeight}"
         MinWidth="{StaticResource WindowMinWidth}" MinHeight="{StaticResource WindowMinHeight}">
   <Grid RowDefinitions="Auto,Auto,*,Auto">
-    <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space4}">
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space4}">
       <DockPanel LastChildFill="True">
         <TextBlock DockPanel.Dock="Left" Text="CFD Workbench" FontSize="{StaticResource TitleSize}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="{StaticResource Space6}" />
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
@@ -15,11 +15,11 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <Border Grid.Row="1" Background="{StaticResource SurfaceSoftBrush}" Padding="{StaticResource Space2}">
+    <Border Grid.Row="1" Background="{DynamicResource SurfaceSoftBrush}" Padding="{StaticResource Space2}">
       <TextBlock x:Name="StateBanner" Text="Open Example or a file." AutomationProperties.Name="Document and geometry status" TextWrapping="Wrap" />
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="240,*,300">
-      <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,1,0" Padding="{StaticResource Space4}">
+      <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0" Padding="{StaticResource Space4}">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,180">
           <TextBlock Grid.Row="0" Classes="heading" Text="Navigator" />
           <TextBlock Grid.Row="1" Classes="caption" Text="Accepted stations · normalized span η" Margin="{StaticResource Space2}" />
@@ -30,28 +30,32 @@
           <ListBox Grid.Row="6" x:Name="SampleList" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
         </Grid>
       </Border>
-      <Grid Grid.Column="1" RowDefinitions="*,220">
-        <Border Grid.Row="0" Background="{StaticResource ViewportBrush}" Padding="{StaticResource Space3}">
+      <Grid Grid.Column="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+          <RowDefinition Height="{StaticResource SectionPanelHeight}" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="{DynamicResource ViewportBrush}" Padding="{StaticResource Space3}">
           <Grid RowDefinitions="Auto,*,Auto">
             <DockPanel Grid.Row="0">
-              <TextBlock DockPanel.Dock="Left" Foreground="{StaticResource ViewportInkBrush}" Text="Isometric · certified XYZ point samples" FontWeight="SemiBold" />
-              <TextBlock x:Name="ViewportProvenance" Foreground="{StaticResource ViewportInkBrush}" HorizontalAlignment="Right" Text="Empty" />
+              <TextBlock DockPanel.Dock="Left" Foreground="{DynamicResource ViewportInkBrush}" Text="Isometric · certified XYZ point samples" FontWeight="SemiBold" />
+              <TextBlock x:Name="ViewportProvenance" Foreground="{DynamicResource ViewportInkBrush}" HorizontalAlignment="Right" Text="Empty" />
             </DockPanel>
-            <local:Viewport Grid.Row="1" x:Name="FoilViewport" Focusable="True" BackgroundBrush="{StaticResource ViewportBrush}"
+            <local:Viewport Grid.Row="1" x:Name="FoilViewport" Focusable="True" BackgroundBrush="{DynamicResource ViewportBrush}"
                             AnnotationWidth="{StaticResource ViewportAnnotationWidth}" AnnotationHeight="{StaticResource ViewportAnnotationHeight}"
-                            GridBrush="{StaticResource ViewportGridBrush}" FoilBrush="{StaticResource FoilBrush}"
-                            StationBrush="{StaticResource StationBrush}" AutomationProperties.Name="Physical XYZ isometric foil; root, interior and tip sampled stations; inspect coordinate and control data in Navigator" />
-            <TextBlock Grid.Row="2" Foreground="{StaticResource ViewportInkBrush}" Text="Axis triad: ↘ +x aft · ↙ +y span · ↑ +z height (m) · one uniform scale · segment error Not assessed" TextWrapping="Wrap" />
+                            GridBrush="{DynamicResource ViewportGridBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                            StationBrush="{DynamicResource StationBrush}" AutomationProperties.Name="Physical XYZ isometric foil; root, interior and tip sampled stations; inspect coordinate and control data in Navigator" />
+            <TextBlock Grid.Row="2" Foreground="{DynamicResource ViewportInkBrush}" Text="Axis triad: ↘ +x aft · ↙ +y span · ↑ +z height (m) · one uniform scale · segment error Not assessed" TextWrapping="Wrap" />
           </Grid>
         </Border>
         <TabControl Grid.Row="1" x:Name="DocumentTabs" AutomationProperties.Name="Section and source document tabs">
           <TabItem Header="Section sample">
             <StackPanel Margin="{StaticResource Space4}" Spacing="8">
               <TextBlock x:Name="SectionPosition" Classes="heading" Text="Physical X/Z section · η 0.5" />
-              <local:Viewport x:Name="SectionViewport" SectionMode="True" Height="{StaticResource SectionViewportHeight}" BackgroundBrush="{StaticResource ViewportBrush}"
+              <local:Viewport x:Name="SectionViewport" SectionMode="True" Height="{StaticResource SectionViewportHeight}" BackgroundBrush="{DynamicResource ViewportBrush}"
                               AnnotationWidth="{StaticResource ViewportAnnotationWidth}" AnnotationHeight="{StaticResource SectionAnnotationHeight}"
-                              GridBrush="{StaticResource ViewportGridBrush}" FoilBrush="{StaticResource FoilBrush}"
-                              StationBrush="{StaticResource StationBrush}" AutomationProperties.Name="Five certified physical x and z section samples at the labelled interior eta, upper and lower trailing edges separate" />
+                              GridBrush="{DynamicResource ViewportGridBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                              StationBrush="{DynamicResource StationBrush}" AutomationProperties.Name="Five certified physical x and z section samples at the labelled interior eta, upper and lower trailing edges separate" />
               <TextBlock x:Name="SectionReadout" Text="Open a certified foil to inspect normalized z/c." TextWrapping="Wrap" AutomationProperties.Name="Normalized section upper and lower enclosure" />
               <TextBlock Classes="caption" Text="Physical points (m) and normalized z/c at x/c 0.5; sampled segment error Not assessed." />
               <TextBlock Classes="caption" Text="Analysis Unavailable — no method implemented." />
@@ -65,7 +69,7 @@
           </TabItem>
         </TabControl>
       </Grid>
-      <Border Grid.Column="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1,0,0,0" Padding="{StaticResource Space4}">
+      <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0" Padding="{StaticResource Space4}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Spacing="8">
             <TextBlock Classes="heading" Text="Properties" />
@@ -76,17 +80,17 @@
               <TextBox Grid.Column="0" x:Name="NumericInput" Watermark="Select an editable CV" AutomationProperties.Name="Selected control aft position numeric value" />
               <TextBlock Grid.Column="1" x:Name="UnitLabel" Text="m" VerticalAlignment="Center" Margin="{StaticResource Space2}" AutomationProperties.Name="Aft position unit" />
             </Grid>
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <Button x:Name="PreviewButton" Content="Preview" AutomationProperties.Name="Preview current rail draft" />
-              <Button x:Name="ApplyButton" Content="Apply" AutomationProperties.Name="Apply certified rail draft" />
-              <Button x:Name="CancelButton" Content="Cancel draft" AutomationProperties.Name="Cancel current rail draft" />
-            </StackPanel>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+              <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="PreviewButton" Content="Preview" AutomationProperties.Name="Preview current rail draft" />
+              <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="ApplyButton" Content="Apply" AutomationProperties.Name="Apply certified rail draft" />
+              <Button Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" x:Name="CancelButton" Content="Cancel draft" AutomationProperties.Name="Cancel current rail draft" />
+            </Grid>
             <TextBlock x:Name="DraftReadout" Classes="caption" Text="No draft." TextWrapping="Wrap" />
             <TextBlock Classes="heading" Text="Source import" Margin="{StaticResource Space2}" />
             <Button x:Name="AcceptIdsButton" Content="Accept candidate IDs" AutomationProperties.Name="Accept explicit ID insertion after comparing source" />
             <TextBlock x:Name="ImportReadout" Classes="caption" Text="No import pending." TextWrapping="Wrap" />
             <TextBlock Classes="heading" Text="Recovery" Margin="{StaticResource Space2}" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
+            <StackPanel Spacing="8">
               <Button x:Name="ResumeRecoveryButton" Content="Resume draft" AutomationProperties.Name="Resume separate recovery draft" />
               <Button x:Name="DiscardRecoveryButton" Content="Discard recovery" AutomationProperties.Name="Discard separate recovery draft" />
             </StackPanel>
@@ -98,7 +102,7 @@
         </ScrollViewer>
       </Border>
     </Grid>
-    <Border Grid.Row="3" Background="{StaticResource SurfaceSoftBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="{StaticResource Space2}">
+    <Border Grid.Row="3" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="{StaticResource Space2}">
       <TextBlock x:Name="StatusBar" Text="Offline · Analysis Unavailable — no method implemented" AutomationProperties.Name="Current operation status and analysis availability" />
     </Border>
   </Grid>

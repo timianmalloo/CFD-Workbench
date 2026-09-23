@@ -60,17 +60,24 @@ def source_inputs() -> dict[str, str]:
 def contrast_checks() -> dict[str, float]:
     source = (ROOT / "src" / "CfdWorkbench.Desktop" / "Styles.axaml").read_text(encoding="utf-8")
     colors = dict(re.findall(r'<Color x:Key="([^"]+)">(#[0-9a-fA-F]{6})</Color>', source))
+    theme_blocks = dict(re.findall(r'<ResourceDictionary x:Key="([^"]+)">(.*?)</ResourceDictionary>', source, re.S))
+    base_source = re.sub(r'<ResourceDictionary x:Key="[^"]+">.*?</ResourceDictionary>', '', source, flags=re.S)
+    def brushes(block: str) -> dict[str, str]:
+        return dict(re.findall(r'<SolidColorBrush x:Key="([^"]+)" Color="\{StaticResource ([^}]+)\}"', block))
+    base_brushes = brushes(base_source)
     def luminance(color: str) -> float:
         values = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
         linear = [value / 12.92 if value <= .04045 else ((value + .055) / 1.055) ** 2.4 for value in values]
         return sum(weight * value for weight, value in zip((.2126, .7152, .0722), linear))
-    pairs = (("InkColor", "SurfaceColor"), ("MutedColor", "SurfaceColor"),
-             ("ViewportInkColor", "ViewportColor"), ("OnPrimaryColor", "PrimaryColor"),
-             ("StationColor", "ViewportColor"))
+    pairs = (("InkBrush", "SurfaceBrush"), ("MutedBrush", "SurfaceBrush"),
+             ("ViewportInkBrush", "ViewportBrush"), ("OnPrimaryBrush", "PrimaryBrush"),
+             ("StationBrush", "ViewportBrush"))
     result = {}
-    for foreground, background in pairs:
-        first, second = luminance(colors[foreground]), luminance(colors[background])
-        result[f"{foreground}/{background}"] = (max(first, second) + .05) / (min(first, second) + .05)
+    for variant, overrides in (("Light", {}), *[(key, brushes(block)) for key, block in theme_blocks.items()]):
+        palette = base_brushes | overrides
+        for foreground, background in pairs:
+            first, second = luminance(colors[palette[foreground]]), luminance(colors[palette[background]])
+            result[f"{variant}:{foreground}/{background}"] = (max(first, second) + .05) / (min(first, second) + .05)
     if min(result.values()) < 4.5:
         raise RuntimeError(f"critical token contrast below 4.5:1: {result}")
     return result
@@ -204,7 +211,7 @@ def run(name: str, argv: list[str], timeout: int = 600) -> dict:
                         child.kill()
                         child.wait(timeout=5)
     remaining = observe(pid, owned) if cleanup_error is None else {"Not assessed": cleanup_error}
-    return {"argv": argv, "cwd": str(ROOT), "environment": RECORDED_ENV, "pid": pid,
+    return {"argv": argv, "cwd": str(ROOT), "environment": dict(RECORDED_ENV), "pid": pid,
             "startUtc": started, "psStartIdentity": start_identity, "exitCode": child.returncode,
             "timedOut": timed_out, "collectorObserved": sorted(collector),
             "ownedPidStart": owned, "remainingProcessGroup": remaining, "cleanupError": cleanup_error,
@@ -242,6 +249,10 @@ def main() -> int:
     for name in ("artifacts", "receipts", "dotnet-home", "nuget", "http-cache", "tmp"):
         (SCRATCH / name).mkdir()
     ENV = os.environ.copy()
+    for key in ("CFDW_REVIEW_MODE", "CFDW_REVIEW_PERSONA", "CFDW_REVIEW_SIZE",
+                "CFDW_REVIEW_STATE", "CFDW_REVIEW_THEME", "CFDW_REVIEW_REDUCED_MOTION",
+                "CFDW_REVIEW_PATH", "CFDW_STARTUP_SMOKE"):
+        ENV.pop(key, None)
     for key, suffix in {"DOTNET_CLI_HOME": "dotnet-home", "NUGET_PACKAGES": "nuget",
                         "NUGET_HTTP_CACHE_PATH": "http-cache", "TMPDIR": "tmp",
                         "TMP": "tmp", "TEMP": "tmp"}.items():
@@ -276,6 +287,25 @@ def main() -> int:
             if not dll.is_file():
                 raise RuntimeError(f"test assembly missing: {dll}")
             require_step(receipt, project, ["dotnet", str(dll)])
+        smoke = ARTIFACTS / "bin" / "CfdWorkbench.Desktop" / "debug" / "CfdWorkbench.Desktop"
+        if not smoke.is_file():
+            raise RuntimeError(f"native startup executable missing: {smoke}")
+        smoke_selectors = {"CFDW_STARTUP_SMOKE": "1", "CFDW_REVIEW_MODE": "1",
+                           "CFDW_REVIEW_PERSONA": "designer", "CFDW_REVIEW_SIZE": "1024x700",
+                           "CFDW_REVIEW_STATE": "empty", "CFDW_REVIEW_THEME": "high-contrast",
+                           "CFDW_REVIEW_REDUCED_MOTION": "1"}
+        ENV.update(smoke_selectors)
+        RECORDED_ENV.update(smoke_selectors)
+        receipt["nativeSmokeEnvironment"] = smoke_selectors | {"CFDW_REVIEW_PATH": None}
+        try:
+            require_step(receipt, "native-xaml-startup-smoke", [str(smoke)], timeout=30)
+            raw = pathlib.Path(receipt["steps"][-1]["stderr"]).read_text(encoding="utf-8")
+            if "NATIVE-STARTUP smoke-opened" not in raw:
+                raise RuntimeError("native XAML startup did not reach Window.Opened")
+        finally:
+            for key in smoke_selectors:
+                ENV.pop(key, None)
+                RECORDED_ENV.pop(key, None)
         for runtime in ("osx-arm64", "win-x64"):
             for project in ("CfdWorkbench.Desktop", "CfdWorkbench.Cli"):
                 require_step(receipt, f"publish-{project}-{runtime}", ["dotnet", "publish",
