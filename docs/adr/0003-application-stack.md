@@ -18,6 +18,7 @@ summary: >-
   Owner Ruling 13 accepts the direction; named cross-platform/numerical/persistence product gates remain required.
 review-suggested:
   - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
 ---
 
 # ADR 0003: native offline composition

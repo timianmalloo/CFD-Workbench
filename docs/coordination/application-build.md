@@ -13,6 +13,8 @@ links:
 review-by: "2026-10-23"
 summary: >-
   Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.
+review-suggested:
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
 ---
 
 # First application increment: coordination plan

@@ -11,6 +11,8 @@ links:
   - {to: mockup-workbench-v7, rel: relates-to}
 review-by: 2026-10-23
 summary: A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.
+review-suggested:
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
 ---
 
 # Application build execution graph

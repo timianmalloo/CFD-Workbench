@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py derive",
+  "generator": "docs-graph.py flag",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -299,6 +299,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Selects C#/.NET with Avalonia for the conditional offline native milestone after actual candidate spikes. Retains lossless source snapshots and append-only project facts without a database or editable AST shadow; Owner Ruling 13 accepts the direction; named cross-platform/numerical/persistence product gates remain required.",
@@ -327,7 +332,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "593dd10f21bc8913402fe873cde8cc020405b657e88a9fe2f19331ad07bc3c27"
+      "sourceSha256": "53f63a14f84abf87c56c573ede93acc4831173568897deff1956d009f87cf084"
     },
     {
       "id": "adr-foildsl-authority",
@@ -383,6 +388,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
@@ -425,7 +435,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "6abd84c0e5c53c1f2063d5b65b4879b1bd1eeb2820085fbdfcfbab02ee6aa562"
+      "sourceSha256": "69c82785d1c563ee0f1db2f958e8cc89d0a63a8f268202cba09b98e346cd96c7"
     },
     {
       "id": "cad-editing-views",
@@ -1063,6 +1073,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-project-contract",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
@@ -1100,7 +1115,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61d15cc124df2d412fc94191cac6f372568df60d0d6a3ed70b0e2a8c8e63b141"
+      "sourceSha256": "f7bacf957efbbf5d672e24329cdedfeff2eea7e4961714434e27bf1728374437"
     },
     {
       "id": "design-application-foundation",
@@ -1121,6 +1136,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft, certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary, failure/security/privacy tests and exact downstream ownership proposals without production implementation.",
@@ -1158,7 +1178,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2e8777ea23c46e1b7fe7e6352be5e7aee9053ca63d1f0bd042a988d3fc1b1edf"
+      "sourceSha256": "1e9671b9c92dc2b115deab5c108b63be0c07af3c9c027f6b2c7d069df8418ccd"
     },
     {
       "id": "design-authoring-decisions",
@@ -1914,7 +1934,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b3663856dc71b3f9e5151569ba88c8f0492d36e10d6945b5d4540db221fda721"
+      "sourceSha256": "c49ac94dd82bb36fc85f71769ae7e4814561261afec0d7ceffce9551317bcddf"
     },
     {
       "id": "domain-experts",
@@ -1994,7 +2014,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        }
+      ],
       "summary": "A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.",
       "tags": [
         "application",
@@ -2022,7 +2048,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "9a9f3c4bd6554d78a019ead669169bd43fb82658ac69f8ce78e718df92aaea9a"
+      "sourceSha256": "1ef8ef551efc4f952a861b5bbcc8ece7670d7463645c025624a76ec7f61305f5"
     },
     {
       "id": "plan-authoring-decisions",
@@ -3745,7 +3771,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        }
+      ],
       "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
       "tags": [
         "coordination",
@@ -3772,7 +3804,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d2a49427db2e9b060ab45d8879768f2aa2b845f3bc39fcb08718bbdb1255e047"
+      "sourceSha256": "a1c0a8c4bb7744194f9a49f1dd531050627b1bfd5022b6295a135d619611922b"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4025,6 +4057,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-project-contract",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Records actual C# build/session assertions and independent decimal, RFC 8785, BLAKE3 and history oracles. Distinguishes fixture geometry authority and persistence models from live local filesystem primitives. Native Windows, full language/kernel/store and production telemetry remain unassessed.",
@@ -4050,7 +4087,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6832ef8c08b4f80ad8353a04dd014f46fb3019ba5383ee379ac74fac049913db"
+      "sourceSha256": "2923b77dbae7ffdf222ea83ccd1686a0b8da68652e49f6f51b2e41207bcaf050"
     },
     {
       "id": "proof-application-spikes",
@@ -4261,7 +4298,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-application-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        }
+      ],
       "summary": "Independent lead review of the first application architecture and contract spikes. Records observed native interaction evidence, contract findings and outstanding gates; it does not certify an application implementation or Windows runtime behavior.",
       "tags": [
         "architecture",
@@ -4285,7 +4328,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1962c1dd0a8590c125233fd5c00869120744f392b67a75a763f3faa17c9aa401"
+      "sourceSha256": "614996ff01d65e035b041f559b345e8600bbf53081ede4e64400a12f778cecf7"
     },
     {
       "id": "review-application-contracts",
@@ -4301,6 +4344,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "spec-foildsl",
+          "on": "2026-09-23",
+          "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
         }
       ],
       "summary": "Independent review of the serial B0 contract fixture, its durable identity and session boundaries, with explicit limits on what fixture evidence establishes.",
@@ -4330,7 +4378,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "46dbff6b710a8d74399b53f76ce60a3dbad1f83ab2b4df5f28232aff46ea5e55"
+      "sourceSha256": "83bb9fdef821577fdf37b50f58c403a8f0c241c26c182e557d1be58cff6f3264"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5011,5 +5059,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d15bbfa651b781db5f69f440823a93f93c7b728c24a784b88fed2563ff305e93"
+  "graphSha256": "b6b31a0d0207d373ed734138bdab0a0c97665d41f89b917ddfe9d34568695aba"
 };

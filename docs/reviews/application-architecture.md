@@ -14,6 +14,8 @@ summary: >-
   Independent lead review of the first application architecture and contract spikes.
   Records observed native interaction evidence, contract findings and outstanding gates;
   it does not certify an application implementation or Windows runtime behavior.
+review-suggested:
+  - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
 ---
 
 # Independent application architecture review
