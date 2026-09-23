@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T20:59:04Z",
+  "generated": "2026-09-23T21:10:43Z",
   "audit": [
     {
       "actor": null,
@@ -5661,6 +5661,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M381PJ0AHQHV89NWRZD4T10V",
+      "shortname": "owner-native-create-abi-r26",
+      "datetime": "2026-09-23T21:10:43Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve typed storage request req-01M381H81G425H2Y4JH874GBQG using exact evidence and current plan. Native Save created accepted.cfdw.json mode0454 despite requested0600; controlled fixed-versus-variadic ABI probe establishes native mechanism but not managed repair. Rule scope/routing and robust ABI-correct spike; no production writes or self-clearance.",
+      "summary": "Recorded Ruling26 after direct retained receipt/source/mode/hash inspection. Authorized separate serial native bridge repair subject to installed .NET/publication spike, per-umask real mode controls, fail-closed prewrite check, owned cleanup and independent packaged Save/Reopen. Original evidence unchanged; no build or production edit performed. Routing remains observed-only and no model probe. Planned bounded read->ruling->handoff completed without delegation.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Settle storage repair scope and routing from exact ABI evidence.",
+      "done_when": "Canonical ruling names safe repair direction, exact path envelope and independent proof gate; Coordinator/root notified and seat yielded.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T21:08:36Z",
+      "duration_seconds": 127.0
     }
   ],
   "changes": [
@@ -6142,6 +6166,28 @@ window.AUDIT_DATA = {
       "git": {
         "before": "6e855a4",
         "after": "6e855a4e021d51267899b09512901a10cf86242b",
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M381PHWBGD70AXHWVCAFGHR0",
+      "datetime": "2026-09-23T21:10:43Z",
+      "session": "cfd-owner-20260923",
+      "kind": "decision",
+      "skill": "define-architecture",
+      "title": "Ruling 26 reopens macOS create-permission boundary",
+      "prompt": "Resolve typed storage request req-01M381H81G425H2Y4JH874GBQG using exact evidence and current plan. Native Save created accepted.cfdw.json mode0454 despite requested0600; controlled fixed-versus-variadic ABI probe establishes native mechanism but not managed repair. Rule scope/routing and robust ABI-correct spike; no production writes or self-clearance.",
+      "summary": "Separate serial requested-Astra B persistence repair with fixed-signature C bridge and real .NET/package spike; seven exact candidate paths; root independent security/data gate before C integration.",
+      "rationale": "Saved file is0454 despite0600 request; two fixed-four probes create0000, two genuine variadic probes0600. Creation must be safe before bytes, so post-create chmod is not an ABI repair.",
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": null,
+        "after": "022bd446e2ff7f9c6cde386fa7521e08dbd1a351",
         "branch": "feature/application-coordination",
         "pushed": null,
         "commits": []
