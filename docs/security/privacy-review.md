@@ -33,10 +33,10 @@ identify a person; “offline” does not mean no personal data.
 
 | source | Flow / categories | Finding | Disposition | Verification |
 |---|---|---|---|---|
-| [design-application-foundation](design/application-foundation.md) | Source names/comments and file paths · L/I/D/D | Identifying content could enter logs or leave device | Mitigate: metadata-only local logs; no network exporter | Marker in path/source absent from logs; offline walk |
-| [design-application-foundation](design/application-foundation.md) | Accepted history · N | Local facts might imply authenticated personal attribution | Mitigate: no authenticated-author claim; operation identity only | CLI/UI copy and schema omit fabricated actor |
-| [design-application-foundation](design/application-foundation.md) | Recovery/history · U | User unaware incomplete source is retained | Mitigate: explicit recovery offer, retained-history disclosure | Reopen invalid draft labels accepted versus recovery |
-| [design-application-foundation](design/application-foundation.md) | Local documents · N-compliance | Retention/access depends on local device policy | Transfer: OS-user filesystem ACL; explicit residual shared-device access | No egress or credential use; no application-encryption claim |
+| [design-application-foundation](../design/application-foundation.md) | Source names/comments and file paths · L/I/D/D | Identifying content could enter logs or leave device | Mitigate: metadata-only local logs; no network exporter | Marker in path/source absent from logs; offline walk |
+| [design-application-foundation](../design/application-foundation.md) | Accepted history · N | Local facts might imply authenticated personal attribution | Mitigate: no authenticated-author claim; operation identity only | CLI/UI copy and schema omit fabricated actor |
+| [design-application-foundation](../design/application-foundation.md) | Recovery/history · U | User unaware incomplete source is retained | Mitigate: explicit recovery offer, retained-history disclosure | Reopen invalid draft labels accepted versus recovery |
+| [design-application-foundation](../design/application-foundation.md) | Local documents · N-compliance | Retention/access depends on local device policy | Transfer: OS-user filesystem ACL; explicit residual shared-device access | No egress or credential use; no application-encryption claim |
 
 <!-- rolled up from 1 artifact(s) by docs-graph.py rollup on 2026-09-23 -->
 
@@ -59,4 +59,4 @@ application encryption; Owner reviews that posture before release. Recent-file p
 recovery cleanup need the serial contract gate's explicit policy. No network or credential permission is
 requested by this architecture. Independent root/Owner review remains required.
 
-`python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Privacy analysis (LINDDUN-lite)" --type design`
+`python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Privacy analysis (LINDDUN-lite)" --type design --relative-to docs/security`

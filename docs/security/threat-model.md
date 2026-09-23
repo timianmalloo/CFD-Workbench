@@ -34,12 +34,12 @@ with root/Owner. The first milestone has no network listener, account, remote mo
 
 | source | Boundary | Threat | Disposition / negative test |
 |---|---|---|---|
-| [design-application-foundation](design/application-foundation.md) | File → parser | S/T: forged source/hash or evaluator | Recompute exact hashes, strict version/grammar; tampered source never accepted |
-| [design-application-foundation](design/application-foundation.md) | File → parser | D: huge nested/number/string inputs | Enforce byte/token/count/time limits before expensive math; limits±1/fuzz |
-| [design-application-foundation](design/application-foundation.md) | Source text → UI | E/I: script or format injection | Native text values only, no eval/HTML/link execution; hostile strings remain literal |
-| [design-application-foundation](design/application-foundation.md) | Save → filesystem | T/E: symlink/path escape, external replacement | No-follow path/parent validation and scoped handle policy; link ancestor/race tests |
-| [design-application-foundation](design/application-foundation.md) | Command → Apply | S/T/R: stale/forged/duplicate write | Opaque certificate binding, operation IDs and append-only facts; mismatch fixtures |
-| [design-application-foundation](design/application-foundation.md) | Local metadata logs | I/R: source/name leakage or missing outcome | Local metadata-only events, no source/path/name; capture and scan event corpus |
+| [design-application-foundation](../design/application-foundation.md) | File → parser | S/T: forged source/hash or evaluator | Recompute exact hashes, strict version/grammar; tampered source never accepted |
+| [design-application-foundation](../design/application-foundation.md) | File → parser | D: huge nested/number/string inputs | Enforce byte/token/count/time limits before expensive math; limits±1/fuzz |
+| [design-application-foundation](../design/application-foundation.md) | Source text → UI | E/I: script or format injection | Native text values only, no eval/HTML/link execution; hostile strings remain literal |
+| [design-application-foundation](../design/application-foundation.md) | Save → filesystem | T/E: symlink/path escape, external replacement | No-follow path/parent validation and scoped handle policy; link ancestor/race tests |
+| [design-application-foundation](../design/application-foundation.md) | Command → Apply | S/T/R: stale/forged/duplicate write | Opaque certificate binding, operation IDs and append-only facts; mismatch fixtures |
+| [design-application-foundation](../design/application-foundation.md) | Local metadata logs | I/R: source/name leakage or missing outcome | Local metadata-only events, no source/path/name; capture and scan event corpus |
 
 <!-- rolled up from 1 artifact(s) by docs-graph.py rollup on 2026-09-23 -->
 
@@ -62,4 +62,4 @@ geometry proof fail closed. No content reaches a shell/eval/network importer. Me
 source/path/name text. The [proof](../proof/application-spikes.md) records exercised primitives; native
 production I/O and complete parser fuzzing remain Not assessed. Generated tables are refreshed with:
 
-`python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Adversarial analysis (STRIDE-lite)" --type design`
+`python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Adversarial analysis (STRIDE-lite)" --type design --relative-to docs/security`

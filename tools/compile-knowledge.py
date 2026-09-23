@@ -15,6 +15,13 @@ import re
 import sys
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT = Path(__file__).resolve().parents[1]
 KB = ROOT / "docs" / "knowledge" / "hydrofoil-workbench"
 AREA_RE = re.compile(r"^\d{2}-[a-z0-9-]+\.md$")
@@ -186,7 +193,7 @@ def main() -> int:
             if not target.exists() or target.read_text(encoding="utf-8") != content:
                 drift.append(name)
         else:
-            target.write_text(content, encoding="utf-8")
+            target.write_text(content, encoding="utf-8", newline="\n")
     if check:
         if drift:
             print("knowledge roll-ups drift from their area files: " + ", ".join(drift))

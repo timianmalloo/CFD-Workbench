@@ -1788,7 +1788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a96d25eb8c2189dbd436073c2a57413c67a3bf6c4180e2474a45fcb7c22dad9d"
+      "sourceSha256": "2abcf4779d5bee5dfb90cff8cff2f12eac99a6194a78811861b0d513d8ca25ea"
     },
     {
       "id": "domain-experts",
@@ -3675,7 +3675,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2d22bf677c3516da94e044bacc473b6f165b1046e8d6ceb3b0ea077120c50434"
+      "sourceSha256": "1b72ee4ca60c80c6cf55d60db684c66221f7b45970826bcce5661727b095ccab"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -3895,6 +3895,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
+    },
+    {
+      "id": "review-application-architecture",
+      "path": "docs/reviews/application-architecture.md",
+      "title": "Independent review of the application foundation architecture",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent lead review of the first application architecture and contract spikes. Records observed native interaction evidence, contract findings and outstanding gates; it does not certify an application implementation or Windows runtime behavior.",
+      "tags": [
+        "architecture",
+        "application",
+        "independent-review",
+        "native-ui",
+        "provenance"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "domain-experts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1962c1dd0a8590c125233fd5c00869120744f392b67a75a763f3faa17c9aa401"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -4422,7 +4457,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a9ba9205a37d369846adcaf28ed2485c39bd02a2fb8b8b77780036d187608ef3"
+      "sourceSha256": "6cc6c39f21b035178f40f7f4e574344d21d0356070d418483c2ac2384a32ab6e"
     }
   ],
   "surfaces": [
@@ -4538,5 +4573,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "49291a1ffd27a3c3e14a784d481f5b6fce0acba74a8a4442fd924b05246a0f44"
+  "graphSha256": "ba9fa01ca35627b74f85d852fff5839fea159200177942b980da4c8318cb311b"
 };

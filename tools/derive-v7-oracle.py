@@ -1,7 +1,7 @@
 """Preserve the CAD regression floor, evolving only approved v7 transaction assertions."""
 from pathlib import Path
 p = Path(__file__).resolve().parent
-s = (p / 'check-mockup-v6.mjs').read_text().replace('workbench-v6', 'workbench-v7')
+s = (p / 'check-mockup-v6.mjs').read_text(encoding='utf-8').replace('workbench-v6', 'workbench-v7')
 s = s.replace('chrome.chrome <= 48', 'chrome.chrome <= 51')
 s = s.replace('M.stations.push(0.7); M.stations.sort((a, b) => a - b); M.selEta = 0.7;', 'if (!M.stations.includes(0.7)) addStation(0.7); M.selEta = 0.7;')
 s = s.replace("page.on('pageerror', e => errors.push(e.message));", "await page.addInitScript(() => window.addEventListener('error', e => { console.error('UNCAUGHT', JSON.stringify(e.error), e.filename, e.lineno); }));\npage.on('console', m => {if(m.type()==='error')console.error('BROWSER',m.text());});\npage.on('pageerror', e => { errors.push(e.stack || e.message); console.error('PAGE ERROR at oracle',oracles.length,e); });")
@@ -36,5 +36,5 @@ s = s[:a] + '''  /* v7 keeps one owner while allowing read-only curve inspection
   assert.equal(await page.evaluate(()=>M.revision),rv0+1);assert.equal(await page.evaluate(()=>M.run.current),false);
   await page.locator('[data-doc="doc"]').click();
 ''' + s[b:]
-(p / 'check-mockup-v7.mjs').write_text(s)
+(p / 'check-mockup-v7.mjs').write_text(s, encoding='utf-8', newline='\n')
 print('Derived the v7 CAD oracle; historical v6 assertions preserved in their original file.')

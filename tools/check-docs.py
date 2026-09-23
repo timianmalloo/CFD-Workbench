@@ -8,6 +8,13 @@ import subprocess
 import sys
 import tempfile
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "docs" / "ai-forward-pack" / "scripts"
@@ -27,6 +34,7 @@ def run(script, *arguments, capture=False):
 
 def main():
     run(ROOT / "tools" / "check-pack-hooks.py")
+    run(ROOT / "tools" / "check-rollup-links.py")
     graph = SCRIPTS / "docs-graph.py"
     if (ROOT / "docs" / "docs-index.js").exists():
         run(graph, "validate")

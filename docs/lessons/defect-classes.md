@@ -53,6 +53,91 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 | UI-M · A drawing rendered from a quantity it does not carry | The v5 station document printed "8 per side", "6 controls each" and "conversion residual 0.000" for a section whose fit had nine vertices and, once measured, an 841 µm residual: three surfaces, three constants, no operand. Swept every rendered count, residual and deviation in the workspace. Derive: a rendered number is computed from its operands at render time, or it reads "not recorded"; the same quantity on two surfaces comes from one function; and the conversion chooses its vertex count *by* the measured residual (centripetal parameters, knots by averaging) rather than asserting one. | `tools/check-mockup-v5.mjs` group 6 asserts the residual shown in the HUD, the strip and Properties equals the residual measured and meets the acceptance, and that Delete, Rebuild and Fit points report a deviation from the curves. |
 | UI-N · An assertion the failure mode also satisfies | The v5 oracle's pointer-drag test asserted only the *direction* of the change ("dragging aft lengthens the chord"); the drag mapped the pointer through the SVG captured at press time, which the first re-render detached (its box read zero), so every drag slammed the vertex to its ordering limit — aft — and the test stayed green. The operator found it with a trackpad. Two siblings in the same sweep: hit circles that overlapped at the tip (a press grabbed whichever painted last) and a focus-preserving re-render whose restored focus re-selected the *previous* vertex through its focus handler. Swept every pointer test for direction-only assertions. Derive: a drag test asserts the **relation** (the glyph stays under the pointer to ≤ 2 px over a dozen small moves), a hit test **presses** every vertex at its own centre and reads the selection back, and any handler that calls `preventDefault` on a press focuses its target itself before the re-render. | `tools/check-mockup-v5.mjs` group 6: the twelve-step drag with the pointer-offset bound, the press-every-vertex selection sweep, focus on the dragged vertex on release; the mockup's `liveMap` resolves the svg and mapping per move and retargets a press to the nearest vertex centre. |
 
+## Application architecture boundary sweep — 2026-09-23
+
+**DATA-E recurrence · Validation detached from its candidate or derived identity.**
+The first compiling port sketch allowed Apply to receive an unrelated validation result;
+the first repair still allowed its public definition hash to be replaced independently.
+Sweep: source bytes/hash, accepted base, draft ID, generation, evaluator, assessment and
+certificate identity. Derive: one opaque certificate binds those inputs and its computed
+definition hash; Apply compares all bindings under the transaction boundary. Prevent:
+`tools/spikes/ApplicationNativeUi/Program.cs --contracts` exercises nine mismatch cases,
+including a forged/empty definition hash and a moved accepted base. This is a binding
+primitive, not proof of a production parser, session or geometry evaluator. Port the same
+negative cases into the production core's required gate before its first acceptance.
+
+**UI-N / TEST-A recurrence · A named oracle does not invoke its claimed behavior.**
+An initial near-bound geometry check only compared a positive rational with zero, and a
+normalization check only ordered interval endpoints. Sweep: every spike check's name,
+focal function, failing input and claimed confidence. Derive: exercise the actual
+separation function near its boundary and test a known maximum plus physical error
+enclosure. Prevent: `Chord_NearBound_AdmitsPositiveRefusesTouching`,
+`Maximum_KnownQuadraticDegreeElevated_EnclosesQuarter` and
+`Normalization_EnclosurePropagated_PhysicalErrorBelowOneNanometre` in
+`tools/spikes/application-contract-vectors.py`. These prove bounded primitives only;
+they do not establish full-language conformance.
+
+**IO-A · Cleanup deletes an artifact this invocation did not create.** Owner review
+found that exclusive temporary creation could fail on an existing file, then `finally`
+unconditionally removed that file. Sweep: target, temporary and sidecar-claim creation,
+failure and cleanup paths. Derive: acquisition and ownership precede cleanup; a collision
+does not transfer ownership. Prevent: the spike tracks `temp_created` and includes
+`Atomic_TemporaryCollision_PreservesUnownedFileTargetAndReleasesClaim` and
+`Atomic_ClaimCollision_PreservesOtherClaimAndTarget`. The guard is a local cooperative
+writer control, not proof against an arbitrary hostile filesystem race.
+
+**REVIEW-A · A reviewer substitutes a familiar equation for the normative transform.**
+Root initially treated thickness normalization as scaling the whole section, then
+incorrectly questioned a bound for cambered sections. Owner disconfirmed it; direct
+FoilDSL §6 inspection shows fixed camber in `q=(x,C ± thickness*T/2)`, so C cancels
+between normalization endpoints. Sweep: review claims about normalization, placement
+and conversion error. Derive: trace exactly which terms change before asserting a
+failure. Preventive always-loaded rule: before making a mathematical veto finding,
+quote the governing equation and map the challenged computation to its terms. Read
+the equation now; do not rely on a remembered model. The incorrect symmetry restriction
+was withdrawn and is not a product requirement.
+
+**EVID-C · A partial worker stream is mistaken for final execution evidence.**
+Coordinator initially interpreted an early Grok stream prefix as containing no tool use;
+the closed 117-row stream contained a completed read and successful `pwd`. Sweep: final
+stream hash, event counts, tool IDs, terminal updates, exact commands and actual files.
+Derive: inspect a closed complete receipt and distinguish narration, dispatched calls and
+completed operations. Prevent: `tools/coord-stream-summary.py` hashes the complete stream,
+correlates calls/updates and checks required successful commands. The complete receipt
+passes its `pwd` requirement; the partial prefix and missing-build requirement fail.
+No successful read/shell probe is promoted to write/build or containment qualification.
+
+**PACK-I · Generated links are relative to the input root instead of their destination.**
+Security/privacy rollups embedded under `docs/security/` contained `design/...` links,
+which resolved below the wrong directory. Sweep: both rollup tables and the shared link
+emitter. Derive: the scan root and output link base are distinct. Prevent:
+`docs-graph.py rollup --relative-to docs/security` computes links for the destination;
+the default docs-root behavior is retained. `tools/check-rollup-links.py`, wired into
+`tools/check-docs.py`, was observed RED before the option existed and GREEN for default
+and nested output directories, checking resolution to an actual source file.
+
+**COORD-ENV · One-command environment assignment does not identify later mutations.**
+Root scoped `AGENT_SESSION` to an audit command, then committed later in the same shell
+without exporting it. The commit hook explicitly reported advisory/no identity; that
+commit is not claimed as enforcing. Sweep: the eight committed paths were subsequently
+checked with explicit identity and each returned structured `decision: allow`. Preventive
+always-loaded rule: export the task identity in every mutating shell batch, or prefix
+each Git mutation individually; inspect the hook result and never treat its advisory
+exit zero as an ownership check. A post-commit check does not retroactively strengthen
+the original commit-boundary evidence.
+
+**PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
+pack gate found text writes without LF selection and printing CLIs without a UTF-8
+console guard, including root's new rollup regression. Sweep: seven project scripts,
+their text-read siblings, and the Coordinator-owned spike/recount scripts. Derive:
+repository text is UTF-8/LF; console encoding must not depend on a Windows code page.
+Prevent: explicit read/write encodings and LF writes, plus the pack's guarded stream
+reconfiguration. `verify-portable-text-io.py --root .` reported ten findings before
+root's fixes and passed as a standalone gate afterward. The Coordinator separately
+fixes subprocess encoding and its newly joined scripts, then recounts the integrated
+tree. The initial root diagnostic batch continued after the failing command, so its
+final shell exit is not claimed as the gate result; standalone checks preserve it.
+
 ## FoilDSL boundary sweep — 2026-09-22
 
 **PACK-H · Additive hook refresh duplicates a logical callback.** Revision 92 changed the
