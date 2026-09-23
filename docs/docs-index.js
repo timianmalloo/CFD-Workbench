@@ -1939,7 +1939,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6277bcea71125486f04c481592404f2438097261245dcc3cd5888c9f9ef7bb4a"
+      "sourceSha256": "1c931ae9950459bb8bbc0e2439d494a55b7a08e1ed9c050c5d7c96ca461f7e9f"
     },
     {
       "id": "domain-experts",
@@ -2053,7 +2053,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "4037902377da1d131a363fb3d26a2b3597c1a9843b2c9b0d9bc8621fe3ece11a"
+      "sourceSha256": "7b1cfd2e4e4b92b554945352597cd8738f5c8952f09673f342bc5b9a98b03ec9"
     },
     {
       "id": "plan-authoring-decisions",
@@ -2919,7 +2919,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "44ed566be093032a6a82168f3429424966b7d661cfb1b3f277812edc403fee8c"
+      "sourceSha256": "f617149769aba0bfde851aeb44e4d4e228c277eda27120f5aca615314455a38a"
     },
     {
       "id": "kb-hw-glossary",
@@ -3814,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "408188b1b46d8488bd4e0c7e2a1bb61055f6a1954cd35b48a3639e893b02d92f"
+      "sourceSha256": "6696d9025579181a6e163b84e007f5bb0b183ce496382fef2a85e1d4d88d843f"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3971,7 +3971,50 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "15826c6b4d9cd7683f4c3445c1baf89512ba4204de6d04175c6d3dc17aed2563"
+      "sourceSha256": "0524c891ec0a849c729d233066bad74fd7751912801dc28a63d0e3bcb981a8b4"
+    },
+    {
+      "id": "coordination-r17-companions",
+      "path": "docs/coordination/contract-r17-companions.md",
+      "title": "Exact companion assignment for evaluator version 2 and native store rulings",
+      "type": "plan",
+      "status": "accepted",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Root owns 29 exact companion paths for Owner Rulings 17–19 while the serial core author finishes a disjoint store and projection checkpoint.",
+      "tags": [
+        "coordination",
+        "application",
+        "foildsl",
+        "identity",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "50da72f572d26d62f166d22c2a78f3ad2c36b7f36f72e63018cf99f92224b6c8"
     },
     {
       "id": "privacy-review",
@@ -5191,5 +5234,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "55fb2cd47eb50c40743e9bbb5a231247b82cc4cea1c8288c63e1d803649c8b37"
+  "graphSha256": "da65ebd5e6fe783aefa9ce60ea20f883cbc0adf0e08665c78b45b5e79a901ad0"
 };

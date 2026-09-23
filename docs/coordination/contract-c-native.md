@@ -32,6 +32,12 @@ the Coordinator must compile this packet against the **actual** public core and
 store signatures with an independent review. Any changed path/API is a new
 Owner routing/contract decision, not a silent edit here.
 
+Rulings 17–19 also hold C until the reviewed evaluator `/2` identity, all-query
+certificate feasibility and native store policy are implemented and proved
+against the reconciled companions. A `/1` source or saved project is preserved
+and refused by the unavailable evaluator path, never silently interpreted as
+`/2`; the adapter cannot hide this version decision.
+
 ## Goal and boundary
 
 Deliver the first runnable offline macOS/Windows workbench and CLI against one

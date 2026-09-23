@@ -70,7 +70,11 @@ its adapter API. Two twist-identity/arithmetic questions remain under independen
 G5 is currently serial after G4: the compiling G3 contract did not remove remaining
 core admission and adapter data dependencies. Ruling 15 and the independently reviewed
 FoilDSL diagnostic clarification were joined as a documentation seam; they do not
-relax G4. The next measured gate is the complete G4 handoff and independent review.
+relax G4. Later Rulings 17–19 add the explicit `/2` identity, all-query feasibility
+and native-store contract repair. Root's exact-path companion update is disjoint
+from the current serial B store/Ruling 16 checkpoint, but must join before the
+dedicated `/2` production continuation. The next measured gate is the complete
+G4 handoff and independent review.
 
 **Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 build/tests may come from a separate runner; an unrun Windows native workflow remains a release obligation and cannot be called M1 pass on both platforms.
 

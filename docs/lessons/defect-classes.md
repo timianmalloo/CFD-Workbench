@@ -468,6 +468,19 @@ rejected the dangling link before derivation. The control is the existing whole-
 not an invented local knowledge node. Measured normalizations and bounded prototype limitations
 remain disclosed in the review hub; no full-language or scientific conformance claim follows.
 
+**NG-LOCAL recurrence · A local path or subcommand is constructed before inventory.**
+During the R17 companion handoff, three read-only attempts named absent
+`verify-application-contracts.py`, `specify/reference/flow.md`, and
+`coord leader show`; each failed before a write. The installed inventory instead
+contains `recount-application-contracts.py`, the inline `specify` flow, and
+`coord leader who`. Sweep unknown local files, skill references and custom CLI
+subcommands in coordination packets. Derive: first inventory with `rg --files`
+or read the actual skill/script dispatcher, then call the discovered path or
+advertised subcommand. A guessed `--help` on a custom script is not presumed
+read-only until its dispatch is inspected. Prevent: the always-read R17
+companion packet requires this inventory gate before its recount/render/mockup
+commands; dependent reads are sequential after inventory, not batched with it.
+
 ## Authoring decisions boundary sweep — 2026-09-22
 
 **GEO-C / DATA-D recurrence:** introducing multiple profiles makes a selected-profile singleton unsafe as a
