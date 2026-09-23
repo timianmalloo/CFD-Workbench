@@ -42,6 +42,12 @@ Managed tests exercise the minimum 1024×700 layout arithmetic, scrollable full 
 | Semantic viewport | Native station/CV annotation controls expose full names, units, editable/locked state and stable IDs; section samples have separate labels | Managed control/peer test passes; controls are in a scrollable visual panel | Source-bound only. Native AX bridge, offscreen behavior and screen-reader traversal Not assessed |
 | Keyboard and close | F6/Shift-F6 cycles enabled regions; platform Undo/Redo map; numeric Enter/Escape scoped; unsaved Save/Discard/Cancel | Named mapping tests and source readback | Actual OS key dispatch, dialogs and focus restoration Not assessed |
 
+## Latest bounded native interaction repair
+
+Root's later CUA review of the previous package found three more interaction failures: F6 skipped DocumentTabs; Return/Space on the still-selected editable CV after Cancel did not restart editing; and a queued programmatic numeric-field change advanced an untouched TE draft or invalidated an unprojectable recovery. A retained pre-fix apphost trace shows TE text `120`, valid input and generation 0, followed by generation 1 without user input. The bounded repair adds a selected-tab focus target, keyboard re-edit on the selected CV item, and a binding guard that ignores delayed programmatic and duplicate current-text events while admitting changed user text.
+
+The [RED receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c-targeted-9f37gv7i/receipts/targeted.json) found the absent seams. The [targeted GREEN receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c-targeted-sr0sfxpa/receipts/targeted.json), SHA-256 `8c1e750defc1db544cb5a03d8aa1b57385eb0a7dbacf54939b31ee83bb0b793c`, binds Desktop source SHA-256 `73a92abc84569ffc67f40162921f2039700a84154bce78999153c875424095e1` and test source SHA-256 `2eaf2705b5ec9abc99f2d879829223923189414578e36613d39692260eb31bde` to a Desktop DLL SHA-256 `d566e17017536539d149d1c874d7fa68987087e7bd1df5eb636c71ae4d34bb85`. Build and Desktop tests exited zero with unchanged source/output hashes, task-local caches and no remaining owned children. The earlier full gate and package do **not** bind these new source hashes. Corrected native F6, keyboard re-edit, TE selection generation 0, user numeric update, Cancel/reselect, repeated LE↔TE and invalid-recovery Preview remain open for root CUA after the combined B/C package gate.
+
 ## Native UI-T4 proof rows
 
 | Claim | Failing input or condition | Oracle | Evidence | Red observed | Confidence | Residual risk |

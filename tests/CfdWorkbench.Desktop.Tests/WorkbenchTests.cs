@@ -246,6 +246,11 @@ try
         invalidRecovery.RecoverySource != "not FoilDSL" ||
         invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
         throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
+    if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
+    await invalidRecovery.PreviewAsync();
+    if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
+        !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+        throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
 }
 finally { File.Delete(recoveryPath); }
 foreach (string railName in new[] { "leading", "trailing" })
@@ -305,6 +310,23 @@ if (MainWindow.NextRegionIndex(-1, false, [true, true, true, true]) != 0 ||
     MainWindow.NextRegionIndex(2, false, [true, false, true, true]) != 3 ||
     MainWindow.NextRegionIndex(2, false, [true, false, true, false]) != 0)
     throw new Exception("F6 region cycling did not skip unavailable regions in both directions");
+var sectionTab = new TabItem { Header = "Section sample" };
+var sourceTab = new TabItem { Header = "FoilDSL source" };
+var documentRegion = new TabControl { ItemsSource = new[] { sectionTab, sourceTab }, SelectedIndex = 0 };
+if (!ReferenceEquals(MainWindow.FocusCandidates(documentRegion).FirstOrDefault(), sectionTab) ||
+    !MainWindow.IsReeditKey(Key.Enter) || !MainWindow.IsReeditKey(Key.Space) || MainWindow.IsReeditKey(Key.Down))
+    throw new Exception("F6 document tabs or selected-item keyboard re-edit target is absent");
+var numericBinding = new NumericBindingGuard();
+numericBinding.NoteProgrammatic("120");
+if (numericBinding.ShouldProcess("120", editingEnabled: true) ||
+    numericBinding.ShouldProcess("120", editingEnabled: true) ||
+    !numericBinding.ShouldProcess("5", editingEnabled: true) ||
+    numericBinding.ShouldProcess("5", editingEnabled: true) ||
+    !numericBinding.ShouldProcess("120", editingEnabled: true))
+    throw new Exception("Queued programmatic accepted value advanced an untouched draft or blocked user input");
+numericBinding.NoteProgrammatic("");
+if (numericBinding.ShouldProcess("", editingEnabled: false))
+    throw new Exception("Disabled unprojectable recovery was treated as invalid user numeric input");
 var stationItem = new ListBoxItem { Content = "root station" };
 var stationRegion = new ListBox { ItemsSource = new[] { stationItem } };
 if (!ReferenceEquals(MainWindow.FocusCandidates(stationRegion).FirstOrDefault(), stationItem))

@@ -33,6 +33,7 @@ public sealed partial class MainWindow : Window
     private string? boundDraftId;
     private string? navigatorKey;
     private DisplayFrame? boundSampleFrame;
+    private readonly NumericBindingGuard numericBinding = new();
     private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
 
     public MainWindow()
@@ -161,7 +162,7 @@ public sealed partial class MainWindow : Window
         refreshing = true;
         var field = AcceptedControlField(selected.Control, selected.Unit);
         unitLabel.Text = field.Unit;
-        numericInput.Text = field.Text;
+        SetNumericText(field.Text);
         refreshing = false;
         if (selected.Control.Editable)
             try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
@@ -171,13 +172,27 @@ public sealed partial class MainWindow : Window
 
     private void OnControlPointerReleased(object? sender, PointerReleasedEventArgs args)
     {
+        RestartSelectedEdit(sender);
+    }
+
+    private void OnControlItemKeyDown(object? sender, KeyEventArgs args)
+    {
+        if (args.KeyModifiers == KeyModifiers.None && IsReeditKey(args.Key) && RestartSelectedEdit(sender))
+            args.Handled = true;
+    }
+
+    public static bool IsReeditKey(Key key) => key is Key.Enter or Key.Space;
+
+    private bool RestartSelectedEdit(object? sender)
+    {
         if (refreshing || sender is not ListBoxItem item || !ReferenceEquals(controlList.SelectedItem, item) ||
-            controlList.SelectedIndex < 0 || controlList.SelectedIndex >= targets.Count) return;
+            controlList.SelectedIndex < 0 || controlList.SelectedIndex >= targets.Count) return false;
         var selected = targets[controlList.SelectedIndex];
-        if (!CanRestartSelectedEdit(workbench.Draft, selectedItemMatches: true, editable: selected.Control.Editable)) return;
+        if (!CanRestartSelectedEdit(workbench.Draft, selectedItemMatches: true, editable: selected.Control.Editable)) return false;
         try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
         catch (ContractError error) { adapterError = $"{error.Code}: control is read-only."; }
         Refresh();
+        return workbench.Draft is not null;
     }
 
     public static bool CanRestartSelectedEdit(SessionDraft? draft, bool selectedItemMatches, bool editable) =>
@@ -191,7 +206,9 @@ public sealed partial class MainWindow : Window
 
     private void OnNumericChanged(object? sender, TextChangedEventArgs args)
     {
-        if (refreshing || workbench.Draft is not { } owned) return;
+        if (refreshing || !numericBinding.ShouldProcess(numericInput.Text,
+            editingEnabled: numericInput.IsEnabled && workbench.Draft is not null)) return;
+        var owned = workbench.Draft!;
         adapterError = null;
         var selected = targets.SingleOrDefault(item => item.Rail == owned.Rail && item.Control.Id == owned.VertexId);
         if (selected.Control is null) { workbench.InvalidateDraftInput(); Refresh(); return; }
@@ -205,6 +222,12 @@ public sealed partial class MainWindow : Window
         try { workbench.UpdateDraft(display / scale); }
         catch (ContractError error) { workbench.InvalidateDraftInput(); stateBanner.Text = $"{error.Code}: draft update refused."; }
         Refresh();
+    }
+
+    private void SetNumericText(string value)
+    {
+        numericBinding.NoteProgrammatic(value);
+        numericInput.Text = value;
     }
 
     private async void OnNumericKeyDown(object? sender, KeyEventArgs args)
@@ -288,6 +311,12 @@ public sealed partial class MainWindow : Window
     {
         if (region is ListBox list)
             foreach (var item in list.Items.OfType<ListBoxItem>()) yield return item;
+        if (region is TabControl tabs)
+        {
+            if (tabs.SelectedItem is TabItem selected) yield return selected;
+            foreach (var item in tabs.Items.OfType<TabItem>())
+                if (!ReferenceEquals(item, tabs.SelectedItem)) yield return item;
+        }
         yield return region;
     }
 
@@ -420,7 +449,10 @@ public sealed partial class MainWindow : Window
                 var controlItems = targets.Select(item => NamedItem($"{item.Rail} · {item.Control.Id} · η {item.Control.Eta:G2} · {(item.Control.Editable ? "editable" : "locked")}",
                     $"{item.Rail} control vertex {item.Control.Id}; eta {item.Control.Eta:G2}; aft position {item.Control.OrdinateSi:G6} metres; {(item.Control.Editable ? "editable" : "locked " + string.Join(",", item.Control.ApplicableLocks))}")).ToArray();
                 foreach (var item in controlItems)
+                {
                     item.AddHandler(InputElement.PointerReleasedEvent, OnControlPointerReleased, RoutingStrategies.Bubble, handledEventsToo: true);
+                    item.AddHandler(InputElement.KeyDownEvent, OnControlItemKeyDown, RoutingStrategies.Bubble, handledEventsToo: true);
+                }
                 BindNavigatorItems(controlList, controlItems, acceptedChanged: true);
                 int selected = targets.FindIndex(item => item.Rail == priorTarget.Item1 && item.Control.Id == priorTarget.Item2);
                 if (selected >= 0) controlList.SelectedIndex = selected;
@@ -445,12 +477,12 @@ public sealed partial class MainWindow : Window
             var field = projection is null ? null : TryDraftField(projection, activeDraft);
             if (field is null)
             {
-                numericInput.Text = "";
+                SetNumericText("");
                 unitLabel.Text = "—";
             }
             else
             {
-                numericInput.Text = field.Value.Text;
+                SetNumericText(field.Value.Text);
                 unitLabel.Text = field.Value.Unit;
             }
             boundDraftId = activeDraft.Id;
@@ -462,12 +494,12 @@ public sealed partial class MainWindow : Window
             {
                 var selected = targets[controlList.SelectedIndex];
                 var field = AcceptedControlField(selected.Control, selected.Unit);
-                numericInput.Text = field.Text;
+                SetNumericText(field.Text);
                 unitLabel.Text = field.Unit;
             }
             else
             {
-                numericInput.Text = "";
+                SetNumericText("");
                 unitLabel.Text = "—";
             }
         }
@@ -534,5 +566,33 @@ public sealed partial class MainWindow : Window
         if (rail is null || control is null) return null;
         double scale = rail.SourceUnit switch { "mm" => 1000, "cm" => 100, _ => 1 };
         return ((control.OrdinateSi * scale).ToString("G9", CultureInfo.InvariantCulture), rail.SourceUnit);
+    }
+}
+
+/// <summary>Suppresses a delayed TextChanged raised by a programmatic binding, while retaining subsequent user edits.</summary>
+public sealed class NumericBindingGuard
+{
+    private bool bound;
+    private string? boundText;
+    private bool hasProcessedUserText;
+    private string? lastProcessedUserText;
+
+    public void NoteProgrammatic(string? text)
+    {
+        boundText = text;
+        bound = true;
+        hasProcessedUserText = false;
+        lastProcessedUserText = null;
+    }
+
+    public bool ShouldProcess(string? currentText, bool editingEnabled)
+    {
+        if (!editingEnabled || bound && currentText == boundText ||
+            hasProcessedUserText && currentText == lastProcessedUserText) return false;
+        bound = false;
+        boundText = null;
+        hasProcessedUserText = true;
+        lastProcessedUserText = currentText;
+        return true;
     }
 }
