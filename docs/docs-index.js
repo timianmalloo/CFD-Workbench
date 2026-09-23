@@ -3959,6 +3959,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "e741506806b96f7a9dcaa4b7532ed60c51baf71b77cbeb34e35f76b48690d1e2"
     },
     {
+      "id": "proof-application-core",
+      "path": "docs/proof/application-core.md",
+      "title": "Production core implementation checkpoints",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-core-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Records an isolated, incomplete production core increment and executed parser/identity boundaries. Continuous geometry certificates, sessions, native persistence and telemetry are not implemented yet. This checkpoint is not a join candidate or M1 acceptance claim.",
+      "tags": [
+        "application",
+        "core",
+        "parser",
+        "identity",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "00a49d8c12e61e217d1aacd89cffd7f71b40574a1c95f9ca4bc3c7f4841ef8ea"
+    },
+    {
       "id": "proof-application-spikes",
       "path": "docs/proof/application-spikes.md",
       "title": "Application architecture contract and native spike evidence",
@@ -4873,5 +4908,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "50ec5ba0b36c2fdb17a4e98f2258081511c09052270a1f733c59fa3938e116ac"
+  "graphSha256": "5862ed78d3603e0381b185ba29c660a44069419782ea7cd6616955164a83604c"
 };

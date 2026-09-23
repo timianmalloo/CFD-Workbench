@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
+  <Project Path="src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj" />
+  <Project Path="tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj" />
+</Solution>
