@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:14:57Z",
+  "generated": "2026-09-23T21:34:38Z",
   "audit": [
     {
       "actor": null,
@@ -4702,6 +4702,34 @@ window.AUDIT_DATA = {
         "verification_path": true,
         "verification_executed": true,
         "acceptance_met": false
+      }
+    },
+    {
+      "id": "al-01M3832AESSWRXMQD3BJTHN3FP",
+      "shortname": "independent-permission-review",
+      "datetime": "2026-09-23T21:34:38Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Continue the authorized coordinated implementation with independent native and persistence review; provide periodic work and agent status tables.",
+      "summary": "Independent frozen public-store consumer verifies create/overwrite/reopen exact bytes and identity with mode0600 under umasks0000/0022/0077; owner-read-stripping0400 refuses without residual files. Strict prewrite guard source reviewed. Native CUA binding recurrence and remaining UI flows recorded; no B/C/M1 acceptance. Initial append omitted required prompt and was rejected before writing; corrected here. Docs check passed104artifacts0defects77existingflags.",
+      "kind": "command",
+      "skill": null,
+      "tool": "independent-store-consumer",
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Independently verify repaired native persistence and remaining rendered workflows.",
+      "done_when": "Frozen combined package passes native interaction and Save/Reopen checks with review findings resolved.",
+      "tier": "T2",
+      "fan_out": 3,
+      "git": {
+        "sha": "15c796b6be37d1c26dca3f4c66a0bbc87c3621ed",
+        "short": "15c796b6b",
+        "branch": "feature/application-foundation",
+        "pushed": null
       }
     }
   ],

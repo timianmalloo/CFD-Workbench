@@ -398,3 +398,60 @@ cause. The author must check it before fixing the actual model/UI contract.
 are useful and independently verified. Remaining native tab navigation,
 keyboard activation parity and recovery-state consistency require bounded
 repair and recheck. The independent storage permission veto also remains.
+
+## Additional ae777e9 observations and independent store consumer
+
+Root continued the same native checkpoint before the next author repair:
+
+| Flow | Native observation | Limit |
+|---|---|---|
+| Cancel invalid recovery | Accepted coordinates and identity return; Save enables; recovery offer clears. | Cancel is verified; Resume defect remains. |
+| Select TE cv-6 after an LE control displaying 0 mm | Field changes to 120 mm and draft generation becomes 1 before a user numeric edit. | Same programmatic-event hypothesis; author must establish cause. |
+| Preview LE cv-2 = 1000 mm or TE cv-6 = -120 mm | Both return NotAssessed with the positive-chord hull diagnostic; Apply remains disabled. | These are not evidence of an Invalid geometry verdict. |
+| Open explicit-ID source with root tangent locks violated | Reports Invalid, root tangent lock unsatisfied, original source retained read-only; accepted identity unchanged. | Fixture follows the existing tested root-lock violation recipe. |
+| Scroll rail list through TE cv-5 and cv-6 | Items, eta and 120 mm units remain exposed. | Bounded list scrolling, not a dense-list performance benchmark. |
+| Open missing-ID source | Pending-import state offers original/candidate comparison and Accept IDs; existing accepted identity stays intact. Typing into the original/candidate source view does not change it. | Acceptance and complete visual comparison remain due. |
+
+The root-lock fixture replaces all three matching root pairs (leading, dihedral,
+twist) in the copied explicit source. An initial scratch assertion incorrectly
+expected two matches and stopped before writing; the observed count was three.
+This is a probe preparation correction, not a product failure. Native screenshot
+and AX evidence is in the CUA transcript; no standalone screenshot file was
+exported. The minimum-window screenshot is 1024 × 728 including title bar; it
+does not establish mixed-DPI behavior or a complete theme verdict.
+
+After context recovery, the existing `fixedWorkbench` CUA binding returned
+`cgWindowNotFound`; supported inventory still listed the exact interaction-review
+bundle as running. No relaunch variant was attempted. This recurrence is a tool
+limitation, not evidence that the application closed or failed. Remaining native
+flows are deferred to the next combined frozen candidate.
+
+Root independently consumed the R26 persistence candidate from
+`/private/tmp/cfd-application-core-20260923-4e1mdsbv/published` through public
+`ProjectStore` and `AuthoringSession` APIs. The independent program, runner and
+receipts are under `/tmp/cfd-native-review.czEz9w/store-consumer/`.
+It used the original native Save image without changing its bytes or 0454 mode.
+
+| Child umask | Create / overwrite / reopen | Independent Python OS-stat final mode |
+|---|---|---|
+| 0000 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0022 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0077 | OK; exact image/hash and accepted ID preserved | 0600 |
+| 0400 | DOC-UNSUPPORTED-PERSISTENCE; no publication or residual file | No file |
+
+Frozen Persistence DLL SHA-256 is
+`c3245fbae2ebed15d488f56613e15099958b212ba30638846797a91266b56e71`;
+helper SHA-256 is
+`90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88`.
+The runner verified copied assembly hashes, unchanged frozen inputs and unchanged
+original evidence. Build took 1.371 s; the four managed consumer processes took
+0.384, 0.232, 0.227 and 0.152 s. Each observed process group was quiescent on exit.
+These are process timings, not UI latency. Receipt:
+`store-consumer/receipts/independent-store.json` under the scratch path above.
+
+**Verified source review:** the fixed-signature C bridge calls system-header
+`open`/`openat`; managed calls bind assembly-local exports. The held-inode guard
+requires exactly 0600 before any project-byte write, including rejecting zero
+mode. The public-store consumer clears its named byte/identity/final-mode cases.
+**Independent disposition remains BLOCK:** the actual combined native package
+must still exercise Save/Reopen and the remaining C interaction repairs.
