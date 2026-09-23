@@ -289,6 +289,47 @@ No product test failure is inferred from that compiler process fault.
 
 The final recompilation's binaries differ from the earlier live review-copy build,
 although product source and tests match. Root therefore makes no bitwise-final-
-package native claim. There is still no successful native CUA observation of either
-build. Candidate commit, a passing recorded gate and real window creation are
+package native claim. At that checkpoint there was no successful native CUA
+observation of either build. Candidate commit, a passing recorded gate and real window creation are
 separate facts; none clears the independent native interaction veto above.
+
+## Resumed native inspection after user visibility confirmation
+
+On 23 September 2026 the user answered “Yes, I see the workbench” and
+“The new CFD Workbench review window”. This satisfied Ruling 25's requirement
+for a concrete external visibility change. One supported exact-path CUA attachment
+then succeeded. The earlier window-access blocker is resolved for this instance.
+
+Root independently rechecked PID 48841, start `Wed Sep 23 13:24:28 2026`,
+the executable path in the existing launch receipt, and Desktop DLL SHA-256
+`6aaff522eec3da85898685992fd3f2e3325035e2c482b9edda76b6dc42f54aa9`.
+The bound title was `CFD Workbench — Offline Foil · REVIEW keyboard / example / high-contrast / reduced motion`.
+This is the previously source-bound n1 review copy, not a bitwise match to the
+final e7 package. Evidence is the actual CUA screenshot and action/AX transcript
+in this session. No standalone PNG or AX file is claimed: the documented CUA
+surface used here did not provide a filesystem export operation.
+
+| Native action | Observed outcome | Disposition |
+|---|---|---|
+| Attach, read full AX, capture screenshot | Real window, plots, navigator, properties and section/source tabs rendered. AX names include station/profile identity, all fourteen LE/TE annotation children with units and locks, five section points, provenance and unavailable analysis. | Verified for this instance; not a full screen-reader, DPI or theme verdict. |
+| F6 from OpenButton; Shift-F6 from FoilViewport | Focus moves OpenButton → FoilViewport → OpenButton. Navigator lists are skipped. Source groups intend a navigator region but test focusability on list controls. | Failed region-navigation contract; exact causal fix still belongs to author. |
+| Four Tabs from OpenButton, then Tab | Focus reaches station item, then leading cv-0 item. | Ordinary Tab can reach navigator. |
+| Down twice from focused leading cv-0 | Selected item becomes locked leading cv-1; refreshed list children receive new AX IDs and focus jumps to ExampleButton. | Failed stable keyboard selection; source refresh/rebinding is the suspected mechanism, not independently proven causal yet. |
+| Click editable leading cv-2 | Draft owns leading cv-2, numeric field is 0 mm, section changes to eta 0.3, accepted geometry remains shown. | Verified. |
+| Replace numeric input with `-` | Input remains visible; Save/Preview/Apply disabled; actionable finite-number message; accepted identity unchanged. | Verified incomplete-input handling. |
+| Correct input to `5`, Return | Preview appears; Apply enabled; same draft generation advances to 1. Eta 0.3 LE sample x changes from 0 to 0.00297349 m. Accepted identity remains unchanged. UI reports 215 ms for its measured sample operation. | Verified bounded preview; 215 ms is app-reported operation time, not an independently measured end-to-end UI latency. |
+| Escape in numeric field | Preview cancels, section/sample coordinates return to accepted values and accepted identity remains unchanged. Numeric field becomes disabled but still displays 5 mm while selected accepted cv-2 is 0 m. | Geometry restoration passed; stale selected-control value failed. |
+| Click the same selected leading cv-2 after cancel | No AX/state change; no draft is created, numeric input stays disabled. | Failed immediate repeated editing of the same control. |
+
+**Disposition: BLOCK remains, now for observed native interaction defects.**
+The window-access blocker no longer explains this result. Repair must restore
+focus during selection, make region navigation reach the navigator, and allow
+repeated editing without displaying cancelled numeric values as the selected
+accepted value. Root must rerun the native reproducers against a newly bound
+fixed binary; author/controller tests alone cannot clear this veto.
+
+Apply/Undo/Redo, native Save/Open/recovery dialogs, other themes, dense states,
+minimum-window dimensions, OS high contrast, Windows runtime and distribution
+trust remain unverified in this resumed native pass. The screenshot alone does
+not establish the requested 1024×700 logical window dimensions. No additional
+native flows are marked passed by extrapolation from the observations above.
