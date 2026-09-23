@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T16:49:46Z",
+  "generated": "2026-09-23T16:57:29Z",
   "audit": [
     {
       "actor": null,
@@ -4179,6 +4179,56 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "4af5e3bc1002a89409e89a1f9ee82cfb7d85cded",
         "short": "4af5e3bc1",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37K2JVGERMCD2ANCEK83134",
+      "shortname": "owner-projection-and-core-review",
+      "datetime": "2026-09-23T16:55:09Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Bounded frozen a8a6351 whole-domain geometry/Data/session/telemetry review and canonical public authored-projection seam decision; no product acceptance or production file edits.",
+      "summary": "Ruling16 approves immutable authored-control/assignment/accepted-geometry/diagnostic projection and public consumer fixture within existing B paths; C held. Mathematical width composition appears conservative on source inspection. Two open scientific questions sent root for frozen runtime probes: twist canonical CV rounding versus degree-spline evaluation identity, and tiny constant twist Taylor arithmetic exceeding rational bit budget after admission. Exact adjacent-degree Fraction counterexample computed, not misrepresented as CSharp end-to-end execution. Root120-command/80-durable-retry in-memory receipt inspected; no new state corruption finding. Telemetry bounded ring/no-user-text shape inspected. No scientific/store/Windows acceptance; persistence and projection may continue. Audit timing covers ruling phase, not earlier read-only review.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close public inspection API gap and identify precise scientific acceptance evidence without blocking independent authorized persistence work.",
+      "done_when": "Canonical projection request resolved, bounded findings delivered, active seat released to author.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T16:53:03Z",
+      "duration_seconds": 126.0
+    },
+    {
+      "id": "al-01M37K6VAV30T4RJ8AYZ0NJXAY",
+      "shortname": "application-r16-core-continuation",
+      "datetime": "2026-09-23T16:57:29Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.\n\nThis Codex session leads execution. Work autonomously through verified implementation increments. Use the owner for decisions and involve me only when a consequential issue genuinely requires human authority or information.\n\n1. Update and ground\n\n- Read AGENTS.md, docs/ai-forward-pack/codex.md, recent audit history, and the defect-class register.\n- Use $updatepack to locate the authoritative AI-Forward source, inspect its revision, and apply the latest available update, including coordination tooling and standards.\n- Preserve project-specific instructions and decisions. Verify the update using its required checks.\n- Reload the updated instructions and relevant skill contracts before planning implementation.\n- Identify the authoritative specification, FoilDSL contract, mockups, decisions, and proof through metadata, links, and history—not filenames alone.\n- Distinguish normative requirements from illustrative prototype behavior. Account explicitly for known gaps, unresolved decisions, and unverified obligations.\n\n2. Establish the execution model\n\nUse the updated repository workflows, including:\n- $optimize-graph for the overall execution graph.\n- $prepare-for-coordination to decompose the work and establish ownership.\n- $execute-with-coordination to launch, supervise, integrate, and verify tracks.\n- $define-architecture and $design-slice for the necessary architecture and detailed design.\n- $implement for verified implementation increments.\n- $specify, $collectknowledge, and $ui-design where their contracts are triggered.\n\nFollow the updated skills’ required ordering and companion files. Reuse existing artifacts rather than creating competing plans.\n\nThe application stack and simulation backend are not yet selected. Resolve those decisions through the architecture workflow, evidence, and required spikes. Preserve Windows and macOS compatibility. Do not silently convert the mockup’s implementation choices into production architecture.\n\nSet a concrete first delivery milestone, its acceptance criteria, non-goals, and proof obligations. Prefer an end-to-end working increment over disconnected scaffolding. Continue through dependency-ready increments within the approved product scope.\n\n3. Roles and model routing\n\nUse this hierarchy:\n- Codex is the lead harness and control plane.\n- GPT-6 Astra is the technical owner: accountable for architecture, ambiguity, cross-track decisions, and escalation.\n- GPT-6 Sol is the coordinator: accountable for decomposition, scheduling, worker supervision, handoffs, integration, and completion evidence.\n\nRoute work by difficulty and cost:\n- The most difficult or ambiguous tasks: Claude/Fable or Codex/Astra.\n- Complex analysis and design: Claude Code with Opus 5.5 or Codex/Astra; use Sol where the task is sufficiently bounded.\n- Routine implementation and other coding tasks: the strongest suitable currently available Grok or Antigravity models, conserving Claude and Codex budgets.\n- Deterministic work: repository scripts, checks, generators, and other mechanical tools.\n\nTreat these model names as requested preferences, not proof of availability. Verify actual harnesses, model identifiers, access, and supported launch options. Never invent a model name or claim to launch a session that was not launched.\n\nPublish the resolved routing table, including fallbacks. If a preferred model is unavailable, use the closest suitable available option and record the substitution. Escalate only if no available option can meet the task’s quality or capability requirements.\n\nThe owner must not clear its own independent hard veto.\n\n4. Decompose for efficient parallel execution\n\nOptimize completeness and rigor first, cost second, and elapsed time third.\n\nUse the latest coordination standards to establish:\n- A dependency graph with real sequencing constraints.\n- Explicit ownership of artifacts and shared contracts.\n- Stable interfaces before dependent implementation fans out.\n- One responsible writer for each shared surface.\n- Bounded concurrency based on coupling, resource limits, model budgets, and integration capacity.\n- Per-task acceptance criteria, required evidence, join conditions, retry limits, and escalation paths.\n- A model and reasoning-effort choice appropriate to each task.\n\nDo not maximize session count. Maximize useful independent progress. Avoid duplicated exploration, excessive context transfer, idle workers, and parallel work that creates integration contention.\n\nUse the repository’s coordination artifacts as the durable source of truth. Give workers concise task packets containing the goal, relevant evidence, owned surfaces, contracts, constraints, checks, and completion conditions.\n\n5. Launch and supervise the sessions\n\nThis Codex session must launch and manage the other harness sessions through the repository’s supported coordination mechanisms. Do not stop after producing a plan or asking me to start terminals.\n\nUse the required worktree and branch isolation for every writing session. Let the coordination workflow create, register, assign, and release worktrees. Never share an index or working directory between concurrent writers.\n\nUse each harness’s supported unattended/full-auto approval mode—YOLO where that is its actual supported name—within the authorized repository scope. Verify the launch configuration rather than assuming a flag works.\n\nThis authorizes unattended repository work, required local tooling, implementation, testing, integration, and commits. It does not authorize overriding platform restrictions, accessing unrelated credentials, destructive operations outside task scope, purchasing services, or deploying publicly.\n\nA successful process launch is not evidence that a worker is progressing. Monitor session state, output, heartbeat, completion, and approval waits. Detect blocked or silently idle sessions promptly. Resolve them through supported configuration, task rerouting, or owner escalation. Do not leave unattended approval prompts holding the execution graph.\n\n6. Implement to the repository standards\n\nApply the constitution and all triggered standards, including:\n- Rigor Protocol and no guessing.\n- Domain-first modelling and a single authoritative representation.\n- End-to-end integrity across persistence, model, services, UI, and compute.\n- FoilDSL compatibility, deterministic evaluation, round trips, revisions, and analysis provenance.\n- Windows/macOS compatibility.\n- Accessibility, complete interaction states, and the established design language.\n- Meaningful tests, independent reviews, measurable behavior, and proof packs.\n- Defect-class capture and executable recurrence controls.\n- Audit history, typed documentation links, decision records, and derived documentation surfaces.\n\nPreserve the distinction between authored foil controls, evaluated geometry, and derived inspection slices. Preserve independent leading/trailing curves, section-edit scope, draft ownership, and analysis freshness.\n\nPrototype calculations and illustrative scientific results must not become production claims. Replace them with verified behavior or expose the capability honestly as unavailable until implemented.\n\nUse the owner to resolve technical tradeoffs within the product’s intent. Record material decisions and compatibility consequences. Do not silently expand product scope or remove requirements to make a gate pass.\n\n7. Execute autonomously and close each increment\n\nKeep the coordinator scheduling dependency-ready work, reviewing worker evidence, integrating completed tracks, and running the required checks.\n\nContinue without routine permission requests. Ask me only when:\n- Required information or access cannot be obtained independently.\n- A decision changes the product’s intended scope or requires human authority.\n- A material cost or external action falls outside the authorization above.\n- Conflicting requirements cannot be resolved from the specification, evidence, and owner decisions.\n\nProvide concise progress updates with completed outcomes, current blockers, budget or routing changes, and the next meaningful milestone. Report measured cost and usage where available; mark unavailable measurements explicitly.\n\nFor each completed milestone, provide:\n- The runnable result and launch instructions.\n- What works and what remains.\n- Verification results and independent review disposition.\n- Material decisions and residual risks.\n- Commit, branch, and worktree status.\n- Actual harness/model allocation and available cost measurements.\n\nDo not claim completion from a green gate alone: inspect the resulting application and exercise the user workflows.\n\nBegin with the pack update, then carry the coordinated implementation forward. Stop only at a genuine blocker requiring my input or a clearly completed delivery boundary with no remaining dependency-ready work in the agreed scope.",
+      "summary": "Owner Ruling 16 resolved the public authored-projection seam in existing B paths; Coordinator read a8a6351 clean 126-case checkpoint, updated canonical graph/coordination/C hold, and resumed the serial core author after Owner yielded for native store faults then immutable projection. Twist identity/tiny-angle questions remain under root probe; no C dispatch or partial join.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md",
+        "docs/plans/application-build.md",
+        "docs/coordination/application-build.md",
+        "docs/coordination/contract-c-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "git": {
+        "sha": "2fa211e2d87740971260f6a934a900883355d51a",
+        "short": "2fa211e2d",
         "branch": "feature/application-coordination",
         "pushed": null
       }

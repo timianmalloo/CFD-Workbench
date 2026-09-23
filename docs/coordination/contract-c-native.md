@@ -22,7 +22,10 @@ review-suggested: []
 **Status:** not dispatchable. This packet prepares the serial successor to B; it
 does not freeze an API, assign a worker, or claim a product pass. Owner Ruling 13
 admits only the 18-path B core track. B's two isolated commits `5f40af0` and
-`5b5b489` are checkpoints, not an integrated consumer contract. Before C can
+`5b5b489`, plus the later `a8a6351` placement/session checkpoint, are not an
+integrated consumer contract. Owner Ruling 16 requires a compiled immutable,
+source/revision-bound authored-control projection and public consumer fixture
+inside the existing B lease before C can select imported CVs or stations. Before C can
 launch, B must return a clean complete commit, root and Owner must clear its
 Data/Test/Geometry/Security vetoes, `conductor-join.py` must integrate it, and
 the Coordinator must compile this packet against the **actual** public core and
@@ -97,7 +100,11 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    it is not silently generated from a missing-ID fixture at launch. A `.foil`
    import with missing IDs retains original bytes until the user accepts its
    deterministic candidate. Unknown language geometry stays read-only with
-   actionable diagnostics.
+   actionable diagnostics. The adapter discovers custom rail CV IDs, normalized
+   authored positions, units, locks and authored profile assignments from the
+   Ruling 16 immutable core projection; it never parses accepted source again
+   or guesses `cv-N` IDs. Derived inspection slices remain distinct from authored
+   station facts and do not acquire a new source revision.
 2. **A complete edit.** Numeric leading/trailing CV input owns one core draft;
    target, base and generation remain fixed while inspecting elsewhere. Preview
    shows provenance and bounded error, Apply uses only current core assessment,

@@ -2053,7 +2053,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "65c840043995846a55d305335cda5c76c9aea90f42dc8940f1b23e3524b97f1b"
+      "sourceSha256": "4037902377da1d131a363fb3d26a2b3597c1a9843b2c9b0d9bc8621fe3ece11a"
     },
     {
       "id": "plan-authoring-decisions",
@@ -2919,7 +2919,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a2d089e7ee48f587023e4b00f39537d3561f36d39512712452740a7d3f0f30f3"
+      "sourceSha256": "44ed566be093032a6a82168f3429424966b7d661cfb1b3f277812edc403fee8c"
     },
     {
       "id": "kb-hw-glossary",
@@ -3814,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b51f9928f8adac45de175eb74ee6cfa6e7509ea90bdcd5fde498c6e0143ebca8"
+      "sourceSha256": "408188b1b46d8488bd4e0c7e2a1bb61055f6a1954cd35b48a3639e893b02d92f"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3971,7 +3971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e49cfc35c18906224c5bc456f314984fa4660520c13fdb7a79bb84527027963f"
+      "sourceSha256": "15826c6b4d9cd7683f4c3445c1baf89512ba4204de6d04175c6d3dc17aed2563"
     },
     {
       "id": "privacy-review",
@@ -5147,5 +5147,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "aab87368851ecd9a412b106e6c25ee4740c64d4cb7ea71b0453f6a277cfe94b3"
+  "graphSha256": "41fe295cad2d09d001813072e4404b381916ba654ac74d97b51b1e361e66124d"
 };
