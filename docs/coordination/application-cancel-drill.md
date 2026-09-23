@@ -10,6 +10,8 @@ links:
   - {to: coordination-contract-b-core, rel: relates-to}
 review-by: 2026-10-23
 summary: Observed built-in agent interruption and explicit owned-child cleanup; automatic subprocess cancellation is not established.
+review-suggested:
+  - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }
 ---
 
 # First-core cancellation drill

@@ -355,6 +355,30 @@ assertion after a mismatch. Prevent: `Ruling15_MissingUnit_PreventsOverflowBindi
 checks code, phase and the quoted token span; its first wrong-oracle receipt
 `ac71hlaw` and corrected 63-case receipt `83ry315v` remain retained.
 
+**CAP-SEAT · An optional review silently exceeds the agreed active-agent cap.**
+During serial core work, root activated the Owner for an optional math review
+while root, Coordinator and core author already occupied the three active
+execution seats. Root stopped that review without a new writer or process.
+Sweep: optional review activation, worker resume, and replacement after a
+checkpoint. Derive: count actual active team members with `list_agents`
+immediately before activation; schedule an optional reviewer only when a seat
+is free, or explicitly replace a paused active seat. Prevent: the Coordinator
+records the observed count and cap in the dispatch checkpoint, and refuses a
+fourth active execution turn. The Owner review is deferred to a seat change;
+its pending finding is not treated as already delivered or cleared.
+
+**GRAPH-REG · Generic graph propagation crosses an exclusive register writer.**
+`docs-graph.py flag --changed coordination-application-build` included the
+inbound `rulings` artifact and added review-suggested frontmatter to
+`docs/notes/rulings.md`, whose writer is `coord decide rule`. Sweep: V16 inbound
+neighbors of coordination changes and other register-class targets. Derive:
+metadata provenance does not override an exclusive register write path.
+Prevent: the always-read coordination plan requires restoring only that
+generated flag, deriving the index again, and checking the ruling-register
+diff is empty before commit. The current flag was removed; no ruling prose
+or numbered decision changed. A future graph-tool class-aware exclusion may
+replace this local join control after separate review.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,

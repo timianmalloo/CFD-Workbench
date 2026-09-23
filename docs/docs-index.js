@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -393,6 +393,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
@@ -435,7 +440,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "69c82785d1c563ee0f1db2f958e8cc89d0a63a8f268202cba09b98e346cd96c7"
+      "sourceSha256": "f5b8c7ae914429c10e2630ea866eafa2756d1b7f2f3d74af5be00a9f3dd8bc14"
     },
     {
       "id": "cad-editing-views",
@@ -1934,7 +1939,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c49ac94dd82bb36fc85f71769ae7e4814561261afec0d7ceffce9551317bcddf"
+      "sourceSha256": "d5d09ad86aedf03f07530b1eac1245c662ba793280d71ebb212a96d8a86bc860"
     },
     {
       "id": "domain-experts",
@@ -3809,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0e61f71ef9918e8e14658efdd44214f6f04b0581a3086b8a899f950708f0fcc8"
+      "sourceSha256": "18f5321f0b72a4ec147f8b1515a0a36ad08afb2af6be14d55cd8a779568a757f"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3825,6 +3830,11 @@ window.DOCS_INDEX = {
           "by": "adr-application-project-contract",
           "on": "2026-09-23",
           "reason": "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
         }
       ],
       "summary": "Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.",
@@ -3861,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e31c79d883a78e6da04095e58291ff15e5335a03116a28a7e4dd19ffc5b774c8"
+      "sourceSha256": "4c02d5aee1d15502ed2544b46b7305fab480128f1c86ce169625f6c23131a9ca"
     },
     {
       "id": "coordination-contract-b0",
@@ -3882,6 +3892,11 @@ window.DOCS_INDEX = {
           "by": "plan-application-build",
           "on": "2026-09-23",
           "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
         }
       ],
       "summary": "Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.",
@@ -3910,7 +3925,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1de8239095e62cedd22251dca283a38012f1ca9fd1a9dd022f117773f8b0a2c5"
+      "sourceSha256": "3e4c658740d07732e1451cdd3e4cfb9f70a045e4fa471b37725732dd121741b9"
     },
     {
       "id": "privacy-review",
@@ -3965,7 +3980,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
+        }
+      ],
       "summary": "Observed built-in agent interruption and explicit owned-child cleanup; automatic subprocess cancellation is not established.",
       "tags": [
         "coordination",
@@ -3983,7 +4004,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6b1c7d0ceac3633ca30b47dd0dd073c335aa2cfa8926a2e1d2b59038efd1f5d"
+      "sourceSha256": "310c6282b9979fff02ad55c4705d27522746cab11c75abcc1afeec093ac0ff55"
     },
     {
       "id": "coordination-application-core-launch",
@@ -4032,6 +4053,11 @@ window.DOCS_INDEX = {
           "by": "plan-application-build",
           "on": "2026-09-23",
           "reason": "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-23",
+          "reason": "Active-seat dispatch control and observed serial core checkpoints added; review execution references."
         }
       ],
       "summary": "Native Agy and Grok probes did not qualify an architecture author; an existing Codex author was assigned a fresh isolated worktree under the same contract.",
@@ -4052,7 +4078,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b2f3cee568fcd5a66fbeabe35d17db28a73fa252ce2ca9572066b89b04a18b80"
+      "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
       "id": "proof-application-contracts",
@@ -5075,5 +5101,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "0dba35efba7a6cd88ccf3d98fe2adc0f0ef683588b4caa33a2f26a7897c91521"
+  "graphSha256": "a0eace23ad9f361da0b1074de1390618d3f32bbf9febc79bc3c837649ddecde9"
 };
