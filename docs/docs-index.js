@@ -3970,6 +3970,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "1962c1dd0a8590c125233fd5c00869120744f392b67a75a763f3faa17c9aa401"
     },
     {
+      "id": "review-application-contracts",
+      "path": "docs/reviews/application-contracts.md",
+      "title": "Independent review of the application session contracts",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent review of the serial B0 contract fixture, its durable identity and session boundaries, with explicit limits on what fixture evidence establishes.",
+      "tags": [
+        "application",
+        "contracts",
+        "independent-review",
+        "persistence",
+        "identity"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-b0",
+          "rel": "documents"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "20e967ab7a7632a0fe3fddc335a2ff99ac28e5d5d474a4de1cd0e37120d12cc8"
+    },
+    {
       "id": "review-foil-editing-flow-results",
       "path": "docs/reviews/foil-editing-flow-results.md",
       "title": "Editable foils and flow results — review and proof",
@@ -4611,5 +4650,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "41c15c5470c1e7fdf3f175872608e273584779900bd21bafdf59b41b12c008fe"
+  "graphSha256": "342f3c4c8df6910f61543570a4482f95b52c07ec51842f6f3e038a1ab47385dd"
 };

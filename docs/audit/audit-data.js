@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:37:01Z",
+  "generated": "2026-09-23T15:06:14Z",
   "audit": [
     {
       "actor": null,
@@ -3403,6 +3403,44 @@ window.AUDIT_DATA = {
         "sha": "ccf8dd549e9e871562d4b4a44ec744a1a39b8d12",
         "short": "ccf8dd549",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37CV5FG23PAG0DPGQPN21WE",
+      "shortname": "independent-b0-contract-review",
+      "datetime": "2026-09-23T15:06:14Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Independently review the serial B0 session, schema, identity and persistence contracts under the authorized coordinated application implementation task; inspect actual source and executed evidence before clearing the bounded contract gate.",
+      "summary": "PASS for bounded B0 contracts at cb73079. Root independently rebuilt frozen source and passed 89 C# checks, 42 Python checks and 2505 vectors; separately compiled and executed five constructed mutants with expected runtime failures. Resolved numeric resource, snapshot ownership, durable replay, admission, native line-limit and dirty-state findings, plus Owner parser/replay boundaries. Source hashes match committed proof. Production geometry, native store, UI, Windows runtime and G3 routing remain separate gates. Review timing marker covers artifact/final-review phase only; preliminary read-only review preceded it.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/application-contracts.md"
+      ],
+      "tags": [
+        "application",
+        "independent-review"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete independent B0 review so coordinated production implementation can proceed through a verified contract gate.",
+      "done_when": "Findings are resolved by inspected source and executed regressions, a bounded disposition is committed, and remaining product gates are explicit.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T14:42:23Z",
+      "duration_seconds": 1431.0,
+      "git": {
+        "sha": "17bcf53523a6fa00736f73c1b9c52d900f522ea1",
+        "short": "17bcf5352",
+        "branch": "feature/application-foundation",
         "pushed": null
       }
     }
