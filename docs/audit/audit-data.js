@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:23:46Z",
+  "generated": "2026-09-23T17:27:58Z",
   "audit": [
     {
       "actor": null,
@@ -4390,6 +4390,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T17:23:39Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M37MYNTF5F0N7YXJ77JT3AD2",
+      "shortname": "owner-r17-companion-review",
+      "datetime": "2026-09-23T17:27:58Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review companion commit bc0f46d at clean application-foundation against base 6e855a4 and the exact 30-path packet. Assess normative/data/Test/UX compatibility of Rulings 17-19 in docs/examples/B0/current mockup, not production or the Owner scientific proof. Inspect retained receipts, reproduce bounded checks where warranted, identify blockers, record companion disposition and yield within 20 calls/12 minutes. No production writes or subagents.",
+      "summary": "Ruling 20 accepts only the bounded companion handoff at bc0f46d. Read normative/design/ADR/fixture/mockup changes and canonical request; no blocker found. Independently observed clean tree, matched committed B0 source to retained green source and proof fingerprints, inspected RED failure and 93/42/2505 actual recount plus browser14/15 receipts and screenshot. Ran docs check independently:101 artifacts,0 defects,73 nonblocking flags. No duplicate full build/browser run, scientific acceptance, production B join or C dispatch. Root retains independent veto on final production proof. One overly broad scratch file inventory produced excess output; the follow-up was restricted to top-level and receipts. All review writes used canonical ruling/audit workflows.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently assess the committed evaluator /2 companion reconciliation for faithful semantics, compatibility and evidence without production acceptance.",
+      "done_when": "Issue concrete companion-only disposition and any blockers, record evidence and yield the active seat.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:26:08Z",
+      "duration_seconds": 110.0
     }
   ],
   "changes": [
