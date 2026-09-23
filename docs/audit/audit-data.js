@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:13:09Z",
+  "generated": "2026-09-23T14:14:51Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1332,6 +1332,23 @@ window.AUDIT_DATA = {
         "branch": "feature/application-foundation",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M379X1Y562J23GA1VNCWMC3G",
+      "shortname": "coordination-identity-scope-correction",
+      "datetime": "2026-09-23T14:14:51Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Correct the missing task identity on the preceding root commit and verify its owned paths.",
+      "summary": "Commit934f318 hook reported advisory because AGENT_SESSION applied only to an earlier command. All8committedpaths subsequently returned structured allow with explicitidentity. Added always-loaded COORD-ENV control; no retrospective enforcementclaim. Subsequentmutatingbatches exportidentity.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

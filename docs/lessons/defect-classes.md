@@ -116,6 +116,16 @@ the default docs-root behavior is retained. `tools/check-rollup-links.py`, wired
 `tools/check-docs.py`, was observed RED before the option existed and GREEN for default
 and nested output directories, checking resolution to an actual source file.
 
+**COORD-ENV · One-command environment assignment does not identify later mutations.**
+Root scoped `AGENT_SESSION` to an audit command, then committed later in the same shell
+without exporting it. The commit hook explicitly reported advisory/no identity; that
+commit is not claimed as enforcing. Sweep: the eight committed paths were subsequently
+checked with explicit identity and each returned structured `decision: allow`. Preventive
+always-loaded rule: export the task identity in every mutating shell batch, or prefix
+each Git mutation individually; inspect the hook result and never treat its advisory
+exit zero as an ownership check. A post-commit check does not retroactively strengthen
+the original commit-boundary evidence.
+
 ## FoilDSL boundary sweep — 2026-09-22
 
 **PACK-H · Additive hook refresh duplicates a logical callback.** Revision 92 changed the
