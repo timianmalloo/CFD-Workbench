@@ -3649,6 +3649,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "d93a62f6b939bf35f488fbf10e453aadbaeb58a6e0f388cd490d1905daee2546"
     },
     {
+      "id": "coordination-contract-b0",
+      "path": "docs/coordination/contract-b0.md",
+      "title": "Serial application contract-completion author assignment",
+      "type": "plan",
+      "status": "active",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.",
+      "tags": [
+        "coordination",
+        "application",
+        "contracts",
+        "design"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2a66b30216e4e51bae95db65c89dd0d4fea1f3e4b221ba53d1698e41d9596118"
+    },
+    {
       "id": "privacy-review",
       "path": "docs/security/privacy-review.md",
       "title": "Offline application privacy review",
@@ -4573,5 +4611,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "ab6332e06e148c825e38544fa689d78f27b279a7fa58484e9a1979b19e059af4"
+  "graphSha256": "41c15c5470c1e7fdf3f175872608e273584779900bd21bafdf59b41b12c008fe"
 };

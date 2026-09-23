@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:35:06Z",
+  "generated": "2026-09-23T14:37:01Z",
   "audit": [
     {
       "actor": null,
@@ -3379,6 +3379,29 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "f574551bdba43d01d8af541bba4f68f107b56e50",
         "short": "f574551bd",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37B5NEQ9A1HA9AMSGYBYKSV",
+      "shortname": "application-b0-assignment-record",
+      "datetime": "2026-09-23T14:37:01Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record the exact serial B0 author assignment for independent review.",
+      "summary": "Published post-dispatch packet with assigned session, worktree, base, eight exact substantive paths, Ruling9 amendments, author budget, required executable fixtures and Owner/root review gate. The packet expressly does not claim a prelaunch fingerprint.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-b0.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "git": {
+        "sha": "ccf8dd549e9e871562d4b4a44ec744a1a39b8d12",
+        "short": "ccf8dd549",
         "branch": "feature/application-coordination",
         "pushed": null
       }
