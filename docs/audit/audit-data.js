@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:49:54Z",
+  "generated": "2026-09-23T18:01:50Z",
   "audit": [
     {
       "actor": null,
@@ -4573,6 +4573,30 @@ window.AUDIT_DATA = {
       "done_when": "Canonical ruling and C packet/plan/HTML agree, docs gate passes, C remains held",
       "tier": "T2",
       "fan_out": 0
+    },
+    {
+      "id": "al-01M37PWPB1EAJ7114VJ2V9EKTR",
+      "shortname": "owner-final-b-gate",
+      "datetime": "2026-09-23T18:01:50Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Review final frozen B9ty5gkbm independently for Data/Test/Security/API and scientific acceptance conditions, at most25calls/15minutes. Root independently holds numerical veto and has204 assertions plus exact Fraction oracle and23store/prior120history evidence. Wait clean author handback/proof and final root disposition before canonical ruling. No repeated fullbuild without concern, no production/root-review edits, no Cdispatch or selfclearance of authored scientific decisions.",
+      "summary": "Ruling22 accepts clean cce9ee52 for bounded internal B conductor integration based on root independent575f2a1 and matched frozen source/DLL. Read source-owned public projections, session receipts/replay/draft retirement/native version guards, store claim/no-follow/owned cleanup, telemetry/disposal, all-query witness implementation and final proof. No Data/Test/Security/API blocker. Root independently cleared actual R17/R18 scientific and R16/R19 composition vetoes; Owner did not self-clear. Actual11gate receipt read,172 authorcases and204 independentcases kept separate. Final /1 native DOC-VERSION no-adoption repair verified in root evidence. One nontechnical stale-review-final-paragraph correction requested beforejoin; no production rerun. C requires Bjoin plus compiledfinalAPIfreeze/R21preflight. Windows/UI/fullscientific productgates remainopen.25shellcalls, no agents, no sourcewrites or redundantfullbuild.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Give independent bounded Data/Test/Security/API gate review and resolve final B acceptance only after exact clean handback and independent numerical clearance.",
+      "done_when": "Numbered B disposition binds committed source/proof/root review, preserves open platform/product gates, and Owner yields for integration.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T17:57:52Z",
+      "duration_seconds": 238.0
     }
   ],
   "changes": [
