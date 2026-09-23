@@ -2762,7 +2762,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "95efe5f26d1f6c6f5b0d44eb7a599d96904615aad70fb800ebad410d0e4ca8ba"
+      "sourceSha256": "85c47b044f760c2b8e20eb53c1d218d5c4eeb8e0641516d4b71b3800c4262b5c"
     },
     {
       "id": "kb-hw-glossary",
@@ -3646,7 +3646,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d93a62f6b939bf35f488fbf10e453aadbaeb58a6e0f388cd490d1905daee2546"
+      "sourceSha256": "93be9c61390fd56a7e99db72f1225bfdff409088ecf0fd07c575d508e42d1988"
     },
     {
       "id": "coordination-contract-b0",
@@ -3684,7 +3684,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2a66b30216e4e51bae95db65c89dd0d4fea1f3e4b221ba53d1698e41d9596118"
+      "sourceSha256": "c991c143e93387e59a2aabcb89dcfefcbec87d6d26ace7e8e9b8a2c89b41e651"
     },
     {
       "id": "privacy-review",
@@ -4611,5 +4611,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "41c15c5470c1e7fdf3f175872608e273584779900bd21bafdf59b41b12c008fe"
+  "graphSha256": "6350ffdd97ff291fec8e9ea1924a8fdfe35b994e8f9018391f8e17a1d837c9db"
 };

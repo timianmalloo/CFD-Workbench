@@ -40,7 +40,7 @@ remains the collaborator assignment. No native filesystem confinement is claimed
 The author reads `AGENTS.md`, `docs/ai-forward-pack/codex.md`, the full
 `design-slice` skill references, normative product/FoilDSL specs, application
 architecture, ADR 0003, foundation design, architecture spike proof, Owner
-Rulings 8–9 and root architecture review. Ruling 8 authorizes only this serial
+Rulings 8–10 and root architecture review. Ruling 8 authorizes only this serial
 contract completion, not production B/C or M1 acceptance.
 
 The author owns exactly these substantive files:
@@ -69,6 +69,13 @@ and Apply bind exact source bytes, accepted base, draft ID, generation,
 evaluator and definition hash; retain the conservative Not assessed blocker.
 Exercise target-retarget refusal, stale validation, forged identity and
 deterministic replay of operation IDs/cursor facts.
+
+**Post-dispatch Ruling 10 amendment:** accepted-row `edit` is null only for
+Open. Every rail Apply persists its draft ID, generation, rail and vertex ID,
+including an Apply whose geometry is unchanged. Reopen reconstructs persisted
+Open/Apply/Undo/Redo operation-ID protection; session-only no-op dedup expires
+at Reopen. Preflight native line/string limits before any session mutation.
+Root's BC-03 and the complete fixture gate remain open until executed proof.
 
 Freeze native-v1 schema/reference/duplicate/extension rules and immutable
 source/Design/Surface identity. Comment-only source changes keep semantic

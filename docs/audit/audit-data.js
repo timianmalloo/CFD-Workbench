@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:37:01Z",
+  "generated": "2026-09-23T14:47:04Z",
   "audit": [
     {
       "actor": null,
@@ -3405,6 +3405,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M37BNHNPMPC0CJ56K14285CS",
+      "shortname": "owner-durable-edit-receipt",
+      "datetime": "2026-09-23T14:45:42Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve native-v1 accepted-row edit receipt and retry lifetime request against root BC-03 and current session/reopen source; no production gate clearance.",
+      "summary": "Read root BC-03 and live session/native source. Ruling 10 approves receipt with edit null only Open, non-null every rail Apply including unchanged geometry, base/candidate target validation and exact durable payload reconstruction. Generic source command remains out of scope. Persisted operation identities remain protected across reopen; only unpersisted no-op IDs expire with explicit fresh-command-ID rule. Added writer-reader line/string limit closure to growth preflight and required fixtures. Root and author concurred with narrowed scope; executable proof remains independently gated.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close durable replay policy without losing draft/target identity or overpromising no-op durability.",
+      "done_when": "Canonical request resolved with explicit schema, retry lifetime and executable review obligations.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T14:43:43Z",
+      "duration_seconds": 119.0
     }
   ],
   "changes": [
