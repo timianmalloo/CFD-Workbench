@@ -31,12 +31,22 @@ Usage:
 """
 import argparse
 import re
+import shlex
 import json
 import os
 import shutil
 import subprocess
 import sys
 from collections import Counter
+
+# Windows consoles default to cp1252, which cannot encode the glyphs this tool prints
+# (DC-211/PLAT-A). Without this the script dies with UnicodeEncodeError on output alone.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
 
 # --- CD6: every detector rule maps to a pack cluster, a DX22 rubric dimension,
 # --- and the pack directive it enforces. Keeping this table here is what keeps
@@ -103,7 +113,12 @@ def resolve_detector(explicit=None):
     `npx impeccable`. Establishing the tool rather than assuming it is NG1.
     """
     if explicit:
-        return explicit.split()
+        # A quoted path with spaces must survive the split, and on Windows POSIX-mode
+        # shlex eats the backslashes in `C:\Program Files\...` (DC-211). Non-POSIX mode
+        # keeps them but leaves the quotes on the token, so they are stripped here.
+        if os.name == "nt":
+            return [t.strip('"') for t in shlex.split(explicit, posix=False) if t.strip('"')]
+        return shlex.split(explicit)
     exe = shutil.which("impeccable")
     if exe:
         return [exe]
@@ -124,7 +139,8 @@ def run_detector(prefix, targets):
     """
     cmd = prefix + ["detect", "--json"] + list(targets)
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=600)
     except (OSError, subprocess.SubprocessError) as exc:
         return None, "could not run the detector: %s" % exc
     out = (proc.stdout or "").strip()

@@ -43,7 +43,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 
 REL_REGISTRY = ["implements","refines","depends-on","supersedes","tested-by","documents","uses-term","relates-to"]
-TYPES = ["knowledge","glossary","spec","architecture","adr","design","design-language","investigation","proof-pack","decision-note","threat-model","privacy-review","api","source","doc","index"]
+TYPES = ["knowledge","glossary","spec","architecture","adr","design","design-language","investigation","proof-pack","decision-note","threat-model","privacy-review","api","source","doc","index","plan"]
 REQUIRED = ["id","title","type","status","summary"]
 EXCLUDE_DIRS = {"ai-forward-pack","_site","node_modules",".git"}
 TODAY = datetime.date.today().isoformat()
@@ -336,11 +336,13 @@ def _atomic_write_text(path, text):
     directory = os.path.dirname(destination)
     os.makedirs(directory, exist_ok=True)
     existing_mode = _reject_unsafe_destination(destination)
+    # No text=True: the fd is reopened below with an explicit encoding and newline="\n".
+    # On Windows text=True would set O_TEXT on the descriptor and translate "\n" to CRLF
+    # underneath that newline="" contract; elsewhere the flag does nothing at all.
     descriptor, temporary = tempfile.mkstemp(
         prefix=".docs-graph-",
         suffix=".tmp",
         dir=directory,
-        text=True,
     )
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as output:
@@ -574,6 +576,15 @@ class _TitleParser(HTMLParser):
 
 
 def _surface_title(path, relative_to_root):
+    normalized = relative_to_root.replace("\\", "/").lower()
+    explicit = {
+        "_site/index.html": "AI-Forward Documentation",
+        "_site/bundle.html": "AI-Forward Bundle View",
+        "portal/index.html": "AI-Forward Portal",
+        "mockups/documentation-portal.html": "Portal Mockup",
+    }
+    if normalized in explicit:
+        return explicit[normalized]
     try:
         source, opened = _open_verified_binary(path)
         with source:
@@ -1115,11 +1126,11 @@ def cmd_derive(args):
             raise _source_changed_error(a["id"])
     destination_directory = os.path.dirname(os.path.abspath(dst))
     os.makedirs(destination_directory, exist_ok=True)
+    # No text=True — see _atomic_write_text: the fd carries its own encoding and newline.
     fd, temporary = tempfile.mkstemp(
         prefix=".docs-index-",
         suffix=".tmp",
         dir=destination_directory,
-        text=True,
     )
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as index_file:

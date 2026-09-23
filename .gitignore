@@ -19,3 +19,7 @@ docs/audit/.run-starts.json.tmp
 
 # scratch proofs written by debug/fast oracle variants (never evidence)
 docs/proof/_*.json
+
+# AI-Forward Pack (INSTALL 2): local coordination and per-run state, never committed
+!.agents/log/
+.agents/mail/

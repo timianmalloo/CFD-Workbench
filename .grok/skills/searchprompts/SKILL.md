@@ -1,11 +1,12 @@
 ---
 name: searchprompts
 description: Search your logged prompts by freeform text and reuse a match — the same arrow-navigable expand/collapse stack as /prompts, pre-filtered to prompts whose label or text contains all your terms. A utility skill backed by the stdlib prompt-log engine.
+runs_as: either
 ---
 
 # Skill: /searchprompts
 
-A **utility skill** (not a Rigor-Protocol workflow): find a past prompt by **freeform text**, then reuse it. It is **/prompts pre-filtered** — you give search terms, and the same interactive **stack (newest on top)** opens over just the prompts whose label or body contains **all** your terms (case-insensitive). Navigate with **↑/↓**, **→** to expand a match and read it in full, **←** to collapse, **Enter** to reuse (copies it to your clipboard to paste-and-edit).
+A **utility skill** (not a Rigor-Protocol workflow): find a past prompt by **freeform text**, then reuse it. It is **/prompts pre-filtered** — you give search terms, and the same interactive **stack (newest on top)** opens over just the prompts whose label or body contains **all** your terms (case-insensitive). **↑/↓** move, **→** expand, **←** collapse, **Enter** reuse (copied to the clipboard to paste-and-edit).
 
 Companion skill: **/prompts** (the full stack, unfiltered). Both are reuse lenses over the same unified **audit log** (`docs/audit/audit-log.jsonl`); the broader timeline/search/change-log/viewer is **/auditlog**.
 
@@ -22,7 +23,7 @@ All behavior is in the stdlib script **`docs/ai-forward-pack/scripts/prompt-log.
 3. **Reuse:** the user pastes the copied prompt into their next CLI prompt and edits before executing.
 
 ## In both list and interactive views
-The list shows **label + timestamp**; when you are *on* a prompt, **→ expands** it to the full text and **← collapses** it back to the label — so you can scan labels fast and open only the ones you want.
+The list shows **label + timestamp**; when you are *on* a prompt, **→ expands** it to the full text and **← collapses** it back to the label; a compiled twin is labelled `⟲ compiled from <raw id>` (CO-S0) and `--raw <id>` narrows to one raw prompt's compilations.
 
 ## Definition of done
 - [ ] The matches (label · time) for the user's terms were shown newest-first.

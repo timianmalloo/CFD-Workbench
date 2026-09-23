@@ -1,6 +1,7 @@
 ---
 name: session-profiler
 description: Profile one or more pack-consuming repos' Claude Code and Copilot CLI sessions from their local telemetry and produce a findings table and a fixes table for performance, efficiency, task adherence, parallelism and cross-harness coordination — the continuous-improvement loop for how the pack performs on every model and harness. Use weekly, after any session that felt slow or drifty, and before/after a model or harness change.
+runs_as: Coordinator
 ---
 
 # Skill: /session-profiler
@@ -12,13 +13,13 @@ Measure how the pack's sessions **actually ran** — across harnesses (Claude Co
 **Spine:** the Rigor Protocol on the telemetry corpus, weighted to **Stage 3 EVIDENCE** (measured, cited, per turn) and **Stage 4 DISCONFIRM** (the Simplifier strikes findings that are not load-bearing; every proposed fix names its control). **Authority:** `instrumentation-over-inference.md` (IO1–IO13), `communication-and-task-discipline.md` (CT19–CT25 — the goal-state, tier and fan-out fields the profiler reads), `execution-graph-optimization.md` (GO7 delegation contract, GO19 tier per phase), `session-worktree-discipline.md` (WT1a), `continuous-improvement.md` (CI1–CI12 — a finding lands as a class with a control). **Mode:** deterministic harness in Peer Mode; the human is the gate. **Lead:** the **AI Systems Engineer** (model tiering, inference cost, prompt-as-contract) composing the **SRE** (cost axes, latency, telemetry), the **Simplifier** (strike noise, soft veto) and the **Test Architect** (a fix without a control is prose — CI6).
 
 ## Grounding (first action)
-`python3 docs/ai-forward-pack/scripts/audit-log.py start --session <id>` (IO1 — the closing entry records the duration). Then read: the defect-class register (`docs/lessons/defect-classes.md`, the **CTX-\*** classes), the most recent `docs/profiles/PROFILES.md` rows (so a known finding is *re-measured*, not re-discovered), and the fix catalog (`python3 docs/ai-forward-pack/scripts/session-profile.py fixes`). Traverse the graph one hop from `design-session-profiler` (V15) and cite it.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. `python3 docs/ai-forward-pack/scripts/audit-log.py start --session <id>` (IO1 — the closing entry records the duration). Then read: the defect-class register (`docs/lessons/defect-classes.md`, the **CTX-\*** classes), the most recent `docs/profiles/PROFILES.md` rows (re-measure known findings), and the fix catalog (`python3 docs/ai-forward-pack/scripts/session-profile.py fixes`). Traverse the graph one hop from `design-session-profiler` (V15) and cite it.
 
 ## Input
 One or more repo paths that have the pack installed (`--repo <path>`, repeatable — the first receives `docs/profiles/`), an optional window (`--days N`, default 30), an optional harness filter, optional session ids, and an optional focus (*"the Copilot sessions that felt slow this week"*, *"compare opus vs gpt on implementation turns"*). No input at all means: every session of the current repo in the last 30 days.
 
 ## Cast
-- **Peers:** AI Systems Engineer (lead), SRE & Diagnostician, Domain Researcher (when a harness contract must be established rather than recalled — the store schemas are read, never assumed, RIG-D).
+- **Peers:** AI Systems Engineer (lead), SRE & Diagnostician, Domain Researcher (a store schema is read, never recalled — RIG-D).
 - **Adversaries:** **The Simplifier** (soft veto: a finding that changes no decision is struck), **Test Architect** (hard veto: a proposed fix with no named control and no red-first observation does not enter the fixes table), **Tech Lead** (a fix is smallest-correct; ceremony added to remove ceremony is rejected).
 
 ## Flow (Rigor Protocol, specialized to telemetry)
@@ -27,9 +28,9 @@ One or more repo paths that have the pack installed (`--repo <path>`, repeatable
 
 **Stage 1 — OPEN.** Name the operator questions this pass answers (IO2): cost per turn and its cache share · context at the start and end of each turn, and whether it was ever compacted · time-to-first-token p50/p90 for the main agent · sub-agents convened per turn against the declared tier and fan-out cap · tool calls per delegation and converge nudges · re-reads and paged-output views · skill invocations per session · goal-state and tier presence on substantive turns · overlapping sessions in one checkout · the model-family × harness comparison. Write the goal state (CT19) with **Tier: T0 · Fan-out cap: 0** — this skill convenes no sub-agents of its own.
 
-**Stage 2 — INTERROGATE (measure).** `python3 docs/ai-forward-pack/scripts/session-profile.py --repo <a> [--repo <b>] --days N profile --session-id <id>` writes `docs/profiles/<sp-id>/profile.json` + `profile.md` and the index row. Read the findings table. Every finding carries an id (**SP-01 … SP-16**), a severity on the pack scale, a confidence, per-turn evidence and the fix ids it maps to. **Verified** findings are read from the store (tokens, requests, sub-agent counts, prefix blocks). **Inferred** findings are heuristics over text (goal-state presence, "council above tier", the family comparison) — for each one, **open the turn** in the transcript and confirm or strike it. This is the REM step: the model classifies *drift · tangent · ceremony · legitimate* per flagged turn, with the prompt and the first reply quoted as evidence; the script never judges intent.
+**Stage 2 — INTERROGATE (measure).** `python3 docs/ai-forward-pack/scripts/session-profile.py --repo <a> [--repo <b>] --days N profile --session-id <id>` writes `docs/profiles/<sp-id>/profile.json` + `profile.md` and the index row. Read the findings table. Every finding carries an id (**SP-01 … SP-28**), a severity on the pack scale, a confidence, per-turn evidence and the fix ids it maps to. **Verified** findings are read from the store (tokens, requests, sub-agent counts, prefix blocks). **Inferred** findings are heuristics over text (goal-state presence, "council above tier", the family comparison) — for each one, **open the turn** in the transcript and confirm or strike it. This is the REM step: the model classifies *drift · tangent · ceremony · legitimate* per flagged turn, with the prompt and the first reply quoted as evidence; the script never judges intent.
 
-**Stage 3 — EVIDENCE (compare).** `session-profile.py … compare` gives the model-family × harness view: requests, cache-read, output and reasoning tokens per turn, cost where the harness records it, TTFT p90, context at turn end, wall clock, and **drift indicators per turn** (sub-agents + re-reads + skill repeats + missing goal state + fan-out without tier + converge nudges + cap firings). **A family with 2× the drift of another is a tuning finding (SP-14) only on like-for-like turns** — state the turn mix, and never tune on fewer than three comparable turns per family. Check coordination: SP-15 (overlapping sessions with the same cwd) against `coord-core.py worktree list`; a session that wrote in the primary checkout beside another is a WT1/WT4 finding.
+**Stage 3 — EVIDENCE (compare).** `session-profile.py … compare` gives the model-family × harness view: requests, cache-read, output and reasoning tokens per turn, cost where the harness records it, TTFT p90, context at turn end, wall clock, and **drift indicators per turn** (sub-agents + re-reads + skill repeats + missing goal state + fan-out without tier + converge nudges + cap firings). **A family with 2× the drift of another is a tuning finding (SP-14) only on like-for-like turns** — state the turn mix, and never tune on fewer than three comparable turns per family. Check coordination: SP-15 (overlapping sessions with the same cwd) against `coord-core.py worktree list`; a session that wrote in the primary checkout beside another is a WT1/WT4 finding. `session-profile.py compile` reads the compile stage (CO-S0): edit distance p50/p90 per template and the `compiled: false` share (SP-27/SP-28); message, doorbell, board and refused-dispatch counts read `not recorded` until a reader exists (IO8).
 
 **Stage 4 — DISCONFIRM (the gate).** Adversary Mode. The Simplifier strikes every finding that would change no guidance, control or gate. The Test Architect requires each row of the fixes table to name **the pack surface, the control that fails on recurrence, and how it was observed failing** (the profiler re-flagging the finding id is the recurrence signal; a control that cannot be seen red is prose). The Tech Lead rejects a fix that adds ceremony to remove ceremony. Findings survive only with evidence attached; a struck finding is listed as struck, with the reason.
 
@@ -38,7 +39,7 @@ One or more repo paths that have the pack installed (`--repo <path>`, repeatable
 **Close with the status table (mandatory).** Completed / Remaining / Best next action.
 
 ## Output artifact
-- `docs/profiles/<sp-id>/profile.json` (canonical) and `profile.md` (findings table, fixes table, family × harness table, per-session turn tables) — written by the script; plus one row in `docs/profiles/PROFILES.md`.
+- `docs/profiles/<sp-id>/profile.json` (canonical) and `profile.md` (the tables) — written by the script; plus one row in `docs/profiles/PROFILES.md`.
 - The response: the three tables, the struck findings with reasons, and the per-family tuning notes.
 - New or updated **CTX-\*** classes in the register; an audit entry (the script appends one; the skill's closing `audit-log.py append … --tier T0 --fan-out 0` records the goal state).
 
@@ -48,7 +49,7 @@ One or more repo paths that have the pack installed (`--repo <path>`, repeatable
 - [ ] Every **Inferred** finding was confirmed or struck against the transcript; struck findings are listed with reasons.
 - [ ] `compare` ran; any SP-14 claim states the turn mix and rests on ≥3 comparable turns per family.
 - [ ] Every fixes-table row names the pack surface **and** the control that fails on recurrence; the Test Architect's veto is cleared by the reviewer, not the author.
-- [ ] Coordination checked: SP-15 overlaps reconciled against the worktree list.
+- [ ] Coordination checked: SP-15 overlaps reconciled against the worktree list and `coord session list`.
 - [ ] New shapes registered as classes; the audit entry carries `goal`, `done_when`, `tier` and `fan_out`.
 - [ ] Status table emitted.
 

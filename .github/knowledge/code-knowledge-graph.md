@@ -126,7 +126,7 @@ graphify query "what connects auth to the database?"
 
 # 5. join it to the docs graph and index the lens
 python3 docs/ai-forward-pack/scripts/graphify-setup.py --join
-python3 docs/ai-forward-pack/scripts/docs-graph.py derive && \
+python3 docs/ai-forward-pack/scripts/docs-graph.py derive
 python3 docs/ai-forward-pack/scripts/docs-graph.py validate
 ```
 

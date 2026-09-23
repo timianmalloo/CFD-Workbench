@@ -35,6 +35,18 @@ import os
 import re
 import sys
 
+# Windows consoles default to cp1252, which cannot encode the box/arrow glyphs this
+# tool prints - `prompt-log.py --help` crashed outright with UnicodeEncodeError (FR-047).
+# The other scripts survived only because their glyphs happen to exist in cp1252, which is
+# luck rather than an invariant, so the guard is applied uniformly.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 # --- The backend registry ------------------------------------------------------
 # A backend is described by what it CAN DO, not by which vendor it is - so the
 # capability contract stays substitutable (VA1). `env` lists the environment
@@ -304,14 +316,14 @@ def cmd_init_mcp(root, backend, dry_run):
         print("  would ensure .gitignore covers .mcp.json")
         return 0
 
-    with open(example_path, "w", encoding="utf-8") as handle:
+    with open(example_path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump({"mcpServers": {spec["mcp"]["server_name"]: example}}, handle, indent=2)
         handle.write("\n")
     print("\n  wrote .mcp.json.example  (safe to commit - placeholders only)")
 
     if creds:
         payload = dict(server, env=creds)
-        with open(real_path, "w", encoding="utf-8") as handle:
+        with open(real_path, "w", encoding="utf-8", newline="\n") as handle:
             json.dump({"mcpServers": {spec["mcp"]["server_name"]: payload}}, handle, indent=2)
             handle.write("\n")
         print("  wrote .mcp.json          (GIT-IGNORED - contains real credentials)")
@@ -437,7 +449,7 @@ def ensure_gitignore(root, dry_run):
         return "gitignore already covers visual-asset hygiene"
     if dry_run:
         return "would append %d pattern(s) to .gitignore" % len(additions)
-    with open(path, "a", encoding="utf-8") as handle:
+    with open(path, "a", encoding="utf-8", newline="\n") as handle:
         if existing and not existing.endswith("\n"):
             handle.write("\n")
         handle.write("\n")
@@ -481,7 +493,7 @@ def ensure_manifest(root, dry_run):
         "  #   disclosure: ai-generated\n"
         "  #   licence-checked: true\n"
         "```\n")
-    with open(design, "a", encoding="utf-8") as handle:
+    with open(design, "a", encoding="utf-8", newline="\n") as handle:
         handle.write(block)
     return "added an assets: manifest section to %s" % os.path.relpath(design, root)
 
@@ -504,7 +516,7 @@ def cmd_init(root, dry_run):
     elif dry_run:
         actions.append("would write docs/assets/README.md")
     else:
-        with open(paths["readme"], "w", encoding="utf-8") as handle:
+        with open(paths["readme"], "w", encoding="utf-8", newline="\n") as handle:
             handle.write(ASSET_README)
         actions.append("wrote docs/assets/README.md")
 

@@ -52,11 +52,13 @@ def main():
     args = ap.parse_args()
     rows, bad = read_manifest(), 0
     if args.update:
-        with open(MANIFEST, encoding="utf-8") as source:
+        # newline="" keeps the manifest's own line endings intact: the rewrite is a hash
+        # substitution, not a re-encoding, so a CRLF checkout must not come back as LF.
+        with open(MANIFEST, encoding="utf-8", newline="") as source:
             text = source.read()
         for f, old in rows:
             text = text.replace(f"`{old}`", f"`{nhash(os.path.join(PACK,'knowledge',f))}`", 1)
-        with open(MANIFEST, "w", encoding="utf-8") as handle:
+        with open(MANIFEST, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(text)
         print(f"manifest updated for {len(rows)} docs"); return 0
     for f, want in rows:

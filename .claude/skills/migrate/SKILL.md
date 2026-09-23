@@ -1,6 +1,7 @@
 ---
 name: migrate
 description: Execute dependency upgrades, framework migrations, and large-scale refactors with a characterization-first discipline — pin current behavior with golden-master tests before any change, compute the blast radius from the knowledge graph, migrate in vertical increments behind the proof, and demonstrate behavioral equivalence (or cataloged intentional differences) at the end. Use for SDK/major-version bumps, library swaps, cross-cutting refactors, and platform moves.
+runs_as: either
 ---
 
 # /migrate — change everything, break nothing (provably)
@@ -10,7 +11,7 @@ Migrations and large refactors are the most common high-risk agentic task: broad
 **Spine:** the Rigor Protocol. **Authorities:** the Testing Strategy (characterization = the proof), the Observability Standard (telemetry is part of the contract being preserved — O-series), the Knowledge Visualization Standard (V15 grounding, V16 propagation), and the latest-stable-SDK policy in the Body of Knowledge (the *target* defaults to latest stable; the repo pin wins), and the **Solution-Selection Ladder** (`solution-selection-ladder.md`) — the cheapest migration is the code you delete instead of migrating. **Cast:** the relevant language **Developer** leads; the **Test Architect** holds the hard veto on characterization coverage; the Patterns Expert and Simplifier police "while-we're-here" scope creep; the SRE guards telemetry continuity; the Release Engineer owns rollout/rollback. **Tooling (V18):** graph mechanics via `docs/ai-forward-pack/scripts/docs-graph.py` (`inventory`, `flag`, `derive`).
 
 ## Grounding (first action)
-Load the artifacts that define the behavior being preserved — the specs, designs, ADRs, and proof packs of every touched component. Prefer **graph traversal** (`knowledge-visualization.md` V15): start from the migration's target components and follow the typed edges 1–2 hops; the **inbound** edges are the blast radius (V16 read for planning, before any flagging). Read the target's release notes / breaking-change list via the Spike Protocol — empirically, not from memory. Skip this grounding only if the user explicitly tells you not to consult prior artifacts.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. Load the artifacts that define the behavior being preserved — the specs, designs, ADRs, and proof packs of every touched component. Prefer **graph traversal** (`knowledge-visualization.md` V15): start from the migration's target components and follow the typed edges 1–2 hops; the **inbound** edges are the blast radius (V16 read for planning, before any flagging). Read the target's release notes / breaking-change list via the Spike Protocol — empirically, not from memory. Skip this grounding only if the user explicitly tells you not to consult prior artifacts.
 
 ## Stages
 

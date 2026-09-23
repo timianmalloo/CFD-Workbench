@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T12:50:47Z",
+  "generated": "2026-09-23T13:12:53Z",
   "audit": [
     {
       "id": "al-01M2X3YHPD4JJTYZF5A3A35Q1V",
@@ -1262,6 +1262,27 @@ window.AUDIT_DATA = {
         "branch": "feature/foildsl-authoring",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M376BKE4JSSXQ63638FBXKBN",
+      "shortname": "updatepack-r92",
+      "datetime": "2026-09-23T13:12:53Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.",
+      "summary": "73 to92 (2026.09.21.3), source3b11733. Plan143UPDATE84ADD8MERGE; generated context-budget conflict resolved by local measurement, project domain persona deviations retained, docs index untouched. Pack doctor20PASS2WARN0FAIL: user Copilot long-context and existing graph review flags. Apply idempotent; no permissions or trust override.",
+      "kind": "command",
+      "skill": "updatepack",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Refresh the pack before coordinated implementation.",
+      "done_when": "Revision92 installed, source apply idempotent, no unresolved conflict, doctor and repository controls pass.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-23T13:11:27Z",
+      "duration_seconds": 86.0
     }
   ],
   "changes": [
@@ -1633,5 +1654,6 @@ window.AUDIT_DATA = {
         "commits": []
       }
     }
-  ]
+  ],
+  "messages": []
 };

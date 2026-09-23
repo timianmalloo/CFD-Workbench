@@ -155,6 +155,7 @@ Diagnostician's standing finding.
 | Observability & ops (§8) | | |
 | Supply chain & licensing (§9) | | |
 | Incident readiness (§10) | | |
+| Responsible-AI stance — the committed policy and the PII/secret scrub (`responsible-ai-policy.md`; `scrub.py`) | | |
 
 A row marked *applies* with an empty answer is a gap to close or a risk to flag —
 never a silence.

@@ -1,6 +1,7 @@
 ---
 name: execute-with-coordination
 description: "Take the coordinator role: spin up one worktree per agent or session from a coordination plan, assign explicit ownership, arbitrate seam requests and scope changes, and converge the tracks back to one branch."
+runs_as: Coordinator
 ---
 
 # Skill: /execute-with-coordination
@@ -14,16 +15,17 @@ Run a coordination plan. You become the **coordinator**: you own the division of
 **Spine:** the Rigor Protocol, weighted to **Stage 5 CONVERGE** (the merge is the deliverable, not the delegations). **Authority:** `knowledge/session-worktree-discipline.md` (WT1–WT12), `knowledge/execution-graph-optimization.md` (GO5–GO9, GO17 fan-out contract), `knowledge/communication-and-task-discipline.md` (CT19–CT25). **Mode:** Peer Mode while dispatching, Adversary Mode at every join. **Lead:** the **Orchestrator**.
 
 ## Grounding (first action)
-`audit-log.py start --session <id>` (IO1). Then:
+CO-S0 applies first — the sentence is `reference/co-s0.md`. `audit-log.py start --session <id>` (IO1). Then:
 1. Read the plan (`docs/coordination/<plan-id>.md`). If none exists, or the named one does not parse against the schema, **stop and run `/prepare-for-coordination`** — do not improvise a division.
 2. `coord doctor` — **read the layer's state back**. A plan is not proof the layer is on.
 3. `coord worktree list` and `coord session list` — what already exists and who holds it. Never plan over a tree you did not look at.
 4. `docs/lessons/defect-classes.md` — the **CTX-\*** and **WT** classes.
 
 ## Input
-Optionally a plan id or path, a track subset, and a mode. No input: the newest plan in `docs/coordination/`. Two execution modes, and **the plan does not change between them** — only who reads it:
+Optionally a plan id or path, a track subset, and a mode. No input: the newest plan in `docs/coordination/`. Three execution modes, and **the plan does not change between them** — only who reads it:
 - **`--agents`** (default) — you spawn one sub-agent per track, each in its own worktree.
 - **`--brief`** — you emit one self-contained brief per track for a human to paste into a session they start themselves, possibly on a different harness. You then act as coordinator across those sessions through the plan and the seam log rather than through delegation.
+- **`--launch`** (opt-in, profile-qualified) — `coord-runner.py` prepares isolated tracks and launches qualified ACP (Claude/Codex/Grok/Copilot) or Agy native-stream workers. Any designated Owner can operate it. POSIX/Windows containment is platform-specific. Read `reference/launch.md` and, for Copilot, `reference/copilot.md`. Unknown instructions, hooks, trust or permissions block with a retained brief; ACP support is not qualification.
 
 ## Cast
 - **Peers:** Orchestrator (coordinator). Track agents are the personas the plan names — they are *delegates*, not council members.
@@ -45,11 +47,11 @@ coord doctor                                                   # read the inheri
 ```
 **Never install from inside a worktree** — `coord install` refuses there, and the refusal is the point. A linked worktree shares `.git/config` *and* `.git/hooks` with its parent, so it already carries the drivers and the pre-commit floor; an install there does not add a registration, it **overwrites the repository's** with a path inside a tree that WT8 cleanup will delete. The install belongs in the **primary checkout, once per clone**. `coord doctor` in the new tree confirms the inherited registration, and reports `COORD-DRIVER-PATH-FOREIGN` if some earlier session already repointed it.
 
-**Stage 3 — Dispatch with a contract, never a topic.** Every delegation carries, explicitly (GO7, class CTX-F):
+**Stage 3 — Dispatch with a contract, never a topic.** Before dispatch, refuse a compiled prompt whose `dispatchable` is false or whose text still carries an unanswered `DR-n` line — stop with `decision request unanswered: DR-n` (CO-S0). Every delegation carries, explicitly (GO7, class CTX-F):
 - **the `start` line first** — `audit-log.py start --session <track-id> --skill <skill>` is the brief's first command, before grounding, so the node's duration is measured from the right instant (DC-190; the host's `SessionStart`/`SubagentStart` hook marks the seam as a backstop);
 - **the exact goal and its done-when** — the track's plan row, verbatim; a row that names a control's trigger **quotes the ADR line**, never a paraphrase (DC-189);
 - **the authored paths it owns**, and the statement that `derived`/`register` paths need no claim — **a `register`-class artifact is never claimed**: append with a placeholder id where the allocator is the join's, and commit (`coord claim` refuses it, DC-163);
-- **claim for the minutes of the edit** — the default TTL, released at once; never `--ttl 3600` for the node's lifetime (two joins queued ~50 min behind one such lease); a genuinely long edit passes `--long-edit <reason>`;
+- **claim for the minutes of the edit** — the default TTL, released at once; never `--ttl 3600` for the node's lifetime (DC-163); a genuinely long edit passes `--long-edit <reason>`;
 - **absolute paths only, no `EnterWorktree`/`ExitWorktree`** — the tool refuses when the session cwd is the primary and a background node waited 8,143 s for the refusal (F-25, SP-23);
 - **a multi-line program is a file, then a run**, and **a gate's status is never behind a pipe** (CT27; SP-25 / SP-24);
 - **tier, fan-out cap, a per-branch budget** — tool calls, tokens, wall clock — **and a context ceiling** (400k tokens unless the plan says otherwise) with its hand-off rule: at the ceiling the node splits the slice or `/compact`s rather than continuing (F-14 ext.; SP-01 per node is the measurement);
@@ -68,15 +70,17 @@ A budget with no convergence condition is a timer, not a contract. **A budget fi
 2. Resolve open seam requests, oldest first.
 3. Decide the things only you can: a scope change, a boundary correction, a conflicting recommendation between two tracks, a track that wants to enlarge its authority.
 4. `coord metrics` — refused decisions and edits outside a lease are the signal that **the division is wrong**, not that the tracks are careless.
+5. **Owner review is a ruling, never an acceptance (D6, CO1).** When a track raises a decision request (`coord decide request` — the five fields, a deadline and a fallback, P1's request plus a `decision-request` mail), the Owner seat answers it with `coord decide rule next --title "…" --text "…" --request <req-id>`: the next numbered heading is appended to `docs/notes/rulings.md`, the request is resolved with `Ruling NN`, and the requester is mailed. The requester never rules on its own request (`COORD-RULING-SELF`). A track's `Stop` is refused by `owner-review-gate.py` while a decision request it sent is open — that refusal is the loop's signal, not an error to work around; `coord decide list` shows what is open and what was ruled (`NOT CHECKED` over an empty corpus).
 
-**Termination variant:** the number of tracks with unreturned exit evidence, which must strictly decrease. If it does not decrease across two passes, the loop is not converging: stop, report, and re-plan. Ending the loop is not the same as finishing the work, and a plan that cannot converge is a finding.
+**Termination variant:** the number of tracks with unreturned exit evidence, which must strictly decrease. If it does not decrease across two passes, the loop is not converging: climb the **kick ladder** (CO17 — `coord kick`, then a decision request at rung 2, the human at rung 3), never the paragraph. A plan that cannot converge is a finding.
 
 **Stage 6 — Converge.** Merge in dependency order — upstream first, downstream rebases. **The join is the script and nothing else:**
 ```
-python3 docs/ai-forward-pack/scripts/conductor-join.py <branch> --title "<merge title>" \
-    --audit-shortname join-<track> --audit-summary "<what landed>" --audit-goal "<goal>" --audit-done-when "<done when>"
+python3 docs/ai-forward-pack/scripts/conductor-join.py <branch> --title "<merge title>" --audit-shortname join-<track> --audit-summary "<what landed>" --audit-goal "<goal>" --audit-done-when "<done when>"
 ```
-It merges, sets the join's own marker, runs **`verify-no-conflict-markers.py` first** (before anything else reads the tree — a hand-resolved file carrying `<<<<<<<` sealed a merge once, DC-136; **a derived file is regenerated, never resolved**), the repo's checks and **one whole-suite recount per join** (timed as `recount_seconds` — joins and recounts were 44.8% of a conductor's active main line and no entry recorded it), appends the join's audit entry at **tier T1, fan-out 0** with its measured duration, regenerates (`coord regen` — a failed regeneration **stays owed** and reports non-zero, because a stale derived artifact looks finished), commits, runs **`run-verify-gates.py`** (every gate, one status) and pushes — each step gated by its exit code, none by a shell line (DC-113's fourth recurrence was a hand-typed join line). A conflict stops it with the file list; resolve by hand, `git add`, `git commit --no-edit`, re-run with `--continue`. The repo's own checks, recount, regenerate and build commands live in `docs/coordination/join.json`. **Each track's green is evidence its own gate passed, not that the integration did** (E13). Then close each track: `coord release`, then `coord worktree cleanup` — which **reports by default and deletes only with `--remove`**, holds any tree that is not clean including untracked or carries a commit that exists nowhere else, and labels a tree *merged* only when `git rev-list --count <default>..<branch>` is 0 (the count is printed; a pushed-but-open branch is HELD, DC-142).
+Before the join, `python3 docs/ai-forward-pack/scripts/verify-ruling-citations.py` is green: a `Ruling NN` cited anywhere under `docs/`, `pack/`, `.agents/log/`, `.github/`, `.claude/` with no heading in `docs/notes/rulings.md`, or a number defined twice, blocks the join (class ID-A).
+
+The join's steps and their gates are `reference/join.md` — read at this stage, never by re-invoking the skill (CTX-E).
 
 **Never remove a worktree to resolve a conflict** (WT11). If two tracks collided, deleting one side destroys the evidence of what collided.
 

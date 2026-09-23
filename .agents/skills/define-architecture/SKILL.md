@@ -1,6 +1,7 @@
 ---
 name: define-architecture
 description: Produce the top-level architecture from a prompt or spec. Selects the LOA archetype and tier allocation, establishes unfamiliar SDK/protocol contracts via mandatory spikes, runs the architect council adversarially, and records decisions as ADRs. Use for new systems or load-bearing architecture.
+runs_as: either
 ---
 
 # Skill: /define-architecture
@@ -10,7 +11,7 @@ Produce the **top-level architecture** — the shape of the system, its major co
 **Spine:** Rigor Protocol with a heavy **Stage-3 spike** emphasis (`knowledge/spike-protocol.md`). **Authority:** the **LOA** (`layered-optimized-architecture.md`) governs AI-integrated architecture — identify the archetype, allocate tiers, apply principles P1–P11 as filters. **Mode:** Peer Mode for authoring, full architect council in Adversary Mode at the gate.
 
 ## Grounding (first action)
-Load the artifacts this architecture must answer to and treat them as the **authoritative source of truth** (Rigor Protocol Stage 0; BoK §III.1): the spec(s) (`docs/specs/`), the domain knowledge bases (`docs/knowledge/`), and any existing `docs/architecture.md`. Quote the spec requirements and quality attributes the architecture must satisfy; if a new decision conflicts with an existing architectural decision or the spec, **surface the drift** (supersede it explicitly via an ADR, don't silently contradict it). Prefer **graph traversal** for this grounding (`knowledge-visualization.md` V15): start from this task's artifact(s) in the knowledge graph and follow the typed edges 1–2 hops (upstream `implements`/`refines`/`depends-on`, downstream `tested-by`/`documents`, and `uses-term` into the glossary), citing the traversal path; a missing edge, stale node, or orphan found here is a finding to surface. Skip this only if the user explicitly tells you not to consult prior artifacts.
+Consume the compiled prompt when one is in hand (CO-S0, `knowledge/agent-coordination.md`; `/compile`): its goal state is the turn's goal state and its Not-in-scope is the interdiction — derive nothing from raw prose that a compiled prompt already fixed. Load the artifacts this architecture must answer to and treat them as the **authoritative source of truth** (Rigor Protocol Stage 0; BoK §III.1): the spec(s) (`docs/specs/`), the domain knowledge bases (`docs/knowledge/`), and any existing `docs/architecture.md`. Quote the spec requirements and quality attributes the architecture must satisfy; if a new decision conflicts with an existing architectural decision or the spec, **surface the drift** (supersede it explicitly via an ADR, don't silently contradict it). Prefer **graph traversal** for this grounding (`knowledge-visualization.md` V15): start from this task's artifact(s) in the knowledge graph and follow the typed edges 1–2 hops (upstream `implements`/`refines`/`depends-on`, downstream `tested-by`/`documents`, and `uses-term` into the glossary), citing the traversal path; a missing edge, stale node, or orphan found here is a finding to surface. Skip this only if the user explicitly tells you not to consult prior artifacts.
 
 ## Input
 A spec (`docs/specs/<feature>.md` from `/specify`) or a prompt. If only a prompt is given, run a lightweight `/specify` first — *architecture without a problem statement is architecture-astronaut work* (Tech Lead; the Simplifier).

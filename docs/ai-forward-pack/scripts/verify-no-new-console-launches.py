@@ -52,7 +52,7 @@ SELF = Path(__file__).resolve()   # this file names the token it hunts; skipped 
 
 def repo_root(start: Path | None = None) -> Path:
     done = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(start or Path.cwd()),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if done.returncode == 0 and done.stdout.strip():
         return Path(done.stdout.strip())
     return start or Path.cwd()
@@ -92,16 +92,16 @@ def self_test() -> int:
         (fake / "tests").mkdir()
         (fake / "tests" / "Launch.cs").write_text(
             "/// <summary>Explains CREATE_NEW_CONSOLE in prose.</summary>\n"
-            "const uint CREATE_NEW_CONSOLE = 0x00000010;\n", encoding="utf-8")
+            "const uint CREATE_NEW_CONSOLE = 0x00000010;\n", encoding="utf-8", newline="\n")
         (fake / "tests" / "launch.py").write_text(
             "# a comment naming CREATE_NEW_CONSOLE\n"
-            "flags = subprocess.CREATE_NEW_CONSOLE\n", encoding="utf-8")
+            "flags = subprocess.CREATE_NEW_CONSOLE\n", encoding="utf-8", newline="\n")
         red, _ = findings(fake)
         (fake / "tests" / "Launch.cs").write_text(
             "/// <summary>Explains CREATE_NEW_CONSOLE in prose.</summary>\n"
-            "const uint CREATE_NO_WINDOW = 0x08000000;\n", encoding="utf-8")
+            "const uint CREATE_NO_WINDOW = 0x08000000;\n", encoding="utf-8", newline="\n")
         (fake / "tests" / "launch.py").write_text(
-            "# a comment naming CREATE_NEW_CONSOLE\nflags = 0\n", encoding="utf-8")
+            "# a comment naming CREATE_NEW_CONSOLE\nflags = 0\n", encoding="utf-8", newline="\n")
         green, read = findings(fake)
     if len(red) != 2 or green or read != 2:
         print("verify-no-new-console-launches --self-test: FAILED (red={0}, green={1}, read={2})".format(

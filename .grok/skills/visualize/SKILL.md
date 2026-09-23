@@ -1,6 +1,7 @@
 ---
 name: visualize
 description: Generate, curate and commit the visual assets a site shows — hero and section imagery, consistent personas, and cinematic motion — from a configured generation backend (Higgsfield, Google Gemini/Veo), under the ui-visual-assets guardrails. Use to make a surface look genuinely produced rather than templated, or to build a direction board that makes a brief concrete.
+runs_as: either
 ---
 
 # Skill: /visualize
@@ -12,7 +13,7 @@ The one thing to internalise before running it: **it generates what the interfac
 **Spine:** the Rigor Protocol, weighted toward **Stage 1 OPEN** (the register comes from words, before any generation) and **Stage 4 DISCONFIRM** (the imagery tells, the budget, the licence). **Authority:** **`ui-visual-assets.md`** (VA1–VA22) governs this skill absolutely; `ui-design-craft.md` DX4/DX5/DX16/DX19 supplies the direction and motion discipline; `ui-interaction-design.md` U11/U13–U17 supplies the copy, disclosure, accessibility and performance floors; `ai-commercial-models.md` AC2–AC3 supplies the cost posture. **Mode:** Peer Mode to generate, Adversary Mode to cull — and most of the value is in the culling.
 
 ## Grounding (first action)
-Read, before generating: the project's **design language** (`DESIGN.md` — the token system and any existing `assets:` manifest), the **direction brief** if one exists (`docs/mockups/`, `docs/reviews/`, the spec's Part C), the surface that will render the asset (**open it — do not describe it from memory**, E15), and the **defect-class register** for the VA-* classes. Then run **`python3 docs/ai-forward-pack/scripts/visual-assets-setup.py --check`** to establish which backend this environment can actually reach. If none is confirmed, stop and say so rather than describing images you cannot produce.
+Consume the compiled prompt when one is in hand (CO-S0, `knowledge/agent-coordination.md`; `/compile`): its goal state is the turn's goal state and its Not-in-scope is the interdiction — derive nothing from raw prose that a compiled prompt already fixed. Read, before generating: the project's **design language** (`DESIGN.md` — the token system and any existing `assets:` manifest), the **direction brief** if one exists (`docs/mockups/`, `docs/reviews/`, the spec's Part C), the surface that will render the asset (**open it — do not describe it from memory**, E15), and the **defect-class register** for the VA-* classes. Then run **`python3 docs/ai-forward-pack/scripts/visual-assets-setup.py --check`** to establish which backend this environment can actually reach. If none is confirmed, stop and say so rather than describing images you cannot produce.
 
 > **Establish the entitlement before designing around it (VA19).** *"I have a Google subscription"* does **not** mean an agent can generate. A consumer Google AI Pro/Ultra plan grants the Gemini app, Flow and Whisk and grants **no API access at all**; the API is a separate billing relationship (an AI Studio key on a Cloud project with active billing), and **image and video generation are not on the free tier**. The same question applies to any backend: which account holds it, does it expose an **API** rather than only a web app, and is the capability on the tier being paid for. Check it; do not infer it from the fact that a subscription exists.
 

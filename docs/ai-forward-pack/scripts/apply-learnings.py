@@ -27,6 +27,18 @@ Targeting/record layer (ADR-0006, the Dream Manifest):
 """
 import argparse, datetime, json, os, re, sys
 
+# Windows consoles default to cp1252, which cannot encode the box/arrow glyphs this
+# tool prints - `prompt-log.py --help` crashed outright with UnicodeEncodeError (FR-047).
+# The other scripts survived only because their glyphs happen to exist in cp1252, which is
+# luck rather than an invariant, so the guard is applied uniformly.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 def now_iso():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -179,7 +191,7 @@ def render_manifest_html(root, manifest, learnings, mode):
             "__MANIFEST_DATA__", json.dumps(data, ensure_ascii=False).replace("</", "<\\/"))
     out = os.path.join(root, "learnings", "manifests", manifest["id"] + ".html")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, "w", encoding="utf-8") as handle:
+    with open(out, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(html)
     return out
 
@@ -241,7 +253,7 @@ def cmd_push(args):
         plan = plan_repo(repo, learnings)
         patch = render_patch(repo, plan)
         pf = os.path.join(out_dir, os.path.basename(os.path.abspath(repo)) + ".plan.md")
-        with open(pf, "w", encoding="utf-8") as handle:
+        with open(pf, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(patch)
         adds = sum(1 for p in plan if p["action"] == "add")
         merges = sum(1 for p in plan if p["action"] == "merge")
@@ -285,7 +297,7 @@ def _push_manifest(root, args):
             action_by[(slug(p.get("sig", "")), repo)] = p["action"]
         patch = render_patch(repo, plan)
         pf = os.path.join(out_dir, os.path.basename(os.path.abspath(repo)) + ".plan.md")
-        with open(pf, "w", encoding="utf-8") as handle:
+        with open(pf, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(patch)
         per_repo_counts[repo] = (sum(1 for p in plan if p["action"] == "add"),
                                  sum(1 for p in plan if p["action"] == "merge"),
@@ -301,7 +313,7 @@ def _push_manifest(root, args):
             else:
                 st[repo] = "pending"
     manifest["last_push"] = now_iso()
-    with open(mpath, "w", encoding="utf-8") as handle:
+    with open(mpath, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     html = render_manifest_html(root, manifest, learnings, "rollout")
 
@@ -335,7 +347,7 @@ def cmd_manifest_init(args):
     mdir = os.path.join(root, "learnings", "manifests")
     os.makedirs(mdir, exist_ok=True)
     jpath = os.path.join(mdir, mid + ".json")
-    with open(jpath, "w", encoding="utf-8") as handle:
+    with open(jpath, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
     html = render_manifest_html(root, manifest, learnings, "compose")
     _audit(root, "manifest-init",

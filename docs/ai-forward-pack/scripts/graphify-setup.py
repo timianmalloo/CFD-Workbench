@@ -43,6 +43,15 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 
+# Windows consoles default to cp1252, which cannot encode the glyphs this tool prints
+# (DC-211/PLAT-A). Without this the script dies with UnicodeEncodeError on output alone.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 GRAPH_REL = os.path.join("graphify-out", "graph.json")
 PACKAGE = "graphifyy"          # double-y; other graphify* packages are unrelated (GK15)
 TIMEOUT = 1800
@@ -159,7 +168,7 @@ def out(msg: str = "") -> None:
         print(msg.encode(enc, "replace").decode(enc, "replace"))
 
 
-def write_text(path: str, text: str, dry: bool) -> str:
+def write_text_lf(path: str, text: str, dry: bool) -> str:
     if os.path.exists(path):
         try:
             with open(path, encoding="utf-8") as f:
@@ -197,7 +206,8 @@ def run(cmd, cwd, dry, label):
         out(f"      (dry run) {' '.join(cmd)}")
         return True
     try:
-        res = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=TIMEOUT)
+        res = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
+                             encoding="utf-8", errors="replace", timeout=TIMEOUT)
     except (OSError, subprocess.SubprocessError) as exc:
         out(f"      failed: {exc}")
         return False
@@ -306,7 +316,8 @@ def _git(root, *args):
     try:
         proc = subprocess.run(
             ["git", "-C", root, *args],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, timeout=30)
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+            encoding="utf-8", errors="replace", timeout=30)
         return proc.returncode == 0, proc.stdout
     except (OSError, subprocess.SubprocessError):
         return False, ""
@@ -490,7 +501,7 @@ def main() -> int:
         out(f"Writing the ignore rules (GK4 - de-dup, not blanket ignore)")
         out(f"    detected: {kind}")
         out(f"    canonical copy: {canonical}")
-        out(f"    {write_text(os.path.join(root, '.graphifyignore'), text, dry):>16}  .graphifyignore")
+        out(f"    {write_text_lf(os.path.join(root, '.graphifyignore'), text, dry):>16}  .graphifyignore")
         gi = os.path.join(root, ".gitignore")
         existing = ""
         if os.path.exists(gi):
@@ -547,7 +558,7 @@ def main() -> int:
                   "  most connected code symbols no artifact governs. A prompt, never a gate.\n"
                   "---\n\n")
             out(body)
-            out(f"  {write_text(dest, fm + body, dry)}: docs/lenses/code-doc-join.md")
+            out(f"  {write_text_lf(dest, fm + body, dry)}: docs/lenses/code-doc-join.md")
             out("  Remember to re-run docs-graph.py derive so the lens enters the index (V11).")
 
     if args.check or not did:

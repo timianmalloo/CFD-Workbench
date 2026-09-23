@@ -1,6 +1,7 @@
 ---
 name: forensicreview
 description: Perform a deep evidence-based architecture, design, implementation, and documentation review of an existing repository, then produce a prioritized risk and remediation backlog.
+runs_as: either
 ---
 
 # Skill: /forensicreview
@@ -10,7 +11,7 @@ Reconstruct an existing repository's architecture and documentation from the cod
 **Spine:** runs the Rigor Protocol (`knowledge/rigor-protocol.md`) on the repository as evidence. **Authority:** the Body of Knowledge, Engineering Governance, Testing Strategy, Observability Standard, Knowledge Visualization Standard, and LOA for AI-integrated systems. **Composition:** applies `/adopt`'s honest architecture recovery and `/document`'s truth-to-code full documentation sweep before judging the system. **Mode:** Peer Mode to reconstruct and assess, Adversary Mode to attack every finding (`knowledge/collaborative-personas.md`).
 
 ## Grounding (first action)
-Capture the target commit, branch, and dirty-worktree state. Read the repo front door and local instructions, then inventory the code, tests, build/package manifests, CI/CD, deployment/configuration, database schemas and migrations, public contracts, runtime entry points, dependency graph, existing docs/ADRs/specs/designs, recent load-bearing history, and the audit/change log. If a knowledge graph exists, run `docs-graph.py inventory` and traverse the relevant artifacts 1–2 hops per V15. Treat code and executed behavior as the ground truth; existing documents are evidence of intent and must be checked against it. Skip this only if the user explicitly says so.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. Capture the target commit, branch, and dirty-worktree state. Read the repo front door and local instructions, then inventory the code, tests, build/package manifests, CI/CD, deployment/configuration, database schemas and migrations, public contracts, runtime entry points, dependency graph, existing docs/ADRs/specs/designs, recent load-bearing history, and the audit/change log. If a knowledge graph exists, run `docs-graph.py inventory` and traverse the relevant artifacts 1–2 hops per V15. Treat code and executed behavior as the ground truth; existing documents are evidence of intent and must be checked against it. Skip this only if the user explicitly says so.
 
 ## Input
 A repository or path (default: the whole current repo), optionally narrowed to a subsystem or risk theme. The user may supply incidents, audit concerns, architectural claims, or external requirements to test. Default mode is comprehensive. The skill may regenerate documentation but **MUST NOT modify production code, dependencies, schemas, CI behavior, or runtime configuration**; it ends with findings and a backlog for human triage.
@@ -51,7 +52,7 @@ A repository or path (default: the whole current repo), optionally narrowed to a
 - Assign priority without false precision: **P0** exploitable/active data-loss/safety/irreversible blocker; **P1** high-likelihood correctness, security, reliability, or migration risk; **P2** material maintainability, operability, performance, testing, or design debt; **P3** localized hygiene, documentation, or low-impact improvement.
 - Deduplicate findings by root cause. Convert each accepted finding into a backlog item with: id, kind, priority, title, evidence link, affected scope, consequence, recommended remediation, falsifiable acceptance criteria, validation method, dependencies, suggested owner, recommended next skill (`/investigate`, `/define-architecture`, `/design-slice`, `/migrate`, `/implement`, or `/document`), and status `proposed`.
 - Order the backlog into independently deliverable phases: contain P0/P1 exposure first; restore missing proof/observability next; repair architecture/design-slice debt in vertical slices; finish with maintainability/docs hygiene.
-- End with an overall readiness verdict and a status table: Completed | Remaining | Best next action. Then **STOP for human triage**. Do not implement backlog items or create remote issues unless the user explicitly requested that separate action.
+- End with an overall readiness verdict and a status table: Completed | Remaining | Best next action. Then **STOP for human triage**. (the stop is a message — CO-S2, `knowledge/agent-coordination.md`) Do not implement backlog items or create remote issues unless the user explicitly requested that separate action.
 
 ## Output artifact
 - Recreated truth-to-code documentation under `docs/`, including `docs/architecture.md`, the documentation bundle, diagrams, graph index, and Explorer.

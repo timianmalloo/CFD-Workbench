@@ -96,6 +96,15 @@ def _iter_md(paths):
                         yield os.path.join(dirpath, f)
 
 
+def _report_undecodable(undecodable, as_json):
+    """Name every file that is not valid UTF-8. It was scanned lossily and left untouched;
+    the exit code is non-zero so a --write run cannot look clean while files were skipped."""
+    if undecodable and not as_json:
+        print("\n  %d file(s) are not valid UTF-8 - scanned lossily, NOT rewritten:" % len(undecodable))
+        for path, why in undecodable:
+            print("    %s  (%s)" % (path, why))
+
+
 def main():
     ap = argparse.ArgumentParser(description="First-pass PII/secret redaction for Markdown (NOT CI-grade).")
     ap.add_argument("paths", nargs="*", default=["docs", "pack"])
@@ -107,45 +116,64 @@ def main():
     args = ap.parse_args()
     paths = args.paths or ["docs", "pack"]
 
-    findings, scanned, written = [], 0, 0
+    findings, scanned, written, undecodable = [], 0, 0, []
     for path in _iter_md(paths):
         scanned += 1
         try:
-            with open(path, encoding="utf-8", errors="replace") as f:
-                text = f.read()
+            with open(path, "rb") as f:
+                raw = f.read()
         except OSError:
             continue
-        if args.write:
+        # Decode STRICTLY first. errors="replace" turns every byte it cannot read into
+        # U+FFFD, and --write then persists that loss: the tool meant to protect the file
+        # silently destroys the bytes it could not read. So a file that will not decode is
+        # reported and NEVER rewritten. Scanning still runs on the lossy text - reporting a
+        # secret costs nothing, missing one does.
+        lossy = False
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            undecodable.append((path, "byte %d: %s" % (exc.start, exc.reason)))
+            text = raw.decode("utf-8", "replace")
+            lossy = True
+        if args.write and not lossy:
             new = redact_text(text, args.aggressive)
             if new != text:
                 tmp = path + ".scrub.tmp"
-                with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+                # newline="" - the decode above did no newline translation either, so a
+                # redaction rewrites only the matched spans and leaves the file's own line
+                # endings byte-identical (PLAT-A: a CRLF file must not come back as LF).
+                with open(tmp, "w", encoding="utf-8", newline="") as fh:
                     fh.write(new)
                 os.replace(tmp, path)  # atomic
                 written += 1
-        else:
-            for line, category, raw in scan_text(text, args.aggressive):
+        elif not args.write:
+            for line, category, raw_match in scan_text(text, args.aggressive):
                 findings.append({"path": path, "line": line, "category": category,
-                                 "preview": _preview(category, raw)})
+                                 "preview": _preview(category, raw_match)})
 
     if not args.json:
         print("scrub — PII/secret first-pass (NOT a substitute for gitleaks/Presidio in CI)\n")
     if args.write:
-        out = {"redacted_files": written, "scanned": scanned}
+        out = {"redacted_files": written, "scanned": scanned,
+               "not_utf8": [{"path": q, "error": why} for q, why in undecodable]}
         print(json.dumps(out) if args.json else
               f"  redacted {written} file(s) of {scanned} scanned\n"
               f"  (history not rewritten — use git-filter-repo/BFG to purge already-committed secrets)")
-        return 0
+        _report_undecodable(undecodable, args.json)
+        return 1 if undecodable else 0
     # check mode
     if args.json:
-        print(json.dumps({"findings": findings, "scanned": scanned}, indent=2))
+        print(json.dumps({"findings": findings, "scanned": scanned,
+                          "not_utf8": [{"path": q, "error": why} for q, why in undecodable]}, indent=2))
     else:
         for f in findings:
             print(f"  {f['path']}:{f['line']}  {f['category']:11} {f['preview']} -> [REDACTED:{f['category']}]")
         n = len(findings)
         print(f"\n  {n} finding(s) in {scanned} file(s) · run with --write to redact · CI: use gitleaks + Presidio"
               if n else f"  no findings in {scanned} file(s)")
-    return 1 if findings else 0
+    _report_undecodable(undecodable, args.json)
+    return 1 if (findings or undecodable) else 0
 
 
 if __name__ == "__main__":

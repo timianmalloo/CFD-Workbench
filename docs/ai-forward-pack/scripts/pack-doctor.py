@@ -14,7 +14,7 @@ Usage
   pack-doctor.py [--root <repo>] [--json] [--strict]
 Exit: 0 all PASS/WARN (or all PASS under --strict) · 1 any FAIL/strict WARN.
 """
-import argparse, json, os, re, sys
+import argparse, json, os, re, shutil, subprocess, sys
 
 from bounded_process import run_bounded
 
@@ -311,6 +311,180 @@ def check_graph(root):
 
 
 
+def _git_lines(root, *args):
+    """git output lines, or None when git is unavailable or root is not a checkout."""
+    try:
+        proc = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True,
+                              encoding="utf-8", timeout=30, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode not in (0, 1):
+        return None
+    return proc.returncode, [line for line in proc.stdout.splitlines() if line.strip()]
+
+
+def _jsonl_rows(path):
+    rows = []
+    try:
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except ValueError:
+                    continue
+                if isinstance(row, dict):
+                    rows.append(row)
+    except OSError:
+        return rows
+    return rows
+
+
+def check_mail(root):
+    """The message layer's invariants (design-message-layer section 9; D10).
+
+    mail dir         FAIL when anything under .agents/mail/ is tracked (bodies would reach git)
+    ledger tracking  FAIL when .agents/log/ is ignored (D10 tracks the ledgers by default)
+    mail twins       FAIL naming every state-changing mail id with no {"type":"mail"} ledger twin
+    doorbells        one line per harness from .agents/harness-status.json; absent -> "not recorded"
+    """
+    results = []
+    agents = os.path.join(root, ".agents")
+    tracked = _git_lines(root, "ls-files", "--", ".agents/mail")
+    if tracked is None:
+        results.append(_result("mail dir", PASS, "not a git checkout here (nothing can be tracked)"))
+    elif tracked[1]:
+        results.append(_result("mail dir", FAIL, "tracked: " + ", ".join(tracked[1][:3]),
+                               "git rm --cached -r .agents/mail && add `.agents/mail/` to .gitignore "
+                               "(mail bodies are machine-local; pack-apply writes the line)"))
+    else:
+        results.append(_result("mail dir", PASS, ".agents/mail/ is not tracked"))
+    ignored = _git_lines(root, "check-ignore", "-q", "--", ".agents/log/probe.jsonl")
+    if ignored is None:
+        results.append(_result("ledger tracking", PASS, "not a git checkout here (nothing is ignored)"))
+    elif ignored[0] == 0:
+        results.append(_result("ledger tracking", FAIL,
+                               ".agents/log/ is ignored - D10 tracks the coord ledgers by default so git "
+                               "carries the mail twins across machines",
+                               "add `!.agents/log/` after the `.agents/*` line in .gitignore (D10; pack-apply writes it)"))
+    else:
+        results.append(_result("ledger tracking", PASS, ".agents/log/ is tracked (D10)"))
+    mail_dir = os.path.join(agents, "mail")
+    inbox_only = {"note", "ack", "nack"}
+    if not os.path.isdir(mail_dir):
+        results.append(_result("mail twins", PASS, "no inboxes present (nothing to check)"))
+    else:
+        twins = set()
+        log_dir = os.path.join(agents, "log")
+        if os.path.isdir(log_dir):
+            for name in sorted(os.listdir(log_dir)):
+                if name.endswith(".jsonl"):
+                    for row in _jsonl_rows(os.path.join(log_dir, name)):
+                        if row.get("type") == "mail" and row.get("mail_id"):
+                            twins.add(row["mail_id"])
+        missing = []
+        for name in sorted(os.listdir(mail_dir)):
+            if not name.endswith(".jsonl"):
+                continue
+            for row in _jsonl_rows(os.path.join(mail_dir, name)):
+                kind = row.get("kind")
+                if kind and kind not in inbox_only and row.get("id") and row["id"] not in twins:
+                    missing.append("{0} ({1})".format(row["id"], kind))
+        if missing:
+            results.append(_result("mail twins", FAIL,
+                                   "{0} state-changing mail(s) with no ledger twin: {1}".format(
+                                       len(missing), ", ".join(missing[:3])),
+                                   "re-issue the twin through coord-mail.py (append_mail is the only writer) "
+                                   "or check that .agents/log/ was not deleted"))
+        else:
+            results.append(_result("mail twins", PASS, "every delegate/ruling/... has its ledger twin"))
+    status_path = os.path.join(agents, "harness-status.json")
+    if not os.path.isfile(status_path):
+        results.append(_result("doorbells", PASS, "not recorded (run coord-mail.py dispatch to probe a harness)"))
+    else:
+        try:
+            with open(status_path, encoding="utf-8") as handle:
+                data = json.load(handle)
+        except (OSError, ValueError) as exc:
+            data = None
+            results.append(_result("doorbells", FAIL, "harness-status.json unreadable ({0})".format(exc),
+                                   "delete .agents/harness-status.json and re-run coord-mail.py dispatch"))
+        if isinstance(data, dict):
+            parts = []
+            for harness in sorted(data):
+                row = data[harness] if isinstance(data[harness], dict) else {}
+                parts.append("{0}: {1} ({2}, {3})".format(harness, row.get("status", "unsupported"),
+                                                          row.get("version") or "version not recorded",
+                                                          row.get("date") or "undated"))
+            results.append(_result("doorbells", PASS, "; ".join(parts) or "no harness recorded"))
+    return results
+
+
+def check_requests(root):
+    """Typed seam requests (spec-typed-seam-requests): FAIL on a request past its deadline with
+    no recorded outcome; WARN on stale acks and untyped rows; `not recorded` with no store.
+    One reader: coord-core.py's request_doctor_lines, loaded beside this file."""
+    core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "coord-core.py")
+    if not os.path.isfile(core_path):
+        return _result("requests", PASS, "not recorded (coord-core.py is not installed beside pack-doctor.py)")
+    import importlib.util
+    import time
+    spec = importlib.util.spec_from_file_location("coord_core_for_doctor", core_path)
+    core = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(core)
+    except Exception as exc:  # a broken coord-core is a finding here, not a crash
+        return _result("requests", FAIL, "coord-core.py could not be loaded ({0})".format(exc),
+                       "re-run pack-apply.py to restore pack/scripts/coord-core.py")
+    lines, problems = core.request_doctor_lines(os.path.join(root, ".agents"), root, time.time())
+    flagged = [re.sub(r"^requests\s+", "", line.strip()) for line in lines
+               if "WARN" in line or "FAIL" in line or "NOT CHECKED" in line]
+    detail = "; ".join(flagged) if flagged else lines[0].split(None, 1)[1]
+    if problems:
+        return _result("requests", FAIL, detail,
+                       "run `coord request expire` - every open request past its deadline records its fallback")
+    if flagged:
+        return _result("requests", WARN, detail,
+                       "re-ack against the current blob; re-add untyped requests with --deadline and --fallback")
+    return _result("requests", PASS, detail)
+
+
+def check_heartbeat(root):
+    """Progress liveness (spec-liveness-and-track, P3): who beats, how fresh, how many stalled -
+    or `not recorded` when no heartbeat row exists (CTX-H: an uninstalled control looks like a
+    quiet fleet). One reader: coord-core.py's heartbeat_doctor_line, loaded beside this file."""
+    core_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "coord-core.py")
+    if not os.path.isfile(core_path):
+        return _result("heartbeat", PASS, "not recorded (coord-core.py is not installed beside pack-doctor.py)")
+    import importlib.util
+    import time
+    spec = importlib.util.spec_from_file_location("coord_core_for_heartbeat_doctor", core_path)
+    core = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(core)
+    except Exception as exc:  # a broken coord-core is a finding here, not a crash
+        return _result("heartbeat", FAIL, "coord-core.py could not be loaded ({0})".format(exc),
+                       "re-run pack-apply.py to restore pack/scripts/coord-core.py")
+    line, problem = core.heartbeat_doctor_line(os.path.join(root, ".agents"), time.time())
+    detail = re.sub(r"^heartbeat\s+", "", line.strip())
+    if problem:
+        return _result("heartbeat", FAIL, detail, "repair the unreadable ledger row named above")
+    return _result("heartbeat", PASS, detail)
+
+
+def _command_head(command):
+    """The first word of a registry command: a quoted path as one token, else up to the
+    first space. `"C:\\Program Files\\Python\\python.exe" x.py` -> the path; `python3 x.py`
+    -> `python3`."""
+    text = (command or "").strip()
+    if text.startswith('"'):
+        end = text.find('"', 1)
+        return text[1:end] if end > 0 else text[1:]
+    return text.split(None, 1)[0] if text else ""
+
+
 def check_coordination(root):
     """Is the coordination layer switched ON in this repo? (CTX-H)
 
@@ -340,7 +514,7 @@ def check_coordination(root):
                        "every path is treated as `authored` and nothing is regenerated",
                        "python docs/ai-forward-pack/scripts/coord-core.py classify init")
 
-    entries, bad = 0, ""
+    entries, bad, derived = 0, "", []
     try:
         for lineno, raw in enumerate(
                 open(registry, encoding="utf-8").read().splitlines(), start=1):
@@ -350,11 +524,13 @@ def check_coordination(root):
             if ":" not in line:
                 bad = "line {0}: expected `pattern: class [command]`".format(lineno)
                 break
-            klass = line.split(":", 1)[1].strip().split(None, 1)
-            klass = klass[0] if klass else ""
+            parts = line.split(":", 1)[1].strip().split(None, 1)
+            klass = parts[0] if parts else ""
             if klass not in ("authored", "derived", "register"):
                 bad = "line {0}: unknown class {1!r}".format(lineno, klass)
                 break
+            if klass == "derived" and len(parts) > 1:
+                derived.append((lineno, parts[1].strip()))
             entries += 1
     except OSError as e:
         return _result(name, FAIL, f"registry unreadable ({e})",
@@ -364,7 +540,32 @@ def check_coordination(root):
         return _result(name, FAIL, f"registry does not parse - {bad}",
                        "fix .agents/artifacts.yml, or regenerate with `coord classify init --force`")
 
+    # PLAT-B: a registry whose derived command cannot run HERE must FAIL, not parse-and-pass.
+    # A Windows `python.exe` path written by `classify init` on one machine passed this check
+    # on macOS for a week while `coord regen` failed with "command not found". The token
+    # `python3`/`python` is resolved at run time by coord-core, so it always resolves; any
+    # other first word must exist as a file or on PATH.
+    unresolved = []
+    for lineno, command in derived:
+        head = _command_head(command)
+        if head in ("python3", "python", "py"):
+            continue
+        if os.path.isabs(head) or os.sep in head or "/" in head:
+            ok = os.path.exists(head)
+        else:
+            ok = shutil.which(head) is not None
+        if not ok:
+            unresolved.append("line {0}: {1!r}".format(lineno, head))
+    if unresolved:
+        return _result(name, FAIL,
+                       "{0} derived command(s) name an interpreter or tool that does not "
+                       "exist on this machine - {1}".format(len(unresolved), "; ".join(unresolved)),
+                       "the registry travels with the repo and must carry the portable token "
+                       "`python3`, never one machine's path: run `coord classify init --force` "
+                       "(it now writes the token) and commit .agents/artifacts.yml")
+
     declared = set()
+    eol_rule = False
     ga = os.path.join(root, ".gitattributes")
     if os.path.exists(ga):
         try:
@@ -373,8 +574,23 @@ def check_coordination(root):
                     value = line.rsplit("merge=", 1)[1].strip()
                     if value.startswith("coord-"):
                         declared.add(value)
+                if re.search(r"\beol=lf\b", line) and not line.lstrip().startswith("#"):
+                    eol_rule = True
         except OSError:
             pass
+    if declared and not eol_rule:
+        # PLAT-A (P3): every LF-writer in the pack and the byte-identity of the derived-file
+        # merge rest on the working tree being LF on every OS. That is only true when
+        # .gitattributes says so; a Windows clone with core.autocrlf=true and no `eol=lf`
+        # rule checks the ledgers out CRLF, and a union merge then keeps a CRLF line and
+        # its LF twin as two entries. The pack ships the rule via pack-apply; a repo that
+        # declares the coord merge drivers without it has half the mechanism.
+        return _result(name, FAIL,
+                       ".gitattributes declares {0} but no `eol=lf` rule - the ledgers and derived "
+                       "files these drivers merge by byte identity would check out CRLF on a Windows "
+                       "clone with core.autocrlf=true".format(", ".join(sorted(declared))),
+                       "add `* text=auto eol=lf` to .gitattributes (pack-apply appends it), then "
+                       "`git add --renormalize .` once")
     if declared:
         registered = set()
         try:
@@ -528,6 +744,9 @@ def run(root):
         check_graph(root),
         check_coordination(root),
     ]
+    checks.extend(check_mail(root))
+    checks.append(check_requests(root))
+    checks.append(check_heartbeat(root))
     return checks
 
 

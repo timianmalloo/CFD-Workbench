@@ -1,6 +1,7 @@
 ---
 name: adopt
 description: Bootstrap the AI-Forward Pack's knowledge graph in an existing (brownfield) repository — inventory what's already there, recover the architecture from the code, bring existing docs under frontmatter, mine an initial glossary from the code's own vocabulary, build the first index and Docs Explorer, and produce a phased adoption plan for the gaps. Use once per legacy repo, right after dropping the pack in. Run /document afterward for the full documentation bundle.
+runs_as: either
 ---
 
 # /adopt — bring an existing repository into the knowledge graph
@@ -10,7 +11,7 @@ Take a repository that predates the pack and give it a working knowledge graph: 
 **Spine:** the Rigor Protocol (`knowledge/rigor-protocol.md`) on the repository as the subject. **Authority:** the Knowledge Visualization & Docs Explorer Standard (`knowledge/knowledge-visualization.md`, V1–V18). **Cast:** the **Enterprise Architect** and **Documentation Steward** co-lead; the relevant language Developer and the Patterns Expert read the code; the Simplifier keeps the bootstrap minimal; gate by the Steward + Test Architect in Adversary Mode. **Tooling (V18):** all graph mechanics run through `docs/ai-forward-pack/scripts/docs-graph.py` (`stub`, `derive`, `inventory`, `snapshot`) — no ad-hoc scripts.
 
 ## Grounding (first action)
-The grounding *is* the repository: the code, its tests, its build, every existing document (READMEs, wikis exported in-repo, `docs/**`, ADRs in any format), commit history for the load-bearing areas, and any external artifacts the human supplies. Treat what exists as **evidence of intent**, not noise — adoption recovers and records, it does not rewrite history. Where a pack graph already partially exists, traverse it per V15 before adding nodes. Skip this grounding only if the user explicitly tells you not to consult prior artifacts.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. The grounding *is* the repository: the code, its tests, its build, every existing document (READMEs, wikis exported in-repo, `docs/**`, ADRs in any format), commit history for the load-bearing areas, and any external artifacts the human supplies. Treat what exists as **evidence of intent**, not noise — adoption recovers and records, it does not rewrite history. Where a pack graph already partially exists, traverse it per V15 before adding nodes. Skip this grounding only if the user explicitly tells you not to consult prior artifacts.
 
 ## Stages
 

@@ -23,6 +23,18 @@ Python 3.8+, stdlib only. Subcommands:
 import argparse, datetime, hashlib, json, os, re, sys
 from collections import defaultdict
 
+# Windows consoles default to cp1252, which cannot encode the box/arrow glyphs this
+# tool prints - `prompt-log.py --help` crashed outright with UnicodeEncodeError (FR-047).
+# The other scripts survived only because their glyphs happen to exist in cp1252, which is
+# luck rather than an invariant, so the guard is applied uniformly.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 # ----------------------------------------------------------------------------- paths & io
 def find_root(start):
     p = os.path.abspath(start)
@@ -54,7 +66,7 @@ def read_jsonl(path):
 
 def append_jsonl(path, obj):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "a", encoding="utf-8") as f:
+    with open(path, "a", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 # ----------------------------------------------------------------------------- scrub & taint (defence in depth)
@@ -122,7 +134,8 @@ def parse_defect_classes(path):
 def grep_markers(root):
     """Harvest simplify:/assume: markers (bounded; skip generated/vendored trees)."""
     skip = {".git", "node_modules", "dist", "_site", ".claude", ".github"}
-    rx = re.compile(r"(?:#|//)\s?(simplify|assume|ponytail):\s*(.+)")
+    # A comment leader glued to a quote or escape is a string literal, not a marker (LINT-A).
+    rx = re.compile(r"(?:^|(?<=\s))(?:#|//)\s?(simplify|assume|ponytail):\s*(.+)")
     out = []
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in skip]
@@ -356,6 +369,74 @@ def build_proposals(corpus):
                              "auto-judged. Trivial/conversational turns are exempt from logging (AL5b)."),
                 "_freq": max(1, len(missing)), "_days": min(max(len(missing), 1), 3), "_has_control": True})
 
+    # 7. CO-S0 compile fields (spec-compile-readers US-3): the compile stage records, per workflow
+    #    run, `compiled: false` or `compiled_from`; per compilation, `decision_requests[].answer`,
+    #    `dispatchable` and `provenance.refusals`. Three deterministic candidates, proposals only:
+    #    presence gaps, decision requests still unanswered in the text a workflow received, and the
+    #    gate's refusals by code. Evidence carries ids, shortnames, DR ids and codes - never text.
+    comp_runs = [e for e in corpus["audit"] if e.get("kind") == "skill" and ("compiled" in e or e.get("compiled_from"))]
+    comps = [e for e in corpus["audit"] if e.get("kind") == "compilation" and isinstance(e.get("compiled"), dict)]
+    if comp_runs:
+        gaps = [e for e in comp_runs if e.get("compiled") is False]
+        pct = (len(gaps) * 100) // max(1, len(comp_runs))
+        ev = [{"eid": e.get("id", "al-?"), "note": "{0} - closed with compiled: false (tier {1})".format(
+            e.get("shortname", "?"), e.get("tier") or "unset")} for e in gaps[:8]]
+        proposals.append({
+            "kind": "Control upgrade", "group": "Control upgrade",
+            "title": "CO-S0: {0}/{1} substantive turns ({2}%) recorded compiled: false".format(len(gaps), len(comp_runs), pct),
+            "sig": "CO-S0 compiled:false presence", "scope": "general", "confidence": "v", "source": "deterministic",
+            "evidence": ev or [{"eid": comp_runs[0].get("id", "al-?"), "note": "every recorded run started compiled"}],
+            "control": {"rung": "automated control",
+                        "text": ("Presence (mechanical): a substantive turn closes with compiled_from or compiled: false; "
+                                 "the consuming skill cites CO-S0 (pack fix F-26) and session-profile.py SP-27 flags "
+                                 "a gap above T0. A T0 closed question needs no compile - review each gap."),
+                        "loc": "knowledge/agent-coordination.md#CO-S0"},
+            "boundary": "Presence is mechanical; whether a gap was a closed question is human review, never auto-judged.",
+            "_freq": max(1, len(gaps)), "_days": min(max(len(gaps), 1), 3), "_has_control": True})
+    if comps:
+        latest = {}
+        for c in sorted(comps, key=lambda e: e.get("datetime") or ""):
+            latest[(c["compiled"].get("raw_id") or c.get("id"))] = c  # the newest compilation of a raw prompt decides
+        dr_ev = []
+        for c in latest.values():
+            text = c.get("prompt") or ""
+            for dr in c["compiled"].get("decision_requests") or []:
+                did = dr.get("id", "DR-?")
+                if dr.get("answer") is None and re.search(re.escape(did) + r"\b.*answer: unanswered", text):
+                    dr_ev.append({"eid": c.get("id", "al-?"), "note": "{0} unanswered in the compiled text (dispatchable: {1})".format(
+                        did, c["compiled"].get("dispatchable"))})
+        if dr_ev:
+            proposals.append({
+                "kind": "Control upgrade", "group": "Control upgrade",
+                "title": "CO-S0: {0} decision request(s) never answered before the workflow ran".format(len(dr_ev)),
+                "sig": "CO-S0 unanswered decision requests", "scope": "general", "confidence": "v", "source": "deterministic",
+                "evidence": dr_ev[:8],
+                "control": {"rung": "automated control",
+                            "text": ("A consuming skill refuses a compiled prompt whose dispatchable is false or whose text still "
+                                     "carries an unanswered DR-n (stop: decision request unanswered) - verify-skill-contracts.py "
+                                     "and the optimize-graph dispatch stop."),
+                            "loc": "knowledge/agent-coordination.md#CO-S0"},
+                "boundary": "Only the newest compilation of a raw prompt is read; an answer in a later recompile clears the request.",
+                "_freq": len(dr_ev), "_days": min(len(dr_ev), 3), "_has_control": True})
+        codes = defaultdict(int)
+        first_by_code = {}
+        for c in comps:
+            for code in (c["compiled"].get("provenance") or {}).get("refusals") or []:
+                codes[code] += 1
+                first_by_code.setdefault(code, c.get("id", "al-?"))
+        if codes:
+            proposals.append({
+                "kind": "Control upgrade", "group": "Control upgrade",
+                "title": "CO-S0: the compile gate refused {0} fill(s) across {1} code(s)".format(sum(codes.values()), len(codes)),
+                "sig": "CO-S0 gate refusals", "scope": "general", "confidence": "v", "source": "deterministic",
+                "evidence": [{"eid": first_by_code[code], "note": "{0}: {1} refusal(s)".format(code, n)}
+                             for code, n in sorted(codes.items(), key=lambda kv: -kv[1])][:8],
+                "control": {"rung": "automated control",
+                            "text": "A refusal code that recurs is a template or fill-instruction class: revise the harness template version (pack fix F-27), not the fill.",
+                            "loc": "knowledge/agent-coordination.md#CO-S0"},
+                "boundary": "Counts by stable refusal code; the clause text stays in the compilation entry.",
+                "_freq": sum(codes.values()), "_days": min(len(codes), 3), "_has_control": True})
+
     # 6. Session profiles (docs/profiles/*/profile.json, written by session-profile.py): each
     #    finding id that recurs across profiles becomes a control-upgrade proposal carrying the
     #    fix catalog's control. Deterministic; the profiles are data the profiler measured, and
@@ -437,7 +518,7 @@ def append_diary(root, dream):
     path = os.path.join(root, "docs", "dreams", "DREAMS.md")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if not os.path.isfile(path):
-        with open(path, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
             f.write("---\n"
                     "id: dream-diary\n"
                     "title: \"Dream Diary\"\n"
@@ -456,7 +537,7 @@ def append_diary(root, dream):
                     "# Dream Diary\n\n*A human-readable narrative of each dream pass. NOT a promotion "
                     "source - excluded from re-ingestion (no self-poisoning). Generated by dream.py.*\n\n")
     d = dream["diary"]
-    with open(path, "a", encoding="utf-8") as f:
+    with open(path, "a", encoding="utf-8", newline="\n") as f:
         f.write("## {0} - {1}\n".format(dream["id"], dream["date"]))
         f.write("- window: {0}\n".format(dream["window"]))
         f.write("- proposals: {0} (added {1} - merged {2} - superseded {3} - excluded/tainted {4})\n".format(
@@ -477,11 +558,11 @@ def cmd_run(args):
              "window": window, "counts": corpus["counts"], "proposals": proposals, "diary": diary}
     out_dir = os.path.join(root, "docs", "dreams", did)
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "dream.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_dir, "dream.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(dream, f, ensure_ascii=False, indent=2)
-    with open(os.path.join(out_dir, "dream-data.js"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_dir, "dream-data.js"), "w", encoding="utf-8", newline="\n") as f:
         f.write(render_data_js(dream))
-    with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(render_html(root, out_dir))
     append_diary(root, dream)
     # audit trail (Audit Mandate) - best effort via audit-log.py, else inline
@@ -586,12 +667,12 @@ def _promote_fleet(root, rec):
     md = os.path.join(root, "learnings", "fleet-classes.md")
     if not os.path.isfile(md):
         os.makedirs(os.path.dirname(md), exist_ok=True)
-        with open(md, "w", encoding="utf-8") as handle:
+        with open(md, "w", encoding="utf-8", newline="\n") as handle:
             handle.write("# Fleet learnings (general, control-bearing classes)\n\n")
     # rec["control"] may be a bare string in a hand-edited store; normalise before .get().
     control = rec.get("control")
     control_body = control if isinstance(control, dict) else {"text": control_text(rec), "rung": ""}
-    with open(md, "a", encoding="utf-8") as f:
+    with open(md, "a", encoding="utf-8", newline="\n") as f:
         f.write("\n### {0}\n- **Signature:** {1}\n- **Control:** {2} ({3})\n- **Boundary:** {4}\n- **Confidence:** {5}\n- **From:** {6} / {7}\n".format(
             rec["sig"][:100], rec["sig"], control_body.get("text", ""), control_body.get("rung", ""),
             rec.get("boundary", ""), rec.get("confidence", ""), rec["dream"], rec["proposal"]))

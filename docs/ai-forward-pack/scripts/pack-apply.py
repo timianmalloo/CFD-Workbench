@@ -62,6 +62,18 @@ for _stream in (sys.stdout, sys.stderr):
             pass
 
 MANIFEST = "FOUNDATION.md"
+
+
+def merge_named_hook_bundles(source_text, current_text=None):
+    """Refresh source-owned names and retain project-owned names; reject invalid JSON."""
+    source = json.loads(source_text)
+    current = json.loads(current_text) if current_text is not None else {}
+    for value in (source, current):
+        if not isinstance(value, dict) or any(not isinstance(section, dict) for section in value.values()):
+            raise ValueError("Named hook bundles must be objects of objects")
+    current.update(source)
+    return json.dumps(current, indent=2) + "\n"
+
 BEGIN = "<!-- AI-FORWARD-PACK:BEGIN"
 END = "<!-- AI-FORWARD-PACK:END -->"
 IMPORT_LINE = "@AGENTS.md"
@@ -78,8 +90,13 @@ IMPORT_LINE = "@AGENTS.md"
 # counts, so it exits 0 for a re-included path and inverts the answer (measured).
 GITIGNORE_LINES = ["*.jsonl.lock", "spikes/", "docs/audit/.run-starts.json",
                    "docs/audit/.run-starts.json.tmp",
-                   ".agents/*", "!.agents/artifacts.yml",
-                   "!.agents/skills*", "!.agents/hooks.json", "!.agents/rules*"]
+                   ".agents/*", "!.agents/artifacts.yml", "!.agents/log/",
+                   "!.agents/skills*", "!.agents/hooks.json", "!.agents/rules*",
+                   ".agents/mail/"]
+# D10 (ratified 2026-09-19): the coord ledgers `.agents/log/` are TRACKED by default - git is the
+# durable and cross-machine path for state-changing mail (their body-less twins). The mail
+# inboxes `.agents/mail/` are machine-local and carry bodies, so they are ignored by an EXPLICIT
+# line that holds even when the `.agents/*` blanket is withheld below.
 
 # A .gitignore is LAST-MATCH-WINS, so a blanket appended below an existing rule silently
 # reverses it. Measured 2026-09-09 in a consuming repo: line 495 recorded "spikes/ is NOT
@@ -115,7 +132,22 @@ CONDITIONAL_GITIGNORE = {
 # A `!` line exists only to punch through its blanket. Withhold the blanket and the
 # exception is a negation with nothing to negate -- inert, and it tells a reader the
 # opposite of the KEEP row that withheld the blanket.
-GITIGNORE_DEPENDENTS = {".agents/*": ("!.agents/artifacts.yml",)}
+GITIGNORE_DEPENDENTS = {".agents/*": ("!.agents/artifacts.yml", "!.agents/log/")}
+
+# PLAT-A (P3): the pack writes LF everywhere and merges derived files by byte identity; both
+# rest on the working tree being LF on every OS, which only .gitattributes can promise.
+GITATTRIBUTES_LINES = ["* text=auto eol=lf"]
+EDITORCONFIG_TEXT = (
+    "# AI-Forward Pack (INSTALL 2, revision 75): the editor-level twin of .gitattributes eol=lf,\n"
+    "# so a Windows editor does not re-introduce CRLF between commits. Yours to extend.\n"
+    "root = true\n"
+    "\n"
+    "[*]\n"
+    "charset = utf-8\n"
+    "end_of_line = lf\n"
+    "insert_final_newline = true\n"
+    "trim_trailing_whitespace = false\n"
+)
 
 DECLINE_MARKER = "# pack-apply: decline "
 
@@ -504,16 +536,25 @@ class Applier(object):
         for f in ("README.md", "OVERVIEW.md", "research-synthesis.md", "context-budget.json"):
             self.place("bundle", f, os.path.join(dp, f), read(os.path.join(self.pack, f)))
         hooks = os.path.join(self.pack, "adapters", "hooks")
-        for f in ("reread-guard.py", "session-start.py", "README.md"):
+        for f in ("reread-guard.py", "session-start.py", "mail-doorbell.py", "heartbeat.py", "coord_identity.py",
+                  "owner-review-gate.py", "copilot.ai-forward-hooks.json", "README.md"):
             self.place("hooks", "adapters/hooks/" + f, os.path.join(dp, "hooks", f), read(os.path.join(hooks, f)))
         self.place("hooks", "adapters/hooks/copilot.ai-forward-hooks.json",
                    os.path.join(self.target, ".github", "hooks", "ai-forward.json"), read(os.path.join(hooks, "copilot.ai-forward-hooks.json")))
         self.place("hooks", "adapters/hooks/grok.ai-forward-hooks.json",
                    os.path.join(self.target, ".grok", "hooks", "ai-forward.json"),
                    read(os.path.join(hooks, "grok.ai-forward-hooks.json")))
-        self.place("hooks", "adapters/hooks/agy.ai-forward-hooks.json",
-                   os.path.join(self.target, ".agents", "hooks.json"),
-                   read(os.path.join(hooks, "agy.ai-forward-hooks.json")))
+        agy_target = os.path.join(self.target, ".agents", "hooks.json")
+        try:
+            current_hooks = read(agy_target)
+            if os.path.islink(agy_target):
+                raise ValueError("symlink hook target")
+            merged_hooks = merge_named_hook_bundles(read(os.path.join(hooks, "agy.ai-forward-hooks.json")), current_hooks)
+            if merged_hooks != current_hooks:
+                self._write(agy_target, merged_hooks)
+            self.row("hooks", ".agents/hooks.json", "UNCHANGED" if merged_hooks == current_hooks else "MERGE", "ok")
+        except (OSError, ValueError):
+            self.row("hooks", ".agents/hooks.json", "CONFLICT", "fail", "invalid named bundles; existing file retained")
         self.place("hooks", "adapters/grok/grok-surface.md",
                    os.path.join(self.target, ".grok", "rules", "grok-surface.md"),
                    read(os.path.join(self.pack, "adapters", "grok", "grok-surface.md")))
@@ -525,6 +566,8 @@ class Applier(object):
                    os.path.join(self.target, ".agents", "skills.json"), skills_json)
         self._settings(read(os.path.join(hooks, "claude-code.settings.hooks.json")))
         self._gitignore()
+        self._gitattributes()
+        self._editorconfig()
         explorer = os.path.join(self.target, "docs", "index.html")
         if not os.path.isfile(explorer):
             tpl = read(os.path.join(self.pack, "templates", "docs-explorer.template.html")) or ""
@@ -574,7 +617,8 @@ class Applier(object):
         """
         try:
             proc = subprocess.run(["git", "ls-files", "--", path], cwd=self.target,
-                                  capture_output=True, text=True, timeout=20)
+                                  capture_output=True, text=True, encoding="utf-8",
+                                  errors="replace", timeout=20)
         except (OSError, subprocess.SubprocessError):
             return None
         if proc.returncode != 0:
@@ -638,6 +682,44 @@ class Applier(object):
         text += "\n# AI-Forward Pack (INSTALL 2): local coordination and per-run state, never committed\n" + "\n".join(missing) + "\n"
         self._write(dest, text)
         self.row("bundle", ".gitignore", "UPDATE", "ok", "added " + ", ".join(missing))
+
+    def _gitattributes(self):
+        """Ship the line-ending policy every LF-writer in the pack rests on (PLAT-A, P3).
+
+        The coord merge drivers merge derived files and append-only ledgers by byte identity,
+        and every script writes LF on purpose - none of which holds on a Windows clone with
+        core.autocrlf=true unless .gitattributes says `eol=lf`. This repo happened to carry
+        the rule; a consuming repo need not, and the pack installed nothing. Lines are
+        APPENDED when missing and never rewritten or removed: a repo's own attributes are
+        its own (the same stance as `_gitignore`).
+        """
+        dest = os.path.join(self.target, ".gitattributes")
+        current = read(dest) or ""
+        have = {" ".join(l.split()) for l in norm_nl(current).splitlines()}
+        missing = [line for line in GITATTRIBUTES_LINES if " ".join(line.split()) not in have]
+        if not missing:
+            self.row("bundle", ".gitattributes", "UNCHANGED", "ok")
+            return
+        text = norm_nl(current)
+        if text and not text.endswith("\n"):
+            text += "\n"
+        text += ("\n# AI-Forward Pack (INSTALL 2, revision 75): text is LF on every OS, so the ledgers and\n"
+                 "# derived files the coord merge drivers compare by byte identity mean the same thing\n"
+                 "# on Windows and macOS. Run `git add --renormalize .` once after adding this.\n"
+                 + "\n".join(missing) + "\n")
+        self._write(dest, text)
+        self.row("bundle", ".gitattributes", "UPDATE", "ok", "added " + ", ".join(missing))
+
+    def _editorconfig(self):
+        """Create .editorconfig once (LF, UTF-8, final newline) and never overwrite it - an
+        editor-level twin of the git filter, so a Windows editor does not re-introduce CRLF
+        into the working tree between commits (XT-10)."""
+        dest = os.path.join(self.target, ".editorconfig")
+        if os.path.exists(dest):
+            self.row("bundle", ".editorconfig", "SKIP", "ok", "exists - never overwritten")
+            return
+        self._write(dest, EDITORCONFIG_TEXT)
+        self.row("bundle", ".editorconfig", "ADD", "ok", "LF, UTF-8, final newline")
 
     # ---- front doors
     def front_doors(self):
@@ -741,7 +823,9 @@ class Applier(object):
         script = os.path.join(self.target, "docs", "ai-forward-pack", "scripts", "context-budget.py")
         for args in (["gate", "--update-baseline"], ["prefix", "--update-baseline"], ["skills", "--update-baseline"]):
             try:
-                p = subprocess.run([sys.executable, script] + args, cwd=self.target, capture_output=True, text=True, timeout=120)
+                p = subprocess.run([sys.executable, script] + args, cwd=self.target,
+                                   capture_output=True, text=True, encoding="utf-8",
+                                   errors="replace", timeout=120)
                 self.row("meta", "context-budget {0}".format(args[0]), "BASELINE", "ok" if p.returncode == 0 else "fail",
                          (p.stdout.strip().splitlines() or [""])[-1][:120])
             except (OSError, subprocess.SubprocessError) as exc:

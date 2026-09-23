@@ -22,7 +22,15 @@ Grok's built-in `explore`, `plan`, and `general-purpose` types remain available.
 
 ## Hooks
 
-`.grok/hooks/ai-forward.json` wires the re-read guard (CTX-D) and the session-start audit marker (AL4a). Project hooks run only after folder trust (`/hooks-trust` or `--trust`).
+`.grok/hooks/ai-forward.json` wires five scripts. Project hooks run only after folder trust (`/hooks-trust` or `--trust`).
+
+- **re-read guard** (`reread-guard.py --host grok`, CTX-D) on `PreToolUse` matcher `Read` and on `UserPromptSubmit`
+- **mail doorbell** (`mail-doorbell.py --host grok`) on `PreToolUse` and `UserPromptSubmit` — count and pointer as `additionalContext`, never a body
+- **heartbeat** (`heartbeat.py --host grok`) on `PreToolUse` (Claude-format; this config has no `PostToolUse`)
+- **session-start audit marker** (`session-start.py --host grok`, AL4a) on `SessionStart` and `SubagentStart`
+- **owner review gate** (`owner-review-gate.py --host grok`) on `Stop` — exit 2 with a reason on stderr when this session still holds an unresolved decision request it sent
+
+On Grok the doorbell and stop gate are `observed-only` until a live session shows the event fire; the heartbeat was observed live on 2026-09-20 and is `enforced` (CO12; `pack/adapters/hooks/README.md`).
 
 ## Scripts
 

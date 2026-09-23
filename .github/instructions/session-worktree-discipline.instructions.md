@@ -136,8 +136,7 @@ than in a parallel tool (one owner per concern):
 ```bash
 # start a session in its own tree (branch, session registration, the cd, and the BASE
 # commit it used — which is the INVOKING tree's HEAD, not the primary's)
-python3 docs/ai-forward-pack/scripts/coord-core.py worktree new \
-    --branch feature/audit-duration --session "<session-id>"
+python3 docs/ai-forward-pack/scripts/coord-core.py worktree new --branch feature/audit-duration --session "<session-id>"
 
 # what exists, who holds it, how long idle, what is safe to remove
 python3 docs/ai-forward-pack/scripts/coord-core.py worktree list
@@ -149,14 +148,20 @@ python3 docs/ai-forward-pack/scripts/coord-core.py worktree cleanup
 python3 docs/ai-forward-pack/scripts/coord-core.py worktree cleanup --remove
 
 # act on ONE tree only
-python3 docs/ai-forward-pack/scripts/coord-core.py worktree cleanup \
-    --path ../<repo>-<branch-slug> --remove
+python3 docs/ai-forward-pack/scripts/coord-core.py worktree cleanup --path ../<repo>-<branch-slug> --remove
 ```
 
 **WT12 — The tool reports its refusals, not just its actions.** `cleanup` prints every tree it
 declined to remove and the condition that stopped it. A cleanup that silently skips is
 indistinguishable from a cleanup that found nothing, and the difference is exactly the
 information the human needs.
+
+**The join carries the leader's epoch (S3).** When several sessions share one repository under a
+designated leader, the join is run as `conductor-join.py --epoch <n>` with the epoch from
+`coord leader who`; a lower epoch or an unread `refs/coord/leader` is refused before the merge
+(exit 11), never merged and sorted out afterwards (`agent-coordination.md` CO-L).
+
+**Coordinators: the tree comes before the first spawn.** A session that delegates and *then* enters a worktree strands its delegates — class **CTX-Q** in `docs/lessons/defect-classes.md` — so a Coordinator runs `coord worktree new` (WT1) before its first spawn, its brief tells each Sub-Agent it never calls `EnterWorktree`, and the join is fenced as `agent-coordination.md` **CO-L** states. This paragraph points at both; it restates neither.
 
 ---
 

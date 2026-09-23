@@ -12,7 +12,7 @@ You are running the **apply-learnings** workflow — the **push** half of federa
 - **conflict** — contradicts an existing directive → **surfaced for human resolution**, never overridden;
 - **skip** — no control (a lesson without a control is a memoir, CI6), a taint/scrub hit at the boundary, or no pack in the target.
 
-Strip + scrub run again at the boundary (defence in depth). Plans are written to `learnings/plans/<repo>.plan.md` and an audit entry is appended.
+Strip + scrub run again at the boundary (defence in depth). Plans are written to `learnings/plans/<repo>.plan.md` and an audit entry is appended. Each plan is offered as `coord decide request --to <the target's human-seat session>` with the five fields, `--deadline default` and a fallback — the merge is never automatic (CO-S2).
 
 **Targeted alternative — the Dream Manifest (`--manifest`, ADR-0006):** when you want per-learning targeting and a durable rollout record instead of a broadcast, scaffold a **learnings×repos matrix** with `manifest-init --repos "<paths>" [--dream <id>]` (writes `learnings/manifests/<id>.json` + a self-contained compose HTML), toggle each *(learning, repo)* cell in the HTML and Export the JSON, then `push --manifest learnings/manifests/<id>.json` — it reconciles **per assignment** (a learning only into its `targets`), writes a plan per repo, and **records the outcome back** into the manifest's status map (the HTML re-renders in read-only rollout mode). Still never a merge. **Manifests name repos → local-only** (never published), consistent with keeping raw dreams and the audit log local while only the abstracted fleet classes are public.
 

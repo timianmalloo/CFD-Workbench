@@ -71,6 +71,13 @@ every non-trivial task.
   commit that exists nowhere else, and is unheld — anything else is *reported, never removed*, and
   deletion is opt-in (`--remove`). `coord worktree new|list|cleanup`;
   `.github/instructions/session-worktree-discipline.instructions.md` (WT1–WT12).
+- **Agent coordination (the Owner / Coordinator / Sub-Agent doctrine):** seats and the capability floor,
+  the two control relationships, the invariants each traceable to a measurement, the protocol objects
+  (session card, delegation contract, seam request, decision request → ruling, leader designation, join
+  state, mail, board), the kick ladder, and the three stages every skill cites — **CO-S0 compile first,
+  CO-S1 declare the seat, CO-S2 a stop is a message** — plus **CO-L** leadership by designation in a git
+  ref. The tree comes before the first spawn (CO15). `.github/instructions/agent-coordination.instructions.md`
+  (CO1–CO17, CO-S0–CO-S2, CO-L); `coord leader|mail|board|request`.
 - **Continuous improvement (a primary directive):** every bug you create, every mistaken
   assumption, and every correction you receive is captured — as a **class, not an instance** — in
   `docs/lessons/defect-classes.md`, and converted into a **control** that fails when the shape
@@ -163,12 +170,12 @@ every non-trivial task.
 - **Personas (dual-mode):** author in Peer Mode, review in Adversary Mode; the author never
   clears its own hard veto. Agents in `.github/agents/`; the operating standard in the
   `persona-audit` / `persona-cards` instructions.
-- **Workflows (27):** the prompts in `.github/prompts/` — twenty-three reasoning workflows
+- **Workflows (28):** the prompts in `.github/prompts/` — twenty-three reasoning workflows
   (`collectknowledge`, `adddomainexperts`, `specify`, `define-architecture`, `design-slice`, `ui-design`,
   `visualize`, `implement`, `investigate`, `document`, `adopt`, `forensicreview`, `code-hygiene`, `migrate`,
   `updatepack`, `addpacktorepo`, `extendaibundle`, `optimize-graph`, `dream`, `apply-learnings`, `session-profiler`,
   `prepare-for-coordination`, `execute-with-coordination`),
-  the `auditlog` lens over the audit & change log, the `also` turn-control utility, plus two prompt-log utilities, `prompts` and
+  the `auditlog` lens over the audit & change log, the `also` turn-control utility, the `compile` prompt compiler (CO-S0), plus two prompt-log utilities, `prompts` and
   `searchprompts`. Templates: `docs/ai-forward-pack/templates/`.
 - **Prompt reuse (utility):** `/prompts` opens the audit log's prompts as an arrow-navigable stack
   (newest on top; → expand, ← collapse, Enter reuse) and `/searchprompts` searches them; reuse

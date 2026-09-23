@@ -50,6 +50,15 @@ import urllib.error
 import urllib.request
 from collections import defaultdict, deque
 
+# Windows consoles default to cp1252, which cannot encode the glyphs this tool prints
+# (DC-211/PLAT-A). Without this the script dies with UnicodeEncodeError on output alone.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 TIMEOUT = 30
 REGISTRY = "https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugins.json"
 
@@ -158,10 +167,10 @@ def out(msg: str = "") -> None:
 
 def write_json(path: str, obj, dry: bool) -> str:
     text = json.dumps(obj, indent=2) + "\n"
-    return write_text(path, text, dry)
+    return write_text_lf(path, text, dry)
 
 
-def write_text(path: str, text: str, dry: bool) -> str:
+def write_text_lf(path: str, text: str, dry: bool) -> str:
     if os.path.exists(path):
         try:
             with open(path, encoding="utf-8") as f:
@@ -708,7 +717,8 @@ def app_installed():
                 return True
         try:
             res = subprocess.run(["winget", "list", "--id", "Obsidian.Obsidian", "--exact"],
-                                 capture_output=True, text=True, timeout=TIMEOUT)
+                                 capture_output=True, text=True, encoding="utf-8",
+                                 errors="replace", timeout=TIMEOUT)
             return "Obsidian" in (res.stdout or "")
         except (OSError, subprocess.SubprocessError):
             return False
@@ -782,7 +792,7 @@ def main() -> int:
                     "  obsidian-setup.py --analyze --write. Derived, never authoritative.\n"
                     "---\n\n"
                 )
-                out(f"  {write_text(dest, fm + report, dry)}: {os.path.relpath(dest, root)}")
+                out(f"  {write_text_lf(dest, fm + report, dry)}: {os.path.relpath(dest, root)}")
 
     if args.init:
         did_something = True
@@ -794,7 +804,7 @@ def main() -> int:
                 return 1
         for name, text in lens_notes(os.path.basename(root)).items():
             dest = os.path.join(root, args.vault, "lenses", name)
-            out(f"  {write_text(dest, text, dry):>16}  lenses/{name}")
+            out(f"  {write_text_lf(dest, text, dry):>16}  lenses/{name}")
         out(f"  {update_gitignore(root, args.vault, dry):>16}  .gitignore")
         out("\nNext: open Obsidian -> 'Open folder as vault' -> select "
             f"{os.path.join(root, args.vault)}")

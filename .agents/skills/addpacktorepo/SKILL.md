@@ -1,21 +1,22 @@
 ---
 name: addpacktorepo
 description: Add the AI-Forward Pack to a local repository from a given path — reason over the target repo's language, tooling, and existing docs before writing anything, apply the full pack deployment map, produce a tabular summary of every artifact installed and what it does, point to the pack explainer and docs, and offer to commit and push. Run this from the AI-Forward repo.
+runs_as: Coordinator
 ---
 
 # /addpacktorepo — install the AI-Forward Pack into a local repository
 
-Adding the pack to a repo is not a mindless file dump: the target's language, existing CLAUDE.md or AGENTS.md, and existing `docs/` surface shape what lands where, what needs wrapping, and what must not be overwritten. This skill is the **guided first install** — it reads the repo before writing to it, plans the correct deployment shape, and produces a discoverable record of everything it placed. The result is a repo immediately ready for reasoning, design, and documentation under the pack.
+The target's language, existing CLAUDE.md or AGENTS.md, and existing `docs/` shape what lands where, what needs wrapping, and what must not be overwritten. This skill is the **guided first install** — it reads the repo before writing to it, plans the deployment shape, and produces a discoverable record of everything it placed.
 
 **Spine:** the Rigor Protocol (`knowledge/rigor-protocol.md`), applied to the installation plan. **Cast:** the **Enterprise Architect** (fit and longevity — no speculative extras, proportional to the repo's evident tier); the **Release Engineer** (owns the file operations — correct destinations, no silent overwrites of existing content); the **Documentation Steward** (every installed artifact is discoverable, frontmatter-valid, and correctly placed); the **Tech Lead** (smallest correct install that is still complete). **Tooling:** filesystem reads of the target repo (language detection, existing-file inventory), standard file copies, git for the commit offer.
 
 ## Grounding (first action)
 
-Read the target repository before writing to it. Treat existing CLAUDE.md, AGENTS.md, `.claude/`, `.github/`, `.grok/`, `.agents/`, and `docs/` as **evidence of prior decisions** — the install adapts to them, not over them. `<pack-source>/pack/adapters/INSTALL.md` is the authoritative deployment map. If `docs/ai-forward-pack/INSTALL.md` already exists in the target, this is an **update scenario** — redirect to `/updatepack` rather than re-running a full install. Skip grounding only if the user explicitly says so.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. Read the target repository before writing to it. Treat existing CLAUDE.md, AGENTS.md, `.claude/`, `.github/`, `.grok/`, `.agents/`, and `docs/` as **evidence of prior decisions** — the install adapts to them, not over them. `<pack-source>/pack/adapters/INSTALL.md` is the authoritative deployment map. If `docs/ai-forward-pack/INSTALL.md` already exists in the target, this is an **update scenario** — redirect to `/updatepack` rather than re-running a full install. Skip grounding only if the user explicitly says so.
 
 ## Locating the pack source
 
-The pack source is the `pack/` tree of an AI-Forward repository. Locate it in this order (the same resolution `/updatepack` uses, so the pair behaves identically whether you run it from the AI-Forward repo itself or from any other repo with a clone nearby):
+The pack source is the `pack/` tree of an AI-Forward repository. Locate it in this order (the same resolution `/updatepack` uses):
 1. **The current repo**, if it contains `pack/adapters/INSTALL.md` (you are in the AI-Forward repo — the common case).
 2. An explicit path provided in the user's message.
 3. The `AI_FORWARD_PACK` environment variable.
@@ -55,7 +56,7 @@ From the recon, determine for each artifact class:
 Produce a brief "here is what I will install" preview and ask for confirmation before executing if any existing file will be modified.
 
 **Stage 3 — EVIDENCE (apply the full deployment map).**
-**Run the program first, then verify the list below against its table:** `python3 <pack-source>/pack/scripts/pack-apply.py apply --install --target <target> --project <repo-name>` performs steps 1–13 mechanically and idempotently (knowledge routed by load scope, whole skill directories to `.claude/skills/`, `.grok/skills/`, and `.agents/skills/`, agents renamed and `tools:`-stripped for Copilot and Grok, templates/scripts/hooks/context-budget.json, `.claude/settings.json` merged, `.grok/hooks/ai-forward.json` and `.grok/rules/grok-surface.md`, `.agents/hooks.json`, `.agents/skills.json`, and `.agents/rules/agy-surface.md`, `.gitignore` lines, `docs/index.html` only if absent, `docs/docs-index.js` never, both managed blocks, `CLAUDE.md` in the `@AGENTS.md` import form) and prints one row per action. The numbered list is the contract the program implements — read it to check the table, not to copy files by hand. Steps 14–16 remain judgement calls. Since revision 71 the program also deploys the Grok Build surface, and since revision 72 the Antigravity surface, so multiple hosts are configured without a separate map.
+**Run the program first, then verify the list below against its table:** `python3 <pack-source>/pack/scripts/pack-apply.py apply --install --target <target> --project <repo-name>` performs steps 1–13 mechanically and idempotently (knowledge routed by load scope, whole skill directories to `.claude/skills/`, `.grok/skills/`, and `.agents/skills/`, agents renamed and `tools:`-stripped for Copilot and Grok, templates/scripts/hooks/context-budget.json, `.claude/settings.json` merged, `.grok/hooks/ai-forward.json` and `.grok/rules/grok-surface.md`, `.agents/hooks.json`, `.agents/skills.json`, and `.agents/rules/agy-surface.md`, `.gitignore` lines, `docs/index.html` only if absent, `docs/docs-index.js` never, both managed blocks, `CLAUDE.md` in the `@AGENTS.md` import form) and prints one row per action. The numbered list is the contract the program implements — read it to check the table, not to copy files by hand. Steps 14–16 remain judgement calls. Since revisions 71/72 the program also deploys the Grok Build and Antigravity surfaces.
 
 Execute the deployment map from INSTALL.md §1, in this order. All source paths below are relative to the resolved `<pack-source>` (e.g. `<pack-source>/pack/knowledge/*.md`); all destinations are relative to the target repo.
 
@@ -95,7 +96,7 @@ Execute the deployment map from INSTALL.md §1, in this order. All source paths 
 
 12. **`AGENTS.md` managed block:** same process with `pack/adapters/managed-blocks/AGENTS.block.md` targeting `<target>/AGENTS.md`.
 
-13. **`.gitignore` hygiene (INSTALL.md §2):** ensure the target repo's `.gitignore` contains `*.jsonl.lock` (the persistent sibling lock files the graph tool's append-only JSONL writes use — local coordination files that must never be committed) and `spikes/` (throwaway Spike Protocol probes). Append whichever lines are missing; create `.gitignore` if absent. Never remove existing entries — append-only.
+13. **`.gitignore` hygiene (INSTALL.md §2):** ensure the target repo's `.gitignore` contains `*.jsonl.lock` (the graph tool's local lock files, never committed), `spikes/` (throwaway Spike Protocol probes), `.agents/*` with `!.agents/artifacts.yml` and `!.agents/log/` (the coord ledgers are tracked — D10), and `.agents/mail/` (machine-local inboxes; `mkdir -p .agents/mail`). Append whichever lines are missing; create `.gitignore` if absent. Never remove existing entries — append-only.
 
 14. **CI workflow (optional — ask first):** copy `pack/ci/docs-health.yml` to `<target>/.github/workflows/docs-health.yml`. This gates PRs on graph health and is recommended but not mandatory. Ask the user before copying.
 
@@ -110,6 +111,7 @@ Before reporting success:
 - Confirm `FOUNDATION.md` was deployed but NOT wrapped as a Copilot instruction.
 - Confirm `.grok/skills/`, `.grok/agents/`, `.grok/hooks/ai-forward.json`, and `.grok/rules/grok-surface.md` landed; confirm `.grok/rules/` contains no knowledge docs.
 - Confirm `.agents/skills/`, `.agents/rules/agy-surface.md`, `.agents/hooks.json`, and `.agents/skills.json` landed; confirm `.agents/rules/` contains no knowledge docs.
+- Confirm the five hook adapters are under `docs/ai-forward-pack/hooks/` — `reread-guard.py`, `session-start.py`, `mail-doorbell.py`, `heartbeat.py`, `owner-review-gate.py` (the program copies the first three; copy the other two from `<pack-source>/pack/adapters/hooks/` if absent) — with their entries merged per host, and that `pack-doctor.py`'s `doorbells` line names each harness `verified · observed-only · unsupported`; existing ledgers are made portable with `coord log portable <files>`.
 - The Release Engineer vetos any ❌ action from being included in the summary as "done."
 
 **Stage 5 — CONVERGE (summary + docs pointers + commit offer).**
@@ -151,7 +153,7 @@ Then ask:
 > Proposed message: `chore: install AI-Forward Pack revision <N> (<bundle_version>)`
 > (y to proceed · n to leave staged · or type a custom commit message)"
 
-If confirmed: run `git -C <target-repo> add -A && git -C <target-repo> commit -m "chore: install AI-Forward Pack revision <N> (<bundle_version>)" && git -C <target-repo> push` (use `-C` to target the correct directory without changing the working directory).
+If confirmed: run, in order, `git -C <target-repo> add -A`, `git -C <target-repo> commit -m "chore: install AI-Forward Pack revision <N> (<bundle_version>)"`, `git -C <target-repo> push` (use `-C` to target the correct directory without changing the working directory).
 
 ## Documentation & discoverability (note)
 Unlike the workflow skills, this is a **pack-lifecycle skill**: it installs the pack *into* a repo rather than producing a product artifact, so it writes no knowledge-graph frontmatter and does **not** seed or sync `docs/docs-index.js` — the first *workflow* skill run in the target creates the index (V10). Its durable record is the installed `docs/ai-forward-pack/INSTALL.md` (carrying the `revision`) plus the commit. The recommended `/adopt` handoff is what brings the target's existing artifacts into the graph.

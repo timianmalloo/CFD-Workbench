@@ -24,8 +24,7 @@ updated by `/design-slice`//`/implement` when a component's data handling change
 register is generated** — refresh it with the script bundle:*
 
 ```bash
-python3 docs/ai-forward-pack/scripts/docs-graph.py rollup \
-  --heading "Privacy analysis (LINDDUN-lite)" --type design
+python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Privacy analysis (LINDDUN-lite)" --type design
 ```
 
 *This document links `documents →` every personal-data-touching design, so a material design

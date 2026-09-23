@@ -16,13 +16,26 @@ Design: docs/design/coord-core-phase1.md
 """
 import argparse
 import fnmatch
+import hashlib
 import json
+import math
 import os
 import re
+import stat
+import statistics
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+# Windows consoles default to cp1252, which cannot encode the glyphs this tool prints
+# (DC-211/PLAT-A). Without this the script dies with UnicodeEncodeError on output alone.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
 
 TTL_DEFAULT = 300
 # DC-163: a lease sized to a node's lifetime turns a shared control into a serial resource
@@ -33,6 +46,32 @@ SESSION_STALE_SECONDS = 8 * 3600
 COORD_DIRNAME = ".agents"
 SESSION_CONTRACT = "docs/collaboration/session-contracts.md"
 REQUESTS_FILE = "requests.jsonl"
+
+# --- leader designation (spec-leader-designation; D13, ratified 2026-09-19) ---------------
+# ONE block. Tune these from `coord metrics` (leader_loss, contested_pins, reclaim latency),
+# never from prose: the doctrine (agent-coordination.md CO-L) cites the NAMES, not the numbers.
+LEADER_REF = "refs/coord/leader"
+LEADER_TTL = 300          # s - a designation lapses without a renew
+LEADER_RENEW = 100        # s - the holder renews every TTL/3
+LEADER_RETRY = 20         # s - a lost compare-and-swap re-reads and retries after this
+LEADER_QUIET = 30         # s - after an EXPIRY nobody may reclaim (Consul lock-delay x2)
+ZERO_OID = "0" * 40       # `update-ref <ref> <new> <zeros>` creates, and refuses if present
+
+# --- seam requests (spec-typed-seam-requests; D5, D13) ------------------------------------
+# ONE block, beside the leader's. Tune from `coord metrics` (unresolved by deadline, fallback
+# taken, stale acks), never from prose: the doctrine cites the NAMES, not the numbers.
+REQUEST_DEADLINE = 900    # s - the long lease; a request is terminal by then, by resolution or fallback
+REQUEST_RETRY = 20        # s - a waiting requester re-reads at this cadence (D13's retry)
+# simplify: REQUEST_RETRY is named here so the block is complete; P3's kick ladder consumes it.
+#   ceiling: nothing in P1 reads it.  upgrade trigger: `session heartbeat` (P3) lands.
+REQUEST_TERMINAL = ("resolved", "expired")
+REQUEST_OPEN = ("sent", "received", "acked", "untyped")
+# P3 - progress liveness (spec-liveness-and-track; D7: heartbeats carry progress, the rule is a
+# passed deadline OR three missed beats, no phi; CO17: two kicks per work item, counted).
+HEARTBEAT_SAMPLE = LEADER_RENEW      # s - a beat reaches the ledger at most this often (TTL/3)
+STALL_AFTER = 3 * HEARTBEAT_SAMPLE   # s - three missed beats with no progress -> stalled
+KICK_CAP = 2                         # rung-1 kicks per work item; the third is refused
+TRACK_STATES = ("live", "stalled", "blocked", "done")
 
 
 class CoordError(Exception):
@@ -84,6 +123,24 @@ def repo_root(cwd):
                     return common.parent
             break
     return here     # not a git repo: degrade to the directory, and say nothing false
+
+
+def checkout_top(cwd):
+    """The top of the CURRENT checkout - primary or linked worktree - i.e. the first ancestor
+    holding a `.git` entry (a directory or a worktree's pointer file).
+
+    `repo_root` answers "which repository" and is right for the `.agents` stores and shared
+    refs. Three questions in main() are "which tree": the base a hook's absolute path is made
+    relative to, the index the pre-commit floor reads, and the file whose blob a request's ack
+    is compared with. Asked of the primary from a worktree they answered about the wrong
+    tree - the hook could not match a worktree path to its lease (a false grant), `coord
+    precommit` run by hand read the primary's index, and a stale-ack check read the primary's
+    file (class WT-A). Filesystem only, like repo_root."""
+    here = Path(cwd).resolve()
+    for candidate in (here, *here.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    return here
 
 
 def resolve_root(cwd, raw):
@@ -138,9 +195,19 @@ def overlaps(a, b):
     return sa[:n] == sb[:n]
 
 
+def excepted(lease, path):
+    """Is `path` carved out of this lease by its `except` list (claim --except, class CTX-R)?"""
+    return any(overlaps(e, path) for e in lease.get("except", ()))
+
+
+def lease_covers(lease, path):
+    """Does a live lease cover this path? A directory lease minus the peer's named files."""
+    return overlaps(lease["path"], path) and not excepted(lease, path)
+
+
 # --- the record -------------------------------------------------------------
 
-def make_event(kind, session, agent, wi, path, at, ttl=TTL_DEFAULT, seq=None):
+def make_event(kind, session, agent, wi, path, at, ttl=TTL_DEFAULT, seq=None, excepts=None):
     first = next((seg for seg in _norm(path).split("/") if seg not in (".", "")), "")
     if first == COORD_DIRNAME:
         raise CoordError("COORD-CLAIM-SELF",
@@ -149,6 +216,8 @@ def make_event(kind, session, agent, wi, path, at, ttl=TTL_DEFAULT, seq=None):
              "path": _norm(path), "at": float(at)}
     if kind == "claim":
         event["ttl"] = float(ttl)
+        if excepts:
+            event["except"] = [_norm(e) for e in excepts]
     if seq is not None:
         event["seq"] = int(seq)
     return event
@@ -165,6 +234,36 @@ def _next_seq(logfile):
     return n + 1
 
 
+def _portable_event(event):
+    """Copy only diagnostic paths; runtime inputs and free text keep their exact bytes."""
+    def home_path(value):
+        if not isinstance(value, str):
+            return value
+        normalized = value.replace("\\", "/")
+        home = str(Path.home()).replace("\\", "/").rstrip("/")
+        if home and (normalized == home or normalized.startswith(home + "/")):
+            return "~" + normalized[len(home):]
+        # Legacy ledgers can originate on another machine or platform.
+        return re.sub(r"^(?:[A-Za-z]:)?/(?:Users|home)/[^/]+(?=/|$)", "~", normalized) if re.match(
+            r"^(?:[A-Za-z]:)?/(?:Users|home)/", normalized) else value
+
+    row = dict(event)
+    if isinstance(row.get("worktree"), str):
+        row["worktree"] = _worktree_label(row["worktree"])
+    for name in ("manual_brief", "hook_cwd", "detail_path"):
+        if name in row:
+            row[name] = home_path(row[name])
+    if isinstance(row.get("result"), dict):
+        result = row["result"] = dict(row["result"])
+        if "manual_brief" in result:
+            result["manual_brief"] = home_path(result["manual_brief"])
+        if isinstance(result.get("workers"), list):
+            result["workers"] = [dict(worker, manual_brief=home_path(worker["manual_brief"]))
+                if isinstance(worker, dict) and "manual_brief" in worker else worker
+                for worker in result["workers"]]
+    return row
+
+
 def append_event(root, event):
     """Append one event as exactly one write() - atomic under O_APPEND (spike S3)."""
     logdir = Path(root) / "log"
@@ -172,7 +271,7 @@ def append_event(root, event):
     logfile = logdir / "{}.jsonl".format(event["session"])
     if "seq" not in event:
         event["seq"] = _next_seq(logfile)
-    payload = json.dumps(event, sort_keys=True) + "\n"
+    payload = json.dumps(_portable_event(event), sort_keys=True) + "\n"
 
     # LOG-A: emit a LEADING newline when the file does not already end in one, so a fused
     # record is impossible to express rather than merely detectable (control ladder rung 1).
@@ -238,6 +337,7 @@ def fold(events, now):
             leases[key] = {"path": event["path"], "session": event["session"],
                            "agent": event.get("agent", event["session"]),
                            "wi": event.get("wi", ""),
+                           "except": list(event.get("except", [])),
                            "expires": event["at"] + event.get("ttl", TTL_DEFAULT)}
         elif event.get("kind") == "release":
             leases.pop(key, None)
@@ -246,7 +346,7 @@ def fold(events, now):
 
 # --- the decision -----------------------------------------------------------
 
-def check(root, path, me, now):
+def check(root, path, me, now, covers=None):
     if not me:
         return {"decision": "not_checked", "path": path, "files_scanned": 0,
                 "events_scanned": 0, "code": "COORD-NOT-CHECKED-IDENTITY",
@@ -268,7 +368,7 @@ def check(root, path, me, now):
                 "reason": "0 files scanned - there is no record here, so nothing was checked"}
 
     for lease in fold(events, now).values():
-        if lease["session"] != me and overlaps(lease["path"], path):
+        if lease["session"] != me and (covers or lease_covers)(lease, path):
             return {"decision": "deny", "path": path, "files_scanned": files,
                     "events_scanned": len(events), "code": "COORD-REFUSED",
                     "holder": lease["agent"], "session": lease["session"],
@@ -332,7 +432,7 @@ EXIT = {"allow": 0, "deny": 3, "not_checked": 4}
 # within a day. Keeping them out means the fold stays proportional to CLAIMS, not EDITS,
 # and the metric that decides whether this phase worked costs nothing to collect.
 
-def append_decision(root, session, agent, path, decision):
+def append_decision(root, session, agent, path, decision, hook_context=None):
     """Record one enforcement decision. Never folded; read by `tail` and `metrics`.
 
     G14: the verdict is computed BEFORE this is attempted and cannot be changed by it.
@@ -348,6 +448,8 @@ def append_decision(root, session, agent, path, decision):
               "session": session or "anon", "agent": agent or "anon",
               "wi": decision.get("wi", ""), "path": _norm(path),
               "at": time.time(), "code": decision.get("code")}
+    if hook_context:
+        record.update(hook_context)
     try:
         logdir.mkdir(parents=True, exist_ok=True)
         logfile = logdir / "{}.jsonl".format(record["session"])
@@ -423,23 +525,253 @@ def read_request_events(root):
     return events, errors
 
 
+def decision_request_state(root, session):
+    """Bounded, fail-closed acceptance projection; the historical writer/fold is unchanged.
+
+    One checked observation, not a ruling or new store. Missing requests are empty only
+    inside an initialized coordination root. Native Stop may remain bounded/fail-open;
+    the runner must refuse readiness on checked=False.
+    """
+    failed = {"checked": False, "open_ids": [], "open_count": None, "truncated": False}
+    try:
+        root = Path(root)
+        if not session or not root.is_dir() or not (root / "log").is_dir():
+            return failed
+        path = request_log_path(root)
+        try:
+            before = path.lstat()
+        except FileNotFoundError:
+            return {"checked": True, "open_ids": [], "open_count": 0, "truncated": False}
+        if not stat.S_ISREG(before.st_mode):
+            return failed
+        fd = os.open(str(path), os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+                     | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0))
+        with os.fdopen(fd, "rb") as handle:
+            info = os.fstat(handle.fileno())
+            after = path.lstat()
+            # Identity observations also reject detected replacement where O_NOFOLLOW
+            # is unavailable; they are not an atomic Windows no-follow primitive.
+            if (not stat.S_ISREG(info.st_mode) or not stat.S_ISREG(after.st_mode)
+                    or (before.st_dev, before.st_ino) != (info.st_dev, info.st_ino)
+                    or (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino)
+                    or info.st_size > 8 * 1024 * 1024):
+                return failed
+            raw = handle.read(8 * 1024 * 1024 + 1)
+        if len(raw) > 8 * 1024 * 1024:
+            return failed
+        events = [json.loads(line) for line in raw.decode("utf-8").splitlines() if line.strip()]
+        kinds = {"request-add", "request-receive", "request-ack", "request-resolve", "request-expire"}
+        for row in events:
+            if (not isinstance(row, dict) or row.get("kind") not in kinds
+                    or not isinstance(row.get("id"), str)
+                    or not re.fullmatch(r"[A-Za-z0-9_.:-]{1,160}", row["id"])
+                    or isinstance(row.get("at"), bool) or not isinstance(row.get("at"), (float, int))
+                    or not math.isfinite(row["at"])
+                    or not isinstance(row.get("session"), str) or not row["session"]):
+                return failed
+            if row["kind"] == "request-add":
+                if (not isinstance(row.get("reason", ""), str)
+                        or not isinstance(row.get("from", row["session"]), str)
+                        or not (row.get("from") or row["session"])):
+                    return failed
+                deadline = row.get("deadline_at")
+                if deadline is not None and (isinstance(deadline, bool)
+                        or not isinstance(deadline, (int, float)) or not math.isfinite(deadline)):
+                    return failed
+            field = {"request-resolve": "resolution", "request-ack": "blob", "request-expire": "fallback"}.get(row["kind"])
+            if field and (not isinstance(row.get(field), str) or not row[field].strip()):
+                return failed
+        events.sort(key=lambda row: row["at"])
+        added = {}
+        for row in events:
+            if row["kind"] == "request-add":
+                if row["id"] in added:
+                    return failed
+                added[row["id"]] = row
+            elif row["id"] not in added:
+                return failed
+            elif row["kind"] == "request-resolve":
+                original = added[row["id"]]
+                if (original.get("reason") == "decision-request"
+                        and row["session"] == (original.get("from") or original.get("session"))):
+                    return failed  # A worker's generic resolve is not an independent ruling.
+        ids = [row["id"] for row in fold_requests(events)
+               if row.get("reason") == "decision-request"
+               and (row.get("from") or row.get("session")) == session
+               and row.get("status") in REQUEST_OPEN]
+        return {"checked": True, "open_ids": ids[:32], "open_count": len(ids), "truncated": len(ids) > 32}
+    except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
+        return failed
+
+
 def fold_requests(events):
+    """Pure fold: request-* rows -> one state per request id (spec-typed-seam-requests).
+
+    sent -> received -> acked -> resolved | expired. Terminal wins: a row of a later kind after
+    a terminal state is ignored (the CLI refuses to write one; the fold does not rely on that).
+    An add with no deadline_at predates the typed shape and folds to `untyped` - listed, never
+    expired, never failed (US-10).
+    """
     requests = {}
     for event in events:
         rid = event.get("id")
         if not rid:
             continue
-        if event.get("kind") == "request-add":
+        kind = event.get("kind")
+        if kind == "request-add":
             row = dict(event)
-            row["status"] = "open"
+            row["status"] = "sent" if row.get("deadline_at") is not None else "untyped"
+            row.setdefault("text", row.get("contract", ""))
             requests[rid] = row
-        elif event.get("kind") == "request-resolve" and rid in requests:
-            requests[rid] = dict(requests[rid])
-            requests[rid]["status"] = "resolved"
-            requests[rid]["resolution"] = event.get("resolution", "")
-            requests[rid]["resolved_at"] = event.get("at")
-            requests[rid]["resolved_by"] = event.get("session", "")
+            continue
+        if rid not in requests or requests[rid]["status"] in REQUEST_TERMINAL:
+            continue
+        row = dict(requests[rid])
+        who, at = event.get("session", ""), event.get("at")
+        if kind == "request-receive":
+            row.update(status="received", received_at=at, received_by=who)
+        elif kind == "request-ack":
+            row.update(status="acked", ack_blob=event.get("blob", ""), acked_at=at, acked_by=who)
+        elif kind == "request-resolve":
+            row.update(status="resolved", outcome="resolution",
+                       resolution=event.get("resolution", ""), resolved_at=at, resolved_by=who)
+        elif kind == "request-expire":
+            row.update(status="expired", outcome="fallback", expired_at=at, expired_by=who,
+                       fallback=event.get("fallback", row.get("fallback", "")))
+        else:
+            continue
+        requests[rid] = row
     return sorted(requests.values(), key=lambda r: r.get("at", 0.0))
+
+
+def blob_sha(data):
+    """git's blob id: sha1("blob <len>\0" + bytes). Spiked against `git hash-object`."""
+    return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+
+
+def current_blob(repo, path):
+    """The blob id of repo/path now, in-process; None (rendered `not recorded`) when there is
+    no path, the path escapes the repository (STRIDE: a crafted --path reads nothing outside
+    it), or the file cannot be read."""
+    if not path or repo is None:
+        return None
+    base = Path(repo).resolve()
+    target = (base / _norm(path)).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError:
+        return None
+    try:
+        with open(target, "rb") as fh:
+            return blob_sha(fh.read())
+    except OSError:
+        return None
+
+
+def annotate_requests(requests, repo, now):
+    """Derived fields, never stored (DM7): overdue, deadline_in, stale.
+
+    stale is True/False only when an ack pinned a blob AND the cited path can be hashed now;
+    otherwise the string "not recorded" - an absent comparison never renders as "fresh".
+    """
+    out = []
+    for request in requests:
+        row = dict(request)
+        deadline = row.get("deadline_at")
+        typed = deadline is not None
+        row["overdue"] = bool(typed and row["status"] in REQUEST_OPEN and now >= deadline)
+        row["deadline_in"] = round(deadline - now, 1) if typed else "not recorded"
+        if row.get("ack_blob") and row["status"] == "acked":
+            current = current_blob(repo, row.get("path"))
+            row["stale"] = "not recorded" if current is None else (current != row["ack_blob"])
+        else:
+            row["stale"] = "not recorded"
+        out.append(row)
+    return out
+
+
+def request_doctor_lines(root, repo, now):
+    """(lines, problems) for `coord doctor` and pack-doctor's `requests` check.
+
+    FAIL  a typed request past its deadline with no recorded outcome (silence - the 28%)
+    WARN  an ack pinned to a blob that has since changed; untyped rows (counted, never failed)
+    An absent store is `not recorded`, never "0 problems" (R4).
+    """
+    if not request_log_path(root).is_file():
+        return ["requests         not recorded (no {}/{} here)".format(
+            COORD_DIRNAME, REQUESTS_FILE)], 0
+    events, errors = read_request_events(root)
+    if errors:
+        return ["requests         NOT CHECKED  [COORD-REQUEST-NOT-CHECKED]",
+                "  because     " + _safe("; ".join(errors[:2]), 200)], 1
+    rows = annotate_requests(fold_requests(events), repo, now)
+    silent = [r["id"] for r in rows if r["overdue"]]
+    stale = [r["id"] for r in rows if r["stale"] is True]
+    untyped = sum(1 for r in rows if r["status"] == "untyped")
+    lines, problems = [], 0
+    if silent:
+        lines.append("requests         FAIL  [COORD-REQUEST-SILENT-EXPIRY] {} past the deadline with"
+                     " no recorded outcome: {}".format(
+                         len(silent), ", ".join(_safe(i, 40) for i in silent[:5])))
+        lines.append("  remedy      `coord request expire` records each one's fallback as the"
+                     " outcome - a request never ends in silence")
+        problems += 1
+    else:
+        terminal = sum(1 for r in rows if r["status"] in REQUEST_TERMINAL)
+        lines.append("requests         ok - {} request(s), {} open, {} terminal".format(
+            len(rows), len(rows) - terminal, terminal))
+    if stale:
+        lines.append("  WARN  [COORD-REQUEST-STALE-ACK] {} ack(s) pinned to a blob that has since"
+                     " changed: {}".format(len(stale), ", ".join(_safe(i, 40) for i in stale[:5])))
+    if untyped:
+        lines.append("  WARN  [COORD-REQUEST-UNTYPED {}] request(s) predate deadline/fallback;"
+                     " listed as untyped, never expired, never failed".format(untyped))
+    return lines, problems
+
+
+def request_metrics(root, repo, now):
+    """Three counts, or `not recorded` over nothing - a rate over an empty corpus is not a
+    measurement (R4/PACK-P)."""
+    absent = {"requests_unresolved_by_deadline": "not recorded",
+              "requests_fallback_taken": "not recorded",
+              "requests_stale_acks": "not recorded", "requests_untyped": 0}
+    if not request_log_path(root).is_file():
+        return dict(absent, requests_reason="no requests recorded - nothing to count")
+    events, errors = read_request_events(root)
+    if errors:
+        return dict(absent, requests_reason="the requests store could not be read")
+    rows = annotate_requests(fold_requests(events), repo, now)
+    typed = [r for r in rows if r.get("deadline_at") is not None]
+    if not typed:
+        return dict(absent, requests_untyped=len(rows),
+                    requests_reason="no typed requests recorded - nothing to count")
+    return {"requests_unresolved_by_deadline": sum(1 for r in typed if r["overdue"]),
+            "requests_fallback_taken": sum(1 for r in typed if r.get("outcome") == "fallback"),
+            "requests_stale_acks": sum(1 for r in typed if r["stale"] is True),
+            "requests_untyped": len(rows) - len(typed), "requests_reason": ""}
+
+
+def lease_overlap_lines(root, now):
+    """(lines, warns): two live leases from two sessions that cover each other's path and
+    neither excepts the other (class CTX-R's detector). A WARN never changes doctor's exit."""
+    events, errors, _files = read_events(root)
+    if errors:
+        return ["lease overlap    NOT CHECKED  [COORD-NOT-CHECKED-RECORD] "
+                + _safe("; ".join(errors[:2]), 200)], 0
+    leases = list(fold(events, now).values())
+    pairs = [(a, b) for i, a in enumerate(leases) for b in leases[i + 1:]
+             if a["session"] != b["session"] and overlaps(a["path"], b["path"])
+             and not excepted(a, b["path"]) and not excepted(b, a["path"])]
+    if not pairs:
+        return ["lease overlap    none ({} live lease(s))".format(len(leases))], 0
+    lines = []
+    for a, b in pairs:
+        lines.append("lease overlap    WARN  [COORD-LEASE-OVERLAP] {} holds {} and {} holds {}".format(
+            _safe(a["session"], 40), _safe(a["path"], 120),
+            _safe(b["session"], 40), _safe(b["path"], 120)))
+        lines.append("  remedy      the wider lease re-claims with --except <the peer's path>"
+                     " (class CTX-R); a WARN does not change this exit")
+    return lines, len(pairs)
 
 
 # --- git plumbing -----------------------------------------------------------
@@ -448,12 +780,332 @@ def _git(repo, *args):
     """Run git and READ THE RESULT BACK. An exit code is not a result (CTRL-E)."""
     try:
         proc = subprocess.run(["git", *args], cwd=str(repo), capture_output=True,
-                              text=True, timeout=30)
+                              text=True, encoding="utf-8", errors="replace", timeout=30)
     except (OSError, subprocess.SubprocessError) as exc:
         return None, "{}: {}".format(exc.__class__.__name__, exc)
     if proc.returncode != 0:
         return None, (proc.stderr or proc.stdout or "git {} failed".format(args[0])).strip()
     return proc.stdout, None
+
+
+def _git_status(repo, *args, stdin=None):
+    """Run git and keep the RETURN CODE. `rev-parse -q --verify` says absent with 1 and broken
+    with 128; `_git` above folds both into one error, which would render broken as absent.
+    (None, "", reason) when git could not run at all."""
+    try:
+        proc = subprocess.run(["git", *args], cwd=str(repo), capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", timeout=30, input=stdin)
+    except (OSError, subprocess.SubprocessError) as exc:
+        return None, "", "{}: {}".format(exc.__class__.__name__, exc)
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+# --- leader designation -----------------------------------------------------
+# Pattern: compare-and-swap cell + fencing token (Kleppmann; etcd creation revision). The ref
+# DECIDES (`update-ref <ref> <new> <old>` is git's own CAS), the ledger RECORDS, the join
+# FENCES on the epoch. A union-merged ledger cannot refuse a competing claim (SPK-3), so no
+# leader fact is ever read back from the ledger to decide anything.
+
+_LEADER_NOT_CHECKED = "COORD-LEADER-NOT-CHECKED"
+
+
+def leader_validate(record):
+    """The blob's contract; anything else is NOT CHECKED, never a leader and never absent."""
+    if not isinstance(record, dict):
+        return "not a JSON object"
+    leader = record.get("leader")
+    if leader is not None and not isinstance(leader, str):
+        return "leader is not a string"
+    epoch = record.get("epoch")
+    if isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 1:
+        return "epoch is not a positive integer"
+    for key in ("pinned_at", "expires_at"):
+        value = record.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return "{} is not a number".format(key)
+    return None
+
+
+def leader_read(repo):
+    """(record, oid, err). (None, None, None) is ABSENT - a read that succeeded and found no
+    ref. Every failure is err - rendered NOT CHECKED, never "absent" (R4)."""
+    code, out, stderr = _git_status(repo, "rev-parse", "-q", "--verify", LEADER_REF)
+    if code == 1 and not out.strip():
+        return None, None, None
+    if code != 0:
+        return None, None, {"code": _LEADER_NOT_CHECKED, "reason": _safe(
+            stderr.strip() or "git rev-parse exited {}".format(code), 200)}
+    oid = out.strip()
+    code, out, stderr = _git_status(repo, "cat-file", "-p", oid)
+    if code != 0:
+        return None, oid, {"code": _LEADER_NOT_CHECKED, "reason": _safe(
+            stderr.strip() or "git cat-file exited {}".format(code), 200)}
+    try:
+        record = json.loads(out)
+    except json.JSONDecodeError as exc:
+        return None, oid, {"code": _LEADER_NOT_CHECKED,
+                           "reason": "the leader blob is not JSON: {}".format(exc.msg)}
+    problem = leader_validate(record)
+    if problem:
+        return None, oid, {"code": _LEADER_NOT_CHECKED,
+                           "reason": "the leader blob is not the contract: " + problem}
+    return record, oid, None
+
+
+def leader_state(record, now):
+    """absent | live | expired | released - derived on every read, never stored (DM7)."""
+    if record is None:
+        return "absent"
+    if record.get("leader") is None:
+        return "released"
+    return "live" if now < float(record["expires_at"]) else "expired"
+
+
+def leader_decide(action, record, now, me, target, ttl, host=None, tree=None):
+    """Pure: (new_record, None) or (None, refusal). Touches neither git nor the clock.
+
+    The invariant it holds (with the CAS in leader_write): at most one live designation, and
+    the epoch advances by exactly one on every change of holder - never on a renew.
+    """
+    state = leader_state(record, now)
+    epoch = int(record["epoch"]) if record else 0
+    holder = record.get("leader") if record else None
+
+    def refuse(code, because, remedy):
+        return None, {"code": code, "because": because, "remedy": remedy,
+                      "state": state, "epoch": epoch or None, "holder": holder}
+
+    if action in ("pin", "reclaim"):
+        if state == "live":
+            return refuse("COORD-LEADER-HELD",
+                          "{} leads (epoch {}) for {} s more".format(
+                              holder, epoch, int(record["expires_at"] - now)),
+                          "wait for a release or the expiry; this contested {} is recorded"
+                          .format(action))
+        if state == "expired":
+            left = float(record["expires_at"]) + LEADER_QUIET - now
+            if action == "pin":
+                return refuse("COORD-LEADER-EXPIRED",
+                              "{}'s designation (epoch {}) expired {} s ago".format(
+                                  holder, epoch, int(now - record["expires_at"])),
+                              "reclaim after the quiet period ({} s): `coord leader reclaim "
+                              "<session>` or `pin --reclaim`".format(LEADER_QUIET))
+            if left > 0:
+                return refuse("COORD-LEADER-QUIET",
+                              "quiet period after {}'s expiry (epoch {}): {} s left".format(
+                                  holder, epoch, int(math.ceil(left))),
+                              "retry after the quiet period; an in-flight join of the old "
+                              "leader may still be finishing")
+        elif action == "reclaim" and state == "absent":
+            return refuse("COORD-LEADER-ABSENT", "no designation exists - nothing to reclaim",
+                          "`coord leader pin <session>`")
+        new = {"leader": target, "epoch": epoch + 1, "pinned_at": now,
+               "expires_at": now + float(ttl), "ttl": float(ttl), "host": host, "tree": tree}
+        return new, None
+
+    if state == "absent":
+        return refuse("COORD-LEADER-ABSENT", "no designation exists", "`coord leader pin <session>`")
+    if not me or me != holder:
+        return refuse("COORD-LEADER-NOT-HOLDER",
+                      "{} is held by {}, not {}".format(
+                          LEADER_REF, holder or "nobody (released)", me or "an unset AGENT_SESSION"),
+                      "only the holder may {}; export AGENT_SESSION=<holder>".format(action))
+    if action == "renew":
+        if state == "expired":
+            return refuse("COORD-LEADER-EXPIRED",
+                          "the designation (epoch {}) expired {} s ago".format(
+                              epoch, int(now - record["expires_at"])),
+                          "a lapsed designation is not renewed; reclaim after the quiet period")
+        new = dict(record)
+        new["expires_at"] = now + float(record.get("ttl") or ttl)
+        return new, None
+    if action == "release":
+        new = dict(record)
+        new["leader"] = None            # the epoch SURVIVES (note-20260919-leader-release-keeps-the-epoch)
+        new["released_at"] = now
+        return new, None
+    return refuse("COORD-LEADER-USAGE", "unknown action {}".format(_safe(action, 40)),
+                  "pin | who | renew | release | reclaim")
+
+
+def leader_write(repo, record, old_oid):
+    """hash-object then `update-ref <ref> <new> <old>`: the ONLY writer, and the CAS.
+
+    No `-d`, no `--force`, no `--force-with-lease` anywhere in this file (SPK-2: `--force`
+    silently overrides the lease); a test walks every git argv here to keep it so.
+    """
+    payload = json.dumps(record, sort_keys=True) + "\n"
+    code, out, stderr = _git_status(repo, "hash-object", "-w", "--stdin", stdin=payload)
+    if code != 0:
+        return None, {"code": _LEADER_NOT_CHECKED, "reason": _safe(
+            stderr.strip() or "git hash-object exited {}".format(code), 200)}
+    new_oid = out.strip()
+    code, out, stderr = _git_status(repo, "update-ref", LEADER_REF, new_oid, old_oid or ZERO_OID)
+    if code == 0:
+        return new_oid, None
+    text = (stderr or "").lower()
+    if code == 128 and ("cannot lock ref" in text or "already exists" in text or "expected" in text):
+        last = stderr.strip().splitlines()[-1] if stderr.strip() else "the ref changed under us"
+        return None, {"code": "COORD-LEADER-STALE", "reason": _safe(last, 200)}
+    return None, {"code": _LEADER_NOT_CHECKED, "reason": _safe(
+        stderr.strip() or "git update-ref exited {}".format(code), 200)}
+
+
+def leader_metrics(events):
+    """The three measures P2 exists to move (proposal §7, P2). R4: an empty corpus is a
+    reason, never a zero."""
+    rows = [e for e in events if e.get("kind") == "leader"]
+    if not rows:
+        return {"leader_loss": None, "reclaims": None, "contested_pins": None,
+                "reclaim_latency_median_seconds": None,
+                "leader_reason": "no leader events recorded"}
+    reclaims = [e for e in rows if e.get("action") == "reclaim" and e.get("outcome") == "ok"]
+    losses = [e for e in reclaims if e.get("expired_at") is not None]
+    latencies = [float(e["at"]) - float(e["expired_at"]) for e in losses]
+    contested = sum(1 for e in rows if e.get("action") in ("pin", "reclaim")
+                    and e.get("outcome") == "refused" and e.get("code") == "COORD-LEADER-HELD")
+    return {"leader_loss": len(losses), "reclaims": len(reclaims), "contested_pins": contested,
+            "reclaim_latency_median_seconds": (round(statistics.median(latencies), 1)
+                                               if latencies else None),
+            "leader_reason": ""}
+
+
+def _leader_lines(record, state, now):
+    lines = ["leader      {}".format(record.get("leader") or "-"),
+             "epoch       {}".format(record["epoch"]),
+             "state       {}".format(state)]
+    if state == "live":
+        lines.append("expires in  {} s".format(int(record["expires_at"] - now)))
+    elif state == "expired":
+        lines.append("expired     {} s ago (reclaimable {} s after expiry)".format(
+            int(now - record["expires_at"]), LEADER_QUIET))
+    else:
+        lines.append("released    {} s ago".format(int(now - record.get("released_at", now))))
+    lines.append("host        {}".format(record.get("host") or "-"))
+    lines.append("tree        {}".format(record.get("tree") or "-"))
+    return [_safe(line, 300) for line in lines]
+
+
+def leader_doctor_line(repo, now):
+    """(line, is_problem) for `coord doctor`: the holder, the epoch, the time left - or
+    NOT CHECKED, which counts as a problem because a fence cannot run over it."""
+    record, _oid, err = leader_read(repo)
+    if err:
+        return ("leader           NOT CHECKED  [{}]\n  because     {}\n  remedy      fix the "
+                "ref (`git update-ref -d {}` by hand is the rollback), then re-run".format(
+                    err["code"], err["reason"], LEADER_REF), True)
+    state = leader_state(record, now)
+    if state == "absent":
+        return "leader           none designated", False
+    if state == "live":
+        return ("leader           {} epoch {} expires in {} s".format(
+            _safe(record["leader"], 80), record["epoch"], int(record["expires_at"] - now)), False)
+    if state == "expired":
+        return ("leader           EXPIRED {} s ago (epoch {}, was {}) - reclaimable {} s after "
+                "expiry".format(int(now - record["expires_at"]), record["epoch"],
+                                _safe(record["leader"], 80), LEADER_QUIET), False)
+    return "leader           released (epoch {})".format(record["epoch"]), False
+
+
+def cmd_leader(root, repo, action, args, session, agent, cwd, now):
+    as_json = bool(getattr(args, "json", False))
+    record, oid, err = leader_read(repo)
+    if err:
+        if as_json:
+            print(json.dumps({"state": "not_checked", "code": err["code"], "reason": err["reason"]}))
+        else:
+            print("leader NOT CHECKED  [{}]\n  because   {}\n  remedy    fix the condition "
+                  "above, then re-run; this is not a pass and it is not \"no leader\"".format(
+                      err["code"], err["reason"]))
+        return 4
+    state = leader_state(record, now)
+
+    if action == "who":
+        if as_json:
+            payload = dict(record or {})
+            payload.update({"state": state, "oid": oid,
+                            "expires_in": (float(record["expires_at"]) - now) if record else None})
+            print(json.dumps(payload, sort_keys=True))
+        elif record is None:
+            print("leader      -\nstate       absent (no designation; `coord leader pin <session>`)")
+        else:
+            print("\n".join(_leader_lines(record, state, now)))
+        return 0 if state == "live" else 3
+
+    if action == "pin" and getattr(args, "reclaim", False):
+        action = "reclaim"
+    if action in ("pin", "reclaim"):
+        target = args.leader_session
+        me = session or target            # a human pinning from a shell has no AGENT_SESSION
+        ttl = float(getattr(args, "ttl", LEADER_TTL) or LEADER_TTL)
+        if ttl > TTL_CAP:
+            print("COORD-LEADER-TTL-CAP  --ttl {:g} exceeds the cap of {} s\n  because   a "
+                  "designation is renewed every {} s, not sized to a session\n  remedy    "
+                  "use the default ({} s) and renew".format(ttl, TTL_CAP, LEADER_RENEW, LEADER_TTL))
+            return 3
+    else:
+        if not session:
+            print(render({"decision": "not_checked", "path": LEADER_REF,
+                          "code": "COORD-NOT-CHECKED-IDENTITY",
+                          "reason": "AGENT_SESSION is unset"}), file=sys.stderr)
+            return 4
+        me, target = session, (record.get("leader") if record else None)
+        ttl = float(record.get("ttl") or LEADER_TTL) if record else float(LEADER_TTL)
+    host = getattr(args, "host", None) or os.environ.get("AGENT_HOST") or "unknown"
+    tree = session_tree_kind(repo, cwd)
+
+    event = {"kind": "leader", "type": "leader", "action": action, "session": me,
+             "agent": agent or me, "wi": "WI-0", "path": "-", "at": now,
+             "leader": target, "host": host, "tree": tree, "ref_old": oid or ZERO_OID,
+             "previous_epoch": (record["epoch"] if record else None)}
+
+    def refused(refusal):
+        event.update({"outcome": "refused", "code": refusal["code"],
+                      "epoch": record["epoch"] if record else None})
+        try:
+            append_event(root, event)
+        except OSError as exc:
+            print("COORD-NOT-CHECKED-RECORD  the refusal was not recorded: {}".format(
+                _safe(exc, 200)), file=sys.stderr)
+        held = ("\n  held by   {} - epoch {}".format(_safe(refusal["holder"], 80), refusal["epoch"])
+                if refusal.get("holder") else "")
+        print("{}  {}{}\n  because   {}\n  remedy    {}".format(
+            refusal["code"], _safe(target or "-", 80), held, _safe(refusal["because"], 300),
+            _safe(refusal["remedy"], 300)))
+        return 3
+
+    new, refusal = leader_decide(action, record, now, me, target, ttl, host=host, tree=tree)
+    if refusal:
+        return refused(refusal)
+    new_oid, err = leader_write(repo, new, oid)
+    if err and err["code"] == "COORD-LEADER-STALE":
+        return refused({"code": err["code"], "holder": None, "epoch": None,
+                        "because": err["reason"],
+                        "remedy": "another writer won the compare-and-swap; re-read "
+                                  "`coord leader who` and retry after {} s".format(LEADER_RETRY)})
+    if err:
+        print("leader NOT CHECKED  [{}]\n  because   {}\n  remedy    the write did not run; "
+              "this is not a pass".format(err["code"], err["reason"]))
+        return 4
+    event.update({"outcome": "ok", "epoch": new["epoch"], "ref_new": new_oid,
+                  "expires_at": new["expires_at"]})
+    if action == "reclaim" and state == "expired":
+        event["expired_at"] = record["expires_at"]          # metrics: reclaim latency, leader loss
+    try:
+        append_event(root, event)
+    except OSError as exc:
+        # F9 (accepted): the ref is the truth and it changed; the missing record is reported.
+        print("COORD-NOT-CHECKED-RECORD  {} {} epoch {} took effect but was NOT recorded: {}"
+              .format(action, _safe(target or "-", 80), new["epoch"], _safe(exc, 200)),
+              file=sys.stderr)
+        return 4
+    if action == "release":
+        print("released  {} epoch {} kept (the next pin advances it)".format(
+            _safe(target, 80), new["epoch"]))
+    else:
+        print("{}  {} epoch {} until +{} s (renew every {} s)".format(
+            action, _safe(target, 80), new["epoch"], int(new["expires_at"] - now), LEADER_RENEW))
+    return 0
 
 
 def unique_commits(repo):
@@ -560,6 +1212,26 @@ def _identity():
     return session, os.environ.get("AGENT_NAME") or session
 
 
+_SESSION_ID = re.compile(r"[A-Za-z0-9._-]+")   # used with fullmatch: `$` would admit a trailing newline
+
+
+def session_id_error(session):
+    """Why `session` may not become a file name, or None when it may (seam XP -> P3, PLAT-A).
+
+    The id is interpolated into `.agents/log/<session>.jsonl` by append_event and
+    append_decision, so `:` is a name NTFS refuses, `/` and `\\` change the directory, `..`
+    escapes it, and a character outside `[A-Za-z0-9._-]` is a portability bet. The rule
+    REFUSES; it never rewrites, because two ids that differ only in a stripped character
+    would silently share one log file.
+    """
+    if session and _SESSION_ID.fullmatch(session) and session not in (".", ".."):
+        return None
+    return ("COORD-BAD-SESSION-ID  {}\n  because   the session id becomes the file name"
+            " .agents/log/<id>.jsonl; only [A-Za-z0-9._-] is portable across NTFS, APFS and ext4"
+            "\n  remedy    export AGENT_SESSION=<letters, digits, '.', '_' or '-'>"
+            .format(_safe(repr(session), 120)))
+
+
 def _build_parser():
     parser = argparse.ArgumentParser(prog="coord", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -574,6 +1246,9 @@ def _build_parser():
     claim.add_argument("--long-edit", dest="long_edit", metavar="REASON",
                        help="the recorded reason for a --ttl above the cap; it is written "
                             "into the claim event so a queued peer can read why it waits")
+    claim.add_argument("--except", dest="excepts", action="append", default=[], metavar="PATH",
+                       help="carve this path out of the lease (repeatable): a directory lease "
+                            "that excludes a peer's owned files (class CTX-R)")
 
     chk = sub.add_parser("check", help="may this session touch this path?")
     chk.add_argument("path")
@@ -587,30 +1262,90 @@ def _build_parser():
     tail.add_argument("-n", type=int, default=20)
 
     # --- Phase 2: enforcement ---
-    sub.add_parser("hook", help="PreToolUse adapter: stdin JSON in, decision JSON out")
+    hook = sub.add_parser("hook", help="PreToolUse adapter: stdin JSON in, decision JSON out")
+    hook.add_argument("--host", choices=["claude", "codex", "copilot", "grok", "agy"],
+                      help="native response contract (Codex indeterminate checks deny)")
+    hook.add_argument("--config", action="store_true",
+                      help="print a project hook entry as JSON; never install or trust it")
     sub.add_parser("precommit", help="the universal floor: refuse unclaimed staged paths")
     guard = sub.add_parser("guard", help="refuse to move HEAD over work held in one place")
     guard.add_argument("--fix", action="store_true", help="push, the cheapest second copy")
-    ses = sub.add_parser("session", help="one session per working tree")
-    ses.add_argument("action", choices=["start", "end", "list"])
+    ses = sub.add_parser("session", help="one session per working tree; `heartbeat` samples progress")
+    ses.add_argument("action", choices=["start", "end", "list", "heartbeat"])
     ses.add_argument("--json", action="store_true")
+    # P3: `session heartbeat` is what heartbeat.py calls; a human may call it too.
+    ses.add_argument("--flush", action="store_true",
+                     help="heartbeat: write the row now (a stop-class event) even inside the "
+                          "{} s sample window".format(HEARTBEAT_SAMPLE))
+    ses.add_argument("--calls", type=int, default=1, help="heartbeat: tool calls this tick adds")
+    ses.add_argument("--file", dest="files", action="append", default=[], metavar="PATH",
+                     help="heartbeat: a file touched (counted, never stored)")
+    ses.add_argument("--tokens", type=int, default=None, help="heartbeat: tokens, when the host knows")
+    ses.add_argument("--host", default=None, help="heartbeat: harness name (default $AGENT_HOST)")
+    ses.add_argument("--event", default="", help="heartbeat: the host event that fired")
+    ses.add_argument("--wi", default=None, help="heartbeat: work item (default $AGENT_WI or WI-0)")
+    trk = sub.add_parser("track", help="the running track: one state per (session, work item) "
+                                       "from heartbeats and worktree mtimes - live | stalled | "
+                                       "blocked | done; empty corpus is NOT CHECKED")
+    trk.add_argument("--json", action="store_true")
+    kick = sub.add_parser("kick", help="the kick ladder: 0 notify (note) -> 1 kick (cap {}) -> "
+                                       "2 decision request; nothing automatic".format(KICK_CAP))
+    kick.add_argument("kick_target", metavar="session")
+    kick.add_argument("--wi", default=None, help="work item (default: the track row's)")
+    kick.add_argument("--rung", type=int, choices=[0, 1, 2], default=None,
+                      help="default: 0 for a blocked track not yet notified, else 1")
+    kick.add_argument("--reason", default="", help="appended to the mail body")
+    kick.add_argument("--owner", default=None,
+                      help="rung 2: the Owner session (default: the live leader)")
+    kick.add_argument("--deadline", default=None, metavar="SECONDS",
+                      help="rung 2: the decision request's deadline (default {} s)".format(REQUEST_DEADLINE))
+    kick.add_argument("--fallback", default=None, metavar="TEXT",
+                      help="rung 2: what the kicker does at the deadline; required")
+    kick.add_argument("--deadline-at", dest="deadline_at", type=float, default=None, metavar="EPOCH",
+                      help="the work item's deadline from the plan row; when passed, a kick is due "
+                           "even on a live track")
+    lg = sub.add_parser("log", help="ledger maintenance: `portable <file>...` normalizes "
+                                    "diagnostic paths in existing rows (F-3)")
+    lg.add_argument("action", choices=["portable"])
+    lg.add_argument("files", nargs="+")
     collab = sub.add_parser("collaborate", help="cross-session collaboration checks")
     collab.add_argument("action", choices=["check", "summary"])
     collab.add_argument("--json", action="store_true")
-    req = sub.add_parser("request", help="record or resolve a seam request")
+    req = sub.add_parser("request", help="a typed seam request: add | receive | ack | resolve | "
+                                         "expire | list (sent -> received -> acked -> resolved | expired)")
     req_sub = req.add_subparsers(dest="request_action", required=True)
-    req_add = req_sub.add_parser("add", help="append an open seam request")
+    req_add = req_sub.add_parser("add", help="send a seam request; refused without a deadline "
+                                            "and a fallback (its termination variant)")
+    req_add.add_argument("text", nargs="?", default="", help="what is asked (or --contract)")
     req_add.add_argument("--to", required=True)
-    req_add.add_argument("--contract", required=True)
-    req_add.add_argument("--reason", required=True)
+    req_add.add_argument("--deadline", default=None, metavar="SECONDS",
+                         help="seconds until the request must be terminal, or `default` "
+                              "({} s); omitting it is refused".format(REQUEST_DEADLINE))
+    req_add.add_argument("--fallback", default=None, metavar="TEXT",
+                         help="what the requester does at the deadline; omitting it is refused")
+    req_add.add_argument("--blob", default="", help="the blob sha the request was written against")
+    req_add.add_argument("--ref", default="", help="a mail id (coord mail) this request answers")
+    req_add.add_argument("--contract", default="")
+    req_add.add_argument("--reason", default="")
     req_add.add_argument("--from-role", default="")
     req_add.add_argument("--path", default="")
+    req_receive = req_sub.add_parser("receive", help="the addressee has seen it")
+    req_receive.add_argument("id")
+    req_ack = req_sub.add_parser("ack", help="acknowledge, pinned to the blob you read")
+    req_ack.add_argument("id")
+    req_ack.add_argument("--blob", default=None, help="the blob sha you read; required")
     req_list = req_sub.add_parser("list", help="list seam requests")
     req_list.add_argument("--json", action="store_true")
-    req_list.add_argument("--status", choices=["open", "resolved", "all"], default="open")
+    req_list.add_argument("--status", default="open",
+                          choices=["open", "all", "sent", "received", "acked", "resolved",
+                                   "expired", "untyped"],
+                          help="open = every non-terminal state (default)")
     req_resolve = req_sub.add_parser("resolve", help="resolve a seam request")
     req_resolve.add_argument("id")
     req_resolve.add_argument("--resolution", required=True)
+    req_expire = req_sub.add_parser("expire", help="past the deadline: record the fallback as "
+                                                   "the outcome - every open one, or <id>")
+    req_expire.add_argument("id", nargs="?", default=None)
     # WT1-WT12: a new session starts in a new worktree, and nothing is left behind.
     wt = sub.add_parser("worktree", help="session worktree lifecycle: new | list | cleanup")
     wt.add_argument("action", choices=["new", "list", "cleanup"])
@@ -634,6 +1369,27 @@ def _build_parser():
                          "default - DC-142). The count is printed either way.")
     met = sub.add_parser("metrics", help="the four measures this layer exists to move")
     met.add_argument("--json", action="store_true")
+    # spec-leader-designation: the ref decides, the ledger records, the join fences.
+    ld = sub.add_parser("leader", help="designation in {} by compare-and-swap: "
+                                        "pin | who | renew | release | reclaim".format(LEADER_REF))
+    ld_sub = ld.add_subparsers(dest="leader_action", required=True)
+    for verb, text in (("pin", "designate a session (refused while a live leader exists)"),
+                       ("reclaim", "take a lapsed designation after the quiet period; epoch + 1")):
+        ld_verb = ld_sub.add_parser(verb, help=text)
+        ld_verb.add_argument("leader_session", metavar="session")
+        ld_verb.add_argument("--ttl", type=float, default=LEADER_TTL,
+                             help="seconds until the designation lapses (default {}; renew "
+                                  "every {})".format(LEADER_TTL, LEADER_RENEW))
+        ld_verb.add_argument("--host", default=None,
+                             help="harness name recorded in the blob (default $AGENT_HOST)")
+        if verb == "pin":
+            ld_verb.add_argument("--reclaim", action="store_true",
+                                 help="the same path as `reclaim`: over an EXPIRED "
+                                      "designation, after the quiet period")
+    ld_who = ld_sub.add_parser("who", help="who leads, as of which epoch, until when")
+    ld_who.add_argument("--json", action="store_true")
+    ld_sub.add_parser("renew", help="extend the holder's designation (holder only)")
+    ld_sub.add_parser("release", help="clear the holder; the epoch survives (holder only)")
     inst = sub.add_parser("install",
                           help="write the pre-commit hook; print the settings entry")
     inst.add_argument("--force", action="store_true",
@@ -652,6 +1408,14 @@ def _build_parser():
     md = sub.add_parser("merge-derived", help="the .gitattributes merge driver (always 0)")
     md.add_argument("result"); md.add_argument("base")
     md.add_argument("theirs"); md.add_argument("realpath")
+    # P4 / P6: the message layer and the board live in sibling scripts; `coord mail …` and
+    # `coord board …` pass every remaining argument through unchanged (one front door).
+    ml = sub.add_parser("mail", help="send | read | ack | dispatch (delegates to coord-mail.py)")
+    ml.add_argument("mail_args", nargs=argparse.REMAINDER)
+    bd = sub.add_parser("board", help="board [--follow] | board post (delegates to coord-board.py)")
+    bd.add_argument("board_args", nargs=argparse.REMAINDER)
+    dc = sub.add_parser("decide", help="request | rule <n|next> | list (delegates to coord-decide.py)")
+    dc.add_argument("decide_args", nargs=argparse.REMAINDER)
     rg = sub.add_parser("regen", help="run the regenerations the driver deferred")
     rg.add_argument("--timeout", type=float, default=120)
     sub.add_parser("doctor", help="is the driver effective? is the registry sane?")
@@ -664,6 +1428,8 @@ def _build_parser():
     mr.add_argument("theirs"); mr.add_argument("realpath")
     pl = sub.add_parser("plugin", help="emit the bundle both harnesses read; never installs")
     pl.add_argument("--emit", required=True, metavar="DIR")
+    pl.add_argument("--host", choices=["copilot"], default=None,
+                    help="emit the explicit Copilot lifecycle plugin; default keeps the shared edit guard")
     return parser
 
 
@@ -937,6 +1703,30 @@ def regen_command(root, path):
 # RUNS each command before it writes it, and refuses the entry if the command fails or
 # touches anything but its own target.
 
+INTERPRETER_TOKEN = "python3"
+_INTERPRETER_WORDS = ("python3", "python")
+
+
+def resolve_interpreter(command):
+    """Map a registry command's leading interpreter TOKEN to this machine's interpreter.
+
+    `python3` (the documented POSIX name) and `python` (the python.org Windows name) are
+    resolved to `sys.executable`, quoted, so the same tracked registry line runs on both
+    operating systems. Anything else -- another tool, or an explicit interpreter path -- is
+    returned unchanged ON PURPOSE: a stale absolute path must fail loudly where it runs,
+    not be silently repaired here while `pack-doctor` reports it (class PLAT-B). Mirrors
+    `conductor-join._interp`, which does the same for argv lists; this one takes the shell
+    string the registry stores.
+    """
+    text = (command or "").strip()
+    if not text:
+        return command
+    head, sep, rest = text.partition(" ")
+    if head in _INTERPRETER_WORDS:
+        return '"{0}"{1}{2}'.format(sys.executable, sep, rest)
+    return command
+
+
 def _canonical_project(repo):
     """The project name, derived from git -- never `basename(cwd)` (PACK-P).
 
@@ -955,7 +1745,12 @@ def pack_defaults(repo):
     the file. Everything not listed stays `authored` -- the safe default. Do not enumerate it.
     """
     scripts = "docs/ai-forward-pack/scripts"
-    py = '"{0}"'.format(sys.executable)
+    # The registry is TRACKED, so it carries the portable token, never `sys.executable`:
+    # a Windows `python.exe` path written here broke `coord regen` on every macOS clone
+    # while `pack-doctor` passed (class PLAT-B). `resolve_interpreter` maps the token to
+    # THIS machine's interpreter at run time, in every consumer (classify init's
+    # verification run, `coord regen`, the merge driver's deferred regeneration).
+    py = INTERPRETER_TOKEN
     project = _canonical_project(repo)
     return [
         {"patterns": ["docs/docs-index.js"], "class": "derived",
@@ -1020,8 +1815,10 @@ def verify_regen_command(repo, patterns, command, timeout=180):
         # DEVIATION (Rules of the Road 4): shell=True mirrors cmd_regen, and for the same
         # reason -- a regenerate command may use shell operators and must run identically on
         # POSIX and Windows. The string is pack-derived or repo-local config, never input.
-        proc = subprocess.run(command, cwd=str(repo), shell=True, capture_output=True,
-                              text=True, timeout=timeout)
+        # The interpreter token is resolved to THIS machine's Python first (PLAT-B).
+        proc = subprocess.run(resolve_interpreter(command), cwd=str(repo), shell=True,
+                              capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=timeout)
     except subprocess.TimeoutExpired:
         return False, "exceeded {0}s".format(timeout)
     except OSError as exc:
@@ -1228,9 +2025,10 @@ def _reject_path(path):
 
 # Tools that WRITE. Everything else carries no path we care about, and one that carries no
 # path must never have one invented for it.
-_WRITE_TOOLS = {"edit", "create", "write", "apply_patch", "str_replace", "multiedit",
-                "notebookedit"}
-_PATH_KEYS = ("file_path", "path", "filePath", "notebook_path")
+_WRITE_TOOLS = {"edit", "create", "write", "apply_patch", "str_replace", "search_replace", "multiedit",
+                "notebookedit", "edit_file", "write_file", "write_to_file",
+                "replace_file_content", "multi_replace_file_content"}
+_PATH_KEYS = ("file_path", "path", "filePath", "notebook_path", "target_file", "TargetFile")
 
 # CAPABILITY, NOT MEASUREMENT (class CTX-H, proposal P3).
 #
@@ -1254,16 +2052,17 @@ HARNESS_STATUS = {
                "honoured (spike S5, five cases incl. both fail-safe paths).",
     },
     "copilot": {
-        # The architecture's condition 2, CLOSED by a live session rather than assumed
-        # either way.
-        "edit_boundary": "enforcing",
+        # Historical proof retained honestly rather than promoted to a current qualification.
+        "edit_boundary": "historical",
         "established": "2026-08-24",
         "harness_version": "Copilot CLI 1.0.80",
-        "why": "A live session honoured a deny: a read of an unleased file succeeded, a "
-               "write to a leased one was refused with our reason rendered verbatim into "
-               "the transcript, and the file was unmodified. RESIDUAL, unchanged: Copilot "
-               "fails OPEN on a 30s hook timeout, so a hung hook allows. Our measured check "
-               "is 63ms p95, and the commit floor backs it.",
+        "why": "Historical proof only: on Copilot CLI 1.0.80 a live session honoured a "
+               "deny (read of an unleased file succeeded; write to a leased file was "
+               "refused with our reason rendered verbatim; held bytes were unchanged). The "
+               "runtime has moved since, so current enforcement requires a fresh version-"
+               "bound qualification. RESIDUAL from the historical proof: Copilot fails OPEN "
+               "on a 30s hook timeout, so a hung hook allows; the measured historical check "
+               "was 63ms p95 and the commit floor backs it.",
     },
 }
 
@@ -1294,20 +2093,166 @@ def render_harness_capability():
 
 
 def _relativise(path, repo, cwd=None):
-    """An absolute harness path made repo-relative, or left alone if already relative."""
+    """An absolute harness path made repo-relative, or left alone if already relative.
+
+    Both the literal and the RESOLVED form of the path and of each base are compared: on macOS
+    a harness hands `/var/folders/...` while the checkout resolves to `/private/var/...`, and a
+    prefix miss left the path absolute, matched no lease, and allowed the edit (WT-A test)."""
     if not path:
         return None
     text = _norm(path)
+    forms = [text]
+    try:
+        resolved = _norm(str(Path(path).resolve()))
+        if resolved not in forms:
+            forms.append(resolved)
+    except (OSError, ValueError):
+        pass
     for base in (cwd, repo):
         if not base:
             continue
-        prefix = _norm(base).rstrip("/") + "/"
-        if text.lower().startswith(prefix.lower()):
-            return text[len(prefix):]
+        bases = [_norm(base)]
+        try:
+            resolved_base = _norm(str(Path(base).resolve()))
+            if resolved_base not in bases:
+                bases.append(resolved_base)
+        except (OSError, ValueError):
+            pass
+        for candidate in forms:
+            for b in bases:
+                prefix = b.rstrip("/") + "/"
+                if candidate.lower().startswith(prefix.lower()):
+                    return candidate[len(prefix):]
     return text
 
 
-def parse_hook_request(event, repo):
+def _patch_paths(command):
+    """Extract every native apply_patch target, refusing unfamiliar syntax as a unit.
+
+    This is a bounded target recognizer, not a patch applier. Body text never becomes a
+    target. A future native grammar extension needs a contract test before it is accepted.
+    """
+    if not isinstance(command, str) or len(command.encode("utf-8")) > 1048576:
+        raise ValueError("missing or oversized patch")
+    # splitlines also splits Unicode filename characters such as U+2028, inventing a
+    # different target. Native patches use LF/CRLF records; preserve every other byte.
+    lines = [line[:-1] if line.endswith("\r") else line for line in command.strip().split("\n")]
+    if len(lines) < 3 or lines[0] != "*** Begin Patch" or lines[-1] != "*** End Patch":
+        raise ValueError("invalid patch envelope")
+    paths, operation, moved, body = [], None, False, False
+    headers = {"*** Add File: ": "add", "*** Delete File: ": "delete",
+               "*** Update File: ": "update"}
+    for line in lines[1:-1]:
+        header = next((prefix for prefix in headers if line.startswith(prefix)), None)
+        if header:
+            path = line[len(header):]
+            if not path or path != path.strip():
+                raise ValueError("invalid patch target")
+            paths.append(path)
+            operation, moved, body = headers[header], False, False
+        elif line.startswith("*** Move to: ") and operation == "update" and not moved and not body:
+            path = line[len("*** Move to: "):]
+            if not path or path != path.strip():
+                raise ValueError("invalid move target")
+            paths.append(path)
+            moved = True
+        elif operation == "add" and line.startswith("+"):
+            body = True
+        elif operation == "update" and (line.startswith(("+", "-", " ", "@@"))
+                                        or line == "*** End of File"):
+            body = True
+        else:
+            raise ValueError("unrecognized patch syntax")
+    if not paths or len(paths) > 256:
+        raise ValueError("patch must have 1..256 targets")
+    return paths
+
+
+def _physical_spelling(path):
+    """Recover existing component case only when samefile proves a physical alias.
+
+    Path.resolve does not fix case on a case-insensitive volume. Never lowercase lease
+    keys globally: two names differing by case may be distinct on another filesystem.
+    """
+    result = Path(path.anchor)
+    for part in path.parts[1:]:
+        candidate = result / part
+        if candidate.exists():
+            for entry in result.iterdir():
+                if entry.name.casefold() == part.casefold() and os.path.samefile(entry, candidate):
+                    part = entry.name
+                    break
+        result = result / part
+    return result
+
+
+def _native_paths(path, repo, cwd):
+    """Check lexical and symlink-resolved targets, relative to the actual process cwd.
+
+    Payload cwd/session fields confer no authority. Outside-checkout paths fail closed,
+    including an in-tree symlink to an outside target. Keep both aliases for lease checks.
+    """
+    if not isinstance(path, str) or not path or len(path) > 4096 or any(ord(c) < 32 for c in path):
+        raise ValueError("invalid native path")
+    base = Path(repo).resolve()
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = Path(cwd or repo) / candidate
+    lexical = Path(os.path.abspath(candidate))
+    paths = []
+    canonical = _physical_spelling(candidate.resolve())
+    # A resolved outside target is always refused, even if its lexical symlink is inside.
+    canonical.relative_to(base)
+    for target in (lexical, canonical):
+        try:
+            relative = target.relative_to(base).as_posix()
+        except ValueError:
+            # macOS /var -> /private/var and a differently-cased checkout root are real
+            # aliases. Accept only an ancestor proven to be this exact checkout root.
+            alias = next((p for p in target.parents if p.is_dir() and os.path.samefile(p, base)), None)
+            if alias is None:
+                raise
+            relative = target.relative_to(alias).as_posix()
+        if relative == ".":
+            raise ValueError("native target is a directory root")
+        if relative not in paths:
+            paths.append(relative)
+    return paths
+
+
+def _native_lease_covers(lease, path, repo):
+    """Compare both sides of the native boundary in the checkout's physical namespace.
+
+    Existing lease prefixes may themselves use a symlink or a case alias. For future
+    names, use an observed case probe in the target directory, never a platform guess.
+    An empty directory cannot answer: only a case-ambiguous collision is then refused.
+    """
+    base = Path(repo).resolve()
+    def physical(pattern):
+        return _physical_spelling((base / pattern).resolve()).relative_to(base).as_posix()
+    canonical = dict(lease, path=physical(lease["path"]),
+                     **{"except": [physical(p) for p in lease.get("except", ())]})
+    exact = lease_covers(canonical, path)
+    folded = dict(canonical, path=canonical["path"].casefold(),
+                  **{"except": [p.casefold() for p in canonical["except"]]})
+    insensitive = lease_covers(folded, path.casefold())
+    if exact == insensitive:
+        return exact
+    parent = (base / path).parent
+    while not parent.is_dir() and parent != base:
+        parent = parent.parent
+    entries = list(parent.iterdir())
+    names = {entry.name for entry in entries}
+    for entry in entries:
+        alternate = entry.with_name(entry.name.swapcase())
+        if alternate.name != entry.name:
+            case_sensitive = (alternate.name in names or not alternate.exists()
+                              or not os.path.samefile(entry, alternate))
+            return exact if case_sensitive else insensitive
+    return exact or insensitive
+
+
+def parse_hook_request(event, repo, host=None, cwd=None):
     """Normalise any harness's PreToolUse envelope to [(tool_name, repo_relative_path)].
 
     A path of None means "this tool call carries no path" -- a shell command, a search, a
@@ -1317,8 +2262,67 @@ def parse_hook_request(event, repo):
     if not isinstance(event, dict):
         return []
 
+    if host == "grok":
+        event = {"tool_name": event.get("toolName"), "tool_input": event.get("toolInput")}
+    elif host == "agy":
+        call = event.get("toolCall")
+        if not isinstance(call, dict):
+            raise ValueError("missing native tool call")
+        args = call.get("args")
+        if not isinstance(args, dict):
+            raise ValueError("invalid native arguments")
+        if call.get("name") in ("write_to_file", "replace_file_content", "multi_replace_file_content"):
+            if not isinstance(args.get("TargetFile"), str) or not Path(args["TargetFile"]).is_absolute():
+                raise ValueError("native TargetFile must be absolute; hook cwd is not the tool resolver")
+        # Native tool schemas, not generic aliases, choose the authoritative path.
+        event = {"tool_name": call.get("name"), "tool_input": {"file_path": args.get("TargetFile")}}
+    if host in ("grok", "agy") and (not isinstance(event.get("tool_name"), str)
+            or not event["tool_name"] or not isinstance(event.get("tool_input"), dict)):
+        raise ValueError("invalid native tool call")
+    if host in ("grok", "agy") and event["tool_name"].lower() not in _WRITE_TOOLS:
+        raise ValueError("unsupported tool at native ownership write seam")
+    if host == "grok" and event["tool_name"].lower() != "apply_patch":
+        args = event["tool_input"]
+        paths = [target for key in _PATH_KEYS if args.get(key)
+                 for target in _native_paths(args[key], repo, cwd)]
+        if not paths:
+            raise ValueError("native write has no recognized target")
+        return [(event["tool_name"], target) for target in paths]
+    if host == "copilot" and any(k in event for k in ("toolName", "tool_name", "toolArgs", "tool_input")):
+        tool = str(event.get("toolName") or event.get("tool_name") or "")
+        args = event.get("toolArgs") or event.get("tool_input") or {}
+        patch_tool = tool.lower() == "apply_patch" or (
+            tool == "Edit" and isinstance(args, str)
+            and event.get("hook_event_name") in ("PreToolUse", "PostToolUse"))
+        raw_patch = args if isinstance(args, str) and patch_tool else None
+        if isinstance(args, str):
+            try:
+                args = json.loads(args)
+            except (ValueError, TypeError):
+                if raw_patch is not None:
+                    args = raw_patch
+                else:
+                    args = None
+        if patch_tool:
+            command = args if isinstance(args, str) else (args.get("command") if isinstance(args, dict) else None)
+            return [(tool, target) for path in _patch_paths(command)
+                    for target in _native_paths(path, repo, cwd)]
+        path = None
+        if isinstance(args, dict):
+            for key in _PATH_KEYS:
+                if args.get(key):
+                    path = args[key]
+                    break
+        if tool.lower() in _WRITE_TOOLS:
+            if path is None:
+                raise ValueError("write call has no recognized path")
+            return [(tool, target) for target in _native_paths(path, repo, cwd)]
+        return [(tool, _relativise(path, repo, cwd) if path else None)]
+
     # Copilot: a batch, under input.toolCalls, with args as a JSON string.
     payload = event.get("input")
+    if host == "copilot" and not isinstance(payload, dict) and isinstance(event.get("toolCalls"), list):
+        payload = event
     if isinstance(payload, dict) and isinstance(payload.get("toolCalls"), list):
         cwd = payload.get("cwd")
         calls = []
@@ -1326,31 +2330,64 @@ def parse_hook_request(event, repo):
             if not isinstance(call, dict):
                 continue
             name = str(call.get("name", ""))
+            tool = name.lower()
             args = call.get("args")
+            raw_patch = args if isinstance(args, str) and tool == "apply_patch" else None
             if isinstance(args, str):
                 try:
                     args = json.loads(args)
                 except (ValueError, TypeError):
-                    args = None
+                    if raw_patch is not None:
+                        args = raw_patch
+                    elif tool in _WRITE_TOOLS:
+                        raise ValueError("malformed write args")
+                    else:
+                        args = None
+            if tool == "apply_patch":
+                command = args if isinstance(args, str) else (args.get("command") if isinstance(args, dict) else None)
+                if not isinstance(command, str):
+                    raise ValueError("write call has no recognized path")
+                for patch_path in _patch_paths(command):
+                    if host == "copilot":
+                        for target in _native_paths(patch_path, repo, cwd):
+                            calls.append((name, target))
+                    else:
+                        calls.append((name, _relativise(patch_path, repo, cwd)))
+                continue
             path = None
             if isinstance(args, dict):
                 for key in _PATH_KEYS:
                     if args.get(key):
-                        path = _relativise(args[key], repo, cwd)
+                        if tool in _WRITE_TOOLS and host == "copilot":
+                            targets = _native_paths(args[key], repo, cwd)
+                            path = targets[0] if targets else None
+                        else:
+                            path = _relativise(args[key], repo, cwd)
                         break
+            if tool in _WRITE_TOOLS and path is None:
+                raise ValueError("write call has no recognized path")
             calls.append((name, path))
         return calls
 
-    # Claude: one call, flat.
+    # Claude and Codex: one call, flat. Codex supplies the entire native patch in command.
     if "tool_name" in event or "tool_input" in event:
         name = str(event.get("tool_name", ""))
         tool_input = event.get("tool_input")
         path = None
+        if name.lower() == "apply_patch":
+            command = tool_input.get("command") if isinstance(tool_input, dict) else None
+            return [(name, target) for path in _patch_paths(command)
+                    for target in _native_paths(path, repo, cwd)]
         if isinstance(tool_input, dict):
             for key in _PATH_KEYS:
                 if tool_input.get(key):
+                    if host:
+                        return [(name, target) for target in
+                                _native_paths(tool_input[key], repo, cwd)]
                     path = _relativise(tool_input[key], repo)
                     break
+        if name.lower() in _WRITE_TOOLS and path is None:
+            raise ValueError("write call has no recognized path")
         return [(name, path)]
 
     return []
@@ -1372,6 +2409,8 @@ def hook_decision_of(response):
     """
     if not isinstance(response, dict):
         return None
+    if not response:
+        return "allow"  # No ownership refusal; native permission policy still decides.
     block = response.get("hookSpecificOutput")
     if isinstance(block, dict) and block.get("permissionDecision"):
         return block["permissionDecision"]
@@ -1388,33 +2427,42 @@ def hook_response_is_valid(response, harness):
     """
     if not isinstance(response, dict):
         return False
+    if harness == "copilot" and not response:
+        return True
     block = response.get("hookSpecificOutput")
     if not isinstance(block, dict):
         return False
     return (block.get("hookEventName") == "PreToolUse"
-            and block.get("permissionDecision") in ("allow", "deny", "ask")
+            and block.get("permissionDecision") in
+            (("allow", "deny") if harness == "codex" else ("allow", "deny", "ask"))
             and isinstance(block.get("permissionDecisionReason"), str))
 
 
-def hook_response(decision, reason):
+def hook_response(decision, reason, host=None):
     """The PreToolUse envelope. ALWAYS printed, and the caller ALWAYS exits 0 - the
     harness reads the decision in the JSON, not the exit code. Conflating them would make
     a crashed hook indistinguishable from a refusal.
     """
+    if host == "agy" and decision == "allow":
+        return ""  # Neutral success: ownership is not permission to autoapprove a tool.
+    if host == "copilot" and decision == "allow":
+        return "{}"
+    if host in ("grok", "agy"):
+        return json.dumps({"decision": decision, "reason": reason})
     return json.dumps({"hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": decision,
         "permissionDecisionReason": reason}})
 
 
-def _not_checked(reason):
-    return hook_response("ask", "NOT CHECKED  -\n  held by   unknown - this check did"
+def _not_checked(reason, host=None):
+    return hook_response("deny" if host in ("codex", "grok", "agy", "copilot") else "ask", "NOT CHECKED  -\n  held by   unknown - this check did"
                          " not run\n  because   {}\n"
                          "  remedy    fix the condition above; this is not a pass"
-                         .format(reason))
+                         .format(reason), host)
 
 
-def cmd_hook(root, session, agent, now, stdin_text, repo=None):
+def cmd_hook(root, session, agent, now, stdin_text, repo=None, host=None, cwd=None):
     """G1: this must never raise. A hook that crashes on a bad payload blocks every edit.
 
     Envelope-agnostic: `parse_hook_request` normalises whichever harness is calling. Copilot
@@ -1426,12 +2474,22 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None):
         event = json.loads(stdin_text or "")
         if not isinstance(event, dict):
             raise ValueError("payload is not an object")
-        calls = parse_hook_request(event, repo or root)
+        if host == "copilot":
+            payload = event.get("input") if isinstance(event.get("input"), dict) else event
+            tool_cwd = payload.get("cwd")
+            if tool_cwd is not None:
+                origin = repo_root(cwd or repo or root)
+                target = repo_root(tool_cwd) if isinstance(tool_cwd, str) else None
+                if not origin or not target or Path(origin).resolve() != Path(target).resolve():
+                    raise ValueError("tool cwd is not a checkout of the bound repository")
+                cwd = tool_cwd
+                repo = checkout_top(tool_cwd)
+        calls = parse_hook_request(event, repo or root, host=host, cwd=cwd)
     except Exception as exc:
-        return _not_checked("unreadable hook payload ({})".format(exc.__class__.__name__))
+        return _not_checked("unreadable hook payload ({})".format(exc.__class__.__name__), host)
 
     if not calls:
-        return _not_checked("the payload matched no known harness envelope")
+        return _not_checked("the payload matched no known harness envelope", host)
 
     # The PARSER normalises the envelope; the POLICY lives here. Reads are parallel and
     # writes serialize, so a `view` of a leased artifact is allowed -- refusing reads would
@@ -1440,16 +2498,20 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None):
     if not paths:
         # G2: powershell, view, grep -- 26,210 of the recorded Copilot invocations are
         # `powershell` alone. A call that carries no path, or only reads one, is allowed.
-        return hook_response("allow", "coordination: no write to a coordinated path")
+        return hook_response("allow", "coordination: no write to a coordinated path", host)
 
     worst = None
+    native = host is not None or any(str(name).lower() == "apply_patch" for name, _ in calls)
+    covers = (lambda lease, path: _native_lease_covers(lease, path, repo or root)) if native else None
     for path in paths:
         bad = _reject_path(str(path))                   # B4 tampering
         if bad:
-            return _not_checked(bad)
+            return _not_checked(bad, host)
         # B4 spoofing: identity is the ENVIRONMENT's, never the payload's sessionId.
-        decision = check(root, str(path), session, now)
-        append_decision(root, session, agent, path, decision)
+        decision = check(root, str(path), session, now, covers=covers)
+        append_decision(root, session, agent, path, decision,
+                        {"hook_host": host, "hook_cwd": str(Path(cwd or repo or root).resolve())}
+                        if host else None)
         if decision["decision"] == "deny":
             worst = decision
             break                                       # the batch is already refused
@@ -1458,9 +2520,9 @@ def cmd_hook(root, session, agent, now, stdin_text, repo=None):
 
     if worst is None:
         return hook_response("allow", "coordination: {} path(s) free or mine"
-                             .format(len(paths)))
-    mapped = {"deny": "deny", "not_checked": "ask"}[worst["decision"]]
-    return hook_response(mapped, render(worst))
+                             .format(len(paths)), host)
+    mapped = {"deny": "deny", "not_checked": "deny" if host in ("codex", "grok", "agy", "copilot") else "ask"}[worst["decision"]]
+    return hook_response(mapped, render(worst), host)
 
 
 def cmd_precommit(root, repo, session, agent, now):
@@ -1544,6 +2606,17 @@ def cmd_guard(repo, fix):
 
 def _worktree_key(cwd):
     return str(Path(cwd).resolve()).replace("\\", "/")
+
+
+def _worktree_label(value):
+    """The basename of a worktree path: the value the ledger carries in `worktree` (PLAT-B).
+
+    A linked worktree is a sibling of the primary checkout, so no repo-relative form exists;
+    the basename is what the plans and `coord worktree list` already call the tree. A legacy
+    absolute value reduces to the same label, so nothing recorded before F-3 is orphaned.
+    """
+    text = str(value or "").replace("\\", "/").rstrip("/")
+    return text.rsplit("/", 1)[-1] if text else ""
 
 
 def active_sessions(root, now, stale_seconds=SESSION_STALE_SECONDS):
@@ -1748,7 +2821,7 @@ def cmd_collaborate(root, repo, action, now, as_json=False):
     findings = collaboration_findings(root, repo, now, snapshot=(sessions, errors, files))
     request_events, request_errors = read_request_events(root)
     requests = fold_requests(request_events)
-    open_requests = [r for r in requests if r.get("status") == "open"]
+    open_requests = [r for r in requests if r.get("status") in REQUEST_OPEN]
     payload = {"files_scanned": files, "active_sessions": sessions, "findings": findings,
                "contract": SESSION_CONTRACT, "contract_exists": session_contract_path(repo).is_file()}
     if action == "summary":
@@ -1783,49 +2856,161 @@ def cmd_collaborate(root, repo, action, now, as_json=False):
     return 3 if any(f.get("severity") == "blocker" for f in findings) else 0
 
 
-def cmd_request(root, action, now, session, agent, args):
+def _parse_deadline(raw):
+    """Seconds, or `default` -> REQUEST_DEADLINE; None when absent or not a positive number."""
+    if raw is None:
+        return None
+    if str(raw).strip().lower() == "default":
+        return float(REQUEST_DEADLINE)
+    try:
+        value = float(raw)
+    except ValueError:
+        return None
+    return value if value > 0 else None
+
+
+def _request_twin(root, session, agent, action, rid, now, **extra):
+    """The ledger row per transition (`type: request`). The store is the state; this is the
+    audit trail - a twin that cannot be written is reported, and never changes the verdict."""
+    event = {"kind": "request", "type": "request", "action": action, "id": rid,
+             "session": session or "anon", "agent": agent or "anon",
+             "wi": "WI-0", "path": "-", "at": now}
+    event.update(extra)
+    try:
+        append_event(root, event)
+    except OSError as exc:
+        print("COORD-NOT-CHECKED-RECORD  the ledger twin was not recorded: {}".format(
+            _safe(exc, 200)), file=sys.stderr)
+
+
+def _deadline_text(row):
+    if row.get("deadline_at") is None:
+        return "untyped"
+    remaining = row.get("deadline_in", 0)
+    return "in {:g}s".format(remaining) if remaining >= 0 else "overdue {:g}s".format(-remaining)
+
+
+def cmd_request(root, action, now, session, agent, args, repo=None):
     events, errors = read_request_events(root)
     if errors:
         print("COORD-REQUEST-NOT-CHECKED  {}".format(_safe("; ".join(errors[:2]), 200)),
               file=sys.stderr)
         return 4
+    store = request_log_path(root)
+    who = {"session": session or "anon", "agent": agent or "anon"}
+
     if action == "add":
+        text = args.text or args.contract
+        fallback = (args.fallback or "").strip()
+        seconds = _parse_deadline(args.deadline)
+        missing = [flag for flag, value in (("--deadline", seconds), ("--fallback", fallback),
+                                            ("<text>", text)) if not value]
+        if missing:
+            print("COORD-REQUEST-INCOMPLETE  a seam request without {} has no termination"
+                  " variant\n  because   a request nobody answers must still end - by its"
+                  " deadline, through its fallback\n  remedy    pass --deadline <seconds|default>"
+                  " ({} s) and --fallback <what you do at the deadline>".format(
+                      " and ".join(missing), REQUEST_DEADLINE), file=sys.stderr)
+            return 2
         rid = new_id("req")
-        record = {"kind": "request-add", "id": rid, "at": now,
-                  "session": session or "anon", "agent": agent or "anon",
-                  "from": args.from_role or agent or session or "unknown",
-                  "to": args.to, "contract": args.contract,
-                  "reason": args.reason, "path": _norm(args.path or "")}
-        append_record(request_log_path(root), record)
-        print(json.dumps({"id": rid, "status": "open"}))
+        deadline_at = now + seconds
+        record = {"kind": "request-add", "id": rid, "at": now, **who,
+                  "from": args.from_role or agent or session or "unknown", "to": args.to,
+                  "text": text, "path": _norm(args.path or ""), "deadline_at": deadline_at,
+                  "fallback": fallback}
+        for key in ("contract", "reason", "blob", "ref"):
+            if getattr(args, key, ""):
+                record[key] = getattr(args, key)
+        append_record(store, record)
+        _request_twin(root, session, agent, "add", rid, now, to=args.to, deadline_at=deadline_at)
+        print(json.dumps({"id": rid, "status": "sent", "deadline_at": deadline_at}))
         return 0
-    if action == "resolve":
-        folded = {r["id"]: r for r in fold_requests(events)}
-        if args.id not in folded:
-            print("COORD-REQUEST-NOT-FOUND  {}".format(_safe(args.id, 80)))
-            return 4
-        append_record(request_log_path(root), {"kind": "request-resolve", "id": args.id,
-                                               "at": now, "session": session or "anon",
-                                               "agent": agent or "anon",
-                                               "resolution": args.resolution})
-        print(json.dumps({"id": args.id, "status": "resolved",
-                          "resolution": args.resolution}))
+
+    if action == "list":
+        rows = annotate_requests(fold_requests(events), repo, now)
+        if args.status == "open":
+            rows = [r for r in rows if r["status"] in REQUEST_OPEN]
+        elif args.status != "all":
+            rows = [r for r in rows if r["status"] == args.status]
+        payload = {"requests": rows, "events_scanned": len(events), "errors": []}
+        if args.json:
+            print(json.dumps(payload, indent=2, sort_keys=True))
+            return 0
+        print("{} request(s)".format(len(rows)))
+        for row in rows:
+            print("  {:<30} {:<9} -> {:<12} {:<14} stale={:<13} {}".format(
+                _safe(row.get("id", ""), 30), _safe(row.get("status", ""), 9),
+                _safe(row.get("to", ""), 12), _deadline_text(row), str(row["stale"]),
+                _safe(row.get("text", ""), 80)))
         return 0
-    # list
-    folded = fold_requests(events)
-    if args.status != "all":
-        folded = [r for r in folded if r.get("status") == args.status]
-    payload = {"requests": folded, "events_scanned": len(events), "errors": []}
-    if args.json:
-        print(json.dumps(payload, indent=2, sort_keys=True))
-    else:
-        print("{} request(s)".format(len(folded)))
-        for request in folded:
-            print("  {:<22} {:<8} -> {:<12} {}".format(
-                _safe(request.get("id", ""), 22),
-                _safe(request.get("status", ""), 8),
-                _safe(request.get("to", ""), 12),
-                _safe(request.get("contract", ""), 100)))
+
+    folded = {r["id"]: r for r in fold_requests(events)}
+
+    if action == "expire":
+        if args.id:
+            row = folded.get(args.id)
+            if row is None:
+                print("COORD-REQUEST-NOT-FOUND  {}".format(_safe(args.id, 80)))
+                return 4
+            if row.get("deadline_at") is None:
+                print("COORD-REQUEST-UNTYPED  {} predates deadline/fallback and is never expired;"
+                      " resolve it, or re-add it typed".format(_safe(args.id, 80)))
+                return 3
+            if row["status"] in REQUEST_TERMINAL:
+                print("COORD-REQUEST-TERMINAL  {} is already {}".format(
+                    _safe(args.id, 80), row["status"]))
+                return 3
+            if now < row["deadline_at"]:
+                print("COORD-REQUEST-NOT-DUE  {} has {:g}s left; the fallback is for the"
+                      " deadline, not before it".format(_safe(args.id, 80), row["deadline_at"] - now))
+                return 3
+            due = [row]
+        else:
+            due = [r for r in folded.values() if r.get("deadline_at") is not None
+                   and r["status"] in REQUEST_OPEN and now >= r["deadline_at"]]
+        for row in due:
+            append_record(store, {"kind": "request-expire", "id": row["id"], "at": now, **who,
+                                  "outcome": "fallback", "fallback": row.get("fallback", "")})
+            _request_twin(root, session, agent, "expire", row["id"], now, outcome="fallback",
+                          deadline_at=row.get("deadline_at"))
+        print("{} expired".format(len(due)))
+        for row in due:
+            print("  {}  fallback: {}".format(_safe(row["id"], 40),
+                                              _safe(row.get("fallback", ""), 200)))
+        return 0
+
+    row = folded.get(args.id)
+    if row is None:
+        print("COORD-REQUEST-NOT-FOUND  {}".format(_safe(args.id, 80)))
+        return 4
+    if row["status"] in REQUEST_TERMINAL:
+        print("COORD-REQUEST-TERMINAL  {} is already {} ({})".format(
+            _safe(args.id, 80), row["status"], _safe(row.get("outcome", ""), 20)))
+        return 3
+
+    if action == "receive":
+        append_record(store, {"kind": "request-receive", "id": args.id, "at": now, **who})
+        _request_twin(root, session, agent, "receive", args.id, now)
+        print(json.dumps({"id": args.id, "status": "received"}))
+        return 0
+
+    if action == "ack":
+        if not args.blob:
+            print("COORD-REQUEST-ACK-NO-BLOB  {}\n  because   an ack says what you READ; without"
+                  " the blob sha a later change is invisible\n  remedy    ack <id> --blob"
+                  " $(git hash-object <the artifact>)".format(_safe(args.id, 80)), file=sys.stderr)
+            return 2
+        append_record(store, {"kind": "request-ack", "id": args.id, "at": now, **who,
+                              "blob": args.blob})
+        _request_twin(root, session, agent, "ack", args.id, now, blob=args.blob)
+        print(json.dumps({"id": args.id, "status": "acked", "blob": args.blob}))
+        return 0
+
+    # resolve (the pre-P1 shape, kept)
+    append_record(store, {"kind": "request-resolve", "id": args.id, "at": now, **who,
+                          "resolution": args.resolution})
+    _request_twin(root, session, agent, "resolve", args.id, now, outcome="resolution")
+    print(json.dumps({"id": args.id, "status": "resolved", "resolution": args.resolution}))
     return 0
 
 
@@ -1958,7 +3143,8 @@ def worktree_safety(record, primary, cwd, live_keys, index, include_unmerged=Fal
         return False, "current working directory - deleting the floor you stand on"
     if record.get("locked"):
         return False, "locked by git"
-    if resolved in live_keys:
+    # live_keys holds LABELS since F-3; a caller still passing resolved paths is honoured too.
+    if resolved in live_keys or _worktree_label(resolved) in live_keys:
         return False, "a live session holds it (coord session start, not ended)"
     if not os.path.isdir(path):
         return True, "directory is gone; only the git metadata remains (prunable)"
@@ -2032,7 +3218,7 @@ def cmd_worktree(root, repo, action, cwd, now, session=None, agent=None,
             # the rate is wrong in the direction that flatters us.
             append_event(root, {"kind": "session-start", "session": session, "tree": "worktree",
                                 "agent": agent or session, "wi": "WI-0", "path": "-",
-                                "at": now, "worktree": _worktree_key(target)})
+                                "at": now, "worktree": _worktree_label(target)})
         print("worktree ready\n  branch    {}\n  path      {}\n  base      {}  ({})"
               "\n  next      cd {}"
               .format(name, target, sha[:12], _safe(base or "HEAD of this tree", 60),
@@ -2052,7 +3238,7 @@ def cmd_worktree(root, repo, action, cwd, now, session=None, agent=None,
         return 4
     live = {}
     for event in events:
-        key = event.get("worktree")
+        key = _worktree_label(event.get("worktree"))
         if event.get("kind") == "session-start":
             live[key] = max(live.get(key, 0.0), event.get("at", 0.0))
         elif event.get("kind") == "session-end":
@@ -2119,7 +3305,11 @@ def cmd_worktree(root, repo, action, cwd, now, session=None, agent=None,
         return 0
     attempts = []
     for record, _why in removable:
-        out, err = _git(repo, "worktree", "remove", "--force", record.get("path", ""))
+        # No `--force`: cleanup only reaches here for a tree it measured clean INCLUDING
+        # untracked files, so git's own refusal of an unclean tree is a second floor under
+        # ours, not an obstacle. It also keeps `--force` out of every git argv in this file
+        # (spec-leader-designation US-9: `--force` silently overrides `--force-with-lease`).
+        out, err = _git(repo, "worktree", "remove", record.get("path", ""))
         attempts.append((record, err))
         if err:
             print("  FAILED  {}: {}".format(_safe(record.get("path", "?"), 140), _safe(err, 160)))
@@ -2212,13 +3402,16 @@ def cmd_session(root, action, session, agent, cwd, now, repo=None):
     #   upgrade trigger: the first time a human is blocked by a dead session.
     STALE_SECONDS = 8 * 3600
     key = _worktree_key(cwd)
+    # F-3 / PLAT-B: the ledger carries the tree's LABEL (basename), never the path; a legacy
+    # absolute value is reduced to its label on read (note-20260919-liveness-worktree-field-is-a-label).
+    label = _worktree_label(key)
     events, errors, _ = read_events(root)
     if errors:
         print("COORD-NOT-CHECKED-RECORD: {}".format(_safe("; ".join(errors[:2]), 200)))
         return 4
     live = {}
     for event in events:
-        if event.get("worktree") != key:
+        if _worktree_label(event.get("worktree")) != label:
             continue
         if event.get("kind") == "session-start":
             live[event.get("session")] = event.get("at", 0.0)
@@ -2235,14 +3428,14 @@ def cmd_session(root, action, session, agent, cwd, now, repo=None):
                   .format(_safe(key, 300), _safe(holder)))
             return 3
         append_event(root, {"kind": "session-start", "session": session, "agent": agent,
-                            "wi": "WI-0", "path": "-", "at": now, "worktree": key,
+                            "wi": "WI-0", "path": "-", "at": now, "worktree": label,
                             # WT4's exception, recorded where `coord metrics` can count it.
                             "tree": session_tree_kind(repo, cwd)})
         print("session {} registered in {}".format(session, key))
         return 0
 
     append_event(root, {"kind": "session-end", "session": session, "agent": agent,
-                        "wi": "WI-0", "path": "-", "at": now, "worktree": key})
+                        "wi": "WI-0", "path": "-", "at": now, "worktree": label})
     print("session {} released {}".format(session, key))
     return 0
 
@@ -2257,11 +3450,17 @@ def cmd_metrics(root, repo, as_json):
     pct = round(100.0 * allowed / total, 1) if total else None
     unique, unique_reason = unique_commits(repo)
     wt4 = wt4_exception_rate(root)
+    leader = leader_metrics(read_events(root)[0])
+    requests = request_metrics(root, checkout_top(os.getcwd()), time.time())   # WT-A
     payload = {"decisions": len(decisions), "allowed": allowed, "refused": refused,
                "not_checked": unchecked, "edits_under_lease_pct": pct,
                "unique_commits": unique, "unique_commits_reason": unique_reason,
                "wt4": wt4,
                "reason": "" if total else "no decisions recorded - nothing to rate"}
+    payload.update(leader)
+    payload.update(requests)
+    liveness = liveness_metrics(read_events(root)[0], time.time(), worktree_mtimes(repo))
+    payload.update(liveness)
     if as_json:
         print(json.dumps(payload))
         return 0
@@ -2284,6 +3483,529 @@ def cmd_metrics(root, repo, as_json):
             if wt4["not_recorded"] else ""))
         print("  meaning        WT4 allows the primary as a RECORDED exception. A rate that"
               " does not fall is the finding.")
+    if leader["leader_reason"]:
+        print("leader           {}".format(leader["leader_reason"]))
+    else:
+        print("leader loss (reclaims after an expiry)   {}".format(leader["leader_loss"]))
+        print("  reclaims       {}".format(leader["reclaims"]))
+        print("  reclaim latency, median   {}".format(
+            "{} s".format(leader["reclaim_latency_median_seconds"])
+            if leader["reclaim_latency_median_seconds"] is not None else "no expiry reclaimed"))
+        print("  contested pins {}   (a pin or reclaim refused because a live leader existed)"
+              .format(leader["contested_pins"]))
+    if requests["requests_reason"]:
+        print("requests         {}".format(requests["requests_reason"]))
+    else:
+        print("requests unresolved by deadline   {}   (open past deadline_at with no outcome)"
+              .format(requests["requests_unresolved_by_deadline"]))
+        print("  fallback taken {}   (expired: the fallback was recorded as the outcome)"
+              .format(requests["requests_fallback_taken"]))
+        print("  stale acks     {}   (acked blob no longer the artifact's current blob)"
+              .format(requests["requests_stale_acks"]))
+        if requests["requests_untyped"]:
+            print("  untyped        {}   (predate deadline/fallback)".format(
+                requests["requests_untyped"]))
+    if liveness["heartbeat_reason"]:
+        print("heartbeat        {}".format(liveness["heartbeat_reason"]))
+    else:
+        print("heartbeats       {}   ({} zero-delta = stalls observed)".format(
+            liveness["heartbeats"], liveness["stalls_observed"]))
+        print("  tracks now     {} live, {} stalled, {} blocked".format(
+            liveness["tracks_live"], liveness["tracks_stalled"], liveness["tracks_blocked"]))
+        print("kicks            {}   (rung 1, cap {}; {} refused at the cap; {} rung-2 escalations)"
+              .format(liveness["kicks"], KICK_CAP, liveness["kicks_refused_cap"],
+                      liveness["escalations"]))
+        print("  stall detection latency, median   {}".format(
+            "{} s".format(liveness["stall_latency_median_s"])
+            if liveness["stall_latency_median_s"] is not None else "no kick recorded"))
+        print("  false kicks    {}   (a kick followed by the target's progress within {} s)"
+              .format(liveness["false_kicks"], STALL_AFTER))
+    return 0
+
+
+# --- P3: progress liveness, the running track, the kick ladder -----------------------------
+# spec-liveness-and-track / design-liveness-and-track. Two new row kinds in the SAME ledger
+# (`heartbeat` in the beating session's file, `kick-ladder` in the kicker's); the track is a
+# pure fold (pattern: event sourcing, as `fold`/`fold_requests`); the ladder refuses, counts
+# and records (as `cmd_request`/`cmd_leader`). Nothing here acts on its own (WT11, CO17).
+
+def heartbeat_scratch_path(root, repo, session):
+    """The machine-local accumulator between samples. It lives in the git COMMON dir (never
+    tracked, shared by every worktree of the clone, no .gitignore line to forget); when there
+    is no .git at all it falls back beside the ledgers, under the `.agents/*` ignore."""
+    common = Path(repo) / ".git" if repo else None
+    base = (common / "coord" / "heartbeat") if (common is not None and common.is_dir()) \
+        else (Path(root) / "heartbeat")
+    return base / "{}.json".format(session)
+
+
+def _fresh_scratch(now, since):
+    return {"calls": 0, "files": [], "tokens": 0, "tokens_known": False,
+            "window_at": float(now), "since": since}
+
+
+def _read_scratch(path):
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _write_scratch(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(data, sort_keys=True), encoding="utf-8", newline="\n")
+    os.replace(str(tmp), str(path))
+
+
+def _renew_leader_if_holder(repo, session, now):
+    """F-1 (note-20260919-liveness-heartbeat-renews-the-leader): a SAMPLED beat from the live
+    holder renews; an expired designation is reported, never reclaimed (the epoch is an act)."""
+    if not repo or not session:
+        return None
+    record, oid, err = leader_read(repo)
+    if err or record is None or record.get("leader") != session:
+        return None
+    state = leader_state(record, now)
+    if state == "expired":
+        return "expired"
+    if state != "live":
+        return None
+    new, refusal = leader_decide("renew", record, now, session, session,
+                                 float(record.get("ttl") or LEADER_TTL))
+    if refusal:
+        return None
+    _new_oid, err = leader_write(repo, new, oid)
+    return None if err else True
+
+
+def heartbeat_tick(root, repo, session, agent, now, files=(), calls=1, tokens=None, host="",
+                   event="", wi=None, cwd=None, flush=False):
+    """Accumulate one host event; write ONE `heartbeat` row when the sample window (100 s) has
+    passed or on `flush` (a stop-class event). Returns the row written, else None.
+
+    The row carries COUNTS: calls and distinct files since the previous row, tokens when a host
+    exposed them (`not recorded` otherwise - never a plausible number, IO8), `since` = the
+    previous row's instant, and `leader_renewed` (F-1). A zero-delta row is legal and renders
+    `stalled` (D7). Paths from the host are relativised, counted, never stored or opened.
+    """
+    scratch = heartbeat_scratch_path(root, repo, session)
+    data = _read_scratch(scratch)
+    if data is None:                       # first tick, or a corrupt accumulator: start from zero
+        data = _fresh_scratch(now, None)
+    data["calls"] = int(data.get("calls") or 0) + int(calls)
+    seen = [str(f) for f in (data.get("files") or [])]
+    for path in files or ():
+        rel = _relativise(str(path), repo, cwd) or str(path)
+        if rel not in seen and len(seen) < 64:
+            seen.append(rel)
+    data["files"] = seen
+    if tokens is not None:
+        data["tokens"] = int(data.get("tokens") or 0) + int(tokens)
+        data["tokens_known"] = True
+    window_at = float(data.get("window_at") or now)
+    if not flush and now - window_at < HEARTBEAT_SAMPLE:
+        _write_scratch(scratch, data)
+        return None
+    row = {"kind": "heartbeat", "session": session, "agent": agent or session,
+           "wi": wi or os.environ.get("AGENT_WI") or "WI-0", "path": "-", "at": float(now),
+           "worktree": _worktree_label(_worktree_key(cwd or os.getcwd())),
+           "host": host or os.environ.get("AGENT_HOST") or "unknown", "event": event or "",
+           "calls": int(data["calls"]), "files": len(seen),
+           "tokens": int(data["tokens"]) if data.get("tokens_known") else "not recorded",
+           "since": data.get("since"),
+           "leader_renewed": _renew_leader_if_holder(repo, session, now)}
+    append_event(root, row)
+    _write_scratch(scratch, _fresh_scratch(now, float(now)))
+    return row
+
+
+def _has_progress(row):
+    total = 0
+    for key in ("calls", "files", "tokens"):
+        value = row.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            total += value
+    return total > 0
+
+
+def track_fold(events, now, mtimes=None):
+    """Pure fold: ledger rows (+ worktree mtimes by label) -> one row per (session, wi).
+
+    live     the newest beat carries a progress delta and is younger than STALL_AFTER
+             (or, with no beat at all, the worktree changed within STALL_AFTER)
+    stalled  everything else that is neither blocked nor done - a zero-delta ping is stalled
+             however fresh (D7), and unproven liveness (no beat, no worktree) is never live
+    blocked  a `blocked` mail twin newer than any `unblocked`; blocked_on = its addressee
+    done     a session-end or a `done` twin
+    `missed_beats` counts sample windows since the last progress (or the last beat, or the
+    start); `kicks` counts rung-1 kicks recorded against (session, wi). Nothing is stored.
+    """
+    mtimes = mtimes or {}
+    tracks, kicks, notified = {}, {}, set()
+    for event in events:
+        session, kind, at = event.get("session"), event.get("kind"), float(event.get("at") or 0.0)
+        if kind == "kick-ladder":
+            key = (event.get("to"), event.get("wi"))
+            if event.get("outcome") == "ok" and event.get("rung") == 1:
+                kicks[key] = kicks.get(key, 0) + 1
+            if event.get("outcome") == "ok" and event.get("rung") == 0:
+                notified.add(key)
+            continue
+        if kind == "session-start":
+            tracks[session] = {"session": session, "agent": event.get("agent", session),
+                               "wi": event.get("wi") or "WI-0",
+                               "worktree": _worktree_label(event.get("worktree")),
+                               "started_at": at, "last_at": at, "last_beat_at": None,
+                               "last_progress_at": None, "calls_last": None, "files_last": None,
+                               "beats": 0, "zero_delta_beats": 0, "ended": False, "done": False,
+                               "blocked_on": None, "deadline_at": None}
+            continue
+        row = tracks.get(session)
+        if row is None:
+            continue
+        row["last_at"] = max(row["last_at"], at)
+        if kind == "session-end":
+            row["ended"] = True
+        elif kind == "heartbeat":
+            row["beats"] += 1
+            row["last_beat_at"] = at
+            row["wi"] = event.get("wi") or row["wi"]
+            row["calls_last"] = event.get("calls")
+            row["files_last"] = event.get("files")
+            if _has_progress(event):
+                row["last_progress_at"] = at
+                row["latest_has_progress"] = True
+            else:
+                row["zero_delta_beats"] += 1
+                row["latest_has_progress"] = False
+        elif event.get("type") == "mail":
+            if kind == "blocked":
+                row["blocked_on"] = event.get("to")
+            elif kind == "unblocked":
+                row["blocked_on"] = None
+            elif kind == "done":
+                row["done"] = True
+
+    rows = []
+    for row in tracks.values():
+        mtime = mtimes.get(row["worktree"])
+        if row["beats"]:
+            row["source"] = "heartbeat"
+        elif mtime is not None:
+            row["source"] = "worktree-mtime"
+            row["last_progress_at"] = float(mtime)
+        else:
+            row["source"] = "none"
+        evidence = max(v for v in (row["last_at"], row["last_progress_at"], mtime) if v is not None)
+        if now - evidence >= SESSION_STALE_SECONDS:
+            continue
+        anchor = row["last_progress_at"] or row["last_beat_at"] or row["started_at"]
+        row["missed_beats"] = max(0, int((now - anchor) // HEARTBEAT_SAMPLE))
+        row["stall_age_s"] = round(now - anchor, 1)
+        if row["ended"] or row["done"]:
+            state = "done"
+        elif row["blocked_on"]:
+            state = "blocked"
+        elif row["source"] == "heartbeat":
+            state = ("live" if row.get("latest_has_progress")
+                     and now - row["last_progress_at"] < STALL_AFTER else "stalled")
+        elif row["source"] == "worktree-mtime":
+            state = "live" if now - float(mtime) < STALL_AFTER else "stalled"
+        else:
+            state = "stalled"
+        row["state"] = state
+        row["kicks"] = kicks.get((row["session"], row["wi"]), 0)
+        row["notified"] = (row["session"], row["wi"]) in notified
+        row.pop("latest_has_progress", None)
+        rows.append(row)
+    order = {s: i for i, s in enumerate(TRACK_STATES)}
+    rows.sort(key=lambda r: (order.get(r["state"], 9), r["session"], r["wi"]))
+    return rows
+
+
+def worktree_mtimes(repo):
+    """label -> newest change instant per registered worktree: the last commit's time or the
+    newest mtime of a modified/untracked file, whichever is later. Read from the world, bounded
+    by the changed set (never a walk of the whole tree). A tree git cannot read is absent."""
+    mtimes = {}
+    if not repo:
+        return mtimes
+    records, err = worktree_inventory(repo)
+    if err:
+        return mtimes
+    for record in records:
+        path = record.get("path") or ""
+        if not os.path.isdir(path):
+            continue
+        code, out, _stderr = _git_status(path, "log", "-1", "--format=%ct")
+        newest = float(out.strip()) if code == 0 and out.strip().isdigit() else None
+        code, out, _stderr = _git_status(path, "status", "--porcelain", "--untracked-files=all")
+        if code == 0:
+            for line in out.splitlines():
+                name = line[3:].split(" -> ")[-1].strip().strip('"')
+                try:
+                    stamp = os.path.getmtime(os.path.join(path, name))
+                except OSError:
+                    continue
+                newest = stamp if newest is None else max(newest, stamp)
+        if newest is not None:
+            mtimes[_worktree_label(path)] = newest
+    return mtimes
+
+
+def _track_render_rows(rows):
+    for row in rows:
+        row["deadline"] = ("not recorded" if row.get("deadline_at") is None
+                           else time.strftime("%H:%M:%S", time.localtime(row["deadline_at"])))
+        row["last_progress"] = ("-" if row.get("last_progress_at") is None else
+                                time.strftime("%H:%M:%S", time.localtime(row["last_progress_at"])))
+    return rows
+
+
+def cmd_track(root, repo, now, as_json=False):
+    events, errors, files = read_events(root)
+    if errors:
+        print("COORD-NOT-CHECKED-RECORD: {}".format(_safe("; ".join(errors[:2]), 200)))
+        return 4
+    if not any(e.get("kind") == "session-start" for e in events):
+        # R4 / invariant 11: an empty fleet view is NOT CHECKED, never "all quiet".
+        print("COORD-TRACK-NOT-CHECKED  {} ledger file(s) scanned, no session-start among them\n"
+              "  because   nothing was established about anyone's liveness\n"
+              "  remedy    sessions register with `coord session start` (or `coord worktree new`);"
+              " hosts beat via heartbeat.py".format(files))
+        return 4
+    rows = _track_render_rows(track_fold(events, now, worktree_mtimes(repo)))
+    if as_json:
+        print(json.dumps({"tracks": rows, "files_scanned": files, "now": now,
+                          "stall_after_s": STALL_AFTER}, sort_keys=True))
+        return 0
+    print("{:<8} {:<24} {:<10} {:<15} {:<9} {:>6} {:>5}  {:<16} {}".format(
+        "state", "session", "wi", "source", "progress", "missed", "kicks", "blocked-on", "deadline"))
+    for row in rows:
+        print("{:<8} {:<24} {:<10} {:<15} {:<9} {:>6} {:>5}  {:<16} {}".format(
+            row["state"], _safe(row["session"], 24), _safe(row["wi"], 10), row["source"],
+            row["last_progress"], row["missed_beats"], row["kicks"],
+            _safe(row.get("blocked_on") or "-", 16), row["deadline"]))
+    print("{} track(s); {} file(s) scanned; stalled = no progress for {} s or a zero-delta beat"
+          " (D7); deadline is not recorded until `coord delegate` lands".format(
+              len(rows), files, STALL_AFTER))
+    return 0
+
+
+def _load_mail():
+    """coord-mail.py beside this file (the only mail writer); None when not installed."""
+    target = os.path.join(_HERE, "coord-mail.py")
+    if not os.path.isfile(target):
+        return None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("coord_mail_for_kick", target)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def cmd_kick(root, repo, target, args, session, agent, now):
+    """The kick ladder (CO17): 0 notify (mail `note`) -> 1 kick (mail `kick`, cap KICK_CAP,
+    counted) -> 2 decision request (P1 typed request + mail `decision-request`). Every climb -
+    ok or refused - is a `kick-ladder` row in the kicker's ledger carrying the target's state,
+    stall age and missed beats at that instant (the SRE's measurement)."""
+    events, errors, _files = read_events(root)
+    if errors:
+        print("COORD-KICK-NOT-CHECKED  {}".format(_safe("; ".join(errors[:2]), 200)))
+        return 4
+    rows = {r["session"]: r for r in track_fold(events, now, worktree_mtimes(repo))}
+    row = rows.get(target)
+    if row is None:
+        print("COORD-KICK-NOT-CHECKED  {}\n  because   no track row exists for that session"
+              " (no session-start within {} h)\n  remedy    `coord track` lists who can be kicked"
+              .format(_safe(target, 80), SESSION_STALE_SECONDS // 3600))
+        return 4
+    wi = getattr(args, "wi", None) or row["wi"]
+    kicks_before = sum(1 for e in events if e.get("kind") == "kick-ladder" and e.get("rung") == 1
+                       and e.get("outcome") == "ok" and e.get("to") == target and e.get("wi") == wi)
+    notified = any(e.get("kind") == "kick-ladder" and e.get("rung") == 0 and e.get("outcome") == "ok"
+                   and e.get("to") == target and e.get("wi") == wi for e in events)
+    deadline_at = getattr(args, "deadline_at", None)
+    overdue = deadline_at is not None and now >= float(deadline_at)
+    rung = getattr(args, "rung", None)
+    if rung is None:
+        rung = 0 if (row["state"] == "blocked" and not notified) else 1
+    event = {"kind": "kick-ladder", "session": session, "agent": agent or session, "wi": wi,
+             "path": "-", "at": now, "to": target, "rung": int(rung), "kicks_before": kicks_before,
+             "state": row["state"], "stall_age_s": row.get("stall_age_s"),
+             "missed_beats": row.get("missed_beats"), "deadline_at": deadline_at,
+             "mail_id": "", "request_id": ""}
+
+    def refused(code, because, remedy, exit_code=3):
+        event.update({"outcome": "refused", "code": code})
+        append_event(root, event)
+        print("{}  {} {}\n  because   {}\n  remedy    {}".format(
+            code, _safe(target, 80), _safe(wi, 20), _safe(because, 300), _safe(remedy, 300)))
+        return exit_code
+
+    due = overdue or row["state"] == "stalled" or (row["state"] == "blocked"
+                                                    and row["missed_beats"] >= 3)
+    if rung == 0 and row["state"] != "blocked":
+        return refused("COORD-KICK-NOT-DUE", "notify (rung 0) is for a recorded block; the track is {}"
+                       .format(row["state"]), "kick a stalled track (rung 1), or wait")
+    if rung >= 1 and not due:
+        return refused("COORD-KICK-NOT-DUE",
+                       "the track is {} (last progress {} s ago, {} missed beat(s)); a kick needs a"
+                       " passed deadline or three missed beats (CO17)".format(
+                           row["state"], row.get("stall_age_s"), row.get("missed_beats")),
+                       "wait, or pass --deadline-at <epoch> when the plan's deadline has passed")
+    if rung == 1 and kicks_before >= KICK_CAP:
+        return refused("COORD-KICK-CAP", "{} kick(s) already recorded for this work item; the cap is {}"
+                       .format(kicks_before, KICK_CAP),
+                       "escalate: `coord kick {} --wi {} --rung 2 --fallback <what you do at the"
+                       " deadline>` (a decision request to the Owner)".format(target, wi))
+    fallback = (getattr(args, "fallback", None) or "").strip()
+    if rung == 2 and not fallback:
+        print("COORD-KICK-INCOMPLETE  {} {}\n  because   a decision request without a fallback has"
+              " no termination variant\n  remedy    pass --fallback <what the coordinator does at"
+              " the deadline> (and --deadline <s>, default {} s)".format(
+                  _safe(target, 80), _safe(wi, 20), REQUEST_DEADLINE), file=sys.stderr)
+        return 2
+    owner = None
+    if rung == 2:
+        owner = getattr(args, "owner", None)
+        if not owner:
+            record, _oid, err = leader_read(repo)
+            if not err and record is not None and leader_state(record, now) == "live":
+                owner = record.get("leader")
+        if not owner:
+            return refused("COORD-KICK-NO-OWNER", "no --owner given and no live leader in {}".format(LEADER_REF),
+                           "pass --owner <session>, or `coord leader pin <session>` first")
+    mail = _load_mail()
+    if mail is None:
+        return refused("COORD-KICK-NOT-CHECKED", "coord-mail.py is not beside coord-core.py",
+                       "install the message layer (P4)", 4)
+    reason = getattr(args, "reason", None) or ""
+    body = "{} rung {}: {} {} is {} (last progress {} s ago, {} missed beat(s), {} kick(s) before). {}".format(
+        "kick ladder", rung, target, wi, row["state"], row.get("stall_age_s"),
+        row.get("missed_beats"), kicks_before, reason).strip()
+    try:
+        if rung == 0:
+            event["mail_id"] = mail.append_mail(root, session, {"to": target, "kind": "note", "body": body,
+                                                                "ref": None}, now=now)
+        elif rung == 1:
+            event["mail_id"] = mail.append_mail(root, session, {"to": target, "kind": "kick", "body": body,
+                                                                "ref": None}, now=now)
+        else:
+            last_kick = [e for e in events if e.get("type") == "mail" and e.get("kind") == "kick"
+                         and e.get("to") == target and e.get("session") == session]
+            ref = str(last_kick[-1].get("mail_id")) if last_kick else ""
+            ns = argparse.Namespace(text=body, to=owner, deadline=getattr(args, "deadline", None) or "default",
+                                    fallback=fallback, blob="", ref=ref, contract="", reason="kick-ladder",
+                                    from_role="", path="")
+            import contextlib
+            import io
+            captured = io.StringIO()
+            with contextlib.redirect_stdout(captured):
+                code = cmd_request(root, "add", now, session, agent, ns, repo=repo)
+            if code != 0:
+                return refused("COORD-KICK-REQUEST-REFUSED", "coord request add exited {}".format(code),
+                               "see the request refusal above", code)
+            event["request_id"] = json.loads(captured.getvalue().strip().splitlines()[-1])["id"]
+            event["mail_id"] = mail.append_mail(root, session, {"to": owner, "kind": "decision-request",
+                                                                "body": body, "ref": event["request_id"]},
+                                                now=now)
+    except mail.MailError as exc:
+        return refused(exc.code, str(exc), "fix the mail refusal, then kick again", 3)
+    event.update({"outcome": "ok", "code": ""})
+    append_event(root, event)
+    print("kick rung {} -> {} {}  state {}  stall_age {} s  missed {}  kicks {}/{}  mail {}{}  deadline_at={}".format(
+        rung, _safe(target, 80), _safe(wi, 20), row["state"], row.get("stall_age_s"),
+        row.get("missed_beats"), kicks_before + (1 if rung == 1 else 0), KICK_CAP, event["mail_id"],
+        "  request {}".format(event["request_id"]) if event["request_id"] else "",
+        deadline_at if deadline_at is not None else "not-recorded"))
+    return 0
+
+
+def liveness_metrics(events, now, mtimes=None):
+    """The P3 measures (proposal §7 row P3): stall-detection latency and the false-kick rate,
+    plus the counts they rest on. R4: an empty corpus is a reason, never a zero."""
+    beats = [e for e in events if e.get("kind") == "heartbeat"]
+    ladder = [e for e in events if e.get("kind") == "kick-ladder"]
+    if not beats and not ladder:
+        return {"heartbeats": None, "stalls_observed": None, "kicks": None, "kicks_refused_cap": None,
+                "escalations": None, "false_kicks": None, "stall_latency_median_s": None,
+                "tracks_live": None, "tracks_stalled": None, "tracks_blocked": None,
+                "heartbeat_reason": "no heartbeat recorded"}
+    kicks = [e for e in ladder if e.get("rung") == 1 and e.get("outcome") == "ok"]
+    latencies = [float(e["stall_age_s"]) for e in kicks if e.get("stall_age_s") is not None]
+    false_kicks = 0
+    for kick in kicks:
+        at = float(kick.get("at") or 0.0)
+        if any(b.get("session") == kick.get("to") and _has_progress(b)
+               and at < float(b.get("at") or 0.0) <= at + STALL_AFTER for b in beats):
+            false_kicks += 1
+    rows = track_fold(events, now, mtimes)
+    return {"heartbeats": len(beats),
+            "stalls_observed": sum(1 for b in beats if not _has_progress(b)),
+            "kicks": len(kicks),
+            "kicks_refused_cap": sum(1 for e in ladder if e.get("code") == "COORD-KICK-CAP"),
+            "escalations": sum(1 for e in ladder if e.get("rung") == 2 and e.get("outcome") == "ok"),
+            "false_kicks": false_kicks,
+            "stall_latency_median_s": round(statistics.median(latencies), 1) if latencies else None,
+            "tracks_live": sum(1 for r in rows if r["state"] == "live"),
+            "tracks_stalled": sum(1 for r in rows if r["state"] == "stalled"),
+            "tracks_blocked": sum(1 for r in rows if r["state"] == "blocked"),
+            "heartbeat_reason": ""}
+
+
+def heartbeat_doctor_line(root, now):
+    """(line, is_problem) for `coord doctor` and pack-doctor: who beats, how fresh, how many
+    stalled - or `not recorded`, which is not a problem and not a pass (CTX-H)."""
+    events, errors, _files = read_events(root)
+    if errors:
+        return ("heartbeat        NOT CHECKED  the ledger has unreadable rows: {}".format(
+            _safe("; ".join(errors[:2]), 200)), True)
+    beats = [e for e in events if e.get("kind") == "heartbeat"]
+    if not beats:
+        return ("heartbeat        not recorded (no heartbeat in .agents/log; wire heartbeat.py at the"
+                " host's tool seam)", False)
+    rows = track_fold(events, now)
+    sessions = {b.get("session") for b in beats}
+    newest = max(float(b.get("at") or 0.0) for b in beats)
+    counts = {s: sum(1 for r in rows if r["state"] == s) for s in TRACK_STATES}
+    return ("heartbeat        {} session(s) beating; newest beat {} s ago; {} stalled, {} live, {} blocked,"
+            " {} done".format(len(sessions), int(max(0.0, now - newest)), counts["stalled"],
+                              counts["live"], counts["blocked"], counts["done"]), False)
+
+
+def cmd_log_portable(paths):
+    """F-3 migration: normalize only the diagnostic fields handled by the event writer.
+    Idempotent (a label maps to itself); every other line is copied byte-for-byte, including
+    lines that are not JSON; the writer's own dump (sort_keys) is used for the rewritten rows."""
+    for raw in paths:
+        path = Path(raw)
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            print("{}: NOT CHECKED ({})".format(_safe(raw, 200), exc.__class__.__name__))
+            continue
+        out, rewritten = [], 0
+        for line in text.splitlines(keepends=True):
+            body = line.rstrip("\r\n")
+            ending = line[len(body):]
+            try:
+                row = json.loads(body) if body.strip() else None
+            except ValueError:
+                row = None
+            portable = _portable_event(row) if isinstance(row, dict) else row
+            if portable != row:
+                out.append(json.dumps(portable, sort_keys=True) + ending)
+                rewritten += 1
+            else:
+                out.append(line)
+        if rewritten:
+            with open(str(path), "wb") as fh:
+                fh.write("".join(out).encode("utf-8"))
+        print("{}: {} row(s) rewritten".format(_safe(raw, 200), rewritten))
     return 0
 
 
@@ -2327,7 +4049,10 @@ def cmd_install(repo, root, force=False):
         hooks_dir = Path(repo) / hooks_dir
     hooks_dir.mkdir(parents=True, exist_ok=True)
     target = hooks_dir / "pre-commit"
-    body = HOOK_BODY.format(marker=HOOK_MARKER, python=sys.executable,
+    # .git/hooks is per-clone, so an absolute interpreter path is correct HERE (never in a
+    # tracked file). Both paths are forward-slashed: the hook runs under `sh` (Git Bash on
+    # Windows), and only the script path was normalised before (XP-06).
+    body = HOOK_BODY.format(marker=HOOK_MARKER, python=sys.executable.replace("\\", "/"),
                             script=str(Path(__file__).resolve()).replace("\\", "/"))
     if target.exists():
         existing = target.read_text(encoding="utf-8", errors="replace")
@@ -2505,8 +4230,10 @@ def cmd_regen(root, repo, timeout=120):
             # surface. It is retained rather than tokenized because registry regen commands may use
             # shell operators (&&, |, >) and must run identically on POSIX and Windows; a shlex
             # arg-list split mishandles Windows path separators and would break the regen path.
-            proc = subprocess.run(command, cwd=str(repo), shell=True, capture_output=True,
-                                  text=True, timeout=timeout)
+            # The interpreter token is resolved to THIS machine's Python first (PLAT-B).
+            proc = subprocess.run(resolve_interpreter(command), cwd=str(repo), shell=True,
+                                  capture_output=True, text=True, encoding="utf-8",
+                                  errors="replace", timeout=timeout)
             ok = proc.returncode == 0
             results.append({"path": path, "status": "ok" if ok else "failed",
                             "detail": _safe((proc.stderr or proc.stdout).strip(), 200)})
@@ -2699,6 +4426,22 @@ def cmd_doctor(root, repo):
         print("regeneration     {} artifact(s) OWED - run `coord regen`".format(len(owed)))
         problems += 1
 
+    line, is_problem = leader_doctor_line(repo, time.time())
+    print(line)
+    if is_problem:
+        problems += 1
+    line, is_problem = heartbeat_doctor_line(root, time.time())
+    print(line)
+    if is_problem:
+        problems += 1
+
+    lines, request_problems = request_doctor_lines(root, checkout_top(os.getcwd()), time.time())   # WT-A
+    for line in lines:
+        print(line)
+    problems += request_problems
+    for line in lease_overlap_lines(root, time.time())[0]:
+        print(line)
+
     # NFR-S2: state the limit of our own control rather than implying enforcement we have not
     # established. Everything above this point is MEASURED in this repo; everything below it
     # is a spike result about a harness and is the same in every repo (CTX-H / P3). The blank
@@ -2713,7 +4456,7 @@ def cmd_doctor(root, repo):
 PLUGIN_NAME = "coord-agent-coordination"
 
 
-def cmd_plugin_emit(out_dir):
+def cmd_plugin_emit(out_dir, host=None):
     """Write the plugin bundle BOTH harnesses read. It never installs anything.
 
     S14 established that Copilot CLI consumes the Claude plugin format verbatim --
@@ -2773,14 +4516,57 @@ def cmd_plugin_emit(out_dir):
     hooks = {"hooks": {"PreToolUse": [{
         "matcher": ".*",
         "hooks": [{"type": "command",
-                   "command": 'python "${CLAUDE_PLUGIN_ROOT}/hooks/hook.py"',
+                   # The bundle is emitted ON the machine that loads it, so the bare
+                   # interpreter is chosen here: `python` is the python.org Windows name
+                   # (the live Copilot run that proved this shape ran there), `python3`
+                   # is the name macOS and Linux actually have (XP-04).
+                   "command": '{0} "${{CLAUDE_PLUGIN_ROOT}}/hooks/hook.py"'.format(
+                       "python" if os.name == "nt" else "python3"),
                    "timeout": 10}]}]}}
+
+    lifecycle = None
+    if host == "copilot":
+        launcher = launcher.replace('[COORD, "hook"]', '[COORD, "hook", "--host", "copilot"]')
+        here = Path(__file__).resolve().parent
+        hook_dir = next((p for p in (here.parent / "adapters" / "hooks", here.parent / "hooks")
+                         if (p / "copilot.ai-forward-hooks.json").is_file()), None)
+        if hook_dir is None:
+            print("COORD-PLUGIN-HOOKS  install the native Copilot hook bundle before emitting this profile")
+            return 2
+        source = json.loads((hook_dir / "copilot.ai-forward-hooks.json").read_text(encoding="utf-8"))
+        events = {"preToolUse": "PreToolUse", "postToolUse": "PostToolUse",
+                  "sessionStart": "SessionStart", "subagentStart": "SubagentStart",
+                  "agentStop": "Stop", "subagentStop": "SubagentStop",
+                  "userPromptSubmitted": "UserPromptSubmit"}
+        scripts = {}
+        for event, entries in source["hooks"].items():
+            for entry in entries:
+                match = re.search(r"hooks/([A-Za-z_-]+\.py)(.*)$", entry["bash"])
+                if not match:
+                    raise ValueError("Unsupported source-managed Copilot hook command")
+                name, arguments = match.groups()
+                scripts[name] = str(hook_dir / name)
+                command = '{} "${{CLAUDE_PLUGIN_ROOT}}/hooks/lifecycle.py" {}{}'.format(
+                    "python" if os.name == "nt" else "python3", name, arguments)
+                native = {"hooks": [{"type": "command", "command": command,
+                                      "timeout": entry.get("timeoutSec", 10)}]}
+                if event == "preToolUse" and "matcher" in entry:
+                    # Copilot's native view tool is named Read in the PascalCase envelope.
+                    native["matcher"] = "Read" if entry["matcher"] == "^view$" else entry["matcher"]
+                hooks["hooks"].setdefault(events[event], []).append(native)
+        lifecycle = ("import runpy, sys\n"
+                     "SCRIPTS = " + repr(scripts) + "\n"
+                     "script = SCRIPTS[sys.argv.pop(1)]\n"
+                     "sys.argv[0] = script\n"
+                     "runpy.run_path(script, run_name='__main__')\n")
 
     (out / ".claude-plugin").mkdir(parents=True, exist_ok=True)
     (out / "hooks").mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n",
                              encoding="utf-8", newline="\n")
     (out / "hooks" / "hook.py").write_text(launcher, encoding="utf-8", newline="\n")
+    if lifecycle is not None:
+        (out / "hooks" / "lifecycle.py").write_text(lifecycle, encoding="utf-8", newline="\n")
     (out / "hooks" / "hooks.json").write_text(json.dumps(hooks, indent=2) + "\n",
                                               encoding="utf-8", newline="\n")
 
@@ -2805,11 +4591,21 @@ def _print_settings_entry(repo):
     Windows path - output that reads correctly and is invalid the moment it is pasted.
     A serializer cannot make either mistake.
     """
+    # .claude/settings.json is TRACKED, so the entry must carry nothing about this machine
+    # (class PLAT-B): the interpreter is resolved at run time by the same shell form the
+    # pack's hook adapters use, and the script is named relative to the repo when it lives
+    # inside it. The earlier form printed `sys.executable` and an absolute script path.
+    me = Path(__file__).resolve()
+    try:
+        script = me.relative_to(Path(repo).resolve()).as_posix()
+    except ValueError:
+        script = me.as_posix()
     entry = {"hooks": {"PreToolUse": [{
         "matcher": "Write|Edit",
         "hooks": [{"type": "command",
-                   "command": sys.executable,
-                   "args": [str(Path(__file__).resolve()), "hook"],
+                   "command": ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
+                               "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); "
+                               "\"$py\" \"{0}\" hook".format(script)),
                    "timeout": 5}]}]}}
     print("")
     print("Add this to .claude/settings.json yourself - this tool does not edit it:")
@@ -2820,24 +4616,84 @@ def _print_settings_entry(repo):
     print("strictPluginOnlyCustomization. The pre-commit floor cannot.")
 
 
+def native_hook_config(host):
+    """A reviewable project-local entry; no settings, trust, or permission mutation.
+
+    Native hooks use a shell command string. Only fixed syntax and the selected enum enter
+    it; runtime paths stay in quoted expansions, never eval or interpolated source code.
+    """
+    if host == "copilot":
+        return {"version": 1, "hooks": {"preToolUse": [{
+            "type": "command",
+            "bash": "python3 docs/ai-forward-pack/scripts/coord-core.py hook --host copilot",
+            "powershell": "python docs/ai-forward-pack/scripts/coord-core.py hook --host copilot",
+            "timeoutSec": 10,
+            "matcher": "^(edit|create|write|apply_patch|str_replace|search_replace|multiedit|notebookedit|edit_file|write_file|write_to_file|replace_file_content|multi_replace_file_content)$",
+        }]}}
+    command = ("py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); "
+               "[ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); "
+               "root=$(git rev-parse --show-toplevel) || exit 2; "
+               "exec \"$py\" \"$root/docs/ai-forward-pack/scripts/coord-core.py\" hook --host " + host)
+    matcher = {"codex": "apply_patch", "claude": "Write|Edit|MultiEdit|NotebookEdit",
+               "grok": "Write|Edit|MultiEdit|NotebookEdit|write_file|edit_file|search_replace",
+               "agy": "write_to_file|replace_file_content|multi_replace_file_content"}[host]
+    entries = [{"matcher": matcher, "hooks": [{"type": "command", "command": command, "timeout": 5}]}]
+    if host == "agy":
+        return {"ownership-guard": {"enabled": True, "PreToolUse": entries}}
+    return {"hooks": {"PreToolUse": entries}}
+
+
 def main(argv=None):
     args = _build_parser().parse_args(argv)
 
-    root, err = resolve_root(os.getcwd(), os.environ.get("COORD_ROOT"))
+    if args.cmd == "hook" and args.config:
+        if not args.host:
+            print("hook --config requires --host claude|codex|copilot|grok|agy", file=sys.stderr)
+            return 2
+        print(json.dumps(native_hook_config(args.host), indent=2))
+        return 0
+
+    try:
+        root, err = resolve_root(os.getcwd(), os.environ.get("COORD_ROOT"))
+    except Exception as exc:
+        if args.cmd != "hook":
+            raise
+        print(_not_checked("hook root unavailable ({})".format(type(exc).__name__), args.host))
+        return 0
     if err:
         payload = {"decision": "not_checked", "path": "-"}
         payload.update(err)
+        if args.cmd == "hook":
+            print(_not_checked(render(payload), args.host))
+            return 0
         print(render(payload), file=sys.stderr)
         return 4
 
     session, agent = _identity()
+    # BEFORE any command, including `hook`: an id that cannot be a file name never reaches a
+    # writer. An UNSET (or empty) id is not this refusal - the identity gate below renders that.
+    if session:
+        bad = session_id_error(session)
+        if bad:
+            if args.cmd == "hook":
+                print(_not_checked(bad, args.host))
+                return 0
+            print(bad, file=sys.stderr)
+            return 2
     now = time.time()
 
     repo = repo_root(os.getcwd())
+    tree = checkout_top(os.getcwd())   # WT-A: paths, index and blobs are per checkout
 
     if args.cmd == "hook":
         # ALWAYS exit 0: the harness reads the decision in the JSON, not the exit code.
-        print(cmd_hook(root, session, agent, now, sys.stdin.read(), repo=repo))
+        try:
+            output = cmd_hook(root, session, agent, now, sys.stdin.read(), repo=tree,
+                              host=args.host, cwd=os.getcwd())
+        except Exception as exc:
+            output = _not_checked("hook state unavailable ({})".format(type(exc).__name__), args.host)
+        if output:
+            print(output)
         return 0
 
     if args.cmd == "guard":
@@ -2882,7 +4738,7 @@ def main(argv=None):
         return 0
 
     if args.cmd == "plugin":
-        return cmd_plugin_emit(args.emit)
+        return cmd_plugin_emit(args.emit, args.host)
 
     if args.cmd == "merge-register":
         return cmd_merge_register(args.result, args.base, args.theirs, args.realpath)
@@ -2914,11 +4770,35 @@ def main(argv=None):
     if args.cmd == "metrics":
         return cmd_metrics(root, repo, args.json)
 
+    # BEFORE the identity gate: `who` is a read (the join script and a human both ask it with
+    # no AGENT_SESSION), and `pin`/`reclaim` name their target; the holder check for
+    # `renew`/`release` is inside cmd_leader.
+    if args.cmd == "leader":
+        return cmd_leader(root, repo, args.leader_action, args, session, agent, os.getcwd(), now)
+
+    # BEFORE the identity gate for the same reason: the delegate scripts own their identity
+    # rules (read/board are reads; send/post read AGENT_SESSION themselves). The exit code is
+    # the child's, never folded (an exit code is a result only when it is read).
+    if args.cmd in ("mail", "board", "decide"):
+        script = {"mail": "coord-mail.py", "board": "coord-board.py", "decide": "coord-decide.py"}[args.cmd]
+        target = os.path.join(_HERE, script)
+        passthrough = getattr(args, args.cmd + "_args")
+        if not os.path.isfile(target):
+            print("COORD-NOT-CHECKED  {} is not beside coord-core.py; the message layer is not installed here".format(os.path.basename(target)))
+            return 4
+        completed = subprocess.run([sys.executable, target, *passthrough], encoding="utf-8", errors="replace")
+        return completed.returncode
+
     # Dispatched BEFORE the identity gate: `worktree list` and `cleanup` are read/maintenance
     # commands, and refusing to tell someone what trees exist because AGENT_SESSION is unset
     # would make the orphan check unreachable exactly when it is most needed (WT10).
     if args.cmd == "worktree":
         chosen = getattr(args, "wt_session", None) or session
+        # `--session` bypasses the env var, so it meets the same file-name rule here.
+        bad = session_id_error(chosen) if chosen else None
+        if bad:
+            print(bad, file=sys.stderr)
+            return 2
         return cmd_worktree(root, repo, args.action, os.getcwd(), now,
                             session=chosen, agent=agent or chosen, branch=args.branch,
                             base=args.base, remove=args.remove,
@@ -2928,11 +4808,19 @@ def main(argv=None):
     if args.cmd == "session" and args.action == "list":
         return cmd_session_list(root, now, args.json)
 
+    # P3 reads and maintenance, before the identity gate: `track` is the coordinator's and a
+    # human's view; `log portable` runs at a landing with no session of its own.
+    if args.cmd == "track":
+        return cmd_track(root, repo, now, args.json)
+
+    if args.cmd == "log":
+        return cmd_log_portable(args.files)
+
     if args.cmd == "collaborate":
         return cmd_collaborate(root, repo, args.action, now, args.json)
 
     if args.cmd == "request":
-        return cmd_request(root, args.request_action, now, session, agent, args)
+        return cmd_request(root, args.request_action, now, session, agent, args, repo=tree)
 
     if args.cmd == "check":
         decision = check(root, args.path, session, now)
@@ -2951,7 +4839,7 @@ def main(argv=None):
             print("advisory: AGENT_SESSION is unset, so nothing was checked."
                   "\n  set AGENT_SESSION to make this commit boundary enforcing.")
             return 0
-        return cmd_precommit(root, repo, session, agent, now)
+        return cmd_precommit(root, tree, session, agent, now)
 
     if not session:
         print(render({"decision": "not_checked", "path": "-",
@@ -2989,7 +4877,8 @@ def main(argv=None):
             print(render(decision))
             return 3
         try:
-            event = make_event("claim", session, agent, args.wi, args.path, now, args.ttl)
+            event = make_event("claim", session, agent, args.wi, args.path, now, args.ttl,
+                               excepts=args.excepts)
             if args.long_edit:
                 event["long_edit"] = args.long_edit
             append_event(root, event)
@@ -3008,6 +4897,18 @@ def main(argv=None):
             return 2
         print("released {}".format(args.path))
         return 0
+
+    if args.cmd == "session" and args.action == "heartbeat":
+        row = heartbeat_tick(root, repo, session, agent, now, files=args.files, calls=args.calls,
+                             tokens=args.tokens, host=args.host, event=args.event, wi=args.wi,
+                             cwd=os.getcwd(), flush=args.flush)
+        print("heartbeat {}  calls {} files {} tokens {}  leader_renewed {}".format(
+            "written", row["calls"], row["files"], row["tokens"], row["leader_renewed"])
+              if row else "heartbeat accumulated (sample window {} s open)".format(HEARTBEAT_SAMPLE))
+        return 0
+
+    if args.cmd == "kick":
+        return cmd_kick(root, repo, args.kick_target, args, session, agent, now)
 
     if args.cmd == "session":
         return cmd_session(root, args.action, session, agent, os.getcwd(), now, repo=repo)

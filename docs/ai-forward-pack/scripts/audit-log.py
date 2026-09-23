@@ -53,7 +53,13 @@ for _stream in (sys.stdin, sys.stdout, sys.stderr):
 
 
 ISO = "%Y-%m-%dT%H:%M:%SZ"
-AUDIT_KINDS = ["skill", "command", "script", "prompt", "commit", "manual", "session-import"]
+# `compilation` (P7, note-20260919-compilation-is-an-audit-kind): the rendered compiled prompt
+# lives in `prompt` so /prompts lists it unchanged; the structured record is the `compiled`
+# object beside it. Like `prompt`, it is a RECORD, not a run: no marker, no duration, no
+# goal-state expected by `selfcheck`.
+AUDIT_KINDS = ["skill", "command", "script", "prompt", "commit", "manual", "session-import",
+               "compilation"]
+RECORD_KINDS = {"prompt", "compilation"}
 CHANGE_KINDS = ["architecture", "design", "knowledge", "migration", "decision", "spec", "other"]
 
 
@@ -407,8 +413,15 @@ def ids_at_ref(root, which, ref):
     A forward ratchet fails open on a missing base (returns None), never on a bad current entry."""
     try:
         top = subprocess.run(["git", "-C", root, "rev-parse", "--show-toplevel"],
-                             capture_output=True, text=True, check=True).stdout.strip()
-        rel = os.path.relpath(log_path(root, which), top).replace(os.sep, "/")
+                             capture_output=True, text=True, encoding="utf-8", errors="replace",
+                             check=True).stdout.strip()
+        # Both sides resolved: git answers with the REAL path (macOS /private/var for a /var
+        # temp dir; Windows long names for an 8.3 TEMP), while `root` is whatever the caller
+        # typed. Unresolved, relpath produced ../../../var/... and `git show` found nothing, so
+        # --since silently grandfathered nothing on macOS and Windows (T-3, cross-platform
+        # readiness; the same shape as the run-evals /private/var fix).
+        rel = os.path.relpath(os.path.realpath(log_path(root, which)),
+                              os.path.realpath(top)).replace(os.sep, "/")
         show = subprocess.run(["git", "-C", root, "show", "{}:{}".format(ref, rel)],
                              capture_output=True, text=True, encoding="utf-8", errors="replace")
     except (OSError, subprocess.SubprocessError):
@@ -516,7 +529,8 @@ def next_id(entries, prefix, allocator=_MISSING):
 def git(args, root):
     try:
         cwd = os.path.dirname(os.path.abspath(root)) or "."
-        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=15)
         return r.stdout.strip() if r.returncode == 0 else None
     except (OSError, subprocess.SubprocessError):
         return None
@@ -633,12 +647,60 @@ def project_name(root):
     return canonical_project(os.path.join(root, ".."))
 
 
+MESSAGE_FIELDS = ("id", "ts", "from", "to", "kind", "ref", "session")
+
+
+def read_ledger_mail(root):
+    """The board's page-side source (spec-board US-7): the coord ledger's `type: mail` twins.
+
+    Reads <root>/../.agents/log/*.jsonl and keeps ONLY the twin's identifying fields — never a
+    body, even when a record carries one by mistake (the page is committed; the ledger's
+    contract carries no body). An unreadable line is reported in the read_log idiom and
+    skipped; a missing ledger directory yields [] (an older repo renders unchanged).
+    """
+    ledger = os.path.join(root, "..", ".agents", "log")
+    if not os.path.isdir(ledger):
+        return []
+    out = []
+    for name in sorted(os.listdir(ledger)):
+        if not name.endswith(".jsonl"):
+            continue
+        p = os.path.join(ledger, name)
+        with open(p, encoding="utf-8") as handle:
+            for lineno, ln in enumerate(handle, 1):
+                ln = ln.strip()
+                if not ln:
+                    continue
+                try:
+                    rec = json.loads(ln)
+                except json.JSONDecodeError as exc:
+                    print(f"warning: {p}:{lineno} is not valid JSON and was SKIPPED ({exc}); "
+                          f"the Messages view will not show that line.", file=sys.stderr)
+                    continue
+                if not isinstance(rec, dict) or rec.get("type") != "mail" or not rec.get("mail_id"):
+                    continue
+                ts = rec.get("ts")
+                if not ts and rec.get("at") is not None:
+                    try:
+                        ts = datetime.datetime.fromtimestamp(
+                            float(rec["at"]), datetime.timezone.utc).strftime(ISO)
+                    except (TypeError, ValueError, OverflowError, OSError):
+                        ts = None
+                row = {"id": rec["mail_id"], "ts": ts or "", "from": rec.get("from") or "",
+                       "to": rec.get("to") or "", "kind": rec.get("kind") or "",
+                       "ref": rec.get("ref"), "session": rec.get("session") or name[:-6]}
+                out.append({k: row[k] for k in MESSAGE_FIELDS})
+    out.sort(key=lambda r: (r["ts"], r["id"]))
+    return out
+
+
 def render(root, project=None):
     """Regenerate audit-data.js and the managed viewer from canonical sources."""
     ensure_hub(audit_dir(root))
     os.makedirs(audit_dir(root), exist_ok=True)
     data = {"project": project or project_name(root), "generated": now_iso(),
-            "audit": read_log(root, "audit"), "changes": read_log(root, "change")}
+            "audit": read_log(root, "audit"), "changes": read_log(root, "change"),
+            "messages": read_ledger_mail(root)}
     # </ is escaped so a prompt containing </script> can never break the <script> host.
     payload = json.dumps(data, ensure_ascii=False, indent=2).replace("</", "<\\/")
     body = ("// Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit"
@@ -720,6 +782,38 @@ def cmd_append(args):
         "tags": (args.tag or []) or base.get("tags") or [],
         "outcome": args.outcome or base.get("outcome") or "success",
     }
+    # P7 compile stage (spec US-6, design-compile-stage "Data shapes"): a workflow started from a
+    # compiled prompt names it (`compiled_from`) and records how much the human changed
+    # (`edit_distance`, a ratio in [0, 1] - non-additive, aggregate by distribution). A skill
+    # entry with no compiled prompt writes `compiled: false` - a stored flag so the PACK-O
+    # miner reads presence without a join. The compilation entry itself carries its
+    # structured record (`compiled`, `mode`, `dispatchable`) via --from-json only: the object
+    # is written by prompt-compile.py `finish`, never typed by hand.
+    _cf = getattr(args, "compiled_from", None) or base.get("compiled_from")
+    _ed = getattr(args, "edit_distance", None)
+    if _ed is None:
+        _ed = base.get("edit_distance")
+    if _ed is not None:
+        if not _cf:
+            sys.stderr.write("audit-log append: --edit-distance requires --compiled-from\n")
+            return 2
+        try:
+            _ed = float(_ed)
+        except (TypeError, ValueError):
+            sys.stderr.write(f"audit-log append: --edit-distance must be a number in [0, 1], got {_ed!r}\n")
+            return 2
+        if not 0.0 <= _ed <= 1.0:
+            sys.stderr.write(f"audit-log append: --edit-distance must be in [0, 1], got {_ed}\n")
+            return 2
+    if _cf:
+        entry["compiled_from"] = _cf
+        if _ed is not None:
+            entry["edit_distance"] = _ed
+    elif entry["kind"] == "skill":
+        entry["compiled"] = False
+    for _key in ("compiled", "mode", "dispatchable"):
+        if _key in base and _key not in entry:
+            entry[_key] = base[_key]
     # Front-matter goal-state (CT19): done_when is the terminal condition, and is the PACK-O
     # PRESENCE signal /dream mines (a substantive turn without it skipped the front matter, AL5b).
     for _opt in ("goal", "done_when", "tier"):
@@ -769,12 +863,18 @@ def cmd_append(args):
     # elapsed time instead of measuring it.
     # A `kind:prompt` entry is a RECORD of the operator's words, not a run: it never
     # consumes a marker (pack finding #2 - `prompt-log.py add` was eating the skill's).
-    _started = args.started or base.get("started_at")
-    if not _started and entry["kind"] != "prompt":
-        _started, _source = consume_start(args.root, session, skill=entry.get("skill"))
-        if _started and _source == "session-start-hook":
-            entry["duration_source"] = _source
-    entry.update(duration_fields(_started, entry["datetime"]))
+    # A `kind:compilation` entry is the same shape of thing (P7): the /compile skill's own
+    # closing `skill` entry is the run; the compilation carries no duration fields at all.
+    if entry["kind"] in RECORD_KINDS:
+        _started = None if entry["kind"] == "compilation" else (args.started or base.get("started_at"))
+    else:
+        _started = args.started or base.get("started_at")
+        if not _started:
+            _started, _source = consume_start(args.root, session, skill=entry.get("skill"))
+            if _started and _source == "session-start-hook":
+                entry["duration_source"] = _source
+    if _started:
+        entry.update(duration_fields(_started, entry["datetime"]))
     # P8: per-run spans make fan-out measurable. Summed agent time cannot tell serial from
     # parallel; the union of the intervals can. Unusable spans are dropped and COUNTED, so a
     # partial record never masquerades as a complete one.
@@ -1032,6 +1132,8 @@ def cmd_suggest(args):
 # PACK-O substantive turns: the kinds that carry a goal-state. Must match dream.py's PACKO_SUBSTANTIVE
 # (the same presence check, run offline over the fleet corpus) - kept as one small stable definition
 # per script because both are standalone stdlib scripts that cannot import each other cleanly.
+# `compilation` is deliberately absent (P7): a compilation is a record of a prompt, not a turn,
+# so `selfcheck` never asks it for a goal-state - exactly as for `prompt`.
 PACKO_SUBSTANTIVE = {"skill", "manual", "prompt", "command"}
 
 
@@ -1267,6 +1369,13 @@ def main():
                       help="one persona's findings raised vs accepted; repeatable. Makes the "
                            "roster tunable on measured yield rather than belief (P6) — an "
                            "advisory lens re-convenes only on an accepted finding.")
+    ap_a.add_argument("--compiled-from", dest="compiled_from", metavar="AL-ID",
+                      help="the kind:compilation entry this workflow run started from (P7, spec US-6); "
+                           "a kind:skill entry without it records compiled: false")
+    ap_a.add_argument("--edit-distance", dest="edit_distance", metavar="RATIO",
+                      help="1 - SequenceMatcher ratio between the compiled prompt and the text the "
+                           "workflow received, in [0, 1] (prompt-compile.py distance); requires "
+                           "--compiled-from")
     ap_a.add_argument("--from-json", dest="from_json", help="read fields from a JSON object (path or - for stdin)")
 
     ap_c = sub.add_parser("change", help="add a change-log entry")

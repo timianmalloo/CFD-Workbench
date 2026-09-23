@@ -12,6 +12,12 @@ each step is a subprocess whose return code decides whether the next runs. The
 `execute-with-coordination` skill names it as the only join line.
 
 Steps, in order, stop on the first red (the exit status is the failing step's number):
+  0. leader fence                     `coord-core.py leader who --json` BEFORE the merge (and
+                                      before --continue): refused with exit 11 (EXIT_FENCE - 0
+                                      is success) when the epoch this join carries (--epoch,
+                                      default: the ref's epoch at the join's start) is lower
+                                      than the ref's, or when the ref cannot be read; an absent
+                                      ref is "not applicable" (S2 has no leader)
   1. git merge --no-ff <branch>       a conflict stops here with the file list; resolve by hand,
                                       `git add`, `git commit --no-edit`, re-run with --continue
   2. audit marker                     `audit-log.py start --session <s> --skill execute-with-coordination`
@@ -46,8 +52,8 @@ Usage (from the checkout the join lands on):
       [--artifact <path> ...] [--docs-only] [--no-push] [--no-build] [--continue]
       [--join <join.json>] [--session <id>] [--self-test]
 
-Exit 0 on a complete join; the failing step's number otherwise; 2 on a usage error.
-Stdlib only.
+Exit 0 on a complete join; the failing step's number otherwise; 11 when the leader fence (step
+0) refuses; 2 on a usage error. Stdlib only.
 """
 from __future__ import annotations
 
@@ -71,6 +77,9 @@ HERE = Path(__file__).resolve().parent
 PY = sys.executable
 JOIN_JSON_DEFAULT = os.path.join("docs", "coordination", "join.json")
 SKILL = "execute-with-coordination"
+# spec-leader-designation US-7: the fence is a named step with its own exit code. Steps are
+# 1..10 and 0 is success, so the fence's refusal cannot be "step 0" as a status.
+EXIT_FENCE = 11
 
 
 def _sibling(name: str) -> str:
@@ -79,7 +88,7 @@ def _sibling(name: str) -> str:
 
 def repo_root(start: Path | None = None) -> Path | None:
     done = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(start or Path.cwd()),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if done.returncode != 0 or not done.stdout.strip():
         return None
     return Path(done.stdout.strip())
@@ -134,6 +143,48 @@ class Join:
                               encoding="utf-8", errors="replace")
 
 
+def leader_fence(j: Join, given: "int | None", log) -> None:
+    """Step 0 - the join carries an epoch and the ref decides (spec-leader-designation US-7).
+
+    Not a `Join.run` step: `run` knows exit codes only and the fence must read the JSON
+    (absent is not-applicable; expired/released still carry the epoch). Refuses with
+    EXIT_FENCE; never proceeds on an unread fence (R4: NOT CHECKED is not "no leader").
+    """
+    command = [PY, _sibling("coord-core.py"), "leader", "who", "--json"]
+    log("\n== step 0: leader fence\n   $ {0}".format(" ".join(command)))
+    done = subprocess.run(command, cwd=str(j.root), env=j.env, text=True, encoding="utf-8",
+                          errors="replace", capture_output=True)
+    payload = {}
+    text = done.stdout.strip()
+    if text:
+        try:
+            payload = json.loads(text.splitlines()[-1])
+        except ValueError:
+            payload = {}
+    state = payload.get("state")
+    if done.returncode == 4 or state in (None, "not_checked"):
+        for line in (done.stdout + done.stderr).strip().splitlines()[-4:]:
+            log("   | " + line[:200])
+        log("\nconductor-join: step 0 (leader fence) refused - the leader ref could not be read "
+            "[COORD-JOIN-LEADER-NOT-CHECKED]; a join never proceeds on an unread fence "
+            "(exit {0}).".format(EXIT_FENCE))
+        raise SystemExit(EXIT_FENCE)
+    if state == "absent":
+        log("   | no leader designated - fence not applicable (S2 has no leader)")
+        return
+    epoch = int(payload.get("epoch"))
+    effective = epoch if given is None else int(given)
+    log("   | ref epoch {0} ({1}, {2}); this join carries epoch {3}{4}".format(
+        epoch, payload.get("leader") or "released", state, effective,
+        "" if given is not None else " (default: read at the join's start)"))
+    if effective < epoch:
+        log("\nconductor-join: step 0 (leader fence) refused - epoch {0} < ref epoch {1} "
+            "[COORD-JOIN-EPOCH-STALE]; the plan predates the current leader. Re-read "
+            "`coord leader who`, re-plan under the current leader, then re-run (exit {2})."
+            .format(effective, epoch, EXIT_FENCE))
+        raise SystemExit(EXIT_FENCE)
+
+
 def join(args, root: Path, contract: dict, log=print) -> int:
     env = dict(os.environ)
     env.setdefault("PYTHONIOENCODING", "utf-8")
@@ -146,6 +197,8 @@ def join(args, root: Path, contract: dict, log=print) -> int:
     if not branch_now:
         log("conductor-join: run from a checkout on a branch (HEAD is detached)")
         return 2
+
+    leader_fence(j, getattr(args, "epoch", None), log)
 
     trailer = ""
     trailer_file = args.trailer_file or contract.get("trailer_file")
@@ -243,7 +296,8 @@ def self_test() -> int:
     measured duration; (b) a branch that commits a file with a conflict marker - DC-136's
     shape, a hand-resolved file - stops at step 3 with NO join commit."""
     def git(cwd, *a):
-        done = subprocess.run(["git", *a], cwd=str(cwd), capture_output=True, text=True)
+        done = subprocess.run(["git", *a], cwd=str(cwd), capture_output=True, text=True,
+                              encoding="utf-8", errors="replace")
         if done.returncode != 0:
             raise AssertionError("git {0}: {1}".format(" ".join(a), done.stderr))
         return done.stdout
@@ -256,17 +310,17 @@ def self_test() -> int:
         git(repo, "config", "user.email", "join@example.invalid")
         git(repo, "config", "user.name", "join")
         (repo / "docs" / "audit").mkdir(parents=True)
-        (repo / "README.md").write_text("base\n", encoding="utf-8")
+        (repo / "README.md").write_text("base\n", encoding="utf-8", newline="\n")
         git(repo, "add", "-A")
         git(repo, "commit", "-qm", "init")
         contract = {"regenerate": [], "gates": [["python3", "-c", "print('gates ok')"]]}
-        (repo / "join.json").write_text(json.dumps(contract), encoding="utf-8")
+        (repo / "join.json").write_text(json.dumps(contract), encoding="utf-8", newline="\n")
         git(repo, "add", "-A")
         git(repo, "commit", "-qm", "join contract")
 
         # (a) the clean branch
         git(repo, "checkout", "-q", "-b", "feature/clean")
-        (repo / "clean.txt").write_text("done\n", encoding="utf-8")
+        (repo / "clean.txt").write_text("done\n", encoding="utf-8", newline="\n")
         git(repo, "add", "-A")
         git(repo, "commit", "-qm", "clean work")
         git(repo, "checkout", "-q", "main")
@@ -299,7 +353,7 @@ def self_test() -> int:
         git(repo, "checkout", "-q", "-b", "feature/markers")
         (repo / "resolved-by-hand.md").write_text(
             "before\n" + "<" * 7 + " HEAD\nmine\n=======\ntheirs\n" + ">" * 7 + " theirs\n",
-            encoding="utf-8")
+            encoding="utf-8", newline="\n")
         git(repo, "add", "-A")
         git(repo, "commit", "-qm", "a file resolved by hand")
         git(repo, "checkout", "-q", "main")
@@ -320,11 +374,45 @@ def self_test() -> int:
             problems.append("a join commit was made over a conflict marker")
         if git(repo, "rev-parse", "HEAD").strip() == before:
             problems.append("precondition: the merge itself should have landed before the gate")
+
+        # (c) the leader fence: a ref at epoch 2 and a plan carrying epoch 1 - refused at step 0
+        # with EXIT_FENCE and NO merge (spec-leader-designation US-7).
+        git(repo, "checkout", "-q", "-b", "feature/fenced")
+        (repo / "fenced.txt").write_text("late\n", encoding="utf-8", newline="\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "-qm", "work under an old epoch")
+        git(repo, "checkout", "-q", "main")
+        now = time.time()
+        blob = subprocess.run(["git", "hash-object", "-w", "--stdin"], cwd=str(repo),
+                              input=json.dumps({"leader": "lead", "epoch": 2, "pinned_at": now,
+                                                "expires_at": now + 300, "ttl": 300,
+                                                "host": "claude", "tree": "primary"}),
+                              capture_output=True, text=True, encoding="utf-8").stdout.strip()
+        git(repo, "update-ref", "refs/coord/leader", blob, "0" * 40)
+        before = git(repo, "rev-parse", "HEAD").strip()
+        lines = []
+        args = _parser().parse_args(["feature/fenced", "--title", "merge fenced", "--audit-shortname",
+                                     "join-fenced", "--audit-summary", "s", "--audit-goal", "g",
+                                     "--audit-done-when", "d", "--no-push", "--docs-only",
+                                     "--join", str(repo / "join.json"), "--session", "selftest",
+                                     "--epoch", "1"])
+        try:
+            status = join(args, repo, contract, log=lines.append)
+        except SystemExit as exc:
+            status = exc.code
+        if status != EXIT_FENCE:
+            problems.append("a plan carrying epoch 1 against a ref at epoch 2 did not stop at the "
+                            "fence (exit {0})".format(status))
+        if git(repo, "rev-parse", "HEAD").strip() != before:
+            problems.append("the merge ran although the leader fence refused")
+        if not any("COORD-JOIN-EPOCH-STALE" in line for line in lines):
+            problems.append("the fence's refusal is not named")
     if problems:
         print("conductor-join --self-test: FAILED - " + "; ".join(problems))
         return 1
     print("conductor-join --self-test: OK - a clean join completes with a measured T1 entry; "
-          "a merge carrying a conflict marker stops at step 3 with no join commit")
+          "a merge carrying a conflict marker stops at step 3 with no join commit; a plan "
+          "carrying a lower epoch than refs/coord/leader stops at the fence (exit 11) with no merge")
     return 0
 
 
@@ -346,6 +434,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--join", help="the join contract (default docs/coordination/join.json)")
     parser.add_argument("--session", help="audit session id (default $AGENT_SESSION, then join.json, then 'conductor')")
     parser.add_argument("--trailer-file", dest="trailer_file", help="text appended to every commit message")
+    parser.add_argument("--epoch", type=int, default=None,
+                        help="the leader epoch this join's plan carries (`coord leader who`); "
+                             "default: the ref's epoch at the join's start. Lower than the "
+                             "ref's -> refused at step 0 with exit {0}".format(EXIT_FENCE))
     parser.add_argument("--self-test", action="store_true", help="prove a red step stops the join")
     return parser
 

@@ -117,7 +117,7 @@ fi
 exit 0
 ```
 
-Install: `cp this docs/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push` (or wire via your hook manager / `core.hooksPath`).
+Install: `cp docs/hooks/pre-push .git/hooks/pre-push`, then `chmod +x .git/hooks/pre-push` (or wire via your hook manager / `core.hooksPath`).
 
 ### Option B — CI (`.github/workflows/docs.yml`, on push)
 

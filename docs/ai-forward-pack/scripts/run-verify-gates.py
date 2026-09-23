@@ -58,7 +58,7 @@ def repo_root(start: Path | None = None) -> Path:
     `docs/ai-forward-pack/`, else the cwd. Printed, never assumed silently."""
     cwd = start or Path.cwd()
     done = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(cwd),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if done.returncode == 0 and done.stdout.strip():
         return Path(done.stdout.strip())
     for candidate in [cwd, *cwd.parents]:
@@ -180,9 +180,9 @@ def self_test() -> int:
         root = Path(tmp)
         gate_dir = root / "tools"
         gate_dir.mkdir()
-        (gate_dir / "verify-red.py").write_text("import sys; print('the finding'); sys.exit(1)\n", encoding="utf-8")
-        (gate_dir / "verify-green.py").write_text("print('green')\n", encoding="utf-8")
-        (gate_dir / "verify-hang.py").write_text("import time; time.sleep(30)\n", encoding="utf-8")
+        (gate_dir / "verify-red.py").write_text("import sys; print('the finding'); sys.exit(1)\n", encoding="utf-8", newline="\n")
+        (gate_dir / "verify-green.py").write_text("print('green')\n", encoding="utf-8", newline="\n")
+        (gate_dir / "verify-hang.py").write_text("import time; time.sleep(30)\n", encoding="utf-8", newline="\n")
         ok_red, _, last_red = run_one(gate_dir / "verify-red.py", root)
         ok_green, _, _ = run_one(gate_dir / "verify-green.py", root)
         ok_hang, _, last_hang = run_one(gate_dir / "verify-hang.py", root, budget=2)

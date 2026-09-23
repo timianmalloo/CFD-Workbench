@@ -1,6 +1,7 @@
 ---
 name: collectknowledge
 description: Before (or at the start of) design, run deep research on the project's domain and problem and save it as a structured markdown knowledge base in the repository (docs/knowledge/). Captures industry state of the art, comparable solutions and problem framings, authoritative references, key data, and a glossary — every claim sourced and confidence-labeled. Bootstraps domain expertise for the whole team and for the personas. Use when starting a project in an unfamiliar or high-stakes domain, or whenever design would otherwise rest on assumptions.
+runs_as: either
 ---
 
 # Skill: /collectknowledge
@@ -14,7 +15,7 @@ Build the project's **domain knowledge base**: a researched, sourced, durable bo
 > It is the complement of `/adddomainexperts`: that skill adds the *judgment* (personas) for a domain; this skill assembles the *knowledge* (evidence) about it. Run knowledge-first so the experts and the spec stand on sourced ground.
 
 ## Grounding (first action)
-Before researching, load what the repo already knows and treat it as the **authoritative source of truth** (Rigor Protocol Stage 0; BoK §III.1): any existing `docs/knowledge/<topic>/` for this topic and the spec or problem that motivated the research. Extend and reconcile existing knowledge rather than duplicating or silently contradicting it; if new sources overturn a prior finding, **flag the change explicitly**. Prefer **graph traversal** for this grounding (`knowledge-visualization.md` V15): start from this task's artifact(s) in the knowledge graph and follow the typed edges 1–2 hops (upstream `implements`/`refines`/`depends-on`, downstream `tested-by`/`documents`, and `uses-term` into the glossary), citing the traversal path; a missing edge, stale node, or orphan found here is a finding to surface. Skip this only if the user explicitly tells you not to consult prior artifacts.
+CO-S0 applies first — the sentence is `reference/co-s0.md`. Before researching, load what the repo already knows and treat it as the **authoritative source of truth** (Rigor Protocol Stage 0; BoK §III.1): any existing `docs/knowledge/<topic>/` for this topic and the spec or problem that motivated the research. Extend and reconcile existing knowledge rather than duplicating or silently contradicting it; if new sources overturn a prior finding, **flag the change explicitly**. Prefer **graph traversal** for this grounding (`knowledge-visualization.md` V15): start from this task's artifact(s) in the knowledge graph and follow the typed edges 1–2 hops (upstream `implements`/`refines`/`depends-on`, downstream `tested-by`/`documents`, and `uses-term` into the glossary), citing the traversal path; a missing edge, stale node, or orphan found here is a finding to surface. Skip this only if the user explicitly tells you not to consult prior artifacts.
 
 ## Input
 From the prompt, the user states **the domain and the problem they are solving** (e.g. "real-time fraud scoring for card-present retail transactions"; "a CFD solver for transonic wing sections"; "a clinical triage assistant for emergency intake"). One or two sentences is enough; the skill expands it into a research frame.

@@ -25,6 +25,23 @@ import time
 # different valid id.
 _ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 ID_BODY_LEN = 26
+_last_ms = 0
+
+
+def _next_ms(now):
+    """A millisecond stamp that is strictly increasing within this process (class ID-A).
+
+    Two ids minted in one tick would otherwise order by their random bits, so "newest id" and
+    `--since <id>` were non-deterministic under a burst. The stamp is per PROCESS: strict order
+    is a per-issuer promise; collision-freedom across issuers is the 80 random bits, unchanged.
+    Moved here from coord-mail.py so every prefix the pack mints gets it, not only `mail-`.
+    """
+    global _last_ms
+    ms = int(now * 1000)
+    if ms <= _last_ms:
+        ms = _last_ms + 1
+    _last_ms = ms
+    return ms
 
 
 def new_id(scheme, ts_ms=None):
@@ -37,7 +54,7 @@ def new_id(scheme, ts_ms=None):
     Proven at 1,500 ids from 6 separate processes pinned to a single millisecond with no
     shared state and no network: 0 collisions.
     """
-    ts = int(time.time() * 1000) if ts_ms is None else int(ts_ms)
+    ts = _next_ms(time.time()) if ts_ms is None else int(ts_ms)
     n = (ts << 80) | int.from_bytes(os.urandom(10), "big")
     body = "".join(_ALPHABET[(n >> (5 * i)) & 31] for i in range(ID_BODY_LEN - 1, -1, -1))
     return "{}-{}".format(scheme, body)

@@ -51,15 +51,25 @@ SELF = Path(__file__).resolve()
 
 def repo_root(start: Path | None = None) -> Path | None:
     done = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=str(start or Path.cwd()),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8", errors="replace")
     if done.returncode != 0 or not done.stdout.strip():
         return None
     return Path(done.stdout.strip())
 
 
-def tracked_files(root: Path) -> list[str]:
-    out = subprocess.run(["git", "ls-files", "-z"], capture_output=True, text=True, cwd=str(root)).stdout
-    return [p for p in out.split("\0") if p]
+def tracked_files(root: Path) -> tuple[list[str], str | None]:
+    """Returns (files, error). A failed `git ls-files` yields an EMPTY list, and an empty
+    corpus read as "no markers found" is a fail-open gate (PACK-P): the return code is
+    read and handed back, so the caller reports NOT-CHECKED instead of OK."""
+    try:
+        done = subprocess.run(["git", "ls-files", "-z"], capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", cwd=str(root))
+    except (OSError, subprocess.SubprocessError) as exc:
+        return [], "{0}: {1}".format(exc.__class__.__name__, exc)
+    if done.returncode != 0:
+        reason = (done.stderr or done.stdout or "").strip()
+        return [], reason or "git ls-files exited {0}".format(done.returncode)
+    return [p for p in done.stdout.split("\0") if p], None
 
 
 def scan(root: Path, files: list[str]) -> tuple[list[str], int]:
@@ -94,8 +104,8 @@ def self_test() -> int:
         dirty = root / "conflicted.md"
         clean = root / "setext.md"
         dirty.write_text("before\n" + "<" * 7 + " HEAD\nmine\n=======\ntheirs\n"
-                         + ">" * 7 + " origin/main\nafter\n", encoding="utf-8")
-        clean.write_text("A heading\n=========\n\nbody text\n", encoding="utf-8")
+                         + ">" * 7 + " origin/main\nafter\n", encoding="utf-8", newline="\n")
+        clean.write_text("A heading\n=========\n\nbody text\n", encoding="utf-8", newline="\n")
         findings, _ = scan(root, ["conflicted.md"])
         if not any("conflicted.md" in f for f in findings):
             print("self-test FAILED: a conflict marker was not reported", file=sys.stderr)
@@ -109,8 +119,16 @@ def self_test() -> int:
         if read != 0:
             print("self-test FAILED: a missing file was counted as read", file=sys.stderr)
             return 1
+        # A failing `git ls-files` must surface as an error, not as an empty clean scan:
+        # a temp dir is not a repository, so git exits non-zero here.
+        files, error = tracked_files(root)
+        if files or error is None:
+            print("self-test FAILED: a failing `git ls-files` was reported as an empty clean "
+                  "corpus instead of an error", file=sys.stderr)
+            return 1
     print("verify-no-conflict-markers --self-test: OK - a marker is reported, a setext underline "
-          "is not, and an unreadable corpus counts as nothing read")
+          "is not, an unreadable corpus counts as nothing read, and a failing `git ls-files` is "
+          "an error rather than a clean scan of nothing")
     return 0
 
 
@@ -127,7 +145,13 @@ def main(argv: list[str]) -> int:
     if root is None:
         print("verify-no-conflict-markers: FAILED - not inside a git repository (nothing was scanned)")
         return 1
-    findings, read = scan(root, tracked_files(root))
+    files, error = tracked_files(root)
+    if error is not None:
+        print("verify-no-conflict-markers: NOT-CHECKED")
+        print("  - the file list could not be obtained: " + error[:300])
+        print("  - nothing was scanned, which is not the same as finding nothing.")
+        return 1
+    findings, read = scan(root, files)
     if read == 0:
         print("verify-no-conflict-markers: FAILED")
         print("  - no tracked text file could be read at all - this gate examined nothing, which is "

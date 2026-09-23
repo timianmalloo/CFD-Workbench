@@ -181,6 +181,16 @@ FIXES = collections.OrderedDict([
     ("F-25", {"title": "A node never calls a deferred host tool that the session configuration refuses",
               "where": "commands/execute-with-coordination (the brief: absolute paths, no EnterWorktree/ExitWorktree)",
               "control": "SP-23 flags a sub-agent tool wait > 600 s on a non-shell tool"}),
+    ("F-26", {"title": "A prose-input skill consumes the compiled prompt (the CO-S0 citation)",
+              "where": "knowledge/agent-coordination.md CO-S0; commands/*/SKILL.md Grounding (the one CO-S0 sentence); "
+                       "commands/compile; scripts/verify-skill-contracts.py",
+              "control": "SP-27 flags a substantive turn that closed with `compiled: false` above T0; "
+                         "verify-skill-contracts.py refuses a prose-input skill with no CO-S0 citation"}),
+    ("F-27", {"title": "Revise the harness template version from the edit-distance evidence",
+              "where": "adapters/prompt-templates/<harness>.md (versioned); scripts/prompt-compile.py distance; "
+                       "the compile section of this profile",
+              "control": "SP-28 flags a template version whose compiled prompts are edited past a 0.2 median "
+                         "before the run; a new template version resets the distribution"}),
 ])
 
 # Finding catalog: id -> (title, default severity, fix ids). Severity uses the pack scale.
@@ -211,6 +221,8 @@ FINDINGS = collections.OrderedDict([
     ("SP-24", ("Gate status behind a pipe: a verify/test run piped into tail/head/grep with no pipefail", "Major", ["F-20"])),
     ("SP-25", ("Failed heredoc runs: a multi-line program passed through the shell and burned the request", "Minor", ["F-21"])),
     ("SP-26", ("Unmarked resume: a node resumed after a long gap, so its second run set no start marker", "Minor", ["F-24"])),
+    ("SP-27", ("Substantive turns started without a compiled prompt: a skill run above T0 closed with `compiled: false`", "Major", ["F-26"])),
+    ("SP-28", ("Compiled prompts heavily edited before the run: edit_distance median above 0.2 for a template version", "Major", ["F-27"])),
 ])
 
 INTENT_TOOLS = {"copilot": {"powershell", "bash", "shell"}, "claude": {"Bash", "PowerShell"}}
@@ -544,7 +556,10 @@ def norm_path(p):
 
 def git(args, cwd):
     try:
-        out = subprocess.run(["git"] + args, cwd=cwd, capture_output=True, text=True, timeout=20)
+        # text=True alone decodes with locale.getpreferredencoding() — cp1252 on a Windows
+        # console — so a non-ASCII branch name or author line raises UnicodeDecodeError.
+        out = subprocess.run(["git"] + args, cwd=cwd, capture_output=True, text=True,
+                             encoding="utf-8", errors="replace", timeout=20)
         return out.stdout if out.returncode == 0 else ""
     except (OSError, subprocess.SubprocessError):
         return ""
@@ -1410,6 +1425,186 @@ def detect(session):
     return out
 
 
+# --------------------------------------------------------------------------- compile stage (audit log)
+# The compile stage (P7) writes its telemetry into the audit log: one `kind: compilation` entry
+# per gate-passing compile, and on the workflow entry that started from it `compiled_from` +
+# `edit_distance` (else `compiled: false`). These readers derive the rows at run time (derive,
+# don't store - DM7) and every empty cell reads NOT_RECORDED (IO8). Pattern: pure reader over an
+# append-only log (spec-compile-readers US-1/US-2). simplify: the JSONL read is a local function
+# rather than a module shared with dream.py; ceiling: a third reader lifts it into one.
+COMPILE_SUBSTANTIVE = {"skill"}
+SP28_MEDIAN_THRESHOLD = 0.20  # Flagged in spec-compile-readers: revisit after ten compiles per template
+
+
+def _read_audit_jsonl(path):
+    entries, skipped = [], 0
+    with open(path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entries.append(json.loads(line))
+            except ValueError:
+                skipped += 1
+    return entries, skipped
+
+
+def _is_number(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
+
+
+def _template_label(comp):
+    c = comp.get("compiled") or {}
+    return "{0} v{1}".format(c.get("harness") or "?", c.get("template_version") if c.get("template_version") is not None else "?")
+
+
+def compile_measurements(root, days):
+    """Per-session and per-template-version compile measurements from <root>/docs/audit/audit-log.jsonl.
+    Missing log, empty log or no compile-bearing entry -> source NOT_RECORDED and empty maps."""
+    path = os.path.join(root, "docs", "audit", "audit-log.jsonl")
+    empty = {"source": NOT_RECORDED, "window_days": days, "by_session": {}, "by_template": {}, "gaps": [],
+             "runs": 0, "compilations": 0, "skipped_lines": 0}
+    if not os.path.isfile(path):
+        return empty
+    try:
+        entries, skipped = _read_audit_jsonl(path)
+    except (OSError, ValueError) as exc:  # a broken log degrades to `not recorded`, it never takes the profile down
+        print("session-profile: compile fields not read - {0}: {1}".format(type(exc).__name__, exc), file=sys.stderr)
+        return empty
+    since = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=days)) if days else None
+
+    def in_window(e):
+        if since is None:
+            return True
+        ts = parse_ts(e.get("datetime") or "")
+        return ts is None or ts >= since
+
+    comps, runs, unrecorded = collections.OrderedDict(), [], []
+    for e in entries:
+        if not isinstance(e, dict) or not in_window(e):
+            continue
+        kind = e.get("kind")
+        if kind == "compilation" and isinstance(e.get("compiled"), dict):
+            comps[e.get("id")] = e
+        elif kind in COMPILE_SUBSTANTIVE:
+            (runs if ("compiled" in e or e.get("compiled_from")) else unrecorded).append(e)
+    if not comps and not runs:
+        return dict(empty, skipped_lines=skipped)
+
+    by_session, by_template, gaps = collections.OrderedDict(), collections.OrderedDict(), []
+
+    def srow(sid):
+        return by_session.setdefault(sid, {"substantive_recorded": 0, "compiled_false": 0, "compiled_false_share": NOT_RECORDED,
+                                           "unrecorded": 0, "compilations": 0, "edit_distances": []})
+
+    def trow(label):
+        return by_template.setdefault(label, {"compilations": 0, "samples": 0, "samples_unrecorded": 0,
+                                              "edit_distance_median": NOT_RECORDED, "edit_distance_p90": NOT_RECORDED,
+                                              "decision_requests_per_compilation": NOT_RECORDED, "refusals": 0, "retries": 0,
+                                              "engine_seconds_median": NOT_RECORDED, "_dist": [], "_eng": [], "_dr": 0})
+
+    for c in comps.values():
+        srow(c.get("session") or "?")["compilations"] += 1
+        t = trow(_template_label(c))
+        t["compilations"] += 1
+        prov = c["compiled"].get("provenance") or {}
+        t["refusals"] += len(prov.get("refusals") or [])
+        t["retries"] += int(prov.get("retries") or 0)
+        if _is_number(prov.get("engine_seconds")):
+            t["_eng"].append(float(prov["engine_seconds"]))
+        t["_dr"] += len(c["compiled"].get("decision_requests") or [])
+    for e in unrecorded:
+        srow(e.get("session") or "?")["unrecorded"] += 1
+    for e in runs:
+        s = srow(e.get("session") or "?")
+        s["substantive_recorded"] += 1
+        if e.get("compiled_from"):
+            c = comps.get(e["compiled_from"])
+            t = trow(_template_label(c) if c else "unknown")
+            d = e.get("edit_distance")
+            if _is_number(d):
+                t["_dist"].append(float(d))
+                t["samples"] += 1
+                s["edit_distances"].append(float(d))
+            else:
+                t["samples_unrecorded"] += 1
+        elif e.get("compiled") is False:
+            s["compiled_false"] += 1
+            gaps.append({"id": e.get("id"), "shortname": e.get("shortname") or "?", "tier": e.get("tier"),
+                         "session": e.get("session") or "?", "skill": e.get("skill")})
+    for s in by_session.values():
+        if s["substantive_recorded"]:
+            s["compiled_false_share"] = round(s["compiled_false"] / float(s["substantive_recorded"]), 4)
+    for t in by_template.values():
+        if t["_dist"]:
+            t["edit_distance_median"] = round(statistics.median(t["_dist"]), 4)
+            t["edit_distance_p90"] = round(pct(t["_dist"], 0.9), 4)
+        if t["_eng"]:
+            t["engine_seconds_median"] = round(statistics.median(t["_eng"]), 4)
+        if t["compilations"]:
+            t["decision_requests_per_compilation"] = round(t["_dr"] / float(t["compilations"]), 2)
+        for k in ("_dist", "_eng", "_dr"):
+            t.pop(k, None)
+    return {"source": path, "window_days": days, "by_session": by_session, "by_template": by_template, "gaps": gaps,
+            "runs": len(runs), "compilations": len(comps), "skipped_lines": skipped}
+
+
+def compile_findings(measure):
+    """SP-27 (Inferred: a T0 closed question needs no compile, so only gaps above T0 count) and
+    SP-28 (Verified: the template's median edit distance is a measured number)."""
+    out = []
+    by_sid = collections.OrderedDict()
+    for g in measure.get("gaps") or []:
+        if (g.get("tier") or "").upper() == "T0":
+            continue
+        by_sid.setdefault(g["session"], []).append(g)
+    for sid, gs in by_sid.items():
+        title, sev, fixes = FINDINGS["SP-27"]
+        row = measure["by_session"].get(sid) or {}
+        ev = [_ev(None, "{0} ({1}) started with compiled: false at tier {2}".format(g["shortname"], g.get("id"), g.get("tier") or "unset"))
+              for g in gs[:7]]
+        ev.append(_ev(None, "confirm: a T0 closed question needs no compile; each gap above is a turn to check (Inferred)"))
+        out.append({"id": "SP-27", "title": title, "severity": sev, "confidence": "Inferred", "session": sid, "harness": "audit",
+                    "evidence": ev[:8], "metric": {"count": len(gs), "share": row.get("compiled_false_share", NOT_RECORDED)},
+                    "fixes": fixes})
+    for label, t in (measure.get("by_template") or {}).items():
+        med = t.get("edit_distance_median")
+        if _is_number(med) and med > SP28_MEDIAN_THRESHOLD:
+            title, sev, fixes = FINDINGS["SP-28"]
+            out.append({"id": "SP-28", "title": title, "severity": sev, "confidence": "Verified", "session": "*", "harness": "audit",
+                        "evidence": [_ev(None, "{0}: edit_distance median {1} (p90 {2}) over samples: {3} - above {4}".format(
+                            label, med, t.get("edit_distance_p90"), t.get("samples"), SP28_MEDIAN_THRESHOLD))],
+                        "metric": {"template": label, "median": med, "samples": t.get("samples")}, "fixes": fixes})
+    return out
+
+
+def render_compile_section(measure, findings=None):
+    lines = ["## Compile stage (audit log)", ""]
+    if not measure or measure.get("source") == NOT_RECORDED:
+        lines += ["*compile fields: {0} - no `kind: compilation` entry and no `compiled` / `compiled_from` field in the window "
+                  "(the compile stage writes them; `/compile`).*".format(NOT_RECORDED), ""]
+        return lines
+    lines += ["source `{0}` · window {1} · compilations {2} · recorded runs {3} · skipped lines {4}".format(
+        measure["source"], ("last {0} days".format(measure["window_days"]) if measure.get("window_days") else "all"),
+        measure["compilations"], measure["runs"], measure.get("skipped_lines", 0)), ""]
+    lines.append(_md_table(["session", "substantive recorded", "compiled: false share", "unrecorded", "compilations"],
+                           [[str(sid)[:12], s["substantive_recorded"], s["compiled_false_share"], s["unrecorded"], s["compilations"]]
+                            for sid, s in measure["by_session"].items()]))
+    lines.append("")
+    lines.append(_md_table(["template", "compilations", "samples", "edit dist p50", "p90", "DR/compile", "refusals", "retries", "engine s p50"],
+                           [[lbl, t["compilations"], "{0} (+{1} unrecorded)".format(t["samples"], t["samples_unrecorded"]) if t["samples_unrecorded"] else t["samples"],
+                             t["edit_distance_median"], t["edit_distance_p90"], t["decision_requests_per_compilation"],
+                             t["refusals"], t["retries"], t["engine_seconds_median"]] for lbl, t in measure["by_template"].items()]))
+    lines.append("")
+    if findings is not None:
+        rows = [[f["id"], f["severity"], f["confidence"], f["title"], "; ".join(e["note"] for e in f["evidence"][:2]).replace("|", "/"), ", ".join(f["fixes"])]
+                for f in findings]
+        lines.append(_md_table(["id", "severity", "confidence", "finding", "evidence", "fix"], rows) if rows else "*no compile findings*")
+        lines.append("")
+    return lines
+
+
 def cross_session_findings(sessions):
     """SP-15 concurrent sessions in one checkout (same cwd, overlapping windows)."""
     spans = []
@@ -1432,20 +1627,23 @@ def cross_session_findings(sessions):
              "harness": "*", "evidence": ev[:8], "metric": {"pairs": len(ev)}, "fixes": fixes}]
 
 
-def family_comparison(sessions):
-    """Aggregate per (family, harness): the tuning view. Drift indicators are counts per turn."""
+def family_comparison(sessions, compile=None):
+    """Aggregate per (family, harness): the tuning view. Drift indicators are counts per turn.
+    `compile` is the compile_measurements() dict; its per-session rows join on the session id and
+    give the group its compiled share and pooled edit-distance median (never a median of medians)."""
     agg = collections.defaultdict(lambda: {"turns": 0, "main_requests": 0, "cache_read": 0, "output": 0, "reasoning": 0,
                                            "cost_aiu": 0.0, "ttft_p90": [], "ctx_end": [], "sub_agents": 0,
                                            "rereads": 0, "skill_repeats": 0, "no_goal": 0, "no_tier_with_fanout": 0,
                                            "converge_nudges": 0, "nudges": 0, "wall_s": 0,
                                            "reasoning_main": 0, "reasoning_chars": 0, "intent_eligible": 0, "intent_with": 0,
-                                           "effort": collections.Counter()})
+                                           "effort": collections.Counter(), "sids": set()})
     for s in sessions:
         for t in s["turns"]:
             if not t["models"]:
                 continue
             key = ("+".join(t["families"]), s["facts"]["harness"])
             a = agg[key]
+            a["sids"].add(s["facts"]["id"])
             a["turns"] += 1
             a["main_requests"] += t["main_requests"]
             a["cache_read"] += t["cache_read"]
@@ -1471,10 +1669,16 @@ def family_comparison(sessions):
             if t.get("effort"):
                 a["effort"][t["effort"]] += 1
     rows = []
+    by_session = (compile or {}).get("by_session") or {}
     for (fam, harness), a in sorted(agg.items()):
         n = max(a["turns"], 1)
         drift = a["sub_agents"] + a["rereads"] + a["skill_repeats"] + a["no_goal"] + a["no_tier_with_fanout"] + a["converge_nudges"] + a["nudges"]
+        crows = [by_session[sid] for sid in a["sids"] if sid in by_session]
+        recorded = sum(r["substantive_recorded"] for r in crows)
+        dists = [d for r in crows for d in r.get("edit_distances") or []]
         rows.append({"family": fam, "harness": harness, "turns": a["turns"],
+                     "compiled_pct": (round(100.0 * (recorded - sum(r["compiled_false"] for r in crows)) / recorded, 1) if recorded else None),
+                     "edit_dist_p50": (round(statistics.median(dists), 4) if dists else None),
                      "requests_per_turn": round(a["main_requests"] / n, 1),
                      "cache_read_per_turn": int(a["cache_read"] / n), "output_per_turn": int(a["output"] / n),
                      "reasoning_per_turn": int(a["reasoning"] / n),
@@ -1566,14 +1770,19 @@ def render_markdown(profile):
     rows = [[fx, FIXES[fx]["title"], FIXES[fx]["where"], FIXES[fx]["control"], ", ".join(sorted(set(ids)))] for fx, ids in used.items()]
     lines.append(_md_table(["fix", "what", "where in the pack", "control that fails on recurrence", "findings"], rows) if rows else "*none*")
     lines += ["", "## Model family x harness (the tuning view)", ""]
-    lines.append(_md_table(["family", "harness", "turns", "req/turn", "cache-read/turn", "out/turn", "reasoning/turn", "reasoning visible", "effort", "intent trace", "cost/turn (AIU)", "ttft p90 (median)", "ctx end (median)", "wall s/turn", "drift/turn"],
+    lines.append(_md_table(["family", "harness", "turns", "req/turn", "cache-read/turn", "out/turn", "reasoning/turn", "reasoning visible", "effort", "intent trace", "cost/turn (AIU)", "ttft p90 (median)", "ctx end (median)", "wall s/turn", "drift/turn", "compiled", "edit dist p50"],
                            [[r["family"], r["harness"], r["turns"], r["requests_per_turn"], _fmt(r["cache_read_per_turn"]), _fmt(r["output_per_turn"]), _fmt(r["reasoning_per_turn"]),
                              (str(r["visible_reasoning_pct"]) + "%") if r["visible_reasoning_pct"] is not None else NOT_RECORDED, r["effort"],
                              (str(r["intent_trace_pct"]) + "%") if r["intent_trace_pct"] is not None else NOT_RECORDED,
-                             _fmt(r["cost_aiu_per_turn"]), _fmt(r["ttft_p90_median"]), _fmt(r["ctx_end_median"]), r["wall_s_per_turn"], r["drift_per_turn"]] for r in profile["comparison"]]))
+                             _fmt(r["cost_aiu_per_turn"]), _fmt(r["ttft_p90_median"]), _fmt(r["ctx_end_median"]), r["wall_s_per_turn"], r["drift_per_turn"],
+                             (str(r["compiled_pct"]) + "%") if r.get("compiled_pct") is not None else NOT_RECORDED,
+                             r["edit_dist_p50"] if r.get("edit_dist_p50") is not None else NOT_RECORDED] for r in profile["comparison"]]))
     lines += ["", "*drift/turn = sub-agents + re-reads + skill repeats + missing goal state + fan-out without tier + converge nudges + cap firings, per turn. "
               "reasoning visible = reasoning text on disk as a share of billed reasoning tokens (est.); below 10% every text-derived drift judgement is Inferred. "
-              "effort = the host's recorded reasoning effort (Copilot) or not recorded (Claude Code). intent trace = shell calls carrying a one-line description.*", ""]
+              "effort = the host's recorded reasoning effort (Copilot) or not recorded (Claude Code). intent trace = shell calls carrying a one-line description. "
+              "compiled = share of the group's substantive audit entries that started from a compiled prompt; edit dist p50 = pooled median of what the human changed before the run (audit log).*", ""]
+    if "compile" in profile:
+        lines += render_compile_section(profile.get("compile"))
     for s in profile["sessions"]:
         f = s["facts"]
         lines += ["## {0} session `{1}` \u2014 {2}".format(f["harness"], f["id"][:8], f.get("title") or ""), "",
@@ -1650,7 +1859,7 @@ def cmd_discover(args):
     return 0
 
 
-def _profile_all(found, args):
+def _profile_all(found, args, compile=None):
     settings = copilot_settings(args.copilot_home or copilot_home())
     sessions = []
     for s in found:
@@ -1663,10 +1872,16 @@ def _profile_all(found, args):
     findings = []
     for s in sessions:
         findings += detect(s)
-    comparison, fam_findings = family_comparison(sessions)
+    comparison, fam_findings = family_comparison(sessions, compile)
     findings += fam_findings + cross_session_findings(sessions)
+    if compile is not None:
+        findings += compile_findings(compile)
     findings.sort(key=lambda f: SEVERITY_RANK.get(f["severity"], 9))
     return sessions, findings, comparison
+
+
+def _compile_for(args):
+    return compile_measurements(os.path.abspath(args.repo[0]), args.days) if args.repo else None
 
 
 def profile_id(root):
@@ -1685,23 +1900,24 @@ def cmd_profile(args):
     if not found:
         print("no sessions found for {0} (harness={1}, days={2})".format(", ".join(args.repo), args.harness, args.days))
         return 1
-    sessions, findings, comparison = _profile_all(found, args)
+    compile = _compile_for(args)
+    sessions, findings, comparison = _profile_all(found, args, compile)
     root = os.path.abspath(args.out_root or args.repo[0])
     pid = profile_id(root)
     profile = {"id": pid, "generated": iso(_dt.datetime.now(_dt.timezone.utc)), "repos": [os.path.abspath(r) for r in args.repo],
                "repo_labels": [repo_label(r) for r in args.repo],
              "window": "last {0} days".format(args.days) if args.days else "all sessions",
                "chars_per_token": CHARS_PER_TOKEN, "sessions": sessions, "findings": findings, "comparison": comparison,
-               "fixes": FIXES}
+               "fixes": FIXES, "compile": compile}
     out_dir = os.path.join(root, "docs", "profiles", pid)
     if args.json_only:
         print(json.dumps(profile, ensure_ascii=False, indent=2, default=str))
         return 0
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "profile.json"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(out_dir, "profile.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(profile, fh, ensure_ascii=False, indent=2, default=str)
     md = render_markdown(profile)
-    with open(os.path.join(out_dir, "profile.md"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(out_dir, "profile.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(md)
     _index(root, profile)
     _audit(root, pid, len(sessions), len(findings), args.session_id)
@@ -1723,10 +1939,10 @@ def _index(root, profile):
               "# Session profiles\n\n*Each row is one measured pass over the harness telemetry (`session-profile.py`). "
               "Mined by `/dream` as findings.*\n\n| id | generated | repos | sessions | findings | top |\n|---|---|---|---|---|---|\n")
     if not os.path.isfile(path):
-        with open(path, "w", encoding="utf-8") as fh:
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(header)
     top = ", ".join(f["id"] for f in profile["findings"][:3]) or "\u2014"
-    with open(path, "a", encoding="utf-8") as fh:
+    with open(path, "a", encoding="utf-8", newline="\n") as fh:
         fh.write("| [{0}]({0}/profile.md) | {1} | {2} | {3} | {4} | {5} |\n".format(
             profile["id"], profile["generated"], ", ".join(profile.get("repo_labels") or [repo_label(r) for r in profile["repos"]]),
             len(profile["sessions"]), len(profile["findings"]), top))
@@ -1778,6 +1994,18 @@ def cmd_compare(args):
     return 0
 
 
+def cmd_compile(args):
+    """The compile section alone, from the audit log - needs no harness store, so it answers
+    'is the compile stage used' even on a machine with no session telemetry."""
+    measure = _compile_for(args)
+    findings = compile_findings(measure)
+    if args.json_only:
+        print(json.dumps({"compile": measure, "findings": findings}, ensure_ascii=False, indent=2, default=str))
+        return 0
+    print("\n".join(render_compile_section(measure, findings)))
+    return 0
+
+
 def cmd_fixes(args):
     print(_md_table(["fix", "what", "where in the pack", "control"], [[k, v["title"], v["where"], v["control"]] for k, v in FIXES.items()]))
     print()
@@ -1808,6 +2036,9 @@ def main(argv=None):
     p = sub.add_parser("compare", help="aggregate by model family x harness")
     p.add_argument("--json-only", action="store_true")
     p.set_defaults(func=cmd_compare)
+    p = sub.add_parser("compile", help="the compile-stage measurements from docs/audit/audit-log.jsonl (no harness store needed)")
+    p.add_argument("--json-only", action="store_true")
+    p.set_defaults(func=cmd_compile)
     p = sub.add_parser("fixes", help="print the fix and finding catalogs")
     p.set_defaults(func=cmd_fixes)
     args = ap.parse_args(argv)

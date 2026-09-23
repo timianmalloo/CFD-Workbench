@@ -125,7 +125,7 @@ python3 docs/ai-forward-pack/scripts/obsidian-setup.py --init          # add --a
 python3 docs/ai-forward-pack/scripts/obsidian-setup.py --analyze --write
 
 # 5. index the new lens notes
-python3 docs/ai-forward-pack/scripts/docs-graph.py derive && \
+python3 docs/ai-forward-pack/scripts/docs-graph.py derive
 python3 docs/ai-forward-pack/scripts/docs-graph.py validate
 ```
 

@@ -201,16 +201,24 @@ def load_config(explicit=None):
     return cfg, path
 
 
+def _eol(text):
+    """The file's own line ending. The config is read and written with newline="" so an
+    existing CRLF checkout round-trips unchanged; an insertion must therefore carry the
+    file's EOL, not a literal "\n", or the rewrite leaves the file mixed (PLAT-A)."""
+    return "\r\n" if "\r\n" in text else "\n"
+
+
 def write_baseline(path, total, key="always_on_tokens", stamp="baseline_set_on"):
     """Rewrite only the named baseline + its stamp, preserving comments, key order and formatting."""
     with open(path, encoding="utf-8", newline="") as fh:
         text = fh.read()
+    nl = _eol(text)
     if re.search(r'"%s":\s*(\d+|null)' % re.escape(key), text):
         text = re.sub(r'("%s":\s*)(\d+|null)' % re.escape(key), lambda m: m.group(1) + str(total), text, count=1)
-    elif re.search(r'\n\s*"always_on_tokens":', text):
-        text = re.sub(r'(\n\s*"always_on_tokens":)', lambda m: '\n  "%s": %d,%s' % (key, total, m.group(1)), text, count=1)
+    elif re.search(r'\r?\n\s*"always_on_tokens":', text):
+        text = re.sub(r'(\r?\n\s*"always_on_tokens":)', lambda m: '%s  "%s": %d,%s' % (nl, key, total, m.group(1)), text, count=1)
     else:
-        text = re.sub(r'^\s*\{', lambda m: m.group(0) + '\n  "%s": %d,' % (key, total), text, count=1)
+        text = re.sub(r'^\s*\{', lambda m: m.group(0) + '%s  "%s": %d,' % (nl, key, total), text, count=1)
     if re.search(r'"%s":\s*"[^"]*"' % re.escape(stamp), text):
         text = re.sub(r'("%s":\s*)"[^"]*"' % re.escape(stamp),
                       lambda m: m.group(1) + '"' + datetime.date.today().isoformat() + '"', text, count=1)
@@ -223,17 +231,18 @@ def write_json_key(path, key, value):
     keys are preserved; the map is re-serialised one entry per line."""
     with open(path, encoding="utf-8", newline="") as fh:
         text = fh.read()
+    nl = _eol(text)
     body = json.dumps(value, indent=4, sort_keys=True)
-    body = "\n".join(("  " + line) if i else line for i, line in enumerate(body.splitlines()))
+    body = nl.join(("  " + line) if i else line for i, line in enumerate(body.splitlines()))
     # a flat map of ints: `{}` and a multi-line map both match; nested braces never occur here
     pattern = re.compile(r'"%s":\s*\{[^{}]*\}' % re.escape(key), re.S)
     if pattern.search(text):
         text = pattern.sub(lambda m: '"%s": %s' % (key, body), text, count=1)
-    elif re.search(r'\n\s*"always_on_tokens":', text):
-        text = re.sub(r'(\n\s*"always_on_tokens":)', lambda m: '\n  "%s": %s,%s' % (key, body, m.group(1)), text, count=1)
+    elif re.search(r'\r?\n\s*"always_on_tokens":', text):
+        text = re.sub(r'(\r?\n\s*"always_on_tokens":)', lambda m: '%s  "%s": %s,%s' % (nl, key, body, m.group(1)), text, count=1)
     else:
         # no anchor key: insert as the first member of the top-level object
-        text = re.sub(r'^\s*\{', lambda m: m.group(0) + '\n  "%s": %s,' % (key, body), text, count=1)
+        text = re.sub(r'^\s*\{', lambda m: m.group(0) + '%s  "%s": %s,' % (nl, key, body), text, count=1)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write(text)
 

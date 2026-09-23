@@ -34,6 +34,18 @@ import re
 import sys
 import tempfile
 
+# The host pipes a JSON payload in and reads a JSON line out. On Windows both ends default
+# to the console code page, so a non-ASCII path arrives mojibake or raises (DC-211/PLAT-A).
+# Every arm is fail-open: a guard that cannot reconfigure still runs.
+for _stream, _kw in ((sys.stdin, {"encoding": "utf-8", "errors": "replace"}),
+                     (sys.stdout, {"encoding": "utf-8", "errors": "replace"}),
+                     (sys.stderr, {"encoding": "utf-8", "errors": "replace"})):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(**_kw)
+        except (ValueError, OSError, UnicodeError):
+            pass
+
 PAGED_OUTPUT_RX = re.compile(r"copilot-tool-output-[0-9a-f-]+\.txt$", re.I)
 READ_TOOLS = {"claude": {"Read"}, "copilot": {"view"}, "grok": {"read_file", "Read"}, "agy": {"view_file"}}
 
@@ -55,7 +67,7 @@ def load(path):
 def save(path, data):
     try:
         tmp = path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as fh:
+        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(data, fh)
         os.replace(tmp, path)
     except OSError:

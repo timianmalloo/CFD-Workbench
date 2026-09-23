@@ -24,8 +24,7 @@ when a component's analysis changes. **The per-boundary register below is genera
 it with the script bundle, never by hand:*
 
 ```bash
-python3 docs/ai-forward-pack/scripts/docs-graph.py rollup \
-  --heading "Adversarial analysis (STRIDE-lite)" --type design
+python3 docs/ai-forward-pack/scripts/docs-graph.py rollup --heading "Adversarial analysis (STRIDE-lite)" --type design
 ```
 
 *Because this document links `documents →` every design, a material design change flags this

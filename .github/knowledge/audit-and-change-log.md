@@ -90,10 +90,7 @@ This persists the stamp keyed by session; the closing `append` (AL5) then record
 **AL5 — Append an audit entry as the last action.** Every skill, as part of its **last action** (alongside the Discoverability Mandate, V10), **MUST** append an audit-log entry recording the run:
 
 ```bash
-python3 docs/ai-forward-pack/scripts/audit-log.py append \
-  --shortname "<skill>-<subject>" --session "<id>" --skill <skill> --kind skill \
-  --tool "<assistant>" --prompt "<the user prompt, verbatim>" \
-  --summary "<what the run produced>" --artifact docs/<...> --tag <keyword> [--git]
+python3 docs/ai-forward-pack/scripts/audit-log.py append --shortname "<skill>-<subject>" --session "<id>" --skill <skill> --kind skill --tool "<assistant>" --prompt "<the user prompt, verbatim>" --summary "<what the run produced>" --artifact docs/<...> --tag <keyword> [--git]
 ```
 
 The duration is picked up from the AL4a marker automatically; nothing extra is passed here.
@@ -105,10 +102,7 @@ This is the activity-history sibling of writing frontmatter + syncing the index:
 **AL5b — A substantive interactive turn logs its goal-state (the PACK-O corpus).** Because only skill runs are auto-logged (AL5), the corpus is otherwise blind to interactive work — exactly where defect class **PACK-O** lives. So a **substantive interactive (non-skill) turn** — one that changed the repo or the plan (AL3's bar) — **SHOULD** append an entry at close recording its **full prompt**, its **`goal`** and **`done_when`**, and its summary:
 
 ```bash
-python3 docs/ai-forward-pack/scripts/audit-log.py append \
-  --shortname "<subject>" --session "<id>" --kind manual --tool "<assistant>" \
-  --prompt "<the full prompt, verbatim>" --goal "<the goal>" \
-  --done-when "<the terminal condition>" --summary "<what the turn produced>"
+python3 docs/ai-forward-pack/scripts/audit-log.py append --shortname "<subject>" --session "<id>" --kind manual --tool "<assistant>" --prompt "<the full prompt, verbatim>" --goal "<the goal>" --done-when "<the terminal condition>" --summary "<what the turn produced>"
 ```
 
 Trivial and purely conversational turns are exempt (AL3). This is the **logging half of the rung-2 control for PACK-O**: presence (`done_when` recorded or not) is mechanical, and `/dream`'s PACK-O miner reads it; satisfaction (summary vs goal) is surfaced for human review, never auto-judged. Timing is default-on via AL4a. No secrets/PII (AL4).
@@ -141,10 +135,7 @@ The change log is the **curated** subset: not every action, but every action tha
 **CL1 — The four design-shaping skills capture a change by default.** `/collectknowledge`, `/define-architecture`, `/design-slice`, and `/migrate` **MUST**, when they produce or alter a load-bearing decision, append a change-log entry capturing the **prompt** that drove it and a **summary** of the result, via:
 
 ```bash
-python3 docs/ai-forward-pack/scripts/audit-log.py change \
-  --title "<the decision>" --kind <architecture|design|knowledge|migration> --skill <skill> \
-  --session "<id>" --prompt "<driving prompt>" --summary "<the decision/result>" \
-  --rationale "<why, one line>" --artifact docs/<...> --git-before "<sha captured at grounding>"
+python3 docs/ai-forward-pack/scripts/audit-log.py change --title "<the decision>" --kind <architecture|design|knowledge|migration> --skill <skill> --session "<id>" --prompt "<driving prompt>" --summary "<the decision/result>" --rationale "<why, one line>" --artifact docs/<...> --git-before "<sha captured at grounding>"
 ```
 
 These four are singled out because their entire purpose is to *make or change a design decision* — the knowledge most expensive to lose. Other skills (`/specify`, `/investigate`, `/adopt`) **SHOULD** add a change entry when they cross the same bar (a settled spec, a root cause that reshapes the design, an adopted architecture); `/implement` does so when a decision was made mid-build rather than merely executed.

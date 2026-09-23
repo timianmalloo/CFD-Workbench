@@ -1,11 +1,12 @@
 ---
 name: prompts
 description: Browse your logged prompts as a stack (newest on top) and reuse one — arrow keys to move, right-arrow to expand a prompt, left-arrow to collapse, Enter to copy it for paste-and-edit. A utility skill backed by the stdlib prompt-log engine.
+runs_as: either
 ---
 
 # Skill: /prompts
 
-A **utility skill** (not a Rigor-Protocol workflow) for reasoning over your prior prompts. It opens your project-local prompt log as an interactive **stack — newest on top** — that you navigate with the arrow keys: **↑/↓** to move, **→** to expand the highlighted prompt so you can read it in full, **←** to collapse it back to the one-line label, and **Enter** to reuse it. Reuse copies the chosen prompt to your clipboard so you can **paste it into your next prompt (Cmd/Ctrl+V) and edit before sending**.
+A **utility skill** (not a Rigor-Protocol workflow) for reasoning over your prior prompts. It opens your project-local prompt log as an interactive **stack — newest on top** — navigated with the arrow keys: **↑/↓** move, **→** expand, **←** collapse, **Enter** reuse. Reuse copies the chosen prompt to your clipboard so you can **paste it into your next prompt (Cmd/Ctrl+V) and edit before sending**.
 
 Companion skill: **/searchprompts** (the same stack, pre-filtered by freeform text). Both are reuse lenses over the same unified **audit log** (`docs/audit/audit-log.jsonl`) — the broader timeline/search/change-log/viewer is **/auditlog**.
 
@@ -23,7 +24,7 @@ There is **no hook** that auto-captures every prompt you type into the CLI, so l
    - ↑/↓ (or `j`/`k`) move · → (or `l`) expand · ← (or `h`) collapse · `/` filter · **Enter** reuse · `q` quit.
    - On Enter the chosen prompt is printed and copied to the clipboard (pbcopy/xclip/clip when present).
 2. **If there is no interactive terminal** (e.g. you ask the agent to do it inside a non-TTY shell), the script prints the newest-first stack as a numbered list. Render that list, let the user pick a number, then run `prompt-log.py show <n>` to expand it and `prompt-log.py get <n> --copy` to put it on the clipboard for paste-and-edit.
-3. **Reuse:** the user pastes the copied prompt into their next CLI prompt and edits before executing. (A skill cannot type into the CLI's input line; clipboard + paste is the faithful mechanism.)
+3. **Reuse:** the user pastes the copied prompt into their next CLI prompt and edits before executing. (A skill cannot type into the CLI's input line.)
 
 ## Quick reference
 - `prompt-log.py list` — the stack, newest first (label · time).
@@ -31,6 +32,7 @@ There is **no hook** that auto-captures every prompt you type into the CLI, so l
 - `prompt-log.py get <n|id> --copy` — raw text to stdout and the clipboard.
 - `prompt-log.py browse` — the arrow-navigable expand/collapse stack.
 - `prompt-log.py add "<text>"` — log a prompt.
+- `prompt-log.py list --raw <id>` — one raw prompt beside its compilations (`⟲ compiled from <raw id>`, CO-S0); reuse copies either, search matches both.
 
 ## Definition of done
 - [ ] The stack was shown newest-first; the user could expand/collapse and pick one.

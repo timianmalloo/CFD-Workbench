@@ -10,6 +10,43 @@ A sub-agent's report is **evidence, not authority**: a track saying "done", "saf
 
 Ground: read the plan; run `coord doctor` (a plan is not proof the layer is on); `coord worktree list` and `coord session list`; the CTX-* and WT classes.
 
+MODE: keep native `--agents` and manual `--brief` behavior. The opt-in, profile-qualified `--launch`
+uses `python3 docs/ai-forward-pack/scripts/coord-runner.py`: `prepare --contract FILE`,
+`fingerprint --run ID`, `run --run ID --qualification FILE`, and `status --run ID`.
+Claude, Codex or Copilot can hold the Owner seat; Grok/Agy can invoke the same runner. It never pins
+or steals leadership. A shared Agent Client Protocol client handles Claude/Codex/Grok/Copilot;
+Agy uses a separately qualified native stream. No arbitrary TUI attachment, implicit
+adapter install, automatic approval or automatic join. POSIX and Windows use separate
+bounded owned-process paths. Startup-only retries require explicit runtime policy.
+Copilot requires native `--acp --model <explicit-model>` and a matching `effective_model`
+qualification and a bound native exact-ID model policy. Setter failure blocks prompting;
+actual inference-model mismatch blocks readiness. Set the launch
+identity (`AGENT_SESSION`, `AGENT_HOST=copilot`), qualify native hooks, and do not inherit
+historical plugin proof or Codex-only operational roots. Read the installed
+`execute-with-coordination/reference/copilot.md` for the exact profile and evidence limits.
+
+The `coord-run/1` contract has run_id, owner, parallelism (1–4), workers (1–8). Each worker
+has a new session/branch, harness, transport (acp or agy), argv array, prompts (finished
+compilation audit IDs), deadline_seconds, output_limit, fallback, required_capabilities,
+binding_files and evidence (bounded relative files and/or a new descendant commit).
+Require explicit worktree_isolation, instructions, hooks and permissions classifications.
+The runner creates worktrees from the invoking HEAD, supplies worker identity, normalizes
+verified compiled sections without native launch wrappers, and retains manual briefs.
+
+Qualification is a measured Owner attestation for the actual prepared checkout, not a
+property inferred from ACP support. The `coord-qualification/1` workers map needs each
+session's fingerprint, version, evidence, effective_policy, trust and capabilities.
+Bind every effective instruction/hook/trust/policy file and adapter lockfile. Fingerprinting
+alone is not qualification; a mode named read-only is not proof writes are blocked. Missing
+or changed evidence blocks with the manual fallback, without downgrading a requirement.
+ACP callbacks are denied immediately and stop subsequent prompts. Agy needs explicit
+`--add-dir {worktree} --input-format stream-json --output-format stream-json`; native policy
+must be separately observed, and cancellation terminates the owned process group.
+Read every structured result: transport completion is distinct from evidence and semantic
+acceptance. New attempts need new run/session/branch identities. Owner decisions, rulings,
+artifact review and the existing join gate remain required. Full launch instructions, when
+the shared skill surface is installed, are `.agents/skills/execute-with-coordination/reference/launch.md`.
+
 INTERDICT: before spawning anything, check two silent failures - the layer is ON (no registry means every path is `authored` and every derived file conflicts on every merge, about to be multiplied by the track count), and the plan still MATCHES the repo (a plan is a record of a measurement, and measurements go stale).
 
 QUALIFY the delegation mechanism per harness before depending on it. A track needs exactly three things: its own tree, a stated division of responsibility, and a receipt back. Record each dimension as enforced / observed-only / unsupported. A missing mechanism never becomes success-shaped permission and there is no automatic fallback from enforced to observed; where you cannot verify first-hand it is **unsupported**, not "probably fine". If a track needs a boundary the harness cannot hold, run it as a human-session brief or make it serial.

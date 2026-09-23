@@ -25,7 +25,22 @@ import os
 import re
 import sys
 
-MARKER_RX = re.compile(r"(?:#|//)\s?(simplify|assume|ponytail):\s*(.*)")
+# Windows consoles default to cp1252, which cannot encode the box/arrow glyphs this tool
+# prints - `prompt-log.py --help` crashed outright with UnicodeEncodeError (FR-047). The guard
+# is applied uniformly (class PLAT-A): a script that survives only because its glyphs happen
+# to exist in cp1252 is luck, not an invariant.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+# A marker is a comment: its leader opens the line or follows whitespace. A leader glued to a
+# quote or an escape (`"# simplify:`, `\n# assume:`) is string data - a test fixture - and was
+# 100% of this linter's findings until it was excluded (FR-077, class LINT-A). dream.py's
+# harvest carries the same rule.
+MARKER_RX = re.compile(r"(?:^|(?<=\s))(?:#|//)\s?(simplify|assume|ponytail):\s*(.*)")
 COMMENT_RX = re.compile(r"^\s*(?:#|//)\s?(.*)")
 
 # Cue sets - word-boundary matched so "if" inside "verify" never counts (the key false-positive).
