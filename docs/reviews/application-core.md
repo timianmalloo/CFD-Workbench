@@ -29,10 +29,12 @@ Core or Persistence source. Data & Persistence, Computational Geometry, Test Arc
 SRE and Simplifier are review lenses, not separately claimed model sessions. Technical Owner review
 does not replace this independent gate.
 
-**Disposition: OPEN — not a join clearance.** Production session and persistence work continues in
-`feature/application-core`. The cancelled-assessment counterexample is repaired in the named followup;
-the complete session, telemetry and persistence gate remains open. A positive result for one frozen binary does not certify later
-source, the native UI, Windows runtime, a mesh, export or a simulation result.
+**Independent reviewer disposition: PASS for the bounded B candidate frozen in `9ty5gkbm`.**
+Root verified clean source binding to `cce9ee52c2966ecbe9c866b31e946aef80d55072`.
+Final Owner disposition and the Coordinator's join remain required.
+This clears the named source/session, R16 projection, R17 identity/compatibility, R18 query-feasibility
+and R19 macOS store findings against the evidence below. It does not certify later source, the native UI,
+Windows runtime, a mesh, export or a simulation result. Windows persistence remains explicitly unsupported.
 
 Rulings 17–19 now authorize explicit `/2` degree-preserving identity, all-domain deterministic query
 feasibility and directory-wide cooperative overwrite exclusion with actual I/O telemetry. Root's separately
@@ -40,7 +42,8 @@ owned normative/B0/mockup companion amendment has executed bounded `/2` regressi
 accept the still-isolated production B binary. Owner Ruling 20 independently accepted companion commit
 `bc0f46d` for handoff; independent review of the eventual production repair remains open.
 The current store/R16 worker checkpoint is deliberately
-still `/1` until the reviewed companion handoff.
+still `/1` until the reviewed companion handoff. The final `/2` follow-up below supersedes that checkpoint's
+open R17/R18 disposition without relabelling its historical evidence.
 
 ## Scope and evidence method
 
@@ -140,15 +143,15 @@ all numbers. The author's separate published RFC 8785 vectors remain a different
 |---|---|---|
 | Cancelled draft authority can reappear | Verified on frozen `k_j6brrg`: Begin UUID A → Validate generation 0 → Cancel A → Begin A with identical target/source → Apply old assessment succeeds. | Named veto cleared on frozen `ttbkc0t_`: root's unchanged reproducer refuses UUID reuse and preserves accepted state. Retired IDs are also reconstructed from durable edit/recovery records; broader session review remains open. |
 | Native writer cap can be raised | Inferred from the initial public constructor accepting an arbitrary envelope cap while the reader has fixed 8 MB admission. | Repair inspected: constructor requires 0 < cap ≤ native maximum. Author retains RED/GREEN for this boundary; root has not separately executed that named case. |
-| Empty recovery draft is refused | Verified `DOC-SCHEMA` for zero recovery chunks. Empty bytes are valid incomplete UTF-8; Coordinator and author are reconciling this within existing schema. | Permit empty recovery without accepting an empty source revision; Resume/Validate/Apply must retain accepted geometry and refuse invalid adoption. |
-| Save acknowledgment is not tied to capture | Coordinator source finding: arbitrary byte-array acknowledgment can mark a session clean without the required captured-image contract. | Bind acknowledgment to captured successful publication; prove old acknowledgment after editing remains dirty and unrelated images are refused. Actual filesystem publication remains a separate store obligation. |
-| Telemetry records incomplete semantics | Root source finding in repaired session candidate: generic operation events omit required phase/correlation/generation/evaluator facts, and returned Invalid/NotAssessed validation is logged OK when no exception is thrown. | Complete normal-path named events and derive validation status/code from its assessment. Prove privacy redaction, 256-event retention and discard on close; do not equate exception absence with valid geometry. |
+| Empty recovery draft is refused | Verified `DOC-SCHEMA` for zero recovery chunks. Empty bytes are valid incomplete UTF-8. | Repaired control and retained PASS inspected; earlier independent recovery corpus and final session suite preserve incomplete drafts without adoption. Named finding cleared. |
+| Save acknowledgment is not tied to capture | Coordinator source finding: arbitrary byte-array acknowledgment can mark a session clean without the required captured-image contract. | Capture-bound acknowledgement and late/uncaptured controls inspected; independent real store composition confirms the normal acknowledgement route. Named finding cleared. The future adapter must acknowledge only a successful exact captured publication. |
+| Telemetry records incomplete semantics | Root source finding: generic events omitted required phase/correlation/generation/evaluator facts and returned invalid assessments could be logged OK. | Repaired phase/status/ring controls inspected, and independent native I/O trace/privacy/lifecycle composition passed. Named finding cleared; telemetry absence never substitutes a fabricated measurement. |
 | Placement admission and deadline limits | Source review finds the uniform inverse/normalization/trig interval propagation coherent; budget checks now precede returned results. | Record the continuous no-crossing argument, fixed-cap failure paths and distinction between uniform enclosure width and successful evaluation of every query. Cooperative polling is not a hard real-time scheduling guarantee. |
-| Surface identity loses evaluated twist distinctions | Verified on frozen `a8a6351`: rounding each degree CV to radians for hashing is not equivalent to evaluating the degree spline then rounding its angle. The complete-source counterexample below has one hash and different point enclosures. | Independent identity/evaluator veto OPEN. Owner must resolve the normative §6/§8 conflict, compatibility consequences, production evaluator and conformance cases together. A small coordinate difference does not waive identity semantics. |
-| Certified tiny-angle source cannot answer a point query | Verified on frozen `a8a6351`: every twist ordinate `1e-300` degrees is Certified, but `PointAt(certificate,0.203125,1,true)` throws `GEOMETRY-NOT-ASSESSED`. Source inspection identifies exact-rational Taylor arithmetic exceeding the bit budget. | Executability finding OPEN. A uniform error bound alone does not prove arithmetic feasibility. Require an explicit bounded numerical remedy or honest pre-admission refusal and regression evidence. |
-| Public consumer lacks authored control projection | Verified public API inspection at `a8a6351`: source bytes and certificates do not expose arbitrary authored rail CV IDs/ordinates or section assignments. A UI would need a competing parser or guessed IDs. | Ruling 16 approves a defensive, identity-bound authored projection and accepted geometry/diagnostic seam in existing B paths, with a custom-ID consumer fixture. C remains held pending that proof. |
-| Raw filename claims do not exclude equivalent file aliases | Root measured lowercase/uppercase paths as the same inode on this Mac volume. The author then observed two alias writers acquire separate claims in `z8ih576w` (build 0/test 1). | Ruling 19 approves a fixed directory-relative overwrite claim and reserved internal namespace, accepting conservative contention. Author reports repaired controls; independent final store review remains open. |
-| Remaining end-to-end surfaces | Native OS primitive/fault/race handling, telemetry/privacy, complete replay/growth/recovery cases and final API consumer proof are unfinished. | Complete B, run required checks, independently review the final committed candidate, then consider C. No partial core join. |
+| Surface identity loses evaluated twist distinctions | Verified on frozen `a8a6351`: per-CV radians hashing loses distinctions retained by degree-spline evaluation. | R17 `/2` degree identity independently verified on frozen `9ty5gkbm`; collision pair hashes differ and exact-coordinate bounds contain the independent oracle. Legacy source/native refusal preserves bytes/state. Named veto cleared for this candidate. |
+| Certified tiny-angle source cannot answer a point query | Verified on frozen `a8a6351`: constant `1e-300` degrees is Certified but its point query exhausts exact-rational arithmetic. | R18 all-query witness and outward angle enclosure reviewed mathematically; independent boundary/tiny-angle probes pass on `9ty5gkbm`. Named veto cleared by the derivation plus executable evidence, not by a sample grid alone. |
+| Public consumer lacks authored control projection | Verified public API inspection at `a8a6351`: source bytes and certificates do not expose arbitrary authored rail CV IDs/ordinates or section assignments. A UI would need a competing parser or guessed IDs. | Ruling 16 seam independently inspected at `2407b61`: defensive immutable collections and accepted/draft source-revision binding are present; custom-ID fixture passed in the retained author run. Root's separate public-consumer composition discovers its target from the projection and preserves TE during LE editing. Named seam finding cleared for this checkpoint; C still waits for the full B gate. |
+| Raw filename claims do not exclude equivalent file aliases | Root measured lowercase/uppercase paths as the same inode on this Mac volume. The author then observed two alias writers acquire separate claims in `z8ih576w` (build 0/test 1). | Ruling 19 fixed directory-relative claim independently verified on frozen `2407b61`, including combined NFC/NFD and case aliases. Named alias finding cleared for this checkpoint; uncooperative writers and Windows remain outside this observed guarantee. |
+| Remaining end-to-end surfaces | B's bounded source→session→macOS store→public projection route is independently reviewed. Native GUI/CLI, Windows native persistence/runtime, full product geometry and simulation remain unproved. | Owner and Coordinator still verify clean source binding and join before C. No M1 completion or Windows-native claim follows from this core review. |
 
 For the admitted mathematical subset, the no-crossing argument must connect positive half-span
 (`Y=half_span*eta`, so distinct eta have distinct Y), positive chord, separated normalized section sides,
@@ -184,6 +187,102 @@ Supplemental oracle SHA-256: program
 
 ## Reviewer corrections and remaining proof limits
 
+### Final independent evaluator version 2 review
+
+The final frozen Core assembly is SHA-256
+`86a9e74ba2c4054840df81fa5d7438ec50306d5fd21805674b43f0dcb5eaa261`, from
+`/tmp/cfd-application-core-20260923-9ty5gkbm`. Production source fingerprints are recorded in the author's
+fifth-increment proof. The retained independent harness is `/tmp/cfd-evaluator2-review.O3NdvG`.
+Its final build/run exited 0 with **204 assertions**; all three observed PID/start identities were absent.
+Build duration was 1.410716250 seconds and run duration 0.376262292 seconds. These are measured local
+invocations, not application startup/viewport budgets or a platform-wide performance guarantee.
+
+| Independent artifact | SHA-256 |
+|---|---|
+| `Program.cs` | `de7a15c43654f7f5b40d23555ad37decddf169352d6a4cddf036f0181d12d055` |
+| `receipts/tests.log` | `7101da3d92f3ae608a3c662548cc83d58b58f9df81585f78af6c9d6fca727be0` |
+| Exact rational oracle | `a23972cea313a40a5a5b7f3a8a64b78021f65b88ae2081adae48f981ff7761b3` |
+| Exact oracle result | `e1b2cf19a1ff4750aefcb944187a4e6b2fe794bea85850b3cd40982db8be99e5` |
+
+The original three `/1` counterexamples are retained verbatim; the harness explicitly authors separate
+`/2` test documents rather than treating this as migration. The former collision pair now has distinct
+Surface hashes. All three certify and answer SectionAt, upper/starboard and lower/port queries at seven
+boundary/near-boundary pairs, including minimum subnormal, minimum normal, exact endpoints and the next
+binary64 below one. All enclosures are finite and ordered, with mirrored span bounds. At eta 0.203125 and
+x=1, independent Python Fraction arithmetic evaluates the specified once-rounded angle, rational sine
+through degree 33 and cosine through degree 32, and rigorous Lagrange remainder bounds. The reported
+X/Y/Z intervals contain these exact enclosures for both collision inputs and constant `1e-300` degrees.
+The normative Example also admits, supports an LE edit, and round-trips native `/2` source/Surface
+identity and Undo/Redo. These are regression and consumer evidence, not universal sample coverage.
+
+An authentic historical native file from the independent `/1` store probe first exposed wrong diagnostic
+`DSL-VERSION` on `iujqm0c6`. The author's synthetic binding mutation had asserted `DOC-REFERENCE`, so it
+missed the container contract. Both raw failed runs remain retained. The repaired native loader checks
+unsupported evaluator bindings before source parsing and now returns **DOC-VERSION**, leaves the session
+empty, and preserves original bytes. Standalone `/1` source still correctly returns DSL-VERSION.
+
+Root reviewed the actual all-query argument: each span's common denominator and convex numerator bound
+cover every dyadic subdivision through depth 128; the derivative/hull condition forces successful inverse
+enclosure by depth 127. Pre-reduction arithmetic, comparison products, normalization, binary64 conversion
+and final placement use conservative expression bounds. Outward grid-64 angle enclosure preserves the
+specified angle and propagates its added radius into both Taylor and placement-width bounds. The Taylor
+common-denominator bound covers reduced outputs and unreduced intermediates; it does not turn tiny angles
+into exact zero. The finite primitive-operation witness explicitly excludes CPU-time estimation and
+BigInteger implementation instruction counts. Cooperative deadline/cancellation outcomes remain separate
+from a deterministic post-certificate defect. The code and fifth-increment derivation agree; no mathematical
+blocker remains for this admitted subset. The argument covers all supported finite-binary64 queries;
+the tested points only disconfirm particular implementation errors.
+
+The no-crossing argument is bounded to this subset: positive half-span separates distinct stations by Y;
+positive chord and separated common-x section sides prevent within-section crossing; each station's
+rotation is invertible. Mirroring changes the sign of Y, meeting only at the root boundary; the leading
+endpoint and declared closed trailing endpoints are intentional boundaries. This establishes no tessellation, watertight
+export, tip closure, CFD suitability or general multi-profile proof. Those capabilities remain unavailable.
+
+Root inspected the final 172-case author output and all-query/source changes; the 11-gate integrated run
+is author evidence, not a claim that root reran all 172 cases. Root verified the clean handback
+`cce9ee52c2966ecbe9c866b31e946aef80d55072` and unchanged Geometry/Session/Store/Contracts fingerprints.
+Native GUI/CLI review is the next track;
+Windows filesystem/runtime and distribution trust remain explicit unverified obligations.
+
+### Independent macOS store and authored-projection composition
+
+Frozen checkpoint `2407b61`, retained under `/tmp/cfd-store-review.4Q39NS`, passed **23 independent
+assertions**. The harness references the exact frozen assemblies, not rebuilt production source:
+
+| Artifact | SHA-256 |
+|---|---|
+| Core assembly | `c1043e19d8438a0187f6fc660a4f0d5ed15302aa4a75b57eb19ad79fc346628e` |
+| Persistence assembly | `05f64ab1efd2fa1606843aeeb54aaed024a51ca69e839b84b25b2920a7659de9` |
+| Independent harness `Program.cs` | `d8e3d82a4327655b4fa8e749f8ca3f3d336fb5b995b2f7830f6345469478dd52` |
+| Raw test output | `c79419aa8f575f37fd02b0d7a54c183e4376c65dd692d1801fcc8ded74a5ec3a` |
+
+The source→public projection→LE numeric draft→Apply→native Save→Read→Reopen route preserved source and
+accepted revision identity. TE ordinates stayed unchanged. An Undo image overwrote only with the current
+disk token; the previous token refused and left the new image intact. Root first observed that composed
+`Café/private-project.cfd` and decomposed uppercase `CAFÉ/PRIVATE-PROJECT.CFD` address the same bytes on
+this volume, then held the first overwrite claim at its actual native creation stage. The alias writer
+returned `DOC-CONFLICT`, the owner completed, and only the project file remained. Both case variants of
+the reserved internal namespace refused. This is a platform observation, not an assumption that every
+filesystem normalizes names identically.
+
+Actual session-injected save events emitted file flush→publication→directory flush→save under one trace,
+with measured finite durations, byte counts and truthful publication/durability flags. Read and conflict
+outcomes appeared in the same ring; serialized events contained neither the path nor filename. Disposing
+the store refused new work without closing the caller's session. Build and run exited 0 in 1.508646 and
+0.518541 seconds; all three observed PID/start identities were absent at completion. Unique task-local
+caches/temp paths, disabled build servers and `DOTNET_GENERATE_ASPNET_CERTIFICATE=false` were used.
+
+Source inspection additionally followed held-directory ancestry, regular-file/no-follow opens,
+identity-owned cleanup, short writes, cancellation and post-publication uncertainty. The author's retained
+159-case run contains the corresponding injected boundary controls; these are reviewed author evidence,
+not 159 independently rerun cases. Root inspected the repaired empty-recovery, capture-bound save
+acknowledgement and phase/assessment telemetry controls and their retained PASS lines. The earlier
+120-command independent history/recovery run remains the separate replay evidence above. No new blocker
+was found for the bounded macOS store/projection seam. The `/1` binaries still carry the known R17/R18
+scientific defects and are **not accepted as a full B join**. Windows, power-loss hardware durability,
+uncooperative-writer exclusion and native GUI behavior are not established by this probe.
+
 The initial near-zero-knot stress oracle incorrectly demanded Not assessed merely because a valid knot
 was `5e-324`. Its failure was a **reviewer error, not a product failure**. The original result is retained.
 The corrected stress-only followup accepted either a properly bound finite certificate or an honest
@@ -194,9 +293,10 @@ cap; the Coordinator added a preactivation seat-count control.
 
 Current CUA inventory exposes no browser provider or running spike app. Earlier native capture failed
 with `cgWindowNotFound`. Production rendered/keyboard/accessibility proof remains unassessed; historical
-architecture-spike observations cannot satisfy it. Windows runtime and actual native store behavior
-are also unassessed. Measured model token use and cost are **Not recorded**.
+architecture-spike observations cannot satisfy it. Windows runtime remains unassessed; the bounded macOS
+store observations above do not establish another platform. Measured model token use and cost are **Not recorded**.
 
-The root `implement` review marker starts at 15:56:16Z and measures the review checkpoint run only;
-earlier parser-review preparation is not retroactively included. Its checkpoint audit records a
-partial outcome. A final verdict will follow complete B evidence. This artifact deliberately remains open.
+The historical root `implement` marker at 15:56:16Z measured that earlier partial checkpoint only;
+earlier parser-review preparation was not retroactively included. The final bounded B review has its
+separate 17:39:06Z marker and acceptance audit. The final disposition is the bounded PASS at the top;
+C/native application, Windows runtime and full-product obligations remain open as listed above.
