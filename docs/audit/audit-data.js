@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:09:10Z",
+  "generated": "2026-09-23T15:16:42Z",
   "audit": [
     {
       "actor": null,
@@ -3721,6 +3721,54 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T15:08:59Z",
       "duration_seconds": 11.0
+    },
+    {
+      "id": "al-01M37D445YEMES8FQ31XN06R2R",
+      "shortname": "owner-b0-gate-pass",
+      "datetime": "2026-09-23T15:11:08Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule on joined B0 technical gate after clean handback, independent root PASS and Coordinator join/recount; exclude production dispatch and M1 acceptance.",
+      "summary": "Ruling12 approves bounded B0 contract prerequisite for G3 review at clean joined c13db2737440d78d384f48afa018af268e70f807. Matched frozen source fingerprints and root final89/42/2505 receipt, inspected guard fixes and independent mutant results, joined review and durable conductor success audit. Coordinator observed10/10 gates; raw conductor stdout not separately retained and no Owner rerun is claimed. Advisory author commit-hook identity limitation retained. Production G3, R11 cancellation/preflight, full language/kernel/native store/UI/platform gates remain separate.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Approve only the proven serial contract prerequisite and preserve honest evidence boundaries.",
+      "done_when": "Canonical B0 request resolved and downstream launch prerequisites communicated.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T15:09:49Z",
+      "duration_seconds": 79.0
+    },
+    {
+      "id": "al-01M37DEAJT71XNMT2T7CVVA5YM",
+      "shortname": "owner-g3-first-core",
+      "datetime": "2026-09-23T15:16:42Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule G3 exact18-path first-core packet, observed-only requested-Astra route and ADR0003 conditional native M1 status after B0 PASS and explicit-child-cleanup cancellation evidence.",
+      "summary": "Ruling13 authorizes one serial core implementation track after Coordinator exact worker/path/cache preflight; freezes18 authored paths and B0 baseline. Read updated packet and cancellation transcript record; agent interruption plus explicit owned-child cleanup accepted without automatic-propagation claim. Native capability spikes reside inside leased ProjectStoreTests before corresponding implementation. Root owns ADR0003/0004 acceptance and frontdoor reconciliation. Full grammar, real continuous authority, identity/session/persistence/telemetry proof and independent review required before join; no adapter fanout or product acceptance. Initial budget is checkpoint, not completion claim.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Authorize the smallest proven implementation boundary with exact ownership and retained independent product gates.",
+      "done_when": "Canonical G3 request resolves and Coordinator/root receive frozen scope, preflight and reconciliation obligations.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T15:15:39Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [

@@ -2,42 +2,50 @@
 id: coordination-contract-b-core
 title: Proposed first production core author assignment
 type: plan
-status: proposed
+status: accepted
 owner: "@cfd-coordinator-20260923"
 tags: [coordination, application, core, implementation]
 links:
   - {to: coordination-application-build, rel: depends-on}
   - {to: coordination-contract-b0, rel: depends-on}
   - {to: design-application-foundation, rel: depends-on}
+  - {to: design-application-contracts, rel: depends-on}
+  - {to: adr-application-project-contract, rel: depends-on}
+  - {to: coordination-application-cancel-drill, rel: relates-to}
 review-by: 2026-10-23
-summary: Conditional exact-path production core packet to freeze only after B0 executable contract review and the Owner's G3 technical and harness-routing rulings.
+summary: Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.
 ---
 
-# B · first production core packet (draft, not dispatched)
+# B · first production core packet (G3 frozen, not dispatched)
 
-**Admission gate:** serial B0 must hand back a committed, independently reviewed
-session/schema/identity/persistence contract and executable fixtures. Owner must
-then issue the G3 technical freeze. Ruling 11 conditionally selects one serial
+**Admission gate:** serial B0's committed session/schema/identity/persistence
+contract and executable fixtures passed bounded Owner Ruling 12 and independent
+root review on joined commit `c13db27`. Owner Ruling 13 freezes this exact
+18-path serial G3 contract. Ruling 11 conditionally selects one serial
 built-in Codex core author under equal observed-only controls, but clears no
-dispatch: the harmless same-harness cancellation/quiescence drill and exact
-identity/path checks remain. This packet is preparation, not authorization to
-write production code. No further Grok mode/probe loop is proposed.
+dispatch without actual worker preflight: the [same-harness cancellation drill](application-cancel-drill.md)
+observed agent interruption and explicit owned-child cleanup, while exact
+identity/path/cache checks remain. Ruling 13 authorizes implementation within
+the frozen lease after those checks, not product acceptance. No further Grok
+mode/probe loop is proposed.
 
 | Assignment field | Provisional value; freeze at G3 |
 |---|---|
 | Session, branch and worktree | Not assigned. Create a fresh `feature/application-core` tree through `coord worktree new`; record exact session, branch, absolute path and base commit before the first author command. |
-| Author profile | Requested `gpt-6-astra`; effective model `Not recorded` only under Ruling 11's first-core exception. The candidate must pass actual same-harness cancellation and subprocess-quiescence observation. |
+| Author profile | Requested `gpt-6-astra`; effective model `Not recorded` only under Ruling 11's first-core exception. The disposable same-harness drill is recorded; the production worker still needs its own exact launch/cwd/branch/base readback. |
 | First command | `audit-log.py start --session <assigned> --skill implement` from assigned worktree; read full `implement` contract and B0 design. |
 | Initial budget and checkpoints | 90 tool calls, ≤55 minutes, ≤100k context for first run. This is a checkpoint estimate, not a claim that the broad core will be done in that window. Checkpoints after red boundary fixtures, compiling core API, and store fault tests. At cap, report/replan without claiming completion. No author subagents. |
 | Handback | Exact tracked/untracked path inventory, cwd/base/final HEAD, dependency and test receipts, proof pack, clean descendant commit. Root/Owner independent code and behavior review before join. |
+| Lifecycle | Track child PID plus process start identity for each launched build/test; interruption stops dispatch, terminates only verified owned children and reads back absence. The drill showed `interrupt_agent` alone leaves a child running. Identity drift or unmanaged live processes stop for review. |
 
 ## Provisional exact ownership
 
 These are the [foundation design](../design/application-foundation.md)'s path
-proposals expanded into **18 candidate exact leases**: its 16 source/build/test
-paths, one authored proof pack and one argument-free project gate. G3 freezes
-names against the final B0 public namespace and fixture and links the joined
-`design-application-contracts` and ADR 0004 artifacts. The worker may not
+proposals expanded into **18 frozen exact leases** under Ruling 13: its 16
+source/build/test paths, one authored proof pack and one argument-free project
+gate. They bind to the joined [session contract](../design/application-contracts.md),
+[ADR 0004](../adr/0004-application-project-contract.md), public namespace and
+fixture. The worker may not
 write adjacent paths until the Coordinator publishes that freeze.
 
 | Area | Candidate B-owned paths |
@@ -55,10 +63,12 @@ current sketch alone does not remove that decision edge. B and C remain serial
 unless G3 proves stable independent interfaces and separate path ownership.
 Official `docs/docs-index.js` and audit/change JSONL/render outputs are
 generated/register handback exceptions, never extra authored path leases.
-Native persistence spike source paths are not yet leased. G3 must either add
-their exact source paths and review the ownership count, or identify an
-executable in-proof reproducer wholly inside these leases; the worker cannot
-create an unleased `tools/spikes/` file to satisfy this gate.
+The focused native persistence capability reproducers belong inside the leased
+`tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` **before** corresponding
+platform adapter implementation. Record exact SDK signatures and measured
+behavior. No additional spike path is leased. Unknown or failed platform
+primitives remain Unsupported; the worker cannot create an unleased
+`tools/spikes/` file or infer Windows runtime safety from macOS tests.
 
 ## Required core result
 
@@ -92,10 +102,11 @@ requires `language.parse`, `geometry.validate`, `geometry.preview`,
 `document.apply`, `document.save` and `document.reopen` with operation ID,
 source byte count, generation, evaluator, duration, status and stable code.
 These events emit by default and make latency, volume and failure outcomes
-measurable; missing measurements say Not recorded. Source, path, names and
-draft content do not leak into local-only telemetry. Core stays free of
-Avalonia/UI and network dependencies. At G3, refine retention/minimization from
-the joined B0 security/privacy design; this draft does not invent a log sink.
+measurable; missing measurements say Not recorded. The B0 retention contract is
+a local 256-event session ring discarded at close, with no persistent MRU or
+exporter. Source, path, names, vertex, raw exception and hash-correlation data
+do not leak into telemetry. Core stays free of Avalonia/UI and network
+dependencies.
 
 The author provides red-before-green controls for normal, invalid, boundary
 and fault paths; exact test names, runtime identities, source fingerprints,
@@ -112,5 +123,6 @@ proof.
 
 The selected application stack also needs a separate root-owned project-doc
 reconciliation of the `AGENTS.md` preamble and specification's still-open
-stack wording after the approved ADR joins. B owns none of those files; this
+stack wording after Ruling 13 accepts ADRs 0003/0004 for the bounded direction.
+B owns none of those files; this
 documentation seam cannot be hidden in a production code review.

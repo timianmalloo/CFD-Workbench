@@ -2849,7 +2849,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b94c08dc1c205dfd1ee421ecdf22f52da64df93ffaa41dcdab50e2ea9baefb31"
+      "sourceSha256": "9706357872c1ca0e0cb25e292bbb2453129f8cffc87386f4f5333b94f6798dc1"
     },
     {
       "id": "kb-hw-glossary",
@@ -3733,19 +3733,19 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "06a869ebf5bc072bc8bb7d99234d32c6554c64933ccffd8a88cab2ce94255022"
+      "sourceSha256": "d2a49427db2e9b060ab45d8879768f2aa2b845f3bc39fcb08718bbdb1255e047"
     },
     {
       "id": "coordination-contract-b-core",
       "path": "docs/coordination/contract-b-core.md",
       "title": "Proposed first production core author assignment",
       "type": "plan",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Conditional exact-path production core packet to freeze only after B0 executable contract review and the Owner's G3 technical and harness-routing rulings.",
+      "summary": "Ruling 13 freezes one serial first-core implementation track and exactly 18 authored paths, subject to actual worker identity and cache preflight.",
       "tags": [
         "coordination",
         "application",
@@ -3764,10 +3764,22 @@ window.DOCS_INDEX = {
         {
           "to": "design-application-foundation",
           "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-application-cancel-drill",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a409cd79884a8fb808f5900cd893a61349672402aa834379df2e8ecc68249a1c"
+      "sourceSha256": "fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9"
     },
     {
       "id": "coordination-contract-b0",
@@ -3845,6 +3857,35 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1519c489d6b8b6fad4b6a72e90ee1dca8dc9c57175f85fc7d4d75f8090044f51"
+    },
+    {
+      "id": "coordination-application-cancel-drill",
+      "path": "docs/coordination/application-cancel-drill.md",
+      "title": "First-core built-in worker cancellation drill",
+      "type": "proof-pack",
+      "status": "reviewed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Observed built-in agent interruption and explicit owned-child cleanup; automatic subprocess cancellation is not established.",
+      "tags": [
+        "coordination",
+        "application",
+        "cancellation"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6b1c7d0ceac3633ca30b47dd0dd073c335aa2cfa8926a2e1d2b59038efd1f5d"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -4832,5 +4873,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "5be06a1fa728b294975aa6ec9b01b2989efa86c680c7fe62722f9b9a2ef44d1c"
+  "graphSha256": "50ec5ba0b36c2fdb17a4e98f2258081511c09052270a1f733c59fa3938e116ac"
 };
