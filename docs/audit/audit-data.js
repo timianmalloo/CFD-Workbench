@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T20:29:07Z",
+  "generated": "2026-09-23T21:10:22Z",
   "audit": [
     {
       "actor": null,
@@ -5067,6 +5067,41 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "4b4bd9b3cd61f4f91ef955add22fa8ed6aa3bdf8",
         "short": "4b4bd9b3c",
+        "branch": "feature/application-native-adapters",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M381NWQCKMRWA40S93ZDPKPP",
+      "shortname": "native-interaction-repair",
+      "datetime": "2026-09-23T21:10:22Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Repair only the two observed native keyboard/selection and cancel/re-edit interactions from resumed CUA inspection.",
+      "summary": "Implemented accepted-identity keyed navigator item reuse, F6 focus candidates from real ListBoxItem controls, selected accepted numeric rebinding after Cancel, and repeated selected-item pointer edit. Targeted RED missing seams then GREEN managed tests/apphost smoke; full isolated 11-step gate passed with unchanged inputs and no owned descendants. Native CUA retest remains independent/open.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Keep navigator AX items stable on same accepted identity, reach Navigator with F6, restore selected accepted numeric value after Escape and restart same selected CV edit.",
+      "done_when": "Targeted regressions and changed-source 11-step gate pass; root independently reruns exact native CUA sequences on fixed package.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T21:02:03Z",
+      "duration_seconds": 499.0,
+      "git": {
+        "sha": "de105f025eedd0f2df8acc2fbeb16c22750a6ec6",
+        "short": "de105f025",
         "branch": "feature/application-native-adapters",
         "pushed": null
       }

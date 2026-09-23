@@ -31,6 +31,8 @@ public sealed partial class MainWindow : Window
     private bool closeApproved;
     private string? adapterError;
     private string? boundDraftId;
+    private string? navigatorKey;
+    private DisplayFrame? boundSampleFrame;
     private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
 
     public MainWindow()
@@ -157,14 +159,34 @@ public sealed partial class MainWindow : Window
             return;
         }
         refreshing = true;
-        unitLabel.Text = selected.Unit;
-        double scale = selected.Unit switch { "mm" => 1000, "cm" => 100, _ => 1 };
-        numericInput.Text = (selected.Control.OrdinateSi * scale).ToString("G9", CultureInfo.InvariantCulture);
+        var field = AcceptedControlField(selected.Control, selected.Unit);
+        unitLabel.Text = field.Unit;
+        numericInput.Text = field.Text;
         refreshing = false;
         if (selected.Control.Editable)
             try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
             catch (ContractError error) { stateBanner.Text = $"{error.Code}: control is read-only."; }
         Refresh();
+    }
+
+    private void OnControlPointerReleased(object? sender, PointerReleasedEventArgs args)
+    {
+        if (refreshing || sender is not ListBoxItem item || !ReferenceEquals(controlList.SelectedItem, item) ||
+            controlList.SelectedIndex < 0 || controlList.SelectedIndex >= targets.Count) return;
+        var selected = targets[controlList.SelectedIndex];
+        if (!CanRestartSelectedEdit(workbench.Draft, selectedItemMatches: true, editable: selected.Control.Editable)) return;
+        try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
+        catch (ContractError error) { adapterError = $"{error.Code}: control is read-only."; }
+        Refresh();
+    }
+
+    public static bool CanRestartSelectedEdit(SessionDraft? draft, bool selectedItemMatches, bool editable) =>
+        draft is null && selectedItemMatches && editable;
+
+    public static (string Text, string Unit) AcceptedControlField(AuthoredControl control, string unit)
+    {
+        double scale = unit switch { "mm" => 1000, "cm" => 100, _ => 1 };
+        return ((control.OrdinateSi * scale).ToString("G9", CultureInfo.InvariantCulture), unit);
     }
 
     private void OnNumericChanged(object? sender, TextChangedEventArgs args)
@@ -215,18 +237,20 @@ public sealed partial class MainWindow : Window
                 [numericInput, previewButton, openButton]
             };
             int current = Array.FindIndex(groups, group => group.Any(control => control.IsKeyboardFocusWithin));
-            bool[] available = groups.Select(group => group.Any(control => control.Focusable && control.IsVisible && control.IsEnabled)).ToArray();
+            bool[] available = groups.Select(group => group.Any(control => FocusCandidates(control)
+                .Any(candidate => candidate.Focusable && candidate.IsVisible && candidate.IsEnabled))).ToArray();
             bool reverse = args.KeyModifiers.HasFlag(KeyModifiers.Shift);
             for (int attempt = 0; attempt < groups.Length; attempt++)
             {
                 int next = NextRegionIndex(current, reverse, available);
                 if (next < 0) break;
-                foreach (var candidate in groups[next])
-                    if (candidate.Focusable && candidate.IsVisible && candidate.IsEnabled && candidate.Focus())
-                    {
-                        args.Handled = true;
-                        return;
-                    }
+                foreach (var control in groups[next])
+                    foreach (var candidate in FocusCandidates(control))
+                        if (candidate.Focusable && candidate.IsVisible && candidate.IsEnabled && candidate.Focus())
+                        {
+                            args.Handled = true;
+                            return;
+                        }
                 available[next] = false;
                 current = next;
             }
@@ -258,6 +282,18 @@ public sealed partial class MainWindow : Window
             if (available[index]) return index;
         }
         return -1;
+    }
+
+    public static IEnumerable<Control> FocusCandidates(Control region)
+    {
+        if (region is ListBox list)
+            foreach (var item in list.Items.OfType<ListBoxItem>()) yield return item;
+        yield return region;
+    }
+
+    public static void BindNavigatorItems(ListBox list, IReadOnlyList<ListBoxItem> items, bool acceptedChanged)
+    {
+        if (acceptedChanged) list.ItemsSource = items;
     }
 
     private async Task<bool> MayReplaceAsync()
@@ -371,25 +407,37 @@ public sealed partial class MainWindow : Window
             viewport.Semantics = ViewportSemantics.FromInspection(inspected,
                 workbench.Draft?.Rail, workbench.Draft?.VertexId);
             identityReadout.Text = $"Source SHA-256 {inspected.Authored.Binding.SourceHash}\nSurface {inspected.Authored.Binding.SurfaceHash}\nAccepted {inspected.Authored.Binding.AcceptedId}\nEvaluator {inspected.Authored.Binding.Evaluator}";
-            stationList.ItemsSource = inspected.Authored.Assignments.Select(a => NamedItem($"η {a.Eta:G3} · {a.SpanMeters:G4} m · {a.ProfileName}",
-                $"Station eta {a.Eta:G3}, profile {a.ProfileName}, identity {a.ProfileIdentity}")).ToArray();
-            var priorTarget = controlList.SelectedIndex >= 0 && controlList.SelectedIndex < targets.Count
-                ? (targets[controlList.SelectedIndex].Rail, targets[controlList.SelectedIndex].Control.Id) : ("", "");
-            targets.Clear();
-            foreach (var rail in inspected.Authored.Rails)
-                foreach (var control in rail.Controls) targets.Add((rail.Name, control, rail.SourceUnit));
-            controlList.ItemsSource = targets.Select(item => NamedItem($"{item.Rail} · {item.Control.Id} · η {item.Control.Eta:G2} · {(item.Control.Editable ? "editable" : "locked")}",
-                $"{item.Rail} control vertex {item.Control.Id}; eta {item.Control.Eta:G2}; aft position {item.Control.OrdinateSi:G6} metres; {(item.Control.Editable ? "editable" : "locked " + string.Join(",", item.Control.ApplicableLocks))}")).ToArray();
-            int selected = targets.FindIndex(item => item.Rail == priorTarget.Item1 && item.Control.Id == priorTarget.Item2);
-            if (selected >= 0) controlList.SelectedIndex = selected;
+            string nextKey = inspected.Authored.Binding.AcceptedId + ":" + inspected.Authored.Binding.SourceHash;
+            if (navigatorKey != nextKey)
+            {
+                var priorTarget = controlList.SelectedIndex >= 0 && controlList.SelectedIndex < targets.Count
+                    ? (targets[controlList.SelectedIndex].Rail, targets[controlList.SelectedIndex].Control.Id) : ("", "");
+                BindNavigatorItems(stationList, inspected.Authored.Assignments.Select(a => NamedItem($"η {a.Eta:G3} · {a.SpanMeters:G4} m · {a.ProfileName}",
+                    $"Station eta {a.Eta:G3}, profile {a.ProfileName}, identity {a.ProfileIdentity}")).ToArray(), acceptedChanged: true);
+                targets.Clear();
+                foreach (var rail in inspected.Authored.Rails)
+                    foreach (var control in rail.Controls) targets.Add((rail.Name, control, rail.SourceUnit));
+                var controlItems = targets.Select(item => NamedItem($"{item.Rail} · {item.Control.Id} · η {item.Control.Eta:G2} · {(item.Control.Editable ? "editable" : "locked")}",
+                    $"{item.Rail} control vertex {item.Control.Id}; eta {item.Control.Eta:G2}; aft position {item.Control.OrdinateSi:G6} metres; {(item.Control.Editable ? "editable" : "locked " + string.Join(",", item.Control.ApplicableLocks))}")).ToArray();
+                foreach (var item in controlItems)
+                    item.AddHandler(InputElement.PointerReleasedEvent, OnControlPointerReleased, RoutingStrategies.Bubble, handledEventsToo: true);
+                BindNavigatorItems(controlList, controlItems, acceptedChanged: true);
+                int selected = targets.FindIndex(item => item.Rail == priorTarget.Item1 && item.Control.Id == priorTarget.Item2);
+                if (selected >= 0) controlList.SelectedIndex = selected;
+                navigatorKey = nextKey;
+            }
         }
         else
         {
             viewport.Semantics = [];
             identityReadout.Text = "No accepted source or geometry.";
-            stationList.ItemsSource = Array.Empty<ListBoxItem>();
-            controlList.ItemsSource = Array.Empty<ListBoxItem>();
-            targets.Clear();
+            if (navigatorKey is not null)
+            {
+                stationList.ItemsSource = Array.Empty<ListBoxItem>();
+                controlList.ItemsSource = Array.Empty<ListBoxItem>();
+                targets.Clear();
+                navigatorKey = null;
+            }
         }
         if (workbench.Draft is { } activeDraft && boundDraftId != activeDraft.Id)
         {
@@ -407,7 +455,22 @@ public sealed partial class MainWindow : Window
             }
             boundDraftId = activeDraft.Id;
         }
-        else if (workbench.Draft is null) boundDraftId = null;
+        else if (workbench.Draft is null)
+        {
+            boundDraftId = null;
+            if (controlList.SelectedIndex >= 0 && controlList.SelectedIndex < targets.Count)
+            {
+                var selected = targets[controlList.SelectedIndex];
+                var field = AcceptedControlField(selected.Control, selected.Unit);
+                numericInput.Text = field.Text;
+                unitLabel.Text = field.Unit;
+            }
+            else
+            {
+                numericInput.Text = "";
+                unitLabel.Text = "—";
+            }
+        }
         sourceLabel.Text = workbench.PendingCandidate is not null ? "Pending import: original and explicit-ID candidate — compare before accepting"
             : workbench.PendingOriginal is not null ? "Rejected import: original bytes retained; accepted document unchanged"
             : workbench.HasRecovery ? "Separate recovery draft and unchanged accepted source"
@@ -421,8 +484,12 @@ public sealed partial class MainWindow : Window
                     ? "RECOVERY DRAFT (NOT ACCEPTED)\n" + workbench.RecoverySource +
                       "\nACCEPTED DOCUMENT (UNCHANGED)\n" + workbench.AcceptedSource
                 : workbench.AcceptedSource;
-        sampleList.ItemsSource = workbench.Points.Select(point => NamedItem($"η {point.Eta:G2} · x/c {point.NormalizedX:G2} · {(point.Upper ? "upper" : "lower")} · x {point.X:G5} m",
-            $"Sample eta {point.Eta:G2}, normalized x {point.NormalizedX:G2}, {(point.Upper ? "upper" : "lower")}; placed x {point.X:G6} metres, y {point.Y:G6} metres, z {point.Z:G6} metres; point enclosure only")).ToArray();
+        if (!ReferenceEquals(boundSampleFrame, workbench.Frame))
+        {
+            sampleList.ItemsSource = workbench.Points.Select(point => NamedItem($"η {point.Eta:G2} · x/c {point.NormalizedX:G2} · {(point.Upper ? "upper" : "lower")} · x {point.X:G5} m",
+                $"Sample eta {point.Eta:G2}, normalized x {point.NormalizedX:G2}, {(point.Upper ? "upper" : "lower")}; placed x {point.X:G6} metres, y {point.Y:G6} metres, z {point.Z:G6} metres; point enclosure only")).ToArray();
+            boundSampleFrame = workbench.Frame;
+        }
         var section = workbench.CenterSection;
         sectionPosition.Text = workbench.Frame is { } view
             ? $"Physical X/Z section · η {view.InteriorEta:G3}"

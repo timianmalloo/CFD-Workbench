@@ -305,6 +305,34 @@ if (MainWindow.NextRegionIndex(-1, false, [true, true, true, true]) != 0 ||
     MainWindow.NextRegionIndex(2, false, [true, false, true, true]) != 3 ||
     MainWindow.NextRegionIndex(2, false, [true, false, true, false]) != 0)
     throw new Exception("F6 region cycling did not skip unavailable regions in both directions");
+var stationItem = new ListBoxItem { Content = "root station" };
+var stationRegion = new ListBox { ItemsSource = new[] { stationItem } };
+if (!ReferenceEquals(MainWindow.FocusCandidates(stationRegion).FirstOrDefault(), stationItem))
+    throw new Exception("F6 navigator region did not offer its actual focusable station item");
+var originalItems = stationRegion.ItemsSource;
+MainWindow.BindNavigatorItems(stationRegion, new[] { new ListBoxItem { Content = "replacement" } }, acceptedChanged: false);
+if (!ReferenceEquals(stationRegion.ItemsSource, originalItems) ||
+    !ReferenceEquals(stationRegion.Items[0], stationItem))
+    throw new Exception("Same accepted identity replaced station AX items during selection refresh");
+MainWindow.BindNavigatorItems(stationRegion, new[] { new ListBoxItem { Content = "new accepted revision" } }, acceptedChanged: true);
+if (ReferenceEquals(stationRegion.ItemsSource, originalItems))
+    throw new Exception("New accepted identity failed to replace stale station items");
+using (var repeatedSelection = new WorkbenchController())
+{
+    await repeatedSelection.OpenExampleAsync();
+    var acceptedCv = repeatedSelection.Inspection!.Authored.Rails.Single(rail => rail.Name == "leading")
+        .Controls.Single(vertex => vertex.Id == "cv-2");
+    repeatedSelection.BeginEdit("leading", acceptedCv.Id);
+    repeatedSelection.UpdateDraft(.005);
+    await repeatedSelection.PreviewAsync();
+    repeatedSelection.Cancel();
+    var acceptedField = MainWindow.AcceptedControlField(acceptedCv, "mm");
+    if (acceptedField.Text != "0" || acceptedField.Unit != "mm" ||
+        !MainWindow.CanRestartSelectedEdit(repeatedSelection.Draft, selectedItemMatches: true, editable: acceptedCv.Editable))
+        throw new Exception("Cancel left stale numeric text or blocked same-selected CV re-edit");
+    repeatedSelection.BeginEdit("leading", acceptedCv.Id);
+    if (repeatedSelection.Draft is null) throw new Exception("Repeated edit did not create an owned draft");
+}
 Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
 
 sealed class UncertainStore : IProjectStore
