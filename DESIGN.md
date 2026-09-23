@@ -124,7 +124,9 @@ motion: { fast: 120ms, base: 200ms, easing: "cubic-bezier(0.2,0,0,1)" }
 This is the proposed visual vocabulary for iteration. The spec owns behavior; this
 file owns the tokens and copy. The [direction brief](docs/design/workbench-direction.md)
 records the words-first rationale and evidence. The paired archetype is G1 with
-local-device persistence, with G2 inside Results. No application stack is selected.
+local-device persistence, with G2 inside Results. The separate
+[architecture decision](docs/adr/0003-application-stack.md) selects C#/.NET and
+Avalonia for the first offline milestone; this file remains the token authority.
 
 ## 1. Atmosphere and hierarchy
 

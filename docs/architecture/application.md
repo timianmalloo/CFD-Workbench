@@ -2,7 +2,7 @@
 id: architecture-application
 title: CFD-Workbench application architecture and offline first milestone
 type: architecture
-status: proposed
+status: accepted
 owner: "@cfd-owner-20260923"
 phase: architecture
 tags: [application, native, offline, architecture]
@@ -15,16 +15,21 @@ links:
   - {to: coordination-application-build, rel: relates-to}
 review-by: 2026-12-23
 summary: >-
-  Proposes a native modular monolith with one deterministic source-authoring core and GUI/CLI adapters.
+  Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters.
   Defines the whole application's boundaries, durable source/history invariants and vertical delivery;
   the first offline slice stays behind independently reviewed numerical, persistence and native gates.
+review-suggested:
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
 ---
 
 # Application architecture
 
-**Proposed, not Owner-approved.** Author seat: `cfd-arch-codex-20260923`; Owner:
-`cfd-owner-20260923`; independent reviewer: root. No production application is implemented by this change.
-The [ADR](../adr/0003-application-stack.md) proposes a stack after actual SDK/native spikes. The
+**Accepted direction for the conditional first offline milestone, 2026-09-23.**
+[Owner Ruling 13](../notes/rulings.md#ruling-13--g3-serial-first-core-implementation-freeze)
+authorizes one serial core implementation track after worker preflight. Author seat:
+`cfd-arch-codex-20260923`; Owner: `cfd-owner-20260923`; independent reviewer: root.
+No production application is implemented by this architecture change.
+The [ADR](../adr/0003-application-stack.md) selects a stack after actual SDK/native spikes. The
 [proof](../proof/application-spikes.md) distinguishes observed results from implementation obligations.
 
 ## 1. Intent and authoritative grounding

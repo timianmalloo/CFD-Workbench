@@ -18,6 +18,8 @@ summary: >-
   Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams.
   Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store.
   Owner and independent review retain the production gate.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
 ---
 
 # Native M1 contract completion

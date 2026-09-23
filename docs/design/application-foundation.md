@@ -18,6 +18,9 @@ summary: >-
   Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft,
   certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary,
   failure/security/privacy tests and exact downstream ownership proposals without production implementation.
+review-suggested:
+  - { by: architecture-application, on: 2026-09-23, reason: "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open." }
+  - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
 ---
 
 # Offline accepted-source slice

@@ -245,7 +245,7 @@ window.DOCS_INDEX = {
       "path": "docs/adr/0004-application-project-contract.md",
       "title": "Native-v1 immutable receipts and bounded admission",
       "type": "adr",
-      "status": "in-review",
+      "status": "accepted",
       "owner": "@cfd-owner-20260923",
       "phase": "design",
       "reviewBy": "2026-12-23",
@@ -254,6 +254,11 @@ window.DOCS_INDEX = {
           "by": "design-application-contracts",
           "on": "2026-09-23",
           "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        },
+        {
+          "by": "adr-application-stack",
+          "on": "2026-09-23",
+          "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
         }
       ],
       "summary": "Records Owner-approved unshipped native-v1 policy for durable rail edit receipts, bounded immutable history, exact numeric resource admission and fail-closed platform persistence. Independent executable-contract acceptance remains separate from these design-policy rulings.",
@@ -278,19 +283,25 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25"
+      "sourceSha256": "c81671ce91ee62b19a9ce011fe4fb06849d822a94c35629717f2490b473f8ee3"
     },
     {
       "id": "adr-application-stack",
       "path": "docs/adr/0003-application-stack.md",
       "title": "Native modular monolith and source-snapshot persistence for M1",
       "type": "adr",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@cfd-owner-20260923",
       "phase": "architecture",
       "reviewBy": "2026-12-23",
-      "reviewSuggested": [],
-      "summary": "Proposes C#/.NET with Avalonia for the offline native milestone after actual candidate spikes. Retains lossless source snapshots and append-only project facts without a database or editable AST shadow; Owner approval and named cross-platform/numerical/persistence gates remain required.",
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        }
+      ],
+      "summary": "Selects C#/.NET with Avalonia for the conditional offline native milestone after actual candidate spikes. Retains lossless source snapshots and append-only project facts without a database or editable AST shadow; Owner Ruling 13 accepts the direction; named cross-platform/numerical/persistence product gates remain required.",
       "tags": [
         "adr",
         "native",
@@ -316,7 +327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "466cfcdc20eeef4327b87772e39828c12451cd651e97d6d4dcca770b3d2d473c"
+      "sourceSha256": "593dd10f21bc8913402fe873cde8cc020405b657e88a9fe2f19331ad07bc3c27"
     },
     {
       "id": "adr-foildsl-authority",
@@ -363,12 +374,18 @@ window.DOCS_INDEX = {
       "path": "docs/architecture/application.md",
       "title": "CFD-Workbench application architecture and offline first milestone",
       "type": "architecture",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@cfd-owner-20260923",
       "phase": "architecture",
       "reviewBy": "2026-12-23",
-      "reviewSuggested": [],
-      "summary": "Proposes a native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
+      "reviewSuggested": [
+        {
+          "by": "adr-application-stack",
+          "on": "2026-09-23",
+          "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        }
+      ],
+      "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
       "tags": [
         "application",
         "native",
@@ -408,7 +425,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9"
+      "sourceSha256": "6abd84c0e5c53c1f2063d5b65b4879b1bd1eeb2820085fbdfcfbab02ee6aa562"
     },
     {
       "id": "cad-editing-views",
@@ -1036,7 +1053,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-owner-20260923",
       "phase": "design",
       "reviewBy": "2026-12-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        }
+      ],
       "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
       "tags": [
         "application",
@@ -1072,7 +1095,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199"
+      "sourceSha256": "5630bc97f7d4643b445fd8aa176d8b2ea82c4d9e30a8b9bbbf94e2948489611e"
     },
     {
       "id": "design-application-foundation",
@@ -1083,7 +1106,18 @@ window.DOCS_INDEX = {
       "owner": "@cfd-owner-20260923",
       "phase": "design",
       "reviewBy": "2026-12-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "adr-application-stack",
+          "on": "2026-09-23",
+          "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        }
+      ],
       "summary": "Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft, certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary, failure/security/privacy tests and exact downstream ownership proposals without production implementation.",
       "tags": [
         "application",
@@ -1119,7 +1153,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "00c4e8b05509355e30d52824dc122c53de0611231a72a3ead8cde2a1e2afc41c"
+      "sourceSha256": "2e8777ea23c46e1b7fe7e6352be5e7aee9053ca63d1f0bd042a988d3fc1b1edf"
     },
     {
       "id": "design-authoring-decisions",
@@ -3790,7 +3824,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        }
+      ],
       "summary": "Exact isolated author assignment and handback gate for the serial B0 session, schema, identity and persistence contracts before production implementation.",
       "tags": [
         "coordination",
@@ -3817,7 +3857,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c991c143e93387e59a2aabcb89dcfefcbec87d6d26ace7e8e9b8a2c89b41e651"
+      "sourceSha256": "d131535eee266685431146006403b088828087b395e97eb5fbaaeb82cd428b91"
     },
     {
       "id": "privacy-review",
@@ -3833,6 +3873,11 @@ window.DOCS_INDEX = {
           "by": "design-application-contracts",
           "on": "2026-09-23",
           "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
         }
       ],
       "summary": "Captures identifying source comments, names, local paths and retained recovery/history for the offline slice. No personal-data transfer is introduced; metadata minimization and explicit local retention remain testable implementation obligations rather than assumed properties of the toolkit.",
@@ -3856,7 +3901,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1519c489d6b8b6fad4b6a72e90ee1dca8dc9c57175f85fc7d4d75f8090044f51"
+      "sourceSha256": "bb1054131ef913bf87aaf6649cfd514942e89d8da4225c36bec36ff695277aa8"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -3967,7 +4012,18 @@ window.DOCS_INDEX = {
       "owner": "@cfd-owner-20260923",
       "phase": "architecture",
       "reviewBy": "2026-12-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        },
+        {
+          "by": "adr-application-stack",
+          "on": "2026-09-23",
+          "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
+        }
+      ],
       "summary": "Records actual pinned SDK/package builds, native macOS accessibility and picker observations, exact identity vectors, conservative rational geometry bounds and filesystem fault injection. Separates the bounded architecture spike from unfinished production and Windows evidence.",
       "tags": [
         "proof",
@@ -3995,7 +4051,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9186baabaf6f5a8fd67c12c29eb3086b64525e17733344887a05d642e0820cef"
+      "sourceSha256": "3217ff0d84e2058e115f3752d28235732026e89c1f7cc2ace4eb390012b7ed78"
     },
     {
       "id": "proof-authoring-decisions",
@@ -4191,7 +4247,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-application-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
+        }
+      ],
       "summary": "Independent review of the serial B0 contract fixture, its durable identity and session boundaries, with explicit limits on what fixture evidence establishes.",
       "tags": [
         "application",
@@ -4219,7 +4281,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "20e967ab7a7632a0fe3fddc335a2ff99ac28e5d5d474a4de1cd0e37120d12cc8"
+      "sourceSha256": "46dbff6b710a8d74399b53f76ce60a3dbad1f83ab2b4df5f28232aff46ea5e55"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -4514,6 +4576,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "adr-application-stack",
+          "on": "2026-09-23",
+          "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.",
@@ -4526,6 +4593,14 @@ window.DOCS_INDEX = {
         "build-basis"
       ],
       "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "relates-to"
+        },
         {
           "to": "decision-design-iteration",
           "rel": "depends-on"
@@ -4660,7 +4735,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Inspect accepted design] --> B[Pin immutable baseline]\nB --> C[Create and name alternative]\nC --> D[Select middle authored station]\nD --> E[Persistent thumbnail and Edit section]\nE --> F{Shared or independent scope}\nF -->|Shared| G[Show all assignments and adjacent intervals]\nF -->|Independent| H[Copy profile and preview selected assignment intervals]\nG --> I[Choose thickness policy and edit section]\nH --> I\nI --> J[Inspect another station or 3D impact without retargeting draft]\nJ --> K{Valid supported change}\nK -->|No| L[Explain lock or geometry failure; retain draft]\nL --> I\nK -->|Cancel| D\nK -->|Apply| M[Accepted alternative revision and source]\nM --> N[Compare geometry and compatible evidence with pinned baseline]\nN --> O{Evidence available and compatible}\nO -->|Yes| P[Show provenance and difference basis]\nO -->|No| Q[Show missing or incompatible reason without a number]\nP --> R[Write decision rationale]\nQ --> R\nR --> S{Keep or discard}\nS -->|Keep| T[Record decision; chosen alternative stays active]\nS -->|Discard| U[Record decision; archive alternative; return to baseline]\nS -->|No rationale| R"
         }
       ],
-      "sourceSha256": "522227e5e178ad7b15cdbfde031d406736a21006c8100a8ff72437fb8ee1a002"
+      "sourceSha256": "f7c8922d8d5cb775266c9b578ec03576ad82009990f951f819540501d77eedd9"
     },
     {
       "id": "spec-foildsl",
@@ -4734,6 +4809,11 @@ window.DOCS_INDEX = {
           "by": "design-application-contracts",
           "on": "2026-09-23",
           "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-23",
+          "reason": "Owner Ruling 13 accepts conditional native M1 architecture and serial core implementation; product proof gates remain open."
         }
       ],
       "summary": "Rolls up the offline application's file, command, rendering and telemetry threat analysis. Mitigations are proposed and tested only to the extent recorded in the architecture spike proof; filesystem race handling and distribution trust remain independent release gates.",
@@ -4757,7 +4837,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "177cc4de353ec2d87a104cf086588bb6e94bacb96a24d9e8586c3c7cce51168e"
+      "sourceSha256": "6dbe33ffed3ff87515c1f59160f801d39fd097c09ec03089e229061e048e7681"
     }
   ],
   "surfaces": [
@@ -4873,5 +4953,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "50ec5ba0b36c2fdb17a4e98f2258081511c09052270a1f733c59fa3938e116ac"
+  "graphSha256": "98c7b695e319a2450515e738ed3bc9c78f82b0b59afd349bacda745cdead6243"
 };
