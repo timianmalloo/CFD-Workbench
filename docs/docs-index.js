@@ -20,7 +20,8 @@ window.DOCS_INDEX = {
     "api",
     "source",
     "doc",
-    "index"
+    "index",
+    "plan"
   ],
   "relationRegistry": [
     "implements",
@@ -1650,7 +1651,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a2ff53e7ed17e4510b8515af5204da202f0412f4d5606cd9a8f5eaf07fb2931e"
+      "sourceSha256": "daf090e4bb83d7254a14580eba23b18f2e0bd976648099ae16e6a93a7e639acc"
     },
     {
       "id": "domain-experts",
@@ -3558,6 +3559,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "review-application-architecture",
+      "path": "docs/reviews/application-architecture.md",
+      "title": "Independent review of the application foundation architecture",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent lead review of the first application architecture and contract spikes. Records observed native interaction evidence, contract findings and outstanding gates; it does not certify an application implementation or Windows runtime behavior.",
+      "tags": [
+        "architecture",
+        "application",
+        "independent-review",
+        "native-ui",
+        "provenance"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "domain-experts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1962c1dd0a8590c125233fd5c00869120744f392b67a75a763f3faa17c9aa401"
+    },
+    {
       "id": "review-foil-editing-flow-results",
       "path": "docs/reviews/foil-editing-flow-results.md",
       "title": "Editable foils and flow results — review and proof",
@@ -4162,5 +4198,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "da3d12ef39036bff585ed708be2a9687e8c7f380ef64841fe0a5b95cadbe2bb1"
+  "graphSha256": "7cf537aa30fa160757c6c75dc63e9ce4af4d6f808187f2c7820d7a8986c0b91c"
 };

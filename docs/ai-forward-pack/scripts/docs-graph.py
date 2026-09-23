@@ -1214,6 +1214,7 @@ def cmd_rollup(args):
     """Extract the markdown table under --heading from every matching artifact and merge."""
     arts, problems = scan(args.root)
     if args.type: arts=[a for a in arts if a.get("type")==args.type]
+    link_base = os.path.abspath(getattr(args, "relative_to", None) or args.root)
     header, out = None, []
     for a in sorted(arts, key=lambda x: x.get("id","")):
         text, _ = _read_source_bounded(a["_fs_path"], a["id"])
@@ -1224,7 +1225,7 @@ def cmd_rollup(args):
         if header is None: header = rows[0], rows[1]
         for r in rows[2:]:
             if r.strip().strip("|").strip(): out.append("| [" + a.get("id","?") + "](" +
-                os.path.relpath(a["_fs_path"], os.path.abspath(args.root)).replace(os.sep,"/") + ") " + r.strip())
+                os.path.relpath(a["_fs_path"], link_base).replace(os.sep,"/") + ") " + r.strip())
     if header is None:
         print(f"no '{args.heading}' tables found", file=sys.stderr); return 1
     lines = [
@@ -1605,6 +1606,8 @@ def main():
     sub.add_parser("snapshot")
     ru = sub.add_parser("rollup"); ru.add_argument("--heading", required=True)
     ru.add_argument("--type", default=None, help="restrict to one artifact type (e.g. design)")
+    ru.add_argument("--relative-to", default=None,
+        help="directory containing the destination document; default: documentation root")
     cx = sub.add_parser("context")
     cx.add_argument("--id", required=True)
     cx.add_argument("--query", default="")
