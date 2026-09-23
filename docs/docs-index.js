@@ -1939,7 +1939,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d5d09ad86aedf03f07530b1eac1245c662ba793280d71ebb212a96d8a86bc860"
+      "sourceSha256": "a405aec8d1f1ec8758cd45c196f450284546cd9324efcbab5fe7506ddec9d27d"
     },
     {
       "id": "domain-experts",
@@ -3814,7 +3814,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18f5321f0b72a4ec147f8b1515a0a36ad08afb2af6be14d55cd8a779568a757f"
+      "sourceSha256": "b51f9928f8adac45de175eb74ee6cfa6e7509ea90bdcd5fde498c6e0143ebca8"
     },
     {
       "id": "coordination-contract-b-core",
@@ -3926,6 +3926,52 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3e4c658740d07732e1451cdd3e4cfb9f70a045e4fa471b37725732dd121741b9"
+    },
+    {
+      "id": "coordination-contract-c-native",
+      "path": "docs/coordination/contract-c-native.md",
+      "title": "Provisional native desktop and CLI adapter assignment",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.",
+      "tags": [
+        "coordination",
+        "application",
+        "desktop",
+        "cli"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e1eb2d87d1d283f088a1937ec77730319857029774bee173d3c2ce90e5936706"
     },
     {
       "id": "privacy-review",
@@ -5101,5 +5147,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a0eace23ad9f361da0b1074de1390618d3f32bbf9febc79bc3c837649ddecde9"
+  "graphSha256": "46dd4e5f838d30524004c187c8cb145c7be9af0d00ae3760bb42e16b057ba4ca"
 };
