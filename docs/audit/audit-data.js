@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:16:41Z",
+  "generated": "2026-09-23T14:17:19Z",
   "audit": [
     {
       "actor": null,
@@ -3172,6 +3172,36 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M37A1KB8XW02RY0KQPXMHE2P",
+      "shortname": "join-application-architecture",
+      "datetime": "2026-09-23T14:17:19Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrated conditional native architecture and bounded spike evidence recount_seconds=10 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/architecture/application.md",
+        "docs/proof/application-spikes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join independently reviewed architecture handback without widening M1 claims",
+      "done_when": "Author scope and integrated recount pass; canonical graph and audit views are regenerated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T14:17:09Z",
+      "duration_seconds": 10.0
     }
   ],
   "changes": [
