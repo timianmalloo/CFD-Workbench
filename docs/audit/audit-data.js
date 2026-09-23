@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:49:23Z",
+  "generated": "2026-09-23T14:54:53Z",
   "audit": [
     {
       "actor": null,
@@ -3449,6 +3449,54 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "a706b511f0b7a125f3a76770524f073166cd2840",
         "short": "a706b511f",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37C1X1BH33S2280KVBKW6DP",
+      "shortname": "owner-first-core-routing",
+      "datetime": "2026-09-23T14:52:27Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Choose conditional first-core production harness route from existing evidence, apply equal observed-only threshold, specify model/cwd/HEAD/cancellation/path/cache/diff prerequisites, and keep B0/G3 technical gate separate.",
+      "summary": "Ruling 11 selects conditional serial built-in Codex with requested gpt-6-astra and effective Not recorded when unexposed, exception first-core-only with root concurrence. Requires actual harmless same-harness cancellation and owned-process quiescence, resolved B0/G3 approval, exact worker/coordinator cwd/branch/base/path/cache receipts and independent precommit/join review. No dispatch authorized. Current Grok ACP remains unqualified without additional probes; failed sentinel is not comparative proof of Codex confinement. Later routine adapters require a fresh bounded routing decision.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Choose an evidence-qualified route for difficult core work without treating harness routing as product approval.",
+      "done_when": "Canonical routing request resolved with explicit launch prerequisites and remaining technical gate.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T14:51:07Z",
+      "duration_seconds": 80.0
+    },
+    {
+      "id": "al-01M37C6BRKKR9JKXBGGCWEB6N7",
+      "shortname": "proposed-first-core-production-packet",
+      "datetime": "2026-09-23T14:54:53Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Prepare the first production core assignment and route decision while B0 completes.",
+      "summary": "Drafted 18 provisional exact core/build/test/proof/gate paths, serial core-to-adapter dependency, full FoilDSL recognition versus certified admitted geometry, normal-path event acceptance, budget/checkpoints and join floors. Owner Ruling11 conditionally selects first-core Codex only after B0 independent PASS, G3 technical freeze and observed harmless cancellation/quiescence. No production worker dispatched.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-b-core.md",
+        "docs/coordination/application-build.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "git": {
+        "sha": "392daa55b47e7b8bedee68c5421b1d29327443dc",
+        "short": "392daa55b",
         "branch": "feature/application-coordination",
         "pushed": null
       }

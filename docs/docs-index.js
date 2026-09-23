@@ -2762,7 +2762,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "85c47b044f760c2b8e20eb53c1d218d5c4eeb8e0641516d4b71b3800c4262b5c"
+      "sourceSha256": "b94c08dc1c205dfd1ee421ecdf22f52da64df93ffaa41dcdab50e2ea9baefb31"
     },
     {
       "id": "kb-hw-glossary",
@@ -3646,7 +3646,41 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "93be9c61390fd56a7e99db72f1225bfdff409088ecf0fd07c575d508e42d1988"
+      "sourceSha256": "d7ee58f71b4959b9a388f5e310d2394d44c88ca229e8136b3a75a3f93ffb6efd"
+    },
+    {
+      "id": "coordination-contract-b-core",
+      "path": "docs/coordination/contract-b-core.md",
+      "title": "Proposed first production core author assignment",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Conditional exact-path production core packet to freeze only after B0 executable contract review and the Owner's G3 technical and harness-routing rulings.",
+      "tags": [
+        "coordination",
+        "application",
+        "core",
+        "implementation"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-b0",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3976bf07c762a7049d7ed5dac1a014b1d750cbc16cb58aae6d8c6b0a11d99d95"
     },
     {
       "id": "coordination-contract-b0",
@@ -4611,5 +4645,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b51a5bbe16a520a53e97710d78a384980d28b409c8f85b61c9d426aea6229b51"
+  "graphSha256": "fd85262632071a2a68d5c2f4716a039029f047615535259c69470b1a4867450b"
 };
