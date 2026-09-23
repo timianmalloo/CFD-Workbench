@@ -241,6 +241,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "812913d53b18e115062df46ffc3b64b38cdb42b1c60c5d0218d41bfc5629f613"
     },
     {
+      "id": "adr-application-project-contract",
+      "path": "docs/adr/0004-application-project-contract.md",
+      "title": "Native-v1 immutable receipts and bounded admission",
+      "type": "adr",
+      "status": "in-review",
+      "owner": "@cfd-owner-20260923",
+      "phase": "design",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        }
+      ],
+      "summary": "Records Owner-approved unshipped native-v1 policy for durable rail edit receipts, bounded immutable history, exact numeric resource admission and fail-closed platform persistence. Independent executable-contract acceptance remains separate from these design-policy rulings.",
+      "tags": [
+        "adr",
+        "persistence",
+        "contracts",
+        "identity"
+      ],
+      "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "refines"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-application-contracts",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25"
+    },
+    {
       "id": "adr-application-stack",
       "path": "docs/adr/0003-application-stack.md",
       "title": "Native modular monolith and source-snapshot persistence for M1",
@@ -986,6 +1026,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "af80f93138c0217e9fcb08a801465b4cc802dd53b4725e83091a73c5eb2dec7f"
+    },
+    {
+      "id": "design-application-contracts",
+      "path": "docs/design/application-contracts.md",
+      "title": "Native M1 session and project contracts",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@cfd-owner-20260923",
+      "phase": "design",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
+      "tags": [
+        "application",
+        "contracts",
+        "source",
+        "history",
+        "identity"
+      ],
+      "links": [
+        {
+          "to": "design-application-foundation",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-application-contracts",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199"
     },
     {
       "id": "design-application-foundation",
@@ -3729,7 +3816,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-owner-20260923",
       "phase": "architecture",
       "reviewBy": "2027-03-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        }
+      ],
       "summary": "Captures identifying source comments, names, local paths and retained recovery/history for the offline slice. No personal-data transfer is introduced; metadata minimization and explicit local retention remain testable implementation obligations rather than assumed properties of the toolkit.",
       "tags": [
         "privacy",
@@ -3744,10 +3837,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-application-foundation",
           "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1b72ee4ca60c80c6cf55d60db684c66221f7b45970826bcce5661727b095ccab"
+      "sourceSha256": "1519c489d6b8b6fad4b6a72e90ee1dca8dc9c57175f85fc7d4d75f8090044f51"
     },
     {
       "id": "coordination-architecture-qualification",
@@ -3778,6 +3875,47 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "7209d491a6c421c4dd5a26180472505de228633c3573f4398534175c71060e5f"
+    },
+    {
+      "id": "proof-application-contracts",
+      "path": "docs/proof/application-contracts.md",
+      "title": "Executable native M1 contract evidence",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-contracts-author-20260923",
+      "phase": "design",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        }
+      ],
+      "summary": "Records actual C# build/session assertions and independent decimal, RFC 8785, BLAKE3 and history oracles. Distinguishes fixture geometry authority and persistence models from live local filesystem primitives. Native Windows, full language/kernel/store and production telemetry remain unassessed.",
+      "tags": [
+        "application",
+        "contracts",
+        "proof",
+        "identity",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e741506806b96f7a9dcaa4b7532ed60c51baf71b77cbeb34e35f76b48690d1e2"
     },
     {
       "id": "proof-application-spikes",
@@ -4511,7 +4649,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-owner-20260923",
       "phase": "architecture",
       "reviewBy": "2027-03-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-application-contracts",
+          "on": "2026-09-23",
+          "reason": "Serial contract completion adds durable edit receipts, bounded writer-reader admission and explicit typed session/store seams."
+        }
+      ],
       "summary": "Rolls up the offline application's file, command, rendering and telemetry threat analysis. Mitigations are proposed and tested only to the extent recorded in the architecture spike proof; filesystem race handling and distribution trust remain independent release gates.",
       "tags": [
         "security",
@@ -4526,10 +4670,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-application-foundation",
           "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6cc6c39f21b035178f40f7f4e574344d21d0356070d418483c2ac2384a32ab6e"
+      "sourceSha256": "177cc4de353ec2d87a104cf086588bb6e94bacb96a24d9e8586c3c7cce51168e"
     }
   ],
   "surfaces": [
@@ -4645,5 +4793,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "259a53ceee85874d4c6d8c248b19d8e5474fbc83a73a5af06826caf82661df8c"
+  "graphSha256": "a22380711733718516a787c5b08865961c3f6df64d1de75f745ef2fbeae486aa"
 };
