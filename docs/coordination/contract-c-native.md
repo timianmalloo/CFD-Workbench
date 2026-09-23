@@ -216,7 +216,11 @@ the Ruling 23 first-run drift is the negative control. It then runs named
 tests without implicit rebuild, checks both publish targets where available, inspects
 nonempty native token corpus and returns actual subprocess statuses with owned
 process quiescence. The proof names exact commands, package versions, source
-fingerprints, durations, screenshots and unrun platform obligations. Root/Owner
+fingerprints, durations, screenshots and unrun platform obligations. For an
+independent frozen binary consumer, retain a manifest of **every** runtime
+assembly SHA and assert the copied DLL set matches it before invoking the
+consumer; a project `HintPath` or build exit alone cannot prove which assembly
+MSBuild resolved. Root/Owner
 review before join; one integrated recount and actual rendered app exercise
 follow in D. A green C test run is not M1 acceptance.
 

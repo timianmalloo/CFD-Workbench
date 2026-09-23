@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T19:13:27Z",
+  "generated": "2026-09-23T19:22:45Z",
   "audit": [
     {
       "actor": null,
@@ -5168,6 +5168,29 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Complete native adapter M1 implementation with truthful platform and UI evidence.",
       "done_when": "C author delivers complete exact-path handback, independent review and conductor join with required gates.",
+      "tier": "T2",
+      "fan_out": 1
+    },
+    {
+      "id": "al-01M37VGTZCZEQ031EK8WRXA766",
+      "shortname": "coordinate-frozen-assembly-binding",
+      "datetime": "2026-09-23T19:22:45Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Capture the independent consumer DLL-binding correction as a recurrence control.",
+      "summary": "Independent sampler initially compiled against an older MSBuild-selected DLL despite HintPath; corrected scratch consumer disabled default items, fingerprinted every runtime assembly and proved all eight editable targets visible under 15-query cap. Updated C handback contract and TEST-A class without treating harness error as product failure.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-c-native.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Keep adapter review bound to the exact frozen compiled source and runtime assembly set.",
+      "done_when": "Independent C review uses a verified assembly manifest and final C handback is accepted/joined.",
       "tier": "T2",
       "fan_out": 1
     }

@@ -203,6 +203,21 @@ is auto-discovered by `run-verify-gates.py`; it proves RED with only the dispatc
 reverted and GREEN in the current CLI. A direct-helper test alone cannot certify the
 worktree routing behavior.
 
+**TEST-A recurrence · A frozen consumer compiles against a different DLL than
+the intended snapshot.** Root's first corrected viewport sampler project
+resolved an older adapter assembly through MSBuild candidate-file probing
+ahead of its stated `HintPath`; the missing `InteriorEta` compile error was a
+review harness binding failure, not a product regression. The earlier
+fixed-sampler RED still applied but was re-attributed to the actual frozen
+controller DLL. Sweep: all isolated .NET consumers that copy app assemblies
+or rely on `HintPath`. Derive: turn off default item discovery in the scratch
+consumer and compare each runtime assembly SHA with a frozen manifest before
+execution. Prevent: the always-read C contract requires that manifest for
+independent binary review; root's corrected sampler retained the SHA-bound
+assembly manifest and obtained the same-edit GREEN for all eight editable
+targets. A passing consumer with only the top-level DLL fingerprint does not
+close this class.
+
 **PACK-I · Generated links are relative to the input root instead of their destination.**
 Security/privacy rollups embedded under `docs/security/` contained `design/...` links,
 which resolved below the wrong directory. Sweep: both rollup tables and the shared link
