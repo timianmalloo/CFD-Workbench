@@ -124,6 +124,13 @@ on a partial pass; a failed branch remains isolated with its receipt. This
 track alone is an internal core increment, not a runnable M1 delivery or a CLI
 proof.
 
+Independent geometry and identity oracles must invert each authored channel's
+abscissa before assigning spline basis weights at a physical station. For the
+twist-collision review fixture, `eta=0.203125` is reached at first-span local
+`u=1/2`, not `u=eta/0.5`; the CV2 weight is `3/8`. A reviewer computation that
+uses the station as the parameter cannot clear a geometry or Surface-identity
+veto even if its qualitative result happens to agree.
+
 The selected application stack also needs a separate root-owned project-doc
 reconciliation of the `AGENTS.md` preamble and specification's still-open
 stack wording after Ruling 13 accepts ADRs 0003/0004 for the bounded direction.

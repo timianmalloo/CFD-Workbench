@@ -379,6 +379,20 @@ diff is empty before commit. The current flag was removed; no ruling prose
 or numbered decision changed. A future graph-tool class-aware exclusion may
 replace this local join control after separate review.
 
+**ORACLE-X · A reviewer equates a physical station with its spline parameter.**
+In the independent twist-collision calculation, I first used `eta=0.203125`
+as the cubic span parameter and reported CV2 weight `9633/32768`. The authored
+abscissa is nonuniform: its first span reaches that eta at local `u=1/2`, so
+the correct weight is `3/8`. The initial angle bits were withdrawn before a
+technical ruling; this was a reviewer-oracle error, not a product regression.
+Sweep: section, twist, rail and placed-point oracles that evaluate a B-spline
+at a physical x/eta. Derive: solve or prove `x(u)=requested position` before
+using basis weights, then compare exact/interval outputs. Prevent: the
+always-read B packet requires that inverse-abscissa check, and
+root's retained `exact-oracle.py` plus nonlinear-x section consumer provide
+the corrected named evidence. Matching a qualitative outcome from a wrong
+parameter is not counted as a valid oracle.
+
 **CO-UI · A native adapter packet names UI outcomes but omits its review workflow.**
 The first provisional C packet required keyboard, accessibility and token
 proof, yet did not bind the author to `$implement` and the triggered

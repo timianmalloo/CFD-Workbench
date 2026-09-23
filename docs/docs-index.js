@@ -1939,7 +1939,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8c21529088058c3d7a786e3d61618e2662f9996df681c714aa9797c878ce496"
+      "sourceSha256": "6277bcea71125486f04c481592404f2438097261245dcc3cd5888c9f9ef7bb4a"
     },
     {
       "id": "domain-experts",
@@ -3871,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4c02d5aee1d15502ed2544b46b7305fab480128f1c86ce169625f6c23131a9ca"
+      "sourceSha256": "b0c82b65faf27ea57d038acc4850fe115924adffb68c0630055e2b7ed1885d08"
     },
     {
       "id": "coordination-contract-b0",
@@ -5147,5 +5147,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "41fe295cad2d09d001813072e4404b381916ba654ac74d97b51b1e361e66124d"
+  "graphSha256": "b2da3dab7e2677b23c43afce2bbb12c0f34b4aed7350b630b691f09487d53d70"
 };
