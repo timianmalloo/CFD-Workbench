@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:03:57Z",
+  "generated": "2026-09-23T18:05:10Z",
   "audit": [
     {
       "actor": null,
@@ -4659,24 +4659,276 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M37Q0HRKT0RN2E3R1D66EBC9",
-      "shortname": "application-core-review-final-join",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/application-core.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-23T18:03:57Z",
+      "done_when": "Reviewed report and official metadata joined cleanly with docs and integrated gates",
+      "duration_seconds": 1.0,
+      "fan_out": 0,
+      "goal": "Make the final bounded core review durable before production B integration",
+      "id": "al-01M37Q0HRKT0RN2E3R1D66EBC9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-core-review-final-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T18:03:56Z",
+      "summary": "Join root independent R16-R19 scientific and store review accepted by Owner R22 recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:55:52Z",
+      "done_when": "Full contract implemented and red-green proof independently accepted; this checkpoint does not meet that condition.",
+      "duration_seconds": 2033.0,
+      "fan_out": 0,
+      "goal": "Implement the complete frozen UI-free application core and native persistence contract.",
+      "id": "al-01M37FP1N9PRBAP8P9WV2X049Z",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "FIRST-CORE AUTHOR PACKET / G3 RULING 13 / 2026-09-23\n\nGoal: implement the first production UI-free CFD-Workbench core and native persistence increment from the joined B0 contracts, with red-before-green tests and durable proof. This is one serial track; no GUI/CLI adapter or product acceptance claim.\n\nAssignment: requested model gpt-6-astra, effective model Not recorded unless the harness exposes it. Session cfd-application-core-20260923; worktree /Users/mallalieut/projects/CFD-Workbench-feature-application-core; branch feature/application-core; base HEAD 598716f2931cab8ed94c0e618554c340134f25b0. No other authors or subagents. User authorized local full-auto implementation, build, tests and commit; no global trust/policy changes, purchases, public deploy or push.\n\nFirst command MUST run `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-application-core-20260923 --skill implement` from assigned worktree. Before ANY product write, read AGENTS.md, docs/ai-forward-pack/codex.md, the implement skill, testing and language standards, docs/coordination/contract-b-core.md, docs/design/application-contracts.md, docs/adr/0004-application-project-contract.md, docs/design/application-foundation.md, docs/architecture/application.md, docs/proof/application-contracts.md, FoilDSL normative spec and examples. Read back `pwd`, branch, exact HEAD, clean tracked/untracked status, and the four SHA-256 files listed below. Send Coordinator the readback plus explicit task-local cache/output directory plan; wait for Coordinator preflight acknowledgment before first product write. Do not use EnterWorktree.\n\nCanonical packet SHA-256: fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9 (docs/coordination/contract-b-core.md).\nB0 design SHA-256: 70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199.\nADR 0004 SHA-256: 95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25.\nArchitecture SHA-256: 461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9.\n\nExactly 18 authored path leases, frozen by Ruling 13:\nglobal.json\nCFDWorkbench.slnx\nsrc/CfdWorkbench.Core/CfdWorkbench.Core.csproj\nsrc/CfdWorkbench.Core/Contracts.cs\nsrc/CfdWorkbench.Core/FoilSource.cs\nsrc/CfdWorkbench.Core/Geometry.cs\nsrc/CfdWorkbench.Core/Identity.cs\nsrc/CfdWorkbench.Core/AuthoringSession.cs\nsrc/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj\nsrc/CfdWorkbench.Persistence/ProjectStore.cs\ntests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj\ntests/CfdWorkbench.Core.Tests/FoilSourceTests.cs\ntests/CfdWorkbench.Core.Tests/GeometryTests.cs\ntests/CfdWorkbench.Core.Tests/IdentityTests.cs\ntests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs\ntests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs\ndocs/proof/application-core.md\ntools/verify-application-core.py\n\nOfficial generated docs/docs-index.js and audit/change JSONL/render outputs may accompany a final handback as metadata exceptions. Scratch, bin, obj, package caches and temp outputs must be task-local to this worktree or an exact task-specific /tmp path and cleaned or inventoried. Do not repurpose HOME, write shared global caches, touch root's ADR/frontdoor reconciliation paths, or create unleased tools/spikes files. Exact namespace CfdWorkbench.Core and CfdWorkbench.Persistence; B0 ApplicationContracts is fixture only.\n\nMeasurable result and floor: full normative FoilDSL grammar recognition and whole-source phase-correct diagnostics before geometry admission; exact UTF-8 accepted source, missing-ID candidate diff/explicit acceptance, exact unit conversion/rounding and separate SHA-256 source vs RFC8785+BLAKE3 semantic identities. Conservative continuously certified geometry subset with bounded normalization error; unsupported/unproved shapes cannot Apply. Session-owned independent-rail draft, preview/Apply/Cancel, immutable accepted/design/cursor facts, durable operation ID replay/Undo/Redo and native-v1 save/reopen/recovery. Capability-gated native persistence with real fault/conflict/no-replace proof. Focused native primitive reproducers in leased ProjectStoreTests.cs BEFORE corresponding platform adapter code; record SDK signatures/observed behavior, unsupported Windows runtime honestly. Local normal-path 256-event session ring, discarded at close, no source/path/name/vertex/raw exception/hash-correlation leakage. No solver/export claims. Red/green normal, boundary, invalid, race and fault controls. No partial join or broadening for convenience.\n\nLifecycle: monitor every owned build/test child by PID and process start identity. On interrupt, stop dispatch, terminate only verified owned children, and read back absence. The observed built-in interrupt did not automatically stop a child. Unexpected out-of-scope write, identity drift, denied authorized operation or unmanaged live child stops work for Coordinator/Owner review.\n\nBudget: first checkpoint at <=90 tool calls or <=55 minutes, whichever first, with <=100k context. This is a progress/replan boundary, not permission to truncate scope. Send checkpoints after red boundary tests, compiling core API, and store fault tests; include exact paths, test names/exits, time, observed model identity or Not recorded. At cap, report what is incomplete and ask Coordinator for bounded continuation without claiming completion. At handback send exact tracked/untracked inventory, cwd/base/final HEAD, task-local caches cleanup, source fingerprints, build/test/proof receipts and clean descendant commit. Root/Owner independently review before integration. No push.",
+      "session": "cfd-application-core-20260923",
+      "shortname": "application-core-parser-checkpoint",
+      "skill": "implement",
+      "started_at": "2026-09-23T15:21:59Z",
+      "summary": "Isolated incomplete parser and identity checkpoint: 39 current named checks pass, red receipts retained; R14 containment repair reviewed. Geometry, session, persistence, telemetry and full conformance remain. No partial join.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T16:16:44Z",
+      "done_when": "Full language and identity boundaries, continuously certified geometry with bounded placed preview, owned session/history/recovery and native fault/race persistence are implemented and reviewed; this criterion is not yet met.",
+      "duration_seconds": 1006.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-core",
+        "pushed": null,
+        "sha": "5f40af0888c529b057c6630ac3b1b130c47515ee",
+        "short": "5f40af088"
+      },
+      "goal": "Implement the entire Ruling13 UI-free core and native persistence contract through independent review.",
+      "id": "al-01M37GW7RAPKQRDFA15ZTCPG70",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "FIRST-CORE AUTHOR PACKET / G3 RULING 13 / 2026-09-23\n\nGoal: implement the first production UI-free CFD-Workbench core and native persistence increment from the joined B0 contracts, with red-before-green tests and durable proof. This is one serial track; no GUI/CLI adapter or product acceptance claim.\n\nAssignment: requested model gpt-6-astra, effective model Not recorded unless the harness exposes it. Session cfd-application-core-20260923; worktree /Users/mallalieut/projects/CFD-Workbench-feature-application-core; branch feature/application-core; base HEAD 598716f2931cab8ed94c0e618554c340134f25b0. No other authors or subagents. User authorized local full-auto implementation, build, tests and commit; no global trust/policy changes, purchases, public deploy or push.\n\nFirst command MUST run `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-application-core-20260923 --skill implement` from assigned worktree. Before ANY product write, read AGENTS.md, docs/ai-forward-pack/codex.md, the implement skill, testing and language standards, docs/coordination/contract-b-core.md, docs/design/application-contracts.md, docs/adr/0004-application-project-contract.md, docs/design/application-foundation.md, docs/architecture/application.md, docs/proof/application-contracts.md, FoilDSL normative spec and examples. Read back `pwd`, branch, exact HEAD, clean tracked/untracked status, and the four SHA-256 files listed below. Send Coordinator the readback plus explicit task-local cache/output directory plan; wait for Coordinator preflight acknowledgment before first product write. Do not use EnterWorktree.\n\nCanonical packet SHA-256: fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9 (docs/coordination/contract-b-core.md).\nB0 design SHA-256: 70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199.\nADR 0004 SHA-256: 95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25.\nArchitecture SHA-256: 461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9.\n\nExactly 18 authored path leases, frozen by Ruling 13:\nglobal.json\nCFDWorkbench.slnx\nsrc/CfdWorkbench.Core/CfdWorkbench.Core.csproj\nsrc/CfdWorkbench.Core/Contracts.cs\nsrc/CfdWorkbench.Core/FoilSource.cs\nsrc/CfdWorkbench.Core/Geometry.cs\nsrc/CfdWorkbench.Core/Identity.cs\nsrc/CfdWorkbench.Core/AuthoringSession.cs\nsrc/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj\nsrc/CfdWorkbench.Persistence/ProjectStore.cs\ntests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj\ntests/CfdWorkbench.Core.Tests/FoilSourceTests.cs\ntests/CfdWorkbench.Core.Tests/GeometryTests.cs\ntests/CfdWorkbench.Core.Tests/IdentityTests.cs\ntests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs\ntests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs\ndocs/proof/application-core.md\ntools/verify-application-core.py\n\nOfficial generated docs/docs-index.js and audit/change JSONL/render outputs may accompany a final handback as metadata exceptions. Scratch, bin, obj, package caches and temp outputs must be task-local to this worktree or an exact task-specific /tmp path and cleaned or inventoried. Do not repurpose HOME, write shared global caches, touch root's ADR/frontdoor reconciliation paths, or create unleased tools/spikes files. Exact namespace CfdWorkbench.Core and CfdWorkbench.Persistence; B0 ApplicationContracts is fixture only.\n\nMeasurable result and floor: full normative FoilDSL grammar recognition and whole-source phase-correct diagnostics before geometry admission; exact UTF-8 accepted source, missing-ID candidate diff/explicit acceptance, exact unit conversion/rounding and separate SHA-256 source vs RFC8785+BLAKE3 semantic identities. Conservative continuously certified geometry subset with bounded normalization error; unsupported/unproved shapes cannot Apply. Session-owned independent-rail draft, preview/Apply/Cancel, immutable accepted/design/cursor facts, durable operation ID replay/Undo/Redo and native-v1 save/reopen/recovery. Capability-gated native persistence with real fault/conflict/no-replace proof. Focused native primitive reproducers in leased ProjectStoreTests.cs BEFORE corresponding platform adapter code; record SDK signatures/observed behavior, unsupported Windows runtime honestly. Local normal-path 256-event session ring, discarded at close, no source/path/name/vertex/raw exception/hash-correlation leakage. No solver/export claims. Red/green normal, boundary, invalid, race and fault controls. No partial join or broadening for convenience.\n\nLifecycle: monitor every owned build/test child by PID and process start identity. On interrupt, stop dispatch, terminate only verified owned children, and read back absence. The observed built-in interrupt did not automatically stop a child. Unexpected out-of-scope write, identity drift, denied authorized operation or unmanaged live child stops work for Coordinator/Owner review.\n\nBudget: first checkpoint at <=90 tool calls or <=55 minutes, whichever first, with <=100k context. This is a progress/replan boundary, not permission to truncate scope. Send checkpoints after red boundary tests, compiling core API, and store fault tests; include exact paths, test names/exits, time, observed model identity or Not recorded. At cap, report what is incomplete and ask Coordinator for bounded continuation without claiming completion. At handback send exact tracked/untracked inventory, cwd/base/final HEAD, task-local caches cleanup, source fingerprints, build/test/proof receipts and clean descendant commit. Root/Owner independently review before integration. No push.",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-geometry-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T15:59:58Z",
+      "summary": "Second bounded checkpoint: exact rail patch; Ruling15 dependency-aware numeric diagnostics; 24 RFC8785 vectors; rational Bernstein conservative shape proof, rational witness binding and normalized section enclosures. 93 tests pass. Placed preview, adversarial budget proof, session/history and native persistence remain incomplete. No acceptance or partial join.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T16:47:51Z",
+      "done_when": "Full source geometry session persistence telemetry contract and required reviews pass; not yet met.",
+      "duration_seconds": 1817.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-core",
+        "pushed": null,
+        "sha": "5b5b4895a81eaf072cf5165ba88e8c44ae7f6202",
+        "short": "5b5b4895a"
+      },
+      "goal": "Implement the full authorized R13 production application core and native persistence with executable proof.",
+      "id": "al-01M37JN72RWZ4TJHV87E57JH3P",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "FIRST-CORE AUTHOR PACKET / G3 RULING 13 / 2026-09-23\n\nGoal: implement the first production UI-free CFD-Workbench core and native persistence increment from the joined B0 contracts, with red-before-green tests and durable proof. This is one serial track; no GUI/CLI adapter or product acceptance claim.\n\nAssignment: requested model gpt-6-astra, effective model Not recorded unless the harness exposes it. Session cfd-application-core-20260923; worktree /Users/mallalieut/projects/CFD-Workbench-feature-application-core; branch feature/application-core; base HEAD 598716f2931cab8ed94c0e618554c340134f25b0. No other authors or subagents. User authorized local full-auto implementation, build, tests and commit; no global trust/policy changes, purchases, public deploy or push.\n\nFirst command MUST run `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-application-core-20260923 --skill implement` from assigned worktree. Before ANY product write, read AGENTS.md, docs/ai-forward-pack/codex.md, the implement skill, testing and language standards, docs/coordination/contract-b-core.md, docs/design/application-contracts.md, docs/adr/0004-application-project-contract.md, docs/design/application-foundation.md, docs/architecture/application.md, docs/proof/application-contracts.md, FoilDSL normative spec and examples. Read back `pwd`, branch, exact HEAD, clean tracked/untracked status, and the four SHA-256 files listed below. Send Coordinator the readback plus explicit task-local cache/output directory plan; wait for Coordinator preflight acknowledgment before first product write. Do not use EnterWorktree.\n\nCanonical packet SHA-256: fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9 (docs/coordination/contract-b-core.md).\nB0 design SHA-256: 70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199.\nADR 0004 SHA-256: 95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25.\nArchitecture SHA-256: 461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9.\n\nExactly 18 authored path leases, frozen by Ruling 13:\nglobal.json\nCFDWorkbench.slnx\nsrc/CfdWorkbench.Core/CfdWorkbench.Core.csproj\nsrc/CfdWorkbench.Core/Contracts.cs\nsrc/CfdWorkbench.Core/FoilSource.cs\nsrc/CfdWorkbench.Core/Geometry.cs\nsrc/CfdWorkbench.Core/Identity.cs\nsrc/CfdWorkbench.Core/AuthoringSession.cs\nsrc/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj\nsrc/CfdWorkbench.Persistence/ProjectStore.cs\ntests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj\ntests/CfdWorkbench.Core.Tests/FoilSourceTests.cs\ntests/CfdWorkbench.Core.Tests/GeometryTests.cs\ntests/CfdWorkbench.Core.Tests/IdentityTests.cs\ntests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs\ntests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs\ndocs/proof/application-core.md\ntools/verify-application-core.py\n\nOfficial generated docs/docs-index.js and audit/change JSONL/render outputs may accompany a final handback as metadata exceptions. Scratch, bin, obj, package caches and temp outputs must be task-local to this worktree or an exact task-specific /tmp path and cleaned or inventoried. Do not repurpose HOME, write shared global caches, touch root's ADR/frontdoor reconciliation paths, or create unleased tools/spikes files. Exact namespace CfdWorkbench.Core and CfdWorkbench.Persistence; B0 ApplicationContracts is fixture only.\n\nMeasurable result and floor: full normative FoilDSL grammar recognition and whole-source phase-correct diagnostics before geometry admission; exact UTF-8 accepted source, missing-ID candidate diff/explicit acceptance, exact unit conversion/rounding and separate SHA-256 source vs RFC8785+BLAKE3 semantic identities. Conservative continuously certified geometry subset with bounded normalization error; unsupported/unproved shapes cannot Apply. Session-owned independent-rail draft, preview/Apply/Cancel, immutable accepted/design/cursor facts, durable operation ID replay/Undo/Redo and native-v1 save/reopen/recovery. Capability-gated native persistence with real fault/conflict/no-replace proof. Focused native primitive reproducers in leased ProjectStoreTests.cs BEFORE corresponding platform adapter code; record SDK signatures/observed behavior, unsupported Windows runtime honestly. Local normal-path 256-event session ring, discarded at close, no source/path/name/vertex/raw exception/hash-correlation leakage. No solver/export claims. Red/green normal, boundary, invalid, race and fault controls. No partial join or broadening for convenience.\n\nLifecycle: monitor every owned build/test child by PID and process start identity. On interrupt, stop dispatch, terminate only verified owned children, and read back absence. The observed built-in interrupt did not automatically stop a child. Unexpected out-of-scope write, identity drift, denied authorized operation or unmanaged live child stops work for Coordinator/Owner review.\n\nBudget: first checkpoint at <=90 tool calls or <=55 minutes, whichever first, with <=100k context. This is a progress/replan boundary, not permission to truncate scope. Send checkpoints after red boundary tests, compiling core API, and store fault tests; include exact paths, test names/exits, time, observed model identity or Not recorded. At cap, report what is incomplete and ask Coordinator for bounded continuation without claiming completion. At handback send exact tracked/untracked inventory, cwd/base/final HEAD, task-local caches cleanup, source fingerprints, build/test/proof receipts and clean descendant commit. Root/Owner independently review before integration. No push.",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-session-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T16:17:34Z",
+      "summary": "Partial isolated checkpoint: whole-domain placed intervals, session/native replay and local telemetry, macOS primitive prerequisite; 126 tests pass, persistence adapter absent.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T17:22:50Z",
+      "done_when": "All production contract boundaries and independent gates pass; not yet met.",
+      "duration_seconds": 1528.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-core",
+        "pushed": null,
+        "sha": "a8a635168f01cab38b87c91e7e7dd3675e4d9796",
+        "short": "a8a635168"
+      },
+      "goal": "Complete the authorized production core and persistence contract with independent proof.",
+      "id": "al-01M37MN9CZ51JEZJ3N3PVX2VG9",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "FIRST-CORE AUTHOR PACKET / G3 RULING 13 / 2026-09-23\n\nGoal: implement the first production UI-free CFD-Workbench core and native persistence increment from the joined B0 contracts, with red-before-green tests and durable proof. This is one serial track; no GUI/CLI adapter or product acceptance claim.\n\nAssignment: requested model gpt-6-astra, effective model Not recorded unless the harness exposes it. Session cfd-application-core-20260923; worktree /Users/mallalieut/projects/CFD-Workbench-feature-application-core; branch feature/application-core; base HEAD 598716f2931cab8ed94c0e618554c340134f25b0. No other authors or subagents. User authorized local full-auto implementation, build, tests and commit; no global trust/policy changes, purchases, public deploy or push.\n\nFirst command MUST run `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-application-core-20260923 --skill implement` from assigned worktree. Before ANY product write, read AGENTS.md, docs/ai-forward-pack/codex.md, the implement skill, testing and language standards, docs/coordination/contract-b-core.md, docs/design/application-contracts.md, docs/adr/0004-application-project-contract.md, docs/design/application-foundation.md, docs/architecture/application.md, docs/proof/application-contracts.md, FoilDSL normative spec and examples. Read back `pwd`, branch, exact HEAD, clean tracked/untracked status, and the four SHA-256 files listed below. Send Coordinator the readback plus explicit task-local cache/output directory plan; wait for Coordinator preflight acknowledgment before first product write. Do not use EnterWorktree.\n\nCanonical packet SHA-256: fa8a9f57c76d6edcdefa67de6a98202681477873520d655cc2814eaf2f2455a9 (docs/coordination/contract-b-core.md).\nB0 design SHA-256: 70cd7a2712cdf297de85b0598a7b45afb10001545991a6a1b4c531b72af00199.\nADR 0004 SHA-256: 95ce99a353758ac220e0d24e2a991b72a2d887a6f0f3d8c4bc441f31dd7b8d25.\nArchitecture SHA-256: 461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9.\n\nExactly 18 authored path leases, frozen by Ruling 13:\nglobal.json\nCFDWorkbench.slnx\nsrc/CfdWorkbench.Core/CfdWorkbench.Core.csproj\nsrc/CfdWorkbench.Core/Contracts.cs\nsrc/CfdWorkbench.Core/FoilSource.cs\nsrc/CfdWorkbench.Core/Geometry.cs\nsrc/CfdWorkbench.Core/Identity.cs\nsrc/CfdWorkbench.Core/AuthoringSession.cs\nsrc/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj\nsrc/CfdWorkbench.Persistence/ProjectStore.cs\ntests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj\ntests/CfdWorkbench.Core.Tests/FoilSourceTests.cs\ntests/CfdWorkbench.Core.Tests/GeometryTests.cs\ntests/CfdWorkbench.Core.Tests/IdentityTests.cs\ntests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs\ntests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs\ndocs/proof/application-core.md\ntools/verify-application-core.py\n\nOfficial generated docs/docs-index.js and audit/change JSONL/render outputs may accompany a final handback as metadata exceptions. Scratch, bin, obj, package caches and temp outputs must be task-local to this worktree or an exact task-specific /tmp path and cleaned or inventoried. Do not repurpose HOME, write shared global caches, touch root's ADR/frontdoor reconciliation paths, or create unleased tools/spikes files. Exact namespace CfdWorkbench.Core and CfdWorkbench.Persistence; B0 ApplicationContracts is fixture only.\n\nMeasurable result and floor: full normative FoilDSL grammar recognition and whole-source phase-correct diagnostics before geometry admission; exact UTF-8 accepted source, missing-ID candidate diff/explicit acceptance, exact unit conversion/rounding and separate SHA-256 source vs RFC8785+BLAKE3 semantic identities. Conservative continuously certified geometry subset with bounded normalization error; unsupported/unproved shapes cannot Apply. Session-owned independent-rail draft, preview/Apply/Cancel, immutable accepted/design/cursor facts, durable operation ID replay/Undo/Redo and native-v1 save/reopen/recovery. Capability-gated native persistence with real fault/conflict/no-replace proof. Focused native primitive reproducers in leased ProjectStoreTests.cs BEFORE corresponding platform adapter code; record SDK signatures/observed behavior, unsupported Windows runtime honestly. Local normal-path 256-event session ring, discarded at close, no source/path/name/vertex/raw exception/hash-correlation leakage. No solver/export claims. Red/green normal, boundary, invalid, race and fault controls. No partial join or broadening for convenience.\n\nLifecycle: monitor every owned build/test child by PID and process start identity. On interrupt, stop dispatch, terminate only verified owned children, and read back absence. The observed built-in interrupt did not automatically stop a child. Unexpected out-of-scope write, identity drift, denied authorized operation or unmanaged live child stops work for Coordinator/Owner review.\n\nBudget: first checkpoint at <=90 tool calls or <=55 minutes, whichever first, with <=100k context. This is a progress/replan boundary, not permission to truncate scope. Send checkpoints after red boundary tests, compiling core API, and store fault tests; include exact paths, test names/exits, time, observed model identity or Not recorded. At cap, report what is incomplete and ask Coordinator for bounded continuation without claiming completion. At handback send exact tracked/untracked inventory, cwd/base/final HEAD, task-local caches cleanup, source fingerprints, build/test/proof receipts and clean descendant commit. Root/Owner independently review before integration. No push.",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-store-projection-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T16:57:22Z",
+      "summary": "Partial isolated checkpoint: macOS held-handle store, R16 authored projection, R19 writer claims and actual I/O telemetry; 159 tests pass. R17/R18 scientific repair and Windows remain open.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-r17-companions.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T17:37:20Z",
+      "done_when": "Full conductor contract passes and core worktree is clean before product edits.",
+      "duration_seconds": 11.0,
+      "fan_out": 0,
+      "goal": "Join reviewed evaluator-v2 contracts before bounded R17/R18 production repair.",
+      "id": "al-01M37NFTC8ZXH966VBSTXSGBX2",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-core",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-r17-companion-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T17:37:09Z",
+      "summary": "Bring Owner R20 reviewed companion into isolated core; no production B acceptance or push. recount_seconds=10 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-r17-companions.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T17:38:57Z",
+      "done_when": "Full conductor contract passes and core worktree is clean before product edits.",
+      "duration_seconds": 11.0,
+      "fan_out": 0,
+      "goal": "Join reviewed evaluator-v2 contracts before bounded R17/R18 production repair.",
+      "id": "al-01M37NJS7EWG2M8HS2ZDANTASV",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-core",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-r17-companion-join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T17:38:46Z",
+      "summary": "Bring Owner R20 reviewed companion into isolated core; no production B acceptance or push. recount_seconds=10 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T17:57:47Z",
+      "done_when": "Versioned legacy refusal and deterministic query controls pass, source proof and lifecycle receipts bind a clean isolated checkpoint for independent review.",
+      "duration_seconds": 1340.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-core",
+        "pushed": null,
+        "sha": "65ac0b94a50d421d9f26ff415fe2866d37a724d4",
+        "short": "65ac0b94a"
+      },
+      "goal": "Implement R17 versioned identity and R18 deterministic query admission in exact leased core paths.",
+      "id": "al-01M37PN8JWNSF0XHGJDMVEBWXQ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Resume isolated serial core after reviewed R17-R19 companion join; implement versioned degree identity and all-query arithmetic feasibility with bounded proof and clean checkpoint.",
+      "session": "cfd-application-core-20260923",
+      "shortname": "core-r17-r18-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T17:35:27Z",
+      "summary": "Joined reviewed companion at65ac0b9; repaired /2 identity/native compatibility and all-query feasibility. Proper RED then172PASS; all11 integrated gatesPASS. Root final204 assertion consumerPASS reported, review disposition pending. Preserve join lease refusal and premature continuation incident. Isolated checkpoint only; Windows/full acceptance remain open; call count Not recorded.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M37Q2S03YB0EDPTB9JATFHRH",
+      "shortname": "application-core-production-join",
+      "datetime": "2026-09-23T18:05:10Z",
       "session": "cfd-coordinator-20260923",
       "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join root independent R16-R19 scientific and store review accepted by Owner R22 recount_seconds=0 (docs_only=True).",
+      "summary": "Join Owner R22 accepted B source with independent scientific and store review, recount and integrated gates recount_seconds=13 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
+        "docs/proof/application-core.md",
         "docs/reviews/application-core.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Make the final bounded core review durable before production B integration",
-      "done_when": "Reviewed report and official metadata joined cleanly with docs and integrated gates",
+      "goal": "Integrate bounded deterministic core and macOS store into the application branch",
+      "done_when": "Exact B source, proof and review joined, B0/architecture recount and all integrated gates pass, clean HEAD for C consumer freeze",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -4684,8 +4936,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-23T18:03:56Z",
-      "duration_seconds": 1.0
+      "started_at": "2026-09-23T18:04:56Z",
+      "duration_seconds": 14.0
     }
   ],
   "changes": [
