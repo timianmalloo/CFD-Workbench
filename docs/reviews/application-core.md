@@ -146,8 +146,8 @@ all numbers. The author's separate published RFC 8785 vectors remain a different
 | Placement admission and deadline limits | Source review finds the uniform inverse/normalization/trig interval propagation coherent; budget checks now precede returned results. | Record the continuous no-crossing argument, fixed-cap failure paths and distinction between uniform enclosure width and successful evaluation of every query. Cooperative polling is not a hard real-time scheduling guarantee. |
 | Surface identity loses evaluated twist distinctions | Verified on frozen `a8a6351`: rounding each degree CV to radians for hashing is not equivalent to evaluating the degree spline then rounding its angle. The complete-source counterexample below has one hash and different point enclosures. | Independent identity/evaluator veto OPEN. Owner must resolve the normative §6/§8 conflict, compatibility consequences, production evaluator and conformance cases together. A small coordinate difference does not waive identity semantics. |
 | Certified tiny-angle source cannot answer a point query | Verified on frozen `a8a6351`: every twist ordinate `1e-300` degrees is Certified, but `PointAt(certificate,0.203125,1,true)` throws `GEOMETRY-NOT-ASSESSED`. Source inspection identifies exact-rational Taylor arithmetic exceeding the bit budget. | Executability finding OPEN. A uniform error bound alone does not prove arithmetic feasibility. Require an explicit bounded numerical remedy or honest pre-admission refusal and regression evidence. |
-| Public consumer lacks authored control projection | Verified public API inspection at `a8a6351`: source bytes and certificates do not expose arbitrary authored rail CV IDs/ordinates or section assignments. A UI would need a competing parser or guessed IDs. | Ruling 16 approves a defensive, identity-bound authored projection and accepted geometry/diagnostic seam in existing B paths, with a custom-ID consumer fixture. C remains held pending that proof. |
-| Raw filename claims do not exclude equivalent file aliases | Root measured lowercase/uppercase paths as the same inode on this Mac volume. The author then observed two alias writers acquire separate claims in `z8ih576w` (build 0/test 1). | Ruling 19 approves a fixed directory-relative overwrite claim and reserved internal namespace, accepting conservative contention. Author reports repaired controls; independent final store review remains open. |
+| Public consumer lacks authored control projection | Verified public API inspection at `a8a6351`: source bytes and certificates do not expose arbitrary authored rail CV IDs/ordinates or section assignments. A UI would need a competing parser or guessed IDs. | Ruling 16 seam independently inspected at `2407b61`: defensive immutable collections and accepted/draft source-revision binding are present; custom-ID fixture passed in the retained author run. Root's separate public-consumer composition discovers its target from the projection and preserves TE during LE editing. Named seam finding cleared for this checkpoint; C still waits for the full B gate. |
+| Raw filename claims do not exclude equivalent file aliases | Root measured lowercase/uppercase paths as the same inode on this Mac volume. The author then observed two alias writers acquire separate claims in `z8ih576w` (build 0/test 1). | Ruling 19 fixed directory-relative claim independently verified on frozen `2407b61`, including combined NFC/NFD and case aliases. Named alias finding cleared for this checkpoint; uncooperative writers and Windows remain outside this observed guarantee. |
 | Remaining end-to-end surfaces | Native OS primitive/fault/race handling, telemetry/privacy, complete replay/growth/recovery cases and final API consumer proof are unfinished. | Complete B, run required checks, independently review the final committed candidate, then consider C. No partial core join. |
 
 For the admitted mathematical subset, the no-crossing argument must connect positive half-span
@@ -184,6 +184,44 @@ Supplemental oracle SHA-256: program
 
 ## Reviewer corrections and remaining proof limits
 
+### Independent macOS store and authored-projection composition
+
+Frozen checkpoint `2407b61`, retained under `/tmp/cfd-store-review.4Q39NS`, passed **23 independent
+assertions**. The harness references the exact frozen assemblies, not rebuilt production source:
+
+| Artifact | SHA-256 |
+|---|---|
+| Core assembly | `c1043e19d8438a0187f6fc660a4f0d5ed15302aa4a75b57eb19ad79fc346628e` |
+| Persistence assembly | `05f64ab1efd2fa1606843aeeb54aaed024a51ca69e839b84b25b2920a7659de9` |
+| Independent harness `Program.cs` | `d8e3d82a4327655b4fa8e749f8ca3f3d336fb5b995b2f7830f6345469478dd52` |
+| Raw test output | `c79419aa8f575f37fd02b0d7a54c183e4376c65dd692d1801fcc8ded74a5ec3a` |
+
+The source→public projection→LE numeric draft→Apply→native Save→Read→Reopen route preserved source and
+accepted revision identity. TE ordinates stayed unchanged. An Undo image overwrote only with the current
+disk token; the previous token refused and left the new image intact. Root first observed that composed
+`Café/private-project.cfd` and decomposed uppercase `CAFÉ/PRIVATE-PROJECT.CFD` address the same bytes on
+this volume, then held the first overwrite claim at its actual native creation stage. The alias writer
+returned `DOC-CONFLICT`, the owner completed, and only the project file remained. Both case variants of
+the reserved internal namespace refused. This is a platform observation, not an assumption that every
+filesystem normalizes names identically.
+
+Actual session-injected save events emitted file flush→publication→directory flush→save under one trace,
+with measured finite durations, byte counts and truthful publication/durability flags. Read and conflict
+outcomes appeared in the same ring; serialized events contained neither the path nor filename. Disposing
+the store refused new work without closing the caller's session. Build and run exited 0 in 1.508646 and
+0.518541 seconds; all three observed PID/start identities were absent at completion. Unique task-local
+caches/temp paths, disabled build servers and `DOTNET_GENERATE_ASPNET_CERTIFICATE=false` were used.
+
+Source inspection additionally followed held-directory ancestry, regular-file/no-follow opens,
+identity-owned cleanup, short writes, cancellation and post-publication uncertainty. The author's retained
+159-case run contains the corresponding injected boundary controls; these are reviewed author evidence,
+not 159 independently rerun cases. Root inspected the repaired empty-recovery, capture-bound save
+acknowledgement and phase/assessment telemetry controls and their retained PASS lines. The earlier
+120-command independent history/recovery run remains the separate replay evidence above. No new blocker
+was found for the bounded macOS store/projection seam. The `/1` binaries still carry the known R17/R18
+scientific defects and are **not accepted as a full B join**. Windows, power-loss hardware durability,
+uncooperative-writer exclusion and native GUI behavior are not established by this probe.
+
 The initial near-zero-knot stress oracle incorrectly demanded Not assessed merely because a valid knot
 was `5e-324`. Its failure was a **reviewer error, not a product failure**. The original result is retained.
 The corrected stress-only followup accepted either a properly bound finite certificate or an honest
@@ -194,8 +232,8 @@ cap; the Coordinator added a preactivation seat-count control.
 
 Current CUA inventory exposes no browser provider or running spike app. Earlier native capture failed
 with `cgWindowNotFound`. Production rendered/keyboard/accessibility proof remains unassessed; historical
-architecture-spike observations cannot satisfy it. Windows runtime and actual native store behavior
-are also unassessed. Measured model token use and cost are **Not recorded**.
+architecture-spike observations cannot satisfy it. Windows runtime remains unassessed; the bounded macOS
+store observations above do not establish another platform. Measured model token use and cost are **Not recorded**.
 
 The root `implement` review marker starts at 15:56:16Z and measures the review checkpoint run only;
 earlier parser-review preparation is not retroactively included. Its checkpoint audit records a

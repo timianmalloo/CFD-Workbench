@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -4699,7 +4699,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c27cf9cb945fcfd854928f26a1595bdf748db6e4b7447ed3db94fafd3a4ef296"
+      "sourceSha256": "edbd24745b149af8b6137f4ac77ed954f6821c1cbde6c1800b6c8d645f471870"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5390,5 +5390,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9017ee72000bf1bdc1df27217bf0c0220338761f6595226ec6e099d2c60ef11c"
+  "graphSha256": "5d75218385b562319dbfcfe86058ece958cbdc4e2da62b1e9b1797f24e12e919"
 };
