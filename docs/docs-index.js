@@ -280,10 +280,18 @@ window.DOCS_INDEX = {
         {
           "to": "proof-application-contracts",
           "rel": "tested-by"
+        },
+        {
+          "to": "review-application-core",
+          "rel": "tested-by"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c81671ce91ee62b19a9ce011fe4fb06849d822a94c35629717f2490b473f8ee3"
+      "sourceSha256": "e783912b962032805088547a2787f90fa639a5bdd3f134f4642fda3f5cdb5b78"
     },
     {
       "id": "adr-application-stack",
@@ -431,6 +439,10 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-application-build",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [
@@ -440,7 +452,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "f5b8c7ae914429c10e2630ea866eafa2756d1b7f2f3d74af5be00a9f3dd8bc14"
+      "sourceSha256": "51121f3daf8a3ccecf0109f37e07d9265f3d14defcc04a0cbf8d0d4149a9f5db"
     },
     {
       "id": "cad-editing-views",
@@ -1120,7 +1132,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7bacf957efbbf5d672e24329cdedfeff2eea7e4961714434e27bf1728374437"
+      "sourceSha256": "c10bcfd6d3b96ff6dbb204e4d9de739f51801fb6a8d0db0a9f3163698958883c"
     },
     {
       "id": "design-application-foundation",
@@ -1183,7 +1195,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1e9671b9c92dc2b115deab5c108b63be0c07af3c9c027f6b2c7d069df8418ccd"
+      "sourceSha256": "7a4aff5b7c634e015ab11e3a0d1edb19140ff1638c3a8453842bfbe74878d06f"
     },
     {
       "id": "design-authoring-decisions",
@@ -1780,7 +1792,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8af9f35ff69ff91dfa7151b712ec01cf908f85029d325f47d0f894391bf0e09"
+      "sourceSha256": "2aecc843d0c4caca591af48e65eb8af2ed28818782762f4c65a42ed17367016e"
     },
     {
       "id": "workbench-direction",
@@ -2008,7 +2020,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4534eab42e99119b372eb9f3244f871ec942ee0c5097fc5460a2d9ed8b13a85e"
+      "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
     },
     {
       "id": "plan-application-build",
@@ -4175,7 +4187,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2923b77dbae7ffdf222ea83ccd1686a0b8da68652e49f6f51b2e41207bcaf050"
+      "sourceSha256": "9acd3f6c77b014ced88510139e9588e63c58f49d8eb7ac7ea4464b6fa9391293"
     },
     {
       "id": "proof-application-spikes",
@@ -4510,7 +4522,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "155ef5db483af75778cf2bb8347467e041b07cec7048bf5fd08e6127426a7fc8"
+      "sourceSha256": "8d6f2bfa333461410f4f268183b96518b9d279416e69d8cbc755d2d048085e78"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5031,7 +5043,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "2dbe900ed92467f649b959bc58f6416ad98eebfd5927318a61e11ed966cb7aed"
+      "sourceSha256": "42025b2b4d9782e848ac6a73246c7fce856771607916fcb634bb67d4fef59e78"
     },
     {
       "id": "threat-model",
@@ -5191,5 +5203,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "55fb2cd47eb50c40743e9bbb5a231247b82cc4cea1c8288c63e1d803649c8b37"
+  "graphSha256": "3a63d6dde505c9c72e1caa7d63c4746d6db74705a16108a7ae2c06f1cf07b4a6"
 };

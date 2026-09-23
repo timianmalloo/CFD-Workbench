@@ -24,6 +24,63 @@ review-suggested:
 # Application contract proof
 
 This is a **contract fixture**, not production implementation or scientific geometry certification.
+
+## Current evaluator /2 companion amendment — 23 September 2026
+
+Root applied Owner Rulings 17–19 to the normative companions and current fixtures. The earlier observations
+below remain **historical `/1` evidence**, including their hashes and author context; they are not relabelled
+as `/2` runs. Supplied v3 references, historical v6 and native architecture-spike outputs remain unchanged.
+The production B tree is separately owned and was not changed by this companion run.
+
+Current B0 fixture source fingerprints:
+
+| Source | SHA-256 |
+|---|---|
+| `tools/spikes/ApplicationContracts/Program.cs` | `158297562c3a50db26cdd944c2c63290e9516b88666c043f25561f594d51effa` |
+| `tools/spikes/ApplicationContracts/ApplicationContracts.csproj` | `4a67878b7b5d5a9512f836a4ccd38d6c55697f1b438db532013ac318ba2f2f62` |
+| `tools/spikes/application-session-contract-vectors.py` | `595556833579d94beff37ec2d1df19bcd1aba25ce8f4769249b6cc367d427942` |
+
+Retained scratch: `/tmp/cfd-r17-companions.qWdppH`. `red/` compiled successfully and exited -6 on
+`Ruling17_TwistDegreeInputs_DoNotCollapseIdentity` against the old per-CV radians hasher. `green/` then
+compiled with zero warnings/errors and passed **93 C# assertions** with degree-preserving `/2` identity.
+The new source and native evaluator refusal assertions preserve an empty session rather than adopting old
+bindings. The independent pinned Python oracle passed **42 checks and 2,505 vectors** on that exact DLL.
+Owned .NET/oracle children were observed quiescent. The current Example Surface hash is
+`3379643904752200d709113c1700a692bc8d9b2d3db001fbb6aa5249b66954f4`; native image remains 7,930 bytes.
+This proves bounded fixture identity/session behavior, not R18's production all-query geometry proof.
+The required `python3 tools/recount-application-contracts.py` also completed with exit 0 in
+4.597695167 seconds under an owned parent; all eleven observed PID/start identities were absent at exit.
+Its exact count is now 93 with all four Ruling 17 names required; the 42-Python/2,505-vector floors and
+previous named assertions remain. Build servers/shared compilation are disabled during the recount.
+
+The repository browser harness now defaults to the authoritative v7 and accepts `PROOF_DIR` for isolated
+evidence output. On the amended mockup it passed **14 checks across 15 layout/theme cells**, with no
+page errors or network requests. Its new real textarea Validate/Cancel case refuses unavailable `/1`,
+disables Apply, and preserves accepted source/history. The /2 emitter pin and normal parse/emit, preview,
+apply, cancel, Undo/Redo, file roundtrip and section-reader routes passed. Root inspected the rendered
+final-source screenshot; no layout/token changes were made. This is browser prototype evidence, not a
+native application or scientific-certification pass.
+The unchanged rendered-spec checker ran against exact copies of the new Markdown/HTML in isolated
+scratch: 195 content blocks, 20 requirement IDs and one flow agreed; source hash, revision, mockup link,
+desktop/narrow overflow, navigation search and empty-search state passed, with no page errors/network.
+Root inspected that rendered screenshot. `design-lint.py DESIGN.md` reported zero warnings; the craft
+gate scanned the changed HTML and returned 14 Minor findings, identical to the recorded v7 baseline
+when checkout location is excluded. No new craft finding or token/layout change was introduced.
+
+Browser evidence SHA-256:
+
+```text
+mockup HTML     c311468182b2ff010c9174d196a8b343bdbaf6689fcb5cea7547d655ac8cb1ef
+check script    63c9a7c247852308321ca05b9b595ad3c56dc42cd75ca09518140037a6083303
+browser report  eb6f2bc0f1ca7d0d30509a8131cb5c819f9429e03d444ca029e8a807e58cf33f
+rendered PNG    7785ced57d09bfd1d9d508418143d507ac869bf31a77e2d46adcb16acfcc2fc5
+```
+
+Independent Owner companion review remains pending. Production evaluator/store/API review, Windows runtime,
+native rendered workflows, full geometry and M1 acceptance remain separate open gates. Cost: Not recorded.
+
+## Historical original fixture run
+
 Author session `cfd-contracts-author-20260923`; requested model `gpt-6-astra`, effective model **Not recorded**.
 Ruling 9 permits that narrow B0 design exception. Worktree containment is observed-only, not a sandbox claim.
 No subagent was spawned. Root is the independent reviewer; Owner rules the gate.

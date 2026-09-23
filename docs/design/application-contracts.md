@@ -143,7 +143,7 @@ No earlier format is released. Format string is `cfdw-project-1`; the seven requ
 
 ```text
 SourceRow   = { id: SHA256, utf8Base64Chunks: string[] }
-DesignRow   = { id: UUID, parent: UUID|null, surfaceHash: BLAKE3, evaluator: "cfdw-cv/1" }
+DesignRow   = { id: UUID, parent: UUID|null, surfaceHash: BLAKE3, evaluator: "cfdw-cv/2" }
 AcceptedRow = { id: UUID, parent: UUID|null, sourceId: SHA256, designId: UUID,
                 operationId: UUID, edit: EditReceipt|null }
 EditReceipt = { draftId: UUID, generation: safeInteger, rail: "leading"|"trailing", vertexId: string }
@@ -233,8 +233,12 @@ is checked afterward. `14.049 mm`, `1.4049 cm`, `0.014049 m` all produce bits `3
 The exact halfway value above one rounds to even one; `5e-324` yields the minimum subnormal.
 
 Semantic input is exactly FoilDSL §8: no names/comments/IDs/locks/provenance/assertions, all curves and ordered
-profiles/assignments, evaluator/defaults/frame/symmetry, SI half span/ordinates; twist uses one rounded multiply
-by pinned `0.017453292519943295`. Canonical object order is UTF-16 ordinal per RFC 8785; arrays retain order;
+profiles/assignments, evaluator/defaults/frame/symmetry, SI half span/dimensional ordinates and the parsed
+binary64 **degree** twist CVs under `cfdw-cv/2`. Ruling 17 removes per-CV radian rounding from identity;
+evaluation still uses the exact degree spline and one final rounded multiply by pinned
+`0.017453292519943295`, without intermediate degree rounding. Old `/1` source/native/bindings are
+unavailable and refuse adoption; no silent version substitution or historical rehash is permitted.
+Canonical object order is UTF-16 ordinal per RFC 8785; arrays retain order;
 strings use minimal JSON escapes without Unicode normalization; invalid surrogate input refuses. Numbers
 normalize negative zero and use ECMAScript shortest-roundtrip spelling with fixed range [1e-6,1e21).
 The fixture normalizes .NET round-trip digits/exponents and cross-checks a deterministic raw-bit corpus against
@@ -283,6 +287,14 @@ capability leaves that operation disabled. Same-user malicious processes and arb
 are outside the cooperative guarantee; hash-check-then-replace is **not CAS**. Owner accepted the cooperative
 and OS-user ACL posture, not a claim that uncooperative overwrite or race safety is solved.
 
+Ruling 19 uses one fixed, reserved directory-relative cooperative overwrite claim. All overwrites in that
+actual directory contend, even for different files; case/Unicode aliases must not acquire independent
+claims. This conservative contention is deliberate. New-file publication still uses atomic no-replace.
+User targets cannot alias internal claim/temp names. Existing, stale or unowned entries fail closed and
+are never removed by name alone. Success with confirmed durability includes the final directory state
+**after** owned temp/claim cleanup; cleanup or flush failure preserves publication-known versus uncertain
+durability. No filesystem normalization guess establishes exclusion.
+
 ## Diagnostics, telemetry and adapter obligations
 
 `Diagnostic` carries stable code, phase, severity, UTF-8 byte start/length, one-based line/scalar column,
@@ -305,6 +317,13 @@ and history count. No source/paths/names/vertex strings/raw exception text/hash 
 Local-only session ring capped at 256 metadata events, discarded at close; no exporter or disk event archive.
 Missing timing says Not recorded. Actual telemetry redaction remains a product test: inject identifying markers
 through names/paths/recovery and scan every emitted sink. No HTTP boundary: RFC 9457 N/A, not omitted silently.
+
+`ProjectStore(session)` records actual read/save/publication/flush duration, bytes and outcome in that same
+session ring through a trusted internal hook, with deliberate trace correlation across asynchronous calls.
+Capture/acknowledgment time is not disk latency. Standalone stores may own a private ring, disposed with
+the store; injected stores never dispose the caller's session. No new operation starts after store disposal.
+An in-flight publication retains its truthful result even if its telemetry/session is disposed; instrumentation
+cannot turn known publication into “not saved” or mask its durability outcome.
 
 UI remains foundation/`DESIGN.md` ParametricWorkbench, no new screen or tokens. Accepted and preview labels
 remain distinct; inspection cannot retarget draft. Empty/loading/error/unsupported/cancel/conflict/recovery

@@ -30,6 +30,13 @@ does not replace this independent gate.
 the complete session, telemetry and persistence gate remains open. A positive result for one frozen binary does not certify later
 source, the native UI, Windows runtime, a mesh, export or a simulation result.
 
+Rulings 17–19 now authorize explicit `/2` degree-preserving identity, all-domain deterministic query
+feasibility and directory-wide cooperative overwrite exclusion with actual I/O telemetry. Root's separately
+owned normative/B0/mockup companion amendment has executed bounded `/2` regressions; it does not repair or
+accept the still-isolated production B binary. Owner review of that amendment and independent review of the
+eventual production repair remain separate gates. The current store/R16 worker checkpoint is deliberately
+still `/1` until the reviewed companion handoff.
+
 ## Scope and evidence method
 
 The [frozen B packet](../coordination/contract-b-core.md) and
@@ -135,6 +142,7 @@ all numbers. The author's separate published RFC 8785 vectors remain a different
 | Surface identity loses evaluated twist distinctions | Verified on frozen `a8a6351`: rounding each degree CV to radians for hashing is not equivalent to evaluating the degree spline then rounding its angle. The complete-source counterexample below has one hash and different point enclosures. | Independent identity/evaluator veto OPEN. Owner must resolve the normative §6/§8 conflict, compatibility consequences, production evaluator and conformance cases together. A small coordinate difference does not waive identity semantics. |
 | Certified tiny-angle source cannot answer a point query | Verified on frozen `a8a6351`: every twist ordinate `1e-300` degrees is Certified, but `PointAt(certificate,0.203125,1,true)` throws `GEOMETRY-NOT-ASSESSED`. Source inspection identifies exact-rational Taylor arithmetic exceeding the bit budget. | Executability finding OPEN. A uniform error bound alone does not prove arithmetic feasibility. Require an explicit bounded numerical remedy or honest pre-admission refusal and regression evidence. |
 | Public consumer lacks authored control projection | Verified public API inspection at `a8a6351`: source bytes and certificates do not expose arbitrary authored rail CV IDs/ordinates or section assignments. A UI would need a competing parser or guessed IDs. | Ruling 16 approves a defensive, identity-bound authored projection and accepted geometry/diagnostic seam in existing B paths, with a custom-ID consumer fixture. C remains held pending that proof. |
+| Raw filename claims do not exclude equivalent file aliases | Root measured lowercase/uppercase paths as the same inode on this Mac volume. The author then observed two alias writers acquire separate claims in `z8ih576w` (build 0/test 1). | Ruling 19 approves a fixed directory-relative overwrite claim and reserved internal namespace, accepting conservative contention. Author reports repaired controls; independent final store review remains open. |
 | Remaining end-to-end surfaces | Native OS primitive/fault/race handling, telemetry/privacy, complete replay/growth/recovery cases and final API consumer proof are unfinished. | Complete B, run required checks, independently review the final committed candidate, then consider C. No partial core join. |
 
 For the admitted mathematical subset, the no-crossing argument must connect positive half-span

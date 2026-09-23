@@ -23,6 +23,10 @@ review-suggested:
 `cases.json` is the expected-outcome manifest. **Normative expected**, not a report of production conformance.
 The review mockup may reject a syntactically valid feature with DSL-UNSUPPORTED when outside its advertised subset.
 
+Current fixtures declare `cfdw-cv/2`. Twist degree controls remain in canonical identity; evaluation uses
+the degree curve and a single final radians conversion. The retained `/1` refusal fixture is intentional;
+the supplied v3 references and earlier recorded observations remain unchanged historical evidence.
+
 | File | Required outcome |
 |---|---|
 | `foil-basic.foil` | Accept: full span 0.9 m, constant chord 0.12 m, S=0.108 m², AR=7.5, mean chord=MAC=0.12 m. Twist does not change reference area. Two endpoint assignments share one manufactured symmetric profile. |
@@ -37,6 +41,7 @@ The review mockup may reject a syntactically valid feature with DSL-UNSUPPORTED 
 | `invalid-geometry.foil` | Negative root chord → DSL-GEOMETRY; no Apply. |
 | `invalid-units.foil` | Area unit in half-span → DSL-UNIT; no reinterpretation. |
 | `invalid-version.foil` | Version 9.0 → DSL-VERSION; read-only source. |
+| `invalid-evaluator.foil` | Unavailable `cfdw-cv/1` → DSL-VERSION; preserve original bytes and accepted state, with no automatic migration or history rehash. |
 | `invalid-reference.foil` | Unknown profile reference → DSL-REFERENCE; never substitute default. |
 | `invalid-legacy-draft.foil` | Earlier unapproved 4.0 `planform chord cv` → reject with explicit legacy-draft conversion message; never reinterpret as trailing x. |
 
@@ -56,6 +61,8 @@ Additional mandatory production vectors (define expected failures before impleme
 12. A base-revision conflict, incomplete recovery draft and interrupted save: preserve last accepted source.
 13. Edit each rail in Source and Visual, including unequal bases, then Apply/Cancel/Undo/Redo: the untouched
     rail's CVs, knots and evaluated unrotated x are invariant, and every chord reader uses trailing minus leading.
+14. The exact twist pair in DSL-19 has distinct `/2` Surface hashes; its degree-derived angle oracles remain
+    unchanged. `/1` source/native/assessment bindings cannot be silently adopted as `/2`.
 
 **Review correction:** the prior leading+chord fixtures were converted to independent leading/trailing by
 adding ordinates only after comparing degree, knots and CV abscissae for equality. The reference files and
