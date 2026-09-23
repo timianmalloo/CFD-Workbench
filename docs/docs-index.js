@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "3d2ab5b87f5012774474d34229e5b920006897908bdb0c490644105273fc36ab"
+      "sourceSha256": "b872a1453b5ada4061d08e8869dc625cca99d98431394a7bbc3c3dc0361d276d"
     },
     {
       "id": "cad-editing-views",
@@ -1220,7 +1220,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7a4aff5b7c634e015ab11e3a0d1edb19140ff1638c3a8453842bfbe74878d06f"
+      "sourceSha256": "3da5773f5f06495d4d698b3075f0b3d7b8a14d11704c20454b7deb94d7341c31"
     },
     {
       "id": "design-authoring-decisions",
@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "908586d9ad1157bc60712ea3b4a874443efb36f71ec640ea7a923a90bf296c0a"
+      "sourceSha256": "2e56256adbd705013024e3943e7df6f83a8cb85e50e92b5cabc066f4676923f2"
     },
     {
       "id": "domain-experts",
@@ -4999,7 +4999,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7223221cf830bbe0cc8dcc97140563bf150b239c72617e0e342554ed4f189a71"
+      "sourceSha256": "0100302b95d97f4535c3a3a369b301c0f3935d02ea4ca82be7ee09a013383243"
     },
     {
       "id": "review-ui-workbench",
@@ -5559,5 +5559,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "78add3a05b3d81f4159fcfb82dfe2d16c0a0b3d781501c6cce3471f75be431d9"
+  "graphSha256": "585d3be3ec7e955c209d90e044062bce5b9b1671a65a1b3727617684eed58650"
 };
