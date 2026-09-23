@@ -241,6 +241,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "812913d53b18e115062df46ffc3b64b38cdb42b1c60c5d0218d41bfc5629f613"
     },
     {
+      "id": "adr-application-stack",
+      "path": "docs/adr/0003-application-stack.md",
+      "title": "Native modular monolith and source-snapshot persistence for M1",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@cfd-owner-20260923",
+      "phase": "architecture",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Proposes C#/.NET with Avalonia for the offline native milestone after actual candidate spikes. Retains lossless source snapshots and append-only project facts without a database or editable AST shadow; Owner approval and named cross-platform/numerical/persistence gates remain required.",
+      "tags": [
+        "adr",
+        "native",
+        "stack",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "architecture-application",
+          "rel": "documents"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-application-spikes",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "466cfcdc20eeef4327b87772e39828c12451cd651e97d6d4dcca770b3d2d473c"
+    },
+    {
       "id": "adr-foildsl-authority",
       "path": "docs/adr/0002-foildsl-authority.md",
       "title": "FoilDSL is the authored surface definition",
@@ -279,6 +317,58 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "92398ca5bc964c8c8eb81ff70ee0f089720e2943c5f07e9da764a6934112255c"
+    },
+    {
+      "id": "architecture-application",
+      "path": "docs/architecture/application.md",
+      "title": "CFD-Workbench application architecture and offline first milestone",
+      "type": "architecture",
+      "status": "proposed",
+      "owner": "@cfd-owner-20260923",
+      "phase": "architecture",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Proposes a native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
+      "tags": [
+        "application",
+        "native",
+        "offline",
+        "architecture"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-application-spikes",
+          "rel": "tested-by"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "4. Components and composition",
+          "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
+        }
+      ],
+      "sourceSha256": "461446794ab24ff77d41eef842cf463592d9656bd69f3fdaa2ae138eaf296fd9"
     },
     {
       "id": "cad-editing-views",
@@ -896,6 +986,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "af80f93138c0217e9fcb08a801465b4cc802dd53b4725e83091a73c5eb2dec7f"
+    },
+    {
+      "id": "design-application-foundation",
+      "path": "docs/design/application-foundation.md",
+      "title": "Offline accepted-source workbench slice",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@cfd-owner-20260923",
+      "phase": "design",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft, certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary, failure/security/privacy tests and exact downstream ownership proposals without production implementation.",
+      "tags": [
+        "application",
+        "source",
+        "geometry",
+        "persistence",
+        "native"
+      ],
+      "links": [
+        {
+          "to": "architecture-application",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-application-spikes",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "00c4e8b05509355e30d52824dc122c53de0611231a72a3ead8cde2a1e2afc41c"
     },
     {
       "id": "design-authoring-decisions",
@@ -1651,7 +1788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a2ff53e7ed17e4510b8515af5204da202f0412f4d5606cd9a8f5eaf07fb2931e"
+      "sourceSha256": "a96d25eb8c2189dbd436073c2a57413c67a3bf6c4180e2474a45fcb7c22dad9d"
     },
     {
       "id": "domain-experts",
@@ -2625,7 +2762,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "225db9f7a879be2b34a0c11b1bb07926ae1e18c316a4d10ef3a9b337d965036c"
+      "sourceSha256": "d2133fb2819194adea0c43a6d0ab3ce6d05f4d62b3a306c38c6bf3996b76e2d8"
     },
     {
       "id": "kb-hw-glossary",
@@ -3512,6 +3649,74 @@ window.DOCS_INDEX = {
       "sourceSha256": "fa3feca9c4f64f11adb81610b58a64de389774c595d5ae342e81fc4ee4642136"
     },
     {
+      "id": "privacy-review",
+      "path": "docs/security/privacy-review.md",
+      "title": "Offline application privacy review",
+      "type": "privacy-review",
+      "status": "proposed",
+      "owner": "@cfd-owner-20260923",
+      "phase": "architecture",
+      "reviewBy": "2027-03-23",
+      "reviewSuggested": [],
+      "summary": "Captures identifying source comments, names, local paths and retained recovery/history for the offline slice. No personal-data transfer is introduced; metadata minimization and explicit local retention remain testable implementation obligations rather than assumed properties of the toolkit.",
+      "tags": [
+        "privacy",
+        "application",
+        "local-files"
+      ],
+      "links": [
+        {
+          "to": "architecture-application",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2d22bf677c3516da94e044bacc473b6f165b1046e8d6ceb3b0ea077120c50434"
+    },
+    {
+      "id": "proof-application-spikes",
+      "path": "docs/proof/application-spikes.md",
+      "title": "Application architecture contract and native spike evidence",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-owner-20260923",
+      "phase": "architecture",
+      "reviewBy": "2026-12-23",
+      "reviewSuggested": [],
+      "summary": "Records actual pinned SDK/package builds, native macOS accessibility and picker observations, exact identity vectors, conservative rational geometry bounds and filesystem fault injection. Separates the bounded architecture spike from unfinished production and Windows evidence.",
+      "tags": [
+        "proof",
+        "native",
+        "identity",
+        "geometry",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "architecture-application",
+          "rel": "documents"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-native-ui-workbench",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "71c88548eb84187d168848bfbd423044fc0aa86f6ee935c370402dd013ce88d0"
+    },
+    {
       "id": "proof-authoring-decisions",
       "path": "docs/proof/authoring-decisions.md",
       "title": "V7 authoring decisions proof and review boundary",
@@ -4159,6 +4364,35 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "0f70b6cede292db0adcf81a5e5975dd9d0574ff65c9c59cd2d6d34f6b6792aaf"
+    },
+    {
+      "id": "threat-model",
+      "path": "docs/security/threat-model.md",
+      "title": "Application security boundary review",
+      "type": "threat-model",
+      "status": "proposed",
+      "owner": "@cfd-owner-20260923",
+      "phase": "architecture",
+      "reviewBy": "2027-03-23",
+      "reviewSuggested": [],
+      "summary": "Rolls up the offline application's file, command, rendering and telemetry threat analysis. Mitigations are proposed and tested only to the extent recorded in the architecture spike proof; filesystem race handling and distribution trust remain independent release gates.",
+      "tags": [
+        "security",
+        "application",
+        "files"
+      ],
+      "links": [
+        {
+          "to": "architecture-application",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a9ba9205a37d369846adcaf28ed2485c39bd02a2fb8b8b77780036d187608ef3"
     }
   ],
   "surfaces": [
@@ -4274,5 +4508,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "1614369ac874d5cde1d78f078b7c6343cfe18a4012440abc6ae4d66bd7636dd9"
+  "graphSha256": "134848704b94ddf3035a86eec79530c5e237d125e13bdf2a0883747cf5854efc"
 };
