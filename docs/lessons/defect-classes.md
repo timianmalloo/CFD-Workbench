@@ -120,6 +120,18 @@ returns defensive images at every boundary. Prevent: B0's named
 `SaveRequest_AsyncBoundary_CapturesDefensiveImage` checks. These are contract
 fixture assertions; production core tests must repeat the class.
 
+**DATA-F production recurrence:** the first `SourceParse` retained a caller's
+mutable `IReadOnlyList<Diagnostic>` and exposed it while `IsParsed` read its
+changing count; a public constructor could also manufacture apparent success.
+Sweep: source bytes, diagnostics, session snapshots and every returned view
+that could carry authority. Derive: parser construction stays internal, bytes
+and diagnostic collections are copied into immutable outward images, and
+success requires an internal parsed definition rather than an empty list
+alone. Prevent: production `Source_OutwardMutation_PreservesAuthority`,
+`Source_DiagnosticsMutation_Refused` and
+`Source_PublicConstructor_CannotForgeSuccess` pass in the isolated core
+checkpoint. These are API ownership controls, not geometry acceptance.
+
 **DATA-G · Retry semantics are not reconstructable from durable facts.** The
 first B0 candidate lost Open/Apply operation IDs or their target-sensitive
 payload binding at Reopen, allowing duplicate or conflicting use of an ID.
@@ -213,6 +225,16 @@ advisory/no-identity shape; Coordinator explicitly checked all twelve committed
 paths under `cfd-contracts-author-20260923` afterward and observed twelve
 `allow` decisions, again without a retrospective enforcement claim.
 
+**TOOL-PATCH · A replace operation is expressed as delete-plus-add in one patch.**
+The first full parser patch asked `apply_patch` to delete and add the same
+path in one transaction; the tool rejected it and changed no file. Sweep:
+large rewrites within a leased file and any staged path after patch failure.
+Derive: use one `Update File` operation (or bounded sequential updates), then
+read back the intended path and status before compiling. Preventive
+always-loaded procedure: on any patch error, check `git status --short` and
+the file contents before retrying; never count a prepared patch as applied.
+The parser's first build and tests were reported only after that readback.
+
 **ENV-C · A declared build scratch is silently replaced by a host temp default.**
 The first core gate used `tempfile.gettempdir()` at import, which resolved to
 macOS `/var/folders/.../T` despite the approved task-specific `/tmp` plan.
@@ -288,6 +310,40 @@ check exact match length for a single token. Prevent: production
 `\z`; whole-source parser tests must retain the same byte-span boundary.
 The B0 fixture's remaining `$` forms are recorded as design-only residuals,
 not promoted to a production admission claim.
+
+**LEX-E · A synthetic end marker is forgeable source text.** The first whole-
+source parser used a token spelling `EOF` and `Expect("EOF")` without proving
+the reader reached the actual final token index. A user identifier `EOF`
+could end parsing early and hide trailing text. Sweep: foil, standalone
+section and every alternate root production. Derive: success requires the
+structural end sentinel **and** complete token consumption, never a word
+equality alone. Prevent: production `Parse_FoilSpoofedEof_RejectsTail` and
+`Parse_SectionSpoofedEof_RejectsTail` were observed RED before the index
+check and GREEN afterward; the independent frozen-DLL consumer also checked
+the spoofed-tail boundary.
+
+**GRAMMAR-B · A shared helper admits its caller's forbidden supergrammar.**
+`ReadProfile` accepted asset references when called by standalone section,
+whose normative production permits profile body only. Sweep: shared profile,
+lock, assertion and assignment readers at each root grammar entry. Derive:
+pass the root production's allowed variant explicitly and reject a forbidden
+variant in the syntactic phase, even if the shared helper can parse it for
+another caller. Prevent: `Parse_StandaloneAsset_IsSyntaxError` was observed
+RED then GREEN. `Parse_OneAssignment_ReportsSyntax` likewise makes a missing
+required second assignment a syntax error; root independently reproduced
+and then closed that named finding against frozen DLLs. The parser's full
+language conformance remains a separate gate.
+
+**DIAG-A · A generic parse failure erases actionable context.** The first
+parser emitted null entity and generic reason/recovery for every failure.
+Sweep: curve count/order, missing profile/asset, lock and assertion failures.
+Derive: carry the failing curve or reference identity and the specific
+required count/order/action into stable diagnostic fields while preserving
+the original source span and phase. Prevent: production
+`Diagnostic_CurveError_NamesCurveAndRequirement` and
+`Diagnostic_MissingReference_NamesTarget` were observed RED before context
+propagation and GREEN afterward. Uncovered diagnostic families remain
+explicitly open; two named examples do not clear the full diagnostic contract.
 
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
