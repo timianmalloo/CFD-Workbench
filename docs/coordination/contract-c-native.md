@@ -11,6 +11,7 @@ links:
   - {to: architecture-application, rel: depends-on}
   - {to: design-application-foundation, rel: depends-on}
   - {to: design-language, rel: depends-on}
+  - {to: coordination-contract-c-api-freeze, rel: depends-on}
   - {to: mockup-workbench-v7, rel: relates-to}
 review-by: 2026-10-23
 summary: A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.
@@ -21,26 +22,21 @@ review-suggested:
   - { by: coordination-application-build, on: 2026-09-23, reason: "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review" }
 ---
 
-# C · native desktop and CLI adapters (preparation only)
+# C · native desktop and CLI adapters
 
-**Status:** not dispatchable. This packet prepares the serial successor to B; it
-does not freeze an API, assign a worker, or claim a product pass. Owner Ruling 13
-admits only the 18-path B core track. B's two isolated commits `5f40af0` and
-`5b5b489`, plus the later `a8a6351` placement/session checkpoint, are not an
-integrated consumer contract. Owner Ruling 16 requires a compiled immutable,
-source/revision-bound authored-control projection and public consumer fixture
-inside the existing B lease before C can select imported CVs or stations. Before C can
-launch, B must return a clean complete commit, root and Owner must clear its
-Data/Test/Geometry/Security vetoes, `conductor-join.py` must integrate it, and
-the Coordinator must compile this packet against the **actual** public core and
-store signatures with an independent review. Any changed path/API is a new
-Owner routing/contract decision, not a silent edit here.
+**Status:** final API freeze under independent review, before the fresh C lease.
+Owner Ruling 22 accepted complete bounded B `cce9ee52` and root's independent
+review `575f2a1`/`9d07668`; conductor joined both at `18278c4` with 11/11
+integrated gates passing. The final public API was exercised by the compiled
+[C freeze consumer](contract-c-api-freeze.md). Ruling 21 conditionally admits
+one serial requested-Sol C track after independent freeze review and fresh
+worker/cwd/HEAD/claim/cache preflight. Any changed path/API is a typed seam
+decision, not a silent C edit.
 
-Rulings 17–19 also hold C until the reviewed evaluator `/2` identity, all-query
-certificate feasibility and native store policy are implemented and proved
-against the reconciled companions. A `/1` source or saved project is preserved
-and refused by the unavailable evaluator path, never silently interpreted as
-`/2`; the adapter cannot hide this version decision.
+Rulings 17–19 are present in the joined B: evaluator `/2` identity, all-query
+certificate feasibility and native store policy. A `/1` source or saved
+project is preserved and refused by the unavailable evaluator path, never
+silently interpreted as `/2`; the adapter cannot hide this version decision.
 
 ## Goal and boundary
 
@@ -106,8 +102,8 @@ derived/register exceptions and remain subject to the join gate.
 | Durable evidence (3) | `docs/proof/application-adapters.md`, `docs/proof/application-macos-ui.png`, `docs/proof/application-macos-ax.json` |
 | Independent UI review (1) | `docs/reviews/ui-application-native.md` |
 
-At freeze, check the actual core/store API and whether Avalonia's headless test
-package or packaging APIs need a focused spike. The A spike established .NET
+Before implementation, check whether Avalonia's headless test package or
+packaging APIs need a focused spike. The A spike established .NET
 10.0.203, Avalonia/Fluent 11.3.14, a macOS file picker, a live numeric input
 and a rendered illustrative viewport; it did **not** prove product UI, Windows
 runtime, AX viewport semantics or M1 packaging. Package/license/SBOM findings
@@ -145,13 +141,25 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    disclose failures, do not infer speed from tests. At the public API freeze,
    profile whether a `Preview` call reassesses geometry. The viewport must use
    one current core assessment for a bounded projection instead of issuing an
-   unmeasured fresh validation for each plotted vertex; if the frozen API lacks
-   that seam, obtain a reviewed core contract change before adapter code.
+   unmeasured fresh validation for each plotted vertex. The compiled final
+   consumer proved the one-assessment seam. Start with at most 15 sparse
+   certified point queries across root/interior/tip, including the independent
+   leading and trailing rails, plus one section query per frame. Measure the
+   combined work in the real app; interval numeric error is not interpolation
+   error between sampled points. Cancel stale background jobs and suppress
+   late results after revision/generation changes. If bounded sampling cannot
+   satisfy visual inspection or measured latency, request a reviewed core
+   contract seam instead of widening the grid unmeasured.
 4. **Native UX and access.** Test native open/save dialogs, tab order, labeled
    numeric input with unit, Return/Escape behavior, disabled/error/recovery
    states, focus restoration, keyboard Undo/Redo and reduced-motion/contrast
-   modes. The viewport needs an accessible name and an inspectable data/section
-   equivalent; the A spike's AX `role=unknown` is an open gap. Root independently
+   modes. The viewport needs semantic station/CV children with name, role,
+   unit and constraint state, plus an inspectable data/section equivalent;
+   the A spike's AX `role=unknown` is an open gap. F6/Shift-F6 region navigation
+   and full keyboard traversal must be tested. Enter/Escape apply/cancel a draft
+   only while focus is in that draft; they must not intercept native dialogs or
+   unrelated buttons. Unsaved window close offers Save/Discard/Cancel and
+   preserves safe continuing focus after Cancel. Root independently
    inspects the live macOS app through native AX, keyboard and screenshot, then
    reviews the committed proof image/AX record. The native review harness must
    select persona, window size, state, theme and reduced-motion setting and
@@ -178,7 +186,9 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    GUI and CLI can show failure detail without writing source, path, vertex,
    hash or personal data to telemetry. No network exporter, MRU or background
    upload. The adapter calls save acknowledgement only after the exact captured
-   bytes were published and OS save token returned.
+   bytes return `Code=OK`, known publication, confirmed durability and a
+   matching published SHA. An uncertain publication remains dirty and
+   requires reopen/compare before retry.
 
 Red-first adapter tests cover the normal Example/edit/save/CLI route plus
 cancel, stale validation, unsupported geometry, file conflict, recovery,
@@ -191,26 +201,24 @@ fingerprints, durations, screenshots and unrun platform obligations. Root/Owner
 review before join; one integrated recount and actual rendered app exercise
 follow in D. A green C test run is not M1 acceptance.
 
-## Provisional public API readback · 2026-09-23
+## Final public API readback · 2026-09-23
 
-This is a source read of clean B checkpoint `2407b61`, after the companion
-handoff at `65ac0b9` but **before** its `/2` production repair. It is a
-consumer map, not an API freeze or a C dispatch claim. Re-read the exact
-signatures and compile a consumer after the complete B gate.
+The final compiled consumer and measured query proof are in
+[C API freeze](contract-c-api-freeze.md), bound to joined B `18278c4`.
 
 | Consumer need | Observed B entry point | Freeze question |
 |---|---|---|
 | Parse/import and show authored controls | `FoilSource.Parse(byte[])` returns `SourceParse`; `SourceParse.Authored()` gives immutable binding, named rail controls/units, assignments, locks, assertions and diagnostics; `MaterializeIds(SourceParse)` creates the explicit-accept candidate. | Preserve original missing-ID bytes until the user accepts; verify `/2` binding and custom IDs in the final consumer fixture. |
 | Accepted and draft views | `AuthoringSession.InspectAccepted()` gives `AcceptedInspection(AuthoredProjection, GeometryAssessment)`; `InspectDraft()` gives a draft projection. | Bind the projection to current accepted/draft revision; never parse a second adapter-owned copy. |
 | Numeric edit and history | `BeginRailEdit(id, rail, vertexId)`, `UpdateDraft(id, generation, si)`, `Validate(id, generation, cancellation)`, `Apply(operationId, assessment)`, `Cancel(id)`, `Undo(operationId)`, `Redo(operationId)`. | Test stale assessment and inspected-target changes through these exact calls; UI does not supply a substituted target. |
-| Derived display | `Geometry.PointAt(certificate, eta, x, upper, port)` and `SectionAt(certificate, eta, x)` consume a certificate; session `Preview(...)` currently validates again for one point. | Measure one-assessment bounded viewport projection. If the final API cannot provide it without repeat validation per vertex, obtain a reviewed B seam before C code. |
+| Derived display | `Geometry.PointAt(certificate, eta, x, upper, port, timeBudget, cancellationToken)` and `SectionAt(certificate, eta, x, timeBudget, cancellationToken)` consume a certificate; session `Preview(...)` validates again for one point. | Reuse one assessment, cap sparse queries across an interior station, measure full native render/preview and cancel stale jobs. |
 | Native file lifecycle | `ProjectStore.ReadAsync(path, cancellation)` returns image plus disk SHA; `SaveAsync(path, SaveRequest(image, expectedDiskSha256, operationId), cancellation)` returns code, published SHA, publication-known and durability-confirmed facts. `AuthoringSession.SaveImage()`, `AcknowledgeSaved(image)`, `Reopen(image)` own session state. | Distinguish published from durable and preserve external-conflict/recovery semantics; acknowledge only the exact captured image after a confirmed save result. |
 
-The current public APIs live in `src/CfdWorkbench.Core/{FoilSource,Contracts,Geometry,AuthoringSession}.cs`
-and `src/CfdWorkbench.Persistence/ProjectStore.cs`. The 159-test checkpoint
-proved its bounded `/1` behavior; joining `/2` fixtures deliberately produced
-`DSL-VERSION` failures until the authorized R17/R18 code repair. Neither this
-snapshot nor the earlier architecture UI spike closes that gate.
+The public APIs live in `src/CfdWorkbench.Core/{FoilSource,Contracts,Geometry,AuthoringSession}.cs`
+and `src/CfdWorkbench.Persistence/ProjectStore.cs`. The bounded final B core
+has 172 author tests and 11/11 joined gates. The earlier `/1` snapshot is
+historical evidence only; neither the final API freeze nor the architecture UI
+spike closes actual native product, Windows runtime or M1 gates.
 
 ## Routing and launch hold
 
@@ -230,8 +238,9 @@ Owner Ruling 21 resolves `req-01M37NS4W345FRFM14Z4F0XNSP` with a
 **conditional** one-track built-in Codex route requested as `gpt-6-sol`.
 Effective model stays **Not recorded** if the host does not expose it; a
 rejected model selection returns as a typed failure, never a silent substitute.
-This is not C dispatch. Full B acceptance/join and a compiling one-assessment
-consumer freeze remain mandatory before assigning the 24 paths. Grok/Agy
+This is not C dispatch. Full B acceptance/join is complete; independent review
+of the compiling one-assessment consumer freeze and fresh worker preflight
+remain before assigning the 24 paths. Grok/Agy
 remain the user's preferred routine route when qualified, but current R6
 receipts disqualify those profiles; actual relative coding cost is Not
 recorded and no new native probe is authorized. The existing built-in

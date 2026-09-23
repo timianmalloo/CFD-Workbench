@@ -4000,6 +4000,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "aa0d8e3b1d8c04070200458210cc829ab562fc8f2b6476e7e328139f17607a73"
     },
     {
+      "id": "coordination-contract-c-api-freeze",
+      "path": "docs/coordination/contract-c-api-freeze.md",
+      "title": "Native adapter public API freeze at joined core",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Compiled final-core consumer and measured sparse native projection seam before adapter dispatch.",
+      "tags": [
+        "coordination",
+        "application",
+        "desktop",
+        "cli",
+        "contract"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b432112527d64f515dc547940a1725874a97939a04f41790ad04691f22d78118"
+    },
+    {
       "id": "coordination-contract-c-native",
       "path": "docs/coordination/contract-c-native.md",
       "title": "Provisional native desktop and CLI adapter assignment",
@@ -4059,12 +4094,16 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
+          "to": "coordination-contract-c-api-freeze",
+          "rel": "depends-on"
+        },
+        {
           "to": "mockup-workbench-v7",
           "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9f4eee9b6614eb77f5f449ba38e01739f4024d033dd4a4f8a6d462a02907568e"
+      "sourceSha256": "61170241d39bc0cd31629b1f01a3fbbe4c086aaf651a9289c0bca8188671b149"
     },
     {
       "id": "coordination-r17-companions",
@@ -5435,5 +5474,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "291ec71618fd9a8496d73824d8bc22e0ab37f7785c3fd91de1cae9279eb4fe80"
+  "graphSha256": "f80d091070a29d2793c7f43cc03d1dc5f06b0ba6d877a0a1570c4356d113401b"
 };
