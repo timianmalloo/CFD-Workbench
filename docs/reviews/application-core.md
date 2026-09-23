@@ -33,8 +33,9 @@ source, the native UI, Windows runtime, a mesh, export or a simulation result.
 Rulings 17–19 now authorize explicit `/2` degree-preserving identity, all-domain deterministic query
 feasibility and directory-wide cooperative overwrite exclusion with actual I/O telemetry. Root's separately
 owned normative/B0/mockup companion amendment has executed bounded `/2` regressions; it does not repair or
-accept the still-isolated production B binary. Owner review of that amendment and independent review of the
-eventual production repair remain separate gates. The current store/R16 worker checkpoint is deliberately
+accept the still-isolated production B binary. Owner Ruling 20 independently accepted companion commit
+`bc0f46d` for handoff; independent review of the eventual production repair remains open.
+The current store/R16 worker checkpoint is deliberately
 still `/1` until the reviewed companion handoff.
 
 ## Scope and evidence method

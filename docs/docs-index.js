@@ -4187,7 +4187,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9acd3f6c77b014ced88510139e9588e63c58f49d8eb7ac7ea4464b6fa9391293"
+      "sourceSha256": "d7f4daf06dc318eb17178a7a872b4a5ff902448e7cfb514ae73f66b7c6147a7b"
     },
     {
       "id": "proof-application-spikes",
@@ -4522,7 +4522,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8d6f2bfa333461410f4f268183b96518b9d279416e69d8cbc755d2d048085e78"
+      "sourceSha256": "091e2ca66535eed509966d15216289e1d856d6de7619872fe2ac72a7ef39904c"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5203,5 +5203,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3a63d6dde505c9c72e1caa7d63c4746d6db74705a16108a7ae2c06f1cf07b4a6"
+  "graphSha256": "e475ba2e8cdc783d9b0f492b81d776f68185de4652714e03e74e2a95ebb54c07"
 };

@@ -76,7 +76,10 @@ browser report  eb6f2bc0f1ca7d0d30509a8131cb5c819f9429e03d444ca029e8a807e58cf33f
 rendered PNG    7785ced57d09bfd1d9d508418143d507ac869bf31a77e2d46adcb16acfcc2fc5
 ```
 
-Independent Owner companion review remains pending. Production evaluator/store/API review, Windows runtime,
+Independent Owner Ruling 20 accepted companion commit `bc0f46d` for handoff with no blocking findings
+(`req-01M37MVG36GPRHF5JP7NKX22VV`). The reviewer checked the exact source/receipt binding, inspected the
+rendered evidence, and independently passed the documentation gate: 101 artifacts, zero defects.
+This is companion-only acceptance. Production evaluator/store/API review, Windows runtime,
 native rendered workflows, full geometry and M1 acceptance remain separate open gates. Cost: Not recorded.
 
 ## Historical original fixture run
