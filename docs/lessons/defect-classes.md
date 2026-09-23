@@ -345,6 +345,16 @@ the original source span and phase. Prevent: production
 propagation and GREEN afterward. Uncovered diagnostic families remain
 explicitly open; two named examples do not clear the full diagnostic contract.
 
+**TEST-SPAN · A diagnostic oracle guesses the failure token.** An initial
+missing-unit case expected the `evaluator` keyword. The parser consumed that
+word as the prospective unit and correctly stopped at the following quoted
+evaluator value. Sweep: mixed syntax/lexical cases where a missing token lets
+the next token fill its slot. Derive the expected span by tracing the frozen
+grammar and checking the exact source slice, rather than weakening the span
+assertion after a mismatch. Prevent: `Ruling15_MissingUnit_PreventsOverflowBinding`
+checks code, phase and the quoted token span; its first wrong-oracle receipt
+`ac71hlaw` and corrected 63-case receipt `83ry315v` remain retained.
+
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
 console guard, including root's new rollup regression. Sweep: seven project scripts,

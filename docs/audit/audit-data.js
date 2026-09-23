@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T16:02:27Z",
+  "generated": "2026-09-23T16:17:21Z",
   "audit": [
     {
       "actor": null,
@@ -3903,6 +3903,51 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T16:00:38Z",
       "duration_seconds": 109.0
+    },
+    {
+      "id": "al-01M37GV8N5JSW3H2XEYK5RM0VN",
+      "shortname": "owner-foildsl-phase-review",
+      "datetime": "2026-09-23T16:16:12Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review narrow FoilDSL section7/Ruling15 specification clarification and generated HTML against root HEAD60fa4ae; Test/Domain veto, no grammar or valid-input semantic change and no root edits.",
+      "summary": "PASS bounded Test/Domain review. Only typed rulings link and section7 dependency-aware overflow prose/table changed; exact post-unit conversion and grammar unchanged. Unknown-channel syntax diagnosis matches literal EBNF. Read9 named Ruling15 test definitions and retained PASS log lines, with no fullimplementation acceptance inferred. Generated HTML sourceSHA matches, ID sequence and one flow unchanged. No blocking finding; V16 propagation remains Coordinator join responsibility.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Validate faithful, falsifiable diagnostic semantics without widening the normative language or product acceptance.",
+      "done_when": "Root receives independent PASS or precise blocking wording findings.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-23T16:15:26Z",
+      "duration_seconds": 46.0
+    },
+    {
+      "id": "al-01M37GXC4G5W1EJMT56HZMCAH3",
+      "shortname": "geometry-diagnostic-oracle",
+      "datetime": "2026-09-23T16:17:21Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Update CFD-Workbench to the latest AI-Forward Pack, including its latest coordination capabilities, then begin implementing the application from the current authoritative specification and mockups.\n\nThis Codex session leads execution. Work autonomously through verified implementation increments. Use the owner for decisions and involve me only when a consequential issue genuinely requires human authority or information.\n\n1. Update and ground\n\n- Read AGENTS.md, docs/ai-forward-pack/codex.md, recent audit history, and the defect-class register.\n- Use $updatepack to locate the authoritative AI-Forward source, inspect its revision, and apply the latest available update, including coordination tooling and standards.\n- Preserve project-specific instructions and decisions. Verify the update using its required checks.\n- Reload the updated instructions and relevant skill contracts before planning implementation.\n- Identify the authoritative specification, FoilDSL contract, mockups, decisions, and proof through metadata, links, and history—not filenames alone.\n- Distinguish normative requirements from illustrative prototype behavior. Account explicitly for known gaps, unresolved decisions, and unverified obligations.\n\n2. Establish the execution model\n\nUse the updated repository workflows, including:\n- $optimize-graph for the overall execution graph.\n- $prepare-for-coordination to decompose the work and establish ownership.\n- $execute-with-coordination to launch, supervise, integrate, and verify tracks.\n- $define-architecture and $design-slice for the necessary architecture and detailed design.\n- $implement for verified implementation increments.\n- $specify, $collectknowledge, and $ui-design where their contracts are triggered.\n\nFollow the updated skills’ required ordering and companion files. Reuse existing artifacts rather than creating competing plans.\n\nThe application stack and simulation backend are not yet selected. Resolve those decisions through the architecture workflow, evidence, and required spikes. Preserve Windows and macOS compatibility. Do not silently convert the mockup’s implementation choices into production architecture.\n\nSet a concrete first delivery milestone, its acceptance criteria, non-goals, and proof obligations. Prefer an end-to-end working increment over disconnected scaffolding. Continue through dependency-ready increments within the approved product scope.\n\n3. Roles and model routing\n\nUse this hierarchy:\n- Codex is the lead harness and control plane.\n- GPT-6 Astra is the technical owner: accountable for architecture, ambiguity, cross-track decisions, and escalation.\n- GPT-6 Sol is the coordinator: accountable for decomposition, scheduling, worker supervision, handoffs, integration, and completion evidence.\n\nRoute work by difficulty and cost:\n- The most difficult or ambiguous tasks: Claude/Fable or Codex/Astra.\n- Complex analysis and design: Claude Code with Opus 5.5 or Codex/Astra; use Sol where the task is sufficiently bounded.\n- Routine implementation and other coding tasks: the strongest suitable currently available Grok or Antigravity models, conserving Claude and Codex budgets.\n- Deterministic work: repository scripts, checks, generators, and other mechanical tools.\n\nTreat these model names as requested preferences, not proof of availability. Verify actual harnesses, model identifiers, access, and supported launch options. Never invent a model name or claim to launch a session that was not launched.\n\nPublish the resolved routing table, including fallbacks. If a preferred model is unavailable, use the closest suitable available option and record the substitution. Escalate only if no available option can meet the task’s quality or capability requirements.\n\nThe owner must not clear its own independent hard veto.\n\n4. Decompose for efficient parallel execution\n\nOptimize completeness and rigor first, cost second, and elapsed time third.\n\nUse the latest coordination standards to establish:\n- A dependency graph with real sequencing constraints.\n- Explicit ownership of artifacts and shared contracts.\n- Stable interfaces before dependent implementation fans out.\n- One responsible writer for each shared surface.\n- Bounded concurrency based on coupling, resource limits, model budgets, and integration capacity.\n- Per-task acceptance criteria, required evidence, join conditions, retry limits, and escalation paths.\n- A model and reasoning-effort choice appropriate to each task.\n\nDo not maximize session count. Maximize useful independent progress. Avoid duplicated exploration, excessive context transfer, idle workers, and parallel work that creates integration contention.\n\nUse the repository’s coordination artifacts as the durable source of truth. Give workers concise task packets containing the goal, relevant evidence, owned surfaces, contracts, constraints, checks, and completion conditions.\n\n5. Launch and supervise the sessions\n\nThis Codex session must launch and manage the other harness sessions through the repository’s supported coordination mechanisms. Do not stop after producing a plan or asking me to start terminals.\n\nUse the required worktree and branch isolation for every writing session. Let the coordination workflow create, register, assign, and release worktrees. Never share an index or working directory between concurrent writers.\n\nUse each harness’s supported unattended/full-auto approval mode—YOLO where that is its actual supported name—within the authorized repository scope. Verify the launch configuration rather than assuming a flag works.\n\nThis authorizes unattended repository work, required local tooling, implementation, testing, integration, and commits. It does not authorize overriding platform restrictions, accessing unrelated credentials, destructive operations outside task scope, purchasing services, or deploying publicly.\n\nA successful process launch is not evidence that a worker is progressing. Monitor session state, output, heartbeat, completion, and approval waits. Detect blocked or silently idle sessions promptly. Resolve them through supported configuration, task rerouting, or owner escalation. Do not leave unattended approval prompts holding the execution graph.\n\n6. Implement to the repository standards\n\nApply the constitution and all triggered standards, including:\n- Rigor Protocol and no guessing.\n- Domain-first modelling and a single authoritative representation.\n- End-to-end integrity across persistence, model, services, UI, and compute.\n- FoilDSL compatibility, deterministic evaluation, round trips, revisions, and analysis provenance.\n- Windows/macOS compatibility.\n- Accessibility, complete interaction states, and the established design language.\n- Meaningful tests, independent reviews, measurable behavior, and proof packs.\n- Defect-class capture and executable recurrence controls.\n- Audit history, typed documentation links, decision records, and derived documentation surfaces.\n\nPreserve the distinction between authored foil controls, evaluated geometry, and derived inspection slices. Preserve independent leading/trailing curves, section-edit scope, draft ownership, and analysis freshness.\n\nPrototype calculations and illustrative scientific results must not become production claims. Replace them with verified behavior or expose the capability honestly as unavailable until implemented.\n\nUse the owner to resolve technical tradeoffs within the product’s intent. Record material decisions and compatibility consequences. Do not silently expand product scope or remove requirements to make a gate pass.\n\n7. Execute autonomously and close each increment\n\nKeep the coordinator scheduling dependency-ready work, reviewing worker evidence, integrating completed tracks, and running the required checks.\n\nContinue without routine permission requests. Ask me only when:\n- Required information or access cannot be obtained independently.\n- A decision changes the product’s intended scope or requires human authority.\n- A material cost or external action falls outside the authorization above.\n- Conflicting requirements cannot be resolved from the specification, evidence, and owner decisions.\n\nProvide concise progress updates with completed outcomes, current blockers, budget or routing changes, and the next meaningful milestone. Report measured cost and usage where available; mark unavailable measurements explicitly.\n\nFor each completed milestone, provide:\n- The runnable result and launch instructions.\n- What works and what remains.\n- Verification results and independent review disposition.\n- Material decisions and residual risks.\n- Commit, branch, and worktree status.\n- Actual harness/model allocation and available cost measurements.\n\nDo not claim completion from a green gate alone: inspect the resulting application and exercise the user workflows.\n\nBegin with the pack update, then carry the coordinated implementation forward. Stop only at a genuine blocker requiring my input or a clearly completed delivery boundary with no remaining dependency-ready work in the agreed scope.",
+      "summary": "Recorded TEST-SPAN class after missing-unit diagnostic oracle expected the wrong token; retained red and corrected 63-case receipt.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Keep core evidence and controls accurate during coordinated implementation.",
+      "done_when": "The observed oracle correction is a durable class with a named failing control.",
+      "tier": "T1",
+      "fan_out": 0
     }
   ],
   "changes": [
