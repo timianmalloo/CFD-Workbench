@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -4346,6 +4346,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "d7f4daf06dc318eb17178a7a872b4a5ff902448e7cfb514ae73f66b7c6147a7b"
     },
     {
+      "id": "proof-application-core",
+      "path": "docs/proof/application-core.md",
+      "title": "Production core implementation checkpoints",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-core-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Records isolated, incomplete core increments with parser, identity and continuous subset evidence. Includes placed enclosures, session/history, authored projection and macOS store candidates; scientific and platform review remain open. This checkpoint is not a join candidate or M1 acceptance claim.",
+      "tags": [
+        "application",
+        "core",
+        "parser",
+        "identity",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f9470005ce24d78e009a1c399d28d68cff213ad85c1b86a72e80db1d955c69c9"
+    },
+    {
       "id": "proof-application-spikes",
       "path": "docs/proof/application-spikes.md",
       "title": "Application architecture contract and native spike evidence",
@@ -5400,5 +5435,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c25786c2b67471ec82a140e916cf5f58ce3f6bca988ac6b2ceac99e0b491e904"
+  "graphSha256": "291ec71618fd9a8496d73824d8bc22e0ab37f7785c3fd91de1cae9279eb4fe80"
 };
