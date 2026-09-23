@@ -26,6 +26,7 @@ def run(script, *arguments, capture=False):
 
 
 def main():
+    run(ROOT / "tools" / "check-pack-hooks.py")
     graph = SCRIPTS / "docs-graph.py"
     if (ROOT / "docs" / "docs-index.js").exists():
         run(graph, "validate")

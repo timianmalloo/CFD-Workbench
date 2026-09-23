@@ -55,6 +55,15 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 
 ## FoilDSL boundary sweep — 2026-09-22
 
+**PACK-H · Additive hook refresh duplicates a logical callback.** Revision 92 changed the
+managed Python launcher, so command-string union retained both old and new callbacks.
+Sweep: every Claude lifecycle event and matcher, including read/prompt/session hooks.
+Derive: callback identity is event + matcher + managed script, not launcher bytes.
+Prevent: `tools/check-pack-hooks.py`, invoked by `tools/check-docs.py`, was observed RED
+on four duplicate targets before removing the four obsolete entries. It refuses an
+empty inspected set. Project-owned hooks and settings remain untouched. Pack-source
+upstream repair is separate from this consumer-side control.
+
 **GEO-R · An independently presented control has a coupled authority.** User correction: moving
 LE carried TE because the record stored LE plus chord. Sweep: both pointer maps, keyboard/numeric
 editors, cage, seeds, source grammar/identity/examples, preview/history, station/area/analysis readers.
