@@ -17,3 +17,8 @@ docs/audit/audit-data.js: derived python docs/ai-forward-pack/scripts/audit-log.
 docs/audit/index.html: derived python docs/ai-forward-pack/scripts/audit-log.py --root docs --project CFD-Workbench render
 docs/audit/audit-log.jsonl: register
 # <<< coord classify init - end managed block. Add your own entries BELOW.
+docs/docs-index.js: derived python docs/ai-forward-pack/scripts/docs-graph.py derive
+docs/audit/change-log.jsonl: register
+docs/notes/rulings.md: register
+.agents/log/*.jsonl: register
+.agents/requests.jsonl: register

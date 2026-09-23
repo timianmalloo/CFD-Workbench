@@ -20,7 +20,8 @@ window.DOCS_INDEX = {
     "api",
     "source",
     "doc",
-    "index"
+    "index",
+    "plan"
   ],
   "relationRegistry": [
     "implements",
@@ -1722,6 +1723,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "4534eab42e99119b372eb9f3244f871ec942ee0c5097fc5460a2d9ed8b13a85e"
     },
     {
+      "id": "plan-application-build",
+      "path": "docs/plans/application-build.md",
+      "title": "Coordinated application build execution graph",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.",
+      "tags": [
+        "application",
+        "coordination",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Graph and mandatory floors",
+          "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
+        }
+      ],
+      "sourceSha256": "0d0663f3a7be88225b32a7693cfc27e1b8bea865cf59883db61664b90eb8cbaa"
+    },
+    {
       "id": "plan-authoring-decisions",
       "path": "docs/plans/authoring-decisions.md",
       "title": "Complete the authoring decisions and review remaining gaps",
@@ -2560,6 +2600,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3a554be0ca38a6ea5db47de4dd013bfe01075724007573536abc6b3500e08d24"
+    },
+    {
+      "id": "rulings",
+      "path": "docs/notes/rulings.md",
+      "title": "Rulings — the Owner seat's numbered decisions (the only definition site)",
+      "type": "doc",
+      "status": "accepted",
+      "owner": "@owner",
+      "phase": "coordination",
+      "reviewBy": "2027-03-22",
+      "reviewSuggested": [],
+      "summary": "The ruling register. Each `### Ruling NN — <title>` heading defines exactly one numbered decision of the Owner seat; prose anywhere cites it as `Ruling NN`. Written only by `coord decide rule`; numbering is read from these headings; verify-ruling-citations.py fails a cited number with no heading here and a number defined twice.",
+      "tags": [
+        "coordination",
+        "owner-review",
+        "rulings",
+        "register"
+      ],
+      "links": [
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "225db9f7a879be2b34a0c11b1bb07926ae1e18c316a4d10ef3a9b337d965036c"
     },
     {
       "id": "kb-hw-glossary",
@@ -3408,6 +3474,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "e369034ec7fc41f5aac86db9473f6754ecca1afa302501fa17fb329e22779f7b"
     },
     {
+      "id": "coordination-application-build",
+      "path": "docs/coordination/application-build.md",
+      "title": "Coordination plan - first CFD-Workbench application increment",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "application"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fa3feca9c4f64f11adb81610b58a64de389774c595d5ae342e81fc4ee4642136"
+    },
+    {
       "id": "proof-authoring-decisions",
       "path": "docs/proof/authoring-decisions.md",
       "title": "V7 authoring decisions proof and review boundary",
@@ -4082,6 +4186,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench"
     },
     {
+      "id": "surface-coordination-application-build",
+      "path": "docs/coordination/application-build.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-application-build"
+    },
+    {
       "id": "surface-specs-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.html",
       "title": "CFD-Workbench — Product specification",
@@ -4162,5 +4274,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "da3d12ef39036bff585ed708be2a9687e8c7f380ef64841fe0a5b95cadbe2bb1"
+  "graphSha256": "1614369ac874d5cde1d78f078b7c6343cfe18a4012440abc6ae4d66bd7636dd9"
 };
