@@ -13,7 +13,7 @@ links:
 review-by: 2026-10-23
 summary: >-
   Records isolated, incomplete core increments with parser, identity and continuous subset evidence.
-  Placed preview, sessions, native persistence and telemetry remain incomplete or unimplemented.
+  Includes placed enclosures and session/history candidates; the native adapter and full platform proof remain open.
   This checkpoint is not a join candidate or M1 acceptance claim.
 ---
 
@@ -42,7 +42,7 @@ The loop variant is the remaining failed contract assertions; a budget cap trigg
 The required surface chain is native bytes → immutable rows → owned draft → certificate binding →
 immutable projection → future GUI/CLI → geometry reader. The current increment reaches source bytes → static
 parse projection → semantic identity → continuous subset proof → enclosed normalized section ordinate.
-No acceptance/session or file-store boundary can be invoked.
+The third increment adds candidate session/history and preview boundaries. The file-store adapter remains absent.
 No parsing success is a geometry certificate. No analysis or solver values are exposed.
 
 Reuse decision: the reviewed B0 exact-decimal and canonical-number routines are moved into Core, with
@@ -189,14 +189,14 @@ PID/start identity; retained process receipts show empty live sets.
 No new containment incident or certificate/trust banner occurred. Old incident scratch and certificate
 evidence remain preserved. The four later session/store implementation and test paths remain absent.
 
-## Open obligations before handback
+## Open obligations at the first checkpoint
 
 This is an isolated checkpoint, not a partial join. Remaining work includes full language boundary/fuzz and
 phase-order breadth, complete independent identity corpus, adversarial continuous rational
 geometry and bounded placed-preview error, session transaction/certificate ownership, immutable
 native history and replay, growth/recovery admission, actual native primitive/fault/race proof, normal-path
 256-event telemetry and redaction, architecture checks, cross-platform evidence and independent veto review.
-The native persistence project is currently only a project-reference boundary, with no file operations.
+The native persistence project is currently only a project-reference boundary, with no adapter file operations.
 No Windows runtime, native UI, whole-language conformance, M1 delivery or product acceptance is claimed.
 
 ## First checkpoint source fingerprints (commit 5f40af0)
@@ -229,3 +229,118 @@ The final build PID is 82345; test/process identities are retained in that uniqu
 | `tests/CfdWorkbench.Core.Tests/FoilSourceTests.cs` | `1f7745276f2f549e2d05e95f4ea7a612f8308e25be12e53447fa9ea89f36fea6` |
 | `tests/CfdWorkbench.Core.Tests/IdentityTests.cs` | `02e4ac2ca399687a7948a69d572670fe438fe663d78e88a26717c28df27926b7` |
 | `tests/CfdWorkbench.Core.Tests/GeometryTests.cs` | `9254fb961bf57ddd1a683beafbc502cbeee3d899b24784b2fe67d03cd1b8a878` |
+
+## Third bounded increment: placement, session and native primitive boundary
+
+Fresh audit start: 2026-09-23T16:17:34Z. Read-only preflight observed clean
+`feature/application-core` at `5b5b4895a81eaf072cf5165ba88e8c44ae7f6202`, assigned absolute cwd,
+and allowed Geometry/AuthoringSession exact leases. Requested model remains gpt-6-astra; effective model
+and exact aggregate call count are Not recorded. This remains a partial isolated checkpoint, not a join.
+
+Placed coordinates use exact interval arithmetic and a rational Taylor enclosure on angles in [-1,1].
+The evaluator first reads the degree-ordinate twist curve and then applies the pinned once-rounded
+radians conversion, as FoilDSL section 6 requires. It does not evaluate a spline over pre-rounded radian CVs.
+Point evaluation was RED `9cofy31x`, GREEN `69xr8wm5`. Whole-domain angle/error admission was RED
+`gve0q7dq`, GREEN `lnj_sj8p`. Assess now derives and retains an exact rational uniform width bound across
+eta/x in [0,1], upper/lower and both ports. It includes inverse-abscissa ordinate error, relative maximum
+normalization, camber/thickness products, Taylor remainder, angle rounding, placement and outward conversion.
+Profile inverse tolerance scales with the exact maximum lower bound. Degree times ordinate range bounds the
+inverse ordinate hull width after 127 bisections. A 10 nm maximum coordinate interval width is a chosen
+conservative implementation policy, explicitly marked simplify, not a normative language tolerance.
+Queries return intervals; they do not authorize an otherwise unproved shape or certify a tessellated mesh.
+
+No-crossing argument for the admitted subset: positive half-span makes Y=halfSpan*eta injective, so distinct
+span stations cannot intersect. Positive chord and thickness preserve scale. The two section graphs are
+strictly separated on their open chord domain and meet only their declared endpoints. The leading-edge
+pivot rotation is rigid within each constant-Y plane, preserving that section simplicity. This argument
+requires every admitted subset precondition; it does not extend to arbitrary blends or unsupported tips.
+
+Final elapsed checks precede successful certificate/section/point returns. Callers may reduce the one-second
+budget but cannot raise it. Explicit zero-budget and raised-budget controls were RED `r02r5m02`, GREEN
+`4qhukw7e`. Polling remains cooperative, not a hard real-time scheduling guarantee. Arithmetic is bounded;
+a scheduler pause or expensive individual bounded operation may exceed the requested wall time before
+refusal. Universal timeout/power-loss/platform proof is not claimed.
+
+Session tests were eight executed REDs in `qu0ljdyb`, then GREEN in `k_j6brrg`. Production session/native-v1
+serialization/replay reuse the B0 contract implementation, with random IDs, exact production geometry proof,
+private per-session assessment ownership, one in-flight validation and full immutable binding. Tests cover
+candidate-ID acceptance, cancel preserving bytes/history, stale generations and assessments, outward mutation,
+invalid/cancelled proofs, concurrent same-generation updates, durable operation retry after Undo/Reopen,
+recovery offer/resume, late save acknowledgement, atomic history-growth refusal and hostile native schema.
+Native parsing adopts only after schema/reference/hash/replay checks and fresh current geometry proof.
+
+Root found a real stale-authority resurrection: a cancelled draft UUID could be reused with the same binding.
+`7ms4h89s` records named REDs for that finding, the caller-raised native cap, empty recovery and uncaptured
+save acknowledgement. `ttbkc0t_` closes those named tests: draft IDs retire on Begin and historical edit/recovery
+IDs are reconstructed on Reopen; the public cap cannot exceed 8 MB; recovery alone may contain zero base64
+chunks, while accepted sources still may not; empty recovery resumes as an invalid draft and cannot Apply.
+SaveImage records bounded pending capture hashes and acknowledgement must match a prior captured image.
+The store remains responsible for actual publication success. This does not authorize a caller to assert
+OS publication, nor confuse normalized dirty identity with the exact disk conflict token.
+
+All source/native input bytes are snapshotted before parsing so caller mutation cannot change bytes between
+semantic parsing and authority capture. Source/Surface hashes are lazily cached over owned immutable input.
+This hardening was first observed green; no historical behavioral RED is asserted for the concurrent-copy case.
+
+The local session ring holds at most 256 events and is discarded at close. It records named language.parse,
+identity.canonicalize, geometry.validate/preview, document.open/apply/cursor/recovery/save/reopen phases,
+measured duration, known byte counts, generation/evaluator when established, local ephemeral trace ID and
+observed retained-fact counts. Unknown fields are null, not estimated. Returned invalid/cancelled assessments
+supply the event outcome instead of being labelled OK. No source, path, name, vertex, exception text or content
+hash is emitted. Named phase RED `4jf0w4o6` precedes GREEN `f02ah0lr`; final tests also inject a private source
+marker and check preview binding/correlation, cancellation outcome and ring redaction. There is no exporter
+or disk telemetry archive. Broader adapter telemetry remains part of the unimplemented store boundary.
+
+Native primitive prerequisite, before any ProjectStore.cs adapter: installed MacOSX.sdk headers grounded
+openat/no-follow/directory/CLOEXEC flags, 144-byte stat64 fields and linkat/renameat/fsync signatures.
+`NativePrimitive_MacHandleRelativeNoReplaceAndFlush` passed in `9s8nffho`: a second linkat creator received
+EEXIST and preserved original bytes; no-follow open rejected a symlink; a held reader retained its original
+inode after replacement; file and directory fsync returned success. This proves those observed local API
+behaviors only. Complete ancestor traversal/replacement, owned temp/claim cleanup, cancellation, short writes,
+disk full, post-publication uncertainty and cooperative overwrite races still need adapter tests. Windows
+native runtime remains Not assessed. Primitive artifacts remain under each unique gate scratch/tmp directory.
+
+Latest verification: `po5pbru9`, build/test exit 0, zero build warnings/errors, exactly 126 PASS counted from
+retained test output. Build PID 89409 and observed children 89412/89414/89430/89445/89460, plus the test process,
+have empty owned live sets in retained PID/start receipts. The new primitive fixture root is
+`/private/tmp/cfd-application-core-20260923-po5pbru9/tmp/native-primitives-c7e5ad7fe6624d83810eac55b621a704`.
+No production persistence adapter exists yet; that is the next dependency. Old containment evidence is preserved.
+
+### Additional bounded independent evidence
+
+The author read the receipts and independent numeric/placement oracle source; these are separate frozen-DLL
+reviews, not universal conformance or clearance of later source.
+
+| Frozen review | Observed bounded result | Receipt SHA-256 |
+|---|---|---|
+| `/tmp/cfd-identity-review.MnyjUB/review-receipt.json` | 1000 exact Python Fraction post-unit cases and 4996 finite raw-bit spellings against Node v22.22.2 JSON.stringify; zero failures | `5f6fbee621c20fd16cd490905c156bb4a89dd3a54d8662b15fe2727a58543671` |
+| `/tmp/cfd-section-review.CL5eAD/review-receipt.json` | Eight cases; independent nonlinear x=t^5 at x=1/32 gives exact upper47/512, lower-17/512 | `86ac9be5d4aacabb1cc36564f69058b4e3b1ab73cb804990d92daf70553b56f0` |
+| `/tmp/cfd-placement-review.s4ZNVb/review-receipt.json` | 36 placed points, 108 coordinates versus Decimal precision110/Taylor70 at once-rounded angles; zero failures | `bba1fe3306f0e7194f15aa7619cb6073027b0d981f6e0c73d2d37c9a1c161d1f` |
+| `/tmp/cfd-session-review.nK51bi/followup/review-receipt.json` | Cancelled draft reuse now DSL-DRAFT-REUSED with acceptedChanged=false; 30 wrong-type mutations refused; empty recovery accepted | `192c6d5f3bb9098419eea9d3a2280fff84660be6f92c0e4b5918a9c896f27413` |
+
+The session follow-up raw program retains an old scope string. Its receipt and frozen DLL hash bind the actual
+ttbkc0t_ follow-up; no raw output was rewritten. Coordinator owns defect-register consolidation for authority
+identifier reuse, public resource-bound bypass, dependent interpretation, mutable input capture and event
+success classification. Their named controls above prevent the observed class from silently recurring.
+
+### Third checkpoint fingerprints and remaining work
+
+The final readback counted 126 PASS in `po5pbru9/receipts/tests.log`. Build/test process receipts record
+exit 0 and empty live sets; direct `ps` readback for all seven owned PIDs returned no rows. Test PID was
+89477. No product source changed after that run. The following hashes bind the tested increment.
+
+| Path | SHA-256 |
+|---|---|
+| `src/CfdWorkbench.Core/FoilSource.cs` | `f30141f6ed10893e961a173df4911a476716feebb8043197139dabd88ca8eefd` |
+| `src/CfdWorkbench.Core/Geometry.cs` | `26cd769c7034d6e1020f2397529299eda7ec000f43e1b9e633089a23c5521925` |
+| `src/CfdWorkbench.Core/AuthoringSession.cs` | `b7c46a84522eae83bdf1938d7ab897628715871566af9185403fbb40e4eccfa9` |
+| `tests/CfdWorkbench.Core.Tests/GeometryTests.cs` | `de554cfcd92ee268cb194079450d63003f63b590e34313d37d1980b6c4fb27cd` |
+| `tests/CfdWorkbench.Core.Tests/IdentityTests.cs` | `0df67b0ada7487104232c082b49529547eed055b89c68068c38a210a7d768c54` |
+| `tests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs` | `d6140e4aab65b53eea60ad225f4538cb57db4e75f92c3ceee90b57ff05aa3b78` |
+| `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` | `dcfebe26e3890087d6cd245be76dabe11da86e617f253a146eb052335336f595` |
+
+Remaining: production ProjectStore, native ancestor/identity/claim/publication and fault/race tests,
+cross-platform gate/runtime proof, architecture checks and independent whole-domain mathematical/Data
+review. Session/native serialization and local telemetry now have the bounded executable evidence above;
+they are not blanket contract acceptance. Coordinator requested this clean checkpoint yield the active seat
+for review before another bounded serial continuation. No partial join or acceptance is requested.

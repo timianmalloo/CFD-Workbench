@@ -13,18 +13,22 @@ public sealed record Diagnostic(string Code, string Phase, string Severity, int 
 public sealed class SourceParse
 {
     private readonly byte[] source;
+    private readonly Lazy<string> sourceIdentity;
+    private readonly Lazy<string?> surfaceIdentity;
     internal Definition? Definition { get; }
     internal SourceParse(byte[] source, IEnumerable<Diagnostic> diagnostics, Definition? definition = null)
     {
         this.source = source.ToArray();
         Diagnostics = Array.AsReadOnly(diagnostics.ToArray());
         Definition = definition;
+        sourceIdentity = new(() => Identity.Sha256(this.source));
+        surfaceIdentity = new(() => definition is null ? null : Identity.Blake3(Encoding.UTF8.GetBytes(Jcs.Write(definition.Semantic))));
     }
     public byte[] Source => source.ToArray();
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
     public bool IsParsed => Definition is not null && Diagnostics.Count == 0;
-    public string SourceHash => Identity.Sha256(source);
-    public string? SurfaceHash => Definition is null ? null : Identity.Blake3(Encoding.UTF8.GetBytes(Jcs.Write(Definition.Semantic)));
+    public string SourceHash => sourceIdentity.Value;
+    public string? SurfaceHash => surfaceIdentity.Value;
 }
 
 internal sealed record SourceToken(string Text, int Start, int End)
@@ -70,6 +74,7 @@ public static class FoilSource
         ArgumentNullException.ThrowIfNull(source);
         if (source.Length > 1_048_576)
             return new([], [new("DSL-LIMIT", "Resource", "Error", 0, 0, 1, 1, null, "Source exceeds 1 MiB.", "Retain the original input and reduce its size.")]);
+        source = source.ToArray();
         string text;
         try { text = Utf8.GetString(source); }
         catch (DecoderFallbackException)

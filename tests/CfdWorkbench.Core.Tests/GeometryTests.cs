@@ -8,6 +8,36 @@ internal static class GeometryTests
 {
     internal static void Run()
     {
+        Check("Geometry_TwistOutsideWholeDomainTaylorProof_NotAssessed", () => Equal(GeometryStatus.NotAssessed,
+            Geometry.Assess(Prepared(Text.Replace("(1, -2)", "(1, -90)"))).Status));
+        Check("Geometry_PlacementWidthBeyondBudget_NotAssessed", () => Equal(GeometryStatus.NotAssessed,
+            Geometry.Assess(Prepared(Text.Replace("120)", "1e20)"))).Status));
+        Check("Geometry_ExhaustedTimeBudget_ProducesNoCertificate", () =>
+        {
+            var parsed = Prepared(DyadicProfile());
+            var result = Geometry.Assess(parsed, TimeSpan.Zero);
+            Equal(GeometryStatus.NotAssessed, result.Status);
+            Equal(true, result.Certificate is null);
+            Equal("GEOMETRY-BUDGET", result.Code);
+        });
+        Check("Geometry_CallerCannotRaiseTimeCeiling", () => Refuses("DSL-RANGE", () => Geometry.Assess(Prepared(DyadicProfile()), TimeSpan.FromSeconds(2))));
+        Check("Geometry_PlacedRootPoint_EnclosesIndependentZeroTwistCoordinates", () =>
+        {
+            var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
+            var point = Geometry.PointAt(certificate, 0, .5, true);
+            Contains(point.X, .06); Contains(point.Y, 0); Contains(point.Z, .12 * .06);
+        });
+        Check("Geometry_PlacedTip_MirrorsOnlySpan", () =>
+        {
+            var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
+            var starboard = Geometry.PointAt(certificate, 1, 1, true);
+            var port = Geometry.PointAt(certificate, 1, 1, true, true);
+            Equal(starboard.X, port.X); Equal(starboard.Z, port.Z);
+            Equal(starboard.Y.Lower, -port.Y.Upper); Equal(starboard.Y.Upper, -port.Y.Lower);
+            // Independent libm comparison is a bounded check, not proof authority.
+            Contains(starboard.X, .12 * Math.Cos(-2 * 0.017453292519943295));
+            Contains(starboard.Z, -.12 * Math.Sin(-2 * 0.017453292519943295));
+        });
         Check("Geometry_NormalizedSection_PropagatesExactMaximumEnclosure", () =>
         {
             var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
@@ -64,6 +94,11 @@ internal static class GeometryTests
         Check("Geometry_OpaqueCertificate_NoPublicConstructor", () => Equal(0, typeof(GeometryCertificate).GetConstructors().Length));
     }
     private static string Text => Encoding.UTF8.GetString(FoilSourceTests.Example);
+    private static void Contains(EnclosedOrdinate interval, double value)
+    {
+        Equal(true, interval.Lower <= value && interval.Upper >= value);
+        Equal(true, interval.Upper - interval.Lower < 1e-10);
+    }
     private static string DyadicProfile()
     {
         const string basis = "degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points ";
