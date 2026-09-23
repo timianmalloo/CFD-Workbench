@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:26:57Z",
+  "generated": "2026-09-23T15:01:05Z",
   "audit": [
     {
       "actor": null,
@@ -3306,6 +3306,60 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T14:26:47Z",
       "duration_seconds": 10.0
+    },
+    {
+      "id": "al-01M37CHQ2EZ4F48YEX5QXY0Q0C",
+      "shortname": "b0-contract-prompt",
+      "datetime": "2026-09-23T15:01:05Z",
+      "session": "cfd-contracts-author-20260923",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "summary": "Assigned serial B0 design-only contract completion, no production code.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Complete exact native M1 shared contracts and executable fixture evidence under Rulings 8-10.",
+      "done_when": "Committed design/schema/session/identity/persistence contract and proof, with independent review and explicit product gates.",
+      "tier": "T2",
+      "fan_out": 1
+    },
+    {
+      "id": "al-01M37CHQ5T3M8GA7ENRA5ZG9MN",
+      "shortname": "design-slice-application-contracts",
+      "datetime": "2026-09-23T15:01:05Z",
+      "session": "cfd-contracts-author-20260923",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "summary": "Produced eight-path design/ADR/proof/security and executable contract candidate. Build clean; 89 C# checks, 42 Python checks, 2505 vectors pass; five constructed mutants fail. Root/Owner gate retained. Tool count Not recorded; Coordinator approved bounded 20-call/20-minute finalization after 30-minute checkpoint.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/application-contracts.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete exact native M1 shared contracts and executable fixture evidence under Rulings 8-10.",
+      "done_when": "Committed design/schema/session/identity/persistence contract and proof, with independent review and explicit product gates.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T14:29:28Z",
+      "duration_seconds": 1897.0,
+      "git": {
+        "sha": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "short": "73cabb89e",
+        "branch": "feature/application-contracts",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -3698,6 +3752,28 @@ window.AUDIT_DATA = {
         "before": "a25c175",
         "after": "a25c175c2dff173028eeb23ffcbad1c94b5a70f9",
         "branch": "feature/application-architecture-codex",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M37CHQ49FC8FX5BR94T7PY20",
+      "datetime": "2026-09-23T15:01:05Z",
+      "session": "cfd-contracts-author-20260923",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Complete unshipped native-v1 durable receipts and bounded admission",
+      "prompt": "You are the B0 contract-completion author for CFD-Workbench, requested model gpt-6-astra. Work ONLY /Users/mallalieut/projects/CFD-Workbench-feature-application-contracts, branch feature/application-contracts, assigned session cfd-contracts-author-20260923, base 73cabb89ed7fc77b484ca7786d1b835333299795. Do not EnterWorktree/create a second tree. First command must be `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-contracts-author-20260923 --skill design-slice` from assigned cwd. Read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/design-slice/SKILL.md plus references, specs/FoilDSL, docs/architecture/application.md, docs/adr/0003-application-stack.md, docs/design/application-foundation.md, docs/proof/application-spikes.md, Owner Ruling 8 in docs/notes/rulings.md, root review docs/reviews/application-architecture.md. Goal: complete Ruling8's SERIAL design/contract gate, NO production code. Done when committed exact design, executable contract fixtures and proof cover complete session ports (Open, BeginRailEdit, UpdateDraft, Validate, Apply, Cancel, Undo, Redo, Snapshot, recovery), native-v1 schema/reference/operation IDs/cursor replay, parser/source patch including .foil missing-ID acceptance and built-in Example, exact decimal→binary64/unit and RFC8785+BLAKE3 identity vectors, growth/retention, macOS/Windows persistence conflict/handle/fault policy, diagnostics, ownership/typed seams. No sampled geometry certification; uncertain validity remains Not assessed. Preserve exact UTF-8 source and separate source SHA256, semantic Surface BLAKE3; approved conservative geometry gate remains. Distinguish OS cross-build from live runtime. No implementation B/C or feature expansion. Owned authored paths EXACTLY: docs/design/application-contracts.md; docs/proof/application-contracts.md; docs/adr/0004-application-project-contract.md (only if load-bearing decision needed); docs/security/threat-model.md; docs/security/privacy-review.md; tools/spikes/ApplicationContracts/ApplicationContracts.csproj; tools/spikes/ApplicationContracts/Program.cs; tools/spikes/application-session-contract-vectors.py. Generated docs/docs-index.js and official audit/change JSONL/render data are metadata exceptions. Do not edit specs, AGENTS, architecture A docs/ADR0003, plan, product code, or unrelated paths; request seam if needed. Native spike files are input only. Use actual `dotnet build` and executable fixture assertions plus Python cross-checks; name what an oracle truly executes. T2/T3 design slice, <=70 tool calls, <=50min first window, <=100k context; cap means checkpoint/replan, not false completion. Record exact cwd/HEAD/path diff at handback, requested/effective model if exposed (otherwise Not recorded), clean worktree, commit. Do not spawn subagents. Owner cfd-owner-20260923 rules technical decisions; root independent review. Send checkpoint after grounding, material design draft, final handoff to /root/coordinator and /root/owner. Ask Owner via canonical `coord decide request` for any new unresolved load-bearing policy; do not self-clear veto. Do not claim native confinement: this built-in worker is observed-only in isolated tree; limit work to owned paths and task-local .contract-scratch caches. No external accounts, purchases, public deploy. Monitor 50min by time, send checkpoint if cap approaches.",
+      "summary": "Exact session/store ports, native replay and edit receipts, resource-safe identity and source patch contracts; no production implementation.",
+      "rationale": "Rulings 9 and 10 close missing durable retry, growth and safe persistence policies while retaining geometry/native runtime gates.",
+      "artifacts": [
+        "docs/design/application-contracts.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "after": "73cabb89ed7fc77b484ca7786d1b835333299795",
+        "branch": "feature/application-contracts",
         "pushed": null,
         "commits": []
       }
