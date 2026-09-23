@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T15:06:12Z",
+  "generated": "2026-09-23T15:09:10Z",
   "audit": [
     {
       "actor": null,
@@ -3627,24 +3627,91 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M37CV3EDZ4WR67ARNFCPT7Z6",
-      "shortname": "join-application-contracts",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-contracts.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-23T15:06:12Z",
+      "done_when": "Integrated branch passes independent contract and architecture recounts, docs checks and verification gates with exact provenance.",
+      "duration_seconds": 14.0,
+      "fan_out": 0,
+      "goal": "Integrate reviewed serial application contracts without losing source/proof or worktree ownership.",
+      "id": "al-01M37CV3EDZ4WR67ARNFCPT7Z6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-application-contracts",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T15:05:58Z",
+      "summary": "Join B0 contract design, ADR, executable fixtures, security rollups and proof after independent 89 C#/42 Python/2505-vector recount and root technical PASS; production remains gated. recount_seconds=13 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/application-contracts.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T15:06:14Z",
+      "done_when": "Findings are resolved by inspected source and executed regressions, a bounded disposition is committed, and remaining product gates are explicit.",
+      "duration_seconds": 1431.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "17bcf53523a6fa00736f73c1b9c52d900f522ea1",
+        "short": "17bcf5352"
+      },
+      "goal": "Complete independent B0 review so coordinated production implementation can proceed through a verified contract gate.",
+      "id": "al-01M37CV5FG23PAG0DPGQPN21WE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Independently review the serial B0 session, schema, identity and persistence contracts under the authorized coordinated application implementation task; inspect actual source and executed evidence before clearing the bounded contract gate.",
+      "session": "cfd-application-20260923",
+      "shortname": "independent-b0-contract-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "design-slice",
+      "started_at": "2026-09-23T14:42:23Z",
+      "summary": "PASS for bounded B0 contracts at cb73079. Root independently rebuilt frozen source and passed 89 C# checks, 42 Python checks and 2505 vectors; separately compiled and executed five constructed mutants with expected runtime failures. Resolved numeric resource, snapshot ownership, durable replay, admission, native line-limit and dirty-state findings, plus Owner parser/replay boundaries. Source hashes match committed proof. Production geometry, native store, UI, Windows runtime and G3 routing remain separate gates. Review timing marker covers artifact/final-review phase only; preliminary read-only review preceded it.",
+      "tags": [
+        "application",
+        "independent-review"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M37D0H1HTGQKJCCX9HDARAP3",
+      "shortname": "application-contract-review-join",
+      "datetime": "2026-09-23T15:09:10Z",
       "session": "cfd-coordinator-20260923",
       "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join B0 contract design, ADR, executable fixtures, security rollups and proof after independent 89 C#/42 Python/2505-vector recount and root technical PASS; production remains gated. recount_seconds=13 (docs_only=False).",
+      "summary": "Joined independent B0 contract review after final integrated recount recount_seconds=10 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/application-contracts.md"
+        "docs/reviews/application-contracts.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Integrate reviewed serial application contracts without losing source/proof or worktree ownership.",
-      "done_when": "Integrated branch passes independent contract and architecture recounts, docs checks and verification gates with exact provenance.",
+      "goal": "Retain independently reviewed B0 contract evidence on the coordination branch",
+      "done_when": "Review, source proof, audit and docs gates pass on one joined branch",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -3652,8 +3719,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-23T15:05:58Z",
-      "duration_seconds": 14.0
+      "started_at": "2026-09-23T15:08:59Z",
+      "duration_seconds": 11.0
     }
   ],
   "changes": [
