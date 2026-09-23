@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T17:37:20Z",
+  "generated": "2026-09-23T17:38:57Z",
   "audit": [
     {
       "actor": null,
@@ -4633,6 +4633,35 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-09-23T17:37:09Z",
+      "duration_seconds": 11.0
+    },
+    {
+      "id": "al-01M37NJS7EWG2M8HS2ZDANTASV",
+      "shortname": "core-r17-companion-join",
+      "datetime": "2026-09-23T17:38:57Z",
+      "session": "cfd-application-core-20260923",
+      "prompt": "the join of the resolved merge into feature/application-core",
+      "summary": "Bring Owner R20 reviewed companion into isolated core; no production B acceptance or push. recount_seconds=10 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/contract-r17-companions.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Join reviewed evaluator-v2 contracts before bounded R17/R18 production repair.",
+      "done_when": "Full conductor contract passes and core worktree is clean before product edits.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T17:38:46Z",
       "duration_seconds": 11.0
     }
   ],
