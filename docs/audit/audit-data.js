@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T13:51:18Z",
+  "generated": "2026-09-23T13:57:42Z",
   "audit": [
     {
       "actor": null,
@@ -3054,6 +3054,30 @@ window.AUDIT_DATA = {
       },
       "mode": "pass-through",
       "dispatchable": true
+    },
+    {
+      "id": "al-01M378XNMMB6Q1JY9R0WTABCTB",
+      "shortname": "owner-rulings-5-6",
+      "datetime": "2026-09-23T13:57:42Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve Grok ACP parity request req-01M378TB404Q81GP3R540092PJ after failed outside-worktree sentinel protection, and pending architecture security-rollup ownership request req-01M378DSNQ49SSTAZMWJW4WCCJ.",
+      "summary": "Ruling 5 extends architecture author contract by two exact security/privacy rollup paths without gate waiver. Ruling 6 rejects current Grok production dispatch because failed boundary and unverified model/cwd/cancellation remain, permits no more probe now, and applies identical observed-only procedural-control language and prerequisites to Codex. Future concrete G3 route needs actual evidence and explicit lack-of-enforcement disposition; current author continues only under stated prerequisites. Both requests resolved.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve author ownership and harness parity without weakening evidence claims or delaying architecture.",
+      "done_when": "Canonical rulings close both requests with exact scope, prerequisites and fallback.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T13:56:23Z",
+      "duration_seconds": 79.0
     }
   ],
   "changes": [
