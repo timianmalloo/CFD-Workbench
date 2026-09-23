@@ -111,7 +111,11 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    error/Not assessed and the unavailable analysis pane. A static v7 SVG or
    spike shape cannot satisfy this gate. Measure the spec's 5-second cold start,
    100 ms edit feedback and 250 ms preview/cancel budgets on an actual app;
-   disclose failures, do not infer speed from tests.
+   disclose failures, do not infer speed from tests. At the public API freeze,
+   profile whether a `Preview` call reassesses geometry. The viewport must use
+   one current core assessment for a bounded projection instead of issuing an
+   unmeasured fresh validation for each plotted vertex; if the frozen API lacks
+   that seam, obtain a reviewed core contract change before adapter code.
 4. **Native UX and access.** Test native open/save dialogs, tab order, labeled
    numeric input with unit, Return/Escape behavior, disabled/error/recovery
    states, focus restoration, keyboard Undo/Redo and reduced-motion/contrast
