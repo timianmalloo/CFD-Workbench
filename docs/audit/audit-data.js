@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T20:44:06Z",
+  "generated": "2026-09-23T20:59:04Z",
   "audit": [
     {
       "actor": null,
@@ -5608,6 +5608,56 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "c154165d4aaa0f626e97f47213074fd3ca23050e",
         "short": "c154165d4",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38110WDKXTD9GKWNCKN1HDJ",
+      "shortname": "native-window-visible-user-reply",
+      "datetime": "2026-09-23T20:58:58Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Yes, I see the workbench",
+      "summary": "Exact user reply to the pending visibility question. It establishes user-visible window appearance, not a CUA or accessibility verdict.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Bind the external visibility change to the native review restart.",
+      "done_when": "The exact reply is retained and the root checks the same review instance through supported CUA.",
+      "tier": "T0",
+      "fan_out": 0,
+      "git": {
+        "sha": "b3e675d917d4fadb631cf8688e4ee9ebe153bd67",
+        "short": "b3e675d91",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38116X3PC5NN2AH7HFG5TZV",
+      "shortname": "final-review-window-user-reply",
+      "datetime": "2026-09-23T20:59:04Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "The new CFD Workbench review window",
+      "summary": "Exact user reply identifying the visible window as the new final review instance; root then attached by supported CUA to the exact bundle and observed its title, screenshot and AX tree.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Disambiguate the final review window from earlier app instances.",
+      "done_when": "The visible instance and its source, PID and binary receipt are bound before native checks.",
+      "tier": "T0",
+      "fan_out": 0,
+      "git": {
+        "sha": "b3e675d917d4fadb631cf8688e4ee9ebe153bd67",
+        "short": "b3e675d91",
         "branch": "feature/application-coordination",
         "pushed": null
       }
