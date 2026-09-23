@@ -4334,6 +4334,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-application-adapters",
+      "path": "docs/proof/application-adapters.md",
+      "title": "Native application adapter implementation proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-native-adapters-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Source-bound build, CLI, controller and package evidence for the first native adapter; rendered macOS and Windows runtime acceptance remain open.",
+      "tags": [
+        "application",
+        "native-ui",
+        "cli",
+        "accessibility",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-foundation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "workbench-direction",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "edf73e2fac575592326d824850a5d5d776af2c54361d08317a841605310819d8"
+    },
+    {
       "id": "proof-application-contracts",
       "path": "docs/proof/application-contracts.md",
       "title": "Executable native M1 contract evidence",
@@ -5474,5 +5509,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "f80d091070a29d2793c7f43cc03d1dc5f06b0ba6d877a0a1570c4356d113401b"
+  "graphSha256": "9db8d0778da853207741e55caeae7f4eb8ca01b4271334b047a0725281bed02b"
 };

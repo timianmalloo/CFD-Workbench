@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T18:15:25Z",
+  "generated": "2026-09-23T19:54:46Z",
   "audit": [
     {
       "actor": null,
@@ -4965,6 +4965,73 @@ window.AUDIT_DATA = {
         "sha": "18278c4030de998d3b799ab60c0140aba4a00a3a",
         "short": "18278c403",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37TWEA3C7BNJB90HYJFM6HA",
+      "shortname": "c-native-checkpoint",
+      "datetime": "2026-09-23T19:11:36Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Continue single-author C native CLI and desktop adapters under R21/R23/R24; fix frozen CLI findings, reach a runnable macOS app, and verify controller and UI behavior.",
+      "summary": "Partial checkpoint: CLI bounded process proof green; desktop controller red-green fixes for rejected opens, stale frames, save conflicts, uncertain durable retry, and cross-session save race; physical 3D and section source built; CUA binding remains unresolved and five author-owned outputs remain.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver first native desktop and CLI adapters against the frozen core with reviewable proof.",
+      "done_when": "All C author-owned paths, isolated gates, native rendered and accessibility proof, and independent review are complete.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T18:48:19Z",
+      "duration_seconds": 1397.0,
+      "git": {
+        "sha": "21f2f5bf6e9e2e09fde346a042fdcb65f0f04939",
+        "short": "21f2f5bf6",
+        "branch": "feature/application-native-adapters",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M37XBF8CCTHJ7KHHWHNY72DX",
+      "shortname": "c-native-ui-semantic-checkpoint",
+      "datetime": "2026-09-23T19:54:46Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Resume same C native adapter scope: finish controller and UI hard states, source-bound verifier and packaging, honest native proof; stop at bounded checkpoint without partial join.",
+      "summary": "CLI/controller independent checks and full source-bound build/package gate pass. Added stable complete visual-tree station/CV annotation controls with managed role/unit/constraint tests; fixed UI error persistence and verifier input/cleanup guards. Exact manifest-proven 10 generated dirs/150 files moved to retained quarantine after hash and child checks. Honest proof doc records native CUA/AX, review harness, windowing and Windows runtime as open.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "/private/tmp/cfd-c-generated-quarantine-y64_h94j/quarantine-receipt.json"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver the first offline native desktop and CLI adapter against the frozen core within the exact C path lease.",
+      "done_when": "CLI and desktop behavior, cross-publish, native rendered and AX proof, independent review, and clean committed candidate are complete.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-23T19:11:57Z",
+      "duration_seconds": 2569.0,
+      "git": {
+        "sha": "21f2f5bf6e9e2e09fde346a042fdcb65f0f04939",
+        "short": "21f2f5bf6",
+        "branch": "feature/application-native-adapters",
         "pushed": null
       }
     }

@@ -1,0 +1,55 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <Color x:Key="CanvasColor">#f0f2f1</Color>
+    <Color x:Key="SurfaceColor">#fbfcfb</Color>
+    <Color x:Key="SurfaceSoftColor">#e8edeb</Color>
+    <Color x:Key="InkColor">#1b2929</Color>
+    <Color x:Key="MutedColor">#526362</Color>
+    <Color x:Key="LineColor">#c9d3cf</Color>
+    <Color x:Key="PrimaryColor">#006c67</Color>
+    <Color x:Key="OnPrimaryColor">#ffffff</Color>
+    <Color x:Key="DangerColor">#a92e37</Color>
+    <Color x:Key="ViewportColor">#17272c</Color>
+    <Color x:Key="ViewportGridColor">#344b50</Color>
+    <Color x:Key="ViewportInkColor">#edf4f2</Color>
+    <Color x:Key="FoilColor">#85c9c4</Color>
+    <Color x:Key="StationColor">#66ddc8</Color>
+    <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource CanvasColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="SurfaceSoftBrush" Color="{StaticResource SurfaceSoftColor}" />
+    <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
+    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+    <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource OnPrimaryColor}" />
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+    <SolidColorBrush x:Key="ViewportBrush" Color="{StaticResource ViewportColor}" />
+    <SolidColorBrush x:Key="ViewportGridBrush" Color="{StaticResource ViewportGridColor}" />
+    <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
+    <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
+    <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
+    <Thickness x:Key="Space2">8</Thickness>
+    <Thickness x:Key="Space3">12</Thickness>
+    <Thickness x:Key="Space4">16</Thickness>
+    <Thickness x:Key="Space6">24</Thickness>
+    <x:Double x:Key="TitleSize">24</x:Double>
+    <x:Double x:Key="HeadingSize">18</x:Double>
+    <x:Double x:Key="BodySize">14</x:Double>
+    <x:Double x:Key="CaptionSize">12</x:Double>
+    <x:Double x:Key="ControlHeight">32</x:Double>
+    <x:Double x:Key="StationListHeight">120</x:Double>
+    <x:Double x:Key="SectionViewportHeight">96</x:Double>
+    <x:Double x:Key="ViewportAnnotationWidth">178</x:Double>
+    <x:Double x:Key="ViewportAnnotationHeight">160</x:Double>
+    <x:Double x:Key="SectionAnnotationHeight">72</x:Double>
+    <x:Double x:Key="WindowWidth">1280</x:Double>
+    <x:Double x:Key="WindowHeight">800</x:Double>
+    <x:Double x:Key="WindowMinWidth">1024</x:Double>
+    <x:Double x:Key="WindowMinHeight">700</x:Double>
+  </Styles.Resources>
+  <Style Selector="Window"><Setter Property="Background" Value="{StaticResource CanvasBrush}" /><Setter Property="Foreground" Value="{StaticResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
+  <Style Selector="Button"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Padding" Value="{StaticResource Space3}" /></Style>
+  <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /></Style>
+  <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="{StaticResource HeadingSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{StaticResource MutedBrush}" /></Style>
+</Styles>

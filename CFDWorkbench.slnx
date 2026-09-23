@@ -2,4 +2,8 @@
   <Project Path="src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
   <Project Path="src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj" />
   <Project Path="tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj" />
+  <Project Path="src/CfdWorkbench.Cli/CfdWorkbench.Cli.csproj" />
+  <Project Path="src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj" />
+  <Project Path="tests/CfdWorkbench.Cli.Tests/CfdWorkbench.Cli.Tests.csproj" />
+  <Project Path="tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj" />
 </Solution>
