@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T22:04:24Z",
+  "generated": "2026-09-23T22:04:51Z",
   "audit": [
     {
       "actor": null,
@@ -5887,6 +5887,36 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M384SNC5NBNF49PS8YV12EQR",
+      "shortname": "join-combined-native-review",
+      "datetime": "2026-09-23T22:04:51Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Join root independent permission and adapter review evidence while B and C product branches stay isolated. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make source-bound combined gate and native blocker evidence durable in the coordination branch.",
+      "done_when": "Root review and investigation join with official derived docs and verification gates passing; product branches remain unjoined.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-23T22:04:50Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
