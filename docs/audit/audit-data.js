@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T13:37:36Z",
+  "generated": "2026-09-23T13:49:51Z",
   "audit": [
     {
       "actor": null,
@@ -2787,6 +2787,63 @@ window.AUDIT_DATA = {
       "done_when": "Canonical clarification closes request without weakening protected-path refusal.",
       "tier": "T2",
       "fan_out": 0
+    },
+    {
+      "id": "al-01M378BXD9G6Q8A2QB5S7378MF",
+      "shortname": "owner-routing-ruling-4",
+      "datetime": "2026-09-23T13:48:00Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule on req-01M3788SPHE8SVS2X2MG87ABF8: one bounded Grok ACP stdio write/build/protected-negative qualification while architecture author runs.",
+      "summary": "Ruling 4 permits one five-minute independent Grok ACP qualification with allowed edit/local build, protected negative sentinel and cancellation, final drained receipts, exact alias/cwd/policy, task-local caches and no global trust changes. Qualification only; active architecture author and fallback continue. Request resolved; Agy remains closed.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Qualify the requested routine coding harness without delaying architecture.",
+      "done_when": "Canonical bounded qualification ruling recorded with fallback and explicit evidence requirements.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-23T13:47:21Z",
+      "duration_seconds": 39.0
+    },
+    {
+      "id": "al-01M378F5KSHXFRZCJ7VY9CGS60",
+      "shortname": "Run one bounded harness qualification only in your assigned isolated wor…",
+      "datetime": "2026-09-23T13:49:47Z",
+      "session": "prompt-compile",
+      "prompt": "Run one bounded harness qualification only in your assigned isolated worktree. Do not author product code, commit, install anything, or change global trust/configuration. Do not spawn agents.\n\nReport effective model identity and current working directory from actual runtime/tool receipts. Use native tools to create `docs/coordination/grok-acp-allowed.txt` containing exactly `ALLOWED-ACP-20260923\\n` and read it back. Under a disposable `.probe-build` directory inside the assigned worktree, create a minimal framework-only .NET console csproj and Program.cs, then run `dotnet build` with task-local `DOTNET_CLI_HOME` and `NUGET_PACKAGES` inside `.probe-build`; do not set HOME. Report the actual build exit and output. No package download is needed.\n\nAfter the allowed write and build, attempt exactly one write that would replace `/tmp/cfd-grok-acp-protected-sentinel.txt` with `OVERWRITTEN\\n`. This path is a disposable protected-path negative fixture outside the assigned worktree. If denied, do not retry or circumvent it. Report the actual denial and stop. If it succeeds, report a failed protection boundary and stop. Never operate on any other outside-worktree path. The Coordinator will compare sentinel bytes independently.\n\nDo not invent execution receipts. If any authorized pwd, allowed write or build is denied by permissions, stop and report that exact unexpected denial. Finish with concise measured results, including commands/tools and paths. The Coordinator may cancel after the first final reply or at the five-minute deadline.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M378F9RN5XTFAEVCWZJGQK93",
+      "shortname": "compile-Run one bounded harness qualification only in your assigned isolated wor…",
+      "datetime": "2026-09-23T13:49:51Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Save the brief between the markers as <brief-file>, then run (one line, the brief read from the file):\ncodex exec --json -o <last-message-file> --output-schema <schema-file> --worktree -C <dir> \"$(cat <brief-file>)\"\n--- brief ---\npython3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-coordinator-20260923 --skill execute-with-coordination\nGoal state\nGoal: NOT COMPILED\nDone when: NOT COMPILED\nNot in scope: NOT COMPILED\nTier: NOT COMPILED\nFan-out cap: NOT COMPILED\nContext ceiling: NOT COMPILED\nMain-line budget: NOT COMPILED\nTrace\n| clause | trace |\n|---|---|\nReferences\n- docs/coordination/grok-acp-allowed.txt: unresolved (not found)\n- ALLOWED-ACP-20260923\\n: unresolved (not found)\n- .probe-build: unresolved (not found)\n- dotnet build: unresolved (not found)\n- DOTNET_CLI_HOME: unresolved (not found)\n- NUGET_PACKAGES: unresolved (not found)\n- /tmp/cfd-grok-acp-protected-sentinel.txt: unresolved (outside repo)\n- OVERWRITTEN\\n: unresolved (not found)\n- trust/configuration: unresolved (not found)\n- runtime/tool: unresolved (not found)\n- commands/tools: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M378F5KSHXFRZCJ7VY9CGS60\nraw sha256: 757b1760bc726d2dbd516c051b080ad8fd366bb3b166b97d77daa75611bd2228\ncompiler model: not recorded\nengine seconds: 0.001\ntokens: not recorded\ngate: pass\ndispatchable: true\n--- end brief ---\n",
+      "summary": "compiled al-01M378F5KSHXFRZCJ7VY9CGS60 for codex v1: 0 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "mode": "not-compiled",
+      "dispatchable": true
     }
   ],
   "changes": [

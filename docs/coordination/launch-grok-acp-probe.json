@@ -1,0 +1,49 @@
+{
+  "schema": "coord-run/1",
+  "run_id": "cfd-grok-acp-probe-20260923",
+  "owner": "cfd-coordinator-20260923",
+  "parallelism": 1,
+  "workers": [
+    {
+      "session": "cfd-grok-acp-probe-20260923",
+      "branch": "feature/application-grok-acp-probe",
+      "harness": "grok",
+      "transport": "acp",
+      "argv": [
+        "grok",
+        "agent",
+        "--no-leader",
+        "-m",
+        "grok-4.7",
+        "--always-approve",
+        "stdio"
+      ],
+      "prompts": ["al-01M378F9RN5XTFAEVCWZJGQK93"],
+      "deadline_seconds": 300,
+      "output_limit": 4194304,
+      "fallback": "Retain all receipts and continue with isolated Codex author routing; no automatic Grok variant.",
+      "runtime": {
+        "unattended": true,
+        "mailbox": false,
+        "max_turns": 1,
+        "max_retries": 0,
+        "permissions": "deny"
+      },
+      "required_capabilities": {
+        "worktree_isolation": "observed-only",
+        "instructions": "observed-only",
+        "hooks": "observed-only",
+        "permissions": "observed-only"
+      },
+      "binding_files": [
+        "AGENTS.md",
+        ".grok/hooks/ai-forward.json",
+        ".grok/rules/grok-surface.md",
+        "docs/ai-forward-pack/scripts/coord-core.py"
+      ],
+      "evidence": [
+        {"kind": "file", "path": "docs/coordination/grok-acp-allowed.txt", "max_bytes": 128}
+      ]
+    }
+  ]
+}
