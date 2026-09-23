@@ -2,7 +2,7 @@
 id: coordination-application-build
 title: "Coordination plan - first CFD-Workbench application increment"
 type: plan
-status: proposed
+status: in-progress
 owner: "@cfd-coordinator-20260923"
 tags: [coordination, worktrees, parallelism, application]
 links:
@@ -12,7 +12,7 @@ links:
   - {to: mockup-workbench-v7, rel: relates-to}
 review-by: "2026-10-23"
 summary: >-
-  Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.
+  Track accepted architecture and core, one active native adapter author, and the independent M1 join gates.
 review-suggested:
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: plan-application-build, on: 2026-09-23, reason: "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims." }
@@ -25,7 +25,7 @@ review-suggested:
 
 **Later gate, 2026-09-23:** Rulings 17–19 choose evaluator `/2` degree-CV identity, whole-query deterministic feasibility, and a fixed directory-relative cooperative overwrite claim with measured native I/O. They authorize repair, not B acceptance. Root has the [30-path exact companion assignment](contract-r17-companions.md) in a disjoint tree while the serial core author finishes its `/1` store/Ruling 16 checkpoint. The reviewed companion commit must precede a dedicated `/2` core continuation; C remains held.
 
-**Current gate:** Owner Ruling 20 accepted the bounded companion handoff and
+**Historical R17/R18 gate readback:** Owner Ruling 20 accepted the bounded companion handoff and
 the conductor joined it at `1582d69`; the clean core branch received it at
 `65ac0b9`. Its first integrated verify run exposed the expected `/1` source
 against `/2` fixtures plus a portable text-I/O control failure. R17 source
@@ -33,7 +33,23 @@ repair is compiling green; R18 all-query proof and the full B gate are still
 open. Owner Ruling 21 conditionally routes **one future C adapter** to a fresh
 requested `gpt-6-sol` built-in author under the same observed-only controls;
 it does not launch C before independent B acceptance and a compiling API
-freeze. See the [held C packet](contract-c-native.md).
+freeze. That pre-repair hold has since cleared; see the current readback below.
+
+**Current gate, 2026-09-23 18:32 UTC:** Owner Ruling 22 accepted complete B
+`cce9ee52` with independent root scientific/store review; the conductor joined
+B and root review at `18278c4`, and all 11 integrated gates passed. The final
+Core/Persistence [API freeze](contract-c-api-freeze.md) compiled against that
+HEAD. Root independently accepted the one-certificate 15-point sampler across
+root/interior/tip and exact save-ack seam, while reserving actual UI and
+performance gates. Ruling 21 then authorized one fresh requested-`gpt-6-sol`
+native adapter author. The actual [C launch](application-c-launch.md) at base
+`21f2f5b` read back clean cwd/branch/HEAD, live leader, zero open decisions and
+no lease overlap. Effective model is Not recorded. Ruling 23 stopped the first
+build when default `bin/obj` appeared in its isolated tree; one corrected
+`--artifacts-path` build/test now has retained raw receipts, distinct task-local
+project outputs and quiescent children. Coordinator accepted containment only.
+C is active; native product, AX, macOS live, Windows runtime, packaging and
+full M1 acceptance remain open.
 
 ## Layer state
 
@@ -66,8 +82,8 @@ The existing registry had the first three audit patterns. Coordinator adds proje
 |---|---|---|---|---|---|---|---|
 | A · architecture author, `cfd-arch-codex-20260923` | Exact four docs and three spike source files in compiled brief, plus `docs/security/threat-model.md` and `docs/security/privacy-review.md` by Owner Ruling 5; no product implementation | Plan root review and Owner Rulings 1–3, 5, 7 | T3 design / T2 mechanical spike | 0 | 70 calls, ≤100k context, 50 min first run; no Ruling 5 budget increase | Candidate evidence; domain aggregate and durable model; native UI/accessibility/viewport/file-dialog and packaging spike; exact RFC 8785/BLAKE3/decimal vectors; conservative geometry validity oracle; atomic save faults/conflicts; compiling public contracts/fixtures; security risk dispositions; explicit Windows evidence gaps; Owner request and descendant commit | Existing Codex author thread in fresh isolated tree; underlying model ID `Not recorded` under architecture-only Ruling 7 exception. Final cwd/HEAD/paths/lifecycle and independent Astra Owner/root technical review still required. External harness qualifications are in [receipt](qualification-architecture.md). |
 | B0 · serial contract completion, `cfd-contracts-author-20260923` | Exactly `docs/design/application-contracts.md`, `docs/proof/application-contracts.md`, `docs/adr/0004-application-project-contract.md`, both existing security rollups, `tools/spikes/ApplicationContracts/{ApplicationContracts.csproj,Program.cs}`, and `tools/spikes/application-session-contract-vectors.py`; official generated index/audit metadata only | Joined A and independent review at `73cabb89`; Owner Rulings 8–10 | T3 design / T2 executable contract fixtures | 0 | 70 calls, ≤100k context, 50 min first window; cap triggers checkpoint/replan | Joined author/review at `c13db27`; 89 C# / 42 Python / 2505 vectors, 10/10 verification gates; root independent PASS and Owner Ruling 12 bounded technical PASS | Fresh requested `gpt-6-astra` built-in collaborator in isolated tree; effective model `Not recorded` under Ruling 9's B0-only exception. Observed-only containment; no production code or G3 self-clearance. |
-| B · accepted-source core | [Ruling 13 frozen exact 18-path packet](contract-b-core.md), including owned proof/gate; no UI files | B0 Ruling 12 PASS and Owner G3 Ruling 13 | T2 | 0 | 90 calls, ≤100k context, ≤55 min first run | Red→green full-language recognition, accepted certified subset, immutable revisions, semantic/source identity, persistence fault/reopen proof, CLI-consumable API, emitted normal-path events, descendant commit | Ruling 11 selects one serial built-in Codex core author with requested Astra/effective Not recorded and observed-only controls. The [cancellation/quiescence drill](application-cancel-drill.md) passed by explicit cleanup; production cwd/HEAD/paths/cache preflight was read back before writes and at the bounded continuation. Current Grok ACP remains unqualified; no new probe. |
-| C · native adapters | GUI/CLI/viewport and accessibility test files under exact paths frozen by A; no core implementation files | A artifacts and Owner G3 ruling with compiling stubs/fixtures | T2 | 0 | 90 calls, ≤100k context, ≤55 min per run | Example/source open, one numeric independent rail draft and keyboard flow, native AX/viewport proof, same core CLI identity/diagnostics, honest Unavailable states, descendant commit | Same G3/Ruling 6 route gate; do not launch if G3 leaves a G4→G5 decision edge. |
+| B · accepted-source core | [Ruling 13 frozen exact 18-path packet](contract-b-core.md), including owned proof/gate; no UI files | B0 Ruling 12 PASS and Owner G3 Ruling 13 | T2 | 0 | 90 calls, ≤100k context, ≤55 min first run, followed by bounded continuations | Clean complete `cce9ee52`, 172 author tests; independent root science/store proof and Owner Ruling 22; joined at `18278c4` with 11/11 gates | Ruling 11 requested Astra/effective Not recorded built-in author. Observed-only containment and explicit owned-child cleanup, no native enforcement claim. |
+| C · native adapters, `cfd-adapters-20260923` | [Exact 24 authored paths](contract-c-native.md), no core implementation files | Joined B `18278c4`, independently reviewed [compiled API freeze](contract-c-api-freeze.md), Owner Ruling 21 | T2 | 0 | 90 calls, ≤100k context, ≤55 min initial checkpoint; later 70-call/45-min same-scope slice after R23 correction | Example/source open, one numeric independent rail draft and keyboard flow, native AX/viewport proof, same core CLI identity/diagnostics, honest Unavailable states, descendant commit | Fresh built-in requested Sol; effective model Not recorded. Worker and preflight documented in [launch receipt](application-c-launch.md). Ruling 23 build-output correction passed; product/UX/Windows gates open. |
 | D · integration and independent proof | Coordinator owns merge operation and plan ledger only; root/Owner own review comments/rulings, no production co-authoring | B and C returned evidence | T2 | 0 | One whole-suite recount per join; ≤55 min join window | `conductor-join.py`, `coord regen`, integrated gates, live macOS workflow/AX screenshot and CLI/save/reopen inspection, Windows runner evidence separated, independent Data/Test/UX disposition | Deterministic scripts, root Codex/Astra and Owner review. |
 
 **Per-track common contract:** brief begins with `audit-log.py start --session ... --skill ...`; exact goal/done-when, owned absolute paths, excluded neighbor paths, deadline, context ceiling, budget, fallback and return evidence are compiled and hash-pinned. Workers never use `EnterWorktree`, install the layer, spawn teams, or treat a permission denial as approval. A budget cap requires a report and re-plan, not an automatic higher cap. Every worker decision request goes `coord decide request --to cfd-owner-20260923`; the Owner rules into `docs/notes/rulings.md` through `coord decide rule`, never by accepting a worker's claim. Coordinator resolves seams or asks Owner for a ruling. The first `coord leader pin cfd-coordinator-20260923` epoch is recorded in the launch manifest and checked at join.
@@ -144,12 +160,12 @@ Capability values are **per actual worker fingerprint**: worktree isolation = ob
 |---|---|---|---|
 | A | 70 calls / design needs independent Owner veto and isolated spike artifacts | Commit `a92c4e7`, clean; exact calls/tokens not recorded | Nine authored + four generated/audit paths, 30/30 primitive checks, nine native mismatch refusals, macOS/Windows publish; Ruling 8 conditionally accepts architecture only. Model ID `Not recorded` by Ruling 7; existing Codex author natural completion, cancellation not exercised. |
 | B0 · contract completion | Serial prerequisite under Ruling 8 | Clean author commit `cb73079e` from integrated `73cabb89`; exact calls/tokens not recorded, 50-minute first window was replanned to a bounded ≤20-call/20-minute same-scope continuation near its estimated cap | Eight substantive plus four official metadata paths, joined with independent root review at `c13db27`. Coordinator recounted 89 C# / 42 Python checks and 2505 vectors; 10/10 gates. Root technical PASS; Owner Ruling 12 bounded PASS for G3 review. Requested Astra, effective model Not recorded under Ruling 9. Commit hook was advisory because identity was unset; twelve post-commit `allow` checks are detection, not retroactive enforcement. |
-| B | 90 calls / one coherent core invariant, isolated from UI | Three clean isolated commits `5f40af0`, `5b5b489`, `a8a6351`; exact aggregate calls/tokens Not recorded; third continuation yielded for independent review | Parser/identity, continuous section, bounded placement and owned-session checkpoints have named green receipts, including 126 passing tests at `a8a6351`. Root independently reviewed frozen boundaries; Owner Ruling 16 adds a public immutable authored-control projection/consumer fixture within B. Native persistence, scientific questions, full review and join remain pending. No partial join. |
-| C | 90 calls / native UI machine time and disjoint files after G3 | Not recorded | Pending |
+| B | 90 calls / one coherent core invariant, isolated from UI | Complete clean `cce9ee52`; exact aggregate calls/tokens Not recorded; 172 author tests | Owner Ruling 22 and root independent R17/R18 science and R16/R19 store/projection review accepted bounded B. Joined through conductor with root review at `18278c4`, 11/11 integrated gates. Not full language/Windows/UI/M1 acceptance. |
+| C | 90 calls / native UI machine time and disjoint files after accepted B | Requested Sol/effective Not recorded worker launched at base `21f2f5b`; current uncommitted thin CLI and Desktop test scaffold; exact call/token aggregate Not recorded | First CLI red→green and Desktop red; R21 stopped unexpected default source-tree `bin/obj`. Ruling 23 allowed one corrected `--artifacts-path` build/direct DLL test: both exit0, four distinct task-local project outputs, original 150 files preserved, two children quiescent. Root frozen CLI review still has real evaluator-exit and unit-label REDs. Native window and full C handback pending. |
 | D | deterministic join / independent integrated proof | Not recorded | Pending |
 
 | status | item |
 |---|---|
-| Completed | Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–13, failed native boundary evidence, architecture/review joins through clean `73cabb89` with 30/30 primitive recount and nine native mismatch refusals; joined B0 author/review at `c13db27` with 89/42/2505 and 10/10 gates; Ruling 12 bounded PASS, Ruling 13 exact 18-path serial G3 freeze; built-in worker cancellation and explicit owned-child cleanup observed. |
-| Remaining | Complete the isolated core admission/session/native-store contract, independently review and join it; then native GUI/CLI integration and separate macOS/Windows platform proof. |
-| Best next action | Resume the serial core worker from clean `a8a6351` after Owner review for native persistence fault/race tests and the Ruling 16 public projection; preserve open twist-identity probes and no-partial-join. |
+| Completed | Pack/repo graph and bounded architecture/B0; Rulings 1–23; independent full B review and conductor join `18278c4` with 11/11 gates; final compiled C API freeze independently reviewed; exact C worker launch and R23 output containment correction. |
+| Remaining | Complete C CLI/native GUI/viewport/accessibility/packaging in its isolated tree; root/Owner review and conductor join; exercise actual macOS workflow and distinguish Windows cross-publish from unrun Windows runtime; then re-plan the next approved increment. |
+| Best next action | Continue the active C author under exact 24-path lease. Correct root's frozen CLI classifier/section-unit findings, then send the first runnable native bundle path for root live AX/keyboard/render review before full adapter handback. |

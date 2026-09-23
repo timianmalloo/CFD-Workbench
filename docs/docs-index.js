@@ -2052,7 +2052,7 @@ window.DOCS_INDEX = {
       "path": "docs/plans/application-build.md",
       "title": "Coordinated application build execution graph",
       "type": "doc",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -2095,7 +2095,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "c3c6c7189b5fbf021e60be4d71078d533c92babb147a5d1cbef54b93b41157fb"
+      "sourceSha256": "dd7e7e42b1038943cd7e7704c2ff1a46493c2373f27cb2d5070693a3bffeafc0"
     },
     {
       "id": "plan-authoring-decisions",
@@ -3824,7 +3824,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/application-build.md",
       "title": "Coordination plan - first CFD-Workbench application increment",
       "type": "plan",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -3845,7 +3845,7 @@ window.DOCS_INDEX = {
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
-      "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
+      "summary": "Track accepted architecture and core, one active native adapter author, and the independent M1 join gates.",
       "tags": [
         "coordination",
         "worktrees",
@@ -3871,7 +3871,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "140ce9d5bff48b12d1492562ce5862a95e7b1fea45aa48f8a3580672bb38b5fd"
+      "sourceSha256": "090db6e20edcc5aafa532985b9f0f9a24e91771443279a16d1cc56f78060b668"
     },
     {
       "id": "coordination-contract-b-core",
@@ -5512,5 +5512,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "507d05aebef4e48252fe2c4ce8b315295b1566ddccc5511eb307eb789f7a56b5"
+  "graphSha256": "00764086cb43defe9e8c5acc34ad12a029bfe2f1a1c840d68a912dddfdc66f20"
 };

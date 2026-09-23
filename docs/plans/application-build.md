@@ -2,7 +2,7 @@
 id: plan-application-build
 title: Coordinated application build execution graph
 type: doc
-status: proposed
+status: in-progress
 owner: "@cfd-coordinator-20260923"
 tags: [application, coordination, execution-graph]
 links:
@@ -80,6 +80,23 @@ independent review. Ruling 21 conditionally selects one future
 requested-`gpt-6-sol` C author under observed-only controls; it does not remove
 the G4→G5 dependency or freeze the provisional adapter API/paths.
 
+**Current execution readback, 2026-09-23 18:32 UTC:** The paragraph above is
+the historical pre-R17 checkpoint. Owner Ruling 22 accepted complete core B
+`cce9ee52` with independent root scientific/store review; the conductor joined
+B at `18278c4`, and 11/11 integrated gates passed. A task-local C consumer
+compiled against that exact public API and root independently cleared its
+one-assessment 15-point root/interior/tip sampler and truthful native save-ack
+contract. The actual C author is in fresh `feature/application-native-adapters`
+at `21f2f5b`, requested `gpt-6-sol`, effective model Not recorded under Owner
+Ruling 21. Ruling 23 stopped its first build when default `bin/obj` appeared in
+the isolated source tree; a single corrected build/direct test now has raw
+task-local output/process receipts and no original-file changes. C is serial
+after B as the graph predicted when the API decision edge remained. CLI and
+native UI, AX, actual preview timing, packaging and Windows runtime proof are
+still open. The [C launch receipt](../coordination/application-c-launch.md)
+binds these observations; no sampled projection is called a geometry
+certificate or M1 pass.
+
 **Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 build/tests may come from a separate runner; an unrun Windows native workflow remains a release obligation and cannot be called M1 pass on both platforms.
 
 **Naive → optimized:** A naive serial walk would be G0→G1→G2→G3→G4→G5→G6→G7: 8 nodes, width 1, no bounded loop. The optimized graph keeps all 8 nodes and every floor, moves only the disjoint adapter construction after frozen G3 alongside core construction, and makes G6 a single integrated join. Its maximum width is 2. A parser and its evaluator stay in G4 because their invariants and identity are coupled. The implementation branches are admitted only after G3 proves no decision edge remains. Architecture and spike work stay serial because their results alter each other's shape.
@@ -94,9 +111,9 @@ the G4→G5 dependency or freeze the provisional adapter API/paths.
 
 | measure | plan | actual |
 |---|---|---|
-| Nodes / max width | 8 / 2 | G0–G3 complete through Ruling 13; implementation width 1 so far |
+| Nodes / max width | 8 / 2 | G0–G4 accepted through Ruling 22 and conductor join; G5 active serially under Ruling 21; observed implementation width 1 |
 | Wall time, tokens, spend | Not modeled as facts | Measured receipts per track; aggregate tokens/spend Not recorded |
-| Rework passes and budget firings | 0 intended | A and B0 required serial contract completion; G4 has three isolated non-joinable checkpoints |
-| Completeness/rigor floors | All immovable nodes above | B0 independent gate passed; G4/G5/G6 and platform proof pending |
+| Rework passes and budget firings | 0 intended | A/B0 required serial contract completion; G4 had bounded checkpoints and /2 repair before full join; G5 first build-output drift stopped and corrected once under Ruling 23 |
+| Completeness/rigor floors | All immovable nodes above | B0 and bounded G4 independent gates passed; G5/G6 and live platform proof pending |
 
 The initial qualification/plan budget is 70 tool calls or 30 minutes; at either cap, record what estimate failed and re-plan the remainder. Do not drop a gate. Later worker budgets appear in the coordination plan. The graph is closed when M1 is independently verified and every dependency-ready next slice has either a new bounded contract or a recorded genuine blocker; the user asked for continued increments, so M1 is a checkpoint, not an automatic stop.
