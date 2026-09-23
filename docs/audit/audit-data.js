@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T14:47:04Z",
+  "generated": "2026-09-23T14:49:23Z",
   "audit": [
     {
       "actor": null,
@@ -3429,6 +3429,29 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-23T14:43:43Z",
       "duration_seconds": 119.0
+    },
+    {
+      "id": "al-01M37BW9W5BM33EKCWWPSQCNH8",
+      "shortname": "application-review-config-correction",
+      "datetime": "2026-09-23T14:49:23Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Correct a review finding that missed configured native JSON indentation.",
+      "summary": "Coordinator initially inferred compact one-line JSON from a SerializeToUtf8Bytes call without following Native.Options. Root read WriteIndented=true and disconfirmed the concern. Recorded REVIEW-B class and required positive emitted-line and long-scalar fixtures; no B0 technical veto was raised from the withdrawn suspicion.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "git": {
+        "sha": "a706b511f0b7a125f3a76770524f073166cd2840",
+        "short": "a706b511f",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

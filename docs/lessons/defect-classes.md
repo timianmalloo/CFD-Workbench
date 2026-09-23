@@ -97,6 +97,17 @@ quote the governing equation and map the challenged computation to its terms. Re
 the equation now; do not rely on a remembered model. The incorrect symmetry restriction
 was withdrawn and is not a product requirement.
 
+**REVIEW-B · A reviewer reads a call but not the supplied configuration.**
+Coordinator saw `SerializeToUtf8Bytes` and raised a possible compact-one-line native
+envelope conflict with the 4096-byte line cap, without opening the `Options` value
+passed to that call. Root disconfirmed it: `Native.Options` sets `WriteIndented=true`.
+Sweep: the encoder call, its options, actual encoded bytes and line-cap preflight.
+Derive: a call-site name does not establish behavior when a passed configuration
+changes it. Preventive always-loaded rule: follow every load-bearing argument to
+its value and inspect the emitted artifact before raising a boundary finding. The
+B0 contract gate must execute a positive encoded-envelope/line-cap case as well
+as the long-scalar negative case; this mistaken compact-output finding is withdrawn.
+
 **EVID-C · A partial worker stream is mistaken for final execution evidence.**
 Coordinator initially interpreted an early Grok stream prefix as containing no tool use;
 the closed 117-row stream contained a completed read and successful `pwd`. Sweep: final
