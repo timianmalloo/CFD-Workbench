@@ -4469,6 +4469,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "83bb9fdef821577fdf37b50f58c403a8f0c241c26c182e557d1be58cff6f3264"
     },
     {
+      "id": "review-application-core",
+      "path": "docs/reviews/application-core.md",
+      "title": "Independent review of the production application core",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Records independent observations against named frozen production-core checkpoints, including numeric and continuous-geometry oracles and a reproduced cancelled-assessment defect. Review remains open; these partial results do not authorize integration or application acceptance.",
+      "tags": [
+        "application",
+        "core",
+        "independent-review",
+        "geometry",
+        "persistence",
+        "identity"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "155ef5db483af75778cf2bb8347467e041b07cec7048bf5fd08e6127426a7fc8"
+    },
+    {
       "id": "review-foil-editing-flow-results",
       "path": "docs/reviews/foil-editing-flow-results.md",
       "title": "Editable foils and flow results — review and proof",
@@ -5147,5 +5191,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b2da3dab7e2677b23c43afce2bbb12c0f34b4aed7350b630b691f09487d53d70"
+  "graphSha256": "55fb2cd47eb50c40743e9bbb5a231247b82cc4cea1c8288c63e1d803649c8b37"
 };
