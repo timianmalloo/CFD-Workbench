@@ -86,6 +86,25 @@ does not transfer ownership. Prevent: the spike tracks `temp_created` and includ
 `Atomic_ClaimCollision_PreservesOtherClaimAndTarget`. The guard is a local cooperative
 writer control, not proof against an arbitrary hostile filesystem race.
 
+**FFI-A · Matching apparent argument types hides a variadic native ABI mismatch.**
+A real macOS native Save requested `0600` but published mode `0454` with correct
+project bytes. The one-variable arm64 probe reproduced wrong creation modes when
+`openat` was declared with four fixed arguments; the correct three-fixed-plus-
+variadic declaration created `0600`. Sweep both `open` and `openat` in the
+production store and the native primitive test helper, then independently read
+temporary, overwrite-claim and final inode modes. Derive: a C compiler makes
+the variadic call behind a fixed managed bridge, and the held descriptor must
+show regular-file mode exactly `0600` **before any project byte write**; a
+post-create chmod cannot establish safe creation. Prevent: candidate
+`ee6d73ad` adds `Store_CreationPermissions_BeforeWriteAndAfterPublication`,
+`Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup` (zero, missing
+owner bits and extra bits on create/overwrite), and
+`Store_OwnerStrippingUmask_FailsClosedWithoutRepair`; the core gate runs these
+under isolated child umasks `0000`, `0022` and `0077` in build and published
+layouts. Root's [investigation](../investigations/native-save-permissions.md)
+retains the original file unchanged. The candidate is unjoined; independent
+packaged native Save and Owner review still gate production acceptance.
+
 **REVIEW-A · A reviewer substitutes a familiar equation for the normative transform.**
 Root initially treated thickness normalization as scaling the whole section, then
 incorrectly questioned a bound for cambered sections. Owner disconfirmed it; direct

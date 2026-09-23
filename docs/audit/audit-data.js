@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T21:19:56Z",
+  "generated": "2026-09-23T21:39:32Z",
   "audit": [
     {
       "actor": null,
@@ -5757,6 +5757,27 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-23T21:19:55Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M383BAFCTBHNSG0YTGD2GT0H",
+      "shortname": "native-ffi-mode-class",
+      "datetime": "2026-09-23T21:39:32Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record the reproduced macOS variadic-FFI permission defect class",
+      "summary": "FFI-A records real Save mode 0454, fixed-four versus variadic-three arm64 probe, both Open/OpenAt sibling sweep, strict prewrite mode and executable candidate controls; production acceptance remains open.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make the native ABI creation-mode defect recur as a failing control rather than only a review finding.",
+      "done_when": "The always-loaded register names the class, sweep, derivation, named permission tests and remaining gate accurately.",
+      "tier": "T1",
+      "fan_out": 0
     }
   ],
   "changes": [
