@@ -296,6 +296,7 @@ with `cgWindowNotFound`. Production rendered/keyboard/accessibility proof remain
 architecture-spike observations cannot satisfy it. Windows runtime remains unassessed; the bounded macOS
 store observations above do not establish another platform. Measured model token use and cost are **Not recorded**.
 
-The root `implement` review marker starts at 15:56:16Z and measures the review checkpoint run only;
-earlier parser-review preparation is not retroactively included. Its checkpoint audit records a
-partial outcome. A final verdict will follow complete B evidence. This artifact deliberately remains open.
+The historical root `implement` marker at 15:56:16Z measured that earlier partial checkpoint only;
+earlier parser-review preparation was not retroactively included. The final bounded B review has its
+separate 17:39:06Z marker and acceptance audit. The final disposition is the bounded PASS at the top;
+C/native application, Windows runtime and full-product obligations remain open as listed above.
