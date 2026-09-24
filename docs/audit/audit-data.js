@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T14:38:41Z",
+  "generated": "2026-09-24T14:51:47Z",
   "audit": [
     {
       "actor": null,
@@ -6521,6 +6521,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-24T14:36:20Z",
       "duration_seconds": 75.0
+    },
+    {
+      "id": "al-01M39YAMB7BAJ95SJ5J362QT9X",
+      "shortname": "owner-coherent-theme-completion-r32",
+      "datetime": "2026-09-24T14:50:16Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M39Y6T9B7E0HK17AK655XJ7Q correcting same-four-path to five authorized paths. Replace repeated property-only probes with one sufficient completion packet up to70calls/50min, complete required theme/control/state rows as loop variant, at most one adaptive retry, precise blocker if unresolved. Permit conservative opaque ancestry oracle, fail closed on unsupported alpha/group cases. No new scope or acceptance.",
+      "summary": "Ruling32 explicitly corrects five paths and70call/50min ceiling. Inspected dirty inventory, modal one-line change and incomplete current property/resource probe/parser. Authorized coherent actual-template extraction+required-row parser+negative controls before targeted complete-matrix run, one corrective retry maximum; conservative opaque proof accepted with strict unresolved paint refusal. Proof and one source-frozen full gate/package only after complete honest pass. Root independent native veto retained; no production edit/build by Owner.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Replace repeated partial contrast probes with one bounded completion packet.",
+      "done_when": "Canonical ruling confirms five paths, complete proof matrix and stopping rule; notify Coordinator/root and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T14:48:56Z",
+      "duration_seconds": 80.0
     }
   ],
   "changes": [
