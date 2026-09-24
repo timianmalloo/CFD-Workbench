@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:20:25Z",
+  "generated": "2026-09-24T16:24:22Z",
   "audit": [
     {
       "actor": null,
@@ -6900,6 +6900,40 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "051013f26e0517306d7aa1238e9c6ebbdbc91f80",
         "short": "051013f26",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3A3PRJDRTAX8HN6X90X2Q28",
+      "shortname": "R37 blocked native handoff status",
+      "datetime": "2026-09-24T16:24:16Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "one thing provide me a periodic table of what work is in flight and what is done etc and what agents did what work and what agents are running now and what they are doing",
+      "summary": "Final status-sync interval only: updated canonical plan and generated HTML to record isolated clean C5bdf0e7, independent12-step and72-row PASS, root review03d7d71 joined docs-only, and exact repaired Dark CUA cgWindowNotFound pending user foreground. Author yielded; root native veto/C product join remain held. Aggregate earlier R30-R37 author calls/tokens not recorded. No HC/Light launch while Dark inaccessible.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html"
+      ],
+      "tags": [
+        "native",
+        "coordination"
+      ],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Maintain a truthful coordinated status and preserve evidence at the user-foreground wait boundary.",
+      "done_when": "Plan md/html and audit show completed versus blocked work, exact active agents and next native dependency, with C product isolated.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-24T16:23:53Z",
+      "duration_seconds": 23.0,
+      "git": {
+        "sha": "5ea3607fbe0189084be14452976c6c699cd8abc0",
+        "short": "5ea3607fb",
         "branch": "feature/application-coordination",
         "pushed": null
       }
