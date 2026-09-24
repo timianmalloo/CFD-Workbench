@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:30:47Z",
+  "generated": "2026-09-24T15:31:13Z",
   "audit": [
     {
       "actor": null,
@@ -6653,6 +6653,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M3A0NM3CBYJNH81594SGFCXP",
+      "shortname": "R34 reviewer checkpoint join",
+      "datetime": "2026-09-24T15:31:13Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrated independent R32-R34 contrast and adorner evidence only; C product remains isolated and unaccepted. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve independent native review evidence in coordination without joining C product.",
+      "done_when": "Reviewer commit 1b1c94b is integrated; docs checks and ownership gates pass, with no C source merge.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T15:31:13Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
