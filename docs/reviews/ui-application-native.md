@@ -677,3 +677,76 @@ the final source-bound implementation. No 100/250 ms or cold-launch PASS, C join
 or M1 acceptance follows from this checkpoint. Temporary spike code is not
 production code. The remaining native state matrix is planned as three grouped
 light/dark/high-contrast runs with declared fixtures; evidence is still pending.
+
+### R29 permanent controls and raw diagnostic observations
+
+Root reviewed the first permanent candidate and raised four source findings:
+repeated Refresh calls advanced a captured frame revision; local visibility did
+not establish attachment/ancestor visibility; post-batch checks omitted an
+inspection-only frame change; and predicate tests did not exercise the complete
+metric lifecycle. Coordinator separately found a forbidden emitted source-hash
+prefix. The revised implementation uses stable frame identity plus explicit
+measured invalidation, newer recording serials, same-window attachment and
+effective visibility, final frame/provenance/eta checks, and redacted records.
+Its hidden/detached console cases do not substitute for the final native Source
+tab check.
+
+A first native control exposed a driver-ordering error: setting TextBox.Text
+could queue TextChanged, while the driver immediately read an older metric.
+Receipt `cfd-r29-timing-control-g5ja4z7i/receipts/timing-control.json` remains
+**failed** and contributes no timing trial. Root's warning reached the author
+after that run had already started. The correction awaits a new operation and
+sequence, checks the actual draft generation, and restricts automatic control
+and closing to a disposable Example review state.
+
+Root independently read corrected source, receipts and actual stderr:
+
+| Control | Observed evidence | Bounded verdict |
+|---|---|---|
+| Corrected native control | Receipt SHA-256 `62acb0a4f63d998a611323556d0de6d80ddcdc0ef932918aad57b8a207d36fc4`; source MainWindow `b7de898616f8632ac081e5bb36db8f61061a5aa19b38925cc3a0538a5b8a38da`; fresh edit sequence 2/generation 1; delayed Preview 324.860 ms; Cancel; immediate in-flight Preview superseded; accepted source hash unchanged | PASS for synthetic TextChanged/shared-helper operation ordering and batch lifecycle; not OS input or presentation |
+| Early-completion and real timer control | Receipt SHA-256 `fba071484a0669ad1efedbfa41b9b503c641295aabb82abaa9ce77f41289c54b`; MainWindow `a90d294fd6e07588f18465d54cf1911294732c665c911d38d11ce374b1fd5098`; pending-before-publication marker precedes delayed Preview 325.164 ms; separate 40 ms timer emits `not_assessed/timeout` at 41.635 ms while Preview publication is delayed 250 ms | PASS for these observed controls; timeout remains unchanged after late publication, then Cancel restores accepted source hash |
+
+The controls insert delay only through the explicit review route. Immediate
+in-flight cancellation is distinguished from a completed-frame late-publication
+race. A timeout diagnoses measurement completion; it does not secretly cancel
+the user's Preview operation. The timeout test explicitly observes later
+Preview publication and then cancels it. Raw files remain under the named
+task-local receipt directories in `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/`.
+
+Root then independently recomputed repeated measurements from all three raw
+stderr logs, rather than accepting their summary. The receipt is
+`cfd-r29-timing-trials-ym0g5jhk/receipts/timing-trials.json`, SHA-256
+`9d063d115f0750a1df933299495ec82066ef32020828e8b550070005b3112fe4`.
+The executed independent oracle `/tmp/cfd-r29-independent-timing.py` verifies
+all build/test/launch stdout and stderr hashes, apphost and Desktop DLL hashes,
+exit/timeout/cleanup fields, empty owned groups and collector lists, unique
+per-process operation sequences, exact operation counts, endpoint labels and
+absence of source/hash fields. The Desktop DLL is
+`809245d2464e77df28970701009ec400892920afee96652decf9324004b74bf0`;
+MainWindow source is
+`391d722178a2e379ea0e6b039719a559ca6f3fbf32a034a75de62d5156254dde`.
+
+| Diagnostic interval | Successful / all records | Nearest-rank p95 (ms) | Maximum (ms) |
+|---|---:|---:|---:|
+| Synthetic TextChanged edit to target batch | 30 / 30 | 18.681 | 19.131 |
+| Shared Preview helper to target batch | 30 / 30 | 174.537 | 241.703 |
+| Shared Cancel helper to target batch | 30 / 30 | 16.265 | 16.371 |
+| Managed Main entry to Example target batch, fresh processes | 3 / 3 | 1490.905 | 1490.905 |
+
+All 93 records have `batch_cycle_complete`; no failed or superseded trial was
+dropped to produce these denominators. For n=3, nearest-rank p95 is simply the
+maximum; it is not a robust population-tail estimate. The trial driver uses
+direct-controller draft setup and programmatic TextChanged, alternating the
+editable leading control between 5 and 6 mm, then Preview and Cancel. It checks
+accepted source hash after each cycle; this assertion alone does not establish
+the complete revision/history identity. This exercises the small Example, not the
+specification's dense reference workload. Managed Main entry excludes runtime
+startup before Main. The endpoint excludes successful-render and presentation
+confirmation.
+
+**Independent disposition:** the stated diagnostic counts/statistics and named
+runtime controls pass this bounded review. No OS-input response-time, cold
+process-launch, full reference-workload or visible 100/250 ms budget PASS is
+implied. Final frozen-package CUA input/state/theme/attachment checks and the
+overall C/M1 disposition remain open. The author cannot promote these batch
+observations into a visible-performance verdict.

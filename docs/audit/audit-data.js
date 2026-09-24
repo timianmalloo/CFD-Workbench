@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:57:58Z",
+  "generated": "2026-09-24T02:25:48Z",
   "audit": [
     {
       "actor": null,
@@ -4849,6 +4849,33 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "f9dbc1bea81f8d8f19dcbf38e51b0228a0e3e001",
         "short": "f9dbc1bea",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38KQFJ2F1BTSJ5Y35M5DQ5J",
+      "shortname": "r29-diagnostic-proof",
+      "datetime": "2026-09-24T02:25:48Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Continue authorized coordinated implementation and periodic status reporting.",
+      "summary": "Independent source/receipt/log review clears bounded native-app delay, immediate supersession, timeout and redacted metric controls; independent oracle recomputes all93 raw diagnostic records with hashes and denominators. This is synthetic-input/managed-start target-batch evidence, not OS input, full reference workload, successful draw or presentation. Final CUA/state review and C/M1 remain open. Driver accepted-source hash assertion is not full revision/history identity. Docs104/0,77existing flags.",
+      "kind": "command",
+      "skill": null,
+      "tool": "native-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Verify R29 timing controls and raw diagnostic observations without overstating the endpoint.",
+      "done_when": "Source-bound controls and all raw measurement counts/statistics are independently checked with remaining limits recorded.",
+      "tier": "T2",
+      "fan_out": 3,
+      "git": {
+        "sha": "7d5921408edf96c403067eda5ded6b30a1dadd70",
+        "short": "7d5921408",
         "branch": "feature/application-foundation",
         "pushed": null
       }
