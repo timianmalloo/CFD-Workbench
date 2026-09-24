@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T14:20:47Z",
+  "generated": "2026-09-24T14:22:34Z",
   "audit": [
     {
       "actor": null,
@@ -6387,57 +6387,87 @@ window.AUDIT_DATA = {
       "tool": "native-review"
     },
     {
-      "id": "al-01M38MKWFBDKGKBVM8TZYCC0KS",
-      "shortname": "join-r29-final-review",
-      "datetime": "2026-09-24T02:41:19Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join independent final package readback and supported CUA attachment blocker without C product code recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/ui-application-native.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Preserve the independent final R29 review in the coordination branch",
+      "datetime": "2026-09-24T02:41:19Z",
       "done_when": "Review and derived metadata join cleanly with documentation checks and C remains isolated",
-      "tier": "T1",
+      "duration_seconds": 1.0,
       "fan_out": 0,
+      "goal": "Preserve the independent final R29 review in the coordination branch",
+      "id": "al-01M38MKWFBDKGKBVM8TZYCC0KS",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r29-final-review",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T02:41:18Z",
-      "duration_seconds": 1.0
+      "summary": "Join independent final package readback and supported CUA attachment blocker without C product code recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M39WHY1QXA4AVAAGYXA31MB1",
-      "shortname": "owner-c-theme-scope-r30",
-      "datetime": "2026-09-24T14:19:18Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Decide req-01M39WEPK6GNSKCJP036D2PH5R: frozen C3a1d67b native Dark/HC mixed palette and opposite static verifier precedence. Authorize exactly Styles.axaml, verify-application-adapters.py, WorkbenchTests.cs, application-adapters.md with red-first loaded-resource/contrast proof and independent native rerun, or hold; no unrelated Escape/B/threshold/join changes.",
-      "summary": "Ruling30 selects four-path repair. Owner inspected clean C, actual styles/verifier/tests, root native review and pinned Avalonia11.3.14 lookup source. Requires actual-XAML runtime theme resolution, representative applied control colors, no-shadow negative control and source-bound contrast gate; one changed-source full gate/package then root independent Dark/HC and Light regression review. No production edit/build or self-clearance;45call/30min checkpoint, remaining C/M1 limits retained.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/notes/rulings.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Decide bounded theme repair from native observations and resource-resolution evidence.",
+      "datetime": "2026-09-24T14:19:18Z",
       "done_when": "Canonical ruling fixes exact scope and demands actual resolved brushes; notify root/Coordinator and yield.",
-      "tier": "T2",
+      "duration_seconds": 84.0,
       "fan_out": 0,
+      "goal": "Decide bounded theme repair from native observations and resource-resolution evidence.",
+      "id": "al-01M39WHY1QXA4AVAAGYXA31MB1",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Decide req-01M39WEPK6GNSKCJP036D2PH5R: frozen C3a1d67b native Dark/HC mixed palette and opposite static verifier precedence. Authorize exactly Styles.axaml, verify-application-adapters.py, WorkbenchTests.cs, application-adapters.md with red-first loaded-resource/contrast proof and independent native rerun, or hold; no unrelated Escape/B/threshold/join changes.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-c-theme-scope-r30",
+      "skill": "define-architecture",
       "started_at": "2026-09-24T14:17:54Z",
-      "duration_seconds": 84.0
+      "summary": "Ruling30 selects four-path repair. Owner inspected clean C, actual styles/verifier/tests, root native review and pinned Avalonia11.3.14 lookup source. Requires actual-XAML runtime theme resolution, representative applied control colors, no-shadow negative control and source-bound contrast gate; one changed-source full gate/package then root independent Dark/HC and Light regression review. No production edit/build or self-clearance;45call/30min checkpoint, remaining C/M1 limits retained.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T14:19:31Z",
+      "done_when": "Finite native matrix evidence and any resulting hard veto are recorded with exact package binding.",
+      "duration_seconds": 665.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "51814c26a59e62a3231b1763d5c645012b9548d7",
+        "short": "51814c26a"
+      },
+      "goal": "Complete final native interaction review and record an independent disposition.",
+      "id": "al-01M39WJAX88Q1F2QRV8FA12RRQ",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "The light-theme review window is visible and in front",
+      "session": "cfd-application-20260923",
+      "shortname": "r29-native-matrix-theme-veto",
+      "skill": "ui-design",
+      "started_at": "2026-09-24T14:08:26Z",
+      "summary": "Resumed three-launch native matrix on frozen C3a1d67b. Real edit/history/invalid input, Source-tab metric exclusion, native import refusal/recovery, AX/keyboard/close/resize checks observed. Dark labels render unreadably against light surfaces; high-contrast remains light. Independent source readback identifies root-resource precedence and reversed static contrast model. C remains blocked pending scoped repair and rendered rerun. Docs check passed104 artifacts/0 defects/77 existing suggestions.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [

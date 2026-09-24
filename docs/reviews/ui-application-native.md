@@ -30,8 +30,11 @@ review lenses, not separately claimed model sessions.
 controller and native interaction defects below are independently cleared on
 their frozen checkpoints. Complete native UI/accessibility acceptance remains
 withheld. Final C candidate `3a1d67bcb8ec4bc38a2b8adb8d885b10e1619cc3`
-has independently verified package binding and check receipts, but native
-inspection cannot attach to its new light-theme review window. The earlier
+has independently verified package binding and check receipts. After the user
+foregrounded its light-theme window, native inspection attached and the first
+final-package interaction group passed. Dark/high-contrast rendering then failed
+independent review because root light brushes shadow theme resources; repair and
+new rendered proof are required. The earlier
 Ruling 27 combined candidate `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`
 passed the named native flows below; that evidence does not verify later changes.
 No C join or M1 completion follows from this document. The Owner cannot clear
@@ -803,3 +806,176 @@ verified as described above. Native input, Source-tab attachment/exclusion,
 final state/theme/keyboard checks and the separate presentation/reference-workload
 obligations remain explicit. No C product join or public release is authorized
 by this checkpoint.
+
+### Final R29 light native review · 24 September 2026
+
+The user confirmed the exact new light window was in front. CUA then attached
+to the retained app above, titled `REVIEW designer / example / light / reduced
+motion`. Root independently observed PID 91248 with the same start identity.
+This resolves the attachment blocker for this instance; it does not generalize
+to the next launch. Root remains the independent reviewer, with no production
+authorship. The existing R29 three-launch plan is continued, not replaced:
+light interactions → dark states → high-contrast keyboard/windowing → evidence
+and disposition. UI access is serial; the coordinator can independently prepare
+the next launch. The variant is the number of unobserved named matrix cases;
+one supported attachment retry follows a user foreground confirmation. A
+recurring attachment failure is an access blocker, not permission to omit a case.
+Affected surfaces are the existing independent review, derived docs index and
+audit; production source is unchanged. Expert quantitative and native-client
+standards remain triggered; AI-fronting and generated-imagery standards do not.
+
+| Native action | Independently observed result |
+|---|---|
+| Open retained light Example | Rendered 1024×700 client layout exposes foil viewport, section sample, Navigator, Properties and unavailable-analysis disclosure. Sparse measured points and unassessed segment error remain explicit. |
+| Select LE cv-2, type `5` with real keyboard input | Fresh draft starts at generation 0; typing creates generation 1. Units are mm; accepted geometry and identity remain separate from the draft. |
+| Preview, Apply | Preview provenance is visible and Apply becomes available only after assessment. Apply creates one accepted revision; no draft remains. |
+| Undo, Redo | Undo restores exact initial source/Surface/revision; Redo restores the exact applied tuple below. |
+| Re-enter selected cv-2 with Return | A new draft begins at generation 0, with accepted value 5. |
+| Replace value with `oops` | Actionable finite-number error; Preview, Apply and Save disabled. Escape cancels and preserves the applied accepted tuple. |
+| Select Source tab, re-enter cv-2, type `6`, Preview, Escape | Source remains selected; preview succeeds without a section viewport in AX. Cancel restores the applied tuple. Default records distinguish the hidden section below. |
+| Attempt `READ_ONLY_PROBE` in retained source field | Probe text does not appear; the nonempty 604-character AX source fragment remains unchanged. This is a read-only interaction check, not a full source-byte comparison through AX, whose text is truncated. |
+
+Initial accepted tuple:
+
+- Source `373a939f589354724f8b0a58d5c3707562831fe3fc0caf356a0990708c2bda64`.
+- Surface `f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae`.
+- Revision `ea196ebf-cf31-4e07-9def-d4a09770f8bc`.
+
+Applied accepted tuple:
+
+- Source `c1082727ca53f2dc2e6b71a1ebdf8bd46b5e6cd881a3fd0d0992406744b6042a`.
+- Surface `14c9db87afb094392e5619b9ce7beace686dbb8e91c415fd60cc3b7efe38cb6b`.
+- Revision `4ff231a3-56b9-4474-959d-496c790e6660`.
+
+Default stderr SHA-256 at this checkpoint is
+`cdd8d0e207b92c85f08232d0ebfa03f9311d0262d809b67895904652725d1f91`.
+All seven emitted records have outcome `batch_cycle_complete` and endpoint
+`fresh_target_batch_cycle_not_presentation`. The observations are retained
+without interpreting CUA call duration as application latency:
+
+| Sequence | Operation | Milliseconds | Draft generation | Section |
+|---|---|---:|---:|---|
+| 1 | example-ready | 691.546 | 0 | fresh |
+| 2 | edit | 13.878 | 1 | fresh |
+| 3 | preview | 222.843 | 1 | fresh |
+| 4 | cancel | 9.646 | 0 | fresh |
+| 5 | edit | 13.143 | 1 | not_recorded_hidden |
+| 6 | preview | 172.328 | 1 | not_recorded_hidden |
+| 7 | cancel | 19.567 | 0 | not_recorded_hidden |
+
+Sequences 2–7 follow real native input in this review; sequence 1 is retained
+startup evidence. No full presentation-timing, large-workload, Windows runtime,
+VoiceOver or complete section-editor claim follows. The light state checks
+pass; C/M1 remain open pending the remaining finite matrix and disposition.
+
+### Final R29 dark native review: rendered theme veto
+
+Root attached directly to
+`/private/tmp/cfd-r29-dark-ui-566kjtdo/CFD Workbench.app`, bundle
+`com.cfdworkbench.desktop.r29dark20260924`. Its observed title is
+`REVIEW keyboard / empty / dark / motion default`. The launch receipt records
+PID 131, start `Thu Sep 24 07:11:43 2026`, and Desktop DLL `b376998c…`.
+Root reused the independent copy verifier: all 231 files match the checked
+package except the intended Info.plist bundle identifier, with no symlinks or
+timing-control flags. The receipt SHA-256 is
+`542bed5b7855eeaa5b681ea229c460e6db6d9d67b5cc9a685a2a436eac5a2893`;
+root also observed PID/start/path directly. No rebuild occurred between light
+and dark launches.
+
+**Blocker / Verified: mixed theme resource resolution.** At the empty and
+accepted-source states, screenshots show light panel backgrounds with nearly
+white toolbar and tab labels, dark list wells, and white source text on a gray
+field. AX exposes the buttons, but their rendered labels are effectively
+unreadable. This fails native accessibility/theme acceptance despite the
+previous static contrast gate. The action is to repair resource selection and
+prove actual resolved control foreground/background pairs, then inspect the
+rebuilt native window. No complete contrast-ratio measurement is inferred from
+the screenshots.
+
+Root opened `Styles.axaml` and `contrast_checks()` in the unchanged C tree.
+Fourteen light brushes are stored in the root dictionary; nine Dark and
+fourteen HighContrast entries duplicate those keys. The verifier computes
+`base_brushes | overrides`. The pinned
+[Avalonia 11.3.14 resource lookup](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Controls/ResourceDictionary.cs)
+checks the root key before theme dictionaries. This independently establishes
+that the static model reverses the runtime precedence. A high-contrast sibling
+is predicted from source, not yet observed at this checkpoint. The coordinator
+owns the defect-class entry and exact-path repair request; root does not author
+the repair or clear its own implementation.
+
+Bounded functional observations against this unchanged binary:
+
+- Empty state teaches Example or file Open and disables Save/history/edit.
+- Native Open of the repository Example establishes accepted source `373a939f…`,
+  Surface `f4181fe5…`, revision `58ee6235-bab0-4b9e-b547-4d7702e38279`.
+- Opening `geometry-invalid.foil` reports an unsatisfied root tangent lock;
+  `geometry-unsupported.foil` reports independent profile x mappings unassessed.
+  Both retain that exact accepted tuple and expose refused originals read-only.
+  The Source tab labels the unaccepted import separately from accepted data.
+- Opening `invalid-recovery.cfdw.json` offers separate recovery while preserving
+  accepted source `443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d`,
+  Surface `f4181fe5…`, revision `df7b6fea-3b33-4943-aff2-acbabd10707f`.
+  Resume shows draft provenance and leaves numeric editing disabled; Preview
+  reports `DSL-SYNTAX`, leaves Apply disabled, and retains accepted identity.
+  Reopening the unchanged saved file restores the offer; explicit Discard
+  removes it while preserving the accepted tuple. No Save was invoked.
+- The unsaved dialog defaults focus to Cancel and remained legible, but used
+  light styling within the dark review session. Theme inheritance is included
+  in the repair sweep.
+- Escape with the Source tab focused did not visibly cancel the resumed
+  invalid recovery draft. This does not negate the earlier successful numeric
+  Escape path. The coordinator requested read-only inspection of this residual;
+  it is not recorded as a passed cancellation check. Subsequent source and
+  contract readback resolves this as expected scope: only NumericInput owns the
+  draft Escape handler; the contract forbids intercepting unrelated controls.
+  No global Escape behavior is requested by this finding.
+
+The three fixture SHA-256 values were read before and after and are unchanged:
+invalid `584c0038f6457429a48f19e3cb6080cb0cb85b3e4681a8139fe81cbb65502621`;
+unsupported `08dd462db0ec9bf12d89d7b438e0c5f6b9f799621e9cd65f76eb12b9a4d7b275`;
+recovery `9c94235190a3223336d4841a08bfad91164804f42ea457cab022cc5f61aebf54`.
+These are read-only fixture checks, not new save/reopen persistence proof.
+
+**Disposition: C/M1 BLOCKED by the rendered theme defect.** Functional checks
+above remain valid for this frozen binary. The highest-priority repair is the
+resource-precedence defect and the falsely passing contrast oracle. It must
+not be waived by an Owner decision or by another successful static gate.
+
+### Frozen high-contrast sibling and final functional matrix
+
+Root directly attached to
+`/private/tmp/cfd-r29-highcontrast-ui-7v399iov/CFD Workbench.app`, bundle
+`com.cfdworkbench.desktop.r29highcontrast20260924`; title `REVIEW dense / file /
+high-contrast / reduced motion`. Root independently verified 231 copied files
+against the same frozen package with only the intended bundle identifier
+different, and observed PID 5275/start `Thu Sep 24 07:16:25 2026`/exact executable.
+Launch receipt SHA-256 is
+`129648b45758c591b195e1e217828dbb74252deac8bd342e5542867c7bab5d3a`.
+
+**High-contrast appearance FAIL / Verified.** The screenshot still shows the
+light panel palette, teal geometry and gray buttons despite the explicit
+high-contrast title. This confirms the predicted sibling of the same root-key
+precedence defect. It does not demonstrate macOS system high-contrast settings.
+
+| Bounded native check | Observed result |
+|---|---|
+| F6 / Shift-F6 | Station region → viewport → selected Section tab; Shift-F6 returns to viewport. Focus is reported by native AX. |
+| Scroll rail controls to tail | Trailing cv-3 through cv-6 are reachable; viewport AX exposes all 14 rail controls and two authored stations, with normalized eta, metres, authored unit and locked/editable semantics. This is a 16-annotation fixture, not a large-list benchmark. |
+| Re-enter trailing cv-6 | Draft starts at generation 0, value 120 mm. Real typing `125` produces generation 3. |
+| Native close with active draft | Unsaved dialog offers Save/Discard/Cancel; Cancel initially focused. Escape dismisses the dialog and restores numeric focus with value 125 and the same draft/generation. |
+| Escape from numeric field | Draft is cancelled, value returns to 120 and accepted source stays `373a939f…`, accepted revision `e1c36023-6036-4902-8ec8-d465aee26d85`. |
+| Native zoom and restore | Screenshot shows expanded usable viewport/section/navigation/properties; restore returns to the 1024×700 client layout with accepted provenance. This is window resizing, not mixed-DPI proof. |
+
+CUA twice reported a foreground-change guard while a dialog was active. Root
+re-read the actual state before retrying; no unsupported input route was used.
+Screenshots and AX observations are retained in the session transcript; no
+filesystem PNG/AX export is claimed.
+
+The finite final-binary functional matrix is now observed. Its visual acceptance
+is **BLOCKED** by the confirmed dark/high-contrast defect. The coordinator's
+typed request `req-01M39WEPK6GNSKCJP036D2PH5R` asks the Owner to admit only the
+necessary theme and contrast-oracle repair surfaces, red-first runtime lookup
+controls, the changed-source gate and independent native theme reruns. Existing
+Windows/runtime, presentation timing, large-workload, distribution and full
+section-editor obligations remain explicit; completing this matrix does not
+silently waive them.
