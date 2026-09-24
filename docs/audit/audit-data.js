@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:39:05Z",
+  "generated": "2026-09-24T14:19:31Z",
   "audit": [
     {
       "actor": null,
@@ -4903,6 +4903,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "645ac583e22dcf8684935085e0985c0fbc68970a",
         "short": "645ac583e",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M39WJAX88Q1F2QRV8FA12RRQ",
+      "shortname": "r29-native-matrix-theme-veto",
+      "datetime": "2026-09-24T14:19:31Z",
+      "session": "cfd-application-20260923",
+      "prompt": "The light-theme review window is visible and in front",
+      "summary": "Resumed three-launch native matrix on frozen C3a1d67b. Real edit/history/invalid input, Source-tab metric exclusion, native import refusal/recovery, AX/keyboard/close/resize checks observed. Dark labels render unreadably against light surfaces; high-contrast remains light. Independent source readback identifies root-resource precedence and reversed static contrast model. C remains blocked pending scoped repair and rendered rerun. Docs check passed104 artifacts/0 defects/77 existing suggestions.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Complete final native interaction review and record an independent disposition.",
+      "done_when": "Finite native matrix evidence and any resulting hard veto are recorded with exact package binding.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-24T14:08:26Z",
+      "duration_seconds": 665.0,
+      "git": {
+        "sha": "51814c26a59e62a3231b1763d5c645012b9548d7",
+        "short": "51814c26a",
         "branch": "feature/application-foundation",
         "pushed": null
       }
