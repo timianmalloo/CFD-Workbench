@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:27:11Z",
+  "generated": "2026-09-24T02:27:34Z",
   "audit": [
     {
       "actor": null,
@@ -6299,6 +6299,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": "native-review"
+    },
+    {
+      "id": "al-01M38KTQ4X4WPP6VM3HDYAXVQA",
+      "shortname": "join-r29-timing-review",
+      "datetime": "2026-09-24T02:27:34Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Join independent native timing endpoint and raw-trial review without C product code recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve independent R29 timing evidence in the coordination branch",
+      "done_when": "Review and derived metadata join cleanly with documentation checks and no C source integration",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T02:27:34Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
