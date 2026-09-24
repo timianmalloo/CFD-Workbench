@@ -2,15 +2,18 @@ using Avalonia;
 using Avalonia.Styling;
 using CfdWorkbench.Core;
 using System.Globalization;
+using System.Diagnostics;
 using System.Text;
 
 namespace CfdWorkbench.Desktop;
 
 internal static class Program
 {
+    internal static long ManagedStartTicks { get; private set; }
     [STAThread]
     private static void Main(string[] args)
     {
+        ManagedStartTicks = Stopwatch.GetTimestamp();
         NativeReviewOptions.Current = NativeReviewOptions.Parse(Environment.GetEnvironmentVariable);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }

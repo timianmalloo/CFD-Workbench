@@ -63,4 +63,131 @@ The [RED receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c
 
 Avalonia-specific rows: `AutomationProperties` and IDs exist on visible station/CV/source/actions, but NSAccessibility/UIA mapping is Not assessed. The XAML token gate and fixed contrast pairs pass; system theme/high contrast and focus visuals have no runtime verdict. Browser/CSS craft rules are inapplicable to this native XAML corpus, not a zero-file PASS. No generated exemplar art or third-party UI material is embedded; Avalonia packages are pinned by the project and their SBOM/license review remains an ADR-0003 release obligation.
 
-Verdict: **BLOCK for native UI acceptance and join** pending root's CUA rerun of the changed package and remaining minimum-window, accessibility, dialog and timing checks. The changed-source gate and Windows cross-build passed; Windows runtime, signing and distribution trust remain Not assessed.
+## R29 portability and native timing candidate · 2026-09-24
+
+The joined B handoff is `13c883a`; this C continuation changes only the Desktop adapter, its managed tests, two package/verifier scripts, and this proof. `verify-portable-text-io.py` first found three missing explicit text-I/O controls (two stdout guards and one LF write); `verify-subprocess-utf8.py` found two implicit text encodings. Both executable gates now pass, respectively 0/0 findings, after explicit stdout guards, `newline="\n"`, and UTF-8 `check_output` calls. The sibling sweep was both whole-tool gates, not a claim that other platforms ran. The source/config input and package gate still need a final changed-source run after this candidate freezes.
+
+The installed Avalonia 11.3.14 XML described renderer members that did not compile as public API. That RED is retained in `cfd-c-targeted-dlx1n84n/receipts/targeted.json`. The public target-bound path `ElementComposition.GetElementVisual(viewport)?.Compositor` compiled and one real window observed a render callback and `CompositionBatch.Rendered`; the raw [spike receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-render-spike-4dp_0lkz/receipts/render-spike.json) has SHA-256 `b753b4a35e6a588d417d332a8eea962512ed1042c7632865dd742cf7df1f5240`. Its reference-only frame check could match an earlier drawing, so that spike did **not** establish a fresh scene. The app's normal-path `NATIVE-METRIC` now records a monotonic viewport render serial and revision, the exact frame/provenance/section η, a serial baseline before Refresh, and a newer matching recording before target compositor batch completion. A timeout, supersession, stale state, missing compositor, or missing target recording emits `not_assessed`; no source hash/path is emitted. A batch callback is **not proof of successful target draw or display presentation**: Avalonia's server compositor can notify a rendered batch even when its render interface is not ready or a render attempt fails. The visible-event budget therefore remains **Not assessed**.
+
+The first trial-driver attempt read the previous metric before a queued synthetic `TextChanged`; raw [driver RED](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-timing-control-g5ja4z7i/receipts/timing-control.json) preserves Preview supersession and an invalid known-delay conclusion. The repaired driver waits for a strictly newer edit Sequence and matching draft Generation. The [bounded control](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-timing-control-g2z4ycyj/receipts/timing-control.json), SHA-256 `fba071484a0669ad1efedbfa41b9b503c641295aabb82abaa9ce77f41289c54b`, observed a 150 ms injected Preview delay inside a 325.164 ms batch-cycle result. Before publication the metric remained pending. An immediately canceled in-flight Preview emitted `not_assessed/superseded`; this does not prove a completed-frame late-publication race. A separate real controller Preview with a 250 ms publication delay and 40 ms measurement timeout emitted `not_assessed/timeout` after 41.635 ms; late publication did not turn that result into success, and Cancel restored the accepted source hash. All control processes exited, with no remaining exact-owned descendants or observed collector. These are **synthetic TextChanged and direct-controller review controls**, not OS input.
+
+The [raw trial receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-timing-trials-ym0g5jhk/receipts/timing-trials.json), SHA-256 `9d063d115f0750a1df933299495ec82066ef32020828e8b550070005b3112fe4`, retains every operation outcome and three separate process launch/PID/start/cleanup records. Its sibling `timing-summary.json` retains sorted raw successful timings. Thirty review-app cycles used a direct controller BeginEdit, synthetic numeric `TextChanged` (`5` or `6` mm), real controller Preview and Cancel, then checked the accepted source hash after each cycle. They did not assert full revision/history identity. Three fresh processes produced Example-ready readings from **managed `Main` start**, not external process launch. Each emitted record ends at a freshly correlated target compositor **batch cycle**, not native display presentation. Nearest-rank p95 is computed only over `batch_cycle_complete` outcomes; refusals/timeouts would remain in the raw denominator and are not silently dropped. The exact trial driver source snapshots are `/private/tmp/cfd-r29-trials-MainWindow.axaml.cs` SHA-256 `391d722178a2e379ea0e6b039719a559ca6f3fbf32a034a75de62d5156254dde` and `/private/tmp/cfd-r29-trials-WorkbenchController.cs` SHA-256 `c8b41fa10fad0cf4d82eb9a47eadfc3a9ba47c31679ccd277e9132c3b51996b6`. Review-only trial, delay and auto-close code was removed before final packaging; the normal-path metric logic remains.
+
+| Operation and trigger | Outcomes | Successful subset p95 / max (ms) | Interpretation |
+|---|---:|---:|---|
+| Edit, synthetic TextChanged after direct BeginEdit | 30/30 batch cycles | 18.681 / 19.131 | Native app and UI dispatch, no OS input event |
+| Preview, direct review helper using real controller | 30/30 batch cycles | 174.537 / 241.703 | Includes assessment and 15-point sampling |
+| Cancel, direct review helper | 30/30 batch cycles | 16.265 / 16.371 | Accepted source restored each cycle |
+| Example-ready, fresh managed process | 3/3 batch cycles | 1490.905 / 1490.905 | Managed start to batch, not `Popen` or first displayed pixel |
+
+The following is the complete 93-record normal-path metric series in emission order. Every outcome is retained; `ms` is event/managed-start to target batch cycle. The full JSON receipt also preserves reason, section status, PID/start and raw stderr hashes.
+
+| Launch | Seq | Operation | Outcome | ms |
+|---:|---:|---|---|---:|
+| 1 | 1 | example-ready | batch_cycle_complete | 1490.905 |
+| 1 | 2 | edit | batch_cycle_complete | 18.681 |
+| 1 | 3 | preview | batch_cycle_complete | 174.537 |
+| 1 | 4 | cancel | batch_cycle_complete | 16.118 |
+| 1 | 5 | edit | batch_cycle_complete | 16.399 |
+| 1 | 6 | preview | batch_cycle_complete | 166.670 |
+| 1 | 7 | cancel | batch_cycle_complete | 7.772 |
+| 1 | 8 | edit | batch_cycle_complete | 19.131 |
+| 1 | 9 | preview | batch_cycle_complete | 241.703 |
+| 1 | 10 | cancel | batch_cycle_complete | 16.265 |
+| 1 | 11 | edit | batch_cycle_complete | 12.831 |
+| 1 | 12 | preview | batch_cycle_complete | 166.715 |
+| 1 | 13 | cancel | batch_cycle_complete | 16.371 |
+| 1 | 14 | edit | batch_cycle_complete | 13.806 |
+| 1 | 15 | preview | batch_cycle_complete | 149.868 |
+| 1 | 16 | cancel | batch_cycle_complete | 7.972 |
+| 1 | 17 | edit | batch_cycle_complete | 9.281 |
+| 1 | 18 | preview | batch_cycle_complete | 150.019 |
+| 1 | 19 | cancel | batch_cycle_complete | 7.861 |
+| 1 | 20 | edit | batch_cycle_complete | 10.129 |
+| 1 | 21 | preview | batch_cycle_complete | 141.250 |
+| 1 | 22 | cancel | batch_cycle_complete | 7.892 |
+| 1 | 23 | edit | batch_cycle_complete | 8.576 |
+| 1 | 24 | preview | batch_cycle_complete | 149.998 |
+| 1 | 25 | cancel | batch_cycle_complete | 7.931 |
+| 1 | 26 | edit | batch_cycle_complete | 4.369 |
+| 1 | 27 | preview | batch_cycle_complete | 141.573 |
+| 1 | 28 | cancel | batch_cycle_complete | 8.029 |
+| 1 | 29 | edit | batch_cycle_complete | 13.467 |
+| 1 | 30 | preview | batch_cycle_complete | 141.259 |
+| 1 | 31 | cancel | batch_cycle_complete | 7.898 |
+| 1 | 32 | edit | batch_cycle_complete | 8.789 |
+| 1 | 33 | preview | batch_cycle_complete | 141.662 |
+| 1 | 34 | cancel | batch_cycle_complete | 8.006 |
+| 1 | 35 | edit | batch_cycle_complete | 8.011 |
+| 1 | 36 | preview | batch_cycle_complete | 140.091 |
+| 1 | 37 | cancel | batch_cycle_complete | 9.882 |
+| 1 | 38 | edit | batch_cycle_complete | 10.244 |
+| 1 | 39 | preview | batch_cycle_complete | 141.599 |
+| 1 | 40 | cancel | batch_cycle_complete | 8.050 |
+| 1 | 41 | edit | batch_cycle_complete | 9.441 |
+| 1 | 42 | preview | batch_cycle_complete | 141.640 |
+| 1 | 43 | cancel | batch_cycle_complete | 8.256 |
+| 1 | 44 | edit | batch_cycle_complete | 9.065 |
+| 1 | 45 | preview | batch_cycle_complete | 141.642 |
+| 1 | 46 | cancel | batch_cycle_complete | 7.840 |
+| 1 | 47 | edit | batch_cycle_complete | 9.182 |
+| 1 | 48 | preview | batch_cycle_complete | 141.332 |
+| 1 | 49 | cancel | batch_cycle_complete | 7.965 |
+| 1 | 50 | edit | batch_cycle_complete | 10.242 |
+| 1 | 51 | preview | batch_cycle_complete | 141.656 |
+| 1 | 52 | cancel | batch_cycle_complete | 7.812 |
+| 1 | 53 | edit | batch_cycle_complete | 9.128 |
+| 1 | 54 | preview | batch_cycle_complete | 141.481 |
+| 1 | 55 | cancel | batch_cycle_complete | 7.324 |
+| 1 | 56 | edit | batch_cycle_complete | 11.719 |
+| 1 | 57 | preview | batch_cycle_complete | 141.433 |
+| 1 | 58 | cancel | batch_cycle_complete | 7.984 |
+| 1 | 59 | edit | batch_cycle_complete | 10.383 |
+| 1 | 60 | preview | batch_cycle_complete | 141.550 |
+| 1 | 61 | cancel | batch_cycle_complete | 7.878 |
+| 1 | 62 | edit | batch_cycle_complete | 10.507 |
+| 1 | 63 | preview | batch_cycle_complete | 141.663 |
+| 1 | 64 | cancel | batch_cycle_complete | 7.897 |
+| 1 | 65 | edit | batch_cycle_complete | 6.600 |
+| 1 | 66 | preview | batch_cycle_complete | 141.943 |
+| 1 | 67 | cancel | batch_cycle_complete | 7.913 |
+| 1 | 68 | edit | batch_cycle_complete | 11.026 |
+| 1 | 69 | preview | batch_cycle_complete | 141.583 |
+| 1 | 70 | cancel | batch_cycle_complete | 7.944 |
+| 1 | 71 | edit | batch_cycle_complete | 11.049 |
+| 1 | 72 | preview | batch_cycle_complete | 141.673 |
+| 1 | 73 | cancel | batch_cycle_complete | 8.017 |
+| 1 | 74 | edit | batch_cycle_complete | 10.952 |
+| 1 | 75 | preview | batch_cycle_complete | 140.058 |
+| 1 | 76 | cancel | batch_cycle_complete | 9.909 |
+| 1 | 77 | edit | batch_cycle_complete | 10.354 |
+| 1 | 78 | preview | batch_cycle_complete | 141.782 |
+| 1 | 79 | cancel | batch_cycle_complete | 7.911 |
+| 1 | 80 | edit | batch_cycle_complete | 10.814 |
+| 1 | 81 | preview | batch_cycle_complete | 141.658 |
+| 1 | 82 | cancel | batch_cycle_complete | 7.808 |
+| 1 | 83 | edit | batch_cycle_complete | 11.016 |
+| 1 | 84 | preview | batch_cycle_complete | 141.550 |
+| 1 | 85 | cancel | batch_cycle_complete | 7.937 |
+| 1 | 86 | edit | batch_cycle_complete | 10.322 |
+| 1 | 87 | preview | batch_cycle_complete | 141.626 |
+| 1 | 88 | cancel | batch_cycle_complete | 7.961 |
+| 1 | 89 | edit | batch_cycle_complete | 8.268 |
+| 1 | 90 | preview | batch_cycle_complete | 142.468 |
+| 1 | 91 | cancel | batch_cycle_complete | 7.974 |
+| 2 | 1 | example-ready | batch_cycle_complete | 634.770 |
+| 3 | 1 | example-ready | batch_cycle_complete | 630.827 |
+
+The finite root CUA review matrix uses three theme launches, grouping real states within each window. **Planned, not yet observed against the final package:**
+
+| Native launch selectors | Real paths and checks | Open evidence |
+|---|---|---|
+| Light, designer, Example, 1024×700 | Example edit/Preview/Apply/Cancel/history, invalid numeric; resizable minimum layout and default `NATIVE-METRIC` emission | OS input timing, clipping, focus and displayed frame |
+| Dark, keyboard, Empty, 1024×700 | Open `src/CfdWorkbench.Desktop/Assets/example.foil`; refuse `/tmp/cfd-adapter-review.3sSb4H/fixtures/geometry-invalid.foil` and `geometry-unsupported.foil`; inspect source; open `/tmp/cfd-adapter-review.3sSb4H/fixtures/invalid-recovery.cfdw.json`, Preview refusal and Discard | Picker/native recovery controls, Source-tab section exclusion, disk side effects |
+| High contrast, dense, reduced motion, real `file` using `src/CfdWorkbench.Desktop/Assets/example.foil`, 1024×700 | Scroll full station/CV semantics, F6/Shift-F6, keyboard re-edit, close dialog and resize | AX bridge, contrast/focus and overflow |
+
+The timing fixture has two section stations, 14 leading/trailing rail control vertices and exactly 15 physical viewport sample queries. The dense selector checks the real annotation count is at least 16. This fixture is **not** a 50,000-triangle workload; no large-mesh latency or native display budget can be inferred. Root's supported CUA, including Source-tab behavior and real keyboard input, remains the required final native oracle. No PNG or AX artifact is fabricated.
+
+The final source-bound [11-step gate](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-c0toimuk/receipts/verification.json), SHA-256 `028de95d10c93ec85f2c5e8f7e18fdf9d1b9101d664cf785f77a41dc778f96fc`, exited zero in all steps after removing unused trial completion plumbing and making production emission use the tested serialization helper. It binds MainWindow source SHA-256 `5f6fcdf28b7c148004921d8656ed042e9faa04b3928c4989bde98aff55053338` and verifier source SHA-256 `7e2410d6b98733a414ef1d9b1a91ef3986b71744d628b6f16d72848b3c871dfa`. All seven restore asset roots were task-local; 2,210 artifact files had zero symlinks; source inputs and prior source-tree generated outputs were hash-unchanged; every exact-owned step process group was quiescent with no observed collector. The resulting [macOS `.app`](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-c0toimuk/packages/osx-arm64/CFD%20Workbench.app) has Desktop DLL SHA-256 `b376998c7912e666bdba765711cc86e6000dc45776d3e48f2df555429fa7539a`; the [Windows folder](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-c0toimuk/packages/win-x64/CFD%20Workbench%20Windows) has Desktop DLL SHA-256 `639c7648d0a4318352e4b7838feac99c4d85f99b9d0e801fa762bbc411ddccf5`. This package has not received the final root CUA matrix or Windows native runtime review.
+
+Verdict: **BLOCK for native UI acceptance and join** pending root's CUA rerun of the changed package and remaining minimum-window, accessibility, dialog and timing checks. The final changed-source gate and Windows cross-build passed; Windows runtime, signing and distribution trust remain Not assessed.

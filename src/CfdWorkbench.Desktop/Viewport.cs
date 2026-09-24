@@ -17,6 +17,10 @@ public sealed class Viewport : Grid
     private readonly StackPanel annotationPanel = new() { Spacing = 2 };
     private readonly ScrollViewer annotationScroll;
     private readonly Dictionary<string, TextBlock> semanticControls = [];
+    public long FrameRevision { get; private set; }
+    public long RenderSerial { get; private set; }
+    public long LastRecordedRevision { get; private set; }
+    public DisplayFrame? LastRecordedFrame { get; private set; }
     public Viewport()
     {
         drawing = new ViewportDrawing(this);
@@ -62,7 +66,18 @@ public sealed class Viewport : Grid
     public DisplayFrame? Frame
     {
         get => frame;
-        set { frame = value; drawing.InvalidateVisual(); }
+        set
+        {
+            if (ReferenceEquals(frame, value)) return;
+            frame = value;
+            InvalidateFrameForMetric();
+        }
+    }
+
+    public void InvalidateFrameForMetric()
+    {
+        FrameRevision++;
+        drawing.InvalidateVisual();
     }
 
     public IReadOnlyList<ViewportSemantic> Semantics
@@ -103,13 +118,18 @@ public sealed class Viewport : Grid
       public override void Render(DrawingContext context)
       {
         var frame = viewport.frame;
+        long revision = viewport.FrameRevision;
         var BackgroundBrush = viewport.BackgroundBrush;
         var GridBrush = viewport.GridBrush;
         var FoilBrush = viewport.FoilBrush;
         var StationBrush = viewport.StationBrush;
         var SectionMode = viewport.SectionMode;
         if (BackgroundBrush is not null) context.FillRectangle(BackgroundBrush, new Rect(Bounds.Size));
-        if (frame?.Points.Count != 15 || FoilBrush is null || StationBrush is null) return;
+        if (frame?.Points.Count != 15 || FoilBrush is null || StationBrush is null)
+        {
+            viewport.Record(frame, revision);
+            return;
+        }
         // An orthonormal camera basis and one shared pixel-per-metre scale preserve physical XYZ proportions.
         // Section mode uses physical X/Z at the selected interior eta, also with one shared scale.
         var selected = SectionMode ? frame.Points.Skip(5).Take(5).ToArray() : frame.Points.ToArray();
@@ -163,7 +183,15 @@ public sealed class Viewport : Grid
             double radius = point.NormalizedX is 0 or 1 ? 4 : 3;
             context.DrawEllipse(StationBrush, null, center, radius, radius);
         }
+        viewport.Record(frame, revision);
       }
+    }
+
+    private void Record(DisplayFrame? renderedFrame, long revision)
+    {
+        LastRecordedFrame = renderedFrame;
+        LastRecordedRevision = revision;
+        RenderSerial++;
     }
 }
 

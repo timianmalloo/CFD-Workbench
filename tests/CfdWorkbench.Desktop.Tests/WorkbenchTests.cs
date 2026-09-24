@@ -317,6 +317,40 @@ if (!ReferenceEquals(MainWindow.FocusCandidates(documentRegion).FirstOrDefault()
     !MainWindow.IsReeditKey(Key.Enter) || !MainWindow.IsReeditKey(Key.Space) || MainWindow.IsReeditKey(Key.Down))
     throw new Exception("F6 document tabs or selected-item keyboard re-edit target is absent");
 var numericBinding = new NumericBindingGuard();
+var renderFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
+var priorFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
+var renderViewport = new Viewport { Frame = renderFrame };
+long initialRevision = renderViewport.FrameRevision;
+renderViewport.Frame = renderFrame;
+if (renderViewport.FrameRevision != initialRevision)
+    throw new Exception("Repeated Refresh advanced the same viewport frame revision");
+renderViewport.InvalidateFrameForMetric();
+if (renderViewport.FrameRevision != initialRevision + 1)
+    throw new Exception("Metric invalidation did not create a fresh target revision");
+if (NativeRenderCorrelation.SectionEligible(false, true) ||
+    NativeRenderCorrelation.SectionEligible(true, false) ||
+    !NativeRenderCorrelation.SectionEligible(true, true))
+    throw new Exception("Source tab's hidden section was incorrectly required for a render metric");
+if (NativeRenderCorrelation.Fresh(7, 7, 3, 3, renderFrame, renderFrame) ||
+    NativeRenderCorrelation.Fresh(7, 8, 3, 2, renderFrame, renderFrame) ||
+    NativeRenderCorrelation.Fresh(7, 8, 3, 3, renderFrame, priorFrame) ||
+    !NativeRenderCorrelation.Fresh(7, 8, 3, 3, renderFrame, renderFrame))
+    throw new Exception("Native batch oracle accepted a prior same-frame draw or wrong revision");
+if (NativeRenderCorrelation.SameState("accepted", "hash", "draft", 2,
+        "accepted", "hash", "draft", 3) ||
+    !NativeRenderCorrelation.SameState("accepted", "hash", "draft", 2,
+        "accepted", "hash", "draft", 2))
+    throw new Exception("Stale draft generation satisfied native timing correlation");
+if (NativeRenderCorrelation.TargetSnapshotMatches(renderFrame, "accepted", .5,
+        priorFrame, "accepted", .5) ||
+    !NativeRenderCorrelation.TargetSnapshotMatches(renderFrame, "accepted", .5,
+        renderFrame, "accepted", .5))
+    throw new Exception("Same-identity new frame satisfied old native metric snapshot");
+var emittedMetric = NativeMetricRecord.Serialize(1, "edit", "not_assessed", "timeout", 12.5, 2, "not_recorded");
+if (emittedMetric.Contains("hash", StringComparison.OrdinalIgnoreCase) ||
+    emittedMetric.Contains("source", StringComparison.OrdinalIgnoreCase) ||
+    !emittedMetric.Contains("not_assessed", StringComparison.Ordinal))
+    throw new Exception("Normal-path metric disclosed source identity or omitted refusal status");
 numericBinding.NoteProgrammatic("120");
 if (numericBinding.ShouldProcess("120", editingEnabled: true) ||
     numericBinding.ShouldProcess("120", editingEnabled: true) ||

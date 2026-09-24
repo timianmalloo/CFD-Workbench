@@ -14,6 +14,13 @@ import sys
 import tempfile
 import time
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRATCH: pathlib.Path
@@ -120,7 +127,7 @@ def process_table() -> dict[int, dict[str, object]]:
     if os.name == "nt":
         raise RuntimeError("Windows process ownership adapter: Not assessed")
     output = subprocess.check_output(["ps", "-axo", "pid=,ppid=,pgid=,state=,lstart=,command="],
-                                     cwd=ROOT, text=True, timeout=10)
+                                     cwd=ROOT, text=True, encoding="utf-8", errors="replace", timeout=10)
     rows = {}
     for line in output.splitlines():
         fields = line.split()
@@ -251,7 +258,8 @@ def main() -> int:
     ENV = os.environ.copy()
     for key in ("CFDW_REVIEW_MODE", "CFDW_REVIEW_PERSONA", "CFDW_REVIEW_SIZE",
                 "CFDW_REVIEW_STATE", "CFDW_REVIEW_THEME", "CFDW_REVIEW_REDUCED_MOTION",
-                "CFDW_REVIEW_PATH", "CFDW_STARTUP_SMOKE"):
+                "CFDW_REVIEW_PATH", "CFDW_STARTUP_SMOKE", "CFDW_TIMING_CONTROL",
+                "CFDW_TIMING_TRIALS"):
         ENV.pop(key, None)
     for key, suffix in {"DOTNET_CLI_HOME": "dotnet-home", "NUGET_PACKAGES": "nuget",
                         "NUGET_HTTP_CACHE_PATH": "http-cache", "TMPDIR": "tmp",
@@ -267,7 +275,8 @@ def main() -> int:
               "-p:UseSharedCompilation=false", "--nologo"]
     signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(128 + signum))
     receipt = {"cwd": str(ROOT), "scratch": str(SCRATCH), "environment": RECORDED_ENV,
-               "head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+               "head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT,
+                                               text=True, encoding="utf-8", errors="replace").strip(),
                "sourceInputsBefore": source_inputs(), "sourceOutputsBefore": source_outputs(),
                "steps": [], "publish": {}, "packages": {},
                "status": "incomplete"}
@@ -338,7 +347,7 @@ def main() -> int:
         if not receipt["sourceInputsUnchanged"] or not receipt["sourceOutputsUnchanged"] or receipt["artifactSymlinks"]:
             receipt["status"] = "fail"
         path = RECEIPTS / "verification.json"
-        path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
         print(json.dumps({"status": receipt["status"], "receipt": str(path), "error": receipt.get("error"),
                           "steps": [{"name": step["argv"][0], "exit": step["exitCode"],
                                      "remaining": step["remainingProcessGroup"]} for step in receipt["steps"]],

@@ -7,11 +7,14 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using Avalonia.Rendering.Composition;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using System.Globalization;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace CfdWorkbench.Desktop;
 
@@ -33,6 +36,9 @@ public sealed partial class MainWindow : Window
     private string? boundDraftId;
     private string? navigatorKey;
     private DisplayFrame? boundSampleFrame;
+    private NativeMetric? nativeMetric;
+    private DispatcherTimer? nativeMetricTimeout;
+    private long nativeMetricSequence;
     private readonly NumericBindingGuard numericBinding = new();
     private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
 
@@ -76,9 +82,9 @@ public sealed partial class MainWindow : Window
         saveButton.Click += async (_, _) => await Guarded(SaveWithPickerAsync);
         undoButton.Click += async (_, _) => await Guarded(() => { workbench.Undo(); return Task.CompletedTask; });
         redoButton.Click += async (_, _) => await Guarded(() => { workbench.Redo(); return Task.CompletedTask; });
-        previewButton.Click += async (_, _) => await Guarded(() => workbench.PreviewAsync());
+        previewButton.Click += async (_, _) => await Guarded(TimedPreviewAsync);
         applyButton.Click += async (_, _) => await Guarded(() => { workbench.Apply(); return Task.CompletedTask; });
-        cancelButton.Click += (_, _) => { workbench.Cancel(); Refresh(); };
+        cancelButton.Click += (_, _) => TimedCancel();
         acceptIdsButton.Click += async (_, _) => await Guarded(() => workbench.AcceptCandidateAsync());
         resumeRecoveryButton.Click += async (_, _) => await Guarded(() => { workbench.ResumeRecovery(); return Task.CompletedTask; });
         discardRecoveryButton.Click += async (_, _) => await Guarded(() => { workbench.DiscardRecovery(); return Task.CompletedTask; });
@@ -97,7 +103,12 @@ public sealed partial class MainWindow : Window
                 Dispatcher.UIThread.Post(Close, DispatcherPriority.Background);
                 return;
             }
+            NativeMetric? start = review is null || review.State == "example"
+                ? BeginNativeMetric("example-ready", Program.ManagedStartTicks == 0
+                    ? Stopwatch.GetTimestamp() : Program.ManagedStartTicks) : null;
             await Guarded(() => review is null ? workbench.OpenExampleAsync() : review.ApplyStateAsync(workbench));
+            if (start is not null) CaptureNativeMetric(start);
+            Refresh();
             if (review is not null)
             {
                 if (review.State == "invalid-input" && workbench.Draft is not null)
@@ -219,7 +230,8 @@ public sealed partial class MainWindow : Window
             return;
         }
         double scale = selected.Unit switch { "mm" => 1000, "cm" => 100, _ => 1 };
-        try { workbench.UpdateDraft(display / scale); }
+        var editMetric = BeginNativeMetric("edit");
+        try { workbench.UpdateDraft(display / scale); CaptureNativeMetric(editMetric); }
         catch (ContractError error) { workbench.InvalidateDraftInput(); stateBanner.Text = $"{error.Code}: draft update refused."; }
         Refresh();
     }
@@ -236,8 +248,7 @@ public sealed partial class MainWindow : Window
         if (args.Key == Key.Escape)
         {
             args.Handled = true;
-            workbench.Cancel();
-            Refresh();
+            TimedCancel();
         }
         else if (args.Key == Key.Enter)
         {
@@ -245,7 +256,7 @@ public sealed partial class MainWindow : Window
             await Guarded(async () =>
             {
                 if (workbench.Provenance == "preview") workbench.Apply();
-                else await workbench.PreviewAsync();
+                else await TimedPreviewAsync();
             });
         }
     }
@@ -409,9 +420,154 @@ public sealed partial class MainWindow : Window
             (numericInput.IsEnabled ? (Control)numericInput : openButton).Focus(); }
     }
 
+    private sealed class NativeMetric(string operation, long sequence, long startedTicks)
+    {
+        public string Operation { get; } = operation;
+        public long Sequence { get; } = sequence;
+        public long StartedTicks { get; } = startedTicks;
+        public string? AcceptedId { get; set; }
+        public string? SourceHash { get; set; }
+        public string? DraftId { get; set; }
+        public long Generation { get; set; }
+        public bool Armed { get; set; }
+        public bool Queued { get; set; }
+        public DisplayFrame? ExpectedFrame { get; set; }
+        public string? ExpectedProvenance { get; set; }
+        public double? ExpectedEta { get; set; }
+    }
+
+    private NativeMetric BeginNativeMetric(string operation, long? startedTicks = null)
+    {
+        if (nativeMetric is { } previous) FinishNativeMetric(previous, "not_assessed", "superseded");
+        var metric = new NativeMetric(operation, ++nativeMetricSequence, startedTicks ?? Stopwatch.GetTimestamp());
+        nativeMetric = metric;
+        nativeMetricTimeout = new DispatcherTimer { Interval = TimeSpan.FromSeconds(operation == "example-ready" ? 10 : 5) };
+        nativeMetricTimeout.Tick += (_, _) => FinishNativeMetric(metric, "not_assessed", "timeout");
+        nativeMetricTimeout.Start();
+        return metric;
+    }
+
+    private void CaptureNativeMetric(NativeMetric metric)
+    {
+        if (!ReferenceEquals(nativeMetric, metric)) return;
+        var binding = workbench.Inspection?.Authored.Binding;
+        metric.AcceptedId = binding?.AcceptedId;
+        metric.SourceHash = binding?.SourceHash;
+        metric.DraftId = workbench.Draft?.Id;
+        metric.Generation = workbench.Draft?.Generation ?? 0;
+        metric.Armed = true;
+    }
+
+    private bool NativeMetricReady(NativeMetric metric)
+    {
+        var binding = workbench.Inspection?.Authored.Binding;
+        if (!metric.Armed || !NativeRenderCorrelation.SameState(metric.AcceptedId, metric.SourceHash,
+            metric.DraftId, metric.Generation, binding?.AcceptedId, binding?.SourceHash,
+            workbench.Draft?.Id, workbench.Draft?.Generation ?? 0))
+            return false;
+        if (metric.Queued && !NativeRenderCorrelation.TargetSnapshotMatches(metric.ExpectedFrame,
+            metric.ExpectedProvenance, metric.ExpectedEta, workbench.Frame, workbench.Provenance,
+            workbench.Frame?.InteriorEta)) return false;
+        return metric.Operation switch
+        {
+            "example-ready" or "cancel" => workbench.Draft is null && workbench.Frame?.Provenance == "accepted",
+            "edit" => workbench.Draft is not null && workbench.Provenance == "draft — accepted geometry shown",
+            "preview" => workbench.Draft is not null && workbench.Frame?.Provenance == "preview" && workbench.Provenance == "preview",
+            _ => false
+        };
+    }
+
+    private void QueueNativeMetric(NativeMetric metric, long mainBefore, long sectionBefore)
+    {
+        metric.Queued = true;
+        var expectedFrame = workbench.Frame;
+        metric.ExpectedFrame = expectedFrame;
+        metric.ExpectedProvenance = workbench.Provenance;
+        metric.ExpectedEta = expectedFrame?.InteriorEta;
+        bool sectionVisible = NativeRenderCorrelation.SectionRequired(sectionViewport, this);
+        viewport.InvalidateFrameForMetric();
+        if (sectionVisible) sectionViewport.InvalidateFrameForMetric();
+        long mainRevision = viewport.FrameRevision;
+        long sectionRevision = sectionViewport.FrameRevision;
+        var compositor = ElementComposition.GetElementVisual(viewport)?.Compositor;
+        if (compositor is null)
+        {
+            FinishNativeMetric(metric, "not_assessed", "target_compositor_unavailable");
+            return;
+        }
+        compositor.RequestCompositionUpdate(() =>
+        {
+            if (!ReferenceEquals(nativeMetric, metric) || !NativeMetricReady(metric))
+            {
+                FinishNativeMetric(metric, "not_assessed", "stale_before_commit");
+                return;
+            }
+            bool mainFresh = NativeRenderCorrelation.Fresh(mainBefore, viewport.RenderSerial,
+                mainRevision, viewport.LastRecordedRevision, expectedFrame, viewport.LastRecordedFrame);
+            bool sectionFresh = !sectionVisible || NativeRenderCorrelation.Fresh(sectionBefore, sectionViewport.RenderSerial,
+                sectionRevision, sectionViewport.LastRecordedRevision, expectedFrame, sectionViewport.LastRecordedFrame);
+            if (!mainFresh || !sectionFresh)
+            {
+                FinishNativeMetric(metric, "not_assessed", "target_scene_not_recorded");
+                return;
+            }
+            var batch = compositor.RequestCompositionBatchCommitAsync();
+            _ = batch.Rendered.ContinueWith(completion => Dispatcher.UIThread.Post(() =>
+            {
+                bool stillCurrent = NativeMetricReady(metric) &&
+                    viewport.LastRecordedRevision == mainRevision &&
+                    (!sectionVisible || sectionViewport.LastRecordedRevision == sectionRevision);
+                FinishNativeMetric(metric, completion.IsCompletedSuccessfully && stillCurrent
+                    ? "batch_cycle_complete" : "not_assessed",
+                    !completion.IsCompletedSuccessfully ? "batch_failed" : stillCurrent
+                        ? "target_batch_completed" : "stale_after_batch",
+                    sectionVisible ? "fresh" : "not_recorded_hidden");
+            }));
+        });
+    }
+
+    private void FinishNativeMetric(NativeMetric metric, string outcome, string reason, string section = "not_recorded")
+    {
+        if (!ReferenceEquals(nativeMetric, metric)) return;
+        nativeMetricTimeout?.Stop();
+        nativeMetricTimeout = null;
+        nativeMetric = null;
+        Console.Error.WriteLine("NATIVE-METRIC " + NativeMetricRecord.Serialize(metric.Sequence,
+            metric.Operation, outcome, reason,
+            Math.Round(Stopwatch.GetElapsedTime(metric.StartedTicks).TotalMilliseconds, 3),
+            metric.Generation, section));
+    }
+
+    private async Task TimedPreviewAsync()
+    {
+        var metric = BeginNativeMetric("preview");
+        try
+        {
+            var task = workbench.PreviewAsync();
+            CaptureNativeMetric(metric);
+            await task;
+        }
+        catch
+        {
+            FinishNativeMetric(metric, "not_assessed", "preview_refused");
+            throw;
+        }
+        Refresh();
+    }
+
+    private void TimedCancel()
+    {
+        var metric = BeginNativeMetric("cancel");
+        workbench.Cancel();
+        CaptureNativeMetric(metric);
+        Refresh();
+    }
+
     private void Refresh()
     {
         if (refreshing) return;
+        long mainRenderBefore = viewport.RenderSerial;
+        long sectionRenderBefore = sectionViewport.RenderSerial;
         refreshing = true;
         try
         {
@@ -545,6 +701,8 @@ public sealed partial class MainWindow : Window
         statusBar.Text = $"{workbench.Provenance} · {workbench.Status} · Analysis Unavailable — no method implemented";
         }
         finally { refreshing = false; }
+        if (nativeMetric is { Armed: true, Queued: false } metric && NativeMetricReady(metric))
+            QueueNativeMetric(metric, mainRenderBefore, sectionRenderBefore);
     }
 
     private static ListBoxItem NamedItem(string text, string name)
@@ -567,6 +725,39 @@ public sealed partial class MainWindow : Window
         double scale = rail.SourceUnit switch { "mm" => 1000, "cm" => 100, _ => 1 };
         return ((control.OrdinateSi * scale).ToString("G9", CultureInfo.InvariantCulture), rail.SourceUnit);
     }
+}
+
+public static class NativeRenderCorrelation
+{
+    public static bool SectionRequired(Visual section, TopLevel target) =>
+        SectionEligible(ReferenceEquals(TopLevel.GetTopLevel(section), target), section.IsEffectivelyVisible);
+
+    public static bool SectionEligible(bool attachedToTarget, bool effectivelyVisible) =>
+        attachedToTarget && effectivelyVisible;
+
+    public static bool SameState(string? acceptedId, string? sourceHash, string? draftId, long generation,
+        string? actualAcceptedId, string? actualSourceHash, string? actualDraftId, long actualGeneration) =>
+        acceptedId == actualAcceptedId && sourceHash == actualSourceHash && draftId == actualDraftId &&
+        generation == actualGeneration;
+
+    public static bool Fresh(long baselineSerial, long recordedSerial, long expectedRevision, long recordedRevision,
+        DisplayFrame? expectedFrame, DisplayFrame? recordedFrame) =>
+        recordedSerial > baselineSerial && recordedRevision == expectedRevision &&
+        ReferenceEquals(expectedFrame, recordedFrame);
+
+    public static bool TargetSnapshotMatches(DisplayFrame? expectedFrame, string? expectedProvenance,
+        double? expectedEta, DisplayFrame? actualFrame, string? actualProvenance, double? actualEta) =>
+        ReferenceEquals(expectedFrame, actualFrame) && expectedProvenance == actualProvenance &&
+        expectedEta == actualEta;
+}
+
+public sealed record NativeMetricRecord(long Sequence, string Operation, string Outcome, string Reason,
+    double ElapsedMilliseconds, long DraftGeneration, string Section, string Endpoint)
+{
+    public static string Serialize(long sequence, string operation, string outcome, string reason,
+        double elapsedMilliseconds, long draftGeneration, string section) =>
+        JsonSerializer.Serialize(new NativeMetricRecord(sequence, operation, outcome, reason,
+            elapsedMilliseconds, draftGeneration, section, "fresh_target_batch_cycle_not_presentation"));
 }
 
 /// <summary>Suppresses a delayed TextChanged raised by a programmatic binding, while retaining subsequent user edits.</summary>
