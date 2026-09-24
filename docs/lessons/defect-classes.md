@@ -515,6 +515,53 @@ subprocess encoding and its newly joined scripts; the integrated gate then passe
 10/10 checks on the joined branch. The initial root diagnostic batch continued after the failing command, so its
 final shell exit is not claimed as the gate result; standalone checks preserve it.
 
+**API-ACCESS · Generated SDK documentation is mistaken for a callable client API.**
+The installed Avalonia 11.3.14 XML documented `TopLevel.Renderer` and
+`IRendererWithCompositor.Compositor`, but the exact Desktop compile rejected the
+route (`CS0103`/`CS0122`): the documented types were not accessible to this
+application. Sweep the proposed rendering chain through the installed public
+signatures and an actual consumer compile before basing a timing contract on it.
+Derive: XML presence proves documentation, not public accessibility. Prevent:
+the always-loaded check-before-use rule requires an actual Desktop consumer
+build against the adopted public route before relying on an SDK symbol. The
+retained R29 internal-route compile RED and public
+`ElementComposition.GetElementVisual(viewport)?.Compositor` compile GREEN show
+that control firing once; those historical receipts are not a future gate by
+themselves. No generated-XML claim alone clears the native render endpoint or
+presentation gate.
+
+**EVID-RENDER · A prior render marker can impersonate completion of new work.**
+The first runtime spike compared the frame object by reference without resetting
+a render epoch. A previous draw of the same accepted frame could satisfy that
+comparison even if the requested Refresh had not drawn. Sweep every timing
+endpoint for a fresh event serial, the exact target revision/frame, source-bound
+operation and draft generation, and for a later state change before completion.
+Derive: identity equality is necessary but not evidence that work happened
+*after* the operation began. Prevent: `NativeRenderCorrelation.Fresh` requires a
+strictly greater render serial plus matching revision/frame;
+`NativeRenderCorrelation.SameState` separately checks draft generation. The
+targeted negative checks reject an unchanged serial, a wrong revision, a prior
+frame and a stale draft generation. The native-app control observed a new edit metric,
+an injected delayed Preview, Cancel, and a superseded Preview; a separate
+timeout control retained `not_assessed` after late publication. These are
+batch-cycle diagnostics, not display-presentation proof. Final C source and
+native UI review remain open.
+
+**EVID-ENDPOINT · A framework callback is promoted beyond what it observes.**
+Avalonia's compositor `Rendered` callback can complete after a render cycle
+that returned early because the render interface was not ready, or after a
+caught rendering failure. Sweep the start and stop of each cold, edit, Preview
+and Cancel metric through interim status, target Render invocation, compositor
+batch and actual display. Derive: a successful batch callback does not prove a
+successful draw or pixels presented to the user; CUA call duration is not an
+application metric either. Prevent: the R29 normal-path metric names its
+endpoint `fresh_target_batch_cycle_not_presentation`, reports timeout and
+supersession as `not_assessed`, and omits source/hash fields from emitted facts.
+The targeted serialization check rejects source/hash keys after an early
+candidate emitted a source-hash prefix. Root independently verified the
+known-delay and timeout controls, while actual visible 5-second/100 ms/250 ms
+acceptance stays Not assessed pending a supported presentation measurement.
+
 ## FoilDSL boundary sweep — 2026-09-22
 
 **PACK-H · Additive hook refresh duplicates a logical callback.** Revision 92 changed the

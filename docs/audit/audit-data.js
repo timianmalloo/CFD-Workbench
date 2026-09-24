@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:47:19Z",
+  "generated": "2026-09-24T02:21:24Z",
   "audit": [
     {
       "actor": null,
@@ -6216,6 +6216,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T01:46:46Z",
       "duration_seconds": 30.0
+    },
+    {
+      "id": "al-01M38KF8T54N5RHVXYSP9SCE94",
+      "shortname": "r29-render-evidence-classes",
+      "datetime": "2026-09-24T02:21:19Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Coordinate bounded C timing proof after R29 and capture every corrected assumption as an always-loaded defect class.",
+      "summary": "Recorded API-ACCESS, EVID-RENDER and EVID-ENDPOINT from installed Avalonia compile RED/GREEN, independent stale-marker correction, source-bound batch-cycle runtime controls and emitted-hash privacy repair. Root reviewed wording and requested two precision tightenings, both applied. Explicitly keeps actual display presentation and C product acceptance Not assessed. Docs check passed. Timing marker covers final register close, not preceding investigation.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Turn verified C measurement and SDK-assumption failures into reusable checks without overstating native performance.",
+      "done_when": "The defect register names class, sweep, derivation and executable/pre-use controls, and official docs checks pass.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T02:21:00Z",
+      "duration_seconds": 19.0
     }
   ],
   "changes": [
