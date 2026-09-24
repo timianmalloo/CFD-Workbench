@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:01:52Z",
+  "generated": "2026-09-24T16:09:10Z",
   "audit": [
     {
       "actor": null,
@@ -6784,6 +6784,36 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-24T16:00:04Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M3A2TZ3PCMPYS26AQNJ1H4HQ",
+      "shortname": "Window lifetime and leader controls",
+      "datetime": "2026-09-24T16:09:05Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record generalized controls for a queued native callback reading disposed state and a lapsed coordinator designation.",
+      "summary": "Added UI-LIFETIME and CO-LEADER to always-loaded defect register. R37 full-stack two-window RED and targeted GREEN establish actual post-close queued Refresh guard with next-window updates/Cancel; core DOC-CLOSED remains. Epoch10 lapsed during review wait, supported quiet-period reclaim established epoch11 before joins. R37 contrast matrix later passed72/72 but package/native gates remain open.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "ui",
+        "coordination"
+      ],
+      "outcome": "partial",
+      "goal": "Prevent disposed-window callback reads and stale conductor authority during long reviews.",
+      "done_when": "The register states the observed class, sweep, derivation and executable or enforced recurrence control without claiming final C acceptance.",
+      "tier": "T1",
+      "fan_out": 1,
+      "git": {
+        "sha": "116afefd9b16678a3368dc407c77da6811f21daa",
+        "short": "116afefd9",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

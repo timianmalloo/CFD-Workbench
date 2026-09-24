@@ -710,6 +710,17 @@ the ruling's current absolute path and verified request ID, or joins the
 reviewed decision before source work; a local stale copy cannot silently act
 as current authority.
 
+**CO-LEADER · A live review wait outlasts the conductor designation.**
+While R36–R37 review continued, the Coordinator missed the prescribed renewal
+interval; epoch 10 expired before a later `leader renew`. No join ran during
+the lapse. Sweep long review and agent waits for elapsed designation time,
+not just the next planned merge. Derive: a lease held at the start of a wait
+does not remain authority at its end. Prevent: read `leader who` and renew
+within its 100-second cadence while work continues; the conductor's epoch
+fence refuses an expired or stale-epoch join. After the quiet period, the
+supported `leader reclaim` established epoch 11 before shared work resumed.
+An expired designation is never silently renewed or treated as a clean join.
+
 **PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
 The installed `ui-design` UI-T4 text references
 `docs/knowledge/native-client-ui-design/`, but this project checkout does not
@@ -738,6 +749,21 @@ apphost's `native-xaml-startup-smoke` before publish and requires its
 startup receipt is `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c-targeted-pronye03/receipts/targeted.json`.
 This control proves loader startup only; rendered UI, AX and keyboard behavior
 still require native inspection.
+
+**UI-LIFETIME · A queued window callback reads a disposed document.**
+In the same-process contrast fixture, closing the first native window disposed
+its controller while a previously queued `Changed` callback still called
+`MainWindow.Refresh`. The full stack reached `HasRecovery` and
+`AuthoringSession.Snapshot`, which correctly refused `DOC-CLOSED`; the second
+window remained open. Sweep every posted UI callback and asynchronous
+continuation that can outlive its owning window, including a cancelled close.
+Derive: unsubscription prevents future notifications but does not retract an
+already queued callback. Prevent: the actual `Closed` path marks the window
+closed before unsubscribing and disposing, and posted callbacks recheck that
+state before reading the controller. The R37 two-window regression drains the
+old callback, requires the next window to update, and verifies a dirty-close
+Cancel leaves its draft live for another numeric change. Core `DOC-CLOSED`
+continues to reject reads after disposal; the UI guard does not weaken it.
 
 **UI-THEME-ORACLE · Token arithmetic hides runtime resource precedence and applied paint.**
 The frozen Dark workbench rendered pale panels with near-white labels, and the
