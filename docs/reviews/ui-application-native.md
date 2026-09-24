@@ -26,8 +26,9 @@ production adapters. UX & Accessibility, UX Researcher/IA, Native Desktop,
 Computational Geometry, Data & Persistence, Test Architect and Simplifier are
 review lenses, not separately claimed model sessions.
 
-**Disposition: OPEN.** Named CLI and controller defects below are independently
-cleared on their frozen checkpoints. Native UI/accessibility acceptance remains
+**Disposition: bounded R26 B permission repair PASS; C/M1 OPEN.** Named CLI,
+controller and native interaction defects below are independently cleared on
+their frozen checkpoints. Complete native UI/accessibility acceptance remains
 withheld. The latest review-only combined candidate is `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`,
 combining B `ee6d73ad` and complete C `6f168c44` under Ruling 27;
 earlier binaries and successful gates do not verify later changes. No C join or M1 completion follows from this
@@ -523,3 +524,69 @@ real numeric edits/Cancel/reselection, invalid recovery Preview, missing-ID
 acceptance and the remaining rendered/accessibility review states. Owner cannot
 waive this evidence by accepting its own staging decision. No canonical product
 join, remote push or release acceptance follows from this checkpoint.
+
+## Combined native review resumed after exact-window confirmation
+
+At the next user confirmation, “The newest review window is visible and in front”,
+root observed the same PID 71600/start `Wed Sep 23 15:00:25 2026` and successfully
+attached CUA to the exact combined review path. No new build or launch variant
+was used. This resolves the attachment blocker for these observations. Initial
+accepted source was `373a939f589354724f8b0a58d5c3707562831fe3fc0caf356a0990708c2bda64`,
+revision `6ace861a-9f4e-4cf9-9e9e-ac6c1fa6419d`. Audit timing for the resumed
+review began 2026-09-24T01:11:57Z.
+
+| Native action / oracle | Observed outcome | Disposition |
+|---|---|---|
+| F6 from Open, then twice more | Station navigator → physical viewport → selected Section sample tab; reverse navigation also reaches navigator | DocumentTabs skip cleared |
+| Select LE cv-2 by keyboard; Cancel; Enter, then Cancel/Space | Each key reopens that same selected editable control with generation 0 and retained accepted identity | Same-selection keyboard gap cleared |
+| LE → TE cv-6; Cancel/reselect LE, then TE again | Native numeric display changes 0 ↔ 120 mm; each fresh draft stays generation 0 | Phantom binding edit cleared for observed repeated sequence |
+| Type 125 into TE field | Three typed digits produce generation 3; Preview reports certified point samples; Escape restores 120 and unchanged accepted source | Real edits remain functional; Cancel restores accepted value |
+| Apply TE 125; Cmd-Z; Cmd-Shift-Z | Apply creates source `8f9052d55fa1cfb7bcd4b9e81a52835e4795e32d2f69922d6166cd9c7b94d157`, revision `62d6bd9d-767a-4bc5-8961-20819aed3547`; Undo/Redo restore exact original/new identities | Native history verified |
+| Native Save picker → new combined project | Reports saved and durability confirmed; independent OS stat is 0600 | Actual packaged creation verified |
+| Native Open picker → saved project; Undo/Redo | Exact source/revision reopen; original/new identities remain traversable | Native byte/history readback verified |
+| Native Save overwrite after reopened Undo/Redo | Reports durability confirmed; mode remains 0600; accepted/source arrays unchanged; cursor records append 4 → 6 | Actual packaged overwrite verified |
+| Open retained invalid recovery; Resume | Numeric input is disabled and empty; Preview and Save remain available; copy directs retained-source inspection and diagnostics | Misclassified numeric error cleared |
+| Preview invalid recovery, then Cancel | `DSL-SYNTAX: Invalid`; Apply disabled; accepted source `443198…` and revision `df7b6fea…` unchanged; Cancel restores accepted display and clears draft | Named recovery contract cleared |
+| Open after cancelling recovery | Unsaved modal defaults focus to Cancel; discard of disposable test-session changes proceeds to native picker | Safe default observed; original fixture not written |
+| Open missing-ID import; inspect source tab | Original/candidate headings rendered; native horizontal scrollbar exposes added `ids ["cv-0", …, "cv-6"]`; attempted typing leaves read-only source unchanged | Comparison/retention verified; long lines require scrolling |
+| Explicit Accept candidate IDs | Prior accepted state remains until action; action creates revision `02828a39-efbd-4046-8135-5bcde62abec4`, source `443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d`; pending import clears | Explicit acceptance verified |
+
+The actual native Save wrote
+`/tmp/cfd-native-review.czEz9w/combined-accepted.cfdw.json`. First-save snapshot
+`combined-first-save.snapshot.json` has 7,761 bytes, SHA-256
+`4c3ca9cb5a4ba160891d331d49c2fc26b90cab7441b61564f249de69d17eba02`.
+After native overwrite, the file has 8,109 bytes, SHA-256
+`2dd08315687e08fda81bbc4800696507fd3523b15ba072056e7b8c2f1b693019`.
+Both stat modes are 0600. Independently executed disk oracle
+`/tmp/cfd-native-review.czEz9w/verify-combined-native-saves.py` decodes saved
+source chunks, verifies each content hash, proves the sole source change is
+TE endpoint `(1, 120)` → `(1, 125)`, and compares accepted/design arrays and
+append-only cursor history. LE and all other source bytes are unchanged.
+Receipt: `combined-native-save-receipt.json` in that directory.
+
+The original anomalous 0454 file retains its original hash and mode. Import and
+invalid-recovery fixtures retain their hashes; import bytes also equal the
+repository fixture. A mistyped expected hash in the scratch oracle initially
+failed (34e instead of recorded 34d); correction added exact fixture-byte
+comparison. This was a probe transcription error, not product mutation.
+
+**Independent Security/Data/Test disposition: PASS for the bounded R26 B
+creation-permission repair `ee6d73ad`, exercised in combined `e6e5628`.** This
+combines the earlier independent source/managed-package review, prewrite-mode
+controls and retained RED/mutation evidence with actual app-bundle native
+Save/overwrite/Reopen/history and independent OS-mode evidence. It supports a
+fresh Owner B gate and normal integration; it does not itself perform that join.
+ACL inheritance, Windows runtime, signing/notarization and unmeasured filesystem
+durability remain outside this bounded verdict.
+
+**C/M1 remains OPEN.** The named interaction regressions are cleared on this
+binary. Rendered high-contrast/reduced-motion 1024 × 700 review screenshots and
+AX evidence are in the CUA transcript, not standalone exported image files.
+Units, accepted/preview provenance, axes, section position and unavailable
+analysis are visible. Long identities/source lines and viewport annotations
+use scrolling or truncation with accessible data; this is not a full craft or
+assistive-technology verdict. Reported sample times (124–219 ms observed in this
+run) are application computation measurements, not measured end-to-end
+100 ms edit or 250 ms preview/cancel latency. Remaining performance, theme/hard
+state, dense-list and complete keyboard/accessibility rows need evidence or an
+explicit separately scoped disposition; they are not silently waived here.

@@ -2075,7 +2075,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a9c021f0c26674ec910db4fec493e6d0d2e09ad8c56f7dea4aa8003d2621497e"
+      "sourceSha256": "316f3457566f8e9d4a0c50e1ce02bb1b12a707e7a3dd40dfd4e7054a3de86125"
     },
     {
       "id": "plan-application-build",
@@ -3001,7 +3001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f9790a7094ca2867c1213c0110428156a7e67375e3f676b1819aaa86a820a41c"
+      "sourceSha256": "b7cef8fb3972145a6c34c23e6b60f483432694b695535245936adda60fdfd4ca"
     },
     {
       "id": "kb-hw-glossary",
@@ -5029,7 +5029,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aaa285aa9eefb82c5618450bfcebe8451b8497163b58e13e24ebf6b427648afe"
+      "sourceSha256": "cbf0563f9273fd87055a772f86d23949b9a864eb066878b940413fcd0cb5e9ca"
     },
     {
       "id": "review-ui-workbench",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3e36b915096620cf605976701db2a671de1b09dcbd6d01553e022f04ca094dcd"
+  "graphSha256": "56e5bbb60c69abe06afedd84390f5afd9e4901e522014d690ee67da2ebfdd279"
 };

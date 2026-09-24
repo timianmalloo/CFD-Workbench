@@ -152,3 +152,22 @@ process and DLL/helper hashes, but supported CUA attachment returned
 `cgWindowNotFound`. Actual app-bundle Save/Reopen/mode therefore remains open;
 the independent managed consumer is not relabeled as GUI proof. The full binding
 and pending user visibility request are in the native review above.
+
+## Independent R26 closure
+
+The user's exact-window visibility confirmation resolved CUA attachment on the
+same retained combined PID 71600. Root exercised actual native Save, Open,
+Undo/Redo after reopening, and Save overwrite. Independent OS stat measured
+0600 for the first saved inode and the overwritten result; saved source and
+accepted identities survived, and history appended without rewriting prior
+records. The independent disk oracle also proves only the selected trailing
+endpoint changed; leading and all other source bytes are unchanged. The original
+0454 anomaly remains untouched.
+
+Detailed bindings, native observations and hashes are in the
+[combined native review](../reviews/ui-application-native.md#combined-native-review-resumed-after-exact-window-confirmation).
+Disk receipt: `/tmp/cfd-native-review.czEz9w/combined-native-save-receipt.json`.
+**Independent Security/Data/Test PASS for the bounded R26 B repair `ee6d73ad`
+in combined review candidate `e6e5628`.** Owner disposition and normal B join
+remain separate actions. This closes the investigation's named permission
+failure, not C/M1 acceptance, Windows capability, ACL or distribution trust.
