@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:29:19Z",
+  "generated": "2026-09-24T16:17:27Z",
   "audit": [
     {
       "actor": null,
@@ -4963,6 +4963,37 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "3758e77b26ddb88ccb3bb5571c382b6d137d304d",
         "short": "3758e77b2",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3A3A9225QZEHS355NSJVMPY",
+      "shortname": "r37-native-review-checkpoint",
+      "datetime": "2026-09-24T16:17:27Z",
+      "session": "cfd-application-20260923",
+      "prompt": "The light-theme review window is visible and in front",
+      "summary": "Continued the authorized native review: independently checked R34–R37 type/readiness/lifecycle evidence, 72/72 actual applied-theme rows, source hashes and final 12-step package receipt. Verified the new Dark review copy’s 231-file parity and live PID/start/executable. CUA exact path and bundle-ID attachment report cgWindowNotFound, as does Finder; requested user foreground confirmation asynchronously. Native veto, C integration and M1 remain open. Documentation check passed with 104 artifacts, zero defects and 77 existing review suggestions. Production author committed 5bdf0e7; root changed only independent review and derived audit/index surfaces. Model cost/usage not recorded.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/docs-index.js"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Independently verify the repaired native application candidate and complete the final changed-surface review without clearing unobserved acceptance obligations.",
+      "done_when": "Frozen package evidence is independently checked, changed native surfaces are observed or a concrete access blocker is recorded, and the review evidence is committed.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-24T15:52:14Z",
+      "duration_seconds": 1513.0,
+      "git": {
+        "sha": "1b1c94bf9c658716f40107d74644ad05f13f91e5",
+        "short": "1b1c94bf9",
         "branch": "feature/application-foundation",
         "pushed": null
       }

@@ -16,7 +16,7 @@ review-by: 2026-10-23
 summary: >-
   Independent source-bound CLI, controller, recovery and package observations.
   Named native interactions and bounded B permission repair pass independent review.
-  Remaining performance, state and accessibility obligations keep C and M1 open.
+  Remaining native theme, performance and accessibility obligations keep C and M1 open.
 ---
 
 # Independent native application review
@@ -26,7 +26,15 @@ production adapters. UX & Accessibility, UX Researcher/IA, Native Desktop,
 Computational Geometry, Data & Persistence, Test Architect and Simplifier are
 review lenses, not separately claimed model sessions.
 
-**Disposition: bounded R26 B permission repair PASS; C/M1 OPEN.** Named CLI,
+**Current disposition: R37 applied-theme matrix and final package evidence PASS;
+native theme acceptance and C/M1 OPEN.** The current candidate is
+`5bdf0e7edd841405e82cceddf297d1da7e3778d5`. Root independently verified its
+72-row applied-theme evidence and final 12-step gate/package binding. Direct
+inspection of its newly launched Dark window is pending because the native
+inspection service reports `cgWindowNotFound`; this is not a rendering verdict.
+The repaired package is not granted the earlier package's native acceptance.
+
+**Earlier disposition: bounded R26 B permission repair PASS.** Named CLI,
 controller and native interaction defects below are independently cleared on
 their frozen checkpoints. Complete native UI/accessibility acceptance remains
 withheld. Final C candidate `3a1d67bcb8ec4bc38a2b8adb8d885b10e1619cc3`
@@ -1068,3 +1076,107 @@ gate/package, exact package binding, direct native theme/focus/modal/source
 inspection, and explicit integration disposition remain pending. The measured
 root review interval starts at 2026-09-24T15:09:59Z; preceding source prechecks
 are outside that interval. Model cost and token measurements are not recorded.
+
+### R34–R37: composition readiness, lifecycle repair and frozen package
+
+**Verified, bounded:** root reviewed the exact source, retained raw logs and
+receipt hashes below. The author remained the only production writer. These
+checks clear the managed applied-theme matrix and package evidence; they do not
+clear native UI acceptance, Windows runtime or display-presentation budgets.
+
+The first composition-aware guard used an incorrect reflected API type. Root
+had reviewed that code without requiring the installed signature and shares
+responsibility for the missed check. Metadata inspection of pinned
+Avalonia.Base 11.3.14, DLL SHA-256
+`ee267f25db7daeeeda7bd1fcca3fd283a865e33614f096ada744339b870e9dda0`,
+established `Size` and `AnchorPoint` as `Avalonia.Vector`, and
+`Offset`, `Scale`, `CenterPoint` as `Avalonia.Vector3D`. The repair uses typed
+public getters; only the two internal adornment properties require reflection.
+A deliberate wrong-type compile produced CS0029. The coordinator captured the
+API-TYPE recurrence class and control. A passing compile alone did not settle
+the next observed failure: the real composition size was still 0×0.
+
+The public dispatcher/compositor readiness spike then observed a fresh batch
+after the normal Opened Example path bound the accepted source and viewport.
+It recorded the actual 189×48 target and adorner, current accepted identity,
+source, frame, viewport revision and focus. Root found and removed a sequencing
+error before the next matrix: moving focus first destroys the synchronized
+adorner, so the tab-focus observation now immediately follows readiness.
+Stale/cancelled candidates and late-settlement negatives exercise the shared
+predicate and atomic settlement. They are not an observed expiry of the actual
+eight-second timer. Batch completion is not screen presentation.
+
+The next same-process run passed all 18 Light rows, then exposed a real
+post-close callback defect. The focused two-window RED queued the first
+controller's Changed callback, closed/disposed its window and opened a second.
+Raw identities and stack show `MainWindow.Refresh` →
+`WorkbenchController.HasRecovery` → `AuthoringSession.Snapshot` → `DOC-CLOSED`.
+The authorized repair marks the window closed before unsubscribing/disposing,
+guards queued/direct refresh and the asynchronous continuation, and preserves
+core's disposal refusal. In the GREEN, the callback drained without exception;
+the second window published six updates and a new accepted identity. Closing
+its real dirty-close dialog returned Cancel, preserved its draft and accepted
+identity, and a later numeric update succeeded. This was window-manager dialog
+close, not a physical Cancel-button or Escape observation.
+
+| Retained receipt, under the same task-local temporary root above | Result | SHA-256 |
+|---|---|---|
+| `cfd-r34-focus-05oq0p9t/receipts/focus-diagnostic.json` | Actual geometry baseline true; wrong-target, displaced and clipped negatives false | `388cef3179a17fd89ad6456bedfdc4694737740579f283227753d016862a731b` |
+| `cfd-r30-theme-targeted-56l4br92/receipts/theme-controls-fail.json` | Wrong reflected API type; 68 rows, four focus rows unassessed | `858c113b7ea2e1ae310d82fc85dba11eba3e294582b07c4aa8911bc334900f1b` |
+| `cfd-r30-theme-targeted-1emn_08n/receipts/theme-controls-fail.json` | Correct type, actual 0×0 composition size; 68 rows | `df413412ddf6258fa308f5db41eeeaf135ec32aff94310fbced2a792b06a45bf` |
+| `cfd-r30-theme-targeted-vnfjiwy1/receipts/theme-controls-fail.json` | Light 18 pass; other 54 unassessed after DOC-CLOSED | `72eb07aa55141f75e68e5572cab0f5857dce760492be0c352a56673da03ea7aa` |
+| `cfd-r34-focus-odr6emvg/receipts/focus-diagnostic.json` | Actual two-window lifecycle RED | `ca0d1399f94226bb8da8eca78bcae105e73c668dae3a57a9649a2c82f262fb91` |
+| `cfd-r34-focus-wumancrq/receipts/focus-diagnostic.json` | Lifecycle GREEN and cancelled-close editable-state preservation | `ebec856fda2fa4ccaf637392e497a66cde554fb18a04b3fe6fdccef58ed37921` |
+| `cfd-r30-theme-targeted-cdr_j4ds/receipts/theme-targeted.json` | Complete same-process Light/Dark/HighContrast/Default matrix: 72/72 | `2dc82887c210ca0b0b135e51c678d0208cfbcca56119fbf99c676db518b2259e` |
+| `cfd-adapters-verify-ddpasr4w/receipts/verification.json` | Final source-bound 12-step gate and packages | `9808e586a57281d29d893e6007e6bdf8fea39dce6e2ef3f88ab67ef3aab59b66` |
+
+Root independently recomputed all 72 ratios and verified the six matrix log
+hashes, with no missing/duplicate rows. Minimum text contrast is
+6.2857702203113:1; minimum focus contrast is 4.016975780478911:1. All four
+placement records show nonnull exact target binding, 189×48 outer/tab/composition
+bounds, inner 2,2,185×44, clips 0,0,189×48, and the current frame/id/source/focus.
+Offset/rotation/anchor/center are zero, scale is one, orientation is identity,
+clipping is enabled and paints are opaque. Geometry tolerance is 1e-6; default
+transform components are exact. Python verifies the records and arithmetic;
+the C# shared guard evaluates actual geometry. Neither alone proves OS display.
+
+Final source SHA-256 bindings:
+
+```text
+MainWindow 30ddc24c213208e09c06fd94de3cb7e13fc5c812c5e8b7102b96e42ddc9749db
+Styles     28cf9b04d732a29cc8a427a275d7bda5926e67fef93df98d07e8c75034b8ea0d
+Tests      484ddccd2f0508ea21982630f1aa28e2ed876582aa507175c283b28a435341c8
+Verifier   9f802c2abba6556d9154cdf5130e70073a093585fd20e2057a1e40637b7074d9
+```
+
+Root's independent final verifier checked the exact 12 named steps, their raw
+logs and zero exits; 53 stable/current source inputs; 16 binary hashes;
+task-local asset roots; no remaining owned group/collector; and macOS package
+DLL/helper parity. The gate reports 2,223 artifacts and zero symlinks. The
+macOS Desktop DLL is
+`97ef6a0844733c91a8e9d238dcd8ceb4731275312ead2a090c7e25387b9996d0`.
+The Windows Desktop DLL is
+`f6097a794889145bf326db0c2edad6fba6c768d6401c2d0e3a6bb96e4cba3c98`;
+this is cross-publication, not Windows runtime evidence.
+
+The new Dark review copy is
+`/private/tmp/cfd-r37-dark-ui-29oxy3l3/CFD Workbench.app`, bundle ID
+`com.cfdworkbench.desktop.r37dark20260924`. Root independently compared all
+231 files: only `CFBundleIdentifier` differs from the frozen package. Its
+launch receipt SHA-256 is
+`e0ed0217166af4ef2f5db3be77fb5e0897982566e06dfbf205a89ba37d3aca61`.
+PID 30126, start `Thu Sep 24 09:13:34 2026`, and exact executable path were
+observed. Timing control flags are absent. CUA lists the running bundle but
+exact path and bundle-ID attachment return `cgWindowNotFound`; Finder attachment
+does too. The macOS CUA API has no foreground launch method. A user foreground
+request is pending. No new screenshot, AX traversal or native interaction is
+claimed from this launch.
+
+Remaining proof: changed native Light/Dark/high-contrast surfaces, physical
+focus and safe dirty-close Cancel; Windows runtime/UIA/Narrator; mixed-DPI and
+VoiceOver; actual presentation latency; and distribution signing/install trust.
+The earlier sparse 15-point fixture is not the normative large workload. The
+supported native tool retains screenshots/AX in the conversation but supplies
+no filesystem export API; that artifact gap remains explicit. Full v7 profile
+editing, analysis and other later product scope are not completed by this
+bounded C increment. Model usage/spend is not recorded.
