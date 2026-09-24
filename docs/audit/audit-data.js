@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T22:07:02Z",
+  "generated": "2026-09-24T01:28:31Z",
   "audit": [
     {
       "actor": null,
@@ -5941,6 +5941,45 @@ window.AUDIT_DATA = {
       "done_when": "The combined manifest, gate, launch and root native disposition are recorded in the plan, official views pass, and the status commit is clean.",
       "tier": "T1",
       "fan_out": 0
+    },
+    {
+      "id": "al-01M38FHJRDH35CGK02BTX06TYV",
+      "shortname": "The newest review window is visible and in front",
+      "datetime": "2026-09-24T01:12:40Z",
+      "session": "prompt-log",
+      "prompt": "The newest review window is visible and in front",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M38GEJYA004S4MV93PC74F93",
+      "shortname": "owner-b-permission-gate-r28",
+      "datetime": "2026-09-24T01:28:31Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule typed B gate req-01M38GAB4D08SN8SWB4QW3YZF2 on clean B ee6d73ad and root independent17f60d0 PASS after native app Save/overwrite/Reopen0600, exact history and original anomaly preservation. Permit B-only supported join or name missing oracle; no C/M1/Windows/ACL/signing acceptance. Inspect evidence, record ruling and yield.",
+      "summary": "Ruling28 accepts bounded macOS arm64 B creation-permission correction. Directly observed clean B/root HEADs, source repair and strict0600 guard, proof/review, hashed disk/gate receipts, both saved0600 modes and unchanged original0454, package Persistence/helper hashes. Independently matched all55 origin and combined manifest blobs with zero mismatches; retained11 steps exit0/quiescent. Root independently clears Security/Data/Test; no Owner rerun or self-clearance. B-only conductor join then controlled C handoff; C/M1/other platform/release limits remain.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Decide bounded B storage gate from completed independent native proof.",
+      "done_when": "Canonical ruling states B integration disposition and remaining C/platform/release limits; notify root and Coordinator and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T01:26:29Z",
+      "duration_seconds": 122.0
     }
   ],
   "changes": [
