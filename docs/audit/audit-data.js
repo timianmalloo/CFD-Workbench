@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:43:33Z",
+  "generated": "2026-09-24T01:47:19Z",
   "audit": [
     {
       "actor": null,
@@ -6186,6 +6186,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T01:43:32Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M38HGXW8JKSRESY05P51Z9Q9",
+      "shortname": "application-r28-r29-status",
+      "datetime": "2026-09-24T01:47:16Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Continue coordinated M1 implementation after the newest combined review window became visible.",
+      "summary": "Recorded Owner R28 bounded B-only join a550466 and affected core/integrated recount, root supported-CUA native Save/Reopen/keyboard/recovery/import evidence, and Owner R29 isolated C portability/timing continuation. Preserved the exact downstream C step8 RED and remaining end-to-visible/theme-state gaps. Rendered matching plan HTML; docs check passed. Timing marker covers final status close only, not preceding work.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Keep the coordination plan and rendered status truthful after R28 B integration and R29 C handoff.",
+      "done_when": "Plan Markdown/HTML name joined B, isolated C RED, exact next proof step and residual native/platform limits; official docs checks pass.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T01:46:46Z",
+      "duration_seconds": 30.0
     }
   ],
   "changes": [

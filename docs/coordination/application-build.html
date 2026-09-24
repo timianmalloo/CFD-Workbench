@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="be577ed94a206d91a6d67eb38712fea4d0bbe716b46043bbb8f9a654d992e801">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -173,28 +173,28 @@ separate open gates.</p>
 <td>T2</td>
 <td>0</td>
 <td>90 calls, ≤100k context, ≤55 min first run, followed by bounded continuations</td>
-<td>Clean complete <code>cce9ee52</code>, 172 author tests; independent root science/store proof and Owner Ruling 22; joined at <code>18278c4</code> with 11/11 gates</td>
-<td>Ruling 11 requested Astra/effective Not recorded built-in author. Observed-only containment and explicit owned-child cleanup, no native enforcement claim.</td>
+<td>Original B joined at <code>18278c4</code>; Ruling 28 accepted six-path macOS permission correction <code>ee6d73ad</code> after independent <a href="../reviews/ui-application-native.md">native review</a>, joined B-only at <code>a550466</code> with affected core recount and 11 gates</td>
+<td>Ruling 11 requested Astra/effective Not recorded built-in author. The permission repair used a separately authorized requested-Astra author; effective model Not recorded. Windows/Intel/ACL/release coverage remains open.</td>
 </tr>
 <tr>
 <td>C · native adapters, <code>cfd-adapters-20260923</code></td>
-<td><a href="contract-c-native.md">Exact 24-path contract</a>, no core implementation files</td>
-<td>Joined B <code>18278c4</code>, independently reviewed <a href="contract-c-api-freeze.md">compiled API freeze</a>, Owner Ruling 21</td>
+<td><a href="contract-c-native.md">Exact 24-path contract</a>, no core implementation files; Ruling 29 narrows the current continuation to nine existing paths</td>
+<td>Joined B <code>a550466</code>, independently reviewed <a href="contract-c-api-freeze.md">compiled API freeze</a>, Owner Rulings 21 and 29</td>
 <td>T2</td>
 <td>0</td>
-<td>90 calls, ≤100k context, ≤55 min initial checkpoint; bounded continuations with aggregate calls/tokens Not recorded</td>
-<td>Clean candidate <code>de105f0</code>; 11-step final gate passed with real XAML startup and packages; independent <a href="../reviews/ui-application-native.md">native review</a> BLOCKS rendered/AX/keyboard acceptance after <code>cgWindowNotFound</code></td>
-<td>Requested Sol, effective model Not recorded. Ruling 25 keeps production C isolated and M1 native gate blocked; no partial join or Windows runtime claim.</td>
+<td>Initial 90 calls / 55 minutes; Ruling 29 first checkpoint ≤60 calls / 35 minutes, aggregate calls/tokens Not recorded</td>
+<td>Candidate <code>6f168c44</code> in review-only B+C <code>e6e5628</code> passed 11 adapter steps; root verified named native keyboard, edit, recovery, import and Save/Reopen flows. Isolated C handoff <code>13c883a</code> exposed two portable-tooling gate failures; targeted repair is in flight</td>
+<td>Requested Sol, effective model Not recorded. Root UX/performance veto and C/M1 product join remain open; no Windows runtime claim.</td>
 </tr>
 <tr>
 <td>D · integration and independent proof</td>
 <td>Coordinator owns merge and plan/status ledger; root/Owner own independent review/rulings, no production co-authoring</td>
-<td>B joined; C returned clean source-bound evidence but native veto remains</td>
+<td>B accepted; C source-bound native evidence exists but timing/state coverage remains open</td>
 <td>T2</td>
 <td>0</td>
-<td>One whole-suite recount per eligible product join; docs-only joins do not clear product gates</td>
-<td>B and its review joined at <code>18278c4</code>; final root C review and Ruling 25 joined as documents only. C production branch remains unjoined; macOS rendered/AX workflow and Windows runtime are unassessed</td>
-<td>Deterministic scripts, root independent veto and Owner Ruling 25.</td>
+<td>One affected recount per eligible product join; docs-only joins do not clear product gates</td>
+<td>B permission repair and independent review joined at <code>a550466</code>; final root native review joined docs-only at <code>b3e48aa</code>. Downstream C handoff is isolated and held at a portable-tooling RED</td>
+<td>Deterministic scripts, root independent veto and Owner Rulings 28–29.</td>
 </tr>
 </tbody></table></div>
 <p><strong>Per-track common contract:</strong> brief begins with <code>audit-log.py start --session ... --skill ...</code>; exact goal/done-when, owned absolute paths, excluded neighbor paths, deadline, context ceiling, budget, fallback and return evidence are compiled and hash-pinned. Workers never use <code>EnterWorktree</code>, install the layer, spawn teams, or treat a permission denial as approval. A budget cap requires a report and re-plan, not an automatic higher cap. Every worker decision request goes <code>coord decide request --to cfd-owner-20260923</code>; the Owner rules into <code>docs/notes/rulings.md</code> through <code>coord decide rule</code>, never by accepting a worker&#39;s claim. Coordinator resolves seams or asks Owner for a ruling. The first <code>coord leader pin cfd-coordinator-20260923</code> epoch is recorded in the launch manifest and checked at join.</p>
@@ -395,20 +395,20 @@ and their canonical prose remain untouched.</p>
 <tr>
 <td>B</td>
 <td>90 calls / one coherent core invariant, isolated from UI</td>
-<td>Complete clean <code>cce9ee52</code>; exact aggregate calls/tokens Not recorded; 172 author tests</td>
-<td>Owner Ruling 22 and root independent R17/R18 science and R16/R19 store/projection review accepted bounded B. Joined through conductor with root review at <code>18278c4</code>, 11/11 integrated gates. Not full language/Windows/UI/M1 acceptance.</td>
+<td>Original B <code>cce9ee52</code>, 172 author tests; permission repair <code>ee6d73ad</code>; exact aggregate calls/tokens Not recorded</td>
+<td>Ruling 22 accepted original B at <code>18278c4</code>. Ruling 28 accepted measured macOS arm64 creation-permission correction after root&#39;s actual native <code>0600</code> Save/overwrite/Reopen; conductor B-only join <code>a550466</code> passed architecture 30, contract 93/42/2505, changed core suite and 11 integrated gates. Not Windows/Intel/ACL/release or full M1 acceptance.</td>
 </tr>
 <tr>
 <td>C</td>
-<td>90 calls / native UI machine time and disjoint files after accepted B</td>
-<td>Clean requested-Sol/effective-Not-recorded candidate <code>6f168c44</code> after two bounded interaction repairs; aggregate calls/tokens Not recorded</td>
-<td>The initial <code>de105f0</code> package passed 11 steps. Root&#39;s actual n1/fixed-copy CUA review found and retested keyboard/focus defects, then identified tab-region, selected-CV activation, numeric binding and recovery gaps. Targeted repair tests passed at <code>6f168c44</code>; full packaging was reserved for the Ruling 27 combined review. C production remains unjoined.</td>
+<td>Native UI machine time and disjoint files after accepted B; Ruling 29 ≤60 calls / 35 minutes first continuation checkpoint</td>
+<td>Clean requested-Sol/effective-Not-recorded <code>6f168c44</code>; review-only combined <code>e6e5628</code>; downstream handoff <code>13c883a</code>; aggregate calls/tokens Not recorded</td>
+<td>Root CUA verified named keyboard/edit/recovery/import and native Save/Reopen rows after user brought the exact combined window forward. <code>13c883a</code> has identical <code>src/tests/tools</code> bytes to reviewed combined source but conductor step 8 found three portable-text and two subprocess-encoding findings. The author reproduced 3+2 RED and targeted GREEN in two C tools; render-endpoint spike and measured native state/timing proof remain. No C product join.</td>
 </tr>
 <tr>
 <td>D</td>
 <td>deterministic join / independent integrated proof</td>
-<td>B product/review integrated at <code>18278c4</code>; B permission <code>ee6d73ad</code> and C <code>6f168c44</code> repairs remain isolated; independent review joined docs-only at <code>77cb6f6</code>; exact aggregate calls/tokens Not recorded</td>
-<td>Ruling 27 allowed one disposable B+C review package. Its 11-step gate and source/package/launch identity checks passed. The first supported CUA bind to that package returned <code>cgWindowNotFound</code>, so actual packaged native Save and repaired interactions remain unassessed; no B/C product join or full M1 claim. Windows runtime and distribution trust remain separate.</td>
+<td>B product/review integrated at <code>a550466</code>; root final native review joined docs-only at <code>b3e48aa</code>; exact aggregate calls/tokens Not recorded</td>
+<td>Rulings 28–29 separate completed B permission scope from open C UX/performance. A new isolated C continuation starts from the failed handoff; first two portability controls are repaired locally, with endpoint spike review before timed trials. Windows runtime and distribution trust remain separate.</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -420,19 +420,19 @@ and their canonical prose remain untouched.</p>
 </thead>
 <tbody><tr>
 <td>Completed</td>
-<td>Pack/repo graph, bounded architecture/B0 and independently accepted original B; B joined at <code>18278c4</code>. Clean B permission repair <code>ee6d73ad</code> passed changed-source and independent public-store mode checks. Clean C repair <code>6f168c44</code> passed targeted tests. Ruling 27 review-only composition <code>e6e5628</code> passed one 11-step combined gate; root verified its source/helper/launch binding and the independent review joined as documents at <code>77cb6f6</code>.</td>
+<td>B original core and Ruling 28 macOS permission repair are joined at <code>a550466</code>; changed core recount and 11 integrated gates passed. The review-only B+C package <code>e6e5628</code> passed 11 adapter steps; root&#39;s supported CUA and disk oracle verified native Save, overwrite, Reopen with mode <code>0600</code>, plus named keyboard, edit, recovery and import flows. The original anomalous <code>0454</code> file is preserved.</td>
 </tr>
 <tr>
 <td>Remaining</td>
-<td>The combined app PID 71600/start <code>Wed Sep 23 15:00:25 2026</code> is live, but root&#39;s first supported exact-path CUA bind returned <code>cgWindowNotFound</code>. Root has asked the user to bring this newest review window forward; the answer is pending. Actual packaged native Save/Reopen/<code>0600</code>, the repaired keyboard/recovery interactions, B permission Owner gate, both production joins, Windows runtime and release trust remain open.</td>
+<td>C remains isolated. Its clean downstream handoff <code>13c883a</code> failed two integrated portability gates on five C-tooling findings; Ruling 29&#39;s targeted repair is in progress. The actual app lacks end-to-visible 5-second cold, 100 ms edit, and 250 ms preview/cancel measurements and the full declared native state/theme/dense review. Windows runtime/store and release trust are unassessed.</td>
 </tr>
 <tr>
 <td>Best next action</td>
-<td>On confirmed visibility of the exact combined review window, root alone completes the pending CUA checklist and native Save/Reopen/mode readback. If CUA remains unavailable, retain the isolated app/receipts and blocked disposition without another launch variant. A root independent verdict precedes fresh Owner B/C gate requests and any supported conductor product join.</td>
+<td>The C author finishes targeted portable-tooling controls, then sends an installed-Avalonia render-endpoint spike for root review before any timed trial collection. Run bounded normal-path timing and source-bound state matrix only after that endpoint is judged honestly; keep C product join and M1 acceptance held for independent root/Owner disposition.</td>
 </tr>
 </tbody></table></div>
 <h3>Native visibility continuation · one optimized graph</h3>
-<p>The user replied, verbatim, “Yes, I see the workbench” and “The new CFD Workbench review window”. Root&#39;s supported CUA attachment then returned a rendered window and AX tree bound to PID 48841, start <code>Wed Sep 23 13:24:28 2026</code>, Desktop DLL <code>6aaff522eec3da85898685992fd3f2e3325035e2c482b9edda76b6dc42f54aa9</code>. This is the earlier n1 review copy; it is not a bitwise claim for the final e7 development package. Root&#39;s <a href="../reviews/ui-application-native.md">native review</a> records the actual action/result rows. The CUA surface exposed a screenshot and AX return to the reviewer, without a documented file export; no PNG or AX file is claimed.</p>
+<p>The user replied, verbatim, “Yes, I see the workbench” and “The new CFD Workbench review window”. Root&#39;s supported CUA attachment then returned a rendered window and AX tree bound to PID 48841, start <code>Wed Sep 23 13:24:28 2026</code>, Desktop DLL <code>6aaff522eec3da85898685992fd3f2e3325035e2c482b9edda76b6dc42f54aa9</code>. This was the earlier n1 review copy; it is not a bitwise claim for the later combined package. Root&#39;s <a href="../reviews/ui-application-native.md">native review</a> records the actual action/result rows. The CUA surface exposed a screenshot and AX return to the reviewer, without a documented file export; no PNG or AX file is claimed.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -508,5 +508,8 @@ and their canonical prose remain untouched.</p>
 <h3>Ruling 27 · isolated combined evidence, not a product join</h3>
 <p>Owner <a href="../notes/rulings.md#ruling-27--review-only-b-and-c-composition-for-packaged-native-proof">Ruling 27</a> permits one disposable review tree because Ruling 26 requires app-bundle native Save evidence before a B Owner gate, while the C package was built before the B repair. Coordinator composed complete clean C <code>6f168c44</code> and clean B <code>ee6d73ad</code> on joined-base descendant <code>91c529d</code> in review-only tree <code>feature/application-combined-review-20260923</code>, HEAD <code>e6e562843b000e27542efa1ee7dc2bb251eb2b4f</code>, tree <code>097878e383da4bdbd65e53316a129f9a32641feb</code>. Source conflicts were absent; only generated index metadata required official regeneration. Neither product branch moved.</p>
 <p>The retained <a href="/tmp/cfd-combined-review-20260923.muHX8h/combined-input-manifest.json">input manifest</a>, SHA-256 <code>4fa156928a6bd0ae8b0d44fc97099488c7337b27c90e1827a18cfe306e9b3799</code>, binds 55 inputs to their exact candidate/base blobs (30 base, 20 C, five B); its pre/post SHA is unchanged. The <a href="/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-nko701v2/receipts/verification.json">combined gate receipt</a>, SHA-256 <code>6b8a4f748f0211fb34e1677e7ed8bf9221a7bbbd1397e9806151548d6d31cf44</code>, reports 11 zero-exit steps, task-local outputs/caches, no remaining owned groups or collector, and 53 unchanged gate-source hashes; the manifest adds the core verifier and XAML lint script. The macOS app has Persistence DLL <code>35b38f817c739efd5ccc669316acee6234040ece5e66755fb405b3d18365b3be</code> and arm64 native helper <code>90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88</code> at the package-relative loader location. Windows publication is no Windows runtime proof.</p>
-<p>The <a href="/tmp/cfd-combined-review-20260923.muHX8h/review-copy-manifest.json">review-copy manifest</a>, SHA-256 <code>4bd4cea5765d4e79d7cbe0aea1a09cbb1463a3f0c0c4627366434728b631840b</code>, compares 231 files and proves only <code>Info.plist</code> <code>CFBundleIdentifier</code> changed to <code>com.cfdworkbench.desktop.reviewcombined27</code>. The <a href="/private/tmp/cfd-combined-review-20260923.muHX8h/launch-receipt.json">launch receipt</a>, SHA-256 <code>b3679315d3116bd1423b6899dddd5748e719dea09573ee81b4f4f146e64bd3c8</code>, binds live PID 71600/start <code>Wed Sep 23 15:00:25 2026</code>, exact executable and <code>Window.Opened</code> marker to that copy. Root independently checked source/helper/PID facts but CUA returned <code>cgWindowNotFound</code> on its first exact-path bind. The previously observed native keyboard/recovery defects and the old <code>0454</code> Save are not cleared by these build or startup facts. Root&#39;s <a href="../reviews/ui-application-native.md">independent review</a> retains the native veto until actual behavior is observed. The review tree/package/file receipts stay available; canonical B/C joins remain held.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7</code>.</p></footer></main></body></html>
+<p>The <a href="/tmp/cfd-combined-review-20260923.muHX8h/review-copy-manifest.json">review-copy manifest</a>, SHA-256 <code>4bd4cea5765d4e79d7cbe0aea1a09cbb1463a3f0c0c4627366434728b631840b</code>, compares 231 files and proves only <code>Info.plist</code> <code>CFBundleIdentifier</code> changed to <code>com.cfdworkbench.desktop.reviewcombined27</code>. The <a href="/private/tmp/cfd-combined-review-20260923.muHX8h/launch-receipt.json">launch receipt</a>, SHA-256 <code>b3679315d3116bd1423b6899dddd5748e719dea09573ee81b4f4f146e64bd3c8</code>, binds PID 71600/start <code>Wed Sep 23 15:00:25 2026</code>, exact executable and <code>Window.Opened</code> marker to that copy. The first exact-path CUA bind returned <code>cgWindowNotFound</code>; after the user confirmed “The newest review window is visible and in front”, root attached the same instance and independently exercised native Save/overwrite/Reopen, mode <code>0600</code>, keyboard, recovery and import. The <a href="../reviews/ui-application-native.md">native review</a> retains C performance and remaining UX evidence as open. The review tree/package/file receipts stay available; canonical C remains unjoined.</p>
+<h3>Rulings 28–29 · B join and bounded C proof continuation</h3>
+<p>Owner <a href="../notes/rulings.md#ruling-28--bounded-macos-creation-permission-repair-accepted-for-b-join">Ruling 28</a> accepted only the measured macOS arm64 B correction. The conductor joined root&#39;s independent review documents and then the six B source/proof paths at <code>a550466</code>; architecture 30, contracts 93 C# / 42 Python / 2505 vectors, the changed core suite and all 11 integrated gates passed. The B repair source bytes at this head match clean author <code>ee6d73ad</code>. Original B/C and review-only branches and the anomalous <code>0454</code> file remain available.</p>
+<p>A fresh isolated downstream C handoff from <code>6f168c44</code> merged canonical B into clean <code>13c883a</code>. Its <code>src/tests/tools</code> bytes match the reviewed combined <code>e6e5628</code>, but the conductor stopped at step 8: <code>verify-portable-text-io.py</code> found three C-tooling issues and <code>verify-subprocess-utf8.py</code> found two. This is a RED handoff, not an integrated C pass. Owner <a href="../notes/rulings.md#ruling-29--bounded-c-portability-repair-and-truthful-native-timing-proof">Ruling 29</a> authorized the existing requested-Sol author to repair the named paths, then establish an honest installed-Avalonia render endpoint with known-delay and stale/cancel controls before collecting timed trials. The first checkpoint is at most 60 calls or 35 minutes. Root alone judges the endpoint and subsequent native matrix; no C product join, changed threshold, Windows runtime or release claim follows from this authorization.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>be577ed94a206d91a6d67eb38712fea4d0bbe716b46043bbb8f9a654d992e801</code>.</p></footer></main></body></html>
