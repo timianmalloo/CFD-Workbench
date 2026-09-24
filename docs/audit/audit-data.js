@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:10:03Z",
+  "generated": "2026-09-24T15:23:43Z",
   "audit": [
     {
       "actor": null,
@@ -6599,6 +6599,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3A06HC6BR38C3SC5ADRJ83W",
+      "shortname": "owner-focus-coordinate-diagnostic-r34",
+      "datetime": "2026-09-24T15:22:59Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M3A03ZM0JJKXAN7PQ56J94TA: R33 stopped at68/72 with four unchanged focus.tab geometry rows; failing compound predicate omits raw geometry. Authorize one source-bound diagnostic, root interpretation then one correction/complete matrix or hold; no bounds/threshold waiver or C join.",
+      "summary": "Ruling34 authorizes≤40calls/30min focused4theme diagnostic then mandatory root interpretation before one measured correction and one full72row matrix. Owner inspected predicate/inventory and pinned AdornerLayer11.3.14 source; composition mapping remains hypothesis. Require raw operands/coordinate/clip/identity/backdrop facts, negative wrong-target/displaced/clipped control and no removed bounds/tolerance assumption. Genuine72/72 only permits final gate/package; root native veto retained.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve four tab-focus geometry failures without weakening oracle.",
+      "done_when": "Canonical ruling separates coordinate-oracle defect from product defect using focused evidence and independent review; notify and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T15:21:53Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
