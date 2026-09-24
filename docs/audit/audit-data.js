@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:32:50Z",
+  "generated": "2026-09-24T01:40:15Z",
   "audit": [
     {
       "actor": null,
@@ -6103,6 +6103,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T01:32:15Z",
       "duration_seconds": 35.0
+    },
+    {
+      "id": "al-01M38H427C95QDP7C4NF3SN96P",
+      "shortname": "owner-c-proof-continuation-r29",
+      "datetime": "2026-09-24T01:40:15Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M38GZW3WYW5M2SDSDQVEX3JX for bounded next C proof after B-only join a550466; isolated handoff13c883a stopped at step8 on five portability findings. Preserve root veto, no C product join; record canonical ruling and yield.",
+      "summary": "Ruling29 permits existing C author bounded portability repair then actual native event-to-final-visible timing and representative theme/state/dense matrix. Direct source inspection confirms text-I/O seams and interim Assessing endpoint hazard. Requires installed rendering API spike, truthful submission/presentation distinction, negative delay and stale/cancel controls, raw measurements with coverage limits, no threshold waiver; root independent native review. Nine-path candidate envelope,60call/35min checkpoint; no B edits or new route.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Define bounded C repair and proof step from failed portability gates and remaining native checks.",
+      "done_when": "Canonical ruling assigns scope, evidence and stop conditions; notify Coordinator/root and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T01:38:15Z",
+      "duration_seconds": 120.0
     }
   ],
   "changes": [
