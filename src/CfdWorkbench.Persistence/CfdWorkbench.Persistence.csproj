@@ -6,4 +6,14 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../CfdWorkbench.Core/CfdWorkbench.Core.csproj" /></ItemGroup>
+  <!-- The runtime store remains fail-closed outside the measured macOS arm64 ABI. -->
+  <Target Name="BuildMacStoreBridge" BeforeTargets="AssignTargetPaths"
+          Condition="$([MSBuild]::IsOSPlatform('OSX')) and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'osx-arm64')">
+    <PropertyGroup><NativeStoreOutput>$(IntermediateOutputPath)cfd-native/libcfd_store.dylib</NativeStoreOutput></PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)cfd-native" />
+    <Exec Command="xcrun clang -dynamiclib -arch arm64 -mmacosx-version-min=11.0 -O2 -Wall -Wextra -Werror -fvisibility=hidden -Wl,-install_name,@rpath/libcfd_store.dylib &quot;$(MSBuildProjectDirectory)/native/cfd_store.c&quot; -o &quot;$(NativeStoreOutput)&quot;" />
+    <ItemGroup>
+      <Content Include="$(NativeStoreOutput)" Link="libcfd_store.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 </Project>

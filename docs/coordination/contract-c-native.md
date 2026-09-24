@@ -2,7 +2,7 @@
 id: coordination-contract-c-native
 title: Provisional native desktop and CLI adapter assignment
 type: plan
-status: proposed
+status: in-progress
 owner: "@cfd-coordinator-20260923"
 tags: [coordination, application, desktop, cli]
 links:
@@ -12,6 +12,7 @@ links:
   - {to: design-application-foundation, rel: depends-on}
   - {to: design-language, rel: depends-on}
   - {to: coordination-contract-c-api-freeze, rel: depends-on}
+  - {to: coordination-application-c-launch, rel: relates-to}
   - {to: mockup-workbench-v7, rel: relates-to}
 review-by: 2026-10-23
 summary: A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.
@@ -24,13 +25,14 @@ review-suggested:
 
 # C · native desktop and CLI adapters
 
-**Status:** final API freeze under independent review, before the fresh C lease.
+**Status:** serial C worker launched after independent final API freeze review.
 Owner Ruling 22 accepted complete bounded B `cce9ee52` and root's independent
 review `575f2a1`/`9d07668`; conductor joined both at `18278c4` with 11/11
 integrated gates passing. The final public API was exercised by the compiled
 [C freeze consumer](contract-c-api-freeze.md). Ruling 21 conditionally admits
 one serial requested-Sol C track after independent freeze review and fresh
-worker/cwd/HEAD/claim/cache preflight. Any changed path/API is a typed seam
+worker/cwd/HEAD/claim/cache preflight. Those gates cleared for launch as
+recorded in the [C launch receipt](application-c-launch.md). Any changed path/API is a typed seam
 decision, not a silent C edit.
 
 Rulings 17–19 are present in the joined B: evaluator `/2` identity, all-query
@@ -85,9 +87,10 @@ is absent from this consuming checkout; that deployment-link gap is recorded,
 not treated as an existing local source or reason to invent product facts.
 The authoritative pack-source KB may inform review read-only where available.
 
-## Provisional exact path inventory (24)
+## Exact C authored path inventory (24)
 
-These paths are **reserved candidates**, not live leases. The solution file is
+These paths are assigned to the one C worker; active claims cover only minutes
+of editing, not the whole track. The solution file is
 sequentially shared only after B is joined; C cannot edit B's core/store/tests.
 No directory wildcard grants ownership. Official index/audit outputs are
 derived/register exceptions and remain subject to the join gate.
@@ -160,13 +163,17 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    only while focus is in that draft; they must not intercept native dialogs or
    unrelated buttons. Unsaved window close offers Save/Discard/Cancel and
    preserves safe continuing focus after Cancel. Root independently
-   inspects the live macOS app through native AX, keyboard and screenshot, then
+   inspects the live macOS app through the supported `cua_repl` native UI
+   surface for AX, keyboard and screenshot, then
    reviews the committed proof image/AX record. The native review harness must
    select persona, window size, state, theme and reduced-motion setting and
    expose the hard states for repeatable structure, focus and accessibility
    critique. Record rubric findings with location, severity, evidence and fix
    in `docs/reviews/ui-application-native.md`; the author cannot clear its own
-   UX/accessibility veto. A headless render
+   UX/accessibility veto. The worker may instrument its own startup and window
+   lifecycle properties, but direct CoreGraphics, System Events, AppleScript
+   or other external UI inspection calls do not substitute for or bypass CUA.
+   A headless render
    alone is not native interaction evidence.
 5. **UI tokens and platform.** `Styles.axaml` maps the active `DESIGN.md` colors,
    type and spacing; the argument-free gate scans a nonempty C#/XAML corpus for
@@ -194,10 +201,26 @@ Red-first adapter tests cover the normal Example/edit/save/CLI route plus
 cancel, stale validation, unsupported geometry, file conflict, recovery,
 wrong extension/type, keyboard and accessible labels. An argument-free
 `tools/verify-application-adapters.py` must build once into unique task-local
-scratch, run named tests, check both publish targets where available, inspect
-nonempty native token corpus and return actual subprocess statuses with owned
+scratch using the accepted `dotnet build --artifacts-path` per-project layout,
+all six task-local .NET/NuGet/temp roots, disabled certificate generation,
+build servers and shared compilation. Every Avalonia build and publish also
+sets the pinned package's supported process-local
+`AVALONIA_TELEMETRY_OPTOUT=1`; the gate records actual child environment,
+PID/start identities and descendants, and refuses an observed collector or
+opt-out override for a typed decision. The first observed collector and
+Ruling 24 corrected no-collector attempt are recorded in
+[the launch receipt](application-c-launch.md#ruling-24-avalonia-child-process-correction).
+The gate must fail if a build creates new
+source-tree `bin/obj` outputs or resolves assets outside the invocation root;
+the Ruling 23 first-run drift is the negative control. It then runs named
+tests without implicit rebuild, checks both publish targets where available, inspects
+nonempty native token corpus and returns actual subprocess statuses with owned
 process quiescence. The proof names exact commands, package versions, source
-fingerprints, durations, screenshots and unrun platform obligations. Root/Owner
+fingerprints, durations, screenshots and unrun platform obligations. For an
+independent frozen binary consumer, retain a manifest of **every** runtime
+assembly SHA and assert the copied DLL set matches it before invoking the
+consumer; a project `HintPath` or build exit alone cannot prove which assembly
+MSBuild resolved. Root/Owner
 review before join; one integrated recount and actual rendered app exercise
 follow in D. A green C test run is not M1 acceptance.
 
@@ -238,9 +261,9 @@ Owner Ruling 21 resolves `req-01M37NS4W345FRFM14Z4F0XNSP` with a
 **conditional** one-track built-in Codex route requested as `gpt-6-sol`.
 Effective model stays **Not recorded** if the host does not expose it; a
 rejected model selection returns as a typed failure, never a silent substitute.
-This is not C dispatch. Full B acceptance/join is complete; independent review
-of the compiling one-assessment consumer freeze and fresh worker preflight
-remain before assigning the 24 paths. Grok/Agy
+The route was actually dispatched only after B acceptance/join, independent
+review of the compiling one-assessment consumer freeze, and fresh worker
+preflight. Grok/Agy
 remain the user's preferred routine route when qualified, but current R6
 receipts disqualify those profiles; actual relative coding cost is Not
 recorded and no new native probe is authorized. The existing built-in

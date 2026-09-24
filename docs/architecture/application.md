@@ -36,6 +36,17 @@ No production application is implemented by this architecture change.
 The [ADR](../adr/0003-application-stack.md) selects a stack after actual SDK/native spikes. The
 [proof](../proof/application-spikes.md) distinguishes observed results from implementation obligations.
 
+**Implementation status, 2026-09-23:** the bounded shared core and native store
+passed [independent review](../reviews/application-core.md) and joined under
+Owner Ruling 22. A desktop/CLI [candidate checkpoint](../reviews/ui-application-native.md)
+now exists on `feature/application-native-adapters` at `de105f0`; it is not
+joined or accepted. Its 11-step source/package gate passed, but independent
+native inspection returned `cgWindowNotFound` and yielded no rendered, AX or
+keyboard proof. [Owner Ruling 25](../notes/rulings.md) retains this
+source-bound candidate in its isolated branch and blocks native M1 acceptance.
+The architecture below remains the contract; its original sequencing and
+spike-status paragraphs are dated decision evidence.
+
 ## 1. Intent and authoritative grounding
 
 M1 is an offline native workbench and CLI sharing one deterministic core: Example or source/project Open →
@@ -217,18 +228,27 @@ their store; injected rings remain caller-owned. Telemetry disposal cannot falsi
 | M4 experiments/backend/export | Thin task-specific run/export slices | Consent, process failure, artifact provenance and CAM measurements | Full seven-area workflows |
 | M5 optional assistance | Typed proposals only, offline work unaffected | Adversarial untrusted source/proposal tests | Optional productivity |
 
-No production track starts until Owner rules the ADR and shared contract. The design lists precise B/C
-paths, but the currently compiled port sketch has no complete parser/identity/session implementation. If
-the contract cannot be frozen with compiling fixture adapters, B→C is serial. Do not substitute two teams
-guessing each other's contracts for integration. Windows x64 cross-build is separate from live Windows
+At the original design gate, no production track could start until Owner ruled
+the ADR and shared contract. That gate is now recorded by Rulings 13 and 22:
+the complete parser/identity/session core joined before the serial C adapter
+candidate. The B→C dependency remains an authority boundary; no adapter owns
+a second parser or editable geometry source. Windows x64 cross-build is separate from live Windows
 UIA/Narrator, file replace, numerical parity, signing and installer proof. macOS spike is unsigned/unnotarized.
 
 ## 9. Confidence and independent gate
 
-Verified: candidate package restore/build, osx-arm64 self-contained bundle launch, author native AX/picker
-flow, root's separate live input/picker/cancel observation, and reported contract vectors. Inferred:
-monolith lowers M1 ownership complexity; exact conservative certificate argument subject to Geometry veto.
-Not assessed: complete C# canonicalizer/parser, full geometry coverage, cross-platform native persistence,
-Windows live, signing/notarization and product performance. Root/Owner issue the independent gate; this
-author cannot clear it. Proposed stack selection also requires an Owner-authorized amendment of AGENTS.md's
-“stack unselected” preamble and conflicting older spec stack/kernel references; those are unowned seams.
+At the architecture decision gate, the candidate package restore/build,
+osx-arm64 spike bundle, author AX/picker flow and root's separate spike input/
+picker/cancel observation were verified within their recorded limits. The
+monolith complexity claim was Inferred; the complete canonicalizer/parser,
+store, product native UI and Windows live behavior were then Not assessed.
+Subsequently, the shared C# parser/identity/session/geometry/store passed the
+bounded [core review](../reviews/application-core.md), and the selected stack
+was reconciled in AGENTS.md and the product-spec pointers. The current
+[adapter review](../reviews/ui-application-native.md) records CLI/controller/
+package evidence and the native inspection blocker, leaving rendered macOS UI,
+native AX/keyboard, Windows
+runtime, signing/notarization and product performance open. Full geometry
+coverage outside the conservative admitted subset remains out of M1 scope.
+Root/Owner issue the independent product gate; neither architecture status nor
+a passing package build clears it.

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="140ce9d5bff48b12d1492562ce5862a95e7b1fea45aa48f8a3580672bb38b5fd">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -12,9 +12,43 @@ code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap
 header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
 </style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="application-build.md">application-build.md</a> · 23 September 2026</p></header>
 <h1>First application increment: coordination plan</h1>
-<p><strong>Authority and status, 2026-09-23.</strong> User request: <code>al-01M376G6MEVMMTPKPYP4GGBGVD</code> (compiled <code>al-01M376HFY6J6F4SNW84C5J5Q4H</code>, dispatchable). The root Codex session leads; <code>cfd-owner-20260923</code> is the Astra technical Owner and ruling seat; <code>cfd-coordinator-20260923</code> is the Sol Coordinator and designated leader at launch. The Owner does not author track code or clear its own veto. Root performs independent review. The <a href="../plans/application-build.md">execution graph</a> and <a href="../specs/cfd-workbench-v1.md">normative specification</a> define scope. Owner Rulings 8–13 and root accept the bounded native M1 direction and joined B0 design/schema contract. Ruling 13 freezes one serial first-core implementation track with 18 exact paths; this authorizes bounded implementation, not product acceptance. Ruling 11 selects the conditional Codex route; the <a href="application-cancel-drill.md">cancellation drill</a> met the observed lifecycle condition through explicit owned-child cleanup. Actual worker identity/path/cache preflight remains before first production write; C remains serial behind a reviewed compiling B contract.</p>
-<p><strong>Later gate, 2026-09-23:</strong> Rulings 17–19 choose evaluator <code>/2</code> degree-CV identity, whole-query deterministic feasibility, and a fixed directory-relative cooperative overwrite claim with measured native I/O. They authorize repair, not B acceptance. Root has the <a href="contract-r17-companions.md">30-path exact companion assignment</a> in a disjoint tree while the serial core author finishes its <code>/1</code> store/Ruling 16 checkpoint. The reviewed companion commit must precede a dedicated <code>/2</code> core continuation; C remains held.</p>
-<p><strong>Current gate:</strong> Owner Ruling 20 accepted the bounded companion handoff and the conductor joined it at <code>1582d69</code>; the clean core branch received it at <code>65ac0b9</code>. Its first integrated verify run exposed the expected <code>/1</code> source against <code>/2</code> fixtures plus a portable text-I/O control failure. R17 source repair is compiling green; R18 all-query proof and the full B gate are still open. Owner Ruling 21 conditionally routes <strong>one future C adapter</strong> to a fresh requested <code>gpt-6-sol</code> built-in author under the same observed-only controls; it does not launch C before independent B acceptance and a compiling API freeze. See the <a href="contract-c-native.md">held C packet</a>.</p>
+<p><strong>Original authority and status, 2026-09-23.</strong> User request: <code>al-01M376G6MEVMMTPKPYP4GGBGVD</code> (compiled <code>al-01M376HFY6J6F4SNW84C5J5Q4H</code>, dispatchable). The root Codex session leads; <code>cfd-owner-20260923</code> is the Astra technical Owner and ruling seat; <code>cfd-coordinator-20260923</code> is the Sol Coordinator and designated leader at launch. The Owner does not author track code or clear its own veto. Root performs independent review. The <a href="../plans/application-build.md">execution graph</a> and <a href="../specs/cfd-workbench-v1.md">normative specification</a> define scope. Owner Rulings 8–13 and root accept the bounded native M1 direction and joined B0 design/schema contract. Ruling 13 freezes one serial first-core implementation track with 18 exact paths; this authorizes bounded implementation, not product acceptance. Ruling 11 selects the conditional Codex route; the <a href="application-cancel-drill.md">cancellation drill</a> met the observed lifecycle condition through explicit owned-child cleanup. At this original plan stage, worker identity/path/cache preflight and the serial B→C contract gate still remained.</p>
+<p><strong>Historical R17–19 gate, 2026-09-23:</strong> Rulings 17–19 chose evaluator <code>/2</code> degree-CV identity, whole-query deterministic feasibility, and a fixed directory-relative cooperative overwrite claim with measured native I/O. They authorized repair, not B acceptance. Root had the <a href="contract-r17-companions.md">30-path exact companion assignment</a> in a disjoint tree while the serial core author finished its <code>/1</code> store/Ruling 16 checkpoint. The reviewed companion commit preceded the dedicated <code>/2</code> core continuation; C was then held.</p>
+<p><strong>Historical R17/R18 gate readback:</strong> Owner Ruling 20 accepted the bounded companion handoff and
+the conductor joined it at <code>1582d69</code>; the clean core branch received it at
+<code>65ac0b9</code>. Its first integrated verify run exposed the expected <code>/1</code> source
+against <code>/2</code> fixtures plus a portable text-I/O control failure. R17 source
+repair is compiling green; R18 all-query proof and the full B gate are still
+open. Owner Ruling 21 conditionally routes <strong>one future C adapter</strong> to a fresh
+requested <code>gpt-6-sol</code> built-in author under the same observed-only controls;
+it does not launch C before independent B acceptance and a compiling API
+freeze. That pre-repair hold has since cleared; see the current readback below.</p>
+<p><strong>Historical B-to-C gate, 2026-09-23 18:32 UTC:</strong> Owner Ruling 22 accepted complete B
+<code>cce9ee52</code> with independent root scientific/store review; the conductor joined
+B and root review at <code>18278c4</code>, and all 11 integrated gates passed. The final
+Core/Persistence <a href="contract-c-api-freeze.md">API freeze</a> compiled against that
+HEAD. Root independently accepted the one-certificate 15-point sampler across
+root/interior/tip and exact save-ack seam, while reserving actual UI and
+performance gates. Ruling 21 then authorized one fresh requested-<code>gpt-6-sol</code>
+native adapter author. The actual <a href="application-c-launch.md">C launch</a> at base
+<code>21f2f5b</code> read back clean cwd/branch/HEAD, live leader, zero open decisions and
+no lease overlap. Effective model is Not recorded. Ruling 23 stopped the first
+build when default <code>bin/obj</code> appeared in its isolated tree; one corrected
+<code>--artifacts-path</code> build/test now has retained raw receipts, distinct task-local
+project outputs and quiescent children. Coordinator accepted containment only.
+C was then active; native product, AX, macOS live, Windows runtime, packaging
+and full M1 acceptance remained open.</p>
+<p><strong>Final C disposition, 2026-09-23:</strong> clean C candidate <code>de105f0</code> passed its
+11-step source/build/test/package gate, including a real apphost XAML startup
+smoke and isolated macOS ARM64 and Windows x64 development packages. The
+<a href="../reviews/ui-application-native.md">independent native review</a> records bounded
+CLI/controller/recovery evidence and root&#39;s one supported CUA exact-path bind,
+which returned <code>cgWindowNotFound</code> without a screenshot, AX tree, keyboard or
+rendered workflow proof. <a href="../notes/rulings.md">Owner Ruling 25</a> retains C as an
+isolated source-bound candidate: production C and M1 native acceptance are
+<strong>BLOCKED</strong>, with no partial join or new launch loop. B remains joined under
+Ruling 22. Windows runtime, release trust and native interaction budgets are
+separate open gates.</p>
 <h2>Layer state</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -138,32 +172,43 @@ header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.ey
 <td>B0 Ruling 12 PASS and Owner G3 Ruling 13</td>
 <td>T2</td>
 <td>0</td>
-<td>90 calls, ≤100k context, ≤55 min first run</td>
-<td>Three isolated clean checkpoints through <code>a8a6351</code> with 126 passing core tests; native persistence and Owner Ruling 16 public authored projection/consumer fixture remain before a complete join. Red→green full-language recognition, accepted certified subset, immutable revisions, semantic/source identity, persistence fault/reopen proof, CLI-consumable API and normal-path events remain the full gate.</td>
-<td>Ruling 11 selects one serial built-in Codex core author with requested Astra/effective Not recorded and observed-only controls. The <a href="application-cancel-drill.md">cancellation/quiescence drill</a> passed by explicit cleanup; exact production cwd/HEAD/paths/caches preflight remains. Current Grok ACP remains unqualified; no new probe.</td>
+<td>90 calls, ≤100k context, ≤55 min first run, followed by bounded continuations</td>
+<td>Clean complete <code>cce9ee52</code>, 172 author tests; independent root science/store proof and Owner Ruling 22; joined at <code>18278c4</code> with 11/11 gates</td>
+<td>Ruling 11 requested Astra/effective Not recorded built-in author. Observed-only containment and explicit owned-child cleanup, no native enforcement claim.</td>
 </tr>
 <tr>
-<td>C · native adapters</td>
-<td>GUI/CLI/viewport and accessibility test files under exact paths frozen by A; no core implementation files</td>
-<td>A artifacts and Owner G3 ruling with compiling stubs/fixtures</td>
+<td>C · native adapters, <code>cfd-adapters-20260923</code></td>
+<td><a href="contract-c-native.md">Exact 24-path contract</a>, no core implementation files</td>
+<td>Joined B <code>18278c4</code>, independently reviewed <a href="contract-c-api-freeze.md">compiled API freeze</a>, Owner Ruling 21</td>
 <td>T2</td>
 <td>0</td>
-<td>90 calls, ≤100k context, ≤55 min per run</td>
-<td>Example/source open, one numeric independent rail draft and keyboard flow, native AX/viewport proof, same core CLI identity/diagnostics, honest Unavailable states, descendant commit</td>
-<td>Same G3/Ruling 6 route gate; do not launch if G3 leaves a G4→G5 decision edge.</td>
+<td>90 calls, ≤100k context, ≤55 min initial checkpoint; bounded continuations with aggregate calls/tokens Not recorded</td>
+<td>Clean candidate <code>de105f0</code>; 11-step final gate passed with real XAML startup and packages; independent <a href="../reviews/ui-application-native.md">native review</a> BLOCKS rendered/AX/keyboard acceptance after <code>cgWindowNotFound</code></td>
+<td>Requested Sol, effective model Not recorded. Ruling 25 keeps production C isolated and M1 native gate blocked; no partial join or Windows runtime claim.</td>
 </tr>
 <tr>
 <td>D · integration and independent proof</td>
-<td>Coordinator owns merge operation and plan ledger only; root/Owner own review comments/rulings, no production co-authoring</td>
-<td>B and C returned evidence</td>
+<td>Coordinator owns merge and plan/status ledger; root/Owner own independent review/rulings, no production co-authoring</td>
+<td>B joined; C returned clean source-bound evidence but native veto remains</td>
 <td>T2</td>
 <td>0</td>
-<td>One whole-suite recount per join; ≤55 min join window</td>
-<td><code>conductor-join.py</code>, <code>coord regen</code>, integrated gates, live macOS workflow/AX screenshot and CLI/save/reopen inspection, Windows runner evidence separated, independent Data/Test/UX disposition</td>
-<td>Deterministic scripts, root Codex/Astra and Owner review.</td>
+<td>One whole-suite recount per eligible product join; docs-only joins do not clear product gates</td>
+<td>B and its review joined at <code>18278c4</code>; final root C review and Ruling 25 joined as documents only. C production branch remains unjoined; macOS rendered/AX workflow and Windows runtime are unassessed</td>
+<td>Deterministic scripts, root independent veto and Owner Ruling 25.</td>
 </tr>
 </tbody></table></div>
 <p><strong>Per-track common contract:</strong> brief begins with <code>audit-log.py start --session ... --skill ...</code>; exact goal/done-when, owned absolute paths, excluded neighbor paths, deadline, context ceiling, budget, fallback and return evidence are compiled and hash-pinned. Workers never use <code>EnterWorktree</code>, install the layer, spawn teams, or treat a permission denial as approval. A budget cap requires a report and re-plan, not an automatic higher cap. Every worker decision request goes <code>coord decide request --to cfd-owner-20260923</code>; the Owner rules into <code>docs/notes/rulings.md</code> through <code>coord decide rule</code>, never by accepting a worker&#39;s claim. Coordinator resolves seams or asks Owner for a ruling. The first <code>coord leader pin cfd-coordinator-20260923</code> epoch is recorded in the launch manifest and checked at join.</p>
+<p><strong>Active-seat control (CAP-SEAT):</strong> immediately before activating any worker or optional reviewer,
+<code>list_agents</code> must show fewer than three active execution turns, counting root, Coordinator,
+Owner and workers. An optional Owner review replaces a paused seat or waits for a worker
+checkpoint; its queued message is not treated as a delivered finding. Root&#39;s attempted
+fourth-seat review was stopped without a new writer or child process.</p>
+<p><strong>Ruling-register propagation boundary (GRAPH-REG):</strong> <code>docs/notes/rulings.md</code> is
+written by <code>coord decide rule</code>, not by a coordination V16 review suggestion.
+If <code>docs-graph.py flag</code> includes that inbound register, restore only its
+generated frontmatter delta, run <code>docs-graph.py derive</code>, and require an empty
+<code>git diff -- docs/notes/rulings.md</code> before a Coordinator commit. Owner rulings
+and their canonical prose remain untouched.</p>
 <h2>Serial spine</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -350,20 +395,20 @@ header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.ey
 <tr>
 <td>B</td>
 <td>90 calls / one coherent core invariant, isolated from UI</td>
-<td>Not recorded</td>
-<td>Pending</td>
+<td>Complete clean <code>cce9ee52</code>; exact aggregate calls/tokens Not recorded; 172 author tests</td>
+<td>Owner Ruling 22 and root independent R17/R18 science and R16/R19 store/projection review accepted bounded B. Joined through conductor with root review at <code>18278c4</code>, 11/11 integrated gates. Not full language/Windows/UI/M1 acceptance.</td>
 </tr>
 <tr>
 <td>C</td>
-<td>90 calls / native UI machine time and disjoint files after G3</td>
-<td>Not recorded</td>
-<td>Pending</td>
+<td>90 calls / native UI machine time and disjoint files after accepted B</td>
+<td>Clean requested-Sol/effective-Not-recorded candidate <code>6f168c44</code> after two bounded interaction repairs; aggregate calls/tokens Not recorded</td>
+<td>The initial <code>de105f0</code> package passed 11 steps. Root&#39;s actual n1/fixed-copy CUA review found and retested keyboard/focus defects, then identified tab-region, selected-CV activation, numeric binding and recovery gaps. Targeted repair tests passed at <code>6f168c44</code>; full packaging was reserved for the Ruling 27 combined review. C production remains unjoined.</td>
 </tr>
 <tr>
 <td>D</td>
 <td>deterministic join / independent integrated proof</td>
-<td>Not recorded</td>
-<td>Pending</td>
+<td>B product/review integrated at <code>18278c4</code>; B permission <code>ee6d73ad</code> and C <code>6f168c44</code> repairs remain isolated; independent review joined docs-only at <code>77cb6f6</code>; exact aggregate calls/tokens Not recorded</td>
+<td>Ruling 27 allowed one disposable B+C review package. Its 11-step gate and source/package/launch identity checks passed. The first supported CUA bind to that package returned <code>cgWindowNotFound</code>, so actual packaged native Save and repaired interactions remain unassessed; no B/C product join or full M1 claim. Windows runtime and distribution trust remain separate.</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -375,15 +420,93 @@ header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.ey
 </thead>
 <tbody><tr>
 <td>Completed</td>
-<td>Pack and repo inventory, normative scope and graph, class registry, Owner Rulings 1–13, failed native boundary evidence, architecture/review joins through clean <code>73cabb89</code> with 30/30 primitive recount and nine native mismatch refusals; joined B0 author/review at <code>c13db27</code> with 89/42/2505 and 10/10 gates; Ruling 12 bounded PASS, Ruling 13 exact 18-path serial G3 freeze; built-in worker cancellation and explicit owned-child cleanup observed.</td>
+<td>Pack/repo graph, bounded architecture/B0 and independently accepted original B; B joined at <code>18278c4</code>. Clean B permission repair <code>ee6d73ad</code> passed changed-source and independent public-store mode checks. Clean C repair <code>6f168c44</code> passed targeted tests. Ruling 27 review-only composition <code>e6e5628</code> passed one 11-step combined gate; root verified its source/helper/launch binding and the independent review joined as documents at <code>77cb6f6</code>.</td>
 </tr>
 <tr>
 <td>Remaining</td>
-<td>Launch first production core after actual worker preflight; independently review and join, then native GUI/CLI integration and platform proof.</td>
+<td>The combined app PID 71600/start <code>Wed Sep 23 15:00:25 2026</code> is live, but root&#39;s first supported exact-path CUA bind returned <code>cgWindowNotFound</code>. Root has asked the user to bring this newest review window forward; the answer is pending. Actual packaged native Save/Reopen/<code>0600</code>, the repaired keyboard/recovery interactions, B permission Owner gate, both production joins, Windows runtime and release trust remain open.</td>
 </tr>
 <tr>
 <td>Best next action</td>
-<td>Assign one serial requested-Astra Codex worktree, compile a hash-pinned packet and read back cwd/branch/base/clean/paths/cache before first product write.</td>
+<td>On confirmed visibility of the exact combined review window, root alone completes the pending CUA checklist and native Save/Reopen/mode readback. If CUA remains unavailable, retain the isolated app/receipts and blocked disposition without another launch variant. A root independent verdict precedes fresh Owner B/C gate requests and any supported conductor product join.</td>
 </tr>
 </tbody></table></div>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>d2a49427db2e9b060ab45d8879768f2aa2b845f3bc39fcb08718bbdb1255e047</code>.</p></footer></main></body></html>
+<h3>Native visibility continuation · one optimized graph</h3>
+<p>The user replied, verbatim, “Yes, I see the workbench” and “The new CFD Workbench review window”. Root&#39;s supported CUA attachment then returned a rendered window and AX tree bound to PID 48841, start <code>Wed Sep 23 13:24:28 2026</code>, Desktop DLL <code>6aaff522eec3da85898685992fd3f2e3325035e2c482b9edda76b6dc42f54aa9</code>. This is the earlier n1 review copy; it is not a bitwise claim for the final e7 development package. Root&#39;s <a href="../reviews/ui-application-native.md">native review</a> records the actual action/result rows. The CUA surface exposed a screenshot and AX return to the reviewer, without a documented file export; no PNG or AX file is claimed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Dependency</th>
+<th>Exit evidence and boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N0 · frozen identity</td>
+<td>User visibility confirmation</td>
+<td>Exact app path, PID/start, DLL and prior launch receipt read back; complete.</td>
+</tr>
+<tr>
+<td>N1 · native inspection</td>
+<td>N0</td>
+<td>Root alone exercises the frozen window and records each keyboard, state, AX and dialog row as Verified, Failed or Not assessed. Three interaction failures are observed; unexercised rows remain open.</td>
+</tr>
+<tr>
+<td>N2 · bounded repair</td>
+<td>Failed N1 rows</td>
+<td>Existing C author owns only <code>MainWindow.axaml.cs</code>, <code>WorkbenchTests.cs</code> and bounded proof; adds executable regression controls, runs changed-source gates and commits clean. No interaction with root&#39;s frozen instance.</td>
+</tr>
+<tr>
+<td>N3 · independent fixed-package review</td>
+<td>N2 clean handback</td>
+<td>Root binds the exact new package/hash through supported CUA, reruns failed rows and remaining native checklist, records any hard veto. Managed tests or startup alone cannot clear native behavior.</td>
+</tr>
+<tr>
+<td>N4 · Owner gate and conditional join</td>
+<td>N3 independent disposition</td>
+<td>Owner rules on C acceptance. Conductor joins product only after a positive ruling; an unresolved native veto leaves the candidate isolated. Windows runtime and distribution trust retain their separate status.</td>
+</tr>
+</tbody></table></div>
+<p>The loop variant is the number of unresolved native checklist rows. A confirmed hard veto stops acceptance and drives a single scoped repair; loss of CUA access stops native claims until a concrete external change. No launch-profile retry loop or partial product join is part of this continuation. Planned same-author repair checkpoint: at most 35 minutes and 60 calls before a measured replan; actual call/token use is Not recorded until handback.</p>
+<h3>Ruling 26 · native save permission repair graph</h3>
+<p>Root&#39;s actual native Save created a file with mode <code>0454</code> while the store requested <code>0600</code>. The original 7,836-byte file and its SHA-256 <code>b5fa3b7cdc6360ce559881caa443b4f44e3db3bb4c9d38ecff8d6f902c5ce150</code> remain unchanged. Root&#39;s <a href="../investigations/native-save-permissions.md">independent investigation</a> and controlled arm64 ABI comparison (receipt SHA-256 <code>474341b5ea211509650b24c8419998839654a8ca1383a4bf15617a7a277a587f</code>) are joined as documentation. Owner <a href="../notes/rulings.md#ruling-26--reopen-macos-creation-mode-boundary-with-a-serial-abi-repair">Ruling 26</a> reopens only the macOS creation-permission boundary of accepted B. It authorizes a fixed-signature C bridge subject to a real .NET/package spike; no mode-after-create masking or guessed ABI layout is allowed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Dependency</th>
+<th>Exit evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0 · route and isolate</td>
+<td>C author clean <code>ae777e9</code> and Ruling 26</td>
+<td>Separate <code>feature/application-permissions</code> worktree/session <code>cfd-permissions-20260923</code> at clean integrated-B descendant <code>7417713</code>; requested Astra, effective model Not recorded if unavailable. One B author only.</td>
+</tr>
+<tr>
+<td>P1 · native ABI/loading spike</td>
+<td>P0</td>
+<td>Actual installed .NET 10 arm64 C bridge, native errno, architecture and package-relative loading observed. Failed spike stops for a typed alternative; no implementation by inference.</td>
+</tr>
+<tr>
+<td>P2 · production RED and repair</td>
+<td>P1</td>
+<td>Independent OS stat catches bad mode before bytes, on temp/claim/final create and overwrite under child umasks <code>0000</code>, <code>0022</code>, <code>0077</code>; real store is corrected without weakening held-directory, no-follow, atomicity, collision or cleanup checks.</td>
+</tr>
+<tr>
+<td>P3 · independent store gate</td>
+<td>P2 clean commit</td>
+<td>Changed-source core gate and packaged native Save/Reopen, exact modes and source/history preservation. Root Security/Data/Test review, then Owner bounded gate; anomalous original untouched.</td>
+</tr>
+<tr>
+<td>P4 · serial C handoff</td>
+<td>P3 positive ruling plus C native review</td>
+<td>Bring corrected B into clean C, rerun affected package/native checks and remaining keyboard/AX rows. Only then request C/M1 gate and an eligible conductor join.</td>
+</tr>
+</tbody></table></div>
+<p>The author lease is initially <strong>six exact paths</strong>: <code>src/CfdWorkbench.Persistence/ProjectStore.cs</code>, <code>src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj</code>, <code>src/CfdWorkbench.Persistence/native/cfd_store.c</code>, <code>tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs</code>, <code>tools/verify-application-core.py</code>, and <code>docs/proof/application-core.md</code>. The seventh Ruling 26 candidate, <code>tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj</code>, is held until an actual test-build dependency justifies it and Coordinator freezes that seam. Official index/audit outputs remain derived/register work. Root owns the independent investigation/review; C author has no B lease. The first B checkpoint is 45 calls or 25 minutes, whichever first; a cap triggers a measured replan, not automatic scope or time expansion. Native C/M1 integration remains held throughout.</p>
+<h3>Ruling 27 · isolated combined evidence, not a product join</h3>
+<p>Owner <a href="../notes/rulings.md#ruling-27--review-only-b-and-c-composition-for-packaged-native-proof">Ruling 27</a> permits one disposable review tree because Ruling 26 requires app-bundle native Save evidence before a B Owner gate, while the C package was built before the B repair. Coordinator composed complete clean C <code>6f168c44</code> and clean B <code>ee6d73ad</code> on joined-base descendant <code>91c529d</code> in review-only tree <code>feature/application-combined-review-20260923</code>, HEAD <code>e6e562843b000e27542efa1ee7dc2bb251eb2b4f</code>, tree <code>097878e383da4bdbd65e53316a129f9a32641feb</code>. Source conflicts were absent; only generated index metadata required official regeneration. Neither product branch moved.</p>
+<p>The retained <a href="/tmp/cfd-combined-review-20260923.muHX8h/combined-input-manifest.json">input manifest</a>, SHA-256 <code>4fa156928a6bd0ae8b0d44fc97099488c7337b27c90e1827a18cfe306e9b3799</code>, binds 55 inputs to their exact candidate/base blobs (30 base, 20 C, five B); its pre/post SHA is unchanged. The <a href="/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-nko701v2/receipts/verification.json">combined gate receipt</a>, SHA-256 <code>6b8a4f748f0211fb34e1677e7ed8bf9221a7bbbd1397e9806151548d6d31cf44</code>, reports 11 zero-exit steps, task-local outputs/caches, no remaining owned groups or collector, and 53 unchanged gate-source hashes; the manifest adds the core verifier and XAML lint script. The macOS app has Persistence DLL <code>35b38f817c739efd5ccc669316acee6234040ece5e66755fb405b3d18365b3be</code> and arm64 native helper <code>90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88</code> at the package-relative loader location. Windows publication is no Windows runtime proof.</p>
+<p>The <a href="/tmp/cfd-combined-review-20260923.muHX8h/review-copy-manifest.json">review-copy manifest</a>, SHA-256 <code>4bd4cea5765d4e79d7cbe0aea1a09cbb1463a3f0c0c4627366434728b631840b</code>, compares 231 files and proves only <code>Info.plist</code> <code>CFBundleIdentifier</code> changed to <code>com.cfdworkbench.desktop.reviewcombined27</code>. The <a href="/private/tmp/cfd-combined-review-20260923.muHX8h/launch-receipt.json">launch receipt</a>, SHA-256 <code>b3679315d3116bd1423b6899dddd5748e719dea09573ee81b4f4f146e64bd3c8</code>, binds live PID 71600/start <code>Wed Sep 23 15:00:25 2026</code>, exact executable and <code>Window.Opened</code> marker to that copy. Root independently checked source/helper/PID facts but CUA returned <code>cgWindowNotFound</code> on its first exact-path bind. The previously observed native keyboard/recovery defects and the old <code>0454</code> Save are not cleared by these build or startup facts. Root&#39;s <a href="../reviews/ui-application-native.md">independent review</a> retains the native veto until actual behavior is observed. The review tree/package/file receipts stay available; canonical B/C joins remain held.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7</code>.</p></footer></main></body></html>

@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "3d2ab5b87f5012774474d34229e5b920006897908bdb0c490644105273fc36ab"
+      "sourceSha256": "c7b49967f17a0dd39cabec8147846ca0eefb7cd5eb31d70e55d7a14c47fc4a79"
     },
     {
       "id": "cad-editing-views",
@@ -1220,7 +1220,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7a4aff5b7c634e015ab11e3a0d1edb19140ff1638c3a8453842bfbe74878d06f"
+      "sourceSha256": "bcfc775b03a55e950a419eef6ac328d4934340a4f026161996acf1c9045e0dd5"
     },
     {
       "id": "design-authoring-decisions",
@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8e06f8bfed0acaa7dbc373e17012602a391e096454b95d53d878785bc67de09e"
+      "sourceSha256": "5bfa08b75393afff4cf83cf191bc368f229375c59d6f899eaeecdabedf6b35d9"
     },
     {
       "id": "domain-experts",
@@ -2048,11 +2048,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
     },
     {
+      "id": "investigation-native-save-permissions",
+      "path": "docs/investigations/native-save-permissions.md",
+      "title": "Native save creates a file with unintended permissions",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "implementation",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "A real macOS Save created mode 0454 despite the store requesting 0600. A controlled ABI probe isolates fixed-versus-variadic argument passing; the managed production repair still requires independent native proof.",
+      "tags": [
+        "application",
+        "persistence",
+        "native-interop",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "316f3457566f8e9d4a0c50e1ce02bb1b12a707e7a3dd40dfd4e7054a3de86125"
+    },
+    {
       "id": "plan-application-build",
       "path": "docs/plans/application-build.md",
       "title": "Coordinated application build execution graph",
       "type": "doc",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -2095,7 +2125,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "c3c6c7189b5fbf021e60be4d71078d533c92babb147a5d1cbef54b93b41157fb"
+      "sourceSha256": "dd7e7e42b1038943cd7e7704c2ff1a46493c2373f27cb2d5070693a3bffeafc0"
     },
     {
       "id": "plan-authoring-decisions",
@@ -2971,7 +3001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "93096110ee5a4ffa9ed357c991be1612f64730728c7a4595daf7dc5399e6af14"
+      "sourceSha256": "b7cef8fb3972145a6c34c23e6b60f483432694b695535245936adda60fdfd4ca"
     },
     {
       "id": "kb-hw-glossary",
@@ -3824,7 +3854,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/application-build.md",
       "title": "Coordination plan - first CFD-Workbench application increment",
       "type": "plan",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -3845,7 +3875,7 @@ window.DOCS_INDEX = {
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
-      "summary": "Assign one architecture author first, then at most two disjoint implementation tracks after the Owner rules stable first-slice contracts.",
+      "summary": "Track accepted architecture and core, isolated permission and adapter repairs, and the independent M1 join gates.",
       "tags": [
         "coordination",
         "worktrees",
@@ -3871,7 +3901,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "140ce9d5bff48b12d1492562ce5862a95e7b1fea45aa48f8a3580672bb38b5fd"
+      "sourceSha256": "ae42aa28b909d646f06fea304d133d4a8d699dc2bc4b3f340f8496190eb181b7"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4039,7 +4069,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/contract-c-native.md",
       "title": "Provisional native desktop and CLI adapter assignment",
       "type": "plan",
-      "status": "proposed",
+      "status": "in-progress",
       "owner": "@cfd-coordinator-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
@@ -4098,12 +4128,16 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
+          "to": "coordination-application-c-launch",
+          "rel": "relates-to"
+        },
+        {
           "to": "mockup-workbench-v7",
           "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61170241d39bc0cd31629b1f01a3fbbe4c086aaf651a9289c0bca8188671b149"
+      "sourceSha256": "f9781067596c0022645e787882ef55ad101e5c9c04e9a95ffd0730f26fb0d489"
     },
     {
       "id": "coordination-r17-companions",
@@ -4217,6 +4251,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "be49bb94a74fde6c72386fd3f89d3439b63918c42699873823cb5e85332f8ba9"
+    },
+    {
+      "id": "coordination-application-c-launch",
+      "path": "docs/coordination/application-c-launch.md",
+      "title": "Native adapter author launch and monitoring receipt",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Actual conditional Sol collaborator launch after joined B and independently reviewed API freeze.",
+      "tags": [
+        "coordination",
+        "application",
+        "native",
+        "launch"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-contract-c-api-freeze",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-application-cancel-drill",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c809d415e38d07ecebb08b622bc50ed4214f14339d3a79388c7d40158c239c46"
     },
     {
       "id": "coordination-application-cancel-drill",
@@ -4366,7 +4434,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "edf73e2fac575592326d824850a5d5d776af2c54361d08317a841605310819d8"
+      "sourceSha256": "afff1575f54254564166601cce5aa9923c5044c776931ad2aa94bcdc71b8929a"
     },
     {
       "id": "proof-application-contracts",
@@ -4452,7 +4520,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f9470005ce24d78e009a1c399d28d68cff213ad85c1b86a72e80db1d955c69c9"
+      "sourceSha256": "f68917bfc2937c3f069bd7028813652cd4f720fdc4889385662f8227fcc84a63"
     },
     {
       "id": "proof-application-spikes",
@@ -4950,6 +5018,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "4f7269fa4a2586f8fbcc18e814e208fca70da09995d1ad12f37e079f8d74f1dc"
+    },
+    {
+      "id": "review-ui-application-native",
+      "path": "docs/reviews/ui-application-native.md",
+      "title": "Independent native application and adapter review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-application-20260923",
+      "phase": "",
+      "reviewBy": "2026-10-23",
+      "reviewSuggested": [],
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Actual native rendered interaction and accessibility verification remain open; these partial results do not accept track C or milestone M1.",
+      "tags": [
+        "application",
+        "native-ui",
+        "independent-review",
+        "accessibility",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "documents"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "depends-on"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cbf0563f9273fd87055a772f86d23949b9a864eb066878b940413fcd0cb5e9ca"
     },
     {
       "id": "review-ui-workbench",
@@ -5509,5 +5624,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9db8d0778da853207741e55caeae7f4eb8ca01b4271334b047a0725281bed02b"
+  "graphSha256": "65ea19b4b0576358a5bdf0e174a719956164e4942c4416c32ea4ad329b701672"
 };

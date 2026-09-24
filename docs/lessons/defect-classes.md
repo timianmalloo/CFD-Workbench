@@ -86,6 +86,28 @@ does not transfer ownership. Prevent: the spike tracks `temp_created` and includ
 `Atomic_ClaimCollision_PreservesOtherClaimAndTarget`. The guard is a local cooperative
 writer control, not proof against an arbitrary hostile filesystem race.
 
+**FFI-A · Matching apparent argument types hides a variadic native ABI mismatch.**
+A real macOS native Save requested `0600` but published mode `0454` with correct
+project bytes. The one-variable arm64 probe reproduced wrong creation modes when
+`openat` was declared with four fixed arguments; the correct three-fixed-plus-
+variadic declaration created `0600`. Sweep both `open` and `openat` in the
+production store and the native primitive test helper, then independently read
+temporary, overwrite-claim and final inode modes. Derive: a C compiler makes
+the variadic call behind a fixed managed bridge, and the held descriptor must
+show regular-file mode exactly `0600` **before any project byte write**; a
+post-create chmod cannot establish safe creation. Prevent: candidate
+`ee6d73ad` adds `Store_CreationPermissions_BeforeWriteAndAfterPublication`,
+`Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup` (extra `0777`
+bits on create/overwrite), `Store_MissingOwnerPermissions_RefusedBeforeBytes`
+(zero/one owner-bit loss on create/overwrite), and
+`Store_OwnerStrippingUmask_FailsClosedWithoutRepair`. The core gate runs the
+normal mode matrix under isolated child umasks `0000`, `0022` and `0077` in
+build and published layouts; it separately exercises owner-stripping umask
+`0600` as a fail-closed capability case. Root's
+[investigation](../investigations/native-save-permissions.md)
+retains the original file unchanged. The candidate is unjoined; independent
+packaged native Save and Owner review still gate production acceptance.
+
 **REVIEW-A · A reviewer substitutes a familiar equation for the normative transform.**
 Root initially treated thickness normalization as scaling the whole section, then
 incorrectly questioned a bound for cambered sections. Owner disconfirmed it; direct
@@ -203,6 +225,21 @@ is auto-discovered by `run-verify-gates.py`; it proves RED with only the dispatc
 reverted and GREEN in the current CLI. A direct-helper test alone cannot certify the
 worktree routing behavior.
 
+**TEST-A recurrence · A frozen consumer compiles against a different DLL than
+the intended snapshot.** Root's first corrected viewport sampler project
+resolved an older adapter assembly through MSBuild candidate-file probing
+ahead of its stated `HintPath`; the missing `InteriorEta` compile error was a
+review harness binding failure, not a product regression. The earlier
+fixed-sampler RED still applied but was re-attributed to the actual frozen
+controller DLL. Sweep: all isolated .NET consumers that copy app assemblies
+or rely on `HintPath`. Derive: turn off default item discovery in the scratch
+consumer and compare each runtime assembly SHA with a frozen manifest before
+execution. Prevent: the always-read C contract requires that manifest for
+independent binary review; root's corrected sampler retained the SHA-bound
+assembly manifest and obtained the same-edit GREEN for all eight editable
+targets. A passing consumer with only the top-level DLL fingerprint does not
+close this class.
+
 **PACK-I · Generated links are relative to the input root instead of their destination.**
 Security/privacy rollups embedded under `docs/security/` contained `design/...` links,
 which resolved below the wrong directory. Sweep: both rollup tables and the shared link
@@ -275,6 +312,16 @@ failure path reports descendant quiescence **Not assessed**, reaps the exact
 `Popen` child, and stops the route. Windows fails closed before child launch
 until a measured process-tree adapter exists. The [drill receipt](../coordination/application-cancel-drill.md)
 retains the original survival/cleanup sequence.
+The first Avalonia build is a sibling of this class: a package task launched
+collector PID `22494` that outlived its failed compiler parent even with
+`--disable-build-servers`. Sweep now includes dependency build tasks, not
+only test runners. The pinned package documents process-local
+`AVALONIA_TELEMETRY_OPTOUT=1`; the Ruling 24 measured retry recorded that
+setting in the child environment and observed no collector in its sampled
+process group, then verified the group empty. Prevent: the C gate keeps the
+opt-out and exact PID/start/descendant sampling on every Avalonia build or
+publish, and stops on an observed collector or override. Sampled absence is
+not proof of zero prior network effect or a universal no-child guarantee.
 
 **EVID-TZ · A local timestamp is given a UTC suffix.** A first read-only
 `stat -t ...Z` printed the PFX's Pacific local clock while labeling it `Z`.
@@ -440,6 +487,21 @@ states, independent accessibility veto, and browser-only checks that are
 inapplicable. Prevent: the always-read C launch packet carries those explicit
 conditions; its independent pre-dispatch review checks them against the
 actual compiled brief before any adapter lease is issued.
+**CO-UI recurrence · A native window diagnostic leaves the supported UI
+inspection surface.** After an Avalonia `Window.Opened` event and CUA
+`cgWindowNotFound`, the author made one direct read-only CoreGraphics window
+query (two onscreen same-bundle windows) and attempted a System Events count
+(assistive access denied) before the CUA-only tool boundary was recalled. No
+file/UI mutation or AX proof followed. Sweep: all native UI visibility,
+accessibility, keyboard and screenshot observations; process state, stdout,
+and application-internal lifecycle instrumentation remain distinct allowed
+diagnostics. Derive: a window count or framework callback cannot certify the
+user-visible or accessible surface, and a denied alternate inspection route
+is not an invitation to retry. Prevent: the always-read C packet now names
+`cua_repl` as the UI observation path, forbids direct external UI inspection
+for worker proof, and reserves independent root CUA readback as the rendered
+gate. The retained CoreGraphics result is diagnostic only, while CUA window
+binding remains open.
 
 **PLAT-A recurrence · Repository tools inherit host text defaults.** The integrated
 pack gate found text writes without LF selection and printing CLIs without a UTF-8
@@ -543,6 +605,48 @@ requires separate tool boundaries and explicit exit, `HEAD`, `MERGE_HEAD`,
 staged-path and owned-child readback before continuation; an interrupted join
 cannot be labelled complete from its partial gate output.
 
+**CO-ARTIFACT · A task-local package cache is mistaken for task-local build outputs.**
+The first C `dotnet run` calls bound NuGet, CLI home and TMPDIR to unique
+scratch, but default MSBuild `bin/obj` still appeared in five projects under
+the isolated source tree. Ruling 21's path-drift stop fired; the 150 files
+were inventoried and preserved. Sweep every build, restore, publish and test
+entry point, including transitive project references and implicit rebuilds.
+Derive: environment cache variables do not relocate MSBuild output or
+intermediate paths. Prevent: the always-read C packet requires the accepted
+`--artifacts-path` per-project layout, all six local cache/temp roots and a
+gate assertion that no new source-tree `bin/obj` or outside-root assets appear.
+The one Ruling 23 corrected build produced four distinct project outputs under
+fresh task scratch while preserving the first files; the full adapter gate
+must make this recurrence control executable before C handback.
+
+**NG-LOCAL recurrence:** this C worker first attempted an absent `coord.py`
+path before using installed `coord-core.py`; a Coordinator read-only command
+also used a shell glob for nonexistent `*log` filenames and failed before
+inspection. Root had likewise guessed a nonexisting ADR path before `rg`
+inventory. During this Ruling 24 handoff, Coordinator also guessed unsupported
+`claim list` and `precommit --json` forms before reading the advertised CLI;
+both failed before writes. The existing inventory-first control applies:
+list exact paths or inspect script dispatch before constructing a command,
+and read returned receipt paths rather than guessing suffixes. The C launch
+brief now names `coord-core.py` and exact receipt paths; failed guesses remain
+recorded so a future gate cannot call them verified.
+At final C handoff, the author also used `for path in ...` in zsh: lowercase
+`path` is tied to `PATH`, so the loop body could not find `python3`. No repo or
+external write occurred, and the author reran with `artifact_file`. Sweep
+task-local shell variable names used around executable lookup. The always-read
+CT26/no-guessing control now names this tied-variable hazard: use a task-specific
+name, then check the executable resolves before a mutating loop.
+
+**CO-DECISION-VIS · A new ruling is assumed visible in an older isolated worktree.**
+Ruling 23 was recorded after the C worktree fork, so that tree's local
+`docs/notes/rulings.md` did not yet contain it. The Coordinator detected this
+before the worker's corrected attempt and supplied the canonical Coordinator
+tree path read-only. Sweep every post-fork ruling and contract amendment before
+asking a paused worker to resume. Prevent: the resume packet explicitly names
+the ruling's current absolute path and verified request ID, or joins the
+reviewed decision before source work; a local stale copy cannot silently act
+as current authority.
+
 **PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
 The installed `ui-design` UI-T4 text references
 `docs/knowledge/native-client-ui-design/`, but this project checkout does not
@@ -554,6 +658,23 @@ always-read C packet requires path inventory at UI-T4 preflight, the installed
 template/linter and named native proof rows, with the authoritative pack-source
 knowledge read only where available. Pack deployment reconciliation remains a
 separate exact-source change; no speculative local KB is created in C.
+
+**UI-XAML · A typed XAML resource compiles but fails when the native window loads.**
+The adapter gate built, tested and published the Desktop package, but the first
+real app launch threw `InvalidCastException` at `MainWindow.axaml`'s section
+`RowDefinition.Height`: its `SectionPanelHeight` resource was `x:Double`, while
+the property requires `GridLength`. Sweep the Desktop XAML's static-resource
+assignments to typed properties, including window dimensions and viewport
+dimensions; the section row was the mismatched shape. Derive: source lint and
+assembly compilation do not prove XAML resource conversion at window creation.
+Prevent: `tools/verify-application-adapters.py` now runs the real Desktop
+apphost's `native-xaml-startup-smoke` before publish and requires its
+`NATIVE-STARTUP smoke-opened` marker plus exit zero. The resource is now a
+`GridLength`. The original package launch is retained as RED at
+`/private/tmp/cfd-c-final-ui-31t13mk0/launch-receipt.json`; the targeted
+startup receipt is `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-c-targeted-pronye03/receipts/targeted.json`.
+This control proves loader startup only; rendered UI, AX and keyboard behavior
+still require native inspection.
 
 ## Authoring decisions boundary sweep — 2026-09-22
 

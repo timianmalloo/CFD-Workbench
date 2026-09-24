@@ -10,6 +10,62 @@ internal static class ProjectStoreTests
     internal static void Run()
     {
         if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
+        if (Environment.GetEnvironmentVariable("CFD_OWNER_STRIPPING_MASK") is not null)
+        {
+            Check("Store_OwnerStrippingUmask_FailsClosedWithoutRepair", () =>
+            {
+                string root = Environment.GetEnvironmentVariable("CFD_OWNER_STRIPPING_ROOT") ?? throw new InvalidOperationException("Missing isolated parent");
+                string path = Path.Combine(root, "project"); bool wrote = false;
+                using var store = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.Writing) wrote = true; } });
+                var result = Save(store, path, new([1, 2, 3], null, Id()));
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, wrote);
+                Equal(false, result.PublicationKnown); Equal(0, Directory.GetFiles(root).Length);
+            });
+            return;
+        }
+        if (Environment.GetEnvironmentVariable("CFD_NATIVE_CAPABILITY_PROBE") is not null)
+        {
+            Check("Store_MissingOrUnloadableHelper_FailsClosed", () =>
+            {
+                string root = Root(), path = Path.Combine(root, "project"); using var store = new ProjectStore();
+                var result = Save(store, path, new([1, 2, 3], null, Id()));
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, result.PublicationKnown);
+                Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(path).GetAwaiter().GetResult());
+                Equal(0, Directory.GetFiles(root).Length);
+            });
+            return;
+        }
+        Check("Store_CreationPermissions_BeforeWriteAndAfterPublication", PermissionBoundary);
+        Check("Store_UnsafeCreatedMode_RefusedBeforeBytesWithOwnedCleanup", () =>
+        {
+            foreach (bool overwrite in new[] { false, true })
+            {
+                string root = Root(), path = Path.Combine(root, "project");
+                if (overwrite) File.WriteAllBytes(path, [7]);
+                bool wrote = false;
+                using var store = new ProjectStore(new StoreHooks { CreationMode = 0x1ff,
+                    OnStage = stage => { if (stage == StoreStage.Writing) wrote = true; } });
+                var result = Save(store, path, new([1, 2, 3], overwrite ? Identity.Sha256([7]) : null, Id()));
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, wrote); Equal(false, result.PublicationKnown);
+                Equal(overwrite ? 1 : 0, Directory.GetFiles(root).Length);
+                if (overwrite) Equal((byte)7, File.ReadAllBytes(path)[0]);
+            }
+        });
+        Check("Store_MissingOwnerPermissions_RefusedBeforeBytes", () =>
+        {
+            foreach (uint mode in new uint[] { 0, 0x80, 0x100 })
+            foreach (bool overwrite in new[] { false, true })
+            {
+                string root = Root(), path = Path.Combine(root, "project"); bool wrote = false;
+                if (overwrite) File.WriteAllBytes(path, [7]);
+                using var store = new ProjectStore(new StoreHooks { CreationMode = mode,
+                    OnStage = stage => { if (stage == StoreStage.Writing) wrote = true; } });
+                var result = Save(store, path, new([1, 2, 3], overwrite ? Identity.Sha256([7]) : null, Id()));
+                Equal("DOC-UNSUPPORTED-PERSISTENCE", result.Code); Equal(false, wrote);
+                Equal(false, result.PublicationKnown); Equal(overwrite ? 1 : 0, Directory.GetFiles(root).Length);
+                if (overwrite) Equal((byte)7, File.ReadAllBytes(path)[0]);
+            }
+        });
         Check("NativePrimitive_MacHandleRelativeNoReplaceAndFlush", Probe);
         Check("NativePrimitive_MacReadWriteUnlink", ReadWriteProbe);
         Check("Store_CreateReadAndDefensiveImage", () =>
@@ -271,7 +327,12 @@ internal static class ProjectStoreTests
         try
         {
             int fd = MacProbe.OpenAt(parent, "temp", MacProbe.NoFollow | 0x200 | 0x800 | 2, 0x180); Equal(true, fd >= 0);
-            try { Equal((nint)3, MacProbe.Write(fd, [1, 2, 3], 3)); Equal(0, MacProbe.Fsync(fd)); }
+            try
+            {
+                AssertPrivateMode(Path.Combine(root, "temp"), "primitive-before-write");
+                Equal(0L, new FileInfo(Path.Combine(root, "temp")).Length);
+                Equal((nint)3, MacProbe.Write(fd, [1, 2, 3], 3)); Equal(0, MacProbe.Fsync(fd));
+            }
             finally { Equal(0, MacProbe.Close(fd)); }
             fd = MacProbe.OpenAt(parent, "temp", MacProbe.NoFollow, 0); Equal(true, fd >= 0);
             try { byte[] bytes = new byte[4]; Equal((nint)3, MacProbe.Read(fd, bytes, 4)); Equal((byte)3, bytes[2]); Equal((nint)0, MacProbe.Read(fd, bytes, 4)); }
@@ -279,6 +340,62 @@ internal static class ProjectStoreTests
             Equal(0, MacProbe.UnlinkAt(parent, "temp", 0)); Equal(false, File.Exists(Path.Combine(root, "temp")));
         }
         finally { Equal(0, MacProbe.Close(parent)); }
+    }
+
+    private static void PermissionBoundary()
+    {
+        string root = Root(), path = Path.Combine(root, "project-Δ.cfdw");
+        using var session = new AuthoringSession(); session.Open(FoilSourceTests.Example, Id(), true);
+        string originalAccepted = session.Snapshot().AcceptedId;
+        byte[] image = session.SaveImage(); string? previousHash = null;
+        foreach (bool overwrite in new[] { false, true })
+        {
+            if (overwrite)
+            {
+                string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
+                session.UpdateDraft(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
+                image = session.SaveImage();
+            }
+            string operation = Id(); var observations = new List<string>();
+            using var store = new ProjectStore(new StoreHooks { OnStage = stage =>
+            {
+                if (stage is not (StoreStage.TempCreated or StoreStage.ClaimCreated)) return;
+                string entry = Path.Combine(root, stage == StoreStage.TempCreated ? ProjectStore.TempName(operation) : ProjectStore.ClaimName());
+                Equal(0L, new FileInfo(entry).Length);
+                AssertPrivateMode(entry, stage.ToString()); observations.Add(stage.ToString());
+            } });
+            var result = Save(store, path, new(image, previousHash, operation));
+            Equal("OK", result.Code); Equal(true, result.DurabilityConfirmed);
+            Equal(overwrite ? 2 : 1, observations.Count); AssertPrivateMode(path, overwrite ? "overwritten" : "created");
+            var read = store.ReadAsync(path).GetAwaiter().GetResult(); Equal(true, image.AsSpan().SequenceEqual(read.Image));
+            previousHash = read.DiskSha256;
+            using var reopened = new AuthoringSession(); reopened.Reopen(read.Image);
+            Equal(session.Snapshot().AcceptedId, reopened.Snapshot().AcceptedId);
+            Equal(true, session.Snapshot().Source.AsSpan().SequenceEqual(reopened.Snapshot().Source));
+            if (overwrite)
+            {
+                reopened.Undo(Id()); Equal(originalAccepted, reopened.Snapshot().AcceptedId);
+                reopened.Redo(Id()); Equal(session.Snapshot().AcceptedId, reopened.Snapshot().AcceptedId);
+            }
+        }
+    }
+    private static void AssertPrivateMode(string path, string stage)
+    {
+        // Independent OS tool, not the production managed Stat layout decoder.
+        var info = new System.Diagnostics.ProcessStartInfo("/usr/bin/stat")
+        { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        foreach (string argument in new[] { "-f", "%Lp:%z:%i", path }) info.ArgumentList.Add(argument);
+        using var process = System.Diagnostics.Process.Start(info)!;
+        int pid = process.Id; string start = process.StartTime.ToUniversalTime().ToString("O");
+        try
+        {
+            if (!process.WaitForExit(5000)) throw new TimeoutException("Independent stat timed out");
+            string output = process.StandardOutput.ReadToEnd().Trim();
+            Console.WriteLine("PERMISSION RECEIPT " + System.Text.Json.JsonSerializer.Serialize(new
+                { stage, path, stat = output, pid, start, exit = process.ExitCode, umask = Environment.GetEnvironmentVariable("CFD_TEST_UMASK") ?? "Not recorded" }));
+            Equal(0, process.ExitCode); Equal("600", output.Split(':')[0]);
+        }
+        finally { if (!process.HasExited) { process.Kill(); process.WaitForExit(5000); } }
     }
 
     private static void Probe()
@@ -336,8 +453,10 @@ internal static class MacProbe
         internal long Size, Blocks; internal int BlockSize; internal uint Flags, Generation;
         internal int Spare; internal long Spare0, Spare1;
     }
-    [DllImport("libSystem.B.dylib", EntryPoint = "open", SetLastError = true)] internal static extern int Open(string path, int flags, uint mode);
-    [DllImport("libSystem.B.dylib", EntryPoint = "openat", SetLastError = true)] internal static extern int OpenAt(int parent, string name, int flags, uint mode);
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+    [DllImport("libcfd_store.dylib", EntryPoint = "cfd_store_open", SetLastError = true)] internal static extern int Open([MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags, uint mode);
+    [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+    [DllImport("libcfd_store.dylib", EntryPoint = "cfd_store_openat", SetLastError = true)] internal static extern int OpenAt(int parent, [MarshalAs(UnmanagedType.LPUTF8Str)] string name, int flags, uint mode);
     [DllImport("libSystem.B.dylib", EntryPoint = "fstat64", SetLastError = true)] internal static extern int Fstat(int fd, out Stat stat);
     [DllImport("libSystem.B.dylib", EntryPoint = "fstatat64", SetLastError = true)] internal static extern int FstatAt(int parent, string name, out Stat stat, int flags);
     [DllImport("libSystem.B.dylib", EntryPoint = "linkat", SetLastError = true)] internal static extern int LinkAt(int oldParent, string oldName, int newParent, string newName, int flags);
