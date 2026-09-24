@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:21:24Z",
+  "generated": "2026-09-24T02:27:11Z",
   "audit": [
     {
       "actor": null,
@@ -6159,92 +6159,146 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M38HA3M1NQT5RMKTK4KEDY08",
-      "shortname": "join-final-native-review-checkpoint",
-      "datetime": "2026-09-24T01:43:33Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Integrate root final native Reopen and window-state observations as review documents recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/ui-application-native.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Make independent native C findings durable without product source acceptance.",
+      "datetime": "2026-09-24T01:43:33Z",
       "done_when": "Root review and official metadata join docs-only with checks passing; C product remains isolated.",
-      "tier": "T1",
+      "duration_seconds": 1.0,
       "fan_out": 0,
+      "goal": "Make independent native C findings durable without product source acceptance.",
+      "id": "al-01M38HA3M1NQT5RMKTK4KEDY08",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-final-native-review-checkpoint",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T01:43:32Z",
-      "duration_seconds": 1.0
+      "summary": "Integrate root final native Reopen and window-state observations as review documents recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M38HGXW8JKSRESY05P51Z9Q9",
-      "shortname": "application-r28-r29-status",
-      "datetime": "2026-09-24T01:47:16Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Continue coordinated M1 implementation after the newest combined review window became visible.",
-      "summary": "Recorded Owner R28 bounded B-only join a550466 and affected core/integrated recount, root supported-CUA native Save/Reopen/keyboard/recovery/import evidence, and Owner R29 isolated C portability/timing continuation. Preserved the exact downstream C step8 RED and remaining end-to-visible/theme-state gaps. Rendered matching plan HTML; docs check passed. Timing marker covers final status close only, not preceding work.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/application-build.md",
         "docs/coordination/application-build.html"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Keep the coordination plan and rendered status truthful after R28 B integration and R29 C handoff.",
+      "datetime": "2026-09-24T01:47:16Z",
       "done_when": "Plan Markdown/HTML name joined B, isolated C RED, exact next proof step and residual native/platform limits; official docs checks pass.",
-      "tier": "T1",
+      "duration_seconds": 30.0,
       "fan_out": 0,
+      "goal": "Keep the coordination plan and rendered status truthful after R28 B integration and R29 C handoff.",
+      "id": "al-01M38HGXW8JKSRESY05P51Z9Q9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Continue coordinated M1 implementation after the newest combined review window became visible.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "application-r28-r29-status",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T01:46:46Z",
-      "duration_seconds": 30.0
+      "summary": "Recorded Owner R28 bounded B-only join a550466 and affected core/integrated recount, root supported-CUA native Save/Reopen/keyboard/recovery/import evidence, and Owner R29 isolated C portability/timing continuation. Preserved the exact downstream C step8 RED and remaining end-to-visible/theme-state gaps. Rendered matching plan HTML; docs check passed. Timing marker covers final status close only, not preceding work.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M38KF8T54N5RHVXYSP9SCE94",
-      "shortname": "r29-render-evidence-classes",
-      "datetime": "2026-09-24T02:21:19Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Coordinate bounded C timing proof after R29 and capture every corrected assumption as an always-loaded defect class.",
-      "summary": "Recorded API-ACCESS, EVID-RENDER and EVID-ENDPOINT from installed Avalonia compile RED/GREEN, independent stale-marker correction, source-bound batch-cycle runtime controls and emitted-hash privacy repair. Root reviewed wording and requested two precision tightenings, both applied. Explicitly keeps actual display presentation and C product acceptance Not assessed. Docs check passed. Timing marker covers final register close, not preceding investigation.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/lessons/defect-classes.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Turn verified C measurement and SDK-assumption failures into reusable checks without overstating native performance.",
+      "datetime": "2026-09-24T02:21:19Z",
       "done_when": "The defect register names class, sweep, derivation and executable/pre-use controls, and official docs checks pass.",
-      "tier": "T1",
+      "duration_seconds": 19.0,
       "fan_out": 0,
+      "goal": "Turn verified C measurement and SDK-assumption failures into reusable checks without overstating native performance.",
+      "id": "al-01M38KF8T54N5RHVXYSP9SCE94",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Coordinate bounded C timing proof after R29 and capture every corrected assumption as an always-loaded defect class.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "r29-render-evidence-classes",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T02:21:00Z",
-      "duration_seconds": 19.0
+      "summary": "Recorded API-ACCESS, EVID-RENDER and EVID-ENDPOINT from installed Avalonia compile RED/GREEN, independent stale-marker correction, source-bound batch-cycle runtime controls and emitted-hash privacy repair. Root reviewed wording and requested two precision tightenings, both applied. Explicitly keeps actual display presentation and C product acceptance Not assessed. Docs check passed. Timing marker covers final register close, not preceding investigation.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "datetime": "2026-09-24T01:57:57Z",
+      "done_when": "Endpoint capabilities and limits are independently checked and actionable controls recorded.",
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "f9dbc1bea81f8d8f19dcbf38e51b0228a0e3e001",
+        "short": "f9dbc1bea"
+      },
+      "goal": "Establish a truthful timing endpoint before collecting implementation performance evidence.",
+      "id": "al-01M38J4G3ANJF04DRA7EZVNVDG",
+      "kind": "command",
+      "outcome": "partial",
+      "prompt": "Continue the authorized coordinated application implementation after native-window confirmation.",
+      "session": "cfd-application-20260923",
+      "shortname": "r29-endpoint-review",
+      "skill": null,
+      "summary": "Independent R29 API/source/runtime review: internal XML route rejected by compile, public visual-bound compositor compiles and one batch callback observed; raw receipt remains failed on owned timeout. Verified retained source shows same-frame marker can be stale. Pinned upstream source shows batch completion does not guarantee successful target draw. Permanent serial/version controls and native state matrix remain pending; no presentation or performance PASS. Docs check104/0,77existing review flags.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "native-review"
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "datetime": "2026-09-24T02:25:48Z",
+      "done_when": "Source-bound controls and all raw measurement counts/statistics are independently checked with remaining limits recorded.",
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "7d5921408edf96c403067eda5ded6b30a1dadd70",
+        "short": "7d5921408"
+      },
+      "goal": "Verify R29 timing controls and raw diagnostic observations without overstating the endpoint.",
+      "id": "al-01M38KQFJ2F1BTSJ5Y35M5DQ5J",
+      "kind": "command",
+      "outcome": "partial",
+      "prompt": "Continue authorized coordinated implementation and periodic status reporting.",
+      "session": "cfd-application-20260923",
+      "shortname": "r29-diagnostic-proof",
+      "skill": null,
+      "summary": "Independent source/receipt/log review clears bounded native-app delay, immediate supersession, timeout and redacted metric controls; independent oracle recomputes all93 raw diagnostic records with hashes and denominators. This is synthetic-input/managed-start target-batch evidence, not OS input, full reference workload, successful draw or presentation. Final CUA/state review and C/M1 remain open. Driver accepted-source hash assertion is not full revision/history identity. Docs104/0,77existing flags.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "native-review"
     }
   ],
   "changes": [

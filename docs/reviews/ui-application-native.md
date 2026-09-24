@@ -619,3 +619,134 @@ annotation labels are truncated visually, with full text in AX and equivalent
 navigation data; this is a recorded craft limitation, not a complete accessibility
 verdict. B's bounded acceptance is unchanged; C/M1 remains open pending the
 separate end-to-end timing and remaining state coverage.
+
+## Ruling 29: independent measurement-endpoint review
+
+This checkpoint reviews the endpoint spike, not the unfinished permanent timing
+implementation. Root read installed Avalonia 11.3.14 XML from the frozen
+`cfd-adapters-verify-nko701v2` package cache. XML lists `TopLevel.Renderer` and
+`IRendererWithCompositor`, but the author's first compile spike reports
+CS0103/CS0122: documentation presence did not establish public accessibility.
+The alternate `ElementComposition.GetElementVisual(viewport)?.Compositor`
+route compiled in targeted receipt `cfd-c-targeted-wdb8z3vs/receipts/targeted.json`.
+Root read that receipt; compilation alone did not prove a native signal.
+
+Pinned upstream [Compositor source](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Rendering/Composition/Compositor.cs)
+places composition-update callbacks before serialization. It does not establish
+that a particular visual invalidation has already been recorded. Moreover,
+[ServerCompositor source](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Rendering/Composition/Server/ServerCompositor.cs)
+notifies batch completion in a `finally` block, including paths with an unready
+render interface or a caught rendering failure. Consequently `batch.Rendered`
+alone proves neither successful target drawing nor display presentation.
+
+One native runtime spike then observed a non-null visual-bound compositor and
+batch callback. Root independently read and hashed its receipt and stderr:
+
+- Receipt: `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-render-spike-4dp_0lkz/receipts/render-spike.json`,
+  SHA-256 `b753b4a35e6a588d417d332a8eea962512ed1042c7632865dd742cf7df1f5240`.
+- The recorded interval is 62.353 ms from the spike's post-Refresh start to its
+  UI-dispatched batch callback. It excludes the initiating input, computation,
+  and Refresh, and is **not** an edit/preview/cancel performance result.
+- Overall receipt status is **fail**: the author's automatic Close encountered
+  the dirty Example's unsaved prompt; the launcher timed out at 30 seconds.
+  Exact-owned PID 84059 was terminated; root independently observed it absent.
+  The receipt reports no remaining owned group or collector. No retry followed.
+- Retained source snapshots `/private/tmp/cfd-r29-spike-MainWindow.axaml.cs`
+  and `/private/tmp/cfd-r29-spike-Viewport.cs` match SHA-256
+  `18e07ad21405e7ae06b5343a4df030f04727f64b88fe6f332e5999dce5a5617e`
+  and `5807c7586860bc46a2b8888ae93a8e7dcb48b6c40f80839b3ad4bee6dde85190`.
+  Root read them: `target-recorded=True` compares frame references without
+  resetting or advancing an operation-specific baseline. An earlier recording
+  of the same accepted frame can satisfy it. **Fresh scene inclusion remains
+  unproven by this spike.** The author acknowledged the gap.
+
+The allowed permanent metric must capture its baseline before the final Refresh,
+require a strictly newer recording serial for the relevant visible target,
+match source/revision/draft generation/provenance, and recheck operation identity
+after batch completion. A hidden surface cannot acquire a claimed fresh drawing
+merely because an old marker matches. Same-frame stale-marker, stale-generation,
+known-delay, cancel and timeout controls must read actual emitted outcomes.
+Only then can the explicitly labelled input-to-target-batch-cycle interval be
+assessed. Intermediate “Assessing” notifications cannot terminate preview timing.
+Successful drawing and display presentation remain **Not assessed** without
+separate evidence; none of these proxy metrics clears the visible-response veto.
+
+**Independent disposition:** public API and one batch callback observed; fresh
+scene correlation, normal-path instrumentation and negative controls still await
+the final source-bound implementation. No 100/250 ms or cold-launch PASS, C join,
+or M1 acceptance follows from this checkpoint. Temporary spike code is not
+production code. The remaining native state matrix is planned as three grouped
+light/dark/high-contrast runs with declared fixtures; evidence is still pending.
+
+### R29 permanent controls and raw diagnostic observations
+
+Root reviewed the first permanent candidate and raised four source findings:
+repeated Refresh calls advanced a captured frame revision; local visibility did
+not establish attachment/ancestor visibility; post-batch checks omitted an
+inspection-only frame change; and predicate tests did not exercise the complete
+metric lifecycle. Coordinator separately found a forbidden emitted source-hash
+prefix. The revised implementation uses stable frame identity plus explicit
+measured invalidation, newer recording serials, same-window attachment and
+effective visibility, final frame/provenance/eta checks, and redacted records.
+Its hidden/detached console cases do not substitute for the final native Source
+tab check.
+
+A first native control exposed a driver-ordering error: setting TextBox.Text
+could queue TextChanged, while the driver immediately read an older metric.
+Receipt `cfd-r29-timing-control-g5ja4z7i/receipts/timing-control.json` remains
+**failed** and contributes no timing trial. Root's warning reached the author
+after that run had already started. The correction awaits a new operation and
+sequence, checks the actual draft generation, and restricts automatic control
+and closing to a disposable Example review state.
+
+Root independently read corrected source, receipts and actual stderr:
+
+| Control | Observed evidence | Bounded verdict |
+|---|---|---|
+| Corrected native control | Receipt SHA-256 `62acb0a4f63d998a611323556d0de6d80ddcdc0ef932918aad57b8a207d36fc4`; source MainWindow `b7de898616f8632ac081e5bb36db8f61061a5aa19b38925cc3a0538a5b8a38da`; fresh edit sequence 2/generation 1; delayed Preview 324.860 ms; Cancel; immediate in-flight Preview superseded; accepted source hash unchanged | PASS for synthetic TextChanged/shared-helper operation ordering and batch lifecycle; not OS input or presentation |
+| Early-completion and real timer control | Receipt SHA-256 `fba071484a0669ad1efedbfa41b9b503c641295aabb82abaa9ce77f41289c54b`; MainWindow `a90d294fd6e07588f18465d54cf1911294732c665c911d38d11ce374b1fd5098`; pending-before-publication marker precedes delayed Preview 325.164 ms; separate 40 ms timer emits `not_assessed/timeout` at 41.635 ms while Preview publication is delayed 250 ms | PASS for these observed controls; timeout remains unchanged after late publication, then Cancel restores accepted source hash |
+
+The controls insert delay only through the explicit review route. Immediate
+in-flight cancellation is distinguished from a completed-frame late-publication
+race. A timeout diagnoses measurement completion; it does not secretly cancel
+the user's Preview operation. The timeout test explicitly observes later
+Preview publication and then cancels it. Raw files remain under the named
+task-local receipt directories in `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/`.
+
+Root then independently recomputed repeated measurements from all three raw
+stderr logs, rather than accepting their summary. The receipt is
+`cfd-r29-timing-trials-ym0g5jhk/receipts/timing-trials.json`, SHA-256
+`9d063d115f0750a1df933299495ec82066ef32020828e8b550070005b3112fe4`.
+The executed independent oracle `/tmp/cfd-r29-independent-timing.py` verifies
+all build/test/launch stdout and stderr hashes, apphost and Desktop DLL hashes,
+exit/timeout/cleanup fields, empty owned groups and collector lists, unique
+per-process operation sequences, exact operation counts, endpoint labels and
+absence of source/hash fields. The Desktop DLL is
+`809245d2464e77df28970701009ec400892920afee96652decf9324004b74bf0`;
+MainWindow source is
+`391d722178a2e379ea0e6b039719a559ca6f3fbf32a034a75de62d5156254dde`.
+
+| Diagnostic interval | Successful / all records | Nearest-rank p95 (ms) | Maximum (ms) |
+|---|---:|---:|---:|
+| Synthetic TextChanged edit to target batch | 30 / 30 | 18.681 | 19.131 |
+| Shared Preview helper to target batch | 30 / 30 | 174.537 | 241.703 |
+| Shared Cancel helper to target batch | 30 / 30 | 16.265 | 16.371 |
+| Managed Main entry to Example target batch, fresh processes | 3 / 3 | 1490.905 | 1490.905 |
+
+All 93 records have `batch_cycle_complete`; no failed or superseded trial was
+dropped to produce these denominators. For n=3, nearest-rank p95 is simply the
+maximum; it is not a robust population-tail estimate. The trial driver uses
+direct-controller draft setup and programmatic TextChanged, alternating the
+editable leading control between 5 and 6 mm, then Preview and Cancel. It checks
+accepted source hash after each cycle; this assertion alone does not establish
+the complete revision/history identity. This exercises the small Example, not the
+specification's dense reference workload. Managed Main entry excludes runtime
+startup before Main. The endpoint excludes successful-render and presentation
+confirmation.
+
+**Independent disposition:** the stated diagnostic counts/statistics and named
+runtime controls pass this bounded review. No OS-input response-time, cold
+process-launch, full reference-workload or visible 100/250 ms budget PASS is
+implied. Final frozen-package CUA input/state/theme/attachment checks and the
+overall C/M1 disposition remain open. The author cannot promote these batch
+observations into a visible-performance verdict.
