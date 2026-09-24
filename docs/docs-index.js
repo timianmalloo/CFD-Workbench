@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7610a222fe5385a2446a954ffeb8a05bc8576fa89a91cbcb84afe451b0494fa1"
+      "sourceSha256": "2ec3ff6dc9e37c06be3e97032e6cba59b35971086f95875ae27944ac008d83a1"
     },
     {
       "id": "domain-experts",
@@ -3001,7 +3001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "867a6534edfa9f1c94df4aa04b006fb8d21f2e1ed132188bbc4fddc707778b44"
+      "sourceSha256": "2c0245259b7daadd862efc9702c06db0aa4db7ba5aa9b0d927137f73be1db2d2"
     },
     {
       "id": "kb-hw-glossary",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "2f85c9ce804cbed356ad75d288128e238e2d3437bb9862595e4e653b85436787"
+  "graphSha256": "aae6109aec1be2152558fbd9b2cf4c84ff5c310948c9611d01be42a8648bcbbc"
 };

@@ -530,6 +530,22 @@ that control firing once; those historical receipts are not a future gate by
 themselves. No generated-XML claim alone clears the native render endpoint or
 presentation gate.
 
+**API-TYPE · A reflected SDK property is assigned an inferred runtime type.**
+The R34 focus-placement test read public Avalonia composition properties by
+reflection and demanded `System.Numerics.Vector2` for `Size`. The installed
+Avalonia 11.3.14 getter returns `Avalonia.Vector`; the test rejected all four
+tab-focus rows before checking placement. The same wrong-family assumption
+affected `AnchorPoint`, `Offset`, `Scale` and `CenterPoint`. Sweep every public
+property used by a reflected SDK probe for its exact installed getter type,
+including reviewer assertions. Derive: successful compilation of a generic
+reflection helper does not establish the runtime property contract. Prevent:
+use direct typed public getters in the Desktop consumer; retain reflection
+only for the two nonpublic adorner-link fields with exact type/version refusal.
+The R35 compiler-negative deliberately assigning public `Size` to
+`System.Numerics.Vector2` must fail with `CS0029`, while the restored typed
+consumer must compile. The author and independent reviewer both missed the
+type before R34; the compiler control applies to both paths.
+
 **EVID-RENDER · A prior render marker can impersonate completion of new work.**
 The first runtime spike compared the frame object by reference without resetting
 a render epoch. A previous draw of the same accepted frame could satisfy that

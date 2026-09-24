@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:37:32Z",
+  "generated": "2026-09-24T15:45:06Z",
   "audit": [
     {
       "actor": null,
@@ -6706,6 +6706,60 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-24T15:35:22Z",
       "duration_seconds": 65.0
+    },
+    {
+      "id": "al-01M3A1DASRD2MBED3VHNE1M2MA",
+      "shortname": "owner-compositor-readiness-r36",
+      "datetime": "2026-09-24T15:44:10Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M3A1ANCKGN0VR4DPY1YJG2NX: R35 focus rows observe zero compositionSize under SetupWithoutStarting/Show/UpdateLayout. Authorize source-grounded target-bound public readiness spike before/after/timeout negative, root review, one unchanged72matrix only if synchronized, or hold. No manualSize/internal synchronization or presentation claim.",
+      "summary": "Ruling36 permits≤35calls/25min focused real dispatcher/compositor lifecycle spike and required root runtime review before one unchanged72matrix. Owner inspected test and production timing call sites and pinned renderer source. Demands actual target/current callback correlation, bounded timeout/stale refusal, no sleeps/manual state/internal sync; zero readiness stops before matrix. Synchronization is not presentation. No product acceptance or edits by Owner.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve whether focus oracle reads composition state before synchronization.",
+      "done_when": "Canonical ruling requires supported lifecycle signal and falsifiable readiness before complete matrix; notify and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T15:43:11Z",
+      "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M3A1EX9GPRSY64BNTY64XA0V",
+      "shortname": "Avalonia API type defect class",
+      "datetime": "2026-09-24T15:45:02Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Record the public SDK reflection-type assumption and compile-time preventive control shared by author and reviewer.",
+      "summary": "Added API-TYPE to the always-loaded defect register. R34 public CompositionVisual.Size reflection assumed System.Numerics.Vector2 but installed Avalonia11.3.14 returns Avalonia.Vector; R35 exact wrong-type CS0029 negative and direct typed consumer build are executable controls. Reviewer shares missed check-before-use. Composition readiness/contrast rows remain open.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "sdk",
+        "testing"
+      ],
+      "outcome": "partial",
+      "goal": "Prevent reflected public SDK property type guesses from reaching runtime proof gates.",
+      "done_when": "The register names exact installed type evidence, sibling sweep, direct-typed compile control and evidence limits.",
+      "tier": "T1",
+      "fan_out": 1,
+      "git": {
+        "sha": "fe828472e39ba61e196fe047ad441fed26e2b436",
+        "short": "fe828472e",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
