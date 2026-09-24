@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T14:51:47Z",
+  "generated": "2026-09-24T15:07:37Z",
   "audit": [
     {
       "actor": null,
@@ -6545,6 +6545,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-24T14:48:56Z",
       "duration_seconds": 80.0
+    },
+    {
+      "id": "al-01M39Z7MFXZ8P12QHRJWR73EDP",
+      "shortname": "owner-contrast-fixture-recovery-r33",
+      "datetime": "2026-09-24T15:06:06Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M39Z58ADE5CTBZWFQ99RESE6: R32 corrective matrix stopped on locked leading cv-1 fixture; root/author independently diagnosed. Authorize bounded editable-identity fixture correction and complete72row matrix under decreasing unresolved-prerequisite/row loop or hold; preserve five paths and independent veto.",
+      "summary": "Ruling33 explicitly permits fixture-recovery exception≤50calls/35min,≤3complete matrix runs with proper-subset U/no regression. Directly inspected index1, Editable guard, Example and existing capability-based tests. Require selected core/UI identity and owned enabled draft preconditions, retain locked negative, batch independent failures and preserve nonzero result; no row/threshold/opacity weakening. Full gate only after complete honest pass; root independent native gate retained.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Decide fixture-only recovery from the stopped contrast run.",
+      "done_when": "Canonical ruling separates test setup from product failure and sets finite retry/stop; notify root/Coordinator and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T15:05:03Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
