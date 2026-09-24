@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T14:22:56Z",
+  "generated": "2026-09-24T14:38:41Z",
   "audit": [
     {
       "actor": null,
@@ -6497,6 +6497,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T14:22:55Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M39XKDCPHVADJ4CAPWSV2RYW",
+      "shortname": "owner-applied-theme-continuation-r31",
+      "datetime": "2026-09-24T14:37:35Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Decide req-01M39XGJPGMB307FK5Y60K3F69: paused R30 four-path checkpoint loaded42resource/root-shadow GREEN, actual control backgrounds translucent and applied contrast Not assessed. Authorize35call/25min continuation and decide conditional unsaved-modal fifth path; no B/Escape/threshold/join waiver.",
+      "summary": "Ruling31 permits bounded applied-template/color ancestry proof with real alpha/opacity/layer controls. Owner inspected dirty inventory and actual modal source. App-owned unsaved Window classified within explicit theme contract, distinct from OS picker; conditional fifth MainWindow lease activates only after actual owner/modal variant mismatch, solely theme propagation with focus/outcome regression tests. Token6.15 not promoted to applied PASS; unresolved rows stay blockers. Root independently reviews rebuilt native themes; no acceptance.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Decide bounded theme checkpoint continuation and exact remaining applied-color proof.",
+      "done_when": "Canonical ruling names proof and any conditional path change; notify Coordinator/root and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T14:36:20Z",
+      "duration_seconds": 75.0
     }
   ],
   "changes": [
