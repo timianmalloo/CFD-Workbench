@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:31:13Z",
+  "generated": "2026-09-24T15:37:32Z",
   "audit": [
     {
       "actor": null,
@@ -6682,6 +6682,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T15:31:13Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3A0Z6EZ6SQN1AD28JNTK220",
+      "shortname": "owner-composition-types-r35",
+      "datetime": "2026-09-24T15:36:27Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M3A0WKHTGK8N65VSNK890E0D: four focus.tab rows failed guessed System.Numerics.Size type. Root reflected pinned public Avalonia.Vector/Vector3D/float/Quaternion getters. Permit direct typed correction/compile control and one unchanged72matrix or hold; no geometry/threshold/path/join waiver.",
+      "summary": "Ruling35 permits≤30calls/25min direct seven-public-getter typed correction with compile-time wrong-type negative; only two internal link checks retain strict reflection. Owner directly inspected guessed generic types; root installed reflection attributed, not claimed rerun. Root reviews diff/compiler evidence before single unchanged72matrix. Missing row stops; full gate only after genuine pass. Shared author/reviewer missed-contract class requires compiler control. No product edit/build by Owner or acceptance.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve verified API-type mismatch in focus oracle.",
+      "done_when": "Canonical ruling permits typed correction and one validation run without changed geometry/contrast; notify and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T15:35:22Z",
+      "duration_seconds": 65.0
     }
   ],
   "changes": [
