@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:30:48Z",
+  "generated": "2026-09-24T01:32:50Z",
   "audit": [
     {
       "actor": null,
@@ -6010,25 +6010,90 @@ window.AUDIT_DATA = {
       "tool": "native-cua-review"
     },
     {
-      "id": "al-01M38GJS416WKV802WS9GJTY5E",
-      "shortname": "join-native-persistence-review",
-      "datetime": "2026-09-24T01:30:48Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Integrate root R26 native Save and UI evidence before B-only source join recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/ui-application-native.md",
         "docs/investigations/native-save-permissions.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:30:48Z",
+      "done_when": "Review and investigation join without importing product sources; required checks pass.",
+      "duration_seconds": 0.0,
+      "fan_out": 0,
+      "goal": "Make independent source-bound B permission and C interaction findings durable in coordination.",
+      "id": "al-01M38GJS416WKV802WS9GJTY5E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-native-persistence-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T01:30:48Z",
+      "summary": "Integrate root R26 native Save and UI evidence before B-only source join recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T21:35:55Z",
+      "done_when": "Source-bound RED/spike/mode/package/regression proof and clean exact-path commit are ready for independent Security/Data review.",
+      "duration_seconds": 1205.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-permissions",
+        "pushed": null,
+        "sha": "7417713175daa5c4d9f71970d64ef16485f891ff",
+        "short": "741771317"
+      },
+      "goal": "Repair the macOS arm64 creation permission ABI while preserving atomic publication and ownership.",
+      "id": "al-01M3834PGZ7CVHJ47TYDCZR7B5",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "FIRST COMMAND: AGENT_SESSION=cfd-permissions-20260923 python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-permissions-20260923 --skill implement. Resume as requested gpt-6-astra B persistence author (effective model Not recorded if host cannot expose it); use ONLY the new clean isolated /Users/mallalieut/projects/CFD-Workbench-feature-application-permissions, branch feature/application-permissions, base 7417713175daa5c4d9f71970d64ef16485f891ff. Read Owner Ruling 26 in docs/notes/rulings.md and root read-only report /Users/mallalieut/projects/CFD-Workbench-feature-application-foundation/docs/investigations/native-save-permissions.md before writes. Goal: correct macOS native Save creation permissions through a minimal fixed-signature C bridge making real variadic open/openat calls, without weakening directory-relative atomicity/ownership/durability. Done when real .NET arm64 ABI/errno/package-loading spike, production-path RED, corrected temp/claim/final prewrite/final modes under umasks 0000/0022/0077, existing store regressions, packaged Save/Reopen, gate/proof/clean commit are source-bound for independent Root Security/Data review. Initial exact authored paths (claim for edit minutes, release promptly): src/CfdWorkbench.Persistence/ProjectStore.cs; src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj; src/CfdWorkbench.Persistence/native/cfd_store.c; tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs; tools/verify-application-core.py; docs/proof/application-core.md. R26 seventh candidate tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj is HELD until a measured build need and Coordinator seam freeze. No C adapter/UI/review/register/security files, Windows support, migration/chmod/global umask, original anomalous /tmp/cfd-native-review.czEz9w/accepted.cfdw.json alteration, or unrelated cleanup. Preserve current task-local .NET/NuGet/temp/cache roots, DOTNET_GENERATE_ASPNET_CERTIFICATE=false, no build servers, PID/start/child quiescence, no Avalonia telemetry where applicable. Check actual compiler/header/.NET10/package contracts before bridge choice; failed spike stops for typed alternative. First checkpoint <=45 tool calls or 25 minutes for RED+spike+patch proposal, then measured replan rather than silent extension; context ceiling 100k. Send RED/spike receipt early, final clean HEAD/path inventory/commands/hashes and exact remaining gaps. Root owns independent native review; no B/C join until Owner gate.",
+      "session": "cfd-permissions-20260923",
+      "shortname": "permissions-abi-repair",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T21:15:50Z",
+      "summary": "R26 isolated arm64 permissions repair: production RED0456, managed C ABI and published-load spike, strict0600 held-descriptor guard, zero/extra-bit negative controls and actual child umasks. Six175PASS matrix runs plus three144PASS capability runs; all11 integrated gates PASS. Independent review remains open. First checkpoint18m35s; tool count Not recorded; approved close-only replan. Six authored paths, no held seventh path.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M38GPFEKXZ8EJS7AQ3WPVZHE",
+      "shortname": "join-b-native-permissions",
+      "datetime": "2026-09-24T01:32:50Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrate R28 B-only native permission repair with affected core recount recount_seconds=33 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md",
+        "docs/reviews/ui-application-native.md"
+      ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Make independent source-bound B permission and C interaction findings durable in coordination.",
-      "done_when": "Review and investigation join without importing product sources; required checks pass.",
+      "goal": "Close the measured macOS arm64 B creation-permission boundary in the canonical core.",
+      "done_when": "Six B source/proof paths and designated metadata join with core and integrated gates passing; C remains isolated.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -6036,8 +6101,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-24T01:30:48Z",
-      "duration_seconds": 0.0
+      "started_at": "2026-09-24T01:32:15Z",
+      "duration_seconds": 35.0
     }
   ],
   "changes": [
