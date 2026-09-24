@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:41:19Z",
+  "generated": "2026-09-24T14:20:47Z",
   "audit": [
     {
       "actor": null,
@@ -6414,6 +6414,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T02:41:18Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M39WHY1QXA4AVAAGYXA31MB1",
+      "shortname": "owner-c-theme-scope-r30",
+      "datetime": "2026-09-24T14:19:18Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Decide req-01M39WEPK6GNSKCJP036D2PH5R: frozen C3a1d67b native Dark/HC mixed palette and opposite static verifier precedence. Authorize exactly Styles.axaml, verify-application-adapters.py, WorkbenchTests.cs, application-adapters.md with red-first loaded-resource/contrast proof and independent native rerun, or hold; no unrelated Escape/B/threshold/join changes.",
+      "summary": "Ruling30 selects four-path repair. Owner inspected clean C, actual styles/verifier/tests, root native review and pinned Avalonia11.3.14 lookup source. Requires actual-XAML runtime theme resolution, representative applied control colors, no-shadow negative control and source-bound contrast gate; one changed-source full gate/package then root independent Dark/HC and Light regression review. No production edit/build or self-clearance;45call/30min checkpoint, remaining C/M1 limits retained.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Decide bounded theme repair from native observations and resource-resolution evidence.",
+      "done_when": "Canonical ruling fixes exact scope and demands actual resolved brushes; notify root/Coordinator and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T14:17:54Z",
+      "duration_seconds": 84.0
     }
   ],
   "changes": [
