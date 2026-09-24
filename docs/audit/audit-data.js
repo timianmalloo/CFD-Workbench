@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:25:48Z",
+  "generated": "2026-09-24T02:39:05Z",
   "audit": [
     {
       "actor": null,
@@ -4876,6 +4876,33 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "7d5921408edf96c403067eda5ded6b30a1dadd70",
         "short": "7d5921408",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38MFSP2SPY3JC7TE8ZWXT8Y",
+      "shortname": "final-package-attachment-blocker",
+      "datetime": "2026-09-24T02:39:05Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Continue independent review of the final R29 native package and record verified results and remaining access blocker.",
+      "summary": "Independently checked final C 3a1d67b: 53 source hashes, 16 binary hashes, 11 successful checks and live copy parity across 231 files. Native inspection reports cgWindowNotFound on the new light build; user foreground request pending. C and M1 remain open. Documentation check passed with 104 artifacts, zero defects and 77 existing V16 suggestions.",
+      "kind": "command",
+      "skill": null,
+      "tool": "native-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "goal": "Bind final native review to the checked package and complete available independent verification.",
+      "done_when": "Verified package evidence and any remaining native-access blocker are durably recorded.",
+      "tier": "T2",
+      "fan_out": 3,
+      "git": {
+        "sha": "645ac583e22dcf8684935085e0985c0fbc68970a",
+        "short": "645ac583e",
         "branch": "feature/application-foundation",
         "pushed": null
       }

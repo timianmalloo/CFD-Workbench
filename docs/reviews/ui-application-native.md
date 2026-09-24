@@ -29,10 +29,13 @@ review lenses, not separately claimed model sessions.
 **Disposition: bounded R26 B permission repair PASS; C/M1 OPEN.** Named CLI,
 controller and native interaction defects below are independently cleared on
 their frozen checkpoints. Complete native UI/accessibility acceptance remains
-withheld. The latest review-only combined candidate is `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`,
-combining B `ee6d73ad` and complete C `6f168c44` under Ruling 27;
-earlier binaries and successful gates do not verify later changes. No C join or M1 completion follows from this
-document. The Owner cannot clear this independent veto by accepting its own work.
+withheld. Final C candidate `3a1d67bcb8ec4bc38a2b8adb8d885b10e1619cc3`
+has independently verified package binding and check receipts, but native
+inspection cannot attach to its new light-theme review window. The earlier
+Ruling 27 combined candidate `e6e562843b000e27542efa1ee7dc2bb251eb2b4f`
+passed the named native flows below; that evidence does not verify later changes.
+No C join or M1 completion follows from this document. The Owner cannot clear
+this independent veto by accepting its own work.
 
 ## Scope and method
 
@@ -750,3 +753,53 @@ process-launch, full reference-workload or visible 100/250 ms budget PASS is
 implied. Final frozen-package CUA input/state/theme/attachment checks and the
 overall C/M1 disposition remain open. The author cannot promote these batch
 observations into a visible-performance verdict.
+
+### Final R29 package: verified binding, native attachment blocked
+
+The current C candidate is clean commit
+`3a1d67bcb8ec4bc38a2b8adb8d885b10e1619cc3`, replacing the earlier combined
+review binary for final C acceptance. Root compared retained trial MainWindow
+source `391d7221…` with final `5f6fcdf2…`: temporary auto-control/trial drivers,
+test events/completion objects and timeout overrides are removed; production
+uses the tested serialization helper. The endpoint correlation is unchanged.
+The Controller's temporary publication-delay seam is also removed.
+
+The final gate receipt is
+`/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-c0toimuk/receipts/verification.json`,
+SHA-256 `028de95d10c93ec85f2c5e8f7e18fdf9d1b9101d664cf785f77a41dc778f96fc`.
+Root executed `/tmp/cfd-r29-independent-gate.py` and independently verified all
+53 input file hashes against the clean candidate, 16 published binary hashes,
+all 11 step stdout/stderr hashes and successful/quiescent outcomes, unchanged
+source inputs/outputs, no artifact symlinks, and macOS packaged DLL/native-helper
+parity with published output. Windows cross-publication is not Windows runtime
+evidence. No broad gate was repeated by root.
+
+One light/Example review copy is live:
+
+- App: `/private/tmp/cfd-r29-light-ui-t66srblp/CFD Workbench.app`.
+- Bundle: `com.cfdworkbench.desktop.r29light20260924`.
+- Exact-owned PID 91248, start `Wed Sep 23 19:30:03 2026`; root observed its
+  matching executable path and start identity with `ps`.
+- Launch receipt: `/private/tmp/cfd-r29-light-ui-t66srblp/launch-receipt.json`,
+  SHA-256 `fc93b494d7ec941fecc76cac39ebdffc559dd5c3b0e4d3b835b31c34cb6cb447`.
+- Desktop DLL: `b376998c7912e666bdba765711cc86e6000dc45776d3e48f2df555429fa7539a`.
+- Selectors: designer, Example, light, 1024×700, reduced motion. Auto-control and
+  trial flags are absent. Default startup telemetry reports an Example batch
+  at 691.546 ms; that is not a displayed-window timing result.
+
+Root's `/tmp/cfd-r29-independent-launch.py` verified all 231 copied files and
+that only `CFBundleIdentifier` differs in Info.plist; all other bytes match the
+checked package. The native CUA exact-path attachment then returned
+`cgWindowNotFound -10005`. There was no alternate launch or unsupported native
+inspection fallback. A pending user request asks for this **new light-theme
+Example** window to be brought to the front; the earlier confirmation applied
+to the older combined build. The process is retained. Dark/empty and
+high-contrast/dense launches are held until the first grouped native review
+finishes.
+
+**Current independent disposition: final native UI review BLOCKED on window
+attachment; C/M1 OPEN.** Source/package and bounded diagnostic evidence are
+verified as described above. Native input, Source-tab attachment/exclusion,
+final state/theme/keyboard checks and the separate presentation/reference-workload
+obligations remain explicit. No C product join or public release is authorized
+by this checkpoint.
