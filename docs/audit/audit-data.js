@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T14:19:31Z",
+  "generated": "2026-09-24T15:29:19Z",
   "audit": [
     {
       "actor": null,
@@ -4933,6 +4933,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "51814c26a59e62a3231b1763d5c645012b9548d7",
         "short": "51814c26a",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3A0J526S0D2QP6YSVDES5VJ",
+      "shortname": "independent-theme-oracle-review-r32-r34",
+      "datetime": "2026-09-24T15:29:19Z",
+      "session": "cfd-application-20260923",
+      "prompt": "> Please bring the newest “CFD Workbench — Offline Foil · REVIEW…” window—the light-theme Example build—to the front and confirm it is visible. Native inspection cannot currently attach to this new window, so I need that before the final interaction checks.\n\nThe light-theme review window is visible and in front",
+      "summary": "Continued the authorized implementation's independent UI review. Read repaired Styles/modal/test/verifier source; rejected false-positive focus/opacity/ratio paths. Independently diagnosed locked positional fixture. Verified two 68-row matrix packets and recomputed ratios; four tab-focus rows remain unassessed. Verified focused diagnostic logs and pinned compositor contract; enabled only R34's composition-aware correction with measured missing operands and negative controls. No production writes, final package, native theme clearance, C join, or M1 acceptance. Earlier prechecks precede this duration marker.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete independent source-bound repaired-theme proof and native review for the existing application increment.",
+      "done_when": "Complete applied matrix, clean bound package, actual native changed-surface checks, and independent review disposition are recorded; unresolved obligations remain explicit.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-24T15:09:59Z",
+      "duration_seconds": 1160.0,
+      "git": {
+        "sha": "3758e77b26ddb88ccb3bb5571c382b6d137d304d",
+        "short": "3758e77b2",
         "branch": "feature/application-foundation",
         "pushed": null
       }

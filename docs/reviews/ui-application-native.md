@@ -979,3 +979,92 @@ controls, the changed-source gate and independent native theme reruns. Existing
 Windows/runtime, presentation timing, large-workload, distribution and full
 section-editor obligations remain explicit; completing this matrix does not
 silently waive them.
+
+### Theme repair review checkpoint: R32–R34
+
+**Disposition: independent native veto remains open.** This checkpoint reviews
+the repair and its executable oracle; it does not claim a repaired final package,
+native appearance pass, C integration, or M1 acceptance. The production change
+is confined to theme resources/template bindings in `Styles.axaml` and assigning
+the owner window's actual theme to the unsaved dialog. Draft, geometry, history,
+and persistence handlers are unchanged. The earlier frozen-binary functional
+observations remain explicitly source-bound to that binary.
+
+Root independently read the test/verifier changes before execution. Review
+removed false-positive paths: list rows labelled focused without actual focus,
+target BorderBrush properties mistaken for a painted indicator, ignored brush
+opacity, and non-finite emitted ratios accepted by floating-point comparison.
+The initial Border-only extractor then failed closed on Fluent's actual Button
+ContentPresenter. A second prerequisite failure selected locked cv-1 by list
+index; root verified `FoilSource.Authored()` applies root-mirror locks to indices
+below two and the UI correctly refuses editing them. The fixture now selects by
+authored editable identity and retains a locked-target negative check.
+
+The fixed matrix has 18 rows in each of Light, Dark, HighContrast, and Default.
+It includes actual toolbar/tab text, selected/focused station and CV text,
+enabled owned-draft numeric text, active read-only Source, annotations, modal
+body/choices, and toolbar/tab/numeric focus. Disabled numeric observations are
+separate exemptions. Text requires 4.5:1 and focus 3:1. Missing rows remain
+unassessed; no denominator or threshold was reduced.
+
+| Retained run | Observed result | Receipt SHA-256 |
+|---|---|---|
+| R33 first complete matrix, `cfd-r30-theme-targeted-xjkkge24` | 48/72 rows; selected-list paint, tab focus, clipped Source unresolved | `defa328d` prefix; full receipt retained |
+| R33 second matrix, `cfd-r30-theme-targeted-a3d5wpb5` | 68/72 rows; four tab-focus rows unresolved | `3841f369840d3b1e12d727b69e95c3ab40fa6a87f155f64393d21d71b6c90742` |
+| R33 final matrix, `cfd-r30-theme-targeted-s4arugz9` | 68/72; focus geometry guard refused all four themes | `ad5380451174cab76bb1f4af2d30d75e6427fedbfc67c1ef3a176aa33e4fa37f` |
+| R34 focused diagnostic, `cfd-r34-focus-zkxng9uw` | Four-theme raw geometry observation; not a contrast matrix | `2f81d8fa7933fc90cec908ca81ccccc8671df62e31cb1c291e2049327661fa9b` |
+
+These directories are under
+`/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/`; matrix receipts are
+`receipts/theme-controls-fail.json`, diagnostic receipt
+`receipts/focus-diagnostic.json`. Root independently verified all six retained
+build/test/control log hashes in each 68-row packet and recomputed every emitted
+ratio. Minimum observed text contrast is 6.2857702203:1 and minimum observed
+focus contrast 4.0169757805:1. The four missing tab-focus rows are excluded from
+those minima, not counted as passes. Build and ordinary test exits were zero;
+matrix exit was -6. Receipts report no remaining owned process groups or
+collector. The diagnostic's four log hashes were independently verified.
+
+Final R33 source binding: Styles SHA-256
+`28cf9b04d732a29cc8a427a275d7bda5926e67fef93df98d07e8c75034b8ea0d`,
+MainWindow `328fe3360feb7f6d16831df53e1a9f8b2cce9d4b5f8648a386e46c144de43519`,
+tests `005e7ab670e76e75ece2dfe23809d4a9f877527e15cc409e94f637690b45c4db`,
+verifier `a55da1e50c57dc382ba9171f3531c80a7d0bcce57633a5fe0f06e4c0c00dce09`.
+Later diagnostic tests have a different source hash, recorded in their receipt.
+
+The repair now uses complete theme dictionaries, opaque selected-list template
+colors, and explicit opaque primary/secondary focus colors. The verifier keeps
+the original fourteen semantic brush keys/42 runtime observations, requires the
+two named focus keys/six additional runtime observations, and rejects root
+shadows, missing/duplicate rows, partial alpha, and malformed/non-finite ratios.
+Source text is measured within the actual nonempty ScrollContentPresenter clip;
+it is not shortened to make the bounds check pass.
+
+**R34 interpretation / Verified observations, bounded inference:** all four
+diagnostic rows report target and outer bounds 189×48, inner bounds 2,2,185×44,
+and ordinary visual translation (-240,-369). They report attached target
+identity and composition reference equality. Root inspected that acquisition:
+the final guard must additionally reject null composition identities, because
+reference equality alone permits null/null. The diagnostic recorded rectangle
+clip types but not their rectangles or all compositor transform operands.
+Those values are not retrospectively inferred.
+
+Pinned Avalonia 11.3.14
+[AdornerLayer](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Controls/Primitives/AdornerLayer.cs)
+sets the composition adornment link and uses local size/identity bounds;
+[ServerCompositionVisual](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Rendering/Composition/Server/ServerCompositionVisual.cs)
+uses the adorned visual's global transform and clipping. Together with the raw
+diagnostic, this justifies replacing the ordinary visual-origin comparison with
+a composition-aware guard. It does not prove display presentation. Root enabled
+R34's scoped correction only: the final matrix must measure and assert the
+nonnull exact link, local geometry, actual compositor operands, effective clip,
+opaque background and contrast, and reject displaced/wrong-target/clipped
+negative controls. Unknown operands fail closed. No native veto is cleared by
+that interpretation.
+
+The coordinator owns the durable UI-THEME-ORACLE and TEST-CAPABILITY defect-class
+controls and Owner rulings. Root authored no production repair. A final clean
+gate/package, exact package binding, direct native theme/focus/modal/source
+inspection, and explicit integration disposition remain pending. The measured
+root review interval starts at 2026-09-24T15:09:59Z; preceding source prechecks
+are outside that interval. Model cost and token measurements are not recorded.
