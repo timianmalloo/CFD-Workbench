@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:40:11Z",
+  "generated": "2026-09-24T02:40:57Z",
   "audit": [
     {
       "actor": null,
@@ -6301,63 +6301,90 @@ window.AUDIT_DATA = {
       "tool": "native-review"
     },
     {
-      "id": "al-01M38KTQ4X4WPP6VM3HDYAXVQA",
-      "shortname": "join-r29-timing-review",
-      "datetime": "2026-09-24T02:27:34Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join independent native timing endpoint and raw-trial review without C product code recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/ui-application-native.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Preserve independent R29 timing evidence in the coordination branch",
+      "datetime": "2026-09-24T02:27:34Z",
       "done_when": "Review and derived metadata join cleanly with documentation checks and no C source integration",
-      "tier": "T1",
+      "duration_seconds": 0.0,
       "fan_out": 0,
+      "goal": "Preserve independent R29 timing evidence in the coordination branch",
+      "id": "al-01M38KTQ4X4WPP6VM3HDYAXVQA",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r29-timing-review",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T02:27:34Z",
-      "duration_seconds": 0.0
+      "summary": "Join independent native timing endpoint and raw-trial review without C product code recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M38MHQDCFJFF43PHZPBBC948",
-      "shortname": "r29-final-status",
-      "datetime": "2026-09-24T02:40:08Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Continue the authorized CFD-Workbench native M1 coordination and periodic status reporting",
-      "summary": "Recorded clean isolated C R29 checkpoint, independent final gate and raw93 review, exact light-app launch, and pending supported CUA window access; C product remains unjoined",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/application-build.md",
         "docs/coordination/application-build.html"
       ],
-      "tags": [],
-      "outcome": "partial",
       "compiled": false,
-      "goal": "Keep coordination status exact while final native review is blocked on window access",
+      "datetime": "2026-09-24T02:40:08Z",
       "done_when": "Canonical plan and HTML state the source-bound candidate, verified limits, pending user-visible window, and held C join",
-      "tier": "T1",
+      "duration_seconds": 27.0,
       "fan_out": 0,
+      "goal": "Keep coordination status exact while final native review is blocked on window access",
+      "id": "al-01M38MHQDCFJFF43PHZPBBC948",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Continue the authorized CFD-Workbench native M1 coordination and periodic status reporting",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "r29-final-status",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": false,
         "verification_executed": true,
-        "acceptance_met": false
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-24T02:39:41Z",
-      "duration_seconds": 27.0
+      "summary": "Recorded clean isolated C R29 checkpoint, independent final gate and raw93 review, exact light-app launch, and pending supported CUA window access; C product remains unjoined",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "datetime": "2026-09-24T02:39:05Z",
+      "done_when": "Verified package evidence and any remaining native-access blocker are durably recorded.",
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "645ac583e22dcf8684935085e0985c0fbc68970a",
+        "short": "645ac583e"
+      },
+      "goal": "Bind final native review to the checked package and complete available independent verification.",
+      "id": "al-01M38MFSP2SPY3JC7TE8ZWXT8Y",
+      "kind": "command",
+      "outcome": "blocked",
+      "prompt": "Continue independent review of the final R29 native package and record verified results and remaining access blocker.",
+      "session": "cfd-application-20260923",
+      "shortname": "final-package-attachment-blocker",
+      "skill": null,
+      "summary": "Independently checked final C 3a1d67b: 53 source hashes, 16 binary hashes, 11 successful checks and live copy parity across 231 files. Native inspection reports cgWindowNotFound on the new light build; user foreground request pending. C and M1 remain open. Documentation check passed with 104 artifacts, zero defects and 77 existing V16 suggestions.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "native-review"
     }
   ],
   "changes": [
