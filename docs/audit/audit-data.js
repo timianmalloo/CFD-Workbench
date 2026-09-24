@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:27:34Z",
+  "generated": "2026-09-24T02:40:11Z",
   "audit": [
     {
       "actor": null,
@@ -6328,6 +6328,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T02:27:34Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M38MHQDCFJFF43PHZPBBC948",
+      "shortname": "r29-final-status",
+      "datetime": "2026-09-24T02:40:08Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Continue the authorized CFD-Workbench native M1 coordination and periodic status reporting",
+      "summary": "Recorded clean isolated C R29 checkpoint, independent final gate and raw93 review, exact light-app launch, and pending supported CUA window access; C product remains unjoined",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Keep coordination status exact while final native review is blocked on window access",
+      "done_when": "Canonical plan and HTML state the source-bound candidate, verified limits, pending user-visible window, and held C join",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-24T02:39:41Z",
+      "duration_seconds": 27.0
     }
   ],
   "changes": [

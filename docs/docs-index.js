@@ -3901,7 +3901,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "be577ed94a206d91a6d67eb38712fea4d0bbe716b46043bbb8f9a654d992e801"
+      "sourceSha256": "e4048a904f35100749a278a958d07d948ebb0c4d70a077d00d24ff230ed8527b"
     },
     {
       "id": "coordination-contract-b-core",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "31b7b1ff3650ed4aa6325ab0824e064780cc1b3d273bb55909a799f6aea8d572"
+  "graphSha256": "83c1c560081512d05df47273de7c81ce0f7f301a94374d5856095f3e3994ee0d"
 };

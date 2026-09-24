@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="be577ed94a206d91a6d67eb38712fea4d0bbe716b46043bbb8f9a654d992e801">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="e4048a904f35100749a278a958d07d948ebb0c4d70a077d00d24ff230ed8527b">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -178,22 +178,22 @@ separate open gates.</p>
 </tr>
 <tr>
 <td>C · native adapters, <code>cfd-adapters-20260923</code></td>
-<td><a href="contract-c-native.md">Exact 24-path contract</a>, no core implementation files; Ruling 29 narrows the current continuation to nine existing paths</td>
+<td><a href="contract-c-native.md">Exact 24-path contract</a>, no core implementation files; Ruling 29 narrowed its continuation to seven changed C paths</td>
 <td>Joined B <code>a550466</code>, independently reviewed <a href="contract-c-api-freeze.md">compiled API freeze</a>, Owner Rulings 21 and 29</td>
 <td>T2</td>
 <td>0</td>
-<td>Initial 90 calls / 55 minutes; Ruling 29 first checkpoint ≤60 calls / 35 minutes, aggregate calls/tokens Not recorded</td>
-<td>Candidate <code>6f168c44</code> in review-only B+C <code>e6e5628</code> passed 11 adapter steps; root verified named native keyboard, edit, recovery, import and Save/Reopen flows. Isolated C handoff <code>13c883a</code> exposed two portable-tooling gate failures; targeted repair is in flight</td>
+<td>Initial 90 calls / 55 minutes; Ruling 29 first and second bounded checkpoints, aggregate calls/tokens Not recorded</td>
+<td>Clean isolated <code>3a1d67b</code> repaired the five portable-tooling findings and passed one final 11-step adapter gate. Its 93 diagnostic records measure fresh target compositor batch cycles, not display presentation. A source-bound light/Example app is running for root CUA; the first exact-path bind returned <code>cgWindowNotFound</code> and a user front-window reply is pending.</td>
 <td>Requested Sol, effective model Not recorded. Root UX/performance veto and C/M1 product join remain open; no Windows runtime claim.</td>
 </tr>
 <tr>
 <td>D · integration and independent proof</td>
 <td>Coordinator owns merge and plan/status ledger; root/Owner own independent review/rulings, no production co-authoring</td>
-<td>B accepted; C source-bound native evidence exists but timing/state coverage remains open</td>
+<td>B accepted; C source-bound gate and timing evidence exist but final native state/presentation coverage remains open</td>
 <td>T2</td>
 <td>0</td>
 <td>One affected recount per eligible product join; docs-only joins do not clear product gates</td>
-<td>B permission repair and independent review joined at <code>a550466</code>; final root native review joined docs-only at <code>b3e48aa</code>. Downstream C handoff is isolated and held at a portable-tooling RED</td>
+<td>B permission repair joined at <code>a550466</code>; root native and R29 timing reviews joined docs-only at <code>7eeccaa</code>. C product source remains isolated.</td>
 <td>Deterministic scripts, root independent veto and Owner Rulings 28–29.</td>
 </tr>
 </tbody></table></div>
@@ -400,15 +400,15 @@ and their canonical prose remain untouched.</p>
 </tr>
 <tr>
 <td>C</td>
-<td>Native UI machine time and disjoint files after accepted B; Ruling 29 ≤60 calls / 35 minutes first continuation checkpoint</td>
-<td>Clean requested-Sol/effective-Not-recorded <code>6f168c44</code>; review-only combined <code>e6e5628</code>; downstream handoff <code>13c883a</code>; aggregate calls/tokens Not recorded</td>
-<td>Root CUA verified named keyboard/edit/recovery/import and native Save/Reopen rows after user brought the exact combined window forward. <code>13c883a</code> has identical <code>src/tests/tools</code> bytes to reviewed combined source but conductor step 8 found three portable-text and two subprocess-encoding findings. The author reproduced 3+2 RED and targeted GREEN in two C tools; render-endpoint spike and measured native state/timing proof remain. No C product join.</td>
+<td>Native UI machine time and disjoint files after accepted B; Ruling 29 first checkpoint ≤60 calls / 35 minutes, then bounded same-scope continuation</td>
+<td>Clean requested-Sol/effective-Not-recorded <code>3a1d67b</code>; review-only combined <code>e6e5628</code>; downstream handoff <code>13c883a</code>; aggregate calls/tokens Not recorded</td>
+<td>The author retained the 3+2 portable-tooling RED/GREEN and an honest compositor endpoint spike, then removed temporary drivers. The final source-bound 11-step gate passed. Root independently checked all 93 batch-cycle trial records and the final gate. OS-input timing, display presentation and the declared final native matrix remain open. No C product join.</td>
 </tr>
 <tr>
 <td>D</td>
 <td>deterministic join / independent integrated proof</td>
-<td>B product/review integrated at <code>a550466</code>; root final native review joined docs-only at <code>b3e48aa</code>; exact aggregate calls/tokens Not recorded</td>
-<td>Rulings 28–29 separate completed B permission scope from open C UX/performance. A new isolated C continuation starts from the failed handoff; first two portability controls are repaired locally, with endpoint spike review before timed trials. Windows runtime and distribution trust remain separate.</td>
+<td>B product/review integrated at <code>a550466</code>; root R29 timing reviews joined docs-only at <code>7eeccaa</code>; exact aggregate calls/tokens Not recorded</td>
+<td>Rulings 28–29 separate completed B permission scope from open C UX/performance. Clean C <code>3a1d67b</code> remains isolated. The first exact-path CUA attach to its light/Example app returned <code>cgWindowNotFound</code>; a user front-window reply is pending. Windows runtime and distribution trust remain separate.</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -424,11 +424,11 @@ and their canonical prose remain untouched.</p>
 </tr>
 <tr>
 <td>Remaining</td>
-<td>C remains isolated. Its clean downstream handoff <code>13c883a</code> failed two integrated portability gates on five C-tooling findings; Ruling 29&#39;s targeted repair is in progress. The actual app lacks end-to-visible 5-second cold, 100 ms edit, and 250 ms preview/cancel measurements and the full declared native state/theme/dense review. Windows runtime/store and release trust are unassessed.</td>
+<td>C remains isolated. The final gate and diagnostic batch-cycle trials do not measure the visible 5-second cold, 100 ms edit, or 250 ms preview/cancel targets. Root&#39;s final light/dark/high-contrast native state matrix is incomplete; the first light-window CUA bind failed while the user&#39;s front-window response is pending. Windows runtime/store and release trust are unassessed.</td>
 </tr>
 <tr>
 <td>Best next action</td>
-<td>The C author finishes targeted portable-tooling controls, then sends an installed-Avalonia render-endpoint spike for root review before any timed trial collection. Run bounded normal-path timing and source-bound state matrix only after that endpoint is judged honestly; keep C product join and M1 acceptance held for independent root/Owner disposition.</td>
+<td>Resume supported CUA on the exact source-bound light/Example window when it is visible; then inspect the dark/empty and high-contrast/dense groups serially. Root independently records the outcomes and retains the visible-performance veto unless a valid endpoint is measured. Seek Owner C disposition only after that review; do not join C product source from a green package gate alone.</td>
 </tr>
 </tbody></table></div>
 <h3>Native visibility continuation · one optimized graph</h3>
@@ -512,4 +512,5 @@ and their canonical prose remain untouched.</p>
 <h3>Rulings 28–29 · B join and bounded C proof continuation</h3>
 <p>Owner <a href="../notes/rulings.md#ruling-28--bounded-macos-creation-permission-repair-accepted-for-b-join">Ruling 28</a> accepted only the measured macOS arm64 B correction. The conductor joined root&#39;s independent review documents and then the six B source/proof paths at <code>a550466</code>; architecture 30, contracts 93 C# / 42 Python / 2505 vectors, the changed core suite and all 11 integrated gates passed. The B repair source bytes at this head match clean author <code>ee6d73ad</code>. Original B/C and review-only branches and the anomalous <code>0454</code> file remain available.</p>
 <p>A fresh isolated downstream C handoff from <code>6f168c44</code> merged canonical B into clean <code>13c883a</code>. Its <code>src/tests/tools</code> bytes match the reviewed combined <code>e6e5628</code>, but the conductor stopped at step 8: <code>verify-portable-text-io.py</code> found three C-tooling issues and <code>verify-subprocess-utf8.py</code> found two. This is a RED handoff, not an integrated C pass. Owner <a href="../notes/rulings.md#ruling-29--bounded-c-portability-repair-and-truthful-native-timing-proof">Ruling 29</a> authorized the existing requested-Sol author to repair the named paths, then establish an honest installed-Avalonia render endpoint with known-delay and stale/cancel controls before collecting timed trials. The first checkpoint is at most 60 calls or 35 minutes. Root alone judges the endpoint and subsequent native matrix; no C product join, changed threshold, Windows runtime or release claim follows from this authorization.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>be577ed94a206d91a6d67eb38712fea4d0bbe716b46043bbb8f9a654d992e801</code>.</p></footer></main></body></html>
+<p>The author committed clean isolated C <code>3a1d67b</code>. Its proof in that isolated commit retains every one of the 93 diagnostic trial outcomes and the final <a href="/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-c0toimuk/receipts/verification.json">11-step receipt</a>, SHA-256 <code>028de95d10c93ec85f2c5e8f7e18fdf9d1b9101d664cf785f77a41dc778f96fc</code>. Root independently read the receipt&#39;s 53 source and 16 binary hashes, all 11 zero-exit/quiescent steps, and the final package/helper parity. The 30 edit, 30 Preview and 30 Cancel trials plus three managed Example starts measure fresh target compositor batch completion only; they use synthetic review controls, not OS input or display-presentation observation. Root&#39;s independent <a href="../reviews/ui-application-native.md">timing review</a> joined as documentation at <code>7eeccaa</code>. The exact light/Example review copy is <code>/private/tmp/cfd-r29-light-ui-t66srblp/CFD Workbench.app</code>, PID 91248, launch receipt SHA-256 <code>fc93b494d7ec941fecc76cac39ebdffc559dd5c3b0e4d3b835b31c34cb6cb447</code>. Its first supported CUA bind returned <code>cgWindowNotFound</code>; no dark or high-contrast substitute was launched. C product integration and M1 acceptance remain held.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>e4048a904f35100749a278a958d07d948ebb0c4d70a077d00d24ff230ed8527b</code>.</p></footer></main></body></html>
