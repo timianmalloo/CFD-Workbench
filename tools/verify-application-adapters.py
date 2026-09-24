@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import pathlib
 import re
@@ -64,30 +65,196 @@ def source_inputs() -> dict[str, str]:
     return {str(item.relative_to(ROOT)): sha(item) for item in sorted(set(paths))}
 
 
-def contrast_checks() -> dict[str, float]:
+def contrast_checks(test_step: dict) -> dict[str, object]:
+    """Check colors resolved by the loaded-XAML test, never guessed XML overrides."""
+    output = pathlib.Path(test_step["stdout"])
+    raw = output.read_text(encoding="utf-8")
+    matches = re.findall(r"^THEME-RESOURCE (Light|Dark|HighContrast)/([A-Za-z]+Brush)=(#[0-9A-Fa-f]{8})$",
+                         raw, re.M)
+    expected_keys = {"CanvasBrush", "SurfaceBrush", "SurfaceSoftBrush", "InkBrush",
+        "MutedBrush", "LineBrush", "PrimaryBrush", "OnPrimaryBrush", "DangerBrush",
+        "ViewportBrush", "ViewportGridBrush", "ViewportInkBrush", "FoilBrush", "StationBrush"}
+    focus_keys = {"SystemControlFocusVisualPrimaryBrush",
+                  "SystemControlFocusVisualSecondaryBrush"}
+    expected = {(variant, key) for variant in ("Light", "Dark", "HighContrast")
+                for key in expected_keys}
+    resolved = {(variant, key): color for variant, key, color in matches}
+    if (len(matches) != 42 or set(resolved) != expected or
+            "THEME-SHADOW-MUTATION refused Dark/SurfaceBrush" not in raw or
+            "THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42" not in raw):
+        raise RuntimeError("loaded-XAML theme resource evidence missing, duplicated, or stale")
+    if any(color[:3].upper() != "#FF" for color in resolved.values()):
+        raise RuntimeError("theme resource is translucent; contrast background is unresolved")
+    focus_matches = re.findall(
+        r"^THEME-FOCUS-RESOURCE (Light|Dark|HighContrast)/(SystemControlFocusVisual(?:Primary|Secondary)Brush)=(#[0-9A-Fa-f]{8})$",
+        raw, re.M)
+    focus_expected = {(variant, key) for variant in ("Light", "Dark", "HighContrast")
+                      for key in focus_keys}
+    focus_resolved = {(variant, key): color for variant, key, color in focus_matches}
+    if len(focus_matches) != 6 or set(focus_resolved) != focus_expected or \
+            any(color[:3].upper() != "#FF" for color in focus_resolved.values()):
+        raise RuntimeError("loaded-XAML opaque two-ring focus resources missing or duplicated")
     source = (ROOT / "src" / "CfdWorkbench.Desktop" / "Styles.axaml").read_text(encoding="utf-8")
-    colors = dict(re.findall(r'<Color x:Key="([^"]+)">(#[0-9a-fA-F]{6})</Color>', source))
-    theme_blocks = dict(re.findall(r'<ResourceDictionary x:Key="([^"]+)">(.*?)</ResourceDictionary>', source, re.S))
-    base_source = re.sub(r'<ResourceDictionary x:Key="[^"]+">.*?</ResourceDictionary>', '', source, flags=re.S)
-    def brushes(block: str) -> dict[str, str]:
-        return dict(re.findall(r'<SolidColorBrush x:Key="([^"]+)" Color="\{StaticResource ([^}]+)\}"', block))
-    base_brushes = brushes(base_source)
+    raw_blocks = re.findall(r'<ResourceDictionary x:Key="([^"]+)">(.*?)</ResourceDictionary>',
+                            source, re.S)
+    blocks = {("HighContrast" if key == "{x:Static local:NativeReviewThemes.HighContrast}" else key): block
+              for key, block in raw_blocks}
+    if set(blocks) != {"Light", "Dark", "HighContrast"}:
+        raise RuntimeError("theme dictionary is missing")
+    without_themes = re.sub(r'<ResourceDictionary x:Key="[^"]+">.*?</ResourceDictionary>',
+                            '', source, flags=re.S)
+    brush_pattern = r'<SolidColorBrush x:Key="([A-Za-z]+Brush)"'
+    if (expected_keys | focus_keys).intersection(re.findall(brush_pattern, without_themes)):
+        raise RuntimeError("root resource shadows theme brush")
+    for variant, block in blocks.items():
+        declared = re.findall(brush_pattern, block)
+        if len(declared) != 16 or set(declared) != expected_keys | focus_keys:
+            raise RuntimeError(f"{variant} theme brush keys are missing or duplicated")
     def luminance(color: str) -> float:
-        values = [int(color[index:index + 2], 16) / 255 for index in (1, 3, 5)]
+        values = [int(color[index:index + 2], 16) / 255 for index in (3, 5, 7)]
         linear = [value / 12.92 if value <= .04045 else ((value + .055) / 1.055) ** 2.4 for value in values]
         return sum(weight * value for weight, value in zip((.2126, .7152, .0722), linear))
     pairs = (("InkBrush", "SurfaceBrush"), ("MutedBrush", "SurfaceBrush"),
              ("ViewportInkBrush", "ViewportBrush"), ("OnPrimaryBrush", "PrimaryBrush"),
              ("StationBrush", "ViewportBrush"))
     result = {}
-    for variant, overrides in (("Light", {}), *[(key, brushes(block)) for key, block in theme_blocks.items()]):
-        palette = base_brushes | overrides
+    for variant in ("Light", "Dark", "HighContrast"):
         for foreground, background in pairs:
-            first, second = luminance(colors[palette[foreground]]), luminance(colors[palette[background]])
+            first = luminance(resolved[(variant, foreground)])
+            second = luminance(resolved[(variant, background)])
             result[f"{variant}:{foreground}/{background}"] = (max(first, second) + .05) / (min(first, second) + .05)
     if min(result.values()) < 4.5:
         raise RuntimeError(f"critical token contrast below 4.5:1: {result}")
-    return result
+    return {"ratios": result, "testStdoutSha256": sha(output),
+            "stylesSha256": sha(ROOT / "src" / "CfdWorkbench.Desktop" / "Styles.axaml"),
+            "testDllSha256": sha(ARTIFACTS / "bin" / "CfdWorkbench.Desktop.Tests" / "debug" /
+                                 "CfdWorkbench.Desktop.Tests.dll"),
+            "desktopDllSha256": sha(ARTIFACTS / "bin" / "CfdWorkbench.Desktop" / "debug" /
+                                    "CfdWorkbench.Desktop.dll"),
+            "appliedTemplateContrast": "not_assessed"}
+
+
+APPLIED_ROWS = {"toolbar.enabled", "tab.section.selected", "tab.source.selected",
+    "source.active.readonly", "station.selected", "station.focused", "cv.selected", "cv.focused",
+    "numeric.enabled.owned-draft", "modal.body", "modal.save", "modal.discard", "modal.cancel",
+    "viewport.annotation", "section.annotation", "focus.toolbar", "focus.tab", "focus.numeric"}
+APPLIED_THEMES = {"Light", "Dark", "HighContrast", "Default"}
+
+
+def parse_applied_theme_rows(raw: str) -> dict[str, float]:
+    expected = {f"{theme}/{row}" for theme in APPLIED_THEMES for row in APPLIED_ROWS}
+    observed: dict[str, float] = {}
+    placement = set()
+    disabled = set()
+    for line in raw.splitlines():
+        if line.startswith("FOCUS-PLACEMENT "):
+            try:
+                fact = json.loads(line.removeprefix("FOCUS-PLACEMENT "))
+            except json.JSONDecodeError:
+                raise RuntimeError("malformed focus placement evidence") from None
+            key = str(fact.get("theme")) + "/" + str(fact.get("name"))
+            if key not in {f"{theme}/focus.tab" for theme in APPLIED_THEMES} or key in placement or \
+                    any(fact.get(name) is not True for name in
+                        ("AdornedLink", "CompositionLink", "AdornerClipped")) or \
+                    any(not isinstance(fact.get(name), str) or not fact[name] or fact[name] == "null"
+                        for name in ("target", "outer", "inner", "adornerClip", "outerClip",
+                                     "size", "offset", "scale", "orientation", "anchor", "center",
+                                     "outerPaint", "innerPaint", "backdrop")) or \
+                    not isinstance(fact.get("rotation"), (float, int)):
+                raise RuntimeError("focus placement missing target-bound composition or clip operands")
+            placement.add(key)
+        if line.startswith("THEME-DISABLED-NUMERIC "):
+            parts = line.split()
+            if len(parts) != 4 or parts[1] not in APPLIED_THEMES or parts[2:] != ["enabled=false", "exempt=true"]:
+                raise RuntimeError("malformed disabled-numeric observation")
+            if parts[1] in disabled:
+                raise RuntimeError("duplicate disabled-numeric observation")
+            disabled.add(parts[1])
+        if not line.startswith("THEME-APPLIED "):
+            continue
+        parts = line.split()
+        if len(parts) < 6 or parts[1] not in expected or parts[1] in observed:
+            raise RuntimeError("missing, duplicate, or unknown applied theme row")
+        fields = dict(part.split("=", 1) for part in parts[2:] if "=" in part)
+        if len(fields) != len(parts) - 2 or not re.fullmatch(r"#[0-9A-Fa-f]{8}", fields.get("fg", "")) or \
+                not re.fullmatch(r"#[0-9A-Fa-f]{8}", fields.get("bg", "")):
+            raise RuntimeError("applied theme row has malformed color evidence")
+        if fields["fg"][:3].upper() != "#FF" or fields["bg"][:3].upper() != "#FF":
+            raise RuntimeError("applied theme row has unresolved alpha")
+        if parts[1].split("/", 1)[1].startswith("focus."):
+            if fields.get("focus") not in ("painted-template-border", "target-bound-adorner"):
+                raise RuntimeError("focus row lacks painted border evidence")
+            if fields["focus"] == "target-bound-adorner" and \
+                    (fields.get("ring") != "outer2-inner1" or
+                     not re.fullmatch(r"#FF[0-9A-Fa-f]{6}", fields.get("inner", "")) or
+                     not re.fullmatch(r"[0-9.]+x[0-9.]+@composition-target", fields.get("outer", "")) or
+                     parts[1] not in placement):
+                raise RuntimeError("target-bound focus adorner lacks measured two-ring evidence")
+            threshold = 3.0
+        else:
+            if fields.get("text") not in ("AccessText", "TextPresenter", "TextBlock") or \
+                    not re.fullmatch(r"[0-9.]+x[0-9.]+", fields.get("bounds", "")):
+                raise RuntimeError("text row lacks rendered presenter bounds")
+            width, height = map(float, fields["bounds"].split("x"))
+            if width <= 0 or height <= 0:
+                raise RuntimeError("text presenter has zero bounds")
+            if parts[1].endswith("/source.active.readonly") and fields.get("clip") != "scroll":
+                raise RuntimeError("active source text lacks measured scroll clip")
+            threshold = 4.5
+        def lightness(value: str) -> float:
+            channels = [int(value[index:index + 2], 16) / 255 for index in (3, 5, 7)]
+            linear = [channel / 12.92 if channel <= .04045 else ((channel + .055) / 1.055) ** 2.4
+                      for channel in channels]
+            return sum(weight * channel for weight, channel in zip((.2126, .7152, .0722), linear))
+        first, second = lightness(fields["fg"]), lightness(fields["bg"])
+        ratio = (max(first, second) + .05) / (min(first, second) + .05)
+        try:
+            emitted_ratio = float(fields["ratio"])
+        except (KeyError, ValueError):
+            raise RuntimeError("applied contrast ratio is missing or malformed") from None
+        if not math.isfinite(emitted_ratio) or ratio + 0.00001 < threshold or \
+                abs(ratio - emitted_ratio) > 0.001:
+            raise RuntimeError(f"applied contrast fails or emitted ratio mismatches: {parts[1]}")
+        observed[parts[1]] = ratio
+    if set(observed) != expected or disabled != APPLIED_THEMES or \
+            placement != {f"{theme}/focus.tab" for theme in APPLIED_THEMES} or \
+            "THEME-APPLIED-CHECK rows=72 variants=4 source=actual-MainWindow" not in raw:
+        raise RuntimeError("applied theme required row set is incomplete")
+    return observed
+
+
+def applied_theme_checks(step: dict) -> dict[str, object]:
+    output = pathlib.Path(step["stdout"])
+    raw = output.read_text(encoding="utf-8")
+    result = parse_applied_theme_rows(raw)
+    first = next(line for line in raw.splitlines() if line.startswith("THEME-APPLIED Light/toolbar.enabled "))
+    placement = next(line for line in raw.splitlines() if line.startswith("FOCUS-PLACEMENT "))
+    negative_cases = {
+        "missing": raw.replace(first + "\n", "", 1),
+        "duplicate": raw + "\n" + first + "\n",
+        "alpha": raw.replace(first, first.replace("fg=#FF", "fg=#80", 1), 1),
+        "ratio": raw.replace(first, re.sub(r"ratio=[0-9.]+", "ratio=99.000000", first), 1),
+        "nan": raw.replace(first, re.sub(r"ratio=[0-9.]+", "ratio=nan", first), 1),
+        "focus-placement-missing": raw.replace(placement + "\n", "", 1),
+        "focus-wrong-target": raw.replace(placement, placement.replace('"CompositionLink":true',
+                                                          '"CompositionLink":false', 1), 1),
+        "focus-clip-missing": raw.replace(placement, re.sub(r'"outerClip":"[^"]+"',
+                                                       '"outerClip":"null"', placement, count=1), 1),
+    }
+    for name, mutation in negative_cases.items():
+        try:
+            parse_applied_theme_rows(mutation)
+        except RuntimeError:
+            continue
+        raise RuntimeError(f"applied theme negative control escaped: {name}")
+    return {"ratios": result, "negativeControls": sorted(negative_cases),
+        "stdoutSha256": sha(output),
+        "stylesSha256": sha(ROOT / "src" / "CfdWorkbench.Desktop" / "Styles.axaml"),
+        "windowSourceSha256": sha(ROOT / "src" / "CfdWorkbench.Desktop" / "MainWindow.axaml.cs"),
+        "testDllSha256": sha(ARTIFACTS / "bin" / "CfdWorkbench.Desktop.Tests" / "debug" /
+                             "CfdWorkbench.Desktop.Tests.dll"),
+        "desktopDllSha256": sha(ARTIFACTS / "bin" / "CfdWorkbench.Desktop" / "debug" /
+                                "CfdWorkbench.Desktop.dll")}
 
 
 def asset_roots() -> dict[str, dict[str, object]]:
@@ -281,7 +448,6 @@ def main() -> int:
                "steps": [], "publish": {}, "packages": {},
                "status": "incomplete"}
     try:
-        receipt["contrastRatios"] = contrast_checks()
         xaml = sorted((ROOT / "src" / "CfdWorkbench.Desktop").glob("*.axaml"))
         if not xaml:
             raise RuntimeError("native token corpus is empty")
@@ -296,6 +462,10 @@ def main() -> int:
             if not dll.is_file():
                 raise RuntimeError(f"test assembly missing: {dll}")
             require_step(receipt, project, ["dotnet", str(dll)])
+            if project == "CfdWorkbench.Desktop.Tests":
+                receipt["themeContrast"] = contrast_checks(receipt["steps"][-1])
+                require_step(receipt, "theme-applied-controls", ["dotnet", str(dll), "--theme-controls"])
+                receipt["appliedThemeContrast"] = applied_theme_checks(receipt["steps"][-1])
         smoke = ARTIFACTS / "bin" / "CfdWorkbench.Desktop" / "debug" / "CfdWorkbench.Desktop"
         if not smoke.is_file():
             raise RuntimeError(f"native startup executable missing: {smoke}")

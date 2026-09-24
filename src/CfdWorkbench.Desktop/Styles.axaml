@@ -16,6 +16,24 @@
     <Color x:Key="HighContrastAccentColor">#ffff00</Color>
     <Color x:Key="HighContrastStationColor">#00ffff</Color>
     <ResourceDictionary.ThemeDictionaries>
+      <ResourceDictionary x:Key="Light">
+        <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource CanvasColor}" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+        <SolidColorBrush x:Key="SurfaceSoftBrush" Color="{StaticResource SurfaceSoftColor}" />
+        <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
+        <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+        <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+        <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource OnPrimaryColor}" />
+        <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+        <SolidColorBrush x:Key="ViewportBrush" Color="{StaticResource ViewportColor}" />
+        <SolidColorBrush x:Key="ViewportGridBrush" Color="{StaticResource ViewportGridColor}" />
+        <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
+        <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
+        <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource PrimaryColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource InkColor}" />
+      </ResourceDictionary>
       <ResourceDictionary x:Key="Dark">
         <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource DarkCanvasColor}" />
         <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource DarkSurfaceColor}" />
@@ -26,6 +44,13 @@
         <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource DarkPrimaryColor}" />
         <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource DarkOnPrimaryColor}" />
         <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DarkDangerColor}" />
+        <SolidColorBrush x:Key="ViewportBrush" Color="{StaticResource ViewportColor}" />
+        <SolidColorBrush x:Key="ViewportGridBrush" Color="{StaticResource ViewportGridColor}" />
+        <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
+        <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
+        <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource DarkPrimaryColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource DarkInkColor}" />
       </ResourceDictionary>
       <ResourceDictionary x:Key="{x:Static local:NativeReviewThemes.HighContrast}">
         <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource HighContrastBackgroundColor}" />
@@ -42,6 +67,8 @@
         <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource HighContrastInkColor}" />
         <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="StationBrush" Color="{StaticResource HighContrastStationColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource HighContrastInkColor}" />
       </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
     <Color x:Key="CanvasColor">#f0f2f1</Color>
@@ -58,20 +85,6 @@
     <Color x:Key="ViewportInkColor">#edf4f2</Color>
     <Color x:Key="FoilColor">#85c9c4</Color>
     <Color x:Key="StationColor">#66ddc8</Color>
-    <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource CanvasColor}" />
-    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
-    <SolidColorBrush x:Key="SurfaceSoftBrush" Color="{StaticResource SurfaceSoftColor}" />
-    <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
-    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
-    <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}" />
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
-    <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource OnPrimaryColor}" />
-    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
-    <SolidColorBrush x:Key="ViewportBrush" Color="{StaticResource ViewportColor}" />
-    <SolidColorBrush x:Key="ViewportGridBrush" Color="{StaticResource ViewportGridColor}" />
-    <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
-    <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
-    <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
     <Thickness x:Key="Space2">8</Thickness>
     <Thickness x:Key="Space3">12</Thickness>
     <Thickness x:Key="Space4">16</Thickness>
@@ -94,8 +107,16 @@
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
-  <Style Selector="Button"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Padding" Value="{StaticResource Space3}" /></Style>
-  <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /></Style>
+  <Style Selector="Button"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Padding" Value="{StaticResource Space3}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
+  <Style Selector="TabItem"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
+  <Style Selector="TabItem:selected"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="ListBox"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="ListBoxItem"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="ListBoxItem:selected:not(:focus) /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Button:focus-visible, TabItem:focus-visible, TextBox:focus-visible, ListBoxItem:focus-visible"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="{StaticResource HeadingSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
 </Styles>

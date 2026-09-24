@@ -32,6 +32,7 @@ public sealed partial class MainWindow : Window
     private readonly Viewport viewport, sectionViewport;
     private bool refreshing;
     private bool closeApproved;
+    private bool closed;
     private string? adapterError;
     private string? boundDraftId;
     private string? navigatorKey;
@@ -76,7 +77,7 @@ public sealed partial class MainWindow : Window
         sourceText = Find<TextBox>("SourceText"); documentTabs = Find<TabControl>("DocumentTabs");
         viewport = Find<Viewport>("FoilViewport");
         sectionViewport = Find<Viewport>("SectionViewport");
-        workbench.Changed += () => Dispatcher.UIThread.Post(Refresh);
+        workbench.Changed += OnWorkbenchChanged;
         exampleButton.Click += async (_, _) => await Guarded(async () => { if (await MayReplaceAsync()) await workbench.OpenExampleAsync(); });
         openButton.Click += async (_, _) => await Guarded(OpenAsync);
         saveButton.Click += async (_, _) => await Guarded(SaveWithPickerAsync);
@@ -93,7 +94,12 @@ public sealed partial class MainWindow : Window
         numericInput.KeyDown += OnNumericKeyDown;
         KeyDown += OnWindowKeyDown;
         Closing += OnClosing;
-        Closed += (_, _) => workbench.Dispose();
+        Closed += (_, _) =>
+        {
+            closed = true;
+            workbench.Changed -= OnWorkbenchChanged;
+            workbench.Dispose();
+        };
         Opened += async (_, _) =>
         {
             Console.Error.WriteLine("NATIVE-STARTUP window-opened");
@@ -107,6 +113,7 @@ public sealed partial class MainWindow : Window
                 ? BeginNativeMetric("example-ready", Program.ManagedStartTicks == 0
                     ? Stopwatch.GetTimestamp() : Program.ManagedStartTicks) : null;
             await Guarded(() => review is null ? workbench.OpenExampleAsync() : review.ApplyStateAsync(workbench));
+            if (closed) return;
             if (start is not null) CaptureNativeMetric(start);
             Refresh();
             if (review is not null)
@@ -131,8 +138,13 @@ public sealed partial class MainWindow : Window
         { adapterError = "DOC-IO: File operation failed. Accepted source retained."; }
         catch (Exception error) when (review is not null && (error is ArgumentException or InvalidOperationException))
         { adapterError = $"REVIEW-REFUSED: {error.Message}"; }
-        Refresh();
+        if (!closed) Refresh();
     }
+
+    private void OnWorkbenchChanged() => Dispatcher.UIThread.Post(() =>
+    {
+        if (!closed) Refresh();
+    });
 
     private async Task OpenAsync()
     {
@@ -352,7 +364,7 @@ public sealed partial class MainWindow : Window
     private async Task<string> UnsavedDialogAsync()
     {
         var dialog = new Window { Title = "Unsaved foil changes", Width = 420, Height = 190, WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            CanResize = false };
+            CanResize = false, RequestedThemeVariant = ActualThemeVariant };
         var result = "Cancel";
         var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right };
         Button? cancelButton = null;
@@ -565,6 +577,7 @@ public sealed partial class MainWindow : Window
 
     private void Refresh()
     {
+        if (closed) return;
         if (refreshing) return;
         long mainRenderBefore = viewport.RenderSerial;
         long sectionRenderBefore = sectionViewport.RenderSerial;
