@@ -15,8 +15,8 @@ links:
 review-by: 2026-10-23
 summary: >-
   Independent source-bound CLI, controller, recovery and package observations.
-  Actual native rendered interaction and accessibility verification remain open;
-  these partial results do not accept track C or milestone M1.
+  Named native interactions and bounded B permission repair pass independent review.
+  Remaining performance, state and accessibility obligations keep C and M1 open.
 ---
 
 # Independent native application review
@@ -590,3 +590,32 @@ run) are application computation measurements, not measured end-to-end
 100 ms edit or 250 ms preview/cancel latency. Remaining performance, theme/hard
 state, dense-list and complete keyboard/accessibility rows need evidence or an
 explicit separately scoped disposition; they are not silently waived here.
+
+### Final overwrite reopen and native window checks
+
+On the same frozen combined binary and process, root subsequently verified:
+
+| Action | Observed result | Limit |
+|---|---|---|
+| Native window close with unsaved accepted import | Confirmation defaults to Cancel; Escape closes the dialog, preserves revision `02828a39-efbd-4046-8135-5bcde62abec4` and returns focus to Open | Cmd-W did not invoke close in this run; no unverified shortcut claim |
+| F6 from source panel and reverse F6 | Open and selected source tab remain reachable | Does not establish full VoiceOver support |
+| Native window zoom, then restore | Controls, source and plots remain usable; accepted identity unchanged; restored screenshot is 1024 × 728 including title bar | Not mixed-DPI or cross-platform evidence |
+| Open the final overwritten `combined-accepted.cfdw.json` | After the picker refresh below, state is “Accepted project reopened.” Exact source `8f9052d55fa1cfb7bcd4b9e81a52835e4795e32d2f69922d6166cd9c7b94d157`, surface `5a18458c5c1e882c6b1b6219e0498c58025720d6d333769e66506321bf03266b`, revision `62d6bd9d-767a-4bc5-8961-20819aed3547`, numeric 125; no draft, import or recovery | Completes actual native readback of the overwrite as well as the earlier first-save readback |
+| Select Section sample after reopen | Physical X/Z section at eta 0.5, point-enclosure/segment-error distinction, accepted provenance and unavailable analysis are rendered and exposed in AX | Five sampled points are not a complete section editor or continuous-curve error proof |
+
+**Observed picker residual, cause unverified:** initially the native Open picker
+displayed the final saved JSON but disabled Open; Return did nothing. Selecting
+the row again did not resolve it. Navigating with Go To to `/tmp`, then re-entering
+the exact saved path enabled Open and the application reopened it successfully.
+No file, permission or application source change was needed. The implementation's
+Open call supplies no file-type filter. This observation does not establish
+whether the native picker, framework or application caused the stale state.
+Retain it for the remaining native-picker review; do not replace it with a
+claimed permanent storage failure or silently omit the recovery step.
+
+The window is left showing the saved accepted project in Section sample view.
+Screenshots and AX observations remain in the CUA transcript. Long viewport
+annotation labels are truncated visually, with full text in AX and equivalent
+navigation data; this is a recorded craft limitation, not a complete accessibility
+verdict. B's bounded acceptance is unchanged; C/M1 remains open pending the
+separate end-to-end timing and remaining state coverage.

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:25:20Z",
+  "generated": "2026-09-24T01:36:42Z",
   "audit": [
     {
       "actor": null,
@@ -4792,6 +4792,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "dbff632a2199fb078ffc1a31d8f3f37caadd4df0",
         "short": "dbff632a2",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38GXJJHTRNQ1H4XHH54YC14",
+      "shortname": "native-review-resumed",
+      "datetime": "2026-09-24T01:36:42Z",
+      "session": "cfd-application-20260923",
+      "prompt": "The newest review window is visible and in front",
+      "summary": "Independent frozen combined native review clears named interaction regressions and bounded B permission repair. Final native overwrite reopens exact source/revision after refreshing stale picker directory selection; close/Cancel focus and zoom/restore observed. C/M1 remains open for end-to-end timings, remaining state and accessibility obligations. Docs check passes: 104 artifacts, zero defects, 77 existing nonblocking review flags. No production source authored.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Finish combined native review with independent evidence and honest remaining obligations.",
+      "done_when": "Named repaired interactions and actual Save/overwrite/Reopen are verified, or concrete blockers recorded.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-24T01:11:57Z",
+      "duration_seconds": 1485.0,
+      "git": {
+        "sha": "17f60d0f80918557ce9950ea18a9faa005fbdbae",
+        "short": "17f60d0f8",
         "branch": "feature/application-foundation",
         "pushed": null
       }

@@ -4872,7 +4872,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Independent source-bound CLI, controller, recovery and package observations. Actual native rendered interaction and accessibility verification remain open; these partial results do not accept track C or milestone M1.",
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining performance, state and accessibility obligations keep C and M1 open.",
       "tags": [
         "application",
         "native-ui",
@@ -4907,7 +4907,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cbf0563f9273fd87055a772f86d23949b9a864eb066878b940413fcd0cb5e9ca"
+      "sourceSha256": "5f2d011a50aa1a33ba89d454a2c91e1f64a43d4fbee59f6425ecdb1b06a03caf"
     },
     {
       "id": "review-ui-workbench",
@@ -5467,5 +5467,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "db690609188945b095cb332462fe3939256d9a0f338e2002d2130bf64b17eef8"
+  "graphSha256": "6dda07192cc048940589197b8b8a18d0b03b24892221f64e6d884ad361f68f30"
 };
