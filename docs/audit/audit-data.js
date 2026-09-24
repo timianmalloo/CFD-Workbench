@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:19:13Z",
+  "generated": "2026-09-24T16:19:31Z",
   "audit": [
     {
       "actor": null,
@@ -6845,6 +6845,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M3A3E2AEB9VK92QC0HXSY65Q",
+      "shortname": "R37 independent review checkpoint join",
+      "datetime": "2026-09-24T16:19:31Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrated independent R34-R37 source, contrast, final gate and pending Dark CUA evidence only; C product remains isolated. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve current independent native evidence in coordination without clearing the UI veto or joining product.",
+      "done_when": "Reviewer commit 03d7d71 is integrated, docs checks pass, and no C source enters coordination.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T16:19:31Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
