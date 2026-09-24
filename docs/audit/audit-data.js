@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:40:15Z",
+  "generated": "2026-09-24T01:43:33Z",
   "audit": [
     {
       "actor": null,
@@ -6075,25 +6075,108 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M38GPFEKXZ8EJS7AQ3WPVZHE",
-      "shortname": "join-b-native-permissions",
-      "datetime": "2026-09-24T01:32:50Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Integrate R28 B-only native permission repair with affected core recount recount_seconds=33 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/application-core.md",
         "docs/reviews/ui-application-native.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:32:50Z",
+      "done_when": "Six B source/proof paths and designated metadata join with core and integrated gates passing; C remains isolated.",
+      "duration_seconds": 35.0,
+      "fan_out": 0,
+      "goal": "Close the measured macOS arm64 B creation-permission boundary in the canonical core.",
+      "id": "al-01M38GPFEKXZ8EJS7AQ3WPVZHE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-b-native-permissions",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T01:32:15Z",
+      "summary": "Integrate R28 B-only native permission repair with affected core recount recount_seconds=33 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:40:15Z",
+      "done_when": "Canonical ruling assigns scope, evidence and stop conditions; notify Coordinator/root and yield.",
+      "duration_seconds": 120.0,
+      "fan_out": 0,
+      "goal": "Define bounded C repair and proof step from failed portability gates and remaining native checks.",
+      "id": "al-01M38H427C95QDP7C4NF3SN96P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule req-01M38GZW3WYW5M2SDSDQVEX3JX for bounded next C proof after B-only join a550466; isolated handoff13c883a stopped at step8 on five portability findings. Preserve root veto, no C product join; record canonical ruling and yield.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-c-proof-continuation-r29",
+      "skill": "define-architecture",
+      "started_at": "2026-09-24T01:38:15Z",
+      "summary": "Ruling29 permits existing C author bounded portability repair then actual native event-to-final-visible timing and representative theme/state/dense matrix. Direct source inspection confirms text-I/O seams and interim Assessing endpoint hazard. Requires installed rendering API spike, truthful submission/presentation distinction, negative delay and stale/cancel controls, raw measurements with coverage limits, no threshold waiver; root independent native review. Nine-path candidate envelope,60call/35min checkpoint; no B edits or new route.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:36:42Z",
+      "done_when": "Named repaired interactions and actual Save/overwrite/Reopen are verified, or concrete blockers recorded.",
+      "duration_seconds": 1485.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "17f60d0f80918557ce9950ea18a9faa005fbdbae",
+        "short": "17f60d0f8"
+      },
+      "goal": "Finish combined native review with independent evidence and honest remaining obligations.",
+      "id": "al-01M38GXJJHTRNQ1H4XHH54YC14",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "The newest review window is visible and in front",
+      "session": "cfd-application-20260923",
+      "shortname": "native-review-resumed",
+      "skill": "ui-design",
+      "started_at": "2026-09-24T01:11:57Z",
+      "summary": "Independent frozen combined native review clears named interaction regressions and bounded B permission repair. Final native overwrite reopens exact source/revision after refreshing stale picker directory selection; close/Cancel focus and zoom/restore observed. C/M1 remains open for end-to-end timings, remaining state and accessibility obligations. Docs check passes: 104 artifacts, zero defects, 77 existing nonblocking review flags. No production source authored.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M38HA3M1NQT5RMKTK4KEDY08",
+      "shortname": "join-final-native-review-checkpoint",
+      "datetime": "2026-09-24T01:43:33Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Integrate root final native Reopen and window-state observations as review documents recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Close the measured macOS arm64 B creation-permission boundary in the canonical core.",
-      "done_when": "Six B source/proof paths and designated metadata join with core and integrated gates passing; C remains isolated.",
+      "goal": "Make independent native C findings durable without product source acceptance.",
+      "done_when": "Root review and official metadata join docs-only with checks passing; C product remains isolated.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -6101,32 +6184,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-24T01:32:15Z",
-      "duration_seconds": 35.0
-    },
-    {
-      "id": "al-01M38H427C95QDP7C4NF3SN96P",
-      "shortname": "owner-c-proof-continuation-r29",
-      "datetime": "2026-09-24T01:40:15Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule req-01M38GZW3WYW5M2SDSDQVEX3JX for bounded next C proof after B-only join a550466; isolated handoff13c883a stopped at step8 on five portability findings. Preserve root veto, no C product join; record canonical ruling and yield.",
-      "summary": "Ruling29 permits existing C author bounded portability repair then actual native event-to-final-visible timing and representative theme/state/dense matrix. Direct source inspection confirms text-I/O seams and interim Assessing endpoint hazard. Requires installed rendering API spike, truthful submission/presentation distinction, negative delay and stale/cancel controls, raw measurements with coverage limits, no threshold waiver; root independent native review. Nine-path candidate envelope,60call/35min checkpoint; no B edits or new route.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Define bounded C repair and proof step from failed portability gates and remaining native checks.",
-      "done_when": "Canonical ruling assigns scope, evidence and stop conditions; notify Coordinator/root and yield.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-24T01:38:15Z",
-      "duration_seconds": 120.0
+      "started_at": "2026-09-24T01:43:32Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
