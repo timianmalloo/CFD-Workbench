@@ -3001,7 +3001,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b7cef8fb3972145a6c34c23e6b60f483432694b695535245936adda60fdfd4ca"
+      "sourceSha256": "292ee51782efcadd597e5f455f65e346a3ec95d1833f80be5ca1d81175e4b3ae"
     },
     {
       "id": "kb-hw-glossary",
@@ -4994,7 +4994,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Independent source-bound CLI, controller, recovery and package observations. Actual native rendered interaction and accessibility verification remain open; these partial results do not accept track C or milestone M1.",
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining performance, state and accessibility obligations keep C and M1 open.",
       "tags": [
         "application",
         "native-ui",
@@ -5029,7 +5029,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cbf0563f9273fd87055a772f86d23949b9a864eb066878b940413fcd0cb5e9ca"
+      "sourceSha256": "5f2d011a50aa1a33ba89d454a2c91e1f64a43d4fbee59f6425ecdb1b06a03caf"
     },
     {
       "id": "review-ui-workbench",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "35ea0efb68106459ddc5fef6bf41cf9bab32f35431b7a151a712ed397103cfcd"
+  "graphSha256": "32e00034012783ec6190ed28d4bb512a15db76114ff5b2e6dfb0b86999a1a020"
 };
