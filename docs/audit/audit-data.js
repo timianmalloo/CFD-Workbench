@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T02:40:57Z",
+  "generated": "2026-09-24T02:41:19Z",
   "audit": [
     {
       "actor": null,
@@ -6385,6 +6385,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": "native-review"
+    },
+    {
+      "id": "al-01M38MKWFBDKGKBVM8TZYCC0KS",
+      "shortname": "join-r29-final-review",
+      "datetime": "2026-09-24T02:41:19Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Join independent final package readback and supported CUA attachment blocker without C product code recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve the independent final R29 review in the coordination branch",
+      "done_when": "Review and derived metadata join cleanly with documentation checks and C remains isolated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-24T02:41:18Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
