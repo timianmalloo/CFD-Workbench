@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:28:31Z",
+  "generated": "2026-09-24T01:30:48Z",
   "audit": [
     {
       "actor": null,
@@ -5889,12 +5889,133 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M384SNC5NBNF49PS8YV12EQR",
-      "shortname": "join-combined-native-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-23T22:04:51Z",
+      "done_when": "Root review and investigation join with official derived docs and verification gates passing; product branches remain unjoined.",
+      "duration_seconds": 1.0,
+      "fan_out": 0,
+      "goal": "Make source-bound combined gate and native blocker evidence durable in the coordination branch.",
+      "id": "al-01M384SNC5NBNF49PS8YV12EQR",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-combined-native-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-23T22:04:50Z",
+      "summary": "Join root independent permission and adapter review evidence while B and C product branches stay isolated. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html",
+        "docs/reviews/ui-application-native.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T22:06:57Z",
+      "done_when": "The combined manifest, gate, launch and root native disposition are recorded in the plan, official views pass, and the status commit is clean.",
+      "fan_out": 0,
+      "goal": "Bind one isolated combined package to both clean candidates and make the independent native review status durable without joining product branches.",
+      "id": "al-01M384XGY61TGCZ0GJHCXX6EWQ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Ruling 27 review-only B and C composition and native gate handoff",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "combined-native-review-status",
+      "skill": "execute-with-coordination",
+      "summary": "Review-only B+C composition e6e5628 passed one 11-step contained gate; 55-input and 231-file copy manifests bind package/helper/launch PID71600. Root independently verified the hashes but exact-path CUA returned cgWindowNotFound; native Save and interaction gates remain open pending visibility. Original0454 evidence preserved; B/C product branches unjoined. Read-only command-interface guesses during staging failed before writes and use the existing NG-LOCAL inventory control.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-09-24T01:12:40Z",
+      "id": "al-01M38FHJRDH35CGK02BTX06TYV",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "The newest review window is visible and in front",
+      "session": "prompt-log",
+      "shortname": "The newest review window is visible and in front",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:28:31Z",
+      "done_when": "Canonical ruling states B integration disposition and remaining C/platform/release limits; notify root and Coordinator and yield.",
+      "duration_seconds": 122.0,
+      "fan_out": 0,
+      "goal": "Decide bounded B storage gate from completed independent native proof.",
+      "id": "al-01M38GEJYA004S4MV93PC74F93",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule typed B gate req-01M38GAB4D08SN8SWB4QW3YZF2 on clean B ee6d73ad and root independent17f60d0 PASS after native app Save/overwrite/Reopen0600, exact history and original anomaly preservation. Permit B-only supported join or name missing oracle; no C/M1/Windows/ACL/signing acceptance. Inspect evidence, record ruling and yield.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-b-permission-gate-r28",
+      "skill": "define-architecture",
+      "started_at": "2026-09-24T01:26:29Z",
+      "summary": "Ruling28 accepts bounded macOS arm64 B creation-permission correction. Directly observed clean B/root HEADs, source repair and strict0600 guard, proof/review, hashed disk/gate receipts, both saved0600 modes and unchanged original0454, package Persistence/helper hashes. Independently matched all55 origin and combined manifest blobs with zero mismatches; retained11 steps exit0/quiescent. Root independently clears Security/Data/Test; no Owner rerun or self-clearance. B-only conductor join then controlled C handoff; C/M1/other platform/release limits remain.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "datetime": "2026-09-24T01:25:19Z",
+      "done_when": "Repaired workflows and Save/Reopen pass independently, and remaining native obligations receive evidence or a concrete blocker disposition.",
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "dbff632a2199fb078ffc1a31d8f3f37caadd4df0",
+        "short": "dbff632a2"
+      },
+      "goal": "Finish source-bound combined native review.",
+      "id": "al-01M38G8QZE5ZYKXDJZKDFTGHTS",
+      "kind": "command",
+      "outcome": "partial",
+      "prompt": "The newest review window is visible and in front",
+      "session": "cfd-application-20260923",
+      "shortname": "r26-native-independent-pass",
+      "skill": null,
+      "summary": "Same combined PID71600 CUA attachment succeeded. Native F6 tabs, selected-CV Enter/Space, generation0 bindings, Preview/Apply/Cancel, Save/Reopen/overwrite/history and invalid-recovery/import flows verified. Independent disk oracle proves0600, exact sole TE edit and retained original fixtures. B R26 Security/Data/Test bounded PASS; C performance and full native-state/accessibility disposition remain open. Scratch expected-hash typo was detected and corrected with exact fixture-byte comparison; not a product failure. Docs104/0defects/77existingflags.",
+      "tags": [],
+      "tier": "T2",
+      "tool": "native-cua-review"
+    },
+    {
+      "id": "al-01M38GJS416WKV802WS9GJTY5E",
+      "shortname": "join-native-persistence-review",
+      "datetime": "2026-09-24T01:30:48Z",
       "session": "cfd-coordinator-20260923",
       "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join root independent permission and adapter review evidence while B and C product branches stay isolated. recount_seconds=0 (docs_only=True).",
+      "summary": "Integrate root R26 native Save and UI evidence before B-only source join recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -5906,8 +6027,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Make source-bound combined gate and native blocker evidence durable in the coordination branch.",
-      "done_when": "Root review and investigation join with official derived docs and verification gates passing; product branches remain unjoined.",
+      "goal": "Make independent source-bound B permission and C interaction findings durable in coordination.",
+      "done_when": "Review and investigation join without importing product sources; required checks pass.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -5915,71 +6036,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-23T22:04:50Z",
-      "duration_seconds": 1.0
-    },
-    {
-      "id": "al-01M384XGY61TGCZ0GJHCXX6EWQ",
-      "shortname": "combined-native-review-status",
-      "datetime": "2026-09-23T22:06:57Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Ruling 27 review-only B and C composition and native gate handoff",
-      "summary": "Review-only B+C composition e6e5628 passed one 11-step contained gate; 55-input and 231-file copy manifests bind package/helper/launch PID71600. Root independently verified the hashes but exact-path CUA returned cgWindowNotFound; native Save and interaction gates remain open pending visibility. Original0454 evidence preserved; B/C product branches unjoined. Read-only command-interface guesses during staging failed before writes and use the existing NG-LOCAL inventory control.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/application-build.md",
-        "docs/coordination/application-build.html",
-        "docs/reviews/ui-application-native.md"
-      ],
-      "tags": [],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Bind one isolated combined package to both clean candidates and make the independent native review status durable without joining product branches.",
-      "done_when": "The combined manifest, gate, launch and root native disposition are recorded in the plan, official views pass, and the status commit is clean.",
-      "tier": "T1",
-      "fan_out": 0
-    },
-    {
-      "id": "al-01M38FHJRDH35CGK02BTX06TYV",
-      "shortname": "The newest review window is visible and in front",
-      "datetime": "2026-09-24T01:12:40Z",
-      "session": "prompt-log",
-      "prompt": "The newest review window is visible and in front",
-      "summary": "prompt logged for reuse",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success"
-    },
-    {
-      "id": "al-01M38GEJYA004S4MV93PC74F93",
-      "shortname": "owner-b-permission-gate-r28",
-      "datetime": "2026-09-24T01:28:31Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule typed B gate req-01M38GAB4D08SN8SWB4QW3YZF2 on clean B ee6d73ad and root independent17f60d0 PASS after native app Save/overwrite/Reopen0600, exact history and original anomaly preservation. Permit B-only supported join or name missing oracle; no C/M1/Windows/ACL/signing acceptance. Inspect evidence, record ruling and yield.",
-      "summary": "Ruling28 accepts bounded macOS arm64 B creation-permission correction. Directly observed clean B/root HEADs, source repair and strict0600 guard, proof/review, hashed disk/gate receipts, both saved0600 modes and unchanged original0454, package Persistence/helper hashes. Independently matched all55 origin and combined manifest blobs with zero mismatches; retained11 steps exit0/quiescent. Root independently clears Security/Data/Test; no Owner rerun or self-clearance. B-only conductor join then controlled C handoff; C/M1/other platform/release limits remain.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Decide bounded B storage gate from completed independent native proof.",
-      "done_when": "Canonical ruling states B integration disposition and remaining C/platform/release limits; notify root and Coordinator and yield.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-24T01:26:29Z",
-      "duration_seconds": 122.0
+      "started_at": "2026-09-24T01:30:48Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
