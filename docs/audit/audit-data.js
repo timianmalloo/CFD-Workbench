@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:23:43Z",
+  "generated": "2026-09-24T15:30:47Z",
   "audit": [
     {
       "actor": null,
@@ -6470,159 +6470,189 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M39WRJT23NWN1P4CW9S00NWR",
-      "shortname": "join-r30-native-matrix",
-      "datetime": "2026-09-24T14:22:56Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join independent frozen Light Dark HighContrast native matrix and theme rendering veto without C product code recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/ui-application-native.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Preserve source-bound independent native matrix evidence for R30 repair",
+      "datetime": "2026-09-24T14:22:56Z",
       "done_when": "Root review and derived metadata join cleanly while C product remains isolated",
-      "tier": "T1",
+      "duration_seconds": 1.0,
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-09-24T14:22:55Z",
-      "duration_seconds": 1.0
-    },
-    {
-      "id": "al-01M39XKDCPHVADJ4CAPWSV2RYW",
-      "shortname": "owner-applied-theme-continuation-r31",
-      "datetime": "2026-09-24T14:37:35Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Decide req-01M39XGJPGMB307FK5Y60K3F69: paused R30 four-path checkpoint loaded42resource/root-shadow GREEN, actual control backgrounds translucent and applied contrast Not assessed. Authorize35call/25min continuation and decide conditional unsaved-modal fifth path; no B/Escape/threshold/join waiver.",
-      "summary": "Ruling31 permits bounded applied-template/color ancestry proof with real alpha/opacity/layer controls. Owner inspected dirty inventory and actual modal source. App-owned unsaved Window classified within explicit theme contract, distinct from OS picker; conditional fifth MainWindow lease activates only after actual owner/modal variant mismatch, solely theme propagation with focus/outcome regression tests. Token6.15 not promoted to applied PASS; unresolved rows stay blockers. Root independently reviews rebuilt native themes; no acceptance.",
+      "goal": "Preserve source-bound independent native matrix evidence for R30 repair",
+      "id": "al-01M39WRJT23NWN1P4CW9S00NWR",
       "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
       "outcome": "success",
-      "compiled": false,
-      "goal": "Decide bounded theme checkpoint continuation and exact remaining applied-color proof.",
-      "done_when": "Canonical ruling names proof and any conditional path change; notify Coordinator/root and yield.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-24T14:36:20Z",
-      "duration_seconds": 75.0
-    },
-    {
-      "id": "al-01M39YAMB7BAJ95SJ5J362QT9X",
-      "shortname": "owner-coherent-theme-completion-r32",
-      "datetime": "2026-09-24T14:50:16Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule req-01M39Y6T9B7E0HK17AK655XJ7Q correcting same-four-path to five authorized paths. Replace repeated property-only probes with one sufficient completion packet up to70calls/50min, complete required theme/control/state rows as loop variant, at most one adaptive retry, precise blocker if unresolved. Permit conservative opaque ancestry oracle, fail closed on unsupported alpha/group cases. No new scope or acceptance.",
-      "summary": "Ruling32 explicitly corrects five paths and70call/50min ceiling. Inspected dirty inventory, modal one-line change and incomplete current property/resource probe/parser. Authorized coherent actual-template extraction+required-row parser+negative controls before targeted complete-matrix run, one corrective retry maximum; conservative opaque proof accepted with strict unresolved paint refusal. Proof and one source-frozen full gate/package only after complete honest pass. Root independent native veto retained; no production edit/build by Owner.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Replace repeated partial contrast probes with one bounded completion packet.",
-      "done_when": "Canonical ruling confirms five paths, complete proof matrix and stopping rule; notify Coordinator/root and yield.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-24T14:48:56Z",
-      "duration_seconds": 80.0
-    },
-    {
-      "id": "al-01M39Z7MFXZ8P12QHRJWR73EDP",
-      "shortname": "owner-contrast-fixture-recovery-r33",
-      "datetime": "2026-09-24T15:06:06Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule req-01M39Z58ADE5CTBZWFQ99RESE6: R32 corrective matrix stopped on locked leading cv-1 fixture; root/author independently diagnosed. Authorize bounded editable-identity fixture correction and complete72row matrix under decreasing unresolved-prerequisite/row loop or hold; preserve five paths and independent veto.",
-      "summary": "Ruling33 explicitly permits fixture-recovery exception≤50calls/35min,≤3complete matrix runs with proper-subset U/no regression. Directly inspected index1, Editable guard, Example and existing capability-based tests. Require selected core/UI identity and owned enabled draft preconditions, retain locked negative, batch independent failures and preserve nonzero result; no row/threshold/opacity weakening. Full gate only after complete honest pass; root independent native gate retained.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/notes/rulings.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Decide fixture-only recovery from the stopped contrast run.",
-      "done_when": "Canonical ruling separates test setup from product failure and sets finite retry/stop; notify root/Coordinator and yield.",
-      "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-24T15:05:03Z",
-      "duration_seconds": 63.0
-    },
-    {
-      "id": "al-01M39ZEQNTR10NX189VSBGW0VH",
-      "shortname": "R33 defect classes",
-      "datetime": "2026-09-24T15:09:59Z",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
       "session": "cfd-coordinator-20260923",
-      "prompt": "Capture the theme-resource precedence and positional editable-target fixture failure classes with executable controls.",
-      "summary": "Recorded UI-THEME-ORACLE and TEST-CAPABILITY in the always-loaded register. R30 native Dark and HighContrast render and R32 fixture were retained RED; R33 first complete matrix proves authored editable-target and locked-target controls but applied contrast remains partial (48/72 rows). No product gate or join claim.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
+      "shortname": "join-r30-native-matrix",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T14:22:55Z",
+      "summary": "Join independent frozen Light Dark HighContrast native matrix and theme rendering veto without C product code recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T14:37:35Z",
+      "done_when": "Canonical ruling names proof and any conditional path change; notify Coordinator/root and yield.",
+      "duration_seconds": 75.0,
+      "fan_out": 0,
+      "goal": "Decide bounded theme checkpoint continuation and exact remaining applied-color proof.",
+      "id": "al-01M39XKDCPHVADJ4CAPWSV2RYW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Decide req-01M39XGJPGMB307FK5Y60K3F69: paused R30 four-path checkpoint loaded42resource/root-shadow GREEN, actual control backgrounds translucent and applied contrast Not assessed. Authorize35call/25min continuation and decide conditional unsaved-modal fifth path; no B/Escape/threshold/join waiver.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-applied-theme-continuation-r31",
+      "skill": "define-architecture",
+      "started_at": "2026-09-24T14:36:20Z",
+      "summary": "Ruling31 permits bounded applied-template/color ancestry proof with real alpha/opacity/layer controls. Owner inspected dirty inventory and actual modal source. App-owned unsaved Window classified within explicit theme contract, distinct from OS picker; conditional fifth MainWindow lease activates only after actual owner/modal variant mismatch, solely theme propagation with focus/outcome regression tests. Token6.15 not promoted to applied PASS; unresolved rows stay blockers. Root independently reviews rebuilt native themes; no acceptance.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T14:50:16Z",
+      "done_when": "Canonical ruling confirms five paths, complete proof matrix and stopping rule; notify Coordinator/root and yield.",
+      "duration_seconds": 80.0,
+      "fan_out": 0,
+      "goal": "Replace repeated partial contrast probes with one bounded completion packet.",
+      "id": "al-01M39YAMB7BAJ95SJ5J362QT9X",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule req-01M39Y6T9B7E0HK17AK655XJ7Q correcting same-four-path to five authorized paths. Replace repeated property-only probes with one sufficient completion packet up to70calls/50min, complete required theme/control/state rows as loop variant, at most one adaptive retry, precise blocker if unresolved. Permit conservative opaque ancestry oracle, fail closed on unsupported alpha/group cases. No new scope or acceptance.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-coherent-theme-completion-r32",
+      "skill": "define-architecture",
+      "started_at": "2026-09-24T14:48:56Z",
+      "summary": "Ruling32 explicitly corrects five paths and70call/50min ceiling. Inspected dirty inventory, modal one-line change and incomplete current property/resource probe/parser. Authorized coherent actual-template extraction+required-row parser+negative controls before targeted complete-matrix run, one corrective retry maximum; conservative opaque proof accepted with strict unresolved paint refusal. Proof and one source-frozen full gate/package only after complete honest pass. Root independent native veto retained; no production edit/build by Owner.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T15:06:06Z",
+      "done_when": "Canonical ruling separates test setup from product failure and sets finite retry/stop; notify root/Coordinator and yield.",
+      "duration_seconds": 63.0,
+      "fan_out": 0,
+      "goal": "Decide fixture-only recovery from the stopped contrast run.",
+      "id": "al-01M39Z7MFXZ8P12QHRJWR73EDP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule req-01M39Z58ADE5CTBZWFQ99RESE6: R32 corrective matrix stopped on locked leading cv-1 fixture; root/author independently diagnosed. Authorize bounded editable-identity fixture correction and complete72row matrix under decreasing unresolved-prerequisite/row loop or hold; preserve five paths and independent veto.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-contrast-fixture-recovery-r33",
+      "skill": "define-architecture",
+      "started_at": "2026-09-24T15:05:03Z",
+      "summary": "Ruling33 explicitly permits fixture-recovery exception≤50calls/35min,≤3complete matrix runs with proper-subset U/no regression. Directly inspected index1, Editable guard, Example and existing capability-based tests. Require selected core/UI identity and owned enabled draft preconditions, retain locked negative, batch independent failures and preserve nonzero result; no row/threshold/opacity weakening. Full gate only after complete honest pass; root independent native gate retained.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
       "actor": null,
       "artifacts": [
         "docs/lessons/defect-classes.md"
       ],
+      "datetime": "2026-09-24T15:09:59Z",
+      "done_when": "The always-loaded defect register names each class, sweep, derivation, executable control and the current evidence limit.",
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "ae9c5268a101442bbe156e9358e9d65d115dbe10",
+        "short": "ae9c5268a"
+      },
+      "goal": "Prevent recurrence of resource-shadow contrast false-green and list-position-as-editability fixture errors.",
+      "id": "al-01M39ZEQNTR10NX189VSBGW0VH",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Capture the theme-resource precedence and positional editable-target fixture failure classes with executable controls.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "R33 defect classes",
+      "skill": null,
+      "summary": "Recorded UI-THEME-ORACLE and TEST-CAPABILITY in the always-loaded register. R30 native Dark and HighContrast render and R32 fixture were retained RED; R33 first complete matrix proves authored editable-target and locked-target controls but applied contrast remains partial (48/72 rows). No product gate or join claim.",
       "tags": [
         "theme",
         "testing"
       ],
-      "outcome": "partial",
-      "goal": "Prevent recurrence of resource-shadow contrast false-green and list-position-as-editability fixture errors.",
-      "done_when": "The always-loaded defect register names each class, sweep, derivation, executable control and the current evidence limit.",
       "tier": "T1",
-      "fan_out": 1,
-      "git": {
-        "sha": "ae9c5268a101442bbe156e9358e9d65d115dbe10",
-        "short": "ae9c5268a",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M3A06HC6BR38C3SC5ADRJ83W",
-      "shortname": "owner-focus-coordinate-diagnostic-r34",
-      "datetime": "2026-09-24T15:22:59Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Rule req-01M3A03ZM0JJKXAN7PQ56J94TA: R33 stopped at68/72 with four unchanged focus.tab geometry rows; failing compound predicate omits raw geometry. Authorize one source-bound diagnostic, root interpretation then one correction/complete matrix or hold; no bounds/threshold waiver or C join.",
-      "summary": "Ruling34 authorizes≤40calls/30min focused4theme diagnostic then mandatory root interpretation before one measured correction and one full72row matrix. Owner inspected predicate/inventory and pinned AdornerLayer11.3.14 source; composition mapping remains hypothesis. Require raw operands/coordinate/clip/identity/backdrop facts, negative wrong-target/displaced/clipped control and no removed bounds/tolerance assumption. Genuine72/72 only permits final gate/package; root native veto retained.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/notes/rulings.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Resolve four tab-focus geometry failures without weakening oracle.",
+      "datetime": "2026-09-24T15:22:59Z",
       "done_when": "Canonical ruling separates coordinate-oracle defect from product defect using focused evidence and independent review; notify and yield.",
-      "tier": "T2",
+      "duration_seconds": 66.0,
       "fan_out": 0,
+      "goal": "Resolve four tab-focus geometry failures without weakening oracle.",
+      "id": "al-01M3A06HC6BR38C3SC5ADRJ83W",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Rule req-01M3A03ZM0JJKXAN7PQ56J94TA: R33 stopped at68/72 with four unchanged focus.tab geometry rows; failing compound predicate omits raw geometry. Authorize one source-bound diagnostic, root interpretation then one correction/complete matrix or hold; no bounds/threshold waiver or C join.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-focus-coordinate-diagnostic-r34",
+      "skill": "define-architecture",
       "started_at": "2026-09-24T15:21:53Z",
-      "duration_seconds": 66.0
+      "summary": "Ruling34 authorizes≤40calls/30min focused4theme diagnostic then mandatory root interpretation before one measured correction and one full72row matrix. Owner inspected predicate/inventory and pinned AdornerLayer11.3.14 source; composition mapping remains hypothesis. Require raw operands/coordinate/clip/identity/backdrop facts, negative wrong-target/displaced/clipped control and no removed bounds/tolerance assumption. Genuine72/72 only permits final gate/package; root native veto retained.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T15:29:19Z",
+      "done_when": "Complete applied matrix, clean bound package, actual native changed-surface checks, and independent review disposition are recorded; unresolved obligations remain explicit.",
+      "duration_seconds": 1160.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "3758e77b26ddb88ccb3bb5571c382b6d137d304d",
+        "short": "3758e77b2"
+      },
+      "goal": "Complete independent source-bound repaired-theme proof and native review for the existing application increment.",
+      "id": "al-01M3A0J526S0D2QP6YSVDES5VJ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "> Please bring the newest “CFD Workbench — Offline Foil · REVIEW…” window—the light-theme Example build—to the front and confirm it is visible. Native inspection cannot currently attach to this new window, so I need that before the final interaction checks.\n\nThe light-theme review window is visible and in front",
+      "session": "cfd-application-20260923",
+      "shortname": "independent-theme-oracle-review-r32-r34",
+      "skill": "ui-design",
+      "started_at": "2026-09-24T15:09:59Z",
+      "summary": "Continued the authorized implementation's independent UI review. Read repaired Styles/modal/test/verifier source; rejected false-positive focus/opacity/ratio paths. Independently diagnosed locked positional fixture. Verified two 68-row matrix packets and recomputed ratios; four tab-focus rows remain unassessed. Verified focused diagnostic logs and pinned compositor contract; enabled only R34's composition-aware correction with measured missing operands and negative controls. No production writes, final package, native theme clearance, C join, or M1 acceptance. Earlier prechecks precede this duration marker.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [
