@@ -1976,7 +1976,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "84c348ed9d926d904c8e5548a32cbf7491c4d5ffa38bcc4778143f438d9677f8"
+      "sourceSha256": "64f1143458d4257861fa71e2f03b8cff3b71ffdf1c8973c9da081b584b47735e"
     },
     {
       "id": "domain-experts",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d55fa67b44cb7116f7aedc577ba09a2c272758ff1934726ccea5885ee4ac76a9"
+  "graphSha256": "a8b374ff98de18228263545c549a7a763fb6d690b1ef53c6b7ccf2976130c40d"
 };

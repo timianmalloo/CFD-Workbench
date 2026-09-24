@@ -261,6 +261,13 @@ the original commit-boundary evidence. B0's `cb73079e` commit repeated the
 advisory/no-identity shape; Coordinator explicitly checked all twelve committed
 paths under `cfd-contracts-author-20260923` afterward and observed twelve
 `allow` decisions, again without a retrospective enforcement claim.
+The R37 independent review checkpoint repeated the shape: its first commit
+omitted `AGENT_SESSION`, so the hook was advisory. An attempted amend with the
+identity set had no staged paths. Root then ran the supported ownership check
+with explicit identity against all four committed paths and observed four
+`allow` decisions. That readback bounds ownership but does not turn the first
+commit into an enforced commit-boundary check. The same per-mutation identity
+rule applies to review commits as to production commits.
 
 **TOOL-PATCH · A replace operation is expressed as delete-plus-add in one patch.**
 The first full parser patch asked `apply_patch` to delete and add the same

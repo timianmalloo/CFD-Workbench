@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:19:31Z",
+  "generated": "2026-09-24T16:20:25Z",
   "audit": [
     {
       "actor": null,
@@ -6874,6 +6874,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T16:19:31Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3A3FF0D7C446JPKB9ZV7KVP",
+      "shortname": "Review commit identity control",
+      "datetime": "2026-09-24T16:20:17Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Capture the repeated advisory commit-hook environment class at the R37 independent review checkpoint.",
+      "summary": "Extended COORD-ENV with root R37 review commit omission of AGENT_SESSION, zero-staged amend, and explicit four-path ownership allow readback. The later check bounds ownership but does not retroactively make the original hook enforced. No product change or C acceptance.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "coordination"
+      ],
+      "outcome": "partial",
+      "goal": "Keep commit-boundary ownership claims honest across review and implementation commits.",
+      "done_when": "The always-loaded register maps this recurrence to per-mutation AGENT_SESSION and advisory-hook inspection.",
+      "tier": "T1",
+      "fan_out": 1,
+      "git": {
+        "sha": "051013f26e0517306d7aa1238e9c6ebbdbc91f80",
+        "short": "051013f26",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
