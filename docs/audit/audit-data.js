@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:45:06Z",
+  "generated": "2026-09-24T16:01:52Z",
   "audit": [
     {
       "actor": null,
@@ -6760,6 +6760,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3A2BYQYRH1J2XSP9TGXB8B4",
+      "shortname": "owner-window-lifecycle-r37",
+      "datetime": "2026-09-24T16:00:54Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M3A29R32WJP5JDFA8JPZ0ZXY: R36 Light18 passes, later windows DOC-CLOSED; source suggests queued Changed Refresh after Closed Dispose but stack unmeasured. Request focused two-window reproduction, conditional MainWindow lifecycle guard and regression, one same-process72matrix, no core weakening/isolation masking/join.",
+      "summary": "Ruling37 grants≤40calls/30min focused actual queue/close stack+identity reproduction. Root must confirm cause before conditional MainWindow lifetime guard/unsubscribe/recheck; actualClosed differs from cancelledClosing. Require second-window and cancelled-close live-update regression and coreDOC-CLOSED retained. Root reviews repair before one same-process72matrix; unknown cause/failure stops. No product edit/runtime by Owner, no acceptance.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Determine whether queued UI refreshes outlive a closed window.",
+      "done_when": "Canonical ruling permits focused reproduction and smallest confirmed lifecycle repair without weakening core; notify and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-24T16:00:04Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
