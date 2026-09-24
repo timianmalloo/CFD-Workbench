@@ -723,6 +723,34 @@ startup receipt is `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd
 This control proves loader startup only; rendered UI, AX and keyboard behavior
 still require native inspection.
 
+**UI-THEME-ORACLE · Token arithmetic hides runtime resource precedence and applied paint.**
+The frozen Dark workbench rendered pale panels with near-white labels, and the
+HighContrast window retained a light/teal palette. The verifier had combined
+base and variant brush maps as if the variant won, while Avalonia resolves a
+root `ResourceDictionary` key before its theme dictionary. Sweep resource
+shadowing, actual template text and painted backing, focus indicators, selected
+items and app-owned dialogs in every declared theme. Derive: palette values do
+not prove the color pair that a control paints. Prevent: the adapter gate loads
+the real XAML, rejects root keys shadowing theme keys, requires the complete
+declared theme/control/state matrix, and fails closed on missing rows, unknown
+opacity, backing or nonfinite contrast. The root-shadow mutation and native
+Dark/HighContrast review are retained RED controls. The applied 72-row matrix
+remains open until its actual receipt passes; resource-only GREEN is not a
+contrast verdict.
+
+**TEST-CAPABILITY · A positional UI fixture selects a locked domain object.**
+The R32 contrast fixture selected control-list index 1 and expected an editable
+numeric draft. The Example's leading `cv-1` is locked by `root_mirror`, so the
+product correctly refused `BeginEdit`; one fixture prerequisite concealed 70
+downstream rows. Sweep test and review fixtures that equate list position with
+domain editability or accepted identity. Derive: choose a target from the
+authored `Editable` fact, then assert the UI item names that same rail/control
+and the draft belongs to it. Prevent: the R33 matrix fixture selects by
+authored editable identity, asserts the bound item and owned enabled field, and
+retains a locked-target negative. Its complete-matrix receipt counts every
+failed or unexecuted required row, so a prerequisite cannot manufacture a
+partial PASS.
+
 ## Authoring decisions boundary sweep — 2026-09-22
 
 **GEO-C / DATA-D recurrence:** introducing multiple profiles makes a selected-profile singleton unsafe as a

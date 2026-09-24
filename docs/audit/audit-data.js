@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T15:07:37Z",
+  "generated": "2026-09-24T15:10:03Z",
   "audit": [
     {
       "actor": null,
@@ -6569,6 +6569,36 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-24T15:05:03Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M39ZEQNTR10NX189VSBGW0VH",
+      "shortname": "R33 defect classes",
+      "datetime": "2026-09-24T15:09:59Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Capture the theme-resource precedence and positional editable-target fixture failure classes with executable controls.",
+      "summary": "Recorded UI-THEME-ORACLE and TEST-CAPABILITY in the always-loaded register. R30 native Dark and HighContrast render and R32 fixture were retained RED; R33 first complete matrix proves authored editable-target and locked-target controls but applied contrast remains partial (48/72 rows). No product gate or join claim.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "theme",
+        "testing"
+      ],
+      "outcome": "partial",
+      "goal": "Prevent recurrence of resource-shadow contrast false-green and list-position-as-editability fixture errors.",
+      "done_when": "The always-loaded defect register names each class, sweep, derivation, executable control and the current evidence limit.",
+      "tier": "T1",
+      "fan_out": 1,
+      "git": {
+        "sha": "ae9c5268a101442bbe156e9358e9d65d115dbe10",
+        "short": "ae9c5268a",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
