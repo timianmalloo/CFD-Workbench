@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-23T22:02:42Z",
+  "generated": "2026-09-24T01:25:20Z",
   "audit": [
     {
       "actor": null,
@@ -4764,6 +4764,34 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "ee0930440dc6216cf3af6dc08a274a8cf064bd10",
         "short": "ee0930440",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38G8QZE5ZYKXDJZKDFTGHTS",
+      "shortname": "r26-native-independent-pass",
+      "datetime": "2026-09-24T01:25:19Z",
+      "session": "cfd-application-20260923",
+      "prompt": "The newest review window is visible and in front",
+      "summary": "Same combined PID71600 CUA attachment succeeded. Native F6 tabs, selected-CV Enter/Space, generation0 bindings, Preview/Apply/Cancel, Save/Reopen/overwrite/history and invalid-recovery/import flows verified. Independent disk oracle proves0600, exact sole TE edit and retained original fixtures. B R26 Security/Data/Test bounded PASS; C performance and full native-state/accessibility disposition remain open. Scratch expected-hash typo was detected and corrected with exact fixture-byte comparison; not a product failure. Docs104/0defects/77existingflags.",
+      "kind": "command",
+      "skill": null,
+      "tool": "native-cua-review",
+      "actor": "Codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/investigations/native-save-permissions.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Finish source-bound combined native review.",
+      "done_when": "Repaired workflows and Save/Reopen pass independently, and remaining native obligations receive evidence or a concrete blocker disposition.",
+      "tier": "T2",
+      "fan_out": 3,
+      "git": {
+        "sha": "dbff632a2199fb078ffc1a31d8f3f37caadd4df0",
+        "short": "dbff632a2",
         "branch": "feature/application-foundation",
         "pushed": null
       }
