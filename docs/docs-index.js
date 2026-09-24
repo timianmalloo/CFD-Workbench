@@ -4994,7 +4994,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-10-23",
       "reviewSuggested": [],
-      "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining performance, state and accessibility obligations keep C and M1 open.",
+      "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining native theme, performance and accessibility obligations keep C and M1 open.",
       "tags": [
         "application",
         "native-ui",
@@ -5029,7 +5029,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "924001525f8e6d65ba10d40d56d9a4d4ebd1bc9ffa97e86abef6fda4c454f375"
+      "sourceSha256": "196d6a3bb5a225ea7f3816f26e337feaaab7e6dc355b9e9d85524c89da24ba6f"
     },
     {
       "id": "review-ui-workbench",
@@ -5589,5 +5589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "66b217ac2576ca88e62c9f9e9cc79f874d94f6d829c1f575456076206c9bd001"
+  "graphSha256": "d55fa67b44cb7116f7aedc577ba09a2c272758ff1934726ccea5885ee4ac76a9"
 };
