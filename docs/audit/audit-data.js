@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:36:42Z",
+  "generated": "2026-09-24T01:57:58Z",
   "audit": [
     {
       "actor": null,
@@ -4822,6 +4822,33 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "17f60d0f80918557ce9950ea18a9faa005fbdbae",
         "short": "17f60d0f8",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M38J4G3ANJF04DRA7EZVNVDG",
+      "shortname": "r29-endpoint-review",
+      "datetime": "2026-09-24T01:57:57Z",
+      "session": "cfd-application-20260923",
+      "prompt": "Continue the authorized coordinated application implementation after native-window confirmation.",
+      "summary": "Independent R29 API/source/runtime review: internal XML route rejected by compile, public visual-bound compositor compiles and one batch callback observed; raw receipt remains failed on owned timeout. Verified retained source shows same-frame marker can be stale. Pinned upstream source shows batch completion does not guarantee successful target draw. Permanent serial/version controls and native state matrix remain pending; no presentation or performance PASS. Docs check104/0,77existing review flags.",
+      "kind": "command",
+      "skill": null,
+      "tool": "native-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Establish a truthful timing endpoint before collecting implementation performance evidence.",
+      "done_when": "Endpoint capabilities and limits are independently checked and actionable controls recorded.",
+      "tier": "T2",
+      "fan_out": 3,
+      "git": {
+        "sha": "f9dbc1bea81f8d8f19dcbf38e51b0228a0e3e001",
+        "short": "f9dbc1bea",
         "branch": "feature/application-foundation",
         "pushed": null
       }

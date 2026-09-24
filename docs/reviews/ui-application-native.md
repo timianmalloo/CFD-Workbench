@@ -619,3 +619,61 @@ annotation labels are truncated visually, with full text in AX and equivalent
 navigation data; this is a recorded craft limitation, not a complete accessibility
 verdict. B's bounded acceptance is unchanged; C/M1 remains open pending the
 separate end-to-end timing and remaining state coverage.
+
+## Ruling 29: independent measurement-endpoint review
+
+This checkpoint reviews the endpoint spike, not the unfinished permanent timing
+implementation. Root read installed Avalonia 11.3.14 XML from the frozen
+`cfd-adapters-verify-nko701v2` package cache. XML lists `TopLevel.Renderer` and
+`IRendererWithCompositor`, but the author's first compile spike reports
+CS0103/CS0122: documentation presence did not establish public accessibility.
+The alternate `ElementComposition.GetElementVisual(viewport)?.Compositor`
+route compiled in targeted receipt `cfd-c-targeted-wdb8z3vs/receipts/targeted.json`.
+Root read that receipt; compilation alone did not prove a native signal.
+
+Pinned upstream [Compositor source](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Rendering/Composition/Compositor.cs)
+places composition-update callbacks before serialization. It does not establish
+that a particular visual invalidation has already been recorded. Moreover,
+[ServerCompositor source](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Base/Rendering/Composition/Server/ServerCompositor.cs)
+notifies batch completion in a `finally` block, including paths with an unready
+render interface or a caught rendering failure. Consequently `batch.Rendered`
+alone proves neither successful target drawing nor display presentation.
+
+One native runtime spike then observed a non-null visual-bound compositor and
+batch callback. Root independently read and hashed its receipt and stderr:
+
+- Receipt: `/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r29-render-spike-4dp_0lkz/receipts/render-spike.json`,
+  SHA-256 `b753b4a35e6a588d417d332a8eea962512ed1042c7632865dd742cf7df1f5240`.
+- The recorded interval is 62.353 ms from the spike's post-Refresh start to its
+  UI-dispatched batch callback. It excludes the initiating input, computation,
+  and Refresh, and is **not** an edit/preview/cancel performance result.
+- Overall receipt status is **fail**: the author's automatic Close encountered
+  the dirty Example's unsaved prompt; the launcher timed out at 30 seconds.
+  Exact-owned PID 84059 was terminated; root independently observed it absent.
+  The receipt reports no remaining owned group or collector. No retry followed.
+- Retained source snapshots `/private/tmp/cfd-r29-spike-MainWindow.axaml.cs`
+  and `/private/tmp/cfd-r29-spike-Viewport.cs` match SHA-256
+  `18e07ad21405e7ae06b5343a4df030f04727f64b88fe6f332e5999dce5a5617e`
+  and `5807c7586860bc46a2b8888ae93a8e7dcb48b6c40f80839b3ad4bee6dde85190`.
+  Root read them: `target-recorded=True` compares frame references without
+  resetting or advancing an operation-specific baseline. An earlier recording
+  of the same accepted frame can satisfy it. **Fresh scene inclusion remains
+  unproven by this spike.** The author acknowledged the gap.
+
+The allowed permanent metric must capture its baseline before the final Refresh,
+require a strictly newer recording serial for the relevant visible target,
+match source/revision/draft generation/provenance, and recheck operation identity
+after batch completion. A hidden surface cannot acquire a claimed fresh drawing
+merely because an old marker matches. Same-frame stale-marker, stale-generation,
+known-delay, cancel and timeout controls must read actual emitted outcomes.
+Only then can the explicitly labelled input-to-target-batch-cycle interval be
+assessed. Intermediate “Assessing” notifications cannot terminate preview timing.
+Successful drawing and display presentation remain **Not assessed** without
+separate evidence; none of these proxy metrics clears the visible-response veto.
+
+**Independent disposition:** public API and one batch callback observed; fresh
+scene correlation, normal-path instrumentation and negative controls still await
+the final source-bound implementation. No 100/250 ms or cold-launch PASS, C join,
+or M1 acceptance follows from this checkpoint. Temporary spike code is not
+production code. The remaining native state matrix is planned as three grouped
+light/dark/high-contrast runs with declared fixtures; evidence is still pending.
