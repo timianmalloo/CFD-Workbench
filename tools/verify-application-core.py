@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -88,17 +89,19 @@ def reap_direct_child(child: subprocess.Popen[str]) -> None:
         child.wait(timeout=5)
 
 
-def run(command: list[str], environment: dict[str, str], scratch: Path) -> None:
+def run(command: list[str], environment: dict[str, str], scratch: Path, child_umask: int = -1,
+        label: str | None = None, cwd: Path | None = None) -> None:
     if os.name == "nt":
         raise RuntimeError("Windows process ownership adapter: Not assessed; no child launched")
     started = time.monotonic()
     owned: dict[int, str] = {}
-    receipt: dict[str, object] = {"command": command, "cwd": str(ROOT)}
-    output_path = scratch / "receipts" / ("build.log" if command[1] == "build" else "tests.log")
+    working_directory = cwd or ROOT
+    receipt: dict[str, object] = {"command": command, "cwd": str(working_directory), "child_umask": oct(child_umask) if child_umask >= 0 else "inherited"}
+    output_path = scratch / "receipts" / ((label or ("build" if command[1] == "build" else "tests")) + ".log")
     # Verify the observer before acquiring a child it must later identify and clean.
     process_table()
     with output_path.open("w", encoding="utf-8") as output:
-        child = subprocess.Popen(command, cwd=ROOT, env=environment, start_new_session=True, stdout=output, stderr=subprocess.STDOUT)
+        child = subprocess.Popen(command, cwd=working_directory, env=environment, start_new_session=True, stdout=output, stderr=subprocess.STDOUT, umask=child_umask)
         receipt.update(pid=child.pid, output=str(output_path))
         try:
             first_observation = True
@@ -155,6 +158,10 @@ def main() -> None:
     print(json.dumps({"scratch": str(scratch), "canonical_scratch": str(canonical),
                       "tmp_canonical_alias": str(allowed_parent)}), flush=True)
     environment = dict(os.environ)
+    # Fault-probe selectors are owned by this gate; an inherited selector must
+    # never silently skip the normal production store suite.
+    for selector in ("CFD_NATIVE_CAPABILITY_PROBE", "CFD_OWNER_STRIPPING_MASK", "CFD_OWNER_STRIPPING_ROOT"):
+        environment.pop(selector, None)
     for key, directory in {"DOTNET_CLI_HOME": "dotnet-home", "NUGET_PACKAGES": "nuget", "NUGET_HTTP_CACHE_PATH": "http-cache", "TMPDIR": "tmp", "TMP": "tmp", "TEMP": "tmp"}.items():
         path = scratch / directory
         path.mkdir(parents=True, exist_ok=True)
@@ -172,7 +179,41 @@ def main() -> None:
     # SIGTERM follows the same finally/owned-cleanup path as an interactive interrupt.
     signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(128 + signum))
     run(["dotnet", "build", "CFDWorkbench.slnx", "--artifacts-path", str(artifacts), "--disable-build-servers", "-p:UseSharedCompilation=false", "--nologo"], environment, scratch)
-    run(["dotnet", str(artifacts / "bin" / "CfdWorkbench.Core.Tests" / "debug" / "CfdWorkbench.Core.Tests.dll")], environment, scratch)
+    for mask in (0, 0o22, 0o77):
+        environment["CFD_TEST_UMASK"] = f"{mask:04o}"
+        run(["dotnet", str(artifacts / "bin" / "CfdWorkbench.Core.Tests" / "debug" / "CfdWorkbench.Core.Tests.dll")],
+            environment, scratch, child_umask=mask, label=f"tests-{mask:04o}")
+    published = scratch / "published"
+    run(["dotnet", "publish", str(ROOT / "tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj"),
+         "-c", "Release", "--artifacts-path", str(artifacts), "--output", str(published), "--disable-build-servers",
+         "-p:UseSharedCompilation=false", "-p:UseAppHost=false", "--nologo"], environment, scratch, label="publish")
+    # Test data belongs to this test package, not to production native-library resolution.
+    shutil.copytree(ROOT / "docs/examples/foildsl", published / "docs/examples/foildsl")
+    for mask in (0, 0o22, 0o77):
+        environment["CFD_TEST_UMASK"] = f"{mask:04o}"
+        run(["dotnet", str(published / "CfdWorkbench.Core.Tests.dll")], environment, scratch,
+            child_umask=mask, label=f"published-{mask:04o}", cwd=published)
+    environment["CFD_OWNER_STRIPPING_MASK"] = "0600"
+    owner_stripping_root = scratch / "owner-stripping-parent"
+    owner_stripping_root.mkdir(mode=0o700)
+    environment["CFD_OWNER_STRIPPING_ROOT"] = str(owner_stripping_root.resolve())
+    environment["CFD_TEST_UMASK"] = "0600"
+    run(["dotnet", str(published / "CfdWorkbench.Core.Tests.dll")], environment, scratch,
+        child_umask=0o600, label="owner-stripping", cwd=published)
+    del environment["CFD_OWNER_STRIPPING_MASK"]
+    del environment["CFD_OWNER_STRIPPING_ROOT"]
+    environment["CFD_TEST_UMASK"] = "0077"
+    for variant in ("missing", "unloadable"):
+        isolated = scratch / variant
+        shutil.copytree(published, isolated)
+        helper = isolated / "libcfd_store.dylib"
+        if variant == "missing":
+            helper.unlink()
+        else:
+            helper.write_bytes(b"deliberately invalid native helper")
+        environment["CFD_NATIVE_CAPABILITY_PROBE"] = variant
+        run(["dotnet", str(isolated / "CfdWorkbench.Core.Tests.dll")], environment, scratch,
+            child_umask=0o77, label=variant, cwd=isolated)
 
 
 if __name__ == "__main__":

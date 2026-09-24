@@ -81,8 +81,8 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         }
         catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw new ContractError(code); }
         catch (ContractError error) { code = error.Code; throw; }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException)
-        { code = error is DllNotFoundException or EntryPointNotFoundException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; throw new ContractError(code); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
+        { code = error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; throw new ContractError(code); }
         finally { Emit("store.read", code, timer.Elapsed.TotalMilliseconds, count, count, traceId, null, null); }
     }
     private void Emit(string action, string code, double elapsed, int? input, int? output, string traceId, bool? published, bool? durable)
@@ -105,11 +105,11 @@ public sealed class ProjectStore : IProjectStore, IDisposable
             if (Exists(parent.Fd, parent.Name, out var prior)) Require(IsRegular(prior), "DOC-UNSUPPORTED-PERSISTENCE");
             if (!request.CreateOnly)
             {
-                claim = OwnedEntry.Create(parent.Fd, ClaimName()); hooks?.Visit(StoreStage.ClaimCreated);
+                claim = OwnedEntry.Create(parent.Fd, ClaimName(), hooks?.CreationMode ?? 0x180); hooks?.Visit(StoreStage.ClaimCreated);
                 target = OpenRegular(parent.Fd, parent.Name);
                 Require(Identity.Sha256(ReadAll(target.Fd, cancellation)) == request.ExpectedDiskSha256, "DOC-CONFLICT");
             }
-            temp = OwnedEntry.Create(parent.Fd, TempName(request.OperationId)); hooks?.Visit(StoreStage.TempCreated);
+            temp = OwnedEntry.Create(parent.Fd, TempName(request.OperationId), hooks?.CreationMode ?? 0x180); hooks?.Visit(StoreStage.TempCreated);
             WriteAll(temp.Fd, image, cancellation);
             var fileFlushTimer = System.Diagnostics.Stopwatch.StartNew(); string fileFlushCode = "OK";
             try { Check(Native.Fsync(temp.Fd)); }
@@ -152,8 +152,8 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         }
         catch (OperationCanceledException) { code = published ? "DOC-SAVE-UNCERTAIN" : "DOC-CANCELLED"; }
         catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException)
-        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
+        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; }
         finally
         {
             // Cleanup is handle-relative and removes only an entry still matching its retained owned handle.
@@ -173,7 +173,8 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     private static void Supported()
     {
         // Windows handle/reparse/sharing guarantees have not been measured. No path-only fallback.
-        Require(OperatingSystem.IsMacOS() && Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PERSISTENCE");
+        Require(OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64 &&
+            Marshal.SizeOf<Native.Stat>() == 144, "DOC-UNSUPPORTED-PERSISTENCE");
     }
     private static void Require(bool condition, string code) { if (!condition) throw new ContractError(code); }
     private static void Check(int result) { if (result < 0) throw Failure(Marshal.GetLastPInvokeError()); }
@@ -273,8 +274,26 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         internal int Fd => handle.Fd;
         internal string Name => name;
         internal bool IsOwned => SameEntry(parent, name, Fd);
-        internal static OwnedEntry Create(int parent, string name) => new(parent, name,
-            new NativeFd(Native.OpenAt(parent, name, Native.NoFollow | 0x200 | 0x800 | 2, 0x180)));
+        internal static OwnedEntry Create(int parent, string name, uint mode)
+        {
+            var entry = new OwnedEntry(parent, name,
+                new NativeFd(Native.OpenAt(parent, name, Native.NoFollow | 0x200 | 0x800 | 2, mode)));
+            try
+            {
+                Check(Native.Fstat(entry.Fd, out var stat));
+                // Require exact owner read/write before any project byte write.
+                // An owner-stripping umask is unsupported, never repaired with chmod.
+                // This also refuses the zero-mode manifestation of an ABI regression.
+                Require(IsRegular(stat) && (stat.Mode & 0x0fff) == 0x180, "DOC-UNSUPPORTED-PERSISTENCE");
+                return entry;
+            }
+            catch
+            {
+                bool cleaned = entry.Cleanup(); entry.Dispose();
+                if (!cleaned) throw new ContractError("DOC-IO");
+                throw;
+            }
+        }
         internal bool Cleanup()
         {
             if (released) return true;
@@ -302,8 +321,10 @@ public sealed class ProjectStore : IProjectStore, IDisposable
             internal long Size, Blocks; internal int BlockSize; internal uint Flags, Generation;
             internal int Spare; internal long Spare0, Spare1;
         }
-        [DllImport("libSystem.B.dylib", EntryPoint = "open", SetLastError = true)] internal static extern int Open(string path, int flags, uint mode);
-        [DllImport("libSystem.B.dylib", EntryPoint = "openat", SetLastError = true)] internal static extern int OpenAt(int parent, string name, int flags, uint mode);
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        [DllImport("libcfd_store.dylib", EntryPoint = "cfd_store_open", SetLastError = true)] internal static extern int Open([MarshalAs(UnmanagedType.LPUTF8Str)] string path, int flags, uint mode);
+        [DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]
+        [DllImport("libcfd_store.dylib", EntryPoint = "cfd_store_openat", SetLastError = true)] internal static extern int OpenAt(int parent, [MarshalAs(UnmanagedType.LPUTF8Str)] string name, int flags, uint mode);
         [DllImport("libSystem.B.dylib", EntryPoint = "fstat64", SetLastError = true)] internal static extern int Fstat(int fd, out Stat stat);
         [DllImport("libSystem.B.dylib", EntryPoint = "fstatat64", SetLastError = true)] internal static extern int FstatAt(int parent, string name, out Stat stat, int flags);
         [DllImport("libSystem.B.dylib", EntryPoint = "linkat", SetLastError = true)] internal static extern int LinkAt(int a, string x, int b, string y, int flags);
@@ -323,5 +344,6 @@ internal sealed class StoreHooks
     internal int? WriteFragment { get; init; }
     internal int? FailWriteAfter { get; init; }
     internal int? PublicationError { get; init; }
+    internal uint? CreationMode { get; init; }
     internal void Visit(StoreStage stage) => OnStage?.Invoke(stage);
 }
