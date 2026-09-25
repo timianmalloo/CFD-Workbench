@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T03:14:43Z",
+  "generated": "2026-09-25T03:16:20Z",
   "audit": [
     {
       "actor": null,
@@ -7097,6 +7097,35 @@ window.AUDIT_DATA = {
         "branch": "feature/application-m1-decision",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3B90QA99DRR7DV772B2QQVZ",
+      "shortname": "join-m1-scope-decision",
+      "datetime": "2026-09-25T03:16:20Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "summary": "Integrated one pending user decision on Windows runtime, visible timing and full section editing; no option adopted or product gate waived. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/m1-scope-decision.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the Owner-authored decision request reviewable without changing M1.",
+      "done_when": "Decision note joins as documentation, checks pass, and dependent implementation remains unscheduled until user ruling.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T03:16:19Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
