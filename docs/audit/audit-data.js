@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:41:06Z",
+  "generated": "2026-09-25T04:53:00Z",
   "audit": [
     {
       "actor": null,
@@ -7627,6 +7627,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "b8561a5d1b4f3c129eabb13bb87821e6b2c8133f",
         "short": "b8561a5d1",
+        "branch": "feature/windows-runtime-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BEHQTQ4PMGCHHQ4TP042P4",
+      "shortname": "review-windows-portability",
+      "datetime": "2026-09-25T04:53:00Z",
+      "session": "cfd-windows-review-20260925",
+      "prompt": "keep going; complete M1 tasks and stop before the full section editor",
+      "summary": "Observed exact five-finding integrated portable-text RED. Independently reviewed clean529bcb9 one-file mechanical delta; native source/workflow unchanged. Reran both text/subprocess portability gates and35 receipt refusal controls plus real help-exit control: PASS. Qualifier SHA4a0ea88907fcd8ff58ba38b1846af7b6ee1a488fc4412b97f55b671b1d4a724d verified. Prior native receipt remains bound to82a366a, not corrected driver. Delta admitted only for preparation and one corrected integrated retry. Author disclosed accidental local non-Windows build from intercepted-exit probe; no Windows proof. Marker is late and measures documentation finalization only; prior delta-review elapsed time, tokens and cost not recorded. Existing script gates are required before future spike handoffs. Old attachment-review session released; no review app launched.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Review corrected W0 portability bytes without transferring old native evidence or weakening Windows acceptance.",
+      "done_when": "Exact delta and affected controls verified, scoped disposition recorded and addendum committed.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T04:52:40Z",
+      "duration_seconds": 20.0,
+      "git": {
+        "sha": "f08007689f39c6587ad278618a9c57770c8bfa37",
+        "short": "f08007689",
         "branch": "feature/windows-runtime-review",
         "pushed": null
       }
