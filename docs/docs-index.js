@@ -1414,6 +1414,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
     },
     {
+      "id": "design-section-editor",
+      "path": "docs/design/section-editor.md",
+      "title": "M1.1 full section editor",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@cfd-leader-fbfa35dc",
+      "phase": "design",
+      "reviewBy": "2026-12-25",
+      "reviewSuggested": [],
+      "summary": "Design for the M1.1 section editor: profile control-vertex editing with shared or independent scope, certified multi-profile blending, and a UI-25 control-frame canvas in the desktop app. Delivered in two named increments (M1.1a edit core, M1.1b construction operations and thickness proposals); the editor is called \"full\" only once both land.",
+      "tags": [
+        "section",
+        "profile",
+        "editor",
+        "m1.1",
+        "geometry",
+        "desktop"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "implements"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "refines"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3260c17fcc0410abd0986b015b387c3eb16381ce9306ea803e65f2445a2fedf7"
+    },
+    {
       "id": "design-visible-presentation",
       "path": "docs/design/visible-presentation.md",
       "title": "Visible presentation endpoint feasibility contract",
@@ -2163,7 +2207,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6e1186cf599262df4565f70e8f1e20e56d7ba815fef25b8dd57d2862b05b28a3"
+      "sourceSha256": "508c2af909f2b814ab87facad453a250ed9dcc3ea094c5d8d2ae4b1ffcf59dc6"
     },
     {
       "id": "domain-experts",
@@ -6336,5 +6380,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c03e2cd044ef29a3af3e185d763857332203affcf54819f875c2f08cd0704265"
+  "graphSha256": "3e1555f80934b99a2980e2ff241314cc9b348c1d0dc557ea662ff7bba2259018"
 };
