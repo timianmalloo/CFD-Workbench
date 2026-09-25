@@ -2030,7 +2030,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ec9ea66ea775731f24350ea75cf2d0ff613a01de4a31dd423e5b89829be00304"
+      "sourceSha256": "45c7e012d1981eb616d1f4250d8cac57ae5cb975a3fd04de5998f4623abaa606"
     },
     {
       "id": "domain-experts",
@@ -3994,7 +3994,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5fa6b9ad64ac1964cee4738f631aa3337c799c3a7fd191210fb2a75d5a09da61"
+      "sourceSha256": "e6e2c604700c16f186d2c38d6162e364a129e5a33224830f8d3843f467a5fedd"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4304,6 +4304,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "00f11106030f8afe3b2eb66526a744b92064898ecc9bf5d4e6a502dd4d6348b3"
+    },
+    {
+      "id": "coordination-windows-runtime-route",
+      "path": "docs/coordination/windows-runtime-route.md",
+      "title": "Windows x64 M1 runtime route and ownership packet",
+      "type": "plan",
+      "status": "in-progress",
+      "owner": "@cfd-coordinator-20260923",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. Neither route has passed yet.",
+      "tags": [
+        "coordination",
+        "application",
+        "windows",
+        "runtime"
+      ],
+      "links": [
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5519ded27b29c243718ddc5d708695349635ab72f0861446a0f88d8d23c635b6"
     },
     {
       "id": "privacy-review",
@@ -5706,5 +5748,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "4c3024a742904b82a21cec0ddb24219b184ff9d7ca1b2bc28a2763f4150e46c6"
+  "graphSha256": "eadb87702bd31fd97c1eb7dd65af2246efb92769033a81209f1dd556353508b3"
 };

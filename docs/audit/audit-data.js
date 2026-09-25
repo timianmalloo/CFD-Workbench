@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T03:55:19Z",
+  "generated": "2026-09-25T04:01:07Z",
   "audit": [
     {
       "actor": null,
@@ -7315,6 +7315,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "8ee9b689430b93f8aa2f2c929881ce2b2d1abc65",
         "short": "8ee9b6894",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BBJMVX4QZQZB474JARA62P",
+      "shortname": "windows-m1-route",
+      "datetime": "2026-09-25T04:01:04Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Proceed Windows route and ownership packet independently after docs commit; hosted Windows runtime and interactive desktop remain distinct M1 gates.",
+      "summary": "Read accepted store and verifier guards, isolated C cross-package and product clauses; wrote bounded W0-W4 Windows x64 route and candidate exact ownership without assigning code or claiming a Windows run. Docs graph and check passed 110 artifacts, zero defects, 80 existing V16 suggestions. Owner decision and host qualification remain pending.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/windows-runtime-route.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Route user-approved Windows x64 M1 proof and ownership while C native repair finishes",
+      "done_when": "Durable source-bound packet, typed Owner choice, and exact independent Windows runtime/desktop gates",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T04:00:30Z",
+      "duration_seconds": 34.0,
+      "git": {
+        "sha": "7a2bb232231695087cb124372836d531205b8c3b",
+        "short": "7a2bb2322",
         "branch": "feature/application-coordination",
         "pushed": null
       }
