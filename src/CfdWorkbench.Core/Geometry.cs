@@ -19,18 +19,19 @@ public sealed record QueryFeasibilityWitness(string Algorithm, int RationalBitLi
 public sealed class GeometryCertificate
 {
     internal GeometryCertificate(string sourceHash, string surfaceHash, Rational lower, Rational upper,
-        IEnumerable<GeometryWitness> witnesses, int nodes, Dictionary<string, PolynomialSpan[]> spans, string upperPath, string lowerPath, double halfSpan,
-        Rational placementWidth, QueryFeasibilityWitness feasibility)
+        IEnumerable<GeometryWitness> witnesses, int nodes, Dictionary<string, PolynomialSpan[]> spans, double halfSpan,
+        Rational placementWidth, QueryFeasibilityWitness feasibility, CertifiedProfile[] profiles, BlendStation[] stations, int blendNodeBudget)
     {
         SourceHash = sourceHash; SurfaceHash = surfaceHash;
         ThicknessMaximumLower = lower.Down(); ThicknessMaximumUpper = upper.Up();
         ExactThicknessMaximumLower = lower.Exact; ExactThicknessMaximumUpper = upper.Exact;
         NormalizationRelativeErrorUpper = ((upper - lower) / lower).Up();
         Witnesses = Array.AsReadOnly(witnesses.ToArray()); SubdivisionNodes = nodes;
-        Spans = spans; UpperPath = upperPath; LowerPath = lowerPath; Maximum = new(lower, upper);
+        Spans = spans;
         HalfSpan = Rational.From(halfSpan);
         ExactPlacementWidthUpper = placementWidth.Exact; PlacementWidthUpper = placementWidth.Up();
         QueryFeasibility = feasibility;
+        Profiles = profiles; Stations = stations; BlendNodeBudget = blendNodeBudget;
     }
     public string AlgorithmVersion => "cfdw-rational-bernstein-subset-1";
     public string ProofScope => "Continuous source-shape proof with pointwise interval evaluation; no tessellation/export certificate";
@@ -48,11 +49,26 @@ public sealed class GeometryCertificate
     public string PlacementDomain => "eta and normalized x in [0,1], either side, port or starboard";
     public QueryFeasibilityWitness QueryFeasibility { get; }
     internal Dictionary<string, PolynomialSpan[]> Spans { get; }
+    internal Rational HalfSpan { get; }
+    internal CertifiedProfile[] Profiles { get; }
+    internal BlendStation[] Stations { get; }
+    internal int BlendNodeBudget { get; }
+}
+
+internal sealed class CertifiedProfile
+{
+    internal CertifiedProfile(string upperPath, string lowerPath, RationalInterval maximum, PolynomialSpan[] difference, int nodes)
+    {
+        UpperPath = upperPath; LowerPath = lowerPath; Maximum = maximum; Difference = difference; Nodes = nodes;
+    }
     internal string UpperPath { get; }
     internal string LowerPath { get; }
     internal RationalInterval Maximum { get; }
-    internal Rational HalfSpan { get; }
+    internal PolynomialSpan[] Difference { get; }
+    internal int Nodes { get; }
 }
+
+internal readonly record struct BlendStation(Rational Eta, int Profile);
 
 public sealed class GeometryAssessment
 {
@@ -123,15 +139,121 @@ public static class Geometry
 
     private static (RationalInterval Upper, RationalInterval Lower) SectionExact(GeometryCertificate certificate, double eta, double x, ProofBudget watch)
     {
-        var profileTolerance = ProfileTolerance(certificate.Maximum.Lower);
-        var upper = Bernstein.EncloseAt(certificate.Spans[certificate.UpperPath], Rational.From(x), watch, profileTolerance);
-        var lower = Bernstein.EncloseAt(certificate.Spans[certificate.LowerPath], Rational.From(x), watch, profileTolerance);
+        var (left, right, weight) = SelectBlend(certificate, eta);
+        if (right < 0) return ProfileSection(certificate, left, eta, x, watch);
+        var a = ProfileComponents(certificate, left, x, watch);
+        var b = ProfileComponents(certificate, right, x, watch);
+        var share = RationalInterval.Point(weight);
+        var complement = RationalInterval.Point(1 - weight);
+        var camber = complement * a.Camber + share * b.Camber;
+        var unnormalized = complement * a.UnitThickness + share * b.UnitThickness;
+        // Scales share one uncertain maximum per profile, so the unit-shape
+        // family is the segment between the reciprocal endpoints, not a box.
+        var maximum = EncloseMaximumT0(certificate, left, right, weight, watch);
+        Geometry.Require(maximum.Lower > (Rational)1 / 4 && maximum.Upper >= maximum.Lower, "Blend maximum enclosure is not certified.");
+        var thickness = Bernstein.EncloseAt(certificate.Spans["thickness"], Rational.From(eta), watch);
+        var half = RationalInterval.Point((Rational)1 / 2);
+        var normalizedHalfThickness = unnormalized * maximum.Reciprocal() * thickness * half;
+        return (camber + normalizedHalfThickness, camber - normalizedHalfThickness);
+    }
+
+    private static (int Left, int Right, Rational Weight) SelectBlend(GeometryCertificate certificate, double eta)
+    {
+        var station = Rational.From(eta);
+        var stations = certificate.Stations;
+        int index = 0;
+        while (index + 1 < stations.Length && stations[index + 1].Eta.CompareTo(station) < 0) index++;
+        var left = stations[index];
+        var right = stations[index + 1];
+        if (station.CompareTo(left.Eta) == 0 || SameGeometry(certificate, left.Profile, right.Profile)) return (left.Profile, -1, 0);
+        if (station.CompareTo(right.Eta) == 0) return (right.Profile, -1, 0);
+        return (left.Profile, right.Profile, (station - left.Eta) / (right.Eta - left.Eta));
+    }
+
+    private static (RationalInterval Upper, RationalInterval Lower) ProfileSection(GeometryCertificate certificate, int index, double eta, double x, ProofBudget watch)
+    {
+        var profile = certificate.Profiles[index];
+        var profileTolerance = ProfileTolerance(profile.Maximum.Lower);
+        var upper = Bernstein.EncloseAt(certificate.Spans[profile.UpperPath], Rational.From(x), watch, profileTolerance);
+        var lower = Bernstein.EncloseAt(certificate.Spans[profile.LowerPath], Rational.From(x), watch, profileTolerance);
         var thickness = Bernstein.EncloseAt(certificate.Spans["thickness"], Rational.From(eta), watch);
         var half = RationalInterval.Point((Rational)1 / 2);
         var camber = (upper + lower) * half;
         // Every exact maximum in the authority-produced enclosure is propagated.
-        var normalizedHalfThickness = (upper - lower) * certificate.Maximum.Reciprocal() * thickness * half;
+        var normalizedHalfThickness = (upper - lower) * profile.Maximum.Reciprocal() * thickness * half;
         return (camber + normalizedHalfThickness, camber - normalizedHalfThickness);
+    }
+
+    private static (RationalInterval Camber, RationalInterval UnitThickness) ProfileComponents(GeometryCertificate certificate, int index, double x, ProofBudget watch)
+    {
+        var profile = certificate.Profiles[index];
+        var profileTolerance = ProfileTolerance(profile.Maximum.Lower);
+        var upper = Bernstein.EncloseAt(certificate.Spans[profile.UpperPath], Rational.From(x), watch, profileTolerance);
+        var lower = Bernstein.EncloseAt(certificate.Spans[profile.LowerPath], Rational.From(x), watch, profileTolerance);
+        var half = RationalInterval.Point((Rational)1 / 2);
+        return ((upper + lower) * half, (upper - lower) * profile.Maximum.Reciprocal());
+    }
+
+    private static RationalInterval EncloseMaximumT0(GeometryCertificate certificate, int left, int right, Rational weight, ProofBudget watch)
+    {
+        var a = certificate.Profiles[left];
+        var b = certificate.Profiles[right];
+        var scaleA = RationalInterval.Point(1 - weight) * a.Maximum.Reciprocal();
+        var scaleB = RationalInterval.Point(weight) * b.Maximum.Reciprocal();
+        var low = Bernstein.Maximum(ScaleSum(a.Difference, b.Difference, scaleA.Lower, scaleB.Lower), watch, certificate.BlendNodeBudget);
+        var high = Bernstein.Maximum(ScaleSum(a.Difference, b.Difference, scaleA.Upper, scaleB.Upper), watch, certificate.BlendNodeBudget);
+        return new(low.Lower, high.Upper);
+    }
+
+    private static Rational[][] ScaleSum(PolynomialSpan[] left, PolynomialSpan[] right, Rational leftScale, Rational rightScale)
+    {
+        var result = new Rational[left.Length][];
+        for (int span = 0; span < left.Length; span++)
+        {
+            var values = new Rational[left[span].Y.Length];
+            for (int index = 0; index < values.Length; index++)
+                values[index] = leftScale * left[span].Y[index] + rightScale * right[span].Y[index];
+            result[span] = values;
+        }
+        return result;
+    }
+
+    private static bool SameGeometry(GeometryCertificate certificate, int left, int right) =>
+        SameGeometry(certificate.Spans, certificate.Profiles[left], certificate.Profiles[right]);
+
+    private static bool SameGeometry(Dictionary<string, PolynomialSpan[]> spans, CertifiedProfile left, CertifiedProfile right)
+    {
+        if (ReferenceEquals(left, right)) return true;
+        return SameSpans(spans[left.UpperPath], spans[right.UpperPath]) && SameSpans(spans[left.LowerPath], spans[right.LowerPath]);
+    }
+
+    private static bool SameSpans(PolynomialSpan[] left, PolynomialSpan[] right)
+    {
+        if (left.Length != right.Length) return false;
+        for (int index = 0; index < left.Length; index++)
+        {
+            if (!SameCoefficients(left[index].X, right[index].X) || !SameCoefficients(left[index].Y, right[index].Y)) return false;
+            if (left[index].Start.CompareTo(right[index].Start) != 0 || left[index].End.CompareTo(right[index].End) != 0) return false;
+        }
+        return true;
+    }
+
+    private static bool SharedAbscissa(PolynomialSpan[] left, PolynomialSpan[] right)
+    {
+        if (left.Length != right.Length) return false;
+        for (int index = 0; index < left.Length; index++)
+        {
+            if (left[index].Y.Length != right[index].Y.Length || !SameCoefficients(left[index].X, right[index].X)) return false;
+            if (left[index].Start.CompareTo(right[index].Start) != 0 || left[index].End.CompareTo(right[index].End) != 0) return false;
+        }
+        return true;
+    }
+
+    private static bool SameCoefficients(Rational[] left, Rational[] right)
+    {
+        if (left.Length != right.Length) return false;
+        for (int index = 0; index < left.Length; index++) if (left[index].CompareTo(right[index]) != 0) return false;
+        return true;
     }
 
     private static (RationalInterval Sin, RationalInterval Cos) Trigonometry(RationalInterval angle)
@@ -163,9 +285,9 @@ public static class Geometry
         try
         {
             watch.Check();
-            Require(definition.Kind == "foil" && definition.Tip == "open" && definition.Profiles.Length == 1 &&
-                definition.Assignments.All(x => x.Profile == 0) && definition.Assertions.Length == 0,
-                "Only one inline profile, open tip and no assertions are currently certified.", GeometryStatus.Unsupported);
+            Require(definition.Kind == "foil" && definition.Tip == "open" && definition.Profiles.Length >= 1 &&
+                definition.Assertions.Length == 0,
+                "Only an open tip and no assertions are currently certified.", GeometryStatus.Unsupported);
             Require(definition.Curves.Values.All(curve => !curve.MissingIds), "Accept an explicit ID candidate first.", GeometryStatus.Unsupported);
             Require(definition.Locks.All(item => item.Kind == "root_mirror"), "Other lock types are not assessed.", GeometryStatus.Unsupported, "DSL-LOCK");
             foreach (var item in definition.Locks)
@@ -175,14 +297,16 @@ public static class Geometry
             }
             Require(definition.Curves["leading"].Points[0][1] == 0 && definition.Curves["dihedral"].Points[0][1] == 0,
                 "Root leading edge and elevation must be zero.", GeometryStatus.Invalid);
-            var profile = definition.Profiles[0];
-            Require(profile.Upper.Degree == profile.Lower.Degree && profile.Upper.Knots.SequenceEqual(profile.Lower.Knots) &&
-                profile.Upper.Points.Select(p => p[0]).SequenceEqual(profile.Lower.Points.Select(p => p[0])),
-                "Independent profile x mappings are not assessed.", GeometryStatus.Unsupported);
-            Require(profile.Upper.Points[0][1] == 0 && profile.Lower.Points[0][1] == 0,
-                "Profile leading endpoints must meet at zero.", GeometryStatus.Invalid);
-            Require(profile.Closure != "closed" || profile.Upper.Points[^1][1] == 0 && profile.Lower.Points[^1][1] == 0,
-                "Closed trailing endpoints must meet at zero.", GeometryStatus.Invalid);
+            foreach (var profile in definition.Profiles)
+            {
+                Require(profile.Upper.Degree == profile.Lower.Degree && profile.Upper.Knots.SequenceEqual(profile.Lower.Knots) &&
+                    profile.Upper.Points.Select(p => p[0]).SequenceEqual(profile.Lower.Points.Select(p => p[0])),
+                    "Independent profile x mappings are not assessed.", GeometryStatus.Unsupported);
+                Require(profile.Upper.Points[0][1] == 0 && profile.Lower.Points[0][1] == 0,
+                    "Profile leading endpoints must meet at zero.", GeometryStatus.Invalid);
+                Require(profile.Closure != "closed" || profile.Upper.Points[^1][1] == 0 && profile.Lower.Points[^1][1] == 0,
+                    "Closed trailing endpoints must meet at zero.", GeometryStatus.Invalid);
+            }
             var spans = definition.Curves.ToDictionary(pair => pair.Key, pair => Bernstein.Spans(pair.Value, watch));
             foreach (var curve in spans.Values)
                 foreach (var span in curve)
@@ -196,23 +320,69 @@ public static class Geometry
                 "Continuous chord is nonpositive.", GeometryStatus.Invalid);
             Require(trailingLower > leadingUpper, "Rail hulls do not certify strictly positive chord.");
             Require(spans["thickness"].SelectMany(s => s.Y).All(x => x > 0 && x < 1), "Thickness hull is not inside (0,1).");
-            var upper = spans[profile.Upper.Path];
-            var lower = spans[profile.Lower.Path];
-            var differences = upper.Zip(lower, (u, l) => u.Y.Zip(l.Y, (a, b) => a - b).ToArray()).ToArray();
-            for (int index = 0; index < differences.Length; index++)
+            var certified = new CertifiedProfile[definition.Profiles.Length];
+            for (int profileIndex = 0; profileIndex < definition.Profiles.Length; profileIndex++)
             {
-                var coefficients = differences[index];
-                Require(coefficients.All(x => x >= 0) && coefficients.Any(x => x > 0), "Profile separation is not certified.");
-                Require(index == 0 || coefficients[0] > 0, "Profile sides touch at an interior knot.");
+                var profile = definition.Profiles[profileIndex];
+                var upper = spans[profile.Upper.Path];
+                var lower = spans[profile.Lower.Path];
+                Require(upper.Length == lower.Length, "Independent profile x mappings are not assessed.", GeometryStatus.Unsupported);
+                var differences = upper.Zip(lower, (u, l) => new PolynomialSpan(u.Start, u.End, u.X, u.Y.Zip(l.Y, (a, b) => a - b).ToArray())).ToArray();
+                for (int index = 0; index < differences.Length; index++)
+                {
+                    var coefficients = differences[index].Y;
+                    Require(coefficients.All(x => x >= 0) && coefficients.Any(x => x > 0), "Profile separation is not certified.");
+                    Require(index == 0 || coefficients[0] > 0, "Profile sides touch at an interior knot.");
+                }
+                Require(profile.Closure == "closed" || differences[^1].Y[^1] > 0, "Open trailing endpoints are not separated.");
+                var maximum = Bernstein.Maximum(differences.Select(span => span.Y).ToArray(), watch);
+                certified[profileIndex] = new(profile.Upper.Path, profile.Lower.Path, new(maximum.Lower, maximum.Upper), differences, maximum.Nodes);
             }
-            Require(profile.Closure == "closed" || differences[^1][^1] > 0, "Open trailing endpoints are not separated.");
-            var maximum = Bernstein.Maximum(differences, watch);
-            var placementWidth = PlacementWidth(spans, profile, maximum.Lower, maximum.Upper, definition.HalfSpan, watch);
-            var feasibility = QueryFeasibility.Prove(spans, profile, maximum.Lower, maximum.Upper, definition.HalfSpan, watch);
+            var stations = definition.Assignments.Select(item => new BlendStation(Rational.From(item.Eta), item.Profile)).ToArray();
+            bool distinct = false;
+            int spanCount = 1, degree = 5;
+            for (int index = 0; index + 1 < stations.Length; index++)
+            {
+                var left = certified[stations[index].Profile];
+                var right = certified[stations[index + 1].Profile];
+                if (SameGeometry(spans, left, right)) continue;
+                distinct = true;
+                Require(SharedAbscissa(left.Difference, right.Difference),
+                    "Rule A max_x enclosure is not certified for independent profile bases.", GeometryStatus.Unsupported);
+                spanCount = Math.Max(spanCount, Math.Max(left.Difference.Length, right.Difference.Length));
+                degree = left.Difference[0].Y.Length - 1;
+            }
+            const int blendNodes = 256;
+            if (distinct)
+            {
+                Rational range = 0;
+                foreach (var profile in certified)
+                {
+                    var coefficients = profile.Difference.SelectMany(span => span.Y).ToArray();
+                    Rational unitRange = (coefficients.Max() - coefficients.Min()) / profile.Maximum.Lower;
+                    if (unitRange > range) range = unitRange;
+                }
+                const int depth = 48;
+                Require(spanCount * depth <= blendNodes, "Blend maximum enclosure node budget is insufficient.");
+                // Degree times the unit-shape range bounds the derivative. After `depth`
+                // bisections every subspan hull is inside the maximum tolerance.
+                Require(new Rational(degree, 1) * range / new Rational(BigInteger.One << depth, 1) <= Rational.From(1e-12) / 4,
+                    "Blend maximum enclosure depth bound is insufficient.");
+            }
+            int rootIndex = definition.Assignments[0].Profile;
+            var root = certified[rootIndex];
+            var rootProfile = definition.Profiles[rootIndex];
+            var placementWidth = distinct
+                ? BlendPlacementWidth(spans, certified, definition.HalfSpan, watch)
+                : PlacementWidth(spans, rootProfile, root.Maximum.Lower, root.Maximum.Upper, definition.HalfSpan, watch);
+            var feasibility = QueryFeasibility.Prove(spans, rootProfile, root.Maximum.Lower, root.Maximum.Upper, definition.HalfSpan, watch,
+                distinct, distinct ? blendNodes : 0, distinct ? certified.Select(item => item.Maximum.Lower).ToArray() : null);
             var witnesses = spans.SelectMany(pair => pair.Value.Select(span => Witness(pair.Key, span))).ToList();
-            witnesses.AddRange(differences.Select((values, index) => Witness("profile-separation", new(upper[index].Start, upper[index].End, upper[index].X, values))));
-            var result = new GeometryAssessment(new(source.SourceHash, source.SurfaceHash!, maximum.Lower, maximum.Upper, witnesses, maximum.Nodes,
-                spans, profile.Upper.Path, profile.Lower.Path, definition.HalfSpan, placementWidth, feasibility), "Continuous conservative subset certified.");
+            foreach (var profile in certified)
+                witnesses.AddRange(profile.Difference.Select(span => Witness("profile-separation", span)));
+            var result = new GeometryAssessment(new(source.SourceHash, source.SurfaceHash!, root.Maximum.Lower, root.Maximum.Upper, witnesses,
+                certified.Sum(item => item.Nodes), spans, definition.HalfSpan, placementWidth, feasibility,
+                certified, stations, distinct ? blendNodes : 0), "Continuous conservative subset certified.");
             watch.Check();
             return result;
         }
@@ -279,6 +449,60 @@ public static class Geometry
         watch.Check();
         return width;
     }
+
+    private static Rational BlendPlacementWidth(Dictionary<string, PolynomialSpan[]> spans, CertifiedProfile[] profiles, double halfSpan, ProofBudget watch)
+    {
+        Rational delta = Rational.From(1e-14);
+        var paths = new HashSet<string>(profiles.SelectMany(profile => new[] { profile.UpperPath, profile.LowerPath }), StringComparer.Ordinal);
+        Rational worstProfileDelta = 0, worstNormalized = 0, relativeGap = 0;
+        foreach (var profile in profiles)
+        {
+            Rational profileDelta = ProfileTolerance(profile.Maximum.Lower);
+            if (profileDelta > worstProfileDelta) worstProfileDelta = profileDelta;
+            Rational normalizedWidth = 2 * profileDelta / profile.Maximum.Lower +
+                (profile.Maximum.Upper + 2 * profileDelta) * (profile.Maximum.Upper - profile.Maximum.Lower) / (profile.Maximum.Lower * profile.Maximum.Upper);
+            if (normalizedWidth > worstNormalized) worstNormalized = normalizedWidth;
+            Rational gap = (profile.Maximum.Upper - profile.Maximum.Lower) / profile.Maximum.Lower;
+            if (gap > relativeGap) relativeGap = gap;
+        }
+        // A convex combination of unit shapes peaks at least at 1/2. The
+        // enclosure floor stays at 1/4 after the scalar and subdivision gaps.
+        Rational subdivision = Rational.From(1e-12);
+        Rational maxWidth = (relativeGap + 2 * subdivision) * (1 + worstNormalized);
+        Rational maxLower = (Rational)1 / 4;
+        Require(maxWidth < maxLower, "Blend maximum enclosure consumes the certified floor.");
+        Rational normalizedWidthBound = worstNormalized / maxLower + (1 + worstNormalized) * maxWidth / (maxLower * maxLower);
+        var factor = Rational.From(0.017453292519943295);
+        var twists = spans["twist"].SelectMany(span => span.Y).ToArray();
+        Require(Rational.From((twists.Min() * factor).Nearest()) >= -1 && Rational.From((twists.Max() * factor).Nearest()) <= 1,
+            "Whole-domain angle hull is outside the certified Taylor domain.");
+        foreach (var pair in spans)
+        {
+            Rational tolerance = paths.Contains(pair.Key) ? worstProfileDelta : delta;
+            foreach (var span in pair.Value)
+            {
+                watch.Check();
+                Require((span.Y.Length - 1) * (span.Y.Max() - span.Y.Min()) / new Rational(BigInteger.One << 127, 1) <= tolerance,
+                    "Whole-domain inverse depth bound is insufficient.");
+            }
+        }
+        Rational zWidth = worstProfileDelta + (normalizedWidthBound * (1 + delta) + delta * (1 + normalizedWidthBound)) / 2;
+        var profileValues = profiles.SelectMany(profile => spans[profile.UpperPath].Concat(spans[profile.LowerPath]).SelectMany(span => span.Y));
+        Rational zMagnitude = profileValues.Select(Abs).Max() + worstProfileDelta + (1 + normalizedWidthBound) * (1 + delta) / 2;
+        Rational factorial = 1;
+        for (int i = 2; i <= 32; i++) factorial *= i;
+        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << 64) + (Rational)2 / factorial;
+        Rational componentWidth = trigWidth + zWidth * (1 + trigWidth) + zMagnitude * trigWidth;
+        Rational componentMagnitude = (1 + zMagnitude) * (1 + trigWidth);
+        Rational chordMagnitude = spans["trailing"].SelectMany(span => span.Y).Max() - spans["leading"].SelectMany(span => span.Y).Min();
+        Rational width = delta + 2 * delta * componentMagnitude + chordMagnitude * componentWidth;
+        Rational coordinateMagnitude = spans["leading"].Concat(spans["dihedral"]).SelectMany(span => span.Y).Select(Abs).Max() +
+            chordMagnitude * componentMagnitude + Rational.From(halfSpan);
+        width += (coordinateMagnitude + 1) / new Rational(BigInteger.One << 51, 1);
+        Require(width <= Rational.From(1e-8), "Whole-domain placed error exceeds the implementation budget.");
+        watch.Check();
+        return width;
+    }
     private static Rational Abs(Rational value) => value < 0 ? 0 - value : value;
 }
 
@@ -318,10 +542,11 @@ internal sealed class QueryFeasibility
         Observe(Math.Max(value.N + 1075, value.D + 1025), path + "/outward-comparison");
     }
     internal static QueryFeasibilityWitness Prove(Dictionary<string, PolynomialSpan[]> spans, ProfileDefinition profile,
-        Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch)
+        Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch, bool blend = false, int blendNodes = 0, Rational[]? profileMaxima = null)
     {
         var proof = new QueryFeasibility();
         var bounds = new Dictionary<string, Size>();
+        var bases = new Dictionary<string, Size>();
         var witnesses = new List<QuerySpanBound>();
         long operations = 10000; // fixed interval placement, 16 Taylor steps, conversions and comparisons
         Size query = proof.Track(new(54, 1076), "finite-binary64-domain-input");
@@ -347,13 +572,22 @@ internal sealed class QueryFeasibility
                     magnitude = BigInteger.Max(magnitude, BigInteger.Abs(coefficient.Numerator) * (common / coefficient.Denominator));
                 }
                 int degree = span.Y.Length - 1;
+                var basis = new Size(Bits(magnitude), Bits(common));
+                bases[pair.Key] = bases.TryGetValue(pair.Key, out var previous) ? Union(previous, basis) : basis;
                 // Convex hull bounds numerator magnitude. Every split averages
                 // at most degree times, so denominators divide D*2^(degree*d).
                 var refined = proof.Track(new(Bits(magnitude) + degree * 128, Bits(common) + degree * 128), pair.Key + "/refined-hull");
                 proof.Divide(proof.Add(refined, refined, pair.Key + "/split-add"), new(2, 1), pair.Key + "/split-half");
                 proof.Observe(Math.Max(refined.N + query.D, query.N + refined.D), pair.Key + "/query-comparison");
                 var difference = proof.Add(refined, refined, pair.Key + "/hull-width");
-                var accuracy = proof.Actual(pair.Key == profile.Upper.Path || pair.Key == profile.Lower.Path ? profileTolerance : tolerance, pair.Key + "/accuracy");
+                Rational accuracyValue = tolerance;
+                if (pair.Key == profile.Upper.Path || pair.Key == profile.Lower.Path) accuracyValue = profileTolerance;
+                else if (blend && pair.Key.StartsWith("profile:", StringComparison.Ordinal) && profileMaxima is not null)
+                {
+                    Rational smallest = profileMaxima.Min();
+                    accuracyValue = smallest < 1 ? tolerance * smallest : tolerance;
+                }
+                var accuracy = proof.Actual(accuracyValue, pair.Key + "/accuracy");
                 proof.Observe(Math.Max(difference.N + accuracy.D, accuracy.N + difference.D), pair.Key + "/accuracy-comparison");
                 combined = Union(combined, refined);
                 witnesses.Add(new(pair.Key, index, degree, Bits(common), refined.N, refined.D));
@@ -364,9 +598,17 @@ internal sealed class QueryFeasibility
             // Counts primitive rational operations and comparison products.
             operations += 8L * pair.Value.Length + 128L * (8L * p * (p + 1) + 32L * (p + 1) + 64);
         }
+        if (blend) operations += 2L * blendNodes * 32L + 6L * blendNodes * (blendNodes + 1L);
         Geometry.Require(operations <= 1000000, "All-query operation bound exceeds one million.", GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
         Size half = new(1, 2);
         var up = bounds[profile.Upper.Path]; var lo = bounds[profile.Lower.Path];
+        if (blend)
+            foreach (var pair in bounds)
+            {
+                if (!pair.Key.StartsWith("profile:", StringComparison.Ordinal)) continue;
+                if (pair.Key.EndsWith(":upper", StringComparison.Ordinal)) up = Union(up, pair.Value);
+                else if (pair.Key.EndsWith(":lower", StringComparison.Ordinal)) lo = Union(lo, pair.Value);
+            }
         var maximum = Union(proof.Actual(maximumLower, "maximum-lower"), proof.Actual(maximumUpper, "maximum-upper"));
         var reciprocal = proof.Divide(new(1, 1), maximum, "maximum-reciprocal");
         var camber = proof.Multiply(proof.Add(up, lo, "camber-sum"), half, "camber");
@@ -374,8 +616,23 @@ internal sealed class QueryFeasibility
             "normalization"), bounds["thickness"], "thickness"), half, "half-thickness");
         var section = proof.Add(camber, normalized, "section");
         proof.Conversion(section, "section");
-        var largestProfile = spans[profile.Upper.Path].Concat(spans[profile.Lower.Path]).SelectMany(s => s.Y)
-            .Select(value => value < 0 ? 0 - value : value).Max();
+        if (blend)
+        {
+            // max T0 subdivides the original Bernstein coefficients, not the
+            // 128-deep pointwise hull. Depth 48 is the admission bound.
+            Size basis = new(1, 1);
+            foreach (var pair in bases)
+                if (pair.Key.StartsWith("profile:", StringComparison.Ordinal)) basis = Union(basis, pair.Value);
+            int depthBits = (spans[profile.Upper.Path][0].Y.Length - 1) * 48;
+            var weight = proof.Track(new(2200, 4300), "blend-weight");
+            var scale = proof.Divide(weight, maximum, "blend-unit-scale");
+            var coefficient = proof.Multiply(basis, scale, "blend-coefficient");
+            var subdivided = proof.Track(new(coefficient.N + depthBits, coefficient.D + depthBits), "blend-maximum-subdivision");
+            proof.Multiply(section, proof.Divide(new(1, 1), subdivided, "blend-maximum-reciprocal"), "normalized-thickness-shape");
+        }
+        IEnumerable<Rational> ordinates = spans[profile.Upper.Path].Concat(spans[profile.Lower.Path]).SelectMany(span => span.Y);
+        if (blend) ordinates = spans.Where(pair => pair.Key.StartsWith("profile:", StringComparison.Ordinal)).SelectMany(pair => pair.Value).SelectMany(span => span.Y);
+        var largestProfile = ordinates.Select(value => value < 0 ? 0 - value : value).Max();
         Geometry.Require(largestProfile + 2 < Rational.From(double.MaxValue), "Normalized section outward range is not finite.",
             GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
         var angular = proof.Multiply(bounds["twist"], proof.Actual(Rational.From(0.017453292519943295), "degree-factor"), "angular-product");
@@ -596,12 +853,12 @@ internal static class Bernstein
         return (left, right);
     }
 
-    internal static (Rational Lower, Rational Upper, int Nodes) Maximum(Rational[][] spans, ProofBudget watch)
+    internal static (Rational Lower, Rational Upper, int Nodes) Maximum(Rational[][] spans, ProofBudget watch, int nodeBudget = 4096)
     {
         var pending = spans.Select(coefficients => (Coefficients: coefficients, Depth: 0)).ToList();
         Rational lower = pending.SelectMany(item => new[] { item.Coefficients[0], item.Coefficients[^1] }).Max();
         var tolerance = Rational.From(1e-12);
-        for (int nodes = 0; nodes < 4096; nodes++)
+        for (int nodes = 0; nodes < nodeBudget; nodes++)
         {
             Budget(watch);
             var upper = pending.SelectMany(item => item.Coefficients).Max();
