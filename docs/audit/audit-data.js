@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:43:34Z",
+  "generated": "2026-09-25T04:46:27Z",
   "audit": [
     {
       "actor": null,
@@ -7716,6 +7716,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:43:19Z",
       "duration_seconds": 15.0
+    },
+    {
+      "id": "al-01M3BE5QK1ESTXJTW0TAYRC6CW",
+      "shortname": "w0-portable-text-repair-ruling",
+      "datetime": "2026-09-25T04:46:27Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BE2YB1VMCRRKCK9PFJF8PB after conductor refused five portable-text findings in the Windows qualification driver; exact one-file repair and integrated retry, no dispatch.",
+      "summary": "Ruling 42 selects same-author fresh isolated one-file correction, 20calls/15min. Preserve RED; four LF write parameters and guarded UTF8 stdio only, targeted portable-text/subprocess gates plus existing self-test, root corrected-byte delta review, one conductor retry. Coordinator records omitted applicable tooling gate recurrence linked to PLAT-A and makes actual portability gate receipts part of spike handoff. W1 push/dispatch remains separate pending exact corrected source and integrated gate evidence.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Repair the bounded qualification-tool portability refusal without changing native semantics or expanding scope.",
+      "done_when": "Canonical ruling freezes one file, proof and stop conditions; Coordinator informed and Owner yields.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-25T04:45:07Z",
+      "duration_seconds": 80.0
     }
   ],
   "changes": [
