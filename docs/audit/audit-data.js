@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:33:13Z",
+  "generated": "2026-09-25T04:41:48Z",
   "audit": [
     {
       "actor": null,
@@ -7625,6 +7625,30 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BDX6ZFGP2X72WKKGDF07SN",
+      "shortname": "visible-endpoint-spike-ruling",
+      "datetime": "2026-09-25T04:41:48Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BDN7535JSDPJ740MM5838G: bounded visible-presentation endpoint spike under approved M1 timing, exact scope and negatives, no product PASS or capture permission changes; stop before full section editor.",
+      "summary": "Ruling 41 authorizes requested-Astra seven-file isolated measurement-contract preparation, 60calls/40min. Source/compile/noncapture tests only; CUA contract requires specific user request before alternate screen observation. Exact reviewed target-only helper precedes one batched authorization/host request. Requires clock/region identity/visibility and interval-premise proof, fixed stale/partial/dropped/cancel negatives, clear synthetic/native-unexecuted labels, independent root review. No renderer switch, production instrumentation, timing PASS or section work. Root W0 review f080076 received separately; no W1 decision made in this run.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare a rigorous visible-endpoint feasibility route while respecting capture authorization and preserving M1 quality gates.",
+      "done_when": "Canonical ruling names exact files, budget, proof controls and stop boundaries; Coordinator notified and Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T04:38:48Z",
+      "duration_seconds": 180.0
     }
   ],
   "changes": [
