@@ -156,6 +156,15 @@ for _state in ("rest", "hover", "returned", "focus-hover"):
 if len(INTERACTION_ROWS) != 60:
     raise RuntimeError("frozen interaction row table changed")
 APPLIED_ROWS |= INTERACTION_ROWS
+TEXTBOX_STATES = ("unfocused-rest", "unfocused-hover", "keyboard-focus", "all-selected",
+                  "keyboard-focus-hover", "keyboard-focus-returned", "blurred",
+                  "pointer-focus-hover", "pointer-focus-returned", "refocused")
+TEXTBOX_ROWS = {f"textbox.{kind}.{state}" for kind in ("numeric", "source")
+                for state in TEXTBOX_STATES}
+TEXTBOX_ROWS.add("textbox.numeric.typed-replacement")
+if len(TEXTBOX_ROWS) != 21:
+    raise RuntimeError("frozen TextBox state table changed")
+APPLIED_ROWS |= TEXTBOX_ROWS
 APPLIED_THEMES = {"Light", "Dark", "HighContrast", "Default"}
 
 
@@ -164,9 +173,60 @@ def parse_applied_theme_rows(raw: str) -> dict[str, float]:
     observed: dict[str, float] = {}
     observed_paint: dict[str, tuple[str, str]] = {}
     states: dict[str, dict] = {}
+    textbox_states: dict[str, dict] = {}
+    sibling_negatives = set()
     placement = set()
     disabled = set()
     for line in raw.splitlines():
+        if line.startswith("TEXTBOX-SIBLING-NEGATIVE "):
+            parts = line.split()
+            if len(parts) != 4 or parts[1] not in APPLIED_THEMES or \
+                    parts[2:] != ["refused=true", "ancestorUnchanged=true"] or parts[1] in sibling_negatives:
+                raise RuntimeError("TextBox sibling-only negative is malformed or duplicate")
+            sibling_negatives.add(parts[1])
+        if line.startswith("TEXTBOX-STATE "):
+            try:
+                fact = json.loads(line.removeprefix("TEXTBOX-STATE "))
+            except json.JSONDecodeError:
+                raise RuntimeError("malformed TextBox state evidence") from None
+            key = f"{fact.get('theme')}/{fact.get('row')}"
+            if key not in {f"{theme}/{row}" for theme in APPLIED_THEMES for row in TEXTBOX_ROWS} or \
+                    key in textbox_states:
+                raise RuntimeError("missing, duplicate, or unknown TextBox state")
+            kind, state = fact["row"].split(".")[1:]
+            focus = state not in ("unfocused-rest", "unfocused-hover", "blurred")
+            hover = state in ("unfocused-hover", "keyboard-focus-hover", "pointer-focus-hover")
+            selected = state in ("keyboard-focus", "all-selected", "refocused") or \
+                (kind == "source" and state in ("keyboard-focus-hover", "keyboard-focus-returned"))
+            route = ("framework-text-input" if state == "typed-replacement" else
+                     "framework-selection" if state == "all-selected" else
+                     "framework-pointer-plus-focus" if state == "pointer-focus-hover" else
+                     "framework-pointer" if state in ("unfocused-hover", "keyboard-focus-hover",
+                                                  "keyboard-focus-returned", "pointer-focus-returned") else
+                     "framework-keyboard-focus" if state in ("keyboard-focus", "refocused") else
+                     "framework-focus")
+            def finite_or_null(value):
+                return value is None or (isinstance(value, (float, int)) and math.isfinite(value))
+            if fact.get("kind") != kind or fact.get("state") != state or fact.get("route") != route or \
+                    fact.get("focused") is not focus or fact.get("pointerOver") is not hover or \
+                    fact.get("selected") is not selected or fact.get("enabled") is not True or \
+                    fact.get("readOnly") is not (kind == "source") or \
+                    not isinstance(fact.get("accepted"), str) or not fact["accepted"] or \
+                    not isinstance(fact.get("draft"), str) or not fact["draft"] or \
+                    type(fact.get("generation")) is not int or fact["generation"] < 0 or \
+                    not isinstance(fact.get("text"), str) or not fact["text"] or \
+                    fact.get("painter") != "PART_BorderElement" or \
+                    fact.get("siblingOrder") != "border0-host1" or \
+                    not re.fullmatch(r"#FF[0-9A-Fa-f]{6}", str(fact.get("foreground"))) or \
+                    not re.fullmatch(r"#FF[0-9A-Fa-f]{6}", str(fact.get("backdrop"))) or \
+                    not all(finite_or_null(fact.get(name)) for name in
+                            ("selectionRatio", "caretRatio", "focusRatio")) or \
+                    (selected and (fact.get("selectionRatio") is None or fact["selectionRatio"] < 4.5)) or \
+                    (focus and (fact.get("focusRatio") is None or fact["focusRatio"] < 3)) or \
+                    (focus and not selected and
+                     (fact.get("caretRatio") is None or fact["caretRatio"] < 3)):
+                raise RuntimeError(f"TextBox state/painter evidence refused: {key}")
+            textbox_states[key] = fact
         if line.startswith("THEME-STATE "):
             try:
                 fact = json.loads(line.removeprefix("THEME-STATE "))
@@ -247,8 +307,14 @@ def parse_applied_theme_rows(raw: str) -> dict[str, float]:
                 raise RuntimeError("text presenter has zero bounds")
             row_name = parts[1].split("/", 1)[1]
             if (row_name == "source.active.readonly" or
-                    row_name.startswith("interaction.source.readonly.")) and fields.get("clip") != "scroll":
+                    row_name.startswith("interaction.source.readonly.") or
+                    row_name.startswith("textbox.source.")) and fields.get("clip") != "scroll":
                 raise RuntimeError("active source text lacks measured scroll clip")
+            if (row_name in ("numeric.enabled.owned-draft", "source.active.readonly") or
+                    row_name.startswith(("interaction.numeric.", "interaction.source.",
+                                         "textbox.numeric.", "textbox.source."))) and \
+                    fields.get("painter") != "PART_BorderElement":
+                raise RuntimeError("TextBox row lacks actual sibling painter evidence")
             threshold = 4.5
         def lightness(value: str) -> float:
             channels = [int(value[index:index + 2], 16) / 255 for index in (3, 5, 7)]
@@ -269,11 +335,25 @@ def parse_applied_theme_rows(raw: str) -> dict[str, float]:
     if set(observed) != expected or disabled != APPLIED_THEMES or \
             placement != {f"{theme}/focus.tab" for theme in APPLIED_THEMES} or \
             set(states) != {f"{theme}/{row}" for theme in APPLIED_THEMES for row in INTERACTION_ROWS} or \
-            "THEME-APPLIED-CHECK rows=312 variants=4 source=actual-MainWindow" not in raw:
+            set(textbox_states) != {f"{theme}/{row}" for theme in APPLIED_THEMES for row in TEXTBOX_ROWS} or \
+            sibling_negatives != APPLIED_THEMES or \
+            "THEME-APPLIED-CHECK rows=396 variants=4 source=actual-MainWindow" not in raw:
         raise RuntimeError("applied theme required row set is incomplete")
     for key, fact in states.items():
         if (fact["foreground"].upper(), fact["background"].upper()) != observed_paint[key]:
             raise RuntimeError(f"interaction metadata differs from applied paint: {key}")
+    for key, fact in textbox_states.items():
+        if (fact["foreground"].upper(), fact["backdrop"].upper()) != observed_paint[key]:
+            raise RuntimeError(f"TextBox metadata differs from applied sibling paint: {key}")
+    authority: dict[str, tuple[str, str, int]] = {}
+    for key, fact in textbox_states.items():
+        theme = fact["theme"]
+        previous = authority.get(theme)
+        if previous is not None and (fact["accepted"] != previous[0] or
+                                     fact["draft"] != previous[1] or
+                                     fact["generation"] < previous[2]):
+            raise RuntimeError(f"TextBox accepted/draft generation became stale: {key}")
+        authority[theme] = (fact["accepted"], fact["draft"], fact["generation"])
     return observed
 
 
@@ -286,6 +366,20 @@ def applied_theme_checks(step: dict) -> dict[str, object]:
     hover = next(line for line in raw.splitlines() if line.startswith("THEME-STATE ") and
                  '"name":"interaction.tab.source.selected.hover"' in line and
                  '"theme":"HighContrast"' in line)
+    numeric_state = next(line for line in raw.splitlines() if line.startswith("TEXTBOX-STATE ") and
+                         '"row":"textbox.numeric.typed-replacement"' in line and
+                         '"theme":"HighContrast"' in line)
+    first_numeric_state = next(line for line in raw.splitlines() if line.startswith("TEXTBOX-STATE ") and
+                               '"row":"textbox.numeric.unfocused-rest"' in line and
+                               '"theme":"HighContrast"' in line)
+    next_numeric_state = next(line for line in raw.splitlines() if line.startswith("TEXTBOX-STATE ") and
+                              '"row":"textbox.numeric.unfocused-hover"' in line and
+                              '"theme":"HighContrast"' in line)
+    next_generation = json.loads(next_numeric_state.removeprefix("TEXTBOX-STATE "))["generation"]
+    sibling_negative = next(line for line in raw.splitlines() if
+                            line == "TEXTBOX-SIBLING-NEGATIVE HighContrast refused=true ancestorUnchanged=true")
+    numeric_paint = next(line for line in raw.splitlines() if
+                         line.startswith("THEME-APPLIED HighContrast/textbox.numeric.typed-replacement "))
     negative_cases = {
         "missing": raw.replace(first + "\n", "", 1),
         "duplicate": raw + "\n" + first + "\n",
@@ -306,6 +400,23 @@ def applied_theme_checks(step: dict) -> dict[str, object]:
         "default-only": "\n".join(line for line in raw.splitlines() if
                                     not (line.startswith("THEME-STATE ") and
                                          '"theme":"HighContrast"' in line)),
+        "textbox-state-missing": raw.replace(numeric_state + "\n", "", 1),
+        "textbox-state-duplicate": raw + "\n" + numeric_state + "\n",
+        "textbox-state-wrong": raw.replace(numeric_state, numeric_state.replace('"focused":true',
+                                                                            '"focused":false', 1), 1),
+        "textbox-stale-generation": raw.replace(first_numeric_state,
+                                                  re.sub(r'"generation":[0-9]+',
+                                                         '"generation":' + str(next_generation + 1),
+                                                         first_numeric_state, count=1), 1),
+        "textbox-invalid-generation": raw.replace(numeric_state,
+                                                    re.sub(r'"generation":[0-9]+',
+                                                           '"generation":-1', numeric_state, count=1), 1),
+        "textbox-wrong-draft": raw.replace(numeric_state,
+                                            re.sub(r'"draft":"[^"]+"',
+                                                   '"draft":"wrong-draft"', numeric_state, count=1), 1),
+        "textbox-sibling-negative-missing": raw.replace(sibling_negative + "\n", "", 1),
+        "textbox-painter-missing": raw.replace(numeric_paint,
+                                                numeric_paint.replace(" painter=PART_BorderElement", "", 1), 1),
     }
     for name, mutation in negative_cases.items():
         try:

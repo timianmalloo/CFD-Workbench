@@ -18,6 +18,7 @@ using System.Text.Json.Nodes;
 
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
+    args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
     args.Contains("--focus-diagnostic", StringComparer.Ordinal) ||
     args.Contains("--focus-negatives", StringComparer.Ordinal) ||
     args.Contains("--focus-readiness", StringComparer.Ordinal) ||
@@ -25,6 +26,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
 {
     bool focusDiagnostic = args.Contains("--focus-diagnostic", StringComparer.Ordinal);
     bool pointerRed = args.Contains("--theme-pointer-red", StringComparer.Ordinal);
+    bool numericPaintRed = args.Contains("--numeric-paint-red", StringComparer.Ordinal);
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     foreach (var (key, value) in new Dictionary<string, string> {
         ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "designer",
@@ -52,9 +54,14 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     foreach (string state in new[] { "rest", "hover", "returned", "focus-hover" })
         foreach (string field in new[] { "numeric.owned", "source.readonly" })
             interactionRows.Add($"interaction.{field}.{state}");
-    var required = originalRows.Concat(interactionRows).ToArray();
-    if (required.Length != 78 || required.Distinct(StringComparer.Ordinal).Count() != 78)
-        throw new Exception("Frozen per-theme 18+60 interaction row table changed");
+    var textBoxRows = new[] { "unfocused-rest", "unfocused-hover", "keyboard-focus",
+        "all-selected", "keyboard-focus-hover", "keyboard-focus-returned", "blurred",
+        "pointer-focus-hover", "pointer-focus-returned", "refocused" }
+        .SelectMany(state => new[] { "textbox.numeric." + state, "textbox.source." + state })
+        .Append("textbox.numeric.typed-replacement").ToArray();
+    var required = originalRows.Concat(interactionRows).Concat(textBoxRows).ToArray();
+    if (required.Length != 99 || required.Distinct(StringComparer.Ordinal).Count() != 99)
+        throw new Exception("Frozen per-theme 18+60+21 TextBox row table changed");
     var emitted = new HashSet<string>(StringComparer.Ordinal);
     var rowFailures = new List<string>();
     void CheckRow(string theme, string row, Action probe)
@@ -117,6 +124,51 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             backing = solid.Color;
         }
         return backing ?? throw new Exception("No proven opaque backing for rendered text");
+    }
+    static Color TextBoxBacking(TextBox target, Avalonia.Visual text,
+        Avalonia.Visual observedAt, Rect observedBounds)
+    {
+        var border = target.GetVisualDescendants().OfType<Border>()
+            .Single(item => item.Name == "PART_BorderElement");
+        var panel = border.GetVisualParent() as Panel
+            ?? throw new Exception("TextBox painter sibling panel absent");
+        var host = text.GetVisualAncestors().FirstOrDefault(item =>
+            ReferenceEquals(item.GetVisualParent(), panel))
+            ?? throw new Exception("TextBox text-host sibling absent");
+        if (host is not Control hostControl)
+            throw new Exception("TextBox text-host is not a control");
+        if (!ReferenceEquals(border.TemplatedParent, target) ||
+            panel.Children.IndexOf(border) != 0 || panel.Children.IndexOf(hostControl) != 1 ||
+            !border.IsEffectivelyVisible || !host.IsEffectivelyVisible)
+            throw new Exception("TextBox painted sibling template or order changed");
+        foreach (var layer in text.GetVisualAncestors().TakeWhile(item => !ReferenceEquals(item, panel))
+                     .Append(text).Append(border).Append(panel))
+        {
+            if (Math.Abs(layer.Opacity - 1) > 0.000001)
+                throw new Exception("TextBox painter group opacity is unresolved");
+            if (layer.Clip is not null && layer is not Avalonia.Controls.Presenters.ScrollContentPresenter)
+                throw new Exception("TextBox painter has an unsupported clip");
+            if (ReferenceEquals(layer, border) || ReferenceEquals(layer, panel)) continue;
+            if (PropertyBrush(layer, "Background") is { } foregroundPaint &&
+                foregroundPaint is ISolidColorBrush paint && paint.Color.A != 0)
+                throw new Exception("TextBox text-host overlays its sibling painter");
+            if (PropertyBrush(layer, "Background") is { } unknownPaint &&
+                (unknownPaint is not ISolidColorBrush || Math.Abs(unknownPaint.Opacity - 1) > 0.000001))
+                throw new Exception("TextBox text-host paint is unresolved");
+        }
+        var transform = observedAt.TransformToVisual(border);
+        var origin = observedAt.TranslatePoint(observedBounds.Position, border);
+        if (transform is null || origin is null ||
+            Math.Abs(transform.Value.M11 - 1) > 0.000001 ||
+            Math.Abs(transform.Value.M22 - 1) > 0.000001 ||
+            Math.Abs(transform.Value.M12) > 0.000001 ||
+            Math.Abs(transform.Value.M21) > 0.000001 ||
+            origin.Value.X < 0 || origin.Value.Y < 0 ||
+            origin.Value.X + observedBounds.Width > border.Bounds.Width + .01 ||
+            origin.Value.Y + observedBounds.Height > border.Bounds.Height + .01)
+            throw new Exception("TextBox sibling painter does not enclose visible text");
+        _ = Backing(text, observedAt, observedBounds); // Prove the opaque underlay too.
+        return Solid(border.Background, "TextBox PART_BorderElement backdrop");
     }
     static double Luminance(Color color)
     {
@@ -423,7 +475,8 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         Rect observedBounds = new Rect(visual.Bounds.Size);
         string clipEvidence = "";
         if (name == "source.active.readonly" ||
-            name.StartsWith("interaction.source.readonly.", StringComparison.Ordinal))
+            name.StartsWith("interaction.source.readonly.", StringComparison.Ordinal) ||
+            name.StartsWith("textbox.source.", StringComparison.Ordinal))
         {
             var clip = visual.GetVisualAncestors().OfType<Avalonia.Controls.Presenters.ScrollContentPresenter>()
                 .FirstOrDefault() ?? throw new Exception("Source text has no scroll viewport");
@@ -439,13 +492,16 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             observedBounds = new Rect(left, top, right - left, bottom - top);
             clipEvidence = " clip=scroll";
         }
-        var background = Backing(visual, observedAt, observedBounds);
+        var background = textBox && target is TextBox field
+            ? TextBoxBacking(field, visual, observedAt, observedBounds)
+            : Backing(visual, observedAt, observedBounds);
         double ratio = Contrast(foreground, background);
         if (ratio < 4.5) throw new Exception($"Applied text contrast {theme}/{name} {ratio:F3} < 4.5");
         if (!emitted.Add(theme + "/" + name)) throw new Exception($"Duplicate applied row {theme}/{name}");
         Console.WriteLine($"THEME-APPLIED {theme}/{name} fg=#{foreground.A:X2}{foreground.R:X2}{foreground.G:X2}{foreground.B:X2} " +
             $"bg=#{background.A:X2}{background.R:X2}{background.G:X2}{background.B:X2} ratio={ratio:F6} " +
-            $"text={visual.GetType().Name} bounds={observedBounds.Width:F1}x{observedBounds.Height:F1}{clipEvidence}");
+            $"text={visual.GetType().Name} bounds={observedBounds.Width:F1}x{observedBounds.Height:F1}{clipEvidence}" +
+            (textBox ? " painter=PART_BorderElement" : ""));
     }
     static IPseudoClasses StateClasses(Control target) =>
         typeof(StyledElement).GetProperty("PseudoClasses",
@@ -508,9 +564,14 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
                 double right = Math.Min(clip.Bounds.Width, origin.X + visual.Bounds.Width);
                 double bottom = Math.Min(clip.Bounds.Height, origin.Y + visual.Bounds.Height);
                 if (right <= left || bottom <= top) throw new Exception("Source text clip empty");
-                color = Backing(visual, clip, new Rect(left, top, right - left, bottom - top));
+                color = target is TextBox sourceField
+                    ? TextBoxBacking(sourceField, visual, clip,
+                        new Rect(left, top, right - left, bottom - top))
+                    : Backing(visual, clip, new Rect(left, top, right - left, bottom - top));
             }
-            else color = Backing(visual);
+            else color = target is TextBox numericField
+                ? TextBoxBacking(numericField, visual, visual, new Rect(visual.Bounds.Size))
+                : Backing(visual);
             backdrop = ColorText(new SolidColorBrush(color));
         }
         catch (Exception error) { backdrop = "unresolved:" + error.GetType().Name; }
@@ -594,6 +655,116 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         if (target.IsPointerOver)
             target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
                 target, pointer, window, new Point(-100, -100), 16, default, KeyModifiers.None));
+    }
+    void ProbeTextBoxStates(string theme, string kind, TextBox field, MainWindow window,
+        WorkbenchController controller)
+    {
+        bool source = kind == "source";
+        static string Hex(Color color) =>
+            $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+        var accepted = controller.Inspection?.Authored.Binding.AcceptedId
+            ?? throw new Exception("TextBox state probe lacks accepted Example");
+        var draftId = controller.Draft?.Id
+            ?? throw new Exception("TextBox state probe lacks owned draft identity");
+        long lastGeneration = -1;
+        var focusReset = window.FindControl<Button>("ExampleButton")
+            ?? throw new Exception("TextBox state focus reset absent");
+        void State(string state, bool focused, bool hovered, bool selected, string route)
+        {
+            string row = $"textbox.{kind}.{state}";
+            CheckRow(theme, row, () =>
+            {
+                window.UpdateLayout();
+                var currentDraft = controller.Draft;
+                if (!field.IsEffectivelyVisible || !field.IsEffectivelyEnabled ||
+                    field.IsReadOnly != source || field.IsFocused != focused ||
+                    field.IsPointerOver != hovered ||
+                    (field.SelectionStart != field.SelectionEnd) != selected ||
+                    string.IsNullOrEmpty(field.Text) ||
+                    controller.Inspection?.Authored.Binding.AcceptedId != accepted ||
+                    currentDraft is null || currentDraft.Id != draftId ||
+                    currentDraft.Generation < lastGeneration)
+                    throw new Exception($"TextBox actual state/authority mismatch: {theme}/{row}");
+                lastGeneration = currentDraft.Generation;
+                TextRow(theme, row, field, textBox: true);
+                var border = field.GetVisualDescendants().OfType<Border>()
+                    .Single(item => item.Name == "PART_BorderElement");
+                var backdrop = Solid(border.Background, row + " backdrop");
+                double selectionRatio = double.NaN, caretRatio = double.NaN, focusRatio = double.NaN;
+                if (selected)
+                {
+                    selectionRatio = Contrast(Solid(field.SelectionForegroundBrush, row + " selected ink"),
+                        Solid(field.SelectionBrush, row + " selection"));
+                    if (selectionRatio < 4.5) throw new Exception($"Selected text contrast {selectionRatio:F3} < 4.5");
+                }
+                if (focused)
+                {
+                    if (border.BorderThickness.Left <= 0 || border.BorderThickness.Top <= 0)
+                        throw new Exception("Focused TextBox lacks painted border thickness");
+                    focusRatio = Contrast(Solid(border.BorderBrush, row + " focus border"), backdrop);
+                    if (focusRatio < 3) throw new Exception($"Focused border contrast {focusRatio:F3} < 3");
+                    if (!selected)
+                    {
+                        caretRatio = Contrast(Solid(field.CaretBrush, row + " caret"), backdrop);
+                        if (caretRatio < 3) throw new Exception($"Caret contrast {caretRatio:F3} < 3");
+                    }
+                }
+                Console.WriteLine("TEXTBOX-STATE " + System.Text.Json.JsonSerializer.Serialize(new {
+                    theme, row, state, route, kind, accepted,
+                    draft = controller.Draft?.Id, generation = controller.Draft?.Generation,
+                    text = field.Text, focused = field.IsFocused, pointerOver = field.IsPointerOver,
+                    selected, selectionStart = field.SelectionStart, selectionEnd = field.SelectionEnd,
+                    enabled = field.IsEffectivelyEnabled, readOnly = field.IsReadOnly,
+                    foreground = Hex(Solid(PropertyBrush(TextVisual(field, true), "Foreground"), row + " ink")),
+                    backdrop = Hex(backdrop), selectionRatio = double.IsFinite(selectionRatio) ? selectionRatio : (double?)null,
+                    caretRatio = double.IsFinite(caretRatio) ? caretRatio : (double?)null,
+                    focusRatio = double.IsFinite(focusRatio) ? focusRatio : (double?)null,
+                    painter = "PART_BorderElement", siblingOrder = "border0-host1"
+                }));
+            });
+        }
+        using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+        void Exit(ulong stamp) => field.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+            field, pointer, window, new Point(-100, -100), stamp, default, KeyModifiers.None));
+        focusReset.Focus(NavigationMethod.Tab);
+        State("unfocused-rest", false, false, false, "framework-focus");
+        Enter(field, window, pointer, 20);
+        State("unfocused-hover", false, true, false, "framework-pointer");
+        Exit(21);
+        field.Focus(NavigationMethod.Tab);
+        field.SelectAll();
+        State("keyboard-focus", true, false, true, "framework-keyboard-focus");
+        field.SelectAll();
+        State("all-selected", true, false, true, "framework-selection");
+        if (!source)
+        {
+            field.RaiseEvent(new TextInputEventArgs { RoutedEvent = InputElement.TextInputEvent,
+                Source = field, Text = "5" });
+            if (field.Text != "5") throw new Exception("TextBox replacement input was not applied");
+            State("typed-replacement", true, false, false, "framework-text-input");
+        }
+        Enter(field, window, pointer, 22);
+        State("keyboard-focus-hover", true, true, source, "framework-pointer");
+        Exit(23);
+        State("keyboard-focus-returned", true, false, source, "framework-pointer");
+        focusReset.Focus(NavigationMethod.Tab);
+        State("blurred", false, false, false, "framework-focus");
+        Enter(field, window, pointer, 24);
+        field.Focus(NavigationMethod.Pointer);
+        var origin = PointerOrigin(field, window);
+        field.RaiseEvent(new PointerPressedEventArgs(field, pointer, window, origin, 25,
+            new PointerPointProperties(RawInputModifiers.LeftMouseButton,
+                PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+        field.RaiseEvent(new PointerReleasedEventArgs(field, pointer, window, origin, 26,
+            new PointerPointProperties(RawInputModifiers.None,
+                PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+        State("pointer-focus-hover", true, true, false, "framework-pointer-plus-focus");
+        Exit(27);
+        State("pointer-focus-returned", true, false, false, "framework-pointer");
+        focusReset.Focus(NavigationMethod.Tab);
+        field.Focus(NavigationMethod.Tab);
+        field.SelectAll();
+        State("refocused", true, false, true, "framework-keyboard-focus");
     }
     void FocusRow(string theme, string name, Control target)
     {
@@ -797,11 +968,116 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
                  NativeReviewThemes.HighContrast, ThemeVariant.Default })
     {
         string theme = variant.Key.ToString() ?? throw new Exception("Theme key unavailable");
-        if (pointerRed && theme != "HighContrast") continue;
+        if ((pointerRed || numericPaintRed) && theme != "HighContrast") continue;
         Environment.SetEnvironmentVariable("CFDW_REVIEW_STATE", "example");
         var window = new MainWindow { RequestedThemeVariant = variant };
         try
         {
+        if (numericPaintRed)
+        {
+            var numericTabs = window.FindControl<TabControl>("DocumentTabs")
+                ?? throw new Exception("Numeric RED numericTabs absent");
+            var numericController = (WorkbenchController)(typeof(MainWindow).GetField("workbench",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(window) ?? throw new Exception("Numeric RED numericController absent"));
+            ReadyThemeWindow(window, numericController, numericTabs.Items.OfType<TabItem>().First(), theme);
+            var numericControls = window.FindControl<ListBox>("ControlList")
+                ?? throw new Exception("Numeric RED CV list absent");
+            var numericEditable = numericController.Inspection?.Authored.Rails
+                .SelectMany(rail => rail.Controls.Select(control => (rail.Name, control)))
+                .FirstOrDefault(item => item.control.Editable)
+                ?? throw new Exception("Numeric RED numericEditable authored CV absent");
+            var item = numericControls.Items.OfType<ListBoxItem>().Single(candidate =>
+                candidate.Content is string label &&
+                label.StartsWith($"{numericEditable.Name} · {numericEditable.control.Id} · ", StringComparison.Ordinal));
+            numericControls.SelectedItem = item;
+            var numericField = window.FindControl<TextBox>("NumericInput")
+                ?? throw new Exception("Numeric RED field absent");
+            if (numericController.Draft is null || numericController.Draft.Rail != numericEditable.Name ||
+                numericController.Draft.VertexId != numericEditable.control.Id || !numericField.IsEnabled ||
+                numericField.IsReadOnly || string.IsNullOrEmpty(numericField.Text))
+                throw new Exception("Numeric RED lacks nonempty owned numericEditable field");
+            var presenter = TextVisual(numericField, textBox: true);
+            var border = numericField.GetVisualDescendants().OfType<Border>()
+                .Single(candidate => candidate.Name == "PART_BorderElement");
+            var panel = border.GetVisualParent() as Panel
+                ?? throw new Exception("TextBox sibling panel absent");
+            var host = presenter.GetVisualAncestors().FirstOrDefault(v =>
+                ReferenceEquals(v.GetVisualParent(), panel))
+                ?? throw new Exception("TextBox text host sibling absent");
+            int borderIndex = panel.Children.IndexOf(border);
+            int hostIndex = host is Control hostControl ? panel.Children.IndexOf(hostControl) : -1;
+            if (borderIndex != 0 || hostIndex != 1)
+                throw new Exception("Installed TextBox sibling paint order changed");
+            object? Paint(Avalonia.Media.IBrush? brush) => brush is ISolidColorBrush solid
+                ? new { type = "solid", color = solid.Color.ToString(), opacity = (double?)brush.Opacity }
+                : new { type = brush?.GetType().Name ?? "null", color = "not-recorded",
+                    opacity = brush?.Opacity };
+            void Capture(string state, string route)
+            {
+                window.UpdateLayout();
+                var origin = presenter.TranslatePoint(new Point(0, 0), border);
+                var transform = presenter.TransformToVisual(border);
+                Console.WriteLine("NUMERIC-PAINT " + System.Text.Json.JsonSerializer.Serialize(new {
+                    theme, state, route, actualTheme = window.ActualThemeVariant.Key.ToString(),
+                    rail = numericController.Draft?.Rail, cv = numericController.Draft?.VertexId,
+                    draftGeneration = numericController.Draft?.Generation,
+                    accepted = numericController.Inspection?.Authored.Binding.AcceptedId,
+                    text = numericField.Text, presenterText = presenter.GetType().GetProperty("Text")?.GetValue(presenter),
+                    enabled = numericField.IsEffectivelyEnabled, numericField.IsReadOnly,
+                    focused = numericField.IsFocused, focusWithin = numericField.IsKeyboardFocusWithin,
+                    windowActive = window.IsActive, pointerOver = numericField.IsPointerOver,
+                    error = DataValidationErrors.GetHasErrors(numericField),
+                    selectionStart = numericField.SelectionStart, selectionEnd = numericField.SelectionEnd,
+                    foreground = Paint(PropertyBrush(presenter, "Foreground")),
+                    caret = Paint(numericField.CaretBrush), selection = Paint(numericField.SelectionBrush),
+                    selectionForeground = Paint(numericField.SelectionForegroundBrush),
+                    borderBackground = Paint(border.Background), borderBrush = Paint(border.BorderBrush),
+                    borderThickness = border.BorderThickness.ToString(),
+                    borderBounds = border.Bounds.ToString(), hostBounds = host.Bounds.ToString(),
+                    presenterBounds = presenter.Bounds.ToString(),
+                    presenterToBorder = origin?.ToString() ?? "null",
+                    presenterTransform = transform?.ToString() ?? "null",
+                    borderClip = border.Clip?.ToString() ?? "null",
+                    hostClip = host.Clip?.ToString() ?? "null",
+                    panelClip = panel.Clip?.ToString() ?? "null",
+                    borderOpacity = border.Opacity, hostOpacity = host.Opacity,
+                    panelOpacity = panel.Opacity, presenterOpacity = presenter.Opacity,
+                    borderIndex, hostIndex,
+                    oldAncestorBackdrop = Backing(presenter).ToString()
+                }));
+            }
+            var focusReset = window.FindControl<Button>("ExampleButton")
+                ?? throw new Exception("Numeric RED focus reset absent");
+            focusReset.Focus(NavigationMethod.Tab);
+            Capture("unfocused-rest", "framework-focus");
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            Enter(numericField, window, pointer, 1);
+            Capture("unfocused-hover", "framework-pointer-enter");
+            numericField.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                numericField, pointer, window, new Point(-100, -100), 2, default, KeyModifiers.None));
+            numericField.Focus(NavigationMethod.Tab);
+            Capture("keyboard-focus", "framework-navigation");
+            numericField.SelectAll();
+            Capture("all-selected", "framework-selection");
+            numericField.RaiseEvent(new TextInputEventArgs { RoutedEvent = InputElement.TextInputEvent,
+                Source = numericField, Text = "5" });
+            if (numericField.Text != "5") throw new Exception("Framework text input did not replace selection");
+            Capture("typed-replacement", "framework-text-input");
+            Enter(numericField, window, pointer, 3);
+            Capture("keyboard-focus-hover", "framework-pointer-enter");
+            numericField.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                numericField, pointer, window, new Point(-100, -100), 4, default, KeyModifiers.None));
+            Capture("keyboard-focus-returned", "framework-pointer-exit");
+            focusReset.Focus(NavigationMethod.Tab);
+            Capture("blurred", "framework-navigation");
+            numericField.Focus(NavigationMethod.Tab);
+            Capture("refocused", "framework-navigation");
+            typeof(MainWindow).GetField("closeApproved", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.SetValue(window, true);
+            window.Close();
+            Environment.Exit(0);
+        }
         if (focusDiagnostic)
         {
             window.Show();
@@ -1025,6 +1301,24 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         CheckRow(theme, "numeric.enabled.owned-draft", () => TextRow(theme, "numeric.enabled.owned-draft", numeric, textBox: true));
         CheckRow(theme, "focus.numeric", () => FocusRow(theme, "focus.numeric", numeric));
         ProbeStates(theme, "interaction.numeric.owned", numeric, "na", window, textBox: true);
+        ProbeTextBoxStates(theme, "numeric", numeric, window, controller);
+        var numericPresenter = TextVisual(numeric, textBox: true);
+        var numericBorder = numeric.GetVisualDescendants().OfType<Border>()
+            .Single(item => item.Name == "PART_BorderElement");
+        var oldAncestorBacking = Backing(numericPresenter);
+        var numericInk = Solid(PropertyBrush(numericPresenter, "Foreground"), "negative sibling ink");
+        numericBorder.Background = new SolidColorBrush(numericInk); // Isolated oracle mutation, never product paint.
+        try
+        {
+            bool refused = false;
+            try { TextRow(theme, "negative.sibling", numeric, textBox: true); }
+            catch (Exception error) when (error.Message.Contains("contrast", StringComparison.OrdinalIgnoreCase))
+            { refused = true; }
+            if (!refused || Backing(numericPresenter) != oldAncestorBacking)
+                throw new Exception("Sibling-only low-contrast mutation escaped the actual painter oracle");
+            Console.WriteLine($"TEXTBOX-SIBLING-NEGATIVE {theme} refused=true ancestorUnchanged=true");
+        }
+        finally { numericBorder.ClearValue(Border.BackgroundProperty); }
         tabs.SelectedIndex = 0;
         window.UpdateLayout();
         var viewportLabel = window.FindControl<TextBlock>("ViewportProvenance")
@@ -1042,6 +1336,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             throw new Exception("Active Source tab lost read-only accepted Example text");
         CheckRow(theme, "source.active.readonly", () => TextRow(theme, "source.active.readonly", sourceTextControl, textBox: true));
         ProbeStates(theme, "interaction.source.readonly", sourceTextControl, "na", window, textBox: true);
+        ProbeTextBoxStates(theme, "source", sourceTextControl, window, controller);
         var method = typeof(MainWindow).GetMethod("UnsavedDialogAsync",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             ?? throw new Exception("Unsaved dialog method unavailable");

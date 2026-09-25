@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T03:34:08Z",
+  "generated": "2026-09-25T03:57:32Z",
   "audit": [
     {
       "actor": null,
@@ -6303,6 +6303,45 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
         "short": "d774e1ee6",
+        "branch": "feature/application-native-r29",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BBC4YZ2VATRMBM91AZ28G1",
+      "shortname": "native-r39-numeric-focus",
+      "datetime": "2026-09-25T03:57:31Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Under Owner Ruling 39, repair High Contrast NumericInput focus contrast, preserve the 312-row oracle, add actual editing and read-only TextBox states, negative sibling-paint control, and one source-bound package gate without clearing native CUA veto.",
+      "summary": "Measured white-on-white Fluent PART_BorderElement sibling; bound semantic TextBox foreground/backdrop/caret/selection/focus resources; extended actual painted-state oracle to 396 rows and 21 parser mutations; retained RED and corrective GREEN receipts; 12-step changed-source package gate passed. Native CUA and Windows runtime remain open.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+        "tools/verify-application-adapters.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Focused and selected NumericInput text remains readable in all declared themes under actual template sibling paint.",
+      "done_when": "Actual paint RED, 396 applied rows and negatives, one changed-source gate/package, clean C checkpoint; root native review remains independent.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": true
+      },
+      "started_at": "2026-09-25T03:34:28Z",
+      "duration_seconds": 1383.0,
+      "git": {
+        "sha": "847155b3ce7f9bf6687b2b5fff8c4e9d0e596a4f",
+        "short": "847155b3c",
         "branch": "feature/application-native-r29",
         "pushed": null
       }
