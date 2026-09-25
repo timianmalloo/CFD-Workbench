@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:06:08Z",
+  "generated": "2026-09-25T04:06:40Z",
   "audit": [
     {
       "actor": null,
@@ -7405,6 +7405,35 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-25T04:02:14Z",
       "duration_seconds": 167.0
+    },
+    {
+      "id": "al-01M3BBWWQE85R8EHZV0734STZ0",
+      "shortname": "join-r39-native-review",
+      "datetime": "2026-09-25T04:06:40Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined root R39 High Contrast native review and Owner R40 ruling; C product and M1 gates remain open. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate independent R39 native evidence without joining product source",
+      "done_when": "Review, derived index and audit joined; docs checks pass; C product remains isolated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T04:06:39Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
