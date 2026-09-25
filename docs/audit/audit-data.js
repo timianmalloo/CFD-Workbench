@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:10:27Z",
+  "generated": "2026-09-25T05:29:42Z",
   "audit": [
     {
       "actor": null,
@@ -7999,6 +7999,44 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-25T05:08:55Z",
       "duration_seconds": 92.0
+    },
+    {
+      "id": "al-01M3BGMXJ65CGGP51JY0552P03",
+      "shortname": "visible-endpoint-feasibility",
+      "datetime": "2026-09-25T05:29:42Z",
+      "session": "cfd-visible-endpoint-20260925",
+      "prompt": "You are the requested-Astra isolated author under CFD-Workbench Owner Ruling 41. Work ONLY in registered worktree /Users/mallalieut/projects/CFD-Workbench-feature-visible-presentation-spike, branch feature/visible-presentation-spike, base f1a4e2c8a17c, session cfd-visible-endpoint-20260925. First command: AGENT_SESSION=cfd-visible-endpoint-20260925 python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-visible-endpoint-20260925 --skill implement; then read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/implement/SKILL.md and Ruling 41 in docs/notes/rulings.md. Goal: bounded source-bound visible-presentation endpoint feasibility packet for approved M1 timing, ≤60 tool calls/40 min, exactly SEVEN authored paths: docs/design/visible-presentation.md, docs/proof/visible-presentation.md, tools/spikes/VisiblePresentation/VisiblePresentation.csproj, Program.cs, Capture.swift, tools/qualify-visible-presentation.py. Claim each exact path before edit; official audit/index derived only. Read joined docs/knowledge/visible-presentation/index.md and pinned primary sources. Synthetic 3-region target and executable noncapture clock/state/receipt negatives; compare supported renderer vs prepared ScreenCaptureKit target-only helper with raw uncertainty and explicit Not assessed. IMPORTANT: no actual alternate screen capture, no window enumeration, no TCC prompt/reset/settings change, no native UI control, no product source/renderer change, no user foreground request, no section editor. Capture helper may be authored/compiled but never executed until exact root review and specific user authorization. Target-window capture alone does not prove physical unoccluded visibility; transient final then regression invalidates naive interval lower bound. Preserve synthetic/native-unexecuted labels; no visible latency PASS. One coherent implementation and at most one corrective local pass. Task-local caches/builds, no broad process kill. Send early API/endpoint seam and precise blocker to Coordinator/root; finish clean commit, raw receipts, source hashes, check-docs, leases released/session ended. Requested model gpt-6-astra; effective model identity Not recorded unless measured. Root independently reviews. Current cap3: root, Coordinator, you. Do not touch W1 workflow or shared product paths.",
+      "summary": "R41 six explicitly named paths govern Coordinator-confirmed count mismatch. Prepared pinned synthetic Avalonia target and compiled-only SCK helper; no UI/capture/permission operation. Executed 50 synthetic controls, four killed mutants, C# state and 32 noncapture clock pairs. One local fixture-alias correction plus root-directed UTF-8 and disjoint-clock corrections; wrong calibration now exits3. Whole-package runtime binding, native crop bridge, persistence/loss, physical visibility, drift and lifecycle remain Not assessed. Effective model/tokens/spend Not recorded. Root review pending; no native latency or M1 PASS. Raw receipts and source/binary hashes in proof, task-local scratch retained. Official docs and portability checks passed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/visible-presentation.md",
+        "docs/proof/visible-presentation.md",
+        "tools/spikes/VisiblePresentation/VisiblePresentation.csproj",
+        "tools/spikes/VisiblePresentation/Program.cs",
+        "tools/spikes/VisiblePresentation/Capture.swift",
+        "tools/qualify-visible-presentation.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Prepare source-bound visible endpoint feasibility evidence under R41 without native capture execution",
+      "done_when": "Six named artifacts, noncapture controls, hashes and raw receipts are committed for independent root review with native limitations explicit",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true
+      },
+      "started_at": "2026-09-25T05:11:37Z",
+      "duration_seconds": 1085.0,
+      "git": {
+        "sha": "f1a4e2c8a17c0541962cfbd4c8ef5363bbd4e63f",
+        "short": "f1a4e2c8a",
+        "branch": "feature/visible-presentation-spike",
+        "pushed": null
+      }
     }
   ],
   "changes": [
