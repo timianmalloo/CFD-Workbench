@@ -3189,7 +3189,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e11fc17a9d1ec38fd1707de84593f59c94ad02b3a708de058ec474da312a20ae"
+      "sourceSha256": "2efe0d034b63f578c1b8894b844123f1dffed3e6bcad6fcaa2063af3ff2e66df"
     },
     {
       "id": "kb-hw-glossary",
@@ -6277,5 +6277,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c0130f8a399bce7e4bceadc820c62d44df56fb569a1c671635deffccc5c1187d"
+  "graphSha256": "c282897b495e6ac4f4ee67edf7a487a274cac7a4a8d6ea4fa238c927c96cd442"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:37:01Z",
+  "generated": "2026-09-25T06:42:49Z",
   "audit": [
     {
       "actor": null,
@@ -8901,6 +8901,38 @@ window.AUDIT_DATA = {
         "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
         "short": "4d6a02dd5",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BMTSQRYHGMPKAV7VDA5WPG",
+      "shortname": "owner-r51",
+      "datetime": "2026-09-25T06:42:49Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BMM9NBYC9ZVD86QYV1DEAG from clean a684d24: narrow isolated R48 final-arm containment/constructor tests and disjoint R47 real noncapture identity/outer-timeout preparation. Preserve no Windows push/capture/product acceptance and user stop before full section editor.",
+      "summary": "R51 chooses disjoint four-path Windows correction30calls25min and five-path timing preparation60calls40min under cap3 and independent root veto. Source inspection confirms final arm Unsupported can degrade into ordinary Fail while only original folder revalidates; constructor already has cleanup catch, so require fault evidence rather than assume leak. Timing reads frozen657cd8/root974a39d; actual guards/headless process and outer-timeout tests lead to ONE concrete specific capture request, not capture execution. Root CUA alone may inspect finite synthetic target after review. Concrete root clarification: qualifier can generate hash-bound scratch .app/Info.plist and Program default bounded review mode for supported cua.getApp(full path); no raw argv launch assumption, product attach edits or invented AX IDs. Generated launcher/plist/private assets must enter reviewed identity boundary; headless modes exit before UI. Capture-specific geometry unavailable through CUA is explicitly future authorized feasibility, never guessed. No source written, native execution, leader mutation or CI dispatch by Owner; tree clean-fast-forwarded a684d24 before append.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": "Owner",
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [
+        "owner-ruling"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve the bounded containment repair and noncapture timing packet while preserving independent acceptance and user scope.",
+      "done_when": "Combined canonical ruling is committed with exact separate paths, budgets, tests and handoff gates.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T06:39:38Z",
+      "duration_seconds": 191.0,
+      "git": {
+        "sha": "a684d24f8d957b3dfcab3b0d35165db886478295",
+        "short": "a684d24f8",
+        "branch": "feature/application-m1-decision",
         "pushed": null
       }
     }
