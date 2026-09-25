@@ -50,3 +50,14 @@ public sealed class AuthoredProjection
     internal AuthoredProjection Rebind(AuthoredBinding binding) => new(binding, Name, SourceUnit, HalfSpanMeters, Rails, Assignments, Constraints, Diagnostics, Assertions);
 }
 public sealed record AcceptedInspection(AuthoredProjection Authored, GeometryAssessment Geometry);
+
+/// <summary>Section editing scope: edit the shared profile, or copy it for one assignment.</summary>
+public enum SectionScope { Shared, Independent }
+public sealed record BlendInterval(double EtaStart, double EtaEnd, double RootDistanceStartMeters, double RootDistanceEndMeters);
+public sealed record ScopeImpact(string Profile, SectionScope Scope, IReadOnlyList<int> AffectedAssignments, IReadOnlyList<BlendInterval> Intervals);
+/// <summary>One profile control vertex in normalized chord coordinates. Side is "upper" or "lower".</summary>
+public sealed record ProfileVertex(string Side, string Id, double X, double Y, bool Fixed);
+public sealed record ProfilePoint(double X, double Y);
+/// <summary>A read-only projection of one profile for display and editing; the source stays the only authority.</summary>
+public sealed record ProfileView(string Name, string Identity, IReadOnlyList<ProfileVertex> Upper, IReadOnlyList<ProfileVertex> Lower,
+    IReadOnlyList<ProfilePoint> UpperCurve, IReadOnlyList<ProfilePoint> LowerCurve, string Closure);

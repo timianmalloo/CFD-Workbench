@@ -57,13 +57,14 @@ Not in scope: catalog ranking, analysis, export, alternatives/baseline workflow 
 ### 4.1 Core (`src/CfdWorkbench.Core`)
 
 ```csharp
-// Contracts.cs — new records
+// Contracts.cs — pre-landed on the integration branch before any track starts (Owner amendment 2a)
 public enum SectionScope { Shared, Independent }
 public sealed record BlendInterval(double EtaStart, double EtaEnd, double RootDistanceStartMeters, double RootDistanceEndMeters);
-public sealed record ScopeImpact(string Profile, SectionScope Scope, int[] AffectedAssignments, BlendInterval[] Intervals);
+public sealed record ScopeImpact(string Profile, SectionScope Scope, IReadOnlyList<int> AffectedAssignments, IReadOnlyList<BlendInterval> Intervals);
 public sealed record ProfileVertex(string Side, string Id, double X, double Y, bool Fixed);   // Side: "upper" | "lower"
-public sealed record ProfileView(string Name, string Identity, ProfileVertex[] Upper, ProfileVertex[] Lower,
-                                 (double X, double Y)[] UpperCurve, (double X, double Y)[] LowerCurve, string Closure);
+public sealed record ProfilePoint(double X, double Y);
+public sealed record ProfileView(string Name, string Identity, IReadOnlyList<ProfileVertex> Upper, IReadOnlyList<ProfileVertex> Lower,
+    IReadOnlyList<ProfilePoint> UpperCurve, IReadOnlyList<ProfilePoint> LowerCurve, string Closure);
 
 // AuthoringSession.cs — new members (same guards, memoization and single-draft rule as the rail edit)
 ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope);
@@ -120,11 +121,11 @@ Trust boundary: none new (local files only). Telemetry: the existing session eve
 
 | Track | Increment | Owns | Depends on | Harness / model |
 |---|---|---|---|---|
-| **T1 Core edit** | M1.1a | `FoilSource.cs` (profile patches), `AuthoringSession.cs`, `Contracts.cs`, `tests/CfdWorkbench.Core.Tests/SectionEditTests.cs` (+ one `Run()` line in `IdentityTests.cs`) | — | Grok `grok-4.7` |
+| **T1 Core edit** | M1.1a | `FoilSource.cs` (profile patches), `AuthoringSession.cs`, `Contracts.cs` additions beyond the pre-landed records, `tests/CfdWorkbench.Core.Tests/SectionEditTests.cs` (+ one `Run()` line in `IdentityTests.cs`) | pre-landed `Contracts.cs` records | Grok `grok-4.7` |
 | **T2 Blend** | M1.1a | `Geometry.cs`, `tests/CfdWorkbench.Core.Tests/BlendTests.cs` (+ one `Run()` line) | — | Grok `grok-4.7` (second session) |
-| **T3 Canvas** | M1.1a | `src/CfdWorkbench.Desktop/SectionCanvas.cs`, `tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs` | `ProfileView` record shape (§4.1, frozen here) | Agy `gemini-3.8-flash-high` |
+| **T3 Canvas** | M1.1a | `src/CfdWorkbench.Desktop/SectionCanvas.cs`, `tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs` | pre-landed `Contracts.cs` records | Agy `gemini-3.8-flash-high` |
 | **T4 Wiring** | M1.1a | `WorkbenchController.cs`, `MainWindow.axaml(.cs)`, `Styles.axaml`, Desktop controller tests | T1, T3 merged | Agy `gemini-3.8-flash-high` |
 | **T5 Glue** | M1.1a | `docs/specs/foildsl.md` §7 error rows, fixtures under `tests/**/Fixtures`, proof note | T1 | Claude Code Sonnet |
 | **T6 Construction** | M1.1b | per §1, split when M1.1a lands | M1.1a | Grok / Agy |
 
-T1, T2 and T3 run in parallel. Join rule: the Leader runs `tools/run-tests.sh` and `check-docs` on each branch and merges; one review pass; repair loops capped at 2.
+T1, T2 and T3 run in parallel. Join rule: the Leader runs `tools/run-tests.sh` and `check-docs` on each branch and merges; one review pass; repair loops capped at 2. **T2 merges first** (Owner amendment 2b): T1's two-profile checks (`SectionEditTests.RunMultiProfile`, the Independent Apply/Undo/Redo path) cannot pass until multi-profile certification exists, so they are registered only after T1 is rebased onto merged T2.
