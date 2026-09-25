@@ -3055,7 +3055,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bbe3bb2913587a8846fff5189d462147ac5e51260be5dfc35bd538d6cb65899c"
+      "sourceSha256": "a89a5921ab9d86d9bc1f716a299085fc25f922196135b0d61bc3a67f6f2e7512"
     },
     {
       "id": "kb-hw-glossary",
@@ -4345,7 +4345,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5519ded27b29c243718ddc5d708695349635ab72f0861446a0f88d8d23c635b6"
+      "sourceSha256": "c3b9b66033ef39fd877707630118caef70d22f5ca711d78059a728797e2bd482"
     },
     {
       "id": "privacy-review",
@@ -5188,7 +5188,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5d89753e236899b41b428bb15917bb3d36ed0426d66be454f41dba75fb408f74"
+      "sourceSha256": "10b688562c269c756a9e4e3c30b5ec2c12a7e941394325a4e2fa664f821ca884"
     },
     {
       "id": "review-ui-workbench",
@@ -5748,5 +5748,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "eadb87702bd31fd97c1eb7dd65af2246efb92769033a81209f1dd556353508b3"
+  "graphSha256": "435459f89a066b4f4b70feaf2d132cfd1eabad5fc78f7b3c74d655cb6dc7f74e"
 };

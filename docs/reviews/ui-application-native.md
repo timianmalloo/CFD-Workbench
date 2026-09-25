@@ -30,8 +30,13 @@ production adapters. UX & Accessibility, UX Researcher/IA, Native Desktop,
 Computational Geometry, Data & Persistence, Test Architect and Simplifier are
 review lenses, not separately claimed model sessions.
 
-**Current disposition: R38 applied-theme matrix/final package PASS; native
-High Contrast numeric focus FAIL; C/M1 OPEN.** Frozen authored source
+**Current disposition: R39 focused-field repair PASS in the native High Contrast
+regression; C/M1 remain OPEN for their other obligations.** The exact R39 package
+passed the repeated native trigger, selected text, keyboard refocus, read-only
+source inspection and Cancel. The bounded contrast veto is cleared by the
+independent reviewer; this is not Windows, visible timing, broad assistive
+technology, distribution trust or full M1 acceptance. Historical R38 failure:
+frozen authored source
 `d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43` repaired the disappearing hovered
 FoilDSL label, verified twice in the real native window. Actual focused numeric
 editing still displayed an invisible value; the 312-row ancestor-backdrop oracle
@@ -39,6 +44,67 @@ missed a sibling painter. R39 is a bounded repair, not acceptance. Supported CUA
 session reset recovered the separate attachment failure without human action;
 [its investigation](../investigations/review-window-attach.md) retains two fresh-build
 observations. No earlier package's native acceptance transfers automatically.
+
+## R39 final package and independent native regression
+
+**Verified, 2026-09-25 UTC.** Isolated author commit
+`0d4a59064bec6dac15338f5e6c9869ee9c0b338f` owns only the ruled styles, desktop
+tests, verifier and proof surfaces plus official derived/audit outputs. Root
+read the sibling-painter oracle and required the new Source rows to reuse the
+actual clipped visible region before the first matrix. The first 396-row matrix
+passed. A single corrective matrix added the required draft identity and
+generation controls; a valid nonnegative decrease, not just invalid -1, now
+exercises stale-generation refusal. No production palette or threshold waiver.
+
+The final 12-step receipt is
+`/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-rf6vnmfl/receipts/verification.json`,
+SHA-256 `56b2617ff2ef6005f5eafb1856a3e99aa7c0ec003fef875f00d4704d1b30f642`.
+Root independently verified all 53 unchanged source inputs, 16 binary hashes,
+all raw step-log hashes, zero exit codes, no owned remaining process groups,
+no collectors or timeouts, and the empty artifact-symlink list. Recomputing the
+raw contrast evidence agrees exactly with the receipt: **396 rows, 21 refusal
+controls**. These include a sibling-only low-contrast mutation while the old
+ancestor backdrop stays unchanged, wrong draft, missing painter and stale
+generation. The framework-input trials still report controller generation 0;
+they prove control paint/state, not OS input delivery or display latency.
+
+Root launched one byte-checked review copy at
+`/private/tmp/cfd-r39-high-contrast-ui-mwm3znwy/CFD Workbench.app`, bundle
+`com.cfdworkbench.desktop.r39hc20260924`, original PID **61702**, start
+`Thu Sep 24 20:58:56 2026`. Launch receipt SHA-256
+`4c6dc10798e1f6ada741a6cec37a597ef2522f9286fde27298c7dca559545220`.
+The serial process guard passed. A supported CUA session reset and bounded
+attachment returned ready in **1445 ms**, one attempt, 194520 capture bytes,
+without user action. The mandatory live gate before and after attachment
+observed the unchanged original PID/start/executable. This measures attachment,
+not cold-start presentation.
+
+| Real native action | Observed result |
+|---|---|
+| Select leading cv-2, click numeric input, Command-A, type 5 | AX value 5; visible white 5 on black with yellow focus border. Draft `d220467e-8ea4-4bf1-a0f1-2d8a97f6cd6c`, generation **1**. The exact R38 invisible-value trigger no longer reproduces. |
+| Command-A; Tab to Preview; Shift-Tab back | Selected black 5 on yellow remains readable; keyboard focus returns to NumericInput and value/draft remain unchanged. |
+| Click FoilDSL source while drafting | Hovered tab label black on yellow, source white on black, numeric 5 still readable after blur. Source is labelled accepted; accepted revision remains `b7555077-e633-44a8-b5fb-154f79bf34ba`. |
+| Select source text, Command-A, type x | Selected text black on yellow remains readable. Typing does not replace retained FoilDSL; draft generation and accepted identity remain unchanged. AX's generic settable label is not treated as proof of editability. |
+| Explicit Cancel | Numeric value returns to 0, No draft, accepted provenance and unchanged history message. |
+| Close, then Discard the owned embedded Example | CUA app inventory contains no running Workbench. No review window or unsaved user document is left behind. |
+
+Screenshots and AX observations are retained in the supported CUA transcript;
+that API exposes no filesystem export. Native proof here is the exact High
+Contrast regression and named interactions. The other themes are covered by
+the source-bound framework matrix; this paragraph does not claim new native
+Light/Dark, Narrator/VoiceOver or display-performance trials. Windows and visible
+timing remain M1 under the user's approved scope, and full section authoring is
+M1.1. Owner must rule on integration separately; no gate was silently removed.
+
+The independent scratch checker first compared `artifactSymlinks` with integer
+0 after reading a summarized shape. The actual receipt is an empty list; the
+assertion failed before launch. Root inspected the raw type and corrected the
+check to `== []`, then reran successfully. This is the existing NG/API-TYPE
+class: inspect actual field types and fail closed, never infer a contract from
+a rendered summary. No product or receipt was changed to pass it.
+
+`GATE ui-design · R39 bounded native contrast regression PASS · root independent
+UX/Test review · other C/M1 obligations OPEN · monetary cost and tokens not recorded.`
 
 ## R38 native High Contrast observation and R39 RED
 

@@ -50,8 +50,9 @@ and only the Ubuntu `docs-health` workflow. It found no configured local Windows
 VM or interactive route within its stated search boundary. [GitHub's hosted
 runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
 lists x64 Windows runner images, including `windows-2022` and `windows-2025`.
-This establishes a concrete *candidate* for unattended execution, not a
-scheduled job or a qualified interactive desktop. The inventory did not inspect
+This establishes a concrete *candidate* for execution, not a scheduled job or
+qualified UIA/desktop capability. W0 must measure whether the hosted session
+can support those interactive checks before a separate host is assumed. The inventory did not inspect
 credentials or every possible external host. Windows x64 remains **Not assessed**.
 
 ## Dependency graph and ownership
@@ -61,7 +62,7 @@ credentials or every possible external host. Windows x64 remains **Not assessed*
 | W0 · route/contract spike | Coordinator records this packet; Owner rules exact scope and independent Data/Security/Test gates. Read Windows handle, reparse, sharing, durability and process-lifecycle APIs before selecting a native implementation. | Typed Windows store/process contract and failure oracle. No guessed `DllImport` constants or path-only fallback. |
 | W1 · unattended host | After W0, tooling author owns a new exact Windows Actions workflow and Windows-aware verifier process observer/cleanup. Pin one x64 runner image and toolchain; retain source, SDK, binary, fixture, child/descendant and failure receipts. | Actual hosted Windows x64 job starts, runs and cleans its own processes. A checkout or cross-publish alone is insufficient. |
 | W2 · product runtime | After W0, a distinct persistence author owns native Windows file semantics; adapter author takes CLI/Desktop platform seams only after the current C work and B contract are frozen. Implement red-first file, fault, conflict, symlink/reparse, identity, recovery and native UI cases. | Packaged CLI and GUI execute on W1, save/reopen exact source and accepted/history/recovery identities, retain original files, and pass negative store/security tests. Unsupported platform or missing helper fails clearly. |
-| W3 · interactive desktop | Independently qualify an actual Windows x64 graphical session. It is **unavailable in the bounded current inventory**; do not substitute the unattended runner. Root/Test/UX review real native Open/Save, keyboard, UIA/Narrator, focus, recovery, contrast and failure states. | Source-bound app/host/session receipts, independent UIA/Narrator and rendered workflow evidence; failures and unsupported states retained. |
+| W3 · interactive desktop | Independently qualify an actual Windows x64 graphical session. None was verified in the bounded current inventory. W0 must first inspect the hosted runner session/automation capability rather than assume it cannot provide any UIA or graphical evidence. Root/Test/UX review real native Open/Save, keyboard, UIA/Narrator, focus, recovery, contrast and failure states. | Source-bound app/host/session receipts, independent UIA/Narrator and rendered workflow evidence; failures and unsupported states retained. Reference-device display timing remains a separate gate. |
 | W4 · integrated gate | Depends on W1–W3, native C acceptance, and the separate visible-presentation track. Coordinator runs the supported conductor only after root and Owner gates. | Integrated two-platform M1 evidence. Any missing W3 or visible endpoint keeps M1 open. |
 
 W1 and the interactive-route qualification can progress independently after W0.
@@ -76,14 +77,20 @@ named blocker, not a reason to remove the gate.
 |---|---|---|
 | Persistence/security | `src/CfdWorkbench.Persistence/ProjectStore.cs`, `src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj`, a proposed Windows native-helper path after API spike, `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs`, `tools/verify-application-core.py`, `docs/proof/application-core.md` | Preserve macOS measured branch and accepted file format; independent Data/Security/Test veto. Do not edit the four active R39 C paths. |
 | Adapter/package | `src/CfdWorkbench.Desktop/`, `src/CfdWorkbench.Cli/`, `tests/CfdWorkbench.Desktop.Tests/`, `tools/verify-application-adapters.py`, `tools/package-application.py`, `docs/proof/application-adapters.md` | Freeze individual files after C R39 handback and B API contract; never acquire a directory lease over another author. Independent native UX/Test review. |
-| Windows CI | Proposed `.github/workflows/application-windows.yml` and Windows-specific process/receipt control files approved by W0 | Unattended evidence only. No Windows GUI, UIA or reference-device claim from CI. |
+| Windows CI | Ruling 40 freezes `.github/workflows/application-windows-qualification.yml` and `tools/qualify-windows-runtime.py` for W0; later production CI paths require a new ruling. | No GUI or UIA claim before the hosted session is measured. CI alone cannot establish the specified reference-device display timing. |
 
 The complete file list is deliberately **candidate**: W0 must identify the
 minimal Win32/PInvoke seam and actual fixture consumers before an implementation
 lease. A new native file name or workflow is not authoritative until then.
-The Owner should admit one bounded W0/W1 qualification packet first; the
-interactive Windows host remains a separate dependency. No routine human
-foreground or credential request follows from the present lack of a host.
+**Ruling 40** admits one bounded W0 packet: requested-Astra isolated author,
+≤70 calls/45 minutes, exactly `docs/design/windows-runtime.md`,
+`docs/proof/windows-runtime.md`, `tools/spikes/WindowsRuntime/WindowsRuntime.csproj`,
+`tools/spikes/WindowsRuntime/Program.cs`, `tools/qualify-windows-runtime.py`, and
+`.github/workflows/application-windows-qualification.yml`. This is local
+contract/executable/workflow preparation; no branch push, CI dispatch,
+production store/C edit, or Windows-runtime pass. Root independently reviews
+Data, Security and Test before a concrete W1 dispatch decision. No routine
+human foreground or credential request follows from the present lack of a host.
 
 ## Required failure and success controls
 
@@ -104,7 +111,9 @@ foreground or credential request follows from the present lack of a host.
   independent. A hosted runner or compositor-batch number cannot establish the
   specified reference laptop's final displayed frame.
 
-**Current disposition:** route candidate prepared; W0 owner ruling, W1 job,
-W2 Windows implementation and W3 interactive host are all pending. C R39
-continues in its isolated worktree; no C or M1 production join follows from
-this document.
+**Current disposition:** W0 is authorized, not yet implemented; W1 job, W2
+Windows implementation and W3 interactive proof remain pending. Root's
+source-bound R39 High Contrast native regression passed on the repaired
+isolated C package; Windows, displayed timing, broader assistive technology
+and M1 acceptance remain open. No C or M1 production join follows from this
+document.
