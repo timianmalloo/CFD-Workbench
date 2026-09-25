@@ -16,6 +16,14 @@ using SolidColorBrush = Avalonia.Media.SolidColorBrush;
 using System.Text;
 using System.Text.Json.Nodes;
 
+if (args.Contains("--section-canvas", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+    Console.WriteLine("SectionCanvas tests passed.");
+    Environment.Exit(0);
+}
+
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
@@ -1834,6 +1842,7 @@ if (!shadowMutationRefused) throw new Exception("Root-key shadow mutation escape
 Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
+CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Environment.Exit(0);
 
 sealed class UncertainStore : IProjectStore
