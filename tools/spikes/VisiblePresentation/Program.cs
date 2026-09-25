@@ -56,6 +56,23 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        if (args.SequenceEqual(new[] { "--identity-contracts" }))
+        {
+            using var process = Process.GetCurrentProcess();
+            var first = new { pid = process.Id, startUtcTicks = process.StartTime.ToUniversalTime().Ticks,
+                executable = process.MainModule?.FileName };
+            process.Refresh();
+            var second = new { pid = process.Id, startUtcTicks = process.StartTime.ToUniversalTime().Ticks,
+                executable = process.MainModule?.FileName };
+            Console.WriteLine(JsonSerializer.Serialize(new { qualification = "noncapture-self-process-only",
+                first, second, stable = first.Equals(second),
+                timestampRepresentation = "DateTime ticks (100 ns units); OS observation precision unmeasured",
+                runtime = RuntimeInformation.FrameworkDescription,
+                runtimeTrust = "system runtime; loaded memory and private native loader closure not attested",
+                nativeUiStarted = false, visible_latency = "Not assessed" }));
+            return first.Equals(second) ? 0 : 1;
+        }
         if (args.SequenceEqual(new[] { "--contracts" }))
         {
             var state = new TargetState();
@@ -87,7 +104,7 @@ internal static class Program
         }
         if (!args.SequenceEqual(new[] { "--target" }))
         {
-            Console.WriteLine("Use --contracts, --clock, or --target. Target launch requires root-owned native UI review.");
+            Console.WriteLine("Use --contracts, --clock, --identity-contracts, or --target. Target launch requires root-owned native UI review.");
             return args.Length == 0 || args.SequenceEqual(new[] { "--help" }) ? 0 : 2;
         }
         AppBuilder.Configure<TargetApp>().UsePlatformDetect().StartWithClassicDesktopLifetime(args);
