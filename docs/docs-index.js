@@ -1375,6 +1375,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
     },
     {
+      "id": "design-windows-runtime",
+      "path": "docs/design/windows-runtime.md",
+      "title": "Windows x64 native qualification contract",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@cfd-windows-w0-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and native execution remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "security",
+        "qualification"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-windows-runtime",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph and review floors",
+          "mermaid": "flowchart LR\n  G[Ground contract] --> R[Receipt RED and negative controls]\n  R --> N[Native spike and local build]\n  G --> W[Prepare hosted workflow]\n  N --> P[Proof and exact-path handback]\n  W --> P\n  P --> V[Independent root review]"
+        }
+      ],
+      "sourceSha256": "c9ae9b6a98e839546a74658e695a4f8ba6d0409cd763b683ffcd533b11fdbf9c"
+    },
+    {
       "id": "mockup-workbench",
       "path": "docs/mockups/workbench.md",
       "title": "CFD-Workbench interactive design prototype",
@@ -2030,7 +2074,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "431b3fe396a00be155ef99e27e0c285ab26b0adf74d596dcda96f210716c2118"
+      "sourceSha256": "238ab33ab74884fe8d3eb290b627489c6e2ad7b0e051cc564566837f39ed8437"
     },
     {
       "id": "domain-experts",
@@ -3055,7 +3099,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a89a5921ab9d86d9bc1f716a299085fc25f922196135b0d61bc3a67f6f2e7512"
+      "sourceSha256": "faad449daf7c617ab2abdfee19dcc326850b7d389de4b451065cc7b87c5ac9bd"
     },
     {
       "id": "kb-hw-glossary",
@@ -5057,6 +5101,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-windows-runtime",
+      "path": "docs/proof/windows-runtime.md",
+      "title": "Windows W0 preparation proof and native evidence gaps",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-windows-w0-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Separates local compilation and executed wrong-result controls from unexecuted Windows file, process and UIA qualification. All production and independent review gates remain open.",
+      "tags": [
+        "windows",
+        "proof",
+        "qualification",
+        "native"
+      ],
+      "links": [
+        {
+          "to": "design-windows-runtime",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fabce880157b09d3a517b2fcd1860309a3e1cd320e332f0116a0f50ccc198f3e"
+    },
+    {
       "id": "review-application-architecture",
       "path": "docs/reviews/application-architecture.md",
       "title": "Independent review of the application foundation architecture",
@@ -5958,5 +6032,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "703d6fc87370815c8160b42354f0288ff21a4b25152c239ebd256d078e548bdd"
+  "graphSha256": "4a8633b1eb81e622b577699857d374266a45a744be33e08be16c701b9c8f92b8"
 };
