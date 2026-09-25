@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:26:04Z",
+  "generated": "2026-09-25T05:35:07Z",
   "audit": [
     {
       "actor": null,
@@ -8088,6 +8088,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T05:26:04Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3BGYV9D34ZA3GYN43JSWYAB",
+      "shortname": "windows-native-diagnostic-ruling",
+      "datetime": "2026-09-25T05:35:07Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BGQJRFR5KDK07CKJKEPY7W after actual failed W1; freeze measurement-first spike/validator/proof scope and one reviewed new run, preserve production gates. Clarify R41 seven-versus-six path arithmetic append-only.",
+      "summary": "R45 authorizes five-path diagnostic/receipt packet,70calls/45min requestedAstra and one conditional reviewed same-ref noforce run. Owner read raw failing Windows rows and found PrivateDacl lacks owner-current-user binding; require semantic numeric owner/ACE/token identity, strict negatives, held/open versus released diagnostic arms without safety inference, failure-complete source/binary/stage receipts and safe independent probes. R41 enumerated six paths are authoritative; seven was Owner count error, not author violation. No capture, production Windows/M1 PASS or section work. Existing Owner tree fast-forwarded clean to9415ab2; ruling written only there for handback.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Turn measured Windows failures into discriminating evidence without weakening security/data gates, and correct exact-path count ambiguity.",
+      "done_when": "Canonical ruling freezes paths, validation, conditional run and limits; clean isolated decision handback to Coordinator; Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:31:36Z",
+      "duration_seconds": 211.0
     }
   ],
   "changes": [
