@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:42:49Z",
+  "generated": "2026-09-25T06:44:01Z",
   "audit": [
     {
       "actor": null,
@@ -8935,6 +8935,33 @@ window.AUDIT_DATA = {
         "branch": "feature/application-m1-decision",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BMX037A84C7WC49RNC5BWM",
+      "shortname": "join-r51-decision",
+      "datetime": "2026-09-25T06:44:01Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "summary": "Join Owner R51 two-packet preparation ruling recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record exact bounded R51 author scopes",
+      "done_when": "R51 ruling integrates with docs and verify gates",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T06:44:00Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
