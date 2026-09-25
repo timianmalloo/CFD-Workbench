@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:14:10Z",
+  "generated": "2026-09-25T06:24:45Z",
   "audit": [
     {
       "actor": null,
@@ -8529,6 +8529,38 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T06:14:09Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BKSQ8ADRK71ESRQK860HZR",
+      "shortname": "owner-r49-review",
+      "datetime": "2026-09-25T06:24:45Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review clean R49 correction3459e506ec61765350cb32a26b75e2c5135e5cbe in feature-owned-conductor-receipt for adoption. Coordinator rerun58PASS; root authored exact three paths and cannot self-clear. No live adoption until Owner gate; no live leader/join/CI/capture or section work.",
+      "summary": "Independent source delta reviewed and self-test executed58PASS: all51 original result rows preserved, six real CLI nan/±inf across both budgets refuse with zero leader/conductor effects and assert two strict JSON events and reuse byte preservation, plus serializer/normalized duplicate control. Frozen source SHA6d7165e301d51a417cdf0c237f29483450e54fbc06473c1b1a604cd55517e74f; independent /private/tmp/cfd-owner-r49-self-test.json SHA00f81e1d03b785f78aa715f076e38376e182024785e0c269cf1b3f4fe11069e7. No remaining blocker for bounded macOS preflight adoption; no atomic leadership or Windows execution claim. Owner tree fast-forwarded clean112a614; canonical disposition follows typed request.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": "Owner",
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [
+        "independent-review"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently dispose the frozen strict-JSON receipt correction for wrapper adoption.",
+      "done_when": "Exact source and real CLI evidence support a canonical bounded disposition and clean committed handback.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T06:23:33Z",
+      "duration_seconds": 72.0,
+      "git": {
+        "sha": "112a614db25509d20910976782e7f03ca9c4bccd",
+        "short": "112a614db",
+        "branch": "feature/application-m1-decision",
+        "pushed": null
+      }
     }
   ],
   "changes": [
