@@ -727,6 +727,12 @@ within its 100-second cadence while work continues; the conductor's epoch
 fence refuses an expired or stale-epoch join. After the quiet period, the
 supported `leader reclaim` established epoch 11 before shared work resumed.
 An expired designation is never silently renewed or treated as a clean join.
+Recurrence during the Part1/M1 decision join: epoch 14 expired while the
+Coordinator waited for shared documentation leases. Renewal refused; the
+supported quiet-period reclaim established epoch 15. No join or mutation ran
+under the lapse. The Coordinator then released epoch 15 at the genuine wait
+boundary. The epoch fence worked; the missed active renewal cadence remains
+a recurrence, not evidence that the lifecycle obligation was satisfied.
 
 **PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
 The installed `ui-design` UI-T4 text references
@@ -898,3 +904,54 @@ No product defects or scientific validation tests are claimed executed in this d
 **2026-09-21 sweep (mockup v3, thick-client shell).** The operator's diagnosis (page scroll, a wrapping toolbar) was measured before the rebuild and became UI-H2; the layout-facet mismatch is the class, the v2 page the instance. Five layout defects found while building the shell (implicit grid rows and columns from auto-placement, a closed `<details>` menu counting toward scrollWidth, duplicate ids across navigator and toolbar) were caught by the shell oracle and the smoke run before any gate; they are recorded in `docs/notes/thick-client-shell.md` as constraints, not classes, because the oracle already fails their shape.
 
 **2026-09-21 sweep (spec 1.1 and mockup v2).** The 1.1 delta gate found 3 Blockers and 28 Majors, all definitional; three are new classes above (SPEC-C, DATA-C, SEC-B). The mockup v2 build surfaced UI-H before any gate through the smoke run — the cheapest control fired first.
+## CO-UI-READY · Launch success mistaken for review readiness
+
+**Class and signature:** a process starts and reports `Window.Opened`, but the
+actual inspection adapter cannot attach. Repeated operator foreground requests
+then become an unbounded barrier for the whole execution graph. Five requests and
+an approximately ten-hour wait were reported in the native workbench review.
+
+**Why it survived:** build, process-liveness and applied-style tests did not call
+the supported native AX/screenshot adapter. The process-accumulation guard correctly
+prevents duplicate launches but never established attachment. A historical
+`cgWindowNotFound` does not prove either missing target-bundle permission or an
+off-Space window. A later reproduction affected both Workbench and System Settings;
+supported CUA session reset restored the same original app PID. Internal stale
+session state is inferred; the recovery boundary is observed.
+
+**Class → sweep → derive → prevent:** the investigation swept native review
+history, launcher, process guard and C contract. Confirmed siblings are the repeated
+path/bundle attachment waits; process cleanup is a related but different guard.
+Current CUA host permission reads and working captures rule out a blanket current
+denial; temporary unique bundles also attach successfully, so their identity alone
+is not a verified cause. No relevant `assume:`/`simplify:` marker in those launch
+surfaces established an activation contract.
+
+**Control:** start each review attachment with the supported CUA REPL reset and
+first-call initialization, then `docs/coordination/review-attach.mjs` requires exact-title AX and a
+nonempty supported screenshot, optionally uses the advertised Raise action, and
+returns a bounded failure after at most three attempts/30 seconds. The executable
+`tools/check-review-attach.mjs` gate was observed exiting 1 with
+`NATIVE_REVIEW_BLOCKED` for the old successful-process-only receipt. The focused
+test injects the historical adapter error and rejects wrong windows, incomplete
+surfaces, missing capture, human-assisted, stale and timeout evidence. Injected
+failure is protocol regression evidence, not a claim to reproduce the original
+macOS trigger. Fresh-build observations and independent disposition belong in
+[the investigation](../investigations/review-window-attach.md).
+
+**Always-loaded rule:** batch necessary human requests once; block only dependent
+nodes and schedule other ready work. Do not repeat a routine foreground request.
+Do not widen permissions or substitute another UI API to clear the gate. Re-read
+PID/start/executable before and after attach because CUA may relaunch an exited
+app and does not expose a PID in its app handle.
+
+**API-boundary recurrence (NG):** an unverified review persona caused an exited
+launch; validating liveness before any CUA call prevents an automatic relaunch
+from hiding it. The actual review parser admits designer/keyboard/screen-reader/
+dense, not arbitrary prose roles. A separate helper error used realm-local
+`instanceof Uint8Array` for a cross-realm screenshot Buffer. The actual byte view
+was observed, a `node:vm` negative failed before repair, and the helper now checks
+`ArrayBuffer.isView` plus the byte-array tag. Do not infer transport object identity
+from a type declaration. Literal CUA function code is required; string code
+generation is unavailable. The regression suite also exercises a changed window
+after Raise and a timed-out uncancellable operation with no overlapping retry.

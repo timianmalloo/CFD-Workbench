@@ -2019,7 +2019,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0c136d42ed068d248ada2b580dca2ee5498d0b965885dfc24d960ebd1065e6b7"
+      "sourceSha256": "ec9ea66ea775731f24350ea75cf2d0ff613a01de4a31dd423e5b89829be00304"
     },
     {
       "id": "domain-experts",
@@ -3082,6 +3082,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "77bf858e2aa70c85722484f0d28b738e239d0d836e1e0fb662916e0bb3ef0560"
     },
     {
+      "id": "investigation-review-window-attach",
+      "path": "docs/investigations/review-window-attach.md",
+      "title": "Review window attachment and stalled human waits",
+      "type": "investigation",
+      "status": "in-review",
+      "owner": "@cfd-focus-20260924",
+      "phase": "",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Reproduced global CUA attachment failure and recovered the unchanged process by resetting the supported CUA session. Two consecutive fresh builds passed the reset/readiness protocol without human foregrounding; internal CUA state remains inferred.",
+      "tags": [
+        "native-ui",
+        "coordination",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4dcec072611a4ae53e4939cc874daebeba1ab27d8622d88999c5a9fa87009dd5"
+    },
+    {
       "id": "kb-cfd-workbench-grounding",
       "path": "docs/knowledge/cfd-workbench-grounding.md",
       "title": "CFD-Bench and proposal grounding",
@@ -3944,7 +3977,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ace17c28210d3b3760f156dccba020dc3099f6e4f0a614def426ad6eff73a285"
+      "sourceSha256": "5fa6b9ad64ac1964cee4738f631aa3337c799c3a7fd191210fb2a75d5a09da61"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4136,6 +4169,11 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-23",
           "reason": "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review"
+        },
+        {
+          "by": "investigation-review-window-attach",
+          "on": "2026-09-24",
+          "reason": "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred."
         }
       ],
       "summary": "A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.",
@@ -4177,10 +4215,14 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-workbench-v7",
           "rel": "relates-to"
+        },
+        {
+          "to": "investigation-review-window-attach",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f9781067596c0022645e787882ef55ad101e5c9c04e9a95ffd0730f26fb0d489"
+      "sourceSha256": "8efd0b526f0988edd2d4fac910e824474d712a294a6f85469597fe62448d2e23"
     },
     {
       "id": "coordination-r17-companions",
@@ -5036,7 +5078,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-application-20260923",
       "phase": "",
       "reviewBy": "2026-10-23",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "investigation-review-window-attach",
+          "on": "2026-09-24",
+          "reason": "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred."
+        }
+      ],
       "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining native theme, performance and accessibility obligations keep C and M1 open.",
       "tags": [
         "application",
@@ -5069,10 +5117,14 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-workbench-v7",
           "rel": "relates-to"
+        },
+        {
+          "to": "investigation-review-window-attach",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "580e940aa87fd2651f63a3fb95d9d57cd8ad1fa0613a8ee4c26fc3e43cfd3ba9"
+      "sourceSha256": "ffebaf515519800535e8e1dddd252b24e6a7991025e5f03a470656ba6404a2fe"
     },
     {
       "id": "review-ui-workbench",
@@ -5632,5 +5684,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3a96064fc7c214db046298828d949a00b58fdd2e8964d95a77f9ac7629d0491d"
+  "graphSha256": "380925a9667d1282191ca16027ea4e35862ed1e8f52d90bd5916e309eae0a9dc"
 };

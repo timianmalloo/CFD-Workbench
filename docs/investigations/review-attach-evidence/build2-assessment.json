@@ -1,0 +1,66 @@
+{
+  "app": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/packages/osx-arm64/CFD Workbench.app",
+  "appFileCount": 231,
+  "binarySha256": {
+    "Contents/MacOS/CfdWorkbench.Core.dll": "e6e1cd1301bb5ccdd622f9dae6b3182046ea006010497a247501d81e7e9266c1",
+    "Contents/MacOS/CfdWorkbench.Desktop": "cc700004034184f372fdcd146550462aabae7e179d1ff33f1d46098bc3e121b4",
+    "Contents/MacOS/CfdWorkbench.Desktop.dll": "62b4498bd4c16c9d39c9cbceaa5789a04f849d50fa5d361d9174a936d5494aa3",
+    "Contents/MacOS/CfdWorkbench.Persistence.dll": "67f160f92542c644d77da73caf508d59fa35c99e16418277ef1ecb93bff9b439",
+    "Contents/MacOS/libcfd_store.dylib": "90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88"
+  },
+  "changedFromFirstPackage": [
+    "Contents/MacOS/CfdWorkbench.Cli.dll",
+    "Contents/MacOS/CfdWorkbench.Cli.pdb",
+    "Contents/MacOS/CfdWorkbench.Core.dll",
+    "Contents/MacOS/CfdWorkbench.Core.pdb",
+    "Contents/MacOS/CfdWorkbench.Desktop.dll",
+    "Contents/MacOS/CfdWorkbench.Desktop.pdb",
+    "Contents/MacOS/CfdWorkbench.Persistence.dll",
+    "Contents/MacOS/CfdWorkbench.Persistence.pdb"
+  ],
+  "freshSteps": [
+    {
+      "argv": [
+        "dotnet",
+        "publish",
+        "src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj",
+        "-c",
+        "Release",
+        "-r",
+        "osx-arm64",
+        "--self-contained",
+        "true",
+        "--artifacts-path",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/artifacts",
+        "--disable-build-servers",
+        "-p:UseSharedCompilation=false",
+        "--nologo"
+      ],
+      "exitCode": 0,
+      "pid": 50908,
+      "start": "Thu Sep 24 20:24:12 2026"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tools/package-application.py",
+        "--build-dir",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/artifacts/publish/CfdWorkbench.Desktop/release_osx-arm64",
+        "--output-dir",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/packages/osx-arm64",
+        "--platform",
+        "macos"
+      ],
+      "exitCode": 0,
+      "pid": 50990,
+      "start": "Thu Sep 24 20:24:21 2026"
+    }
+  ],
+  "gateReceiptSha256": "5ff9fc6d44a91d42a8457fcb90f2d4be8ee446fffa966f5778d5eb49a60a23c4",
+  "retainedOverconstraintReceiptSha256": "0126332cf6215494b1aa9bc1c07b5583f4a375a1efc23614d2ef26146c8fd963",
+  "scope": "Fresh build and package from 53 identical source bytes; not binary parity or native UI acceptance.",
+  "sourceCommit": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+  "sourceHeadAtStart": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+  "sourceInputCount": 53,
+  "status": "pass-for-second-fresh-source-bound-package"
+}

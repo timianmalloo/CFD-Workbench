@@ -14,6 +14,7 @@ links:
   - {to: coordination-contract-c-api-freeze, rel: depends-on}
   - {to: coordination-application-c-launch, rel: relates-to}
   - {to: mockup-workbench-v7, rel: relates-to}
+  - {to: investigation-review-window-attach, rel: relates-to}
 review-by: 2026-10-23
 summary: A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.
 review-suggested:
@@ -21,9 +22,45 @@ review-suggested:
   - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: coordination-application-build, on: 2026-09-23, reason: "Ruling 21 conditional native adapter route and UI-T4 preflight require consumer review" }
+  - { by: investigation-review-window-attach, on: 2026-09-24, reason: "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred." }
 ---
 
 # C · native desktop and CLI adapters
+
+## Review launch readiness and human waits
+
+Before each review launch, run `review-launch-guard.py` and preserve its process
+inventory. After launch, first run `node tools/check-review-attach.mjs --live LAUNCH.json`;
+an exited process must not reach CUA, which may otherwise relaunch it. Call the
+supported `mcp__cua_repl.js_reset` once for this launch, then obey its first-call
+contract with `await cua.getState()`. This clears stale session bindings without
+closing apps, restarting the app, or changing OS permissions. Then execute
+the function in [review-attach.mjs](review-attach.mjs)
+inside the supported `cua_repl` runtime with the exact bundle path, identifier,
+expected REVIEW title, SHA-256 of the launch receipt and `sessionReset: true`.
+The flag records the preceding observed tool action; it is not an API capable of
+proving that action itself. Keep the reset in the tool transcript. It uses only documented
+CUA calls, raises only a window advertising `Raise`, and requires both the exact
+AX surface and screenshot capture. Persist the returned receipt and run:
+
+`node tools/check-review-attach.mjs ATTACH.json LAUNCH.json`
+
+The final gate rechecks PID/start/executable against the same launch receipt.
+This gate must pass before native review. A live PID, `Opened`, package build,
+copied binary, or user statement is not an attachment PASS. Run
+`node tools/test-review-attach.mjs` when changing the control. At most three
+attempts share a 30-second deadline. If a tool operation times out, do not overlap
+another UI operation; the API has no cancellation primitive. Wait for that tool
+invocation to finish, while scheduling non-UI work independently.
+
+Failure blocks **only native review**, records the exact errors, and returns
+control to the coordinator. Do not issue another routine foreground request.
+Investigate host permission and readiness evidence first; any truly required
+human permission request must name the one-time permission and exact settings
+location. Never change privacy settings automatically. Batch all human requests
+in one message; a reply blocks only nodes depending on that reply. Continue other
+dependency-ready work. The user alone rules milestone scope; a blocked gate must
+not silently change M1. See the [attachment investigation](../investigations/review-window-attach.md).
 
 **Status:** serial C worker launched after independent final API freeze review.
 Owner Ruling 22 accepted complete bounded B `cce9ee52` and root's independent

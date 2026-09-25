@@ -12,11 +12,14 @@ links:
   - {to: spec-foildsl, rel: depends-on}
   - {to: design-language, rel: depends-on}
   - {to: mockup-workbench-v7, rel: relates-to}
+  - {to: investigation-review-window-attach, rel: relates-to}
 review-by: 2026-10-23
 summary: >-
   Independent source-bound CLI, controller, recovery and package observations.
   Named native interactions and bounded B permission repair pass independent review.
   Remaining native theme, performance and accessibility obligations keep C and M1 open.
+review-suggested:
+  - { by: investigation-review-window-attach, on: 2026-09-24, reason: "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred." }
 ---
 
 # Independent native application review
@@ -26,15 +29,50 @@ production adapters. UX & Accessibility, UX Researcher/IA, Native Desktop,
 Computational Geometry, Data & Persistence, Test Architect and Simplifier are
 review lenses, not separately claimed model sessions.
 
-**Current disposition: R37 applied-theme matrix and final package evidence PASS;
-native theme acceptance and C/M1 OPEN.** The current candidate is
-`5bdf0e7edd841405e82cceddf297d1da7e3778d5`. Root independently verified its
-72-row applied-theme evidence and final 12-step gate/package binding. Direct
-inspection of its Dark window passed the bounded changed-surface checks after
-the user foregrounded it. High-contrast selected-tab pointer-over rendering
-failed direct review; Light remains pending. The 72-row managed matrix did not
-cover that state, so it cannot clear this observed defect.
-The repaired package is not granted the earlier package's native acceptance.
+**Current disposition: R38 applied-theme matrix/final package PASS; native
+High Contrast numeric focus FAIL; C/M1 OPEN.** Frozen authored source
+`d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43` repaired the disappearing hovered
+FoilDSL label, verified twice in the real native window. Actual focused numeric
+editing still displayed an invisible value; the 312-row ancestor-backdrop oracle
+missed a sibling painter. R39 is a bounded repair, not acceptance. Supported CUA
+session reset recovered the separate attachment failure without human action;
+[its investigation](../investigations/review-window-attach.md) retains two fresh-build
+observations. No earlier package's native acceptance transfers automatically.
+
+## R38 native High Contrast observation and R39 RED
+
+Root inspected the R38 final gate package, receipt SHA-256
+`5ff9fc6d44a91d42a8457fcb90f2d4be8ee446fffa966f5778d5eb49a60a23c4`.
+Coordinator independently verified all 12 steps, 53 stable inputs, 16 binary hashes
+and 312 theme rows (including 240 state records). Root independently checked the
+231-file review-copy parity and its original live process before/after attachment.
+Copy `/private/tmp/cfd-focus-build1-high-contrast-ui-_hm8xamr/CFD Workbench.app`,
+PID 50842, start `Thu Sep 24 20:23:45 2026`, launch receipt
+`697983568ff396df0c17e4eb4b4608941cabee212ac5b562502cb7b47d076f92`.
+
+**Verified native fix:** click FoilDSL source, then F6 away and click again. Both
+screenshots show a readable black label on yellow under the pointer; the earlier
+disappearing-label trigger no longer reproduces on this package.
+
+**Verified native veto:** select leading cv-2; click NumericInput; Command-A,
+type 5. AX reports value 5, focused input, draft
+`428dc36b-bf97-42aa-81cf-15f45b8b9111`, generation 1. The focused field paints white
+and the value is invisible. Tab away makes white 5 visible on a grey field. This
+is an observed rendering failure, despite the passing framework matrix. Accepted
+revision `5b038d27-9f4a-411c-a06b-568f647e9248` remains unchanged. Explicit Cancel
+restores 0 and No draft; Close→Discard closes only this owned Example. No app left.
+
+R39's test-only measurement receipt
+`951feced535f0dbbf31ce9518775f002a2097b2795a5e5787ae5b5218ed15a55` independently
+passed six log hashes and process-cleanup checks. Root read the actual probe and
+its sibling map: TextPresenter 209×19 at (11,7) over PART_BorderElement 227×32,
+same panel, border child 0 before text-host child 1, unit opacities. Focused/typed
+states report White text and White sibling background; the old ancestor oracle
+reports Black. This matches native observation. The new test's draft generation
+remains 0 after framework TextInput, so it proves paint/input-control state, not
+the native controller transaction. Desktop diagnostic DLL is `27161ac62ec4…`,
+not the earlier `530f1d51…` copied into an author message. R39 semantic/oracle repair
+is authorized within its four-path ruling; native acceptance remains withheld.
 
 **Earlier disposition: bounded R26 B permission repair PASS.** Named CLI,
 controller and native interaction defects below are independently cleared on
