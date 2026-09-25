@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:27:19Z",
+  "generated": "2026-09-25T04:41:06Z",
   "audit": [
     {
       "actor": null,
@@ -7591,6 +7591,43 @@ window.AUDIT_DATA = {
         "sha": "582373dd11914fa1f05df8708168fae3f6818796",
         "short": "582373dd1",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BDVXV7EAM486JR7TGF555S",
+      "shortname": "review-windows-w0",
+      "datetime": "2026-09-25T04:41:06Z",
+      "session": "cfd-windows-review-20260925",
+      "prompt": "keep going; stop before the full section editor (we will do that in a new session), get the other tasks before that complete",
+      "summary": "Independent frozen 82a366a W0 review: five source hashes, four executable-set hashes, fixtures, 26 real unsupported-host rows and raw summary recomputed; 35 parser controls rerun and original two false accepts now rejected. Data/Security/Test PASS-WITH-CONDITIONS only for prepared disposable qualification; Windows execution, durability, hostile namespace containment, UIA/Narrator and timing remain unqualified. No product edit, CI dispatch or capture. Source/binding and case-state defects corrected by separate author and recorded by coordinator. Reviewer graph gate caught unsupported tests relation; actual REL_REGISTRY inspected and documents used, final docs119/0defects/80prior suggestions PASS. Failed guessed graph-config/schema inventory paths discarded under NG-LOCAL; no state change. CUA documentation reloaded to establish alternate-capture execution requires specific user authorization; Owner informed. No native review app launched. Marker includes waiting for frozen handoff, excludes earlier read-only preparation. Tokens and cost not recorded.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently review the frozen Windows W0 preparation packet without accepting unexecuted Windows guarantees.",
+      "done_when": "Exact evidence bindings and corrected controls verified, Data/Security/Test dispositions recorded, review committed for coordinator handoff.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T04:28:36Z",
+      "duration_seconds": 750.0,
+      "persona_yield": [
+        {
+          "persona": "Data/Security/Test",
+          "raised": 4,
+          "accepted": 4
+        }
+      ],
+      "git": {
+        "sha": "b8561a5d1b4f3c129eabb13bb87821e6b2c8133f",
+        "short": "b8561a5d1",
+        "branch": "feature/windows-runtime-review",
         "pushed": null
       }
     }

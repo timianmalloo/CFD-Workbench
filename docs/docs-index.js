@@ -5454,6 +5454,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-windows-runtime",
+      "path": "docs/reviews/windows-runtime.md",
+      "title": "Independent Windows W0 qualification review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-windows-review-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Independent review admits the frozen W0 packet only as disposable qualification infrastructure. Local receipt and binding controls pass; Windows execution, production containment, durability, accessibility and timing remain unqualified.",
+      "tags": [
+        "windows",
+        "review",
+        "security",
+        "persistence",
+        "testing"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "documents"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f7400addf8e0fb194f00aedbd2b3764b6c5fddc2079f1971830ec6258bb375ab"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -5958,5 +5997,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c86714f8608ef566a425742ac9701b5c4fe357a76af4675b27d06cac00f4d089"
+  "graphSha256": "3b2b7c83b1918c787bf0803f96ba253387c8288201e8c0c61ac924d95f93a8b1"
 };
