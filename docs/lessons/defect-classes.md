@@ -553,6 +553,22 @@ exit semantics or isolate the process; they must not monkey-patch `sys.exit`
 then infer `--help` was harmless. The unintended run and correction are
 retained in the R42 author audit.
 
+**TEST-FIXTURE-ALIAS · A shared negative fixture hides a missing identity
+guard.** In the R41 visible-presentation synthetic assessor, the first
+envelope-identity mutant survived: the fixture reused one mutable identity
+object for the envelope and frame records, so changing the envelope also
+changed every frame. A separate frame guard then rejected the receipt, hiding
+the removed envelope guard. The author changed each frame identity to an
+independent deep copy, added four frame-only mismatch cases, and reran the
+same four wrong-result mutants. Final synthetic controls were 50/50 and all
+four mutants exited 1, including the formerly surviving envelope mutant.
+Prevent: a validator with multiple independently required identity surfaces
+must construct independent fixture values and mutate each surface alone.
+The permanent R41 controls exercise envelope and frame mismatch separately;
+future single-object fixture reuse must fail a boundary-specific mutant.
+This is synthetic oracle evidence only; native capture and visible timing
+remain Not assessed.
+
 **API-ACCESS · Generated SDK documentation is mistaken for a callable client API.**
 The installed Avalonia 11.3.14 XML documented `TopLevel.Renderer` and
 `IRendererWithCompositor.Compositor`, but the exact Desktop compile rejected the

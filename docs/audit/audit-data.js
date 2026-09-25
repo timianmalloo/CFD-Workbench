@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:28:17Z",
+  "generated": "2026-09-25T05:32:16Z",
   "audit": [
     {
       "actor": null,
@@ -8113,6 +8113,33 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "9415ab2cfc831c58283bb40dab3c00a51d48d15b",
         "short": "9415ab2cf",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BGSKNXRAM177NWHY53T8TS",
+      "shortname": "r41-synthetic-fixture-class",
+      "datetime": "2026-09-25T05:32:15Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Continue R41 timing preparation without native capture; record observed defect classes.",
+      "summary": "Recorded TEST-FIXTURE-ALIAS: shared envelope/frame identity let a removed envelope guard survive mutation. R41 author deep-copied each frame identity, added frame-only mismatches, reached 50/50 synthetic controls and killed all four mutants. Native visibility/timing remains Not assessed.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Preserve the R41 shared fixture-alias failure class and its executable recurrence control.",
+      "done_when": "Shared register names the mutant-surviving shape, independent-copy correction, boundary-specific controls and explicit native limits.",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
+        "short": "062d14d70",
         "branch": "feature/application-coordination",
         "pushed": null
       }
