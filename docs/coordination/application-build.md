@@ -235,3 +235,38 @@ The author committed clean isolated C `3a1d67b`. Its proof in that isolated comm
 | Final frozen package | Source-bound gate, quiescent processes, package parity, then independent native review | [12-step receipt](/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-ddpasr4w/receipts/verification.json) SHA-256 `9808e586a57281d29d893e6007e6bdf8fea39dce6e2ef3f88ab67ef3aab59b66` independently passed. The repaired [Dark launch receipt](/private/tmp/cfd-r37-dark-ui-29oxy3l3/launch-receipt.json) SHA-256 `e0ed0217166af4ef2f5db3be77fb5e0897982566e06dfbf205a89ba37d3aca61` binds an Info.plist-ID-only copy to PID 30126. Supported CUA returned `cgWindowNotFound`; user foreground confirmation is pending. |
 
 This is a blocked native-review checkpoint, not a C production join or M1 pass. The author is idle; root owns the independent UI verdict; Coordinator holds no C source lease. Aggregate R30–37 calls, tokens and elapsed author time are **Not recorded** rather than inferred from individual caps. The current launch helper is task scratch only and has not started High Contrast or Light. The 93 timing records remain batch-cycle diagnostics rather than visible-presentation proof; Windows runtime, broad assistive-technology behavior and release trust remain open.
+
+### Native review window lifecycle · 2026-09-24
+
+After the user reported too many review windows, root closed six older
+receipt-bound R29/combined/final review windows through supported CUA. Root
+checked each visible draft/unsaved state before closing. A first app lacking
+an exact retained receipt was preserved for the user, who closed it. Coordinator
+then observed zero `CfdWorkbench.Desktop` and zero Avalonia collector processes
+in a fresh process snapshot. A CUA query just after closing one bundle had
+relaunched it; subsequent exit checks used process inventory without UI
+reattachment. This is the [UI-REVIEW-WINDOW recurrence](../lessons/defect-classes.md).
+
+The [read-only review launch guard](review-launch-guard.py) is now the prelaunch
+control for serial native review. It binds each live app to exact launch
+receipt PID, start time and executable path; an older owned app or unknown
+identity refuses the launch. At most one explicitly named current receipt can
+be retained. It never signals or closes a process. The coordinator's scratch
+launcher calls the committed guard **before** copying or starting the next
+app, records the guard hash and empty prelaunch inventory, and stops on a
+nonzero guard exit. Its simulated older-owned refusal, exact-current allow
+and reused-PID refusal passed. The real guard refused another launch while
+the new High Contrast app was live; its exact receipt allowance succeeded.
+Root must close that window and read process inventory before the final Light
+launch. The guard is a local macOS review tool, not a Windows product runtime
+claim.
+
+The frozen repaired High Contrast review copy was launched only after the
+zero-app preflight: `/private/tmp/cfd-r37-high-contrast-ui-o6c43blk/CFD
+Workbench.app`, bundle `com.cfdworkbench.desktop.r37highcontrast20260924`,
+PID 39796/start `Thu Sep 24 19:48:46 2026`. Its
+[launch receipt](/private/tmp/cfd-r37-high-contrast-ui-o6c43blk/launch-receipt.json)
+SHA-256 is `5de8a214dba8d2e989f57bbf47c9b80b93e2d19ccbe41562e87829dbbf84cf3e`.
+The 233-entry package copy differs only in `Contents/Info.plist` bundle ID.
+Root's actual native HC verdict and the final serial Light review remain
+pending; C product integration and M1 acceptance remain held.

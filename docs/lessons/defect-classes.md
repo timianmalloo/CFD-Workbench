@@ -772,6 +772,26 @@ old callback, requires the next window to update, and verifies a dirty-close
 Cancel leaves its draft live for another numeric change. Core `DOC-CLOSED`
 continues to reject reads after disposal; the UI guard does not weaken it.
 
+**UI-REVIEW-WINDOW · Review launches accumulate native windows after their proof ends.**
+Serial R29/R37 review checkpoints left six exact receipt-bound old app processes
+alive while the newest Dark window was under inspection; an earlier first app
+had no exact ownership receipt. The user observed too many windows. Sweep every
+native review launch and review-close boundary, including a CUA reattachment
+that can auto-launch a previously closed bundle. Derive: a build's owned-child
+quiescence does not cover separately launched GUI review instances, and a
+matching bundle name alone does not authorize cleanup. Prevent: the
+[review launch guard](../coordination/review-launch-guard.py) snapshots live
+app PID/start/executable once, binds each to a retained exact launch receipt,
+and refuses another launch unless zero apps remain or one current review is
+explicitly allowlisted by receipt. Unknown or reused PID identities are
+preserved and block, never killed. The launch helper invokes this guard before
+copying or starting an app and records its hash and preflight state. The
+simulated older-owned/allowed-current/reused-PID controls and real live-HC
+refusal were observed; after each CUA close, inspect process inventory rather
+than reattaching merely to verify exit, since reattachment can launch a new
+window. Close only exact-owned windows through the UI after checking draft and
+unsaved state; the first app was left to the user to close.
+
 **UI-THEME-ORACLE · Token arithmetic hides runtime resource precedence and applied paint.**
 The frozen Dark workbench rendered pale panels with near-white labels, and the
 HighContrast window retained a light/teal palette. The verifier had combined

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:24:22Z",
+  "generated": "2026-09-25T02:52:14Z",
   "audit": [
     {
       "actor": null,
@@ -6937,6 +6937,29 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3B7MKDBG0QSA85ME3FH2R3C",
+      "shortname": "coordinate-native-review-cleanup",
+      "datetime": "2026-09-25T02:52:14Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "User reported too many review windows; inventory exact task-owned processes, close them safely through root CUA, and prevent another accumulated review window.",
+      "summary": "Root closed six exact-owned obsolete review windows after UI state checks; user closed the unreceipted first app. Coordinator observed zero app processes, committed a read-only exact receipt/PID/start/path singleton guard, simulated refusal/allow/PID-reuse controls, observed real High Contrast live refusal and exact allowance, then launched one guarded High Contrast copy. Native HC verdict remains open.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/review-launch-guard.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Leave only the current review window and make future serial launches refuse unaccounted live apps.",
+      "done_when": "Old exact-owned apps are closed, unknown apps remain untouched, and a durable prelaunch guard is exercised before one frozen review launch.",
+      "tier": "T1",
+      "fan_out": 0
     }
   ],
   "changes": [
