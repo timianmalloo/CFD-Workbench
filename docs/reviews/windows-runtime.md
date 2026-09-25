@@ -1,6 +1,6 @@
 ---
 id: review-windows-runtime
-title: Independent Windows W0 qualification review
+title: Independent Windows qualification review
 type: proof-pack
 status: in-review
 owner: "@cfd-windows-review-20260925"
@@ -12,10 +12,14 @@ links:
   - {to: coordination-contract-b-core, rel: relates-to}
   - {to: defect-classes, rel: relates-to}
 review-by: 2026-10-25
-summary: Independent review admits the frozen W0 packet only as disposable qualification infrastructure. Local receipt and binding controls pass; Windows execution, production containment, durability, accessibility and timing remain unqualified.
+summary: W0 preparation passed conditionally, but the first executed Windows qualification failed. Source-bound native receipts expose four failed cases and a DACL consumer refusal; product runtime, containment, durability, accessibility and timing remain unqualified.
 ---
 
-# Independent W0 review
+# Independent Windows qualification review
+
+**Current disposition: Windows qualification failed; production veto remains.**
+The source-bound Windows run and its limits are recorded in the final section.
+The W0 preparation verdict below is historical and does not override that result.
 
 **Disposition: PASS-WITH-CONDITIONS for prepared qualification infrastructure.**
 This permits an Owner decision on a concrete bounded Windows run. It does not
@@ -211,3 +215,122 @@ known-red source remains unchanged. The coordinator owns the shared register.
 The addendum marker starts after the bounded source/control review; its measured
 duration covers documentation finalization only. The preceding delta-review
 elapsed time, tokens and monetary cost are **not recorded**.
+
+## First Windows execution and workflow correction, 2026-09-25
+
+Goal: independently review the exact dispatch correction and returned Windows
+evidence before any production admission. Done when the observed failures,
+receipt limitations and next decision are recorded. Scope remains the existing
+review path; no source repair, new dispatch or section-editor work.
+
+The first authorized push, commit `906714b1d9f76d0542385889f31b4f5809b3deb1`,
+produced [run 36097138344](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097138344).
+GitHub rejected three `runner.temp` expressions in job-level `env` before any
+job started. Root observed the exact annotation, zero jobs and zero artifacts.
+The [GitHub context table](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts)
+allows `runner` in step-level `env`, not job-level `env`. Author, coordinator,
+Owner and root all missed this semantic workflow check. A local documentation
+gate or clean YAML-shaped diff had not established executable workflow validity.
+
+Owner authorized a workflow-only correction and one retry. Root inspected clean
+commit `7f34c13c3568ec31779866e061eb0a7d52dbfb36`: only the three environment
+values moved to the SDK setup, self-test and native-driver steps. The exact
+branch/ref, read-only permission, action revisions, SDK version, 12-minute job
+timeout and three-day retention stayed unchanged. All four non-workflow source
+hashes matched the previously reviewed inputs.
+
+The official task-local `actionlint` 1.7.12 binary, SHA-256
+`8db11704dc296f096216db4db65d86cd7f0ebfdf4c38453a1da276b137b88388`,
+reported the original three context errors with exit 1 and accepted the corrected
+workflow with exit 0. Root independently ran the same binary against the fixed
+bytes. Its downloaded archive and checksum manifest matched the official release
+digests. This semantic check is the recurrence control; no global dependency was
+installed. Coordinator owns the shared defect-class and prelaunch records.
+
+### Actual run and retained evidence
+
+[Run 36097839626](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097839626),
+attempt 1, executed the exact fixed SHA on `feature/windows-w1-qualification-20260925`.
+Root independently read job `107953763808`: started `2026-09-25T05:16:06Z`,
+completed failure `05:16:46Z`. The 40-second job interval is measured from those
+timestamps; it is neither billed usage nor application latency. The host reports
+Windows Server 2022 build 20348, image `20260920.314.1`, AMD64/X64 and NTFS.
+SDK `10.0.203`, the receipt self-tests and native compilation ran. Compilation
+reported zero warnings/errors. The native step failed; artifact retention passed.
+
+Raw retained packet:
+`/tmp/cfd-w1-run-36097839626/download/w0-7f34c13c3568ec31779866e061eb0a7d52dbfb36-1/`.
+API/job metadata and full job log are one directory above it. Artifact ID
+`10847997532` reports archive digest
+`b303e6ff9f4f4e9942f2d696b7af1fc5462bd1ff10cec436446c96772ecf2729`;
+this is the API's value, not an independent archive-byte recount.
+Root's read-only recount is `/private/tmp/cfd-w1-independent-review.py`, output
+`/private/tmp/cfd-w1-independent-review.txt`.
+
+Root recomputed all five actual source hashes against the initial manifest and
+canonical manifest digest
+`78e5585a9dcc9db5344e28b0fdfbd5f00d4f70fe085a4a54999ccab5934b8e5d`.
+Both fixtures match their exact prescribed bytes. Native stdout SHA-256 is
+`436f50f0163bbd408a539fa7cf1e75e429b2d92d321eb9a682e2a66e0ff26b54`;
+native process receipt SHA-256 is
+`2bb0932d17b8d0d3190b37025e36cd31bc12f28962f29770d5cc7cadefa5d030`.
+
+The native executable emitted 26 unique cases: **21 self-reported Pass, four
+Fail, one Not assessed**. This is a recount of native assertions, not 21
+independently accepted cases: the consumer rejected the packet.
+
+| Case or boundary | Observed evidence | Disposition |
+|---|---|---|
+| Overwrite | `nativeError: 5`, publication false, `W0-WRONG-SAVE-STATE` | Failed; replacement semantics require investigation |
+| Cancel after publication | Same native error and failed state; cancellation was not requested because publication did not complete | Failed; post-publication cancellation was not reached |
+| Replacement DACL | `Access is denied.` | Failed; exact native cause remains unresolved |
+| Ancestor substitution | `W0-ANCESTOR-MOVED` | Failed oracle; not proof that a directory moved, because the failure row omits the move result and Win32 error |
+| Creation DACL consumer | Native output is `O:LAD:P(A;;FA;;;LA)`; Python requires a numeric `S-...` owner/ACE string | Root replay reproduces `W0-WRONG-DACL`; textual representation mismatch, not proof of a permissive ACL |
+| Directory durability | `W0-UNSUPPORTED-DIRECTORY-DURABILITY`, durability false | Still Not assessed; no final-directory equivalent established |
+
+The native DACL check inspects protected DACL, one non-inherited allow ACE,
+current-user SID and the exact mask before payload. That source fact explains
+what its Pass asserts; it does not make the separate Python regex correct.
+No repair may simply accept arbitrary SDDL strings or mute the four native
+failures. The ancestor oracle must preserve operation result and error before
+throwing; its current message conflates distinct outcomes.
+
+### Receipt limits and independent verdict
+
+The validator aborts before the timeout-tree, observer-fault and UIA probes.
+There is no final `summary.json`, post-run source manifest or binary-file
+manifest. Native rows report composite binary identity
+`cbb688e1ccf739eb47552d5d9c0b42a8113b1d3f0d67a1455602df6f673ad2b6`;
+the historical process observer reports apphost hash
+`6047540c859a93a9bbdbf4fa03872c49111b12a3ee6a669ee6e385f0e6bb7554`.
+The workflow did not retain actual binary bytes. Root therefore cannot recount
+the composite against those bytes or establish final source stability. A source
+hash present in a row is not equivalent to those missing checks.
+
+The four retained SDK/info/build/native process receipts report no timeout,
+quiescence and no cleanup error, with PID/start/executable/hash observations.
+Build includes compiler and console-host observations. Native PID 6116 ran for
+0.171 seconds and exited 3; build ran for 4.954 seconds and exited 0. These are
+historical runner measurements, not a locally repeated job-containment proof.
+The required forced timeout and observer-failure cleanup controls did not run.
+No hosted UIA, Narrator, Workbench window or displayed timing evidence exists
+from this run.
+
+**Data/Security/Test: FAIL for Windows qualification and production admission.**
+The experiment successfully reached real Windows and falsified candidate
+assumptions. Its failure is distinct from the earlier workflow rejection and
+the expected durability gap. The source and evidence are retained; there is no
+automatic third run. Owner must define an evidence-led repair/diagnostic scope
+before another author or dispatch. M1 requirements remain intact.
+
+Class → sweep → prevent: semantic workflow context checking is now a prelaunch
+control. Separately, candidate native failures must retain discriminating raw
+results, and downstream receipt/probe evidence must not disappear behind the
+first validator exception. Those latter repairs are findings for the next Owner
+packet, not silently implemented by this reviewer. Root also corrected a local
+metadata-path lookup by file discovery after two nonexistent registry names;
+that failed lookup produced no state change or evidence claim.
+
+The review marker starts at `2026-09-25T05:16:19Z`; it includes waiting for the
+returned packet and documentation, and excludes earlier prepush review.
+Effective billing model, token usage and monetary cost: **not recorded**.
