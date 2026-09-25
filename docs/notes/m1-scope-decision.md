@@ -1,8 +1,8 @@
 ---
 id: note-m1-scope-decision
-title: "Pending user decision — Windows, visible performance and section editing in M1"
+title: "User decision — Windows and visible performance in M1; section editing in M1.1"
 type: decision-note
-status: draft
+status: accepted
 owner: "@owner"
 phase: "application-foundation"
 tags: [decision-note, milestone, windows, performance, sections]
@@ -15,16 +15,19 @@ links:
 review-by: "2026-10-25"
 review-suggested: []
 summary: >-
-  One pending user decision about three milestone obligations. No option is adopted,
-  no threshold is waived, and no dependent scope is scheduled by this note.
+  The user approved Windows x64 runtime and measured on-screen budgets in M1 and
+  placed the full section editor in M1.1. Native and platform proof remain open.
 ---
 
-# One pending M1 scope decision
+# M1 scope decision
 
-**Status: awaiting the user.** This is a decision request, not an Owner ruling or
-implementation authorization. The existing M1 definition remains in force. The
-independent native UI veto, including the High Contrast pointer-state defect,
-remains separate from this scope decision and from the CUA attachment investigation.
+**Status: user-approved, 2026-09-25 UTC.** In response to the single combined
+question below and its explicit Owner recommendation, the user's exact answer
+was `approve` (audit prompt `al-01M3BA3M123XF92DD2D8PSHNA1`). The adopted placement is **Windows x64 runtime: M1; measured
+on-screen timing: M1; full section editor: named M1.1 Section authoring**.
+This approves the scope placement, not completion of any gate. The independent
+native UI veto, including the later High Contrast focused numeric-field failure,
+remains separate from this decision and the CUA attachment investigation.
 
 **Question:** Should we keep **real Windows x64 operation and measured on-screen
 budgets in M1**, and put the **full section editor in a named M1.1 Section authoring
@@ -32,8 +35,9 @@ increment** (Owner recommendation), or choose a different placement for any row
 below: **IN M1 / named M1.1 / deferred**? A single response such as
 `Windows: M1; timing: M1; sections: M1.1` resolves all three placements.
 
-The recommendation preserves the current two-platform, measured M1 promise and
-makes section authoring an explicit next increment. It does not promise a date.
+The approved recommendation preserves the current two-platform, measured M1
+promise and makes section authoring an explicit next increment. It does not
+promise a date.
 Keeping section editing deferred to the existing M2 is the smallest unchanged-plan
 alternative. Choosing a macOS-only or performance-unqualified M1 instead is a real
 change to acceptance, not recognition that the original gates passed.
@@ -122,13 +126,18 @@ batch, screenshot acquisition round trip or general UI-tool latency is not by
 itself that presentation signal. If the signal cannot be established, say **Not
 assessed** and return to the selected milestone gate; do not manufacture a result.
 
-## After the user rules
+## Delivery edges after approval
 
-Record the exact three choices and any qualification in one canonical decision.
-Only then reconcile architecture milestones, C acceptance, platform support labels,
-performance proof and the coordination plan. A section promotion needs a detailed
-design and independent scientific/Data/UX/Test review before an author is assigned.
-Changes to supported platforms or quality gates need explicit compatibility wording
-and continued truthful diagnostics. This note does not clear any existing veto,
-join C, approve M1, or schedule the dependent work. **Part 2 stops here pending the
-user's decision; Part 1 may continue independently.**
+The [coordination plan](../coordination/application-build.md) now stages three
+separate proof tracks. Windows x64 requires a qualified runtime route, native
+store/process adaptation, real executable and UI evidence. Visible timing requires
+an observed final on-screen endpoint on the stated workload and platforms. M1.1
+section authoring requires a detailed design and independent scientific, Data,
+UX and Test review before an implementation author is assigned. Those tracks
+may be prepared independently, but M1 acceptance still requires every M1 gate.
+
+No numerical budget, security rule, identity rule or accessibility floor is
+waived. Current batch-cycle diagnostics are not presentation results. This
+decision does not clear the current C native veto, join C, approve M1 or mark
+Windows supported. The existing M2 geometry breadth retains work outside the
+named M1.1 section-authoring subset.

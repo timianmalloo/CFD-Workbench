@@ -26,6 +26,14 @@ The product specification [A3–A4](../specs/cfd-workbench-v1.md), [FoilDSL §§
 
 The first milestone is an offline native workbench on Windows and macOS with a shared GUI/CLI core: open the Example, native `.foil` and `.cfdw.json`; parse/validate to accepted source; evaluate owned geometry; inspect a viewport and section; edit one numeric independent leading or trailing rail through a base-bound draft with preview/apply/cancel; undo/redo; atomic save/reopen, including a recovery draft; and print identity and diagnostics through the CLI from the same core. Analysis, solver, export, OCCT and AI capability claims are deferred. The Owner reviews this milestone and any spec contradiction before a worker takes an implementation contract.
 
+**Approved scope continuation, 2026-09-25 UTC:** the user answered `approve`
+to the [single three-part decision](../notes/m1-scope-decision.md): real Windows
+x64 runtime and actual on-screen cold/edit/Preview/Cancel budgets remain in M1;
+the full section editor is named M1.1 Section authoring. This is a placement
+decision, not evidence that either M1 gate passes. The [coordination
+tracks](../coordination/application-build.md) stage Windows route qualification,
+visible-endpoint proof and M1.1 design with separate ownership and review.
+
 **End-to-end surface list:** file envelope and append-only project records → accepted lossless source and immutable Surface/Profile revisions → parser, validation, evaluator and semantic identity → GUI/CLI application services → typed UI projection and native viewport/section → no analysis compute reader in M1 (show Unavailable). Every changed identity crosses save/reopen, undo/redo and CLI. An inspection slice remains derived; no second editable channel table may appear.
 
 ## Graph and mandatory floors
@@ -38,7 +46,7 @@ The first milestone is an offline native workbench on Windows and macOS with a s
 | G3 | Freeze interfaces and first-slice contracts with Owner ruling | Named type/semantic contract, owned paths and fixtures, no unresolved `DR-n`, independent Test/Data/UX vetoes cleared | Independent review; T2 | G1, G2 (data) |
 | G4 | Implement accepted source, parser, model, evaluator, identity and persistence in one coherent core track | Red→green normal, invalid and fault fixtures; immutable accepted history; one numeric rail edit round trip via core API | Reasoning; T2 | G3 (data) |
 | G5 | Implement native shell/viewport/CLI adapters against compiling G3 contracts and fixtures in disjoint authored paths | Example opens; keyboard and accessibility state evidence; UI and CLI consume same core; unavailable analysis labelled honestly | Reasoning; T2 | G3 (data) |
-| G6 | Join and inspect M1 on integrated branch | `conductor-join.py` and integrated gate set pass; user workflow exercised in rendered app; independent vetoes pass; Windows/macOS evidence status stated separately | Independent review + deterministic mechanics; T2 | G4, G5 (data) |
+| G6 | Join and inspect M1 on integrated branch | `conductor-join.py` and integrated gate set pass; user workflow exercised in rendered app on macOS and Windows x64, including Windows native accessibility/file/identity evidence and actual on-screen cold/edit/Preview/Cancel budgets on the stated workload; independent vetoes pass. Cross-publication and compositor-batch timing alone do not satisfy these gates. | Independent review + deterministic mechanics; T2 | G4, G5 plus Windows runtime and visible-endpoint proof (data) |
 | G7 | Re-plan next dependency-ready slice within approved product scope | New graph cites observed M1 behavior and remaining requirement, budget and gates; no speculative worker launch | Reasoning; T2 | G6 (decision) |
 
 ```mermaid
@@ -97,7 +105,7 @@ still open. The [C launch receipt](../coordination/application-c-launch.md)
 binds these observations; no sampled projection is called a geometry
 certificate or M1 pass.
 
-**Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 build/tests may come from a separate runner; an unrun Windows native workflow remains a release obligation and cannot be called M1 pass on both platforms.
+**Mandatory, immovable floors:** domain aggregate/data-model ruling before code; stack/SDK spikes before dependency commitment; E7 surface/reader trace; exact UTF-8 source SHA-256 distinct from semantic RFC 8785/BLAKE3 identity, with pinned decimal/unit-to-binary64 vectors; certified geometry validity for the admitted subset or an explicit `Not assessed` blocker; applicable Testing Strategy union and red-first control observations; cross-platform native accessibility/viewport and packaging evidence; independent Data, Test and UX hard vetoes plus root review; integrated rendered workflow proof; audit/change entries and graph derivation. Each gate must name an input that fails it. A green command exit means the command passed, not that M1 works. macOS ARM64 live evidence can be observed locally. Windows x64 unattended build/tests may come from a separate runner; an unrun Windows native workflow blocks the approved two-platform M1 gate. An unmeasured final on-screen frame likewise blocks the approved M1 timing gate.
 
 **Naive → optimized:** A naive serial walk would be G0→G1→G2→G3→G4→G5→G6→G7: 8 nodes, width 1, no bounded loop. The optimized graph keeps all 8 nodes and every floor, moves only the disjoint adapter construction after frozen G3 alongside core construction, and makes G6 a single integrated join. Its maximum width is 2. A parser and its evaluator stay in G4 because their invariants and identity are coupled. The implementation branches are admitted only after G3 proves no decision edge remains. Architecture and spike work stay serial because their results alter each other's shape.
 

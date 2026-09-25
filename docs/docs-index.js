@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "c7b49967f17a0dd39cabec8147846ca0eefb7cd5eb31d70e55d7a14c47fc4a79"
+      "sourceSha256": "0afc63c29dea3f5203ce2a82398ebc01e79f967c9063f973804f3f0d8594b4e5"
     },
     {
       "id": "cad-editing-views",
@@ -990,14 +990,14 @@ window.DOCS_INDEX = {
     {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
-      "title": "Pending user decision — Windows, visible performance and section editing in M1",
+      "title": "User decision — Windows and visible performance in M1; section editing in M1.1",
       "type": "decision-note",
-      "status": "draft",
+      "status": "accepted",
       "owner": "@owner",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
       "reviewSuggested": [],
-      "summary": "One pending user decision about three milestone obligations. No option is adopted, no threshold is waived, and no dependent scope is scheduled by this note.",
+      "summary": "The user approved Windows x64 runtime and measured on-screen budgets in M1 and placed the full section editor in M1.1. Native and platform proof remain open.",
       "tags": [
         "decision-note",
         "milestone",
@@ -1028,7 +1028,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "62b7d01b0dcd17a4f8bf5784ee4ab560eb91a45d695fd0ae56614e69090fb57f"
+      "sourceSha256": "0ad7d493ed2395d0c2e68300c933f5639922e270a04132b108035e45f3bb9c1d"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -2168,7 +2168,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "dd7e7e42b1038943cd7e7704c2ff1a46493c2373f27cb2d5070693a3bffeafc0"
+      "sourceSha256": "b969b05559956cda90bb321b4bd12162afcb7af710a03a6da98ac58ac287fbf9"
     },
     {
       "id": "plan-authoring-decisions",
@@ -3044,7 +3044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cc65fbc60a657fecb7e5228b3aabaa9c1afc27aba189fa7f162bfa936e23d521"
+      "sourceSha256": "bbe3bb2913587a8846fff5189d462147ac5e51260be5dfc35bd538d6cb65899c"
     },
     {
       "id": "kb-hw-glossary",
@@ -3944,7 +3944,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fb8ef6d59e8faf215d91a46b87c9c0a79488b5daa58169b34f8ba7b21809005f"
+      "sourceSha256": "ace17c28210d3b3760f156dccba020dc3099f6e4f0a614def426ad6eff73a285"
     },
     {
       "id": "coordination-contract-b-core",
@@ -5632,5 +5632,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "24709b19aaf3ba0b59298dfbcd2becdc93338098054790e7555b1984e13affe4"
+  "graphSha256": "3a96064fc7c214db046298828d949a00b58fdd2e8964d95a77f9ac7629d0491d"
 };

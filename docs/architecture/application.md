@@ -222,8 +222,9 @@ their store; injected rings remain caller-owned. Telemetry disposal cannot falsi
 
 | Increment | Real end-to-end behavior | Human and automated proof | Unblocks |
 |---|---|---|---|
-| M1 walking skeleton | Native+CLI Example/Open, one rail transaction, source/history, save/reopen, recovery; Analysis Unavailable | Same source/hash and diagnostics through both adapters; real numeric/keyboard/draft/save UI; fault and cross-platform identity suite | A usable offline editor, then broader language |
-| M2 geometry breadth | More profiles/assets/section edits and certified blend/promotion | Independent bases, closure and fit residuals; shared/fork scope and exact-operation gates | Product CAD breadth |
+| M1 walking skeleton | Native+CLI Example/Open, one rail transaction, source/history, save/reopen, recovery; Analysis Unavailable on macOS ARM64 and Windows x64 | Same source/hash and diagnostics through both adapters; real numeric/keyboard/draft/save UI; fault and cross-platform identity suite; live Windows x64 runtime and native UIA/Narrator; actual on-screen cold ≤5 s, edit ≤100 ms p95, Preview/Cancel ≤250 ms p95 on the specified workload and hosts | A measured two-platform offline editor, then broader language |
+| M1.1 section authoring | Full section editor with persistent station entry, standalone upper/lower profile controls, shared/independent scope, constraints, thickness intent, blends and accepted-source history | Detailed multi-profile design plus scientific, Data, UX and Test review before authoring; native editing, continuous geometry certificate, exact source/Save/Reopen/Undo/Redo and accessible interaction proof | Product section authoring; not an M1 acceptance shortcut |
+| M2 geometry breadth | Remaining profiles/assets and certified blend/promotion beyond M1.1 section authoring | Independent bases, closure and fit residuals; exact-operation gates for remaining CAD breadth | Further product CAD breadth |
 | M3 admitted local analysis | Real 2D/3D method adapter and immutable run manifests | Product numerical fixture ladder and freshness; no mock science | Experiment/results path |
 | M4 experiments/backend/export | Thin task-specific run/export slices | Consent, process failure, artifact provenance and CAM measurements | Full seven-area workflows |
 | M5 optional assistance | Typed proposals only, offline work unaffected | Adversarial untrusted source/proposal tests | Optional productivity |
@@ -234,6 +235,10 @@ the complete parser/identity/session core joined before the serial C adapter
 candidate. The B→C dependency remains an authority boundary; no adapter owns
 a second parser or editable geometry source. Windows x64 cross-build is separate from live Windows
 UIA/Narrator, file replace, numerical parity, signing and installer proof. macOS spike is unsigned/unnotarized.
+The [user-approved M1 placement](../notes/m1-scope-decision.md) keeps real Windows
+x64 runtime and visible timing in M1 and names the full section editor M1.1.
+This changes milestone placement, not the current narrow C lease or any proof
+threshold. The current batch-cycle diagnostics do not meet the on-screen budget.
 
 ## 9. Confidence and independent gate
 

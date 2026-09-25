@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T03:16:20Z",
+  "generated": "2026-09-25T03:42:55Z",
   "audit": [
     {
       "actor": null,
@@ -7126,6 +7126,84 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T03:16:19Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3B9ZM1BX1B1PZM0SQAWRW3M",
+      "shortname": "native-textbox-paint-ruling",
+      "datetime": "2026-09-25T03:33:12Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3B9VD4ZP4A68VKWSCBEW5QF for native High Contrast NumericInput white-on-white failure despite 312 managed rows. Authorize bounded measurement-first repair or hold, no M1 scope change or native acceptance.",
+      "summary": "Ruling 39 selects one same-author four-path packet, 60 calls/40 minutes, actual sibling-paint RED before theme repair, conservative template-aware coverage, frozen real focus/edit/selection states, false-pass negatives, one candidate plus at most one corrective matrix, then eligible full gate and independent root native rerun. Owner verified ancestor-only Backing omission against pinned TextBox sibling background structure; exact native assignment still requires measurement. Native veto retained and user scope decision unchanged.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Choose a rigorous bounded response to the native numeric-input contrast failure.",
+      "done_when": "Canonical ruling names evidence, exact paths, proof controls and stop conditions; coordinator informed and Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T03:31:07Z",
+      "duration_seconds": 125.0
+    },
+    {
+      "id": "al-01M3BA3M123XF92DD2D8PSHNA1",
+      "shortname": "Approve M1 Windows/timing and M1.1 sections placement",
+      "datetime": "2026-09-25T03:35:23Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "approve",
+      "summary": "User approved the one combined M1 scope recommendation: Windows x64 runtime and visible timing in M1; full section editor in M1.1.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "m1-scope"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3BAHCTS6KSXT6V6CT4N9GN6",
+      "shortname": "Record approved M1 placement and R39 coordination checkpoint",
+      "datetime": "2026-09-25T03:42:55Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "User replied approve to the single Windows/timing/sections placement recommendation; coordinate the active native contrast and attachment-readiness branches.",
+      "summary": "Logged exact approval, adopted Windows x64 and on-screen timing in M1 and full section authoring in M1.1, updated decision/architecture/plan/coordination ledger and derived views. R39 native contrast remains blocked under exact four-path repair; Part1 attachment readiness independently cleared its bounded control, with CUA internals unverified. Non-register V16 neighbor flags remain a named follow-up after root review lease release.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/m1-scope-decision.md",
+        "docs/architecture/application.md",
+        "docs/plans/application-build.md",
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html"
+      ],
+      "tags": [
+        "m1-scope",
+        "coordination"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Preserve the user-approved milestone placement and active native blockers in canonical docs while scheduling dependency-ready proof tracks under the cap.",
+      "done_when": "Decision note, architecture, overall and coordination plans and HTML/index reflect exact user choice; owned checks pass; R39 and Part1 remain truthfully classified.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T03:35:06Z",
+      "duration_seconds": 469.0,
+      "git": {
+        "sha": "416088d493ca390c389f834a31d3e738aba05e6c",
+        "short": "416088d49",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -7633,6 +7711,32 @@ window.AUDIT_DATA = {
         "pushed": null,
         "commits": []
       }
+    },
+    {
+      "id": "cl-01M3BABM1MN64RR85M0PG16JY9",
+      "datetime": "2026-09-25T03:39:46Z",
+      "session": "cfd-coordinator-20260923",
+      "kind": "decision",
+      "skill": "execute-with-coordination",
+      "title": "User-approved M1 Windows and visible timing; M1.1 section authoring",
+      "prompt": "approve",
+      "summary": "Adopt Windows x64 runtime and actual on-screen cold/edit/Preview/Cancel budgets in M1; place the full section editor in named M1.1. Preserve current C native veto and every proof threshold.",
+      "rationale": "The user approved the Owner single combined recommendation. Scope placement is resolved; runtime, presentation and section implementation remain unproven.",
+      "artifacts": [
+        "docs/notes/m1-scope-decision.md",
+        "docs/architecture/application.md",
+        "docs/plans/application-build.md",
+        "docs/coordination/application-build.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "416088d",
+        "after": "416088d493ca390c389f834a31d3e738aba05e6c",
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "commits": []
+      },
+      "audit_ref": "al-01M3BA3M123XF92DD2D8PSHNA1"
     }
   ],
   "messages": []
