@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:39:24Z",
+  "generated": "2026-09-25T05:40:47Z",
   "audit": [
     {
       "actor": null,
@@ -8350,6 +8350,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T05:39:24Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3BH96QJGJ6SE2JKYW3YKNF4",
+      "shortname": "r45-windows-author-baseline",
+      "datetime": "2026-09-25T05:40:46Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Complete pre-section Windows M1 work under Ruling 45.",
+      "summary": "Registered feature/windows-w1-diagnostics session cfd-windows-w1-diagnostics-20260925 from joined ac3eba5, then clean merge a5b1d4c with reviewed W1 commit 7f34c13. Workflow SHA e29e71b6033b5a50081387832c7ebf6ca3243c7618da52c01dec5482b82573b9; native Program SHA 2b6d42ddd2d7b65b0085bdce9dfad0c978d68f9c6107f55f1a0c2d40f3f2ed54; qualifier SHA 4a0ea88907fcd8ff58ba38b1846af7b6ee1a488fc4412b97f55b671b1d4a724d. All three match 7f34c13 exactly. Proof/design inherit current joined W1 evidence. No remote push, native rerun or product edit.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md",
+        "docs/proof/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Prepare one isolated W1 diagnostic author tree that descends from the reviewed failed Windows run and carries current governance.",
+      "done_when": "The tree is clean, both source parents are explicit, and the reviewed workflow/native/qualifier bytes match the failed-run baseline before author edits.",
+      "tier": "T2",
+      "fan_out": 1,
+      "git": {
+        "sha": "ac3eba5d10ee510b36afa9203cec5d4bb90e8aaf",
+        "short": "ac3eba5d1",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
