@@ -17,6 +17,9 @@ review-suggested:
 
 # R41 bounded feasibility result
 
+Superseded 2026-09-25: on-screen timing is no longer an M1 gate (see
+docs/notes/m1-scope-decision.md).
+
 **Disposition: partial preparation, independent review pending. No visible
 latency PASS.** All capture-related behavior is Prepared/Compiled, never
 native-executed. The target was not launched. There was no window enumeration,

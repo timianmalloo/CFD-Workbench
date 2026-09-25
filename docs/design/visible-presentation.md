@@ -18,6 +18,9 @@ review-suggested:
 
 # Visible endpoint feasibility
 
+Superseded 2026-09-25: on-screen timing is no longer an M1 gate (see
+docs/notes/m1-scope-decision.md).
+
 ## Goal and authorization
 
 Goal: investigate an honest endpoint for the approved M1 visible timing budgets.

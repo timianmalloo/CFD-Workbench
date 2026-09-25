@@ -1,6 +1,6 @@
 ---
 id: note-m1-scope-decision
-title: "User decision — Windows and visible performance in M1; section editing in M1.1"
+title: "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred"
 type: decision-note
 status: accepted
 owner: "@owner"
@@ -12,16 +12,44 @@ links:
   - { to: architecture-application, rel: relates-to }
   - { to: coordination-contract-c-native, rel: relates-to }
   - { to: coordination-application-build, rel: relates-to }
+  - { to: plan-application-build, rel: relates-to }
 review-by: "2026-10-25"
 review-suggested:
   - { by: architecture-application, on: 2026-09-24, reason: "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims." }
   - { by: coordination-application-build, on: 2026-09-24, reason: "Approved Windows/timing M1 and section M1.1 placement plus R39 native veto changed the coordination gates; review dependent status and handoffs." }
+  - { by: architecture-application, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review §8 gate claims." }
+  - { by: plan-application-build, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review the execution graph's gate claims." }
+  - { by: coordination-application-build, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review coordination status." }
+  - { by: coordination-contract-c-native, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate; review §3 budget requirement." }
 summary: >-
   The user approved Windows x64 runtime and measured on-screen budgets in M1 and
-  placed the full section editor in M1.1. Native and platform proof remain open.
+  placed the full section editor in M1.1. A 2026-09-25 revision then removed
+  on-screen timing as an M1 gate and deferred Windows x64 qualification; section
+  editing in M1.1 is unchanged.
 ---
 
 # M1 scope decision
+
+## Revision — 2026-09-25
+
+The operator issued two further decisions, superseding the Windows and visible-timing
+placements recorded below. Quoted verbatim; not a reinterpretation.
+
+**D1 — On-screen (visible) timing is removed as an M1 gate.** Operator: "on-screen
+timing should be removed as a gate … i did not realize the waste." Reason: proving
+on-screen cold-launch / edit / Preview / Cancel budgets consumed many sessions of
+tooling and review without producing product code; the cost exceeded its value.
+Product performance targets in the spec stay as targets; they are no longer an M1
+release gate, and no on-screen capture is planned.
+
+**D2 — Windows x64 runtime qualification is deferred.** Operator: "dont do with
+windows work... defer it for now." Last hosted run `36113074255` at `4a1d80f`
+failed with 4 baseline failures; known defects are replace-over-open-handle and the
+ancestor-directory pin; branches `feature/windows-*` are kept; M1 is not
+two-platform-complete until Windows resumes.
+
+**Unchanged:** the full section editor stays **M1.1 Section authoring** and is
+being built next.
 
 **Status: user-approved, 2026-09-25 UTC.** In response to the single combined
 question below and its explicit Owner recommendation, the user's exact answer
