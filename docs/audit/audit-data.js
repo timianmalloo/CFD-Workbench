@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:54:18Z",
+  "generated": "2026-09-25T05:56:26Z",
   "audit": [
     {
       "actor": null,
@@ -8437,6 +8437,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T05:54:17Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BJ5WGPCR1SVMY8Z9F0DDVG",
+      "shortname": "windows-w1-diagnostics",
+      "datetime": "2026-09-25T05:56:26Z",
+      "session": "cfd-windows-w1-diagnostics-20260925",
+      "prompt": "Prepare the R45 Windows diagnostic packet without a remote retry",
+      "summary": "R45 author committed fce9759 on five paths. Local source-bound composite d6fbf7287419ebe54427245f9e0c79e595ade94c259ff6ab3bb1a3deb52dccb2; 72 controls and local build passed; 26 native cases remained Not assessed on macOS. Proof retains compact raw rows and previous Windows failures. Author reports 43 manually counted top-level calls, not independently instrumented. Commit hook was advisory because AGENT_SESSION was omitted; subsequent explicit ownership checks allowed all five paths. No remote Windows run or product acceptance.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/windows-runtime.md",
+        "tools/qualify-windows-runtime.py"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Disambiguate W1 Windows failures with semantic ACL and raw publication evidence",
+      "done_when": "Five owned files and local controls are frozen for independent review, with no remote run",
+      "tier": "T2",
+      "main_calls": 43,
+      "main_budget": 70,
+      "main_over_budget": false,
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:41:51Z",
+      "duration_seconds": 875.0
     }
   ],
   "changes": [
