@@ -5647,6 +5647,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-visible-presentation",
+      "path": "docs/reviews/visible-presentation.md",
+      "title": "Independent visible-presentation preparation review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-visible-review-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Frozen preparation passes its independently replayed synthetic contract and clock controls. No native capture or visible-performance acceptance is granted; whole-package identity and the native observation contract still require preparation.",
+      "tags": [
+        "performance",
+        "review",
+        "privacy",
+        "testing"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5793bafe24b9b27514fd4926eef1aa17ef539923840d50581c9502e9dc4989d2"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -6201,5 +6235,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "cbc06c990ca8f26eefdbe6fe60ea9f26ab3bd0764b40b5e449f5a4b731cb1a13"
+  "graphSha256": "14087bc538bb264859d30ffcb21fc9b49ecceef208565a41b6623158e29b943b"
 };

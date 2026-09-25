@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:38:22Z",
+  "generated": "2026-09-25T05:39:12Z",
   "audit": [
     {
       "actor": null,
@@ -8264,33 +8264,63 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BH4SVQ57XM7Z55Y3SHHT87",
-      "shortname": "join-r41-visible-spike",
-      "datetime": "2026-09-25T05:38:22Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Joined R41 six-path compiled/noncapture spike e688c18 after root conditional preparation review. Synthetic50/50, four mutants killed, disjoint clock refused; no native target launch/capture or displayed-latency acceptance. recount_seconds=13 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/visible-presentation.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Integrate the frozen six-path visible-presentation preparation after independent conditional review, without claiming screen timing.",
+      "datetime": "2026-09-25T05:38:22Z",
       "done_when": "Source, proof and official derivatives join with required recount/verification; native capture and visible budgets remain Not assessed.",
-      "tier": "T1",
+      "duration_seconds": 14.0,
       "fan_out": 0,
+      "goal": "Integrate the frozen six-path visible-presentation preparation after independent conditional review, without claiming screen timing.",
+      "id": "al-01M3BH4SVQ57XM7Z55Y3SHHT87",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r41-visible-spike",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T05:38:08Z",
-      "duration_seconds": 14.0
+      "summary": "Joined R41 six-path compiled/noncapture spike e688c18 after root conditional preparation review. Synthetic50/50, four mutants killed, disjoint clock refused; no native target launch/capture or displayed-latency acceptance. recount_seconds=13 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/visible-presentation.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T05:35:06Z",
+      "done_when": "Frozen source and raw noncapture evidence checked, persona dispositions and native prerequisites recorded and committed.",
+      "duration_seconds": 322.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/visible-presentation-review",
+        "pushed": null,
+        "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
+        "short": "062d14d70"
+      },
+      "goal": "Independently verify timing preparation while preventing synthetic or compiled evidence from being promoted to native visible performance.",
+      "id": "al-01M3BGYSWCRV4TY7W39KXFHR7X",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
+      "session": "cfd-visible-review-20260925",
+      "shortname": "review-visible-preparation",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-25T05:29:44Z",
+      "summary": "Reviewed clean e688c18 exact six-path timing spike. Independently recomputed five source/five binary hashes and10raw receipts; reran50synthetic controls and actual target --contracts, both byte-identical to retained results. Four inspected one-line mutants each fail named assertions. Recomputed32rational clock intervals to[-128/3,42]ns; reproduced disjoint-clock CLI VP-CLOCK exit3 and clean portability gates. Preparation PASS-with-conditions; native launch/visible timing/M1 not accepted. Whole-package/post-observation identity, exactcrop bridge, loss/persistence/visibility/input/drift/cleanup/referencehost still unqualified. No targetwindow, capture helper execution, permissions, product or section edits. docs122/0defects/83priorflags. Marker05:29:44Z includes frozenhandoffwait and docs, excludes earlierdraftreads; tokens/effectivebillingmodel/cost not recorded.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [
