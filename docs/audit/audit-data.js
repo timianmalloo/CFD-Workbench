@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:24:45Z",
+  "generated": "2026-09-25T06:28:11Z",
   "audit": [
     {
       "actor": null,
@@ -8561,6 +8561,33 @@ window.AUDIT_DATA = {
         "branch": "feature/application-m1-decision",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BM0046S88WKHSDAWNFYT11",
+      "shortname": "join-r50-decision",
+      "datetime": "2026-09-25T06:28:11Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "summary": "Join independent R50 wrapper adoption decision recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record bounded reviewed wrapper adoption",
+      "done_when": "R50 heading and docs are integrated with checks",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T06:28:10Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
