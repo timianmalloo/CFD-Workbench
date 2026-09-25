@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:36:05Z",
+  "generated": "2026-09-25T05:37:54Z",
   "audit": [
     {
       "actor": null,
@@ -8197,33 +8197,71 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BH0M2VSJX0G9NY4S1SMEY5",
-      "shortname": "join-r45-windows-diagnostic",
-      "datetime": "2026-09-25T05:36:05Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Joined R45 five-path measurement-first Windows continuation and R41 six-path clarification. One newly authorized same-ref Windows run requires frozen source, root review and failure-complete evidence; no product or visible-timing acceptance. recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/notes/rulings.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Capture Owner Ruling 45 and R41 six-path clarification before assigning further Windows or timing work.",
+      "datetime": "2026-09-25T05:36:05Z",
       "done_when": "Canonical ruling and official derivatives join cleanly with docs checks and no product gate claim.",
-      "tier": "T1",
+      "duration_seconds": 0.0,
       "fan_out": 0,
+      "goal": "Capture Owner Ruling 45 and R41 six-path clarification before assigning further Windows or timing work.",
+      "id": "al-01M3BH0M2VSJX0G9NY4S1SMEY5",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r45-windows-diagnostic",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T05:36:05Z",
-      "duration_seconds": 0.0
+      "summary": "Joined R45 five-path measurement-first Windows continuation and R41 six-path clarification. One newly authorized same-ref Windows run requires frozen source, root review and failure-complete evidence; no product or visible-timing acceptance. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/design/visible-presentation.md",
+        "docs/proof/visible-presentation.md",
+        "tools/spikes/VisiblePresentation/VisiblePresentation.csproj",
+        "tools/spikes/VisiblePresentation/Program.cs",
+        "tools/spikes/VisiblePresentation/Capture.swift",
+        "tools/qualify-visible-presentation.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T05:29:42Z",
+      "done_when": "Six named artifacts, noncapture controls, hashes and raw receipts are committed for independent root review with native limitations explicit",
+      "duration_seconds": 1085.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/visible-presentation-spike",
+        "pushed": null,
+        "sha": "f1a4e2c8a17c0541962cfbd4c8ef5363bbd4e63f",
+        "short": "f1a4e2c8a"
+      },
+      "goal": "Prepare source-bound visible endpoint feasibility evidence under R41 without native capture execution",
+      "id": "al-01M3BGMXJ65CGGP51JY0552P03",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "You are the requested-Astra isolated author under CFD-Workbench Owner Ruling 41. Work ONLY in registered worktree /Users/mallalieut/projects/CFD-Workbench-feature-visible-presentation-spike, branch feature/visible-presentation-spike, base f1a4e2c8a17c, session cfd-visible-endpoint-20260925. First command: AGENT_SESSION=cfd-visible-endpoint-20260925 python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-visible-endpoint-20260925 --skill implement; then read AGENTS.md, docs/ai-forward-pack/codex.md, .agents/skills/implement/SKILL.md and Ruling 41 in docs/notes/rulings.md. Goal: bounded source-bound visible-presentation endpoint feasibility packet for approved M1 timing, ≤60 tool calls/40 min, exactly SEVEN authored paths: docs/design/visible-presentation.md, docs/proof/visible-presentation.md, tools/spikes/VisiblePresentation/VisiblePresentation.csproj, Program.cs, Capture.swift, tools/qualify-visible-presentation.py. Claim each exact path before edit; official audit/index derived only. Read joined docs/knowledge/visible-presentation/index.md and pinned primary sources. Synthetic 3-region target and executable noncapture clock/state/receipt negatives; compare supported renderer vs prepared ScreenCaptureKit target-only helper with raw uncertainty and explicit Not assessed. IMPORTANT: no actual alternate screen capture, no window enumeration, no TCC prompt/reset/settings change, no native UI control, no product source/renderer change, no user foreground request, no section editor. Capture helper may be authored/compiled but never executed until exact root review and specific user authorization. Target-window capture alone does not prove physical unoccluded visibility; transient final then regression invalidates naive interval lower bound. Preserve synthetic/native-unexecuted labels; no visible latency PASS. One coherent implementation and at most one corrective local pass. Task-local caches/builds, no broad process kill. Send early API/endpoint seam and precise blocker to Coordinator/root; finish clean commit, raw receipts, source hashes, check-docs, leases released/session ended. Requested model gpt-6-astra; effective model identity Not recorded unless measured. Root independently reviews. Current cap3: root, Coordinator, you. Do not touch W1 workflow or shared product paths.",
+      "session": "cfd-visible-endpoint-20260925",
+      "shortname": "visible-endpoint-feasibility",
+      "signals": {
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-25T05:11:37Z",
+      "summary": "R41 six explicitly named paths govern Coordinator-confirmed count mismatch. Prepared pinned synthetic Avalonia target and compiled-only SCK helper; no UI/capture/permission operation. Executed 50 synthetic controls, four killed mutants, C# state and 32 noncapture clock pairs. One local fixture-alias correction plus root-directed UTF-8 and disjoint-clock corrections; wrong calibration now exits3. Whole-package runtime binding, native crop bridge, persistence/loss, physical visibility, drift and lifecycle remain Not assessed. Effective model/tokens/spend Not recorded. Root review pending; no native latency or M1 PASS. Raw receipts and source/binary hashes in proof, task-local scratch retained. Official docs and portability checks passed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [

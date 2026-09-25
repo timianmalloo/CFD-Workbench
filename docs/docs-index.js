@@ -1390,6 +1390,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
     },
     {
+      "id": "design-visible-presentation",
+      "path": "docs/design/visible-presentation.md",
+      "title": "Visible presentation endpoint feasibility contract",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@cfd-visible-endpoint-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "A source-bound synthetic target and fail-closed receipt model test endpoint feasibility. A target-only native observer is compiled but unexecuted; no visible latency or physical visibility is qualified.",
+      "tags": [
+        "performance",
+        "presentation",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-visible-presentation",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b91ec84d4057a44a5c36cc632b19aca563fd83c0a2462f8bad7bcfce1b253679"
+    },
+    {
       "id": "design-windows-runtime",
       "path": "docs/design/windows-runtime.md",
       "title": "Windows x64 native qualification contract",
@@ -5152,6 +5185,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-visible-presentation",
+      "path": "docs/proof/visible-presentation.md",
+      "title": "Visible presentation feasibility proof packet",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-visible-endpoint-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Source-bound builds, 50 synthetic receipt controls, four killed wrong-result mutants and 32 noncapture clock pairs establish limited preparation evidence. Native capture, visibility, lifecycle, rendered-state correlation and every M1 latency budget remain Not assessed.",
+      "tags": [
+        "performance",
+        "presentation",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "design-visible-presentation",
+          "rel": "documents"
+        },
+        {
+          "to": "kb-visible-presentation",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1ad9bf5f25f9d581c2f7c38aaeb15fdfaecb727a542ce25bedf81fa16d93d27d"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -6139,5 +6201,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "fb3022e8be9fd0b468a26b6a222d03d0253fffb6d18626fd204a04f75fbb7fc2"
+  "graphSha256": "cbc06c990ca8f26eefdbe6fe60ea9f26ab3bd0764b40b5e449f5a4b731cb1a13"
 };
