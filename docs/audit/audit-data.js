@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:58:36Z",
+  "generated": "2026-09-25T05:02:49Z",
   "audit": [
     {
       "actor": null,
@@ -7951,6 +7951,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:58:36Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3BF3P9NQH260VJJ9D0GE6DF",
+      "shortname": "windows-w1-dispatch-ruling",
+      "datetime": "2026-09-25T05:02:49Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BEYXXM2WTK5RPH9VC1PBMX for one exact disposable Windows x64 push-trigger run after corrected W0 independent review and 11 integrated gates; settle live-leader preflight without managed conductor changes.",
+      "summary": "Ruling43 conditionally authorizes exact workflow trigger/guard edit on feature/windows-w1-qualification-20260925, root source preflight, one push/run,12min job/30min observation, retained source-bound artifacts and root Data/Security/Test review. Owner directly read public repo Actions/push access and absent ref plus GitHub trigger/cost documentation. No product/Windows/M1 PASS or retry inferred. Conductor requires supported renew then live matching holder/epoch readback immediately before mutation; expired epoch17 is recorded as missed project preflight, not assumed managed-code defect. No full section work or alternate capture.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Permit one rigorously bounded Windows experiment and prevent another unverified leader mutation.",
+      "done_when": "Canonical ruling fixes exact remote ref, workflow constraints, independent preflight/review and leadership control; Coordinator informed and Owner yields.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:00:28Z",
+      "duration_seconds": 141.0
     }
   ],
   "changes": [
