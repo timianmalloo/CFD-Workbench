@@ -185,13 +185,8 @@ specific user authorization must name this alternate observer and its one-time
 target lookup; CUA permission or existing OS permission is not authorization.
 Root must review the exact final source/binary hashes first.
 
-Request fields are `pid`, `window`, exact `executable`, `executableSHA256`,
-`launchUnixSeconds`, `bundle`, exact `title`, `durationSeconds` (1..8),
-`width`, `height` (192..2048), and exactly three disjoint crops with integer
-`x/y/width/height/expected` values. Each crop is at least 64x64, dimensions are
-multiples of 16, fully inside the target buffer, and expected is a 64-character
-bit digest. Native client geometry, decorations and crop mapping remain
-unqualified; the request must be source/package-bound and reviewed, not guessed.
+R47 supersedes the R41 request shape. The exact schema and remaining readiness
+conditions are specified below. No observed PID/window/crop request exists.
 
 The prepared `CGPreflightScreenCaptureAccess` call does not request permission;
 false refuses. This query was **not executed**. Only after review/authorization
@@ -202,10 +197,9 @@ opens settings or uses UI automation. Missing permission, target mismatch and
 unavailable content return refusal. Existing permission can race/revoke; errors
 remain refusal, never automatic permission retries.
 
-The executable digest verifies the apphost file, not every loaded DLL. A sealed
-whole-package manifest and runtime binding are another unresolved identity seam;
-the prepared helper is **not yet an executable capture-authorization packet**.
-No dynamic PID/window/config values are invented to conceal this gap.
+R47 seals the concrete published file inventory and resolves its selected deps
+assets. That does not attest loaded memory or dynamic loader resolution. The
+prepared helper is **not yet an executable capture-authorization packet**.
 
 Only target region bit evidence, timestamps, status and scale are emitted.
 Each cell's interior must be uniformly near black or white; antialiased edges
@@ -244,3 +238,128 @@ disappear; report counts and reasons. A population-tail claim requires its own
 sample/confidence design. Historical 30 synthetic trials and three Main starts
 are not that protocol. No timing PASS, Windows visible proof, reference-host
 qualification or section-editor admission follows from this packet.
+
+## R47 identity and exact request contract
+
+**Status: preparation only; native readiness blocked.** R47 author scope is
+exactly Capture.swift, Program.cs, the qualifier, this design and its proof.
+Tier T2 applies to identity and request contracts. The original T1 opening was
+corrected at grounding. No product surface is changed. Root owns independent
+Data/Security/Test review and native-request disposition.
+
+The execution graph is serial: grounding/claims -> concrete RID publish and
+contract design -> one coherent implementation -> targeted noncapture checks
+and bounded corrections -> durable proof -> independent root review. No fan-out.
+The author budget is 60 top-level calls/40 minutes. Work/span were not measured
+per node; no estimated speedup is claimed. Stop when the preparation packet is
+frozen, including named blockers; never run capture to remove a blocker.
+
+The data grain is one reviewed request for one PID/start identity, one window,
+one immutable published package, one geometry and three expected region bit
+digests. Identities and digests are non-additive value objects. A geometry,
+source, package, process or operation change requires a new reviewed request;
+there is no in-place retargeting. Evidence is append-only per finite attempt.
+Surface trace: publish files/deps -> Python manifest -> reviewed JSON -> Swift
+Request -> initial/post-lookup/per-frame/completion checks -> refusal receipts.
+The target's existing Region/Witness -> bit field path remains unchanged.
+
+### Concrete package evidence and trust boundary
+
+The concrete build uses .NET SDK 10.0.203, `dotnet publish -c Release -r osx-arm64
+--self-contained false`, the existing project and dependency versions. The
+qualifier inventories **all** regular files in that directory, including PDB,
+managed assemblies and native dylibs. It rejects symlinks, escaping roots,
+case-fold aliases, missing required assets and nonempty competing dependency
+targets. The selected `runtimeTarget` must be osx-arm64. Every runtime/native/
+resource asset maps to a unique actual published relative path; missing or
+ambiguous resolution refuses. An empty portable target is observed in the
+concrete deps document and is not a second resolution candidate.
+
+The observed inventory has 31 files and 27 resolved deps assets. The native
+link inspection is retained in proof. `/System/Library` and `/usr/lib` frameworks,
+the installed .NET runtime/host, loader policy and OS process APIs form an
+explicit **system-runtime trust boundary**, not package hash entries. Static
+publish/deps/link evidence does not attest already-loaded memory. The arm64
+load commands show only system library/framework imports for these private
+dylibs and the apphost; Avalonia's `/usr/local/lib/libAvalonia.Native.OSX.dylib`
+is **LC_ID_DYLIB**, not a missing imported file. No concrete unresolved static
+private asset remains in this inspected package. Root must independently check
+the retained resolution rows and load commands before accepting that closure.
+Dynamic loader overrides for a future launch must be constrained in its reviewed
+launch context; this is distinct from demanding universal memory attestation.
+The 31-file inventory is not an arbitrary approved-library allowlist.
+
+### Exact R47 JSON schema
+
+The request is UTF-8 JSON in Foundation sorted-key canonical form, without
+escaped slashes or surrounding whitespace, less than 1 MB. Exact keys only;
+canonical equality rejects duplicate keys and alternate encodings. No default,
+wildcard, full-screen option or unknown key is accepted.
+
+| Field | Exact meaning and constraint |
+|---|---|
+| `pid`, `window` | Positive Int32 PID and UInt32 window ID; measured later, not fixture values |
+| `startSeconds`, `startMicroseconds` | UInt64 kernel `proc_bsdinfo.pbi_start_tvsec/pbi_start_tvusec`; seconds >0, microseconds <1,000,000 |
+| `launchReferenceBits` | Exact UInt64 bit pattern of AppKit Date seconds since reference date; no tolerance |
+| `executable`, `executableSHA256` | Exact `<packageRoot>/VisiblePresentation` and its lowercase 64-hex digest |
+| `bundle`, `title` | Exact owned target bundle identifier (empty if observed absent) and title |
+| `packageRoot`, `packageFiles` | Canonical absolute package directory and complete relative-path -> lowercase SHA-256 map; reviewed against qualifier deps resolution |
+| `helperSHA256` | SHA-256 of the exact reviewed helper binary executing the request |
+| `contextRoot`, `contextFiles` | Absolute source root and exactly five relative keys: Capture.swift, Program.cs, VisiblePresentation.csproj under tools/spikes/VisiblePresentation; tools/qualify-visible-presentation.py; global.json; values are SHA-256 |
+| `durationSeconds`, `frameCap` | Integers 1..8 and 1..600; timer begins before metadata lookup |
+| `width`, `height` | Integers 192..2048, exact target buffer pixels |
+| `geometry` | Exactly finite numeric x/y/width/height/scale; positive size/scale; point size times scale equals pixel dimensions |
+| `crops` | Exactly three disjoint objects, each exactly integer x/y/width/height plus lowercase 64-hex expected; bounds inside buffer, sizes >=64 and multiples of 16 |
+
+`geometry.x/y` is the target WindowServer frame origin in desktop points.
+`geometry.width/height` is the reviewed target frame/content size in points.
+Crops use target-buffer pixel coordinates with top-left origin. Window frame,
+filter content size/scale and per-frame contentRect/scale/contentScale must all
+match the request. ContentRect is required to be origin zero and the exact
+point size; native decoration/content semantics have **not** been measured.
+Any mismatch refuses, even if that makes the current target infeasible. No
+inferred crop transform or silent resampling adjustment is permitted.
+
+The helper checks kernel PID/start, executable, bundle, exact AppKit date,
+package files, helper and source hashes initially, after asynchronous lookup,
+for each delivered frame and at completion. Target-specific CGWindow metadata
+checks owner/window/bounds after lookup, per frame and at completion. The kernel
+header exposes integer microsecond units; actual precision, collision freedom,
+and cross-API consistency are **unmeasured**. Date bit equality adds no proof
+of kernel uniqueness. Exited/short-read/unverifiable process lookup refuses.
+Disk checks cannot close all TOCTOU or loaded-memory races; root retains veto.
+
+### Finite feasibility and privacy plan (not executed)
+
+1. Independently review the closure, helper/source hashes and exact schema.
+   Review the concrete private closure and resolve process-start precision before native entry.
+2. In a later specifically authorized session, root measures the one owned
+   target PID/start/window, bounds, scale and content mapping. No observed value
+   may be copied from the synthetic parser fixture. Three expected digests must
+   be independently derived from the intended operation/generation/content.
+3. Review one concrete request. Any move/resize/scale/package/process change
+   invalidates it and requires a new review. First trials discriminate wrong
+   owner/window, moved/resized crop, stale/late state, target exit, denial, blank
+   frames and stop acknowledgement; cap every attempt at request duration and
+   frame count. A failed premise remains a refusal in the denominator.
+
+The later authorization must disclose transient shareable-window metadata
+lookup, selection of this one target, target-specific window metadata checks,
+transient full-target frame buffers, finite duration/frame cap, three retained
+region bit digests with timestamps/status and source identities, and the exact
+local receipt path. Retain compact reviewed evidence in this proof; delete
+unneeded raw native receipts after root review and disposition. No audio, other
+window retention, screenshots/video files, user document content or egress.
+The helper requests no permission and has no full-screen fallback.
+
+Pure `--contract-request` and `--identity-contracts` return before AppKit calls,
+permission APIs, enumeration or stream creation. Target `--contracts`, `--clock`
+and `--identity-contracts` return before Avalonia startup. Only these entries
+were executed. Native permission denial, actual owner/window races and stream
+cleanup remain unexecuted. Stop request and bounded two-second acknowledgement
+remain prepared; process exit alone is not stream-cleanup evidence.
+
+`VP-NATIVE-UNQUALIFIED` remains unconditional in the native receipt assessor.
+Desktop-independent pixels do not prove on-screen visibility; callback sequence
+does not prove absence of sample loss; adjacent local clocks do not bound
+cross-process drift. Unknown premises never become plausible metrics.

@@ -5,8 +5,144 @@ import copy
 import json
 import hashlib
 import sys
+import tempfile
+import subprocess
 from fractions import Fraction
 from pathlib import Path
+
+
+def package_manifest(directory):
+    """Seal every private published file; resolve concrete RID deps without guessing."""
+    root = Path(directory).absolute()
+    if root != root.resolve():
+        raise ValueError("VP-PACKAGE-ESCAPE")
+    files = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
+            raise ValueError("VP-PACKAGE-ESCAPE")
+        if path.is_file():
+            relative = path.relative_to(root).as_posix()
+            if relative.casefold() in {p.casefold() for p in files}:
+                raise ValueError("VP-PACKAGE-AMBIGUOUS")
+            files[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+    minimum = {"VisiblePresentation", "VisiblePresentation.dll", "VisiblePresentation.deps.json",
+               "VisiblePresentation.runtimeconfig.json"}
+    if not minimum <= files.keys():
+        raise ValueError("VP-PACKAGE-MISSING")
+    deps = json.loads((root / "VisiblePresentation.deps.json").read_text(encoding="utf-8"))
+    target = deps["runtimeTarget"]["name"]
+    if (not target.endswith("/osx-arm64") or target not in deps["targets"]
+            or any(value for key, value in deps["targets"].items() if key != target)):
+        raise ValueError("VP-RESOLUTION-AMBIGUOUS")
+    resolution = {}
+    for library, assets in deps["targets"][target].items():
+        if assets.get("runtimeTargets"):
+            raise ValueError("VP-RESOLUTION-AMBIGUOUS")
+        for category in ("runtime", "native", "resources"):
+            for asset, metadata in assets.get(category, {}).items():
+                if asset.endswith("/_._"):
+                    continue
+                name = Path(asset).name
+                relative = (metadata["locale"] + "/" + name) if category == "resources" else name
+                if relative not in files:
+                    raise ValueError("VP-RESOLUTION-MISSING:" + relative)
+                key = library + ":" + category + ":" + asset
+                if relative in resolution.values():
+                    raise ValueError("VP-RESOLUTION-AMBIGUOUS")
+                resolution[key] = relative
+    return dict(schema=1, rid="osx-arm64", files=files, resolution=resolution,
+                runtimeTrust="framework-dependent-system-runtime-not-attested")
+
+
+def verify_package(directory, expected):
+    try:
+        return "VP-PACKAGE-BOUND" if package_manifest(directory) == expected else "VP-PACKAGE-CHANGED"
+    except (OSError, ValueError, KeyError, TypeError):
+        return "VP-PACKAGE-REFUSED"
+
+
+def package_tests(directory):
+    """Independent byte/path perturbations against the real package reader."""
+    import shutil
+    original = package_manifest(directory)
+    rows = []
+    with tempfile.TemporaryDirectory(prefix="vp-contract-") as temporary:
+        root = Path(temporary).resolve() / "package"
+        shutil.copytree(directory, root)
+        def record(name, expected):
+            actual = verify_package(root, original)
+            rows.append(dict(case=name, expected=expected, actual=actual, passed=actual == expected))
+        record("whole_publish_positive", "VP-PACKAGE-BOUND")
+        dll = root / "VisiblePresentation.dll"
+        data = dll.read_bytes()
+        dll.write_bytes(data + b"changed")
+        record("private_managed_changed", "VP-PACKAGE-CHANGED")
+        dll.write_bytes(data)
+        native = next(root.glob("*.dylib"))
+        native_data = native.read_bytes()
+        native.unlink()
+        record("private_native_missing", "VP-PACKAGE-REFUSED")
+        native.write_bytes(native_data)
+        extra = root / "undeclared.txt"
+        extra.write_text("extra", encoding="utf-8", newline="\n")
+        record("undeclared_file", "VP-PACKAGE-CHANGED")
+        extra.unlink()
+        extra.symlink_to(dll)
+        record("symlink_escape_or_alias", "VP-PACKAGE-REFUSED")
+        extra.unlink()
+        dll.unlink()
+        record("minimum_asset_missing", "VP-PACKAGE-REFUSED")
+    print(json.dumps(dict(cases=rows, manifest=original, qualification="noncapture-contract-executed",
+                          temporary_cleanup="TemporaryDirectory context completed"), sort_keys=True))
+    return 0 if all(row["passed"] for row in rows) else 1
+
+
+def request_tests(helper):
+    """Only the helper's pure parser entry; never --capture-reviewed."""
+    minimum = ["VisiblePresentation", "VisiblePresentation.dll", "VisiblePresentation.deps.json",
+               "VisiblePresentation.runtimeconfig.json"]
+    positive = dict(pid=7, window=9, executable="/synthetic/VisiblePresentation", executableSHA256="a" * 64,
+                    launchReferenceBits=1, startSeconds=10, startMicroseconds=123,
+                    bundle="synthetic", title="synthetic", durationSeconds=1,
+                    width=192, height=192, packageRoot="/synthetic",
+                    packageFiles={name: "a" * 64 for name in minimum}, helperSHA256="b" * 64,
+                    contextRoot="/synthetic/source",
+                    contextFiles={name: "c" * 64 for name in ["tools/spikes/VisiblePresentation/Capture.swift",
+                        "tools/spikes/VisiblePresentation/Program.cs", "tools/spikes/VisiblePresentation/VisiblePresentation.csproj",
+                        "tools/qualify-visible-presentation.py", "global.json"]}, frameCap=3,
+                    geometry=dict(x=0, y=0, width=192, height=192, scale=1),
+                    crops=[dict(x=x, y=0, width=64, height=64, expected="d" * 64) for x in (0, 64, 128)])
+    cases = [("structural_positive_not_observed_target", positive, 0)]
+    def bad(name, edit):
+        item = copy.deepcopy(positive)
+        edit(item)
+        cases.append((name, item, 3))
+    bad("unknown_field", lambda r: r.update(fullScreen=True))
+    bad("wrong_executable", lambda r: r.update(executable="/other/VisiblePresentation"))
+    bad("missing_private_minimum", lambda r: r["packageFiles"].pop("VisiblePresentation.dll"))
+    bad("path_escape", lambda r: r["packageFiles"].update({"../escape": "a" * 64}))
+    bad("invalid_digest", lambda r: r.update(helperSHA256="x" * 64))
+    bad("invalid_pid", lambda r: r.update(pid=0))
+    bad("invalid_window", lambda r: r.update(window=0))
+    bad("ambiguous_scale", lambda r: r["geometry"].update(scale=2))
+    bad("invalid_dimensions", lambda r: r.update(width=0))
+    bad("overlap", lambda r: r["crops"][1].update(x=0))
+    bad("crop_escape", lambda r: r["crops"][2].update(x=129))
+    bad("unbounded_frames", lambda r: r.update(frameCap=601))
+    bad("unbounded_duration", lambda r: r.update(durationSeconds=9))
+    rows = []
+    with tempfile.TemporaryDirectory(prefix="vp-request-") as temporary:
+        path = Path(temporary) / "synthetic.json"
+        for name, item, expected in cases:
+            encoded = json.dumps(item, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            path.write_bytes(encoded)
+            result = subprocess.run([str(helper.resolve()), "--contract-request", str(path)],
+                                    capture_output=True, encoding="utf-8", timeout=10, check=False)
+            output = json.loads(result.stdout)
+            rows.append(dict(case=name, input=item, expected_exit=expected, exit=result.returncode,
+                             output=output, stderr=result.stderr, passed=result.returncode == expected))
+    print(json.dumps(dict(cases=rows, native_entry="not called", temporary_cleanup="completed"), sort_keys=True))
+    return 0 if all(row["passed"] for row in rows) else 1
 
 
 def clock_report(raw):
@@ -244,7 +380,17 @@ def main():
     parser.add_argument("--receipt", type=Path)
     parser.add_argument("--expected", type=Path)
     parser.add_argument("--clock-receipt", type=Path)
+    parser.add_argument("--package", type=Path)
+    parser.add_argument("--package-tests", type=Path)
+    parser.add_argument("--request-tests", type=Path)
     args = parser.parse_args()
+    if args.request_tests:
+        return request_tests(args.request_tests)
+    if args.package_tests:
+        return package_tests(args.package_tests)
+    if args.package:
+        print(json.dumps(package_manifest(args.package), sort_keys=True))
+        return 0
     if args.self_test:
         return run_tests()
     if args.clock_receipt:
