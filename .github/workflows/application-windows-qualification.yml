@@ -1,12 +1,14 @@
 name: Disposable Windows x64 W0 qualification
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/windows-w1-qualification-20260925
 permissions:
   contents: read
 jobs:
   qualify:
     # W0 prepares this file only. Owner must authorize the concrete W1 branch/run.
-    if: github.ref == 'refs/heads/feature/windows-runtime-qualification'
+    if: github.ref == 'refs/heads/feature/windows-w1-qualification-20260925'
     runs-on: windows-2022
     timeout-minutes: 12
     env:
