@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:35:53Z",
+  "generated": "2026-09-25T05:36:05Z",
   "audit": [
     {
       "actor": null,
@@ -8195,6 +8195,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M3BH0M2VSJX0G9NY4S1SMEY5",
+      "shortname": "join-r45-windows-diagnostic",
+      "datetime": "2026-09-25T05:36:05Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined R45 five-path measurement-first Windows continuation and R41 six-path clarification. One newly authorized same-ref Windows run requires frozen source, root review and failure-complete evidence; no product or visible-timing acceptance. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Capture Owner Ruling 45 and R41 six-path clarification before assigning further Windows or timing work.",
+      "done_when": "Canonical ruling and official derivatives join cleanly with docs checks and no product gate claim.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:36:05Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
