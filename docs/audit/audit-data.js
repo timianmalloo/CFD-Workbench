@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:23:08Z",
+  "generated": "2026-09-25T04:23:49Z",
   "audit": [
     {
       "actor": null,
@@ -7518,6 +7518,35 @@ window.AUDIT_DATA = {
         "branch": "feature/visible-presentation-evidence",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BCW93PW1F7W7PEF8N79X61",
+      "shortname": "join-visible-presentation-evidence",
+      "datetime": "2026-09-25T04:23:49Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/visible-presentation-evidence into feature/application-coordination",
+      "summary": "Join eight-file source-bound timing research and independent source/Simplifier review; no capture, timing trials or performance pass. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/knowledge/visible-presentation/index.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record a truthful presentation endpoint research basis for M1",
+      "done_when": "Research, audit/index and docs gates integrated without product timing claim",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T04:23:48Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
