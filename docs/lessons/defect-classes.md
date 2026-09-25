@@ -807,6 +807,24 @@ Dark/HighContrast review are retained RED controls. The applied 72-row matrix
 remains open until its actual receipt passes; resource-only GREEN is not a
 contrast verdict.
 
+**UI-INTERACTION-STATE-ORACLE · A resting-state contrast matrix misses a pointer state.**
+The R37 72-row applied-control matrix passed its declared Light, Dark, High
+Contrast and Default rows, yet root's actual High Contrast window twice hid
+the selected FoilDSL tab label black-on-black during pointer hover; F6 removed
+hover and restored the white label. Sweep the installed template's meaningful
+enabled pointer-over, pressed, selected and focus combinations for both tab
+headers, then the narrow custom-brush toolbar/modal button and navigator-list
+siblings. Derive: a complete set of controls and themes is still incomplete if
+the tested **state** set omits a template override. Prevent under Ruling 38:
+freeze expected `(theme, control, state)` identities before execution; require
+actual loaded-control foreground/painter/backdrop and 4.5:1 text or 3:1
+applicable focus ratios for every declared row; fail on missing, duplicate,
+wrong-state or nonfinite evidence; retain a negative with the state override
+removed or the original failing source. A synthetic pseudo-class test is
+styled-state evidence only; root's supported native pointer review is the
+behavioral gate. This control is **pending** until the bounded author matrix
+and rebuilt native review pass; no prior 72-row result clears it.
+
 **TEST-CAPABILITY · A positional UI fixture selects a locked domain object.**
 The R32 contrast fixture selected control-list index 1 and expected an editable
 numeric draft. The Example's leading `cv-1` is locked by `root_mirror`, so the

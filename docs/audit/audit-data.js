@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T02:55:31Z",
+  "generated": "2026-09-25T02:58:35Z",
   "audit": [
     {
       "actor": null,
@@ -7044,6 +7044,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T02:55:30Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3B807M5TX9D57TJXAW19PVA",
+      "shortname": "coordinate-r38-state-oracle",
+      "datetime": "2026-09-25T02:58:35Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Owner Ruling 38: one bounded same-author theme-state repair and proof packet after root twice observed the High Contrast selected FoilDSL tab label disappear on pointer hover.",
+      "summary": "Filed typed request and received Ruling 38; dispatched clean isolated four-path C author under 60-call/40-minute cap. Recorded UI-INTERACTION-STATE-ORACLE class and pending expanded required-row/native control. Root hard veto and no Light launch remain.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md",
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Route the observed native contrast failure to a bounded source-and-test repair without weakening accessibility or joining C.",
+      "done_when": "Exact-path author is running, the missing state class/control is durable, and independent native acceptance remains held.",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-09-25T02:57:44Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
