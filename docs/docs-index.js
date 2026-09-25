@@ -1375,6 +1375,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
     },
     {
+      "id": "design-windows-runtime",
+      "path": "docs/design/windows-runtime.md",
+      "title": "Windows x64 native qualification contract",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@cfd-windows-w0-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and native execution remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "security",
+        "qualification"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-application-contracts",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-windows-runtime",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph and review floors",
+          "mermaid": "flowchart LR\n  G[Ground contract] --> R[Receipt RED and negative controls]\n  R --> N[Native spike and local build]\n  G --> W[Prepare hosted workflow]\n  N --> P[Proof and exact-path handback]\n  W --> P\n  P --> V[Independent root review]"
+        }
+      ],
+      "sourceSha256": "c9ae9b6a98e839546a74658e695a4f8ba6d0409cd763b683ffcd533b11fdbf9c"
+    },
+    {
       "id": "mockup-workbench",
       "path": "docs/mockups/workbench.md",
       "title": "CFD-Workbench interactive design prototype",
@@ -4847,6 +4891,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-windows-runtime",
+      "path": "docs/proof/windows-runtime.md",
+      "title": "Windows W0 preparation proof and native evidence gaps",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-windows-w0-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Separates local compilation and executed wrong-result controls from unexecuted Windows file, process and UIA qualification. All production and independent review gates remain open.",
+      "tags": [
+        "windows",
+        "proof",
+        "qualification",
+        "native"
+      ],
+      "links": [
+        {
+          "to": "design-windows-runtime",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fabce880157b09d3a517b2fcd1860309a3e1cd320e332f0116a0f50ccc198f3e"
+    },
+    {
       "id": "review-application-architecture",
       "path": "docs/reviews/application-architecture.md",
       "title": "Independent review of the application foundation architecture",
@@ -5748,5 +5822,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "435459f89a066b4f4b70feaf2d132cfd1eabad5fc78f7b3c74d655cb6dc7f74e"
+  "graphSha256": "f17893fa287708501bc25d1417c5c079d14eeb8d2d3aaf1e6e1e1cac00ffcfec"
 };

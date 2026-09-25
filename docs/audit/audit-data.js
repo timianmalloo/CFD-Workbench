@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:06:40Z",
+  "generated": "2026-09-25T04:35:29Z",
   "audit": [
     {
       "actor": null,
@@ -7434,6 +7434,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:06:39Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BDHN0BD6BJX0V09Y1CDCEG",
+      "shortname": "implement-windows-w0-preparation",
+      "datetime": "2026-09-25T04:35:29Z",
+      "session": "cfd-windows-w0-20260925",
+      "prompt": "You are the sole W0 Windows x64 qualification author under Owner Ruling 40. First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session cfd-windows-w0-20260925 --skill implement`. Your fixed cwd/worktree is `/Users/mallalieut/projects/CFD-Workbench-feature-windows-runtime-qualification`, branch `feature/windows-runtime-qualification`, clean base `ed0d070ff87dc1f0485e1ce0d3341869f54c4d62`; never EnterWorktree. Read AGENTS.md, docs/ai-forward-pack/codex.md, Ruling 40 in docs/notes/rulings.md, docs/coordination/windows-runtime-route.md, relevant exact current source/API, and the implement skill. Run `coord doctor` and read actual cwd/HEAD before edits. Goal: prepare a measured, fail-closed Windows native file/process API contract and executable disposable qualification spike/workflow. Done when all six exact-path artifacts are authored, local compilation/negative controls genuinely execute as available, unsupported Windows runtime cases remain Not assessed, proof and clean exact-path commit/claims/receipt hand back for independent root Data/Security/Test review. Not in scope: any production `src/`, existing tests/verifiers/package or C paths, new CI push/dispatch, Windows PASS, VM, M1 join, timing, section editor, host permissions. Exact authored files only: `docs/design/windows-runtime.md`, `docs/proof/windows-runtime.md`, `tools/spikes/WindowsRuntime/WindowsRuntime.csproj`, `tools/spikes/WindowsRuntime/Program.cs`, `tools/qualify-windows-runtime.py`, `.github/workflows/application-windows-qualification.yml`. Derived index/audit register via official scripts only, coordinate claim/release if required; do not add seventh authored file without typed seam decision. Owner R40: requested Astra, ≤70 tool calls/45min first checkpoint, context ceiling 400k; cap fires a replan/precise handback, not weakened gates. W0 must inspect whether hosted Windows graphical/UIA session is possible before assuming separate desktop; Narrator and reference-device displayed timing remain independent. Evidence: source/SDK/OS/arch/filesystem and executable hashes, Win32 handle/reparse/DACL-at-creation/durability/process ownership oracles, wrong-result negatives, immutable fixtures, timeout/cleanup refusal. CI preparation: one explicit hosted x64 runner, pinned SDK/actions, contents-read, manual/disposable trigger, no secrets/OIDC/deploy/cache/dispatch. Use local task scratch/caches, telemetry/certificate opt-out. Work with red-first meaningful controls; preserve actual stdout/stderr/exit/hash/quiescence; never claim unrun Windows cases. Keep shell one-line intents, no heredoc, no gate status behind a pipe. Report bounded checkpoints and any seam early to me `/root/coordinator`; root `/root` independently reviews. Do not ask user for routine permissions. Provide final clean commit, source/path inventory, called tests with actual results, unresolved Windows host/contract facts, leases released.",
+      "summary": "Prepared six-path W0 packet; SDK 10.0.203 compile passed, 35 wrong-result controls passed, real macOS refusal exit 3 with 26 Windows cases Not assessed, source before/after hashes equal. Root reproduced and author repaired case-state false accepts. Directory durability and hostile namespace containment remain unproved; no push, dispatch or production change. Proof and raw receipts: /tmp/cfd-w0-final-proof-20260925. Independent review pending.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/windows-runtime.md",
+        "docs/proof/windows-runtime.md",
+        "tools/spikes/WindowsRuntime/WindowsRuntime.csproj",
+        "tools/spikes/WindowsRuntime/Program.cs",
+        "tools/qualify-windows-runtime.py",
+        ".github/workflows/application-windows-qualification.yml"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Prepare a measured fail-closed Windows native contract and disposable spike/workflow within R40 exact paths",
+      "done_when": "Six authored artifacts, exact-source local compilation and negative receipts, truthful unrun Windows cases, clean commit handed to independent root Data/Security/Test review",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true
+      },
+      "started_at": "2026-09-25T04:08:19Z",
+      "duration_seconds": 1630.0,
+      "git": {
+        "sha": "ed0d070ff87dc1f0485e1ce0d3341869f54c4d62",
+        "short": "ed0d070ff",
+        "branch": "feature/windows-runtime-qualification",
+        "pushed": null
+      }
     }
   ],
   "changes": [
