@@ -331,7 +331,7 @@ public static class Geometry
                 for (int index = 0; index < differences.Length; index++)
                 {
                     var coefficients = differences[index].Y;
-                    Require(coefficients.All(x => x >= 0) && coefficients.Any(x => x > 0), "Profile separation is not certified.");
+                    Require(coefficients.All(x => x >= 0) && coefficients.Any(x => x > 0), "Profile separation is not certified.", code: "DSL-PROFILE-CROSS");
                     Require(index == 0 || coefficients[0] > 0, "Profile sides touch at an interior knot.");
                 }
                 Require(profile.Closure == "closed" || differences[^1].Y[^1] > 0, "Open trailing endpoints are not separated.");
@@ -347,8 +347,10 @@ public static class Geometry
                 var right = certified[stations[index + 1].Profile];
                 if (SameGeometry(spans, left, right)) continue;
                 distinct = true;
+                string leftName = definition.Profiles[stations[index].Profile].Name;
+                string rightName = definition.Profiles[stations[index + 1].Profile].Name;
                 Require(SharedAbscissa(left.Difference, right.Difference),
-                    "Rule A max_x enclosure is not certified for independent profile bases.", GeometryStatus.Unsupported);
+                    "Profile '" + rightName + "' abscissae differ from neighbouring profile '" + leftName + "'.", GeometryStatus.Unsupported);
                 spanCount = Math.Max(spanCount, Math.Max(left.Difference.Length, right.Difference.Length));
                 degree = left.Difference[0].Y.Length - 1;
             }
