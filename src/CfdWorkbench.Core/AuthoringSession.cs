@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 
@@ -12,7 +13,7 @@ public sealed record DesignRow(string Id, string? Parent, string SurfaceHash, st
 public sealed record EditReceipt(string DraftId, long Generation, string Rail, string VertexId);
 public sealed record AcceptedRow(string Id, string? Parent, string SourceId, string DesignId, string OperationId, EditReceipt? Edit);
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
-public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks);
+public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1);
 public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -436,14 +437,14 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null, "DOC-NO-RECOVERY");
-            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes));
+            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes), draft.Profile, draft.Assignment);
             NativeProject.Preflight(EnvelopeCore() with { Recovery = next }, envelopeCap);
             recovery = next; return CopyRecovery(recovery)!;
         }
     }
     private void ResumeRecoveryCore()
     {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks)); }
+        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks), recovery.Profile, recovery.Assignment); }
     }
     private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; } }
     static RecoveryRow? CopyRecovery(RecoveryRow? r) => r is null ? null : r with { Utf8Base64Chunks = r.Utf8Base64Chunks.ToArray() };
@@ -504,10 +505,42 @@ public sealed class AuthoringSession : IDisposable
     }
 }
 
+internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
+{
+    // A rail recovery (Profile null) serializes exactly as before this field was
+    // added, so an envelope holding only rail recoveries is byte-for-byte
+    // unchanged and the "no such fields" backward-read path is exercised for real.
+    public override RecoveryRow Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var root = doc.RootElement;
+        string[] chunks = root.GetProperty("utf8Base64Chunks").EnumerateArray().Select(e => e.GetString()!).ToArray();
+        string? profile = root.TryGetProperty("profile", out var p) && p.ValueKind != JsonValueKind.Null ? p.GetString() : null;
+        int assignment = root.TryGetProperty("assignment", out var a) && a.ValueKind != JsonValueKind.Null ? a.GetInt32() : -1;
+        return new RecoveryRow(root.GetProperty("draftId").GetString()!, root.GetProperty("baseAcceptedId").GetString()!,
+            root.GetProperty("generation").GetInt64(), root.GetProperty("rail").GetString()!, root.GetProperty("vertexId").GetString()!,
+            chunks, profile, assignment);
+    }
+    public override void Write(Utf8JsonWriter writer, RecoveryRow value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("draftId", value.DraftId);
+        writer.WriteString("baseAcceptedId", value.BaseAcceptedId);
+        writer.WriteNumber("generation", value.Generation);
+        writer.WriteString("rail", value.Rail);
+        writer.WriteString("vertexId", value.VertexId);
+        writer.WriteStartArray("utf8Base64Chunks");
+        foreach (string chunk in value.Utf8Base64Chunks) writer.WriteStringValue(chunk);
+        writer.WriteEndArray();
+        if (value.Profile is not null) { writer.WriteString("profile", value.Profile); writer.WriteNumber("assignment", value.Assignment); }
+        writer.WriteEndObject();
+    }
+}
+
 public static class NativeProject
 {
     public const int MaxBytes = 8_000_000;
-    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow };
+    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, Converters = { new RecoveryRowConverter() } };
     public static void Uuid(string id) => Guard.Require(Regex.IsMatch(id, @"\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z") && Guid.TryParseExact(id, "D", out _), "DOC-ID");
     static void Hash(string hash) => Guard.Require(Regex.IsMatch(hash, @"\A[0-9a-f]{64}\z"), "DOC-INTEGRITY");
     public static byte[] Encode(Envelope envelope) => JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
@@ -529,14 +562,16 @@ public static class NativeProject
         for (int i = 0; i + 1 < chunks.Length; i++) Guard.Require(!chunks[i].Contains('='), "DOC-SCHEMA");
         _ = SessionSource.Text(result.ToArray()); return result.ToArray();
     }
-    static void Exact(JsonElement element, params string[] keys)
+    static void Exact(JsonElement element, string[] required, string[]? optional = null)
     {
         Guard.Require(element.ValueKind == JsonValueKind.Object, "DOC-SCHEMA");
         var names = element.EnumerateObject().Select(p => p.Name).ToArray();
         Guard.Require(names.Distinct(StringComparer.Ordinal).Count() == names.Length, "DOC-SCHEMA");
-        Guard.Require(keys.All(names.Contains), "DOC-SCHEMA");
-        Guard.Require(names.All(keys.Contains), "DOC-UNSUPPORTED-FIELD");
+        Guard.Require(required.All(names.Contains), "DOC-SCHEMA");
+        var allowed = optional is null ? required : [.. required, .. optional];
+        Guard.Require(names.All(allowed.Contains), "DOC-UNSUPPORTED-FIELD");
     }
+    static void Exact(JsonElement element, params string[] keys) => Exact(element, keys, null);
     public static Envelope Read(byte[] bytes)
     {
         Guard.Require(bytes.Length <= MaxBytes, "DOC-SIZE");
@@ -556,7 +591,12 @@ public static class NativeProject
                 if (a.GetProperty("edit").ValueKind != JsonValueKind.Null) Exact(a.GetProperty("edit"), "draftId", "generation", "rail", "vertexId");
             }
             foreach (var c in root.GetProperty("cursors").EnumerateArray()) Exact(c, "sequence", "target", "reason", "operationId");
-            if (root.GetProperty("recovery").ValueKind != JsonValueKind.Null) Exact(root.GetProperty("recovery"), "draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks");
+            var recoveryElement = root.GetProperty("recovery");
+            if (recoveryElement.ValueKind != JsonValueKind.Null)
+            {
+                Exact(recoveryElement, ["draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks"], ["profile", "assignment"]);
+                Guard.Require(recoveryElement.TryGetProperty("profile", out _) == recoveryElement.TryGetProperty("assignment", out _), "DOC-SCHEMA");
+            }
             var env = JsonSerializer.Deserialize<Envelope>(bytes, Options)!; Check(env); return env;
         }
         catch (Exception e) when (e is JsonException or InvalidOperationException or ArgumentException or NullReferenceException or KeyNotFoundException) { throw new ContractError("DOC-SCHEMA"); }
@@ -601,7 +641,18 @@ public static class NativeProject
         if (e.Recovery is not null)
         {
             var r = e.Recovery; Uuid(r.DraftId); Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991 && r.Rail is "leading" or "trailing" or "upper" or "lower", "DOC-REFERENCE");
-            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(parsed[accepted[r.BaseAcceptedId].SourceId].Definition!, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            var definition = parsed[accepted[r.BaseAcceptedId].SourceId].Definition!;
+            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(definition, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            if (r.Profile is not null)
+            {
+                // A profile-edit recovery names its target explicitly; a rail
+                // recovery (Profile null) keeps the EditTarget check above unchanged.
+                Guard.Require(r.Rail is "upper" or "lower" && (uint)r.Assignment < (uint)definition.Assignments.Length, "DOC-REFERENCE");
+                var profile = definition.Profiles[definition.Assignments[r.Assignment].Profile];
+                Guard.Require(profile.Name == r.Profile, "DOC-REFERENCE");
+                var curve = r.Rail == "upper" ? profile.Upper : profile.Lower;
+                Guard.Require(curve.Ids.Contains(r.VertexId), "DOC-REFERENCE");
+            }
         }
     }
     public static (string Current, string[] Redo) Replay(Envelope e)
