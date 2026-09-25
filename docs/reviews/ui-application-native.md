@@ -30,8 +30,10 @@ review lenses, not separately claimed model sessions.
 native theme acceptance and C/M1 OPEN.** The current candidate is
 `5bdf0e7edd841405e82cceddf297d1da7e3778d5`. Root independently verified its
 72-row applied-theme evidence and final 12-step gate/package binding. Direct
-inspection of its newly launched Dark window is pending because the native
-inspection service reports `cgWindowNotFound`; this is not a rendering verdict.
+inspection of its Dark window passed the bounded changed-surface checks after
+the user foregrounded it. High-contrast selected-tab pointer-over rendering
+failed direct review; Light remains pending. The 72-row managed matrix did not
+cover that state, so it cannot clear this observed defect.
 The repaired package is not granted the earlier package's native acceptance.
 
 **Earlier disposition: bounded R26 B permission repair PASS.** Named CLI,
@@ -1180,3 +1182,116 @@ supported native tool retains screenshots/AX in the conversation but supplies
 no filesystem export API; that artifact gap remains explicit. Full v7 profile
 editing, analysis and other later product scope are not completed by this
 bounded C increment. Model usage/spend is not recorded.
+
+### Resumed native Dark review and review-process cleanup
+
+On 25 September 2026 UTC, the user confirmed the new Dark window was in front.
+CUA attached to the exact previously verified bundle
+`com.cfdworkbench.desktop.r37dark20260924`. Root used actual keyboard/pointer
+input, AX state and rendered screenshots. The existing execution graph resumed:
+Dark → close/verify exit → high-contrast → close/verify exit → Light → independent
+disposition → Owner integration ruling → coordinator join. The user added
+resource cleanup to this graph; cleanup is a prerequisite to each later launch.
+Root owns native review, coordinator owns process inventory and launch controls.
+The fan-out cap remains three including root. No production code changes or
+new product scope are implied by this resumed review.
+
+**Verified Dark observations:** the empty screen and loaded Example use dark
+surfaces with readable labels, source text and geometry annotations. Selecting
+leading cv-2 gives the intended opaque selected-row highlight and enables an
+owned draft. Numeric 5 mm, then the native close button, opens a Dark unsaved
+dialog with Cancel focused. Physical Cancel preserves draft
+`c0163586-a3ba-4af4-8049-2136b5a56aed`, generation 1, value 5, and accepted
+revision `0f77586e-8c46-4a0a-aa22-7bc479fe34ec`. A subsequent numeric 6 mm edit
+advances the same draft to generation 2. Escape cancels it, restores numeric 0,
+disables draft actions and reports unchanged accepted source/history. Source
+SHA-256 remains `373a939f589354724f8b0a58d5c3707562831fe3fc0caf356a0990708c2bda64`;
+Surface remains `f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae`.
+
+The active FoilDSL source tab visibly shows retained source; a physical
+`READ_ONLY_PROBE` type attempt changes neither the AX text nor accepted identity.
+AX exposes a truncated text fragment, not proof of all source bytes. F6 reaches
+the toolbar, station list and viewport. Tab from the viewport focuses the active
+FoilDSL tab with a visible teal rectangular ring; the selected rail row also
+shows a visible keyboard-focus outline. These observations clear the named Dark
+theme, selected-row, source, safe-close Cancel and post-Cancel editing checks.
+They do not claim screen-reader traversal, full source round-trip or measured
+screen-presentation latency. Some long metadata/annotation lines remain clipped
+or ellipsized at the minimum viewport; the complete accessible values remain
+separate evidence, not a blanket visual-layout acceptance.
+
+The user correctly identified accumulated obsolete review windows. Root closed
+six prior task-owned instances after matching their visible test states to
+recorded revisions/fixtures: R29 Light, Dark and high-contrast, earlier final
+review, interaction review, and combined review. Only known disposable test
+state was discarded; no fixture or native project file was overwritten. The
+earlier combined instance showed its saved/reopened test project. Root left the
+first app, PID 25730, untouched because its exact ownership receipt was absent;
+the user then reported killing it. After finishing Dark, root cancelled its
+test draft and closed that instance too.
+
+CUA inventory then reported zero CFD Workbench apps. Root independently ran
+`ps` for PIDs 131, 5275, 91248, 48841, 56920, 71600, 30126 and 25730: exit 1,
+empty output, so all eight observed identities were absent at this boundary.
+Coordinator separately observed no matching Avalonia collector and no worker
+descendants of the closed review groups. A post-close AX request can attach to
+or reopen an application; the cleanup verification therefore uses app/process
+inventory without reattaching to closed instances. The coordinator owns the
+durable recurrence control: receipt-bound identity checks before each launch,
+one active review instance, refusal when older owned instances remain, and
+preservation of uncertain ownership. Future review launches are sequential.
+
+### High-contrast native pointer-state finding
+
+**Verified failure; native veto remains open.** The coordinator launched one
+high-contrast Example at 1024×700 with reduced motion only after zero-app
+preflight. Root independently checked 231-file parity against the final R37
+package, allowing only the review bundle identifier, and checked apphost,
+Desktop, Core and Persistence hashes. Launch receipt
+`/private/tmp/cfd-r37-high-contrast-ui-o6c43blk/launch-receipt.json` has SHA-256
+`5de8a214dba8d2e989f57bbf47c9b80b93e2d19ccbe41562e87829dbbf84cf3e`.
+PID 39796/start `Thu Sep 24 19:48:46 2026` and exact executable were observed.
+CUA attached directly to that unique path without another user foreground step.
+
+The original R29 launch verifier rejected the newer scalar `binarySha256`
+receipt shape rather than falsely passing it. Root adapted the scratch verifier
+to that observed shape. Its first explicit Core hash check then exposed a
+transcription error in the author's proof prose: the authoritative receipt and
+actual DLL contain the full hash
+`5d2729412961fb4eb818f34594aa932d8d1ec8b9b8a5e9adcebbc64607629588`.
+The source-copy comparison had already matched every file; after using the
+authoritative full fingerprint all checks passed. The coordinator owns the
+prose correction. No application binary mismatch or rebuild is implied.
+
+Native screenshots show black surfaces, white text, yellow selected CVs, cyan
+annotations and an enabled numeric field. A 5 mm draft
+`5a44eb77-439e-46eb-a99c-efa275833515` opens a black unsaved dialog with Cancel
+focused. Physical Escape returns to the same generation-1 draft/value and
+accepted revision `c1bdc13c-573d-4c93-b6cb-13d636c6f807`; a second Escape
+cancels only the draft and restores numeric 0. Source and Surface remain the
+same original Example hashes recorded above.
+
+However, clicking the selected **FoilDSL source** tab makes its label disappear
+against the black background while AX still reports the selected named tab.
+F6 restores the visible white label. Clicking the same selected tab reproduces
+the disappearance. Root observed both cycles through native screenshots and
+AX state. This is a visible pointer-state failure, not an attachment failure or
+an inferred failure from a static style scan.
+
+The pinned Fluent
+[TabItem template](https://raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/src/Avalonia.Themes.Fluent/Controls/TabItem.xaml)
+sets the template root background and inherited text foreground directly for
+pointer-over and pressed states, including selected combinations (lines 63–80).
+Current application styles override only base/selected TabItem foreground and
+background. **Inferred cause:** those missing template-state overrides allow
+an incompatible fallback foreground. The repair must measure actual painted
+foreground/background in a failing reproduction before treating that causal
+explanation as verified. The current 72-row matrix has no pointer-over/pressed
+rows, so its green result remains valid only for its declared states.
+
+Root closed the high-contrast test after cancelling its draft; CUA inventory
+again showed zero Workbench instances. Light launch is deferred until this
+existing theme-contract defect is repaired. Required next proof is a bounded
+enabled-state sweep, meaningful failing/passing state coverage, final
+source-bound package verification and independent native rerun. No C product
+join or full M1 acceptance is authorized by this checkpoint.

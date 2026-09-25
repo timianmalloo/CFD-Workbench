@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T16:17:27Z",
+  "generated": "2026-09-25T02:54:02Z",
   "audit": [
     {
       "actor": null,
@@ -4994,6 +4994,37 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "1b1c94bf9c658716f40107d74644ad05f13f91e5",
         "short": "1b1c94bf9",
+        "branch": "feature/application-foundation",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3B7QWR3W7VDG1E5FVDRCFHC",
+      "shortname": "native-dark-pass-hc-hover-veto",
+      "datetime": "2026-09-25T02:54:02Z",
+      "session": "cfd-application-20260923",
+      "prompt": "The new Dark window is visible and in front\n\nthere seem to be a lot of windows still open - are you cleaning up the resources appropriately\n\ni killed the other one",
+      "summary": "Dark native theme/source/focus and close-Cancel-edit-cancel flow passed. Closed six obsolete owned test windows plus the completed Dark and HC tests; preserved uncertain first-app ownership until user killed it, then independently verified all eight prior PIDs absent and CUA zero-app inventory. Original fixture hashes unchanged. Coordinator committed durable launch guard8ca3625. High-contrast frozen package parity passed but selected FoilDSL label repeatedly disappears under pointer; F6 restores it. Native veto remains; managed72 omitted pointer/pressed states. Pinned Fluent template identifies template-state foreground/background overrides; exact paint cause remains to be measured. Owner R38 request filed, Light deferred. Root reviewed no production writes. Docs104/0defects/77existing suggestions. Process lapse: ttl1800 claim rejected, bundled patch still executed; immediately claimed900 with no conflict; coordinator notified for fail-fast control. Old launch verifier rejected scalar receipt hash; adapted observed shape, caught malformed Core prose hash, verified correct hash against authoritative gate and DLL. Runtime costs/tokens not recorded.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/docs-index.js"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Resume the final native review, clean up obsolete task resources and independently assess the repaired theme and close/cancel flows.",
+      "done_when": "Changed native states are observed, resource ownership and cleanup are checked, findings are committed, and any remaining defect has an explicit coordinated repair path.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T02:40:26Z",
+      "duration_seconds": 816.0,
+      "git": {
+        "sha": "03d7d71a1ff06998da83ceafcc10ee7bffc2c395",
+        "short": "03d7d71a1",
         "branch": "feature/application-foundation",
         "pushed": null
       }
