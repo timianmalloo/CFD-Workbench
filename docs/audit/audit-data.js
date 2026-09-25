@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:10:53Z",
+  "generated": "2026-09-25T04:23:08Z",
   "audit": [
     {
       "actor": null,
@@ -7465,6 +7465,59 @@ window.AUDIT_DATA = {
         "branch": "feature/application-coordination",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BCJBTZ14E4BS9DA7EJMRKS",
+      "shortname": "keep going",
+      "datetime": "2026-09-25T04:18:24Z",
+      "session": "prompt-log",
+      "prompt": "keep going",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3BCV1X1FG7C8P94XF1BVT6C",
+      "shortname": "visible-presentation-evidence",
+      "datetime": "2026-09-25T04:23:08Z",
+      "session": "cfd-timing-evidence-20260925",
+      "prompt": "keep going",
+      "summary": "Completed eight-file primary-source evidence packet. Sol coordinator independently verified SDK hashes, timestamp semantics, pinned Avalonia interop, existing batch endpoint, inferred interval model and narrow scope. Corrected stale XML rendering-default inference against actual initializer; actual renderer remains unobserved. Raw immutable source resolved reviewer line-display mismatch. No capture helper, renderer change, permission action, timing trial or M1 timing pass. Docs check: 118 artifacts, zero defects, 80 existing suggestions. Cost and tokens not recorded. Marker measures only isolated skill span; preceding read-only research excluded. Failed guessed coord.py path discarded; coord-core.py help verified. Identity-unset read-only coordination check refused, rerun with registered session.",
+      "kind": "skill",
+      "skill": "collectknowledge",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/knowledge/visible-presentation/index.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Establish honest M1 visible-presentation measurement options without changing acceptance or executing capture.",
+      "done_when": "Primary evidence, uncertainties, failure controls and bounded next spike independently reviewed and incorporated.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T04:12:37Z",
+      "duration_seconds": 631.0,
+      "persona_yield": [
+        {
+          "persona": "Source/Simplifier",
+          "raised": 1,
+          "accepted": 1
+        }
+      ],
+      "change": "cl-01M3BCJBX2BK56CC99RRGWYXZE",
+      "git": {
+        "sha": "0ac40e102b4daf797bfbc093686ddfe06eb44c12",
+        "short": "0ac40e102",
+        "branch": "feature/visible-presentation-evidence",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -7998,6 +8051,28 @@ window.AUDIT_DATA = {
         "commits": []
       },
       "audit_ref": "al-01M3BA3M123XF92DD2D8PSHNA1"
+    },
+    {
+      "id": "cl-01M3BCJBX2BK56CC99RRGWYXZE",
+      "datetime": "2026-09-25T04:18:24Z",
+      "session": "cfd-timing-evidence-20260925",
+      "kind": "knowledge",
+      "skill": "collectknowledge",
+      "title": "Visible presentation signals and unqualified integration seams",
+      "prompt": "keep going",
+      "summary": "Primary Apple APIs and pinned Avalonia11.3.14 establish candidate presentation endpoints, not app performance. Found stale XML/comment renderer fallback order against actual OpenGL/Metal/Software initializer. Current batch endpoint, clocks, pixel correlation, reference hosts and full workload remain unqualified.",
+      "rationale": "Approved M1 requires honest visible timing; a framework batch or screenshot round trip cannot silently satisfy it.",
+      "artifacts": [
+        "docs/knowledge/visible-presentation/index.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "0ac40e102b4d",
+        "after": "0ac40e102b4daf797bfbc093686ddfe06eb44c12",
+        "branch": "feature/visible-presentation-evidence",
+        "pushed": null,
+        "commits": []
+      }
     }
   ],
   "messages": []

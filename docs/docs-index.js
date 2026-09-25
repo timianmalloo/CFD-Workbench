@@ -3093,6 +3093,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "77bf858e2aa70c85722484f0d28b738e239d0d836e1e0fb662916e0bb3ef0560"
     },
     {
+      "id": "kb-visible-presentation-glossary",
+      "path": "docs/knowledge/visible-presentation/glossary.md",
+      "title": "Visible timing glossary",
+      "type": "glossary",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Separates batch completion, OS presentation, observation and physical display response so timing evidence cannot silently change meaning.",
+      "tags": [
+        "performance",
+        "terminology"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c055ea5c81c886b0dec09537d4a016214010fbe30e377ff7eb5f781b88760d7"
+    },
+    {
       "id": "investigation-review-window-attach",
       "path": "docs/investigations/review-window-attach.md",
       "title": "Review window attachment and stalled human waits",
@@ -3941,6 +3965,192 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e369034ec7fc41f5aac86db9473f6754ecca1afa302501fa17fb329e22779f7b"
+    },
+    {
+      "id": "kb-visible-presentation",
+      "path": "docs/knowledge/visible-presentation/index.md",
+      "title": "Visible presentation timing evidence",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Current metrics measure compositor completion. Documented macOS presentation signals exist, but neither is integrated or qualified; this evidence packet defines the remaining measurement seams without claiming a timing pass.",
+      "tags": [
+        "performance",
+        "native-ui",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-visible-presentation-glossary",
+          "rel": "uses-term"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e924ddc4fabefa5428a64ac48b51b0e7f090cc8b89839350c54d53f01120025c"
+    },
+    {
+      "id": "kb-visible-presentation-comparables",
+      "path": "docs/knowledge/visible-presentation/comparables.md",
+      "title": "Comparable timing approaches",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Compares the current batch diagnostic with documented Apple presentation and frame-observation mechanisms without treating any as qualified.",
+      "tags": [
+        "performance",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5fa8aa51ba5d3be2819164ffaa0ae1e4bf60525ed5b4f662c36352bc0dc87c6d"
+    },
+    {
+      "id": "kb-visible-presentation-data",
+      "path": "docs/knowledge/visible-presentation/data-and-constants.md",
+      "title": "Timing units, uncertainty and acceptance data",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Proposes interval-based latency evidence and lists the fixed workload, identity, clock and failure information a future spike must retain.",
+      "tags": [
+        "performance",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3578e9f2279e0ae614dfe5989981e984de5cd296ad6520cd103ec258e95328dd"
+    },
+    {
+      "id": "kb-visible-presentation-methods",
+      "path": "docs/knowledge/visible-presentation/state-of-the-art.md",
+      "title": "Presentation measurement methods",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Distinguishes renderer completion, OS presentation signals and calibrated frame observation for this pinned native application.",
+      "tags": [
+        "performance",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dec8208955e00e45355bdde7c510b5d600ddc56b7ded742466a7fc708c2d5898"
+    },
+    {
+      "id": "kb-visible-presentation-open",
+      "path": "docs/knowledge/visible-presentation/open-questions.md",
+      "title": "Presentation timing gaps and falsifiers",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Defines unverified integration, hardware and workload seams plus the negative controls required before latency trials count as proof.",
+      "tags": [
+        "performance",
+        "risks",
+        "verification"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dcf8f124d0ac8ed1e8d83dbd26b5c3838d42bb97b1a8bc927e678a4e2554e440"
+    },
+    {
+      "id": "kb-visible-presentation-references",
+      "path": "docs/knowledge/visible-presentation/references.md",
+      "title": "Presentation timing requirements and references",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Records the approved M1 timing authority and distinguishes it from illustrative prototype and small-fixture diagnostics.",
+      "tags": [
+        "performance",
+        "requirements"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64e2c1f1aa2e8a6014662fdabb07b50217931721f42fdf375cf0199f93d06e37"
+    },
+    {
+      "id": "kb-visible-presentation-sources",
+      "path": "docs/knowledge/visible-presentation/sources.md",
+      "title": "Visible timing source ledger",
+      "type": "knowledge",
+      "status": "in-review",
+      "owner": "@cfd-timing-evidence-20260925",
+      "phase": "",
+      "reviewBy": "2026-12-24",
+      "reviewSuggested": [],
+      "summary": "Primary API and pinned implementation sources checked on 25 September 2026; source verification is kept distinct from runtime measurement.",
+      "tags": [
+        "performance",
+        "sources"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8669892cc3300712ec64a124ec982ef2fc4710df3655a7ec1a151580db6a028b"
     },
     {
       "id": "coordination-application-build",
@@ -5748,5 +5958,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "f509d4909d99b7af0220b864946175009433dc041df6dc5900b8b6d3cd6e669e"
+  "graphSha256": "d93ae4400b051444a42cbefe5c3a1e8934032cb9b8f75489ee879d37ebf87f95"
 };
