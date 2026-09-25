@@ -811,9 +811,45 @@ expired same-epoch join. No competing leader was observed. The Coordinator
 stopped, used supported quiet-period reclaim to epoch 18, and reran the
 affected join under a live readback. This is a missing project-level
 live-leadership precondition, not a managed conductor code deviation. A
-small fail-closed preflight remains a proposed executable control; until it
-is authorized, the explicit renew/readback is mandatory and no expired
-designation is described as live.
+fail-closed project preflight is implemented under Ruling 46 in
+`tools/run-owned-conductor.py`. Its embedded self-test first reproduces an
+epoch-only expired join, then requires zero conductor invocations for expired,
+released, absent, unknown or contradictory leader/context observations.
+Positive live and post-conflict continuation fixtures preserve the child's
+nonzero exit and bind the checked session/epoch. The coordination plan wires
+future application joins through the wrapper after independent acceptance;
+until that acceptance, the explicit renew/readback remains mandatory.
+This closes an invocation-control omission, not a claimed managed-tool defect.
+It remains an observed preflight, not an atomic leadership lock.
+
+R46's first implementation run also exposed a local-contract error:
+`WindowsJob` requires a process argument and constructs/assigns the job in its
+constructor; it has no separate `assign` method. The source signature was
+re-read, the caller corrected, and the same complete self-test passed. This
+is the existing NG-LOCAL class: read the concrete installed signature before
+using it. The runtime fixture prevents the zero-argument construction from
+silently returning; Windows execution of the reused primitive remains unverified
+in this macOS-only wrapper proof.
+
+R45 author commit `fce9759` repeated COORD-ENV: missing `AGENT_SESSION` made
+the commit hook advisory. Supported explicit checks subsequently returned
+allow for its five owned paths. That bounds ownership after the fact; it does
+not turn the original hook into enforcement. All wrapper launches bind the
+environment identity, and all commit shells must still prefix Git mutations.
+
+**TEST-CLI-RECEIPT · Helper-only input tests miss the actual refusal surface.**
+R46's helper tests rejected nonfinite budgets, but the real CLI wrote a nonstandard
+`NaN` intent and failed before its final refusal event. Root and independent
+Owner reproduced exit 12 with no authority or conductor activity and an incomplete
+receipt. Sweep: inspect both budget fields, positive/negative infinity, argparse
+negative-value handling, both event serializers and receipt reuse. Derive: a
+helper rejection is not input-to-evidence integrity. Prevent: R49 real-CLI fixtures
+for all six inputs strictly decode every event, require a complete stable refusal,
+prove zero leader/conductor effects and unchanged bytes on reuse. A direct strict
+serializer injection and normalized duplicate-option test cover the seams the
+repair changes. Invalid numbers are explicit diagnostic strings, never plausible
+replacement budgets. These controls prevent malformed refusal evidence; they do
+not grant live-leader or product acceptance.
 
 **CI-ACTIONS-CONTEXT · A syntactically valid workflow uses a context where it
 is unavailable.** Ruling 43's disposable Windows workflow placed three

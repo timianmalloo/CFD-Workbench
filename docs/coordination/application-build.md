@@ -421,3 +421,132 @@ advisory. An explicit post-commit path check bounds ownership but cannot
 retroactively make an identity-free commit enforced. The corresponding
 [CO-LEADER and COORD-ENV classes](../lessons/defect-classes.md) retain the
 observed lapses and the open fail-closed preflight improvement.
+
+## R46 project join preflight: design and proof
+
+**Goal:** refuse an application join unless its expected repository context and
+live leader were observed immediately before launch. **Done when:** isolated
+negative/positive fixtures pass and independent Coordinator and Owner review
+accept the exact wrapper. **Not in scope:** changing managed conductor semantics,
+automatic leadership acquisition, product acceptance or section authoring.
+Tier T2; this root author and the disjoint Windows/timing tracks share cap three.
+Authority: [Ruling 46](../notes/rulings.md#ruling-46--add-a-project-live-leader-preflight-without-changing-managed-conductor-semantics).
+
+The domain is one **join attempt**, whose invariant is that only one checked
+session/epoch/context reaches the conductor. Expected context is immutable input;
+observed Git context and leader readback are facts, not a second authority store.
+One receipt is one attempt, written exclusively to a new caller-named file.
+Duration is additive across sequential attempts; lease remaining is non-additive
+and derived from expiry and observation time. No schema migration is needed.
+
+Affected surfaces, before implementation: `tools/run-owned-conductor.py` owns
+CLI validation, observation, invocation, receipt and embedded fixtures; this plan
+owns caller wiring and design/proof; the defect register owns CO-LEADER prevention
+and the R45 COORD-ENV recurrence. Managed conductor/leader/process contracts are
+read-only dependencies. Store → immutable receipt; model → expected context and
+observed facts; service → preflight; wire/UI → JSON receipt and CLI exit; reader →
+Coordinator/Owner. There is no application UI, FoilDSL, persistence or compute change.
+
+Sequence: validate input/context → bounded renew → bounded readback → validate
+lease and recheck context → conductor → final receipt → independent review.
+The wrapper is a guard/decorator, not a second coordinator. Reuse installed
+`platform_process.py` ownership primitives; stdlib only. Its per-command raw
+output is bounded, with an explicit caller-supplied conductor timeout. Timeout
+or interruption kills only the owned group/job, records the condition and leaves
+any partial merge visible. It never resets, stashes, acquires or releases leadership.
+
+Input, identity, state, time and dependency failures refuse before conductor;
+forwarded session/epoch overrides and unsupported arguments refuse. Context is
+rechecked after readback; `--continue` uses its newly supplied current HEAD.
+The leader `tree` field is a category (`worktree`), not an absolute path.
+Expiry must be finite, internally consistent and sufficient after elapsed
+preflight work. This is an observed preflight, not an atomic lock: leadership
+can change after observation. The Coordinator retains the 100-second renewal
+cadence and must stop further mutations when authority is lost.
+
+Security boundary: caller → CLI (spoofing/tampering mitigated by explicit context,
+exact argv and environment identity); leader store → readback (unknown/malformed
+or stale observations refuse); child → receipt (bounded bytes/time, owned cleanup).
+Repudiation is mitigated by raw receipts, not cryptographic attestation. There is
+no network service or privilege elevation. Local paths/session IDs may identify an
+operator; receipts stay local and contain no environment/credential dump. Existing
+repository evidence retention applies; no external personal-data flow is added.
+
+Test union: D0 test hygiene; D1 boundary/negative cases; D2 real CLI composition
+with isolated real Git fixture; D4 identity/argv abuse; D6 failure/timeout;
+D7 deterministic simulated elapsed time. Mutations/fault injection establish
+guard relevance. No new UI, scientific, AI or network behavior is claimed.
+The installed process primitive's Windows implementation is reused, not locally
+Windows-qualified. SRE/Test/Security vetoes remain independent; root cannot clear
+its own implementation. Operator questions are emitted normally in the receipt:
+which context/path, command, timestamps/duration, exit/refusal, raw output and
+cleanup; token/spend measurements are explicitly `not recorded`.
+
+After independent acceptance, all application conductor invocations must use
+`python3 tools/run-owned-conductor.py --session SESSION --epoch EPOCH
+--root ABSOLUTE_WORKTREE --common-dir ABSOLUTE_COMMON_GIT_DIR --head FULL_HEAD
+--min-remaining 30 --conductor-timeout 1800 --receipt NEW_RECEIPT_PATH --
+BRANCH --title TITLE --audit-shortname NAME [conductor options]`.
+Prefix the command with the same `AGENT_SESSION`. For conflict continuation,
+omit BRANCH and pass `--continue` with the actual post-resolution HEAD.
+Do not reuse a receipt pathname, infer context or bypass refusal with direct
+conductor execution. Until both reviewers accept it, retain the manual precondition.
+
+**Author proof, 2026-09-25:** the initial missing-preflight fixture exited 1 with
+`expired-same-epoch: conductor executed without live preflight`. After the guard,
+the complete self-test reported 51 cases: 46 pre-conductor refusals including
+invalid leader, context, time and forwarded arguments; two valid invocations
+each exited 7 unchanged; a real CLI refusal preserved its exclusive two-event
+receipt on attempted reuse; a real positive CLI executed a stub conductor once
+and preserved its exit 7; and an owned process timeout returned -9 with no
+cleanup error. No actual shared leader or conductor merge was invoked.
+The real CLI test uses a temporary Git worktree, not mocked Git output.
+Portable-text and subprocess-UTF8 gates both reported clean. Documentation checks
+passed with 124 artifacts, zero defects and 83 existing freshness suggestions.
+V16 propagation at the canonical join is assigned to the Coordinator; the
+append-only rulings register must not be rewritten by a generic flag operation.
+The first runtime
+run exposed a wrong `WindowsJob` constructor call; the one evidence-directed
+correction used the actual installed signature. The defect register records it.
+
+Oracle: refusal means **zero child conductor invocations**, not merely matching
+an error string. Confidence is Verified for these macOS fixtures and source
+contracts; Windows wrapper execution, atomic leadership and successful production
+joins are not established. Exact hash and final documentation/audit results are
+recorded at handoff. Coordinator/Owner independent acceptance remains pending;
+root has not self-cleared SRE/Test/Security or adopted the wrapper for a live join.
+
+### R49 strict refusal receipt correction
+
+Independent Coordinator and Owner review confirmed the 51 R46 cases, then root
+and Owner separately reproduced a real CLI gap: a nonfinite budget was refused
+before any leader/conductor action, but its intent contained nonstandard `NaN`
+and its final receipt failed to serialize. R49 holds live adoption until this
+input-to-receipt boundary is independently verified. The same three authored
+surfaces are affected; no managed tool or product contract changes.
+
+The correction preserves invalid parsed numbers as explicit strings in diagnostic
+expected-input fields, while the validator still receives and rejects the actual
+nonfinite numeric values. Both events use one strict JSON serializer. Finite
+budgets keep numeric semantics. Standard `--option=value` syntax handles negative
+infinity without confusing it with an option; duplicate detection normalizes
+option names first, preserving the session/epoch override refusal.
+
+The regression tests execute the real CLI for `nan`, `inf` and `-inf` in both
+budgets. Every case must retain two strictly decoded JSON events, stable
+`OC-POSITIVE-BUDGET`, empty commands and zero stub leader/conductor effects;
+attempted receipt reuse must preserve all original bytes. A direct nonfinite
+injection must fail strict serialization; mixed `--epoch VALUE`/`--epoch=VALUE`
+must still refuse. The original 51 controls remain required. Initial new tests
+were observed RED at the CLI option boundary; the original malformed-NaN
+receipt is separately retained by root and Owner. Independent adoption pending.
+
+R49 author result: **58 cases PASS**, including all 51 prior cases, six real CLI
+nonfinite-budget cases and the strict-serializer/normalized-duplicate control.
+All six new CLI cases returned 12 with zero leader/conductor calls, two strict
+JSON events and unchanged receipt bytes on reuse. The duplicate test returned 2
+before any receipt or authority call. Portable-text and subprocess-UTF8 passed.
+Source SHA-256: `6d7165e301d51a417cdf0c237f29483450e54fbc06473c1b1a604cd55517e74f`.
+Raw result `/private/tmp/cfd-owned-conductor-r49-self-test.json`, SHA-256
+`00f81e1d03b785f78aa715f076e38376e182024785e0c269cf1b3f4fe11069e7`.
+These are author observations, not independent adoption or a live join result.
