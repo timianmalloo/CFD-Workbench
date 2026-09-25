@@ -166,3 +166,48 @@ Review start marker: 2026-09-25T04:28:36Z. The closing audit measures the span,
 including waiting for the frozen handoff; earlier read-only review preparation
 is outside that marker. Token usage, effective billing model and monetary cost:
 **not recorded**. No full section-editor work is authorized in this session.
+
+## Portability correction, 2026-09-25
+
+The integrated tooling gate subsequently found five failures in the otherwise
+reviewed preparation: four text writes lacked an explicit LF newline policy and
+the printing CLI lacked its legacy-console UTF-8 guard. Root independently ran
+`verify-portable-text-io.py` against the joined candidate and observed exit 1 with
+those exact five findings. The earlier local documentation check did not cover
+this applicable tooling floor. The Windows run remained held.
+
+The separately authorized one-file correction is clean commit
+`529bcb9693c04b535f4421645eb98a7e117a4147`, in
+`/Users/mallalieut/projects/CFD-Workbench-feature-windows-w0-portability`.
+Root inspected the exact delta: four `newline="\n"` additions, guarded UTF-8
+stdout/stderr configuration, and a real bounded subprocess `--help` control.
+Native C# and the workflow are unchanged. The help control preserves argparse's
+real process exit; the author's earlier intercepted-exit probe accidentally
+continued into a local macOS qualification run. That unexpected run is disclosed,
+not presented as Windows evidence or a required repeat build.
+
+Root independently reran both `verify-portable-text-io.py` and
+`verify-subprocess-utf8.py`: **PASS**. The 35 receipt refusal controls plus the
+help-exit control also passed; raw independent output is
+`/private/tmp/cfd-r42-independent-controls.txt`. Qualifier SHA-256 was recomputed
+as `4a0ea88907fcd8ff58ba38b1846af7b6ee1a488fc4412b97f55b671b1d4a724d`.
+Author correction receipts are retained at
+`/tmp/cfd-w0-portability-proof-20260925`; its source check explicitly rejects
+rebinding the older native receipt to the new qualifier.
+
+**Delta disposition: PASS for prepared qualification.** The previous
+Data/Security/Test conditions still apply. This clears the exact tooling repair
+for one corrected integrated retry; only that run can establish the integrated
+gate outcome. Root did not rebuild the native spike. The old full-run manifest
+remains evidence for `82a366a`, not these changed Python bytes. The forthcoming
+Windows run must bind fresh source, binaries, fixtures and results.
+
+Class → sweep → prevent: script-producing packets must include the installed
+portable-text and subprocess-encoding gates before handoff; documentation-only
+checks cannot stand in for them. The existing executable gates caught this class
+before any Windows dispatch. Do not repeat all integrated gates while the same
+known-red source remains unchanged. The coordinator owns the shared register.
+
+The addendum marker starts after the bounded source/control review; its measured
+duration covers documentation finalization only. The preceding delta-review
+elapsed time, tokens and monetary cost are **not recorded**.
