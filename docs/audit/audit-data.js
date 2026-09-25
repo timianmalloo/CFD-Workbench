@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:44:01Z",
+  "generated": "2026-09-25T15:48:31Z",
   "audit": [
     {
       "actor": null,
@@ -8782,186 +8782,1474 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BM67QZ4A6DDZFK55BT221Z",
-      "shortname": "join-r47-visible-review",
-      "datetime": "2026-09-25T06:31:35Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Join independent R47 Test SRE Data and privacy review recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Record R47 preparation verdict and remaining native obligations",
+      "datetime": "2026-09-25T06:31:35Z",
       "done_when": "Independent review and derived records integrate with checks",
-      "tier": "T1",
+      "duration_seconds": 1.0,
       "fan_out": 0,
+      "goal": "Record R47 preparation verdict and remaining native obligations",
+      "id": "al-01M3BM67QZ4A6DDZFK55BT221Z",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r47-visible-review",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T06:31:34Z",
-      "duration_seconds": 1.0
+      "summary": "Join independent R47 Test SRE Data and privacy review recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3BM89P00Y5AS3NPQKWP7DWA",
-      "shortname": "visible-identity-r47-author",
-      "datetime": "2026-09-25T06:12:41Z",
-      "session": "cfd-visible-identity-author-20260925",
-      "prompt": "R47 whole-package timing identity and durable noncapture evidence",
-      "summary": "Frozen five-path timing identity preparation 657cd8c; 78 pure controls, four source mutants, 31-file/27-dependency closure; no capture or timing acceptance. Measured author window 867 seconds; root review remains separate.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": "Visible presentation identity author",
       "artifacts": [
         "docs/proof/visible-presentation.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-25T06:12:41Z",
+      "done_when": "Source-only preparation passes its local controls and is frozen for independent review",
+      "duration_seconds": 867.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5"
+      },
+      "goal": "Prepare whole-package identity and durable noncapture timing evidence",
+      "id": "al-01M3BM89P00Y5AS3NPQKWP7DWA",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "R47 whole-package timing identity and durable noncapture evidence",
+      "session": "cfd-visible-identity-author-20260925",
+      "shortname": "visible-identity-r47-author",
+      "skill": "implement",
+      "started_at": "2026-09-25T05:58:14Z",
+      "summary": "Frozen five-path timing identity preparation 657cd8c; 78 pure controls, four source mutants, 31-file/27-dependency closure; no capture or timing acceptance. Measured author window 867 seconds; root review remains separate.",
       "tags": [
         "R47"
       ],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Prepare whole-package identity and durable noncapture timing evidence",
-      "done_when": "Source-only preparation passes its local controls and is frozen for independent review",
       "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-25T05:58:14Z",
-      "duration_seconds": 867.0,
-      "git": {
-        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
-        "short": "4d6a02dd5",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M3BM8GSQMXRPR0CS7880K0SC",
-      "shortname": "windows-r48-author",
-      "datetime": "2026-09-25T06:30:27Z",
-      "session": "cfd-windows-r48-author-20260925",
-      "prompt": "R48 Windows semantic ACL and diagnostic isolation correction",
-      "summary": "Frozen partial four-path checkpoint ab28bdf; 102 consumer controls, six apphost controls and five mutations, local compile/portability/docs clean. Final-arm Unsupported containment remains a prepush blocker; no remote or Windows acceptance. Measured author window 705 seconds, 22 calls.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": "Windows R48 diagnostic author",
       "artifacts": [
         "docs/proof/windows-runtime.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-25T06:30:27Z",
+      "done_when": "Author freezes bounded local correction with explicit remaining blocker for independent review",
+      "duration_seconds": 705.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5"
+      },
+      "goal": "Prepare fail-closed semantic Windows diagnostics and retained source-bound evidence",
+      "id": "al-01M3BM8GSQMXRPR0CS7880K0SC",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "R48 Windows semantic ACL and diagnostic isolation correction",
+      "session": "cfd-windows-r48-author-20260925",
+      "shortname": "windows-r48-author",
+      "skill": "implement",
+      "started_at": "2026-09-25T06:18:42Z",
+      "summary": "Frozen partial four-path checkpoint ab28bdf; 102 consumer controls, six apphost controls and five mutations, local compile/portability/docs clean. Final-arm Unsupported containment remains a prepush blocker; no remote or Windows acceptance. Measured author window 705 seconds, 22 calls.",
       "tags": [
         "R48"
       ],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Prepare fail-closed semantic Windows diagnostics and retained source-bound evidence",
-      "done_when": "Author freezes bounded local correction with explicit remaining blocker for independent review",
       "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-25T06:18:42Z",
-      "duration_seconds": 705.0,
-      "git": {
-        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
-        "short": "4d6a02dd5",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M3BMG61AV8PWT7D9CFABD6JG",
-      "shortname": "r47-r50-coordination-checkpoint",
-      "datetime": "2026-09-25T06:37:01Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
-      "summary": "Joined R50 wrapper adoption and R47 source/independent review; recorded measured R47/R48 author checkpoints, updated M1 ledger and executable evidence defect classes, propagated non-register V16 flags. R48 final-arm containment remains a prepush blocker; no native timing or Windows product acceptance. Coordinator checkpoint duration/tokens/cost not recorded.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/application-build.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-25T06:37:01Z",
+      "done_when": "R50 and R47 joins are clean, measured handbacks and residual gates are durable, and next Owner packet is concrete",
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5"
+      },
+      "goal": "Integrate reviewed control and timing preparation while advancing pre-section M1 dependencies",
+      "id": "al-01M3BMG61AV8PWT7D9CFABD6JG",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "r47-r50-coordination-checkpoint",
+      "skill": "execute-with-coordination",
+      "summary": "Joined R50 wrapper adoption and R47 source/independent review; recorded measured R47/R48 author checkpoints, updated M1 ledger and executable evidence defect classes, propagated non-register V16 flags. R48 final-arm containment remains a prepush blocker; no native timing or Windows product acceptance. Coordinator checkpoint duration/tokens/cost not recorded.",
       "tags": [
         "R47",
         "R48",
         "R50"
       ],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Integrate reviewed control and timing preparation while advancing pre-section M1 dependencies",
-      "done_when": "R50 and R47 joins are clean, measured handbacks and residual gates are durable, and next Owner packet is concrete",
       "tier": "T2",
-      "fan_out": 0,
-      "git": {
-        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
-        "short": "4d6a02dd5",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M3BMTSQRYHGMPKAV7VDA5WPG",
-      "shortname": "owner-r51",
-      "datetime": "2026-09-25T06:42:49Z",
-      "session": "cfd-owner-20260923",
-      "prompt": "Resolve req-01M3BMM9NBYC9ZVD86QYV1DEAG from clean a684d24: narrow isolated R48 final-arm containment/constructor tests and disjoint R47 real noncapture identity/outer-timeout preparation. Preserve no Windows push/capture/product acceptance and user stop before full section editor.",
-      "summary": "R51 chooses disjoint four-path Windows correction30calls25min and five-path timing preparation60calls40min under cap3 and independent root veto. Source inspection confirms final arm Unsupported can degrade into ordinary Fail while only original folder revalidates; constructor already has cleanup catch, so require fault evidence rather than assume leak. Timing reads frozen657cd8/root974a39d; actual guards/headless process and outer-timeout tests lead to ONE concrete specific capture request, not capture execution. Root CUA alone may inspect finite synthetic target after review. Concrete root clarification: qualifier can generate hash-bound scratch .app/Info.plist and Program default bounded review mode for supported cua.getApp(full path); no raw argv launch assumption, product attach edits or invented AX IDs. Generated launcher/plist/private assets must enter reviewed identity boundary; headless modes exit before UI. Capture-specific geometry unavailable through CUA is explicitly future authorized feasibility, never guessed. No source written, native execution, leader mutation or CI dispatch by Owner; tree clean-fast-forwarded a684d24 before append.",
-      "kind": "skill",
-      "skill": "define-architecture",
-      "tool": null,
       "actor": "Owner",
       "artifacts": [
         "docs/notes/rulings.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-25T06:42:49Z",
+      "done_when": "Combined canonical ruling is committed with exact separate paths, budgets, tests and handoff gates.",
+      "duration_seconds": 191.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-m1-decision",
+        "pushed": null,
+        "sha": "a684d24f8d957b3dfcab3b0d35165db886478295",
+        "short": "a684d24f8"
+      },
+      "goal": "Resolve the bounded containment repair and noncapture timing packet while preserving independent acceptance and user scope.",
+      "id": "al-01M3BMTSQRYHGMPKAV7VDA5WPG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Resolve req-01M3BMM9NBYC9ZVD86QYV1DEAG from clean a684d24: narrow isolated R48 final-arm containment/constructor tests and disjoint R47 real noncapture identity/outer-timeout preparation. Preserve no Windows push/capture/product acceptance and user stop before full section editor.",
+      "session": "cfd-owner-20260923",
+      "shortname": "owner-r51",
+      "skill": "define-architecture",
+      "started_at": "2026-09-25T06:39:38Z",
+      "summary": "R51 chooses disjoint four-path Windows correction30calls25min and five-path timing preparation60calls40min under cap3 and independent root veto. Source inspection confirms final arm Unsupported can degrade into ordinary Fail while only original folder revalidates; constructor already has cleanup catch, so require fault evidence rather than assume leak. Timing reads frozen657cd8/root974a39d; actual guards/headless process and outer-timeout tests lead to ONE concrete specific capture request, not capture execution. Root CUA alone may inspect finite synthetic target after review. Concrete root clarification: qualifier can generate hash-bound scratch .app/Info.plist and Program default bounded review mode for supported cua.getApp(full path); no raw argv launch assumption, product attach edits or invented AX IDs. Generated launcher/plist/private assets must enter reviewed identity boundary; headless modes exit before UI. Capture-specific geometry unavailable through CUA is explicitly future authorized feasibility, never guessed. No source written, native execution, leader mutation or CI dispatch by Owner; tree clean-fast-forwarded a684d24 before append.",
       "tags": [
         "owner-ruling"
       ],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Resolve the bounded containment repair and noncapture timing packet while preserving independent acceptance and user scope.",
-      "done_when": "Combined canonical ruling is committed with exact separate paths, budgets, tests and handoff gates.",
       "tier": "T2",
-      "fan_out": 0,
-      "started_at": "2026-09-25T06:39:38Z",
-      "duration_seconds": 191.0,
-      "git": {
-        "sha": "a684d24f8d957b3dfcab3b0d35165db886478295",
-        "short": "a684d24f8",
-        "branch": "feature/application-m1-decision",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M3BMX037A84C7WC49RNC5BWM",
-      "shortname": "join-r51-decision",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-09-25T06:44:01Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
-      "summary": "Join Owner R51 two-packet preparation ruling recount_seconds=0 (docs_only=True).",
+      "done_when": "R51 ruling integrates with docs and verify gates",
+      "duration_seconds": 1.0,
+      "fan_out": 0,
+      "goal": "Record exact bounded R51 author scopes",
+      "id": "al-01M3BMX037A84C7WC49RNC5BWM",
       "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-r51-decision",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
       "skill": "execute-with-coordination",
+      "started_at": "2026-09-25T06:44:00Z",
+      "summary": "Join Owner R51 two-packet preparation ruling recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-23T19:11:36Z",
+      "done_when": "All C author-owned paths, isolated gates, native rendered and accessibility proof, and independent review are complete.",
+      "duration_seconds": 1397.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-native-adapters",
+        "pushed": null,
+        "sha": "21f2f5bf6e9e2e09fde346a042fdcb65f0f04939",
+        "short": "21f2f5bf6"
+      },
+      "goal": "Deliver first native desktop and CLI adapters against the frozen core with reviewable proof.",
+      "id": "al-01M37TWEA3C7BNJB90HYJFM6HA",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Continue single-author C native CLI and desktop adapters under R21/R23/R24; fix frozen CLI findings, reach a runnable macOS app, and verify controller and UI behavior.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "c-native-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T18:48:19Z",
+      "summary": "Partial checkpoint: CLI bounded process proof green; desktop controller red-green fixes for rejected opens, stale frames, save conflicts, uncertain durable retry, and cross-session save race; physical 3D and section source built; CUA binding remains unresolved and five author-owned outputs remain.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "/private/tmp/cfd-c-generated-quarantine-y64_h94j/quarantine-receipt.json"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T19:54:46Z",
+      "done_when": "CLI and desktop behavior, cross-publish, native rendered and AX proof, independent review, and clean committed candidate are complete.",
+      "duration_seconds": 2569.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-native-adapters",
+        "pushed": null,
+        "sha": "21f2f5bf6e9e2e09fde346a042fdcb65f0f04939",
+        "short": "21f2f5bf6"
+      },
+      "goal": "Deliver the first offline native desktop and CLI adapter against the frozen core within the exact C path lease.",
+      "id": "al-01M37XBF8CCTHJ7KHHWHNY72DX",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Resume same C native adapter scope: finish controller and UI hard states, source-bound verifier and packaging, honest native proof; stop at bounded checkpoint without partial join.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "c-native-ui-semantic-checkpoint",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T19:11:57Z",
+      "summary": "CLI/controller independent checks and full source-bound build/package gate pass. Added stable complete visual-tree station/CV annotation controls with managed role/unit/constraint tests; fixed UI error persistence and verifier input/cleanup guards. Exact manifest-proven 10 generated dirs/150 files moved to retained quarantine after hash and child checks. Honest proof doc records native CUA/AX, review harness, windowing and Windows runtime as open.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "tools/verify-application-adapters.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T20:29:07Z",
+      "done_when": "Core API untouched; macOS and Windows packages pass source-bound gates; root reviews rendered native UI and AX; Owner accepts C proof.",
+      "duration_seconds": 1985.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-native-adapters",
+        "pushed": null,
+        "sha": "4b4bd9b3cd61f4f91ef955add22fa8ed6aa3bdf8",
+        "short": "4b4bd9b3c"
+      },
+      "goal": "Complete native CLI, controller, desktop UI, review harness and source-bound proof within C track.",
+      "id": "al-01M37ZABSZKYZZ37P33EFDCBN8",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Finish C native adapters and review-only harness under Owner R21, preserving isolated build and CUA evidence.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "native-adapters-review-harness",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T19:56:02Z",
+      "summary": "Implemented fail-closed real-state review harness, theme/keyboard/motion and recovery binding fixes, corrected XAML GridLength runtime failure, added executable native startup smoke. Final isolated full gate passed 11 steps with 52 input hashes unchanged; native CUA still cgWindowNotFound, so M1 UI acceptance and join remain blocked. Retained Roslyn csc139 crash and prior startup RED receipts.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-23T21:10:22Z",
+      "done_when": "Targeted regressions and changed-source 11-step gate pass; root independently reruns exact native CUA sequences on fixed package.",
+      "duration_seconds": 499.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-native-adapters",
+        "pushed": null,
+        "sha": "de105f025eedd0f2df8acc2fbeb16c22750a6ec6",
+        "short": "de105f025"
+      },
+      "goal": "Keep navigator AX items stable on same accepted identity, reach Navigator with F6, restore selected accepted numeric value after Escape and restart same selected CV edit.",
+      "id": "al-01M381NWQCKMRWA40S93ZDPKPP",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Repair only the two observed native keyboard/selection and cancel/re-edit interactions from resumed CUA inspection.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "native-interaction-repair",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-23T21:02:03Z",
+      "summary": "Implemented accepted-identity keyed navigator item reuse, F6 focus candidates from real ListBoxItem controls, selected accepted numeric rebinding after Cancel, and repeated selected-item pointer edit. Targeted RED missing seams then GREEN managed tests/apphost smoke; full isolated 11-step gate passed with unchanged inputs and no owned descendants. Native CUA retest remains independent/open.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-core.md",
+        "docs/proof/application-adapters.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T01:35:19Z",
+      "done_when": "Controlled downstream branch contains accepted B repair, source inputs match reviewed combined candidate, and gates pass without product join.",
+      "duration_seconds": 12.0,
+      "fan_out": 0,
+      "goal": "Give C a clean B R28 base while retaining original C and review-only branches.",
+      "id": "al-01M38GV1AF6Y3BZC5JW9GJPFV2",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-native-handoff-r28",
+      "session": "cfd-c-handoff-20260923",
+      "shortname": "handoff-b-r28-to-c",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T01:35:07Z",
+      "summary": "Bring canonical B permission repair and independent review into isolated C continuation recount_seconds=11 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T03:34:07Z",
+      "done_when": "Actual loaded-control RED, frozen expanded row table, 312-row GREEN with negative controls, one changed-source 12-step gate, clean isolated commit and native review handoff.",
+      "duration_seconds": 2231.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/application-native-r29",
+        "pushed": null,
+        "sha": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+        "short": "d774e1ee6"
+      },
+      "goal": "Restore readable native pointer-state text and focus contrast without weakening existing rows.",
+      "id": "al-01M3BA19VMPTFCPW3C4H55K9YV",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Repair High Contrast selected FoilDSL hover contrast and prove pointer-state contrast across four themes under Owner Ruling 38.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "native-r38-pointer-contrast",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-25T02:56:56Z",
+      "summary": "R38 routed-event RED found semitransparent High Contrast hover ink. Corrected semantic template paints and measured 312 applied rows across four themes with 13 negative controls. One changed-source 12-step gate and macOS/Windows packages passed; native CUA verdict remains open.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md",
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+        "tools/verify-application-adapters.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T03:57:31Z",
+      "done_when": "Actual paint RED, 396 applied rows and negatives, one changed-source gate/package, clean C checkpoint; root native review remains independent.",
+      "duration_seconds": 1383.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/application-native-r29",
+        "pushed": null,
+        "sha": "847155b3ce7f9bf6687b2b5fff8c4e9d0e596a4f",
+        "short": "847155b3c"
+      },
+      "goal": "Focused and selected NumericInput text remains readable in all declared themes under actual template sibling paint.",
+      "id": "al-01M3BBC4YZ2VATRMBM91AZ28G1",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Under Owner Ruling 39, repair High Contrast NumericInput focus contrast, preserve the 312-row oracle, add actual editing and read-only TextBox states, negative sibling-paint control, and one source-bound package gate without clearing native CUA veto.",
+      "session": "cfd-adapters-20260923",
+      "shortname": "native-r39-numeric-focus",
+      "signals": {
+        "acceptance_met": false,
+        "regression": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-25T03:34:28Z",
+      "summary": "Measured white-on-white Fluent PART_BorderElement sibling; bound semantic TextBox foreground/backdrop/caret/selection/focus resources; extended actual painted-state oracle to 396 rows and 21 parser mutations; retained RED and corrective GREEN receipts; 12-step changed-source package gate passed. Native CUA and Windows runtime remain open.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M3CJHVSGVXMW9Q2T3PF1G1CS",
+      "shortname": "I need you to take over for the codex session",
+      "datetime": "2026-09-25T15:22:13Z",
+      "session": "prompt-compile",
+      "prompt": "I need you to take over for the codex session\ni need you to check why it was spiralling as it was and ensure we dont do that\nI need you to take on Leader/Owner/Coordinator responsibility\nI need you to distribute work... focus more on distributing to Grok and Agy than codex but you can delegate to codex if needed (they, gork and agy,  have more budget... and I am frustrated with Codex wasting tokens)\nI need you to continue on and to finish the work codex was spiralling on (without perpetuating the spiral) dont over investigate or over complicate - its not even clear the investigations were useful frankly\nI need you to get that stuff finished merged and then also get the full spline editor done ... i also need the whole work tree sprawl cleaned up and any complete work trees retired\nso... net-net, pick up from codex, clean up their sprawl and expediantly finish what was meaningful of their work without perpetuating ceremony and rabbit holes, get us the spine editor ASAP\n----\ncreate a prompt that articulates all of this and...\nuse Fable for the Owner, Opus 5.5. for the leader and coordinator, use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding... keep design, ui and high level decisions with Claude Code\nensure you are always compiling the harness specifc instructions and being as precise as possible when you farm work out to minimize drift and to keep sub agents on task\nensure you, yourself are compartmentalizing work so sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks)\nmake sure you are using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done\n\nFinally... keep updating me with a status table:\nTask, Sub-Task, What it does, what its status is, harness, model",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3CJN5EZJKRSRS34EBVZRZ9K",
+      "shortname": "compile-I need you to take over for the codex session",
+      "datetime": "2026-09-25T15:24:01Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, finish and merge the useful in-flight work, retire the worktree sprawl, then deliver the full section (spline) editor as fast as possible. Delegate coding mainly to Grok and Agy.\nDone when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.; Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).; Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.; Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.; Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).; Finished work is merged to main.; origin/main is updated (A3).; The full section editor (A1) works in the native app, with tests, and is merged to main.; Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.; Every delegation carries a prompt compiled for its target harness.; Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).; Each step names the pack skill it runs.; Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.\nNot in scope: New investigations, spikes or research beyond the one spiral diagnosis.; Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.; Design, UI and high-level decisions delegated outside Claude Code.; Codex as the default coding target.; The ScreenCaptureKit on-screen timing capture (A5).\nTier: T2\nFan-out cap: 4\nContext ceiling: 400000\nMain-line budget: 150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue.\nTrace\n| clause | trace |\n|---|---|\n| done_when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed. | phrase: check why it was spiralling as it was and ensure we dont do that |\n| done_when: Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session). | phrase: use Fable for the Owner, Opus 5.5. for the leader and coordinator |\n| done_when: Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant. | phrase: use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding |\n| done_when: Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker. | #2 |\n| done_when: Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6). | #6 |\n| done_when: Finished work is merged to main. | phrase: get that stuff finished merged |\n| done_when: origin/main is updated (A3). | #3 |\n| done_when: The full section editor (A1) works in the native app, with tests, and is merged to main. | phrase: get the full spline editor done |\n| done_when: Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays. | phrase: the whole work tree sprawl cleaned up and any complete work trees retired |\n| done_when: Every delegation carries a prompt compiled for its target harness. | phrase: always compiling the harness specifc instructions and being as precise as possible when you farm work out |\n| done_when: Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding). | phrase: sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks) |\n| done_when: Each step names the pack skill it runs. | phrase: using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done |\n| done_when: Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model. | phrase: Task, Sub-Task, What it does, what its status is, harness, model |\n| not_in_scope: New investigations, spikes or research beyond the one spiral diagnosis. | phrase: dont over investigate or over complicate |\n| not_in_scope: Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops. | phrase: without perpetuating ceremony and rabbit holes |\n| not_in_scope: Design, UI and high-level decisions delegated outside Claude Code. | phrase: keep design, ui and high level decisions with Claude Code |\n| not_in_scope: Codex as the default coding target. | phrase: focus more on distributing to Grok and Agy than codex |\n| not_in_scope: The ScreenCaptureKit on-screen timing capture (A5). | #5 |\nReferences\n- Leader/Owner/Coordinator: unresolved (not found)\n- my/the-ai-forward: unresolved (not found)\nAssumptions\n- #1 belief: 'full spline editor' and 'spine editor' both mean the M1.1 full section editor defined in docs/notes/m1-scope-decision.md (lines 55-72): persistent station thumbnail and action, standalone 2D section opening, independent upper/lower spline control frames, per Product A4.14 and FoilDSL sections 5, 6 and 9. · confirm: Operator confirms DR-1. · breaks: The wrong feature is built, or the editor is built too narrow or too wide. · consequential: true\n- #2 belief: The in-flight Codex work worth finishing is: (a) native contrast fix 0d4a590, not yet on feature/application-coordination; (b) Windows runtime qualification, the R53-R56 receipt/validator packets, last CI run 36113074255 failed with 4 baseline failures; (c) visible timing, where the harness is prepared but no on-screen measurement exists. Everything else on the unjoined branches is bookkeeping. · confirm: Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2. · breaks: Useful work is dropped, or bookkeeping is carried forward as work. · consequential: true\n- #3 belief: The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized. · confirm: Operator confirms DR-3. · breaks: A push the operator did not want, or the work stays unmerged. · consequential: true\n- #4 belief: The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant. · confirm: List the models in each CLI at grounding and record the exact ids in the status table. · breaks: Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id. · consequential: false\n- #5 belief: The ScreenCaptureKit capture stays out of scope because the operator answered 'stop' to it at 2026-09-25T12:08Z. Visible timing closes with in-app measurements labelled 'not measured on screen'. · confirm: Operator answers DR-4. · breaks: The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed. · consequential: true\n- #6 belief: 'Finished' for Windows qualification means a passing CI run, capped at 2 repair-plus-CI cycles. At the cap the track stops and the operator decides M1 vs M1.1. · confirm: Operator answers DR-5. · breaks: Either the spiral recurs (no cap), or Windows is dropped too early. · consequential: true\n- #7 belief: Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins. · confirm: Owner calls stay within the main-line budget without rate-limit failures. · breaks: Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification. · consequential: false\nDecision requests\n- DR-1 (#1): Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md? · default: Yes, that scope. · answer: unanswered\n- DR-2 (#2): Are the three items (contrast fix merge, Windows qualification, visible timing) the Codex work to finish? · default: Yes; everything else on the unjoined branches is dropped. · answer: unanswered\n- DR-3 (#3): May the Leader merge to main and push origin/main without asking again? · default: Yes, after build, tests and check-docs pass on the merge result. · answer: unanswered\n- DR-4 (#5): Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'? · default: Yes, skip the capture. · answer: unanswered\n- DR-5 (#6): Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1? · default: Yes, cap at 2. · answer: unanswered\nContract slot\nwidth_cap: 4 concurrent: at most 2 external coding sessions (Grok, Agy) plus 2 Claude Code sub-agents.\ntransient_retry: 1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.\nper_branch_exit: Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.\njoin_rule: The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.\ncontainment: Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.\ntermination: Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.\ndeadline: Post the status table at every phase change and at least every 30 minutes of wall time.\nfallback: Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits.\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CJHVSGVXMW9Q2T3PF1G1CS\nraw sha256: 038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: false\n",
+      "summary": "compiled al-01M3CJHVSGVXMW9Q2T3PF1G1CS for claude-code v1: 18 clauses, 7 assumptions, 5 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [
+          {
+            "id": "#1",
+            "consequential": true,
+            "belief": "'full spline editor' and 'spine editor' both mean the M1.1 full section editor defined in docs/notes/m1-scope-decision.md (lines 55-72): persistent station thumbnail and action, standalone 2D section opening, independent upper/lower spline control frames, per Product A4.14 and FoilDSL sections 5, 6 and 9.",
+            "confirm": "Operator confirms DR-1.",
+            "breaks": "The wrong feature is built, or the editor is built too narrow or too wide."
+          },
+          {
+            "id": "#2",
+            "consequential": true,
+            "belief": "The in-flight Codex work worth finishing is: (a) native contrast fix 0d4a590, not yet on feature/application-coordination; (b) Windows runtime qualification, the R53-R56 receipt/validator packets, last CI run 36113074255 failed with 4 baseline failures; (c) visible timing, where the harness is prepared but no on-screen measurement exists. Everything else on the unjoined branches is bookkeeping.",
+            "confirm": "Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2.",
+            "breaks": "Useful work is dropped, or bookkeeping is carried forward as work."
+          },
+          {
+            "id": "#3",
+            "consequential": true,
+            "belief": "The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized.",
+            "confirm": "Operator confirms DR-3.",
+            "breaks": "A push the operator did not want, or the work stays unmerged."
+          },
+          {
+            "id": "#4",
+            "consequential": false,
+            "belief": "The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant.",
+            "confirm": "List the models in each CLI at grounding and record the exact ids in the status table.",
+            "breaks": "Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id."
+          },
+          {
+            "id": "#5",
+            "consequential": true,
+            "belief": "The ScreenCaptureKit capture stays out of scope because the operator answered 'stop' to it at 2026-09-25T12:08Z. Visible timing closes with in-app measurements labelled 'not measured on screen'.",
+            "confirm": "Operator answers DR-4.",
+            "breaks": "The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed."
+          },
+          {
+            "id": "#6",
+            "consequential": true,
+            "belief": "'Finished' for Windows qualification means a passing CI run, capped at 2 repair-plus-CI cycles. At the cap the track stops and the operator decides M1 vs M1.1.",
+            "confirm": "Operator answers DR-5.",
+            "breaks": "Either the spiral recurs (no cap), or Windows is dropped too early."
+          },
+          {
+            "id": "#7",
+            "consequential": false,
+            "belief": "Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins.",
+            "confirm": "Owner calls stay within the main-line budget without rate-limit failures.",
+            "breaks": "Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification."
+          }
+        ],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "check why it was spiralling as it was and ensure we dont do that"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use Fable for the Owner, Opus 5.5. for the leader and coordinator"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.",
+            "trace": {
+              "kind": "assume",
+              "ref": "#2"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#6"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Finished work is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get that stuff finished merged"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "origin/main is updated (A3).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#3"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get the full spline editor done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the whole work tree sprawl cleaned up and any complete work trees retired"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every delegation carries a prompt compiled for its target harness.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "always compiling the harness specifc instructions and being as precise as possible when you farm work out"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks)"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each step names the pack skill it runs.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Task, Sub-Task, What it does, what its status is, harness, model"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "dont over investigate or over complicate"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "without perpetuating ceremony and rabbit holes"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Design, UI and high-level decisions delegated outside Claude Code.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "keep design, ui and high level decisions with Claude Code"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Codex as the default coding target.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "focus more on distributing to Grok and Agy than codex"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "The ScreenCaptureKit on-screen timing capture (A5).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#5"
+            }
+          }
+        ],
+        "contract_slot": {
+          "width_cap": "4 concurrent: at most 2 external coding sessions (Grok, Agy) plus 2 Claude Code sub-agents.",
+          "transient_retry": "1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.",
+          "per_branch_exit": "Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.",
+          "join_rule": "The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.",
+          "containment": "Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.",
+          "termination": "Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.",
+          "deadline": "Post the status table at every phase change and at least every 30 minutes of wall time.",
+          "fallback": "Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits."
+        },
+        "decision_requests": [
+          {
+            "id": "DR-1",
+            "assumption": "#1",
+            "question": "Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md?",
+            "default": "Yes, that scope.",
+            "answer": null
+          },
+          {
+            "id": "DR-2",
+            "assumption": "#2",
+            "question": "Are the three items (contrast fix merge, Windows qualification, visible timing) the Codex work to finish?",
+            "default": "Yes; everything else on the unjoined branches is dropped.",
+            "answer": null
+          },
+          {
+            "id": "DR-3",
+            "assumption": "#3",
+            "question": "May the Leader merge to main and push origin/main without asking again?",
+            "default": "Yes, after build, tests and check-docs pass on the merge result.",
+            "answer": null
+          },
+          {
+            "id": "DR-4",
+            "assumption": "#5",
+            "question": "Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'?",
+            "default": "Yes, skip the capture.",
+            "answer": null
+          },
+          {
+            "id": "DR-5",
+            "assumption": "#6",
+            "question": "Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1?",
+            "default": "Yes, cap at 2.",
+            "answer": null
+          }
+        ],
+        "dispatchable": false,
+        "goal_state": {
+          "goal": "Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, finish and merge the useful in-flight work, retire the worktree sprawl, then deliver the full section (spline) editor as fast as possible. Delegate coding mainly to Grok and Agy.",
+          "done_when": [
+            "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.",
+            "Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).",
+            "Finished work is merged to main.",
+            "origin/main is updated (A3).",
+            "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "Every delegation carries a prompt compiled for its target harness.",
+            "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "Each step names the pack skill it runs.",
+            "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model."
+          ],
+          "not_in_scope": [
+            "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "Design, UI and high-level decisions delegated outside Claude Code.",
+            "Codex as the default coding target.",
+            "The ScreenCaptureKit on-screen timing capture (A5)."
+          ],
+          "tier": "T2",
+          "fan_out_cap": 4,
+          "context_ceiling": 400000,
+          "main_line_budget": "150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue."
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "compiled",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CJHVSGVXMW9Q2T3PF1G1CS",
+        "raw_sha256": "038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Leader/Owner/Coordinator"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "my/the-ai-forward"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "compiled",
+      "dispatchable": false
+    },
+    {
+      "id": "al-01M3CJQ9SE5YWRFW4EFDC9EAH7",
+      "shortname": "compile-I need you to take over for the codex session",
+      "datetime": "2026-09-25T15:25:11Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, finish and merge the useful in-flight work, retire the worktree sprawl, then deliver the full section (spline) editor as fast as possible. Delegate coding mainly to Grok and Agy.\nDone when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.; Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).; Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.; Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.; Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).; Finished work is merged to main.; origin/main is updated (A3).; The full section editor (A1) works in the native app, with tests, and is merged to main.; Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.; Every delegation carries a prompt compiled for its target harness.; Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).; Each step names the pack skill it runs.; Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.\nNot in scope: New investigations, spikes or research beyond the one spiral diagnosis.; Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.; Design, UI and high-level decisions delegated outside Claude Code.; Codex as the default coding target.; The ScreenCaptureKit on-screen timing capture (A5).\nTier: T2\nFan-out cap: 4\nContext ceiling: 400000\nMain-line budget: 150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue.\nTrace\n| clause | trace |\n|---|---|\n| done_when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed. | phrase: check why it was spiralling as it was and ensure we dont do that |\n| done_when: Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session). | phrase: use Fable for the Owner, Opus 5.5. for the leader and coordinator |\n| done_when: Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant. | phrase: use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding |\n| done_when: Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker. | #2 |\n| done_when: Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6). | #6 |\n| done_when: Finished work is merged to main. | phrase: get that stuff finished merged |\n| done_when: origin/main is updated (A3). | #3 |\n| done_when: The full section editor (A1) works in the native app, with tests, and is merged to main. | phrase: get the full spline editor done |\n| done_when: Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays. | phrase: the whole work tree sprawl cleaned up and any complete work trees retired |\n| done_when: Every delegation carries a prompt compiled for its target harness. | phrase: always compiling the harness specifc instructions and being as precise as possible when you farm work out |\n| done_when: Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding). | phrase: sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks) |\n| done_when: Each step names the pack skill it runs. | phrase: using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done |\n| done_when: Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model. | phrase: Task, Sub-Task, What it does, what its status is, harness, model |\n| not_in_scope: New investigations, spikes or research beyond the one spiral diagnosis. | phrase: dont over investigate or over complicate |\n| not_in_scope: Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops. | phrase: without perpetuating ceremony and rabbit holes |\n| not_in_scope: Design, UI and high-level decisions delegated outside Claude Code. | phrase: keep design, ui and high level decisions with Claude Code |\n| not_in_scope: Codex as the default coding target. | phrase: focus more on distributing to Grok and Agy than codex |\n| not_in_scope: The ScreenCaptureKit on-screen timing capture (A5). | #5 |\nReferences\n- Leader/Owner/Coordinator: unresolved (not found)\n- my/the-ai-forward: unresolved (not found)\nAssumptions\n- #1 belief: 'full spline editor' and 'spine editor' both mean the M1.1 full section editor defined in docs/notes/m1-scope-decision.md (lines 55-72): persistent station thumbnail and action, standalone 2D section opening, independent upper/lower spline control frames, per Product A4.14 and FoilDSL sections 5, 6 and 9. · confirm: Operator confirms DR-1. · breaks: The wrong feature is built, or the editor is built too narrow or too wide. · consequential: true\n- #2 belief: The in-flight Codex work worth finishing is: (a) the native Avalonia desktop app, CLI and contrast fixes: 11 commits on feature/application-native-r29 (tip 0d4a590) that were never integrated into feature/application-coordination; (b) Windows runtime qualification, the R53-R56 receipt/validator packets, last CI run 36113074255 failed with 4 baseline failures; (c) visible timing, where the harness is prepared but no on-screen measurement exists. Everything else on the unjoined branches is bookkeeping. · confirm: Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2. · breaks: Useful work is dropped, or bookkeeping is carried forward as work. · consequential: true\n- #3 belief: The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized. · confirm: Operator confirms DR-3. · breaks: A push the operator did not want, or the work stays unmerged. · consequential: true\n- #4 belief: The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant. · confirm: List the models in each CLI at grounding and record the exact ids in the status table. · breaks: Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id. · consequential: false\n- #5 belief: The ScreenCaptureKit capture stays out of scope because the operator answered 'stop' to it at 2026-09-25T12:08Z. Visible timing closes with in-app measurements labelled 'not measured on screen'. · confirm: Operator answers DR-4. · breaks: The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed. · consequential: true\n- #6 belief: 'Finished' for Windows qualification means a passing CI run, capped at 2 repair-plus-CI cycles. At the cap the track stops and the operator decides M1 vs M1.1. · confirm: Operator answers DR-5. · breaks: Either the spiral recurs (no cap), or Windows is dropped too early. · consequential: true\n- #7 belief: Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins. · confirm: Owner calls stay within the main-line budget without rate-limit failures. · breaks: Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification. · consequential: false\nDecision requests\n- DR-1 (#1): Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md? · default: Yes, that scope. · answer: unanswered\n- DR-2 (#2): Are the three items (integrate the native desktop app from native-r29, Windows qualification, visible timing) the Codex work to finish? · default: Yes; everything else on the unjoined branches is dropped. · answer: unanswered\n- DR-3 (#3): May the Leader merge to main and push origin/main without asking again? · default: Yes, after build, tests and check-docs pass on the merge result. · answer: unanswered\n- DR-4 (#5): Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'? · default: Yes, skip the capture. · answer: unanswered\n- DR-5 (#6): Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1? · default: Yes, cap at 2. · answer: unanswered\nContract slot\nwidth_cap: 4 concurrent: at most 2 external coding sessions (Grok, Agy) plus 2 Claude Code sub-agents.\ntransient_retry: 1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.\nper_branch_exit: Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.\njoin_rule: The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.\ncontainment: Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.\ntermination: Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.\ndeadline: Post the status table at every phase change and at least every 30 minutes of wall time.\nfallback: Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits.\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CJHVSGVXMW9Q2T3PF1G1CS\nraw sha256: 038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a\ncompiler model: claude-opus-5-5\nengine seconds: 0.001\ntokens: not recorded\ngate: pass\ndispatchable: false\n",
+      "summary": "compiled al-01M3CJHVSGVXMW9Q2T3PF1G1CS for claude-code v1: 18 clauses, 7 assumptions, 5 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [
+          {
+            "id": "#1",
+            "consequential": true,
+            "belief": "'full spline editor' and 'spine editor' both mean the M1.1 full section editor defined in docs/notes/m1-scope-decision.md (lines 55-72): persistent station thumbnail and action, standalone 2D section opening, independent upper/lower spline control frames, per Product A4.14 and FoilDSL sections 5, 6 and 9.",
+            "confirm": "Operator confirms DR-1.",
+            "breaks": "The wrong feature is built, or the editor is built too narrow or too wide."
+          },
+          {
+            "id": "#2",
+            "consequential": true,
+            "belief": "The in-flight Codex work worth finishing is: (a) the native Avalonia desktop app, CLI and contrast fixes: 11 commits on feature/application-native-r29 (tip 0d4a590) that were never integrated into feature/application-coordination; (b) Windows runtime qualification, the R53-R56 receipt/validator packets, last CI run 36113074255 failed with 4 baseline failures; (c) visible timing, where the harness is prepared but no on-screen measurement exists. Everything else on the unjoined branches is bookkeeping.",
+            "confirm": "Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2.",
+            "breaks": "Useful work is dropped, or bookkeeping is carried forward as work."
+          },
+          {
+            "id": "#3",
+            "consequential": true,
+            "belief": "The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized.",
+            "confirm": "Operator confirms DR-3.",
+            "breaks": "A push the operator did not want, or the work stays unmerged."
+          },
+          {
+            "id": "#4",
+            "consequential": false,
+            "belief": "The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant.",
+            "confirm": "List the models in each CLI at grounding and record the exact ids in the status table.",
+            "breaks": "Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id."
+          },
+          {
+            "id": "#5",
+            "consequential": true,
+            "belief": "The ScreenCaptureKit capture stays out of scope because the operator answered 'stop' to it at 2026-09-25T12:08Z. Visible timing closes with in-app measurements labelled 'not measured on screen'.",
+            "confirm": "Operator answers DR-4.",
+            "breaks": "The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed."
+          },
+          {
+            "id": "#6",
+            "consequential": true,
+            "belief": "'Finished' for Windows qualification means a passing CI run, capped at 2 repair-plus-CI cycles. At the cap the track stops and the operator decides M1 vs M1.1.",
+            "confirm": "Operator answers DR-5.",
+            "breaks": "Either the spiral recurs (no cap), or Windows is dropped too early."
+          },
+          {
+            "id": "#7",
+            "consequential": false,
+            "belief": "Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins.",
+            "confirm": "Owner calls stay within the main-line budget without rate-limit failures.",
+            "breaks": "Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification."
+          }
+        ],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "check why it was spiralling as it was and ensure we dont do that"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use Fable for the Owner, Opus 5.5. for the leader and coordinator"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.",
+            "trace": {
+              "kind": "assume",
+              "ref": "#2"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#6"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Finished work is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get that stuff finished merged"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "origin/main is updated (A3).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#3"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get the full spline editor done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the whole work tree sprawl cleaned up and any complete work trees retired"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every delegation carries a prompt compiled for its target harness.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "always compiling the harness specifc instructions and being as precise as possible when you farm work out"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks)"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each step names the pack skill it runs.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Task, Sub-Task, What it does, what its status is, harness, model"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "dont over investigate or over complicate"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "without perpetuating ceremony and rabbit holes"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Design, UI and high-level decisions delegated outside Claude Code.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "keep design, ui and high level decisions with Claude Code"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Codex as the default coding target.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "focus more on distributing to Grok and Agy than codex"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "The ScreenCaptureKit on-screen timing capture (A5).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#5"
+            }
+          }
+        ],
+        "contract_slot": {
+          "width_cap": "4 concurrent: at most 2 external coding sessions (Grok, Agy) plus 2 Claude Code sub-agents.",
+          "transient_retry": "1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.",
+          "per_branch_exit": "Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.",
+          "join_rule": "The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.",
+          "containment": "Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.",
+          "termination": "Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.",
+          "deadline": "Post the status table at every phase change and at least every 30 minutes of wall time.",
+          "fallback": "Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits."
+        },
+        "decision_requests": [
+          {
+            "id": "DR-1",
+            "assumption": "#1",
+            "question": "Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md?",
+            "default": "Yes, that scope.",
+            "answer": null
+          },
+          {
+            "id": "DR-2",
+            "assumption": "#2",
+            "question": "Are the three items (integrate the native desktop app from native-r29, Windows qualification, visible timing) the Codex work to finish?",
+            "default": "Yes; everything else on the unjoined branches is dropped.",
+            "answer": null
+          },
+          {
+            "id": "DR-3",
+            "assumption": "#3",
+            "question": "May the Leader merge to main and push origin/main without asking again?",
+            "default": "Yes, after build, tests and check-docs pass on the merge result.",
+            "answer": null
+          },
+          {
+            "id": "DR-4",
+            "assumption": "#5",
+            "question": "Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'?",
+            "default": "Yes, skip the capture.",
+            "answer": null
+          },
+          {
+            "id": "DR-5",
+            "assumption": "#6",
+            "question": "Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1?",
+            "default": "Yes, cap at 2.",
+            "answer": null
+          }
+        ],
+        "dispatchable": false,
+        "goal_state": {
+          "goal": "Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, finish and merge the useful in-flight work, retire the worktree sprawl, then deliver the full section (spline) editor as fast as possible. Delegate coding mainly to Grok and Agy.",
+          "done_when": [
+            "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "Each in-flight Codex item (see A2) is merged, or stopped at its cap with a one-line blocker.",
+            "Windows qualification passes on CI, or stops after 2 bounded repair cycles with the failing cases named (A6).",
+            "Finished work is merged to main.",
+            "origin/main is updated (A3).",
+            "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "Every delegation carries a prompt compiled for its target harness.",
+            "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "Each step names the pack skill it runs.",
+            "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model."
+          ],
+          "not_in_scope": [
+            "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "Design, UI and high-level decisions delegated outside Claude Code.",
+            "Codex as the default coding target.",
+            "The ScreenCaptureKit on-screen timing capture (A5)."
+          ],
+          "tier": "T2",
+          "fan_out_cap": 4,
+          "context_ceiling": 400000,
+          "main_line_budget": "150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue."
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "compiled",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.001,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CJHVSGVXMW9Q2T3PF1G1CS",
+        "raw_sha256": "038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Leader/Owner/Coordinator"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "my/the-ai-forward"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "compiled",
+      "dispatchable": false
+    },
+    {
+      "id": "al-01M3CJRG36W4X6MYYNZ5FNH29E",
+      "shortname": "compile-codex-takeover",
+      "datetime": "2026-09-25T15:25:51Z",
+      "session": "fbfa35dc",
+      "prompt": "I need you to take over for the codex session\ni need you to check why it was spiralling as it was and ensure we dont do that\nI need you to take on Leader/Owner/Coordinator responsibility\nI need you to distribute work... focus more on distributing to Grok and Agy than codex but you can delegate to codex if needed (they, gork and agy,  have more budget... and I am frustrated with Codex wasting tokens)\nI need you to continue on and to finish the work codex was spiralling on (without perpetuating the spiral) dont over investigate or over complicate - its not even clear the investigations were useful frankly\nI need you to get that stuff finished merged and then also get the full spline editor done ... i also need the whole work tree sprawl cleaned up and any complete work trees retired\nso... net-net, pick up from codex, clean up their sprawl and expediantly finish what was meaningful of their work without perpetuating ceremony and rabbit holes, get us the spine editor ASAP\n----\ncreate a prompt that articulates all of this and...\nuse Fable for the Owner, Opus 5.5. for the leader and coordinator, use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding... keep design, ui and high level decisions with Claude Code\nensure you are always compiling the harness specifc instructions and being as precise as possible when you farm work out to minimize drift and to keep sub agents on task\nensure you, yourself are compartmentalizing work so sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks)\nmake sure you are using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done\n\nFinally... keep updating me with a status table:\nTask, Sub-Task, What it does, what its status is, harness, model",
+      "summary": "raw al-01M3CJHVSGVXMW9Q2T3PF1G1CS; compiled al-01M3CJQ9SE5YWRFW4EFDC9EAH7 (supersedes al-01M3CJN5EZJKRSRS34EBVZRZ9K); harness claude-code; 18 clauses; 7 assumptions; 5 DRs unanswered; dispatchable: no",
+      "kind": "skill",
+      "skill": "compile",
       "tool": null,
       "actor": null,
       "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Record exact bounded R51 author scopes",
-      "done_when": "R51 ruling integrates with docs and verify gates",
-      "tier": "T1",
+      "tier": "T0",
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
+      "started_at": "2026-09-25T15:22:13Z",
+      "duration_seconds": 218.0
+    },
+    {
+      "id": "al-01M3CK2TWXQ1DT7DMK6G66K958",
+      "shortname": "compile-I need you to take over for the codex session",
+      "datetime": "2026-09-25T15:31:29Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, integrate the native desktop app, wrap up visible timing in one short pass, merge, retire the worktree sprawl, then deliver the full M1.1 section editor as fast as possible. Delegate coding mainly to Grok and Agy. Windows work is deferred.\nDone when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.; Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).; Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.; The native desktop app on feature/application-native-r29 is integrated, and visible timing is wrapped up in one bounded pass (A2, A5).; Windows qualification is deferred: its branches are kept, its worktrees retired, and its state recorded in one line (A6).; Finished work is merged to main.; origin/main is updated (A3).; The full section editor (A1) works in the native app, with tests, and is merged to main.; Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.; Every delegation carries a prompt compiled for its target harness.; Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).; Each step names the pack skill it runs.; Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.\nNot in scope: New investigations, spikes or research beyond the one spiral diagnosis.; Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.; Design, UI and high-level decisions delegated outside Claude Code.; Codex as the default coding target.; The ScreenCaptureKit capture and any further timing research, spikes or instrumentation work (A5).; Any Windows qualification or Windows runtime work (A6).\nTier: T2\nFan-out cap: 4\nContext ceiling: 400000\nMain-line budget: 150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue.\nTrace\n| clause | trace |\n|---|---|\n| done_when: The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed. | phrase: check why it was spiralling as it was and ensure we dont do that |\n| done_when: Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session). | phrase: use Fable for the Owner, Opus 5.5. for the leader and coordinator |\n| done_when: Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant. | phrase: use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding |\n| done_when: The native desktop app on feature/application-native-r29 is integrated, and visible timing is wrapped up in one bounded pass (A2, A5). | #2 |\n| done_when: Windows qualification is deferred: its branches are kept, its worktrees retired, and its state recorded in one line (A6). | #6 |\n| done_when: Finished work is merged to main. | phrase: get that stuff finished merged |\n| done_when: origin/main is updated (A3). | #3 |\n| done_when: The full section editor (A1) works in the native app, with tests, and is merged to main. | phrase: get the full spline editor done |\n| done_when: Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays. | phrase: the whole work tree sprawl cleaned up and any complete work trees retired |\n| done_when: Every delegation carries a prompt compiled for its target harness. | phrase: always compiling the harness specifc instructions and being as precise as possible when you farm work out |\n| done_when: Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding). | phrase: sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks) |\n| done_when: Each step names the pack skill it runs. | phrase: using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done |\n| done_when: Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model. | phrase: Task, Sub-Task, What it does, what its status is, harness, model |\n| not_in_scope: New investigations, spikes or research beyond the one spiral diagnosis. | phrase: dont over investigate or over complicate |\n| not_in_scope: Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops. | phrase: without perpetuating ceremony and rabbit holes |\n| not_in_scope: Design, UI and high-level decisions delegated outside Claude Code. | phrase: keep design, ui and high level decisions with Claude Code |\n| not_in_scope: Codex as the default coding target. | phrase: focus more on distributing to Grok and Agy than codex |\n| not_in_scope: The ScreenCaptureKit capture and any further timing research, spikes or instrumentation work (A5). | #5 |\n| not_in_scope: Any Windows qualification or Windows runtime work (A6). | #6 |\nReferences\n- Leader/Owner/Coordinator: unresolved (not found)\n- my/the-ai-forward: unresolved (not found)\nAssumptions\n- #1 belief: Operator confirmed: the spline editor is the M1.1 full section editor in docs/notes/m1-scope-decision.md L55-72. · confirm: Operator confirms DR-1. · breaks: The wrong feature is built, or the editor is built too narrow or too wide. · consequential: true\n- #2 belief: Operator confirmed: finish (a) integrating the native desktop app and CLI (11 commits on feature/application-native-r29, tip 0d4a590) and (c) visible timing, wrapped up; defer (b) Windows qualification. Everything else on the unjoined branches is dropped. · confirm: Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2. · breaks: Useful work is dropped, or bookkeeping is carried forward as work. · consequential: true\n- #3 belief: The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized. · confirm: Operator confirms DR-3. · breaks: A push the operator did not want, or the work stays unmerged. · consequential: true\n- #4 belief: The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant. · confirm: List the models in each CLI at grounding and record the exact ids in the status table. · breaks: Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id. · consequential: false\n- #5 belief: Operator confirmed: no ScreenCaptureKit capture and no timing rabbit hole. Wrap-up = one pass, at most 30 minutes: run the in-app instrumentation already on native-r29 (3a1d67b) against the integrated app, record cold launch, preview p95 and Cancel ack labelled 'in-app, not measured on screen', or record 'not measured' if it yields nothing. Then retire the visible-presentation branches. · confirm: Operator answers DR-4. · breaks: The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed. · consequential: true\n- #6 belief: Operator confirmed: Windows work is deferred. Keep the Windows branches and do not run CI. Remove their worktrees. M1's Windows gate stays open and is recorded as deferred. · confirm: Operator answers DR-5. · breaks: M1 cannot close as two-platform until Windows resumes. · consequential: true\n- #7 belief: Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins. · confirm: Owner calls stay within the main-line budget without rate-limit failures. · breaks: Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification. · consequential: false\nDecision requests\n- DR-1 (#1): Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md? · default: Yes, that scope. · answer: Yes: the M1.1 full section editor.\n- DR-2 (#2): Are the three items (integrate the native desktop app from native-r29, Windows qualification, visible timing) the Codex work to finish? · default: Yes; everything else on the unjoined branches is dropped. · answer: Yes to (a). Defer (b) Windows. Do (c) timing, but wrap it up with no rabbit hole.\n- DR-3 (#3): May the Leader merge to main and push origin/main without asking again? · default: Yes, after build, tests and check-docs pass on the merge result. · answer: Yes.\n- DR-4 (#5): Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'? · default: Yes, skip the capture. · answer: Yes.\n- DR-5 (#6): Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1? · default: Yes, cap at 2. · answer: No Windows work: defer it for now.\nContract slot\nwidth_cap: 3 concurrent: at most 2 external coding sessions (Grok, Agy) plus 1 Claude Code sub-agent in phase 1; 2 + 2 in phase 2.\ntransient_retry: 1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.\nper_branch_exit: Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.\njoin_rule: The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.\ncontainment: Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.\ntermination: Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.\ndeadline: Post the status table at every phase change and at least every 30 minutes of wall time.\nfallback: Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits.\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CJHVSGVXMW9Q2T3PF1G1CS\nraw sha256: 038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a\ncompiler model: claude-opus-5-5\nengine seconds: 0.001\ntokens: not recorded\ngate: pass\ndispatchable: false\n",
+      "summary": "compiled al-01M3CJHVSGVXMW9Q2T3PF1G1CS for claude-code v1: 19 clauses, 7 assumptions, 5 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [
+          {
+            "id": "#1",
+            "consequential": true,
+            "belief": "Operator confirmed: the spline editor is the M1.1 full section editor in docs/notes/m1-scope-decision.md L55-72.",
+            "confirm": "Operator confirms DR-1.",
+            "breaks": "The wrong feature is built, or the editor is built too narrow or too wide."
+          },
+          {
+            "id": "#2",
+            "consequential": true,
+            "belief": "Operator confirmed: finish (a) integrating the native desktop app and CLI (11 commits on feature/application-native-r29, tip 0d4a590) and (c) visible timing, wrapped up; defer (b) Windows qualification. Everything else on the unjoined branches is dropped.",
+            "confirm": "Diff each unjoined branch against feature/application-coordination at grounding; operator confirms DR-2.",
+            "breaks": "Useful work is dropped, or bookkeeping is carried forward as work."
+          },
+          {
+            "id": "#3",
+            "consequential": true,
+            "belief": "The merge target is main via feature/application-coordination (248 commits ahead of origin/main), and pushing to origin main is authorized.",
+            "confirm": "Operator confirms DR-3.",
+            "breaks": "A push the operator did not want, or the work stays unmerged."
+          },
+          {
+            "id": "#4",
+            "consequential": false,
+            "belief": "The 'latest native model' for Grok is the newest model the grok CLI lists; for Agy it is the newest Gemini model agy lists; Codex 0.155.1 offers a GPT-5.5 variant.",
+            "confirm": "List the models in each CLI at grounding and record the exact ids in the status table.",
+            "breaks": "Dispatch fails or runs on the wrong tier. Fix: re-dispatch with the listed id."
+          },
+          {
+            "id": "#5",
+            "consequential": true,
+            "belief": "Operator confirmed: no ScreenCaptureKit capture and no timing rabbit hole. Wrap-up = one pass, at most 30 minutes: run the in-app instrumentation already on native-r29 (3a1d67b) against the integrated app, record cold launch, preview p95 and Cancel ack labelled 'in-app, not measured on screen', or record 'not measured' if it yields nothing. Then retire the visible-presentation branches.",
+            "confirm": "Operator answers DR-4.",
+            "breaks": "The M1 visible-timing gate (CAD-03, A8.1) cannot be marked passed."
+          },
+          {
+            "id": "#6",
+            "consequential": true,
+            "belief": "Operator confirmed: Windows work is deferred. Keep the Windows branches and do not run CI. Remove their worktrees. M1's Windows gate stays open and is recorded as deferred.",
+            "confirm": "Operator answers DR-5.",
+            "breaks": "M1 cannot close as two-platform until Windows resumes."
+          },
+          {
+            "id": "#7",
+            "consequential": false,
+            "belief": "Fable is rate-limited (memory: cfd-workbench-session-pattern). The Owner is convened only for scope-changing decisions, batched, never for routine joins.",
+            "confirm": "Owner calls stay within the main-line budget without rate-limit failures.",
+            "breaks": "Owner calls stall the graph. Fix: the Leader decides and records the decision for Owner ratification."
+          }
+        ],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "check why it was spiralling as it was and ensure we dont do that"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use Fable for the Owner, Opus 5.5. for the leader and coordinator"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "use AGY and Grok latest native models for coding work, if you are going to use Codex use GPT 5.5 variants for coding"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The native desktop app on feature/application-native-r29 is integrated, and visible timing is wrapped up in one bounded pass (A2, A5).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#2"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Windows qualification is deferred: its branches are kept, its worktrees retired, and its state recorded in one line (A6).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#6"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Finished work is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get that stuff finished merged"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "origin/main is updated (A3).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#3"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get the full spline editor done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the whole work tree sprawl cleaned up and any complete work trees retired"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Every delegation carries a prompt compiled for its target harness.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "always compiling the harness specifc instructions and being as precise as possible when you farm work out"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "trace": {
+              "kind": "phrase",
+              "ref": "sub-agents in claude code do the work with precise instruction sets and the right fit-for-purpose model (like sonnet for simple coding tasks)"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each step names the pack skill it runs.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "using my/the-ai-forward opinionated way of working with our loop and skills explicit in all that is done"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Task, Sub-Task, What it does, what its status is, harness, model"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "dont over investigate or over complicate"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "without perpetuating ceremony and rabbit holes"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Design, UI and high-level decisions delegated outside Claude Code.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "keep design, ui and high level decisions with Claude Code"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Codex as the default coding target.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "focus more on distributing to Grok and Agy than codex"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "The ScreenCaptureKit capture and any further timing research, spikes or instrumentation work (A5).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#5"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Any Windows qualification or Windows runtime work (A6).",
+            "trace": {
+              "kind": "assume",
+              "ref": "#6"
+            }
+          }
+        ],
+        "contract_slot": {
+          "width_cap": "3 concurrent: at most 2 external coding sessions (Grok, Agy) plus 1 Claude Code sub-agent in phase 1; 2 + 2 in phase 2.",
+          "transient_retry": "1 retry on a harness or transport error. On a rate limit, switch harness; do not wait.",
+          "per_branch_exit": "Each delegate gets a compiled Done-when, an explicit file list, a 30-minute / 60-tool-call budget, and returns a commit SHA plus test output.",
+          "join_rule": "The Leader checks build, tests and check-docs on the branch, then merges. One review pass at most. Findings outside Done-when become next steps.",
+          "containment": "Each delegate works in its own worktree and branch. No delegate edits another's files, touches main, or pushes.",
+          "termination": "Every repair loop is capped at 2 cycles. A cap firing stops that track and reports to the operator.",
+          "deadline": "Post the status table at every phase change and at least every 30 minutes of wall time.",
+          "fallback": "Grok and Agy swap on failure. Codex (GPT-5.5) is last. A Claude Sonnet sub-agent takes small edits."
+        },
+        "decision_requests": [
+          {
+            "id": "DR-1",
+            "assumption": "#1",
+            "question": "Does 'full spline editor' mean the M1.1 full section editor as scoped in docs/notes/m1-scope-decision.md?",
+            "default": "Yes, that scope.",
+            "answer": "Yes: the M1.1 full section editor."
+          },
+          {
+            "id": "DR-2",
+            "assumption": "#2",
+            "question": "Are the three items (integrate the native desktop app from native-r29, Windows qualification, visible timing) the Codex work to finish?",
+            "default": "Yes; everything else on the unjoined branches is dropped.",
+            "answer": "Yes to (a). Defer (b) Windows. Do (c) timing, but wrap it up with no rabbit hole."
+          },
+          {
+            "id": "DR-3",
+            "assumption": "#3",
+            "question": "May the Leader merge to main and push origin/main without asking again?",
+            "default": "Yes, after build, tests and check-docs pass on the merge result.",
+            "answer": "Yes."
+          },
+          {
+            "id": "DR-4",
+            "assumption": "#5",
+            "question": "Visible timing: skip the ScreenCaptureKit capture and close with in-app timing labelled 'not measured on screen'?",
+            "default": "Yes, skip the capture.",
+            "answer": "Yes."
+          },
+          {
+            "id": "DR-5",
+            "assumption": "#6",
+            "question": "Windows: cap at 2 repair-plus-CI cycles, then stop and ask whether Windows moves to M1.1?",
+            "default": "Yes, cap at 2.",
+            "answer": "No Windows work: defer it for now."
+          }
+        ],
+        "dispatchable": false,
+        "goal_state": {
+          "goal": "Take over the Codex session as Leader, Owner and Coordinator. Stop its spiral, integrate the native desktop app, wrap up visible timing in one short pass, merge, retire the worktree sprawl, then deliver the full M1.1 section editor as fast as possible. Delegate coding mainly to Grok and Agy. Windows work is deferred.",
+          "done_when": [
+            "The cause of the Codex spiral is stated with evidence from its log and git history, and one control that fails when the shape recurs is committed.",
+            "Seats are held: Owner = Fable; Leader and Coordinator = Opus 5.5 (this Claude Code session).",
+            "Coding is delegated to Grok and Agy on their latest native models; Codex is a fallback only, on a GPT-5.5 variant.",
+            "The native desktop app on feature/application-native-r29 is integrated, and visible timing is wrapped up in one bounded pass (A2, A5).",
+            "Windows qualification is deferred: its branches are kept, its worktrees retired, and its state recorded in one line (A6).",
+            "Finished work is merged to main.",
+            "origin/main is updated (A3).",
+            "The full section editor (A1) works in the native app, with tests, and is merged to main.",
+            "Every worktree that is clean, merged and unheld is removed. Every other tree is listed with the reason it stays.",
+            "Every delegation carries a prompt compiled for its target harness.",
+            "Claude Code sub-agents get narrow instruction sets and a fit model (Sonnet for simple coding).",
+            "Each step names the pack skill it runs.",
+            "Each update to the operator carries the status table: Task | Sub-Task | What it does | Status | Harness | Model."
+          ],
+          "not_in_scope": [
+            "New investigations, spikes or research beyond the one spiral diagnosis.",
+            "Ceremony above the floors: per-step rulings, ruling ledgers, a join commit per commit, repeated review loops.",
+            "Design, UI and high-level decisions delegated outside Claude Code.",
+            "Codex as the default coding target.",
+            "The ScreenCaptureKit capture and any further timing research, spikes or instrumentation work (A5).",
+            "Any Windows qualification or Windows runtime work (A6)."
+          ],
+          "tier": "T2",
+          "fan_out_cap": 4,
+          "context_ceiling": 400000,
+          "main_line_budget": "150 leader tool calls per phase (phase 1: close Codex work, merge, clean up; phase 2: section editor). Reaching it is a finding, not a licence to continue."
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "compiled",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.001,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CJHVSGVXMW9Q2T3PF1G1CS",
+        "raw_sha256": "038d4d0c321b25ca7b2fb905ae1098eb3936fedcdacb9d5f5f239aedf523a19a",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Leader/Owner/Coordinator"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "my/the-ai-forward"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
       },
-      "started_at": "2026-09-25T06:44:00Z",
-      "duration_seconds": 1.0
+      "mode": "compiled",
+      "dispatchable": false
+    },
+    {
+      "id": "al-01M3CK45ZB21KR9SFWRDXM0SXN",
+      "shortname": "compile-codex-takeover-answers",
+      "datetime": "2026-09-25T15:32:13Z",
+      "session": "fbfa35dc",
+      "prompt": "DR 1 sorry - yes 1.1 full section editor / DR 2 yes on a, defer b and do c ... but on c ... we dont need a rabbit hole on window timing, i dont know why there was so much spent on it... wrap it up / DR 3 yes / DR 4 yes / DR 5 dont do with windows work... defer it for now",
+      "summary": "recompiled raw al-01M3CJHVSGVXMW9Q2T3PF1G1CS as al-01M3CK2TWXQ1DT7DMK6G66K958 with DR-1..5 answered; Windows deferred; timing wrap-up one pass; engine prints dispatchable:false because prompt-compile.py:616 counts DRs regardless of answer (finding)",
+      "kind": "skill",
+      "skill": "compile",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T0",
+      "fan_out": 0,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-09-25T03:04:27Z",
+      "duration_seconds": 44866.0
     }
   ],
   "changes": [

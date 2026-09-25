@@ -23,3 +23,8 @@ docs/proof/_*.json
 # AI-Forward Pack (INSTALL 2): local coordination and per-run state, never committed
 !.agents/log/
 .agents/mail/
+
+# .NET build outputs and local test scratch
+bin/
+obj/
+.tmp-tests/
