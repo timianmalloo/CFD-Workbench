@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-24T01:35:19Z",
+  "generated": "2026-09-25T03:34:08Z",
   "audit": [
     {
       "actor": null,
@@ -6271,6 +6271,41 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-24T01:35:07Z",
       "duration_seconds": 12.0
+    },
+    {
+      "id": "al-01M3BA19VMPTFCPW3C4H55K9YV",
+      "shortname": "native-r38-pointer-contrast",
+      "datetime": "2026-09-25T03:34:07Z",
+      "session": "cfd-adapters-20260923",
+      "prompt": "Repair High Contrast selected FoilDSL hover contrast and prove pointer-state contrast across four themes under Owner Ruling 38.",
+      "summary": "R38 routed-event RED found semitransparent High Contrast hover ink. Corrected semantic template paints and measured 312 applied rows across four themes with 13 negative controls. One changed-source 12-step gate and macOS/Windows packages passed; native CUA verdict remains open.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/application-adapters.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Restore readable native pointer-state text and focus contrast without weakening existing rows.",
+      "done_when": "Actual loaded-control RED, frozen expanded row table, 312-row GREEN with negative controls, one changed-source 12-step gate, clean isolated commit and native review handoff.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-25T02:56:56Z",
+      "duration_seconds": 2231.0,
+      "git": {
+        "sha": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+        "short": "d774e1ee6",
+        "branch": "feature/application-native-r29",
+        "pushed": null
+      }
     }
   ],
   "changes": [
