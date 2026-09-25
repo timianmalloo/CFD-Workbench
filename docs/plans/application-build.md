@@ -28,11 +28,18 @@ The first milestone is an offline native workbench on Windows and macOS with a s
 
 **Approved scope continuation, 2026-09-25 UTC:** the user answered `approve`
 to the [single three-part decision](../notes/m1-scope-decision.md): real Windows
-x64 runtime and actual on-screen cold/edit/Preview/Cancel budgets remain in M1;
-the full section editor is named M1.1 Section authoring. This is a placement
-decision, not evidence that either M1 gate passes. The [coordination
-tracks](../coordination/application-build.md) stage Windows route qualification
-and visible-endpoint proof. M1.1 remains the named later increment.
+x64 runtime and actual on-screen cold/edit/Preview/Cancel budgets remained in M1;
+the full section editor is named M1.1 Section authoring. This was a placement
+decision, not evidence that either M1 gate passed.
+
+**Revised, 2026-09-25 UTC:** a same-day [D1/D2 decision
+revision](../notes/m1-scope-decision.md#revision--2026-09-25) removed on-screen
+(visible) timing as an M1 gate — product performance targets stay as spec
+targets, no on-screen capture is planned — and deferred Windows x64 runtime
+qualification (last hosted run `36113074255` at `4a1d80f` failed with 4 baseline
+failures; `feature/windows-*` branches are kept; M1 is not two-platform-complete
+until Windows resumes). M1.1 section authoring is unchanged and remains the named
+later increment.
 
 **Session stop boundary, 2026-09-25 UTC:** the user's two-line follow-up
 is logged verbatim as `al-01M3BD0DKP27QB66KMDW5TWYT2`. This session must complete

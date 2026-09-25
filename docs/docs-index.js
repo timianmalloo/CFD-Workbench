@@ -467,7 +467,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "0afc63c29dea3f5203ce2a82398ebc01e79f967c9063f973804f3f0d8594b4e5"
+      "sourceSha256": "376daf976e460e40eae408fb3c7aff9418453e12265c8fba4a33c9100daaf70b"
     },
     {
       "id": "cad-editing-views",
@@ -1000,7 +1000,7 @@ window.DOCS_INDEX = {
     {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
-      "title": "User decision — Windows and visible performance in M1; section editing in M1.1",
+      "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
       "type": "decision-note",
       "status": "accepted",
       "owner": "@owner",
@@ -1016,9 +1016,29 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-24",
           "reason": "Approved Windows/timing M1 and section M1.1 placement plus R39 native veto changed the coordination gates; review dependent status and handoffs."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-25",
+          "reason": "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review §8 gate claims."
+        },
+        {
+          "by": "plan-application-build",
+          "on": "2026-09-25",
+          "reason": "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review the execution graph's gate claims."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-25",
+          "reason": "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review coordination status."
+        },
+        {
+          "by": "coordination-contract-c-native",
+          "on": "2026-09-25",
+          "reason": "D1/D2 revision removes on-screen timing as an M1 gate; review §3 budget requirement."
         }
       ],
-      "summary": "The user approved Windows x64 runtime and measured on-screen budgets in M1 and placed the full section editor in M1.1. Native and platform proof remain open.",
+      "summary": "The user approved Windows x64 runtime and measured on-screen budgets in M1 and placed the full section editor in M1.1. A 2026-09-25 revision then removed on-screen timing as an M1 gate and deferred Windows x64 qualification; section editing in M1.1 is unchanged.",
       "tags": [
         "decision-note",
         "milestone",
@@ -1046,10 +1066,14 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-application-build",
           "rel": "relates-to"
+        },
+        {
+          "to": "plan-application-build",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "240ec04147891fad8f0ceb89e30ce1bc5252bd9650589eee7da139fd771d43f5"
+      "sourceSha256": "7d7c3462c2f72bbbf580633881d13e2b68ff10c9a977f73a9de5757bc4a74735"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -1426,7 +1450,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b9e4ec48462ee2e6ee2ff7c73a45d439801da6a6c70bbe9ed1b80cc52bad746a"
+      "sourceSha256": "4fd5d57828dd597508e8e5ded565d454e9146f6dd74e33bd6543ecf040669cec"
     },
     {
       "id": "design-windows-runtime",
@@ -2288,7 +2312,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6\nG3 --> G5 --> G6\nG6 -. new session only .-> G7"
         }
       ],
-      "sourceSha256": "ac6fbffc23d9153746d617b9a82a80d827eadcff1f4eb3906e3e714457007e7b"
+      "sourceSha256": "d86b80bd01f6f32cbfe26fff84672e4b4b44b402a54b8b70ab2d2437b46d763b"
     },
     {
       "id": "plan-authoring-decisions",
@@ -4338,7 +4362,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7c039fbb213379249bca0699b6f8ea248d36c64f503f475bc2ca85ac3ca0f24c"
+      "sourceSha256": "80cf4a211c11922e1993ddf4a5ff41427bf303a57ed120afd437d0277e051e25"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4583,7 +4607,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8efd0b526f0988edd2d4fac910e824474d712a294a6f85469597fe62448d2e23"
+      "sourceSha256": "d34ce4cd2c9d5782c31782185ec97ef20fd6b98fbb74d0cb7fc54c497c74e58f"
     },
     {
       "id": "coordination-r17-companions",
@@ -5264,7 +5288,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2f900283716bc4cb548dc85e7a58023dd2fd9ac507db3c89825c580f874114a8"
+      "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
       "id": "proof-windows-runtime",
@@ -5755,7 +5779,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5c8e914a224de21af019b22e451fead192a588d1f7941a10f01fd409fbb08113"
+      "sourceSha256": "69454b8cb20ee355a4c14ed10e193a2a87d49984d707f9b71c16f0ad78880e75"
     },
     {
       "id": "review-windows-runtime",
@@ -6312,5 +6336,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "5f9a5d308923138003a7abf034ec921e6d61bce0f7f87b00b9722190295a55cc"
+  "graphSha256": "c03e2cd044ef29a3af3e185d763857332203affcf54819f875c2f08cd0704265"
 };

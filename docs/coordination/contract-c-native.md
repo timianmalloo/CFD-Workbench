@@ -178,7 +178,8 @@ in ADR 0003 remain obligations. No `tools/spikes/` path is implicitly leased.
    error/Not assessed and the unavailable analysis pane. A static v7 SVG or
    spike shape cannot satisfy this gate. Measure the spec's 5-second cold start,
    100 ms edit feedback and 250 ms preview/cancel budgets on an actual app;
-   disclose failures, do not infer speed from tests. At the public API freeze,
+   disclose failures, do not infer speed from tests. Superseded 2026-09-25:
+   on-screen timing is not an M1 gate (see decision note). At the public API freeze,
    profile whether a `Preview` call reassesses geometry. The viewport must use
    one current core assessment for a bounded projection instead of issuing an
    unmeasured fresh validation for each plotted vertex. The compiled final

@@ -22,6 +22,9 @@ review-suggested:
 
 # Independent preparation review
 
+Superseded 2026-09-25: on-screen timing is no longer an M1 gate (see
+docs/notes/m1-scope-decision.md).
+
 **Current disposition: see the R47 review below.** The following R41 findings are
 historical; R47 closes its concrete private-package inventory gap, while retaining
 the native execution and timing gates.

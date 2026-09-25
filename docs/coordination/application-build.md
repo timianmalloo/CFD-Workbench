@@ -21,6 +21,11 @@ review-suggested:
 
 # First application increment: coordination plan
 
+**Status update, 2026-09-25 UTC:** a [D1/D2 decision
+revision](../notes/m1-scope-decision.md#revision--2026-09-25) removed on-screen
+(visible) timing as an M1 gate and deferred Windows x64 runtime qualification;
+M1.1 section authoring is unchanged.
+
 **Original authority and status, 2026-09-23.** User request: `al-01M376G6MEVMMTPKPYP4GGBGVD` (compiled `al-01M376HFY6J6F4SNW84C5J5Q4H`, dispatchable). The root Codex session leads; `cfd-owner-20260923` is the Astra technical Owner and ruling seat; `cfd-coordinator-20260923` is the Sol Coordinator and designated leader at launch. The Owner does not author track code or clear its own veto. Root performs independent review. The [execution graph](../plans/application-build.md) and [normative specification](../specs/cfd-workbench-v1.md) define scope. Owner Rulings 8–13 and root accept the bounded native M1 direction and joined B0 design/schema contract. Ruling 13 freezes one serial first-core implementation track with 18 exact paths; this authorizes bounded implementation, not product acceptance. Ruling 11 selects the conditional Codex route; the [cancellation drill](application-cancel-drill.md) met the observed lifecycle condition through explicit owned-child cleanup. At this original plan stage, worker identity/path/cache preflight and the serial B→C contract gate still remained.
 
 **Historical R17–19 gate, 2026-09-23:** Rulings 17–19 chose evaluator `/2` degree-CV identity, whole-query deterministic feasibility, and a fixed directory-relative cooperative overwrite claim with measured native I/O. They authorized repair, not B acceptance. Root had the [30-path exact companion assignment](contract-r17-companions.md) in a disjoint tree while the serial core author finished its `/1` store/Ruling 16 checkpoint. The reviewed companion commit preceded the dedicated `/2` core continuation; C was then held.
