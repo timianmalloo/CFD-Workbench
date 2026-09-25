@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:39:12Z",
+  "generated": "2026-09-25T05:39:24Z",
   "audit": [
     {
       "actor": null,
@@ -8321,6 +8321,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M3BH6PC22NBE2DJ6CMH5BDP8",
+      "shortname": "join-r41-visible-review",
+      "datetime": "2026-09-25T05:39:24Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined root R41 PASS-WITH-CONDITIONS preparation review edf4392. Synthetic50/50 and 32 local clock pairs are limited evidence; no whole-package native target identity, visible frame, capture or M1 latency pass. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/visible-presentation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate root independent conditional review of the noncapture timing spike.",
+      "done_when": "Review and official derivatives join cleanly; native capture and displayed-latency gates remain open.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:39:24Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
