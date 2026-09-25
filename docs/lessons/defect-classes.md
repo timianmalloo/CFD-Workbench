@@ -968,3 +968,28 @@ was observed, a `node:vm` negative failed before repair, and the helper now chec
 from a type declaration. Literal CUA function code is required; string code
 generation is unavailable. The regression suite also exercises a changed window
 after Raise and a timed-out uncancellable operation with no overlapping retry.
+
+**CO-DECISION-WRITE · An Owner ruling mutates the designated leader tree during
+an active conductor merge.** Ruling 40 was recorded through the supported
+`coord decide rule next` command while the Coordinator's docs-only R39 review
+merge had an unresolved generated-index conflict. The decision tool correctly
+appended the authoritative ruling and audit in the designated leader checkout,
+but the append appeared there as unstaged changes while the merge was open.
+The independent Owner tree and its index stayed clean. This was a real
+cross-session shared-checkout write window, even though no ruling bytes were
+lost: the Coordinator inspected the exact append, regenerated the derived
+views, staged the register and review together, and the conductor's conflict,
+docs and ruling-citation gates passed.
+
+**Class → sweep → derive → prevent:** a register-class path needs no ordinary
+lease, so lease checks alone cannot serialize a decision append with a merge.
+The same risk applies to future `coord decide rule next` calls and any official
+writer targeting the leader tree's audit/register during conductor resolution.
+The always-read [coordination plan](../coordination/application-build.md) now
+requires a short shared-register write window: finish or pause the conductor
+merge, tell the Owner when the designated leader tree is ready, let the ruling
+append, inspect its unstaged diff and derived views, then resume the merge.
+Do not transfer that write to the Owner's branch or overwrite the append to
+make a generated conflict disappear. The check is the exact register/audit
+diff plus `verify-ruling-citations.py` and the conductor gates; this incident
+was recovered, not evidence that concurrent register writes are safe.

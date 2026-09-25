@@ -95,8 +95,8 @@ The existing registry had the first three audit patterns. Coordinator adds proje
 | A · architecture author, `cfd-arch-codex-20260923` | Exact four docs and three spike source files in compiled brief, plus `docs/security/threat-model.md` and `docs/security/privacy-review.md` by Owner Ruling 5; no product implementation | Plan root review and Owner Rulings 1–3, 5, 7 | T3 design / T2 mechanical spike | 0 | 70 calls, ≤100k context, 50 min first run; no Ruling 5 budget increase | Candidate evidence; domain aggregate and durable model; native UI/accessibility/viewport/file-dialog and packaging spike; exact RFC 8785/BLAKE3/decimal vectors; conservative geometry validity oracle; atomic save faults/conflicts; compiling public contracts/fixtures; security risk dispositions; explicit Windows evidence gaps; Owner request and descendant commit | Existing Codex author thread in fresh isolated tree; underlying model ID `Not recorded` under architecture-only Ruling 7 exception. Final cwd/HEAD/paths/lifecycle and independent Astra Owner/root technical review still required. External harness qualifications are in [receipt](qualification-architecture.md). |
 | B0 · serial contract completion, `cfd-contracts-author-20260923` | Exactly `docs/design/application-contracts.md`, `docs/proof/application-contracts.md`, `docs/adr/0004-application-project-contract.md`, both existing security rollups, `tools/spikes/ApplicationContracts/{ApplicationContracts.csproj,Program.cs}`, and `tools/spikes/application-session-contract-vectors.py`; official generated index/audit metadata only | Joined A and independent review at `73cabb89`; Owner Rulings 8–10 | T3 design / T2 executable contract fixtures | 0 | 70 calls, ≤100k context, 50 min first window; cap triggers checkpoint/replan | Joined author/review at `c13db27`; 89 C# / 42 Python / 2505 vectors, 10/10 verification gates; root independent PASS and Owner Ruling 12 bounded technical PASS | Fresh requested `gpt-6-astra` built-in collaborator in isolated tree; effective model `Not recorded` under Ruling 9's B0-only exception. Observed-only containment; no production code or G3 self-clearance. |
 | B · accepted-source core | [Ruling 13 frozen exact 18-path packet](contract-b-core.md), including owned proof/gate; no UI files | B0 Ruling 12 PASS and Owner G3 Ruling 13 | T2 | 0 | 90 calls, ≤100k context, ≤55 min first run, followed by bounded continuations | Original B joined at `18278c4`; Ruling 28 accepted six-path macOS permission correction `ee6d73ad` after independent [native review](../reviews/ui-application-native.md), joined B-only at `a550466` with affected core recount and 11 gates | Ruling 11 requested Astra/effective Not recorded built-in author. The permission repair used a separately authorized requested-Astra author; effective model Not recorded. Windows/Intel/ACL/release coverage remains open. |
-| C · native adapters, `cfd-adapters-20260923` | [Exact 24-path contract](contract-c-native.md), no core implementation files; subsequent rulings freeze narrower continuation paths | Joined B `a550466`, independently reviewed [compiled API freeze](contract-c-api-freeze.md), Owner Rulings 21 and 29–39 | T2 | 0 | Initial 90 calls / 55 minutes; serial bounded ruling checkpoints, aggregate calls/tokens Not recorded | Clean isolated `d774e1e` passed a 312-row applied-control matrix and source-bound 12-step gate. Root's native High Contrast tab-hover regression passed, but focused NumericInput text was unreadable. Ruling 39 activated one exact four-path measurement-first correction; its 93 prior timing records measure compositor batch cycles, not display presentation. | Requested Sol, effective model Not recorded. Root native/performance veto and C/M1 product join remain open; Windows runtime unverified. |
-| D · integration and independent proof | Coordinator owns merge and plan/status ledger; root/Owner own independent review/rulings, no production co-authoring | B accepted; C source-bound package passes, but native contrast, presentation and Windows proof remain open | T2 | 0 | One affected recount per eligible product join; docs-only joins do not clear product gates | B permission repair joined at `a550466`; root R34–37 review checkpoint `03d7d71` joined docs-only at `051013f`. C product source remains isolated at `d774e1e`; user approved Windows and visible timing in M1, section authoring in M1.1. | Deterministic scripts, root independent veto and Owner Rulings 28–39; no C product join. |
+| C · native adapters, `cfd-adapters-20260923` | [Exact 24-path contract](contract-c-native.md), no core implementation files; subsequent rulings freeze narrower continuation paths | Joined B `a550466`, independently reviewed [compiled API freeze](contract-c-api-freeze.md), Owner Rulings 21 and 29–40 | T2 | 0 | Initial 90 calls / 55 minutes; serial bounded ruling checkpoints, aggregate calls/tokens Not recorded | Clean isolated R39 `0d4a590` passed 396 actual styled-control rows, 21 negatives and a source-bound 12-step gate. Root's exact High Contrast native focused-field and tab-hover regressions passed in [review](../reviews/ui-application-native.md); its 93 prior timing records measure compositor batch cycles, not display presentation. | Requested Sol, effective model Not recorded. Bounded native contrast veto cleared; full C/M1 acceptance, Windows runtime and displayed timing remain open. |
+| D · integration and independent proof | Coordinator owns merge and plan/status ledger; root/Owner own independent review/rulings, no production co-authoring | B accepted; C source-bound package and bounded native contrast pass, but display presentation and Windows proof remain open | T2 | 0 | One affected recount per eligible product join; docs-only joins do not clear product gates | B permission repair joined at `a550466`; R39 root review `299c3e0` joined docs-only at `ed0d070`. C product source remains isolated at `0d4a590`; user approved Windows and visible timing in M1, section authoring in M1.1. | Deterministic scripts, root independent veto and Owner Rulings 28–40; no C product join. |
 
 **Per-track common contract:** brief begins with `audit-log.py start --session ... --skill ...`; exact goal/done-when, owned absolute paths, excluded neighbor paths, deadline, context ceiling, budget, fallback and return evidence are compiled and hash-pinned. Workers never use `EnterWorktree`, install the layer, spawn teams, or treat a permission denial as approval. A budget cap requires a report and re-plan, not an automatic higher cap. Every worker decision request goes `coord decide request --to cfd-owner-20260923`; the Owner rules into `docs/notes/rulings.md` through `coord decide rule`, never by accepting a worker's claim. Coordinator resolves seams or asks Owner for a ruling. The first `coord leader pin cfd-coordinator-20260923` epoch is recorded in the launch manifest and checked at join.
 
@@ -311,7 +311,7 @@ platform, timing or section claim and retains the native veto. The next seats ar
 | Visible timing contract, Coordinator with Owner technical ruling; implementation author not yet assigned | Approved timing-in-M1 placement; current batch-cycle limitation documented | Specify and spike an observed final on-screen endpoint and the stated workload/device, with uncertainty and stale/cancel controls. Do not collect budget trials against a proxy endpoint. | Cold ≤5 s and edit ≤100 ms p95, Preview/Cancel ≤250 ms p95 on each required host; root independently reviews raw trials and visible correctness. |
 | Section authoring design, future design author selected by Owner | Approved named M1.1 placement; current FoilDSL and one-profile invariants | Detailed multi-profile aggregate, source/history, construction, scope, UX and validation design; no C author file overlap. | Independent scientific, Data, UX and Test review before implementation; it is not an M1 exit dependency. |
 
-Only the C contrast author occupies an implementation seat now. Windows route
+At the R38 planning checkpoint, only the C contrast author occupied an implementation seat. Windows route
 qualification and timing endpoint definition are dependency-ready planning
 nodes, but implementation waits for exact-path decisions and available seats.
 Section design can advance separately when a seat is available; it cannot be
@@ -332,5 +332,40 @@ equivalence or sole causal explanation is claimed. Root's first build-2 CUA
 bind returned `cgWindowNotFound` while its launch PID stayed live; a supported
 CUA session reset restored AX and screenshot on that same PID without user
 action. This supports a session-readiness control, not an internal platform
-root-cause claim. A third isolated package with the same 53 source inputs is
-prepared but not launched. C product integration and M1 acceptance remain held.
+root-cause claim. At that checkpoint a third isolated package with the same
+53 source inputs was prepared but not launched. Later [attachment
+evidence](../investigations/review-window-attach.md) records its actual trial.
+C product integration and M1 acceptance remain held.
+
+### 2026-09-25 · R39 native review and W0 Windows handoff
+
+The R39 C repair completed at isolated `0d4a590`, with 396/396 applied-control
+rows, 21 negatives and a 12-step source-bound gate. Root independently checked
+the packaged High Contrast focus/selection/hover trigger through supported CUA:
+focused and selected numeric text is readable after typing, refocus and Cancel,
+and the accepted identity stays unchanged. Root's [review](../reviews/ui-application-native.md)
+`299c3e0` joined **documentation only** at `ed0d070`; it does not assert a fresh
+Light/Dark native pass or Windows/timing/assistive-technology acceptance. The C
+source remains isolated, pending a separate technical integration disposition.
+
+[Ruling 40](../notes/rulings.md) authorizes one requested-Astra Windows W0
+author, six exact design/proof/spike/qualifier/workflow paths, ≤70 calls/45
+minutes and no production edits, push or CI dispatch. The [route
+packet](windows-runtime-route.md) records W0–W4, current macOS-only store and
+Windows verifier refusals, and the distinct hosted-runner, UIA/Narrator and
+displayed-reference-device gates. Coordinator opened clean isolated
+`feature/windows-runtime-qualification` at `ed0d070`, registered
+`cfd-windows-w0-20260925`, verified the coordination layer, and dispatched
+one requested-Astra author. Effective model identity remains Not recorded.
+Root independently reviews Data/Security/Test after the W0 handback; a
+concrete hosted-runner dispatch decision follows that evidence. Current
+interactive Windows availability is unverified, not declared impossible.
+
+**Shared-register sequencing control:** `coord decide rule next` writes the
+designated leader checkout's ruling/audit registers. Ruling 40 arrived while
+the Coordinator was resolving a generated index conflict in the R39 docs-only
+merge. Its unstaged append was preserved exactly, derived views regenerated
+and the conductor's ruling-citation and 11 other gates passed. Future Owner
+rulings get a short serial register-write window before a conductor merge
+starts or after it pauses; the Coordinator inspects the append before staging.
+No Owner session writes the leader tree's index or product source directly.

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:06:40Z",
+  "generated": "2026-09-25T04:10:53Z",
   "audit": [
     {
       "actor": null,
@@ -7434,6 +7434,37 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:06:39Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BC4GQ9TS4CMAKCV3P0DTEX",
+      "shortname": "r40-w0-dispatch-status",
+      "datetime": "2026-09-25T04:10:50Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Continue W0 supervision under existing R40 and cap3; incorporate shared-checkout mutation-window control at a bounded coordination checkpoint.",
+      "summary": "Joined R39 root review docs-only at ed0d070 after preserving authoritative R40 append, regenerated index and passed 11 gates. Recorded cross-session leader-register write class/control and updated current C/Windows ledger and HTML. Opened isolated W0 worktree at clean ed0d070, doctor passed, dispatched one requested-Astra author with six exact files, 70-call/45-minute checkpoint and no CI dispatch or production edits. Docs checks 110 artifacts, zero defects, 80 prior flags; Windows runtime and displayed timing remain Not assessed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Stage source-bound W0 Windows route while preserving R39 native review and separate M1 gates",
+      "done_when": "W0 exact-path handback independently reviewed; current ledger and mutation control durable",
+      "tier": "T2",
+      "fan_out": 1,
+      "started_at": "2026-09-25T04:10:38Z",
+      "duration_seconds": 12.0,
+      "git": {
+        "sha": "ed0d070ff87dc1f0485e1ce0d3341869f54c4d62",
+        "short": "ed0d070ff",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [
