@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:14:10Z",
+  "generated": "2026-09-25T06:27:41Z",
   "audit": [
     {
       "actor": null,
@@ -8529,6 +8529,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T06:14:09Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BKZ2X66HFC4ZN8ZWR76P3N",
+      "shortname": "review-visible-identity",
+      "datetime": "2026-09-25T06:27:41Z",
+      "session": "cfd-visible-identity-review-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete. Independently review frozen R47 preparation657cd8 within existing visible-presentation review and official metadata.",
+      "summary": "Preparation PASS-WITH-CONDITIONS; native capture/request readiness and all visible budgets remain held. Independently78cases(50synthetic14request6package8identity), actual target model/selfprocess, four killed mutants,31 published files27 deps mappings31OS-nativeimports, two exactcapsules253143/49728bytes,32rationalclockpairs and byte-identical deterministic outputs. No capture/permission/UI/native target entry. Reviewer initially omitted documented clock quantization in scratch oracle; corrected and exact retained intersection matched. Source/binary unchanged, authorclean. V16/sharedregister followupCoordinator. Effective model/tokens/cost not recorded.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/visible-presentation.md",
+        "docs/proof/visible-presentation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verify R47 concrete package and pure identity/request evidence with independent native-readiness disposition",
+      "done_when": "Actual source/assets/retained capsules and pure tests independently checked; verdict and next native obligations committed",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T06:20:24Z",
+      "duration_seconds": 437.0,
+      "git": {
+        "sha": "112a614db25509d20910976782e7f03ca9c4bccd",
+        "short": "112a614db",
+        "branch": "feature/visible-identity-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [
