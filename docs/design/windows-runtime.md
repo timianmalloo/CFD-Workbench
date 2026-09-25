@@ -15,7 +15,8 @@ review-by: 2026-10-25
 summary: >-
   Defines the disposable W0 Windows file and process experiment, its fixed failure
   matrix and receipt boundary. It does not admit a production Windows store:
-  directory durability, complete hostile-namespace containment and native execution remain open.
+  directory durability, complete hostile-namespace containment and passing
+  native qualification remain open after the failed W1 hosted run.
 review-suggested:
   - { by: proof-windows-runtime, on: 2026-09-24, reason: "W1 real Windows x64 execution failed native qualification; review source-bound proof and open product gates." }
   - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }

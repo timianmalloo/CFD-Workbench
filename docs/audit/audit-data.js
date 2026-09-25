@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:32:16Z",
+  "generated": "2026-09-25T05:33:31Z",
   "audit": [
     {
       "actor": null,
@@ -8140,6 +8140,34 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
         "short": "062d14d70",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BGVXTPEA115RKB45FEBTZJ",
+      "shortname": "w1-current-metadata-correction",
+      "datetime": "2026-09-25T05:33:31Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Keep the Windows evidence current while proceeding toward M1.",
+      "summary": "Corrected Windows proof title/summary and labeled its W0 opening as historical; design summary now says passing native qualification remains open after the W1 run. No case result or product verdict changed.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/windows-runtime.md",
+        "docs/design/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Remove stale W0-only current metadata after the failed W1 hosted run.",
+      "done_when": "Proof and design metadata distinguish historical W0 unexecuted status from current failed W1 execution.",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "dbca4e05680c227de712a594661fa865ea1b58b1",
+        "short": "dbca4e056",
         "branch": "feature/application-coordination",
         "pushed": null
       }

@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -1410,7 +1410,7 @@ window.DOCS_INDEX = {
           "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
         }
       ],
-      "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and native execution remain open.",
+      "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and passing native qualification remain open after the failed W1 hosted run.",
       "tags": [
         "windows",
         "persistence",
@@ -1442,7 +1442,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G[Ground contract] --> R[Receipt RED and negative controls]\n  R --> N[Native spike and local build]\n  G --> W[Prepare hosted workflow]\n  N --> P[Proof and exact-path handback]\n  W --> P\n  P --> V[Independent root review]"
         }
       ],
-      "sourceSha256": "1c14ea4815b9255ac7a26b75a939ead858954e8879f5220ad71cdf0e2fd4d21e"
+      "sourceSha256": "caa512bbcddeb6ad2b792c878a561047393e33509a55f95df86a15c36a9915e5"
     },
     {
       "id": "mockup-workbench",
@@ -2100,7 +2100,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "decb86f981f95ed89b464c971225aaf65548116009b46dcd4d684836db3d6461"
+      "sourceSha256": "94cbd3a0216530daeb2700909b6d1362b4d6f92a98b6f3b1636b920c54d30595"
     },
     {
       "id": "domain-experts",
@@ -5154,7 +5154,7 @@ window.DOCS_INDEX = {
     {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
-      "title": "Windows W0 preparation proof and native evidence gaps",
+      "title": "Windows W0 preparation and failed W1 hosted qualification",
       "type": "proof-pack",
       "status": "in-review",
       "owner": "@cfd-windows-w0-20260925",
@@ -5167,7 +5167,7 @@ window.DOCS_INDEX = {
           "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
         }
       ],
-      "summary": "Separates local compilation and executed wrong-result controls from unexecuted Windows file, process and UIA qualification. All production and independent review gates remain open.",
+      "summary": "Records local W0 preparation and an actual but failed W1 Windows x64 native qualification. Independent review rejected production acceptance; UIA, directory durability and product runtime remain open.",
       "tags": [
         "windows",
         "proof",
@@ -5185,7 +5185,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0824e53bc5328830ed4b9f54468aad3f5268db341094ec271094fa8bda7f085a"
+      "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
       "id": "review-application-architecture",
@@ -6139,5 +6139,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "eeb360fef247201ecae441ffa65be0ead8fbd7c3ea45d97d4cdda63d99aced01"
+  "graphSha256": "25265e20a7dbcf75c48bd3dfbf4f70e6acd653fd83b5f11b1f526f949b5e17dd"
 };

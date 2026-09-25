@@ -1,6 +1,6 @@
 ---
 id: proof-windows-runtime
-title: Windows W0 preparation proof and native evidence gaps
+title: Windows W0 preparation and failed W1 hosted qualification
 type: proof-pack
 status: in-review
 owner: "@cfd-windows-w0-20260925"
@@ -11,21 +11,22 @@ links:
   - { to: coordination-windows-runtime-route, rel: relates-to }
 review-by: 2026-10-25
 summary: >-
-  Separates local compilation and executed wrong-result controls from unexecuted
-  Windows file, process and UIA qualification. All production and independent
-  review gates remain open.
+  Records local W0 preparation and an actual but failed W1 Windows x64 native
+  qualification. Independent review rejected production acceptance; UIA,
+  directory durability and product runtime remain open.
 review-suggested:
   - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }
 ---
 
-# W0 proof
+# W0 proof (historical preparation checkpoint)
 
 **Prepared:** a candidate contract, standalone net10.0 native experiment, Python
 receipt/ownership driver and manual-only workflow. **Compiled:** local macOS arm64
 with pinned SDK 10.0.203. **Executed:** local receipt negatives and real non-Windows
-refusal. **Not assessed:** every Windows native API scenario, Windows job cleanup,
-hosted graphical/UIA session, Narrator and displayed timing. Root's independent
-Data/Security/Test review is pending; this author clears no veto.
+refusal. **At this W0 checkpoint, Not assessed:** every Windows native API
+scenario, Windows job cleanup, hosted graphical/UIA session, Narrator and
+displayed timing. Later hosted evidence and root's independent failure review
+are recorded below; this author clears no veto.
 
 Goal/done-when/T2/fan-out and the fixed six-path boundary are in the linked design.
 The session began at `2026-09-25T04:08:19Z`, base
