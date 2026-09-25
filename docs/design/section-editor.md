@@ -41,6 +41,7 @@ Not in scope: catalog ranking, analysis, export, alternatives/baseline workflow 
 - Edits patch source bytes in place (no pretty-printer). Every mutating call takes an `operationId` and is memoized (`AuthoringSession.cs:197-202`).
 - The desktop viewport draws 15 fixed sample points (`Viewport.cs:118-187`); no control-frame drawing exists anywhere.
 - Tests are console harnesses registered with `Check(name, action)` (`tests/CfdWorkbench.Core.Tests/IdentityTests.cs:53-57`); Desktop tests run Avalonia headless. Run everything with `tools/run-tests.sh`.
+- **Shared abscissa (pre-existing certification rule).** `Geometry.Assess` certifies a profile only when its upper and lower curves have the same degree, knots and CV x-coordinates, and the Rule A blend certifies adjacent profiles only on a shared abscissa basis. Decision (2026-09-25): a vertex's **y** is edited freely; an **x** edit moves the same-index vertex on the other side too (paired abscissa), and an x edit that breaks the basis shared with a neighbouring profile is refused with `DSL-GEOMETRY` and a message naming the neighbour. Certifying independent abscissae is moved to M1.1b.
 
 ## 3. Data model (settled first)
 
