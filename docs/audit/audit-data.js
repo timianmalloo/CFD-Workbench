@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:47:53Z",
+  "generated": "2026-09-25T04:52:25Z",
   "audit": [
     {
       "actor": null,
@@ -7779,24 +7779,83 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BE8B9RJG1178VRSAFFYT58",
-      "shortname": "join-windows-w0-review",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-25T04:47:53Z",
-      "session": "cfd-coordinator-20260923",
+      "done_when": "Review joined docs-only with source revision and limits retained and integrated gates green",
+      "duration_seconds": 1.0,
+      "fan_out": 0,
+      "goal": "Integrate source-bound W0 independent review without promoting unexecuted Windows claims",
+      "id": "al-01M3BE8B9RJG1178VRSAFFYT58",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-windows-w0-review",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-25T04:47:52Z",
       "summary": "Joined independent Data, Security and Test preparation-only review of frozen W0; Windows execution, containment and product acceptance remain open. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "tools/qualify-windows-runtime.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T04:50:33Z",
+      "done_when": "Portable text and subprocess UTF-8 gates plus self-test and source/receipt controls pass; clean exact-path commit is handed to independent root review",
+      "duration_seconds": 198.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/windows-w0-portability",
+        "pushed": null,
+        "sha": "12a64028c0a1f9b4de7441dbb404ae6dc378b288",
+        "short": "12a64028c"
+      },
+      "goal": "Repair W0 portable text I/O in the one authorized qualifier file",
+      "id": "al-01M3BED7RRYNECTHSA0V4N63P0",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Ruling 42 authorizes one bounded continuation, ≤20 calls/15 min. Fresh registered tree /Users/mallalieut/projects/CFD-Workbench-feature-windows-w0-portability, branch feature/windows-w0-portability, base 12a6402, session cfd-w0-portability-20260925. First command: audit-log.py start --session cfd-w0-portability-20260925 --skill implement. Claim exactly tools/qualify-windows-runtime.py and edit only that file plus official audit/derived if required. Integrated gate RED retained: verify-portable-text-io reports four write_text missing newline='\\n' at lines 397,425,431,490 and missing __main__ stdio reconfigure. Apply mechanical portable fix patterned on pack-doctor.py; run portable-text, verify-subprocess-utf8, --self-test, targeted source/receipt checks. Do not rerun full native build by default; no W1 push/dispatch. Record missed applicable gate class PLAT-A linked control in your proof/audit if feasible without exceeding exact authored path; coordinator owns shared defect register. Commit clean, release lease, end session, report exact hash/receipt. Root independently reviews corrected bytes. Do not touch coordinator checkout.",
+      "session": "cfd-w0-portability-20260925",
+      "shortname": "windows-w0-portable-text",
+      "skill": "implement",
+      "started_at": "2026-09-25T04:47:15Z",
+      "summary": "R42 bounded repair: observed five PLAT-A findings RED, added explicit LF to four JSON writes and the pack-doctor UTF-8 stdio guard. Portable-text and subprocess-UTF8 gates now exit0; all 35 existing negative controls plus new real-subprocess help exit control pass. Source stability and rejection of rebinding old native receipts to changed source pass. PLAT-A class: a Windows-targeted script missed an applicable cross-platform I/O gate; sweep all four writers and printing entry point; prevention verify-portable-text-io.py plus verify-subprocess-utf8.py. Coordinator owns shared class register. One helper mistake intercepted sys.exit for --help, allowing argparse to continue into an unintended local macOS build/refusal, despite the requested no-default-rebuild rule. Preserved raw scratch /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-w0-fb841cb0236ce6bb; native exit3/26 Not assessed, no Windows proof. Control now invokes help in a real bounded subprocess without intercepting exit. No further build or W1 push/dispatch. Final qualifier SHA256 4a0ea88907fcd8ff58ba38b1846af7b6ee1a488fc4412b97f55b671b1d4a724d; source manifest 8505f0b8d9e96821f185caf98f28d18214ebf769ee999782ba33577b84ee63f6. Receipts /tmp/cfd-w0-portability-proof-20260925. Independent root review pending; prior native proof stays bound to its historical source.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M3BEGN4JHZ6F4VB4JED1VA53",
+      "shortname": "join-windows-w0-portability",
+      "datetime": "2026-09-25T04:52:25Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/windows-w0-portability into feature/application-coordination",
+      "summary": "Joined Ruling 42 qualifier-only LF and UTF-8 correction after independent delta review; no Windows runtime acceptance. recount_seconds=15 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/windows-runtime.md"
+        "tools/qualify-windows-runtime.py"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Integrate source-bound W0 independent review without promoting unexecuted Windows claims",
-      "done_when": "Review joined docs-only with source revision and limits retained and integrated gates green",
+      "goal": "Clear the integrated portable-text refusal without expanding W0 or rebinding old native receipts",
+      "done_when": "Corrected qualifier joined and all integrated verification gates pass",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -7804,8 +7863,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-25T04:47:52Z",
-      "duration_seconds": 1.0
+      "started_at": "2026-09-25T04:52:09Z",
+      "duration_seconds": 16.0
     }
   ],
   "changes": [
