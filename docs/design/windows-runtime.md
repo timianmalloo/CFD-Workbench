@@ -15,7 +15,11 @@ review-by: 2026-10-25
 summary: >-
   Defines the disposable W0 Windows file and process experiment, its fixed failure
   matrix and receipt boundary. It does not admit a production Windows store:
-  directory durability, complete hostile-namespace containment and native execution remain open.
+  directory durability, complete hostile-namespace containment and passing
+  native qualification remain open after the failed W1 hosted run.
+review-suggested:
+  - { by: proof-windows-runtime, on: 2026-09-24, reason: "W1 real Windows x64 execution failed native qualification; review source-bound proof and open product gates." }
+  - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }
 ---
 
 # Windows qualification contract
@@ -267,6 +271,149 @@ native pickers, UIA provider quality, Narrator, contrast or displayed timing.
 Those W3 and reference-device gates remain independent even if this probe works.
 
 ## Open decisions and production admission fence
+
+## R45 frozen diagnostic/control plan
+
+### R48 bounded correction plan (supersedes R45 alias/isolation claims)
+
+### R51 frozen local correction controls
+
+The R48 checkpoint remains historical. R51 changes only the same four authored
+paths. Graph: actual-orchestrator RED faults → shared fail-closed final-arm guard
+and constructor ownership controls → changed-source build/consumer controls →
+source/binary/quiescence readback → root review. No new agent or hosted run.
+Freeze two-arm final-observation faults: Unsupported, access denial, general
+observation failure, identity inequality and cleanup uncertainty. Assert no later
+arm operation/original overwrite, explicit originalOverwriteInvoked=false, and
+Not assessed outcomes from the actual subsequent-case containment guard for all
+26 case names. Constructor controls inject after one and multiple acquisitions,
+through PinnedPath's actual acquisition/disposal path, retaining the original
+exception and observing exactly acquired handles closed and a foreign handle open.
+
+**Historical R48 freeze finding:** the final fresh `PinnedPath(directory)` in
+`NativeDiagnosticArm` can throw `Unsupported` before the explicit identity
+comparison. Unlike initial pin failure, that exception currently reaches the
+wrapper's expected-error catch; the wrapper revalidates the original folder,
+not the failed arm folder. Containment of that arm is therefore unresolved even
+though the original path is disjoint. This packet must not authorize publication
+until root resolves that predicate. The single local correction pass has been
+used; this author does not expand it silently.
+
+R51 implements a shared `VerifyFinalArm` guard in the arm's finally path, before
+owned-handle disposal. It records the exact exception/type/native code and marks
+every failed final observation unsafe. The orchestrator now requires explicit
+final-containment verification plus cleanup before allowing later work. Ordinary
+operation errors still retain independent evidence and can continue only after
+that verification. The native path checks either the created arm's freshly
+observed identities against its retained identities, or that no arm directory was
+created; collisions and missing initial identity remain unsafe. The case-loop
+containment refusal helper is shared with the control mode and preserves every
+original case name as Not assessed after loss.
+
+The PinnedPath acquisition loop was extracted into a constructor seam for tests;
+the existing catch/Dispose/rethrow cleanup policy is preserved. Its production
+constructor still validates the same Windows path/NTFS subset, opens each ancestor
+with access0/share3/OPEN_REPARSE_POINT|BACKUP_SEMANTICS, stores ownership before
+inspection, and rejects non-directory/reparse attributes. Local controls inject
+real managed file handles and inspection failure into that actual loop; they do
+not claim native directory access/alias/ABI execution. After one and three acquired
+handles, all acquired SafeFileHandles are closed, an unrelated retained handle is
+still usable, and the same original exception instance is observed. Root retains
+independent review; no remote execution is authorized by these local results.
+
+Freeze: eight contradictory raw owner/trustee fixtures (SY and ZZ independently,
+against numeric or LA counterpart), equivalent numeric/LA/mixed positives, missing
+or contradictory raw resolution/context; setup/operation/observation arm failures,
+original-scenario failure, and unsafe-containment refusal. The 26 original cases
+are unchanged. Graph: RED fixtures → one coherent semantic/isolation patch →
+changed-source compile/control/refusal → at most one local correction → freeze.
+Four authored paths only; no workflow change, Windows run or new agent.
+
+Use the existing native SDDL conversion to parse **the retained raw string** back
+to an independent descriptor; compare its owner, protection and full ACE facts
+with the actual descriptor and process token. The Python consumer supports numeric
+SIDs, SY=LocalSystem (`S-1-5-18`) and LA=the independently queried system account
+domain plus administrator RID500. Other aliases refuse. LA requires read-only
+`LsaQueryInformationPolicy(PolicyAccountDomainInformation)` context; never derive
+the domain from the convenient suffix of the token SID. The local native parser
+must agree with this context. An unavailable context is a refusal, not a fallback.
+Synthetic context fixtures test the consumer locally; real context/API execution
+remains a Windows gate.
+
+The supported semantic mappings come from Microsoft's
+[SID strings](https://learn.microsoft.com/en-us/windows/win32/secauthz/sid-strings)
+and [well-known SID constants](https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids):
+SY is `S-1-5-18`; LA uses the system's account-domain SID and administrator
+RID `0x1f4` (500). Context is obtained from a local, query-only
+[`LsaOpenPolicy`](https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaopenpolicy)
+handle with access `POLICY_VIEW_LOCAL_INFORMATION=1`, then
+[`LsaQueryInformationPolicy`](https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaqueryinformationpolicy)
+class5. The x64
+[`LSA_OBJECT_ATTRIBUTES`](https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-lsa_object_attributes)
+and [`POLICY_ACCOUNT_DOMAIN_INFO`](https://learn.microsoft.com/en-us/windows/win32/api/lsalookup/ns-lsalookup-policy_account_domain_info)
+layouts have runtime size guards48/24; the latter has a16-byte Unicode string
+followed by its SID pointer. NTSTATUS errors are translated; buffers/policy
+handles use LsaFreeMemory/LsaClose with checked results. These are read-only
+queries, not account/ACL/privilege changes. Native conversion/context agreement
+is unmeasured until Windows executes the source-bound packet.
+
+Each diagnostic arm has an independent evidence dictionary and disposable path.
+The orchestration retains its planned operands before setup, catches only bounded
+expected diagnostic errors, records disposed-handle outcomes, and restores the
+original scenario's evidence/publication state. The original overwrite scenario
+runs after safe diagnostic failures; unsafe containment or cleanup failure marks
+the original as Not assessed and stops that execution. The same orchestration is
+exercised by a non-native deterministic injected control mode, with a real callback
+invocation for the original scenario. Those controls prove control flow, not Win32.
+
+This T2 identity/receipt change implements Ruling 45 only. Requested model:
+gpt-6-astra; effective identity: Not recorded. Author base `a5b1d4c` reconciles
+governance with the unchanged failed-run `7f34c13` inputs. The execution graph is
+contract/control freeze → RED controls → semantic writer and consumer plus
+failure finalizer → local GREEN/compile/refusal → independent root review.
+No additional author agent or Windows launch is part of this graph.
+
+The 26 original `CASES` remain unchanged. Two extra **diagnostic arms**, nested
+inside the overwrite evidence, use independent otherwise-equal private fixtures:
+`held-target` and `released-target`. Both record original target/staged identities,
+bytes, target-handle lifetime/access/share, parent identities, native rename BOOL
+and immediate error (null on success), and resulting bytes/identities before any
+assertion. Original failing overwrite/cancel-after/DACL-replacement paths remain.
+Ancestor substitution records the corresponding MoveFileEx operands before its
+unchanged refusal assertion. These observations do not establish race safety.
+
+The DACL wire contract is raw SDDL plus numeric owner/current token SID, DACL
+present/protected flags and every ACE's type, qualifier, flags, inherited state,
+mask and numeric trustee. Both native admission and Python consumer require the
+owner and sole unflagged allow ACE to match the process-token SID and full file
+rights `0x1f01ff`. Alias text has no independent authority. Controls freeze:
+numeric/compact positive representations; wrong owner/current user/trustee,
+extra/deny/inherited/flagged ACE, wrong mask, missing protection, malformed and
+missing fields; existing wrong-result/case/source/binary controls; forced consumer
+failure with final evidence retained; unsafe continuation refused.
+
+The process token is opened read-only with `TOKEN_QUERY=8`, passing the current
+process's retained `SafeProcessHandle` to four-byte BOOL
+[`OpenProcessToken`](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken).
+The returned `SafeAccessTokenHandle` and
+[`WindowsIdentity(IntPtr)`](https://learn.microsoft.com/en-us/dotnet/api/system.security.principal.windowsidentity.-ctor?view=net-10.0)
+are disposed after reading the numeric user SID. This avoids treating an effective
+thread identity as the process identity. Both APIs' signatures were inspected;
+native execution still awaits Windows. Descriptor bytes are parsed by
+[`RawSecurityDescriptor`](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.rawsecuritydescriptor?view=net-10.0),
+with no ACL repair after writes. Numeric SDDL tokens must agree with the numeric
+evidence; machine-relative aliases require the observed Windows descriptor.
+
+Surface list: native descriptor/operation writer → JSON rows → Python semantic
+consumer → final summary and exact workflow artifact entries → proof document.
+Use existing .NET descriptor APIs and Python stdlib; add no dependency. Testing
+union: D0/D1/D2/D4/D6; native Windows semantics remain unverified locally. Final
+source/fixture/binary snapshots and stage/probe outcomes are written on failure.
+Post-failure probes require observed native quiescence, complete source-bound rows,
+and an independently checked task-owned non-reparse fixture tree; otherwise each
+probe is explicitly Not assessed with its refusal reason. An existing containment
+failure prevents all additional child launches. No green result waives directory
+durability, hostile same-user namespace containment, UIA product quality or M1.
 
 1. **D-W0-1:** directory durability equivalence or truthful not-confirmed semantics.
 2. **D-W0-2:** qualify handle-relative namespace opens/rename, DOS-device stability,

@@ -19,8 +19,9 @@ internal static class Program
         "ancestor-reparse", "ancestor-substitution", "owned-cleanup", "cleanup-refusal", "file-flush", "directory-durability"];
     private static string source = "", binary = "";
     private static byte[] a = [], b = [];
-    private static readonly Dictionary<string, object> evidence = [];
+    private static Dictionary<string, object> evidence = [];
     private static bool published;
+    private static bool containmentLost;
 
     private static int Main(string[] args)
     {
@@ -29,6 +30,9 @@ internal static class Program
         string[] binaries = [Path.GetFileName(executable), "WindowsRuntime.dll", "WindowsRuntime.deps.json", "WindowsRuntime.runtimeconfig.json"];
         binary = Hash(Encoding.UTF8.GetBytes(string.Concat(binaries.Order(StringComparer.Ordinal)
             .Select(name => name + "\0" + Hash(File.ReadAllBytes(Path.Combine(directory, name))) + "\n"))));
+        if (args is ["--diagnostic-controls"]) return DiagnosticControls();
+        if (args is ["--final-arm-controls"]) return FinalArmControls();
+        if (args is ["--constructor-controls", var controlRoot]) return ConstructorControls(controlRoot);
         if (args.Length == 1 && args[0].StartsWith("--tree-", StringComparison.Ordinal))
             return Tree(args[0]);
         if (!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
@@ -55,10 +59,12 @@ internal static class Program
                 evidence["architecture"] = RuntimeInformation.ProcessArchitecture.ToString();
                 evidence["filesystem"] = new DriveInfo(Path.GetPathRoot(root)!).DriveFormat;
                 evidence["fixtureA"] = Hash(a); evidence["fixtureB"] = Hash(b);
+                evidence["tokenUserSid"] = Sid;
+                if (RefuseAfterContainmentLoss(name)) continue;
                 string folder = Path.Combine(root, name);
                 CreateDirectory(folder, ProtectedSddl());
                 var timer = Stopwatch.StartNew();
-                try { Scenario(name, folder); Emit(name, "Pass", "OK", timer.Elapsed.TotalMilliseconds); }
+                try { RunScenario(name, folder); Emit(name, "Pass", "OK", timer.Elapsed.TotalMilliseconds); }
                 catch (Unsupported error) { failures++; Emit(name, "Not assessed", "W0-UNSUPPORTED-" + error.Message, timer.Elapsed.TotalMilliseconds); }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
                 { failures++; evidence["error"] = error.Message; Emit(name, "Fail", "W0-ORACLE-FAILED", timer.Elapsed.TotalMilliseconds); }
@@ -73,11 +79,37 @@ internal static class Program
     private static void Emit(string name, string status, string code, double milliseconds = 0) =>
         Console.WriteLine(JsonSerializer.Serialize(new { @case = name, status, code, source, binary,
             publication = published, durability = false, elapsedMilliseconds = milliseconds, evidence }));
+    private static bool RefuseAfterContainmentLoss(string name)
+    {
+        if (!containmentLost) return false;
+        Emit(name, "Not assessed", "W0-UNSUPPORTED-PRIOR-CONTAINMENT-LOSS"); return true;
+    }
     private static string Hash(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
     private static void Require(bool value, string code) { if (!value) throw new InvalidOperationException(code); }
     private static void Check(bool value) { if (!value) throw new Win32Exception(Marshal.GetLastPInvokeError()); }
-    private static string Sid => WindowsIdentity.GetCurrent().User?.Value ?? throw new Unsupported("SID");
+    private static string Sid
+    {
+        get
+        {
+            using var process = Process.GetCurrentProcess();
+            Check(Native.OpenProcessToken(process.SafeHandle, 0x0008, out var token)); // TOKEN_QUERY only.
+            using (token)
+            using (var identity = new WindowsIdentity(token.DangerousGetHandle()))
+                return identity.User?.Value ?? throw new Unsupported("SID");
+        }
+    }
     private static string ProtectedSddl() => "O:" + Sid + "D:P(A;;FA;;;" + Sid + ")";
+
+    private static void RunScenario(string name, string folder)
+    {
+        if (name != "overwrite") { Scenario(name, folder); return; }
+        using var parent = new PinnedPath(folder);
+        WithReplacementDiagnostics(folder, NativeDiagnosticArm, () =>
+        {
+            using var fresh = new PinnedPath(folder);
+            if (!parent.Identities.SequenceEqual(fresh.Identities)) throw new UnsafeDiagnostic("parent identity changed");
+        }, () => Scenario(name, folder));
+    }
 
     private static void Scenario(string name, string folder)
     {
@@ -101,6 +133,10 @@ internal static class Program
             evidence["candidateDurability"] = result.DurabilityConfirmed;
             evidence["cancellationRequested"] = cancellation.IsCancellationRequested;
             evidence["expectedDiskHash"] = expected ?? "absent";
+            evidence["targetExists"] = File.Exists(target);
+            evidence["claimExists"] = File.Exists(Path.Combine(folder, "writer.claim"));
+            evidence["tempExists"] = File.Exists(Path.Combine(folder, "staged.bin"));
+            evidence["after"] = File.Exists(target) ? Hash(File.ReadAllBytes(target)) : "absent";
             string code = name switch
             {
                 "cancel-before" => "DOC-CANCELLED",
@@ -173,18 +209,27 @@ internal static class Program
         }
         if (name == "ancestor-substitution")
         {
+            evidence["ancestorOperands"] = new { sourcePath = folder, destinationPath = folder + "-moved",
+                destinationExisted = Directory.Exists(folder + "-moved"), flags = 0,
+                heldAncestors = parent.Identities, ancestorAccess = 0, ancestorShare = 3,
+                sourceBefore = DirectorySnapshot(folder), destinationBefore = DirectorySnapshot(folder + "-moved"),
+                lifetime = "all ancestor handles retained through call" };
             bool moved = Native.MoveFileExW(folder, folder + "-moved", 0);
             int error = Marshal.GetLastPInvokeError();
-            Require(!moved && error is 5 or 32, "W0-ANCESTOR-MOVED");
-            evidence["win32"] = error; evidence["heldAncestors"] = parent.Identities; return;
+            evidence["moved"] = moved; evidence["win32"] = moved ? null! : error;
+            evidence["heldAncestors"] = parent.Identities;
+            evidence["ancestorAfter"] = new { source = DirectorySnapshot(folder), destination = DirectorySnapshot(folder + "-moved") };
+            Require(!moved && error is 5 or 32, "W0-ANCESTOR-MOVED"); return;
         }
         if (name == "dacl-inheritance")
         {
             string permissive = Path.Combine(folder, "permissive");
             CreateDirectory(permissive, "D:(A;OICI;FA;;;WD)");
             using var fixture = Owned.Create(Path.Combine(permissive, "protected.bin"));
+            evidence["protectedDescriptor"] = SecurityEvidence(fixture.Handle);
             Require(PrivateDacl(fixture.Handle), "W0-INHERITANCE-LEAK");
             using var inherited = Open(Path.Combine(permissive, "inherited.bin"), Native.ReadWrite, 7, 1);
+            evidence["inheritedDescriptor"] = SecurityEvidence(inherited);
             Require(!PrivateDacl(inherited), "W0-NEGATIVE-DACL-NOT-DETECTED");
             evidence["protectedPrivate"] = PrivateDacl(fixture.Handle);
             evidence["inheritedControlDetected"] = !PrivateDacl(inherited); return;
@@ -202,15 +247,20 @@ internal static class Program
         if (name == "read") { Require(held.Read().SequenceEqual(a), "W0-BYTES"); evidence["after"] = Hash(held.Read()); return; }
         if (name is "dacl-create" or "dacl-replacement")
         {
+            evidence["creationDacl"] = SecurityEvidence(held.Handle);
             Require(PrivateDacl(held.Handle), "W0-DACL");
             if (name == "dacl-replacement")
             {
                 using var replacement = Owned.Create(temp); replacement.Write(b);
+                evidence["replacementDacl"] = SecurityEvidence(replacement.Handle);
+                evidence["replacementOperands"] = new { targetIdentity = Identity(held.Handle),
+                    targetAccess = Native.ReadWrite | 0x10000 | 0x20000, targetShare = 5,
+                    targetLifetime = "original owned target handle retained through rename", parentIdentities = parent.Identities };
                 replacement.Rename(target, true); published = true;
                 Require(PrivateDacl(replacement.Handle), "W0-REPLACEMENT-DACL");
-                evidence["replacementDacl"] = DescriptorText(replacement.Handle);
+                evidence["replacementDacl"] = SecurityEvidence(replacement.Handle);
             }
-            evidence["creationDacl"] = DescriptorText(held.Handle); return;
+            return;
         }
         if (name == "file-flush") { Check(Native.FlushFileBuffers(held.Handle)); evidence["fileFlushed"] = true; return; }
         if (name == "sharing")
@@ -252,6 +302,278 @@ internal static class Program
     }
 
     private sealed record SaveObservation(string Code, string? PublishedSha256, bool PublicationKnown, bool DurabilityConfirmed);
+    private static object DirectorySnapshot(string path)
+    {
+        try
+        {
+            using var handle = Open(path, 0, 7, 3, flags: 0x02200000);
+            return new { exists = true, identity = Identity(handle), attributes = (uint?)Info(handle).Attributes, error = (string?)null };
+        }
+        catch (Win32Exception error)
+        { return new { exists = Directory.Exists(path), identity = (string?)null, attributes = (uint?)null, error = error.NativeErrorCode.ToString() }; }
+    }
+    private static object Snapshot(string path)
+    {
+        try
+        {
+            using var file = OpenRegular(path);
+            return new { exists = true, identity = Identity(file), sha256 = Hash(Read(file)), error = (string?)null };
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
+        { return new { exists = File.Exists(path), identity = (string?)null, sha256 = (string?)null, error = error.Message }; }
+    }
+    private static void WithReplacementDiagnostics(string folder, Action<string, bool, Dictionary<string, object>> runArm,
+        Action verifySafety, Action original)
+    {
+        var originalEvidence = evidence;
+        bool originalPublication = published, safe = true;
+        var arms = new List<Dictionary<string, object>>(); originalEvidence["replacementDiagnostics"] = arms;
+        foreach (bool release in new[] { false, true })
+        {
+            string arm = release ? "released-target" : "held-target";
+            string directory = Path.Combine(folder, arm);
+            var observation = new Dictionary<string, object> { ["arm"] = arm, ["directory"] = directory,
+                ["targetPath"] = Path.Combine(directory, "target.bin"), ["stagedPath"] = Path.Combine(directory, "staged.bin"),
+                ["inputA"] = Hash(a), ["inputB"] = Hash(b), ["steps"] = new List<string>(),
+                ["targetIdentity"] = "Not recorded", ["stagedIdentity"] = "Not recorded", ["nativeError"] = "Not recorded",
+                ["finalContainment"] = "Not established",
+                ["cleanup"] = "no handles acquired", ["status"] = "Not assessed" };
+            arms.Add(observation);
+            if (!safe) { observation["reason"] = "prior arm lost containment or cleanup"; continue; }
+            evidence = observation;
+            try
+            {
+                verifySafety();
+                runArm(directory, release, observation);
+                observation["status"] = "Observed";
+            }
+            catch (UnsafeDiagnostic error) { safe = false; observation["exception"] = error.Message; observation["status"] = "Unsafe"; }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
+            {
+                observation["exception"] = error.Message; observation["exceptionType"] = error.GetType().Name; observation["status"] = "Fail";
+                if (error is Win32Exception native) observation["nativeError"] = native.NativeErrorCode;
+            }
+            finally
+            {
+                try { verifySafety(); }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
+                { safe = false; observation["safetyFailure"] = error.Message; }
+                if (observation["cleanup"] is not ("no handles acquired" or "all acquired handles disposed")) safe = false;
+                if (observation["finalContainment"] is not "Verified") safe = false;
+                if (!safe) observation["status"] = "Unsafe";
+                evidence = originalEvidence; published = originalPublication;
+            }
+        }
+        originalEvidence["originalOverwriteInvoked"] = false;
+        if (!safe) { containmentLost = true; throw new Unsupported("DIAGNOSTIC-CONTAINMENT-OR-CLEANUP"); }
+        originalEvidence["originalOverwriteInvoked"] = true;
+        original(); // This is the unchanged original scenario, not a diagnostic substitute.
+    }
+    private static void NativeDiagnosticArm(string directory, bool release, Dictionary<string, object> observation)
+    {
+        var steps = (List<string>)observation["steps"];
+        PinnedPath? parent = null;
+        Owned? initial = null, staged = null;
+        SafeFileHandle? heldTarget = null;
+        bool directoryCreated = false;
+        try
+        {
+            steps.Add("setup");
+            if (Directory.Exists(directory) || File.Exists(directory)) throw new UnsafeDiagnostic("diagnostic path collision");
+            CreateDirectory(directory, ProtectedSddl());
+            directoryCreated = true;
+            try { parent = new PinnedPath(directory); }
+            catch (Unsupported error) { throw new UnsafeDiagnostic(error.Message); }
+            string target = (string)observation["targetPath"], stagedPath = (string)observation["stagedPath"];
+            observation["cleanup"] = "handles acquired; disposal pending";
+            initial = Owned.Create(target); initial.Write(a); initial.Dispose();
+            staged = Owned.Create(stagedPath); staged.Write(b);
+            observation["stagedIdentity"] = Identity(staged.Handle);
+            heldTarget = OpenRegular(target);
+            observation["targetAccess"] = 0x80000000u; observation["targetShare"] = 7;
+            observation["targetIdentity"] = Identity(heldTarget); observation["targetBefore"] = Hash(Read(heldTarget));
+            observation["parentIdentities"] = parent.Identities;
+            observation["targetLifetime"] = release ? "closed immediately before rename" : "retained through rename";
+            if (release) heldTarget.Dispose();
+            steps.Add("operation");
+            try { staged.Rename(target, true); observation["returned"] = true; observation["nativeError"] = null!; }
+            catch (Win32Exception error) { observation["returned"] = false; observation["nativeError"] = error.NativeErrorCode; }
+            steps.Add("observation");
+            observation["destinationAfter"] = Snapshot(target);
+            observation["stagedIdentityAfter"] = Identity(staged.Handle);
+            observation["stagedBytesAfter"] = Hash(staged.Read());
+        }
+        catch (Exception error)
+        {
+            observation["armExceptionBeforeFinal"] = new { type = error.GetType().FullName, message = error.Message,
+                nativeError = error is Win32Exception native ? (int?)native.NativeErrorCode : null };
+            throw;
+        }
+        finally
+        {
+            try
+            {
+                VerifyFinalArm(observation, () =>
+                {
+                    observation["finalContainmentScope"] = directoryCreated ? "created arm directory identity" : "no arm directory created";
+                    if (!directoryCreated) return;
+                    if (parent is null) throw new Unsupported("ARM-INITIAL-IDENTITY-NOT-ESTABLISHED");
+                    using var fresh = new PinnedPath(directory);
+                    if (!fresh.Identities.SequenceEqual(parent.Identities)) throw new UnsafeDiagnostic("arm parent identity changed");
+                });
+            }
+            finally
+            {
+                steps.Add("cleanup");
+                heldTarget?.Dispose(); staged?.Dispose(); initial?.Dispose(); parent?.Dispose();
+                observation["cleanup"] = "all acquired handles disposed";
+                observation["fixtureDisposition"] = "retained for bounded driver inventory; no path deletion";
+            }
+        }
+    }
+    private sealed class UnsafeDiagnostic(string message, Exception? inner = null) : InvalidOperationException(message, inner);
+    private static void VerifyFinalArm(Dictionary<string, object> observation, Action verify)
+    {
+        observation["finalContainment"] = "Not established";
+        try { verify(); observation["finalContainment"] = "Verified"; }
+        catch (Exception error)
+        {
+            observation["finalContainment"] = "Unsafe";
+            observation["finalContainmentException"] = new { type = error.GetType().FullName, message = error.Message,
+                nativeError = error is Win32Exception native ? (int?)native.NativeErrorCode : null };
+            throw new UnsafeDiagnostic("final arm containment not established", error);
+        }
+    }
+    private static int FinalArmControls()
+    {
+        int failures = 0;
+        foreach (bool failReleased in new[] { false, true })
+        foreach (string fault in new[] { "unsupported", "access", "observation", "identity", "cleanup" })
+        {
+            evidence = []; published = false; containmentLost = false;
+            int originalCalls = 0, operations = 0;
+            try
+            {
+                WithReplacementDiagnostics("synthetic-final-arm-root", (directory, release, row) =>
+                {
+                    operations++;
+                    try
+                    {
+                        VerifyFinalArm(row, () =>
+                        {
+                            if (release != failReleased) return;
+                            switch (fault)
+                            {
+                                case "unsupported": throw new Unsupported("injected final pin unsupported");
+                                case "access": throw new Win32Exception(5, "injected final pin access");
+                                case "observation": throw new IOException("injected final observation");
+                                case "identity": throw new UnsafeDiagnostic("injected final identity inequality");
+                            }
+                        });
+                    }
+                    finally { row["cleanup"] = release == failReleased && fault == "cleanup" ? "injected unclosed handle" : "all acquired handles disposed"; }
+                }, () => { }, () => originalCalls++);
+            }
+            catch (Unsupported error) { evidence["refusal"] = error.Message; }
+            var arms = (List<Dictionary<string, object>>)evidence["replacementDiagnostics"];
+            bool passed = originalCalls == 0 && operations == (failReleased ? 2 : 1) &&
+                evidence["originalOverwriteInvoked"] is false && containmentLost &&
+                (failReleased || (string)arms[1]["status"] == "Not assessed");
+            var retained = evidence;
+            using var rows = new StringWriter();
+            TextWriter stdout = Console.Out;
+            try
+            {
+                Console.SetOut(rows);
+                foreach (string name in Cases) { evidence = []; if (!RefuseAfterContainmentLoss(name)) passed = false; }
+            }
+            finally { Console.SetOut(stdout); evidence = retained; }
+            if (!passed) failures++;
+            Console.WriteLine(JsonSerializer.Serialize(new { control = (failReleased ? "released-" : "held-") + fault,
+                scope = "synthetic actions through actual final guard and orchestrator", result = passed ? "Pass" : "Fail",
+                source, binary, originalCalls, operations, evidence, refusedRows = rows.ToString() }));
+        }
+        return failures == 0 ? 0 : 1;
+    }
+    private static int DiagnosticControls()
+    {
+        // Same orchestration, deterministic injected actions. No Windows API or native claim.
+        foreach (string fault in new[] { "setup", "operation", "observation", "original", "unsafe", "cleanup" })
+        {
+            evidence = []; published = false; containmentLost = false; int originalCalls = 0;
+            try
+            {
+                WithReplacementDiagnostics("synthetic-disjoint-root", (directory, release, row) =>
+                {
+                    var steps = (List<string>)row["steps"];
+                    try
+                    {
+                        foreach (string step in new[] { "setup", "operation", "observation" })
+                        {
+                            steps.Add(step);
+                            if (!release && step == fault) throw new IOException("injected " + step);
+                            if (!release && fault == "unsafe") throw new UnsafeDiagnostic("injected containment loss");
+                        }
+                    }
+                    finally
+                    {
+                        VerifyFinalArm(row, () => { });
+                        row["cleanup"] = !release && fault == "cleanup" ? "injected unclosed handle" : "all acquired handles disposed";
+                    }
+                }, () => { }, () =>
+                {
+                    originalCalls++;
+                    if (fault == "original") throw new IOException("injected original scenario");
+                });
+            }
+            catch (Exception error) when (error is IOException or Unsupported) { evidence["originalException"] = error.Message; }
+            var arms = (List<Dictionary<string, object>>)evidence["replacementDiagnostics"];
+            bool stop = fault is "unsafe" or "cleanup";
+            Require(arms.Count == 2 && originalCalls == (stop ? 0 : 1), "W0-DIAGNOSTIC-ISOLATION");
+            Require((string)arms[1]["status"] == (stop ? "Not assessed" : "Observed"), "W0-DIAGNOSTIC-SECOND-ARM");
+            Require(fault != "original" || evidence.ContainsKey("originalException"), "W0-ORIGINAL-FAILURE-NOT-RECORDED");
+            Require(!published, "W0-DIAGNOSTIC-PUBLICATION-LEAK");
+            Console.WriteLine(JsonSerializer.Serialize(new { control = fault, scope = "synthetic orchestration", result = "Pass", source, binary, originalCalls, evidence }));
+        }
+        return 0;
+    }
+    private static int ConstructorControls(string root)
+    {
+        Require(!Directory.Exists(root) && !File.Exists(root), "W0-CONSTRUCTOR-ROOT-EXISTS");
+        Directory.CreateDirectory(root);
+        string[] paths = Enumerable.Range(0, 4).Select(i => Path.Combine(root, "owned-" + i + ".bin")).ToArray();
+        foreach (string path in paths) using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write)) file.WriteByte(42);
+        string foreignPath = Path.Combine(root, "foreign.bin");
+        using (var file = new FileStream(foreignPath, FileMode.CreateNew, FileAccess.Write)) file.WriteByte(17);
+        foreach (int failAfter in new[] { 1, 3 })
+        {
+            using var foreign = File.OpenHandle(foreignPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var acquired = new List<SafeFileHandle>();
+            var fault = new IOException("injected inspection after acquisition " + failAfter);
+            Exception? caught = null;
+            try
+            {
+                using var pin = new PinnedPath(paths, path =>
+                {
+                    var handle = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    acquired.Add(handle); return handle;
+                }, handle =>
+                {
+                    if (acquired.Count == failAfter) throw fault;
+                    return acquired.Count.ToString();
+                });
+            }
+            catch (IOException error) { caught = error; }
+            bool sameError = ReferenceEquals(caught, fault);
+            bool[] closed = acquired.Select(h => h.IsClosed).ToArray();
+            bool foreignOpen = !foreign.IsClosed && RandomAccess.GetLength(foreign) == 1;
+            Require(acquired.Count == failAfter && closed.All(v => v) && foreignOpen && sameError, "W0-CONSTRUCTOR-CLEANUP");
+            Console.WriteLine(JsonSerializer.Serialize(new { control = "constructor-after-" + failAfter,
+                scope = "actual PinnedPath ownership path with injected file-handle acquisition/inspection", result = "Pass",
+                source, binary, acquired = acquired.Count, closed, foreignOpen, sameError, error = caught!.Message }));
+        }
+        return 0;
+    }
     private static SaveObservation Publish(string path, byte[] input, string? expected, CancellationToken cancellation,
         Action? afterSnapshot = null, string? fault = null, Action? afterPublish = null)
     {
@@ -283,6 +605,9 @@ internal static class Program
             }
             try
             {
+                evidence["publishOperands"] = new { heldTarget = target is not null, targetAccess = 0x80000000u,
+                    targetShare = 7, targetLifetime = "retained through rename and cleanup",
+                    parentIdentities = parent.Identities, ancestorAccess = 0, ancestorShare = 3 };
                 staged.Rename(fault == "replace-fault" ? Path.Combine(Path.GetDirectoryName(path)!, "missing", "target.bin") : path, expected is not null);
                 known = true; published = true;
             }
@@ -332,28 +657,37 @@ internal static class Program
     {
         private readonly List<SafeFileHandle> handles = [];
         public readonly List<string> Identities = [];
-        public PinnedPath(string path)
+        public PinnedPath(string path) : this(AncestorPaths(path),
+            path => Open(path, 0, 3, 3, flags: 0x02200000), InspectDirectory) { }
+        public PinnedPath(IEnumerable<string> paths, Func<string, SafeFileHandle> acquire, Func<SafeFileHandle, string> inspect)
+        {
+            try
+            {
+                foreach (string path in paths)
+                {
+                    var handle = acquire(path);
+                    handles.Add(handle);
+                    Identities.Add(inspect(handle));
+                }
+            }
+            catch { Dispose(); throw; }
+        }
+        private static IEnumerable<string> AncestorPaths(string path)
         {
             ValidatePath(path);
             var drive = new DriveInfo(Path.GetPathRoot(path)!);
             if (drive.DriveType != DriveType.Fixed || drive.DriveFormat != "NTFS") throw new Unsupported("FILESYSTEM");
-            try
-            {
-                string cursor = Path.GetPathRoot(path)!;
-                Pin(cursor);
-                foreach (string part in path[3..].Split('\\', StringSplitOptions.RemoveEmptyEntries))
-                { cursor = Path.Combine(cursor, part); Pin(cursor); }
-            }
-            catch { Dispose(); throw; }
+            string cursor = Path.GetPathRoot(path)!;
+            yield return cursor;
+            foreach (string part in path[3..].Split('\\', StringSplitOptions.RemoveEmptyEntries))
+            { cursor = Path.Combine(cursor, part); yield return cursor; }
         }
-        private void Pin(string path)
+        private static string InspectDirectory(SafeFileHandle handle)
         {
             // Keep every ancestor without FILE_SHARE_DELETE until all file operations finish.
-            var handle = Open(path, 0, 3, 3, flags: 0x02200000);
-            handles.Add(handle);
             var info = Info(handle);
             if ((info.Attributes & 0x400) != 0 || (info.Attributes & 0x10) == 0) throw new Unsupported("ANCESTOR-REPARSE");
-            Identities.Add(Identity(handle));
+            return Identity(handle);
         }
         public void Dispose() { foreach (var handle in handles) handle.Dispose(); }
     }
@@ -409,7 +743,7 @@ internal static class Program
         while (read < bytes.Length) { int count = RandomAccess.Read(handle, bytes.AsSpan(read), read); Require(count > 0, "W0-SHORT-READ"); read += count; }
         return bytes;
     }
-    private static string DescriptorText(SafeFileHandle handle)
+    private static RawSecurityDescriptor ReadDescriptor(SafeFileHandle handle)
     {
         uint error = Native.GetSecurityInfo(handle, 1, 7, out _, out _, out _, out _, out var descriptor);
         if (error != 0) throw new Win32Exception((int)error);
@@ -417,17 +751,93 @@ internal static class Program
         {
             int size = checked((int)Native.GetSecurityDescriptorLength(descriptor)); byte[] bytes = new byte[size];
             Marshal.Copy(descriptor, bytes, 0, size);
-            return new RawSecurityDescriptor(bytes, 0).GetSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
+            return new RawSecurityDescriptor(bytes, 0);
         }
         finally { Native.LocalFree(descriptor); }
     }
     private static bool PrivateDacl(SafeFileHandle handle)
     {
-        var descriptor = new RawSecurityDescriptor(DescriptorText(handle));
-        return (descriptor.ControlFlags & ControlFlags.DiscretionaryAclProtected) != 0 &&
+        var descriptor = ReadDescriptor(handle);
+        return descriptor.Owner?.Value == Sid &&
+            (descriptor.ControlFlags & ControlFlags.DiscretionaryAclPresent) != 0 &&
+            (descriptor.ControlFlags & ControlFlags.DiscretionaryAclProtected) != 0 &&
             descriptor.DiscretionaryAcl is { Count: 1 } acl && acl[0] is CommonAce ace &&
+            ace.AceType == AceType.AccessAllowed && ace.AceFlags == AceFlags.None &&
             ace.AceQualifier == AceQualifier.AccessAllowed && !ace.IsInherited && ace.SecurityIdentifier.Value == Sid &&
             ace.AccessMask == 0x1f01ff;
+    }
+    private static object SecurityEvidence(SafeFileHandle handle)
+    {
+        var descriptor = ReadDescriptor(handle);
+        string raw = descriptor.GetSddlForm(AccessControlSections.Owner | AccessControlSections.Access);
+        var facts = DescriptorFacts(descriptor);
+        using var parsed = new Descriptor(raw); // Parse the original raw text through the Windows contract.
+        var resolved = DescriptorFacts(DescriptorFromPointer(parsed.Pointer));
+        Require(JsonSerializer.Serialize(facts) == JsonSerializer.Serialize(resolved), "W0-RAW-DESCRIPTOR-CONTRADICTION");
+        var context = new Dictionary<string, object>();
+        Match tokens = Regex.Match(raw, @"\AO:(S-1-[0-9-]+|LA|SY)D:P\(A;;FA;;;(S-1-[0-9-]+|LA|SY)\)\z");
+        // Non-private inheritance controls retain their descriptor but cannot gain admission.
+        if (tokens.Success)
+        {
+            if (tokens.Groups[1].Value == "LA" || tokens.Groups[2].Value == "LA")
+            {
+                context["method"] = "LsaQueryInformationPolicy:PolicyAccountDomainInformation:local";
+                context["accountDomainSid"] = AccountDomainSid();
+            }
+            string Resolve(string token) => token switch
+            {
+                "SY" => "S-1-5-18",
+                "LA" => (string)context["accountDomainSid"] + "-500",
+                _ => new SecurityIdentifier(token).Value
+            };
+            Require(Resolve(tokens.Groups[1].Value) == descriptor.Owner?.Value &&
+                descriptor.DiscretionaryAcl is { Count: 1 } acl && acl[0] is KnownAce ace &&
+                Resolve(tokens.Groups[2].Value) == ace.SecurityIdentifier.Value, "W0-RAW-ALIAS-CONTEXT-MISMATCH");
+        }
+        else if (PrivateDacl(handle)) throw new Unsupported("RAW-ALIAS-OR-DESCRIPTOR-SUBSET");
+        facts["rawSddl"] = raw; facts["tokenUserSid"] = Sid;
+        facts["rawResolution"] = new { method = "ConvertStringSecurityDescriptorToSecurityDescriptorW", context, descriptor = resolved };
+        return facts;
+    }
+    private static Dictionary<string, object> DescriptorFacts(RawSecurityDescriptor descriptor)
+    {
+        var aces = new List<object>();
+        if (descriptor.DiscretionaryAcl is { } acl)
+            foreach (GenericAce entry in acl)
+                aces.Add(new { type = entry.AceType.ToString(), flags = (int)entry.AceFlags,
+                    inherited = entry.IsInherited, qualifier = (entry as QualifiedAce)?.AceQualifier.ToString(),
+                    mask = (entry as KnownAce)?.AccessMask, trusteeSid = (entry as KnownAce)?.SecurityIdentifier.Value });
+        return new() { ["ownerSid"] = descriptor.Owner?.Value!,
+            ["daclPresent"] = (descriptor.ControlFlags & ControlFlags.DiscretionaryAclPresent) != 0,
+            ["daclProtected"] = (descriptor.ControlFlags & ControlFlags.DiscretionaryAclProtected) != 0,
+            ["aceCount"] = descriptor.DiscretionaryAcl?.Count!, ["aces"] = aces };
+    }
+    private static RawSecurityDescriptor DescriptorFromPointer(IntPtr pointer)
+    {
+        int size = checked((int)Native.GetSecurityDescriptorLength(pointer));
+        byte[] bytes = new byte[size]; Marshal.Copy(pointer, bytes, 0, size);
+        return new RawSecurityDescriptor(bytes, 0);
+    }
+    private static string AccountDomainSid()
+    {
+        Require(Marshal.SizeOf<Native.LsaObjectAttributes>() == 48 && Marshal.SizeOf<Native.AccountDomainInfo>() == 24,
+            "W0-LSA-ABI");
+        var attributes = new Native.LsaObjectAttributes { Length = 48 };
+        uint status = Native.LsaOpenPolicy(IntPtr.Zero, ref attributes, 1, out var policy); // Read-only POLICY_VIEW_LOCAL_INFORMATION.
+        if (status != 0) throw new Win32Exception((int)Native.LsaNtStatusToWinError(status));
+        try
+        {
+            status = Native.LsaQueryInformationPolicy(policy, 5, out var buffer);
+            if (status != 0) throw new Win32Exception((int)Native.LsaNtStatusToWinError(status));
+            try
+            {
+                var info = Marshal.PtrToStructure<Native.AccountDomainInfo>(buffer);
+                Require(info.DomainSid != IntPtr.Zero, "W0-LSA-DOMAIN-SID-MISSING");
+                return new SecurityIdentifier(info.DomainSid).Value;
+            }
+            finally { Require(Native.LsaFreeMemory(buffer) == 0, "W0-LSA-FREE"); }
+        }
+        finally { Require(Native.LsaClose(policy) == 0, "W0-LSA-CLOSE"); }
     }
     private sealed class Owned(string path, SafeFileHandle handle) : IDisposable
     {
@@ -436,7 +846,13 @@ internal static class Program
         {
             using var descriptor = new Descriptor(ProtectedSddl());
             var handle = Open(path, Native.ReadWrite | 0x10000 | 0x20000, 5, 1, descriptor);
-            try { Require(PrivateDacl(handle), "W0-DACL-BEFORE-PAYLOAD"); return new Owned(path, handle); }
+            try
+            {
+                if (!evidence.TryGetValue("creationDescriptors", out var entries))
+                    evidence["creationDescriptors"] = entries = new List<object>();
+                ((List<object>)entries).Add(new { path, descriptor = SecurityEvidence(handle) });
+                Require(PrivateDacl(handle), "W0-DACL-BEFORE-PAYLOAD"); return new Owned(path, handle);
+            }
             catch { handle.Dispose(); throw; }
         }
         public void Write(byte[] bytes) { RandomAccess.Write(Handle, bytes, 0); Check(Native.FlushFileBuffers(Handle)); }
@@ -446,7 +862,21 @@ internal static class Program
             // WinBase.h FILE_RENAME_INFO x64: union at 0, HANDLE at 8, DWORD at 16, WCHAR at 20.
             byte[] name = Encoding.Unicode.GetBytes(target); byte[] buffer = new byte[20 + name.Length + 2];
             buffer[0] = replace ? (byte)1 : (byte)0; BitConverter.GetBytes(name.Length).CopyTo(buffer, 16); name.CopyTo(buffer, 20);
-            Check(Native.SetFileInformationByHandle(Handle, 3, buffer, (uint)buffer.Length));
+            var diagnostic = new Dictionary<string, object?> { ["sourcePath"] = path, ["destinationPath"] = target,
+                ["replace"] = replace, ["sourceIdentity"] = Identity(Handle), ["sourceBefore"] = Hash(Read()),
+                ["sourceAccess"] = Native.ReadWrite | 0x10000 | 0x20000, ["sourceShare"] = 5,
+                ["sourceLifetime"] = "owned handle retained through call", ["destinationBefore"] = Snapshot(target) };
+            diagnostic["sourceParentBefore"] = DirectorySnapshot(Path.GetDirectoryName(path)!);
+            diagnostic["destinationParentBefore"] = DirectorySnapshot(Path.GetDirectoryName(target)!);
+            if (!evidence.TryGetValue("renames", out var entries)) evidence["renames"] = entries = new List<object>();
+            ((List<object>)entries).Add(diagnostic);
+            bool renamed = Native.SetFileInformationByHandle(Handle, 3, buffer, (uint)buffer.Length);
+            int error = Marshal.GetLastPInvokeError();
+            diagnostic["returned"] = renamed; diagnostic["nativeError"] = renamed ? null : error;
+            diagnostic["destinationAfter"] = Snapshot(target); diagnostic["sourceAfter"] = Hash(Read());
+            diagnostic["sourceParentAfter"] = DirectorySnapshot(Path.GetDirectoryName(path)!);
+            diagnostic["destinationParentAfter"] = DirectorySnapshot(Path.GetDirectoryName(target)!);
+            if (!renamed) throw new Win32Exception(error);
         }
         public bool Cleanup()
         {
@@ -474,6 +904,19 @@ internal static class Program
 internal static class Native
 {
     internal const uint ReadWrite = 0xc0000000;
+    [StructLayout(LayoutKind.Sequential)] internal struct LsaObjectAttributes
+    { public uint Length; public IntPtr RootDirectory, ObjectName; public uint Attributes; public IntPtr SecurityDescriptor, SecurityQualityOfService; }
+    [StructLayout(LayoutKind.Sequential)] internal struct LsaUnicodeString
+    { public ushort Length, MaximumLength; public IntPtr Buffer; }
+    [StructLayout(LayoutKind.Sequential)] internal struct AccountDomainInfo
+    { public LsaUnicodeString DomainName; public IntPtr DomainSid; }
+    [DllImport("advapi32.dll")] internal static extern uint LsaOpenPolicy(IntPtr system, ref LsaObjectAttributes attributes, uint access, out IntPtr handle);
+    [DllImport("advapi32.dll")] internal static extern uint LsaQueryInformationPolicy(IntPtr handle, int informationClass, out IntPtr buffer);
+    [DllImport("advapi32.dll")] internal static extern uint LsaNtStatusToWinError(uint status);
+    [DllImport("advapi32.dll")] internal static extern uint LsaFreeMemory(IntPtr buffer);
+    [DllImport("advapi32.dll")] internal static extern uint LsaClose(IntPtr handle);
+    [DllImport("advapi32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool OpenProcessToken(SafeProcessHandle process, uint access, out SafeAccessTokenHandle token);
     [StructLayout(LayoutKind.Sequential)] internal struct SecurityAttributes { public uint Length; public IntPtr Descriptor; public int Inherit; }
     [StructLayout(LayoutKind.Sequential)] internal struct FileInfo
     { public uint Attributes, CreationLow, CreationHigh, AccessLow, AccessHigh, WriteLow, WriteHigh, Volume, SizeHigh, SizeLow, Links, IndexHigh, IndexLow; }

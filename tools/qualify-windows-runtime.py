@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Disposable W0 qualification. No product acceptance or automatic dispatch."""
 import argparse
+import base64
 import copy
 import hashlib
 import json
@@ -10,6 +11,7 @@ import platform
 import re
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -38,6 +40,51 @@ def verify_sources(base, manifest):
     if after != manifest:
         raise ValueError("W0-SOURCE-DRIFT")
     return after
+
+
+def validate_dacl(value, token_sid):
+    """Compare resolved descriptor semantics; raw SDDL is retained, not authority."""
+    sid_pattern = r"S-1-[0-9]+(?:-[0-9]+){1,15}"
+    if not isinstance(value, dict) or not isinstance(token_sid, str) or not re.fullmatch(sid_pattern, token_sid):
+        raise ValueError("W0-DACL-SCHEMA")
+    token = r"(?:S-1-[0-9]+(?:-[0-9]+){1,15}|[A-Z]{2})"
+    raw = re.fullmatch(r"O:(" + token + r")D:P\(A;;FA;;;(" + token + r")\)", value.get("rawSddl", "")) if isinstance(value.get("rawSddl"), str) else None
+    if raw is None:
+        raise ValueError("W0-DACL-RAW-SCHEMA")
+    resolution = value.get("rawResolution")
+    if not isinstance(resolution, dict) or resolution.get("method") != "ConvertStringSecurityDescriptorToSecurityDescriptorW":
+        raise ValueError("W0-DACL-RAW-RESOLUTION-MISSING")
+    resolved = resolution.get("descriptor")
+    if not isinstance(resolved, dict):
+        raise ValueError("W0-DACL-RAW-DESCRIPTOR-MISSING")
+    def resolve(token):
+        if re.fullmatch(sid_pattern, token):
+            return token
+        if token == "SY":
+            return "S-1-5-18"  # SDDL_LOCAL_SYSTEM / SECURITY_LOCAL_SYSTEM_RID.
+        context = resolution.get("context")
+        if token != "LA" or not isinstance(context, dict) or context.get("method") != "LsaQueryInformationPolicy:PolicyAccountDomainInformation:local":
+            raise ValueError("W0-DACL-ALIAS-UNRESOLVED")
+        domain = context.get("accountDomainSid")
+        if not isinstance(domain, str) or not re.fullmatch(r"S-1-5-21-[0-9]+-[0-9]+-[0-9]+", domain):
+            raise ValueError("W0-DACL-ALIAS-CONTEXT")
+        return domain + "-500"  # Documented local administrator RID, not token suffix.
+    if any(resolve(part) != token_sid for part in raw.groups()):
+        raise ValueError("W0-DACL-RAW-SID-MISMATCH")
+    for key in ("ownerSid", "daclPresent", "daclProtected", "aceCount", "aces"):
+        if key not in resolved or json.dumps(resolved[key], sort_keys=True) != json.dumps(value.get(key), sort_keys=True):
+            raise ValueError("W0-DACL-RAW-SEMANTICS-" + key)
+    for key, expected in dict(ownerSid=token_sid, tokenUserSid=token_sid, daclPresent=True,
+                              daclProtected=True, aceCount=1).items():
+        if type(value.get(key)) is not type(expected) or value[key] != expected:
+            raise ValueError("W0-DACL-" + key)
+    aces = value.get("aces")
+    if not isinstance(aces, list) or len(aces) != 1 or not isinstance(aces[0], dict):
+        raise ValueError("W0-DACL-ACE-COUNT")
+    for key, expected in dict(type="AccessAllowed", qualifier="AccessAllowed", flags=0,
+                              inherited=False, mask=0x1f01ff, trusteeSid=token_sid).items():
+        if type(aces[0].get(key)) is not type(expected) or aces[0][key] != expected:
+            raise ValueError("W0-DACL-ACE-" + key)
 
 
 def validate_case(name, proof):
@@ -80,11 +127,10 @@ def validate_case(name, proof):
     elif name == "dacl-inheritance":
         equals("protectedPrivate", True)
         equals("inheritedControlDetected", True)
+        validate_dacl(proof.get("protectedDescriptor"), proof.get("tokenUserSid"))
     elif name in ("dacl-create", "dacl-replacement"):
         for field in (["creationDacl", "replacementDacl"] if name == "dacl-replacement" else ["creationDacl"]):
-            sddl = proof.get(field, "")
-            if not isinstance(sddl, str) or not re.fullmatch(r"O:(S-[0-9-]+)D:P\(A;;FA;;;\1\)", sddl):
-                raise ValueError("W0-WRONG-DACL")
+            validate_dacl(proof.get(field), proof.get("tokenUserSid"))
     elif name == "case-alias":
         identity = proof.get("identityBefore", "")
         if not re.fullmatch(r"[0-9a-f]{8}:[0-9a-f]{16}", identity):
@@ -118,6 +164,24 @@ def validate(rows, source, binary):
             raise ValueError("W0-DURABILITY-CONTRACT")
         if not isinstance(row.get("evidence"), dict) or not isinstance(row.get("code"), str):
             raise ValueError("W0-EVIDENCE")
+        descriptors = row["evidence"].get("creationDescriptors", [])
+        if not isinstance(descriptors, list) or any(not isinstance(item, dict) for item in descriptors):
+            raise ValueError("W0-DACL-CREATION-SCHEMA")
+        for created in descriptors:
+            validate_dacl(created.get("descriptor"), row["evidence"].get("tokenUserSid"))
+        arms = row["evidence"].get("replacementDiagnostics", [])
+        if not isinstance(arms, list) or any(not isinstance(arm, dict) for arm in arms):
+            raise ValueError("W0-DIAGNOSTIC-ARM-SCHEMA")
+        if row["case"] == "overwrite" and row["status"] == "Pass" and (
+                len(arms) != 2 or [a.get("arm") for a in arms] != ["held-target", "released-target"] or
+                row["evidence"].get("originalOverwriteInvoked") is not True):
+            raise ValueError("W0-ORIGINAL-OR-DIAGNOSTICS-MISSING")
+        for arm in arms:
+            created_items = arm.get("creationDescriptors", [])
+            if not isinstance(created_items, list) or any(not isinstance(item, dict) for item in created_items):
+                raise ValueError("W0-DIAGNOSTIC-DACL-SCHEMA")
+            for created in created_items:
+                validate_dacl(created.get("descriptor"), row["evidence"].get("tokenUserSid"))
         if row["status"] in ("Pass", "Expected rejection"):
             if row["code"].startswith("W0-UNSUPPORTED") or not row["evidence"]:
                 raise ValueError("W0-UNSUPPORTED-PASS")
@@ -137,11 +201,99 @@ def validate(rows, source, binary):
             if name == "directory-durability":
                 raise ValueError("W0-UNRESOLVED-DURABILITY")
             validate_case(name, proof)
-    return all(r["status"] in ("Pass", "Expected rejection") for r in rows)
+    return all(r["status"] in ("Pass", "Expected rejection") and
+               all(arm.get("status") == "Observed" for arm in r["evidence"].get("replacementDiagnostics", [])) for r in rows)
+
+
+def consume_rows(rows, source, binary, summary):
+    try:
+        return validate(rows, source, binary)
+    except ValueError as error:
+        summary["errors"].append(dict(stage="validation", code=str(error)))
+        return False
+
+
+def validate_diagnostic_controls(rows, source, binary):
+    names = {"setup", "operation", "observation", "original", "unsafe", "cleanup"}
+    if len(rows) != len(names) or {r.get("control") for r in rows} != names:
+        raise ValueError("W0-DIAGNOSTIC-CONTROL-SET")
+    for row in rows:
+        fault = row["control"]
+        if row.get("source") != source or row.get("binary") != binary or row.get("result") != "Pass":
+            raise ValueError("W0-DIAGNOSTIC-CONTROL-BINDING")
+        stop = fault in ("unsafe", "cleanup")
+        if type(row.get("originalCalls")) is not int or row["originalCalls"] != (0 if stop else 1):
+            raise ValueError("W0-ORIGINAL-SUPPRESSED")
+        arms = row.get("evidence", {}).get("replacementDiagnostics", [])
+        if len(arms) != 2 or [a.get("arm") for a in arms] != ["held-target", "released-target"]:
+            raise ValueError("W0-DIAGNOSTIC-ARM-SET")
+        if arms[1].get("status") != ("Not assessed" if stop else "Observed"):
+            raise ValueError("W0-DIAGNOSTIC-SECOND-ARM-SUPPRESSED")
+        if fault in ("setup", "operation", "observation") and (arms[0].get("status") != "Fail" or fault not in arms[0].get("steps", [])):
+            raise ValueError("W0-DIAGNOSTIC-FAULT-NOT-OBSERVED")
+        if fault == "original" and row["evidence"].get("originalException") != "injected original scenario":
+            raise ValueError("W0-ORIGINAL-FAILURE-NOT-OBSERVED")
+        if fault == "cleanup" and arms[0].get("cleanup") != "injected unclosed handle":
+            raise ValueError("W0-CLEANUP-FAULT-NOT-OBSERVED")
+
+
+def validate_final_arm_controls(rows, source, binary):
+    names = {arm + "-" + fault for arm in ("held", "released") for fault in
+             ("unsupported", "access", "observation", "identity", "cleanup")}
+    if len(rows) != len(names) or {r.get("control") for r in rows} != names:
+        raise ValueError("W0-FINAL-ARM-CONTROL-SET")
+    for row in rows:
+        if row.get("source") != source or row.get("binary") != binary or row.get("result") != "Pass":
+            raise ValueError("W0-FINAL-ARM-CONTROL-BINDING")
+        released = row["control"].startswith("released-")
+        if type(row.get("originalCalls")) is not int or row["originalCalls"] != 0 or row.get("operations") != (2 if released else 1):
+            raise ValueError("W0-FINAL-ARM-UNSAFE-EXECUTION")
+        proof = row.get("evidence", {})
+        if proof.get("originalOverwriteInvoked") is not False:
+            raise ValueError("W0-FINAL-ARM-ORIGINAL-INVOKED")
+        arms = proof.get("replacementDiagnostics", [])
+        if len(arms) != 2 or [a.get("arm") for a in arms] != ["held-target", "released-target"]:
+            raise ValueError("W0-FINAL-ARM-RECORDS")
+        failed = arms[1 if released else 0]
+        if failed.get("status") != "Unsafe" or (not released and arms[1].get("status") != "Not assessed"):
+            raise ValueError("W0-FINAL-ARM-UNSAFE-STATUS")
+        if row["control"].endswith("cleanup"):
+            if failed.get("cleanup") != "injected unclosed handle":
+                raise ValueError("W0-FINAL-ARM-CLEANUP-NOT-OBSERVED")
+        else:
+            error = failed.get("finalContainmentException", {})
+            if failed.get("finalContainment") != "Unsafe" or not error.get("type") or not error.get("message"):
+                raise ValueError("W0-FINAL-ARM-ERROR-LOST")
+            if row["control"].endswith("access") and error.get("nativeError") != 5:
+                raise ValueError("W0-FINAL-ARM-NATIVE-ERROR-LOST")
+            if failed.get("cleanup") != "all acquired handles disposed":
+                raise ValueError("W0-FINAL-ARM-CLEANUP-LOST")
+        refused = [json.loads(line) for line in row.get("refusedRows", "").splitlines()]
+        if len(refused) != len(CASES) or {r.get("case") for r in refused} != set(CASES):
+            raise ValueError("W0-FINAL-ARM-REFUSED-CASE-SET")
+        if any(r.get("status") != "Not assessed" or r.get("code") != "W0-UNSUPPORTED-PRIOR-CONTAINMENT-LOSS" or
+               r.get("publication") is not False or r.get("durability") is not False or
+               r.get("source") != source or r.get("binary") != binary for r in refused):
+            raise ValueError("W0-FINAL-ARM-REFUSAL-CLAIM")
+
+
+def validate_constructor_controls(rows, source, binary):
+    if len(rows) != 2 or {r.get("control") for r in rows} != {"constructor-after-1", "constructor-after-3"}:
+        raise ValueError("W0-CONSTRUCTOR-CONTROL-SET")
+    for row in rows:
+        count = 1 if row["control"].endswith("1") else 3
+        if row.get("source") != source or row.get("binary") != binary or row.get("result") != "Pass":
+            raise ValueError("W0-CONSTRUCTOR-BINDING")
+        if type(row.get("acquired")) is not int or row["acquired"] != count or row.get("closed") != [True] * count or any(type(v) is not bool for v in row["closed"]):
+            raise ValueError("W0-CONSTRUCTOR-ACQUIRED-CLEANUP")
+        if row.get("foreignOpen") is not True or row.get("sameError") is not True or row.get("error") != "injected inspection after acquisition " + str(count):
+            raise ValueError("W0-CONSTRUCTOR-FOREIGN-OR-ERROR")
 
 
 def self_test():
     """Synthetic protocol data, never Windows runtime evidence."""
+    r48_alias_test()
+    r45_self_test()
     source, binary = "a" * 64, "b" * 64
     rows = [dict(case=c, status="Not assessed", code="W0-UNSUPPORTED", source=source,
                  binary=binary, publication=False, durability=False, evidence={}) for c in CASES]
@@ -234,6 +386,156 @@ def self_test():
     print(json.dumps({"self_test": "Pass", "native_qualification": "Not assessed"}))
 
 
+def r48_alias_test():
+    sid = "S-1-5-21-1-2-3-500"
+    descriptor = dict(rawSddl="O:LAD:P(A;;FA;;;LA)", ownerSid=sid, tokenUserSid=sid,
+                      daclPresent=True, daclProtected=True, aceCount=1,
+                      aces=[dict(type="AccessAllowed", qualifier="AccessAllowed", flags=0,
+                                 inherited=False, mask=0x1f01ff, trusteeSid=sid)])
+    attach_synthetic_resolution(descriptor)
+    accepted = []
+    for wrong in ("SY", "ZZ"):
+        for counterpart in (sid, "LA"):
+            for position in ("owner", "ace"):
+                owner, trustee = (wrong, counterpart) if position == "owner" else (counterpart, wrong)
+                item = dict(descriptor, rawSddl="O:" + owner + "D:P(A;;FA;;;" + trustee + ")")
+                name = wrong + "-" + position + "-" + ("numeric" if counterpart == sid else "alias")
+                try:
+                    validate_dacl(item, sid)
+                except ValueError:
+                    print(json.dumps({"control": "r48-" + name, "result": "rejected"}))
+                else:
+                    accepted.append(name)
+                    print(json.dumps({"control": "r48-" + name, "result": "WRONGLY ACCEPTED"}))
+    assert not accepted, "contradictory aliases accepted: " + ",".join(accepted)
+    for owner, trustee in ((sid, sid), ("LA", "LA"), (sid, "LA"), ("LA", sid)):
+        validate_dacl(dict(descriptor, rawSddl="O:" + owner + "D:P(A;;FA;;;" + trustee + ")"), sid)
+        print(json.dumps({"control": "r48-equivalent-" + owner + "-" + trustee, "result": "Pass", "scope": "synthetic"}))
+    wrong = []
+    for key in ("rawResolution",):
+        item = copy.deepcopy(descriptor)
+        del item[key]
+        wrong.append((key, item))
+    for key in ("context", "descriptor", "method"):
+        item = copy.deepcopy(descriptor)
+        del item["rawResolution"][key]
+        wrong.append(("missing-" + key, item))
+    item = copy.deepcopy(descriptor)
+    item["rawResolution"]["context"]["accountDomainSid"] = "S-1-5-21-4-5-6"
+    wrong.append(("wrong-domain-context", item))
+    for key in ("ownerSid", "daclPresent", "daclProtected", "aceCount", "aces"):
+        item = copy.deepcopy(descriptor)
+        item["rawResolution"]["descriptor"][key] = None
+        wrong.append(("raw-resolved-" + key, item))
+    for key, changed in (("trusteeSid", "S-1-5-18"), ("type", "AccessDenied"), ("qualifier", "AccessDenied"),
+                         ("flags", False), ("inherited", True), ("mask", 0)):
+        item = copy.deepcopy(descriptor)
+        item["rawResolution"]["descriptor"]["aces"][0][key] = changed
+        wrong.append(("raw-resolved-ace-" + key, item))
+    for name, item in wrong:
+        try:
+            validate_dacl(item, sid)
+        except ValueError:
+            print(json.dumps({"control": "r48-" + name, "result": "rejected"}))
+        else:
+            raise AssertionError("accepted " + name)
+    system = copy.deepcopy(descriptor)
+    system.update(rawSddl="O:SYD:P(A;;FA;;;SY)", ownerSid="S-1-5-18", tokenUserSid="S-1-5-18")
+    system["aces"][0]["trusteeSid"] = "S-1-5-18"
+    attach_synthetic_resolution(system)
+    system["rawResolution"]["context"] = {}
+    validate_dacl(system, "S-1-5-18")
+    print(json.dumps({"control": "r48-SY-equivalent-positive", "result": "Pass", "scope": "synthetic"}))
+
+
+def attach_synthetic_resolution(descriptor):
+    """Synthetic receipt fixture only; does not execute LSA or resolve Windows SIDs."""
+    descriptor["rawResolution"] = dict(method="ConvertStringSecurityDescriptorToSecurityDescriptorW",
+        context=dict(method="LsaQueryInformationPolicy:PolicyAccountDomainInformation:local", accountDomainSid="S-1-5-21-1-2-3"),
+        descriptor=copy.deepcopy({k: descriptor[k] for k in ("ownerSid", "daclPresent", "daclProtected", "aceCount", "aces")}))
+
+
+def r45_self_test():
+    """Frozen synthetic semantic/finalization contracts; no Windows SID resolution."""
+    sid = "S-1-5-21-1-2-3-500"
+    descriptor = dict(rawSddl="O:LAD:P(A;;FA;;;LA)", ownerSid=sid, tokenUserSid=sid,
+                      daclPresent=True, daclProtected=True, aceCount=1,
+                      aces=[dict(type="AccessAllowed", qualifier="AccessAllowed", flags=0,
+                                 inherited=False, mask=0x1f01ff, trusteeSid=sid)])
+    attach_synthetic_resolution(descriptor)
+    for raw in (descriptor["rawSddl"], "O:" + sid + "D:P(A;;FA;;;" + sid + ")"):
+        positive = dict(descriptor, rawSddl=raw)
+        validate_dacl(positive, sid)
+        print(json.dumps({"control": "semantic-dacl-equivalent-positive", "result": "Pass"}))
+    mutations = [("owner", "ownerSid", "S-1-5-18"), ("current-user", "tokenUserSid", "S-1-5-18"),
+                 ("protection", "daclProtected", False), ("present", "daclPresent", False),
+                 ("count", "aceCount", 2), ("raw-malformed", "rawSddl", "anything"),
+                 ("raw-numeric-mismatch", "rawSddl", "O:S-1-5-18D:P(A;;FA;;;S-1-5-18)")]
+    bad = [(name, dict(descriptor, **{key: value})) for name, key, value in mutations]
+    for key, value in [("trusteeSid", "S-1-5-18"), ("qualifier", "AccessDenied"),
+                       ("type", "AccessDenied"), ("inherited", True), ("flags", 1), ("mask", 1)]:
+        item = copy.deepcopy(descriptor)
+        item["aces"][0][key] = value
+        bad.append((key, item))
+    bad.append(("extra-ace", dict(descriptor, aces=descriptor["aces"] * 2)))
+    for key in descriptor["aces"][0]:
+        bad.append(("missing-ace-" + key, dict(descriptor, aces=[{k: v for k, v in descriptor["aces"][0].items() if k != key}])))
+    for key in descriptor:
+        bad.append(("missing-" + key, {k: v for k, v in descriptor.items() if k != key}))
+    for name, item in bad:
+        try:
+            validate_dacl(item, sid)
+        except ValueError:
+            print(json.dumps({"control": "dacl-" + name, "result": "rejected"}))
+        else:
+            raise AssertionError("DACL accepted " + name)
+    safe_rows = [dict(case=c, source="source", binary="binary", evidence={"moved": False}) for c in CASES]
+    safe = dict(quiescent=True, cleanup_error=None)
+    assert continuation_allowed(safe, safe_rows, "source", "binary", {"status": "Pass"})
+    for name, receipt, containment in [("live", dict(safe, quiescent=False), {"status": "Pass"}),
+                                       ("cleanup", dict(safe, cleanup_error="failure"), {"status": "Pass"}),
+                                       ("containment", safe, {"status": "Fail"})]:
+        assert not continuation_allowed(receipt, safe_rows, "source", "binary", containment)
+        print(json.dumps({"control": "unsafe-continuation-" + name, "result": "rejected"}))
+    with tempfile.TemporaryDirectory(prefix="cfd-r45-finalizer-") as scratch:
+        out = Path(scratch)
+        (out / "source.cs").write_bytes(b"source")
+        for name, value in (("fixture-a.bin", FIXTURE_A), ("fixture-b.bin", FIXTURE_B)):
+            (out / name).write_bytes(value)
+        state = dict(native_qualification="Not assessed", errors=[])
+        assert consume_rows([], "source", "binary", state) is False
+        assert finalize(out, state, {"source.cs": digest(b"source")}, base=out) == 1
+        saved = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+        assert saved["errors"][0]["code"] == "W0-CASE-SET" and saved["sources_after"]["source.cs"] == digest(b"source")
+        assert saved["fixtures"]["fixture-a.bin"]["sha256"] == digest(FIXTURE_A)
+        assert saved["probes"]["uia-capability"]["status"] == "Not assessed"
+        print(json.dumps({"control": "validator-failure-finalization", "result": "Pass"}))
+        (out / "source.cs").write_bytes(b"changed")
+        assert finalize(out, state, {"source.cs": digest(b"source")}, base=out) == 1
+        assert any(e["code"] == "W0-SOURCE-DRIFT" for e in state["errors"])
+        print(json.dumps({"control": "finalizer-source-drift", "result": "rejected"}))
+        binaries = out / "artifacts/bin/WindowsRuntime/release"
+        binaries.mkdir(parents=True)
+        (binaries / "WindowsRuntime.dll").write_bytes(b"changed")
+        state["binary_files"] = {"WindowsRuntime.dll": digest(b"original")}
+        assert finalize(out, state, {"source.cs": digest(b"changed")}, base=out) == 1
+        assert any(e["code"] == "W0-BINARY-DRIFT" for e in state["errors"])
+        print(json.dumps({"control": "finalizer-binary-drift", "result": "rejected"}))
+        fixture_root = out / "fixtures"
+        fixture_root.mkdir()
+        (fixture_root / "inside.bin").write_bytes(FIXTURE_A)
+        inventory = fixture_inventory(fixture_root)
+        assert inventory["inside.bin"]["sha256"] == digest(FIXTURE_A)
+        os.link(out / "fixture-a.bin", fixture_root / "outside-hardlink.bin")
+        try:
+            fixture_inventory(fixture_root)
+        except ValueError as error:
+            assert str(error) == "W0-FIXTURE-EXTERNAL-HARDLINK"
+            print(json.dumps({"control": "fixture-external-hardlink", "result": "rejected"}))
+        else:
+            raise AssertionError("external hardlink accepted")
+
+
 def validate_tree(receipt, executable_hash=None):
     if receipt.get("quiescent") is not True or len(receipt.get("observed", [])) < 3:
         raise ValueError("W0-PROCESS-NOT-OBSERVED")
@@ -244,6 +546,104 @@ def validate_tree(receipt, executable_hash=None):
             raise ValueError("W0-UNEXPECTED-CHILD")
     if len({(p["pid"], p["start"]) for p in receipt["observed"]}) != len(receipt["observed"]):
         raise ValueError("W0-DUPLICATE-CHILD")
+
+
+def write_json(path, value):
+    path.write_text(json.dumps(value, indent=2), encoding="utf-8", newline="\n")
+
+
+def fixture_inventory(root):
+    """Bounded post-job observation, not hostile concurrent namespace containment."""
+    result, links = {}, {}
+    if not root.is_dir() or root.is_symlink() or getattr(root.lstat(), "st_file_attributes", 0) & 0x400:
+        raise ValueError("W0-FIXTURE-ROOT-NOT-OBSERVED")
+    for directory, folders, files in os.walk(root, followlinks=False):
+        for name in folders + files:
+            path = Path(directory) / name
+            info = path.lstat()
+            if len(result) >= 512:
+                raise ValueError("W0-FIXTURE-INVENTORY-BOUND")
+            if path.is_symlink():
+                resolved = path.resolve(strict=True)
+                if not resolved.is_relative_to(root.resolve()):
+                    raise ValueError("W0-FIXTURE-ESCAPE")
+                item = dict(kind="symlink", target=str(resolved.relative_to(root.resolve())))
+            elif getattr(info, "st_file_attributes", 0) & 0x400:
+                raise ValueError("W0-FIXTURE-UNSUPPORTED-REPARSE")
+            elif stat.S_ISREG(info.st_mode):
+                if info.st_size > 1024 * 1024:
+                    raise ValueError("W0-FIXTURE-SIZE")
+                key = (info.st_dev, info.st_ino)
+                links.setdefault(key, []).append(info.st_nlink)
+                payload = path.read_bytes()
+                item = dict(kind="file", sha256=digest(payload), bytesBase64=base64.b64encode(payload).decode("ascii"), size=info.st_size,
+                            identity=list(key), links=info.st_nlink)
+            elif stat.S_ISDIR(info.st_mode):
+                item = dict(kind="directory", identity=[info.st_dev, info.st_ino])
+            else:
+                raise ValueError("W0-FIXTURE-UNEXPECTED-KIND")
+            result[str(path.relative_to(root))] = item
+    if any(any(count != len(counts) for count in counts) for counts in links.values()):
+        raise ValueError("W0-FIXTURE-EXTERNAL-HARDLINK")
+    return result
+
+
+def continuation_allowed(native, rows, source, binary, containment):
+    if native.get("quiescent") is not True or native.get("cleanup_error") is not None:
+        return False
+    if containment.get("status") != "Pass" or len(rows) != len(CASES):
+        return False
+    if {r.get("case") for r in rows} != set(CASES):
+        return False
+    if any(r.get("source") != source or r.get("binary") != binary for r in rows):
+        return False
+    ancestor = next(r for r in rows if r["case"] == "ancestor-substitution")
+    return ancestor.get("evidence", {}).get("moved") is False
+
+
+def finalize(out, summary, manifest, base=ROOT):
+    """Best available independent inventories survive semantic/parser exceptions."""
+    errors = summary.setdefault("errors", [])
+    after = {}
+    for name in manifest:
+        try:
+            after[name] = digest((base / name).read_bytes())
+        except OSError as error:
+            after[name] = "Not recorded: " + str(error)
+    summary["sources_after"] = after
+    if after != manifest:
+        errors.append(dict(stage="finalize", code="W0-SOURCE-DRIFT"))
+    if "binary_files" in summary:
+        binary_after = {}
+        for name in summary["binary_files"]:
+            try:
+                binary_after[name] = digest((out / "artifacts/bin/WindowsRuntime/release" / name).read_bytes())
+            except OSError as error:
+                binary_after[name] = "Not recorded: " + str(error)
+        summary["binary_files_after"] = binary_after
+        if binary_after != summary["binary_files"]:
+            errors.append(dict(stage="finalize", code="W0-BINARY-DRIFT"))
+    for name, expected in (("fixture-a.bin", FIXTURE_A), ("fixture-b.bin", FIXTURE_B)):
+        try:
+            actual = (out / name).read_bytes()
+            summary.setdefault("fixtures", {})[name] = dict(sha256=digest(actual), expected=digest(expected))
+            if actual != expected:
+                errors.append(dict(stage="finalize", code="W0-INPUT-MUTATED", path=name))
+        except OSError as error:
+            summary.setdefault("fixtures", {})[name] = dict(status="Not recorded", reason=str(error))
+    summary["processes"] = {}
+    summary["raw_rows_path"] = "native/stdout.txt"
+    for path in sorted(out.glob("*/process.json")):
+        try:
+            summary["processes"][path.parent.name] = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            errors.append(dict(stage="finalize", code="W0-PROCESS-RECEIPT", reason=str(error)))
+    for probe in ("tree-timeout", "observer-fault", "uia-capability"):
+        summary.setdefault("probes", {}).setdefault(probe, dict(status="Not assessed", reason="prerequisite stage did not complete"))
+    if errors:
+        summary["native_qualification"] = "Fail"
+    write_json(out / "summary.json", summary)
+    return 1 if errors or summary["native_qualification"] == "Fail" else 0 if summary["native_qualification"] == "Pass" else 3
 
 
 def run_local(argv, out, timeout, env):
@@ -432,7 +832,20 @@ def main():
                    runner_image={k: os.environ.get(k, "Not recorded") for k in ("ImageOS", "ImageVersion", "RUNNER_ARCH")})
     (out / "source.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")
 
+    summary.update(errors=[], probes={}, stage="start")
+    try:
+        execute(out, manifest, source, env, windows, runner, summary)
+    except (OSError, ValueError, AssertionError, subprocess.SubprocessError) as error:
+        summary["errors"].append(dict(stage=summary["stage"], code=str(error)))
+    finally:
+        result = finalize(out, summary, manifest)
+    print(json.dumps(summary, sort_keys=True))
+    return result
+
+
+def execute(out, manifest, source, env, windows, runner, summary):
     def run(name, argv, timeout=90, **kwargs):
+        summary["stage"] = name
         target = out / name
         target.mkdir()
         receipt = runner(argv, target, timeout, env, **kwargs)
@@ -459,45 +872,118 @@ def main():
     binary_files = {name: digest((executable.parent / name).read_bytes()) for name in
                     (executable.name, "WindowsRuntime.dll", "WindowsRuntime.deps.json", "WindowsRuntime.runtimeconfig.json")}
     binary = digest("".join(name + "\0" + binary_files[name] + "\n" for name in sorted(binary_files)).encode())
+    summary.update(binary=binary, binary_files=binary_files, sdk=version.strip())
+    write_json(out / "binary-manifest.json", dict(binary=binary, files=binary_files))
+    env = dict(env, W0_SOURCE=source)
+    controls, control_output = run("diagnostic-controls", [str(executable), "--diagnostic-controls"])
+    control_rows = [json.loads(line) for line in control_output.splitlines()]
+    summary["diagnostic_controls"] = control_rows
+    if controls["exit"] != 0:
+        raise ValueError("W0-DIAGNOSTIC-CONTROLS-FAILED")
+    validate_diagnostic_controls(control_rows, source, binary)
+    control_mutations = []
+    for label, mutate in (
+        ("suppressed-original", lambda rows: rows[0].update(originalCalls=0)),
+        ("suppressed-second-arm", lambda rows: rows[0]["evidence"]["replacementDiagnostics"][1].update(status="Not assessed")),
+        ("unsafe-continuation", lambda rows: rows[4].update(originalCalls=1)),
+        ("cleanup-continuation", lambda rows: rows[5].update(originalCalls=1)),
+        ("wrong-binary", lambda rows: rows[0].update(binary="wrong"))):
+        changed = copy.deepcopy(control_rows)
+        mutate(changed)
+        try:
+            validate_diagnostic_controls(changed, source, binary)
+        except ValueError as error:
+            control_mutations.append(dict(control=label, result="rejected", error=str(error)))
+        else:
+            raise ValueError("W0-DIAGNOSTIC-NEGATIVE-ACCEPTED-" + label)
+    summary["diagnostic_control_mutations"] = control_mutations
+    final_controls, final_output = run("final-arm-controls", [str(executable), "--final-arm-controls"])
+    final_rows = [json.loads(line) for line in final_output.splitlines()]
+    summary["final_arm_controls"] = final_rows
+    if final_controls["exit"] != 0:
+        raise ValueError("W0-FINAL-ARM-CONTROLS-FAILED")
+    validate_final_arm_controls(final_rows, source, binary)
+    constructor, constructor_output = run("constructor-controls", [str(executable), "--constructor-controls", str(out / "constructor-fixtures")])
+    constructor_rows = [json.loads(line) for line in constructor_output.splitlines()]
+    summary["constructor_controls"] = constructor_rows
+    if constructor["exit"] != 0:
+        raise ValueError("W0-CONSTRUCTOR-CONTROLS-FAILED")
+    validate_constructor_controls(constructor_rows, source, binary)
+    negatives = []
+    for label, original, validator, mutate in (
+        ("final-original-ran", final_rows, validate_final_arm_controls, lambda rows: rows[0].update(originalCalls=1)),
+        ("final-later-arm-ran", final_rows, validate_final_arm_controls, lambda rows: rows[0].update(operations=2)),
+        ("final-error-lost", final_rows, validate_final_arm_controls, lambda rows: rows[0]["evidence"]["replacementDiagnostics"][0].pop("finalContainmentException")),
+        ("final-case-missing", final_rows, validate_final_arm_controls, lambda rows: rows[0].update(refusedRows="")),
+        ("constructor-leak", constructor_rows, validate_constructor_controls, lambda rows: rows[0].update(closed=[False])),
+        ("constructor-foreign-closed", constructor_rows, validate_constructor_controls, lambda rows: rows[0].update(foreignOpen=False)),
+        ("constructor-error-replaced", constructor_rows, validate_constructor_controls, lambda rows: rows[0].update(sameError=False))):
+        changed = copy.deepcopy(original)
+        mutate(changed)
+        try:
+            validator(changed, source, binary)
+        except ValueError as error:
+            negatives.append(dict(control=label, result="rejected", error=str(error)))
+        else:
+            raise ValueError("W0-R51-NEGATIVE-ACCEPTED-" + label)
+    summary["r51_mutations"] = negatives
     for name, fixture in (("fixture-a.bin", FIXTURE_A), ("fixture-b.bin", FIXTURE_B)):
         (out / name).write_bytes(fixture)
     runenv = dict(env, W0_SOURCE=source)
     env = runenv
     native, output = run("native", [str(executable), str(out / "native-fixtures"), str(out / "fixture-a.bin"), str(out / "fixture-b.bin")])
+    summary["stage"] = "parse-native-rows"
     rows = [json.loads(line) for line in output.splitlines()]
-    qualified = validate(rows, source, binary)
+    summary["rows"] = rows
+    write_json(out / "rows.json", rows)
+    qualified = consume_rows(rows, source, binary, summary)
+    summary["native_exit"] = native["exit"]
+    summary["native_qualification"] = "Fail" if summary["errors"] or any(r["status"] == "Fail" for r in rows) or native["exit"] not in (0, 3) else "Pass" if qualified and windows and native["exit"] == 0 else "Not assessed"
+    containment = dict(status="Not assessed", reason="non-Windows host" if not windows else "native process not quiescent")
+    if windows and native.get("quiescent") is True:
+        try:
+            inventory = fixture_inventory(out / "native-fixtures")
+            containment = dict(status="Pass", scope="post-job disposable fixture inventory only", inventory=inventory)
+        except (OSError, ValueError) as error:
+            containment = dict(status="Fail", reason=str(error))
+            summary["errors"].append(dict(stage="containment", code=str(error)))
+    summary["containment"] = containment
     if (out / "fixture-a.bin").read_bytes() != FIXTURE_A or (out / "fixture-b.bin").read_bytes() != FIXTURE_B:
         raise ValueError("W0-INPUT-MUTATED")
-    if windows:
+    safe = windows and continuation_allowed(native, rows, source, binary, containment)
+    if safe:
+        verify_sources(ROOT, manifest)
+    for probe in ("tree-timeout", "observer-fault", "uia-capability"):
+        summary["probes"][probe] = dict(status="Not assessed", reason="non-Windows host" if not windows else "ownership/fixture containment prerequisite refused" if not safe else "prior probe did not complete")
+    if safe:
         tree, _ = run("tree-timeout", [str(executable), "--tree-root"], timeout=5)
         validate_tree(tree, binary_files[executable.name])
         if not tree["timeout"] or tree["exit"] != 124:
             raise ValueError("W0-TIMEOUT-NOT-OBSERVED")
+        summary["probes"]["tree-timeout"] = dict(status="Pass")
         try:
             run("observer-fault", [str(executable), "--tree-root"], timeout=5, observer_fault=True)
         except ValueError as error:
             if str(error) != "W0-INJECTED-OBSERVER-FAILURE":
                 raise
-            fault = json.loads((out / "observer-fault/process.json").read_text())
+            fault = json.loads((out / "observer-fault/process.json").read_text(encoding="utf-8"))
             if fault["quiescent"] is not True:
                 raise ValueError("W0-FAULT-CLEANUP-NOT-OBSERVED")
         else:
             raise ValueError("W0-OBSERVER-FAULT-ACCEPTED")
+        summary["probes"]["observer-fault"] = dict(status="Pass")
         powershell = shutil.which("powershell.exe")
         if not powershell:
             raise ValueError("W0-UIA-PROBE-UNAVAILABLE")
-        run("uia-capability", [powershell, "-NoProfile", "-NonInteractive", "-Command",
-             "$ErrorActionPreference='Stop'; Add-Type -AssemblyName UIAutomationClient; "
+        uia, uia_output = run("uia-capability", [powershell, "-NoProfile", "-NonInteractive", "-Command",
+             "[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $ErrorActionPreference='Stop'; Add-Type -AssemblyName UIAutomationClient; "
              "$r=[System.Windows.Automation.AutomationElement]::RootElement; "
              "@{rootName=$r.Current.Name; childCount=$r.FindAll([System.Windows.Automation.TreeScope]::Children,"
              "[System.Windows.Automation.Condition]::TrueCondition).Count; "
              "userInteractive=[Environment]::UserInteractive; sessionId=(Get-Process -Id $PID).SessionId} | ConvertTo-Json -Compress"])
-    failed = any(row["status"] == "Fail" for row in rows) or native["exit"] not in (0, 3)
-    summary.update(sources_after=verify_sources(ROOT, manifest), binary=binary, binary_files=binary_files, sdk=version.strip(), native_exit=native["exit"],
-                   native_qualification="Fail" if failed else "Pass" if qualified and native["exit"] == 0 and windows else "Not assessed")
-    (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")
-    print(json.dumps(summary, sort_keys=True))
-    return 1 if failed else 0 if summary["native_qualification"] == "Pass" else 3
+        if uia["exit"] != 0:
+            raise ValueError("W0-UIA-PROBE-FAILED")
+        summary["probes"]["uia-capability"] = dict(status="Observed", evidence=json.loads(uia_output))
 
 
 if __name__ == "__main__":

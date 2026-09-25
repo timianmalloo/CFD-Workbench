@@ -55,6 +55,12 @@ jobs:
           path: |
             ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/source.json
             ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/summary.json
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/rows.json
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/binary-manifest.json
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/artifacts/bin/WindowsRuntime/release/WindowsRuntime.exe
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/artifacts/bin/WindowsRuntime/release/WindowsRuntime.dll
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/artifacts/bin/WindowsRuntime/release/WindowsRuntime.deps.json
+            ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/artifacts/bin/WindowsRuntime/release/WindowsRuntime.runtimeconfig.json
             ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/*/stdout.txt
             ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/*/stderr.txt
             ${{ runner.temp }}/w0-${{ github.run_id }}-${{ github.run_attempt }}/*/process.json
