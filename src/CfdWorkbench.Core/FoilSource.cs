@@ -81,26 +81,26 @@ internal sealed record SourceToken(string Text, int Start, int End)
 }
 internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] Knots,
     (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile);
-internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset);
+internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0);
 internal sealed record StationSource(SourceToken Value, SourceToken? Unit);
 internal sealed record AssignmentSource(StationSource Station, SourceToken Profile);
 internal sealed record LockSource(string Kind, SourceToken Channel, SourceToken? Id, StationSource? Station, SourceToken[] Values);
 internal sealed record QuantitySource(SourceToken Number, SourceToken? Unit);
 internal sealed record AssertionSource(SourceToken Metric, string Comparison, QuantitySource Value, QuantitySource? Tolerance);
 internal sealed record Curve(string Path, int Degree, double[] Knots, double[][] Points, string[] Ids,
-    SourceToken[] Ordinates, int InsertAt, bool MissingIds)
+    SourceToken[] Ordinates, int InsertAt, bool MissingIds, SourceToken[] Abscissae, SourceToken[]? IdTokens)
 {
     internal object Semantic() => new Dictionary<string, object?>
     { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] }).ToArray() };
 }
-internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure)
+internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure, int BlockStart, int BlockEnd)
 {
     internal object Semantic => new Dictionary<string, object?>
     { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
 }
 internal sealed record Definition(string Kind, int UnitScale, double HalfSpan, Dictionary<string, Curve> Curves,
     ProfileDefinition[] Profiles, (double Eta, int Profile)[] Assignments, string Tip, LockSource[] Locks,
-    AssertionSource[] Assertions, object Semantic, string Name);
+    AssertionSource[] Assertions, object Semantic, string Name, SourceToken[] AssignmentProfiles);
 internal sealed class SourceFailure(string code, string phase, SourceToken token, string? entity = null, string? reason = null) : Exception(code)
 {
     internal string Code { get; } = code;
@@ -172,9 +172,72 @@ public static class FoilSource
         Guard.Require(definition.Curves.TryGetValue(rail, out var curve) && !curve.MissingIds, "DSL-PATCH");
         int index = Array.IndexOf(curve!.Ids, vertexId);
         Guard.Require(index >= 0, "DSL-PATCH");
-        // A finite binary64 is an integer divided by a power of two. Multiplying
-        // by the inverse decimal unit gives a terminating decimal without rounding.
-        ulong bits = BitConverter.DoubleToUInt64Bits(ordinateSi);
+        string digits = ExactDecimal(ordinateSi, definition.UnitScale);
+        var token = curve.Ordinates[index];
+        string source = Utf8.GetString(parsed.Source);
+        byte[] candidate = Utf8.GetBytes(source[..token.Start] + digits + source[token.End..]);
+        var result = Parse(candidate);
+        Guard.Require(result.IsParsed && result.Definition is not null &&
+            SameBits(result.Definition.Curves[rail].Points[index][1], ordinateSi), "DSL-PATCH");
+        return candidate;
+    }
+
+    public static byte[] PatchProfilePoint(byte[] source, string profile, string side, string vertexId, double x, double y)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
+        var found = definition.Profiles.FirstOrDefault(item => item.Name == profile) ?? throw new ContractError("DSL-PROFILE-TARGET");
+        Guard.Require(side is "upper" or "lower", "DSL-PROFILE-TARGET");
+        var curve = side == "upper" ? found.Upper : found.Lower;
+        int index = Array.IndexOf(curve.Ids, vertexId);
+        Guard.Require(index >= 0, "DSL-PROFILE-TARGET");
+        Guard.Require(double.IsFinite(x) && double.IsFinite(y), "DSL-PROFILE-ORDER");
+        string text = Utf8.GetString(parsed.Source);
+        (int Start, int End, string Value)[] edits = [(curve.Abscissae[index].Start, curve.Abscissae[index].End, ExactDecimal(x, 0)),
+            (curve.Ordinates[index].Start, curve.Ordinates[index].End, ExactDecimal(y, 0))];
+        foreach (var edit in edits.OrderByDescending(item => item.Start)) text = text[..edit.Start] + edit.Value + text[edit.End..];
+        byte[] candidate = Utf8.GetBytes(text);
+        var result = Parse(candidate);
+        var patched = result.Definition?.Profiles.FirstOrDefault(item => item.Name == profile);
+        var patchedCurve = side == "upper" ? patched?.Upper : patched?.Lower;
+        Guard.Require(result.IsParsed && patchedCurve is not null && SameBits(patchedCurve.Points[index][0], x) && SameBits(patchedCurve.Points[index][1], y), "DSL-PATCH");
+        return candidate;
+    }
+
+    public static (byte[] Source, string NewProfile) MakeIndependent(byte[] source, string profile, int assignmentIndex)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
+        var found = definition.Profiles.FirstOrDefault(item => item.Name == profile) ?? throw new ContractError("DSL-PROFILE-TARGET");
+        Guard.Require(assignmentIndex >= 0 && assignmentIndex < definition.Assignments.Length && found.BlockEnd > found.BlockStart &&
+            definition.Profiles[definition.Assignments[assignmentIndex].Profile].Name == profile, "DSL-PROFILE-TARGET");
+        var names = definition.Profiles.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
+        string newName = "";
+        for (int k = 1; ; k++)
+        {
+            newName = profile + "-i" + k.ToString(CultureInfo.InvariantCulture);
+            if (!names.Contains(newName)) break;
+            Guard.Require(k < 100000, "DSL-LIMIT");
+        }
+        string text = Utf8.GetString(parsed.Source);
+        int newline = text.LastIndexOf('\n', found.BlockStart);
+        string indent = newline < 0 ? "" : text[(newline + 1)..found.BlockStart];
+        string insertion = "\n" + indent + RewriteProfile(text, found, newName);
+        var token = definition.AssignmentProfiles[assignmentIndex];
+        Guard.Require(token.Start >= found.BlockEnd, "DSL-PROFILE-TARGET");
+        string result = text[..found.BlockEnd] + insertion + text[found.BlockEnd..token.Start] + Jcs.Quote(newName) + text[token.End..];
+        byte[] candidate = Utf8.GetBytes(result);
+        Guard.Require(Parse(candidate).IsParsed, "DSL-PATCH");
+        return (candidate, newName);
+    }
+
+    // A finite binary64 is an integer divided by a power of two. Multiplying
+    // by the inverse decimal unit gives a terminating decimal without rounding.
+    private static string ExactDecimal(double value, int unitScale)
+    {
+        ulong bits = BitConverter.DoubleToUInt64Bits(value);
         int exponent = (int)((bits >> 52) & 2047);
         BigInteger integer = bits & 0xfffffffffffffUL;
         if (exponent != 0) integer += BigInteger.One << 52;
@@ -182,22 +245,39 @@ public static class FoilSource
         int places = Math.Max(0, -shift);
         if (shift >= 0) integer <<= shift;
         else integer *= BigInteger.Pow(5, places);
-        integer *= BigInteger.Pow(10, -definition.UnitScale);
+        integer *= BigInteger.Pow(10, -unitScale);
         string digits = integer.ToString(CultureInfo.InvariantCulture);
         if (places != 0)
         {
             digits = digits.PadLeft(places + 1, '0').Insert(Math.Max(1, digits.Length - places), ".");
             digits = digits.TrimEnd('0').TrimEnd('.');
         }
-        if (ordinateSi < 0) digits = "-" + digits;
-        var token = curve.Ordinates[index];
-        string source = Utf8.GetString(parsed.Source);
-        byte[] candidate = Utf8.GetBytes(source[..token.Start] + digits + source[token.End..]);
-        var result = Parse(candidate);
-        Guard.Require(result.IsParsed && result.Definition is not null &&
-            BitConverter.DoubleToUInt64Bits(result.Definition.Curves[rail].Points[index][1]) ==
-            BitConverter.DoubleToUInt64Bits(ordinateSi == 0 ? 0 : ordinateSi), "DSL-PATCH");
-        return candidate;
+        if (value < 0) digits = "-" + digits;
+        return digits;
+    }
+    private static bool SameBits(double actual, double expected) => BitConverter.DoubleToUInt64Bits(actual) ==
+        BitConverter.DoubleToUInt64Bits(expected == 0 ? 0 : expected);
+    private static string RewriteProfile(string text, ProfileDefinition profile, string newName)
+    {
+        var edits = new List<(int Start, int End, string Value)>();
+        string quoted = Jcs.Quote(profile.Name);
+        int nameAt = text.IndexOf(quoted, profile.BlockStart, profile.BlockEnd - profile.BlockStart, StringComparison.Ordinal);
+        Guard.Require(nameAt >= 0, "DSL-PROFILE-TARGET");
+        edits.Add((nameAt, nameAt + quoted.Length, Jcs.Quote(newName)));
+        RewriteIds(profile.Upper, edits); RewriteIds(profile.Lower, edits);
+        string block = text[profile.BlockStart..profile.BlockEnd];
+        foreach (var edit in edits.OrderByDescending(item => item.Start))
+        {
+            int start = edit.Start - profile.BlockStart, end = edit.End - profile.BlockStart;
+            block = block[..start] + edit.Value + block[end..];
+        }
+        return block;
+    }
+    private static void RewriteIds(Curve curve, List<(int Start, int End, string Value)> edits)
+    {
+        string joined = string.Join(",", Enumerable.Range(0, curve.Points.Length).Select(index => Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
+        if (curve.IdTokens is null) edits.Add((curve.InsertAt, curve.InsertAt, " ids [" + joined + "] "));
+        else for (int index = 0; index < curve.Points.Length; index++) edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
     }
 
     private sealed class Grammar
@@ -337,7 +417,12 @@ public static class FoilSource
             Expect("leading"); ReadCurve("leading", false); Expect("trailing"); ReadCurve("trailing", false); Expect("}");
             Expect("dihedral"); ReadCurve("dihedral", false); Expect("twist"); ReadCurve("twist", false); Expect("thickness"); ReadCurve("thickness", false);
             Expect("profiles"); Expect("{");
-            do { Expect("profile"); var profileName = Name(); Expect("{"); profiles.Add(ReadProfile(profileName, profiles.Count)); Expect("}"); } while (Current.Text == "profile");
+            do
+            {
+                var keyword = Expect("profile"); var profileName = Name(); Expect("{");
+                var profile = ReadProfile(profileName, profiles.Count); var close = Expect("}");
+                profiles.Add(profile with { BlockStart = keyword.Start, BlockEnd = close.End });
+            } while (Current.Text == "profile");
             Expect("}"); Expect("sections"); Expect("{");
             do { Expect("at"); var station = ReadStation(); Expect("profile"); assignments.Add(new(station, Name())); } while (Current.Text == "at");
             Need(assignments.Count >= 2, "DSL-SYNTAX", "Syntactic", Current);
@@ -381,7 +466,8 @@ public static class FoilSource
             Need(interior.All(x => x > 0 && x < 1) && interior.GroupBy(x => x).All(group => group.Count() <= degree), "DSL-CURVE", "Structural", raw.Degree);
             Need(points[0][0] == 0 && points[^1][0] == 1 && points.Zip(points.Skip(1)).All(pair => raw.Profile ? pair.First[0] <= pair.Second[0] : pair.First[0] < pair.Second[0]), "DSL-CURVE", "Structural", raw.Degree);
             string[] ids = raw.Ids?.Select(token => token.String).ToArray() ?? Enumerable.Range(0, points.Length).Select(index => $"cv-{index}").ToArray();
-            return new(raw.Path, degree, knots, points, ids, raw.Points.Select(point => point.Y).ToArray(), raw.InsertAt, raw.Ids is null);
+            return new(raw.Path, degree, knots, points, ids, raw.Points.Select(point => point.Y).ToArray(), raw.InsertAt, raw.Ids is null,
+                raw.Points.Select(point => point.X).ToArray(), raw.Ids);
         }
         private static double Eta(StationSource station, double halfSpan)
         {
@@ -431,7 +517,7 @@ public static class FoilSource
             }
             Need(profiles.All(profile => profile.Name.String.Length > 0) && profiles.Select(profile => profile.Name.String).Distinct(StringComparer.Ordinal).Count() == profiles.Count, "DSL-REFERENCE", "References", profiles[0].Name);
             foreach (var profile in profiles) if (profile.Asset is not null) throw Failure("DSL-REFERENCE", "References", profile.Asset);
-            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure)).ToArray();
+            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure, profile.BlockStart, profile.BlockEnd)).ToArray();
             var resolved = new List<(double Eta, int Profile)>();
             foreach (var assignment in assignments)
             {
@@ -461,7 +547,8 @@ public static class FoilSource
                     ["assignments"] = resolved.Select(item => new object[] { item.Eta, Array.IndexOf(ordering, item.Profile) }).ToArray(), ["tip"] = tip
                 };
             }
-            return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic, documentName);
+            return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic, documentName,
+                assignments.Select(item => item.Profile).ToArray());
         }
         private static int? BoundLengthScale(SourceToken? unit) => unit?.Text switch
         { "m" => 0, "cm" => -2, "mm" => -3, _ => null };

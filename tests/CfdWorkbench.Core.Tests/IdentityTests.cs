@@ -46,6 +46,7 @@ internal static class IdentityTests
         GeometryTests.Run();
         AuthoringSessionTests.Run();
         ProjectStoreTests.Run();
+        SectionEditTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }

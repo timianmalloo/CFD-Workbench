@@ -14,7 +14,7 @@ public sealed record AcceptedRow(string Id, string? Parent, string SourceId, str
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
 public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks);
 public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
-public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes);
+public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
@@ -140,6 +140,12 @@ public sealed class AuthoringSession : IDisposable
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
     public SessionDraft BeginRailEdit(string draftId, string rail, string vertexId) => Run("begin", () => BeginRailEditCore(draftId, rail, vertexId));
     public SessionDraft UpdateDraft(string draftId, long generation, double si) => Run("update", () => UpdateDraftCore(draftId, generation, si), sizeof(double), generation);
+    public ProfileView ProfileAt(int assignmentIndex) => Run("profile", () => ProfileAtCore(assignmentIndex));
+    public ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope) => Run("scope", () => DescribeScopeCore(profile, assignmentIndex, scope));
+    public SessionDraft BeginProfileEdit(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId) =>
+        Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId));
+    public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
+        Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
     public SessionAssessment Validate(string draftId, long generation, CancellationToken cancellation = default) => Run("validate", () => ValidateCore(draftId, generation, cancellation), generation: generation);
     public SessionPreview Preview(string draftId, long generation, double eta, double x, bool upper, bool port = false) => Run("geometry.preview", () =>
     {
@@ -241,6 +247,117 @@ public sealed class AuthoringSession : IDisposable
         }
     }
     static SessionDraft Copy(SessionDraft d) => d with { Bytes = d.Bytes.ToArray() };
+    private ProfileView ProfileAtCore(int assignmentIndex)
+    {
+        byte[] bytes;
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            bytes = draft is not null && draft.Profile is not null && draft.Assignment == assignmentIndex ? draft.Bytes.ToArray() : CurrentBytes;
+        }
+        var parsed = ParseOwned(bytes);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
+        Guard.Require((uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
+        var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
+        string identity = parsed.Authored().Assignments[assignmentIndex].ProfileIdentity;
+        return new(profile.Name, identity, Vertices(profile.Upper, "upper", profile.Closure), Vertices(profile.Lower, "lower", profile.Closure),
+            Sample(profile.Upper), Sample(profile.Lower), profile.Closure);
+    }
+    private ScopeImpact DescribeScopeCore(string profile, int assignmentIndex, SectionScope scope)
+    {
+        byte[] bytes;
+        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY"); bytes = CurrentBytes; }
+        var parsed = ParseOwned(bytes);
+        var authored = parsed.Authored();
+        Guard.Require(parsed.Definition!.Profiles.Any(item => item.Name == profile), "DSL-PROFILE-TARGET");
+        Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)authored.Assignments.Count &&
+            authored.Assignments[assignmentIndex].ProfileName == profile, "DSL-PROFILE-TARGET");
+        int[] affected = scope == SectionScope.Independent ? [assignmentIndex] :
+            authored.Assignments.Select((item, index) => (item, index)).Where(pair => pair.item.ProfileName == profile).Select(pair => pair.index).ToArray();
+        return new(profile, scope, affected, MergeIntervals(authored.Assignments, affected));
+    }
+    private static ProfileVertex[] Vertices(Curve curve, string side, string closure) => curve.Points.Select((point, index) =>
+        new ProfileVertex(side, curve.Ids[index], point[0], point[1], index == 0 || (closure == "closed" && index == curve.Points.Length - 1))).ToArray();
+    private static ProfilePoint[] Sample(Curve curve)
+    {
+        var watch = new ProofBudget();
+        var spans = Bernstein.Spans(curve, watch);
+        var samples = new ProfilePoint[101];
+        for (int index = 0; index < samples.Length; index++)
+        {
+            double x = index / 100d;
+            var ordinate = Bernstein.EncloseAt(spans, Rational.From(x), watch);
+            samples[index] = new(x, (ordinate.Lower.Down() + ordinate.Upper.Up()) / 2);
+        }
+        return samples;
+    }
+    private static BlendInterval[] MergeIntervals(IReadOnlyList<AuthoredAssignment> stations, IReadOnlyList<int> affected)
+    {
+        var raw = new List<BlendInterval>();
+        foreach (int index in affected)
+        {
+            if (index > 0) raw.Add(new(stations[index - 1].Eta, stations[index].Eta, stations[index - 1].SpanMeters, stations[index].SpanMeters));
+            if (index + 1 < stations.Count) raw.Add(new(stations[index].Eta, stations[index + 1].Eta, stations[index].SpanMeters, stations[index + 1].SpanMeters));
+        }
+        raw.Sort((left, right) => left.EtaStart != right.EtaStart ? left.EtaStart.CompareTo(right.EtaStart) : left.EtaEnd.CompareTo(right.EtaEnd));
+        var merged = new List<BlendInterval>();
+        foreach (var interval in raw)
+        {
+            if (merged.Count == 0) { merged.Add(interval); continue; }
+            var last = merged[^1];
+            bool duplicate = interval.EtaStart == last.EtaStart && interval.EtaEnd == last.EtaEnd;
+            if (duplicate) continue;
+            if (interval.EtaStart < last.EtaEnd)
+                merged[^1] = new(last.EtaStart, Math.Max(last.EtaEnd, interval.EtaEnd), last.RootDistanceStartMeters,
+                    interval.EtaEnd > last.EtaEnd ? interval.RootDistanceEndMeters : last.RootDistanceEndMeters);
+            else merged.Add(interval);
+        }
+        return merged.ToArray();
+    }
+    private SessionDraft BeginProfileEditCore(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(draftId); Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
+            var definition = ParseOwned(CurrentBytes).Definition!;
+            Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)definition.Assignments.Length && side is "upper" or "lower", "DSL-PROFILE-TARGET");
+            var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
+            var curve = side == "upper" ? profile.Upper : profile.Lower;
+            int index = Array.IndexOf(curve.Ids, vertexId);
+            Guard.Require(index >= 0, "DSL-PROFILE-TARGET");
+            Guard.Require(index != 0 && (profile.Closure != "closed" || index != curve.Points.Length - 1), "DSL-LOCK");
+            byte[] bytes = CurrentBytes; string target = profile.Name;
+            if (scope == SectionScope.Independent)
+            {
+                var made = FoilSource.MakeIndependent(bytes, profile.Name, assignmentIndex);
+                bytes = made.Source; target = made.NewProfile;
+            }
+            retiredDraftIds.Add(draftId);
+            draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex); return Copy(draft);
+        }
+    }
+    private SessionDraft UpdateProfileDraftCore(string draftId, long expectedGeneration, double x, double y)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == expectedGeneration && expectedGeneration < 9007199254740991, "DSL-CONFLICT");
+            Guard.Require(draft!.Profile is not null && draft.Rail is "upper" or "lower", "DSL-PROFILE-TARGET");
+            string profileName = draft.Profile!, side = draft.Rail;
+            Guard.Require(double.IsFinite(x) && double.IsFinite(y), "DSL-PROFILE-ORDER");
+            var profile = ParseOwned(draft.Bytes).Definition!.Profiles.First(item => item.Name == profileName);
+            var curve = side == "upper" ? profile.Upper : profile.Lower;
+            int index = Array.IndexOf(curve.Ids, draft.VertexId);
+            Guard.Require(index >= 0, "DSL-PROFILE-TARGET");
+            double previous = index == 0 ? double.NegativeInfinity : curve.Points[index - 1][0];
+            double next = index + 1 == curve.Points.Length ? double.PositiveInfinity : curve.Points[index + 1][0];
+            Guard.Require(x >= previous && x <= next, "DSL-PROFILE-ORDER");
+            draft = draft with { Generation = expectedGeneration + 1, Bytes = FoilSource.PatchProfilePoint(draft.Bytes, profileName, side, draft.VertexId, x, y) };
+            return Copy(draft);
+        }
+    }
     private SessionDraft UpdateDraftCore(string draftId, long expectedGeneration, double si)
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
@@ -444,6 +561,12 @@ public static class NativeProject
         }
         catch (Exception e) when (e is JsonException or InvalidOperationException or ArgumentException or NullReferenceException or KeyNotFoundException) { throw new ContractError("DOC-SCHEMA"); }
     }
+    static bool EditTarget(Definition definition, string channel, string vertexId) => channel switch
+    {
+        "leading" or "trailing" => definition.Curves[channel].Ids.Contains(vertexId),
+        "upper" or "lower" => definition.Profiles.Any(profile => (channel == "upper" ? profile.Upper : profile.Lower).Ids.Contains(vertexId)),
+        _ => false
+    };
     static void Check(Envelope e)
     {
         Uuid(e.ProjectId);
@@ -465,9 +588,9 @@ public static class NativeProject
             if (a.Parent is not null)
             {
                 Guard.Require(a.Edit is not null, "DOC-REFERENCE"); Uuid(a.Edit!.DraftId);
-                Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991 && a.Edit.Rail is "leading" or "trailing" && parsed[a.SourceId].Definition!.Curves[a.Edit.Rail].Ids.Contains(a.Edit.VertexId), "DOC-REFERENCE");
+                Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991 && EditTarget(parsed[a.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
                 var parent = accepted[a.Parent]; bool same = parsed[a.SourceId].SurfaceHash! == parsed[parent.SourceId].SurfaceHash!;
-                Guard.Require(parsed[parent.SourceId].Definition!.Curves[a.Edit.Rail].Ids.Contains(a.Edit.VertexId), "DOC-REFERENCE");
+                Guard.Require(EditTarget(parsed[parent.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
                 Guard.Require(same ? a.DesignId == parent.DesignId : designs[a.DesignId].Parent == parent.DesignId, "DOC-REFERENCE");
             }
             else Guard.Require(a.Edit is null, "DOC-REFERENCE");
@@ -477,8 +600,8 @@ public static class NativeProject
         _ = Replay(e);
         if (e.Recovery is not null)
         {
-            var r = e.Recovery; Uuid(r.DraftId); Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991 && r.Rail is "leading" or "trailing", "DOC-REFERENCE");
-            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && parsed[accepted[r.BaseAcceptedId].SourceId].Definition!.Curves[r.Rail].Ids.Contains(r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            var r = e.Recovery; Uuid(r.DraftId); Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991 && r.Rail is "leading" or "trailing" or "upper" or "lower", "DOC-REFERENCE");
+            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(parsed[accepted[r.BaseAcceptedId].SourceId].Definition!, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
         }
     }
     public static (string Current, string[] Redo) Replay(Envelope e)
