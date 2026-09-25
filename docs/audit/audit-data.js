@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T23:31:55Z",
+  "generated": "2026-09-25T23:37:37Z",
   "audit": [
     {
       "actor": null,
@@ -12599,6 +12599,411 @@ window.AUDIT_DATA = {
             "sha256": "29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f",
             "status": "resolved",
             "token": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3DEWYWX2BAWNJGY635REVBN",
+      "shortname": "Goal: Make profile x-edits certifiable by moving the paired vertex on th…",
+      "datetime": "2026-09-25T23:37:37Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".\nDone when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft; a y-only update changes only its own side; a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY; an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-paired-x.\nNot in scope: certifying independent abscissae; the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now; do not edit those members); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 80 tool calls, 40 minutes\n\n## Harness notes (Grok Build)\n- Working directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\n- AGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\n- Repair loops are capped at 2 cycles. Same failure twice → stop and report.\n\n## Facts (verified — do not re-investigate)\n- Geometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\n- UpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n\n## Verify, then commit\n- `tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\n- Commit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3DEWZ7TQEVAPHEKVS7N1SA9",
+      "shortname": "compile-Goal: Make profile x-edits certifiable by moving the paired vertex on th…",
+      "datetime": "2026-09-25T23:37:37Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".\nDone when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft; a y-only update changes only its own side; a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY; an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-paired-x.\nNot in scope: certifying independent abscissae; the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now; do not edit those members); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 80 tool calls, 40 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Facts (verified — do not re-investigate)\nGeometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\nUpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.\nTrace\n| clause | trace |\n|---|---|\n| done_when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft | phrase: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft |\n| done_when: a y-only update changes only its own side | phrase: a y-only update changes only its own side |\n| done_when: a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY | phrase: a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY |\n| done_when: an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile | phrase: an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile |\n| done_when: the tests below pass | phrase: the tests below pass |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: committed on feature/section-paired-x. | phrase: committed on feature/section-paired-x. |\n| not_in_scope: certifying independent abscissae | phrase: certifying independent abscissae |\n| not_in_scope: the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now | phrase: the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now |\n| not_in_scope: do not edit those members) | phrase: do not edit those members) |\n| not_in_scope: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests | phrase: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests |\n| not_in_scope: docs | phrase: docs |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual: unresolved (not found)\n- SharedAbscissa: unresolved (not found)\n- Run: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: pair profile abscissa edits and report crossing sections: unresolved (not found)\n- Co-Authored-By: Grok 4.7 <noreply@x.ai: unresolved (not found)\n- upper/lower: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 eb306cb569bc1a44d77d6d6daf94bd9f442d4ed167cde59f47f31893c4fc3e7c\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-paired-x: unresolved (not found)\n- src/CfdWorkbench.Desktop: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests: unresolved (not found; nearest: tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x: unresolved (outside repo)\n- AGENTS.md: AGENTS.md sha256 20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85\n- .grok/skills/implement/SKILL.md: unresolved (not found)\n- /: unresolved (outside repo)\n- src/CfdWorkbench.Core/AuthoringSession.cs: src/CfdWorkbench.Core/AuthoringSession.cs sha256 6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e\n- src/CfdWorkbench.Core/FoilSource.cs: src/CfdWorkbench.Core/FoilSource.cs sha256 54384c366329f60ed099696298da0243fc2a5460e646e8c03a9f8805a322740f\n- upper\"/\"lower: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/SectionEditTests.cs: tests/CfdWorkbench.Core.Tests/SectionEditTests.cs sha256 29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f\n- keep/extend: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3DEWYWX2BAWNJGY635REVBN\nraw sha256: 20f2ae6c7f0d412a1a00e66c98f3abbd1b4beb1073fae3602089518aca103106\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3DEWYWX2BAWNJGY635REVBN for claude-code v1: 15 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft",
+            "trace": {
+              "kind": "phrase",
+              "ref": "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "a y-only update changes only its own side",
+            "trace": {
+              "kind": "phrase",
+              "ref": "a y-only update changes only its own side"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY",
+            "trace": {
+              "kind": "phrase",
+              "ref": "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile",
+            "trace": {
+              "kind": "phrase",
+              "ref": "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the tests below pass",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the tests below pass"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "committed on feature/section-paired-x.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "committed on feature/section-paired-x."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "certifying independent abscissae",
+            "trace": {
+              "kind": "phrase",
+              "ref": "certifying independent abscissae"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "do not edit those members)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "do not edit those members)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "trace": {
+              "kind": "phrase",
+              "ref": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "docs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "docs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft",
+            "a y-only update changes only its own side",
+            "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY",
+            "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile",
+            "the tests below pass",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "committed on feature/section-paired-x."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".",
+          "main_line_budget": "80 tool calls, 40 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Facts (verified — do not re-investigate)\nGeometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\nUpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+          "not_in_scope": [
+            "certifying independent abscissae",
+            "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now",
+            "do not edit those members)",
+            "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "docs",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3DEWYWX2BAWNJGY635REVBN",
+        "raw_sha256": "20f2ae6c7f0d412a1a00e66c98f3abbd1b4beb1073fae3602089518aca103106",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "SharedAbscissa"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Run"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: pair profile abscissa edits and report crossing sections"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Grok 4.7 <noreply@x.ai"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper/lower"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "eb306cb569bc1a44d77d6d6daf94bd9f442d4ed167cde59f47f31893c4fc3e7c",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-paired-x"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Desktop"
+          },
+          {
+            "nearest": "tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x"
+          },
+          {
+            "nearest": null,
+            "path": "AGENTS.md",
+            "reason": null,
+            "sha256": "20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85",
+            "status": "resolved",
+            "token": "AGENTS.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".grok/skills/implement/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/AuthoringSession.cs",
+            "reason": null,
+            "sha256": "6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/FoilSource.cs",
+            "reason": null,
+            "sha256": "54384c366329f60ed099696298da0243fc2a5460e646e8c03a9f8805a322740f",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/FoilSource.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper\"/\"lower"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs",
+            "reason": null,
+            "sha256": "29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "keep/extend"
           }
         ],
         "schema": "compiled-prompt/1",
