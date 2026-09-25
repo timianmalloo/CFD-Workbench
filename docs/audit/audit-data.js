@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:02:49Z",
+  "generated": "2026-09-25T05:10:27Z",
   "audit": [
     {
       "actor": null,
@@ -7975,6 +7975,30 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-25T05:00:28Z",
       "duration_seconds": 141.0
+    },
+    {
+      "id": "al-01M3BFHPARRCBR75XHB1EJWXY0",
+      "shortname": "w1-context-retry-ruling",
+      "datetime": "2026-09-25T05:10:27Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BFEG703WMTKRZJ66YWSNMY after W1 run36097138344 rejected job.env runner.temp before jobs; one supported step-env repair, independent actionlint RED/GREEN, one reviewed retry, shared missed-check class.",
+      "summary": "R44 permits exact workflow-only step.env repair,20calls/15min local then one additional non-force same-ref push/run after root actionlint1.7.12 and source-manifest preflight. Owner directly verified frozen YAML, zero-job/artifact API receipts and their hashes, and official context table. Original invalid workflow remains meaningful negative; no third push. Shared author/reviewer/Owner failure class is missing remote-evaluator context validation; mandatory pinned semantic lint before future workflow execution. No Windows/runtime/M1 PASS or capture/section work.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Correct the demonstrated workflow-context defect with a bounded verified retry and executable recurrence control.",
+      "done_when": "Canonical ruling fixes the one-file correction, validation and retry boundaries; Coordinator informed and Owner yields.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:08:55Z",
+      "duration_seconds": 92.0
     }
   ],
   "changes": [
