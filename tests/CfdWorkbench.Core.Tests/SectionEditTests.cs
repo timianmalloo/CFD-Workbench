@@ -32,6 +32,52 @@ internal static class SectionEditTests
             byte[] source = FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
             byte[] patched = FoilSource.PatchProfilePoint(source, "section-a", "upper", "cv-3", 0.4, 0.08);
             Equal(CurveText(Encoding.UTF8.GetString(source), "lower"), CurveText(Encoding.UTF8.GetString(patched), "lower"));
+            using var session = Opened();
+            var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
+            string lower = CurveText(Encoding.UTF8.GetString(session.Snapshot().Source), "lower");
+            string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
+            Equal(begun.Generation + 1, updated.Generation);
+            Equal(lower, CurveText(Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes), "lower"));
+            Equal(vertex.Y + 0.015, session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3").Y);
+        });
+        Check("Profile_PairedAbscissa_MovesSameIndexAndUndoRestores", () =>
+        {
+            using var session = Opened();
+            byte[] original = session.Snapshot().Source;
+            var before = session.ProfileAt(0);
+            int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
+            const double moved = 0.4;
+            string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateProfileDraft(draft, begun.Generation, moved, before.Upper[index].Y);
+            Equal(begun.Generation + 1, updated.Generation);
+            var after = session.ProfileAt(0);
+            Equal(moved, after.Upper[index].X);
+            Equal(moved, after.Lower[index].X);
+            Equal(before.Upper[index].Y, after.Upper[index].Y);
+            Equal(before.Lower[index].Y, after.Lower[index].Y);
+            var assessment = session.Validate(draft, updated.Generation);
+            Equal(GeometryStatus.Certified, assessment.Status);
+            session.Apply(Id(), assessment);
+            session.Undo(Id());
+            Equal(true, original.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("Profile_UpperCrossesLower_ReportsCross", () =>
+        {
+            using var session = Opened();
+            var before = session.ProfileAt(0);
+            int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
+            string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            const double crossed = -3;
+            Equal(true, crossed < before.Lower[index].Y);
+            var updated = session.UpdateProfileDraft(draft, begun.Generation, before.Upper[index].X, crossed);
+            var assessment = session.Validate(draft, updated.Generation);
+            Equal("DSL-PROFILE-CROSS", assessment.Code);
+            Equal("DSL-PROFILE-CROSS", assessment.Diagnostics[0].Code);
+            Equal("Profile separation is not certified.", assessment.Diagnostics[0].Reason);
         });
         Check("Profile_FixedVertex_RefusesLock", () =>
         {
@@ -210,6 +256,19 @@ internal static class SectionEditTests
             Equal(true, original.AsSpan().SequenceEqual(session.Snapshot().Source));
             session.Redo(Id());
             Equal(kept, ProfileBlock(Encoding.UTF8.GetString(session.Snapshot().Source), "section-a"));
+        });
+        Check("Profile_IndependentAbscissaEdit_NamesNeighbour", () =>
+        {
+            using var session = new AuthoringSession();
+            session.Open(ThreeStations(), Id(), true);
+            var before = session.ProfileAt(1);
+            int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
+            string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
+            var updated = session.UpdateProfileDraft(draft, begun.Generation, 0.4, before.Upper[index].Y);
+            var assessment = session.Validate(draft, updated.Generation);
+            Equal("DSL-GEOMETRY", assessment.Code);
+            Equal("Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.", assessment.Diagnostics[0].Reason);
         });
     }
 

@@ -355,7 +355,18 @@ public sealed class AuthoringSession : IDisposable
             double previous = index == 0 ? double.NegativeInfinity : curve.Points[index - 1][0];
             double next = index + 1 == curve.Points.Length ? double.PositiveInfinity : curve.Points[index + 1][0];
             Guard.Require(x >= previous && x <= next, "DSL-PROFILE-ORDER");
-            draft = draft with { Generation = expectedGeneration + 1, Bytes = FoilSource.PatchProfilePoint(draft.Bytes, profileName, side, draft.VertexId, x, y) };
+            byte[] bytes = draft.Bytes;
+            if (x != curve.Points[index][0])
+            {
+                var other = side == "upper" ? profile.Lower : profile.Upper;
+                Guard.Require((uint)index < (uint)other.Points.Length, "DSL-PROFILE-TARGET");
+                double otherPrevious = index == 0 ? double.NegativeInfinity : other.Points[index - 1][0];
+                double otherNext = index + 1 == other.Points.Length ? double.PositiveInfinity : other.Points[index + 1][0];
+                Guard.Require(x >= otherPrevious && x <= otherNext, "DSL-PROFILE-ORDER");
+                bytes = FoilSource.PatchProfilePoint(bytes, profileName, side == "upper" ? "lower" : "upper", other.Ids[index], x, other.Points[index][1]);
+            }
+            bytes = FoilSource.PatchProfilePoint(bytes, profileName, side, draft.VertexId, x, y);
+            draft = draft with { Generation = expectedGeneration + 1, Bytes = bytes };
             return Copy(draft);
         }
     }
