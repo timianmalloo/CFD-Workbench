@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T02:58:35Z",
+  "generated": "2026-09-25T03:49:01Z",
   "audit": [
     {
       "actor": null,
@@ -7069,6 +7069,56 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-09-25T02:57:44Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3B94QGC37E4R3GT4FDP1NHD",
+      "shortname": "review-attach-and-m1-decision",
+      "datetime": "2026-09-25T03:18:31Z",
+      "session": "cfd-focus-20260924",
+      "prompt": "PART 1 — Window-focus blocker ($investigate)\nThe session has asked me to bring a window to the front five times. One wait stalled the graph for about 10 hours. Treat this as a defect class, not an operator chore.\n- Reproduce the failure: launch a new review build and try the supported CUA attach. Record the exact error, bundle path, bundle identifier, PID, window list, and Space/display.\n- Establish the root cause by observation. Candidate causes to check, not assume:\n    - each review copy gets a task-specific bundle identifier and a /private/tmp path;\n    - macOS privacy permissions (TCC: Accessibility, Screen Recording) are granted per bundle, so a new bundle may not be authorized;\n    - the app launches without being activated;\n    - the window opens on another Space or display.\n  Mark every candidate you cannot check with an `assume:` note.\n- Fix it with the smallest supported change. Examples: a stable review bundle identifier and install path, explicit activation after launch, or a pre-attach readiness check that retries within a bounded time.\n- Prove the fix with two consecutive fresh builds that attach with no user action.\n- Record the class in docs/lessons/defect-classes.md. Add a control that fails when a review launch cannot attach, so the failure is caught before any request reaches me.\n- New rule for any wait on a human: batch the requests into one message. While waiting, keep scheduling other dependency-ready work. Never let a human reply hold the whole graph. If after the fix you still need me, say exactly which one-time system permission to grant and where.\n\nPART 2 — M1 scope decision (decision request to me, prepared by the Owner)\nThe M1 definition in docs/plans/application-build.md says \"offline native workbench on Windows and macOS … inspect a viewport and section.\" Three obligations have no track: Windows runtime, measured on-screen timing (5 s cold start, 100 ms edit, 250 ms preview/cancel), and what you have called \"the full section editor.\"\nHave the Owner prepare ONE decision request. For each of the three, give:\n  - what the spec and FoilDSL contract actually require (cite the clauses; separate normative requirements from mockup behavior);\n  - the evidence that exists today, and the gap;\n  - options: in M1 / split into a named M1.1 / deferred. Give each option its cost, its risk, and what it does to the definition of M1;\n  - the Owner's recommendation.\nFor the Windows item, list the concrete ways to get real Windows runtime evidence available on this machine or in CI. Check each one; don't claim any exists without checking it. For timing, state what an honest on-screen measurement would take.\nSend the decision request to me, then stop that part until I rule. The scope of M1 is my call. Do not remove a requirement or redefine M1 to make a gate pass.\nAfter I rule: update the plan and ledger, create the tracks the ruling needs under the coordination workflow, and schedule them once their dependencies are ready.\n\nReport back as one table with these columns: item · status · evidence · agent · next. Include measured cost and usage where it is available, and write \"not recorded\" where it is not.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3BAWJ7BSE2SYGENEH45RG2N",
+      "shortname": "investigate-review-window-attach",
+      "datetime": "2026-09-25T03:49:01Z",
+      "session": "cfd-focus-20260924",
+      "prompt": "PART 1 — Window-focus blocker ($investigate)\nThe session has asked me to bring a window to the front five times. One wait stalled the graph for about 10 hours. Treat this as a defect class, not an operator chore.\n- Reproduce the failure: launch a new review build and try the supported CUA attach. Record the exact error, bundle path, bundle identifier, PID, window list, and Space/display.\n- Establish the root cause by observation. Candidate causes to check, not assume:\n    - each review copy gets a task-specific bundle identifier and a /private/tmp path;\n    - macOS privacy permissions (TCC: Accessibility, Screen Recording) are granted per bundle, so a new bundle may not be authorized;\n    - the app launches without being activated;\n    - the window opens on another Space or display.\n  Mark every candidate you cannot check with an `assume:` note.\n- Fix it with the smallest supported change. Examples: a stable review bundle identifier and install path, explicit activation after launch, or a pre-attach readiness check that retries within a bounded time.\n- Prove the fix with two consecutive fresh builds that attach with no user action.\n- Record the class in docs/lessons/defect-classes.md. Add a control that fails when a review launch cannot attach, so the failure is caught before any request reaches me.\n- New rule for any wait on a human: batch the requests into one message. While waiting, keep scheduling other dependency-ready work. Never let a human reply hold the whole graph. If after the fix you still need me, say exactly which one-time system permission to grant and where.\n\nPART 2 — M1 scope decision (decision request to me, prepared by the Owner)\nThe M1 definition in docs/plans/application-build.md says \"offline native workbench on Windows and macOS … inspect a viewport and section.\" Three obligations have no track: Windows runtime, measured on-screen timing (5 s cold start, 100 ms edit, 250 ms preview/cancel), and what you have called \"the full section editor.\"\nHave the Owner prepare ONE decision request. For each of the three, give:\n  - what the spec and FoilDSL contract actually require (cite the clauses; separate normative requirements from mockup behavior);\n  - the evidence that exists today, and the gap;\n  - options: in M1 / split into a named M1.1 / deferred. Give each option its cost, its risk, and what it does to the definition of M1;\n  - the Owner's recommendation.\nFor the Windows item, list the concrete ways to get real Windows runtime evidence available on this machine or in CI. Check each one; don't claim any exists without checking it. For timing, state what an honest on-screen measurement would take.\nSend the decision request to me, then stop that part until I rule. The scope of M1 is my call. Do not remove a requirement or redefine M1 to make a gate pass.\nAfter I rule: update the plan and ledger, create the tracks the ruling needs under the coordination workflow, and schedule them once their dependencies are ready.\n\nReport back as one table with these columns: item · status · evidence · agent · next. Include measured cost and usage where it is available, and write \"not recorded\" where it is not.",
+      "summary": "Reproduced cgWindowNotFound across two apps; supported CUA reset restored the unchanged PID. Two consecutive fresh compiler builds passed live-bound AX/screenshot readiness without human action in 1359 and 1385 ms. Added fail-closed gate and regression controls; independent SRE/Test review cleared readiness scope. Internal CUA cause remains Inferred/Flagged. User approved Windows and visible timing M1, full section authoring M1.1; coordinator records scope and tracks. Monetary cost/token usage not recorded.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/review-window-attach.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Remove repeated operator foregrounding and prepare the Owner M1 scope decision without blocking independent work.",
+      "done_when": "Two fresh builds attach unaided; fail-closed readiness control independently reviewed; scope ruling recorded. External internal root cause remains an explicit evidence gap.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-25T03:10:01Z",
+      "duration_seconds": 2340.0,
+      "git": {
+        "sha": "854aa6e88a41cc4abdb0f4ec12349771b4bfbc25",
+        "short": "854aa6e88",
+        "branch": "feature/review-attach-readiness",
+        "pushed": null
+      }
     }
   ],
   "changes": [

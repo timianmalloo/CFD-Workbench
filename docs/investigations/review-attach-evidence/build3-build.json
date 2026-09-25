@@ -1,0 +1,178 @@
+{
+  "app": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/packages/osx-arm64/CFD Workbench.app",
+  "appFileCount": 231,
+  "artifactSymlinks": [],
+  "assetRoots": {
+    "CfdWorkbench.Cli": {
+      "packageFolders": [
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget"
+      ],
+      "restoreOutput": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts/obj/CfdWorkbench.Cli"
+    },
+    "CfdWorkbench.Core": {
+      "packageFolders": [
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget"
+      ],
+      "restoreOutput": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts/obj/CfdWorkbench.Core"
+    },
+    "CfdWorkbench.Desktop": {
+      "packageFolders": [
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget"
+      ],
+      "restoreOutput": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts/obj/CfdWorkbench.Desktop"
+    },
+    "CfdWorkbench.Persistence": {
+      "packageFolders": [
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget"
+      ],
+      "restoreOutput": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts/obj/CfdWorkbench.Persistence"
+    }
+  },
+  "binarySha256": {
+    "Contents/MacOS/CfdWorkbench.Core.dll": "b6fbc0c758ebf2afcc16c4ad4741ce7b6eaf36b0bc19e30d387c267848e48ead",
+    "Contents/MacOS/CfdWorkbench.Desktop": "cc700004034184f372fdcd146550462aabae7e179d1ff33f1d46098bc3e121b4",
+    "Contents/MacOS/CfdWorkbench.Desktop.dll": "26e39524060242ed7a26620d586a568b86b9e02944c23a453fbbe347be7132f8",
+    "Contents/MacOS/CfdWorkbench.Persistence.dll": "87d6a60c199cedfd7f712fffdc78863c5adb572cef7e1247a216803c3b20167f",
+    "Contents/MacOS/libcfd_store.dylib": "90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88"
+  },
+  "changedFilesFromFirstBuild": [
+    "Contents/MacOS/CfdWorkbench.Cli.dll",
+    "Contents/MacOS/CfdWorkbench.Cli.pdb",
+    "Contents/MacOS/CfdWorkbench.Core.dll",
+    "Contents/MacOS/CfdWorkbench.Core.pdb",
+    "Contents/MacOS/CfdWorkbench.Desktop.dll",
+    "Contents/MacOS/CfdWorkbench.Desktop.pdb",
+    "Contents/MacOS/CfdWorkbench.Persistence.dll",
+    "Contents/MacOS/CfdWorkbench.Persistence.pdb"
+  ],
+  "environment": {
+    "AVALONIA_TELEMETRY_OPTOUT": "1",
+    "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER": "1",
+    "DOTNET_CLI_HOME": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/dotnet-home",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_GENERATE_ASPNET_CERTIFICATE": "false",
+    "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+    "NUGET_HTTP_CACHE_PATH": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/http-cache",
+    "NUGET_PACKAGES": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget",
+    "TEMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+    "TMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+    "TMPDIR": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp"
+  },
+  "firstBuildBinarySha256": {
+    "Contents/MacOS/CfdWorkbench.Core.dll": "c1e300465f5f3319020db4a9d360f113b87ef95b125363d72458bb19076e7e4a",
+    "Contents/MacOS/CfdWorkbench.Desktop": "cc700004034184f372fdcd146550462aabae7e179d1ff33f1d46098bc3e121b4",
+    "Contents/MacOS/CfdWorkbench.Desktop.dll": "173fcb407b190d2ab21a71365cf82f915b446f1e0a36aea63d2934b01d7a876d",
+    "Contents/MacOS/CfdWorkbench.Persistence.dll": "c60fa49bc12b68e5c857e300114758c5d971bd722dc97432eee496c71043449d",
+    "Contents/MacOS/libcfd_store.dylib": "90181814d8acebf1b322579d0ff41964f63311e946b34c3df1c04698e9b24c88"
+  },
+  "purpose": "fresh independent build 3 for native attachment review",
+  "schema": 1,
+  "scratch": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0",
+  "sourceCommit": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+  "sourceGate": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-adapters-verify-jit8fbuw/receipts/verification.json",
+  "sourceGateSha256": "5ff9fc6d44a91d42a8457fcb90f2d4be8ee446fffa966f5778d5eb49a60a23c4",
+  "sourceHeadAtStart": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+  "sourceInputCount": 53,
+  "sourceInputsUnchanged": true,
+  "sourceOutputsUnchanged": true,
+  "startedUtc": "2026-09-25T03:31:39.400611+00:00",
+  "status": "pass",
+  "steps": [
+    {
+      "argv": [
+        "dotnet",
+        "publish",
+        "src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj",
+        "-c",
+        "Release",
+        "-r",
+        "osx-arm64",
+        "--self-contained",
+        "true",
+        "--artifacts-path",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts",
+        "--disable-build-servers",
+        "-p:UseSharedCompilation=false",
+        "--nologo"
+      ],
+      "cleanupError": null,
+      "collectorObserved": [],
+      "cwd": "/Users/mallalieut/projects/CFD-Workbench-feature-application-native-adapters",
+      "environment": {
+        "AVALONIA_TELEMETRY_OPTOUT": "1",
+        "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER": "1",
+        "DOTNET_CLI_HOME": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/dotnet-home",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+        "DOTNET_GENERATE_ASPNET_CERTIFICATE": "false",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+        "NUGET_HTTP_CACHE_PATH": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/http-cache",
+        "NUGET_PACKAGES": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget",
+        "TEMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+        "TMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+        "TMPDIR": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp"
+      },
+      "exitCode": 0,
+      "failure": null,
+      "ownedPidStart": {
+        "52099": "Thu Sep 24 20:31:39 2026",
+        "52103": "Thu Sep 24 20:31:39 2026",
+        "52132": "Thu Sep 24 20:31:43 2026",
+        "52135": "Thu Sep 24 20:31:43 2026",
+        "52167": "Thu Sep 24 20:31:44 2026",
+        "52175": "Thu Sep 24 20:31:45 2026",
+        "52184": "Thu Sep 24 20:31:47 2026"
+      },
+      "pid": 52099,
+      "psStartIdentity": "Thu Sep 24 20:31:39 2026",
+      "remainingProcessGroup": {},
+      "startUtc": "2026-09-25T03:31:39.400800+00:00",
+      "stderr": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/receipts/fresh-publish-osx-arm64.stderr",
+      "stderrSha256": "fb15cd4cd460af5f4a64ee8733821d4c4da6d1f1ead81b460d246786a5c5b722",
+      "stdout": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/receipts/fresh-publish-osx-arm64.stdout",
+      "stdoutSha256": "4be89908a62bc5f5395235b623755cc6c98154ecce12517efdac322fb8ce8806",
+      "timedOut": false
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tools/package-application.py",
+        "--build-dir",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/artifacts/publish/CfdWorkbench.Desktop/release_osx-arm64",
+        "--output-dir",
+        "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/packages/osx-arm64",
+        "--platform",
+        "macos"
+      ],
+      "cleanupError": null,
+      "collectorObserved": [],
+      "cwd": "/Users/mallalieut/projects/CFD-Workbench-feature-application-native-adapters",
+      "environment": {
+        "AVALONIA_TELEMETRY_OPTOUT": "1",
+        "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER": "1",
+        "DOTNET_CLI_HOME": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/dotnet-home",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+        "DOTNET_GENERATE_ASPNET_CERTIFICATE": "false",
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+        "NUGET_HTTP_CACHE_PATH": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/http-cache",
+        "NUGET_PACKAGES": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/nuget",
+        "TEMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+        "TMP": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp",
+        "TMPDIR": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/tmp"
+      },
+      "exitCode": 0,
+      "failure": null,
+      "ownedPidStart": {
+        "52201": "Thu Sep 24 20:31:48 2026"
+      },
+      "pid": 52201,
+      "psStartIdentity": "Thu Sep 24 20:31:48 2026",
+      "remainingProcessGroup": {},
+      "startUtc": "2026-09-25T03:31:48.755557+00:00",
+      "stderr": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/receipts/fresh-package-osx-arm64.stderr",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build3-0u1n2zd0/receipts/fresh-package-osx-arm64.stdout",
+      "stdoutSha256": "c4a9496b79d8bb5f171126b5f046089166075eecb232413cdeaad999a9a3ab57",
+      "timedOut": false
+    }
+  ]
+}

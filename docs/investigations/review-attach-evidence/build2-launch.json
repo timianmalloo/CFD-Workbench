@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/CFD Workbench.app/Contents/MacOS/CfdWorkbench.Desktop"
+  ],
+  "binarySha256": "cc700004034184f372fdcd146550462aabae7e179d1ff33f1d46098bc3e121b4",
+  "bundleChangedOnly": [
+    "Contents/Info.plist"
+  ],
+  "bundleEntries": 233,
+  "bundleManifest": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/bundle-parity.json",
+  "bundleManifestSha256": "4aaab79733463876084928e5664a44671b6096d8cdc97fdf2c85421b89b886f2",
+  "environment": {
+    "AVALONIA_TELEMETRY_OPTOUT": "1",
+    "CFDW_REVIEW_MODE": "1",
+    "CFDW_REVIEW_PERSONA": "designer",
+    "CFDW_REVIEW_REDUCED_MOTION": "1",
+    "CFDW_REVIEW_SIZE": "1024x700",
+    "CFDW_REVIEW_STATE": "example",
+    "CFDW_REVIEW_THEME": "light",
+    "DOTNET_CLI_HOME": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/dotnet-home",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+    "DOTNET_GENERATE_ASPNET_CERTIFICATE": "false",
+    "NUGET_HTTP_CACHE_PATH": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/http-cache",
+    "NUGET_PACKAGES": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/nuget",
+    "TEMP": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/tmp",
+    "TMP": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/tmp",
+    "TMPDIR": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/tmp"
+  },
+  "exitCodeAfterFiveSeconds": null,
+  "launchRecordedUtc": "2026-09-25T03:29:13.050457+00:00",
+  "ownedProcessGroupAfterFiveSeconds": "51522",
+  "pid": 51522,
+  "pidIdentity": {
+    "command": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/CFD Workbench.app/Contents/MacOS/CfdWorkbench.Desktop",
+    "pid": 51522,
+    "start": "Thu Sep 24 20:29:08 2026"
+  },
+  "prelaunchGuard": "/Users/mallalieut/projects/CFD-Workbench-feature-application-coordination/docs/coordination/review-launch-guard.py",
+  "prelaunchGuardSha256": "cf0d5d9391e92ccb2669afe412f1e6d4a37e579c3af1c7d941da23ba5199f7dc",
+  "prelaunchProcessInventory": {
+    "blocked": [],
+    "matched": [],
+    "retained": [],
+    "unknown": []
+  },
+  "reviewApp": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/CFD Workbench.app",
+  "reviewBundleId": "com.cfdworkbench.desktop.focusbuild220260924",
+  "sourceApp": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/packages/osx-arm64/CFD Workbench.app",
+  "sourceBundleId": "com.cfdworkbench.desktop",
+  "sourceCommit": "d774e1ee6c67f8854b9c5ac4fdfccee0e49a5f43",
+  "stderr": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/launch.stderr",
+  "stderrSha256": "46ebf26eda7a235a7973ec2cb2bc4340eb066f57b5389377f03489c232e4eb76",
+  "stdout": "/private/tmp/cfd-focus-build2-light-ui-4fwm4pux/launch.stdout",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "timingControlFlags": {
+    "CFDW_TIMING_CONTROL": null,
+    "CFDW_TIMING_TRIALS": null
+  },
+  "verificationReceipt": "/private/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfd-r38-attach-build2-lr233fn2/receipts/fresh-build2-assessment.json",
+  "verificationReceiptSha256": "000a2a204aaa0c68f5c4f6d36986621221deb44587cdddfde466bc4aaf1b1863"
+}
