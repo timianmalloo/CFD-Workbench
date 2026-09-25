@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:12:54Z",
+  "generated": "2026-09-25T06:14:10Z",
   "audit": [
     {
       "actor": null,
@@ -8502,6 +8502,33 @@ window.AUDIT_DATA = {
         "branch": "feature/application-m1-decision",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BK6B885Y9CWP02WNJJTFW6",
+      "shortname": "join-r48-r49-decisions",
+      "datetime": "2026-09-25T06:14:10Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "summary": "Join alias and diagnostic isolation correction plus strict JSON wrapper ruling recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve canonical bounded decisions before authoring",
+      "done_when": "R48 and R49 each have one heading and integrated documentation passes",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T06:14:09Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
