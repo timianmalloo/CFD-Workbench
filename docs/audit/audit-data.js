@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:25:28Z",
+  "generated": "2026-09-25T05:26:04Z",
   "audit": [
     {
       "actor": null,
@@ -8059,6 +8059,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M3BGE923HACYYXQ6GRHY0NMA",
+      "shortname": "join-windows-w1-review",
+      "datetime": "2026-09-25T05:26:04Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined root independent W1 review b0b7c28. Actual hosted Windows run 36097839626 failed native qualification: 21 Pass, four Fail, one Not assessed; DACL alias validator refused and UIA was not reached. No third CI run or Windows product acceptance. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate independent Windows W1 failure review without product acceptance.",
+      "done_when": "Review and official derivatives join cleanly with documentation checks passing and no product gates rerun.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:26:04Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
