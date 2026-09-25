@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:37:54Z",
+  "generated": "2026-09-25T05:38:22Z",
   "audit": [
     {
       "actor": null,
@@ -8262,6 +8262,35 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M3BH4SVQ57XM7Z55Y3SHHT87",
+      "shortname": "join-r41-visible-spike",
+      "datetime": "2026-09-25T05:38:22Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined R41 six-path compiled/noncapture spike e688c18 after root conditional preparation review. Synthetic50/50, four mutants killed, disjoint clock refused; no native target launch/capture or displayed-latency acceptance. recount_seconds=13 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/visible-presentation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate the frozen six-path visible-presentation preparation after independent conditional review, without claiming screen timing.",
+      "done_when": "Source, proof and official derivatives join with required recount/verification; native capture and visible budgets remain Not assessed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:38:08Z",
+      "duration_seconds": 14.0
     }
   ],
   "changes": [
