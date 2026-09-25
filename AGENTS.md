@@ -11,6 +11,9 @@ Pack examples mentioning other products or technology stacks are reference examp
 not architecture decisions for this project. Project-specific decisions belong outside
 the managed block below.
 
+- Repair loops are capped at 2 cycles; at the cap, stop the track and report to the operator.
+- Progress is a src/ or tests/ diff; tools/check-spiral.py fails a branch that shows the spiral signature.
+
 <!-- AI-FORWARD-PACK:BEGIN (managed block — keep this block intact when reconciling; replace it wholesale on pack updates) -->
 ## AI-Forward Pack + Agent Knowledge Pack
 

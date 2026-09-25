@@ -32,9 +32,39 @@ def run(script, *arguments, capture=False):
     )
 
 
+def run_spiral_check():
+    spiral = ROOT / "tools" / "check-spiral.py"
+    self_test = subprocess.run(
+        [sys.executable, str(spiral), "--self-test"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=120,
+    )
+    print(self_test.stdout, end="", flush=True)
+    if self_test.returncode != 0:
+        print(self_test.stderr, end="", file=sys.stderr, flush=True)
+        raise SystemExit("check-spiral.py --self-test failed.")
+
+    result = subprocess.run(
+        [sys.executable, str(spiral)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=120,
+    )
+    print(result.stdout, end="", flush=True)
+    if result.returncode != 0:
+        print(result.stderr, end="", file=sys.stderr, flush=True)
+        raise SystemExit(result.stdout.strip() or "check-spiral.py failed.")
+
+
 def main():
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
+    run_spiral_check()
     graph = SCRIPTS / "docs-graph.py"
     if (ROOT / "docs" / "docs-index.js").exists():
         run(graph, "validate")
