@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:29:48Z",
+  "generated": "2026-09-25T06:30:42Z",
   "audit": [
     {
       "actor": null,
@@ -8717,6 +8717,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T06:29:36Z",
       "duration_seconds": 12.0
+    },
+    {
+      "id": "al-01M3BM4KYT80GXDTS6Y30Z11DZ",
+      "shortname": "join-r47-visible-identity",
+      "datetime": "2026-09-25T06:30:42Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/visible-presentation-identity into feature/application-coordination",
+      "summary": "Join source-only visible presentation identity and noncapture proof recount_seconds=11 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate frozen R47 timing preparation without capture or timing acceptance",
+      "done_when": "Source and proof integrate with all required gates",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T06:30:29Z",
+      "duration_seconds": 13.0
     }
   ],
   "changes": [
