@@ -223,6 +223,14 @@ def self_test():
             print(json.dumps({"control": "source-drift-during-operation", "result": "rejected"}))
         else:
             raise AssertionError("source drift accepted")
+    # Preserve argparse's real exit: intercepting sys.exit can accidentally run main.
+    help_result = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--help"],
+                                 capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                 timeout=10, env=dict(os.environ, PYTHONIOENCODING="cp1252"))
+    assert help_result.returncode == 0 and help_result.stderr == ""
+    assert help_result.stdout.startswith("usage: qualify-windows-runtime.py")
+    assert '"native_qualification"' not in help_result.stdout
+    print(json.dumps({"control": "help-exits-without-qualification", "result": "Pass"}))
     print(json.dumps({"self_test": "Pass", "native_qualification": "Not assessed"}))
 
 
@@ -394,7 +402,7 @@ def run_windows(argv, out, timeout, env, observer_fault=False):
                     api.CloseHandle(handle)
         receipt = dict(argv=argv, exit=code, timeout=timed_out, quiescent=quiescent,
                        cleanup_error=cleanup_error, observed=list(observed.values()), elapsed_seconds=time.monotonic() - started)
-        (out / "process.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+        (out / "process.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8", newline="\n")
     if not quiescent:
         raise ValueError("W0-CLEANUP-NOT-OBSERVED")
     return receipt
@@ -422,13 +430,13 @@ def main():
     summary = dict(schema=1, source=source, sources=manifest, os=platform.platform(),
                    arch=platform.machine(), native_qualification="Not assessed", output=str(out),
                    runner_image={k: os.environ.get(k, "Not recorded") for k in ("ImageOS", "ImageVersion", "RUNNER_ARCH")})
-    (out / "source.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (out / "source.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")
 
     def run(name, argv, timeout=90, **kwargs):
         target = out / name
         target.mkdir()
         receipt = runner(argv, target, timeout, env, **kwargs)
-        (target / "process.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+        (target / "process.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8", newline="\n")
         if not receipt["quiescent"]:
             raise ValueError("W0-CLEANUP-NOT-OBSERVED")
         return receipt, (target / "stdout.txt").read_text(encoding="utf-8", errors="strict")
@@ -487,12 +495,19 @@ def main():
     failed = any(row["status"] == "Fail" for row in rows) or native["exit"] not in (0, 3)
     summary.update(sources_after=verify_sources(ROOT, manifest), binary=binary, binary_files=binary_files, sdk=version.strip(), native_exit=native["exit"],
                    native_qualification="Fail" if failed else "Pass" if qualified and native["exit"] == 0 and windows else "Not assessed")
-    (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8", newline="\n")
     print(json.dumps(summary, sort_keys=True))
     return 1 if failed else 0 if summary["native_qualification"] == "Pass" else 3
 
 
 if __name__ == "__main__":
+    # PLAT-A: match pack-doctor's legacy-console guard; never depend on cp1252.
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            try:
+                _stream.reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
     try:
         sys.exit(main())
     except (OSError, ValueError, AssertionError, subprocess.SubprocessError) as error:
