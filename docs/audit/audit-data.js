@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:51:04Z",
+  "generated": "2026-09-25T05:54:18Z",
   "audit": [
     {
       "actor": null,
@@ -8410,6 +8410,33 @@ window.AUDIT_DATA = {
         "branch": "feature/application-m1-decision",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3BJ1YYXSEWQ84HY4FZNF3DP",
+      "shortname": "join-r46-r47-decisions",
+      "datetime": "2026-09-25T05:54:18Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of feature/application-m1-decision into feature/application-coordination",
+      "summary": "Join live-leader preflight and noncapture timing identity rulings recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Preserve canonical scoped decisions for pre-section M1 work",
+      "done_when": "R46 and R47 are cited once, docs derive, and integration is clean",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T05:54:17Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
