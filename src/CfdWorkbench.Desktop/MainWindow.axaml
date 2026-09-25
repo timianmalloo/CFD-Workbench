@@ -1,0 +1,109 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:CfdWorkbench.Desktop" x:Class="CfdWorkbench.Desktop.MainWindow"
+        Title="CFD Workbench — Offline Foil" Width="{StaticResource WindowWidth}" Height="{StaticResource WindowHeight}"
+        MinWidth="{StaticResource WindowMinWidth}" MinHeight="{StaticResource WindowMinHeight}">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space4}">
+      <DockPanel LastChildFill="True">
+        <TextBlock DockPanel.Dock="Left" Text="CFD Workbench" FontSize="{StaticResource TitleSize}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="{StaticResource Space6}" />
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Button x:Name="ExampleButton" Content="Example" AutomationProperties.Name="Open embedded foil example" />
+          <Button x:Name="OpenButton" Content="Open…" AutomationProperties.Name="Open FoilDSL or native project" />
+          <Button x:Name="SaveButton" Content="Save…" AutomationProperties.Name="Save native project" />
+          <Button x:Name="UndoButton" Content="Undo" AutomationProperties.Name="Undo accepted revision" />
+          <Button x:Name="RedoButton" Content="Redo" AutomationProperties.Name="Redo accepted revision" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <Border Grid.Row="1" Background="{DynamicResource SurfaceSoftBrush}" Padding="{StaticResource Space2}">
+      <TextBlock x:Name="StateBanner" Text="Open Example or a file." AutomationProperties.Name="Document and geometry status" TextWrapping="Wrap" />
+    </Border>
+    <Grid Grid.Row="2" ColumnDefinitions="240,*,300">
+      <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0" Padding="{StaticResource Space4}">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,180">
+          <TextBlock Grid.Row="0" Classes="heading" Text="Navigator" />
+          <TextBlock Grid.Row="1" Classes="caption" Text="Accepted stations · normalized span η" Margin="{StaticResource Space2}" />
+          <ListBox Grid.Row="2" x:Name="StationList" AutomationProperties.Name="Accepted station assignments and profile identities" MaxHeight="{StaticResource StationListHeight}" />
+          <TextBlock Grid.Row="3" Classes="heading" Text="Rail controls" Margin="{StaticResource Space2}" />
+          <ListBox Grid.Row="4" x:Name="ControlList" AutomationProperties.Name="Authored rail control vertices; select one to edit" />
+          <TextBlock Grid.Row="5" Classes="heading" Text="Sample data" Margin="{StaticResource Space2}" />
+          <ListBox Grid.Row="6" x:Name="SampleList" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
+        </Grid>
+      </Border>
+      <Grid Grid.Column="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+          <RowDefinition Height="{StaticResource SectionPanelHeight}" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="{DynamicResource ViewportBrush}" Padding="{StaticResource Space3}">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <DockPanel Grid.Row="0">
+              <TextBlock DockPanel.Dock="Left" Foreground="{DynamicResource ViewportInkBrush}" Text="Isometric · certified XYZ point samples" FontWeight="SemiBold" />
+              <TextBlock x:Name="ViewportProvenance" Foreground="{DynamicResource ViewportInkBrush}" HorizontalAlignment="Right" Text="Empty" />
+            </DockPanel>
+            <local:Viewport Grid.Row="1" x:Name="FoilViewport" Focusable="True" BackgroundBrush="{DynamicResource ViewportBrush}"
+                            AnnotationWidth="{StaticResource ViewportAnnotationWidth}" AnnotationHeight="{StaticResource ViewportAnnotationHeight}"
+                            GridBrush="{DynamicResource ViewportGridBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                            StationBrush="{DynamicResource StationBrush}" AutomationProperties.Name="Physical XYZ isometric foil; root, interior and tip sampled stations; inspect coordinate and control data in Navigator" />
+            <TextBlock Grid.Row="2" Foreground="{DynamicResource ViewportInkBrush}" Text="Axis triad: ↘ +x aft · ↙ +y span · ↑ +z height (m) · one uniform scale · segment error Not assessed" TextWrapping="Wrap" />
+          </Grid>
+        </Border>
+        <TabControl Grid.Row="1" x:Name="DocumentTabs" AutomationProperties.Name="Section and source document tabs">
+          <TabItem Header="Section sample">
+            <StackPanel Margin="{StaticResource Space4}" Spacing="8">
+              <TextBlock x:Name="SectionPosition" Classes="heading" Text="Physical X/Z section · η 0.5" />
+              <local:Viewport x:Name="SectionViewport" SectionMode="True" Height="{StaticResource SectionViewportHeight}" BackgroundBrush="{DynamicResource ViewportBrush}"
+                              AnnotationWidth="{StaticResource ViewportAnnotationWidth}" AnnotationHeight="{StaticResource SectionAnnotationHeight}"
+                              GridBrush="{DynamicResource ViewportGridBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                              StationBrush="{DynamicResource StationBrush}" AutomationProperties.Name="Five certified physical x and z section samples at the labelled interior eta, upper and lower trailing edges separate" />
+              <TextBlock x:Name="SectionReadout" Text="Open a certified foil to inspect normalized z/c." TextWrapping="Wrap" AutomationProperties.Name="Normalized section upper and lower enclosure" />
+              <TextBlock Classes="caption" Text="Physical points (m) and normalized z/c at x/c 0.5; sampled segment error Not assessed." />
+              <TextBlock Classes="caption" Text="Analysis Unavailable — no method implemented." />
+            </StackPanel>
+          </TabItem>
+          <TabItem Header="FoilDSL source">
+            <Grid RowDefinitions="Auto,*" Margin="{StaticResource Space4}">
+              <TextBlock Grid.Row="0" x:Name="SourceLabel" Text="Accepted source bytes" />
+              <TextBox Grid.Row="1" x:Name="SourceText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Retained FoilDSL source text" />
+            </Grid>
+          </TabItem>
+        </TabControl>
+      </Grid>
+      <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0" Padding="{StaticResource Space4}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="heading" Text="Properties" />
+            <TextBlock x:Name="IdentityReadout" Classes="caption" Text="No accepted source" TextWrapping="Wrap" AutomationProperties.Name="Accepted source and surface identities" />
+            <TextBlock Classes="heading" Text="Edit rail control" Margin="{StaticResource Space2}" />
+            <TextBlock Text="Selected CV aft position" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0" x:Name="NumericInput" Watermark="Select an editable CV" AutomationProperties.Name="Selected control aft position numeric value" />
+              <TextBlock Grid.Column="1" x:Name="UnitLabel" Text="m" VerticalAlignment="Center" Margin="{StaticResource Space2}" AutomationProperties.Name="Aft position unit" />
+            </Grid>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+              <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="PreviewButton" Content="Preview" AutomationProperties.Name="Preview current rail draft" />
+              <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="ApplyButton" Content="Apply" AutomationProperties.Name="Apply certified rail draft" />
+              <Button Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" x:Name="CancelButton" Content="Cancel draft" AutomationProperties.Name="Cancel current rail draft" />
+            </Grid>
+            <TextBlock x:Name="DraftReadout" Classes="caption" Text="No draft." TextWrapping="Wrap" />
+            <TextBlock Classes="heading" Text="Source import" Margin="{StaticResource Space2}" />
+            <Button x:Name="AcceptIdsButton" Content="Accept candidate IDs" AutomationProperties.Name="Accept explicit ID insertion after comparing source" />
+            <TextBlock x:Name="ImportReadout" Classes="caption" Text="No import pending." TextWrapping="Wrap" />
+            <TextBlock Classes="heading" Text="Recovery" Margin="{StaticResource Space2}" />
+            <StackPanel Spacing="8">
+              <Button x:Name="ResumeRecoveryButton" Content="Resume draft" AutomationProperties.Name="Resume separate recovery draft" />
+              <Button x:Name="DiscardRecoveryButton" Content="Discard recovery" AutomationProperties.Name="Discard separate recovery draft" />
+            </StackPanel>
+            <TextBlock x:Name="RecoveryReadout" Classes="caption" Text="No recovery draft." TextWrapping="Wrap"
+                       AutomationProperties.Name="Separate recovery draft state and source tab guidance" />
+            <TextBlock Classes="heading" Text="Operation facts" Margin="{StaticResource Space2}" />
+            <TextBlock x:Name="EventReadout" Classes="caption" Text="No operation recorded." TextWrapping="Wrap" />
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+    <Border Grid.Row="3" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="{StaticResource Space2}">
+      <TextBlock x:Name="StatusBar" Text="Offline · Analysis Unavailable — no method implemented" AutomationProperties.Name="Current operation status and analysis availability" />
+    </Border>
+  </Grid>
+</Window>
