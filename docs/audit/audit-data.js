@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:56:26Z",
+  "generated": "2026-09-25T06:12:54Z",
   "audit": [
     {
       "actor": null,
@@ -8470,6 +8470,38 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T05:41:51Z",
       "duration_seconds": 875.0
+    },
+    {
+      "id": "al-01M3BK40XGH11DNKK0F1HVAV3B",
+      "shortname": "owner-r48-r49",
+      "datetime": "2026-09-25T06:12:54Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Independently review R46 frozen 36c43f5 wrapper source and same-epoch refusal for adoption; resolve combined Windows request req-01M3BJJX2P6EB71H5GA2203R8W and addendum mail-01M3BJQ4ARRZ41J505GHWRGCAX. Root later filed req-01M3BK1NHRXWEY30847WXB0SED for independently reproduced nonfinite CLI receipt defect. No live join, push, capture or full section work.",
+      "summary": "Recorded R48 bounded four-path Windows semantic-alias and diagnostic-isolation correction, remote attempt limit unchanged. Recorded R49 wrapper adoption HOLD: independent51-case rerun PASS with48 zero-child and source/receipt hashes matching; real CLI nan reproduced strict-JSON/final-refusal defect with no leader or conductor. Root-originated finding independently verified; exact raw receipt retained. Narrow15call15min root correction requires both budget fields nan/±inf real CLI coverage and independent Coordinator/Owner gate. Owner tree fast-forwarded clean to b93647f before rulings; no source edits or shared leader changes.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": "Owner",
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [
+        "owner-ruling"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Review wrapper adoption and decide Windows evidence correction without widening M1 scope.",
+      "done_when": "Independent findings and two canonical dispositions are committed cleanly with exact paths, bounds and remaining gates.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T06:09:11Z",
+      "duration_seconds": 223.0,
+      "git": {
+        "sha": "b93647f6a746427b82e100be5939042ba57ec8f1",
+        "short": "b93647f6a",
+        "branch": "feature/application-m1-decision",
+        "pushed": null
+      }
     }
   ],
   "changes": [
