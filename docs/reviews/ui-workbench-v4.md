@@ -24,6 +24,7 @@ summary: >-
 review-suggested:
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
+  - { by: defect-classes, on: 2026-09-24, reason: "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions." }
 ---
 
 # UI review — workbench mockup v4 (CAD editing views)

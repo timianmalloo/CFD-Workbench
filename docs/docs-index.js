@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py derive",
+  "generator": "docs-graph.py flag",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -488,6 +488,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "CAD-04–06 (spec 1.2) — the four control curves are edited in the elevation that shapes them (Top · Front · Starboard), the 3D viewport is one free camera used for looking and selecting, and a station is a document tab with a full 2D section editor; every curve is a spline and the rail carries icons.",
@@ -526,7 +531,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2f8cd6b99d71e47a774f14afc8b83b0b21d26c7dff36b11fd8f55da01f224bff"
+      "sourceSha256": "cafce94be8cfe011cc8a2f68ce3572f4e2bcf329fc110ee1bf5796409c9d38ad"
     },
     {
       "id": "control-vertex-workspace",
@@ -547,6 +552,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Specification 1.3 — the geometry of record is a control-vertex B-spline per master curve (degree 3, seven vertices, levers at the ends; Fit points and Fair are constructions with reported residuals; locks are vertex constraints), the CAD workspace is four viewports with title menus and a nine-verb tool palette, the 3D body is a NURBS loft with a display cage (never a T-spline), and the geometry kernel is an owned evaluator plus OCCT and rhino3dm behind a spike gate.",
@@ -592,7 +602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0bd1cb70fa9d7cb3baad606c1682f57024573f3d274e3899079bc7b6d2378bd8"
+      "sourceSha256": "723aed7a9e9875e08148b46219bc80b6e39a1471f65572c4dd11e509ba613c71"
     },
     {
       "id": "decision-catalog-admission-classes",
@@ -1105,6 +1115,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "The CFD-Workbench client is a fixed window whose regions scroll inside themselves — menu bar, one-row measured toolbar, parameter row, activity rail, docks, editor with document tabs and a tabbed bottom panel, status bar — with each area's content arranged for that vignette; page scroll and toolbar wrapping are defects the oracle fails.",
@@ -1138,7 +1153,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "af80f93138c0217e9fcb08a801465b4cc802dd53b4725e83091a73c5eb2dec7f"
+      "sourceSha256": "0672dd7af3646799565d45d0cc4eb9aed1ad7e149818f75d84199742b13434dc"
     },
     {
       "id": "design-application-contracts",
@@ -1383,7 +1398,18 @@ window.DOCS_INDEX = {
       "owner": "@cfd-windows-w0-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-windows-runtime",
+          "on": "2026-09-24",
+          "reason": "W1 real Windows x64 execution failed native qualification; review source-bound proof and open product gates."
+        },
+        {
+          "by": "coordination-windows-runtime-route",
+          "on": "2026-09-24",
+          "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
+        }
+      ],
       "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and native execution remain open.",
       "tags": [
         "windows",
@@ -1416,7 +1442,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G[Ground contract] --> R[Receipt RED and negative controls]\n  R --> N[Native spike and local build]\n  G --> W[Prepare hosted workflow]\n  N --> P[Proof and exact-path handback]\n  W --> P\n  P --> V[Independent root review]"
         }
       ],
-      "sourceSha256": "c9ae9b6a98e839546a74658e695a4f8ba6d0409cd763b683ffcd533b11fdbf9c"
+      "sourceSha256": "1c14ea4815b9255ac7a26b75a939ead858954e8879f5220ad71cdf0e2fd4d21e"
     },
     {
       "id": "mockup-workbench",
@@ -2788,6 +2814,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Elevate-mode review of the v1 interactive mockup against specification v1. The independent UX & Accessibility lens returned BLOCK on the first pass (focus loss on nudge, handles under role=img, page-wide live region, sub-12 px chart text, NaN in the error state), PASS-WITH-CONDITIONS on the second, and PASS (veto cleared) after the conditions were applied and re-measured. Highest-leverage change: re-query the SVG handle after every rerender so keyboard editing survives — one line per editor that unblocked the keyboard-only persona entirely.",
@@ -2825,7 +2856,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "be5aa9401740c48b3e02ad8bac4ec6692610a4550ae8cea2b258dd24d6793934"
+      "sourceSha256": "a6f2efbb1dca32e3dd4e92222087dd4cd064c6f16cc9866c584dd3fd3081ebc7"
     },
     {
       "id": "review-ui-workbench-v2",
@@ -2846,6 +2877,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Elevate-mode review of the seven-area mockup against specification v1.1. The independent UX & Accessibility lens returned BLOCK on the first pass (layer names presentational under role=img, a bare character-key shortcut, a false inequality on the candidate card, and a Major list across state completeness, copy truth and the marine CAD idiom) and PASS-WITH-CONDITIONS with the veto cleared after the fixes were applied and re-measured. Highest-leverage change: the outer SVGs of the plan view and the Results viewport became role=group, which exposed every authored layer name to assistive technology with one attribute in two places.",
@@ -2883,7 +2919,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "84dae2946fb5ec3d419fb1d6157d879043805f23f37fc4c4fafc225ef4c9124b"
+      "sourceSha256": "4bb1f4ea0d8c97ed0d85aa5637965c45303968873dad7a1fbcffb52a87e8989e"
     },
     {
       "id": "review-ui-workbench-v3",
@@ -2904,6 +2940,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Elevate-mode review of the thick-client shell rebuild. The v2 page was measured first (1,450–6,500 px tall, a wrapping area strip, a clipping toolbar); the v3 shell was built to a shell contract proven by its oracle at five window presets × six areas. The independent UX & Accessibility lens returned BLOCK on its first read (a clipped overflow menu, a 0-px bottom panel at the reflow preset, focus dropped on re-render, composite roles without keyboards, one-way dock collapse) and the Native Desktop lens PASS-WITH-CONDITIONS (sashes, maximize, real document tabs, the macOS title bar, platform key labels); both sets were built and are observed by the oracle. The veto cleared on the third read; the review artifact passes.",
@@ -2946,7 +2987,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7923da6ed2abac1ff63e9d2b495e2839bea31b35f2b7d9e51affedbd5d23b4bc"
+      "sourceSha256": "e2ebda9c19a62860111161c536fa9396e82e35fd97287ce38fd21d1f99003e29"
     },
     {
       "id": "review-ui-workbench-v4",
@@ -2967,6 +3008,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Elevate-mode review of the CAD editing views (icon rail, splines, one free camera with named views and a view cube, editing elevations for the four control curves, the Station document) against specification 1.2. Two independent lenses: UX & Accessibility (hard veto) on the surface and UX Researcher / IA (UX-specification veto) on the 1.2 stories; both cleared their vetoes after two fix passes, with every clearing observation now an oracle assertion whose values the proof records.",
@@ -3009,7 +3055,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db37c5dd964711b64e76738a66033b6653189d88b17a36f7a36b319fcb5b943a"
+      "sourceSha256": "c23bb14ec328050a0d4f7926bdbc282c2b5557b6c8d9409b2616f5df865c6cee"
     },
     {
       "id": "review-ui-workbench-v5",
@@ -3030,6 +3076,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
         }
       ],
       "summary": "Elevate-mode review of the v5 CAD experience (control-vertex splines with levers, four viewports with title menus, a nine-verb tool palette and options strip, the display cage, the measured station residual) against specification 1.3. Four independent lenses: Computational Geometry and UX Researcher / IA on the spec delta, UX & Accessibility (hard veto) and Marine CAD UX on the artifact. All four returned BLOCK or PASS-WITH-CONDITIONS on first read; every Blocker, Major and condition was fixed in place and became an oracle row whose value the proof records. The accessibility veto cleared on the second pass; the marine veto on the third.",
@@ -3073,7 +3124,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3a554be0ca38a6ea5db47de4dd013bfe01075724007573536abc6b3500e08d24"
+      "sourceSha256": "13e673ddbc8620c69622610f501beaf2fdd078c5fbb562069911811243c2eb29"
     },
     {
       "id": "rulings",
@@ -5109,7 +5160,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-windows-w0-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "coordination-windows-runtime-route",
+          "on": "2026-09-24",
+          "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
+        }
+      ],
       "summary": "Separates local compilation and executed wrong-result controls from unexecuted Windows file, process and UIA qualification. All production and independent review gates remain open.",
       "tags": [
         "windows",
@@ -5128,7 +5185,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d162ecdff0d80e4d0b6d7980804560f4f05beb6000e1af9e958ad7bb418681f2"
+      "sourceSha256": "0824e53bc5328830ed4b9f54468aad3f5268db341094ec271094fa8bda7f085a"
     },
     {
       "id": "review-application-architecture",
@@ -5536,7 +5593,18 @@ window.DOCS_INDEX = {
       "owner": "@cfd-windows-review-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "coordination-windows-runtime-route",
+          "on": "2026-09-24",
+          "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
+        },
+        {
+          "by": "defect-classes",
+          "on": "2026-09-24",
+          "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        }
+      ],
       "summary": "W0 preparation passed conditionally, but the first executed Windows qualification failed. Source-bound native receipts expose four failed cases and a DACL consumer refusal; product runtime, containment, durability, accessibility and timing remain unqualified.",
       "tags": [
         "windows",
@@ -5564,7 +5632,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "297a64e41e6dc1f2b437d02792407663928d4b07deeec04f1aeae2840f38e04f"
+      "sourceSha256": "4ff7b199189535ba8d993358fe164d12549fd6cf35b68adab979f9f806794bf5"
     },
     {
       "id": "spec-cfd-workbench",
@@ -6071,5 +6139,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "40f5699cecaa5c661c9b7640c226c4d4eb92ef7cf09600243d94aa7b176430e6"
+  "graphSha256": "eeb360fef247201ecae441ffa65be0ead8fbd7c3ea45d97d4cdda63d99aced01"
 };

@@ -13,6 +13,9 @@ links:
   - {to: defect-classes, rel: relates-to}
 review-by: 2026-10-25
 summary: W0 preparation passed conditionally, but the first executed Windows qualification failed. Source-bound native receipts expose four failed cases and a DACL consumer refusal; product runtime, containment, durability, accessibility and timing remain unqualified.
+review-suggested:
+  - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }
+  - { by: defect-classes, on: 2026-09-24, reason: "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions." }
 ---
 
 # Independent Windows qualification review

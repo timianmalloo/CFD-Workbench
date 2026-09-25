@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:26:04Z",
+  "generated": "2026-09-25T05:28:17Z",
   "audit": [
     {
       "actor": null,
@@ -8088,6 +8088,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T05:26:04Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3BGJB0TT4CNAHNBR68E8T5Q",
+      "shortname": "windows-w1-review-neighbor-flags",
+      "datetime": "2026-09-25T05:28:17Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Complete the pre-section M1 tasks and keep documentation graph dependencies current.",
+      "summary": "Official docs-graph flag propagated Windows proof, route and defect-class changes to non-register inbound neighbors; suggestions increased from 80 to 83 unique artifacts. Coordination-plan inbound propagation was deferred because the official flag command would mutate append-only rulings frontmatter. No manual register rewrite.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/docs-index.js",
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Propagate material Windows W1 evidence changes to non-register inbound neighbors without mutating append-only rulings.",
+      "done_when": "Official flags derive cleanly, documentation checks pass, and the append-only ruling neighbor remains untouched.",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "9415ab2cfc831c58283bb40dab3c00a51d48d15b",
+        "short": "9415ab2cf",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

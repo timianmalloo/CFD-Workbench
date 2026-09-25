@@ -14,6 +14,8 @@ summary: >-
   Separates local compilation and executed wrong-result controls from unexecuted
   Windows file, process and UIA qualification. All production and independent
   review gates remain open.
+review-suggested:
+  - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }
 ---
 
 # W0 proof
