@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T02:52:14Z",
+  "generated": "2026-09-25T02:55:31Z",
   "audit": [
     {
       "actor": null,
@@ -6847,12 +6847,182 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3A3E2AEB9VK92QC0HXSY65Q",
-      "shortname": "R37 independent review checkpoint join",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-application-native.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-24T16:19:31Z",
+      "done_when": "Reviewer commit 03d7d71 is integrated, docs checks pass, and no C source enters coordination.",
+      "duration_seconds": 0.0,
+      "fan_out": 0,
+      "goal": "Preserve current independent native evidence in coordination without clearing the UI veto or joining product.",
+      "id": "al-01M3A3E2AEB9VK92QC0HXSY65Q",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "R37 independent review checkpoint join",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T16:19:31Z",
+      "summary": "Integrated independent R34-R37 source, contrast, final gate and pending Dark CUA evidence only; C product remains isolated. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "datetime": "2026-09-24T16:20:17Z",
+      "done_when": "The always-loaded register maps this recurrence to per-mutation AGENT_SESSION and advisory-hook inspection.",
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "051013f26e0517306d7aa1238e9c6ebbdbc91f80",
+        "short": "051013f26"
+      },
+      "goal": "Keep commit-boundary ownership claims honest across review and implementation commits.",
+      "id": "al-01M3A3FF0D7C446JPKB9ZV7KVP",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Capture the repeated advisory commit-hook environment class at the R37 independent review checkpoint.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "Review commit identity control",
+      "skill": null,
+      "summary": "Extended COORD-ENV with root R37 review commit omission of AGENT_SESSION, zero-staged amend, and explicit four-path ownership allow readback. The later check bounds ownership but does not retroactively make the original hook enforced. No product change or C acceptance.",
+      "tags": [
+        "coordination"
+      ],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/application-build.html"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-24T16:24:16Z",
+      "done_when": "Plan md/html and audit show completed versus blocked work, exact active agents and next native dependency, with C product isolated.",
+      "duration_seconds": 23.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-coordination",
+        "pushed": null,
+        "sha": "5ea3607fbe0189084be14452976c6c699cd8abc0",
+        "short": "5ea3607fb"
+      },
+      "goal": "Maintain a truthful coordinated status and preserve evidence at the user-foreground wait boundary.",
+      "id": "al-01M3A3PRJDRTAX8HN6X90X2Q28",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "one thing provide me a periodic table of what work is in flight and what is done etc and what agents did what work and what agents are running now and what they are doing",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "R37 blocked native handoff status",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-24T16:23:53Z",
+      "summary": "Final status-sync interval only: updated canonical plan and generated HTML to record isolated clean C5bdf0e7, independent12-step and72-row PASS, root review03d7d71 joined docs-only, and exact repaired Dark CUA cgWindowNotFound pending user foreground. Author yielded; root native veto/C product join remain held. Aggregate earlier R30-R37 author calls/tokens not recorded. No HC/Light launch while Dark inaccessible.",
+      "tags": [
+        "native",
+        "coordination"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/coordination/review-launch-guard.py"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T02:52:14Z",
+      "done_when": "Old exact-owned apps are closed, unknown apps remain untouched, and a durable prelaunch guard is exercised before one frozen review launch.",
+      "fan_out": 0,
+      "goal": "Leave only the current review window and make future serial launches refuse unaccounted live apps.",
+      "id": "al-01M3B7MKDBG0QSA85ME3FH2R3C",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "User reported too many review windows; inventory exact task-owned processes, close them safely through root CUA, and prevent another accumulated review window.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "coordinate-native-review-cleanup",
+      "skill": "execute-with-coordination",
+      "summary": "Root closed six exact-owned obsolete review windows after UI state checks; user closed the unreceipted first app. Coordinator observed zero app processes, committed a read-only exact receipt/PID/start/path singleton guard, simulated refusal/allow/PID-reuse controls, observed real High Contrast live refusal and exact allowance, then launched one guarded High Contrast copy. Native HC verdict remains open.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/ui-application-native.md",
+        "docs/docs-index.js"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T02:54:02Z",
+      "done_when": "Changed native states are observed, resource ownership and cleanup are checked, findings are committed, and any remaining defect has an explicit coordinated repair path.",
+      "duration_seconds": 816.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/application-foundation",
+        "pushed": null,
+        "sha": "03d7d71a1ff06998da83ceafcc10ee7bffc2c395",
+        "short": "03d7d71a1"
+      },
+      "goal": "Resume the final native review, clean up obsolete task resources and independently assess the repaired theme and close/cancel flows.",
+      "id": "al-01M3B7QWR3W7VDG1E5FVDRCFHC",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "The new Dark window is visible and in front\n\nthere seem to be a lot of windows still open - are you cleaning up the resources appropriately\n\ni killed the other one",
+      "session": "cfd-application-20260923",
+      "shortname": "native-dark-pass-hc-hover-veto",
+      "skill": "ui-design",
+      "started_at": "2026-09-25T02:40:26Z",
+      "summary": "Dark native theme/source/focus and close-Cancel-edit-cancel flow passed. Closed six obsolete owned test windows plus the completed Dark and HC tests; preserved uncertain first-app ownership until user killed it, then independently verified all eight prior PIDs absent and CUA zero-app inventory. Original fixture hashes unchanged. Coordinator committed durable launch guard8ca3625. High-contrast frozen package parity passed but selected FoilDSL label repeatedly disappears under pointer; F6 restores it. Native veto remains; managed72 omitted pointer/pressed states. Pinned Fluent template identifies template-state foreground/background overrides; exact paint cause remains to be measured. Owner R38 request filed, Light deferred. Root reviewed no production writes. Docs104/0defects/77existing suggestions. Process lapse: ttl1800 claim rejected, bundled patch still executed; immediately claimed900 with no conflict; coordinator notified for fail-fast control. Old launch verifier rejected scalar receipt hash; adapted observed shape, caught malformed Core prose hash, verified correct hash against authoritative gate and DLL. Runtime costs/tokens not recorded.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M3B7TJEC35JPY7VDBZRNK5ZG",
+      "shortname": "owner-pointer-theme-state-r38",
+      "datetime": "2026-09-25T02:55:30Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Rule req-01M3B7PQT51MYH395S8XR1EZHM: root frozen HC selectedFoilDSL label disappears twice during pointer hover and returns afterF6; existing72rows omit pointer/pressed. Authorize bounded sameauthor actual state sweep/repair with final package/root native review or hold; no B/geometry/performance/join waiver.",
+      "summary": "Ruling38 permits four exact theme/test/verifier/proof paths≤60calls/40min. Direct clean C5bdf0e7 and styles/matrix/root native review inspected; pinned Fluent template read. Actual painted-state RED required, preserve72rows plus fixed applicable hover/pressed state table across4themes, direct-control-state scope labeled, meaningful selection/focus retained, max2targeted expanded matrices then one eligible fullgate/package. Root native veto remains; no Owner production edits/test rerun.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Address reproducible HC tab failure in missing interaction states.",
+      "done_when": "Canonical ruling defines bounded state sweep, actual-control regression and independent native review; notify and yield.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T02:53:50Z",
+      "duration_seconds": 100.0
+    },
+    {
+      "id": "al-01M3B7TKF20HHB3KCT8AZPWR6P",
+      "shortname": "join-r37-native-review",
+      "datetime": "2026-09-25T02:55:31Z",
       "session": "cfd-coordinator-20260923",
       "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Integrated independent R34-R37 source, contrast, final gate and pending Dark CUA evidence only; C product remains isolated. recount_seconds=0 (docs_only=True).",
+      "summary": "Integrated root independent Dark pass, High Contrast pointer-over veto and review-window cleanup evidence without C product integration. recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -6863,8 +7033,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Preserve current independent native evidence in coordination without clearing the UI veto or joining product.",
-      "done_when": "Reviewer commit 03d7d71 is integrated, docs checks pass, and no C source enters coordination.",
+      "goal": "Make the independent native verdict durable in the coordination branch.",
+      "done_when": "Review artifact and derived/audit data join cleanly with docs checks; C product remains isolated.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -6872,94 +7042,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-24T16:19:31Z",
-      "duration_seconds": 0.0
-    },
-    {
-      "id": "al-01M3A3FF0D7C446JPKB9ZV7KVP",
-      "shortname": "Review commit identity control",
-      "datetime": "2026-09-24T16:20:17Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Capture the repeated advisory commit-hook environment class at the R37 independent review checkpoint.",
-      "summary": "Extended COORD-ENV with root R37 review commit omission of AGENT_SESSION, zero-staged amend, and explicit four-path ownership allow readback. The later check bounds ownership but does not retroactively make the original hook enforced. No product change or C acceptance.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/lessons/defect-classes.md"
-      ],
-      "tags": [
-        "coordination"
-      ],
-      "outcome": "partial",
-      "goal": "Keep commit-boundary ownership claims honest across review and implementation commits.",
-      "done_when": "The always-loaded register maps this recurrence to per-mutation AGENT_SESSION and advisory-hook inspection.",
-      "tier": "T1",
-      "fan_out": 1,
-      "git": {
-        "sha": "051013f26e0517306d7aa1238e9c6ebbdbc91f80",
-        "short": "051013f26",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M3A3PRJDRTAX8HN6X90X2Q28",
-      "shortname": "R37 blocked native handoff status",
-      "datetime": "2026-09-24T16:24:16Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "one thing provide me a periodic table of what work is in flight and what is done etc and what agents did what work and what agents are running now and what they are doing",
-      "summary": "Final status-sync interval only: updated canonical plan and generated HTML to record isolated clean C5bdf0e7, independent12-step and72-row PASS, root review03d7d71 joined docs-only, and exact repaired Dark CUA cgWindowNotFound pending user foreground. Author yielded; root native veto/C product join remain held. Aggregate earlier R30-R37 author calls/tokens not recorded. No HC/Light launch while Dark inaccessible.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/application-build.md",
-        "docs/coordination/application-build.html"
-      ],
-      "tags": [
-        "native",
-        "coordination"
-      ],
-      "outcome": "blocked",
-      "compiled": false,
-      "goal": "Maintain a truthful coordinated status and preserve evidence at the user-foreground wait boundary.",
-      "done_when": "Plan md/html and audit show completed versus blocked work, exact active agents and next native dependency, with C product isolated.",
-      "tier": "T2",
-      "fan_out": 3,
-      "started_at": "2026-09-24T16:23:53Z",
-      "duration_seconds": 23.0,
-      "git": {
-        "sha": "5ea3607fbe0189084be14452976c6c699cd8abc0",
-        "short": "5ea3607fb",
-        "branch": "feature/application-coordination",
-        "pushed": null
-      }
-    },
-    {
-      "id": "al-01M3B7MKDBG0QSA85ME3FH2R3C",
-      "shortname": "coordinate-native-review-cleanup",
-      "datetime": "2026-09-25T02:52:14Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "User reported too many review windows; inventory exact task-owned processes, close them safely through root CUA, and prevent another accumulated review window.",
-      "summary": "Root closed six exact-owned obsolete review windows after UI state checks; user closed the unreceipted first app. Coordinator observed zero app processes, committed a read-only exact receipt/PID/start/path singleton guard, simulated refusal/allow/PID-reuse controls, observed real High Contrast live refusal and exact allowance, then launched one guarded High Contrast copy. Native HC verdict remains open.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [
-        "docs/coordination/application-build.md",
-        "docs/coordination/review-launch-guard.py"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Leave only the current review window and make future serial launches refuse unaccounted live apps.",
-      "done_when": "Old exact-owned apps are closed, unknown apps remain untouched, and a durable prelaunch guard is exercised before one frozen review launch.",
-      "tier": "T1",
-      "fan_out": 0
+      "started_at": "2026-09-25T02:55:30Z",
+      "duration_seconds": 1.0
     }
   ],
   "changes": [
