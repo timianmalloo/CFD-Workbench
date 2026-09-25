@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:53:00Z",
+  "generated": "2026-09-25T05:20:53Z",
   "audit": [
     {
       "actor": null,
@@ -7657,6 +7657,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "f08007689f39c6587ad278618a9c57770c8bfa37",
         "short": "f08007689",
+        "branch": "feature/windows-runtime-review",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BG4SG807JSZAPMH0X28B61",
+      "shortname": "review-windows-w1-runtime",
+      "datetime": "2026-09-25T05:20:53Z",
+      "session": "cfd-windows-review-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
+      "summary": "Independently verified workflow-only7f34c13, actionlint1.7.12 RED/GREEN and five-source manifest; actual Windows run36097839626 reached SDK10.0.203/native execution then failed. Recounted26rows:21self-reportedPass/4Fail/1NA; replayed exact W0-WRONG-DACL on abbreviated SDDL. Overwrite/cancel-after/replacementACL/ancestor-oracle failures remain. Recomputed source/fixture/raw receipt hashes; no finalsummary/post-source/binarymanifest or timeout/observer/UIA evidence, so no product or Windowsqualification PASS. Historical normal-process receipts report quiescence. Recorded exact limits and shared missed workflow context check. check-docs119artifacts/0defects/80priorflags passed. Marker05:16:19Z excludes earlier prepushreview, includes packetwait/documentation; effective model/tokens/cost not recorded. No new dispatch, systempermission or sectionwork.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently establish what the first executed Windows qualification proves and falsifies without weakening M1.",
+      "done_when": "Exact source and returned receipt checks completed; failed qualification and next decision recorded and committed.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T05:16:19Z",
+      "duration_seconds": 274.0,
+      "git": {
+        "sha": "0426789af28b5258c6a6c0613dc0fd0c0aea1152",
+        "short": "0426789af",
         "branch": "feature/windows-runtime-review",
         "pushed": null
       }

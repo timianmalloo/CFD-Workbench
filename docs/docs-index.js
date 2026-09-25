@@ -5456,14 +5456,14 @@ window.DOCS_INDEX = {
     {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
-      "title": "Independent Windows W0 qualification review",
+      "title": "Independent Windows qualification review",
       "type": "proof-pack",
       "status": "in-review",
       "owner": "@cfd-windows-review-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
       "reviewSuggested": [],
-      "summary": "Independent review admits the frozen W0 packet only as disposable qualification infrastructure. Local receipt and binding controls pass; Windows execution, production containment, durability, accessibility and timing remain unqualified.",
+      "summary": "W0 preparation passed conditionally, but the first executed Windows qualification failed. Source-bound native receipts expose four failed cases and a DACL consumer refusal; product runtime, containment, durability, accessibility and timing remain unqualified.",
       "tags": [
         "windows",
         "review",
@@ -5490,7 +5490,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8b0635fe7fd78838b4321f72830b81ba91a29104ad9872f73bb4851bf07b029a"
+      "sourceSha256": "297a64e41e6dc1f2b437d02792407663928d4b07deeec04f1aeae2840f38e04f"
     },
     {
       "id": "spec-cfd-workbench",
@@ -5997,5 +5997,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "1fb7b4a87d5d828baaaab4bdc5864d9ed3d49a9279a35acc90c21374a48aa3e6"
+  "graphSha256": "ede8e03e30fa07b042903ab2c535d310e913ae224b5bbae75a1888baa35044da"
 };
