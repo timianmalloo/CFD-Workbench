@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T02:58:35Z",
+  "generated": "2026-09-25T03:14:43Z",
   "audit": [
     {
       "actor": null,
@@ -7069,6 +7069,34 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-09-25T02:57:44Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3B8XRWDGATSD069MSXQWVDG",
+      "shortname": "m1-scope-decision",
+      "datetime": "2026-09-25T03:14:43Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Prepare one user decision covering real Windows runtime, actual on-screen 5s cold/100ms edit/250ms preview-cancel and full section editor. Cite authoritative clauses, inspect available Windows routes read-only, compare IN M1/M1.1/deferred, persist a reviewable artifact, and stop Part 2 until user rules. Do not redefine M1, launch dependent work or control CUA.",
+      "summary": "Prepared a pending decision with exact scope distinctions, bounded local and GitHub API inventory, Windows store gap, presentation-timing requirements and three option rows. Recommended Windows and timing stay M1; full section authoring named M1.1. No user choice assumed; no external job or UI session launched. Docs check 108 artifacts/0 defects; 77 pre-existing review suggestions.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/m1-scope-decision.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Give the user one evidence-grounded M1 scope decision without changing the current milestone.",
+      "done_when": "One reviewable artifact and concise combined question are handed to root; dependent scope stays unscheduled until the user rules.",
+      "tier": "T2",
+      "fan_out": 0,
+      "git": {
+        "sha": "854aa6e88a41cc4abdb0f4ec12349771b4bfbc25",
+        "short": "854aa6e88",
+        "branch": "feature/application-m1-decision",
+        "pushed": null
+      }
     }
   ],
   "changes": [

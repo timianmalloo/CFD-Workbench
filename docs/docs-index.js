@@ -988,6 +988,49 @@ window.DOCS_INDEX = {
       "sourceSha256": "6d3771f50f16013e3003d30d25b5733c133cf180dbe079923198dede8ff9f2c2"
     },
     {
+      "id": "note-m1-scope-decision",
+      "path": "docs/notes/m1-scope-decision.md",
+      "title": "Pending user decision — Windows, visible performance and section editing in M1",
+      "type": "decision-note",
+      "status": "draft",
+      "owner": "@owner",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "One pending user decision about three milestone obligations. No option is adopted, no threshold is waived, and no dependent scope is scheduled by this note.",
+      "tags": [
+        "decision-note",
+        "milestone",
+        "windows",
+        "performance",
+        "sections"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-contract-c-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "62b7d01b0dcd17a4f8bf5784ee4ab560eb91a45d695fd0ae56614e69090fb57f"
+    },
+    {
       "id": "note-sweep-replay-semantics",
       "path": "docs/notes/sweep-replay-semantics.md",
       "title": "Sweep playback selects an operating point, not physical time",
@@ -5589,5 +5632,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d6f421bfa660eea583449991f1ec42e722fb7b436eec789b34d821dac15f29e3"
+  "graphSha256": "24709b19aaf3ba0b59298dfbcd2becdc93338098054790e7555b1984e13affe4"
 };
