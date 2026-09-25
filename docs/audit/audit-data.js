@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:28:17Z",
+  "generated": "2026-09-25T05:35:06Z",
   "audit": [
     {
       "actor": null,
@@ -8114,6 +8114,36 @@ window.AUDIT_DATA = {
         "sha": "9415ab2cfc831c58283bb40dab3c00a51d48d15b",
         "short": "9415ab2cf",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BGYSWCRV4TY7W39KXFHR7X",
+      "shortname": "review-visible-preparation",
+      "datetime": "2026-09-25T05:35:06Z",
+      "session": "cfd-visible-review-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
+      "summary": "Reviewed clean e688c18 exact six-path timing spike. Independently recomputed five source/five binary hashes and10raw receipts; reran50synthetic controls and actual target --contracts, both byte-identical to retained results. Four inspected one-line mutants each fail named assertions. Recomputed32rational clock intervals to[-128/3,42]ns; reproduced disjoint-clock CLI VP-CLOCK exit3 and clean portability gates. Preparation PASS-with-conditions; native launch/visible timing/M1 not accepted. Whole-package/post-observation identity, exactcrop bridge, loss/persistence/visibility/input/drift/cleanup/referencehost still unqualified. No targetwindow, capture helper execution, permissions, product or section edits. docs122/0defects/83priorflags. Marker05:29:44Z includes frozenhandoffwait and docs, excludes earlierdraftreads; tokens/effectivebillingmodel/cost not recorded.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/visible-presentation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Independently verify timing preparation while preventing synthetic or compiled evidence from being promoted to native visible performance.",
+      "done_when": "Frozen source and raw noncapture evidence checked, persona dispositions and native prerequisites recorded and committed.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-09-25T05:29:44Z",
+      "duration_seconds": 322.0,
+      "git": {
+        "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
+        "short": "062d14d70",
+        "branch": "feature/visible-presentation-review",
         "pushed": null
       }
     }

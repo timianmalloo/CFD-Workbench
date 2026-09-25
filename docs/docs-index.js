@@ -2,7 +2,7 @@
 window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
-  "generator": "docs-graph.py flag",
+  "generator": "docs-graph.py derive",
   "rootId": "adr-0001-master-curve-degree",
   "artifactTypes": [
     "knowledge",
@@ -5585,6 +5585,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-visible-presentation",
+      "path": "docs/reviews/visible-presentation.md",
+      "title": "Independent visible-presentation preparation review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-visible-review-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Frozen preparation passes its independently replayed synthetic contract and clock controls. No native capture or visible-performance acceptance is granted; whole-package identity and the native observation contract still require preparation.",
+      "tags": [
+        "performance",
+        "review",
+        "privacy",
+        "testing"
+      ],
+      "links": [
+        {
+          "to": "kb-visible-presentation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5793bafe24b9b27514fd4926eef1aa17ef539923840d50581c9502e9dc4989d2"
+    },
+    {
       "id": "review-windows-runtime",
       "path": "docs/reviews/windows-runtime.md",
       "title": "Independent Windows qualification review",
@@ -6139,5 +6173,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "eeb360fef247201ecae441ffa65be0ead8fbd7c3ea45d97d4cdda63d99aced01"
+  "graphSha256": "08b61af239fb9a8b3b9730e14e7e4f495cfa88948864d37ecdf7d9c1ec050588"
 };
