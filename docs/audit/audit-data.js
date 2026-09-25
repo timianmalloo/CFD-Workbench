@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:56:33Z",
+  "generated": "2026-09-25T04:58:36Z",
   "audit": [
     {
       "actor": null,
@@ -7838,44 +7838,35 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BEGN4JHZ6F4VB4JED1VA53",
-      "shortname": "join-windows-w0-portability",
-      "datetime": "2026-09-25T04:52:25Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of feature/windows-w0-portability into feature/application-coordination",
-      "summary": "Joined Ruling 42 qualifier-only LF and UTF-8 correction after independent delta review; no Windows runtime acceptance. recount_seconds=15 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "tools/qualify-windows-runtime.py"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Clear the integrated portable-text refusal without expanding W0 or rebinding old native receipts",
+      "datetime": "2026-09-25T04:52:25Z",
       "done_when": "Corrected qualifier joined and all integrated verification gates pass",
-      "tier": "T1",
+      "duration_seconds": 16.0,
       "fan_out": 0,
+      "goal": "Clear the integrated portable-text refusal without expanding W0 or rebinding old native receipts",
+      "id": "al-01M3BEGN4JHZ6F4VB4JED1VA53",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of feature/windows-w0-portability into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-windows-w0-portability",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T04:52:09Z",
-      "duration_seconds": 16.0
+      "summary": "Joined Ruling 42 qualifier-only LF and UTF-8 correction after independent delta review; no Windows runtime acceptance. recount_seconds=15 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3BER7BB19XMVF0CZRA904KZ",
-      "shortname": "w0-integrated-portability-control",
-      "datetime": "2026-09-25T04:56:33Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
-      "summary": "Recorded PLAT-A tooling handoff recurrence and TEST-ENTRY unintended --help continuation with executable controls. W0 original preparation and independent review joined; R42 corrected qualifier and root delta review yielded an 11/11 integrated gate. Updated Windows route and current plan/HTML without claiming Windows execution, old-receipt rebinding, visible timing, C integration or M1 acceptance.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/lessons/defect-classes.md",
@@ -7883,15 +7874,83 @@ window.AUDIT_DATA = {
         "docs/coordination/application-build.md",
         "docs/plans/application-build.md"
       ],
-      "tags": [],
-      "outcome": "partial",
       "compiled": false,
-      "goal": "Make W0 preparation and its corrected integrated gate durable while advancing the user-approved M1 work before the section editor",
+      "datetime": "2026-09-25T04:56:33Z",
       "done_when": "Portability class/control and truthful current status are recorded; W1 and visible timing remain explicit next gates",
-      "tier": "T2",
+      "duration_seconds": 144.0,
       "fan_out": 1,
+      "goal": "Make W0 preparation and its corrected integrated gate durable while advancing the user-approved M1 work before the section editor",
+      "id": "al-01M3BER7BB19XMVF0CZRA904KZ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "w0-integrated-portability-control",
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T04:54:09Z",
-      "duration_seconds": 144.0
+      "summary": "Recorded PLAT-A tooling handoff recurrence and TEST-ENTRY unintended --help continuation with executable controls. W0 original preparation and independent review joined; R42 corrected qualifier and root delta review yielded an 11/11 integrated gate. Updated Windows route and current plan/HTML without claiming Windows execution, old-receipt rebinding, visible timing, C integration or M1 acceptance.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T04:53:00Z",
+      "done_when": "Exact delta and affected controls verified, scoped disposition recorded and addendum committed.",
+      "duration_seconds": 20.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "feature/windows-runtime-review",
+        "pushed": null,
+        "sha": "f08007689f39c6587ad278618a9c57770c8bfa37",
+        "short": "f08007689"
+      },
+      "goal": "Review corrected W0 portability bytes without transferring old native evidence or weakening Windows acceptance.",
+      "id": "al-01M3BEHQTQ4PMGCHHQ4TP042P4",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "keep going; complete M1 tasks and stop before the full section editor",
+      "session": "cfd-windows-review-20260925",
+      "shortname": "review-windows-portability",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-25T04:52:40Z",
+      "summary": "Observed exact five-finding integrated portable-text RED. Independently reviewed clean529bcb9 one-file mechanical delta; native source/workflow unchanged. Reran both text/subprocess portability gates and35 receipt refusal controls plus real help-exit control: PASS. Qualifier SHA4a0ea88907fcd8ff58ba38b1846af7b6ee1a488fc4412b97f55b671b1d4a724d verified. Prior native receipt remains bound to82a366a, not corrected driver. Delta admitted only for preparation and one corrected integrated retry. Author disclosed accidental local non-Windows build from intercepted-exit probe; no Windows proof. Marker is late and measures documentation finalization only; prior delta-review elapsed time, tokens and cost not recorded. Existing script gates are required before future spike handoffs. Old attachment-review session released; no review app launched.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M3BEVZPXW6MG313XQ5F1TCCJ",
+      "shortname": "join-windows-w0-portability-review",
+      "datetime": "2026-09-25T04:58:36Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "summary": "Joined independent corrected-qualifier delta review; old native receipt remains source-bound to original W0 bytes. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/windows-runtime.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Integrate R42 independent source/control review without promoting Windows claims",
+      "done_when": "Addendum joined and integrated documentation/gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-25T04:58:36Z",
+      "duration_seconds": 0.0
     }
   ],
   "changes": [
