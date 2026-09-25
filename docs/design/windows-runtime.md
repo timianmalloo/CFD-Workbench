@@ -428,3 +428,104 @@ No code here clears those decisions or the accepted M1 gates. Root's review may
 admit this packet as **prepared evidence infrastructure** while withholding every
 production/runtime acceptance. Rollback is removing this isolated experiment;
 there is no product data migration to reverse.
+
+
+## R53 finite contract discrimination preparation — blocked author gate
+
+Ruling 53 adds diagnostic preparation only. The original 26 case names and
+acceptance predicates, classic held/released arms, private DACL, cancellation,
+expected-hash and fail-closed durability contracts remain authoritative. No
+workflow, production store, UI or accepted Windows implementation changes.
+
+The candidate context is one unique owned diagnostic root. One row is one of
+six Ex arms (`ex-replace`, `ex-no-replace`, `ex-conflict`, `ex-cancel-before`,
+`ex-cancel-after`, `ex-foreign-cleanup`) or three ancestor arms (`ancestor-zero`,
+`ancestor-list-held`, `ancestor-list-released`). These are separate from original
+qualification. Their publication field reports the actual rename result;
+durability remains false. Retained fixture directories are inventoried after job
+quiescence; there is no recursive path deletion.
+
+The Ex buffer uses the actual Microsoft `windows-sys` 0.59.0 generated binding,
+not the malformed HTML declaration. `FileRenameInfoEx=22`; the flags union is
+four bytes, replacement=1, POSIX=2; x64 offsets are 0/8/16/20 and size is 24.
+The byte buffer allocates `24 + UTF16-name-byte-count`, writes the length at 16,
+and the unterminated counted name at 20 with zero padding. `LayoutControls`
+emits the exact bytes; `validate_layout` independently reconstructs them.
+This local managed layout observation does not prove a Windows call.
+
+Ex arms retain the old target read handle through rename and observation. They
+record old identity/hash A, staged identity/hash B, actual flags/result/error,
+new-path identity/hash, descriptor evidence and cancellation/publication state.
+The expected-hash conflict and pre-cancel arms do not invoke the native rename.
+The foreign cleanup arm recreates the old staging path and verifies that cleanup
+refuses the foreign object. Original classic rename behavior is unchanged.
+
+Ancestor diagnostics request either access 0 (negative control) or
+FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES (0x81), always sharing read/write
+without delete sharing (3). Held and released list/read arms remain separate;
+access-denied produces an explicit unsupported reason with no widening or
+zero-access fallback. The final guard reopens the actual source/destination,
+checks its recorded directory identity and root chain, then requires disposal.
+Unknown final identity or cleanup stops later arms and driver mutation.
+
+The original denial fixture now records its Win32 identity, size, attributes,
+links and exact denied access while its creation handle remains open. The driver
+uses GetFileInformationByHandle again; it never equates Python st_ino/st_dev with
+Win32 volume/file ID. Only the exact bound denial may have null content/hash.
+Unexpected denial, changed identity/metadata, missing fixture, link/escape and
+metadata failures refuse inventory. This is bounded post-job observation, not a
+proof against concurrent hostile namespace changes.
+
+After source/binary/input preconditions, independent job timeout, observer-fault
+and UIA capability probes run before filesystem mutation, in their own output
+directories/process jobs. Unsafe cleanup stops later work. A quiescent UIA
+capability failure records Not assessed. Later mutation failure retains completed
+probe results through `finalize`. The original moved=true continuation refusal
+remains even with forged inventory Pass.
+
+**Author blocker:** the new discrimination consumer still accepts six tested
+wrong-result variants (missing/malformed old identities, missing parent chain,
+wrong Ex source identity, wrong buffer length and boolean denial integers).
+Its current positive/negative suite is therefore insufficient. This packet is
+frozen for independent review, not ready for dispatch. The single authorized
+correction was consumed by the observed compile failure and final source checks;
+the remaining consumer repair needs a separate disposition. Production Windows,
+same-object hostile namespace containment, durability and native UI remain open.
+
+
+## R54 receipt schema correction
+
+The schema follows the actual R53 producer before comparing any observations.
+Each observed arm requires a typed row/evidence object, arm name, declared
+directory, volume/file identity, nonempty identity parent chain, exact fixture
+hashes, boolean publication/durability and completed cleanup/containment facts.
+The sole producer change emits its existing arm directory as a receipt operand.
+No native operation or algorithm changes.
+
+Ex arms require old/staged/after identities, distinct old/staged objects, the
+current successful file-snapshot shape (exists, identity, sha256, null error),
+typed access/share, lifetime and cancellation/result fields. Invoked exCall
+requires source/destination paths derived from the independently emitted arm
+directory, staged identity/hash, old destination snapshot, class22, flags2/3,
+actual boolean returned, coherent error/null, exact UTF-16 name byte count and
+24-plus-byte-count buffer length. Noninvoked arms must omit exCall entirely.
+This binds declared lengths; it does not attest unreported native buffer bytes.
+
+Ancestor arms require source/destination path binding, exact access/share/flags,
+boolean lifetime/move result, observed held identity, a source-before directory
+snapshot and before/after existence variants. Existing directories require a
+valid identity, uint32 directory/non-reparse attributes and null error. Missing
+paths require false existence, null identity/attributes and observed error text
+2 or 3. The surviving identity and attributes must equal the before observation.
+
+All measured integers reject bool/float/string/null/missing and respect emitted
+uint32, uint64 or nonnegative int32 widths. Expected denial requires the exact
+metadata object, uint32 attributes/links/access/error, uint64 size, real booleans,
+valid identity and retained unreadable-content labeling. Nested schema/type
+failures raise stable ValueError codes before comparisons or regex operations.
+
+Frozen local control matrix: all six original failures; realistic nine-arm
+positive receipts; both collision and held-denial errors; missing/null/wrong
+nested shapes; exact scalar types/ranges; contradictory returned/error pairs;
+identity/hash/path/parent/length bindings; noninvoked claimed calls; UTF-16
+non-ASCII length. These are synthetic receipt tests, not Windows admission.

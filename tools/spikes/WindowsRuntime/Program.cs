@@ -33,6 +33,9 @@ internal static class Program
         if (args is ["--diagnostic-controls"]) return DiagnosticControls();
         if (args is ["--final-arm-controls"]) return FinalArmControls();
         if (args is ["--constructor-controls", var controlRoot]) return ConstructorControls(controlRoot);
+        if (args is ["--layout-controls"]) return LayoutControls();
+        if (args is ["--discrimination", var candidateRoot, var inputA, var inputB])
+            return Discrimination(candidateRoot, inputA, inputB);
         if (args.Length == 1 && args[0].StartsWith("--tree-", StringComparison.Ordinal))
             return Tree(args[0]);
         if (!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
@@ -236,10 +239,14 @@ internal static class Program
         }
         if (name == "denial")
         {
-            using (var sd = new Descriptor("D:P(D;;GA;;;" + Sid + ")"))
-            using (var denied = Open(target, 0, 7, 1, sd)) { }
+            using var sd = new Descriptor("D:P(D;;GA;;;" + Sid + ")");
+            using var denied = Open(target, 0, 7, 1, sd);
             using var attempt = Native.CreateFileW(target, Native.ReadWrite, 7, IntPtr.Zero, 3, 0x00200000, IntPtr.Zero);
-            int error = Marshal.GetLastPInvokeError(); Require(attempt.IsInvalid && error == 5, "W0-DENIAL-NOT-ENFORCED");
+            int error = Marshal.GetLastPInvokeError();
+            evidence["expectedDenial"] = new { path = target, metadata = Metadata(denied),
+                access = Native.ReadWrite, error, denied = attempt.IsInvalid, creationHandleRetained = !denied.IsClosed,
+                sha256 = (string?)null, hashStatus = "Not assessed: read access denied" };
+            Require(attempt.IsInvalid && error == 5, "W0-DENIAL-NOT-ENFORCED");
             evidence["win32"] = error; return;
         }
         using var held = Owned.Create(target); held.Write(a);
@@ -734,6 +741,12 @@ internal static class Program
         catch { handle.Dispose(); throw; }
     }
     private static Native.FileInfo Info(SafeFileHandle handle) { Check(Native.GetFileInformationByHandle(handle, out var info)); return info; }
+    private static object Metadata(SafeFileHandle handle)
+    {
+        var info = Info(handle);
+        return new { identity = Identity(handle), attributes = info.Attributes, links = info.Links,
+            size = ((ulong)info.SizeHigh << 32) | info.SizeLow };
+    }
     private static string Identity(SafeFileHandle handle)
     { var i = Info(handle); return $"{i.Volume:x8}:{i.IndexHigh:x8}{i.IndexLow:x8}"; }
     private static byte[] Read(SafeFileHandle handle)
@@ -878,6 +891,19 @@ internal static class Program
             diagnostic["destinationParentAfter"] = DirectorySnapshot(Path.GetDirectoryName(target)!);
             if (!renamed) throw new Win32Exception(error);
         }
+        public bool RenameEx(string target, uint flags)
+        {
+            byte[] buffer = RenameBuffer(target, flags);
+            var row = new Dictionary<string, object?> { ["class"] = 22, ["flags"] = flags,
+                ["bufferLength"] = buffer.Length, ["nameBytes"] = Encoding.Unicode.GetByteCount(target),
+                ["sourcePath"] = path, ["destinationPath"] = target, ["sourceIdentity"] = Identity(Handle),
+                ["sourceHash"] = Hash(Read()), ["destinationBefore"] = Snapshot(target) };
+            evidence["exCall"] = row; // Operands survive an observation exception.
+            bool result = Native.SetFileInformationByHandle(Handle, 22, buffer, (uint)buffer.Length);
+            int error = Marshal.GetLastPInvokeError();
+            row["returned"] = result; row["nativeError"] = result ? null : error;
+            return result;
+        }
         public bool Cleanup()
         {
             using var entry = Open(path, 0, 7, 3);
@@ -898,6 +924,167 @@ internal static class Program
         }
         // Finite timeout target, owned by the driver's already-assigned job. No detached child.
         using var wait = new ManualResetEvent(false); wait.WaitOne(TimeSpan.FromSeconds(30)); return 0;
+    }
+
+    // Microsoft windows-sys 0.59.0 generated repr(C) binding; exact provenance in proof.
+    [StructLayout(LayoutKind.Sequential)] private struct RenameInfo
+    { public uint Flags; public IntPtr RootDirectory; public uint FileNameLength; public ushort FileName; }
+    private static byte[] RenameBuffer(string target, uint flags)
+    {
+        Require(IntPtr.Size == 8 && BitConverter.IsLittleEndian && Marshal.SizeOf<RenameInfo>() == 24 &&
+            Marshal.OffsetOf<RenameInfo>(nameof(RenameInfo.RootDirectory)).ToInt32() == 8 &&
+            Marshal.OffsetOf<RenameInfo>(nameof(RenameInfo.FileNameLength)).ToInt32() == 16 &&
+            Marshal.OffsetOf<RenameInfo>(nameof(RenameInfo.FileName)).ToInt32() == 20, "R53-ABI");
+        byte[] name = Encoding.Unicode.GetBytes(target), buffer = new byte[24 + name.Length];
+        BitConverter.GetBytes(flags).CopyTo(buffer, 0); BitConverter.GetBytes(name.Length).CopyTo(buffer, 16);
+        name.CopyTo(buffer, 20); return buffer;
+    }
+    private static int LayoutControls()
+    {
+        string target = "C:\\owned\\caf\u00e9.bin";
+        byte[] buffer = RenameBuffer(target, 3), name = Encoding.Unicode.GetBytes(target);
+        bool pass = BitConverter.ToUInt32(buffer) == 3 && BitConverter.ToUInt64(buffer, 8) == 0 &&
+            BitConverter.ToUInt32(buffer, 16) == name.Length && buffer.AsSpan(20, name.Length).SequenceEqual(name) &&
+            buffer.Length == 24 + name.Length && buffer.AsSpan(20 + name.Length).ToArray().All(x => x == 0);
+        Console.WriteLine(JsonSerializer.Serialize(new { control = "rename-ex-layout", source, binary, pass,
+            infoClass = 22, flags = 3, widths = new[] { 4, 8, 4, 2 }, offsets = new[] { 0, 8, 16, 20 },
+            structSize = Marshal.SizeOf<RenameInfo>(), bufferLength = buffer.Length, nameBytes = name.Length,
+            bufferHex = Convert.ToHexStringLower(buffer), scope = "managed ABI layout only; not Windows API execution" }));
+        return pass ? 0 : 1;
+    }
+    private static int Discrimination(string root, string inputA, string inputB)
+    {
+        if (!OperatingSystem.IsWindows() || RuntimeInformation.ProcessArchitecture != Architecture.X64) return 3;
+        a = File.ReadAllBytes(inputA); b = File.ReadAllBytes(inputB);
+        Require(a.Length > 0 && b.Length > 0 && Hash(a) != Hash(b), "R53-INPUTS");
+        Require(!Directory.Exists(root) && !File.Exists(root), "R53-ROOT-COLLISION");
+        CreateDirectory(root, ProtectedSddl());
+        using var rootPin = new PinnedPath(root);
+        bool safe = true;
+        foreach (string arm in new[] { "ex-replace", "ex-no-replace", "ex-conflict", "ex-cancel-before", "ex-cancel-after", "ex-foreign-cleanup",
+            "ancestor-zero", "ancestor-list-held", "ancestor-list-released" })
+        {
+            evidence = new() { ["arm"] = arm, ["fixtureA"] = Hash(a), ["fixtureB"] = Hash(b), ["tokenUserSid"] = Sid,
+                ["publication"] = false, ["durability"] = false, ["cleanup"] = "Not established" };
+            string status = "Not assessed", folder = Path.Combine(root, arm);
+            evidence["directory"] = folder;
+            if (safe)
+            {
+                try
+                {
+                    CreateDirectory(folder, ProtectedSddl());
+                    using (var directoryHandle = Open(folder, 0, 7, 3, flags: 0x02200000))
+                        evidence["armDirectoryIdentity"] = Identity(directoryHandle);
+                    if (arm.StartsWith("ex-", StringComparison.Ordinal)) ExArm(arm, folder);
+                    else AncestorArm(arm, folder);
+                    status = "Observed";
+                }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or Win32Exception or InvalidOperationException)
+                { status = "Fail"; evidence["error"] = error.Message; evidence["errorType"] = error.GetType().Name; }
+                finally
+                {
+                    try
+                    {
+                        using var fresh = new PinnedPath(root);
+                        Require(rootPin.Identities.SequenceEqual(fresh.Identities), "R53-ROOT-IDENTITY");
+                        string actualPath = evidence.TryGetValue("moved", out var moved) && moved is true ? folder + "-moved" : folder;
+                        using var actual = Open(actualPath, 0, 7, 3, flags: 0x02200000);
+                        Require(evidence.TryGetValue("armDirectoryIdentity", out var originalIdentity) &&
+                            Identity(actual) == (string)originalIdentity && (Info(actual).Attributes & 0x410) == 0x10,
+                            "R53-FINAL-ARM-IDENTITY");
+                        Require(evidence["cleanup"] is "all acquired handles disposed", "R53-CLEANUP-UNKNOWN");
+                        evidence["containment"] = "Verified disposable root only";
+                    }
+                    catch (Exception error) { safe = false; status = "Unsafe"; evidence["safetyError"] = error.Message; }
+                }
+            }
+            Console.WriteLine(JsonSerializer.Serialize(new { arm, status, source, binary, evidence }));
+        }
+        return safe ? 0 : 1;
+    }
+    private static void ExArm(string arm, string folder)
+    {
+        try
+        {
+            using var parent = new PinnedPath(folder);
+            string target = Path.Combine(folder, "target.bin"), stagePath = Path.Combine(folder, "staged.bin");
+            using (var initial = Owned.Create(target)) initial.Write(a);
+            using var held = OpenRegular(target);
+            using var staged = Owned.Create(stagePath); staged.Write(b);
+            evidence["oldIdentity"] = Identity(held); evidence["oldHash"] = Hash(Read(held));
+            evidence["stagedIdentity"] = Identity(staged.Handle); evidence["stagedHash"] = Hash(staged.Read());
+            evidence["parentIdentities"] = parent.Identities;
+            evidence["targetAccess"] = 0x80000000u; evidence["targetShare"] = 7;
+            evidence["targetLifetime"] = "retained through call and all observations";
+            using var cancellation = new CancellationTokenSource();
+            if (arm == "ex-cancel-before") cancellation.Cancel();
+            string expected = arm == "ex-conflict" ? Hash(b) : Hash(a);
+            evidence["expectedHash"] = expected;
+            bool invoke = !cancellation.IsCancellationRequested && Hash(Read(held)) == expected;
+            if (invoke)
+            {
+                using var current = OpenRegular(target);
+                Require(Identity(current) == Identity(held) && Hash(Read(current)) == expected, "R53-EXPECTED-TARGET-DRIFT");
+            }
+            evidence["callInvoked"] = invoke;
+            bool result = invoke && staged.RenameEx(target, arm == "ex-no-replace" ? 2u : 3u);
+            evidence["publication"] = result;
+            if (result && arm == "ex-cancel-after") cancellation.Cancel();
+            evidence["cancellationRequested"] = cancellation.IsCancellationRequested;
+            evidence["saveCode"] = result ? "DOC-SAVE-UNCERTAIN" : cancellation.IsCancellationRequested ? "DOC-CANCELLED" :
+                !invoke || arm == "ex-no-replace" ? "DOC-CONFLICT" : "DOC-IO";
+            evidence["oldHandleOpen"] = !held.IsClosed;
+            evidence["oldIdentityAfter"] = Identity(held); evidence["oldHashAfter"] = Hash(Read(held));
+            evidence["newPath"] = Snapshot(target); evidence["stagedHashAfter"] = Hash(staged.Read());
+            evidence["stagedDacl"] = SecurityEvidence(staged.Handle);
+            Require(PrivateDacl(staged.Handle) && Read(held).SequenceEqual(a) && staged.Read().SequenceEqual(b), "R53-RETAINED-BYTES-DACL");
+            Require(Identity(held) == (string)evidence["oldIdentity"], "R53-OLD-IDENTITY");
+            if (result)
+            {
+                using var fresh = OpenRegular(target);
+                Require(Identity(fresh) == Identity(staged.Handle) && Read(fresh).SequenceEqual(b), "R53-NEW-IDENTITY");
+                if (arm == "ex-foreign-cleanup")
+                {
+                    using var foreign = Owned.Create(stagePath); foreign.Write(a);
+                    evidence["cleanupRefused"] = !staged.Cleanup();
+                    evidence["foreignHash"] = Hash(foreign.Read());
+                    Require((bool)evidence["cleanupRefused"] && foreign.Read().SequenceEqual(a), "R53-FOREIGN-CLEANUP");
+                }
+            }
+            bool expectedPublication = arm is "ex-replace" or "ex-cancel-after" or "ex-foreign-cleanup";
+            Require(result == expectedPublication, "R53-CANDIDATE-RESULT");
+            using var final = new PinnedPath(folder);
+            Require(parent.Identities.SequenceEqual(final.Identities), "R53-ARM-IDENTITY");
+        }
+        finally { evidence["cleanup"] = "all acquired handles disposed"; }
+    }
+    private static void AncestorArm(string arm, string folder)
+    {
+        SafeFileHandle? held = null;
+        try
+        {
+            uint access = arm == "ancestor-zero" ? 0u : 0x81u; // FILE_LIST_DIRECTORY | FILE_READ_ATTRIBUTES.
+            string destination = folder + "-moved";
+            evidence["sourcePath"] = folder; evidence["destinationPath"] = destination;
+            evidence["access"] = access; evidence["share"] = 3; evidence["flags"] = 0;
+            evidence["sourceBefore"] = DirectorySnapshot(folder); evidence["destinationBefore"] = DirectorySnapshot(destination);
+            using var parent = new PinnedPath(Path.GetDirectoryName(folder)!);
+            evidence["parentIdentities"] = parent.Identities;
+            try { held = Open(folder, access, 3, 3, flags: 0x02200000); }
+            catch (Win32Exception accessError) when (accessError.NativeErrorCode == 5)
+            { evidence["accessRefusal"] = accessError.NativeErrorCode; throw new Unsupported("DIRECTORY-LIST-ACCESS-UNAVAILABLE"); }
+            evidence["heldIdentity"] = Identity(held);
+            if (arm == "ancestor-list-released") held.Dispose();
+            evidence["handleOpenAtCall"] = !held.IsClosed;
+            bool moved = Native.MoveFileExW(folder, destination, 0); int error = Marshal.GetLastPInvokeError();
+            evidence["moved"] = moved; evidence["nativeError"] = moved ? null! : error;
+            evidence["sourceAfter"] = DirectorySnapshot(folder); evidence["destinationAfter"] = DirectorySnapshot(destination);
+            using var actual = Open(moved ? destination : folder, 0, 7, 3, flags: 0x02200000);
+            Require(Identity(actual) == (string)evidence["heldIdentity"], "R53-MOVE-IDENTITY");
+            if (arm == "ancestor-list-held") Require(!moved && error is 5 or 32, "R53-LIST-PIN-MOVED");
+            else Require(moved, "R53-NEGATIVE-MOVE-NOT-OBSERVED");
+        }
+        finally { held?.Dispose(); evidence["cleanup"] = "all acquired handles disposed"; }
     }
 }
 

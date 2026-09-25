@@ -5,6 +5,7 @@ import base64
 import copy
 import hashlib
 import json
+import ntpath
 import os
 from pathlib import Path
 import platform
@@ -292,6 +293,8 @@ def validate_constructor_controls(rows, source, binary):
 
 def self_test():
     """Synthetic protocol data, never Windows runtime evidence."""
+    r53_self_test()
+    r54_self_test()
     r48_alias_test()
     r45_self_test()
     source, binary = "a" * 64, "b" * 64
@@ -552,9 +555,123 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2), encoding="utf-8", newline="\n")
 
 
-def fixture_inventory(root):
+def native_metadata(path):
+    """Same Win32 identity representation as the retained native creation handle.
+
+    Deliberately do not equate Python st_ino/st_dev with Win32 volume/file ids.
+    """
+    import ctypes
+    from ctypes import wintypes as w
+    class Info(ctypes.Structure):
+        _fields_ = [(name, w.DWORD) for name in ("attributes", "c0", "c1", "a0", "a1", "w0", "w1",
+                                                 "volume", "sizeHigh", "sizeLow", "links", "indexHigh", "indexLow")]
+    api = ctypes.WinDLL("kernel32", use_last_error=True)
+    api.CreateFileW.argtypes = [w.LPCWSTR, w.DWORD, w.DWORD, ctypes.c_void_p, w.DWORD, w.DWORD, w.HANDLE]
+    api.CreateFileW.restype = w.HANDLE
+    api.GetFileInformationByHandle.argtypes = [w.HANDLE, ctypes.POINTER(Info)]
+    api.GetFileInformationByHandle.restype = w.BOOL
+    api.CloseHandle.argtypes = [w.HANDLE]
+    api.CloseHandle.restype = w.BOOL
+    if ctypes.sizeof(Info) != 52:
+        raise ValueError("R53-INVENTORY-ABI")
+    handle = api.CreateFileW(str(path), 0, 7, None, 3, 0x00200000, None)
+    if handle == ctypes.c_void_p(-1).value:
+        raise ctypes.WinError(ctypes.get_last_error())
+    try:
+        info = Info()
+        if not api.GetFileInformationByHandle(handle, ctypes.byref(info)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return dict(identity=f"{info.volume:08x}:{info.indexHigh:08x}{info.indexLow:08x}",
+                    attributes=info.attributes, size=(info.sizeHigh << 32) | info.sizeLow, links=info.links)
+    finally:
+        if not api.CloseHandle(handle):
+            raise ctypes.WinError(ctypes.get_last_error())
+
+
+def receipt_object(value):
+    if type(value) is not dict:
+        raise ValueError("R54-OBJECT")
+    return value
+
+
+def receipt_require(value):
+    if not value:
+        raise ValueError("R54-RELATION")
+
+
+def receipt_text(value):
+    if type(value) is not str or not value or "\0" in value:
+        raise ValueError("R54-TEXT")
+    return value
+
+
+def receipt_integer(value, bits=32):
+    if type(value) is not int or not 0 <= value < 2 ** bits:
+        raise ValueError("R54-INTEGER")
+    return value
+
+
+def receipt_identity(value):
+    if type(value) is not str or re.fullmatch(r"[0-9a-f]{8}:[0-9a-f]{16}", value) is None:
+        raise ValueError("R54-IDENTITY")
+    return value
+
+
+def receipt_boolean(value):
+    if type(value) is not bool:
+        raise ValueError("R54-BOOLEAN")
+    return value
+
+
+def receipt_snapshot(value, directory=False, exists=True):
+    value = receipt_object(value)
+    fields = {"exists", "identity", "attributes" if directory else "sha256", "error"}
+    receipt_require(fields <= value.keys() and receipt_boolean(value.get("exists")) is exists)
+    if exists:
+        receipt_identity(value.get("identity"))
+        receipt_require(value["error"] is None)
+        if directory:
+            receipt_require(receipt_integer(value.get("attributes")) & 0x410 == 0x10)
+        else:
+            receipt_require(type(value.get("sha256")) is str and re.fullmatch(r"[0-9a-f]{64}", value["sha256"]) is not None)
+    else:
+        # DirectorySnapshot catches the actual Win32 missing-path observation.
+        receipt_require(directory and value["identity"] is None and value["attributes"] is None and
+                        type(value["error"]) is str and value["error"] in ("2", "3"))
+    return value
+
+
+def receipt_path(value):
+    value = receipt_text(value)
+    receipt_require(re.match(r"^[A-Za-z]:\\", value) is not None and "/" not in value and
+                    all(part not in ("", ".", "..") for part in value[3:].split("\\")))
+    return value
+
+
+def expected_denial(rows, source, binary):
+    receipt_require(type(rows) is list)
+    for row in rows:
+        receipt_object(row)
+    matches = [r for r in rows if r.get("case") == "denial"]
+    receipt_require(len(matches) == 1)
+    row = matches[0]
+    item = receipt_object(receipt_object(row.get("evidence")).get("expectedDenial"))
+    meta = receipt_object(item.get("metadata"))
+    receipt_identity(meta.get("identity"))
+    receipt_text(item.get("path"))
+    receipt_require(row.get("source") == source and row.get("binary") == binary and row.get("status") == "Pass" and
+                    receipt_boolean(item.get("denied")) and receipt_boolean(item.get("creationHandleRetained")) and
+                    receipt_integer(item.get("error")) == 5 and receipt_integer(item.get("access")) == 0xc0000000 and
+                    "sha256" in item and item["sha256"] is None and item.get("hashStatus") == "Not assessed: read access denied" and
+                    set(meta) == {"identity", "attributes", "size", "links"} and
+                    receipt_integer(meta.get("attributes")) & 0x410 == 0 and
+                    receipt_integer(meta.get("links")) == 1 and receipt_integer(meta.get("size"), 64) == 0)
+    return item
+
+
+def fixture_inventory(root, denial=None, metadata=native_metadata, read=lambda path: path.read_bytes()):
     """Bounded post-job observation, not hostile concurrent namespace containment."""
-    result, links = {}, {}
+    result, links, denial_seen = {}, {}, False
     if not root.is_dir() or root.is_symlink() or getattr(root.lstat(), "st_file_attributes", 0) & 0x400:
         raise ValueError("W0-FIXTURE-ROOT-NOT-OBSERVED")
     for directory, folders, files in os.walk(root, followlinks=False):
@@ -575,9 +692,23 @@ def fixture_inventory(root):
                     raise ValueError("W0-FIXTURE-SIZE")
                 key = (info.st_dev, info.st_ino)
                 links.setdefault(key, []).append(info.st_nlink)
-                payload = path.read_bytes()
-                item = dict(kind="file", sha256=digest(payload), bytesBase64=base64.b64encode(payload).decode("ascii"), size=info.st_size,
-                            identity=list(key), links=info.st_nlink)
+                observed_before = metadata(path) if denial is not None and str(path) == denial["path"] else None
+                try:
+                    payload = read(path)
+                    if denial is not None and str(path) == denial["path"]:
+                        raise ValueError("R53-EXPECTED-DENIAL-WAS-READABLE")
+                    item = dict(kind="file", sha256=digest(payload), bytesBase64=base64.b64encode(payload).decode("ascii"), size=info.st_size,
+                                identity=list(key), links=info.st_nlink)
+                except PermissionError as error:
+                    if (denial is None or str(path) != denial["path"] or getattr(error, "winerror", None) != 5 or
+                        error.errno != 13 or info.st_nlink != 1 or info.st_size != denial["metadata"]["size"]):
+                        raise ValueError("R53-UNEXPECTED-READ-DENIAL") from error
+                    before = metadata(path)
+                    if before != denial["metadata"] or observed_before != before or metadata(path) != before:
+                        raise ValueError("R53-DENIAL-IDENTITY-OR-METADATA-DRIFT")
+                    denial_seen = True
+                    item = dict(kind="expected-unreadable-file", sha256=None, bytesBase64=None,
+                                hashStatus=denial["hashStatus"], metadata=before, errno=error.errno, winerror=error.winerror)
             elif stat.S_ISDIR(info.st_mode):
                 item = dict(kind="directory", identity=[info.st_dev, info.st_ino])
             else:
@@ -585,7 +716,358 @@ def fixture_inventory(root):
             result[str(path.relative_to(root))] = item
     if any(any(count != len(counts) for count in counts) for counts in links.values()):
         raise ValueError("W0-FIXTURE-EXTERNAL-HARDLINK")
+    if denial is not None and not denial_seen:
+        raise ValueError("R53-EXPECTED-DENIAL-MISSING")
     return result
+
+
+def ordered_phases(preconditions, probes, mutation, trace=None):
+    """The real execution seam: any prerequisite/probe exception prevents mutation."""
+    for name, action in (("preconditions", preconditions), ("independent-probes", probes), ("mutation", mutation)):
+        if trace is not None:
+            trace.append(dict(phase=name, state="started"))
+        action()
+        if trace is not None:
+            trace.append(dict(phase=name, state="completed"))
+
+
+DISCRIMINATION = ("ex-replace", "ex-no-replace", "ex-conflict", "ex-cancel-before", "ex-cancel-after", "ex-foreign-cleanup",
+                  "ancestor-zero", "ancestor-list-held", "ancestor-list-released")
+
+
+def validate_layout(row, source, binary):
+    name = "C:\\owned\\caf\u00e9.bin".encode("utf-16-le")
+    expected = (3).to_bytes(4, "little") + bytes(12) + len(name).to_bytes(4, "little") + name + bytes(4)
+    if (row.get("source") != source or row.get("binary") != binary or row.get("pass") is not True or
+        row.get("infoClass") != 22 or row.get("flags") != 3 or row.get("widths") != [4, 8, 4, 2] or
+        row.get("offsets") != [0, 8, 16, 20] or row.get("structSize") != 24 or row.get("nameBytes") != len(name) or
+        row.get("bufferLength") != len(expected) or row.get("bufferHex") != expected.hex()):
+        raise ValueError("R53-LAYOUT-RECEIPT")
+
+
+def validate_discrimination(rows, source, binary):
+    receipt_require(type(rows) is list and len(rows) == 9)
+    arms = []
+    for row in rows:
+        receipt_object(row)
+        arms.append(receipt_text(row.get("arm")))
+    receipt_require(set(arms) == set(DISCRIMINATION))
+    for row in rows:
+        e, arm = receipt_object(row.get("evidence")), row["arm"]
+        receipt_require(row.get("source") == source and row.get("binary") == binary and row.get("status") == "Observed")
+        directory = receipt_path(e.get("directory"))
+        receipt_require(ntpath.basename(directory) == arm and e.get("arm") == arm and
+                        e.get("cleanup") == "all acquired handles disposed" and e.get("containment") == "Verified disposable root only")
+        arm_id = receipt_identity(e.get("armDirectoryIdentity"))
+        chain = e.get("parentIdentities")
+        receipt_require(type(chain) is list and len(chain) > 0)
+        for identity in chain:
+            receipt_identity(identity)
+        receipt_require(e.get("fixtureA") == digest(FIXTURE_A) and e.get("fixtureB") == digest(FIXTURE_B))
+        receipt_boolean(e.get("publication"))
+        receipt_require(receipt_boolean(e.get("durability")) is False)
+        if arm.startswith("ex-"):
+            publish = arm in ("ex-replace", "ex-cancel-after", "ex-foreign-cleanup")
+            invoke = arm not in ("ex-conflict", "ex-cancel-before")
+            old, staged = receipt_identity(e.get("oldIdentity")), receipt_identity(e.get("stagedIdentity"))
+            after = receipt_identity(e.get("oldIdentityAfter"))
+            new = receipt_snapshot(e.get("newPath"))
+            receipt_require(chain[-1] == arm_id and old != staged and old == after and
+                            e["publication"] is publish and receipt_boolean(e.get("callInvoked")) is invoke and
+                            receipt_boolean(e.get("oldHandleOpen")) is True and
+                            receipt_integer(e.get("targetAccess")) == 0x80000000 and receipt_integer(e.get("targetShare")) == 7 and
+                            e.get("targetLifetime") == "retained through call and all observations" and
+                            all(e.get(k) == digest(FIXTURE_A) for k in ("oldHash", "oldHashAfter")) and
+                            all(e.get(k) == digest(FIXTURE_B) for k in ("stagedHash", "stagedHashAfter")) and
+                            new["identity"] == (staged if publish else old) and new["sha256"] == digest(FIXTURE_B if publish else FIXTURE_A) and
+                            receipt_boolean(e.get("cancellationRequested")) is (arm in ("ex-cancel-before", "ex-cancel-after")) and
+                            e.get("saveCode") == ("DOC-SAVE-UNCERTAIN" if publish else "DOC-CANCELLED" if arm == "ex-cancel-before" else "DOC-CONFLICT") and
+                            e.get("expectedHash") == digest(FIXTURE_B if arm == "ex-conflict" else FIXTURE_A))
+            if invoke:
+                call = receipt_object(e.get("exCall"))
+                destination = receipt_path(call.get("destinationPath"))
+                source_path = receipt_path(call.get("sourcePath"))
+                try:
+                    byte_count = len(destination.encode("utf-16-le"))
+                except UnicodeEncodeError as error:
+                    raise ValueError("R54-UTF16") from error
+                before = receipt_snapshot(call.get("destinationBefore"))
+                receipt_require(source_path == ntpath.join(directory, "staged.bin") and destination == ntpath.join(directory, "target.bin") and
+                                receipt_identity(call.get("sourceIdentity")) == staged and call.get("sourceHash") == e["stagedHash"] and
+                                before["identity"] == old and before["sha256"] == e["oldHash"] and
+                                receipt_integer(call.get("class"), 31) == 22 and receipt_integer(call.get("flags")) == (2 if arm == "ex-no-replace" else 3) and
+                                receipt_integer(call.get("nameBytes"), 31) == byte_count and receipt_integer(call.get("bufferLength"), 31) == 24 + byte_count and
+                                receipt_boolean(call.get("returned")) is publish and "nativeError" in call)
+                if publish:
+                    receipt_require(call["nativeError"] is None)
+                else:
+                    receipt_require(receipt_integer(call["nativeError"], 31) in (80, 183))
+            else:
+                receipt_require("exCall" not in e)
+            if arm == "ex-foreign-cleanup":
+                receipt_require(receipt_boolean(e.get("cleanupRefused")) is True and e.get("foreignHash") == digest(FIXTURE_A))
+            try:
+                validate_dacl(e.get("stagedDacl"), e.get("tokenUserSid"))
+            except (AttributeError, TypeError, KeyError) as error:
+                raise ValueError("R54-DACL-SCHEMA") from error
+        else:
+            held = arm == "ancestor-list-held"
+            receipt_require(e["publication"] is False and receipt_integer(e.get("access")) == (0 if arm == "ancestor-zero" else 129) and
+                            receipt_integer(e.get("share")) == 3 and receipt_integer(e.get("flags")) == 0 and
+                            receipt_boolean(e.get("handleOpenAtCall")) is (arm != "ancestor-list-released") and
+                            receipt_boolean(e.get("moved")) is (not held) and receipt_identity(e.get("heldIdentity")) == arm_id and
+                            receipt_path(e.get("sourcePath")) == directory and receipt_path(e.get("destinationPath")) == directory + "-moved")
+            before = receipt_snapshot(e.get("sourceBefore"), directory=True)
+            receipt_snapshot(e.get("destinationBefore"), directory=True, exists=False)
+            source_after = receipt_snapshot(e.get("sourceAfter"), directory=True, exists=held)
+            destination_after = receipt_snapshot(e.get("destinationAfter"), directory=True, exists=not held)
+            observed = source_after if held else destination_after
+            receipt_require(before["identity"] == arm_id and observed["identity"] == arm_id and before["attributes"] == observed["attributes"] and "nativeError" in e)
+            if held:
+                receipt_require(receipt_integer(e["nativeError"], 31) in (5, 32))
+            else:
+                receipt_require(e["nativeError"] is None)
+
+
+def r54_fixture_rows(prefix="C:\\owned"):
+    """Synthetic producer-shaped receipts, never native Windows evidence."""
+    sid = "S-1-5-21-1-2-3-500"
+    descriptor = dict(rawSddl="O:" + sid + "D:P(A;;FA;;;" + sid + ")", ownerSid=sid, tokenUserSid=sid,
+                      daclPresent=True, daclProtected=True, aceCount=1,
+                      aces=[dict(type="AccessAllowed", qualifier="AccessAllowed", flags=0, inherited=False, mask=0x1f01ff, trusteeSid=sid)])
+    attach_synthetic_resolution(descriptor)
+    old, staged, directory_id, root_id = ["12345678:" + f"{i:016x}" for i in range(1, 5)]
+    file = lambda identity, payload: dict(exists=True, identity=identity, sha256=digest(payload), error=None)
+    folder = lambda: dict(exists=True, identity=directory_id, attributes=16, error=None)
+    absent = lambda: dict(exists=False, identity=None, attributes=None, error="2")
+    rows = []
+    for arm in DISCRIMINATION:
+        directory = ntpath.join(prefix, arm)
+        e = dict(arm=arm, directory=directory, armDirectoryIdentity=directory_id, fixtureA=digest(FIXTURE_A), fixtureB=digest(FIXTURE_B),
+                 tokenUserSid=sid, publication=False, durability=False, cleanup="all acquired handles disposed", containment="Verified disposable root only")
+        if arm.startswith("ex-"):
+            publish = arm in ("ex-replace", "ex-cancel-after", "ex-foreign-cleanup")
+            invoke = arm not in ("ex-conflict", "ex-cancel-before")
+            e.update(parentIdentities=[root_id, directory_id], oldIdentity=old, oldIdentityAfter=old, stagedIdentity=staged,
+                     oldHash=digest(FIXTURE_A), oldHashAfter=digest(FIXTURE_A), stagedHash=digest(FIXTURE_B), stagedHashAfter=digest(FIXTURE_B),
+                     targetAccess=0x80000000, targetShare=7, targetLifetime="retained through call and all observations",
+                     publication=publish, callInvoked=invoke, oldHandleOpen=True, newPath=file(staged if publish else old, FIXTURE_B if publish else FIXTURE_A),
+                     cancellationRequested=arm in ("ex-cancel-before", "ex-cancel-after"), expectedHash=digest(FIXTURE_B if arm == "ex-conflict" else FIXTURE_A),
+                     saveCode="DOC-SAVE-UNCERTAIN" if publish else "DOC-CANCELLED" if arm == "ex-cancel-before" else "DOC-CONFLICT", stagedDacl=descriptor)
+            if invoke:
+                destination = ntpath.join(directory, "target.bin")
+                length = len(destination.encode("utf-16-le"))
+                e["exCall"] = dict(sourcePath=ntpath.join(directory, "staged.bin"), destinationPath=destination, sourceIdentity=staged,
+                                   sourceHash=digest(FIXTURE_B), destinationBefore=file(old, FIXTURE_A), nameBytes=length, bufferLength=24+length,
+                                   flags=2 if arm == "ex-no-replace" else 3, returned=publish, nativeError=None if publish else 183)
+                e["exCall"]["class"] = 22
+            if arm == "ex-foreign-cleanup":
+                e.update(cleanupRefused=True, foreignHash=digest(FIXTURE_A))
+        else:
+            held = arm == "ancestor-list-held"
+            e.update(parentIdentities=[root_id], sourcePath=directory, destinationPath=directory+"-moved", access=0 if arm == "ancestor-zero" else 129,
+                     share=3, flags=0, sourceBefore=folder(), destinationBefore=absent(), heldIdentity=directory_id,
+                     handleOpenAtCall=arm != "ancestor-list-released", moved=not held, sourceAfter=folder() if held else absent(),
+                     destinationAfter=absent() if held else folder(), nativeError=32 if held else None)
+        rows.append(dict(arm=arm, status="Observed", source="s", binary="b", evidence=e))
+    return rows
+
+
+def r54_self_test():
+    rows = r54_fixture_rows()
+    cases = []
+    def negative(label, value):
+        try:
+            validate_discrimination(value, "s", "b")
+        except ValueError as error:
+            cases.append(dict(control=label, result="rejected", code=str(error)))
+        else:
+            raise AssertionError("R54-ACCEPTED-" + label)
+    for value in (None, {}, "rows", [None] * 9):
+        negative("outer-" + repr(value), value)
+    # The six original mutations remain exact, now applied to realistic positives.
+    for label, mutate in (
+        ("missing-old-identities", lambda e: [e.pop(k) for k in ("oldIdentity", "oldIdentityAfter")]),
+        ("old-identity-malformed", lambda e: e.update(oldIdentity="invented", oldIdentityAfter="invented")),
+        ("ex-call-wrong-source", lambda e: e["exCall"].update(sourceIdentity="foreign")),
+        ("ex-call-wrong-buffer", lambda e: e["exCall"].update(bufferLength=1))):
+        changed = copy.deepcopy(rows)
+        mutate(changed[0]["evidence"])
+        negative(label, changed)
+    changed = copy.deepcopy(rows)
+    changed[7]["evidence"].pop("parentIdentities")
+    negative("missing-parent-chain", changed)
+    # Declared required fields, bounded to the newly owned schema; prior DACL internals retain their own controls.
+    def paths(value, prefix=()):
+        for key, item in value.items():
+            if key == "tokenUserSid" or key == "stagedDacl":
+                continue
+            yield prefix + (key,), item
+            if type(item) is dict:
+                yield from paths(item, prefix + (key,))
+    for index, row in enumerate(rows):
+        for path, value in paths(row):
+            wrong = [None, [], {}, True, 1.0, "malformed"]
+            if type(value) is int:
+                wrong += [-1, 2 ** 64, float(value), str(value)]
+            if type(value) is bool:
+                wrong += [not value, int(value)]
+            for label, mutant in [("missing", None)] + [("wrong-" + str(i), v) for i, v in enumerate(wrong) if type(v) is not type(value) or v != value]:
+                changed = copy.deepcopy(rows)
+                parent = changed[index]
+                for part in path[:-1]:
+                    parent = parent[part]
+                if label == "missing":
+                    parent.pop(path[-1])
+                else:
+                    parent[path[-1]] = mutant
+                negative(str(index) + ":" + ".".join(path) + ":" + label, changed)
+    for index, field, value in (
+        (0, "parentIdentities", []), (0, "parentIdentities", [None]), (0, "parentIdentities", ["12345678:0000000000000099"]),
+        (0, "oldIdentityAfter", "12345678:0000000000000099"), (0, "oldHashAfter", digest(FIXTURE_B)),
+        (2, "exCall", rows[0]["evidence"]["exCall"]), (3, "exCall", None),
+        (0, "directory", "C:\\wrong\\ex-replace")):
+        changed = copy.deepcopy(rows)
+        changed[index]["evidence"][field] = value
+        negative(f"relationship-{index}-{field}", changed)
+    for field, value in (("sourceIdentity", "12345678:0000000000000099"), ("sourceHash", digest(FIXTURE_A)),
+                         ("sourcePath", "C:\\owned\\ex-replace\\foreign.bin"),
+                         ("destinationPath", "C:\\other\\ex-replace\\target.bin"),
+                         ("nameBytes", 1), ("bufferLength", 1), ("nativeError", 5)):
+        changed = copy.deepcopy(rows)
+        changed[0]["evidence"]["exCall"][field] = value
+        negative("call-relationship-" + field, changed)
+    for collision in (80, 183):
+        for denial in (5, 32):
+            changed = copy.deepcopy(rows)
+            changed[1]["evidence"]["exCall"]["nativeError"] = collision
+            changed[7]["evidence"]["nativeError"] = denial
+            validate_discrimination(changed, "s", "b")
+            cases.append(dict(control=f"valid-errors-{collision}-{denial}", result="Pass"))
+    unicode_rows = r54_fixture_rows("C:\\owned-é-🚀")
+    validate_discrimination(unicode_rows, "s", "b")
+    cases.append(dict(control="unicode-UTF16-declared-buffer", result="Pass", scope="synthetic ABI receipt; no native path admission"))
+    wrong = copy.deepcopy(unicode_rows)
+    call = wrong[0]["evidence"]["exCall"]
+    call["nameBytes"] = len(call["destinationPath"]) * 2
+    call["bufferLength"] = 24 + call["nameBytes"]
+    negative("unicode-codepoints-not-UTF16", wrong)
+    item = dict(path="C:\\owned\\denial\\target.bin", metadata=dict(identity="12345678:0000000000000001", attributes=32, links=1, size=0),
+                denied=True, error=5, access=0xc0000000, creationHandleRetained=True, sha256=None, hashStatus="Not assessed: read access denied")
+    denial_row = dict(case="denial", source="s", binary="b", status="Pass", evidence=dict(expectedDenial=item))
+    expected_denial([denial_row], "s", "b")
+    cases.append(dict(control="denial-valid", result="Pass"))
+    def deny_negative(label, changed):
+        try:
+            expected_denial(changed, "s", "b")
+        except ValueError as error:
+            cases.append(dict(control="denial-" + label, result="rejected", code=str(error)))
+        else:
+            raise AssertionError("R54-DENIAL-ACCEPTED-" + label)
+    changed = copy.deepcopy(denial_row)
+    changed["evidence"]["expectedDenial"]["metadata"].update(links=True, size=False)
+    deny_negative("bool-integer-metadata", [changed])
+    for path, value in paths(denial_row):
+        for label, mutant in [("missing", None), ("null", None), ("list", []), ("bool", True), ("float", float(value) if type(value) is int else 1.0)]:
+            if label != "missing" and type(mutant) is type(value) and mutant == value:
+                continue
+            changed = copy.deepcopy(denial_row)
+            parent = changed
+            for part in path[:-1]:
+                parent = parent[part]
+            if label == "missing":
+                parent.pop(path[-1])
+            else:
+                parent[path[-1]] = mutant
+            deny_negative(".".join(path) + ":" + label, [changed])
+    for malformed in (None, {}, [None], [{"case": "denial", "evidence": []}]):
+        deny_negative("outer-" + repr(malformed), malformed)
+    for case in cases:
+        print(json.dumps(dict(case, suite="r54-schema", scope="synthetic receipt consumer")))
+
+
+def r53_self_test():
+    rows = r54_fixture_rows()
+    validate_discrimination(rows, "s", "b")
+    print(json.dumps(dict(control="r53-consumer-positive", result="Pass", scope="synthetic only")))
+    mutations = [(0, k, v) for k, v in (("oldHandleOpen", False), ("oldHashAfter", digest(FIXTURE_B)),
+        ("oldIdentityAfter", "new"), ("publication", False), ("durability", True), ("stagedHashAfter", digest(FIXTURE_A)),
+        ("cleanup", "unknown"), ("containment", "unknown"), ("stagedDacl", {}), ("saveCode", "DOC-SAVED"))]
+    mutations += [(1, "exCall", {"class": 22, "flags": 2, "returned": False, "nativeError": 5}),
+                  (2, "callInvoked", True), (3, "callInvoked", True), (4, "cancellationRequested", False),
+                  (5, "cleanupRefused", False), (5, "foreignHash", digest(FIXTURE_B)),
+                  (6, "access", 129), (7, "access", 0), (7, "moved", True), (8, "handleOpenAtCall", True)]
+    for index, key, value in mutations:
+        changed = copy.deepcopy(rows)
+        changed[index]["evidence"][key] = value
+        try:
+            validate_discrimination(changed, "s", "b")
+        except ValueError:
+            print(json.dumps(dict(control=f"r53-consumer-{index}-{key}", result="rejected")))
+        else:
+            raise AssertionError(key)
+    # These invoke the same sequencing seam as execute, including real exceptions.
+    for fault in (None, "preconditions", "probes", "mutation"):
+        trace = []
+        def phase(name):
+            trace.append(name)
+            if name == fault:
+                raise ValueError("injected-" + name)
+        try:
+            ordered_phases(lambda: phase("preconditions"), lambda: phase("probes"), lambda: phase("mutation"))
+        except ValueError as error:
+            assert str(error) == "injected-" + fault
+        expected = ["preconditions", "probes", "mutation"]
+        assert trace == (expected if fault is None else expected[:expected.index(fault) + 1])
+        print(json.dumps(dict(control="r53-order-" + str(fault), trace=trace, result="Pass")))
+    rows = [dict(case=c, source="s", binary="b", evidence={"moved": True}) for c in CASES]
+    assert not continuation_allowed(dict(quiescent=True), rows, "s", "b", dict(status="Pass"))
+    print(json.dumps(dict(control="r53-moved-forged-inventory-pass", result="rejected")))
+    with tempfile.TemporaryDirectory(prefix="cfd-r53-denial-") as scratch:
+        root = Path(scratch)
+        target = root / "denied.bin"
+        target.write_bytes(b"")
+        meta = dict(identity="00000001:0000000000000002", attributes=32, size=0, links=1)
+        item = dict(path=str(target), metadata=meta, denied=True, error=5, access=0xc0000000,
+                    creationHandleRetained=True, sha256=None, hashStatus="Not assessed: read access denied")
+        row = dict(case="denial", source="s", binary="b", status="Pass", evidence=dict(expectedDenial=item))
+        assert expected_denial([row], "s", "b") == item
+        def denied(path):
+            error = PermissionError(13, "injected exact Windows denial")
+            error.winerror = 5
+            raise error
+        result = fixture_inventory(root, item, metadata=lambda p: meta, read=denied)
+        assert result["denied.bin"]["sha256"] is None
+        print(json.dumps(dict(control="r53-bound-denial", result="Pass", receipt=result)))
+        for label, changed, observe, reader in (
+            ("wrong-path", dict(item, path=str(root / "other")), lambda p: meta, denied),
+            ("wrong-identity", item, lambda p: dict(meta, identity="00000001:0000000000000003"), denied),
+            ("wrong-size", item, lambda p: dict(meta, size=1), denied),
+            ("unexpected-denial", None, lambda p: meta, denied),
+            ("readable", item, lambda p: meta, lambda p: b""),
+            ("metadata-failure", item, lambda p: (_ for _ in ()).throw(OSError("injected metadata")), denied)):
+            try:
+                fixture_inventory(root, changed, metadata=observe, read=reader)
+            except (ValueError, OSError):
+                print(json.dumps(dict(control="r53-denial-" + label, result="rejected")))
+            else:
+                raise AssertionError(label)
+        for key, value in (("creationHandleRetained", False), ("denied", False), ("error", 13), ("sha256", "invented")):
+            changed = copy.deepcopy(row)
+            changed["evidence"]["expectedDenial"][key] = value
+            try:
+                expected_denial([changed], "s", "b")
+            except ValueError:
+                print(json.dumps(dict(control="r53-denial-" + key, result="rejected")))
+            else:
+                raise AssertionError(key)
+        target.unlink()
+        try:
+            fixture_inventory(root, item, metadata=lambda p: meta, read=denied)
+        except ValueError:
+            print(json.dumps(dict(control="r53-denial-missing", result="rejected")))
+        else:
+            raise AssertionError("missing denial")
 
 
 def continuation_allowed(native, rows, source, binary, containment):
@@ -875,6 +1357,21 @@ def execute(out, manifest, source, env, windows, runner, summary):
     summary.update(binary=binary, binary_files=binary_files, sdk=version.strip())
     write_json(out / "binary-manifest.json", dict(binary=binary, files=binary_files))
     env = dict(env, W0_SOURCE=source)
+    layout, layout_output = run("layout-controls", [str(executable), "--layout-controls"])
+    layout_row = json.loads(layout_output)
+    summary["layout_controls"] = layout_row
+    if layout["exit"] != 0:
+        raise ValueError("R53-LAYOUT-FAILED")
+    validate_layout(layout_row, source, binary)
+    summary["layout_mutations"] = []
+    for key, value in (("flags", 1), ("infoClass", 3), ("offsets", [0, 4, 12, 16]), ("structSize", 20), ("bufferHex", "00"), ("binary", "wrong")):
+        changed = dict(layout_row, **{key: value})
+        try:
+            validate_layout(changed, source, binary)
+        except ValueError:
+            summary["layout_mutations"].append(dict(control=key, result="rejected"))
+        else:
+            raise ValueError("R53-LAYOUT-MUTANT-ACCEPTED")
     controls, control_output = run("diagnostic-controls", [str(executable), "--diagnostic-controls"])
     control_rows = [json.loads(line) for line in control_output.splitlines()]
     summary["diagnostic_controls"] = control_rows
@@ -931,59 +1428,84 @@ def execute(out, manifest, source, env, windows, runner, summary):
         (out / name).write_bytes(fixture)
     runenv = dict(env, W0_SOURCE=source)
     env = runenv
-    native, output = run("native", [str(executable), str(out / "native-fixtures"), str(out / "fixture-a.bin"), str(out / "fixture-b.bin")])
-    summary["stage"] = "parse-native-rows"
-    rows = [json.loads(line) for line in output.splitlines()]
-    summary["rows"] = rows
-    write_json(out / "rows.json", rows)
-    qualified = consume_rows(rows, source, binary, summary)
-    summary["native_exit"] = native["exit"]
-    summary["native_qualification"] = "Fail" if summary["errors"] or any(r["status"] == "Fail" for r in rows) or native["exit"] not in (0, 3) else "Pass" if qualified and windows and native["exit"] == 0 else "Not assessed"
-    containment = dict(status="Not assessed", reason="non-Windows host" if not windows else "native process not quiescent")
-    if windows and native.get("quiescent") is True:
-        try:
-            inventory = fixture_inventory(out / "native-fixtures")
-            containment = dict(status="Pass", scope="post-job disposable fixture inventory only", inventory=inventory)
-        except (OSError, ValueError) as error:
-            containment = dict(status="Fail", reason=str(error))
-            summary["errors"].append(dict(stage="containment", code=str(error)))
-    summary["containment"] = containment
-    if (out / "fixture-a.bin").read_bytes() != FIXTURE_A or (out / "fixture-b.bin").read_bytes() != FIXTURE_B:
-        raise ValueError("W0-INPUT-MUTATED")
-    safe = windows and continuation_allowed(native, rows, source, binary, containment)
-    if safe:
+    def preconditions():
         verify_sources(ROOT, manifest)
-    for probe in ("tree-timeout", "observer-fault", "uia-capability"):
-        summary["probes"][probe] = dict(status="Not assessed", reason="non-Windows host" if not windows else "ownership/fixture containment prerequisite refused" if not safe else "prior probe did not complete")
-    if safe:
-        tree, _ = run("tree-timeout", [str(executable), "--tree-root"], timeout=5)
-        validate_tree(tree, binary_files[executable.name])
-        if not tree["timeout"] or tree["exit"] != 124:
-            raise ValueError("W0-TIMEOUT-NOT-OBSERVED")
-        summary["probes"]["tree-timeout"] = dict(status="Pass")
-        try:
-            run("observer-fault", [str(executable), "--tree-root"], timeout=5, observer_fault=True)
-        except ValueError as error:
-            if str(error) != "W0-INJECTED-OBSERVER-FAILURE":
-                raise
-            fault = json.loads((out / "observer-fault/process.json").read_text(encoding="utf-8"))
-            if fault["quiescent"] is not True:
-                raise ValueError("W0-FAULT-CLEANUP-NOT-OBSERVED")
-        else:
-            raise ValueError("W0-OBSERVER-FAULT-ACCEPTED")
-        summary["probes"]["observer-fault"] = dict(status="Pass")
-        powershell = shutil.which("powershell.exe")
-        if not powershell:
-            raise ValueError("W0-UIA-PROBE-UNAVAILABLE")
-        uia, uia_output = run("uia-capability", [powershell, "-NoProfile", "-NonInteractive", "-Command",
-             "[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $ErrorActionPreference='Stop'; Add-Type -AssemblyName UIAutomationClient; "
-             "$r=[System.Windows.Automation.AutomationElement]::RootElement; "
-             "@{rootName=$r.Current.Name; childCount=$r.FindAll([System.Windows.Automation.TreeScope]::Children,"
-             "[System.Windows.Automation.Condition]::TrueCondition).Count; "
-             "userInteractive=[Environment]::UserInteractive; sessionId=(Get-Process -Id $PID).SessionId} | ConvertTo-Json -Compress"])
-        if uia["exit"] != 0:
-            raise ValueError("W0-UIA-PROBE-FAILED")
-        summary["probes"]["uia-capability"] = dict(status="Observed", evidence=json.loads(uia_output))
+        if any(digest((executable.parent / name).read_bytes()) != value for name, value in binary_files.items()):
+            raise ValueError("R53-PRE-PROBE-BINARY-DRIFT")
+        if (out / "fixture-a.bin").read_bytes() != FIXTURE_A or (out / "fixture-b.bin").read_bytes() != FIXTURE_B:
+            raise ValueError("R53-PRE-PROBE-INPUT-DRIFT")
+
+    def independent_probes():
+        for probe in ("tree-timeout", "observer-fault", "uia-capability"):
+            summary["probes"][probe] = dict(status="Not assessed", reason="non-Windows host" if not windows else "prior probe did not complete")
+        if windows:
+            tree, _ = run("tree-timeout", [str(executable), "--tree-root"], timeout=5)
+            validate_tree(tree, binary_files[executable.name])
+            if not tree["timeout"] or tree["exit"] != 124:
+                raise ValueError("W0-TIMEOUT-NOT-OBSERVED")
+            summary["probes"]["tree-timeout"] = dict(status="Pass")
+            try:
+                run("observer-fault", [str(executable), "--tree-root"], timeout=5, observer_fault=True)
+            except ValueError as error:
+                if str(error) != "W0-INJECTED-OBSERVER-FAILURE":
+                    raise
+                fault = json.loads((out / "observer-fault/process.json").read_text(encoding="utf-8"))
+                if fault["quiescent"] is not True:
+                    raise ValueError("W0-FAULT-CLEANUP-NOT-OBSERVED")
+            else:
+                raise ValueError("W0-OBSERVER-FAULT-ACCEPTED")
+            summary["probes"]["observer-fault"] = dict(status="Pass")
+            powershell = shutil.which("powershell.exe")
+            if not powershell:
+                summary["probes"]["uia-capability"] = dict(status="Not assessed", reason="PowerShell unavailable")
+                return
+            uia, uia_output = run("uia-capability", [powershell, "-NoProfile", "-NonInteractive", "-Command",
+                 "[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $ErrorActionPreference='Stop'; Add-Type -AssemblyName UIAutomationClient; "
+                 "$r=[System.Windows.Automation.AutomationElement]::RootElement; "
+                 "@{rootName=$r.Current.Name; childCount=$r.FindAll([System.Windows.Automation.TreeScope]::Children,"
+                 "[System.Windows.Automation.Condition]::TrueCondition).Count; "
+                 "userInteractive=[Environment]::UserInteractive; sessionId=(Get-Process -Id $PID).SessionId} | ConvertTo-Json -Compress"])
+            if uia["exit"] != 0:
+                summary["probes"]["uia-capability"] = dict(status="Not assessed", reason="UIA capability probe failed", exit=uia["exit"])
+                return
+            summary["probes"]["uia-capability"] = dict(status="Observed", evidence=json.loads(uia_output))
+
+    def mutations():
+        if windows:
+            candidate, candidate_output = run("discrimination", [str(executable), "--discrimination", str(out / "discrimination-fixtures"), str(out / "fixture-a.bin"), str(out / "fixture-b.bin")])
+            candidate_rows = [json.loads(line) for line in candidate_output.splitlines()]
+            summary["discrimination"] = candidate_rows
+            write_json(out / "discrimination.json", candidate_rows)
+            if candidate["exit"] != 0 or len(candidate_rows) != 9 or any(r.get("status") in ("Unsafe", "Not assessed") for r in candidate_rows):
+                raise ValueError("R53-DISCRIMINATION-SAFETY-REFUSED")
+            try:
+                validate_discrimination(candidate_rows, source, binary)
+            except ValueError as error:
+                summary["errors"].append(dict(stage="discrimination", code=str(error)))
+            summary["discrimination_inventory"] = fixture_inventory(out / "discrimination-fixtures")
+        native, output = run("native", [str(executable), str(out / "native-fixtures"), str(out / "fixture-a.bin"), str(out / "fixture-b.bin")])
+        summary["stage"] = "parse-native-rows"
+        rows = [json.loads(line) for line in output.splitlines()]
+        summary["rows"] = rows
+        write_json(out / "rows.json", rows)
+        qualified = consume_rows(rows, source, binary, summary)
+        summary["native_exit"] = native["exit"]
+        summary["native_qualification"] = "Fail" if summary["errors"] or any(r["status"] == "Fail" for r in rows) or native["exit"] not in (0, 3) else "Pass" if qualified and windows and native["exit"] == 0 else "Not assessed"
+        containment = dict(status="Not assessed", reason="non-Windows host" if not windows else "native process not quiescent")
+        if windows and native.get("quiescent") is True:
+            try:
+                inventory = fixture_inventory(out / "native-fixtures", expected_denial(rows, source, binary))
+                containment = dict(status="Pass", scope="post-job disposable fixture inventory only", inventory=inventory)
+            except (OSError, ValueError) as error:
+                containment = dict(status="Fail", reason=str(error))
+                summary["errors"].append(dict(stage="containment", code=str(error)))
+        summary["containment"] = containment
+        if (out / "fixture-a.bin").read_bytes() != FIXTURE_A or (out / "fixture-b.bin").read_bytes() != FIXTURE_B:
+            raise ValueError("W0-INPUT-MUTATED")
+        summary["post_mutation_continuation_allowed"] = windows and continuation_allowed(native, rows, source, binary, containment)
+
+    summary["phase_trace"] = []
+    ordered_phases(preconditions, independent_probes, mutations, summary["phase_trace"])
 
 
 if __name__ == "__main__":
