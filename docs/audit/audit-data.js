@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:06:03Z",
+  "generated": "2026-09-25T06:16:56Z",
   "audit": [
     {
       "actor": null,
@@ -8442,6 +8442,42 @@ window.AUDIT_DATA = {
         "sha": "d5db7b5a8990dd65f31b196e4e2992b0f2784353",
         "short": "d5db7b5a8",
         "branch": "feature/owned-conductor-preflight",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BKBDABHDRDVS97F42FWEJN",
+      "shortname": "implement-owned-conductor-receipts",
+      "datetime": "2026-09-25T06:16:56Z",
+      "session": "cfd-owned-receipt-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete. R49 authorizes strict complete refusal evidence correction within exact three paths.",
+      "summary": "R49 three-path correction; new real-CLI regression red before fix. Invalid numeric diagnostic strings, strict serializer both events, standard equals syntax normalized duplicate checks. 58 cases PASS,6 nonfinite CLI cases each exit12, zero authority/child, two strict events and receipt reuse unchanged. Strict injection/duplicate control. Portable/UTF8 clean; independent adoption pending, no live join. Source6d7165e3; raw /private/tmp/cfd-owned-conductor-r49-self-test.json SHA00f81e1d. Effective model/tokens/cost not recorded; measured run marker. V16 canonical propagation remains Coordinator assignment.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/run-owned-conductor.py",
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Close the independently reproduced CLI nonfinite refusal receipt gap",
+      "done_when": "Strict intent/final JSON, six real CLI nonfinite cases with no leader or conductor, preserved51 prior cases and independent review",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-09-25T06:13:01Z",
+      "duration_seconds": 235.0,
+      "git": {
+        "sha": "36c43f5ffe522aac91053b5a9a96c41d2b1134a2",
+        "short": "36c43f5ff",
+        "branch": "feature/owned-conductor-receipt",
         "pushed": null
       }
     }

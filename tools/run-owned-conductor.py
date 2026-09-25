@@ -195,6 +195,11 @@ def parser():
     return result
 
 
+def encode_event(value):
+    """Both intent and outcome obey strict JSON; nonfinite facts never serialize."""
+    return json.dumps(value, sort_keys=True, allow_nan=False) + "\n"
+
+
 def main(argv):
     if argv == ["--self-test"]:
         return self_test()
@@ -204,18 +209,21 @@ def main(argv):
         print("OC-SEPARATOR: conductor arguments must follow --", file=sys.stderr)
         return 2
     prefix = argv[:split]
-    keys = [word for word in prefix if word.startswith("--")]
-    if len(keys) != len(set(keys)) or any("=" in key for key in keys):
+    # Standard --option=value accepts -inf as a value; normalize before duplicate checks.
+    keys = [word.split("=", 1)[0] for word in prefix if word.startswith("--")]
+    if len(keys) != len(set(keys)):
         print("OC-DUPLICATE-OPTION", file=sys.stderr)
         return 2
     expected = parser().parse_args(prefix)
-    receipt = {"schema": "owned-conductor/1", "expected": vars(expected), "commands": [],
+    requested = {key: str(value) if isinstance(value, float) and not math.isfinite(value) else value
+                 for key, value in vars(expected).items()}
+    receipt = {"schema": "owned-conductor/1", "expected": requested, "commands": [],
                "started_at": time.time(), "tokens": "not recorded", "cost": "not recorded"}
     start = time.monotonic()
     try:
         # Exclusive creation makes history append-only at the attempt boundary.
         with Path(expected.receipt).open("x", encoding="utf-8", newline="\n") as output:
-            output.write(json.dumps(receipt) + "\n")
+            output.write(encode_event(receipt))
             output.flush()
             try:
                 code = attempt(expected, argv[split + 1:], receipt)
@@ -226,7 +234,7 @@ def main(argv):
             receipt["ended_at"] = time.time()
             receipt["duration_seconds"] = time.monotonic() - start
             # Two append-only events: intent and final observation. No overwrite.
-            output.write(json.dumps(receipt, sort_keys=True, allow_nan=False) + "\n")
+            output.write(encode_event(receipt))
         print(json.dumps({"receipt": expected.receipt, "exit": code,
                           "refusal": receipt.get("refusal")}))
         return code
@@ -372,6 +380,45 @@ def self_test():
             facts = [json.loads(line) for line in (base / "positive.jsonl").read_text(encoding="utf-8").splitlines()]
             assert facts[-1]["conductor"]["exit"] == 7 and facts[-1]["leader"]["state"] == "live"
             results.append({"case": "real-cli-live-exit-preserved", "exit": 7, "conductor_calls": 1})
+            (tree / "invoked").unlink()
+            (scripts / "coord-core.py").write_text(
+                "from pathlib import Path\nPath('leader-invoked').write_text('bad',encoding='utf-8')\nraise SystemExit(99)\n",
+                encoding="utf-8", newline="\n")
+            for budget in ("min-remaining", "conductor-timeout"):
+                for invalid in ("nan", "inf", "-inf"):
+                    invalid_path = base / (budget + invalid + ".jsonl")
+                    invalid_cli = list(positive)
+                    index = invalid_cli.index("--" + budget)
+                    invalid_cli[index:index + 2] = ["--" + budget + "=" + invalid]
+                    invalid_cli[invalid_cli.index("--receipt") + 1] = str(invalid_path)
+                    row = command(invalid_cli, tree, dict(env, AGENT_SESSION="fixture"), 15)
+                    assert row["exit"] == 12 and invalid_path.is_file(), (budget, invalid, row)
+                    def reject_constant(value):
+                        raise AssertionError("nonstandard JSON number: " + value)
+                    events = [json.loads(line, parse_constant=reject_constant)
+                              for line in invalid_path.read_text(encoding="utf-8").splitlines()]
+                    assert len(events) == 2 and events[-1]["refusal"] == "OC-POSITIVE-BUDGET"
+                    assert events[-1]["commands"] == [] and "conductor" not in events[-1]
+                    assert not (tree / "leader-invoked").exists() and not (tree / "invoked").exists()
+                    preserved = invalid_path.read_bytes()
+                    assert command(invalid_cli, tree, dict(env, AGENT_SESSION="fixture"), 15)["exit"] == 12
+                    assert invalid_path.read_bytes() == preserved
+                    results.append({"case": "real-cli-" + budget + "-" + invalid,
+                                    "exit": row["exit"], "conductor_calls": 0, "leader_calls": 0})
+            for value in (float("nan"), float("inf"), float("-inf")):
+                try:
+                    encode_event({"injected_nonfinite_fact": value})
+                except ValueError:
+                    pass
+                else:
+                    raise AssertionError("strict serializer allowed a nonstandard number")
+            duplicate = list(positive)
+            duplicate[duplicate.index("--receipt") + 1] = str(base / "duplicate.jsonl")
+            duplicate[duplicate.index("--"):duplicate.index("--")] = ["--epoch=20"]
+            assert command(duplicate, tree, dict(env, AGENT_SESSION="fixture"), 15)["exit"] == 2
+            assert not (base / "duplicate.jsonl").exists() and not (tree / "leader-invoked").exists()
+            results.append({"case": "strict-serializer-and-normalized-duplicate", "exit": 2,
+                            "conductor_calls": 0, "leader_calls": 0})
             timed = command([sys.executable, "-c", "import time; time.sleep(2)"], tree, env, .05)
             assert timed["error"] == "OC-PROCESS-TIMEOUT" and not timed["cleanup_error"]
             results.append({"case": "owned-timeout", "exit": timed["exit"], "conductor_calls": 0})

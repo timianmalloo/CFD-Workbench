@@ -837,6 +837,20 @@ allow for its five owned paths. That bounds ownership after the fact; it does
 not turn the original hook into enforcement. All wrapper launches bind the
 environment identity, and all commit shells must still prefix Git mutations.
 
+**TEST-CLI-RECEIPT · Helper-only input tests miss the actual refusal surface.**
+R46's helper tests rejected nonfinite budgets, but the real CLI wrote a nonstandard
+`NaN` intent and failed before its final refusal event. Root and independent
+Owner reproduced exit 12 with no authority or conductor activity and an incomplete
+receipt. Sweep: inspect both budget fields, positive/negative infinity, argparse
+negative-value handling, both event serializers and receipt reuse. Derive: a
+helper rejection is not input-to-evidence integrity. Prevent: R49 real-CLI fixtures
+for all six inputs strictly decode every event, require a complete stable refusal,
+prove zero leader/conductor effects and unchanged bytes on reuse. A direct strict
+serializer injection and normalized duplicate-option test cover the seams the
+repair changes. Invalid numbers are explicit diagnostic strings, never plausible
+replacement budgets. These controls prevent malformed refusal evidence; they do
+not grant live-leader or product acceptance.
+
 **CI-ACTIONS-CONTEXT · A syntactically valid workflow uses a context where it
 is unavailable.** Ruling 43's disposable Windows workflow placed three
 `runner.temp` references in job-level `env`. Local checks and author,

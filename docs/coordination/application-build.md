@@ -515,3 +515,38 @@ contracts; Windows wrapper execution, atomic leadership and successful productio
 joins are not established. Exact hash and final documentation/audit results are
 recorded at handoff. Coordinator/Owner independent acceptance remains pending;
 root has not self-cleared SRE/Test/Security or adopted the wrapper for a live join.
+
+### R49 strict refusal receipt correction
+
+Independent Coordinator and Owner review confirmed the 51 R46 cases, then root
+and Owner separately reproduced a real CLI gap: a nonfinite budget was refused
+before any leader/conductor action, but its intent contained nonstandard `NaN`
+and its final receipt failed to serialize. R49 holds live adoption until this
+input-to-receipt boundary is independently verified. The same three authored
+surfaces are affected; no managed tool or product contract changes.
+
+The correction preserves invalid parsed numbers as explicit strings in diagnostic
+expected-input fields, while the validator still receives and rejects the actual
+nonfinite numeric values. Both events use one strict JSON serializer. Finite
+budgets keep numeric semantics. Standard `--option=value` syntax handles negative
+infinity without confusing it with an option; duplicate detection normalizes
+option names first, preserving the session/epoch override refusal.
+
+The regression tests execute the real CLI for `nan`, `inf` and `-inf` in both
+budgets. Every case must retain two strictly decoded JSON events, stable
+`OC-POSITIVE-BUDGET`, empty commands and zero stub leader/conductor effects;
+attempted receipt reuse must preserve all original bytes. A direct nonfinite
+injection must fail strict serialization; mixed `--epoch VALUE`/`--epoch=VALUE`
+must still refuse. The original 51 controls remain required. Initial new tests
+were observed RED at the CLI option boundary; the original malformed-NaN
+receipt is separately retained by root and Owner. Independent adoption pending.
+
+R49 author result: **58 cases PASS**, including all 51 prior cases, six real CLI
+nonfinite-budget cases and the strict-serializer/normalized-duplicate control.
+All six new CLI cases returned 12 with zero leader/conductor calls, two strict
+JSON events and unchanged receipt bytes on reuse. The duplicate test returned 2
+before any receipt or authority call. Portable-text and subprocess-UTF8 passed.
+Source SHA-256: `6d7165e301d51a417cdf0c237f29483450e54fbc06473c1b1a604cd55517e74f`.
+Raw result `/private/tmp/cfd-owned-conductor-r49-self-test.json`, SHA-256
+`00f81e1d03b785f78aa715f076e38376e182024785e0c269cf1b3f4fe11069e7`.
+These are author observations, not independent adoption or a live join result.
