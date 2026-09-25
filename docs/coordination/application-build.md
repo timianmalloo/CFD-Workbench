@@ -309,13 +309,14 @@ platform, timing or section claim and retains the native veto. The next seats ar
 | C contrast, existing native author | Ruling 39 and clean isolated `d774e1e` | Measure the actual High Contrast NumericInput focused paint, repair only the four ruled paths, retain RED/GREEN and one eligible package gate. This is the current author seat. | Root repeats the failing native action on the exact new package; Owner then rules on C integration. |
 | Windows route/design, Coordinator with Owner technical ruling; implementation author not yet assigned | Approved Windows-in-M1 placement; named native/store/runtime contracts | Qualify a real Windows x64 runner and a separate interactive desktop review route; freeze persistence, process, UI and CI path ownership before code. Hosted CI is a candidate for unattended tests only. | Real Windows runtime, file fault/identity, UIA/Narrator and numerical parity; cross-publish is insufficient. |
 | Visible timing contract, Coordinator with Owner technical ruling; implementation author not yet assigned | Approved timing-in-M1 placement; current batch-cycle limitation documented | Specify and spike an observed final on-screen endpoint and the stated workload/device, with uncertainty and stale/cancel controls. Do not collect budget trials against a proxy endpoint. | Cold ≤5 s and edit ≤100 ms p95, Preview/Cancel ≤250 ms p95 on each required host; root independently reviews raw trials and visible correctness. |
-| Section authoring design, future design author selected by Owner | Approved named M1.1 placement; current FoilDSL and one-profile invariants | Detailed multi-profile aggregate, source/history, construction, scope, UX and validation design; no C author file overlap. | Independent scientific, Data, UX and Test review before implementation; it is not an M1 exit dependency. |
+| Section authoring design, future session only | Approved named M1.1 placement; user explicitly stopped this session before the full editor | No author or design work on the full section editor in this session. Carry its source/history, multi-profile, construction, scope, UX and validation design into a new session. | Independent scientific, Data, UX and Test review precede later implementation; not an M1 exit dependency. |
 
 At the R38 planning checkpoint, only the C contrast author occupied an implementation seat. Windows route
 qualification and timing endpoint definition are dependency-ready planning
 nodes, but implementation waits for exact-path decisions and available seats.
-Section design can advance separately when a seat is available; it cannot be
-silently merged into the narrow C lease. Fan-out remains at most three active
+The earlier plan allowed section design when a seat became available; the
+user's later stop instruction removes that node from this session. It cannot
+be silently merged into the narrow C lease. Fan-out remains at most three active
 agents including root, and no author clears their own independent veto.
 
 The attachment branch and R38 authoring ran independently without sharing
@@ -369,3 +370,15 @@ and the conductor's ruling-citation and 11 other gates passed. Future Owner
 rulings get a short serial register-write window before a conductor merge
 starts or after it pauses; the Coordinator inspects the append before staging.
 No Owner session writes the leader tree's index or product source directly.
+
+**Current user stop, 2026-09-25:**
+
+> stop before the full section editor (we will do that in a new session)
+> get the other tasks before that complete
+
+The exact two-line text was captured by [audit prompt](../audit/audit-log.jsonl)
+`al-01M3BD0DKP27QB66KMDW5TWYT2`. Keep Windows W0/W1/W2/W3, actual
+visible timing, C integration and remaining M1 verification active. Do not
+start M1.1 section-editor design, code or a new section worker here. Stop this
+session before that editor; a future session may pick up the approved named
+M1.1 milestone after this work.

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:23:49Z",
+  "generated": "2026-09-25T04:27:19Z",
   "audit": [
     {
       "actor": null,
@@ -7547,6 +7547,52 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:23:48Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BD0DKP27QB66KMDW5TWYT2",
+      "shortname": "Stop before full section editor",
+      "datetime": "2026-09-25T04:26:04Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
+      "summary": "User directs this session to finish other tasks and stop before the full section editor; that editor belongs to a new session.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3BD2KKDTDB1TWR5P4F6SWQ9",
+      "shortname": "stop-before-section-editor",
+      "datetime": "2026-09-25T04:27:16Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
+      "summary": "Recorded exact user stop in prompt log and current plan/HTML; continue Windows x64, visible timing and remaining M1 verification, but do not start full section-editor design or implementation in this session. The approved M1.1 placement remains for a new session. Windows W0 continues isolated and root timing research is docs-only joined.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/application-build.md",
+        "docs/coordination/application-build.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Apply user stop boundary to active M1 graph without dropping other M1 obligations",
+      "done_when": "Section-editor node removed from this session; current Windows/timing tracks retained and prompt logged verbatim",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T04:27:03Z",
+      "duration_seconds": 13.0,
+      "git": {
+        "sha": "582373dd11914fa1f05df8708168fae3f6818796",
+        "short": "582373dd1",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

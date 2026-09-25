@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="b052d22c23ef6a472737f963ad792306ac28cba4786eed7c7f26ef2a0ace21d9">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="48aba2e3e21236495ce910b61d972f5ab893fa091cc1379647854575bc5d7710">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -652,17 +652,18 @@ platform, timing or section claim and retains the native veto. The next seats ar
 <td>Cold ≤5 s and edit ≤100 ms p95, Preview/Cancel ≤250 ms p95 on each required host; root independently reviews raw trials and visible correctness.</td>
 </tr>
 <tr>
-<td>Section authoring design, future design author selected by Owner</td>
-<td>Approved named M1.1 placement; current FoilDSL and one-profile invariants</td>
-<td>Detailed multi-profile aggregate, source/history, construction, scope, UX and validation design; no C author file overlap.</td>
-<td>Independent scientific, Data, UX and Test review before implementation; it is not an M1 exit dependency.</td>
+<td>Section authoring design, future session only</td>
+<td>Approved named M1.1 placement; user explicitly stopped this session before the full editor</td>
+<td>No author or design work on the full section editor in this session. Carry its source/history, multi-profile, construction, scope, UX and validation design into a new session.</td>
+<td>Independent scientific, Data, UX and Test review precede later implementation; not an M1 exit dependency.</td>
 </tr>
 </tbody></table></div>
 <p>At the R38 planning checkpoint, only the C contrast author occupied an implementation seat. Windows route
 qualification and timing endpoint definition are dependency-ready planning
 nodes, but implementation waits for exact-path decisions and available seats.
-Section design can advance separately when a seat is available; it cannot be
-silently merged into the narrow C lease. Fan-out remains at most three active
+The earlier plan allowed section design when a seat became available; the
+user&#39;s later stop instruction removes that node from this session. It cannot
+be silently merged into the narrow C lease. Fan-out remains at most three active
 agents including root, and no author clears their own independent veto.</p>
 <p>The attachment branch and R38 authoring ran independently without sharing
 production paths. Fresh-build trial 1 used the R38 full-gate package; a second
@@ -711,4 +712,15 @@ and the conductor&#39;s ruling-citation and 11 other gates passed. Future Owner
 rulings get a short serial register-write window before a conductor merge
 starts or after it pauses; the Coordinator inspects the append before staging.
 No Owner session writes the leader tree&#39;s index or product source directly.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>b052d22c23ef6a472737f963ad792306ac28cba4786eed7c7f26ef2a0ace21d9</code>.</p></footer></main></body></html>
+<p><strong>Current user stop, 2026-09-25:</strong></p>
+<blockquote>
+<p>stop before the full section editor (we will do that in a new session)
+get the other tasks before that complete</p>
+</blockquote>
+<p>The exact two-line text was captured by <a href="../audit/audit-log.jsonl">audit prompt</a>
+<code>al-01M3BD0DKP27QB66KMDW5TWYT2</code>. Keep Windows W0/W1/W2/W3, actual
+visible timing, C integration and remaining M1 verification active. Do not
+start M1.1 section-editor design, code or a new section worker here. Stop this
+session before that editor; a future session may pick up the approved named
+M1.1 milestone after this work.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>48aba2e3e21236495ce910b61d972f5ab893fa091cc1379647854575bc5d7710</code>.</p></footer></main></body></html>

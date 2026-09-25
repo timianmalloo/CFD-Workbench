@@ -31,8 +31,14 @@ to the [single three-part decision](../notes/m1-scope-decision.md): real Windows
 x64 runtime and actual on-screen cold/edit/Preview/Cancel budgets remain in M1;
 the full section editor is named M1.1 Section authoring. This is a placement
 decision, not evidence that either M1 gate passes. The [coordination
-tracks](../coordination/application-build.md) stage Windows route qualification,
-visible-endpoint proof and M1.1 design with separate ownership and review.
+tracks](../coordination/application-build.md) stage Windows route qualification
+and visible-endpoint proof. M1.1 remains the named later increment.
+
+**Session stop boundary, 2026-09-25 UTC:** the user's two-line follow-up
+is logged verbatim as `al-01M3BD0DKP27QB66KMDW5TWYT2`. This session must complete
+the remaining M1 Windows, visible-timing and verification work and then stop
+before full section-editor design or implementation. The approved M1.1
+placement remains recorded for a new session; it is not a task to dispatch now.
 
 **End-to-end surface list:** file envelope and append-only project records → accepted lossless source and immutable Surface/Profile revisions → parser, validation, evaluator and semantic identity → GUI/CLI application services → typed UI projection and native viewport/section → no analysis compute reader in M1 (show Unavailable). Every changed identity crosses save/reopen, undo/redo and CLI. An inspection slice remains derived; no second editable channel table may appear.
 

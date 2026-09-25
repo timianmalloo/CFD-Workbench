@@ -2179,7 +2179,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
         }
       ],
-      "sourceSha256": "b969b05559956cda90bb321b4bd12162afcb7af710a03a6da98ac58ac287fbf9"
+      "sourceSha256": "9762a62b64cdc905cd12d73297aafdd987f717a87a99f1ec0a6ee2b50960483c"
     },
     {
       "id": "plan-authoring-decisions",
@@ -4204,7 +4204,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b052d22c23ef6a472737f963ad792306ac28cba4786eed7c7f26ef2a0ace21d9"
+      "sourceSha256": "48aba2e3e21236495ce910b61d972f5ab893fa091cc1379647854575bc5d7710"
     },
     {
       "id": "coordination-contract-b-core",
@@ -5958,5 +5958,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d93ae4400b051444a42cbefe5c3a1e8934032cb9b8f75489ee879d37ebf87f95"
+  "graphSha256": "c86714f8608ef566a425742ac9701b5c4fe357a76af4675b27d06cac00f4d089"
 };
