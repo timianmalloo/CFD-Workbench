@@ -20,6 +20,7 @@ summary: >-
   Remaining native theme, performance and accessibility obligations keep C and M1 open.
 review-suggested:
   - { by: investigation-review-window-attach, on: 2026-09-24, reason: "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred." }
+  - { by: architecture-application, on: 2026-09-24, reason: "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims." }
 ---
 
 # Independent native application review

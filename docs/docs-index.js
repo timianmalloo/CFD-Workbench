@@ -996,7 +996,18 @@ window.DOCS_INDEX = {
       "owner": "@owner",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "architecture-application",
+          "on": "2026-09-24",
+          "reason": "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims."
+        },
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-24",
+          "reason": "Approved Windows/timing M1 and section M1.1 placement plus R39 native veto changed the coordination gates; review dependent status and handoffs."
+        }
+      ],
       "summary": "The user approved Windows x64 runtime and measured on-screen budgets in M1 and placed the full section editor in M1.1. Native and platform proof remain open.",
       "tags": [
         "decision-note",
@@ -1028,7 +1039,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0ad7d493ed2395d0c2e68300c933f5639922e270a04132b108035e45f3bb9c1d"
+      "sourceSha256": "240ec04147891fad8f0ceb89e30ce1bc5252bd9650589eee7da139fd771d43f5"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -3090,7 +3101,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-focus-20260924",
       "phase": "",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "plan-application-build",
+          "on": "2026-09-24",
+          "reason": "Approved M1 Windows and visible-timing gates plus named M1.1 section design changed this execution plan; review dependent status and gates."
+        }
+      ],
       "summary": "Reproduced global CUA attachment failure and recovered the unchanged process by resetting the supported CUA session. Two consecutive fresh builds passed the reset/readiness protocol without human foregrounding; internal CUA state remains inferred.",
       "tags": [
         "native-ui",
@@ -3112,7 +3129,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4dcec072611a4ae53e4939cc874daebeba1ab27d8622d88999c5a9fa87009dd5"
+      "sourceSha256": "49075dfa346e1458edc2a94d4a26bd4852e575a0a1c40545bca947d6dd4273e9"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -5083,6 +5100,11 @@ window.DOCS_INDEX = {
           "by": "investigation-review-window-attach",
           "on": "2026-09-24",
           "reason": "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-24",
+          "reason": "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims."
         }
       ],
       "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining native theme, performance and accessibility obligations keep C and M1 open.",
@@ -5124,7 +5146,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ffebaf515519800535e8e1dddd252b24e6a7991025e5f03a470656ba6404a2fe"
+      "sourceSha256": "5d89753e236899b41b428bb15917bb3d36ed0426d66be454f41dba75fb408f74"
     },
     {
       "id": "review-ui-workbench",
@@ -5684,5 +5706,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "380925a9667d1282191ca16027ea4e35862ed1e8f52d90bd5916e309eae0a9dc"
+  "graphSha256": "4c3024a742904b82a21cec0ddb24219b184ff9d7ca1b2bc28a2763f4150e46c6"
 };

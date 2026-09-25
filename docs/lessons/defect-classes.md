@@ -663,6 +663,19 @@ each destination commit, and notify the reviewer to reclaim only after the
 final clean destination HEAD and conductor gate receipt. The refusal remains a
 valid control observation, not a product failure.
 
+**CO-LEASE recurrence · A pre-join inbound inventory misses a post-join neighbor.**
+During the M1 scope V16 sweep, the Coordinator claimed the inbound file list
+computed before joining the attachment investigation. The official `flag`
+operation then wrote that newly joined investigation's frontmatter without an
+advance exact-file claim. No conflicting lease existed; the Coordinator noticed
+the changed path, claimed it, and re-enumerated the full inbound set before the
+next mutation. Derive: a graph inventory is valid only for the current joined
+tree, not for its pre-merge parent. Prevent: the always-read coordination plan
+requires a fresh `docs-graph.py` inbound inventory and exact `coord check`/
+claims **after every join** and immediately before a flag sweep. Stop before
+the first mutation if any new neighbor is unclaimed; restore only the generated
+register frontmatter delta when `rulings` is inbound.
+
 **CO-EXIT · A dependent join step runs after its prerequisite fails.** The core
 handoff initially batched `git commit --no-edit` and conductor continuation;
 the commit was refused by the live review lease, but the conductor still ran

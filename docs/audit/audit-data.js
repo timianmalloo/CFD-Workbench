@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T03:51:59Z",
+  "generated": "2026-09-25T03:55:19Z",
   "audit": [
     {
       "actor": null,
@@ -7283,6 +7283,41 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T03:51:59Z",
       "duration_seconds": 0.0
+    },
+    {
+      "id": "al-01M3BB83JC5M25QQ1VHVJSNC9N",
+      "shortname": "Propagate approved M1 scope to inbound non-register docs",
+      "datetime": "2026-09-25T03:55:19Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Finish the approved-scope non-register V16 propagation after joining the attachment investigation; preserve the Owner ruling register.",
+      "summary": "Joined Part1 at 8ee9b68 through docs-only conductor gates. Flagged current inbound plan/architecture/coordination neighbors through docs-graph; restored only generated rulings-register frontmatter and rederived index. A pre-join neighbor inventory missed the newly joined investigation; no conflicting lease existed, exact claim was acquired and the recurrence control now requires fresh post-join inventory before flagging. Docs checks passed with 80 review suggestions and zero defects. R39 C remains isolated.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md",
+        "docs/docs-index.js"
+      ],
+      "tags": [
+        "coordination",
+        "m1-scope"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Make approved scope and Part1 readiness visible in the joined documentation graph without changing product C or the Owner ruling register.",
+      "done_when": "Official non-register V16 flags and derived views pass docs checks; ruling register diff is empty; exact claims released after commit.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-25T03:55:10Z",
+      "duration_seconds": 9.0,
+      "git": {
+        "sha": "8ee9b689430b93f8aa2f2c929881ce2b2d1abc65",
+        "short": "8ee9b6894",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

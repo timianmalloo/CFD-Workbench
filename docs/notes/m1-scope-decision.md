@@ -13,7 +13,9 @@ links:
   - { to: coordination-contract-c-native, rel: relates-to }
   - { to: coordination-application-build, rel: relates-to }
 review-by: "2026-10-25"
-review-suggested: []
+review-suggested:
+  - { by: architecture-application, on: 2026-09-24, reason: "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims." }
+  - { by: coordination-application-build, on: 2026-09-24, reason: "Approved Windows/timing M1 and section M1.1 placement plus R39 native veto changed the coordination gates; review dependent status and handoffs." }
 summary: >-
   The user approved Windows x64 runtime and measured on-screen budgets in M1 and
   placed the full section editor in M1.1. Native and platform proof remain open.

@@ -112,6 +112,10 @@ If `docs-graph.py flag` includes that inbound register, restore only its
 generated frontmatter delta, run `docs-graph.py derive`, and require an empty
 `git diff -- docs/notes/rulings.md` before a Coordinator commit. Owner rulings
 and their canonical prose remain untouched.
+After each join, recompute the inbound graph from the **joined** tree and
+claim/check every non-register neighbor before the first `flag` mutation.
+A pre-join inbound list is not a valid ownership inventory for the joined
+graph; an unexpected new neighbor stops the sweep until claimed.
 
 ## Serial spine
 

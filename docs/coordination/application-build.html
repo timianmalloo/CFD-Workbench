@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="5fa6b9ad64ac1964cee4738f631aa3337c799c3a7fd191210fb2a75d5a09da61">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="e6e2c604700c16f186d2c38d6162e364a129e5a33224830f8d3843f467a5fedd">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -208,7 +208,11 @@ written by <code>coord decide rule</code>, not by a coordination V16 review sugg
 If <code>docs-graph.py flag</code> includes that inbound register, restore only its
 generated frontmatter delta, run <code>docs-graph.py derive</code>, and require an empty
 <code>git diff -- docs/notes/rulings.md</code> before a Coordinator commit. Owner rulings
-and their canonical prose remain untouched.</p>
+and their canonical prose remain untouched.
+After each join, recompute the inbound graph from the <strong>joined</strong> tree and
+claim/check every non-register neighbor before the first <code>flag</code> mutation.
+A pre-join inbound list is not a valid ownership inventory for the joined
+graph; an unexpected new neighbor stops the sweep until claimed.</p>
 <h2>Serial spine</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -676,4 +680,4 @@ CUA session reset restored AX and screenshot on that same PID without user
 action. This supports a session-readiness control, not an internal platform
 root-cause claim. A third isolated package with the same 53 source inputs is
 prepared but not launched. C product integration and M1 acceptance remain held.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>5fa6b9ad64ac1964cee4738f631aa3337c799c3a7fd191210fb2a75d5a09da61</code>.</p></footer></main></body></html>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>e6e2c604700c16f186d2c38d6162e364a129e5a33224830f8d3843f467a5fedd</code>.</p></footer></main></body></html>

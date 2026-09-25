@@ -11,6 +11,8 @@ links:
   - {to: plan-application-build, rel: relates-to}
 review-by: 2026-10-25
 summary: Reproduced global CUA attachment failure and recovered the unchanged process by resetting the supported CUA session. Two consecutive fresh builds passed the reset/readiness protocol without human foregrounding; internal CUA state remains inferred.
+review-suggested:
+  - { by: plan-application-build, on: 2026-09-24, reason: "Approved M1 Windows and visible-timing gates plus named M1.1 section design changed this execution plan; review dependent status and gates." }
 ---
 
 # Review window attachment
