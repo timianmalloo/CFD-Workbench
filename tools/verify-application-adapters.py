@@ -138,15 +138,62 @@ APPLIED_ROWS = {"toolbar.enabled", "tab.section.selected", "tab.source.selected"
     "source.active.readonly", "station.selected", "station.focused", "cv.selected", "cv.focused",
     "numeric.enabled.owned-draft", "modal.body", "modal.save", "modal.discard", "modal.cancel",
     "viewport.annotation", "section.annotation", "focus.toolbar", "focus.tab", "focus.numeric"}
+INTERACTION_ROWS = set()
+for _tab in ("section", "source"):
+    for _selection in ("selected", "unselected"):
+        for _state in ("rest", "hover", "pressed", "returned", "focus-hover"):
+            INTERACTION_ROWS.add(f"interaction.tab.{_tab}.{_selection}.{_state}")
+for _state in ("rest", "hover", "pressed", "returned"):
+    INTERACTION_ROWS.add(f"interaction.toolbar.example.{_state}")
+    for _button in ("save", "discard", "cancel"):
+        INTERACTION_ROWS.add(f"interaction.modal.{_button}.{_state}")
+    for _kind in ("station", "cv"):
+        for _selection in ("selected", "unselected"):
+            INTERACTION_ROWS.add(f"interaction.{_kind}.{_selection}.{_state}")
+for _state in ("rest", "hover", "returned", "focus-hover"):
+    for _field in ("numeric.owned", "source.readonly"):
+        INTERACTION_ROWS.add(f"interaction.{_field}.{_state}")
+if len(INTERACTION_ROWS) != 60:
+    raise RuntimeError("frozen interaction row table changed")
+APPLIED_ROWS |= INTERACTION_ROWS
 APPLIED_THEMES = {"Light", "Dark", "HighContrast", "Default"}
 
 
 def parse_applied_theme_rows(raw: str) -> dict[str, float]:
     expected = {f"{theme}/{row}" for theme in APPLIED_THEMES for row in APPLIED_ROWS}
     observed: dict[str, float] = {}
+    observed_paint: dict[str, tuple[str, str]] = {}
+    states: dict[str, dict] = {}
     placement = set()
     disabled = set()
     for line in raw.splitlines():
+        if line.startswith("THEME-STATE "):
+            try:
+                fact = json.loads(line.removeprefix("THEME-STATE "))
+            except json.JSONDecodeError:
+                raise RuntimeError("malformed interaction state evidence") from None
+            key = f"{fact.get('theme')}/{fact.get('name')}"
+            if key not in {f"{theme}/{row}" for theme in APPLIED_THEMES for row in INTERACTION_ROWS} or key in states:
+                raise RuntimeError("missing, duplicate, or unknown interaction state")
+            row = str(fact["name"])
+            state = row.rsplit(".", 1)[-1]
+            selection = "selected" if ".selected." in row else "unselected" if ".unselected." in row else "na"
+            hover = state in ("hover", "pressed", "focus-hover")
+            styled = state == "pressed" and selection == "unselected" and (
+                row.startswith("interaction.tab.") or row.startswith("interaction.station.") or
+                row.startswith("interaction.cv."))
+            if fact.get("selection") != selection or fact.get("expectedSelection") != selection or \
+                    fact.get("state") != state or fact.get("enabled") is not True or \
+                    fact.get("pointerOver") is not hover or fact.get("pressed") is not (state == "pressed") or \
+                    fact.get("route") != ("styled" if styled else "framework") or \
+                    (state == "focus-hover" and (fact.get("focused") is not True or
+                                                   fact.get("focusVisible") is not True)) or \
+                    fact.get("text") not in ("AccessText", "TextPresenter", "TextBlock") or \
+                    not re.fullmatch(r"#[0-9A-Fa-f]{8}", str(fact.get("foreground"))) or \
+                    not re.fullmatch(r"#[0-9A-Fa-f]{8}", str(fact.get("background"))) or \
+                    fact.get("foregroundOpacity") != 1:
+                raise RuntimeError(f"interaction state/paint metadata refused: {key}")
+            states[key] = fact
         if line.startswith("FOCUS-PLACEMENT "):
             try:
                 fact = json.loads(line.removeprefix("FOCUS-PLACEMENT "))
@@ -198,7 +245,9 @@ def parse_applied_theme_rows(raw: str) -> dict[str, float]:
             width, height = map(float, fields["bounds"].split("x"))
             if width <= 0 or height <= 0:
                 raise RuntimeError("text presenter has zero bounds")
-            if parts[1].endswith("/source.active.readonly") and fields.get("clip") != "scroll":
+            row_name = parts[1].split("/", 1)[1]
+            if (row_name == "source.active.readonly" or
+                    row_name.startswith("interaction.source.readonly.")) and fields.get("clip") != "scroll":
                 raise RuntimeError("active source text lacks measured scroll clip")
             threshold = 4.5
         def lightness(value: str) -> float:
@@ -216,10 +265,15 @@ def parse_applied_theme_rows(raw: str) -> dict[str, float]:
                 abs(ratio - emitted_ratio) > 0.001:
             raise RuntimeError(f"applied contrast fails or emitted ratio mismatches: {parts[1]}")
         observed[parts[1]] = ratio
+        observed_paint[parts[1]] = (fields["fg"].upper(), fields["bg"].upper())
     if set(observed) != expected or disabled != APPLIED_THEMES or \
             placement != {f"{theme}/focus.tab" for theme in APPLIED_THEMES} or \
-            "THEME-APPLIED-CHECK rows=72 variants=4 source=actual-MainWindow" not in raw:
+            set(states) != {f"{theme}/{row}" for theme in APPLIED_THEMES for row in INTERACTION_ROWS} or \
+            "THEME-APPLIED-CHECK rows=312 variants=4 source=actual-MainWindow" not in raw:
         raise RuntimeError("applied theme required row set is incomplete")
+    for key, fact in states.items():
+        if (fact["foreground"].upper(), fact["background"].upper()) != observed_paint[key]:
+            raise RuntimeError(f"interaction metadata differs from applied paint: {key}")
     return observed
 
 
@@ -229,6 +283,9 @@ def applied_theme_checks(step: dict) -> dict[str, object]:
     result = parse_applied_theme_rows(raw)
     first = next(line for line in raw.splitlines() if line.startswith("THEME-APPLIED Light/toolbar.enabled "))
     placement = next(line for line in raw.splitlines() if line.startswith("FOCUS-PLACEMENT "))
+    hover = next(line for line in raw.splitlines() if line.startswith("THEME-STATE ") and
+                 '"name":"interaction.tab.source.selected.hover"' in line and
+                 '"theme":"HighContrast"' in line)
     negative_cases = {
         "missing": raw.replace(first + "\n", "", 1),
         "duplicate": raw + "\n" + first + "\n",
@@ -240,6 +297,15 @@ def applied_theme_checks(step: dict) -> dict[str, object]:
                                                           '"CompositionLink":false', 1), 1),
         "focus-clip-missing": raw.replace(placement, re.sub(r'"outerClip":"[^"]+"',
                                                        '"outerClip":"null"', placement, count=1), 1),
+        "state-missing": raw.replace(hover + "\n", "", 1),
+        "state-duplicate": raw + "\n" + hover + "\n",
+        "state-wrong": raw.replace(hover, hover.replace('"pointerOver":true',
+                                                          '"pointerOver":false', 1), 1),
+        "state-paint-mismatch": raw.replace(hover, hover.replace('"foreground":"#FF',
+                                                                    '"foreground":"#FE', 1), 1),
+        "default-only": "\n".join(line for line in raw.splitlines() if
+                                    not (line.startswith("THEME-STATE ") and
+                                         '"theme":"HighContrast"' in line)),
     }
     for name, mutation in negative_cases.items():
         try:

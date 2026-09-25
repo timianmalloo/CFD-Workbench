@@ -17,22 +17,44 @@ using System.Text;
 using System.Text.Json.Nodes;
 
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
+    args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--focus-diagnostic", StringComparer.Ordinal) ||
     args.Contains("--focus-negatives", StringComparer.Ordinal) ||
     args.Contains("--focus-readiness", StringComparer.Ordinal) ||
     args.Contains("--closed-callback-repro", StringComparer.Ordinal))
 {
     bool focusDiagnostic = args.Contains("--focus-diagnostic", StringComparer.Ordinal);
+    bool pointerRed = args.Contains("--theme-pointer-red", StringComparer.Ordinal);
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     foreach (var (key, value) in new Dictionary<string, string> {
         ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "designer",
         ["CFDW_REVIEW_STATE"] = "empty", ["CFDW_REVIEW_THEME"] = "light",
         ["CFDW_REVIEW_SIZE"] = "1024x700" })
         Environment.SetEnvironmentVariable(key, value);
-    var required = new[] { "toolbar.enabled", "tab.section.selected", "tab.source.selected",
+    var originalRows = new[] { "toolbar.enabled", "tab.section.selected", "tab.source.selected",
         "source.active.readonly", "station.selected", "station.focused", "cv.selected", "cv.focused",
         "numeric.enabled.owned-draft", "modal.body", "modal.save", "modal.discard", "modal.cancel",
         "viewport.annotation", "section.annotation", "focus.toolbar", "focus.tab", "focus.numeric" };
+    var interactionRows = new List<string>();
+    foreach (string tab in new[] { "section", "source" })
+        foreach (string selection in new[] { "selected", "unselected" })
+            foreach (string state in new[] { "rest", "hover", "pressed", "returned", "focus-hover" })
+                interactionRows.Add($"interaction.tab.{tab}.{selection}.{state}");
+    foreach (string state in new[] { "rest", "hover", "pressed", "returned" })
+    {
+        interactionRows.Add($"interaction.toolbar.example.{state}");
+        foreach (string button in new[] { "save", "discard", "cancel" })
+            interactionRows.Add($"interaction.modal.{button}.{state}");
+        foreach (string kind in new[] { "station", "cv" })
+            foreach (string selection in new[] { "selected", "unselected" })
+                interactionRows.Add($"interaction.{kind}.{selection}.{state}");
+    }
+    foreach (string state in new[] { "rest", "hover", "returned", "focus-hover" })
+        foreach (string field in new[] { "numeric.owned", "source.readonly" })
+            interactionRows.Add($"interaction.{field}.{state}");
+    var required = originalRows.Concat(interactionRows).ToArray();
+    if (required.Length != 78 || required.Distinct(StringComparer.Ordinal).Count() != 78)
+        throw new Exception("Frozen per-theme 18+60 interaction row table changed");
     var emitted = new HashSet<string>(StringComparer.Ordinal);
     var rowFailures = new List<string>();
     void CheckRow(string theme, string row, Action probe)
@@ -400,7 +422,8 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         Avalonia.Visual observedAt = visual;
         Rect observedBounds = new Rect(visual.Bounds.Size);
         string clipEvidence = "";
-        if (name == "source.active.readonly")
+        if (name == "source.active.readonly" ||
+            name.StartsWith("interaction.source.readonly.", StringComparison.Ordinal))
         {
             var clip = visual.GetVisualAncestors().OfType<Avalonia.Controls.Presenters.ScrollContentPresenter>()
                 .FirstOrDefault() ?? throw new Exception("Source text has no scroll viewport");
@@ -423,6 +446,154 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         Console.WriteLine($"THEME-APPLIED {theme}/{name} fg=#{foreground.A:X2}{foreground.R:X2}{foreground.G:X2}{foreground.B:X2} " +
             $"bg=#{background.A:X2}{background.R:X2}{background.G:X2}{background.B:X2} ratio={ratio:F6} " +
             $"text={visual.GetType().Name} bounds={observedBounds.Width:F1}x{observedBounds.Height:F1}{clipEvidence}");
+    }
+    static IPseudoClasses StateClasses(Control target) =>
+        typeof(StyledElement).GetProperty("PseudoClasses",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?
+            .GetValue(target) as IPseudoClasses
+        ?? throw new Exception("Installed protected IPseudoClasses unavailable");
+    static Point PointerOrigin(Control target, Window window) =>
+        target.TranslatePoint(new Point(10, 10), window)
+        ?? throw new Exception("Pointer target/window transform unavailable");
+    static void Enter(Control target, Window window, Pointer pointer, ulong stamp)
+    {
+        target.RaiseEvent(new PointerEventArgs(InputElement.PointerEnteredEvent,
+            target, pointer, window, PointerOrigin(target, window), stamp, default, KeyModifiers.None));
+        if (!target.IsPointerOver || !StateClasses(target).Contains(":pointerover"))
+            throw new Exception("Framework pointer-enter transition was not observed");
+    }
+    static void Press(Control target, Window window, Pointer pointer, ulong stamp)
+    {
+        target.RaiseEvent(new PointerPressedEventArgs(target, pointer, window,
+            PointerOrigin(target, window), stamp,
+            new PointerPointProperties(RawInputModifiers.LeftMouseButton,
+                PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+        if (!StateClasses(target).Contains(":pressed"))
+            throw new Exception("Framework pointer-pressed transition was not observed");
+    }
+    static void Return(Control target, Window window, Pointer pointer, ulong stamp)
+    {
+        // Release outside the target to avoid triggering an action during a color probe.
+        target.RaiseEvent(new PointerReleasedEventArgs(target, pointer, window,
+            new Point(-100, -100), stamp,
+            new PointerPointProperties(RawInputModifiers.None,
+                PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+        target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+            target, pointer, window, new Point(-100, -100), stamp + 1, default, KeyModifiers.None));
+        if (target.IsPointerOver || StateClasses(target).Contains(":pointerover") ||
+            StateClasses(target).Contains(":pressed"))
+            throw new Exception("Framework pointer return-to-rest transition was not observed");
+    }
+    void InteractionRow(string theme, string name, Control target, string selection,
+        string state, string route = "framework", bool textBox = false)
+    {
+        var pseudo = StateClasses(target);
+        var visual = TextVisual(target, textBox);
+        var foreground = PropertyBrush(visual, "Foreground");
+        string ColorText(Avalonia.Media.IBrush? paint) => paint is ISolidColorBrush solid
+            ? $"#{solid.Color.A:X2}{solid.Color.R:X2}{solid.Color.G:X2}{solid.Color.B:X2}"
+            : "unresolved";
+        string backdrop;
+        try
+        {
+            Color color;
+            if (name.StartsWith("interaction.source.readonly.", StringComparison.Ordinal))
+            {
+                var clip = visual.GetVisualAncestors().OfType<Avalonia.Controls.Presenters.ScrollContentPresenter>()
+                    .FirstOrDefault() ?? throw new Exception("Source text scroll clip absent");
+                if (!clip.ClipToBounds) throw new Exception("Source text clip disabled");
+                var origin = visual.TranslatePoint(new Point(0, 0), clip)
+                    ?? throw new Exception("Source text clip transform absent");
+                double left = Math.Max(0, origin.X), top = Math.Max(0, origin.Y);
+                double right = Math.Min(clip.Bounds.Width, origin.X + visual.Bounds.Width);
+                double bottom = Math.Min(clip.Bounds.Height, origin.Y + visual.Bounds.Height);
+                if (right <= left || bottom <= top) throw new Exception("Source text clip empty");
+                color = Backing(visual, clip, new Rect(left, top, right - left, bottom - top));
+            }
+            else color = Backing(visual);
+            backdrop = ColorText(new SolidColorBrush(color));
+        }
+        catch (Exception error) { backdrop = "unresolved:" + error.GetType().Name; }
+        var selected = target switch
+        {
+            TabItem tab => tab.IsSelected ? "selected" : "unselected",
+            ListBoxItem item => item.IsSelected ? "selected" : "unselected",
+            _ => "na"
+        };
+        var raw = new {
+            theme, name, selection = selected, expectedSelection = selection, state, route,
+            enabled = target.IsEffectivelyEnabled, pointerOver = target.IsPointerOver,
+            pressed = pseudo.Contains(":pressed"), focused = target.IsFocused,
+            focusVisible = pseudo.Contains(":focus-visible"),
+            foregroundType = foreground?.GetType().Name ?? "null",
+            foreground = ColorText(foreground), background = backdrop,
+            foregroundOpacity = foreground?.Opacity ?? double.NaN,
+            text = visual.GetType().Name, textBounds = visual.Bounds.ToString()
+        };
+        Console.WriteLine("THEME-STATE " + System.Text.Json.JsonSerializer.Serialize(raw));
+        bool hover = state is "hover" or "pressed" or "focus-hover";
+        bool pressed = state == "pressed";
+        bool focus = state == "focus-hover";
+        if (!target.IsEffectivelyEnabled || selected != selection ||
+            target.IsPointerOver != hover && route == "framework" ||
+            pseudo.Contains(":pointerover") != hover || pseudo.Contains(":pressed") != pressed ||
+            target.IsFocused != focus && focus || pseudo.Contains(":focus-visible") != focus && focus)
+            throw new Exception($"Interaction state mismatch: {theme}/{name}");
+        TextRow(theme, name, target, textBox);
+    }
+    void ProbeStates(string theme, string prefix, Control target, string selection,
+        Window window, bool textBox = false)
+    {
+        using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+        var states = textBox ? new[] { "rest", "hover", "returned", "focus-hover" }
+            : prefix.StartsWith("interaction.tab.", StringComparison.Ordinal)
+                ? new[] { "rest", "hover", "pressed", "returned", "focus-hover" }
+                : new[] { "rest", "hover", "pressed", "returned" };
+        foreach (string state in states)
+        {
+            string row = prefix + "." + state;
+            CheckRow(theme, row, () =>
+            {
+                if (state == "hover") Enter(target, window, pointer, 10);
+                else if (state == "pressed" && selection == "unselected" &&
+                         target is TabItem or ListBoxItem)
+                    StateClasses(target).Add(":pressed"); // Transient style state; a real press selects this item.
+                else if (state == "pressed") Press(target, window, pointer, 11);
+                else if (state == "returned")
+                {
+                    if (selection == "unselected" && target is TabItem or ListBoxItem)
+                    {
+                        StateClasses(target).Remove(":pressed");
+                        target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                            target, pointer, window, new Point(-100, -100), 12, default, KeyModifiers.None));
+                    }
+                    else if (textBox)
+                        target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                            target, pointer, window, new Point(-100, -100), 12, default, KeyModifiers.None));
+                    else Return(target, window, pointer, 12);
+                }
+                else if (state == "focus-hover")
+                {
+                    if (target.IsFocused && target is TabItem)
+                    {
+                        var otherFocus = window.FindControl<Button>("ExampleButton")
+                            ?? throw new Exception("Focus reset button unavailable");
+                        if (!otherFocus.Focus(NavigationMethod.Tab))
+                            throw new Exception("Interaction focus reset unavailable");
+                    }
+                    if (!target.Focus(NavigationMethod.Tab) || !target.IsFocused)
+                        throw new Exception("Interaction keyboard focus unavailable");
+                    Enter(target, window, pointer, 14);
+                }
+                window.UpdateLayout();
+                InteractionRow(theme, row, target, selection, state,
+                    state == "pressed" && selection == "unselected" && target is TabItem or ListBoxItem
+                        ? "styled" : "framework", textBox);
+            });
+        }
+        if (target.IsPointerOver)
+            target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                target, pointer, window, new Point(-100, -100), 16, default, KeyModifiers.None));
     }
     void FocusRow(string theme, string name, Control target)
     {
@@ -626,6 +797,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
                  NativeReviewThemes.HighContrast, ThemeVariant.Default })
     {
         string theme = variant.Key.ToString() ?? throw new Exception("Theme key unavailable");
+        if (pointerRed && theme != "HighContrast") continue;
         Environment.SetEnvironmentVariable("CFDW_REVIEW_STATE", "example");
         var window = new MainWindow { RequestedThemeVariant = variant };
         try
@@ -703,6 +875,78 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             window.Close();
             continue;
         }
+        if (pointerRed)
+        {
+            var pointerTabs = window.FindControl<TabControl>("DocumentTabs")
+                ?? throw new Exception("Pointer RED DocumentTabs unavailable");
+            var pointerSourceTab = pointerTabs.Items.OfType<TabItem>().ElementAt(1);
+            pointerTabs.SelectedIndex = 1;
+            var pointerController = (WorkbenchController)(typeof(MainWindow).GetField("workbench",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(window) ?? throw new Exception("Pointer RED controller unavailable"));
+            ReadyThemeWindow(window, pointerController, pointerSourceTab, theme);
+            var pseudoProperty = typeof(StyledElement).GetProperty("PseudoClasses",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("Installed protected PseudoClasses unavailable");
+            var pseudo = pseudoProperty.GetValue(pointerSourceTab) as IPseudoClasses
+                ?? throw new Exception("Installed IPseudoClasses unavailable");
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var origin = pointerSourceTab.TranslatePoint(new Point(10, 10), window)
+                ?? throw new Exception("Pointer RED tab/window position unavailable");
+            pointerSourceTab.RaiseEvent(new PointerEventArgs(InputElement.PointerEnteredEvent,
+                pointerSourceTab, pointer, window, origin, 1, default, KeyModifiers.None));
+            if (!pointerSourceTab.IsPointerOver || !pseudo.Contains(":pointerover"))
+                throw new Exception("Framework PointerEntered did not transition IsPointerOver/pseudo state");
+            window.UpdateLayout();
+            var visual = TextVisual(pointerSourceTab);
+            var rawForeground = PropertyBrush(visual, "Foreground");
+            var pointerRoot = pointerSourceTab.GetVisualDescendants().OfType<Border>()
+                .SingleOrDefault(item => item.Name == "PART_LayoutRoot");
+            var rawBackground = pointerRoot?.Background;
+            Console.WriteLine("THEME-POINTER-PAINT " + System.Text.Json.JsonSerializer.Serialize(new {
+                visual = visual.GetType().Name,
+                foregroundType = rawForeground?.GetType().FullName ?? "null",
+                foregroundColor = (rawForeground as ISolidColorBrush)?.Color.ToString() ?? "null",
+                foregroundOpacity = rawForeground?.Opacity.ToString() ?? "null",
+                backgroundType = rawBackground?.GetType().FullName ?? "null",
+                backgroundColor = (rawBackground as ISolidColorBrush)?.Color.ToString() ?? "null",
+                backgroundOpacity = rawBackground?.Opacity.ToString() ?? "null",
+                rootBounds = pointerRoot?.Bounds.ToString() ?? "null",
+                textBounds = visual.Bounds.ToString() }));
+            pointerSourceTab.RaiseEvent(new PointerPressedEventArgs(pointerSourceTab, pointer,
+                window, origin, 2,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton,
+                    PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+            Console.WriteLine("THEME-POINTER-PRESS " + System.Text.Json.JsonSerializer.Serialize(new {
+                selected = pointerSourceTab.IsSelected,
+                pointerOver = pointerSourceTab.IsPointerOver,
+                pressed = pseudo.Contains(":pressed") }));
+            pointerSourceTab.RaiseEvent(new PointerReleasedEventArgs(pointerSourceTab, pointer,
+                window, origin, 3,
+                new PointerPointProperties(RawInputModifiers.None,
+                    PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+            pointerSourceTab.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                pointerSourceTab, pointer, window, origin, 4, default, KeyModifiers.None));
+            Console.WriteLine("THEME-POINTER-REST " + System.Text.Json.JsonSerializer.Serialize(new {
+                selected = pointerSourceTab.IsSelected,
+                pointerOver = pointerSourceTab.IsPointerOver,
+                pressed = pseudo.Contains(":pressed") }));
+            pointerSourceTab.RaiseEvent(new PointerEventArgs(InputElement.PointerEnteredEvent,
+                pointerSourceTab, pointer, window, origin, 5, default, KeyModifiers.None));
+            window.UpdateLayout();
+            var foreground = Solid(PropertyBrush(visual, "Foreground"), "HC selected FoilDSL hovered ink");
+            var background = Backing(visual);
+            double ratio = Contrast(foreground, background);
+            Console.WriteLine("THEME-POINTER-RED " + System.Text.Json.JsonSerializer.Serialize(new {
+                theme, tab = "FoilDSL", selected = pointerSourceTab.IsSelected,
+                pointerOver = pointerSourceTab.IsPointerOver,
+                pressed = pseudo.Contains(":pressed"), focused = pointerSourceTab.IsFocused,
+                enabled = pointerSourceTab.IsEnabled, textType = visual.GetType().Name,
+                textBounds = visual.Bounds.ToString(), foreground = foreground.ToString(),
+                background = background.ToString(), ratio }));
+            TextRow(theme, "tab.source.selected.hover", pointerSourceTab);
+            throw new Exception("HC selected FoilDSL hover did not reproduce low contrast");
+        }
         var toolbar = window.FindControl<Button>("ExampleButton")
             ?? throw new Exception("Actual toolbar button did not load");
         var tabs = window.FindControl<TabControl>("DocumentTabs")
@@ -728,8 +972,11 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         ReadyThemeWindow(window, controller, tabItems[0], theme);
         CheckRow(theme, "tab.section.selected", () => TextRow(theme, "tab.section.selected", tabItems[0]));
         CheckRow(theme, "focus.tab", () => FocusRow(theme, "focus.tab", tabItems[0]));
+        ProbeStates(theme, "interaction.tab.section.selected", tabItems[0], "selected", window);
+        ProbeStates(theme, "interaction.tab.source.unselected", tabItems[1], "unselected", window);
         CheckRow(theme, "toolbar.enabled", () => TextRow(theme, "toolbar.enabled", toolbar));
         CheckRow(theme, "focus.toolbar", () => FocusRow(theme, "focus.toolbar", toolbar));
+        ProbeStates(theme, "interaction.toolbar.example", toolbar, "na", window);
         station.SelectedIndex = 0;
         var selectedStationItem = station.SelectedItem as ListBoxItem
             ?? throw new Exception("Actual Example station did not bind");
@@ -757,6 +1004,14 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         window.UpdateLayout();
         CheckRow(theme, "station.selected", () => TextRow(theme, "station.selected", selectedStationItem));
         CheckRow(theme, "cv.selected", () => TextRow(theme, "cv.selected", cvItem));
+        var unselectedStation = station.Items.OfType<ListBoxItem>()
+            .First(item => !ReferenceEquals(item, selectedStationItem));
+        var unselectedCv = controls.Items.OfType<ListBoxItem>()
+            .First(item => !ReferenceEquals(item, cvItem));
+        ProbeStates(theme, "interaction.station.selected", selectedStationItem, "selected", window);
+        ProbeStates(theme, "interaction.station.unselected", unselectedStation, "unselected", window);
+        ProbeStates(theme, "interaction.cv.selected", cvItem, "selected", window);
+        ProbeStates(theme, "interaction.cv.unselected", unselectedCv, "unselected", window);
         CheckRow(theme, "station.focused", () => {
             if (!selectedStationItem.Focus(NavigationMethod.Tab) || !selectedStationItem.IsFocused)
                 throw new Exception("Actual Example station item lacks keyboard focus");
@@ -769,6 +1024,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         });
         CheckRow(theme, "numeric.enabled.owned-draft", () => TextRow(theme, "numeric.enabled.owned-draft", numeric, textBox: true));
         CheckRow(theme, "focus.numeric", () => FocusRow(theme, "focus.numeric", numeric));
+        ProbeStates(theme, "interaction.numeric.owned", numeric, "na", window, textBox: true);
         tabs.SelectedIndex = 0;
         window.UpdateLayout();
         var viewportLabel = window.FindControl<TextBlock>("ViewportProvenance")
@@ -780,9 +1036,12 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         tabs.SelectedIndex = 1;
         window.UpdateLayout();
         CheckRow(theme, "tab.source.selected", () => TextRow(theme, "tab.source.selected", tabItems[1]));
+        ProbeStates(theme, "interaction.tab.source.selected", tabItems[1], "selected", window);
+        ProbeStates(theme, "interaction.tab.section.unselected", tabItems[0], "unselected", window);
         if (!sourceTextControl.IsReadOnly || string.IsNullOrEmpty(sourceTextControl.Text))
             throw new Exception("Active Source tab lost read-only accepted Example text");
         CheckRow(theme, "source.active.readonly", () => TextRow(theme, "source.active.readonly", sourceTextControl, textBox: true));
+        ProbeStates(theme, "interaction.source.readonly", sourceTextControl, "na", window, textBox: true);
         var method = typeof(MainWindow).GetMethod("UnsavedDialogAsync",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             ?? throw new Exception("Unsaved dialog method unavailable");
@@ -802,6 +1061,9 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         foreach (var choice in new[] { "Save", "Discard", "Cancel" })
             CheckRow(theme, "modal." + choice.ToLowerInvariant(), () =>
                 TextRow(theme, "modal." + choice.ToLowerInvariant(), modalButtons[choice]));
+        foreach (var choice in new[] { "Save", "Discard", "Cancel" })
+            ProbeStates(theme, "interaction.modal." + choice.ToLowerInvariant(),
+                modalButtons[choice], "na", modal);
         if (!modalButtons["Cancel"].IsDefault || !modalButtons["Cancel"].IsCancel ||
             !modalButtons["Cancel"].IsFocused)
             throw new Exception("Unsaved modal Cancel lacks safe default/focus");
