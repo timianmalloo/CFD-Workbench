@@ -150,6 +150,42 @@ internal static class SectionEditTests
             Equal(stations[1].SpanMeters, impact.Intervals[1].RootDistanceStartMeters);
             Equal(stations[2].SpanMeters, impact.Intervals[1].RootDistanceEndMeters);
         });
+        Check("Profile_RecoveryRoundtrip_ResumesSameProfileTarget", () =>
+        {
+            using var session = Opened();
+            var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
+            string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.01);
+            session.CaptureRecovery(); byte[] saved = session.SaveImage();
+            using var reopened = new AuthoringSession(); reopened.Reopen(saved); reopened.ResumeRecovery();
+            Equal(updated.Generation, reopened.Snapshot().Draft!.Generation);
+            var again = reopened.UpdateProfileDraft(draft, updated.Generation, vertex.X, vertex.Y + 0.02);
+            var assessment = reopened.Validate(draft, again.Generation);
+            Equal(GeometryStatus.Certified, assessment.Status);
+        });
+        Check("Session_RecoveryEnvelope_WithoutProfileFields_StillResumesRailDraft", () =>
+        {
+            using var session = Opened(); string draft = Id();
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, 0.01);
+            session.CaptureRecovery(); byte[] saved = session.SaveImage();
+            string json = Encoding.UTF8.GetString(saved);
+            Equal(false, json.Contains("\"profile\"", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"assignment\"", StringComparison.Ordinal));
+            using var reopened = new AuthoringSession(); reopened.Reopen(saved); reopened.ResumeRecovery();
+            Equal(1L, reopened.Snapshot().Draft!.Generation); Equal("leading", reopened.Snapshot().Draft!.Rail);
+        });
+        Check("Session_RecoveryEnvelope_MissingProfileTarget_RefusesAtLoad", () =>
+        {
+            using var session = Opened(); string draft = Id();
+            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            session.UpdateProfileDraft(draft, begun.Generation, 0.36, 0.08);
+            var recovery = session.CaptureRecovery();
+            var envelope = session.Envelope() with { Recovery = recovery with { Profile = "missing-profile" } };
+            byte[] saved = NativeProject.Encode(envelope);
+            using var reopened = new AuthoringSession();
+            Refuses("DOC-REFERENCE", () => reopened.Reopen(saved));
+        });
     }
 
     internal static void RunMultiProfile()
