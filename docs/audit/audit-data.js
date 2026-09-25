@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:40:47Z",
+  "generated": "2026-09-25T05:51:04Z",
   "audit": [
     {
       "actor": null,
@@ -8376,6 +8376,38 @@ window.AUDIT_DATA = {
         "sha": "ac3eba5d10ee510b36afa9203cec5d4bb90e8aaf",
         "short": "ac3eba5d1",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BHW1E31PXRY4GE623NGTX7",
+      "shortname": "owner-r46-r47",
+      "datetime": "2026-09-25T05:51:04Z",
+      "session": "cfd-owner-20260923",
+      "prompt": "Resolve req-01M3BHC12TVHECMPYW390XRSRP (project live-leader preflight wrapper/self-test) and req-01M3BHCZ27WPCA8TYT1XS90YQJ (no-capture whole-package/window-request preparation and durable minimal raw evidence), canonically in isolated Owner tree. No product change, capture or full section work; yield clean handback.",
+      "summary": "R46 authorizes exactly three project paths with independent Coordinator/Owner review, context binding distinct from leader.tree category, and no atomic-lock claim. R47 authorizes exactly five no-capture paths with private dependency closure, start/end identity controls and durable evidence; R45 retention only touches its already-owned proof. Inspected typed requests, leader/conductor and timing source plus root review. No implementation, live leader, UI or capture execution. check-docs passed 124 artifacts/0 defects/83 existing review flags. Initial audit invocation missed required shortname and failed without appending; corrected from CLI error with no data loss or duplicate ruling.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": "Owner",
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "tags": [
+        "owner-ruling"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Resolve the live-leader guard and noncapture timing-preparation requests without altering M1 or admission gates.",
+      "done_when": "Both numbered rulings are committed in the clean isolated Owner tree with exact scope and independent gates.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:43:57Z",
+      "duration_seconds": 427.0,
+      "git": {
+        "sha": "d5db7b5a8990dd65f31b196e4e2992b0f2784353",
+        "short": "d5db7b5a8",
+        "branch": "feature/application-m1-decision",
         "pushed": null
       }
     }
