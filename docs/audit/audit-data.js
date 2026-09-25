@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:40:47Z",
+  "generated": "2026-09-25T06:06:03Z",
   "audit": [
     {
       "actor": null,
@@ -8376,6 +8376,72 @@ window.AUDIT_DATA = {
         "sha": "ac3eba5d10ee510b36afa9203cec5d4bb90e8aaf",
         "short": "ac3eba5d1",
         "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BJQFY5RPW5NZTCQDY0M79V",
+      "shortname": "design-owned-conductor",
+      "datetime": "2026-09-25T06:06:03Z",
+      "session": "cfd-owned-conductor-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete. Owner R46: exact three-path live leader preflight.",
+      "summary": "R46 guard design embedded in owned coordination plan: one join attempt, immutable expected context, raw observation receipt, bounded owned child, residual non-atomic lease race. Author proof 51 cases plus portability/docs; independent SRE/Test/Security approval pending.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Prevent unverified live leadership from reaching an application join",
+      "done_when": "Exact context and live-leader wrapper independently accepted; no managed semantics changed",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:51:31Z",
+      "duration_seconds": 872.0,
+      "git": {
+        "sha": "d5db7b5a8990dd65f31b196e4e2992b0f2784353",
+        "short": "d5db7b5a8",
+        "branch": "feature/owned-conductor-preflight",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BJQG03S7PWH06PCFPP8F85",
+      "shortname": "implement-owned-conductor",
+      "datetime": "2026-09-25T06:06:03Z",
+      "session": "cfd-owned-conductor-20260925",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete. Owner R46: exact three-path live leader preflight.",
+      "summary": "Implemented exact3 authored paths. Initial missing-preflight fixture red; installed WindowsJob signature error corrected. 51 final fixtures PASS, real CLI negative and positive child exit7, owned timeout, raw append-only receipt. Portable-text/subprocess UTF8 clean; docs124 zero defects83 existing flags. Independent adoption pending, no live leader mutation or merge tested. Effective model/tokens/cost not recorded; root requested Astra. V16 propagation assigned Coordinator at canonical join.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/run-owned-conductor.py",
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Implement the R46 fail-closed invocation guard",
+      "done_when": "Independent Coordinator and Owner accept source and zero-launch expired-same-epoch control before live use",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-09-25T05:51:31Z",
+      "duration_seconds": 872.0,
+      "git": {
+        "sha": "d5db7b5a8990dd65f31b196e4e2992b0f2784353",
+        "short": "d5db7b5a8",
+        "branch": "feature/owned-conductor-preflight",
         "pushed": null
       }
     }
