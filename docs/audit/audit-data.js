@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:33:31Z",
+  "generated": "2026-09-25T05:35:53Z",
   "audit": [
     {
       "actor": null,
@@ -8061,116 +8061,140 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3BGE923HACYYXQ6GRHY0NMA",
-      "shortname": "join-windows-w1-review",
-      "datetime": "2026-09-25T05:26:04Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "the join of the resolved merge into feature/application-coordination",
-      "summary": "Joined root independent W1 review b0b7c28. Actual hosted Windows run 36097839626 failed native qualification: 21 Pass, four Fail, one Not assessed; DACL alias validator refused and UIA was not reached. No third CI run or Windows product acceptance. recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/windows-runtime.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Integrate independent Windows W1 failure review without product acceptance.",
+      "datetime": "2026-09-25T05:26:04Z",
       "done_when": "Review and official derivatives join cleanly with documentation checks passing and no product gates rerun.",
-      "tier": "T1",
+      "duration_seconds": 0.0,
       "fan_out": 0,
+      "goal": "Integrate independent Windows W1 failure review without product acceptance.",
+      "id": "al-01M3BGE923HACYYXQ6GRHY0NMA",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/application-coordination",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "join-windows-w1-review",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-25T05:26:04Z",
-      "duration_seconds": 0.0
+      "summary": "Joined root independent W1 review b0b7c28. Actual hosted Windows run 36097839626 failed native qualification: 21 Pass, four Fail, one Not assessed; DACL alias validator refused and UIA was not reached. No third CI run or Windows product acceptance. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3BGJB0TT4CNAHNBR68E8T5Q",
-      "shortname": "windows-w1-review-neighbor-flags",
-      "datetime": "2026-09-25T05:28:17Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Complete the pre-section M1 tasks and keep documentation graph dependencies current.",
-      "summary": "Official docs-graph flag propagated Windows proof, route and defect-class changes to non-register inbound neighbors; suggestions increased from 80 to 83 unique artifacts. Coordination-plan inbound propagation was deferred because the official flag command would mutate append-only rulings frontmatter. No manual register rewrite.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/docs-index.js",
         "docs/reviews/windows-runtime.md"
       ],
-      "tags": [],
-      "outcome": "partial",
-      "goal": "Propagate material Windows W1 evidence changes to non-register inbound neighbors without mutating append-only rulings.",
+      "datetime": "2026-09-25T05:28:17Z",
       "done_when": "Official flags derive cleanly, documentation checks pass, and the append-only ruling neighbor remains untouched.",
-      "tier": "T1",
       "fan_out": 0,
       "git": {
-        "sha": "9415ab2cfc831c58283bb40dab3c00a51d48d15b",
-        "short": "9415ab2cf",
         "branch": "feature/application-coordination",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "9415ab2cfc831c58283bb40dab3c00a51d48d15b",
+        "short": "9415ab2cf"
+      },
+      "goal": "Propagate material Windows W1 evidence changes to non-register inbound neighbors without mutating append-only rulings.",
+      "id": "al-01M3BGJB0TT4CNAHNBR68E8T5Q",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Complete the pre-section M1 tasks and keep documentation graph dependencies current.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "windows-w1-review-neighbor-flags",
+      "skill": null,
+      "summary": "Official docs-graph flag propagated Windows proof, route and defect-class changes to non-register inbound neighbors; suggestions increased from 80 to 83 unique artifacts. Coordination-plan inbound propagation was deferred because the official flag command would mutate append-only rulings frontmatter. No manual register rewrite.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3BGSKNXRAM177NWHY53T8TS",
-      "shortname": "r41-synthetic-fixture-class",
-      "datetime": "2026-09-25T05:32:15Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Continue R41 timing preparation without native capture; record observed defect classes.",
-      "summary": "Recorded TEST-FIXTURE-ALIAS: shared envelope/frame identity let a removed envelope guard survive mutation. R41 author deep-copied each frame identity, added frame-only mismatches, reached 50/50 synthetic controls and killed all four mutants. Native visibility/timing remains Not assessed.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/lessons/defect-classes.md"
       ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Preserve the R41 shared fixture-alias failure class and its executable recurrence control.",
+      "datetime": "2026-09-25T05:32:15Z",
       "done_when": "Shared register names the mutant-surviving shape, independent-copy correction, boundary-specific controls and explicit native limits.",
-      "tier": "T1",
       "fan_out": 0,
       "git": {
-        "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
-        "short": "062d14d70",
         "branch": "feature/application-coordination",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "062d14d7019f0643b16e8c773a654f5d633ab249",
+        "short": "062d14d70"
+      },
+      "goal": "Preserve the R41 shared fixture-alias failure class and its executable recurrence control.",
+      "id": "al-01M3BGSKNXRAM177NWHY53T8TS",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Continue R41 timing preparation without native capture; record observed defect classes.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "r41-synthetic-fixture-class",
+      "skill": null,
+      "summary": "Recorded TEST-FIXTURE-ALIAS: shared envelope/frame identity let a removed envelope guard survive mutation. R41 author deep-copied each frame identity, added frame-only mismatches, reached 50/50 synthetic controls and killed all four mutants. Native visibility/timing remains Not assessed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3BGVXTPEA115RKB45FEBTZJ",
-      "shortname": "w1-current-metadata-correction",
-      "datetime": "2026-09-25T05:33:31Z",
-      "session": "cfd-coordinator-20260923",
-      "prompt": "Keep the Windows evidence current while proceeding toward M1.",
-      "summary": "Corrected Windows proof title/summary and labeled its W0 opening as historical; design summary now says passing native qualification remains open after the W1 run. No case result or product verdict changed.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/windows-runtime.md",
         "docs/design/windows-runtime.md"
       ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Remove stale W0-only current metadata after the failed W1 hosted run.",
+      "datetime": "2026-09-25T05:33:31Z",
       "done_when": "Proof and design metadata distinguish historical W0 unexecuted status from current failed W1 execution.",
-      "tier": "T1",
       "fan_out": 0,
       "git": {
-        "sha": "dbca4e05680c227de712a594661fa865ea1b58b1",
-        "short": "dbca4e056",
         "branch": "feature/application-coordination",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "dbca4e05680c227de712a594661fa865ea1b58b1",
+        "short": "dbca4e056"
+      },
+      "goal": "Remove stale W0-only current metadata after the failed W1 hosted run.",
+      "id": "al-01M3BGVXTPEA115RKB45FEBTZJ",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Keep the Windows evidence current while proceeding toward M1.",
+      "session": "cfd-coordinator-20260923",
+      "shortname": "w1-current-metadata-correction",
+      "skill": null,
+      "summary": "Corrected Windows proof title/summary and labeled its W0 opening as historical; design summary now says passing native qualification remains open after the W1 run. No case result or product verdict changed.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/notes/rulings.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-25T05:35:07Z",
+      "done_when": "Canonical ruling freezes paths, validation, conditional run and limits; clean isolated decision handback to Coordinator; Owner yields.",
+      "duration_seconds": 211.0,
+      "fan_out": 0,
+      "goal": "Turn measured Windows failures into discriminating evidence without weakening security/data gates, and correct exact-path count ambiguity.",
+      "id": "al-01M3BGYV9D34ZA3GYN43JSWYAB",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Resolve req-01M3BGQJRFR5KDK07CKJKEPY7W after actual failed W1; freeze measurement-first spike/validator/proof scope and one reviewed new run, preserve production gates. Clarify R41 seven-versus-six path arithmetic append-only.",
+      "session": "cfd-owner-20260923",
+      "shortname": "windows-native-diagnostic-ruling",
+      "skill": "define-architecture",
+      "started_at": "2026-09-25T05:31:36Z",
+      "summary": "R45 authorizes five-path diagnostic/receipt packet,70calls/45min requestedAstra and one conditional reviewed same-ref noforce run. Owner read raw failing Windows rows and found PrivateDacl lacks owner-current-user binding; require semantic numeric owner/ACE/token identity, strict negatives, held/open versus released diagnostic arms without safety inference, failure-complete source/binary/stage receipts and safe independent probes. R41 enumerated six paths are authoritative; seven was Owner count error, not author violation. No capture, production Windows/M1 PASS or section work. Existing Owner tree fast-forwarded clean to9415ab2; ruling written only there for handback.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [
