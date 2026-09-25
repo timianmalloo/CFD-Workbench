@@ -18,6 +18,8 @@ summary: >-
   separately qualified interactive desktop, with distinct store, adapter and
   independent proof ownership. A hosted Windows job ran, but its native
   qualification failed; interactive and product gates remain open.
+review-suggested:
+  - { by: coordination-application-build, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
 ---
 
 # Windows x64 M1 runtime route

@@ -12,6 +12,8 @@ links:
   - {to: proof-visible-presentation, rel: tested-by}
 review-by: 2026-12-24
 summary: A source-bound synthetic target and fail-closed receipt model test endpoint feasibility. A target-only native observer is compiled but unexecuted; no visible latency or physical visibility is qualified.
+review-suggested:
+  - { by: proof-visible-presentation, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
 ---
 
 # Visible endpoint feasibility

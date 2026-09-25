@@ -14,6 +14,10 @@ links:
   - {to: proof-visible-presentation, rel: depends-on}
 review-by: 2026-10-25
 summary: R47 preparation passes independent package, pure request and identity replay. The concrete private package closure is established; native identity, geometry, lifecycle and on-screen timing remain unmeasured and no capture execution is authorized.
+review-suggested:
+  - { by: coordination-application-build, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
+  - { by: design-visible-presentation, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
+  - { by: proof-visible-presentation, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
 ---
 
 # Independent preparation review

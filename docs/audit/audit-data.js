@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T06:31:35Z",
+  "generated": "2026-09-25T06:37:01Z",
   "audit": [
     {
       "actor": null,
@@ -8807,6 +8807,102 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T06:31:34Z",
       "duration_seconds": 1.0
+    },
+    {
+      "id": "al-01M3BM89P00Y5AS3NPQKWP7DWA",
+      "shortname": "visible-identity-r47-author",
+      "datetime": "2026-09-25T06:12:41Z",
+      "session": "cfd-visible-identity-author-20260925",
+      "prompt": "R47 whole-package timing identity and durable noncapture evidence",
+      "summary": "Frozen five-path timing identity preparation 657cd8c; 78 pure controls, four source mutants, 31-file/27-dependency closure; no capture or timing acceptance. Measured author window 867 seconds; root review remains separate.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Visible presentation identity author",
+      "artifacts": [
+        "docs/proof/visible-presentation.md"
+      ],
+      "tags": [
+        "R47"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare whole-package identity and durable noncapture timing evidence",
+      "done_when": "Source-only preparation passes its local controls and is frozen for independent review",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T05:58:14Z",
+      "duration_seconds": 867.0,
+      "git": {
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BM8GSQMXRPR0CS7880K0SC",
+      "shortname": "windows-r48-author",
+      "datetime": "2026-09-25T06:30:27Z",
+      "session": "cfd-windows-r48-author-20260925",
+      "prompt": "R48 Windows semantic ACL and diagnostic isolation correction",
+      "summary": "Frozen partial four-path checkpoint ab28bdf; 102 consumer controls, six apphost controls and five mutations, local compile/portability/docs clean. Final-arm Unsupported containment remains a prepush blocker; no remote or Windows acceptance. Measured author window 705 seconds, 22 calls.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Windows R48 diagnostic author",
+      "artifacts": [
+        "docs/proof/windows-runtime.md"
+      ],
+      "tags": [
+        "R48"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Prepare fail-closed semantic Windows diagnostics and retained source-bound evidence",
+      "done_when": "Author freezes bounded local correction with explicit remaining blocker for independent review",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T06:18:42Z",
+      "duration_seconds": 705.0,
+      "git": {
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BMG61AV8PWT7D9CFABD6JG",
+      "shortname": "r47-r50-coordination-checkpoint",
+      "datetime": "2026-09-25T06:37:01Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "stop before the full section editor (we will do that in a new session); get the other tasks before that complete",
+      "summary": "Joined R50 wrapper adoption and R47 source/independent review; recorded measured R47/R48 author checkpoints, updated M1 ledger and executable evidence defect classes, propagated non-register V16 flags. R48 final-arm containment remains a prepush blocker; no native timing or Windows product acceptance. Coordinator checkpoint duration/tokens/cost not recorded.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/application-build.md"
+      ],
+      "tags": [
+        "R47",
+        "R48",
+        "R50"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Integrate reviewed control and timing preparation while advancing pre-section M1 dependencies",
+      "done_when": "R50 and R47 joins are clean, measured handbacks and residual gates are durable, and next Owner packet is concrete",
+      "tier": "T2",
+      "fan_out": 0,
+      "git": {
+        "sha": "4d6a02dd59fb9b7f31209394e6faa6ab07d1b73e",
+        "short": "4d6a02dd5",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

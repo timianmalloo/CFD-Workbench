@@ -1398,7 +1398,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-visible-endpoint-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-12-24",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "proof-visible-presentation",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        }
+      ],
       "summary": "A source-bound synthetic target and fail-closed receipt model test endpoint feasibility. A target-only native observer is compiled but unexecuted; no visible latency or physical visibility is qualified.",
       "tags": [
         "performance",
@@ -1420,7 +1426,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1b0261c4f2b208b71e8c5ff2d1b31e3da2f3e949c09810f132eea0fe7c50e91f"
+      "sourceSha256": "b9e4ec48462ee2e6ee2ff7c73a45d439801da6a6c70bbe9ed1b80cc52bad746a"
     },
     {
       "id": "design-windows-runtime",
@@ -2133,7 +2139,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "406c6b3b433593a1b15fcf609d2101682fb124ab4deb74777e0fafae83f2eb6e"
+      "sourceSha256": "6e1186cf599262df4565f70e8f1e20e56d7ba815fef25b8dd57d2862b05b28a3"
     },
     {
       "id": "domain-experts",
@@ -4332,7 +4338,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64b152b56837f4ee414f44df34af1f466e254b8a330b380bab5e1381b58b3f08"
+      "sourceSha256": "7c039fbb213379249bca0699b6f8ea248d36c64f503f475bc2ca85ac3ca0f24c"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4652,7 +4658,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-coordinator-20260923",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        }
+      ],
       "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. A hosted Windows job ran, but its native qualification failed; interactive and product gates remain open.",
       "tags": [
         "coordination",
@@ -4683,7 +4695,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d9967811c5f490550421a61e7fa06040bd4d72397fbe5a3bc07a6146d8d63315"
+      "sourceSha256": "2b4c623a37e344aafaccea05b563f73540014d46b56c75df0a3b7735f60ac3be"
     },
     {
       "id": "privacy-review",
@@ -5193,7 +5205,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-visible-endpoint-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-12-24",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-visible-presentation",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        }
+      ],
       "summary": "Source-bound builds, 50 synthetic receipt controls, four killed wrong-result mutants and 32 noncapture clock pairs establish limited preparation evidence. Native capture, visibility, lifecycle, rendered-state correlation and every M1 latency budget remain Not assessed.",
       "tags": [
         "performance",
@@ -5211,7 +5229,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c0f015e3e56392f1ba7e8dbfef168cca59adafab6424da62c053c3a6b9c19499"
+      "sourceSha256": "2f900283716bc4cb548dc85e7a58023dd2fd9ac507db3c89825c580f874114a8"
     },
     {
       "id": "proof-windows-runtime",
@@ -5655,7 +5673,23 @@ window.DOCS_INDEX = {
       "owner": "@cfd-visible-identity-review-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "coordination-application-build",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        },
+        {
+          "by": "design-visible-presentation",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        },
+        {
+          "by": "proof-visible-presentation",
+          "on": "2026-09-24",
+          "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        }
+      ],
       "summary": "R47 preparation passes independent package, pure request and identity replay. The concrete private package closure is established; native identity, geometry, lifecycle and on-screen timing remain unmeasured and no capture execution is authorized.",
       "tags": [
         "performance",
@@ -5686,7 +5720,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "617dbc5b6d9fa7a3bc3a53d6867436bd0ebc5c373f03eae661a1a6f6f67bb067"
+      "sourceSha256": "5c8e914a224de21af019b22e451fead192a588d1f7941a10f01fd409fbb08113"
     },
     {
       "id": "review-windows-runtime",
@@ -6243,5 +6277,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "fd22e9a3697950ee78e20e25c6644c9fd0c1d5b40550abd543a1e83ec14324bd"
+  "graphSha256": "c0130f8a399bce7e4bceadc820c62d44df56fb569a1c671635deffccc5c1187d"
 };

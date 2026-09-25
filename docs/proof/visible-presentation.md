@@ -11,6 +11,8 @@ links:
   - {to: kb-visible-presentation, rel: depends-on}
 review-by: 2026-12-24
 summary: Source-bound builds, 50 synthetic receipt controls, four killed wrong-result mutants and 32 noncapture clock pairs establish limited preparation evidence. Native capture, visibility, lifecycle, rendered-state correlation and every M1 latency budget remain Not assessed.
+review-suggested:
+  - { by: design-visible-presentation, on: 2026-09-24, reason: "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims" }
 ---
 
 # R41 bounded feasibility result
