@@ -3099,7 +3099,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "faad449daf7c617ab2abdfee19dcc326850b7d389de4b451065cc7b87c5ac9bd"
+      "sourceSha256": "e7737d04b4752e2b7255891cce72bee644b87882be99698f2a68e83ae0ed097d"
     },
     {
       "id": "kb-hw-glossary",
@@ -5528,6 +5528,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-windows-runtime",
+      "path": "docs/reviews/windows-runtime.md",
+      "title": "Independent Windows W0 qualification review",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@cfd-windows-review-20260925",
+      "phase": "application-foundation",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Independent review admits the frozen W0 packet only as disposable qualification infrastructure. Local receipt and binding controls pass; Windows execution, production containment, durability, accessibility and timing remain unqualified.",
+      "tags": [
+        "windows",
+        "review",
+        "security",
+        "persistence",
+        "testing"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "documents"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-contract-b-core",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f7400addf8e0fb194f00aedbd2b3764b6c5fddc2079f1971830ec6258bb375ab"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -6032,5 +6071,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "4a8633b1eb81e622b577699857d374266a45a744be33e08be16c701b9c8f92b8"
+  "graphSha256": "47c8daf18457ac77478488f8bdb919e16478a33919a217bbe0e9f8abc526a47c"
 };
