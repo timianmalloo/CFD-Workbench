@@ -107,6 +107,14 @@ human foreground or credential request follows from the present lack of a host.
 - Compare packaged Windows CLI and GUI source, surface, revision and recovery
   identity with the accepted macOS fixture set. Windows UIA/Narrator and native
   file-picker behavior require W3; a toolkit tree alone is not that proof.
+- W0 receipt validation asserts each named case's exact before/after target,
+  owned temporary/claim, and unrelated foreign bytes plus publication and
+  durability state. The self-test mutates conflict preservation,
+  cancel-before absence, write-fault cleanup and cleanup-refusal foreign
+  retention individually; each wrong result must fail even if other rows are
+  Not assessed. Hash authored inputs both before and after build/run and
+  reject source drift. These are executable controls for [EVID-WIN-STATE](../lessons/defect-classes.md),
+  not substitutes for a Windows-native run.
 - Keep the [visible-timing obligation](../notes/m1-scope-decision.md#what-honest-screen-timing-would-require)
   independent. A hosted runner or compositor-batch number cannot establish the
   specified reference laptop's final displayed frame.

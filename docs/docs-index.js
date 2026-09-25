@@ -2030,7 +2030,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "619b7fc02f5e5e2a2e92c51a17e80f5de8325c904481ab6c3643ed083f4df870"
+      "sourceSha256": "431b3fe396a00be155ef99e27e0c285ab26b0adf74d596dcda96f210716c2118"
     },
     {
       "id": "domain-experts",
@@ -2176,10 +2176,10 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "Graph and mandatory floors",
-          "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6 --> G7\nG3 --> G5 --> G6"
+          "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6\nG3 --> G5 --> G6\nG6 -. new session only .-> G7"
         }
       ],
-      "sourceSha256": "9762a62b64cdc905cd12d73297aafdd987f717a87a99f1ec0a6ee2b50960483c"
+      "sourceSha256": "817d68fd7fe2a98539dace011e6931d4b81b395c4db616062aee4d976e63e641"
     },
     {
       "id": "plan-authoring-decisions",
@@ -4555,7 +4555,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c3b9b66033ef39fd877707630118caef70d22f5ca711d78059a728797e2bd482"
+      "sourceSha256": "7d96737928d3f31b0bd43e9f444409ae8cce5c27c865b6ba91754a2873d2c407"
     },
     {
       "id": "privacy-review",
@@ -5958,5 +5958,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c86714f8608ef566a425742ac9701b5c4fe357a76af4675b27d06cac00f4d089"
+  "graphSha256": "703d6fc87370815c8160b42354f0288ff21a4b25152c239ebd256d078e548bdd"
 };

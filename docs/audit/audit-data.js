@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:27:19Z",
+  "generated": "2026-09-25T04:33:13Z",
   "audit": [
     {
       "actor": null,
@@ -7590,6 +7590,38 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "582373dd11914fa1f05df8708168fae3f6818796",
         "short": "582373dd1",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3BDDD963CZAT857AZAZ6H0N",
+      "shortname": "w0-receipt-class-and-stop-closure",
+      "datetime": "2026-09-25T04:33:10Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "Finish M1 tasks before the full section editor in a new session; retain Windows and timing gates and correct W0 receipt false accepts.",
+      "summary": "Marked G7 section-editor replan as new-session only and current-session M1 stop. Recorded independently reproduced W0 conflict/cleanup-refusal false accepts as EVID-WIN-STATE with per-case byte and source-drift controls; repaired receipt still awaits frozen review. Captured reviewer web-line-number correction and pinned raw-byte control. Docs graph/check pass, no Windows or timing acceptance claim.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/application-build.md",
+        "docs/lessons/defect-classes.md",
+        "docs/coordination/windows-runtime-route.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Keep the user stop boundary and W0 evidence integrity durable without weakening M1 gates",
+      "done_when": "G7 moved to new session; W0 false-accept control recorded; final author proof independently reviewed later",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-25T04:32:48Z",
+      "duration_seconds": 22.0,
+      "git": {
+        "sha": "b8561a5d1b4f3c129eabb13bb87821e6b2c8133f",
+        "short": "b8561a5d1",
         "branch": "feature/application-coordination",
         "pushed": null
       }

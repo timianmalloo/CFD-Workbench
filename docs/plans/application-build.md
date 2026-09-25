@@ -53,13 +53,14 @@ placement remains recorded for a new session; it is not a task to dispatch now.
 | G4 | Implement accepted source, parser, model, evaluator, identity and persistence in one coherent core track | Red→green normal, invalid and fault fixtures; immutable accepted history; one numeric rail edit round trip via core API | Reasoning; T2 | G3 (data) |
 | G5 | Implement native shell/viewport/CLI adapters against compiling G3 contracts and fixtures in disjoint authored paths | Example opens; keyboard and accessibility state evidence; UI and CLI consume same core; unavailable analysis labelled honestly | Reasoning; T2 | G3 (data) |
 | G6 | Join and inspect M1 on integrated branch | `conductor-join.py` and integrated gate set pass; user workflow exercised in rendered app on macOS and Windows x64, including Windows native accessibility/file/identity evidence and actual on-screen cold/edit/Preview/Cancel budgets on the stated workload; independent vetoes pass. Cross-publication and compositor-batch timing alone do not satisfy these gates. | Independent review + deterministic mechanics; T2 | G4, G5 plus Windows runtime and visible-endpoint proof (data) |
-| G7 | Re-plan next dependency-ready slice within approved product scope | New graph cites observed M1 behavior and remaining requirement, budget and gates; no speculative worker launch | Reasoning; T2 | G6 (decision) |
+| G7 · future session | Re-plan M1.1 section authoring only after this session stops and a new session opens | New graph cites observed M1 behavior and remaining requirement, budget and gates; no section-editor author in this session | Reasoning; T2 | G6 and new-session boundary (decision) |
 
 ```mermaid
 flowchart LR
 G0 --> G1 --> G2 --> G3
-G3 --> G4 --> G6 --> G7
+G3 --> G4 --> G6
 G3 --> G5 --> G6
+G6 -. new session only .-> G7
 ```
 
 **Observed graph refinement, 2026-09-23:** A returned commit `a92c4e7` and Owner Ruling 8
@@ -115,7 +116,7 @@ certificate or M1 pass.
 
 **Naive → optimized:** A naive serial walk would be G0→G1→G2→G3→G4→G5→G6→G7: 8 nodes, width 1, no bounded loop. The optimized graph keeps all 8 nodes and every floor, moves only the disjoint adapter construction after frozen G3 alongside core construction, and makes G6 a single integrated join. Its maximum width is 2. A parser and its evaluator stay in G4 because their invariants and identity are coupled. The implementation branches are admitted only after G3 proves no decision edge remains. Architecture and spike work stay serial because their results alter each other's shape.
 
-**Cost model, Inferred:** use effort units solely to compare shape, not as observed hours or tokens: G0=1, G1=4, G2=3, G3=1, G4=5, G5=4, G6=2, G7=1. `T₁=21`; naive `T∞=21`; with G4/G5 parallel, `T∞=17` and at width 2 the bound is `T₂ ≤ (21−17)/2+17 = 19` units, with a hard lower bound of 17. This is a small modeled gain. Branch setup, context cost and integration may exceed four units; the width-two option is justified only when G3 produces truly independent paths and the first wave's measured overhead is below that saving. Otherwise G4→G5 is serial. No wall-time or token bottleneck has yet been measured for this application.
+**Original cost model, Inferred and historical after the user stop:** use effort units solely to compare shape, not as observed hours or tokens: G0=1, G1=4, G2=3, G3=1, G4=5, G5=4, G6=2, G7=1. `T₁=21`; naive `T∞=21`; with G4/G5 parallel, `T∞=17` and at width 2 the bound is `T₂ ≤ (21−17)/2+17 = 19` units, with a hard lower bound of 17. This is a small modeled gain. Branch setup, context cost and integration may exceed four units; the width-two option is justified only when G3 produces truly independent paths and the first wave's measured overhead is below that saving. Otherwise G4→G5 is serial. No wall-time or token bottleneck has yet been measured for this application. G7 is excluded from this session's active graph.
 
 **Five-part fan-out contract (G4/G5 only):** width 2; one retry with backoff only for a clean pre-prompt startup timeout/EOF/429/529, never replay a started turn; each branch exits with a descendant commit, owned-path inventory and independently runnable named oracles; all M1-critical branches must pass before G6, and a partial branch is retained and reported; a failed branch stops locally, with Owner-ruling before reassignment. Each branch has the specific budget, context ceiling, deadline and fallback in the coordination plan. The feedback loop's variant is the count of tracks lacking verified exit evidence, floor zero, exit when zero or a documented blocker has a ruling/fallback; two passes without decrease trigger the kick ladder, and a cap firing is a defect signal.
 
@@ -130,4 +131,4 @@ certificate or M1 pass.
 | Rework passes and budget firings | 0 intended | A/B0 required serial contract completion; G4 had bounded checkpoints and /2 repair before full join; G5 first build-output drift stopped and corrected once under Ruling 23 |
 | Completeness/rigor floors | All immovable nodes above | B0 and bounded G4 independent gates passed; G5/G6 and live platform proof pending |
 
-The initial qualification/plan budget is 70 tool calls or 30 minutes; at either cap, record what estimate failed and re-plan the remainder. Do not drop a gate. Later worker budgets appear in the coordination plan. The graph is closed when M1 is independently verified and every dependency-ready next slice has either a new bounded contract or a recorded genuine blocker; the user asked for continued increments, so M1 is a checkpoint, not an automatic stop.
+The initial qualification/plan budget is 70 tool calls or 30 minutes; at either cap, record what estimate failed and re-plan the remainder. Do not drop a gate. Later worker budgets appear in the coordination plan. **Current-session termination:** finish independently verified M1 Windows, visible-timing and remaining application gates, or record a genuine external blocker with its exact pending edge. Then stop before the full section editor. G7 and section-editor design/implementation belong to the new session the user specified; the earlier continued-increment rationale is historical, not authority to cross this stop boundary.

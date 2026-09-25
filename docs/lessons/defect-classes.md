@@ -719,6 +719,15 @@ external write occurred, and the author reran with `artifact_file`. Sweep
 task-local shell variable names used around executable lookup. The always-read
 CT26/no-guessing control now names this tied-variable hazard: use a task-specific
 name, then check the executable resolves before a mutating loop.
+During visible-presentation source review, a web text rendering of pinned
+Avalonia source omitted blank lines and made the comment/initializer appear
+four lines earlier than the immutable file. The Reviewer sent a correction,
+then `nl -ba` on the pinned downloaded bytes confirmed the author's original
+line references. The source-content finding was valid, but the line-number
+objection was wrong. For exact line citations, inspect the pinned raw bytes
+with a physical line-number tool; a rendered web view's line positions are
+not the file's line numbers. This is a reviewer NG-local correction, not an
+author defect.
 
 **CO-DECISION-VIS · A new ruling is assumed visible in an older isolated worktree.**
 Ruling 23 was recorded after the C worktree fork, so that tree's local
@@ -993,3 +1002,26 @@ Do not transfer that write to the Owner's branch or overwrite the append to
 make a generated conflict disappear. The check is the exact register/audit
 diff plus `verify-ruling-citations.py` and the conductor gates; this incident
 was recovered, not evidence that concurrent register writes are safe.
+
+**EVID-WIN-STATE · A source-bound receipt validates the scenario name but not
+its scenario-specific persisted state.** In the W0 Windows qualifier draft,
+the common receipt validator checked fixture/host fields while its expected
+state map omitted conflict preservation and foreign-file retention on cleanup
+refusal. Root's disposable synthetic review and the author independently
+fed a conflict row with a wrong after-hash and a cleanup-refusal row with
+wrong `foreignAfter`; each case was accepted before the correction. The
+overall W0 receipt was still nonpassing because unrelated native rows were
+Not assessed, which could have hidden these local false accepts. Sweep the
+same shape across cancel-before (target absent), write-fault owned cleanup
+and every other named stateful case, not only the two reproduced rows.
+
+**Class → sweep → derive → prevent:** a source/binary hash proves which
+qualifier ran, not that each scenario's expected bytes and publication state
+were asserted. The W0 author is adding case-specific pre/post/foreign byte
+contracts and `--self-test` field mutations; a separate copied-source drift
+negative must reject edits after the pre-build hash. The [always-read Windows
+route](../coordination/windows-runtime-route.md) requires those controls
+before W0 handback. This register records the confirmed draft failure class;
+final repaired PASS remains subject to frozen author receipt and independent
+root Data/Security/Test review. No Windows-native case is made PASS by a
+synthetic validator test on macOS.
