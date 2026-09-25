@@ -1420,7 +1420,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b91ec84d4057a44a5c36cc632b19aca563fd83c0a2462f8bad7bcfce1b253679"
+      "sourceSha256": "1b0261c4f2b208b71e8c5ff2d1b31e3da2f3e949c09810f132eea0fe7c50e91f"
     },
     {
       "id": "design-windows-runtime",
@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1ad9bf5f25f9d581c2f7c38aaeb15fdfaecb727a542ce25bedf81fa16d93d27d"
+      "sourceSha256": "c0f015e3e56392f1ba7e8dbfef168cca59adafab6424da62c053c3a6b9c19499"
     },
     {
       "id": "proof-windows-runtime",
@@ -5652,11 +5652,11 @@ window.DOCS_INDEX = {
       "title": "Independent visible-presentation preparation review",
       "type": "proof-pack",
       "status": "in-review",
-      "owner": "@cfd-visible-review-20260925",
+      "owner": "@cfd-visible-identity-review-20260925",
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
       "reviewSuggested": [],
-      "summary": "Frozen preparation passes its independently replayed synthetic contract and clock controls. No native capture or visible-performance acceptance is granted; whole-package identity and the native observation contract still require preparation.",
+      "summary": "R47 preparation passes independent package, pure request and identity replay. The concrete private package closure is established; native identity, geometry, lifecycle and on-screen timing remain unmeasured and no capture execution is authorized.",
       "tags": [
         "performance",
         "review",
@@ -5675,10 +5675,18 @@ window.DOCS_INDEX = {
         {
           "to": "coordination-application-build",
           "rel": "relates-to"
+        },
+        {
+          "to": "design-visible-presentation",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-visible-presentation",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5793bafe24b9b27514fd4926eef1aa17ef539923840d50581c9502e9dc4989d2"
+      "sourceSha256": "617dbc5b6d9fa7a3bc3a53d6867436bd0ebc5c373f03eae661a1a6f6f67bb067"
     },
     {
       "id": "review-windows-runtime",
@@ -6235,5 +6243,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d4ec20fdb2dd1a864af7b61d48367a3b1dcb9d802c7e6948955e37c2534d2b84"
+  "graphSha256": "fd22e9a3697950ee78e20e25c6644c9fd0c1d5b40550abd543a1e83ec14324bd"
 };

@@ -3,18 +3,24 @@ id: review-visible-presentation
 title: Independent visible-presentation preparation review
 type: proof-pack
 status: in-review
-owner: "@cfd-visible-review-20260925"
+owner: "@cfd-visible-identity-review-20260925"
 phase: application-foundation
 tags: [performance, review, privacy, testing]
 links:
   - {to: kb-visible-presentation, rel: depends-on}
   - {to: note-m1-scope-decision, rel: documents}
   - {to: coordination-application-build, rel: relates-to}
+  - {to: design-visible-presentation, rel: documents}
+  - {to: proof-visible-presentation, rel: depends-on}
 review-by: 2026-10-25
-summary: Frozen preparation passes its independently replayed synthetic contract and clock controls. No native capture or visible-performance acceptance is granted; whole-package identity and the native observation contract still require preparation.
+summary: R47 preparation passes independent package, pure request and identity replay. The concrete private package closure is established; native identity, geometry, lifecycle and on-screen timing remain unmeasured and no capture execution is authorized.
 ---
 
 # Independent preparation review
+
+**Current disposition: see the R47 review below.** The following R41 findings are
+historical; R47 closes its concrete private-package inventory gap, while retaining
+the native execution and timing gates.
 
 **PASS-WITH-CONDITIONS for source-only preparation; not ready for a native
 timing acceptance run.** No target window, alternate capture, permission query
@@ -155,3 +161,110 @@ for the frozen handoff and documentation, and excludes the earlier draft reads.
 Requested/effective billing identity, tokens and monetary cost for this root
 review: **not recorded**. The author's separately measured 1,085 seconds and
 56/60 reported operations are not root's usage.
+
+## R47 independent review, 2026-09-25
+
+**PASS-WITH-CONDITIONS for the frozen preparation packet; native timing and a
+concrete capture request remain unready.** Subject: clean author
+`657cd8c87a422ed69685311b1206406536c5734d`, exactly five authored paths under
+[Ruling 47](../notes/rulings.md#ruling-47--prepare-whole-package-timing-identity-and-durable-noncapture-evidence).
+Root reviewed in isolated `feature/visible-identity-review` from `112a614`.
+Only this review and official audit/index outputs are reviewer-owned.
+
+Goal: independently verify the actual private package, request/identity contract
+and durable evidence. Done when Data/Security/Test/SRE dispositions and exact
+remaining native obligations are recorded. Not in scope: capture, permission
+preflight, target UI, product timing, Windows or section implementation. Tier T2;
+global active cap three. The surface chain reviewed is published assets/deps →
+manifest → request → Swift identity/geometry reader → receipt → assessor/proof.
+No product representation or source was changed by the reviewer.
+
+### Observed replay
+
+The two durable capsules decode to exactly 253,143 and 49,728 bytes and match
+their committed SHA-256 values:
+`711b114d58ca1c23ee67292402d5a0517aa82dcb1030d388ff0744e6f312d30d` and
+`dee76d7754ddfa32d4e5f87dd07188b9fab489b86c08bb586a2a883bc62f9497`.
+Root checked every nested retained-log digest, source/helper/DLL binding, all
+31 published file hashes and all 27 unique deps mappings against actual files.
+The selected RID is `osx-arm64`; its empty portable target is not a competing
+asset resolution. No loaded-memory attestation is inferred from disk hashes.
+
+| Independent check | Actual outcome | Boundary |
+|---|---|---|
+| Synthetic assessor | 50 cases, exit 0, byte-identical replay | Native mode remains refused |
+| Swift pure request parser | 14 cases, exit 0, byte-identical replay | Synthetic PID/window/crops only |
+| Actual Python package reader | Six cases, exit 0, byte-identical replay | Positive, changed managed bytes, missing native/required files, extra file, symlink |
+| Swift pure identity comparator | Eight cases, exit 0, byte-identical replay | Equality/nil inputs; no AppKit/process/window lookup |
+| Actual target model | Exit 0, byte-identical three-region state/late-Cancel result | Returns before Avalonia startup |
+| Actual self-process identity | Exit 0; equal PID/start/executable values, stable true | Self-process only; cross-API precision unmeasured |
+| Four source mutants | All exit 1 with named failed assertions | Identity, content, regression and uncertainty; each exact source substitution checked |
+| Arm64 load commands | Reran `otool -arch arm64 -l`; exact retained stdout match | 31 actual imports all `/System/Library` or `/usr/lib` |
+| Clock operands | Independently recomputed 32 rational intervals | Quantization `128/3` ns, intersection `[-128/3,42]` ns; no trial drift claim |
+| Tooling/source stability | Portable-text and subprocess-UTF8 clean; source/helper/DLL hashes unchanged; author tree clean | No new native compiler or rendered-state claim |
+
+The `/usr/local/lib/libAvalonia.Native.OSX.dylib` entry is `LC_ID_DYLIB`, not an
+external import. Root inspected load-command kinds separately from names; the
+other install names are `@rpath/libSkiaSharp.dylib` and
+`@rpath/libHarfBuzzSharp.dylib`. The private static dependency inventory is
+established for this package. OS libraries and the installed framework-dependent
+.NET runtime are the explicit system trust boundary. A later launch must bind
+its loader/environment context; this does not require attesting all system memory.
+
+Recount scripts: `/private/tmp/cfd-r47-independent-review.py` and
+`/private/tmp/cfd-r47-native-clock-review.py`; raw outputs are under
+`/private/tmp/cfd-r47-independent-evidence/`. Its main report SHA-256 is
+`0e8736bd577ce9304ac744cb9fd3d17f313bf4d498d0ec085b13c446e272238b`.
+Independent load-command stdout SHA-256:
+`3797fe9d7eaaba974fd2f28e01bb74c175655a120854ebaa87f667707cd27bb8`.
+The source proof's capsules preserve the replay operands if scratch disappears;
+the table above is a derived review, not a claim to embed every raw process byte.
+
+Reviewer correction: the first local exact-clock calculation omitted the
+documented quantization allowance and failed its own intersection assertion.
+Root re-read the consumer's unit/uncertainty contract, included both clock quanta,
+and compared the resulting rational values directly to the retained analysis.
+This was a reviewer-oracle error, not a reported product defect. The correction
+is explicit so no false exact-clock conclusion survives. Coordinator owns the
+shared-register recurrence note and V16 propagation at integration.
+
+### Dispositions and next permitted boundary
+
+**Data/Security: preparation PASS.** The concrete package closure and immutable
+request shape are verified to the stated boundary. Helper source rechecks
+process/start/executable/bundle, package/helper/context bytes and window geometry
+at the named points. Those native reader calls remain unexecuted; pure equality
+tests do not qualify them. In particular, Swift's real file guard and process
+observations need an appropriate later runtime check, not a Python-reader proxy.
+
+**Test/SRE: PASS-WITH-CONDITIONS for preparation.** Real pure entry points and
+negative controls were replayed, with no target, permission query, capture or
+OS input. The startup/callback/stop races, crop decoder and presented-state bridge
+remain unverified. The observer hashes the package on its main callback queue;
+observer overhead and a bounded outer process/cleanup contract must be established
+before using native results. The queued timer alone is not proof of a hard
+deadline while synchronous work runs. No new native defect is inferred without
+execution, and no performance veto is cleared.
+
+**Privacy/UX/Simplifier: retain the narrow feasibility scope.** There is no new
+product UI or section editor. The helper's metadata lookup and transient
+target-only full-frame buffers must be disclosed in any later specific user
+request; no other-window/audio retention or egress is proposed. Existing OS
+permission and broad implementation authorization are not capture authorization.
+The author disclosed incremental compile/fixture corrections within its bounded
+window; root did not mislabel that history as one atomic correction.
+
+Next Owner packet should settle the smallest runtime evidence sequence: bind the
+reviewed loader context and owned process identity, obtain actual target geometry
+through the supported review route, and prepare one exact finite request plus
+outer timeout/cleanup evidence. Batch the necessary specific capture authorization
+and any genuinely unavailable Windows/reference-host information once reviewable.
+Keep Windows implementation dependency-ready work running while waiting. Do not
+ask for window focus repeatedly, collect product budget trials against an
+unqualified observer, expand to generic capture tooling, or start the full section
+editor. All on-screen M1 budgets, visibility/loss/drift and reference-host proof
+remain **Not assessed**.
+
+Root's marker `2026-09-25T06:20:24Z` measures the frozen review run and excludes
+earlier read-only grounding. The author's 867-second run is separate. Effective
+model, tokens and monetary cost: **not recorded**.
