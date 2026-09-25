@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T05:10:27Z",
+  "generated": "2026-09-25T05:24:24Z",
   "audit": [
     {
       "actor": null,
@@ -7999,6 +7999,36 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-09-25T05:08:55Z",
       "duration_seconds": 92.0
+    },
+    {
+      "id": "al-01M3BGB7MGNPHV22K6ZDNHZV9J",
+      "shortname": "w1-windows-hosted-failure",
+      "datetime": "2026-09-25T05:24:24Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
+      "summary": "R43 parse failure and R44 real Windows x64 execution recorded. Final run had 21 native Pass, four Fail, one Not assessed; compact SDDL alias rejected by qualifier before UIA/summary. Corrected CO-LEADER epoch-fence claim, recorded actionlint context and AGENT_SESSION recurrence controls. No Windows product or M1 pass and no third run.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/windows-runtime.md",
+        "docs/coordination/windows-runtime-route.md",
+        "docs/coordination/application-build.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Record the source-bound W1 Windows execution result and route its failed native qualification without a third run or section work.",
+      "done_when": "The Windows run, raw limits, process outcome, coordination controls and next independent/Owner dependencies are durable and checked.",
+      "tier": "T2",
+      "fan_out": 1,
+      "git": {
+        "sha": "f1a4e2c8a17c0541962cfbd4c8ef5363bbd4e63f",
+        "short": "f1a4e2c8a",
+        "branch": "feature/application-coordination",
+        "pushed": null
+      }
     }
   ],
   "changes": [

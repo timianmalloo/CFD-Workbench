@@ -199,3 +199,61 @@ Completed: six-path preparation and the local executable evidence recorded above
 Remaining: independent review and every native
 Windows/runtime/UI/timing gate. Next: root reviews the exact commit and raw
 receipts; Owner then decides a concrete W1 run route. No push/dispatch occurred.
+
+## W1 hosted execution, 2026-09-25
+
+This later checkpoint supersedes the W0-only status above for **whether a
+Windows process ran**, but does not turn the candidate into a Windows runtime
+pass. Owner Rulings 43–44 authorized exactly two pushes to the disposable
+`feature/windows-w1-qualification-20260925` branch. The first run
+[`36097138344`](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097138344)
+failed workflow validation before a job existed: `runner.temp` was used in
+job-level `env`, where that context is unavailable. The retained original
+workflow failed official `actionlint` v1.7.12 with three context errors. The
+one-YAML correction moved those variables to the consuming steps; the same
+binary passed the corrected workflow. The corrected commit was
+`7f34c13c3568ec31779866e061eb0a7d52dbfb36`, with five-source composite
+`78e5585a9dcc9db5344e28b0fdfbd5f00d4f70fe085a4a54999ccab5934b8e5d`.
+
+The second and final authorized run
+[`36097839626`](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097839626)
+started a `windows-2022` x64 job at `2026-09-25T05:16:06Z` and completed
+failure at `05:16:46Z`. Checkout, SDK setup and 35 receipt wrong-result
+controls succeeded. The native step failed, and the artifact upload succeeded.
+The Windows build process exited 0; its receipt records the `dotnet.exe`,
+`csc.exe` and `conhost.exe` identities with `quiescent=true`. The actual
+`WindowsRuntime.exe` process was observed at PID 6116, exited 3 in 0.171 s,
+and its process receipt records `quiescent=true`. These are process observations,
+not proof that every native case passed.
+
+The retained native stdout has 26 unique case rows: **21 Pass, four Fail, one
+Not assessed**. The failures are `overwrite` and `cancel-after` (Win32 5,
+publication false, expected publication true), `dacl-replacement` (`Access is
+denied.`), and `ancestor-substitution` (`W0-ANCESTOR-MOVED`). The last row
+does not emit the attempted move result or Win32 error, so its code alone
+cannot establish that the ancestor actually moved. `directory-durability`
+remains explicitly Not assessed. `dacl-create` passed its native private-DACL
+check and emitted `O:LAD:P(A;;FA;;;LA)`, but the Python validator accepts only
+numeric SID text and raised `W0-WRONG-DACL`. That is a separate receipt-oracle
+representation mismatch: the native `PrivateDacl` check parses the descriptor
+and compares its ACE SID with the current Windows identity, while the validator
+rejects the emitted alias. Validation stopped before a completed `summary.json`,
+post-run source rehash, full binary-file manifest or UIA capability result.
+No binary bytes were uploaded for an independent Windows-byte recount.
+
+Raw API/job/log receipts and downloaded artifact are retained under
+`/tmp/cfd-w1-run-36097839626/`. Their SHA-256 values include `run.json`
+`01ebb16d456d850faa3152fb50d379f5422b9a649c3b5175797b896d74300ef6`,
+`jobs.json` `af26a39fa466d1439016a2119f18f4ca4cdf0453638c692aeac9915fc06244ea`,
+`run.log` `7f680a8a6535194d08a21957f294d611a5eccd83f3baae69b6b5ec0ac7af20b7`,
+artifact `native/stdout.txt`
+`436f50f0163bbd408a539fa7cf1e75e429b2d92d321eb9a682e2a66e0ff26b54`,
+and `native/process.json`
+`2bb0932d17b8d0d3190b37025e36cd31bc12f28962f29770d5cc7cadefa5d030`.
+The `source.json` in that artifact reports Windows Server 2022 image
+`20260920.314.1`, SDK 10.0.203 source binding, and `native_qualification: Not
+assessed`; its SHA-256 is
+`4b1924738fd745bdb667f3473df60134233581ea5c4604ba56833856baa5aab7`.
+The run is a measured Windows execution with failed qualification. Ruling 44
+permits no third push or rerun. Product Windows persistence, UIA/Narrator,
+actual displayed timing and M1 acceptance remain open.

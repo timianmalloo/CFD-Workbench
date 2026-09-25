@@ -182,9 +182,9 @@ Capability values are **per actual worker fingerprint**: worktree isolation = ob
 
 | status | item |
 |---|---|
-| Completed | B original core and macOS permission repair are joined at `a550466`. Isolated C R39 `0d4a590` passed 396 applied-control rows, 21 negatives and a source-bound 12-step gate; root independently passed the exact High Contrast focused-field and tab-hover native regressions. The two-fresh-build CUA readiness control and its bounded review joined. Windows W0 preparation `82a366a` and independent preparation-only review `f080076` joined; the R42 qualifier correction `529bcb9` cleared all 11 integrated gates at `c5de04e`. The user placed Windows and actual visible timing in M1 and deferred full section authoring to a new session. |
-| Remaining | C product remains isolated pending a technical integration disposition; its native contrast pass does not clear displayed timing, Windows runtime, broad assistive technology, signing or release trust. W0 is preparation: no Windows x64 native case has executed. W1 hosted job/interactive UIA route, W2 product runtime and W3 independent desktop proof remain open. R41 authorizes timing contract preparation only; capture execution requires separate specific user authorization after root review. The CUA internal failure cause is unverified even though its session-reset readiness control passed. |
-| Best next action | Decide the exact reviewed W1 disposable-branch push/trigger route, then obtain actual hosted Windows receipts. Prepare R41's noncapture timing contract in an isolated track while the Windows job runs. Route C technical integration separately with all unmeasured gates visible. Do not start the full section editor in this session. |
+| Completed | B original core and macOS permission repair are joined at `a550466`. Isolated C R39 `0d4a590` passed 396 applied-control rows, 21 negatives and a source-bound 12-step gate; root independently passed the exact High Contrast focused-field and tab-hover native regressions. The two-fresh-build CUA readiness control and its bounded review joined. Windows W0 preparation `82a366a` and independent preparation-only review `f080076` joined; the R42 qualifier correction `529bcb9` cleared all 11 integrated gates at `c5de04e`. Rulings 43–44 established one actual Windows x64 hosted execution with retained process/case receipts. The user placed Windows and actual visible timing in M1 and deferred full section authoring to a new session. |
+| Remaining | C product remains isolated pending a technical integration disposition; its native contrast pass does not clear displayed timing, Windows runtime, broad assistive technology, signing or release trust. The Windows run failed four of 26 native cases, left directory durability Not assessed, and stopped on a DACL receipt-oracle mismatch before UIA. W2 product runtime and W3 independent desktop proof remain open. R41 authorizes timing contract preparation only; capture execution requires separate specific user authorization after root review. The CUA internal failure cause is unverified even though its session-reset readiness control passed. |
+| Best next action | Root independently reviews the exact Windows artifacts and separates native behavior from receipt-oracle defects; then Owner freezes a bounded repair and next dispatch route. Continue R41's noncapture timing contract in its isolated track. Route C technical integration separately with all unmeasured gates visible. Do not start the full section editor in this session. |
 
 ### Native visibility continuation · one optimized graph
 
@@ -391,8 +391,33 @@ containment. The first integrated join exposed five portable-text findings
 in the new qualifier. Ruling 42's bounded one-file correction `529bcb9`
 passed targeted controls and root delta review; the corrected join at
 `c5de04e` passed 11/11 integrated gates. The original local native receipt
-still binds only the original qualifier bytes. W1 branch push/host run has
-no ruling yet. Ruling 41 independently admits seven exact visible-endpoint
+still binds only the original qualifier bytes. Ruling 41 independently admits six named visible-endpoint
 spike files, compilation and noncapture tests; it forbids alternate screen
 observation until a reviewed target-only helper and specific user
 authorization. No displayed-latency or two-platform M1 result follows.
+
+**W1/R43/R44 checkpoint, 2026-09-25:** The first exact disposable-branch push
+produced [run 36097138344](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097138344),
+which failed workflow validation with no job or artifacts because `runner.temp`
+was in job-level `env`. The one-YAML correction passed official `actionlint`
+v1.7.12. The second and final authorized push produced
+[run 36097839626](https://github.com/timianmalloo/CFD-Workbench/actions/runs/36097839626):
+a Windows Server 2022 x64 job, SDK build, actual apphost process and 26 native
+rows. It finished failure with 21 Pass, four Fail and one Not assessed, then
+the validator refused compact DACL alias `LA` as `W0-WRONG-DACL`. The
+[source-bound proof](../proof/windows-runtime.md#w1-hosted-execution-2026-09-25)
+distinguishes observed native failures, incomplete summary/source-drift/UIA
+evidence, and the receipt parser mismatch. Ruling 44 allows no third push or
+rerun. Root's independent Windows disposition and an Owner repair/dispatch
+decision are the next dependencies; no Windows product, W3 or M1 pass follows.
+
+**Coordination precondition:** before each conductor mutation, use the
+supported `leader renew` and inspect `leader who --json` for the current
+session, `state: live`, and the expected epoch; retain that raw readback.
+The conductor epoch fence alone does not reject an expired same-epoch
+designation. Prefix every mutating Git command, including `git commit`, with
+the actual `AGENT_SESSION` so the ownership hook is enforcing rather than
+advisory. An explicit post-commit path check bounds ownership but cannot
+retroactively make an identity-free commit enforced. The corresponding
+[CO-LEADER and COORD-ENV classes](../lessons/defect-classes.md) retain the
+observed lapses and the open fail-closed preflight improvement.

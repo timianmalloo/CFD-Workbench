@@ -2074,7 +2074,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4bf002c0a9a31dbf08479053f0a4192ee1e2ab81ebd40f82385935b1f942b616"
+      "sourceSha256": "decb86f981f95ed89b464c971225aaf65548116009b46dcd4d684836db3d6461"
     },
     {
       "id": "domain-experts",
@@ -3099,7 +3099,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e7737d04b4752e2b7255891cce72bee644b87882be99698f2a68e83ae0ed097d"
+      "sourceSha256": "725239072a6362e4b77eec52c582f6d7379882d446f9151a89f631952547971c"
     },
     {
       "id": "kb-hw-glossary",
@@ -4248,7 +4248,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "71ad6375d76ed853b8b186e44d4edecf00e83c1a6c59c1256e71c40302b3640e"
+      "sourceSha256": "5a6867302c149df95374ea0247d30a139b29c8320d828ab8337037e36f48cc09"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4569,7 +4569,7 @@ window.DOCS_INDEX = {
       "phase": "application-foundation",
       "reviewBy": "2026-10-25",
       "reviewSuggested": [],
-      "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. Neither route has passed yet.",
+      "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. A hosted Windows job ran, but its native qualification failed; interactive and product gates remain open.",
       "tags": [
         "coordination",
         "application",
@@ -4599,7 +4599,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9741b10e13a2b15687dd939d46ce16144b48723d2beeb8a7a436c33cfde3dac0"
+      "sourceSha256": "d9967811c5f490550421a61e7fa06040bd4d72397fbe5a3bc07a6146d8d63315"
     },
     {
       "id": "privacy-review",
@@ -5128,7 +5128,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fabce880157b09d3a517b2fcd1860309a3e1cd320e332f0116a0f50ccc198f3e"
+      "sourceSha256": "d162ecdff0d80e4d0b6d7980804560f4f05beb6000e1af9e958ad7bb418681f2"
     },
     {
       "id": "review-application-architecture",
@@ -6071,5 +6071,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "2e1225e26bf97eea15e7942a71a5b3466f31cc61cfaa99448bfddb884f57da7a"
+  "graphSha256": "39afc3d4ad767a5cfea5cba2472d5017fae1afc4d53c376d5c4c2db79270471c"
 };

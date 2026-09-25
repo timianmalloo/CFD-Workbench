@@ -16,7 +16,8 @@ review-by: "2026-10-25"
 summary: >-
   Route real Windows x64 M1 execution through an unattended hosted runner and a
   separately qualified interactive desktop, with distinct store, adapter and
-  independent proof ownership. Neither route has passed yet.
+  independent proof ownership. A hosted Windows job ran, but its native
+  qualification failed; interactive and product gates remain open.
 ---
 
 # Windows x64 M1 runtime route
@@ -70,6 +71,15 @@ W2 depends on measured native semantics and need not wait for a desktop before
 red-first store work. W3 cannot be marked green by W1. The loop variant is the
 set of unresolved W0–W3 exit oracles; a failed or unavailable host remains a
 named blocker, not a reason to remove the gate.
+
+For any future workflow launch, pin the candidate workflow bytes and run a
+semantic GitHub Actions check with `actionlint` before push. The R43 original
+failed that check on three unavailable `runner.temp` job-level contexts;
+R44's exact step-level correction passed. YAML syntax, source review and a
+green `check-docs.py` do not exercise context availability. A remote run
+remains necessary to observe actual hosted behavior. This route rule is the
+recurrence control for [CI-ACTIONS-CONTEXT](../lessons/defect-classes.md), not
+permission for another W1 push: Ruling 44 exhausted its two pushes.
 
 **Candidate exact-path ownership for the Owner to freeze, not an assignment:**
 
@@ -129,8 +139,14 @@ human foreground or credential request follows from the present lack of a host.
 source-bound packet had 35 wrong-result controls and macOS `Not assessed`
 refusals; Ruling 42 corrected five portable-text findings in the qualifier and
 the integrated 11/11 gate passed. The old native receipt does not bind the
-corrected qualifier. W1's exact branch-trigger run, W2 product runtime and W3
-interactive proof remain pending. Root's source-bound R39 High Contrast native
+corrected qualifier. Rulings 43–44 sent the disposable W1 branch twice. The
+first run failed workflow validation before a job existed; the corrected
+second run [actually executed on Windows x64](../proof/windows-runtime.md#w1-hosted-execution-2026-09-25)
+and retained 26 native rows, with 21 Pass, four Fail and one Not assessed.
+Its validator also rejected the native private-DACL row's compact SID alias.
+The job ended failure; UIA was not reached. Ruling 44 permits no further push
+or rerun. The hosted route is established, while Windows qualification, W2
+product runtime and W3 interactive proof remain open. Root's source-bound R39 High Contrast native
 regression passed on the repaired isolated C package; Windows, displayed
 timing, broader assistive technology and M1 acceptance remain open. No C or M1
 production join follows from this document.

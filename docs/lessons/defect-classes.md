@@ -268,6 +268,12 @@ with explicit identity against all four committed paths and observed four
 `allow` decisions. That readback bounds ownership but does not turn the first
 commit into an enforced commit-boundary check. The same per-mutation identity
 rule applies to review commits as to production commits.
+The W1 independent review commit repeated this lapse: `AGENT_SESSION` was
+omitted, so the hook was advisory. Root immediately checked all four committed
+paths with the correct session while its claims were live; each returned
+`allow`, then it released the claims. That is an ownership readback, not an
+enforced original commit. A future review commit must prefix the actual
+`git commit` process, not only the preceding audit or claim command.
 
 **TOOL-PATCH · A replace operation is expressed as delete-plus-add in one patch.**
 The first full parser patch asked `apply_patch` to delete and add the same
@@ -770,16 +776,43 @@ interval; epoch 10 expired before a later `leader renew`. No join ran during
 the lapse. Sweep long review and agent waits for elapsed designation time,
 not just the next planned merge. Derive: a lease held at the start of a wait
 does not remain authority at its end. Prevent: read `leader who` and renew
-within its 100-second cadence while work continues; the conductor's epoch
-fence refuses an expired or stale-epoch join. After the quiet period, the
+within its 100-second cadence while work continues. The conductor's epoch
+fence rejects unread or lower epochs but does **not** establish a live
+designation for an expired same-epoch invocation. The project precondition
+is a supported `leader renew` followed immediately by `leader who --json`
+showing the expected holder, live state and epoch before every conductor
+mutation; preserve that readback. After the quiet period, the
 supported `leader reclaim` established epoch 11 before shared work resumed.
 An expired designation is never silently renewed or treated as a clean join.
 Recurrence during the Part1/M1 decision join: epoch 14 expired while the
 Coordinator waited for shared documentation leases. Renewal refused; the
 supported quiet-period reclaim established epoch 15. No join or mutation ran
 under the lapse. The Coordinator then released epoch 15 at the genuine wait
-boundary. The epoch fence worked; the missed active renewal cadence remains
-a recurrence, not evidence that the lifecycle obligation was satisfied.
+boundary. During the R42 independent-review join, epoch 17 again expired.
+The same-epoch conductor invocation passed its narrow epoch fence and reached
+merge step 1; this disproved the earlier claim that that fence rejects an
+expired same-epoch join. No competing leader was observed. The Coordinator
+stopped, used supported quiet-period reclaim to epoch 18, and reran the
+affected join under a live readback. This is a missing project-level
+live-leadership precondition, not a managed conductor code deviation. A
+small fail-closed preflight remains a proposed executable control; until it
+is authorized, the explicit renew/readback is mandatory and no expired
+designation is described as live.
+
+**CI-ACTIONS-CONTEXT · A syntactically valid workflow uses a context where it
+is unavailable.** Ruling 43's disposable Windows workflow placed three
+`runner.temp` references in job-level `env`. Local checks and author,
+reviewer and Owner pre-push review all missed the context-location rule.
+GitHub rejected run `36097138344` before any job or artifact. The official
+`actionlint` v1.7.12 task-local binary failed the frozen workflow with the
+same three errors. Ruling 44 moved exactly those variables into their
+consuming step environments; the same binary exited 0, and run
+`36097839626` entered an actual Windows job. The prevention rule for future
+workflow launches is an executable semantic `actionlint` check on exact
+candidate bytes before push, in addition to YAML parsing and manual review.
+This control catches context availability at the workflow key, while the
+remote run remains the runtime oracle; a green lint cannot qualify native
+Windows behavior.
 
 **PACK-UIKB · A triggered skill links to a knowledge directory absent from the consuming checkout.**
 The installed `ui-design` UI-T4 text references
