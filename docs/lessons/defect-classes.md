@@ -522,6 +522,31 @@ subprocess encoding and its newly joined scripts; the integrated gate then passe
 10/10 checks on the joined branch. The initial root diagnostic batch continued after the failing command, so its
 final shell exit is not claimed as the gate result; standalone checks preserve it.
 
+**PLAT-A handoff recurrence · A new tool bypasses an applicable repository gate.**
+The W0 author ran local documentation and receipt controls, but omitted the
+existing portable-text gate. The first integrated conductor run then refused
+`tools/qualify-windows-runtime.py`: four JSON writes had host-default newlines
+and its printing entry point lacked the UTF-8 console guard. Root independently
+reproduced all five findings. Ruling 42's one-file correction passed the
+portable-text and subprocess-UTF8 gates, 35 existing refusal controls, a new
+help-exit control, and the corrected integrated 11/11 gate. The frozen old
+native receipt remains bound to the old source. Prevent: a tooling handoff
+must attach actual `verify-portable-text-io.py` and
+`verify-subprocess-utf8.py` exit/output receipts before its author declares
+ready; `check-docs.py` is not their substitute. The W0 route packet carries
+this pre-handoff rule.
+
+**TEST-ENTRY · A test intercepts process exit and runs unintended work.** A
+local legacy-console probe replaced `sys.exit` while invoking `--help` on the
+W0 qualifier. Argparse's intended exit was suppressed, so `main` continued
+into a task-local macOS build/refusal. That run exited with 26 Windows-native
+cases Not assessed and did not dispatch or qualify Windows. The fixed control
+executes the CLI in a bounded child, requires exit 0 and help output, and
+rejects qualification output. Future entry-point tests must preserve normal
+exit semantics or isolate the process; they must not monkey-patch `sys.exit`
+then infer `--help` was harmless. The unintended run and correction are
+retained in the R42 author audit.
+
 **API-ACCESS · Generated SDK documentation is mistaken for a callable client API.**
 The installed Avalonia 11.3.14 XML documented `TopLevel.Renderer` and
 `IRendererWithCompositor.Compositor`, but the exact Desktop compile rejected the

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T04:52:25Z",
+  "generated": "2026-09-25T04:56:33Z",
   "audit": [
     {
       "actor": null,
@@ -7865,6 +7865,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-25T04:52:09Z",
       "duration_seconds": 16.0
+    },
+    {
+      "id": "al-01M3BER7BB19XMVF0CZRA904KZ",
+      "shortname": "w0-integrated-portability-control",
+      "datetime": "2026-09-25T04:56:33Z",
+      "session": "cfd-coordinator-20260923",
+      "prompt": "stop before the full section editor (we will do that in a new session)\nget the other tasks before that complete",
+      "summary": "Recorded PLAT-A tooling handoff recurrence and TEST-ENTRY unintended --help continuation with executable controls. W0 original preparation and independent review joined; R42 corrected qualifier and root delta review yielded an 11/11 integrated gate. Updated Windows route and current plan/HTML without claiming Windows execution, old-receipt rebinding, visible timing, C integration or M1 acceptance.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md",
+        "docs/coordination/windows-runtime-route.md",
+        "docs/coordination/application-build.md",
+        "docs/plans/application-build.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Make W0 preparation and its corrected integrated gate durable while advancing the user-approved M1 work before the section editor",
+      "done_when": "Portability class/control and truthful current status are recorded; W1 and visible timing remain explicit next gates",
+      "tier": "T2",
+      "fan_out": 1,
+      "started_at": "2026-09-25T04:54:09Z",
+      "duration_seconds": 144.0
     }
   ],
   "changes": [

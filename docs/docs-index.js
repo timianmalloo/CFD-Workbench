@@ -2074,7 +2074,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "238ab33ab74884fe8d3eb290b627489c6e2ad7b0e051cc564566837f39ed8437"
+      "sourceSha256": "4bf002c0a9a31dbf08479053f0a4192ee1e2ab81ebd40f82385935b1f942b616"
     },
     {
       "id": "domain-experts",
@@ -2223,7 +2223,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6\nG3 --> G5 --> G6\nG6 -. new session only .-> G7"
         }
       ],
-      "sourceSha256": "817d68fd7fe2a98539dace011e6931d4b81b395c4db616062aee4d976e63e641"
+      "sourceSha256": "ac6fbffc23d9153746d617b9a82a80d827eadcff1f4eb3906e3e714457007e7b"
     },
     {
       "id": "plan-authoring-decisions",
@@ -4248,7 +4248,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "48aba2e3e21236495ce910b61d972f5ab893fa091cc1379647854575bc5d7710"
+      "sourceSha256": "71ad6375d76ed853b8b186e44d4edecf00e83c1a6c59c1256e71c40302b3640e"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4599,7 +4599,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7d96737928d3f31b0bd43e9f444409ae8cce5c27c865b6ba91754a2873d2c407"
+      "sourceSha256": "9741b10e13a2b15687dd939d46ce16144b48723d2beeb8a7a436c33cfde3dac0"
     },
     {
       "id": "privacy-review",
@@ -6071,5 +6071,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "47c8daf18457ac77478488f8bdb919e16478a33919a217bbe0e9f8abc526a47c"
+  "graphSha256": "03d26963b621e0e8605d28828793d760365ca0a59f16ccdf3f218985b2f7c88c"
 };

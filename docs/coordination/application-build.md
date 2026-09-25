@@ -182,9 +182,9 @@ Capability values are **per actual worker fingerprint**: worktree isolation = ob
 
 | status | item |
 |---|---|
-| Completed | B original core and Ruling 28 macOS permission repair are joined at `a550466`. Ruling 38's isolated C `d774e1e` has 312 loaded-control rows and a 12-step source-bound package gate; Coordinator independently recomputed rows and hashes. Root's native High Contrast tab-hover regression passed twice. Six obsolete review windows were closed through supported CUA, and the serial prelaunch guard is committed. The user answered `approve` to the Owner's single three-part placement recommendation: Windows x64 and visible timing in M1, full section editor in M1.1. |
-| Remaining | C product remains isolated: root's native High Contrast focused NumericInput showed unreadable white text on white/gray despite the managed contrast matrix. Ruling 39 authoring is active. Root's separate CUA attachment-readiness control has two fresh-build ready receipts after a supported REPL reset, while the internal platform cause remains unverified and independent control review is open. Actual on-screen timing, Windows x64 runtime, broad assistive technology, signing and release trust remain unassessed. M1.1 section authoring is scoped, not designed or implemented. |
-| Best next action | Complete Ruling 39's measured focused-field repair and root's repeat native check, then review the attachment control without relabeling its inferred internal cause. Prepare Windows runtime, visible-timing and M1.1 section-design tracks under the approved scope; assign exact owners only when seats and prerequisites permit. C product join requires root independent native clearance and Owner disposition. |
+| Completed | B original core and macOS permission repair are joined at `a550466`. Isolated C R39 `0d4a590` passed 396 applied-control rows, 21 negatives and a source-bound 12-step gate; root independently passed the exact High Contrast focused-field and tab-hover native regressions. The two-fresh-build CUA readiness control and its bounded review joined. Windows W0 preparation `82a366a` and independent preparation-only review `f080076` joined; the R42 qualifier correction `529bcb9` cleared all 11 integrated gates at `c5de04e`. The user placed Windows and actual visible timing in M1 and deferred full section authoring to a new session. |
+| Remaining | C product remains isolated pending a technical integration disposition; its native contrast pass does not clear displayed timing, Windows runtime, broad assistive technology, signing or release trust. W0 is preparation: no Windows x64 native case has executed. W1 hosted job/interactive UIA route, W2 product runtime and W3 independent desktop proof remain open. R41 authorizes timing contract preparation only; capture execution requires separate specific user authorization after root review. The CUA internal failure cause is unverified even though its session-reset readiness control passed. |
+| Best next action | Decide the exact reviewed W1 disposable-branch push/trigger route, then obtain actual hosted Windows receipts. Prepare R41's noncapture timing contract in an isolated track while the Windows job runs. Route C technical integration separately with all unmeasured gates visible. Do not start the full section editor in this session. |
 
 ### Native visibility continuation · one optimized graph
 
@@ -382,3 +382,17 @@ visible timing, C integration and remaining M1 verification active. Do not
 start M1.1 section-editor design, code or a new section worker here. Stop this
 session before that editor; a future session may pick up the approved named
 M1.1 milestone after this work.
+
+**W0/R41/R42 checkpoint, 2026-09-25:** Windows W0's six-file local
+contract, executable and workflow preparation completed at `82a366a`.
+Root's [independent review](../reviews/windows-runtime.md) `f080076` accepted
+that preparation with explicit conditions, not Windows execution or product
+containment. The first integrated join exposed five portable-text findings
+in the new qualifier. Ruling 42's bounded one-file correction `529bcb9`
+passed targeted controls and root delta review; the corrected join at
+`c5de04e` passed 11/11 integrated gates. The original local native receipt
+still binds only the original qualifier bytes. W1 branch push/host run has
+no ruling yet. Ruling 41 independently admits seven exact visible-endpoint
+spike files, compilation and noncapture tests; it forbids alternate screen
+observation until a reviewed target-only helper and specific user
+authorization. No displayed-latency or two-platform M1 result follows.

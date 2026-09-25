@@ -126,9 +126,9 @@ certificate or M1 pass.
 
 | measure | plan | actual |
 |---|---|---|
-| Nodes / max width | 8 / 2 | G0–G4 accepted through Ruling 22 and conductor join; G5 active serially under Ruling 21; observed implementation width 1 |
+| Nodes / max width | 8 / 2 | G0–G4/B accepted; G5's isolated R39 native candidate passed bounded root contrast regressions but awaits a technical product-join disposition. G6 remains open on actual Windows and displayed-timing proof. G7 is held for a new session. Observed authoring has been serial at shared seams. |
 | Wall time, tokens, spend | Not modeled as facts | Measured receipts per track; aggregate tokens/spend Not recorded |
-| Rework passes and budget firings | 0 intended | A/B0 required serial contract completion; G4 had bounded checkpoints and /2 repair before full join; G5 first build-output drift stopped and corrected once under Ruling 23 |
-| Completeness/rigor floors | All immovable nodes above | B0 and bounded G4 independent gates passed; G5/G6 and live platform proof pending |
+| Rework passes and budget firings | 0 intended | A/B0 required serial contract completion; G4 had bounded checkpoints and /2 repair; G5 had bounded native contrast corrections. Windows W0's first integrated join exposed five omitted portable-text findings, corrected under Ruling 42. Exact aggregate calls/tokens remain Not recorded. |
+| Completeness/rigor floors | All immovable nodes above | B0/core and bounded C native contrast review passed. W0 preparation and independent review passed with conditions; Windows execution, actual visible-frame timing and integrated M1 acceptance remain open. |
 
 The initial qualification/plan budget is 70 tool calls or 30 minutes; at either cap, record what estimate failed and re-plan the remainder. Do not drop a gate. Later worker budgets appear in the coordination plan. **Current-session termination:** finish independently verified M1 Windows, visible-timing and remaining application gates, or record a genuine external blocker with its exact pending edge. Then stop before the full section editor. G7 and section-editor design/implementation belong to the new session the user specified; the earlier continued-increment rationale is historical, not authority to cross this stop boundary.

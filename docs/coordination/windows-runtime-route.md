@@ -115,13 +115,22 @@ human foreground or credential request follows from the present lack of a host.
   Not assessed. Hash authored inputs both before and after build/run and
   reject source drift. These are executable controls for [EVID-WIN-STATE](../lessons/defect-classes.md),
   not substitutes for a Windows-native run.
+- Before a tooling author hands off a changed qualifier or spike, retain actual
+  passing `verify-portable-text-io.py` and `verify-subprocess-utf8.py` receipts
+  alongside its local controls. `check-docs.py` does not exercise those gates.
+  Test a printing CLI's `--help` in a bounded child with its real exit behavior;
+  an intercepted `sys.exit` can continue into qualification work.
 - Keep the [visible-timing obligation](../notes/m1-scope-decision.md#what-honest-screen-timing-would-require)
   independent. A hosted runner or compositor-batch number cannot establish the
   specified reference laptop's final displayed frame.
 
-**Current disposition:** W0 is authorized, not yet implemented; W1 job, W2
-Windows implementation and W3 interactive proof remain pending. Root's
-source-bound R39 High Contrast native regression passed on the repaired
-isolated C package; Windows, displayed timing, broader assistive technology
-and M1 acceptance remain open. No C or M1 production join follows from this
-document.
+**Current disposition:** W0 preparation is joined after root's independent
+[Data/Security/Test review](../reviews/windows-runtime.md). The original local
+source-bound packet had 35 wrong-result controls and macOS `Not assessed`
+refusals; Ruling 42 corrected five portable-text findings in the qualifier and
+the integrated 11/11 gate passed. The old native receipt does not bind the
+corrected qualifier. W1's exact branch-trigger run, W2 product runtime and W3
+interactive proof remain pending. Root's source-bound R39 High Contrast native
+regression passed on the repaired isolated C package; Windows, displayed
+timing, broader assistive technology and M1 acceptance remain open. No C or M1
+production join follows from this document.
