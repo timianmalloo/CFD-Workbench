@@ -183,6 +183,33 @@ public static class FoilSource
         return candidate;
     }
 
+    internal static byte[] PatchChannelOrdinates(byte[] source, double[] ordinates)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(ordinates);
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
+        if (!definition.Curves.TryGetValue("thickness", out var curve) || curve.MissingIds) throw new ContractError("DSL-PATCH");
+        Guard.Require(ordinates.Length == curve.Points.Length && ordinates.All(double.IsFinite), "DSL-PATCH");
+        string text = Utf8.GetString(parsed.Source);
+        var edits = new List<(int Start, int End, string Value)>();
+        for (int index = 0; index < ordinates.Length; index++)
+        {
+            if (SameBits(curve.Points[index][1], ordinates[index])) continue;
+            edits.Add((curve.Ordinates[index].Start, curve.Ordinates[index].End, ExactDecimal(ordinates[index], 0)));
+        }
+        foreach (var edit in edits.OrderByDescending(item => item.Start))
+            text = text[..edit.Start] + edit.Value + text[edit.End..];
+        if (edits.Count == 0) return parsed.Source;
+        byte[] candidate = Utf8.GetBytes(text);
+        var result = Parse(candidate);
+        var patched = result.Definition?.Curves["thickness"];
+        Guard.Require(result.IsParsed && patched is not null, "DSL-PATCH");
+        for (int index = 0; index < ordinates.Length; index++)
+            Guard.Require(SameBits(patched!.Points[index][1], ordinates[index]) && SameBits(patched.Points[index][0], curve.Points[index][0]), "DSL-PATCH");
+        return candidate;
+    }
+
     public static byte[] PatchProfilePoint(byte[] source, string profile, string side, string vertexId, double x, double y)
     {
         ArgumentNullException.ThrowIfNull(source);
