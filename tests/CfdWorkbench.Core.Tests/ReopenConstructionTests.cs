@@ -63,6 +63,47 @@ internal static class ReopenConstructionTests
             var reopened = new AuthoringSession();
             Refuses("DOC-REFERENCE", () => reopened.Reopen(NativeProject.Encode(bad)));
         });
+        Check("Reopen_InsertThenDelete_NeverThrows", () =>
+        {
+            using var session = Opened();
+            var inserted = session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 0.37);
+            var insertAssessment = session.Validate(inserted.Id, inserted.Generation);
+            Equal(GeometryStatus.Certified, insertAssessment.Status);
+            session.Apply(Id(), insertAssessment);
+            int insertedIndex = Array.FindIndex(session.ProfileAt(0).Upper.ToArray(), v => v.Id == inserted.VertexId);
+            Equal(true, insertedIndex >= 0);
+            var deleted = session.BeginProfileDelete(Id(), 0, SectionScope.Shared, insertedIndex);
+            var deleteAssessment = session.Validate(deleted.Id, deleted.Generation);
+            session.Apply(Id(), deleteAssessment);
+            byte[] saved = session.SaveImage();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            using var reopened = new AuthoringSession();
+            Exception? thrown = null;
+            try { reopened.Reopen(saved); } catch (Exception failure) { thrown = failure; }
+            watch.Stop();
+            Equal((Exception?)null, thrown);
+            var inspection = reopened.InspectAccepted();
+            string outcome = inspection.Geometry.Status == GeometryStatus.Certified ? "Certified" : inspection.Geometry.Status.ToString();
+            Console.WriteLine($"BUDGET-CASE: {outcome} {watch.Elapsed.TotalMilliseconds:F1}");
+            if (inspection.Geometry.Status != GeometryStatus.Certified)
+            {
+                Equal(GeometryStatus.NotAssessed, inspection.Geometry.Status);
+                Equal("GEOMETRY-BUDGET", inspection.Geometry.Code);
+            }
+            Equal(true, session.Snapshot().Source.AsSpan().SequenceEqual(reopened.Snapshot().Source));
+        });
+        Check("Reopen_ForcedBudgetExhaustion_OpensNotAssessed", () =>
+        {
+            using var session = Opened();
+            AppliedRoundtrip(session, (s, draft) => s.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37));
+            byte[] saved = session.SaveImage();
+            using var reopened = new AuthoringSession(TimeSpan.Zero);
+            reopened.Reopen(saved);
+            var inspection = reopened.InspectAccepted();
+            Equal(GeometryStatus.NotAssessed, inspection.Geometry.Status);
+            Equal("GEOMETRY-BUDGET", inspection.Geometry.Code);
+            Equal(true, session.Snapshot().Source.AsSpan().SequenceEqual(reopened.Snapshot().Source));
+        });
     }
 
     private static void AppliedRoundtrip(AuthoringSession session, Func<AuthoringSession, string, SessionDraft> begin)
