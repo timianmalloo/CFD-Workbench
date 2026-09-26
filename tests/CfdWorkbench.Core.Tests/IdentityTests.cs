@@ -49,6 +49,7 @@ internal static class IdentityTests
         ProjectStoreTests.Run();
         SectionEditTests.Run();
         SectionEditTests.RunMultiProfile();
+        FitTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }
