@@ -1,9 +1,16 @@
 namespace CfdWorkbench.Core;
 
 /// <summary>A stable refusal at a document contract boundary.</summary>
-public sealed class ContractError(string code) : Exception(code)
+public sealed class ContractError : Exception
 {
-    public string Code { get; } = code;
+    public ContractError(string code) : base(code) => Code = code;
+    public ContractError(string code, string reason) : base(reason)
+    {
+        Code = code;
+        Reason = reason;
+    }
+    public string Code { get; }
+    public string? Reason { get; }
 }
 
 internal static class Guard
@@ -61,3 +68,6 @@ public sealed record ProfilePoint(double X, double Y);
 /// <summary>A read-only projection of one profile for display and editing; the source stays the only authority.</summary>
 public sealed record ProfileView(string Name, string Identity, IReadOnlyList<ProfileVertex> Upper, IReadOnlyList<ProfileVertex> Lower,
     IReadOnlyList<ProfilePoint> UpperCurve, IReadOnlyList<ProfilePoint> LowerCurve, string Closure);
+
+/// <summary>Shape report for one profile construction. MaxDeviation is the maximum |Δy| over 2001 chord samples, both sides. Tolerance is set by fairing, not by insert or delete.</summary>
+public sealed record ConstructionReport(double MaxDeviation, double? Tolerance, int VertexCount);

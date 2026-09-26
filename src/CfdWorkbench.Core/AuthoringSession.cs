@@ -27,8 +27,8 @@ public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
-        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null)
-    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); }
+        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null)
+    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; }
     internal Guid Owner { get; }
     public GeometryStatus Status { get; }
     public string Code { get; }
@@ -36,6 +36,7 @@ public sealed class SessionAssessment
     public GeometryCertificate? Certificate { get; }
     public AuthoredBinding? SourceBinding { get; }
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
+    public ConstructionReport? Construction { get; }
 }
 
 public sealed class AuthoringSession : IDisposable
@@ -147,6 +148,10 @@ public sealed class AuthoringSession : IDisposable
         Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId));
     public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
         Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
+    public SessionDraft BeginProfileInsert(string draftId, int assignmentIndex, SectionScope scope, double x) =>
+        Run("begin", () => BeginProfileInsertCore(draftId, assignmentIndex, scope, x));
+    public SessionDraft BeginProfileDelete(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex) =>
+        Run("begin", () => BeginProfileDeleteCore(draftId, assignmentIndex, scope, vertexIndex));
     public SessionAssessment Validate(string draftId, long generation, CancellationToken cancellation = default) => Run("validate", () => ValidateCore(draftId, generation, cancellation), generation: generation);
     public SessionPreview Preview(string draftId, long generation, double eta, double x, bool upper, bool port = false) => Run("geometry.preview", () =>
     {
@@ -370,6 +375,56 @@ public sealed class AuthoringSession : IDisposable
             return Copy(draft);
         }
     }
+    private SessionDraft BeginProfileInsertCore(string draftId, int assignmentIndex, SectionScope scope, double x)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            Guard.Require(double.IsFinite(x) && x > 0 && x < 1, "DSL-PROFILE-TARGET");
+            if (profile.Upper.Points.Length >= 32) throw new ContractError("DSL-CURVE");
+            var patched = FoilSource.InsertProfileKnot(bytes, target, x);
+            return OpenConstruction(draftId, "insert", patched.VertexId, patched.Source, target, assignmentIndex);
+        }
+    }
+    private SessionDraft BeginProfileDeleteCore(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            int count = profile.Upper.Points.Length;
+            Guard.Require(count == profile.Lower.Points.Length && (uint)vertexIndex < (uint)count, "DSL-PROFILE-TARGET");
+            Guard.Require(vertexIndex != 0 && vertexIndex != count - 1, "DSL-LOCK");
+            if (count <= 7) throw new ContractError("DSL-CURVE", "Delete would leave fewer than p + 2 = 7 vertices");
+            var patched = FoilSource.DeleteProfileVertex(bytes, target, vertexIndex);
+            return OpenConstruction(draftId, "delete", patched.VertexId, patched.Source, target, assignmentIndex);
+        }
+    }
+    private (byte[] Bytes, string Profile, ProfileDefinition Definition) PrepareConstruction(string draftId, int assignmentIndex, SectionScope scope)
+    {
+        Guard.Require(!closed, "DOC-CLOSED");
+        NativeProject.Uuid(draftId);
+        Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+        Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
+        var definition = ParseOwned(CurrentBytes).Definition!;
+        Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
+        var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
+        byte[] bytes = CurrentBytes;
+        string target = profile.Name;
+        if (scope == SectionScope.Independent)
+        {
+            var made = FoilSource.MakeIndependent(bytes, profile.Name, assignmentIndex);
+            bytes = made.Source;
+            target = made.NewProfile;
+            profile = ParseOwned(bytes).Definition!.Profiles.First(item => item.Name == target);
+        }
+        return (bytes, target, profile);
+    }
+    private SessionDraft OpenConstruction(string draftId, string kind, string vertexId, byte[] bytes, string profile, int assignmentIndex)
+    {
+        retiredDraftIds.Add(draftId);
+        draft = new(draftId, current!, 0, kind, vertexId, bytes, profile, assignmentIndex);
+        return Copy(draft);
+    }
     private SessionDraft UpdateDraftCore(string draftId, long expectedGeneration, double si)
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
@@ -380,29 +435,55 @@ public sealed class AuthoringSession : IDisposable
     private SessionAssessment ValidateCore(string draftId, long generation, CancellationToken cancellation = default)
     {
         SessionDraft capture;
+        byte[]? origin = null;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
+            if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
         }
+        ConstructionReport? construction = null;
         try
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
             Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
+            if (parsed.IsParsed && origin is not null) construction = MeasureConstruction(capture, parsed, origin);
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
-                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics);
+                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             var result = AssessOwned(parsed, generation);
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed));
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction);
             Diagnostic[] diagnostics = result.Status == GeometryStatus.Certified ? [] :
                 [new(result.Code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, result.Reason, "Revise the authored curves or retain the last accepted revision.")];
-            return new(authorityId, result.Status, result.Code, key, result.Certificate, DraftBinding(capture, parsed), diagnostics);
+            return new(authorityId, result.Status, result.Code, key, result.Certificate, DraftBinding(capture, parsed), diagnostics, construction);
         }
         catch (ContractError error)
-        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture)); }
+        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction); }
         finally { Interlocked.Exchange(ref validating, 0); }
+    }
+    private byte[] BaseBytes(string acceptedId)
+    {
+        var row = accepted.Single(item => item.Id == acceptedId);
+        return Decode(sources.Single(item => item.Id == row.SourceId).Utf8Base64Chunks);
+    }
+    private static ConstructionReport? MeasureConstruction(SessionDraft capture, SourceParse parsed, byte[] origin)
+    {
+        if (parsed.Definition is null || capture.Profile is null) return null;
+        var originParse = FoilSource.Parse(origin);
+        if (originParse.Definition is null || (uint)capture.Assignment >= (uint)originParse.Definition.Assignments.Length) return null;
+        string assigned = originParse.Definition.Profiles[originParse.Definition.Assignments[capture.Assignment].Profile].Name;
+        if (!string.Equals(assigned, capture.Profile, StringComparison.Ordinal))
+        {
+            var made = FoilSource.MakeIndependent(origin, assigned, capture.Assignment);
+            originParse = FoilSource.Parse(made.Source);
+            if (originParse.Definition is null) return null;
+        }
+        var prior = originParse.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
+        var next = parsed.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
+        if (prior is null || next is null) return null;
+        return new(FoilSource.MaxOrdinateDeviation(prior, next), null, next.Upper.Points.Length);
     }
     private string ApplyCore(string operationId, SessionAssessment assessment)
     {

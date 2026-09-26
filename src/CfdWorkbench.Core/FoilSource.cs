@@ -80,7 +80,7 @@ internal sealed record SourceToken(string Text, int Start, int End)
     internal string String => JsonSerializer.Deserialize<string>(Text) ?? "";
 }
 internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] Knots,
-    (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile);
+    (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile, int PointsStart, int PointsEnd);
 internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0);
 internal sealed record StationSource(SourceToken Value, SourceToken? Unit);
 internal sealed record AssignmentSource(StationSource Station, SourceToken Profile);
@@ -88,7 +88,8 @@ internal sealed record LockSource(string Kind, SourceToken Channel, SourceToken?
 internal sealed record QuantitySource(SourceToken Number, SourceToken? Unit);
 internal sealed record AssertionSource(SourceToken Metric, string Comparison, QuantitySource Value, QuantitySource? Tolerance);
 internal sealed record Curve(string Path, int Degree, double[] Knots, double[][] Points, string[] Ids,
-    SourceToken[] Ordinates, int InsertAt, bool MissingIds, SourceToken[] Abscissae, SourceToken[]? IdTokens)
+    SourceToken[] Ordinates, int InsertAt, bool MissingIds, SourceToken[] Abscissae, SourceToken[]? IdTokens,
+    int KnotStart, int KnotEnd, int PointsStart, int PointsEnd)
 {
     internal object Semantic() => new Dictionary<string, object?>
     { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] }).ToArray() };
@@ -280,6 +281,300 @@ public static class FoilSource
         else for (int index = 0; index < curve.Points.Length; index++) edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
     }
 
+    internal static (byte[] Source, string VertexId) InsertProfileKnot(byte[] source, string profile, double parameterX)
+    {
+        var (_, found) = ProfileOf(source, profile);
+        var upper = found.Upper; var lower = found.Lower;
+        Guard.Require(upper.Degree == lower.Degree && upper.Points.Length == lower.Points.Length && upper.Points.Length < 32, "DSL-CURVE");
+        Guard.Require(!upper.MissingIds && !lower.MissingIds && upper.IdTokens is not null && lower.IdTokens is not null, "DSL-PATCH");
+        int degree = upper.Degree;
+        double t = ParameterAt(upper.Points, upper.Knots, degree, parameterX);
+        Guard.Require(t > 0 && t < 1, "DSL-CURVE");
+        var (knots, upperPoints, inserted) = InsertKnot(upper.Knots, upper.Points, degree, t);
+        var (_, lowerPoints, _) = InsertKnot(lower.Knots, lower.Points, degree, t);
+        PairAbscissa(upperPoints, lowerPoints);
+        string id = NextVertexId(upper.Ids.Concat(lower.Ids));
+        string[] upperIds = SpliceId(upper.Ids, inserted, id);
+        string[] lowerIds = SpliceId(lower.Ids, inserted, id);
+        return (RewriteCurves(source, found, knots, upperPoints, upperIds, lowerPoints, lowerIds), id);
+    }
+
+    internal static (byte[] Source, string VertexId) DeleteProfileVertex(byte[] source, string profile, int vertexIndex)
+    {
+        var (_, found) = ProfileOf(source, profile);
+        var upper = found.Upper; var lower = found.Lower;
+        int count = upper.Points.Length;
+        Guard.Require(upper.Degree == lower.Degree && count == lower.Points.Length && (uint)vertexIndex < (uint)count, "DSL-PROFILE-TARGET");
+        Guard.Require(!upper.MissingIds && !lower.MissingIds && upper.IdTokens is not null && lower.IdTokens is not null, "DSL-PATCH");
+        int degree = upper.Degree;
+        int n = count - 1;
+        int r = vertexIndex + (degree + 1) / 2;
+        if (r < degree + 1) r = degree + 1;
+        if (r > n) r = n;
+        double knot = upper.Knots[r];
+        while (r + 1 < upper.Knots.Length - degree - 1 && upper.Knots[r + 1] == knot) r++;
+        var upperPoints = RemoveKnot(upper.Points, upper.Knots, degree, r);
+        var lowerPoints = RemoveKnot(lower.Points, lower.Knots, degree, r);
+        AnchorEnds(upperPoints, upper.Points);
+        AnchorEnds(lowerPoints, lower.Points);
+        EnforceAbscissa(upperPoints);
+        PairAbscissa(upperPoints, lowerPoints);
+        var knots = upper.Knots.Where((_, index) => index != r).ToArray();
+        string removed = upper.Ids[vertexIndex];
+        return (RewriteCurves(source, found, knots, upperPoints, DropId(upper.Ids, vertexIndex), lowerPoints, DropId(lower.Ids, vertexIndex)), removed);
+    }
+
+    internal static double MaxOrdinateDeviation(ProfileDefinition before, ProfileDefinition after)
+    {
+        const int samples = 2001;
+        double worst = 0;
+        worst = Math.Max(worst, SideDeviation(before.Upper, after.Upper, samples));
+        worst = Math.Max(worst, SideDeviation(before.Lower, after.Lower, samples));
+        return worst;
+    }
+
+    private static (Definition Definition, ProfileDefinition Profile) ProfileOf(byte[] source, string profile)
+    {
+        var parsed = Parse(source);
+        var definition = parsed.Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
+        var found = definition.Profiles.FirstOrDefault(item => item.Name == profile) ?? throw new ContractError("DSL-PROFILE-TARGET");
+        return (definition, found);
+    }
+
+    private static byte[] RewriteCurves(byte[] source, ProfileDefinition profile, double[] knots, double[][] upperPoints, string[] upperIds, double[][] lowerPoints, string[] lowerIds)
+    {
+        string text = Utf8.GetString(source);
+        var edits = CurveEdits(profile.Upper, knots, upperPoints, upperIds).Concat(CurveEdits(profile.Lower, knots, lowerPoints, lowerIds));
+        foreach (var edit in edits.OrderByDescending(item => item.Start))
+            text = text[..edit.Start] + edit.Value + text[edit.End..];
+        byte[] candidate = Utf8.GetBytes(text);
+        var parsed = Parse(candidate);
+        var patched = parsed.Definition?.Profiles.FirstOrDefault(item => item.Name == profile.Name);
+        Guard.Require(parsed.IsParsed && patched is not null, "DSL-PATCH");
+        Guard.Require(patched!.Upper.Points.Length == upperPoints.Length && patched.Lower.Points.Length == lowerPoints.Length, "DSL-PATCH");
+        for (int index = 0; index < knots.Length; index++)
+            Guard.Require(SameBits(patched.Upper.Knots[index], knots[index]) && SameBits(patched.Lower.Knots[index], knots[index]), "DSL-PATCH");
+        for (int index = 0; index < upperPoints.Length; index++)
+        {
+            Guard.Require(SameBits(patched.Upper.Points[index][0], upperPoints[index][0]) && SameBits(patched.Upper.Points[index][1], upperPoints[index][1]), "DSL-PATCH");
+            Guard.Require(SameBits(patched.Lower.Points[index][0], lowerPoints[index][0]) && SameBits(patched.Lower.Points[index][1], lowerPoints[index][1]), "DSL-PATCH");
+            Guard.Require(patched.Upper.Ids[index] == upperIds[index] && patched.Lower.Ids[index] == lowerIds[index], "DSL-PATCH");
+        }
+        return candidate;
+    }
+
+    private static List<(int Start, int End, string Value)> CurveEdits(Curve curve, double[] knots, double[][] points, string[] ids)
+    {
+        Guard.Require(curve.IdTokens is not null, "DSL-PATCH");
+        return
+        [
+            (curve.KnotStart, curve.KnotEnd, string.Join(", ", knots.Select(knot => ExactDecimal(knot, 0)))),
+            (curve.PointsStart, curve.PointsEnd, string.Join(", ", points.Select(point => "(" + ExactDecimal(point[0], 0) + ", " + ExactDecimal(point[1], 0) + ")"))),
+            (curve.IdTokens![0].Start, curve.IdTokens[^1].End, string.Join(",", ids.Select(Jcs.Quote)))
+        ];
+    }
+
+    private static (double[] Knots, double[][] Points, int Inserted) InsertKnot(double[] knots, double[][] points, int degree, double t)
+    {
+        int count = points.Length;
+        int k = degree;
+        while (k + 1 < count && knots[k + 1] <= t) k++;
+        int multiplicity = 0;
+        for (int index = k; index >= 0 && knots[index] == t; index--) multiplicity++;
+        Guard.Require(multiplicity < degree, "DSL-CURVE");
+        var nextKnots = new double[knots.Length + 1];
+        Array.Copy(knots, nextKnots, k + 1);
+        nextKnots[k + 1] = t;
+        Array.Copy(knots, k + 1, nextKnots, k + 2, knots.Length - k - 1);
+        var next = new double[count + 1][];
+        for (int index = 0; index <= k - degree; index++) next[index] = CopyPoint(points[index]);
+        for (int index = k - multiplicity; index < count; index++) next[index + 1] = CopyPoint(points[index]);
+        for (int index = k - degree + 1; index <= k - multiplicity; index++)
+        {
+            double width = knots[index + degree] - knots[index];
+            double alpha = width == 0 ? 0 : (t - knots[index]) / width;
+            next[index] = new[]
+            {
+                (1 - alpha) * points[index - 1][0] + alpha * points[index][0],
+                (1 - alpha) * points[index - 1][1] + alpha * points[index][1]
+            };
+        }
+        int numer = 2 * (k + 1) - (multiplicity + 1) - degree;
+        Guard.Require(numer % 2 == 0, "DSL-CURVE");
+        int inserted = numer / 2;
+        Guard.Require((uint)inserted < (uint)next.Length && next.All(point => point is { Length: 2 }), "DSL-CURVE");
+        return (nextKnots, next, inserted);
+    }
+
+    private static double[][] RemoveKnot(double[][] points, double[] knots, int degree, int r)
+    {
+        int p = degree;
+        int n = points.Length - 1;
+        double knot = knots[r];
+        var pw = points.Select(CopyPoint).ToArray();
+        int s = 1;
+        int scan = r;
+        while (scan > 0 && knots[scan - 1] == knot) { s++; scan--; }
+        int ord = p + 1;
+        int first = r - p;
+        int last = r - s;
+        int off = first - 1;
+        var temp = new double[n + p + 8][];
+        for (int slot = 0; slot < temp.Length; slot++) temp[slot] = new double[2];
+        temp[0] = CopyPoint(pw[off]);
+        temp[last + 1 - off] = CopyPoint(pw[last + 1]);
+        int i = first, j = last, ii = 1, jj = last - off;
+        while (j - i > 0)
+        {
+            double deni = knots[i + ord] - knots[i];
+            double denj = knots[j + ord] - knots[j];
+            double alfi = (knot - knots[i]) / deni;
+            double alfj = (knot - knots[j]) / denj;
+            temp[ii] = new[]
+            {
+                (pw[i][0] - (1 - alfi) * temp[ii - 1][0]) / alfi,
+                (pw[i][1] - (1 - alfi) * temp[ii - 1][1]) / alfi
+            };
+            temp[jj] = new[]
+            {
+                (pw[j][0] - alfj * temp[jj + 1][0]) / (1 - alfj),
+                (pw[j][1] - alfj * temp[jj + 1][1]) / (1 - alfj)
+            };
+            i++; ii++; j--; jj--;
+        }
+        if (j - i < 0)
+        {
+            double midX = 0.5 * (temp[ii - 1][0] + temp[jj + 1][0]);
+            double midY = 0.5 * (temp[ii - 1][1] + temp[jj + 1][1]);
+            temp[ii - 1][0] = temp[jj + 1][0] = midX;
+            temp[ii - 1][1] = temp[jj + 1][1] = midY;
+        }
+        i = first; j = last;
+        while (j - i > 0)
+        {
+            pw[i] = CopyPoint(temp[i - off]);
+            pw[j] = CopyPoint(temp[j - off]);
+            i++; j--;
+        }
+        var kept = new double[n][];
+        int write = 0;
+        int foutNumer = 2 * r - s - p;
+        Guard.Require(foutNumer % 2 == 0, "DSL-CURVE");
+        int fout = foutNumer / 2;
+        Guard.Require((uint)fout <= (uint)n, "DSL-CURVE");
+        for (int index = 0; index <= n; index++)
+        {
+            if (index == fout) continue;
+            kept[write++] = pw[index];
+        }
+        return kept;
+    }
+
+    private static double SideDeviation(Curve before, Curve after, int samples)
+    {
+        double worst = 0;
+        for (int index = 0; index < samples; index++)
+        {
+            double x = index / (double)(samples - 1);
+            double delta = Math.Abs(OrdinateAt(before, x) - OrdinateAt(after, x));
+            if (delta > worst) worst = delta;
+        }
+        return worst;
+    }
+
+    private static double OrdinateAt(Curve curve, double x)
+    {
+        double lo = 0, hi = 1;
+        for (int step = 0; step < 80; step++)
+        {
+            double mid = (lo + hi) / 2;
+            if (Evaluate(curve.Points, curve.Knots, curve.Degree, mid)[0] < x) lo = mid;
+            else hi = mid;
+        }
+        return Evaluate(curve.Points, curve.Knots, curve.Degree, (lo + hi) / 2)[1];
+    }
+
+    private static double ParameterAt(double[][] points, double[] knots, int degree, double x)
+    {
+        double lo = 0, hi = 1;
+        for (int step = 0; step < 80; step++)
+        {
+            double mid = (lo + hi) / 2;
+            if (Evaluate(points, knots, degree, mid)[0] < x) lo = mid;
+            else hi = mid;
+        }
+        return (lo + hi) / 2;
+    }
+
+    private static double[] Evaluate(double[][] points, double[] knots, int degree, double t)
+    {
+        if (t >= 1) return CopyPoint(points[^1]);
+        int span = degree;
+        while (span + 1 < points.Length && knots[span + 1] <= t) span++;
+        var values = Enumerable.Range(0, degree + 1).Select(index => CopyPoint(points[span - degree + index])).ToArray();
+        for (int level = 1; level <= degree; level++)
+            for (int index = degree; index >= level; index--)
+            {
+                int knot = span - degree + index;
+                double width = knots[knot + degree - level + 1] - knots[knot];
+                double alpha = width > 0 ? (t - knots[knot]) / width : 0;
+                values[index][0] = (1 - alpha) * values[index - 1][0] + alpha * values[index][0];
+                values[index][1] = (1 - alpha) * values[index - 1][1] + alpha * values[index][1];
+            }
+        return values[degree];
+    }
+
+    private static void AnchorEnds(double[][] result, double[][] input)
+    {
+        result[0] = CopyPoint(input[0]);
+        result[^1] = CopyPoint(input[^1]);
+    }
+
+    private static void EnforceAbscissa(double[][] points)
+    {
+        points[0][0] = 0;
+        points[^1][0] = 1;
+        for (int index = 1; index < points.Length - 1; index++)
+            if (points[index][0] < points[index - 1][0]) points[index][0] = points[index - 1][0];
+        for (int index = points.Length - 2; index >= 1; index--)
+            if (points[index][0] > points[index + 1][0]) points[index][0] = points[index + 1][0];
+    }
+
+    private static void PairAbscissa(double[][] upper, double[][] lower)
+    {
+        for (int index = 0; index < upper.Length; index++)
+            lower[index] = new[] { upper[index][0], lower[index][1] };
+    }
+
+    private static double[] CopyPoint(double[] point) => new[] { point[0], point[1] };
+
+    private static string NextVertexId(IEnumerable<string> ids)
+    {
+        var used = ids.ToHashSet(StringComparer.Ordinal);
+        int max = -1;
+        foreach (string id in used)
+            if (id.StartsWith("cv-", StringComparison.Ordinal) && int.TryParse(id.AsSpan(3), NumberStyles.None, CultureInfo.InvariantCulture, out int number))
+                max = Math.Max(max, number);
+        string candidate;
+        do candidate = "cv-" + (++max).ToString(CultureInfo.InvariantCulture);
+        while (used.Contains(candidate));
+        return candidate;
+    }
+
+    private static string[] SpliceId(string[] ids, int index, string id)
+    {
+        var list = ids.ToList();
+        list.Insert(index, id);
+        return list.ToArray();
+    }
+
+    private static string[] DropId(string[] ids, int index)
+    {
+        var list = ids.ToList();
+        list.RemoveAt(index);
+        return list.ToArray();
+    }
+
     private sealed class Grammar
     {
         private static readonly Regex TokenPattern = new(@"\G(?:[ \t\r\n]+|\#[^\r\n]*|""(?:[^""\\\x00-\x1f]|\\(?:[""\\/bfnrt]|u[0-9a-fA-F]{4}))*""|[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|>=|<=|==|[{}\[\](),%])", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
@@ -357,10 +652,19 @@ public static class FoilSource
             Need(degree.Text.All(char.IsAsciiDigit), "DSL-SYNTAX", "Syntactic", degree);
             Expect("knots"); var knots = List(Number); Expect("points"); Expect("[");
             var points = new List<(SourceToken, SourceToken)>();
-            do { Expect("("); var x = Number(); Expect(","); var y = Number(); Expect(")"); points.Add((x, y)); } while (Optional(","));
+            int pointsStart = Current.Start, pointsEnd = Current.End;
+            do
+            {
+                var open = Expect("(");
+                if (points.Count == 0) pointsStart = open.Start;
+                var x = Number(); Expect(","); var y = Number();
+                var close = Expect(")");
+                pointsEnd = close.End;
+                points.Add((x, y));
+            } while (Optional(","));
             Expect("]"); SourceToken[]? ids = Optional("ids") ? List(Name) : null;
             int insert = Current.Start; Expect("}");
-            var curve = new RawCurve(path, degree, knots, points.ToArray(), ids, insert, profile);
+            var curve = new RawCurve(path, degree, knots, points.ToArray(), ids, insert, profile, pointsStart, pointsEnd);
             rawCurves.Add(curve); return curve;
         }
         private void ReadEvaluator() { Expect("evaluator"); evaluator = Name(); evaluatorVersion = Name(); }
@@ -467,7 +771,7 @@ public static class FoilSource
             Need(points[0][0] == 0 && points[^1][0] == 1 && points.Zip(points.Skip(1)).All(pair => raw.Profile ? pair.First[0] <= pair.Second[0] : pair.First[0] < pair.Second[0]), "DSL-CURVE", "Structural", raw.Degree);
             string[] ids = raw.Ids?.Select(token => token.String).ToArray() ?? Enumerable.Range(0, points.Length).Select(index => $"cv-{index}").ToArray();
             return new(raw.Path, degree, knots, points, ids, raw.Points.Select(point => point.Y).ToArray(), raw.InsertAt, raw.Ids is null,
-                raw.Points.Select(point => point.X).ToArray(), raw.Ids);
+                raw.Points.Select(point => point.X).ToArray(), raw.Ids, raw.Knots[0].Start, raw.Knots[^1].End, raw.PointsStart, raw.PointsEnd);
         }
         private static double Eta(StationSource station, double halfSpan)
         {
