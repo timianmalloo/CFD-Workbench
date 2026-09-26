@@ -77,7 +77,7 @@ public sealed record ProfileView(string Name, string Identity, IReadOnlyList<Pro
 
 /// <summary>Shape report for one profile construction. MaxDeviation is the maximum |Δy| over 2001 chord samples, both sides. Tolerance is set by fairing, not by insert or delete.</summary>
 public sealed record ConstructionReport(double MaxDeviation, double? Tolerance, int VertexCount);
-public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance);
+public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance, string? Basis = null);
 /// <summary>Whether a profile edit may retarget the foil-wide thickness channel. Keep current is the source-compatible default.</summary>
 public enum ThicknessIntent { KeepCurrent, UseSource }
 

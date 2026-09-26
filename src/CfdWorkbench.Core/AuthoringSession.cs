@@ -93,7 +93,7 @@ public sealed class AuthoringSession : IDisposable
         {
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
-            draft = null; recovery = null; current = null; activeImportReport = null;
+            draft = null; recovery = null; current = null; activeImportReport = null; importBasisFallback = null;
         }
     }
     private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null)
@@ -217,6 +217,7 @@ public sealed class AuthoringSession : IDisposable
     SessionDraft? draft;
     RecoveryRow? recovery;
     ImportReport? activeImportReport;
+    string? importBasisFallback;
     string? current;
     string projectId = Guid.NewGuid().ToString("D");
     string? savedImageHash;
@@ -282,7 +283,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
             var p = ParseOwned(CurrentBytes); Guard.Require(rail is "leading" or "trailing" && p.Definition!.Curves[rail].Ids.Contains(vertexId), "DSL-TARGET");
             retiredDraftIds.Add(draftId);
-            activeImportReport = null;
+            activeImportReport = null; importBasisFallback = null;
             draft = new(draftId, current!, 0, rail, vertexId, CurrentBytes); return Copy(draft);
         }
     }
@@ -378,9 +379,31 @@ public sealed class AuthoringSession : IDisposable
                 bytes = made.Source; target = made.NewProfile;
             }
             retiredDraftIds.Add(draftId);
-            activeImportReport = null;
+            activeImportReport = null; importBasisFallback = null;
             draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex, thickness); return Copy(draft);
         }
+    }
+    private static List<(double[] Knots, double[] X, int Degree)> NeighbourBases(Definition definition, int assignmentIndex)
+    {
+        var found = new List<(double[] Knots, double[] X, int Degree)>();
+        foreach (int index in new[] { assignmentIndex - 1, assignmentIndex + 1 })
+        {
+            if ((uint)index >= (uint)definition.Assignments.Length) continue;
+            var profile = definition.Profiles[definition.Assignments[index].Profile];
+            if (profile.Upper.Degree != profile.Lower.Degree || profile.Upper.Points.Length != profile.Lower.Points.Length) continue;
+            if (!profile.Upper.Knots.SequenceEqual(profile.Lower.Knots)) continue;
+            bool sameX = true;
+            for (int point = 0; point < profile.Upper.Points.Length; point++)
+                if (profile.Upper.Points[point][0] != profile.Lower.Points[point][0]) { sameX = false; break; }
+            if (!sameX) continue;
+            int degree = profile.Upper.Degree;
+            double[] knots = profile.Upper.Knots.ToArray();
+            double[] abscissae = profile.Upper.Points.Select(point => point[0]).ToArray();
+            if (knots.Length != abscissae.Length + degree + 1) continue;
+            if (found.Any(item => item.Degree == degree && item.Knots.SequenceEqual(knots) && item.X.SequenceEqual(abscissae))) continue;
+            found.Add((knots, abscissae, degree));
+        }
+        return found;
     }
     private SessionDraft BeginProfileImportCore(string draftId, int assignmentIndex, byte[] dat)
     {
@@ -407,8 +430,30 @@ public sealed class AuthoringSession : IDisposable
                 }
             }
 
-            var fitted = DatImport.Fit(datProfile, profileName);
-            var report = new ImportReport(fitted.MaxResidual, fitted.VertexCount, fitted.Accepted, fitted.Provenance);
+            var bases = NeighbourBases(definition, assignmentIndex);
+            ImportedProfile? neighbourFit = null;
+            foreach (var basis in bases)
+            {
+                var attempt = DatImport.FitToBasis(datProfile, profileName, basis.Knots, basis.X, basis.Degree);
+                if (attempt is null) continue;
+                if (neighbourFit is null || attempt.MaxResidual < neighbourFit.MaxResidual)
+                    neighbourFit = attempt;
+            }
+            ImportedProfile fitted;
+            string? fallback = null;
+            string basisUsed;
+            if (neighbourFit is not null && neighbourFit.MaxResidual <= 1e-5)
+            {
+                fitted = neighbourFit;
+                basisUsed = "neighbour";
+            }
+            else
+            {
+                fitted = DatImport.Fit(datProfile, profileName);
+                basisUsed = "own";
+                fallback = DatImport.OwnSpacingReason(neighbourFit?.MaxResidual ?? double.PositiveInfinity);
+            }
+            var report = new ImportReport(fitted.MaxResidual, fitted.VertexCount, fitted.Accepted, fitted.Provenance, basisUsed);
 
             var target = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
             string text = FoilSource.Utf8.GetString(CurrentBytes);
@@ -424,6 +469,7 @@ public sealed class AuthoringSession : IDisposable
 
             retiredDraftIds.Add(draftId);
             activeImportReport = report;
+            importBasisFallback = fallback;
             draft = new(draftId, current!, 0, "profile", profileName, candidate, profileName, assignmentIndex);
             return Copy(draft);
         }
@@ -549,12 +595,14 @@ public sealed class AuthoringSession : IDisposable
         SessionDraft capture;
         byte[]? origin = null;
         byte[] baseline;
+        string? basisFallback;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
             if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
             baseline = CurrentBytes;
+            basisFallback = importBasisFallback;
         }
         ConstructionReport? construction = null;
         string? fairIssue = null;
@@ -582,8 +630,11 @@ public sealed class AuthoringSession : IDisposable
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction, importReport: activeImportReport);
             GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
             if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
-            Diagnostic[] diagnostics = status == GeometryStatus.Certified ? [] :
-                [new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision.")];
+            var diagnostics = new List<Diagnostic>();
+            if (status != GeometryStatus.Certified)
+                diagnostics.Add(new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision."));
+            if (basisFallback is not null)
+                diagnostics.Add(new("DSL-GEOMETRY", "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, basisFallback, "Import the profile at every station that shares it, or Rebuild the neighbouring profiles."));
             return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction, thickness?.Proposal, importReport: activeImportReport);
         }
         catch (ContractError error)
@@ -625,10 +676,10 @@ public sealed class AuthoringSession : IDisposable
             var p = ParseOwned(draft!.Bytes); var key = Key(p, draft);
             Guard.Require(assessment.Owner == authorityId && assessment.Certificate!.SourceHash == key.SourceHash &&
                 assessment.Certificate.SurfaceHash == key.SurfaceHash && assessment.Key == key, "DSL-CONFLICT");
-            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; return id;
+            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; return id;
         }
     }
-    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; } }
+    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; } }
     private string UndoCore(string operationId) => Move(operationId, false);
     private string RedoCore(string operationId) => Move(operationId, true);
     string Move(string op, bool forward)
