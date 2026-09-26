@@ -41,6 +41,7 @@ public sealed class WorkbenchController : IDisposable
     private DisplayFrame? acceptedFrame;
     private bool disposed;
     private bool draftInputValid = true;
+    private readonly Dictionary<int, (string Key, ProfileView View)> sectionViews = new();
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null)
     {
@@ -217,12 +218,55 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
-    public ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope) => throw new NotImplementedException();
-    public ProfileView SectionView(int assignmentIndex) => throw new NotImplementedException();
-    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId) => throw new NotImplementedException();
-    public void UpdateSectionDraft(double x, double y) => throw new NotImplementedException();
+    public ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope)
+    {
+        if (Inspection is null) throw new ContractError("DOC-EMPTY");
+        if ((uint)assignmentIndex >= (uint)Inspection.Authored.Assignments.Count) throw new ContractError("DSL-PROFILE-TARGET");
+        string profile = Inspection.Authored.Assignments[assignmentIndex].ProfileName;
+        return session.DescribeScope(profile, assignmentIndex, scope);
+    }
 
-    public void InvalidateDraftInput()
+    public ProfileView SectionView(int assignmentIndex)
+    {
+        string key = SectionViewKey(assignmentIndex);
+        if (sectionViews.TryGetValue(assignmentIndex, out var cached) && cached.Key == key) return cached.View;
+        var view = session.ProfileAt(assignmentIndex);
+        sectionViews[assignmentIndex] = (key, view);
+        return view;
+    }
+
+    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId)
+    {
+        if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
+        var started = session.BeginProfileEdit(Guid.NewGuid().ToString("D"), assignmentIndex, scope, side, vertexId);
+        CancelSampling();
+        draft = started;
+        draftInputValid = true;
+        if ((uint)assignmentIndex < (uint)Inspection.Authored.Assignments.Count)
+            interiorEta = Inspection.Authored.Assignments[assignmentIndex].Eta;
+        Frame = acceptedFrame = null;
+        currentAssessment = null;
+        sectionViews.Clear();
+        Status = $"Draft owns station {assignmentIndex} {side} {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
+        Provenance = "draft — accepted sampling";
+        Notify();
+        _ = RefreshAcceptedAsync();
+    }
+
+    public void UpdateSectionDraft(double x, double y)
+    {
+        if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
+        CancelSampling();
+        draft = session.UpdateProfileDraft(draft.Id, draft.Generation, x, y);
+        draftInputValid = true;
+        currentAssessment = null;
+        Frame = acceptedFrame;
+        Provenance = "draft — accepted geometry shown";
+        Status = $"Draft owns station {draft.Assignment} {draft.Rail} {draft.VertexId}. Draft generation {draft.Generation} changed. Preview to assess geometry.";
+        Notify();
+    }
+
+    public void InvalidateDraftInput(string? reason = null)
     {
         if (draft is null) return;
         CancelSampling();
@@ -230,7 +274,7 @@ public sealed class WorkbenchController : IDisposable
         currentAssessment = null;
         Frame = acceptedFrame;
         Provenance = "draft — invalid numeric input";
-        Status = "Enter a finite numeric aft position. Preview and Save are blocked until corrected.";
+        Status = reason ?? "Enter a finite numeric aft position. Preview and Save are blocked until corrected.";
         Notify();
     }
 
@@ -243,7 +287,7 @@ public sealed class WorkbenchController : IDisposable
         var capture = draft;
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
-        Status = "Assessing draft geometry…";
+        Status = $"{SectionDraftPrefix()}Assessing draft geometry…";
         Notify();
         try
         {
@@ -254,7 +298,7 @@ public sealed class WorkbenchController : IDisposable
             {
                 Frame = acceptedFrame;
                 Provenance = "draft — unavailable geometry";
-                Status = $"{assessment.Code}: {assessment.Status}. {string.Join(" ", assessment.Diagnostics.Select(d => d.Reason))}";
+                Status = $"{SectionDraftPrefix()}{assessment.Code}: {assessment.Status}. {string.Join(" ", assessment.Diagnostics.Select(d => d.Reason))}";
                 Notify();
                 return;
             }
@@ -263,7 +307,7 @@ public sealed class WorkbenchController : IDisposable
             if (version != stateVersion || draft?.Id != capture.Id || draft.Generation != capture.Generation) return;
             Frame = frame;
             Provenance = "preview";
-            Status = $"Preview of {capture.Rail} {capture.VertexId}; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
+            Status = $"{SectionDraftPrefix()}Preview of {capture.Rail} {capture.VertexId}; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
             Notify();
         }
         catch (OperationCanceledException) { }
@@ -456,14 +500,14 @@ public sealed class WorkbenchController : IDisposable
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
         Provenance = draft is null ? "accepted — sampling" : "draft — accepted sampling";
-        Status = $"Sampling accepted geometry at η {eta:G3}…";
+        Status = $"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…";
         Notify();
         try
         {
             if (inspected.Geometry.Certificate is null)
             {
                 Frame = null;
-                Status = $"{inspected.Geometry.Status}: {inspected.Geometry.Reason}";
+                Status = $"{SectionDraftPrefix()}{inspected.Geometry.Status}: {inspected.Geometry.Reason}";
                 Notify();
                 return;
             }
@@ -472,12 +516,12 @@ public sealed class WorkbenchController : IDisposable
             if (version != stateVersion || Inspection?.Authored.Binding.SourceHash != frame.SourceHash || interiorEta != frame.InteriorEta) return;
             Frame = acceptedFrame = frame;
             Provenance = draft is null ? "accepted" : "draft — accepted geometry shown";
-            Status = $"Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
+            Status = $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
             Notify();
         }
         catch (OperationCanceledException) { }
         catch (ContractError error) when (error.Code == "GEOMETRY-CANCELLED") { }
-        catch (ContractError error) { Status = $"{error.Code}: Geometry display unavailable; accepted source retained."; Notify(); }
+        catch (ContractError error) { Status = $"{SectionDraftPrefix()}{error.Code}: Geometry display unavailable; accepted source retained."; Notify(); }
         finally { if (ReferenceEquals(activeSampling, linked)) activeSampling = null; }
     }
 
@@ -536,9 +580,23 @@ public sealed class WorkbenchController : IDisposable
         draft = null;
         draftInputValid = true;
         currentAssessment = null;
+        sectionViews.Clear();
         Provenance = "empty";
         Status = "Opening…";
         Notify();
+    }
+
+    private string SectionDraftPrefix() =>
+        draft is { Profile: not null, Assignment: >= 0 } section ? $"Draft owns station {section.Assignment}. " : "";
+
+    private string SectionViewKey(int assignmentIndex)
+    {
+        var binding = Inspection?.Authored.Binding;
+        string accepted = binding?.AcceptedId ?? "";
+        string hash = binding?.SourceHash ?? "";
+        if (draft is { Profile: not null } active && active.Assignment == assignmentIndex)
+            return accepted + ":" + hash + ":d:" + active.Id + ":" + active.Generation;
+        return accepted + ":" + hash + ":a";
     }
 
     private void Notify() => Changed?.Invoke();

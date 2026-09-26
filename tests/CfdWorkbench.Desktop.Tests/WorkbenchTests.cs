@@ -27,7 +27,7 @@ if (args.Contains("--section-canvas", StringComparer.Ordinal))
 if (args.Contains("--section-flow", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    await CfdWorkbench.Desktop.Tests.SectionFlowTests.RunAsync();
+    CfdWorkbench.Desktop.Tests.SectionFlowTests.Run();
     Console.WriteLine("Section flow tests passed.");
     Environment.Exit(0);
 }
@@ -1259,7 +1259,9 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
         var controller = (WorkbenchController)(controllerField.GetValue(window)
             ?? throw new Exception("Workbench controller unavailable"));
         var tabItems = tabs.Items.OfType<TabItem>().ToArray();
-        if (tabItems.Length != 2) throw new Exception("Actual DocumentTabs count changed");
+        if (tabItems.Length != 3 || tabItems[0].Header?.ToString() != "Section sample" ||
+            tabItems[1].Header?.ToString() != "FoilDSL source" || tabItems[2].Header?.ToString() != "Section")
+            throw new Exception("Actual DocumentTabs count changed");
         tabs.SelectedIndex = 0;
         ReadyThemeWindow(window, controller, tabItems[0], theme);
         CheckRow(theme, "tab.section.selected", () => TextRow(theme, "tab.section.selected", tabItems[0]));
@@ -1851,6 +1853,11 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+using (var sectionFlow = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--section-flow") { UseShellExecute = false }))
+{
+    sectionFlow!.WaitForExit();
+    if (sectionFlow.ExitCode != 0) throw new Exception($"section-flow exited {sectionFlow.ExitCode}");
+}
 Environment.Exit(0);
 
 sealed class UncertainStore : IProjectStore

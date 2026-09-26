@@ -20,14 +20,26 @@
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="240,*,300">
       <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0" Padding="{StaticResource Space4}">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,180">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,180">
           <TextBlock Grid.Row="0" Classes="heading" Text="Navigator" />
           <TextBlock Grid.Row="1" Classes="caption" Text="Accepted stations · normalized span η" Margin="{StaticResource Space2}" />
           <ListBox Grid.Row="2" x:Name="StationList" AutomationProperties.Name="Accepted station assignments and profile identities" MaxHeight="{StaticResource StationListHeight}" />
-          <TextBlock Grid.Row="3" Classes="heading" Text="Rail controls" Margin="{StaticResource Space2}" />
-          <ListBox Grid.Row="4" x:Name="ControlList" AutomationProperties.Name="Authored rail control vertices; select one to edit" />
-          <TextBlock Grid.Row="5" Classes="heading" Text="Sample data" Margin="{StaticResource Space2}" />
-          <ListBox Grid.Row="6" x:Name="SampleList" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
+          <Border Grid.Row="3" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="{StaticResource Space2}" Margin="{StaticResource Space2}">
+            <StackPanel Spacing="8">
+              <local:SectionCanvas x:Name="StationThumbnail" Focusable="False" Editable="False"
+                                   Width="{StaticResource SectionThumbnailWidth}" Height="{StaticResource SectionThumbnailHeight}"
+                                   BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                                   StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
+                                   AutomationProperties.Name="Selected station section thumbnail" />
+              <TextBlock x:Name="StationCardText" TextWrapping="Wrap" Text="No station selected."
+                         AutomationProperties.Name="Selected station profile, eta, distance and effective thickness" />
+              <Button x:Name="EditSectionButton" Content="Edit section" AutomationProperties.Name="Edit section" />
+            </StackPanel>
+          </Border>
+          <TextBlock Grid.Row="4" Classes="heading" Text="Rail controls" Margin="{StaticResource Space2}" />
+          <ListBox Grid.Row="5" x:Name="ControlList" AutomationProperties.Name="Authored rail control vertices; select one to edit" />
+          <TextBlock Grid.Row="6" Classes="heading" Text="Sample data" Margin="{StaticResource Space2}" />
+          <ListBox Grid.Row="7" x:Name="SampleList" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
         </Grid>
       </Border>
       <Grid Grid.Column="1">
@@ -66,6 +78,42 @@
               <TextBlock Grid.Row="0" x:Name="SourceLabel" Text="Accepted source bytes" />
               <TextBox Grid.Row="1" x:Name="SourceText" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Retained FoilDSL source text" />
             </Grid>
+          </TabItem>
+          <TabItem x:Name="SectionTab" Header="Section">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="{StaticResource Space4}" Spacing="8">
+                <TextBlock Classes="heading" Text="Section scope" />
+                <RadioButton x:Name="ScopeSharedRadio" GroupName="SectionScope" Content="Edit shared profile" IsChecked="True"
+                             AutomationProperties.Name="Edit shared profile" />
+                <RadioButton x:Name="ScopeIndependentRadio" GroupName="SectionScope" Content="Make independent at this station"
+                             AutomationProperties.Name="Make independent at this station" />
+                <TextBlock x:Name="ScopeImpactText" TextWrapping="Wrap" Text="Open a certified foil to see affected assignments."
+                           AutomationProperties.Name="Affected assignments and blend intervals" />
+                <TextBlock Classes="heading" Text="Thickness intent" />
+                <RadioButton x:Name="ThicknessKeepRadio" GroupName="ThicknessIntent" Content="Keep current thickness" IsChecked="True"
+                             AutomationProperties.Name="Keep current thickness" />
+                <RadioButton x:Name="ThicknessSourceRadio" GroupName="ThicknessIntent" Content="Use source thickness" IsEnabled="False"
+                             ToolTip.Tip="M1.1b" AutomationProperties.HelpText="M1.1b" AutomationProperties.Name="Use source thickness" />
+                <local:SectionCanvas x:Name="EditableSectionCanvas" MinHeight="{StaticResource SectionEditorMinHeight}" HorizontalAlignment="Stretch"
+                                     BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                                     StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
+                                     AutomationProperties.Name="Editable section control vertices" />
+                <TextBlock Text="Control vertices" />
+                <ListBox x:Name="SectionVertexList" MaxHeight="{StaticResource StationListHeight}"
+                         AutomationProperties.Name="Section control vertices; side, id, x, y and fixed state" />
+                <Grid ColumnDefinitions="Auto,*,Auto,*">
+                  <TextBlock Grid.Column="0" Text="X" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+                  <TextBox Grid.Column="1" x:Name="SectionXInput" Watermark="Chord X" AutomationProperties.Name="Selected vertex chord X" />
+                  <TextBlock Grid.Column="2" Text="Y" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+                  <TextBox Grid.Column="3" x:Name="SectionYInput" Watermark="Chord Y" AutomationProperties.Name="Selected vertex chord Y" />
+                </Grid>
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                  <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionPreviewButton" Content="Preview" AutomationProperties.Name="Preview current section draft" />
+                  <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionApplyButton" Content="Apply" AutomationProperties.Name="Apply certified section draft" />
+                  <Button Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" x:Name="SectionCancelButton" Content="Cancel draft" AutomationProperties.Name="Cancel current section draft" />
+                </Grid>
+              </StackPanel>
+            </ScrollViewer>
           </TabItem>
         </TabControl>
       </Grid>

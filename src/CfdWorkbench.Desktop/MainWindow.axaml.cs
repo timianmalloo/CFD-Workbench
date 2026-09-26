@@ -24,12 +24,21 @@ public sealed partial class MainWindow : Window
     private readonly List<(string Rail, AuthoredControl Control, string Unit)> targets = [];
     private readonly Button exampleButton, openButton, saveButton, undoButton, redoButton;
     private readonly Button previewButton, applyButton, cancelButton, acceptIdsButton, resumeRecoveryButton, discardRecoveryButton;
+    private readonly Button editSectionButton, sectionPreviewButton, sectionApplyButton, sectionCancelButton;
+    private readonly RadioButton scopeSharedRadio, scopeIndependentRadio, thicknessKeepRadio, thicknessSourceRadio;
     private readonly TextBlock stateBanner, viewportProvenance, sectionReadout, sectionPosition, sourceLabel, identityReadout, unitLabel,
-        draftReadout, importReadout, recoveryReadout, eventReadout, statusBar;
-    private readonly ListBox stationList, controlList, sampleList;
-    private readonly TextBox numericInput, sourceText;
+        draftReadout, importReadout, recoveryReadout, eventReadout, statusBar, stationCardText, scopeImpactText;
+    private readonly ListBox stationList, controlList, sampleList, sectionVertexList;
+    private readonly TextBox numericInput, sourceText, sectionXInput, sectionYInput;
     private readonly TabControl documentTabs;
+    private readonly TabItem sectionTab;
     private readonly Viewport viewport, sectionViewport;
+    private readonly SectionCanvas stationThumbnail, editableSectionCanvas;
+    private readonly List<ProfileVertex> sectionVertices = [];
+    private (string Side, string Id)? selectedSectionVertex;
+    private string? boundSectionDraftId;
+    private long boundSectionGeneration;
+    private (string Side, string Id)? boundSectionVertex;
     private bool refreshing;
     private bool closeApproved;
     private bool closed;
@@ -77,6 +86,22 @@ public sealed partial class MainWindow : Window
         sourceText = Find<TextBox>("SourceText"); documentTabs = Find<TabControl>("DocumentTabs");
         viewport = Find<Viewport>("FoilViewport");
         sectionViewport = Find<Viewport>("SectionViewport");
+        editSectionButton = Find<Button>("EditSectionButton");
+        sectionPreviewButton = Find<Button>("SectionPreviewButton");
+        sectionApplyButton = Find<Button>("SectionApplyButton");
+        sectionCancelButton = Find<Button>("SectionCancelButton");
+        scopeSharedRadio = Find<RadioButton>("ScopeSharedRadio");
+        scopeIndependentRadio = Find<RadioButton>("ScopeIndependentRadio");
+        thicknessKeepRadio = Find<RadioButton>("ThicknessKeepRadio");
+        thicknessSourceRadio = Find<RadioButton>("ThicknessSourceRadio");
+        stationCardText = Find<TextBlock>("StationCardText");
+        scopeImpactText = Find<TextBlock>("ScopeImpactText");
+        sectionVertexList = Find<ListBox>("SectionVertexList");
+        sectionXInput = Find<TextBox>("SectionXInput");
+        sectionYInput = Find<TextBox>("SectionYInput");
+        sectionTab = Find<TabItem>("SectionTab");
+        stationThumbnail = Find<SectionCanvas>("StationThumbnail");
+        editableSectionCanvas = Find<SectionCanvas>("EditableSectionCanvas");
         workbench.Changed += OnWorkbenchChanged;
         exampleButton.Click += async (_, _) => await Guarded(async () => { if (await MayReplaceAsync()) await workbench.OpenExampleAsync(); });
         openButton.Click += async (_, _) => await Guarded(OpenAsync);
@@ -91,6 +116,18 @@ public sealed partial class MainWindow : Window
         discardRecoveryButton.Click += async (_, _) => await Guarded(() => { workbench.DiscardRecovery(); return Task.CompletedTask; });
         controlList.SelectionChanged += OnControlSelection;
         numericInput.TextChanged += OnNumericChanged;
+        stationList.SelectionChanged += OnStationSelection;
+        editSectionButton.Click += OnEditSectionClick;
+        sectionPreviewButton.Click += async (_, _) => await Guarded(TimedPreviewAsync);
+        sectionApplyButton.Click += async (_, _) => await Guarded(() => { workbench.Apply(); return Task.CompletedTask; });
+        sectionCancelButton.Click += (_, _) => TimedCancel();
+        scopeSharedRadio.IsCheckedChanged += OnScopeChanged;
+        scopeIndependentRadio.IsCheckedChanged += OnScopeChanged;
+        sectionVertexList.SelectionChanged += OnSectionVertexSelection;
+        sectionXInput.TextChanged += OnSectionNumericChanged;
+        sectionYInput.TextChanged += OnSectionNumericChanged;
+        editableSectionCanvas.VertexSelected += OnCanvasVertexSelected;
+        editableSectionCanvas.VertexMoved += OnCanvasVertexMoved;
         numericInput.KeyDown += OnNumericKeyDown;
         KeyDown += OnWindowKeyDown;
         Closing += OnClosing;
@@ -584,7 +621,7 @@ public sealed partial class MainWindow : Window
         refreshing = true;
         try
         {
-        stateBanner.Text = adapterError ?? workbench.Status;
+        stateBanner.Text = adapterError ?? SectionBanner(workbench.Status);
         viewportProvenance.Text = workbench.Provenance;
         viewport.Frame = workbench.Frame;
         sectionViewport.Frame = workbench.Frame;
@@ -595,6 +632,9 @@ public sealed partial class MainWindow : Window
         previewButton.IsEnabled = workbench.Draft is not null && workbench.DraftInputValid;
         applyButton.IsEnabled = workbench.Draft is not null && workbench.Provenance == "preview";
         cancelButton.IsEnabled = workbench.Draft is not null;
+        sectionPreviewButton.IsEnabled = previewButton.IsEnabled;
+        sectionApplyButton.IsEnabled = applyButton.IsEnabled;
+        sectionCancelButton.IsEnabled = cancelButton.IsEnabled;
         acceptIdsButton.IsEnabled = workbench.PendingCandidate is not null;
         resumeRecoveryButton.IsEnabled = workbench.HasRecovery && workbench.Draft is null;
         discardRecoveryButton.IsEnabled = workbench.HasRecovery && workbench.Draft is null;
@@ -627,6 +667,7 @@ public sealed partial class MainWindow : Window
                 if (selected >= 0) controlList.SelectedIndex = selected;
                 navigatorKey = nextKey;
             }
+            if (stationList.SelectedIndex < 0 && stationList.ItemCount > 0) stationList.SelectedIndex = 0;
         }
         else
         {
@@ -698,7 +739,9 @@ public sealed partial class MainWindow : Window
         sectionReadout.Text = section is null ? "Section sample unavailable."
             : $"Upper z/c [{section.Upper.Lower:G7}, {section.Upper.Upper:G7}] · Lower z/c [{section.Lower.Lower:G7}, {section.Lower.Upper:G7}]";
         draftReadout.Text = workbench.Draft is null ? "No draft." :
-            workbench.DraftProjection is not { } displayProjection || TryDraftField(displayProjection, workbench.Draft) is null
+            workbench.Draft.Profile is not null
+                ? $"Draft {workbench.Draft.Id} · station {workbench.Draft.Assignment} {workbench.Draft.Rail} {workbench.Draft.VertexId} · generation {workbench.Draft.Generation}"
+                : workbench.DraftProjection is not { } displayProjection || TryDraftField(displayProjection, workbench.Draft) is null
                 ? $"Draft {workbench.Draft.Id} cannot be projected. Inspect retained source bytes and Preview diagnostics; numeric editing is unavailable."
                 : $"Draft {workbench.Draft.Id} · {workbench.Draft.Rail} {workbench.Draft.VertexId} · generation {workbench.Draft.Generation}";
         importReadout.Text = workbench.PendingCandidate is not null ? "Original bytes retained; candidate adds explicit control IDs only. Accepted source remains unchanged until acceptance."
@@ -712,10 +755,251 @@ public sealed partial class MainWindow : Window
         var last = workbench.LocalEvents.LastOrDefault();
         eventReadout.Text = last is null ? "No operation recorded." : $"{last.Operation} · {last.Outcome} · {last.DurationMilliseconds:F1} ms · {last.InputBytes?.ToString() ?? "not recorded"} input bytes";
         statusBar.Text = $"{workbench.Provenance} · {workbench.Status} · Analysis Unavailable — no method implemented";
+        BindSectionEditor();
         }
         finally { refreshing = false; }
         if (nativeMetric is { Armed: true, Queued: false } metric && NativeMetricReady(metric))
             QueueNativeMetric(metric, mainRenderBefore, sectionRenderBefore);
+    }
+
+    private string SectionBanner(string status)
+    {
+        if (workbench.Draft is not { Profile: not null, Assignment: >= 0 } owned) return status;
+        string marker = $"station {owned.Assignment}";
+        return status.Contains(marker, StringComparison.Ordinal) ? status : $"Draft owns {marker}. {status}";
+    }
+
+    private int InspectedAssignment()
+    {
+        int count = workbench.Inspection?.Authored.Assignments.Count ?? 0;
+        if (count == 0) return 0;
+        int selected = stationList.SelectedIndex;
+        return (uint)selected < (uint)count ? selected : 0;
+    }
+
+    private void OnStationSelection(object? sender, SelectionChangedEventArgs args)
+    {
+        if (refreshing) return;
+        Refresh();
+    }
+
+    private void OnEditSectionClick(object? sender, RoutedEventArgs args)
+    {
+        documentTabs.SelectedItem = sectionTab;
+        Refresh();
+    }
+
+    private void OnScopeChanged(object? sender, RoutedEventArgs args)
+    {
+        if (refreshing || workbench.Draft is not null) return;
+        Refresh();
+    }
+
+    private void OnSectionVertexSelection(object? sender, SelectionChangedEventArgs args)
+    {
+        if (refreshing) return;
+        if (sectionVertexList.SelectedIndex < 0 || sectionVertexList.SelectedIndex >= sectionVertices.Count) return;
+        SelectSectionVertex(sectionVertices[sectionVertexList.SelectedIndex]);
+    }
+
+    private void OnCanvasVertexSelected(string side, string id)
+    {
+        if (refreshing) return;
+        int index = sectionVertices.FindIndex(item => item.Side == side && item.Id == id);
+        if (index < 0) return;
+        if (sectionVertexList.SelectedIndex != index) sectionVertexList.SelectedIndex = index;
+        else SelectSectionVertex(sectionVertices[index]);
+    }
+
+    private void OnCanvasVertexMoved(string side, string id, double x, double y)
+    {
+        if (refreshing) return;
+        if (workbench.Draft is null)
+        {
+            int index = sectionVertices.FindIndex(item => item.Side == side && item.Id == id);
+            if (index < 0) return;
+            SelectSectionVertex(sectionVertices[index]);
+            if (workbench.Draft is null) return;
+        }
+        if (workbench.Draft is not { } owned || owned.Profile is null || owned.Rail != side || owned.VertexId != id)
+        {
+            if (workbench.Draft is { Profile: not null, Assignment: >= 0 } pinned)
+                adapterError = $"Draft owns station {pinned.Assignment} {pinned.Rail} {pinned.VertexId}.";
+            Refresh();
+            return;
+        }
+        try { workbench.UpdateSectionDraft(x, y); adapterError = null; }
+        catch (ContractError error)
+        {
+            workbench.InvalidateDraftInput($"Draft owns station {owned.Assignment}. Enter a finite chord X and Y the profile accepts.");
+            adapterError = $"{error.Code}: section draft update refused.";
+        }
+        Refresh();
+    }
+
+    private void SelectSectionVertex(ProfileVertex vertex)
+    {
+        selectedSectionVertex = (vertex.Side, vertex.Id);
+        if (workbench.Draft is { Profile: not null, Assignment: >= 0 } owned)
+        {
+            adapterError = owned.Rail == vertex.Side && owned.VertexId == vertex.Id
+                ? null
+                : $"Draft owns station {owned.Assignment} {owned.Rail} {owned.VertexId}.";
+            Refresh();
+            return;
+        }
+        adapterError = null;
+        var scope = scopeIndependentRadio.IsChecked == true ? SectionScope.Independent : SectionScope.Shared;
+        try { workbench.BeginSectionEdit(InspectedAssignment(), scope, vertex.Side, vertex.Id); }
+        catch (ContractError error) { adapterError = $"{error.Code}: fixed vertex cannot start an edit."; }
+        Refresh();
+    }
+
+    private void OnSectionNumericChanged(object? sender, TextChangedEventArgs args)
+    {
+        if (refreshing || workbench.Draft is not { Profile: not null, Assignment: >= 0 } owned) return;
+        if (selectedSectionVertex is not { } selected || owned.Rail != selected.Side || owned.VertexId != selected.Id) return;
+        if (!sectionXInput.IsEnabled) return;
+        if (!double.TryParse(sectionXInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double x) ||
+            !double.TryParse(sectionYInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double y) ||
+            !double.IsFinite(x) || !double.IsFinite(y))
+        {
+            workbench.InvalidateDraftInput($"Draft owns station {owned.Assignment}. Enter finite chord X and Y. Preview and Save are blocked until corrected.");
+            adapterError = null;
+            Refresh();
+            return;
+        }
+        try { workbench.UpdateSectionDraft(x, y); adapterError = null; }
+        catch (ContractError error)
+        {
+            workbench.InvalidateDraftInput($"Draft owns station {owned.Assignment}. Enter a finite chord X and Y the profile accepts.");
+            adapterError = $"{error.Code}: section draft update refused.";
+        }
+        Refresh();
+    }
+
+    private void BindSectionEditor()
+    {
+        bool scopeOpen = workbench.Draft is null;
+        scopeSharedRadio.IsEnabled = scopeOpen;
+        scopeIndependentRadio.IsEnabled = scopeOpen;
+        thicknessKeepRadio.IsChecked = true;
+        thicknessSourceRadio.IsEnabled = false;
+        thicknessSourceRadio.IsChecked = false;
+        if (workbench.Inspection is not { } inspected)
+        {
+            stationThumbnail.Profile = null;
+            editableSectionCanvas.Profile = null;
+            editableSectionCanvas.SelectedVertex = null;
+            stationCardText.Text = "No station selected.";
+            scopeImpactText.Text = "Open a certified foil to see affected assignments.";
+            editSectionButton.IsEnabled = false;
+            sectionXInput.IsEnabled = false;
+            sectionYInput.IsEnabled = false;
+            sectionVertexList.ItemsSource = Array.Empty<ListBoxItem>();
+            sectionVertices.Clear();
+            return;
+        }
+        editSectionButton.IsEnabled = true;
+        int inspectedIndex = InspectedAssignment();
+        var assignment = inspected.Authored.Assignments[inspectedIndex];
+        int editIndex = workbench.Draft is { Profile: not null, Assignment: >= 0 } sectionDraft ? sectionDraft.Assignment : inspectedIndex;
+        ProfileView? card = TrySection(inspectedIndex);
+        ProfileView? editing = editIndex == inspectedIndex ? card : TrySection(editIndex);
+        stationThumbnail.Profile = card;
+        editableSectionCanvas.Profile = editing;
+        stationCardText.Text = card is null
+            ? $"{assignment.ProfileName}\nη {assignment.Eta:G3} · {assignment.SpanMeters:G4} m\nSection view unavailable."
+            : $"{card.Name}\nη {assignment.Eta:G3} · {assignment.SpanMeters:G4} m\n{ThicknessReadout(inspected.Authored)}";
+        BindScopeImpact(editIndex);
+        BindSectionVertices(editing);
+        var selected = selectedSectionVertex is { } key
+            ? sectionVertices.FirstOrDefault(item => item.Side == key.Side && item.Id == key.Id)
+            : null;
+        editableSectionCanvas.SelectedVertex = selected is null ? null : (selected.Side, selected.Id);
+        bool ownedVertex = workbench.Draft is { Profile: not null } owned && selected is not null &&
+            owned.Rail == selected.Side && owned.VertexId == selected.Id && !selected.Fixed;
+        sectionXInput.IsEnabled = ownedVertex;
+        sectionYInput.IsEnabled = ownedVertex;
+        PushSectionNumeric(selected);
+    }
+
+    private ProfileView? TrySection(int assignmentIndex)
+    {
+        try { return workbench.SectionView(assignmentIndex); }
+        catch (ContractError) { return null; }
+    }
+
+    private void BindScopeImpact(int assignmentIndex)
+    {
+        var scope = scopeIndependentRadio.IsChecked == true ? SectionScope.Independent : SectionScope.Shared;
+        try { scopeImpactText.Text = FormatScope(workbench.DescribeScope(assignmentIndex, scope)); }
+        catch (ContractError error) { scopeImpactText.Text = $"{error.Code}: scope is unavailable."; }
+    }
+
+    private static string FormatScope(ScopeImpact impact)
+    {
+        string assignments = impact.AffectedAssignments.Count == 0 ? "none" : string.Join(", ", impact.AffectedAssignments);
+        string intervals = impact.Intervals.Count == 0 ? "none" : string.Join("; ", impact.Intervals.Select(interval =>
+            $"η {interval.EtaStart:G3}–{interval.EtaEnd:G3} ({interval.RootDistanceStartMeters:G4}–{interval.RootDistanceEndMeters:G4} m)"));
+        string choice = impact.Scope == SectionScope.Independent ? "Make independent" : "Edit shared";
+        return $"{choice} · profile {impact.Profile}\nAffected assignments: {assignments}\nBlend intervals: {intervals}";
+    }
+
+    // assume: a constant thickness channel evaluates to that ordinate at every station.
+    // A non-constant channel has no public pointwise query, so the card does not invent a station value.
+    private static string ThicknessReadout(AuthoredProjection authored)
+    {
+        var rail = authored.Rails.FirstOrDefault(item => item.Name == "thickness");
+        if (rail is null || rail.Controls.Count == 0) return "t/c unavailable";
+        double value = rail.Controls[0].OrdinateSi;
+        if (rail.Controls.Any(item => item.OrdinateSi != value)) return "t/c varies along the thickness channel";
+        return "t/c " + value.ToString("G6", CultureInfo.InvariantCulture);
+    }
+
+    private void BindSectionVertices(ProfileView? view)
+    {
+        var prior = selectedSectionVertex;
+        sectionVertices.Clear();
+        if (view is null)
+        {
+            sectionVertexList.ItemsSource = Array.Empty<ListBoxItem>();
+            return;
+        }
+        sectionVertices.AddRange(view.Upper);
+        sectionVertices.AddRange(view.Lower);
+        var items = sectionVertices.Select(vertex =>
+        {
+            string state = vertex.Fixed ? "fixed" : "editable";
+            return NamedItem($"{vertex.Side} {vertex.Id} x {vertex.X.ToString("G6", CultureInfo.InvariantCulture)} y {vertex.Y.ToString("G6", CultureInfo.InvariantCulture)} {state}",
+                $"{vertex.Side} control {vertex.Id}, x {vertex.X.ToString("G6", CultureInfo.InvariantCulture)}, y {vertex.Y.ToString("G6", CultureInfo.InvariantCulture)}, {state}");
+        }).ToArray();
+        sectionVertexList.ItemsSource = items;
+        int restore = prior is { } key ? sectionVertices.FindIndex(item => item.Side == key.Side && item.Id == key.Id) : -1;
+        sectionVertexList.SelectedIndex = restore;
+    }
+
+    private void PushSectionNumeric(ProfileVertex? vertex)
+    {
+        if (vertex is null)
+        {
+            if (sectionXInput.Text?.Length > 0) sectionXInput.Text = "";
+            if (sectionYInput.Text?.Length > 0) sectionYInput.Text = "";
+            boundSectionDraftId = null;
+            boundSectionGeneration = 0;
+            boundSectionVertex = null;
+            return;
+        }
+        var key = (vertex.Side, vertex.Id);
+        bool sameEdit = workbench.Draft?.Id == boundSectionDraftId &&
+            (workbench.Draft?.Generation ?? 0) == boundSectionGeneration &&
+            boundSectionVertex is { } current && current.Side == key.Side && current.Id == key.Id;
+        if (sameEdit) return;
+        sectionXInput.Text = vertex.X.ToString("G17", CultureInfo.InvariantCulture);
+        sectionYInput.Text = vertex.Y.ToString("G17", CultureInfo.InvariantCulture);
+        boundSectionDraftId = workbench.Draft?.Id;
+        boundSectionGeneration = workbench.Draft?.Generation ?? 0;
+        boundSectionVertex = key;
     }
 
     private static ListBoxItem NamedItem(string text, string name)

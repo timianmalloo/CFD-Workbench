@@ -1,7 +1,8 @@
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -12,23 +13,36 @@ namespace CfdWorkbench.Desktop.Tests;
 
 public static class SectionFlowTests
 {
-    public static async Task RunAsync()
+    public static void Run()
     {
         Console.WriteLine("Running SectionFlowTests...");
-        await TestSharedFlowOnExampleAsync();
-        await TestCancelBeforeApplyRestoresPriorViewAsync();
-        await TestFixedVertexCannotStartEditAsync();
-        await TestScopeRadiosDisabledWhileDraftOpenAndBannerNamesStationAsync();
-        await TestWindowLevelEditSectionSwitchesTabAndCanvasProfileNonNullAsync();
+        TestSharedFlowOnExample();
+        TestCancelBeforeApplyRestoresPriorView();
+        TestFixedVertexCannotStartEdit();
+        TestScopeRadiosDisabledWhileDraftOpenAndBannerNamesStation();
+        TestWindowLevelEditSectionSwitchesTabAndCanvasProfileNonNull();
         Console.WriteLine("SectionFlowTests: all 5 scenarios passed.");
     }
 
-    private static async Task TestSharedFlowOnExampleAsync()
+    private static void Wait(Task task)
     {
-        using var controller = new WorkbenchController();
-        await controller.OpenExampleAsync();
+        var dispatcher = Dispatcher.UIThread;
+        var deadline = DateTime.UtcNow.AddSeconds(120);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow > deadline) throw new TimeoutException("Section flow wait exceeded 120s");
+            dispatcher.RunJobs();
+            if (!task.IsCompleted) Thread.Sleep(1);
+        }
+        task.GetAwaiter().GetResult();
+    }
 
-        // DescribeScope(Shared) lists both assignments
+    private static void TestSharedFlowOnExample()
+    {
+        Console.WriteLine("section-flow shared");
+        using var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+
         var impact = controller.DescribeScope(0, SectionScope.Shared);
         if (impact.AffectedAssignments.Count != 2 || impact.AffectedAssignments[0] != 0 || impact.AffectedAssignments[1] != 1)
             throw new Exception($"DescribeScope(Shared) did not list both assignments; got count={impact.AffectedAssignments.Count}");
@@ -40,7 +54,7 @@ public static class SectionFlowTests
 
         controller.BeginSectionEdit(0, SectionScope.Shared, targetVertex.Side, targetVertex.Id);
         controller.UpdateSectionDraft(targetVertex.X, updatedY);
-        await controller.PreviewAsync();
+        Wait(controller.PreviewAsync());
         controller.Apply();
 
         var appliedView = controller.SectionView(0);
@@ -48,7 +62,6 @@ public static class SectionFlowTests
         if (Math.Abs(appliedVertex.Y - updatedY) > 1e-9)
             throw new Exception($"Apply did not update SectionView vertex; expected {updatedY}, got {appliedVertex.Y}");
 
-        // Undo restores original SectionView vertices exactly
         controller.Undo();
         var undoneView = controller.SectionView(0);
         if (undoneView.Upper.Count != originalView.Upper.Count || undoneView.Lower.Count != originalView.Lower.Count)
@@ -66,7 +79,6 @@ public static class SectionFlowTests
                 throw new Exception($"Undo did not restore original lower vertex {originalView.Lower[i].Id} exactly");
         }
 
-        // Redo re-applies
         controller.Redo();
         var redoneView = controller.SectionView(0);
         var redoneVertex = redoneView.Upper.Single(v => v.Id == targetVertex.Id);
@@ -74,10 +86,11 @@ public static class SectionFlowTests
             throw new Exception($"Redo did not re-apply section edit; expected {updatedY}, got {redoneVertex.Y}");
     }
 
-    private static async Task TestCancelBeforeApplyRestoresPriorViewAsync()
+    private static void TestCancelBeforeApplyRestoresPriorView()
     {
+        Console.WriteLine("section-flow cancel");
         using var controller = new WorkbenchController();
-        await controller.OpenExampleAsync();
+        Wait(controller.OpenExampleAsync());
 
         var priorView = controller.SectionView(0);
         var targetVertex = priorView.Upper.First(v => !v.Fixed);
@@ -101,64 +114,40 @@ public static class SectionFlowTests
         }
     }
 
-    private static async Task TestFixedVertexCannotStartEditAsync()
+    private static void TestFixedVertexCannotStartEdit()
     {
+        Console.WriteLine("section-flow fixed");
         using var controller = new WorkbenchController();
-        await controller.OpenExampleAsync();
+        Wait(controller.OpenExampleAsync());
 
         var view = controller.SectionView(0);
         var fixedVertex = view.Upper.First(v => v.Fixed);
 
         bool controllerRefused = false;
-        try
-        {
-            controller.BeginSectionEdit(0, SectionScope.Shared, fixedVertex.Side, fixedVertex.Id);
-        }
-        catch (ContractError error) when (error.Code == "DSL-LOCK")
-        {
-            controllerRefused = true;
-        }
+        try { controller.BeginSectionEdit(0, SectionScope.Shared, fixedVertex.Side, fixedVertex.Id); }
+        catch (ContractError error) when (error.Code == "DSL-LOCK") { controllerRefused = true; }
         if (!controllerRefused)
             throw new Exception("Controller did not surface DSL-LOCK when attempting to edit a fixed vertex");
 
-        // Window-level status banner test
-        var window = new MainWindow();
-        window.Show();
+        var window = OpenExampleWindow();
+        var vertexList = window.FindControl<ListBox>("SectionVertexList")
+            ?? throw new Exception("SectionVertexList missing");
+        var stateBanner = window.FindControl<TextBlock>("StateBanner")
+            ?? throw new Exception("StateBanner missing");
+        if (vertexList.ItemCount < 1) throw new Exception("SectionVertexList has no vertices");
+        vertexList.SelectedIndex = 0;
         window.UpdateLayout();
-        var controllerField = typeof(MainWindow).GetField("workbench",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var winController = (WorkbenchController)controllerField.GetValue(window)!;
-        await winController.OpenExampleAsync();
-        window.UpdateLayout();
-
-        // Selecting a fixed vertex in the window should surface DSL-LOCK in the state banner
-        var vertexList = window.FindControl<ListBox>("SectionVertexList");
-        var stateBanner = window.FindControl<TextBlock>("StateBanner");
-        if (vertexList is not null && stateBanner is not null)
-        {
-            // Select fixed vertex item (index 0)
-            vertexList.SelectedIndex = 0;
-            window.UpdateLayout();
-            if (stateBanner.Text is null || !stateBanner.Text.Contains("DSL-LOCK", StringComparison.OrdinalIgnoreCase))
-                throw new Exception($"Window status banner did not show DSL-LOCK; observed text: '{stateBanner.Text}'");
-        }
-
-        typeof(MainWindow).GetField("closeApproved", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.SetValue(window, true);
-        window.Close();
+        Dispatcher.UIThread.RunJobs();
+        if (stateBanner.Text is null || !stateBanner.Text.Contains("DSL-LOCK", StringComparison.OrdinalIgnoreCase))
+            throw new Exception($"Window status banner did not show DSL-LOCK; observed text: '{stateBanner.Text}'");
+        Close(window);
     }
 
-    private static async Task TestScopeRadiosDisabledWhileDraftOpenAndBannerNamesStationAsync()
+    private static void TestScopeRadiosDisabledWhileDraftOpenAndBannerNamesStation()
     {
-        var window = new MainWindow();
-        window.Show();
-        window.UpdateLayout();
-        var controllerField = typeof(MainWindow).GetField("workbench",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var winController = (WorkbenchController)controllerField.GetValue(window)!;
-        await winController.OpenExampleAsync();
-        window.UpdateLayout();
-
+        Console.WriteLine("section-flow scope-banner");
+        var window = OpenExampleWindow();
+        var winController = Controller(window);
         var editSectionBtn = window.FindControl<Button>("EditSectionButton")
             ?? throw new Exception("EditSectionButton missing");
         var stationList = window.FindControl<ListBox>("StationList")
@@ -177,12 +166,11 @@ public static class SectionFlowTests
         editSectionBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         window.UpdateLayout();
 
-        // Select an editable vertex to begin draft
         int editableIndex = -1;
         var items = vertexList.Items.OfType<ListBoxItem>().ToArray();
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i].Content is string s && s.Contains("editable"))
+            if (items[i].Content is string s && s.Contains("editable", StringComparison.Ordinal))
             {
                 editableIndex = i;
                 break;
@@ -192,38 +180,25 @@ public static class SectionFlowTests
 
         vertexList.SelectedIndex = editableIndex;
         window.UpdateLayout();
+        Dispatcher.UIThread.RunJobs();
 
         if (winController.Draft is null)
             throw new Exception("Draft was not started after selecting editable vertex");
-
-        // Scope radios must be disabled while a draft is open
         if (scopeSharedRadio.IsEnabled || scopeIndepRadio.IsEnabled)
             throw new Exception("Scope radios must be disabled while a draft is open");
 
-        // Select another station in StationList
         stationList.SelectedIndex = 1;
         window.UpdateLayout();
-
-        // Draft banner must still name the original station (station 0)
-        if (stateBanner.Text is null || (!stateBanner.Text.Contains("0") && !stateBanner.Text.Contains("station", StringComparison.OrdinalIgnoreCase)))
+        Dispatcher.UIThread.RunJobs();
+        if (stateBanner.Text is null || !stateBanner.Text.Contains("station 0", StringComparison.Ordinal))
             throw new Exception($"Draft banner did not name original station 0; banner text: '{stateBanner.Text}'");
-
-        typeof(MainWindow).GetField("closeApproved", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.SetValue(window, true);
-        window.Close();
+        Close(window);
     }
 
-    private static async Task TestWindowLevelEditSectionSwitchesTabAndCanvasProfileNonNullAsync()
+    private static void TestWindowLevelEditSectionSwitchesTabAndCanvasProfileNonNull()
     {
-        var window = new MainWindow();
-        window.Show();
-        window.UpdateLayout();
-        var controllerField = typeof(MainWindow).GetField("workbench",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var winController = (WorkbenchController)controllerField.GetValue(window)!;
-        await winController.OpenExampleAsync();
-        window.UpdateLayout();
-
+        Console.WriteLine("section-flow edit-tab");
+        var window = OpenExampleWindow();
         var editSectionBtn = window.FindControl<Button>("EditSectionButton")
             ?? throw new Exception("EditSectionButton missing");
         var documentTabs = window.FindControl<TabControl>("DocumentTabs")
@@ -233,18 +208,41 @@ public static class SectionFlowTests
         var canvas = window.FindControl<SectionCanvas>("EditableSectionCanvas")
             ?? throw new Exception("EditableSectionCanvas missing");
 
-        // Press Edit section
         editSectionBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         window.UpdateLayout();
+        Dispatcher.UIThread.RunJobs();
 
         if (!ReferenceEquals(documentTabs.SelectedItem, sectionTab))
             throw new Exception($"Edit section button did not switch DocumentTabs to SectionTab; selected was {documentTabs.SelectedItem}");
-
         if (canvas.Profile is null)
             throw new Exception("EditableSectionCanvas.Profile is null after pressing Edit section");
+        Close(window);
+    }
 
-        typeof(MainWindow).GetField("closeApproved", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.SetValue(window, true);
+    private static MainWindow OpenExampleWindow()
+    {
+        var window = new MainWindow();
+        window.Show();
+        window.UpdateLayout();
+        var deadline = DateTime.UtcNow.AddSeconds(120);
+        while (Controller(window).Inspection is null ||
+               window.FindControl<ListBox>("SectionVertexList") is not { ItemCount: > 0 })
+        {
+            if (DateTime.UtcNow > deadline) throw new TimeoutException("Example window did not publish a section");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+        return window;
+    }
+
+    private static WorkbenchController Controller(MainWindow window) =>
+        (WorkbenchController)typeof(MainWindow).GetField("workbench", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(window)!;
+
+    private static void Close(MainWindow window)
+    {
+        typeof(MainWindow).GetField("closeApproved", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, true);
         window.Close();
+        Dispatcher.UIThread.RunJobs();
     }
 }
