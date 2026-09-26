@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -27,8 +28,12 @@ public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
-        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null)
-    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; }
+        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null,
+        ImportReport? importReport = null)
+    {
+        Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding;
+        Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; ImportReport = importReport;
+    }
     internal Guid Owner { get; }
     public GeometryStatus Status { get; }
     public string Code { get; }
@@ -37,6 +42,7 @@ public sealed class SessionAssessment
     public AuthoredBinding? SourceBinding { get; }
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
     public ConstructionReport? Construction { get; }
+    public ImportReport? ImportReport { get; }
 }
 
 public sealed class AuthoringSession : IDisposable
@@ -85,7 +91,7 @@ public sealed class AuthoringSession : IDisposable
         {
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
-            draft = null; recovery = null; current = null;
+            draft = null; recovery = null; current = null; activeImportReport = null;
         }
     }
     private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null)
@@ -146,6 +152,8 @@ public sealed class AuthoringSession : IDisposable
     public ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope) => Run("scope", () => DescribeScopeCore(profile, assignmentIndex, scope));
     public SessionDraft BeginProfileEdit(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId) =>
         Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId));
+    public SessionDraft BeginProfileImport(string draftId, int assignmentIndex, byte[] dat) =>
+        Run("begin", () => BeginProfileImportCore(draftId, assignmentIndex, dat));
     public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
         Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
     public SessionDraft BeginProfileInsert(string draftId, int assignmentIndex, SectionScope scope, double x) =>
@@ -197,6 +205,7 @@ public sealed class AuthoringSession : IDisposable
     readonly Dictionary<string, (double MaxDeviation, double Tolerance, int VertexCount, bool WithinTolerance, bool PiecesIncreased)> pendingFairAssessment = [];
     SessionDraft? draft;
     RecoveryRow? recovery;
+    ImportReport? activeImportReport;
     string? current;
     string projectId = Guid.NewGuid().ToString("D");
     string? savedImageHash;
@@ -254,6 +263,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
             var p = ParseOwned(CurrentBytes); Guard.Require(rail is "leading" or "trailing" && p.Definition!.Curves[rail].Ids.Contains(vertexId), "DSL-TARGET");
             retiredDraftIds.Add(draftId);
+            activeImportReport = null;
             draft = new(draftId, current!, 0, rail, vertexId, CurrentBytes); return Copy(draft);
         }
     }
@@ -346,7 +356,54 @@ public sealed class AuthoringSession : IDisposable
                 bytes = made.Source; target = made.NewProfile;
             }
             retiredDraftIds.Add(draftId);
+            activeImportReport = null;
             draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex); return Copy(draft);
+        }
+    }
+    private SessionDraft BeginProfileImportCore(string draftId, int assignmentIndex, byte[] dat)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(draftId);
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
+            var definition = ParseOwned(CurrentBytes).Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
+            Guard.Require((uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
+
+            var datProfile = DatImport.Parse(dat);
+            string baseSlug = DatImport.Slug(datProfile.Name);
+            var names = definition.Profiles.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
+            string profileName = baseSlug;
+            if (names.Contains(profileName))
+            {
+                for (int k = 1; ; k++)
+                {
+                    profileName = $"{baseSlug}-i{k.ToString(CultureInfo.InvariantCulture)}";
+                    if (!names.Contains(profileName)) break;
+                    Guard.Require(k < 100000, "DSL-LIMIT");
+                }
+            }
+
+            var fitted = DatImport.Fit(datProfile, profileName);
+            var report = new ImportReport(fitted.MaxResidual, fitted.VertexCount, fitted.Accepted, fitted.Provenance);
+
+            var target = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
+            string text = FoilSource.Utf8.GetString(CurrentBytes);
+            int newline = text.LastIndexOf('\n', target.BlockStart);
+            string indent = newline < 0 ? "" : text[(newline + 1)..target.BlockStart];
+            string indentedBlock = string.Join("\n" + indent, fitted.ProfileBlock.Split('\n'));
+            string insertion = "\n" + indent + indentedBlock;
+            var token = definition.AssignmentProfiles[assignmentIndex];
+            Guard.Require(token.Start >= target.BlockEnd, "DSL-PROFILE-TARGET");
+            string result = text[..target.BlockEnd] + insertion + text[target.BlockEnd..token.Start] + Jcs.Quote(profileName) + text[token.End..];
+            byte[] candidate = FoilSource.Utf8.GetBytes(result);
+            Guard.Require(FoilSource.Parse(candidate).IsParsed, "DSL-PATCH");
+
+            retiredDraftIds.Add(draftId);
+            activeImportReport = report;
+            draft = new(draftId, current!, 0, "profile", profileName, candidate, profileName, assignmentIndex);
+            return Copy(draft);
         }
     }
     private SessionDraft UpdateProfileDraftCore(string draftId, long expectedGeneration, double x, double y)
@@ -475,7 +532,7 @@ public sealed class AuthoringSession : IDisposable
         string? fairIssue = null;
         try
         {
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture), null, importReport: activeImportReport);
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
             Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
             if (parsed.IsParsed && origin is not null) construction = MeasureConstruction(capture, parsed, origin);
@@ -485,19 +542,19 @@ public sealed class AuthoringSession : IDisposable
                 fairIssue = !fair.WithinTolerance ? "Fair result exceeds tolerance" : fair.PiecesIncreased ? "Fair increased monotone pieces" : null;
             }
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
-                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction);
+                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction, importReport: activeImportReport);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             var result = AssessOwned(parsed, generation);
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction);
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction, importReport: activeImportReport);
             GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
             if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
             Diagnostic[] diagnostics = status == GeometryStatus.Certified ? [] :
                 [new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision.")];
-            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction);
+            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction, importReport: activeImportReport);
         }
         catch (ContractError error)
-        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction); }
+        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction, importReport: activeImportReport); }
         finally { Interlocked.Exchange(ref validating, 0); }
     }
     private byte[] BaseBytes(string acceptedId)
@@ -525,6 +582,7 @@ public sealed class AuthoringSession : IDisposable
     private string ApplyCore(string operationId, SessionAssessment assessment)
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(assessment.ImportReport is null || assessment.ImportReport.Accepted, "DSL-TOLERANCE");
             Guard.Require(assessment.Key is not null && assessment.Status == GeometryStatus.Certified && assessment.Certificate is not null, "DSL-NOT-ASSESSED");
             string payload = "apply:" + JsonSerializer.Serialize(assessment.Key);
             if (Retry(operationId, payload, out string prior)) return prior;
@@ -532,10 +590,10 @@ public sealed class AuthoringSession : IDisposable
             var p = ParseOwned(draft!.Bytes); var key = Key(p, draft);
             Guard.Require(assessment.Owner == authorityId && assessment.Certificate!.SourceHash == key.SourceHash &&
                 assessment.Certificate.SurfaceHash == key.SurfaceHash && assessment.Key == key, "DSL-CONFLICT");
-            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; return id;
+            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; return id;
         }
     }
-    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; } }
+    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; } }
     private string UndoCore(string operationId) => Move(operationId, false);
     private string RedoCore(string operationId) => Move(operationId, true);
     string Move(string op, bool forward)

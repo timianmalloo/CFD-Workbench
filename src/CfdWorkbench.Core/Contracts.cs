@@ -9,8 +9,14 @@ public sealed class ContractError : Exception
         Code = code;
         Reason = reason;
     }
+    public ContractError(string code, int line) : base($"{code} at line {line}")
+    {
+        Code = code;
+        Line = line;
+    }
     public string Code { get; }
     public string? Reason { get; }
+    public int? Line { get; }
 }
 
 internal static class Guard
@@ -71,3 +77,4 @@ public sealed record ProfileView(string Name, string Identity, IReadOnlyList<Pro
 
 /// <summary>Shape report for one profile construction. MaxDeviation is the maximum |Δy| over 2001 chord samples, both sides. Tolerance is set by fairing, not by insert or delete.</summary>
 public sealed record ConstructionReport(double MaxDeviation, double? Tolerance, int VertexCount);
+public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance);

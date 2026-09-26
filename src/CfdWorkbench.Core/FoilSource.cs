@@ -234,9 +234,11 @@ public static class FoilSource
         return (candidate, newName);
     }
 
+    public static ImportedProfile ImportDat(byte[] bytes, string name) => DatImport.Fit(DatImport.Parse(bytes), name);
+
     // A finite binary64 is an integer divided by a power of two. Multiplying
     // by the inverse decimal unit gives a terminating decimal without rounding.
-    private static string ExactDecimal(double value, int unitScale)
+    internal static string ExactDecimal(double value, int unitScale = 0)
     {
         ulong bits = BitConverter.DoubleToUInt64Bits(value);
         int exponent = (int)((bits >> 52) & 2047);
