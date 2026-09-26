@@ -794,6 +794,30 @@ public static class NativeProject
         "upper" or "lower" => definition.Profiles.Any(profile => (channel == "upper" ? profile.Upper : profile.Lower).Ids.Contains(vertexId)),
         _ => false
     };
+    static bool ProfileHas(Definition definition, string vertexId) =>
+        definition.Profiles.Any(profile => profile.Upper.Ids.Contains(vertexId) || profile.Lower.Ids.Contains(vertexId));
+    // A construction (insert/delete/fair/rebuild) rail names a profile vertex rather than a
+    // channel EditTarget knows. Insert's vertex is freshly minted, so only the child has it.
+    // Delete's and rebuild's vertex is read off the profile before the operation runs (and
+    // rebuild may then renumber every id, per FoilSource.RebuildProfile.NextVertexIds), so
+    // only the parent is guaranteed to hold it. Fair renumbers neither, so both must.
+    static bool EditReference(Definition child, Definition parent, string rail, string vertexId) => rail switch
+    {
+        "leading" or "trailing" or "upper" or "lower" => EditTarget(child, rail, vertexId) && EditTarget(parent, rail, vertexId),
+        "insert" => ProfileHas(child, vertexId),
+        "delete" or "rebuild" => ProfileHas(parent, vertexId),
+        "fair" => ProfileHas(child, vertexId) && ProfileHas(parent, vertexId),
+        _ => false
+    };
+    // Same construction rails, against the recovered draft's base: insert/rebuild name a
+    // vertex the base does not have yet (or has renumbered), so there is nothing to check there.
+    static bool RecoveryReference(Definition definition, string rail, string vertexId) => rail switch
+    {
+        "leading" or "trailing" or "upper" or "lower" => EditTarget(definition, rail, vertexId),
+        "delete" or "fair" => ProfileHas(definition, vertexId),
+        "insert" or "rebuild" => true,
+        _ => false
+    };
     static void Check(Envelope e)
     {
         Uuid(e.ProjectId);
@@ -815,9 +839,9 @@ public static class NativeProject
             if (a.Parent is not null)
             {
                 Guard.Require(a.Edit is not null, "DOC-REFERENCE"); Uuid(a.Edit!.DraftId);
-                Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991 && EditTarget(parsed[a.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
+                Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991, "DOC-REFERENCE");
                 var parent = accepted[a.Parent]; bool same = parsed[a.SourceId].SurfaceHash! == parsed[parent.SourceId].SurfaceHash!;
-                Guard.Require(EditTarget(parsed[parent.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
+                Guard.Require(EditReference(parsed[a.SourceId].Definition!, parsed[parent.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
                 Guard.Require(same ? a.DesignId == parent.DesignId : designs[a.DesignId].Parent == parent.DesignId, "DOC-REFERENCE");
             }
             else Guard.Require(a.Edit is null, "DOC-REFERENCE");
@@ -827,18 +851,24 @@ public static class NativeProject
         _ = Replay(e);
         if (e.Recovery is not null)
         {
-            var r = e.Recovery; Uuid(r.DraftId); Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991 && r.Rail is "leading" or "trailing" or "upper" or "lower", "DOC-REFERENCE");
+            var r = e.Recovery; Uuid(r.DraftId);
+            Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991
+                && r.Rail is "leading" or "trailing" or "upper" or "lower" or "insert" or "delete" or "fair" or "rebuild", "DOC-REFERENCE");
+            Guard.Require(r.Rail is not ("insert" or "delete" or "fair" or "rebuild") || r.Profile is not null, "DOC-REFERENCE");
             var definition = parsed[accepted[r.BaseAcceptedId].SourceId].Definition!;
-            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(definition, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && RecoveryReference(definition, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
             if (r.Profile is not null)
             {
-                // A profile-edit recovery names its target explicitly; a rail
-                // recovery (Profile null) keeps the EditTarget check above unchanged.
-                Guard.Require(r.Rail is "upper" or "lower" && (uint)r.Assignment < (uint)definition.Assignments.Length, "DOC-REFERENCE");
+                // A profile-edit or construction recovery names its target explicitly; a rail
+                // recovery (Profile null) keeps the RecoveryReference check above unchanged.
+                Guard.Require(r.Rail is "upper" or "lower" or "insert" or "delete" or "fair" or "rebuild" && (uint)r.Assignment < (uint)definition.Assignments.Length, "DOC-REFERENCE");
                 var profile = definition.Profiles[definition.Assignments[r.Assignment].Profile];
                 Guard.Require(profile.Name == r.Profile, "DOC-REFERENCE");
-                var curve = r.Rail == "upper" ? profile.Upper : profile.Lower;
-                Guard.Require(curve.Ids.Contains(r.VertexId), "DOC-REFERENCE");
+                if (r.Rail is "upper" or "lower")
+                {
+                    var curve = r.Rail == "upper" ? profile.Upper : profile.Lower;
+                    Guard.Require(curve.Ids.Contains(r.VertexId), "DOC-REFERENCE");
+                }
             }
         }
     }

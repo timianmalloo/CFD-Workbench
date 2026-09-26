@@ -53,6 +53,7 @@ internal static class IdentityTests
         ConstructionTests.Run();
         FairSessionTests.Run();
         DatImportTests.Run();
+        ReopenConstructionTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }
