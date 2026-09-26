@@ -51,6 +51,7 @@ internal static class IdentityTests
         SectionEditTests.RunMultiProfile();
         FitTests.Run();
         ConstructionTests.Run();
+        FairSessionTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }

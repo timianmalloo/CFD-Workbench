@@ -324,6 +324,42 @@ public static class FoilSource
         return (RewriteCurves(source, found, knots, upperPoints, DropId(upper.Ids, vertexIndex), lowerPoints, DropId(lower.Ids, vertexIndex)), removed);
     }
 
+    internal static (byte[] Source, FairResult Result) FairProfile(byte[] source, string profile, double tolerance, PreserveEnds ends)
+    {
+        var (_, found) = ProfileOf(source, profile);
+        Guard.Require(!found.Upper.MissingIds && !found.Lower.MissingIds && found.Upper.IdTokens is not null && found.Lower.IdTokens is not null, "DSL-PATCH");
+        var result = ProfileFair.Fair(found, tolerance, ends);
+        if (!result.WithinTolerance) return (source, result);
+        byte[] candidate = RewriteCurves(source, found, result.Upper.Knots, result.Upper.Points, found.Upper.Ids, result.Lower.Points, found.Lower.Ids);
+        return (candidate, result);
+    }
+
+    internal static (byte[] Source, FairResult Result) RebuildProfile(byte[] source, string profile, int vertexCount, double tolerance, PreserveEnds ends)
+    {
+        var (_, found) = ProfileOf(source, profile);
+        Guard.Require(!found.Upper.MissingIds && !found.Lower.MissingIds && found.Upper.IdTokens is not null && found.Lower.IdTokens is not null, "DSL-PATCH");
+        var result = ProfileFair.Rebuild(found, vertexCount, tolerance, ends);
+        if (!result.WithinTolerance) return (source, result);
+        string[] upperIds = vertexCount == found.Upper.Points.Length ? found.Upper.Ids : NextVertexIds(found.Upper.Ids, vertexCount);
+        string[] lowerIds = vertexCount == found.Lower.Points.Length ? found.Lower.Ids : NextVertexIds(found.Lower.Ids, vertexCount);
+        byte[] candidate = RewriteCurves(source, found, result.Upper.Knots, result.Upper.Points, upperIds, result.Lower.Points, lowerIds);
+        return (candidate, result);
+    }
+
+    // Fresh ids are numbered strictly above the curve's own current maximum, so a
+    // vertex count change never reissues an id this curve has already used (including
+    // one a prior edit removed) even though DropId/SpliceId never retire the number.
+    private static string[] NextVertexIds(string[] existing, int count)
+    {
+        int max = -1;
+        foreach (string id in existing)
+            if (id.StartsWith("cv-", StringComparison.Ordinal) && int.TryParse(id.AsSpan(3), NumberStyles.None, CultureInfo.InvariantCulture, out int number))
+                max = Math.Max(max, number);
+        var ids = new string[count];
+        for (int index = 0; index < count; index++) ids[index] = "cv-" + (++max).ToString(CultureInfo.InvariantCulture);
+        return ids;
+    }
+
     internal static double MaxOrdinateDeviation(ProfileDefinition before, ProfileDefinition after)
     {
         const int samples = 2001;
