@@ -143,7 +143,7 @@ public sealed class AuthoringSession : IDisposable
     }
     private GeometryAssessment AssessOwned(SourceParse parsed, long? generation = null)
     {
-        var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed);
+        var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed, proofBudget);
         Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, "cfdw-cv/2");
         return result;
     }
@@ -189,10 +189,18 @@ public sealed class AuthoringSession : IDisposable
     public void AcknowledgeSaved(byte[] image) => Run("acknowledge-save", () => { AcknowledgeSavedCore(image); return true; }, image.Length);
     public void Reopen(byte[] image) => Run("reopen", () => { ReopenCore(image); return true; }, image.Length);
     private readonly int envelopeCap;
+    private readonly TimeSpan? proofBudget;
     public AuthoringSession(int envelopeCap = NativeProject.MaxBytes)
     {
         Guard.Require(envelopeCap > 0 && envelopeCap <= NativeProject.MaxBytes, "DOC-SIZE");
         this.envelopeCap = envelopeCap;
+    }
+    // Test seam only: forces every geometry proof in this session to run under the given
+    // budget, so a budget refusal (GEOMETRY-BUDGET) can be reproduced deterministically
+    // instead of depending on real elapsed time. No public constructor exposes this.
+    internal AuthoringSession(TimeSpan proofBudget, int envelopeCap = NativeProject.MaxBytes) : this(envelopeCap)
+    {
+        this.proofBudget = proofBudget;
     }
     readonly object sync = new();
     readonly Guid authorityId = Guid.NewGuid();
@@ -217,9 +225,17 @@ public sealed class AuthoringSession : IDisposable
     AcceptedRow Current => accepted.Single(a => a.Id == current);
     byte[] CurrentBytes => Decode(sources.Single(s => s.Id == Current.SourceId).Utf8Base64Chunks);
     SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/2", p.SurfaceHash!, d.Rail, d.VertexId);
-    void RequireAdmission(SourceParse p, SessionBinding key)
+    // Admits a document into the session. `toleratesBudget` is for re-certifying a revision
+    // that is already stored (reopen, undo/redo): a proof that merely ran out of its
+    // cooperative time budget must not refuse the whole session — the revision is simply
+    // carried in as NotAssessed / GEOMETRY-BUDGET (readable via InspectAccepted/Snapshot),
+    // never thrown and never labelled Certified. Every other refusal (integrity, reference,
+    // format) still refuses exactly as before. First admission of a brand-new source (Open)
+    // does not tolerate this, since that revision is not yet a stored one to fall back to.
+    void RequireAdmission(SourceParse p, SessionBinding key, bool toleratesBudget = false)
     {
         var assessment = AssessOwned(p);
+        if (toleratesBudget && assessment.Status == GeometryStatus.NotAssessed && assessment.Code == "GEOMETRY-BUDGET") return;
         Guard.Require(assessment.Status == GeometryStatus.Certified && assessment.Certificate is not null &&
             assessment.Certificate.SourceHash == key.SourceHash && assessment.Certificate.SurfaceHash == key.SurfaceHash, "DSL-NOT-ASSESSED");
     }
@@ -625,7 +641,7 @@ public sealed class AuthoringSession : IDisposable
             if (target is null) { operations.Add(op, (payload, current!)); return current!; }
             var targetRow = accepted.Single(a => a.Id == target);
             var targetParsed = ParseOwned(Decode(sources.Single(s => s.Id == targetRow.SourceId).Utf8Base64Chunks));
-            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/2", targetParsed.SurfaceHash!, "", ""));
+            RequireAdmission(targetParsed, new(targetParsed.SourceHash, "", "", 0, "cfdw-cv/2", targetParsed.SurfaceHash!, "", ""), toleratesBudget: true);
             var cursor = new CursorRow(cursors.Count, target, payload, op);
             NativeProject.Preflight(EnvelopeCore() with { Cursors = [.. cursors, cursor] }, envelopeCap);
             if (forward) redo.Pop(); else redo.Push(current!);
@@ -687,7 +703,7 @@ public sealed class AuthoringSession : IDisposable
             var replay = NativeProject.Replay(env); var active = env.Accepted.Single(a => a.Id == replay.Current);
             var p = ParseOwned(Decode(env.Sources.Single(s => s.Id == active.SourceId).Utf8Base64Chunks));
             var key = new SessionBinding(p.SourceHash, "", "", 0, "cfdw-cv/2", p.SurfaceHash!, "", "");
-            RequireAdmission(p, key);
+            RequireAdmission(p, key, toleratesBudget: true);
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
             current = replay.Current;
