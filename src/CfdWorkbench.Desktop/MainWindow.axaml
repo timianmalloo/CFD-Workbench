@@ -92,8 +92,29 @@
                 <TextBlock Classes="heading" Text="Thickness intent" />
                 <RadioButton x:Name="ThicknessKeepRadio" GroupName="ThicknessIntent" Content="Keep current thickness" IsChecked="True"
                              AutomationProperties.Name="Keep current thickness" />
-                <RadioButton x:Name="ThicknessSourceRadio" GroupName="ThicknessIntent" Content="Use source thickness" IsEnabled="False"
-                             ToolTip.Tip="M1.1b" AutomationProperties.HelpText="M1.1b" AutomationProperties.Name="Use source thickness" />
+                <RadioButton x:Name="ThicknessSourceRadio" GroupName="ThicknessIntent" Content="Use source thickness"
+                             ToolTip.Tip="Fit the foil thickness channel to this profile."
+                             AutomationProperties.HelpText="Fit the foil thickness channel to this profile."
+                             AutomationProperties.Name="Use source thickness" />
+                <TextBlock Classes="heading" Text="Section tools" />
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                  <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionInsertButton" Content="Insert CV" AutomationProperties.Name="Insert control vertex" />
+                  <TextBox Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionInsertXInput" Watermark="Chord X, or the midpoint to the right neighbour" AutomationProperties.Name="Insert chord X" />
+                  <Button Grid.Row="1" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionDeleteButton" Content="Delete CV" AutomationProperties.Name="Delete control vertex" />
+                  <TextBlock Grid.Row="1" Grid.Column="1" Margin="{StaticResource Space2}" VerticalAlignment="Center" Text="Deletes the selected paired vertex." AutomationProperties.Name="Delete removes the selected paired vertex" />
+                  <Button Grid.Row="2" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionFairButton" Content="Fair" AutomationProperties.Name="Fair section" />
+                  <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,*">
+                    <TextBox Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionFairToleranceInput" Text="1e-4" AutomationProperties.Name="Fair tolerance" />
+                    <ComboBox Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionPreserveEnds" SelectedIndex="0" AutomationProperties.Name="Preserve ends">
+                      <ComboBoxItem Content="Position" AutomationProperties.Name="Preserve end position" />
+                      <ComboBoxItem Content="Tangency" AutomationProperties.Name="Preserve end tangency" />
+                      <ComboBoxItem Content="Curvature" AutomationProperties.Name="Preserve end curvature" />
+                    </ComboBox>
+                  </Grid>
+                  <Button Grid.Row="3" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionRebuildButton" Content="Rebuild" AutomationProperties.Name="Rebuild section" />
+                  <TextBox Grid.Row="3" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionRebuildCountInput" Watermark="Vertex count" AutomationProperties.Name="Rebuild vertex count" />
+                  <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" HorizontalAlignment="Left" x:Name="SectionImportButton" Content="Import .dat" AutomationProperties.Name="Import dat profile" />
+                </Grid>
                 <local:SectionCanvas x:Name="EditableSectionCanvas" MinHeight="{StaticResource SectionEditorMinHeight}" HorizontalAlignment="Stretch"
                                      BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
                                      StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
@@ -107,6 +128,13 @@
                   <TextBlock Grid.Column="2" Text="Y" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
                   <TextBox Grid.Column="3" x:Name="SectionYInput" Watermark="Chord Y" AutomationProperties.Name="Selected vertex chord Y" />
                 </Grid>
+                <Border x:Name="SectionReportPanel" Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" Padding="{StaticResource Space2}" AutomationProperties.Name="Section report">
+                  <StackPanel Spacing="8">
+                    <TextBlock Classes="heading" Text="Section report" AutomationProperties.Name="Section report heading" />
+                    <TextBlock x:Name="SectionReportState" Text="No report yet." TextWrapping="Wrap" AutomationProperties.Name="Section report state" />
+                    <ItemsControl x:Name="SectionReportList" AutomationProperties.Name="Section report rows" />
+                  </StackPanel>
+                </Border>
                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
                   <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="SectionPreviewButton" Content="Preview" AutomationProperties.Name="Preview current section draft" />
                   <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="SectionApplyButton" Content="Apply" AutomationProperties.Name="Apply certified section draft" />
