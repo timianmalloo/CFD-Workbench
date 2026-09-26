@@ -1455,7 +1455,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3260c17fcc0410abd0986b015b387c3eb16381ce9306ea803e65f2445a2fedf7"
+      "sourceSha256": "c6906aec2ee4badc6a04a3268e2b0b08ca7449745828cecdfe7b8af7e4430d31"
     },
     {
       "id": "design-visible-presentation",
@@ -2051,6 +2051,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "2aecc843d0c4caca591af48e65eb8af2ed28818782762f4c65a42ed17367016e"
     },
     {
+      "id": "mockup-workbench-v8",
+      "path": "docs/mockups/workbench-v8.md",
+      "title": "CFD-Workbench v8 — CAD-first direction (curves and points)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "A CAD-first rethink at the Fusion 360 / Shape3D bar: open or create a foil, edit it in model-filling views, then enter the section editor as a mode. Every curve is on-curve points with tangent handles; ends are named points with typed values. Direction evidence only — not native proof.",
+      "tags": [
+        "mockup",
+        "cad",
+        "direction",
+        "section-editor",
+        "points",
+        "handles"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-workbench-v7",
+          "rel": "supersedes"
+        },
+        {
+          "to": "review-ui-workbench-v8",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7bc6de05e2efe44dfa2834e2ba82cee50c9c134a3a7d63cab544c6700b0639a9"
+    },
+    {
       "id": "workbench-direction",
       "path": "docs/design/workbench-direction.md",
       "title": "CFD-Workbench — interface direction",
@@ -2207,7 +2255,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "508c2af909f2b814ab87facad453a250ed9dcc3ea094c5d8d2ae4b1ffcf59dc6"
+      "sourceSha256": "33b344cc2a1d54003d01fbf9b4c4e17c4b23105ceff4b1b54a948d3b1620914c"
     },
     {
       "id": "domain-experts",
@@ -5768,6 +5816,47 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-ui-workbench-v8",
+      "path": "docs/reviews/ui-workbench-v8.md",
+      "title": "UI review — CAD-first direction v8 (elevate)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "Measured the shipped native window (43 controls, 38 labels, three always-on panels, implementation vocabulary), set a CAD-first direction at the Fusion 360 / Shape3D bar, and built mockup v8 through two repair cycles against accessibility, simplifier and marine-CAD adversaries. Mechanical checks pass; three decisions remain the operator's.",
+      "tags": [
+        "ui-review",
+        "cad",
+        "direction",
+        "accessibility",
+        "section-editor",
+        "points",
+        "handles"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v8",
+          "rel": "documents"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0699f7d79250eafc619296d0fdbd8ea51691c3849e4cf84aac9264e258bf6597"
+    },
+    {
       "id": "review-visible-presentation",
       "path": "docs/reviews/visible-presentation.md",
       "title": "Independent visible-presentation preparation review",
@@ -6215,7 +6304,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "42025b2b4d9782e848ac6a73246c7fce856771607916fcb634bb67d4fef59e78"
+      "sourceSha256": "43dc33824f0bcc3d78f402282f93d0151dbc00dcb2f5e086547d0b2aa979e61d"
     },
     {
       "id": "threat-model",
@@ -6275,6 +6364,14 @@ window.DOCS_INDEX = {
       "kind": "audit",
       "description": "Browse the committed audit and change timeline.",
       "artifactId": "audit-log"
+    },
+    {
+      "id": "surface-mockups-workbench-v8",
+      "path": "docs/mockups/workbench-v8.html",
+      "title": "CFD Workbench — CAD-first direction (v8 r2)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v8"
     },
     {
       "id": "surface-mockups-design-language",
@@ -6380,5 +6477,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3e1555f80934b99a2980e2ff241314cc9b348c1d0dc557ea662ff7bba2259018"
+  "graphSha256": "5f05f753c476c0dcb527316cbb7b15f899558016495f60b818015dad5733a982"
 };

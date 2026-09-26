@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-26T15:28:52Z",
+  "generated": "2026-09-26T16:12:19Z",
   "audit": [
     {
       "actor": null,
@@ -18162,6 +18162,26 @@ window.AUDIT_DATA = {
       "compiled_from": "al-01M3CK2TWXQ1DT7DMK6G66K958",
       "tier": "T2",
       "fan_out": 4
+    },
+    {
+      "id": "al-01M3F7T9QWGK5SA4GMHZB8THXA",
+      "shortname": "ui-design-workbench-v8",
+      "datetime": "2026-09-26T16:12:19Z",
+      "session": "fbfa35dc",
+      "prompt": "/ui-design review the application — CAD experience at the Fusion 360 / Shape3D bar; SUPER BUSY with extraneous panels; journey open/new → CAD workspace → section editor; new mockups to iterate on. Follow-up: everything is a curve or a point; control point splines with handles; named end points (TE ends of a section, LE/TE ends in the outline).",
+      "summary": "Measured the native window (43 controls, 38 labels, 3 always-on panels, engine vocabulary). Direction brief (G1, Fusion/Shape3D). Built docs/mockups/workbench-v8.html (start, 4-view workspace, section-editor mode; point+handle curves, named end points, tangent kinds, true-geometry comb, two-stage Esc). Two repair cycles vs UX&A11y (PASS), Simplifier (cleared by rationale, net -21), marine CAD (cleared on predicate by measurement, cap reached). 90/90 harness combos pass; craft gate 0 Major. Open: fit-point vs CV curve model; quintic Hermite representation advice; GEO-14 undo contract.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v8.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "fan_out": 3
     }
   ],
   "changes": [
