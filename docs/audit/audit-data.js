@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-26T00:56:22Z",
+  "generated": "2026-09-26T01:19:00Z",
   "audit": [
     {
       "actor": null,
@@ -16415,6 +16415,393 @@ window.AUDIT_DATA = {
             "sha256": null,
             "status": "unresolved",
             "token": "tests/CfdWorkbench.Desktop.Tests/SectionFlowTests.cs"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3DMPJPT1F6W6H39HE2QAQDA",
+      "shortname": "Goal: Opening a CFD-Workbench project must never throw because a geometr…",
+      "datetime": "2026-09-26T01:18:59Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Opening a CFD-Workbench project must never throw because a geometry proof ran out of its time budget; it opens and reports the affected revision as Not assessed.\nDone when: a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws; reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label; Apply/Preview on such a revision stay refused as today; the tests below pass and are registered; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; one commit on feature/section-budget.\nNot in scope: raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682); making the proof faster; changing what Certified means; Desktop; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 60 tool calls\n\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-budget (branch feature/section-budget). Absolute paths. No worktrees, no push. Repair loops capped at 2 — same failure twice, stop and report.\n\n## Facts (verified — do not re-investigate)\n- Geometry proofs run under `ProofBudget` with a hard cap of 1 s (Geometry.cs `limit = requested ?? TimeSpan.FromSeconds(1)` and `Guard.Require(limit <= 1 s)`); exhaustion throws a ProofRefusal with message \"Cooperative proof time budget exhausted.\" and status NotAssessed / code GEOMETRY-BUDGET.\n- A previous track reported: Insert(0.37) then Delete of the inserted vertex, Apply, save, reopen → reopen threw an uncaught ProofRefusal from the admission/re-certification path (`RequireAdmission`, src/CfdWorkbench.Core/AuthoringSession.cs) 5/5 runs. Since then display sampling in ProfileAt was made cheaper; the certification path was not changed. Measure first — it may or may not still reproduce.\n- Existing reopen tests live in tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs; follow their save/reopen helpers.\n\n## Build (red first)\n1. Add `Reopen_InsertThenDelete_NeverThrows` to ReopenConstructionTests: perform the case above. Assert reopen does not throw. If the revision certifies within budget, assert Certified; if not, assert the reopened session reports that revision's status NotAssessed with code GEOMETRY-BUDGET and the source bytes are intact. Print one line `BUDGET-CASE: <Certified|NotAssessed> <ms>` so the Leader sees the measured outcome.\n2. Add `Reopen_ForcedBudgetExhaustion_OpensNotAssessed`: force the refusal deterministically (e.g. an internal test seam that passes a zero or tiny time budget to the admission call, or a cancellation already requested — use whatever internal hook exists or add a minimal `internal` one; do not add public API) and assert reopen succeeds with NotAssessed / GEOMETRY-BUDGET.\n3. Make the admission/re-certification path catch the budget refusal and record NotAssessed / GEOMETRY-BUDGET for that revision instead of throwing. Keep every other refusal (integrity, reference, format) exactly as today.\n\n## Verify, then commit\n- `/Users/mallalieut/projects/CFD-Workbench-feature-section-budget/tools/run-tests.sh` → `all test harnesses passed`.\n- `cd /Users/mallalieut/projects/CFD-Workbench-feature-section-budget && python3 tools/check-docs.py` → exit 0 (own line).\n- Commit: `fix: open projects whose geometry proof exceeds its budget as not assessed`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n\n## Return (final message only)\nThe BUDGET-CASE line; commit SHA; files changed; PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3DMPK4QJ19AXF9VVF9RRMBN",
+      "shortname": "compile-Goal: Opening a CFD-Workbench project must never throw because a geometr…",
+      "datetime": "2026-09-26T01:19:00Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Opening a CFD-Workbench project must never throw because a geometry proof ran out of its time budget; it opens and reports the affected revision as Not assessed.\nDone when: a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws; reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label; Apply/Preview on such a revision stay refused as today; the tests below pass and are registered; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; one commit on feature/section-budget.\nNot in scope: raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682); making the proof faster; changing what Certified means; Desktop; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 60 tool calls\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-budget (branch feature/section-budget). Absolute paths. No worktrees, no push. Repair loops capped at 2 — same failure twice, stop and report.\n## Facts (verified — do not re-investigate)\nGeometry proofs run under `ProofBudget` with a hard cap of 1 s (Geometry.cs `limit = requested ?? TimeSpan.FromSeconds(1)` and `Guard.Require(limit <= 1 s)`); exhaustion throws a ProofRefusal with message \"Cooperative proof time budget exhausted.\" and status NotAssessed / code GEOMETRY-BUDGET.\nA previous track reported: Insert(0.37) then Delete of the inserted vertex, Apply, save, reopen → reopen threw an uncaught ProofRefusal from the admission/re-certification path (`RequireAdmission`, src/CfdWorkbench.Core/AuthoringSession.cs) 5/5 runs. Since then display sampling in ProfileAt was made cheaper; the certification path was not changed. Measure first — it may or may not still reproduce.\nExisting reopen tests live in tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs; follow their save/reopen helpers.\n## Build (red first)\n1. Add `Reopen_InsertThenDelete_NeverThrows` to ReopenConstructionTests: perform the case above. Assert reopen does not throw. If the revision certifies within budget, assert Certified; if not, assert the reopened session reports that revision's status NotAssessed with code GEOMETRY-BUDGET and the source bytes are intact. Print one line `BUDGET-CASE: <Certified|NotAssessed> <ms>` so the Leader sees the measured outcome.\n2. Add `Reopen_ForcedBudgetExhaustion_OpensNotAssessed`: force the refusal deterministically (e.g. an internal test seam that passes a zero or tiny time budget to the admission call, or a cancellation already requested — use whatever internal hook exists or add a minimal `internal` one; do not add public API) and assert reopen succeeds with NotAssessed / GEOMETRY-BUDGET.\n3. Make the admission/re-certification path catch the budget refusal and record NotAssessed / GEOMETRY-BUDGET for that revision instead of throwing. Keep every other refusal (integrity, reference, format) exactly as today.\n## Verify, then commit\n`/Users/mallalieut/projects/CFD-Workbench-feature-section-budget/tools/run-tests.sh` → `all test harnesses passed`.\n`cd /Users/mallalieut/projects/CFD-Workbench-feature-section-budget && python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `fix: open projects whose geometry proof exceeds its budget as not assessed`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n## Return (final message only)\nThe BUDGET-CASE line; commit SHA; files changed; PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.\nTrace\n| clause | trace |\n|---|---|\n| done_when: a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws | phrase: a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws |\n| done_when: reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label | phrase: reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label |\n| done_when: Apply/Preview on such a revision stay refused as today | phrase: Apply/Preview on such a revision stay refused as today |\n| done_when: the tests below pass and are registered | phrase: the tests below pass and are registered |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: one commit on feature/section-budget. | phrase: one commit on feature/section-budget. |\n| not_in_scope: raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682) | phrase: raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682) |\n| not_in_scope: making the proof faster | phrase: making the proof faster |\n| not_in_scope: changing what Certified means | phrase: changing what Certified means |\n| not_in_scope: Desktop | phrase: Desktop |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- ProofBudget: unresolved (not found)\n- limit = requested ?? TimeSpan.FromSeconds(1: unresolved (not found)\n- Guard.Require(limit <= 1 s: unresolved (not found)\n- RequireAdmission: unresolved (not found)\n- Reopen_InsertThenDelete_NeverThrows: unresolved (not found)\n- BUDGET-CASE: <Certified|NotAssessed> <ms: unresolved (not found)\n- Reopen_ForcedBudgetExhaustion_OpensNotAssessed: unresolved (not found)\n- internal: unresolved (not found)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-budget/tools/run-tests.sh: unresolved (outside repo)\n- all test harnesses passed: unresolved (not found)\n- cd /Users/mallalieut/projects/CFD-Workbench-feature-section-budget && python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- fix: open projects whose geometry proof exceeds its budget as not assessed: unresolved (not found)\n- Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com: unresolved (not found)\n- /: unresolved (outside repo)\n- Apply/Preview: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-budget: unresolved (not found)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-budget: unresolved (outside repo)\n- admission/re-certification: unresolved (not found)\n- src/CfdWorkbench.Core/AuthoringSession.cs: src/CfdWorkbench.Core/AuthoringSession.cs sha256 cd2e539da59ddc5d3f023b4e23c3a464a18990e040a3f5cc50bfdef67fd86a30\n- 5/5: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs: tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs sha256 9feb6d91339d4cdcf7579839de467c08ab6e2da2c661aea89cc3a956fe4fc262\n- save/reopen: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3DMPJPT1F6W6H39HE2QAQDA\nraw sha256: 9a584469f98a0dcd4764e2b84fd0b96f79cb56bff707aa085f08f6f6952c64a3\ncompiler model: claude-opus-5-5\nengine seconds: 0.004\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3DMPJPT1F6W6H39HE2QAQDA for claude-code v1: 13 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws",
+            "trace": {
+              "kind": "phrase",
+              "ref": "a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label",
+            "trace": {
+              "kind": "phrase",
+              "ref": "reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "Apply/Preview on such a revision stay refused as today",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Apply/Preview on such a revision stay refused as today"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the tests below pass and are registered",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the tests below pass and are registered"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "one commit on feature/section-budget.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "one commit on feature/section-budget."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "making the proof faster",
+            "trace": {
+              "kind": "phrase",
+              "ref": "making the proof faster"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "changing what Certified means",
+            "trace": {
+              "kind": "phrase",
+              "ref": "changing what Certified means"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Desktop",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Desktop"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "a test reproduces the reported case (Insert at x = 0.37 then Delete of the inserted vertex on the Example, Apply, save, reopen) and records whether reopen currently throws",
+            "reopen (and any other session entry that re-certifies stored revisions) catches the budget refusal (code GEOMETRY-BUDGET / \"Cooperative proof time budget exhausted\") and continues with that revision's geometry marked NotAssessed and GEOMETRY-BUDGET, never an exception and never a Certified label",
+            "Apply/Preview on such a revision stay refused as today",
+            "the tests below pass and are registered",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "one commit on feature/section-budget."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Opening a CFD-Workbench project must never throw because a geometry proof ran out of its time budget; it opens and reports the affected revision as Not assessed.",
+          "main_line_budget": "60 tool calls\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-budget (branch feature/section-budget). Absolute paths. No worktrees, no push. Repair loops capped at 2 — same failure twice, stop and report.\n## Facts (verified — do not re-investigate)\nGeometry proofs run under `ProofBudget` with a hard cap of 1 s (Geometry.cs `limit = requested ?? TimeSpan.FromSeconds(1)` and `Guard.Require(limit <= 1 s)`); exhaustion throws a ProofRefusal with message \"Cooperative proof time budget exhausted.\" and status NotAssessed / code GEOMETRY-BUDGET.\nA previous track reported: Insert(0.37) then Delete of the inserted vertex, Apply, save, reopen → reopen threw an uncaught ProofRefusal from the admission/re-certification path (`RequireAdmission`, src/CfdWorkbench.Core/AuthoringSession.cs) 5/5 runs. Since then display sampling in ProfileAt was made cheaper; the certification path was not changed. Measure first — it may or may not still reproduce.\nExisting reopen tests live in tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs; follow their save/reopen helpers.\n## Build (red first)\n1. Add `Reopen_InsertThenDelete_NeverThrows` to ReopenConstructionTests: perform the case above. Assert reopen does not throw. If the revision certifies within budget, assert Certified; if not, assert the reopened session reports that revision's status NotAssessed with code GEOMETRY-BUDGET and the source bytes are intact. Print one line `BUDGET-CASE: <Certified|NotAssessed> <ms>` so the Leader sees the measured outcome.\n2. Add `Reopen_ForcedBudgetExhaustion_OpensNotAssessed`: force the refusal deterministically (e.g. an internal test seam that passes a zero or tiny time budget to the admission call, or a cancellation already requested — use whatever internal hook exists or add a minimal `internal` one; do not add public API) and assert reopen succeeds with NotAssessed / GEOMETRY-BUDGET.\n3. Make the admission/re-certification path catch the budget refusal and record NotAssessed / GEOMETRY-BUDGET for that revision instead of throwing. Keep every other refusal (integrity, reference, format) exactly as today.\n## Verify, then commit\n`/Users/mallalieut/projects/CFD-Workbench-feature-section-budget/tools/run-tests.sh` → `all test harnesses passed`.\n`cd /Users/mallalieut/projects/CFD-Workbench-feature-section-budget && python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `fix: open projects whose geometry proof exceeds its budget as not assessed`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n## Return (final message only)\nThe BUDGET-CASE line; commit SHA; files changed; PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+          "not_in_scope": [
+            "raising, removing or bypassing the 1-second proof budget (Geometry.cs ProofBudget, L~676-682)",
+            "making the proof faster",
+            "changing what Certified means",
+            "Desktop",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.004,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3DMPJPT1F6W6H39HE2QAQDA",
+        "raw_sha256": "9a584469f98a0dcd4764e2b84fd0b96f79cb56bff707aa085f08f6f6952c64a3",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProofBudget"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "limit = requested ?? TimeSpan.FromSeconds(1"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Guard.Require(limit <= 1 s"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "RequireAdmission"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Reopen_InsertThenDelete_NeverThrows"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "BUDGET-CASE: <Certified|NotAssessed> <ms"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Reopen_ForcedBudgetExhaustion_OpensNotAssessed"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "internal"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-budget/tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "cd /Users/mallalieut/projects/CFD-Workbench-feature-section-budget && python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "fix: open projects whose geometry proof exceeds its budget as not assessed"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Apply/Preview"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-budget"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-budget"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "admission/re-certification"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/AuthoringSession.cs",
+            "reason": null,
+            "sha256": "cd2e539da59ddc5d3f023b4e23c3a464a18990e040a3f5cc50bfdef67fd86a30",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "5/5"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs",
+            "reason": null,
+            "sha256": "9feb6d91339d4cdcf7579839de467c08ab6e2da2c661aea89cc3a956fe4fc262",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "save/reopen"
           }
         ],
         "schema": "compiled-prompt/1",
