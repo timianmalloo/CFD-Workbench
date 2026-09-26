@@ -10,12 +10,13 @@ namespace CfdWorkbench.Core;
 
 public sealed record SourceRow(string Id, string[] Utf8Base64Chunks);
 public sealed record DesignRow(string Id, string? Parent, string SurfaceHash, string Evaluator);
-public sealed record EditReceipt(string DraftId, long Generation, string Rail, string VertexId);
+public sealed record EditReceipt(string DraftId, long Generation, string Rail, string VertexId,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
 public sealed record AcceptedRow(string Id, string? Parent, string SourceId, string DesignId, string OperationId, EditReceipt? Edit);
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
-public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1);
+public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
 public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
-public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1);
+public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
@@ -27,8 +28,12 @@ public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
-        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null)
-    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; }
+        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null,
+        ThicknessProposal? thickness = null)
+    {
+        Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding;
+        Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; Thickness = thickness;
+    }
     internal Guid Owner { get; }
     public GeometryStatus Status { get; }
     public string Code { get; }
@@ -37,6 +42,7 @@ public sealed class SessionAssessment
     public AuthoredBinding? SourceBinding { get; }
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
     public ConstructionReport? Construction { get; }
+    public ThicknessProposal? Thickness { get; }
 }
 
 public sealed class AuthoringSession : IDisposable
@@ -144,8 +150,9 @@ public sealed class AuthoringSession : IDisposable
     public SessionDraft UpdateDraft(string draftId, long generation, double si) => Run("update", () => UpdateDraftCore(draftId, generation, si), sizeof(double), generation);
     public ProfileView ProfileAt(int assignmentIndex) => Run("profile", () => ProfileAtCore(assignmentIndex));
     public ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope) => Run("scope", () => DescribeScopeCore(profile, assignmentIndex, scope));
-    public SessionDraft BeginProfileEdit(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId) =>
-        Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId));
+    public SessionDraft BeginProfileEdit(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId,
+        ThicknessIntent thickness = ThicknessIntent.KeepCurrent) =>
+        Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId, thickness));
     public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
         Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
     public SessionDraft BeginProfileInsert(string draftId, int assignmentIndex, SectionScope scope, double x) =>
@@ -240,7 +247,7 @@ public sealed class AuthoringSession : IDisposable
         if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, "cfdw-cv/2"));
         if (!nextSources.Any(s => s.Id == p.SourceHash)) nextSources.Add(new(p.SourceHash, Chunks(p.Source)));
         string id = Guid.NewGuid().ToString("D");
-        var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId));
+        var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
         var prospective = new Envelope("cfdw-project-1", projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null);
         NativeProject.Preflight(prospective, envelopeCap);
@@ -325,7 +332,7 @@ public sealed class AuthoringSession : IDisposable
         }
         return merged.ToArray();
     }
-    private SessionDraft BeginProfileEditCore(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId)
+    private SessionDraft BeginProfileEditCore(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId, ThicknessIntent thickness)
     {
         lock (sync)
         {
@@ -346,7 +353,7 @@ public sealed class AuthoringSession : IDisposable
                 bytes = made.Source; target = made.NewProfile;
             }
             retiredDraftIds.Add(draftId);
-            draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex); return Copy(draft);
+            draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex, thickness); return Copy(draft);
         }
     }
     private SessionDraft UpdateProfileDraftCore(string draftId, long expectedGeneration, double x, double y)
@@ -376,6 +383,7 @@ public sealed class AuthoringSession : IDisposable
                 bytes = FoilSource.PatchProfilePoint(bytes, profileName, side == "upper" ? "lower" : "upper", other.Ids[index], x, other.Points[index][1]);
             }
             bytes = FoilSource.PatchProfilePoint(bytes, profileName, side, draft.VertexId, x, y);
+            if (draft.Intent == ThicknessIntent.UseSource) bytes = ThicknessFit.Fit(bytes, profileName);
             draft = draft with { Generation = expectedGeneration + 1, Bytes = bytes };
             return Copy(draft);
         }
@@ -461,15 +469,20 @@ public sealed class AuthoringSession : IDisposable
             draft = draft! with { Generation = expectedGeneration + 1, Bytes = FoilSource.PatchRail(ParseOwned(draft.Bytes), draft.Rail, draft.VertexId, si) }; return Copy(draft);
         }
     }
+    private static Diagnostic ThicknessDiagnostic(SessionDraft capture, string fault) => new(fault, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, "thickness",
+        fault == "DSL-LOCK" ? "A thickness lock contradicts the source-thickness target." : "The thickness fit is singular or its residual exceeds 1e-9.",
+        "Keep the current thickness or relax the lock.");
     private SessionAssessment ValidateCore(string draftId, long generation, CancellationToken cancellation = default)
     {
         SessionDraft capture;
         byte[]? origin = null;
+        byte[] baseline;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
             if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
+            baseline = CurrentBytes;
         }
         ConstructionReport? construction = null;
         string? fairIssue = null;
@@ -488,13 +501,18 @@ public sealed class AuthoringSession : IDisposable
                 parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
+            ThicknessFit.View? thickness = capture.Intent == ThicknessIntent.UseSource && capture.Profile is not null
+                ? ThicknessFit.Describe(capture.Bytes, capture.Profile, baseline) : null;
+            if (thickness?.Fault is string fault)
+                return new(authorityId, fault == "DSL-LOCK" ? GeometryStatus.Invalid : GeometryStatus.NotAssessed, fault, key, null,
+                    DraftBinding(capture, parsed), [ThicknessDiagnostic(capture, fault)], construction, thickness.Value.Proposal);
             var result = AssessOwned(parsed, generation);
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction);
             GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
             if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
             Diagnostic[] diagnostics = status == GeometryStatus.Certified ? [] :
                 [new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision.")];
-            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction);
+            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction, thickness?.Proposal);
         }
         catch (ContractError error)
         { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction); }
@@ -526,6 +544,8 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(assessment.Key is not null && assessment.Status == GeometryStatus.Certified && assessment.Certificate is not null, "DSL-NOT-ASSESSED");
+            if (assessment.Thickness is { } proposal)
+                Guard.Require(proposal.Residuals.All(item => Math.Abs(item) <= 1e-9), "GEOMETRY-FIT-SINGULAR");
             string payload = "apply:" + JsonSerializer.Serialize(assessment.Key);
             if (Retry(operationId, payload, out string prior)) return prior;
             Guard.Require(draft is not null && current == draft.Base, "DSL-CONFLICT");
@@ -566,14 +586,14 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null, "DOC-NO-RECOVERY");
-            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes), draft.Profile, draft.Assignment);
+            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes), draft.Profile, draft.Assignment, draft.Intent);
             NativeProject.Preflight(EnvelopeCore() with { Recovery = next }, envelopeCap);
             recovery = next; return CopyRecovery(recovery)!;
         }
     }
     private void ResumeRecoveryCore()
     {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks), recovery.Profile, recovery.Assignment); }
+        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks), recovery.Profile, recovery.Assignment, recovery.Intent); }
     }
     private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; } }
     static RecoveryRow? CopyRecovery(RecoveryRow? r) => r is null ? null : r with { Utf8Base64Chunks = r.Utf8Base64Chunks.ToArray() };
@@ -646,9 +666,14 @@ internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
         string[] chunks = root.GetProperty("utf8Base64Chunks").EnumerateArray().Select(e => e.GetString()!).ToArray();
         string? profile = root.TryGetProperty("profile", out var p) && p.ValueKind != JsonValueKind.Null ? p.GetString() : null;
         int assignment = root.TryGetProperty("assignment", out var a) && a.ValueKind != JsonValueKind.Null ? a.GetInt32() : -1;
+        ThicknessIntent intent = ThicknessIntent.KeepCurrent;
+        if (root.TryGetProperty("intent", out var intentElement) && intentElement.ValueKind != JsonValueKind.Null)
+            intent = intentElement.ValueKind == JsonValueKind.String
+                ? Enum.Parse<ThicknessIntent>(intentElement.GetString()!)
+                : (ThicknessIntent)intentElement.GetInt32();
         return new RecoveryRow(root.GetProperty("draftId").GetString()!, root.GetProperty("baseAcceptedId").GetString()!,
             root.GetProperty("generation").GetInt64(), root.GetProperty("rail").GetString()!, root.GetProperty("vertexId").GetString()!,
-            chunks, profile, assignment);
+            chunks, profile, assignment, intent);
     }
     public override void Write(Utf8JsonWriter writer, RecoveryRow value, JsonSerializerOptions options)
     {
@@ -662,6 +687,7 @@ internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
         foreach (string chunk in value.Utf8Base64Chunks) writer.WriteStringValue(chunk);
         writer.WriteEndArray();
         if (value.Profile is not null) { writer.WriteString("profile", value.Profile); writer.WriteNumber("assignment", value.Assignment); }
+        if (value.Intent != ThicknessIntent.KeepCurrent) writer.WriteString("intent", value.Intent.ToString());
         writer.WriteEndObject();
     }
 }
@@ -717,13 +743,14 @@ public static class NativeProject
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
             {
                 Exact(a, "id", "parent", "sourceId", "designId", "operationId", "edit");
-                if (a.GetProperty("edit").ValueKind != JsonValueKind.Null) Exact(a.GetProperty("edit"), "draftId", "generation", "rail", "vertexId");
+                if (a.GetProperty("edit").ValueKind != JsonValueKind.Null)
+                    Exact(a.GetProperty("edit"), ["draftId", "generation", "rail", "vertexId"], ["intent"]);
             }
             foreach (var c in root.GetProperty("cursors").EnumerateArray()) Exact(c, "sequence", "target", "reason", "operationId");
             var recoveryElement = root.GetProperty("recovery");
             if (recoveryElement.ValueKind != JsonValueKind.Null)
             {
-                Exact(recoveryElement, ["draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks"], ["profile", "assignment"]);
+                Exact(recoveryElement, ["draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks"], ["profile", "assignment", "intent"]);
                 Guard.Require(recoveryElement.TryGetProperty("profile", out _) == recoveryElement.TryGetProperty("assignment", out _), "DOC-SCHEMA");
             }
             var env = JsonSerializer.Deserialize<Envelope>(bytes, Options)!; Check(env); return env;
