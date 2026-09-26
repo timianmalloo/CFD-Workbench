@@ -125,6 +125,59 @@ internal static class DatImportTests
             Equal(true, fitted.Provenance.Contains(expectedHash));
             Equal(true, fitted.ProfileBlock.Contains(expectedHash));
         });
+
+        Check("DatImport_Naca0012_ExampleTip_NeighbourBasisOrFallback", () =>
+            ImportAtExampleTip(GenerateNaca0012Selig(), allowNeighbour: true));
+
+        Check("DatImport_Naca2412_ExampleTip_NeighbourBasisOrFallback", () =>
+            ImportAtExampleTip(GenerateNaca2412Selig(), allowNeighbour: true));
+
+        Check("DatImport_Reflexed_ExampleTip_FallsBackUncertified", () =>
+            ImportAtExampleTip(GenerateReflexedSelig(), allowNeighbour: false));
+    }
+
+    private const string OwnSpacingPrefix = "The imported shape needs its own vertex spacing (residual ";
+    private const string OwnSpacingSuffix = " on the neighbour basis). Blending across different spacings is not certified yet: import it at every station that shares this profile, or Rebuild the neighbouring profiles.";
+
+    private static void ImportAtExampleTip(byte[] dat, bool allowNeighbour)
+    {
+        byte[] originalBytes = FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
+        using var session = new AuthoringSession();
+        session.Open(originalBytes, Id(), true);
+        byte[] opened = session.Snapshot().Source.ToArray();
+
+        string draftId = Id();
+        var draft = session.BeginProfileImport(draftId, 1, dat);
+        Equal(1, draft.Assignment);
+
+        var assessment = session.Validate(draftId, draft.Generation);
+        Equal(true, assessment.ImportReport is not null);
+        var report = assessment.ImportReport!;
+
+        if (allowNeighbour && report.Basis == "neighbour")
+        {
+            Equal(true, report.MaxResidual <= 1e-5);
+            Equal(GeometryStatus.Certified, assessment.Status);
+            Equal(false, assessment.Diagnostics.Any(item => item.Reason.StartsWith(OwnSpacingPrefix, StringComparison.Ordinal)));
+            session.Apply(Id(), assessment);
+            Equal(false, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Undo(Id());
+            Equal(true, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
+            Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: neighbour {report.MaxResidual}"));
+            return;
+        }
+
+        Equal("own", report.Basis);
+        Equal(true, assessment.Status != GeometryStatus.Certified);
+        var diagnostic = assessment.Diagnostics.FirstOrDefault(item => item.Reason.StartsWith(OwnSpacingPrefix, StringComparison.Ordinal));
+        Equal(true, diagnostic is not null);
+        string reason = diagnostic!.Reason;
+        Equal(true, reason.EndsWith(OwnSpacingSuffix, StringComparison.Ordinal));
+        string token = reason[OwnSpacingPrefix.Length..^OwnSpacingSuffix.Length];
+        double neighbourResidual = double.Parse(token, CultureInfo.InvariantCulture);
+        Equal(true, neighbourResidual > 1e-5);
+        Equal(OwnSpacingPrefix + neighbourResidual.ToString("G17", CultureInfo.InvariantCulture) + OwnSpacingSuffix, reason);
+        Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: own {neighbourResidual}"));
     }
 
     private static void RefusesLine(string code, int expectedLine, Action action)
@@ -235,5 +288,30 @@ internal static class DatImportTests
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", x[i], yl[i]));
 
         return Encoding.UTF8.GetBytes(sb.ToString());
+    }
+
+    private static byte[] GenerateReflexedSelig()
+    {
+        const int n = 100;
+        var builder = new StringBuilder();
+        builder.AppendLine("Reflex spike");
+        for (int i = n; i >= 0; i--)
+        {
+            double x = i / (double)n;
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", x, ReflexOrdinate(x, true)));
+        }
+        for (int i = 1; i <= n; i++)
+        {
+            double x = i / (double)n;
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", x, ReflexOrdinate(x, false)));
+        }
+        return Encoding.UTF8.GetBytes(builder.ToString());
+    }
+
+    private static double ReflexOrdinate(double x, bool upper)
+    {
+        double spike = Math.Exp(-Math.Pow((x - 0.35) / 0.012, 2)) - 0.85 * Math.Exp(-Math.Pow((x - 0.72) / 0.012, 2));
+        const double half = 0.004;
+        return upper ? 0.15 * spike + half : 0.15 * spike - half;
     }
 }

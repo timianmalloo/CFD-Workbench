@@ -171,9 +171,7 @@ public static class DatImport
         ArgumentNullException.ThrowIfNull(p);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        double teUpper = p.Upper[^1].Y;
-        double teLower = p.Lower[^1].Y;
-        bool closed = Math.Abs(teUpper) <= 1e-9 && Math.Abs(teLower) <= 1e-9;
+        bool closed = IsClosed(p);
         string closure = closed ? "closed" : "open";
 
         int bestN = 16;
@@ -186,40 +184,8 @@ public static class DatImport
 
         for (int n = 8; n <= 16; n++)
         {
-            double[] knots = new double[n + 6];
-            for (int i = 0; i <= 5; i++) knots[i] = 0;
-            int interior = n - 6;
-            for (int i = 1; i <= interior; i++) knots[5 + i] = (double)i / (interior + 1);
-            for (int i = knots.Length - 6; i < knots.Length; i++) knots[i] = 1;
-
-            double[] cv_x = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                double sum = 0;
-                for (int j = 1; j <= 5; j++)
-                    for (int k = j + 1; k <= 5; k++)
-                        sum += knots[i + j] * knots[i + k];
-                cv_x[i] = sum / 10.0;
-            }
-            cv_x[0] = 0;
-            cv_x[1] = 0;
-            cv_x[n - 1] = 1.0;
-
-            double[,] a;
-            double[] b;
-            if (closed)
-            {
-                a = new double[2, n];
-                a[0, 0] = 1;
-                a[1, n - 1] = 1;
-                b = [0, 0];
-            }
-            else
-            {
-                a = new double[1, n];
-                a[0, 0] = 1;
-                b = [0];
-            }
+            var (knots, cv_x) = OwnSqrtBasis(n);
+            var (a, b) = EndpointPins(n, closed);
 
             int mUpper = p.Upper.Count;
             double[,] nUpper = new double[mUpper, n];
@@ -293,21 +259,178 @@ public static class DatImport
             }
         }
 
-        string knotsStr = string.Join(", ", bestKnots.Select(FormatNumber));
-        string idsStr = string.Join(", ", Enumerable.Range(0, bestN).Select(i => Jcs.Quote($"cv-{i}")));
-        string upperPointsStr = string.Join(", ", Enumerable.Range(0, bestN).Select(i => $"({FormatNumber(bestCvX[i])}, {FormatNumber(bestPyUpper[i])})"));
-        string lowerPointsStr = string.Join(", ", Enumerable.Range(0, bestN).Select(i => $"({FormatNumber(bestCvX[i])}, {FormatNumber(bestPyLower[i])})"));
-        string provenance = $"{p.Format} sha256:{Identity.Sha256(p.OriginalBytes)} points:{p.OriginalPointCount}";
+        string provenance = ProvenanceOf(p);
+        string blockText = ProfileBlock(name, 5, closure, provenance, bestKnots, bestCvX, bestPyUpper, bestPyLower);
+        return new ImportedProfile(blockText, bestMaxRes, bestN, provenance, accepted);
+    }
 
-        string blockText =
+    /// <summary>Fit ordinates only. Knots and control-vertex x stay on the supplied basis.</summary>
+    public static ImportedProfile? FitToBasis(DatProfile profile, string name, double[] knots, double[] controlX, int degree)
+    {
+        ArgumentNullException.ThrowIfNull(profile);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (knots is null || controlX is null || degree < 1) return null;
+        int count = controlX.Length;
+        if (count < 2 || knots.Length != count + degree + 1) return null;
+        if (profile.Upper.Count == 0 || profile.Lower.Count == 0) return null;
+
+        bool closed = IsClosed(profile);
+        bool sqrtParameter = degree == 5 && MatchesOwnSqrtBasis(knots, controlX);
+        var (constraints, bound) = EndpointPins(count, closed);
+        var smoothing = new double[count, count];
+        if (!TryOrdinates(profile.Upper, knots, controlX, degree, smoothing, constraints, bound, closed, sqrtParameter, out double[] upper, out double upperResidual))
+            return null;
+        if (!TryOrdinates(profile.Lower, knots, controlX, degree, smoothing, constraints, bound, closed, sqrtParameter, out double[] lower, out double lowerResidual))
+            return null;
+
+        double maxResidual = Math.Max(upperResidual, lowerResidual);
+        if (!double.IsFinite(maxResidual)) return null;
+        string provenance = ProvenanceOf(profile);
+        string block = ProfileBlock(name, degree, closed ? "closed" : "open", provenance, knots, controlX, upper, lower);
+        return new ImportedProfile(block, maxResidual, count, provenance, maxResidual <= 1e-5);
+    }
+
+    internal static string OwnSpacingReason(double neighbourResidual)
+    {
+        string residual = neighbourResidual.ToString("G17", CultureInfo.InvariantCulture);
+        return "The imported shape needs its own vertex spacing (residual " + residual + " on the neighbour basis). Blending across different spacings is not certified yet: import it at every station that shares this profile, or Rebuild the neighbouring profiles.";
+    }
+
+    private static (double[] Knots, double[] ControlX) OwnSqrtBasis(int count)
+    {
+        var knots = new double[count + 6];
+        for (int i = 0; i <= 5; i++) knots[i] = 0;
+        int interior = count - 6;
+        for (int i = 1; i <= interior; i++) knots[5 + i] = (double)i / (interior + 1);
+        for (int i = knots.Length - 6; i < knots.Length; i++) knots[i] = 1;
+
+        var controlX = new double[count];
+        for (int i = 0; i < count; i++)
+        {
+            double sum = 0;
+            for (int j = 1; j <= 5; j++)
+                for (int k = j + 1; k <= 5; k++)
+                    sum += knots[i + j] * knots[i + k];
+            controlX[i] = sum / 10.0;
+        }
+        controlX[0] = 0;
+        controlX[1] = 0;
+        controlX[count - 1] = 1.0;
+        return (knots, controlX);
+    }
+
+    private static bool MatchesOwnSqrtBasis(double[] knots, double[] controlX)
+    {
+        int count = controlX.Length;
+        if (count is < 8 or > 16 || knots.Length != count + 6) return false;
+        var (ownKnots, ownX) = OwnSqrtBasis(count);
+        return SameNumbers(ownKnots, knots) && SameNumbers(ownX, controlX);
+    }
+
+    private static bool SameNumbers(double[] left, double[] right)
+    {
+        if (left.Length != right.Length) return false;
+        for (int index = 0; index < left.Length; index++)
+            if (DecimalSi.Parse(FormatNumber(left[index])) != right[index]) return false;
+        return true;
+    }
+
+    private static bool IsClosed(DatProfile profile) =>
+        Math.Abs(profile.Upper[^1].Y) <= 1e-9 && Math.Abs(profile.Lower[^1].Y) <= 1e-9;
+
+    private static string ProvenanceOf(DatProfile profile) =>
+        $"{profile.Format} sha256:{Identity.Sha256(profile.OriginalBytes)} points:{profile.OriginalPointCount}";
+
+    private static (double[,] A, double[] B) EndpointPins(int count, bool closed)
+    {
+        if (closed)
+        {
+            var pinned = new double[2, count];
+            pinned[0, 0] = 1;
+            pinned[1, count - 1] = 1;
+            return (pinned, [0, 0]);
+        }
+        var leading = new double[1, count];
+        leading[0, 0] = 1;
+        return (leading, [0]);
+    }
+
+    private static bool TryOrdinates(IReadOnlyList<ProfilePoint> points, double[] knots, double[] controlX, int degree,
+        double[,] smoothing, double[,] constraints, double[] bound, bool closed, bool sqrtParameter, out double[] ordinates, out double maxResidual)
+    {
+        ordinates = [];
+        maxResidual = double.PositiveInfinity;
+        int count = controlX.Length;
+        int samples = points.Count;
+        var design = new double[samples, count];
+        var target = new double[samples];
+        var weight = new double[samples];
+        var parameter = new double[samples];
+        for (int row = 0; row < samples; row++)
+        {
+            parameter[row] = sqrtParameter ? Math.Sqrt(Math.Max(0, points[row].X)) : ParameterAt(knots, degree, controlX, points[row].X);
+            target[row] = points[row].Y;
+            weight[row] = 1;
+            double[] values = SplineBasis.Values(knots, degree, parameter[row]);
+            for (int column = 0; column < count; column++) design[row, column] = values[column];
+        }
+
+        double[] solved;
+        try { solved = ConstrainedFit.Solve(design, target, weight, smoothing, 0, constraints, bound); }
+        catch (ContractError error) when (error.Code == "GEOMETRY-FIT-SINGULAR") { return false; }
+        if (solved.Any(value => !double.IsFinite(value))) return false;
+        solved[0] = 0;
+        if (closed) solved[count - 1] = 0;
+
+        double max = 0;
+        for (int row = 0; row < samples; row++)
+        {
+            double[] values = SplineBasis.Values(knots, degree, parameter[row]);
+            double fitted = 0;
+            for (int column = 0; column < count; column++) fitted += solved[column] * values[column];
+            double gap = Math.Abs(fitted - points[row].Y);
+            if (gap > max) max = gap;
+        }
+        ordinates = solved;
+        maxResidual = max;
+        return true;
+    }
+
+    private static double ParameterAt(double[] knots, int degree, double[] controlX, double target)
+    {
+        double At(double parameter)
+        {
+            double[] values = SplineBasis.Values(knots, degree, parameter);
+            double sum = 0;
+            for (int index = 0; index < controlX.Length; index++) sum += values[index] * controlX[index];
+            return sum;
+        }
+        if (target <= At(0)) return 0;
+        if (target >= At(1)) return 1;
+        double low = 0, high = 1;
+        for (int step = 0; step < 60; step++)
+        {
+            double mid = 0.5 * (low + high);
+            if (At(mid) < target) low = mid;
+            else high = mid;
+        }
+        return 0.5 * (low + high);
+    }
+
+    private static string ProfileBlock(string name, int degree, string closure, string provenance, double[] knots, double[] controlX, double[] upper, double[] lower)
+    {
+        int count = controlX.Length;
+        string knotsText = string.Join(", ", knots.Select(FormatNumber));
+        string idsText = string.Join(", ", Enumerable.Range(0, count).Select(index => Jcs.Quote($"cv-{index}")));
+        string upperText = string.Join(", ", Enumerable.Range(0, count).Select(index => $"({FormatNumber(controlX[index])}, {FormatNumber(upper[index])})"));
+        string lowerText = string.Join(", ", Enumerable.Range(0, count).Select(index => $"({FormatNumber(controlX[index])}, {FormatNumber(lower[index])})"));
+        return
             $"profile {Jcs.Quote(name)} {{\n" +
-            $"  upper cv {{ degree 5 knots [{knotsStr}] points [{upperPointsStr}] ids [{idsStr}] }}\n" +
-            $"  lower cv {{ degree 5 knots [{knotsStr}] points [{lowerPointsStr}] ids [{idsStr}] }}\n" +
+            $"  upper cv {{ degree {degree.ToString(CultureInfo.InvariantCulture)} knots [{knotsText}] points [{upperText}] ids [{idsText}] }}\n" +
+            $"  lower cv {{ degree {degree.ToString(CultureInfo.InvariantCulture)} knots [{knotsText}] points [{lowerText}] ids [{idsText}] }}\n" +
             $"  closure {closure}\n" +
             $"  provenance {Jcs.Quote(provenance)}\n" +
             "}";
-
-        return new ImportedProfile(blockText, bestMaxRes, bestN, provenance, accepted);
     }
 
     private static string FormatNumber(double v)
