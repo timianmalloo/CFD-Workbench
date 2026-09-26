@@ -32,6 +32,14 @@ if (args.Contains("--section-flow", StringComparer.Ordinal))
     Environment.Exit(0);
 }
 
+if (args.Contains("--section-tools", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.SectionToolsTests.Run();
+    Console.WriteLine("Section tools tests passed.");
+    Environment.Exit(0);
+}
+
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
@@ -1857,6 +1865,11 @@ using (var sectionFlow = System.Diagnostics.Process.Start(new System.Diagnostics
 {
     sectionFlow!.WaitForExit();
     if (sectionFlow.ExitCode != 0) throw new Exception($"section-flow exited {sectionFlow.ExitCode}");
+}
+using (var sectionTools = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--section-tools") { UseShellExecute = false }))
+{
+    sectionTools!.WaitForExit();
+    if (sectionTools.ExitCode != 0) throw new Exception($"section-tools exited {sectionTools.ExitCode}");
 }
 Environment.Exit(0);
 

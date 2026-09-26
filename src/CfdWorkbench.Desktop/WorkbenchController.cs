@@ -2,6 +2,7 @@ using CfdWorkbench.Cli;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 
 namespace CfdWorkbench.Desktop;
@@ -15,6 +16,63 @@ public sealed record DisplayPoint(double Eta, double NormalizedX, bool Upper, Pl
 
 public sealed record DisplayFrame(IReadOnlyList<DisplayPoint> Points, SectionEnclosure CenterSection,
     double InteriorEta, double ElapsedMilliseconds, string SourceHash, string Provenance);
+
+public sealed record SectionReportLine(string Label, string Value);
+
+/// <summary>Label/value view of the open draft's construction, import, and thickness reports.</summary>
+public sealed record SectionReport(string Kind, IReadOnlyList<SectionReportLine> Lines, bool Certified)
+{
+    public static SectionReport? Create(SessionAssessment assessment)
+    {
+        var lines = new List<SectionReportLine>();
+        var kinds = new List<string>();
+        if (assessment.Construction is { } construction)
+        {
+            kinds.Add("construction");
+            lines.Add(new("Max deviation", FormatNumber(construction.MaxDeviation)));
+            lines.Add(new("Tolerance", FormatTolerance(construction.Tolerance)));
+            lines.Add(new("Vertex count", construction.VertexCount.ToString(CultureInfo.InvariantCulture)));
+        }
+        if (assessment.ImportReport is { } import)
+        {
+            kinds.Add("import");
+            lines.Add(new("Max residual", FormatNumber(import.MaxResidual)));
+            lines.Add(new("Vertex count", import.VertexCount.ToString(CultureInfo.InvariantCulture)));
+            lines.Add(new("Accepted", import.Accepted ? "yes" : "no"));
+            lines.Add(new("Provenance", import.Provenance));
+        }
+        if (assessment.Thickness is { } thickness)
+        {
+            kinds.Add("thickness");
+            lines.Add(new("Target η", JoinNumbers(thickness.TargetEta)));
+            lines.Add(new("Target t/c", JoinNumbers(thickness.TargetThickness)));
+            lines.Add(new("Residuals", JoinNumbers(thickness.Residuals)));
+            lines.Add(new("Affected η",
+                thickness.AffectedEtaStart.ToString("G6", CultureInfo.InvariantCulture) + "–" +
+                thickness.AffectedEtaEnd.ToString("G6", CultureInfo.InvariantCulture)));
+        }
+        if (assessment.Status != GeometryStatus.Certified)
+        {
+            if (kinds.Count == 0) kinds.Add("refused");
+            string reason = assessment.Diagnostics.Count == 0
+                ? assessment.Code
+                : string.Join(" ", assessment.Diagnostics.Select(item =>
+                    string.IsNullOrWhiteSpace(item.Reason) ? item.Code : item.Reason));
+            lines.Add(new("Refusal", reason));
+        }
+        return lines.Count == 0 ? null : new(string.Join('+', kinds), lines, assessment.Status == GeometryStatus.Certified);
+    }
+
+    private static string FormatNumber(double value) => value.ToString("G17", CultureInfo.InvariantCulture);
+
+    private static string FormatTolerance(double? tolerance) =>
+        tolerance is not double value ? "not set" :
+        value == 1e-4 ? "1e-4" :
+        value.ToString("G17", CultureInfo.InvariantCulture);
+
+    private static string JoinNumbers(IReadOnlyList<double> values) =>
+        values.Count == 0 ? "none" : string.Join(", ", values.Select(value => value.ToString("G6", CultureInfo.InvariantCulture)));
+}
 
 /// <summary>One adapter over the core session, certificate and store. The viewport owns no source model.</summary>
 public sealed class WorkbenchController : IDisposable
@@ -77,6 +135,7 @@ public sealed class WorkbenchController : IDisposable
         }
     }
     public bool DraftInputValid => draftInputValid;
+    public SectionReport? SectionReport { get; private set; }
     public bool HasRecovery => Inspection is not null && session.Snapshot().Recovery is not null;
     public bool IsDirty
     {
@@ -199,6 +258,7 @@ public sealed class WorkbenchController : IDisposable
         interiorEta = control.Eta;
         Frame = acceptedFrame = null;
         currentAssessment = null;
+        SectionReport = null;
         Status = $"Draft owns {rail} control {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
         Provenance = "draft — accepted sampling";
         Notify();
@@ -212,6 +272,7 @@ public sealed class WorkbenchController : IDisposable
         draft = session.UpdateDraft(draft.Id, draft.Generation, ordinateSi);
         draftInputValid = true;
         currentAssessment = null;
+        SectionReport = null;
         Frame = acceptedFrame;
         Provenance = "draft — accepted geometry shown";
         Status = $"Draft generation {draft.Generation} changed. Preview to assess geometry.";
@@ -235,10 +296,11 @@ public sealed class WorkbenchController : IDisposable
         return view;
     }
 
-    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId)
+    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId,
+        ThicknessIntent thickness = ThicknessIntent.KeepCurrent)
     {
         if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
-        var started = session.BeginProfileEdit(Guid.NewGuid().ToString("D"), assignmentIndex, scope, side, vertexId);
+        var started = session.BeginProfileEdit(Guid.NewGuid().ToString("D"), assignmentIndex, scope, side, vertexId, thickness);
         CancelSampling();
         draft = started;
         draftInputValid = true;
@@ -246,8 +308,9 @@ public sealed class WorkbenchController : IDisposable
             interiorEta = Inspection.Authored.Assignments[assignmentIndex].Eta;
         Frame = acceptedFrame = null;
         currentAssessment = null;
+        SectionReport = null;
         sectionViews.Clear();
-        Status = $"Draft owns station {assignmentIndex} {side} {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
+        Status = $"Draft {started.Id} owns station {assignmentIndex} {side} {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
         Provenance = "draft — accepted sampling";
         Notify();
         _ = RefreshAcceptedAsync();
@@ -260,10 +323,46 @@ public sealed class WorkbenchController : IDisposable
         draft = session.UpdateProfileDraft(draft.Id, draft.Generation, x, y);
         draftInputValid = true;
         currentAssessment = null;
+        SectionReport = null;
         Frame = acceptedFrame;
         Provenance = "draft — accepted geometry shown";
         Status = $"Draft owns station {draft.Assignment} {draft.Rail} {draft.VertexId}. Draft generation {draft.Generation} changed. Preview to assess geometry.";
         Notify();
+    }
+
+    public void BeginSectionInsert(int assignmentIndex, SectionScope scope, double x)
+    {
+        RequireCertifiedFoil();
+        var started = session.BeginProfileInsert(Guid.NewGuid().ToString("D"), assignmentIndex, scope, x);
+        OpenConstructedDraft(started, assignmentIndex, "insert");
+    }
+
+    public void BeginSectionDelete(int assignmentIndex, SectionScope scope, int vertexIndex)
+    {
+        RequireCertifiedFoil();
+        var started = session.BeginProfileDelete(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexIndex);
+        OpenConstructedDraft(started, assignmentIndex, "delete");
+    }
+
+    public void BeginSectionFair(int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
+    {
+        RequireCertifiedFoil();
+        var started = session.BeginProfileFair(Guid.NewGuid().ToString("D"), assignmentIndex, scope, tolerance, ends);
+        OpenConstructedDraft(started, assignmentIndex, "fair");
+    }
+
+    public void BeginSectionRebuild(int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
+    {
+        RequireCertifiedFoil();
+        var started = session.BeginProfileRebuild(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexCount, tolerance, ends);
+        OpenConstructedDraft(started, assignmentIndex, "rebuild");
+    }
+
+    public void BeginSectionImport(int assignmentIndex, byte[] dat)
+    {
+        RequireCertifiedFoil();
+        var started = session.BeginProfileImport(Guid.NewGuid().ToString("D"), assignmentIndex, dat);
+        OpenConstructedDraft(started, assignmentIndex, "import");
     }
 
     public void InvalidateDraftInput(string? reason = null)
@@ -272,6 +371,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSampling();
         draftInputValid = false;
         currentAssessment = null;
+        SectionReport = null;
         Frame = acceptedFrame;
         Provenance = "draft — invalid numeric input";
         Status = reason ?? "Enter a finite numeric aft position. Preview and Save are blocked until corrected.";
@@ -287,13 +387,14 @@ public sealed class WorkbenchController : IDisposable
         var capture = draft;
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
+        SectionReport = null;
         Status = $"{SectionDraftPrefix()}Assessing draft geometry…";
         Notify();
         try
         {
             var assessment = await Task.Run(() => session.Validate(capture.Id, capture.Generation, linked.Token), linked.Token);
             if (version != stateVersion || draft?.Id != capture.Id || draft.Generation != capture.Generation) return;
-            currentAssessment = assessment;
+            Remember(assessment);
             if (assessment.Status != GeometryStatus.Certified || assessment.Certificate is null)
             {
                 Frame = acceptedFrame;
@@ -324,6 +425,7 @@ public sealed class WorkbenchController : IDisposable
         draft = null;
         draftInputValid = true;
         currentAssessment = null;
+        SectionReport = null;
         Inspection = session.InspectAccepted();
         acceptedFrame = Frame with { Provenance = "accepted", SourceHash = Inspection.Authored.Binding.SourceHash };
         Frame = acceptedFrame;
@@ -340,6 +442,7 @@ public sealed class WorkbenchController : IDisposable
         draft = null;
         draftInputValid = true;
         currentAssessment = null;
+        SectionReport = null;
         Frame = acceptedFrame;
         Provenance = "accepted";
         Status = "Draft cancelled. Accepted source and history are unchanged.";
@@ -580,14 +683,71 @@ public sealed class WorkbenchController : IDisposable
         draft = null;
         draftInputValid = true;
         currentAssessment = null;
+        SectionReport = null;
         sectionViews.Clear();
         Provenance = "empty";
         Status = "Opening…";
         Notify();
     }
 
+    private void RequireCertifiedFoil()
+    {
+        if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
+    }
+
+    private void OpenConstructedDraft(SessionDraft started, int assignmentIndex, string kind)
+    {
+        CancelSampling();
+        draft = started;
+        draftInputValid = true;
+        if (Inspection is { } inspected && (uint)assignmentIndex < (uint)inspected.Authored.Assignments.Count)
+            interiorEta = inspected.Authored.Assignments[assignmentIndex].Eta;
+        Frame = acceptedFrame = null;
+        currentAssessment = null;
+        SectionReport = null;
+        sectionViews.Clear();
+        Status = $"Draft {started.Id} owns station {assignmentIndex} {kind}.";
+        Provenance = "draft — accepted sampling";
+        AssessDraftNow();
+    }
+
+    private void AssessDraftNow()
+    {
+        if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
+        if (!draftInputValid) throw new ContractError("DSL-INVALID-NUMERIC");
+        CancelSampling();
+        var capture = draft;
+        SectionReport = null;
+        Status = $"{SectionDraftPrefix()}Assessing draft geometry…";
+        Notify();
+        var assessment = session.Validate(capture.Id, capture.Generation);
+        if (draft?.Id != capture.Id || draft.Generation != capture.Generation) return;
+        Remember(assessment);
+        sectionViews.Clear();
+        if (assessment.Status != GeometryStatus.Certified || assessment.Certificate is null || assessment.Key is null)
+        {
+            Frame = acceptedFrame;
+            Provenance = "draft — unavailable geometry";
+            Status = $"{SectionDraftPrefix()}{assessment.Code}: {assessment.Status}. {string.Join(" ", assessment.Diagnostics.Select(item => item.Reason))}";
+            Notify();
+            return;
+        }
+        var frame = Sample(assessment.Certificate, assessment.Key.SourceHash, "preview", interiorEta, CancellationToken.None);
+        if (draft?.Id != capture.Id || draft.Generation != capture.Generation) return;
+        Frame = frame;
+        Provenance = "preview";
+        Status = $"{SectionDraftPrefix()}Preview of {capture.Rail} {capture.VertexId}; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
+        Notify();
+    }
+
+    private void Remember(SessionAssessment assessment)
+    {
+        currentAssessment = assessment;
+        SectionReport = CfdWorkbench.Desktop.SectionReport.Create(assessment);
+    }
+
     private string SectionDraftPrefix() =>
-        draft is { Profile: not null, Assignment: >= 0 } section ? $"Draft owns station {section.Assignment}. " : "";
+        draft is { Profile: not null, Assignment: >= 0 } section ? $"Draft {section.Id} owns station {section.Assignment}. " : "";
 
     private string SectionViewKey(int assignmentIndex)
     {

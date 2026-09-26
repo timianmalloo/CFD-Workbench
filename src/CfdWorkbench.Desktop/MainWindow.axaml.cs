@@ -5,6 +5,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Rendering.Composition;
@@ -25,11 +27,15 @@ public sealed partial class MainWindow : Window
     private readonly Button exampleButton, openButton, saveButton, undoButton, redoButton;
     private readonly Button previewButton, applyButton, cancelButton, acceptIdsButton, resumeRecoveryButton, discardRecoveryButton;
     private readonly Button editSectionButton, sectionPreviewButton, sectionApplyButton, sectionCancelButton;
+    private readonly Button sectionInsertButton, sectionDeleteButton, sectionFairButton, sectionRebuildButton, sectionImportButton;
     private readonly RadioButton scopeSharedRadio, scopeIndependentRadio, thicknessKeepRadio, thicknessSourceRadio;
     private readonly TextBlock stateBanner, viewportProvenance, sectionReadout, sectionPosition, sourceLabel, identityReadout, unitLabel,
         draftReadout, importReadout, recoveryReadout, eventReadout, statusBar, stationCardText, scopeImpactText;
     private readonly ListBox stationList, controlList, sampleList, sectionVertexList;
-    private readonly TextBox numericInput, sourceText, sectionXInput, sectionYInput;
+    private readonly TextBox numericInput, sourceText, sectionXInput, sectionYInput, sectionInsertXInput, sectionFairToleranceInput, sectionRebuildCountInput;
+    private readonly ComboBox sectionPreserveEnds;
+    private readonly TextBlock sectionReportState;
+    private readonly ItemsControl sectionReportList;
     private readonly TabControl documentTabs;
     private readonly TabItem sectionTab;
     private readonly Viewport viewport, sectionViewport;
@@ -39,6 +45,7 @@ public sealed partial class MainWindow : Window
     private string? boundSectionDraftId;
     private long boundSectionGeneration;
     private (string Side, string Id)? boundSectionVertex;
+    private string? boundRebuildKey;
     private bool refreshing;
     private bool closeApproved;
     private bool closed;
@@ -90,6 +97,11 @@ public sealed partial class MainWindow : Window
         sectionPreviewButton = Find<Button>("SectionPreviewButton");
         sectionApplyButton = Find<Button>("SectionApplyButton");
         sectionCancelButton = Find<Button>("SectionCancelButton");
+        sectionInsertButton = Find<Button>("SectionInsertButton");
+        sectionDeleteButton = Find<Button>("SectionDeleteButton");
+        sectionFairButton = Find<Button>("SectionFairButton");
+        sectionRebuildButton = Find<Button>("SectionRebuildButton");
+        sectionImportButton = Find<Button>("SectionImportButton");
         scopeSharedRadio = Find<RadioButton>("ScopeSharedRadio");
         scopeIndependentRadio = Find<RadioButton>("ScopeIndependentRadio");
         thicknessKeepRadio = Find<RadioButton>("ThicknessKeepRadio");
@@ -99,6 +111,13 @@ public sealed partial class MainWindow : Window
         sectionVertexList = Find<ListBox>("SectionVertexList");
         sectionXInput = Find<TextBox>("SectionXInput");
         sectionYInput = Find<TextBox>("SectionYInput");
+        sectionInsertXInput = Find<TextBox>("SectionInsertXInput");
+        sectionFairToleranceInput = Find<TextBox>("SectionFairToleranceInput");
+        sectionRebuildCountInput = Find<TextBox>("SectionRebuildCountInput");
+        sectionPreserveEnds = Find<ComboBox>("SectionPreserveEnds");
+        sectionReportState = Find<TextBlock>("SectionReportState");
+        sectionReportList = Find<ItemsControl>("SectionReportList");
+        if (sectionPreserveEnds.SelectedIndex < 0) sectionPreserveEnds.SelectedIndex = 0;
         sectionTab = Find<TabItem>("SectionTab");
         stationThumbnail = Find<SectionCanvas>("StationThumbnail");
         editableSectionCanvas = Find<SectionCanvas>("EditableSectionCanvas");
@@ -121,6 +140,11 @@ public sealed partial class MainWindow : Window
         sectionPreviewButton.Click += async (_, _) => await Guarded(TimedPreviewAsync);
         sectionApplyButton.Click += async (_, _) => await Guarded(() => { workbench.Apply(); return Task.CompletedTask; });
         sectionCancelButton.Click += (_, _) => TimedCancel();
+        sectionInsertButton.Click += async (_, _) => await Guarded(InsertSectionAsync);
+        sectionDeleteButton.Click += async (_, _) => await Guarded(DeleteSectionAsync);
+        sectionFairButton.Click += async (_, _) => await Guarded(FairSectionAsync);
+        sectionRebuildButton.Click += async (_, _) => await Guarded(RebuildSectionAsync);
+        sectionImportButton.Click += async (_, _) => await Guarded(ImportSectionDatAsync);
         scopeSharedRadio.IsCheckedChanged += OnScopeChanged;
         scopeIndependentRadio.IsCheckedChanged += OnScopeChanged;
         sectionVertexList.SelectionChanged += OnSectionVertexSelection;
@@ -850,9 +874,182 @@ public sealed partial class MainWindow : Window
         }
         adapterError = null;
         var scope = scopeIndependentRadio.IsChecked == true ? SectionScope.Independent : SectionScope.Shared;
-        try { workbench.BeginSectionEdit(InspectedAssignment(), scope, vertex.Side, vertex.Id); }
+        var thickness = thicknessSourceRadio.IsChecked == true ? ThicknessIntent.UseSource : ThicknessIntent.KeepCurrent;
+        try { workbench.BeginSectionEdit(InspectedAssignment(), scope, vertex.Side, vertex.Id, thickness); }
         catch (ContractError error) { adapterError = $"{error.Code}: fixed vertex cannot start an edit."; }
         Refresh();
+    }
+
+    private Task InsertSectionAsync()
+    {
+        if (!TryInsertX(out double x))
+        {
+            adapterError = "Enter a chord X between 0 and 1, or select a vertex with a neighbour to its right.";
+            return Task.CompletedTask;
+        }
+        workbench.BeginSectionInsert(InspectedAssignment(), CurrentScope(), x);
+        return Task.CompletedTask;
+    }
+
+    private Task DeleteSectionAsync()
+    {
+        if (!TrySelectedVertexIndex(out int vertexIndex))
+        {
+            adapterError = "Select the control vertex to delete.";
+            return Task.CompletedTask;
+        }
+        workbench.BeginSectionDelete(InspectedAssignment(), CurrentScope(), vertexIndex);
+        return Task.CompletedTask;
+    }
+
+    private Task FairSectionAsync()
+    {
+        if (!TryFairTolerance(out double tolerance))
+        {
+            adapterError = "Enter a finite fairing tolerance.";
+            return Task.CompletedTask;
+        }
+        workbench.BeginSectionFair(InspectedAssignment(), CurrentScope(), tolerance, CurrentEnds());
+        return Task.CompletedTask;
+    }
+
+    private Task RebuildSectionAsync()
+    {
+        if (!TryFairTolerance(out double tolerance))
+        {
+            adapterError = "Enter a finite fairing tolerance.";
+            return Task.CompletedTask;
+        }
+        if (!int.TryParse(sectionRebuildCountInput.Text?.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int count))
+        {
+            adapterError = "Enter a whole vertex count for the rebuild.";
+            return Task.CompletedTask;
+        }
+        workbench.BeginSectionRebuild(InspectedAssignment(), CurrentScope(), count, tolerance, CurrentEnds());
+        return Task.CompletedTask;
+    }
+
+    private async Task ImportSectionDatAsync()
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Import Selig or Lednicer section",
+            AllowMultiple = false,
+            FileTypeFilter = [new("Airfoil dat") { Patterns = ["*.dat", "*.txt"] }]
+        });
+        if (files.Count == 0) return;
+        await using var stream = await files[0].OpenReadAsync();
+        using var memory = new MemoryStream();
+        await stream.CopyToAsync(memory);
+        workbench.BeginSectionImport(InspectedAssignment(), memory.ToArray());
+    }
+
+    private SectionScope CurrentScope() =>
+        scopeIndependentRadio.IsChecked == true ? SectionScope.Independent : SectionScope.Shared;
+
+    private PreserveEnds CurrentEnds() => sectionPreserveEnds.SelectedIndex switch
+    {
+        1 => PreserveEnds.Tangency,
+        2 => PreserveEnds.Curvature,
+        _ => PreserveEnds.Position
+    };
+
+    private bool TryFairTolerance(out double tolerance) =>
+        double.TryParse(sectionFairToleranceInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out tolerance) && double.IsFinite(tolerance);
+
+    private bool TryInsertX(out double x)
+    {
+        string text = sectionInsertXInput.Text?.Trim() ?? "";
+        if (text.Length > 0)
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out x) && double.IsFinite(x);
+        return TryInsertMidpoint(out x);
+    }
+
+    private bool TryInsertMidpoint(out double x)
+    {
+        x = 0;
+        if (selectedSectionVertex is not { } selected) return false;
+        var side = VerticesOnSide(selected.Side);
+        if (side is null) return false;
+        int index = IndexOfVertex(side, selected.Id);
+        if (index < 0) return false;
+        ProfileVertex? right = null;
+        foreach (var candidate in side)
+        {
+            if (candidate.X <= side[index].X) continue;
+            if (right is null || candidate.X < right.X) right = candidate;
+        }
+        if (right is null) return false;
+        x = (side[index].X + right.X) / 2;
+        return x > 0 && x < 1;
+    }
+
+    private bool TrySelectedVertexIndex(out int vertexIndex)
+    {
+        vertexIndex = -1;
+        if (selectedSectionVertex is not { } selected) return false;
+        var side = VerticesOnSide(selected.Side);
+        if (side is null) return false;
+        vertexIndex = IndexOfVertex(side, selected.Id);
+        return vertexIndex >= 0;
+    }
+
+    private IReadOnlyList<ProfileVertex>? VerticesOnSide(string side)
+    {
+        int index = workbench.Draft is { Profile: not null, Assignment: >= 0 } owned ? owned.Assignment : InspectedAssignment();
+        var view = TrySection(index);
+        if (view is null) return null;
+        return side == "lower" ? view.Lower : view.Upper;
+    }
+
+    private static int IndexOfVertex(IReadOnlyList<ProfileVertex> side, string id)
+    {
+        for (int i = 0; i < side.Count; i++)
+            if (side[i].Id == id) return i;
+        return -1;
+    }
+
+    private void PushRebuildDefault(ProfileView? view)
+    {
+        string key = view is null ? "" : view.Identity + ":" + view.Upper.Count.ToString(CultureInfo.InvariantCulture);
+        if (key == boundRebuildKey) return;
+        boundRebuildKey = key;
+        if (sectionRebuildCountInput.IsFocused) return;
+        sectionRebuildCountInput.Text = view is null ? "" : view.Upper.Count.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private void BindSectionReport()
+    {
+        var report = workbench.SectionReport;
+        bool assessing = workbench.Status.Contains("Assessing", StringComparison.Ordinal);
+        if (report is null)
+        {
+            sectionReportList.ItemsSource = Array.Empty<object>();
+            sectionReportList.IsVisible = false;
+            sectionReportState.Text = assessing ? "Assessing the draft." : "No report yet.";
+            AutomationProperties.SetName(sectionReportState, sectionReportState.Text);
+            return;
+        }
+        sectionReportList.IsVisible = true;
+        sectionReportState.Text = report.Certified
+            ? "Certified. Apply records this draft."
+            : "Not certified. Apply is unavailable.";
+        AutomationProperties.SetName(sectionReportState, sectionReportState.Text);
+        sectionReportList.ItemsSource = report.Lines.Select(ReportRow).ToArray();
+    }
+
+    private static Control ReportRow(SectionReportLine line)
+    {
+        var label = new TextBlock { Text = line.Label, VerticalAlignment = VerticalAlignment.Center };
+        label.Classes.Add("caption");
+        var value = new TextBlock { Text = line.Value, TextWrapping = TextWrapping.Wrap };
+        AutomationProperties.SetName(label, line.Label);
+        AutomationProperties.SetName(value, line.Label + " " + line.Value);
+        var row = new StackPanel { Spacing = 2 };
+        row.Children.Add(label);
+        row.Children.Add(value);
+        AutomationProperties.SetName(row, line.Label + " " + line.Value);
+        return row;
     }
 
     private void OnSectionNumericChanged(object? sender, TextChangedEventArgs args)
@@ -869,6 +1066,9 @@ public sealed partial class MainWindow : Window
             Refresh();
             return;
         }
+        var shown = TrySection(owned.Assignment);
+        var current = shown?.Upper.Concat(shown.Lower).FirstOrDefault(item => item.Side == owned.Rail && item.Id == owned.VertexId);
+        if (current is not null && x == current.X && y == current.Y) return;
         try { workbench.UpdateSectionDraft(x, y); adapterError = null; }
         catch (ContractError error)
         {
@@ -880,12 +1080,18 @@ public sealed partial class MainWindow : Window
 
     private void BindSectionEditor()
     {
-        bool scopeOpen = workbench.Draft is null;
-        scopeSharedRadio.IsEnabled = scopeOpen;
-        scopeIndependentRadio.IsEnabled = scopeOpen;
-        thicknessKeepRadio.IsChecked = true;
-        thicknessSourceRadio.IsEnabled = false;
-        thicknessSourceRadio.IsChecked = false;
+        bool draftOpen = workbench.Draft is not null;
+        bool tools = workbench.Inspection is not null && !draftOpen;
+        scopeSharedRadio.IsEnabled = !draftOpen;
+        scopeIndependentRadio.IsEnabled = !draftOpen;
+        thicknessKeepRadio.IsEnabled = tools;
+        thicknessSourceRadio.IsEnabled = tools;
+        sectionInsertButton.IsEnabled = tools;
+        sectionDeleteButton.IsEnabled = tools;
+        sectionFairButton.IsEnabled = tools;
+        sectionRebuildButton.IsEnabled = tools;
+        sectionImportButton.IsEnabled = tools;
+        BindSectionReport();
         if (workbench.Inspection is not { } inspected)
         {
             stationThumbnail.Profile = null;
@@ -898,6 +1104,7 @@ public sealed partial class MainWindow : Window
             sectionYInput.IsEnabled = false;
             sectionVertexList.ItemsSource = Array.Empty<ListBoxItem>();
             sectionVertices.Clear();
+            PushRebuildDefault(null);
             return;
         }
         editSectionButton.IsEnabled = true;
@@ -913,6 +1120,7 @@ public sealed partial class MainWindow : Window
             : $"{card.Name}\nη {assignment.Eta:G3} · {assignment.SpanMeters:G4} m\n{ThicknessReadout(inspected.Authored)}";
         BindScopeImpact(editIndex);
         BindSectionVertices(editing);
+        PushRebuildDefault(editing);
         var selected = selectedSectionVertex is { } key
             ? sectionVertices.FirstOrDefault(item => item.Side == key.Side && item.Id == key.Id)
             : null;
