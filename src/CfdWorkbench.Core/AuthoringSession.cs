@@ -83,7 +83,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear();
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null;
         }
@@ -152,6 +152,10 @@ public sealed class AuthoringSession : IDisposable
         Run("begin", () => BeginProfileInsertCore(draftId, assignmentIndex, scope, x));
     public SessionDraft BeginProfileDelete(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex) =>
         Run("begin", () => BeginProfileDeleteCore(draftId, assignmentIndex, scope, vertexIndex));
+    public SessionDraft BeginProfileFair(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends) =>
+        Run("begin", () => BeginProfileFairCore(draftId, assignmentIndex, scope, tolerance, ends));
+    public SessionDraft BeginProfileRebuild(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends) =>
+        Run("begin", () => BeginProfileRebuildCore(draftId, assignmentIndex, scope, vertexCount, tolerance, ends));
     public SessionAssessment Validate(string draftId, long generation, CancellationToken cancellation = default) => Run("validate", () => ValidateCore(draftId, generation, cancellation), generation: generation);
     public SessionPreview Preview(string draftId, long generation, double eta, double x, bool upper, bool port = false) => Run("geometry.preview", () =>
     {
@@ -190,6 +194,7 @@ public sealed class AuthoringSession : IDisposable
     readonly Dictionary<string, (string Payload, string Result)> operations = [];
     readonly HashSet<string> retiredDraftIds = [];
     readonly HashSet<string> capturedSaveHashes = [];
+    readonly Dictionary<string, (double MaxDeviation, double Tolerance, int VertexCount, bool WithinTolerance, bool PiecesIncreased)> pendingFairAssessment = [];
     SessionDraft? draft;
     RecoveryRow? recovery;
     string? current;
@@ -399,6 +404,30 @@ public sealed class AuthoringSession : IDisposable
             return OpenConstruction(draftId, "delete", patched.VertexId, patched.Source, target, assignmentIndex);
         }
     }
+    private SessionDraft BeginProfileFairCore(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            var (patched, result) = FoilSource.FairProfile(bytes, target, tolerance, ends);
+            RecordFairAssessment(draftId, result, tolerance);
+            return OpenConstruction(draftId, "fair", profile.Upper.Ids[0], patched, target, assignmentIndex);
+        }
+    }
+    private SessionDraft BeginProfileRebuildCore(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            var (patched, result) = FoilSource.RebuildProfile(bytes, target, vertexCount, tolerance, ends);
+            RecordFairAssessment(draftId, result, tolerance);
+            return OpenConstruction(draftId, "rebuild", profile.Upper.Ids[0], patched, target, assignmentIndex);
+        }
+    }
+    // Recorded once at Begin (fair/rebuild drafts have no Update step) and read back by
+    // ValidateCore, since the requested tolerance itself is not part of the draft's bytes.
+    private void RecordFairAssessment(string draftId, FairResult result, double tolerance) =>
+        pendingFairAssessment[draftId] = (result.MaxDeviation, tolerance, result.Upper.Points.Length, result.WithinTolerance, result.MonotonePiecesAfter > result.MonotonePiecesBefore);
     private (byte[] Bytes, string Profile, ProfileDefinition Definition) PrepareConstruction(string draftId, int assignmentIndex, SectionScope scope)
     {
         Guard.Require(!closed, "DOC-CLOSED");
@@ -443,21 +472,29 @@ public sealed class AuthoringSession : IDisposable
             if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
         }
         ConstructionReport? construction = null;
+        string? fairIssue = null;
         try
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
             Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
             if (parsed.IsParsed && origin is not null) construction = MeasureConstruction(capture, parsed, origin);
+            if (parsed.IsParsed && capture.Rail is "fair" or "rebuild" && pendingFairAssessment.TryGetValue(capture.Id, out var fair))
+            {
+                construction = new ConstructionReport(fair.MaxDeviation, fair.Tolerance, fair.VertexCount);
+                fairIssue = !fair.WithinTolerance ? "Fair result exceeds tolerance" : fair.PiecesIncreased ? "Fair increased monotone pieces" : null;
+            }
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
                 parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             var result = AssessOwned(parsed, generation);
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction);
-            Diagnostic[] diagnostics = result.Status == GeometryStatus.Certified ? [] :
-                [new(result.Code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, result.Reason, "Revise the authored curves or retain the last accepted revision.")];
-            return new(authorityId, result.Status, result.Code, key, result.Certificate, DraftBinding(capture, parsed), diagnostics, construction);
+            GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
+            if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
+            Diagnostic[] diagnostics = status == GeometryStatus.Certified ? [] :
+                [new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision.")];
+            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction);
         }
         catch (ContractError error)
         { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction); }
