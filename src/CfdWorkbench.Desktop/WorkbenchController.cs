@@ -217,6 +217,11 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
+    public ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope) => throw new NotImplementedException();
+    public ProfileView SectionView(int assignmentIndex) => throw new NotImplementedException();
+    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId) => throw new NotImplementedException();
+    public void UpdateSectionDraft(double x, double y) => throw new NotImplementedException();
+
     public void InvalidateDraftInput()
     {
         if (draft is null) return;

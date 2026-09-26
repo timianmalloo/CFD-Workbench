@@ -24,6 +24,14 @@ if (args.Contains("--section-canvas", StringComparer.Ordinal))
     Environment.Exit(0);
 }
 
+if (args.Contains("--section-flow", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    await CfdWorkbench.Desktop.Tests.SectionFlowTests.RunAsync();
+    Console.WriteLine("Section flow tests passed.");
+    Environment.Exit(0);
+}
+
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
