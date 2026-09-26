@@ -300,11 +300,14 @@ public sealed class AuthoringSession : IDisposable
     {
         var watch = new ProofBudget();
         var spans = Bernstein.Spans(curve, watch);
+        // Display polyline. The certificate inverse (1e-14) on a degree-5 10-CV rebuild
+        // measured ~970ms and ProofBudget.Check (Geometry.cs:682) throws past one second.
+        var accuracy = Rational.From(1e-8);
         var samples = new ProfilePoint[101];
         for (int index = 0; index < samples.Length; index++)
         {
             double x = index / 100d;
-            var ordinate = Bernstein.EncloseAt(spans, Rational.From(x), watch);
+            var ordinate = Bernstein.EncloseAt(spans, Rational.From(x), watch, accuracy);
             samples[index] = new(x, (ordinate.Lower.Down() + ordinate.Upper.Up()) / 2);
         }
         return samples;
