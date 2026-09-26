@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-25T15:48:31Z",
+  "generated": "2026-09-25T23:37:37Z",
   "audit": [
     {
       "actor": null,
@@ -10250,6 +10250,2768 @@ window.AUDIT_DATA = {
       "duration_source": "session-start-hook",
       "started_at": "2026-09-25T03:04:27Z",
       "duration_seconds": 44866.0
+    },
+    {
+      "id": "al-01M3CMMDDH6SBXWRFKPSEAR2B9",
+      "shortname": "Goal: Add profile control-vertex editing (shared and independent scope) …",
+      "datetime": "2026-09-25T15:58:34Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Add profile control-vertex editing (shared and independent scope) to the CFD-Workbench core, per docs/design/section-editor.md §4.1, under TDD.\nDone when: the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified; tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; the work is committed on feature/section-core-edit.\nNot in scope: Geometry.cs (another track owns it); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs/specs; Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b); refactoring existing rail-edit code beyond what sharing a helper needs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n\n## Harness notes (Grok Build)\n- Your working directory is /Users/mallalieut/projects/CFD-Workbench-feature-section-core-edit (branch feature/section-core-edit). Stay inside it. Do not create worktrees, do not push.\n- AGENTS.md is loaded as project rules. Pack skills are in .grok/skills/<name>/SKILL.md; run this as the `/implement` loop (red → green → refactor), but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries. The Leader handles review and joins.\n- Knowledge docs: .claude/knowledge/<name>.md. The C# style guide is .claude/knowledge/csharp-style-guide.md; match the surrounding code's dense style.\n- Repair loops are capped at 2 cycles. If a check fails twice for the same reason, stop and report.\n\n## Read first (only these)\n1. docs/design/section-editor.md (§2, §3, §4.1, §6, §7 Core, §8 T1) — the contract. Do not change signatures in §4.1; if one is impossible, stop and report why.\n2. src/CfdWorkbench.Core/AuthoringSession.cs — BeginRailEdit/BeginRailEditCore (~L141, L233-242), UpdateDraft (~L244-250), ValidateCore, ApplyCore, Retry/operation memoization (~L197-202).\n3. src/CfdWorkbench.Core/FoilSource.cs — PatchRail (~L168-201, exact shortest-decimal patching), MaterializeIds (~L156-166), ReadProfile, Curve/ProfileDefinition records (~L86-103).\n4. src/CfdWorkbench.Core/Contracts.cs; tests/CfdWorkbench.Core.Tests/IdentityTests.cs (Check/Equal/Refuses helpers, L53-72) and AuthoringSessionTests.cs for fixture style.\n\n## Build (in this order)\n1. Contracts.cs: SectionScope, BlendInterval, ScopeImpact, ProfileVertex, ProfilePoint and ProfileView are ALREADY committed (end of the file). Use them; do not change their shapes. Add nothing else to Contracts.cs unless strictly needed.\n2. FoilSource.PatchProfilePoint(source, profile, side, vertexId, x, y): patch both ordinates of one CV of `profile`'s `side` curve, preserving every other byte (same exact-decimal rules as PatchRail). Refuse unknown profile/side/vertex with DSL-PROFILE-TARGET.\n3. FoilSource.MakeIndependent(source, profile, assignmentIndex): insert a copy of the profile block named `<name>-i<k>` (smallest k ≥ 1 unused) directly after the original inside `profiles { }`, with fresh vertex ids (use the same id scheme MaterializeIds uses), and change only assignment `assignmentIndex`'s profile reference to the new name. Returns (source, newName).\n4. AuthoringSession:\n   - ProfileAt(assignmentIndex): ProfileView of the accepted revision (or of the open draft when the draft targets this assignment). Vertices: first CV of each side is Fixed; when closure is closed, the last CV of each side is Fixed. Curves: sample each side at 101 points using the existing curve evaluation (read how Geometry evaluates profile sides; call it, do not modify Geometry.cs).\n   - DescribeScope(profile, assignmentIndex, scope): Shared → affected = every assignment referencing `profile`; Independent → affected = [assignmentIndex]. Intervals: for each affected assignment j, the intervals [η(j-1), η(j)] and [η(j), η(j+1)] that exist, merged and sorted; root distances = η × half-span in metres (AuthoredAssignment.SpanMeters gives the physical station distance).\n   - BeginProfileEdit(draftId, assignmentIndex, scope, side, vertexId): same guards as BeginRailEdit (single draft, retired ids, accepted revision present). Independent: the draft source starts as MakeIndependent(...) and the edit targets the new profile. Fixed vertex → DSL-LOCK.\n   - UpdateProfileDraft(draftId, generation, x, y): patch via PatchProfilePoint; generation check as UpdateDraft; before patching refuse x outside [prev.x, next.x] of that side with DSL-PROFILE-ORDER. Crossing (upper not strictly above lower) surfaces from Validate as DSL-PROFILE-CROSS: add that check where Assess reports profile validity ONLY IF it lives outside Geometry.cs; if it can only live in Geometry.cs, leave it and report it.\n   - Validate/Preview/Apply/Cancel/Undo/Redo accept profile drafts unchanged in behaviour.\n5. Tests — tests/CfdWorkbench.Core.Tests/SectionEditTests.cs with `internal static class SectionEditTests { internal static void Run() {...} internal static void RunMultiProfile() {...} }`. Register ONLY `SectionEditTests.Run();` in IdentityTests.cs Main. Write each check first and watch it fail.\n   Run() (single-profile, must pass now):\n   - PatchProfilePoint round-trips exactly and changes only that CV's bytes.\n   - Editing an upper CV leaves the lower curve's source bytes identical.\n   - Fixed first vertex → DSL-LOCK; x beyond neighbour → DSL-PROFILE-ORDER; unknown vertex → DSL-PROFILE-TARGET.\n   - Shared edit on the Example (root and tip share \"section-a\"): DescribeScope lists both assignments; Begin → Update → Validate → Apply gives a new accepted revision; Undo restores the exact original bytes; Redo restores the edit; Cancel before Apply restores exact bytes.\n   - Same operationId retried returns the same result (no double apply).\n   - Local support: moving interior vertex i changes the evaluated side only on its p+1 knot spans (sample 1001 x; outside those spans |Δy| ≤ 1e-12).\n   - MakeIndependent on a 3-station fixture (root/middle/tip all \"section-a\"; build it by editing the Example source in the test) for the middle station: new profile \"section-a-i1\" exists, only the middle assignment points to it, source otherwise byte-identical; DescribeScope(Independent) reports two intervals around the middle station.\n   RunMultiProfile() (NOT registered — Geometry cannot certify >1 profile until track T2 merges; the Leader registers it at integration):\n   - Independent edit of the middle station: Apply succeeds, Undo/Redo restore source and profile bank together, the root/tip profile bytes are unchanged.\n\n## Verify, then commit\n- From the worktree root: `tools/run-tests.sh` must print `all test harnesses passed`.\n- `python3 tools/check-docs.py` must exit 0 (run on its own line, not behind a pipe).\n- Commit (one or a few commits) with conventional messages, e.g. `feat: edit profile control vertices with shared or independent scope`, each ending with the trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n\n## Return (final message only)\nCommit SHA(s); list of new/changed public members; the SectionEditTests PASS lines; the last lines of run-tests.sh and check-docs; anything you could not do (e.g. DSL-PROFILE-CROSS placement) with the reason.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3CMMDSE38JG285CYF8GCA3Z",
+      "shortname": "compile-Goal: Add profile control-vertex editing (shared and independent scope) …",
+      "datetime": "2026-09-25T15:58:34Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Add profile control-vertex editing (shared and independent scope) to the CFD-Workbench core, per docs/design/section-editor.md §4.1, under TDD.\nDone when: the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified; tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; the work is committed on feature/section-core-edit.\nNot in scope: Geometry.cs (another track owns it); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs/specs; Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b); refactoring existing rail-edit code beyond what sharing a helper needs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n## Harness notes (Grok Build)\nYour working directory is /Users/mallalieut/projects/CFD-Workbench-feature-section-core-edit (branch feature/section-core-edit). Stay inside it. Do not create worktrees, do not push.\nAGENTS.md is loaded as project rules. Pack skills are in .grok/skills/<name>/SKILL.md; run this as the `/implement` loop (red → green → refactor), but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries. The Leader handles review and joins.\nKnowledge docs: .claude/knowledge/<name>.md. The C# style guide is .claude/knowledge/csharp-style-guide.md; match the surrounding code's dense style.\nRepair loops are capped at 2 cycles. If a check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md (§2, §3, §4.1, §6, §7 Core, §8 T1) — the contract. Do not change signatures in §4.1; if one is impossible, stop and report why.\n2. src/CfdWorkbench.Core/AuthoringSession.cs — BeginRailEdit/BeginRailEditCore (~L141, L233-242), UpdateDraft (~L244-250), ValidateCore, ApplyCore, Retry/operation memoization (~L197-202).\n3. src/CfdWorkbench.Core/FoilSource.cs — PatchRail (~L168-201, exact shortest-decimal patching), MaterializeIds (~L156-166), ReadProfile, Curve/ProfileDefinition records (~L86-103).\n4. src/CfdWorkbench.Core/Contracts.cs; tests/CfdWorkbench.Core.Tests/IdentityTests.cs (Check/Equal/Refuses helpers, L53-72) and AuthoringSessionTests.cs for fixture style.\n## Build (in this order)\n1. Contracts.cs: SectionScope, BlendInterval, ScopeImpact, ProfileVertex, ProfilePoint and ProfileView are ALREADY committed (end of the file). Use them; do not change their shapes. Add nothing else to Contracts.cs unless strictly needed.\n2. FoilSource.PatchProfilePoint(source, profile, side, vertexId, x, y): patch both ordinates of one CV of `profile`'s `side` curve, preserving every other byte (same exact-decimal rules as PatchRail). Refuse unknown profile/side/vertex with DSL-PROFILE-TARGET.\n3. FoilSource.MakeIndependent(source, profile, assignmentIndex): insert a copy of the profile block named `<name>-i<k>` (smallest k ≥ 1 unused) directly after the original inside `profiles { }`, with fresh vertex ids (use the same id scheme MaterializeIds uses), and change only assignment `assignmentIndex`'s profile reference to the new name. Returns (source, newName).\n4. AuthoringSession:\nProfileAt(assignmentIndex): ProfileView of the accepted revision (or of the open draft when the draft targets this assignment). Vertices: first CV of each side is Fixed; when closure is closed, the last CV of each side is Fixed. Curves: sample each side at 101 points using the existing curve evaluation (read how Geometry evaluates profile sides; call it, do not modify Geometry.cs).\nDescribeScope(profile, assignmentIndex, scope): Shared → affected = every assignment referencing `profile`; Independent → affected = [assignmentIndex]. Intervals: for each affected assignment j, the intervals [η(j-1), η(j)] and [η(j), η(j+1)] that exist, merged and sorted; root distances = η × half-span in metres (AuthoredAssignment.SpanMeters gives the physical station distance).\nBeginProfileEdit(draftId, assignmentIndex, scope, side, vertexId): same guards as BeginRailEdit (single draft, retired ids, accepted revision present). Independent: the draft source starts as MakeIndependent(...) and the edit targets the new profile. Fixed vertex → DSL-LOCK.\nUpdateProfileDraft(draftId, generation, x, y): patch via PatchProfilePoint; generation check as UpdateDraft; before patching refuse x outside [prev.x, next.x] of that side with DSL-PROFILE-ORDER. Crossing (upper not strictly above lower) surfaces from Validate as DSL-PROFILE-CROSS: add that check where Assess reports profile validity ONLY IF it lives outside Geometry.cs; if it can only live in Geometry.cs, leave it and report it.\nValidate/Preview/Apply/Cancel/Undo/Redo accept profile drafts unchanged in behaviour.\n5. Tests — tests/CfdWorkbench.Core.Tests/SectionEditTests.cs with `internal static class SectionEditTests { internal static void Run() {...} internal static void RunMultiProfile() {...} }`. Register ONLY `SectionEditTests.Run();` in IdentityTests.cs Main. Write each check first and watch it fail.\nRun() (single-profile, must pass now):\nPatchProfilePoint round-trips exactly and changes only that CV's bytes.\nEditing an upper CV leaves the lower curve's source bytes identical.\nFixed first vertex → DSL-LOCK; x beyond neighbour → DSL-PROFILE-ORDER; unknown vertex → DSL-PROFILE-TARGET.\nShared edit on the Example (root and tip share \"section-a\"): DescribeScope lists both assignments; Begin → Update → Validate → Apply gives a new accepted revision; Undo restores the exact original bytes; Redo restores the edit; Cancel before Apply restores exact bytes.\nSame operationId retried returns the same result (no double apply).\nLocal support: moving interior vertex i changes the evaluated side only on its p+1 knot spans (sample 1001 x; outside those spans |Δy| ≤ 1e-12).\nMakeIndependent on a 3-station fixture (root/middle/tip all \"section-a\"; build it by editing the Example source in the test) for the middle station: new profile \"section-a-i1\" exists, only the middle assignment points to it, source otherwise byte-identical; DescribeScope(Independent) reports two intervals around the middle station.\nRunMultiProfile() (NOT registered — Geometry cannot certify >1 profile until track T2 merges; the Leader registers it at integration):\nIndependent edit of the middle station: Apply succeeds, Undo/Redo restore source and profile bank together, the root/tip profile bytes are unchanged.\n## Verify, then commit\nFrom the worktree root: `tools/run-tests.sh` must print `all test harnesses passed`.\n`python3 tools/check-docs.py` must exit 0 (run on its own line, not behind a pipe).\nCommit (one or a few commits) with conventional messages, e.g. `feat: edit profile control vertices with shared or independent scope`, each ending with the trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA(s); list of new/changed public members; the SectionEditTests PASS lines; the last lines of run-tests.sh and check-docs; anything you could not do (e.g. DSL-PROFILE-CROSS placement) with the reason.\nTrace\n| clause | trace |\n|---|---|\n| done_when: the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified | phrase: the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified |\n| done_when: tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main | phrase: tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: the work is committed on feature/section-core-edit. | phrase: the work is committed on feature/section-core-edit. |\n| not_in_scope: Geometry.cs (another track owns it) | phrase: Geometry.cs (another track owns it) |\n| not_in_scope: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests | phrase: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests |\n| not_in_scope: docs/specs | phrase: docs/specs |\n| not_in_scope: Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b) | phrase: Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b) |\n| not_in_scope: refactoring existing rail-edit code beyond what sharing a helper needs | phrase: refactoring existing rail-edit code beyond what sharing a helper needs |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- profile: unresolved (not found)\n- side: unresolved (not found)\n- name>-i<k: unresolved (not found)\n- profiles { }: unresolved (not found)\n- assignmentIndex: unresolved (not found)\n- internal static class SectionEditTests { internal static void Run() {...} internal static void RunMultiProfile() {...} }: unresolved (not found)\n- SectionEditTests.Run: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: edit profile control vertices with shared or independent scope: unresolved (not found)\n- Co-Authored-By: Grok 4.7 <noreply@x.ai: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58\n- tests/CfdWorkbench.Core.Tests/SectionEditTests.cs: unresolved (not found)\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-core-edit: unresolved (not found)\n- src/CfdWorkbench.Desktop: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests: unresolved (not found; nearest: tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests)\n- docs/specs: unresolved (not found)\n- Insert/Delete: unresolved (not found)\n- Fair/Rebuild: unresolved (not found)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-core-edit: unresolved (outside repo)\n- AGENTS.md: AGENTS.md sha256 20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85\n- .grok/skills/<name>/SKILL.md: unresolved (not found)\n- .claude/knowledge/<name>.md: unresolved (not found)\n- .claude/knowledge/csharp-style-guide.md: unresolved (not found; nearest: .claude/knowledge/csharp-style-guide.md)\n- src/CfdWorkbench.Core/AuthoringSession.cs: src/CfdWorkbench.Core/AuthoringSession.cs sha256 2d95f0139cd807cc739815ca474ff8f9cd95930281eb086b17ec9693e6e8b405\n- BeginRailEdit/BeginRailEditCore: unresolved (not found)\n- Retry/operation: unresolved (not found)\n- src/CfdWorkbench.Core/FoilSource.cs: src/CfdWorkbench.Core/FoilSource.cs sha256 c8daf453b21fbdc705e83cf6d64ec0f583ebd96a6275bc0314598f3463e38c1f\n- Curve/ProfileDefinition: unresolved (not found)\n- src/CfdWorkbench.Core/Contracts.cs: src/CfdWorkbench.Core/Contracts.cs sha256 c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829\n- tests/CfdWorkbench.Core.Tests/IdentityTests.cs: tests/CfdWorkbench.Core.Tests/IdentityTests.cs sha256 0df67b0ada7487104232c082b49529547eed055b89c68068c38a210a7d768c54\n- Check/Equal/Refuses: unresolved (not found)\n- profile/side/vertex: unresolved (not found)\n- Validate/Preview/Apply/Cancel/Undo/Redo: unresolved (not found)\n- root/middle/tip: unresolved (not found)\n- Undo/Redo: unresolved (not found)\n- root/tip: unresolved (not found)\n- new/changed: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CMMDDH6SBXWRFKPSEAR2B9\nraw sha256: 41eae4584a888318e55925e9efa94cf167e8932cc179cf8d02874cf7c63ad1b5\ncompiler model: claude-opus-5-5\nengine seconds: 0.006\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3CMMDDH6SBXWRFKPSEAR2B9 for claude-code v1: 12 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the work is committed on feature/section-core-edit.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the work is committed on feature/section-core-edit."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Geometry.cs (another track owns it)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Geometry.cs (another track owns it)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "trace": {
+              "kind": "phrase",
+              "ref": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "docs/specs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "docs/specs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "refactoring existing rail-edit code beyond what sharing a helper needs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "refactoring existing rail-edit code beyond what sharing a helper needs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "the §4.1 Contracts, FoilSource and AuthoringSession members exist and behave as specified",
+            "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs holds the listed checks and is registered in IdentityTests.cs Main",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "the work is committed on feature/section-core-edit."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Add profile control-vertex editing (shared and independent scope) to the CFD-Workbench core, per docs/design/section-editor.md §4.1, under TDD.",
+          "main_line_budget": "120 tool calls, 60 minutes\n## Harness notes (Grok Build)\nYour working directory is /Users/mallalieut/projects/CFD-Workbench-feature-section-core-edit (branch feature/section-core-edit). Stay inside it. Do not create worktrees, do not push.\nAGENTS.md is loaded as project rules. Pack skills are in .grok/skills/<name>/SKILL.md; run this as the `/implement` loop (red → green → refactor), but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries. The Leader handles review and joins.\nKnowledge docs: .claude/knowledge/<name>.md. The C# style guide is .claude/knowledge/csharp-style-guide.md; match the surrounding code's dense style.\nRepair loops are capped at 2 cycles. If a check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md (§2, §3, §4.1, §6, §7 Core, §8 T1) — the contract. Do not change signatures in §4.1; if one is impossible, stop and report why.\n2. src/CfdWorkbench.Core/AuthoringSession.cs — BeginRailEdit/BeginRailEditCore (~L141, L233-242), UpdateDraft (~L244-250), ValidateCore, ApplyCore, Retry/operation memoization (~L197-202).\n3. src/CfdWorkbench.Core/FoilSource.cs — PatchRail (~L168-201, exact shortest-decimal patching), MaterializeIds (~L156-166), ReadProfile, Curve/ProfileDefinition records (~L86-103).\n4. src/CfdWorkbench.Core/Contracts.cs; tests/CfdWorkbench.Core.Tests/IdentityTests.cs (Check/Equal/Refuses helpers, L53-72) and AuthoringSessionTests.cs for fixture style.\n## Build (in this order)\n1. Contracts.cs: SectionScope, BlendInterval, ScopeImpact, ProfileVertex, ProfilePoint and ProfileView are ALREADY committed (end of the file). Use them; do not change their shapes. Add nothing else to Contracts.cs unless strictly needed.\n2. FoilSource.PatchProfilePoint(source, profile, side, vertexId, x, y): patch both ordinates of one CV of `profile`'s `side` curve, preserving every other byte (same exact-decimal rules as PatchRail). Refuse unknown profile/side/vertex with DSL-PROFILE-TARGET.\n3. FoilSource.MakeIndependent(source, profile, assignmentIndex): insert a copy of the profile block named `<name>-i<k>` (smallest k ≥ 1 unused) directly after the original inside `profiles { }`, with fresh vertex ids (use the same id scheme MaterializeIds uses), and change only assignment `assignmentIndex`'s profile reference to the new name. Returns (source, newName).\n4. AuthoringSession:\nProfileAt(assignmentIndex): ProfileView of the accepted revision (or of the open draft when the draft targets this assignment). Vertices: first CV of each side is Fixed; when closure is closed, the last CV of each side is Fixed. Curves: sample each side at 101 points using the existing curve evaluation (read how Geometry evaluates profile sides; call it, do not modify Geometry.cs).\nDescribeScope(profile, assignmentIndex, scope): Shared → affected = every assignment referencing `profile`; Independent → affected = [assignmentIndex]. Intervals: for each affected assignment j, the intervals [η(j-1), η(j)] and [η(j), η(j+1)] that exist, merged and sorted; root distances = η × half-span in metres (AuthoredAssignment.SpanMeters gives the physical station distance).\nBeginProfileEdit(draftId, assignmentIndex, scope, side, vertexId): same guards as BeginRailEdit (single draft, retired ids, accepted revision present). Independent: the draft source starts as MakeIndependent(...) and the edit targets the new profile. Fixed vertex → DSL-LOCK.\nUpdateProfileDraft(draftId, generation, x, y): patch via PatchProfilePoint; generation check as UpdateDraft; before patching refuse x outside [prev.x, next.x] of that side with DSL-PROFILE-ORDER. Crossing (upper not strictly above lower) surfaces from Validate as DSL-PROFILE-CROSS: add that check where Assess reports profile validity ONLY IF it lives outside Geometry.cs; if it can only live in Geometry.cs, leave it and report it.\nValidate/Preview/Apply/Cancel/Undo/Redo accept profile drafts unchanged in behaviour.\n5. Tests — tests/CfdWorkbench.Core.Tests/SectionEditTests.cs with `internal static class SectionEditTests { internal static void Run() {...} internal static void RunMultiProfile() {...} }`. Register ONLY `SectionEditTests.Run();` in IdentityTests.cs Main. Write each check first and watch it fail.\nRun() (single-profile, must pass now):\nPatchProfilePoint round-trips exactly and changes only that CV's bytes.\nEditing an upper CV leaves the lower curve's source bytes identical.\nFixed first vertex → DSL-LOCK; x beyond neighbour → DSL-PROFILE-ORDER; unknown vertex → DSL-PROFILE-TARGET.\nShared edit on the Example (root and tip share \"section-a\"): DescribeScope lists both assignments; Begin → Update → Validate → Apply gives a new accepted revision; Undo restores the exact original bytes; Redo restores the edit; Cancel before Apply restores exact bytes.\nSame operationId retried returns the same result (no double apply).\nLocal support: moving interior vertex i changes the evaluated side only on its p+1 knot spans (sample 1001 x; outside those spans |Δy| ≤ 1e-12).\nMakeIndependent on a 3-station fixture (root/middle/tip all \"section-a\"; build it by editing the Example source in the test) for the middle station: new profile \"section-a-i1\" exists, only the middle assignment points to it, source otherwise byte-identical; DescribeScope(Independent) reports two intervals around the middle station.\nRunMultiProfile() (NOT registered — Geometry cannot certify >1 profile until track T2 merges; the Leader registers it at integration):\nIndependent edit of the middle station: Apply succeeds, Undo/Redo restore source and profile bank together, the root/tip profile bytes are unchanged.\n## Verify, then commit\nFrom the worktree root: `tools/run-tests.sh` must print `all test harnesses passed`.\n`python3 tools/check-docs.py` must exit 0 (run on its own line, not behind a pipe).\nCommit (one or a few commits) with conventional messages, e.g. `feat: edit profile control vertices with shared or independent scope`, each ending with the trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA(s); list of new/changed public members; the SectionEditTests PASS lines; the last lines of run-tests.sh and check-docs; anything you could not do (e.g. DSL-PROFILE-CROSS placement) with the reason.",
+          "not_in_scope": [
+            "Geometry.cs (another track owns it)",
+            "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "docs/specs",
+            "Use source thickness, Insert/Delete CV, Fair/Rebuild (M1.1b)",
+            "refactoring existing rail-edit code beyond what sharing a helper needs",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.006,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CMMDDH6SBXWRFKPSEAR2B9",
+        "raw_sha256": "41eae4584a888318e55925e9efa94cf167e8932cc179cf8d02874cf7c63ad1b5",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "profile"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "side"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "name>-i<k"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "profiles { }"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "assignmentIndex"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "internal static class SectionEditTests { internal static void Run() {...} internal static void RunMultiProfile() {...} }"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "SectionEditTests.Run"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: edit profile control vertices with shared or independent scope"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Grok 4.7 <noreply@x.ai"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-core-edit"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Desktop"
+          },
+          {
+            "nearest": "tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "docs/specs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Insert/Delete"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Fair/Rebuild"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-core-edit"
+          },
+          {
+            "nearest": null,
+            "path": "AGENTS.md",
+            "reason": null,
+            "sha256": "20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85",
+            "status": "resolved",
+            "token": "AGENTS.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".grok/skills/<name>/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/<name>.md"
+          },
+          {
+            "nearest": ".claude/knowledge/csharp-style-guide.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/csharp-style-guide.md"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/AuthoringSession.cs",
+            "reason": null,
+            "sha256": "2d95f0139cd807cc739815ca474ff8f9cd95930281eb086b17ec9693e6e8b405",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "BeginRailEdit/BeginRailEditCore"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Retry/operation"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/FoilSource.cs",
+            "reason": null,
+            "sha256": "c8daf453b21fbdc705e83cf6d64ec0f583ebd96a6275bc0314598f3463e38c1f",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/FoilSource.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Curve/ProfileDefinition"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/Contracts.cs",
+            "reason": null,
+            "sha256": "c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/Contracts.cs"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/IdentityTests.cs",
+            "reason": null,
+            "sha256": "0df67b0ada7487104232c082b49529547eed055b89c68068c38a210a7d768c54",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/IdentityTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Check/Equal/Refuses"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "profile/side/vertex"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Validate/Preview/Apply/Cancel/Undo/Redo"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "root/middle/tip"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Undo/Redo"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "root/tip"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "new/changed"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3CMME2KPDRKQATWE6R3HQS6",
+      "shortname": "Goal: Make the CFD-Workbench geometry authority certify foils with more …",
+      "datetime": "2026-09-25T15:58:35Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Make the CFD-Workbench geometry authority certify foils with more than one profile, using FoilDSL Rule A (linear normalized profile blend), per docs/design/section-editor.md §4.1 (Geometry) and docs/specs/foildsl.md §6.\nDone when: Geometry.Assess admits Profiles.Length ≥ 1; SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures; tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main; every existing Core test still passes; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-blend.\nNot in scope: AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them); Desktop; docs/specs; changing the evaluator identity string unless §6 requires it (if it does, stop and report); performance tuning beyond the existing GEOMETRY-BUDGET limits; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n\n## Harness notes (Grok Build)\n- Working directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-blend (branch feature/section-blend). Stay inside it. No worktrees, no push.\n- AGENTS.md is loaded. Run the `/implement` loop from .grok/skills/implement/SKILL.md (red → green → refactor) but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries.\n- Knowledge: .claude/knowledge/<name>.md; C# style: .claude/knowledge/csharp-style-guide.md. Match the surrounding code's style.\n- Repair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n\n## Read first (only these)\n1. docs/specs/foildsl.md §6 (L235-285), especially Rule A at L246-255 and placement at L264-268.\n2. src/CfdWorkbench.Core/Geometry.cs — whole file (619 lines): Assess (the single-profile guard at ~L166-168), SectionExact (~L124-135), the certificate (UpperPath/LowerPath), Bernstein.Spans/EncloseAt interval evaluation (~L69-103, L504-544).\n3. tests/CfdWorkbench.Core.Tests/GeometryTests.cs for fixture and assertion style; IdentityTests.cs for Check/Equal/Refuses.\n\n## Rule A (from the spec — implement exactly)\nFor η between adjacent assignments a, b (ηa ≤ η ≤ ηb), w = (η−ηa)/(ηb−ηa). For each profile p: Cp(x) = (upper(x)+lower(x))/2, Tp(x) = (upper(x)−lower(x)) / max_x(upper−lower). Blend C = (1−w)Ca + w·Cb, T0 = (1−w)Ta + w·Tb, T = T0 / max_x T0. Placed half-thicknesses use the foil-wide thickness channel: q = (x, C ± thickness(η)·T/2). When a and b reference the same profile the result must equal today's single-profile evaluation exactly (same code path or proven identical).\nCertification: every quantity must stay enclosed with the same interval/rational discipline Geometry already uses; max_x of (upper−lower) and of T0 must be enclosed, not sampled. If an enclosure cannot be certified, return the existing GEOMETRY-CERTIFICATE-DEFECT / Unsupported status — never an unenclosed number.\n\n## Tests — tests/CfdWorkbench.Core.Tests/BlendTests.cs, `internal static class BlendTests { internal static void Run() }`, registered in IdentityTests.cs Main. Write each first and watch it fail.\n- A two-profile foil (build the fixture by editing the Example source: add a second profile with a different camber, assign root→A, tip→B) now assesses Certified.\n- At η = ηa the section equals profile A's placed section; at η = ηb it equals B's (to the enclosure width).\n- Two assignments referencing identical profile bytes under different names produce the same geometry as the single-profile Example.\n- At w = 0.5 the midpoint camber equals the mean of the two cambers (to enclosure width) and the normalized thickness shape peaks at 1.\n- A three-station foil (A, B, A) certifies and is continuous at the middle station.\n- Existing single-profile tests are untouched and still pass.\n\n## Verify, then commit\n- `tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\n- Commit(s): e.g. `feat: certify multi-profile foils with the Rule A blend`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n\n## Return (final message only)\nCommit SHA(s); what changed in Assess and the evaluators; how max_x is enclosed; BlendTests PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3CMMECPQ5MSE1WXFC9HXBPM",
+      "shortname": "compile-Goal: Make the CFD-Workbench geometry authority certify foils with more …",
+      "datetime": "2026-09-25T15:58:35Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Make the CFD-Workbench geometry authority certify foils with more than one profile, using FoilDSL Rule A (linear normalized profile blend), per docs/design/section-editor.md §4.1 (Geometry) and docs/specs/foildsl.md §6.\nDone when: Geometry.Assess admits Profiles.Length ≥ 1; SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures; tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main; every existing Core test still passes; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-blend.\nNot in scope: AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them); Desktop; docs/specs; changing the evaluator identity string unless §6 requires it (if it does, stop and report); performance tuning beyond the existing GEOMETRY-BUDGET limits; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-blend (branch feature/section-blend). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Run the `/implement` loop from .grok/skills/implement/SKILL.md (red → green → refactor) but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries.\nKnowledge: .claude/knowledge/<name>.md; C# style: .claude/knowledge/csharp-style-guide.md. Match the surrounding code's style.\nRepair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/specs/foildsl.md §6 (L235-285), especially Rule A at L246-255 and placement at L264-268.\n2. src/CfdWorkbench.Core/Geometry.cs — whole file (619 lines): Assess (the single-profile guard at ~L166-168), SectionExact (~L124-135), the certificate (UpperPath/LowerPath), Bernstein.Spans/EncloseAt interval evaluation (~L69-103, L504-544).\n3. tests/CfdWorkbench.Core.Tests/GeometryTests.cs for fixture and assertion style; IdentityTests.cs for Check/Equal/Refuses.\n## Rule A (from the spec — implement exactly)\nFor η between adjacent assignments a, b (ηa ≤ η ≤ ηb), w = (η−ηa)/(ηb−ηa). For each profile p: Cp(x) = (upper(x)+lower(x))/2, Tp(x) = (upper(x)−lower(x)) / max_x(upper−lower). Blend C = (1−w)Ca + w·Cb, T0 = (1−w)Ta + w·Tb, T = T0 / max_x T0. Placed half-thicknesses use the foil-wide thickness channel: q = (x, C ± thickness(η)·T/2). When a and b reference the same profile the result must equal today's single-profile evaluation exactly (same code path or proven identical).\nCertification: every quantity must stay enclosed with the same interval/rational discipline Geometry already uses; max_x of (upper−lower) and of T0 must be enclosed, not sampled. If an enclosure cannot be certified, return the existing GEOMETRY-CERTIFICATE-DEFECT / Unsupported status — never an unenclosed number.\n## Tests — tests/CfdWorkbench.Core.Tests/BlendTests.cs, `internal static class BlendTests { internal static void Run() }`, registered in IdentityTests.cs Main. Write each first and watch it fail.\nA two-profile foil (build the fixture by editing the Example source: add a second profile with a different camber, assign root→A, tip→B) now assesses Certified.\nAt η = ηa the section equals profile A's placed section; at η = ηb it equals B's (to the enclosure width).\nTwo assignments referencing identical profile bytes under different names produce the same geometry as the single-profile Example.\nAt w = 0.5 the midpoint camber equals the mean of the two cambers (to enclosure width) and the normalized thickness shape peaks at 1.\nA three-station foil (A, B, A) certifies and is continuous at the middle station.\nExisting single-profile tests are untouched and still pass.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s): e.g. `feat: certify multi-profile foils with the Rule A blend`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA(s); what changed in Assess and the evaluators; how max_x is enclosed; BlendTests PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.\nTrace\n| clause | trace |\n|---|---|\n| done_when: Geometry.Assess admits Profiles.Length ≥ 1 | phrase: Geometry.Assess admits Profiles.Length ≥ 1 |\n| done_when: SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures | phrase: SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures |\n| done_when: tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main | phrase: tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main |\n| done_when: every existing Core test still passes | phrase: every existing Core test still passes |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: committed on feature/section-blend. | phrase: committed on feature/section-blend. |\n| not_in_scope: AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them) | phrase: AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them) |\n| not_in_scope: Desktop | phrase: Desktop |\n| not_in_scope: docs/specs | phrase: docs/specs |\n| not_in_scope: changing the evaluator identity string unless §6 requires it (if it does, stop and report) | phrase: changing the evaluator identity string unless §6 requires it (if it does, stop and report) |\n| not_in_scope: performance tuning beyond the existing GEOMETRY-BUDGET limits | phrase: performance tuning beyond the existing GEOMETRY-BUDGET limits |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- internal static class BlendTests { internal static void Run() }: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: certify multi-profile foils with the Rule A blend: unresolved (not found)\n- Co-Authored-By: Grok 4.7 <noreply@x.ai: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58\n- docs/specs/foildsl.md: docs/specs/foildsl.md sha256 42025b2b4d9782e848ac6a73246c7fce856771607916fcb634bb67d4fef59e78\n- SectionExact/PointAt/SectionAt: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/BlendTests.cs: unresolved (not found)\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-blend: unresolved (not found)\n- docs/specs: unresolved (not found)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-blend: unresolved (outside repo)\n- AGENTS.md: AGENTS.md sha256 20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85\n- .grok/skills/implement/SKILL.md: unresolved (not found)\n- .claude/knowledge/<name>.md: unresolved (not found)\n- .claude/knowledge/csharp-style-guide.md: unresolved (not found; nearest: .claude/knowledge/csharp-style-guide.md)\n- src/CfdWorkbench.Core/Geometry.cs: src/CfdWorkbench.Core/Geometry.cs sha256 59aef82a565822c39166cd630091a506eb8e21c86183d5da1185d4a2211a8f9e\n- UpperPath/LowerPath: unresolved (not found)\n- Bernstein.Spans/EncloseAt: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/GeometryTests.cs: tests/CfdWorkbench.Core.Tests/GeometryTests.cs sha256 163964fb3c75f2a4b9367a73d1b4cd61b7c9b8961297de8f1ec1bddbd7c5158d\n- Check/Equal/Refuses: unresolved (not found)\n- η−ηa)/(ηb−ηa: unresolved (not found)\n- upper(x)+lower(x))/2: unresolved (not found)\n- /: unresolved (outside repo)\n- thickness(η)·T/2: unresolved (not found)\n- interval/rational: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CMME2KPDRKQATWE6R3HQS6\nraw sha256: ddcea0497552a58845850d3b44d684fb1c9a1b3e58bf6051a45a4368ee7c663d\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3CMME2KPDRKQATWE6R3HQS6 for claude-code v1: 14 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "Geometry.Assess admits Profiles.Length ≥ 1",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Geometry.Assess admits Profiles.Length ≥ 1"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures",
+            "trace": {
+              "kind": "phrase",
+              "ref": "SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "every existing Core test still passes",
+            "trace": {
+              "kind": "phrase",
+              "ref": "every existing Core test still passes"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "committed on feature/section-blend.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "committed on feature/section-blend."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Desktop",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Desktop"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "docs/specs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "docs/specs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "changing the evaluator identity string unless §6 requires it (if it does, stop and report)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "changing the evaluator identity string unless §6 requires it (if it does, stop and report)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "performance tuning beyond the existing GEOMETRY-BUDGET limits",
+            "trace": {
+              "kind": "phrase",
+              "ref": "performance tuning beyond the existing GEOMETRY-BUDGET limits"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "Geometry.Assess admits Profiles.Length ≥ 1",
+            "SectionExact/PointAt/SectionAt blend adjacent assignments by Rule A with certified enclosures",
+            "tests/CfdWorkbench.Core.Tests/BlendTests.cs holds the listed checks and is registered in IdentityTests.cs Main",
+            "every existing Core test still passes",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "committed on feature/section-blend."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Make the CFD-Workbench geometry authority certify foils with more than one profile, using FoilDSL Rule A (linear normalized profile blend), per docs/design/section-editor.md §4.1 (Geometry) and docs/specs/foildsl.md §6.",
+          "main_line_budget": "120 tool calls, 60 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-blend (branch feature/section-blend). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Run the `/implement` loop from .grok/skills/implement/SKILL.md (red → green → refactor) but do NOT spawn persona sub-agents and do NOT write rulings, ledgers, proof packets or audit entries.\nKnowledge: .claude/knowledge/<name>.md; C# style: .claude/knowledge/csharp-style-guide.md. Match the surrounding code's style.\nRepair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/specs/foildsl.md §6 (L235-285), especially Rule A at L246-255 and placement at L264-268.\n2. src/CfdWorkbench.Core/Geometry.cs — whole file (619 lines): Assess (the single-profile guard at ~L166-168), SectionExact (~L124-135), the certificate (UpperPath/LowerPath), Bernstein.Spans/EncloseAt interval evaluation (~L69-103, L504-544).\n3. tests/CfdWorkbench.Core.Tests/GeometryTests.cs for fixture and assertion style; IdentityTests.cs for Check/Equal/Refuses.\n## Rule A (from the spec — implement exactly)\nFor η between adjacent assignments a, b (ηa ≤ η ≤ ηb), w = (η−ηa)/(ηb−ηa). For each profile p: Cp(x) = (upper(x)+lower(x))/2, Tp(x) = (upper(x)−lower(x)) / max_x(upper−lower). Blend C = (1−w)Ca + w·Cb, T0 = (1−w)Ta + w·Tb, T = T0 / max_x T0. Placed half-thicknesses use the foil-wide thickness channel: q = (x, C ± thickness(η)·T/2). When a and b reference the same profile the result must equal today's single-profile evaluation exactly (same code path or proven identical).\nCertification: every quantity must stay enclosed with the same interval/rational discipline Geometry already uses; max_x of (upper−lower) and of T0 must be enclosed, not sampled. If an enclosure cannot be certified, return the existing GEOMETRY-CERTIFICATE-DEFECT / Unsupported status — never an unenclosed number.\n## Tests — tests/CfdWorkbench.Core.Tests/BlendTests.cs, `internal static class BlendTests { internal static void Run() }`, registered in IdentityTests.cs Main. Write each first and watch it fail.\nA two-profile foil (build the fixture by editing the Example source: add a second profile with a different camber, assign root→A, tip→B) now assesses Certified.\nAt η = ηa the section equals profile A's placed section; at η = ηb it equals B's (to the enclosure width).\nTwo assignments referencing identical profile bytes under different names produce the same geometry as the single-profile Example.\nAt w = 0.5 the midpoint camber equals the mean of the two cambers (to enclosure width) and the normalized thickness shape peaks at 1.\nA three-station foil (A, B, A) certifies and is continuous at the middle station.\nExisting single-profile tests are untouched and still pass.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s): e.g. `feat: certify multi-profile foils with the Rule A blend`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA(s); what changed in Assess and the evaluators; how max_x is enclosed; BlendTests PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+          "not_in_scope": [
+            "AuthoringSession.cs, FoilSource.cs, Contracts.cs (another track owns them)",
+            "Desktop",
+            "docs/specs",
+            "changing the evaluator identity string unless §6 requires it (if it does, stop and report)",
+            "performance tuning beyond the existing GEOMETRY-BUDGET limits",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CMME2KPDRKQATWE6R3HQS6",
+        "raw_sha256": "ddcea0497552a58845850d3b44d684fb1c9a1b3e58bf6051a45a4368ee7c663d",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "internal static class BlendTests { internal static void Run() }"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: certify multi-profile foils with the Rule A blend"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Grok 4.7 <noreply@x.ai"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": "docs/specs/foildsl.md",
+            "reason": null,
+            "sha256": "42025b2b4d9782e848ac6a73246c7fce856771607916fcb634bb67d4fef59e78",
+            "status": "resolved",
+            "token": "docs/specs/foildsl.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "SectionExact/PointAt/SectionAt"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Core.Tests/BlendTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-blend"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "docs/specs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-blend"
+          },
+          {
+            "nearest": null,
+            "path": "AGENTS.md",
+            "reason": null,
+            "sha256": "20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85",
+            "status": "resolved",
+            "token": "AGENTS.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".grok/skills/implement/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/<name>.md"
+          },
+          {
+            "nearest": ".claude/knowledge/csharp-style-guide.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/csharp-style-guide.md"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/Geometry.cs",
+            "reason": null,
+            "sha256": "59aef82a565822c39166cd630091a506eb8e21c86183d5da1185d4a2211a8f9e",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/Geometry.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "UpperPath/LowerPath"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Bernstein.Spans/EncloseAt"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/GeometryTests.cs",
+            "reason": null,
+            "sha256": "163964fb3c75f2a4b9367a73d1b4cd61b7c9b8961297de8f1ec1bddbd7c5158d",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/GeometryTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Check/Equal/Refuses"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "η−ηa)/(ηb−ηa"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper(x)+lower(x))/2"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "thickness(η)·T/2"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "interval/rational"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3CMMENFH2DTNBWFD94QGT0E",
+      "shortname": "Goal: Build the SectionCanvas Avalonia control for CFD-Workbench — an ed…",
+      "datetime": "2026-09-25T15:58:35Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Build the SectionCanvas Avalonia control for CFD-Workbench — an editable 2D profile view drawn as a UI-25 spline control frame — per docs/design/section-editor.md §4.2, with headless tests.\nDone when: src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour; tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-canvas.\nNot in scope: WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in); anything under src/CfdWorkbench.Core except reading it; new NuGet packages; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n\n## Harness notes (Antigravity / agy)\n- Working directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-canvas (branch feature/section-canvas). Stay inside it. Do not create worktrees, do not push.\n- Path map: .agents/rules/agy-surface.md. Pack skills: .agents/skills/<name>/SKILL.md — follow the `/implement` loop (red → green → refactor), but do NOT spawn subagents and do NOT write rulings, ledgers, proof packets or audit entries. Knowledge docs are at .claude/knowledge/<name>.md (read with view_file when needed); C# style: .claude/knowledge/csharp-style-guide.md; UI standard: .claude/knowledge/ui-interaction-design.md.\n- Repair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n\n## Read first (only these)\n1. docs/design/section-editor.md §4.1 (the ProfileView/ProfileVertex records) and §4.2 (SectionCanvas).\n2. docs/specs/cfd-workbench-v1.md — search for \"UI-25\" (control-frame rule: dashed polygon, square vertices, circle levers, diamond ends, 20 px hit circle, focus ring; polylines as the only curve drawing are a defect).\n3. src/CfdWorkbench.Desktop/Viewport.cs (how the app draws with DrawingContext, and its Semantics/ViewportSemantic accessible text) and Styles.axaml (theme brushes; use DynamicResource/theme lookups, never hard-coded colours).\n4. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top (~L1-40) for the headless Avalonia setup and how scenarios are selected by args.\n\n## Contract you build against\nUse the Core records already committed in src/CfdWorkbench.Core/Contracts.cs (namespace CfdWorkbench.Core): `ProfileVertex(Side, Id, X, Y, Fixed)`, `ProfilePoint(X, Y)`, `ProfileView(Name, Identity, Upper, Lower, UpperCurve, LowerCurve, Closure)` with IReadOnlyList members. Do not redeclare or modify them. Build your test ProfileView fixtures by hand in the tests.\n\n## Build SectionCanvas (an Avalonia Control)\n- Properties: `ProfileView? Profile`, `bool Editable`, `(string Side, string Id)? SelectedVertex`.\n- Events: `VertexSelected(string side, string id)`, `VertexMoved(string side, string id, double x, double y)` (normalized chord coordinates).\n- Render: fit the chord [0,1] to the width with equal x/y scale and padding; draw UpperCurve/LowerCurve as smooth polylines; draw each side's control polygon dashed; square glyph per vertex, diamond glyph for the first and last vertex of each side; Fixed vertices hollow; the selected vertex filled plus a visible focus ring (≥2 px, theme focus brush). Theme brushes only.\n- Input (only when Editable): pointer press within 20 px of a vertex selects it (nearest wins); drag emits VertexMoved continuously; Fixed vertices select but never move. Keyboard: Tab / Shift+Tab cycle editable vertices in order upper LE→TE then lower LE→TE; arrow keys move the selected vertex by 0.001 chord (Shift ×10) and emit VertexMoved; Escape clears selection. Focusable = true.\n- The control holds no model state beyond Profile and SelectedVertex; it never changes Profile itself (the controller feeds back an updated ProfileView).\n- Accessibility: expose one accessible text line per vertex (\"upper vertex u3, x 0.412, y 0.061, fixed\") the same way Viewport exposes its semantics.\n\n## Tests — tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs, invoked from WorkbenchTests.cs when args contain `--section-canvas`, AND once from the default run so tools/run-tests.sh covers it. Write each first and watch it fail.\n- Hit test: a press 19 px from a vertex selects it; 21 px selects nothing.\n- Nearest-vertex wins when two are within 20 px.\n- Arrow moves 0.001 chord, Shift+Arrow 0.01; VertexMoved carries the new coordinates.\n- Fixed vertex: selectable, arrow keys emit nothing.\n- Tab order visits every editable vertex exactly once in the specified order.\n- Editable = false: no selection or movement events.\n- Accessible text lists every vertex with side, id, x, y and fixed state.\n\n## Verify, then commit\n- `tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\n- Commit(s): e.g. `feat: add the section control-frame canvas`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n\n## Return (final message only)\nCommit SHA(s); files added/changed; SectionCanvas public surface; test output lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3CMMF1BS45PYJBCPJTP8FAE",
+      "shortname": "compile-Goal: Build the SectionCanvas Avalonia control for CFD-Workbench — an ed…",
+      "datetime": "2026-09-25T15:58:36Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Build the SectionCanvas Avalonia control for CFD-Workbench — an editable 2D profile view drawn as a UI-25 spline control frame — per docs/design/section-editor.md §4.2, with headless tests.\nDone when: src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour; tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-canvas.\nNot in scope: WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in); anything under src/CfdWorkbench.Core except reading it; new NuGet packages; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 120 tool calls, 60 minutes\n## Harness notes (Antigravity / agy)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-canvas (branch feature/section-canvas). Stay inside it. Do not create worktrees, do not push.\nPath map: .agents/rules/agy-surface.md. Pack skills: .agents/skills/<name>/SKILL.md — follow the `/implement` loop (red → green → refactor), but do NOT spawn subagents and do NOT write rulings, ledgers, proof packets or audit entries. Knowledge docs are at .claude/knowledge/<name>.md (read with view_file when needed); C# style: .claude/knowledge/csharp-style-guide.md; UI standard: .claude/knowledge/ui-interaction-design.md.\nRepair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md §4.1 (the ProfileView/ProfileVertex records) and §4.2 (SectionCanvas).\n2. docs/specs/cfd-workbench-v1.md — search for \"UI-25\" (control-frame rule: dashed polygon, square vertices, circle levers, diamond ends, 20 px hit circle, focus ring; polylines as the only curve drawing are a defect).\n3. src/CfdWorkbench.Desktop/Viewport.cs (how the app draws with DrawingContext, and its Semantics/ViewportSemantic accessible text) and Styles.axaml (theme brushes; use DynamicResource/theme lookups, never hard-coded colours).\n4. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top (~L1-40) for the headless Avalonia setup and how scenarios are selected by args.\n## Contract you build against\nUse the Core records already committed in src/CfdWorkbench.Core/Contracts.cs (namespace CfdWorkbench.Core): `ProfileVertex(Side, Id, X, Y, Fixed)`, `ProfilePoint(X, Y)`, `ProfileView(Name, Identity, Upper, Lower, UpperCurve, LowerCurve, Closure)` with IReadOnlyList members. Do not redeclare or modify them. Build your test ProfileView fixtures by hand in the tests.\n## Build SectionCanvas (an Avalonia Control)\nProperties: `ProfileView? Profile`, `bool Editable`, `(string Side, string Id)? SelectedVertex`.\nEvents: `VertexSelected(string side, string id)`, `VertexMoved(string side, string id, double x, double y)` (normalized chord coordinates).\nRender: fit the chord [0,1] to the width with equal x/y scale and padding; draw UpperCurve/LowerCurve as smooth polylines; draw each side's control polygon dashed; square glyph per vertex, diamond glyph for the first and last vertex of each side; Fixed vertices hollow; the selected vertex filled plus a visible focus ring (≥2 px, theme focus brush). Theme brushes only.\nInput (only when Editable): pointer press within 20 px of a vertex selects it (nearest wins); drag emits VertexMoved continuously; Fixed vertices select but never move. Keyboard: Tab / Shift+Tab cycle editable vertices in order upper LE→TE then lower LE→TE; arrow keys move the selected vertex by 0.001 chord (Shift ×10) and emit VertexMoved; Escape clears selection. Focusable = true.\nThe control holds no model state beyond Profile and SelectedVertex; it never changes Profile itself (the controller feeds back an updated ProfileView).\nAccessibility: expose one accessible text line per vertex (\"upper vertex u3, x 0.412, y 0.061, fixed\") the same way Viewport exposes its semantics.\n## Tests — tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs, invoked from WorkbenchTests.cs when args contain `--section-canvas`, AND once from the default run so tools/run-tests.sh covers it. Write each first and watch it fail.\nHit test: a press 19 px from a vertex selects it; 21 px selects nothing.\nNearest-vertex wins when two are within 20 px.\nArrow moves 0.001 chord, Shift+Arrow 0.01; VertexMoved carries the new coordinates.\nFixed vertex: selectable, arrow keys emit nothing.\nTab order visits every editable vertex exactly once in the specified order.\nEditable = false: no selection or movement events.\nAccessible text lists every vertex with side, id, x, y and fixed state.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s): e.g. `feat: add the section control-frame canvas`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n## Return (final message only)\nCommit SHA(s); files added/changed; SectionCanvas public surface; test output lines; last lines of run-tests.sh and check-docs; anything not done and why.\nTrace\n| clause | trace |\n|---|---|\n| done_when: src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour | phrase: src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour |\n| done_when: tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness | phrase: tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: committed on feature/section-canvas. | phrase: committed on feature/section-canvas. |\n| not_in_scope: WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in) | phrase: WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in) |\n| not_in_scope: anything under src/CfdWorkbench.Core except reading it | phrase: anything under src/CfdWorkbench.Core except reading it |\n| not_in_scope: new NuGet packages | phrase: new NuGet packages |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- ProfileVertex(Side, Id, X, Y, Fixed: unresolved (not found)\n- ProfilePoint(X, Y: unresolved (not found)\n- ProfileView(Name, Identity, Upper, Lower, UpperCurve, LowerCurve, Closure: unresolved (not found)\n- ProfileView? Profile: unresolved (not found)\n- bool Editable: unresolved (not found)\n- string Side, string Id)? SelectedVertex: unresolved (not found)\n- VertexSelected(string side, string id: unresolved (not found)\n- VertexMoved(string side, string id, double x, double y: unresolved (not found)\n- --section-canvas: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: add the section control-frame canvas: unresolved (not found)\n- Co-Authored-By: Gemini 3.8 Flash <noreply@google.com: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58\n- src/CfdWorkbench.Desktop/SectionCanvas.cs: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs: unresolved (not found)\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-canvas: unresolved (not found)\n- src/CfdWorkbench.Core: unresolved (not found)\n- /: unresolved (outside repo)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-canvas: unresolved (outside repo)\n- .agents/rules/agy-surface.md: unresolved (not found; nearest: .agents/rules/agy-surface.md)\n- .agents/skills/<name>/SKILL.md: unresolved (not found)\n- .claude/knowledge/<name>.md: unresolved (not found)\n- .claude/knowledge/csharp-style-guide.md: unresolved (not found; nearest: .claude/knowledge/csharp-style-guide.md)\n- .claude/knowledge/ui-interaction-design.md: unresolved (not found; nearest: .claude/knowledge/ui-interaction-design.md)\n- ProfileView/ProfileVertex: unresolved (not found)\n- docs/specs/cfd-workbench-v1.md: docs/specs/cfd-workbench-v1.md sha256 abb66411cb65a2ceccffc8dd481603aec70b9313e4c68a601ba78b7cf56fbd47\n- src/CfdWorkbench.Desktop/Viewport.cs: src/CfdWorkbench.Desktop/Viewport.cs sha256 cbddbecefc0fb6d952d04313c14e426e11ebe2ebb89a9b29a7518dc8681075cc\n- Semantics/ViewportSemantic: unresolved (not found)\n- DynamicResource/theme: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs: tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs sha256 3a8bd20b62cd3ee8e4da482affcf36798ff25a1b49fbaae79f744361b2eff18c\n- src/CfdWorkbench.Core/Contracts.cs: src/CfdWorkbench.Core/Contracts.cs sha256 c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829\n- x/y: unresolved (not found)\n- UpperCurve/LowerCurve: unresolved (not found)\n- added/changed: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3CMMENFH2DTNBWFD94QGT0E\nraw sha256: b6c3d1d17826eed226bc9260655c9f83d6be0d282c9e8555e72551bf12c622df\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3CMMENFH2DTNBWFD94QGT0E for claude-code v1: 10 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour",
+            "trace": {
+              "kind": "phrase",
+              "ref": "src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "committed on feature/section-canvas.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "committed on feature/section-canvas."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "anything under src/CfdWorkbench.Core except reading it",
+            "trace": {
+              "kind": "phrase",
+              "ref": "anything under src/CfdWorkbench.Core except reading it"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "new NuGet packages",
+            "trace": {
+              "kind": "phrase",
+              "ref": "new NuGet packages"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "src/CfdWorkbench.Desktop/SectionCanvas.cs exists with the §4.2 behaviour",
+            "tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs covers the listed cases and runs from the Desktop test harness",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "committed on feature/section-canvas."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Build the SectionCanvas Avalonia control for CFD-Workbench — an editable 2D profile view drawn as a UI-25 spline control frame — per docs/design/section-editor.md §4.2, with headless tests.",
+          "main_line_budget": "120 tool calls, 60 minutes\n## Harness notes (Antigravity / agy)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-canvas (branch feature/section-canvas). Stay inside it. Do not create worktrees, do not push.\nPath map: .agents/rules/agy-surface.md. Pack skills: .agents/skills/<name>/SKILL.md — follow the `/implement` loop (red → green → refactor), but do NOT spawn subagents and do NOT write rulings, ledgers, proof packets or audit entries. Knowledge docs are at .claude/knowledge/<name>.md (read with view_file when needed); C# style: .claude/knowledge/csharp-style-guide.md; UI standard: .claude/knowledge/ui-interaction-design.md.\nRepair loops are capped at 2 cycles. If the same check fails twice for the same reason, stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md §4.1 (the ProfileView/ProfileVertex records) and §4.2 (SectionCanvas).\n2. docs/specs/cfd-workbench-v1.md — search for \"UI-25\" (control-frame rule: dashed polygon, square vertices, circle levers, diamond ends, 20 px hit circle, focus ring; polylines as the only curve drawing are a defect).\n3. src/CfdWorkbench.Desktop/Viewport.cs (how the app draws with DrawingContext, and its Semantics/ViewportSemantic accessible text) and Styles.axaml (theme brushes; use DynamicResource/theme lookups, never hard-coded colours).\n4. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top (~L1-40) for the headless Avalonia setup and how scenarios are selected by args.\n## Contract you build against\nUse the Core records already committed in src/CfdWorkbench.Core/Contracts.cs (namespace CfdWorkbench.Core): `ProfileVertex(Side, Id, X, Y, Fixed)`, `ProfilePoint(X, Y)`, `ProfileView(Name, Identity, Upper, Lower, UpperCurve, LowerCurve, Closure)` with IReadOnlyList members. Do not redeclare or modify them. Build your test ProfileView fixtures by hand in the tests.\n## Build SectionCanvas (an Avalonia Control)\nProperties: `ProfileView? Profile`, `bool Editable`, `(string Side, string Id)? SelectedVertex`.\nEvents: `VertexSelected(string side, string id)`, `VertexMoved(string side, string id, double x, double y)` (normalized chord coordinates).\nRender: fit the chord [0,1] to the width with equal x/y scale and padding; draw UpperCurve/LowerCurve as smooth polylines; draw each side's control polygon dashed; square glyph per vertex, diamond glyph for the first and last vertex of each side; Fixed vertices hollow; the selected vertex filled plus a visible focus ring (≥2 px, theme focus brush). Theme brushes only.\nInput (only when Editable): pointer press within 20 px of a vertex selects it (nearest wins); drag emits VertexMoved continuously; Fixed vertices select but never move. Keyboard: Tab / Shift+Tab cycle editable vertices in order upper LE→TE then lower LE→TE; arrow keys move the selected vertex by 0.001 chord (Shift ×10) and emit VertexMoved; Escape clears selection. Focusable = true.\nThe control holds no model state beyond Profile and SelectedVertex; it never changes Profile itself (the controller feeds back an updated ProfileView).\nAccessibility: expose one accessible text line per vertex (\"upper vertex u3, x 0.412, y 0.061, fixed\") the same way Viewport exposes its semantics.\n## Tests — tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs, invoked from WorkbenchTests.cs when args contain `--section-canvas`, AND once from the default run so tools/run-tests.sh covers it. Write each first and watch it fail.\nHit test: a press 19 px from a vertex selects it; 21 px selects nothing.\nNearest-vertex wins when two are within 20 px.\nArrow moves 0.001 chord, Shift+Arrow 0.01; VertexMoved carries the new coordinates.\nFixed vertex: selectable, arrow keys emit nothing.\nTab order visits every editable vertex exactly once in the specified order.\nEditable = false: no selection or movement events.\nAccessible text lists every vertex with side, id, x, y and fixed state.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s): e.g. `feat: add the section control-frame canvas`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n## Return (final message only)\nCommit SHA(s); files added/changed; SectionCanvas public surface; test output lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+          "not_in_scope": [
+            "WorkbenchController.cs, MainWindow.axaml(.cs), Viewport.cs, Styles.axaml (a later track wires the canvas in)",
+            "anything under src/CfdWorkbench.Core except reading it",
+            "new NuGet packages",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3CMMENFH2DTNBWFD94QGT0E",
+        "raw_sha256": "b6c3d1d17826eed226bc9260655c9f83d6be0d282c9e8555e72551bf12c622df",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfileVertex(Side, Id, X, Y, Fixed"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfilePoint(X, Y"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfileView(Name, Identity, Upper, Lower, UpperCurve, LowerCurve, Closure"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfileView? Profile"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "bool Editable"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "string Side, string Id)? SelectedVertex"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "VertexSelected(string side, string id"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "VertexMoved(string side, string id, double x, double y"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "--section-canvas"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: add the section control-frame canvas"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Gemini 3.8 Flash <noreply@google.com"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Desktop/SectionCanvas.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests/SectionCanvasTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-canvas"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Core"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-canvas"
+          },
+          {
+            "nearest": ".agents/rules/agy-surface.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".agents/rules/agy-surface.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".agents/skills/<name>/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/<name>.md"
+          },
+          {
+            "nearest": ".claude/knowledge/csharp-style-guide.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/csharp-style-guide.md"
+          },
+          {
+            "nearest": ".claude/knowledge/ui-interaction-design.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/ui-interaction-design.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfileView/ProfileVertex"
+          },
+          {
+            "nearest": null,
+            "path": "docs/specs/cfd-workbench-v1.md",
+            "reason": null,
+            "sha256": "abb66411cb65a2ceccffc8dd481603aec70b9313e4c68a601ba78b7cf56fbd47",
+            "status": "resolved",
+            "token": "docs/specs/cfd-workbench-v1.md"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Desktop/Viewport.cs",
+            "reason": null,
+            "sha256": "cbddbecefc0fb6d952d04313c14e426e11ebe2ebb89a9b29a7518dc8681075cc",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Desktop/Viewport.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Semantics/ViewportSemantic"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "DynamicResource/theme"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+            "reason": null,
+            "sha256": "3a8bd20b62cd3ee8e4da482affcf36798ff25a1b49fbaae79f744361b2eff18c",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/Contracts.cs",
+            "reason": null,
+            "sha256": "c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/Contracts.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "x/y"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "UpperCurve/LowerCurve"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "added/changed"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3DEHBN8MJD7TF01PTKH2M64",
+      "shortname": "Goal: Wire the section editor into the CFD-Workbench desktop app — stati…",
+      "datetime": "2026-09-25T23:31:17Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Wire the section editor into the CFD-Workbench desktop app — station card, Section tab, scope chooser and the editable SectionCanvas — driving the core profile-edit API, per docs/design/section-editor.md §4.2.\nDone when: from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController; the headless controller tests listed below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-wiring.\nNot in scope: src/CfdWorkbench.Core (use its public API only; if something is missing, stop and report the exact member you need); SectionCanvas.cs internals (use its public surface; report defects instead of editing it); Use source thickness beyond a disabled radio labelled \"M1.1b\"; Insert/Delete CV, Fair/Rebuild; new NuGet packages; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 150 tool calls, 75 minutes\n\n## Harness notes (Antigravity / agy)\n- Working directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-wiring (branch feature/section-wiring). Stay inside it. No worktrees, no push.\n- Path map: .agents/rules/agy-surface.md. Follow the `/implement` loop from .agents/skills/implement/SKILL.md (red → green → refactor); do NOT spawn subagents; do NOT write rulings, ledgers, proof packets or audit entries. Knowledge: .claude/knowledge/<name>.md (C# style: csharp-style-guide.md; UI: ui-interaction-design.md).\n- Repair loops are capped at 2 cycles. Same failure twice → stop and report.\n\n## Read first (only these)\n1. docs/design/section-editor.md §4 (contracts) and §7 Desktop tests.\n2. src/CfdWorkbench.Core/Contracts.cs (tail: section records) and the public section members of src/CfdWorkbench.Core/AuthoringSession.cs: ProfileAt, DescribeScope, BeginProfileEdit, UpdateProfileDraft (and the existing Validate/Preview/Apply/Cancel/Undo/Redo).\n3. src/CfdWorkbench.Desktop/SectionCanvas.cs public surface (Profile, Editable, SelectedVertex, VertexSelected, VertexMoved).\n4. src/CfdWorkbench.Desktop/WorkbenchController.cs (the rail-edit flow BeginEdit → UpdateDraft → PreviewAsync → Apply/Cancel, and the Changed event) and MainWindow.axaml(.cs) (Navigator StationList, DocumentTabs, Properties panel, how OnControlSelection/OnNumericChanged call the controller).\n5. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top ~40 lines (headless setup, args scenarios).\n\n## Build\n1. WorkbenchController: `ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope)`, `ProfileView SectionView(int assignmentIndex)`, `void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId)`, `void UpdateSectionDraft(double x, double y)`; reuse PreviewAsync/Apply/Cancel/Undo/Redo; after each call refresh the section view and raise Changed. Follow the existing operationId/generation handling exactly as the rail edit does.\n2. MainWindow.axaml: in the Navigator, a station card for the selected station — read-only SectionCanvas thumbnail (Editable=false, ~200×80), profile name, station η and physical distance, effective t/c, and an **Edit section** button. Add a **Section** tab to DocumentTabs containing: scope radios (Edit shared profile / Make independent at this station) with a text list of affected assignments and blend intervals (η and metres) from DescribeScope; thickness intent radios (Keep current thickness — checked; Use source thickness — disabled, tooltip \"M1.1b\"); the editable SectionCanvas (fills the tab); a vertex ListBox (accessible alternative: side, id, x, y, fixed); numeric X and Y fields for the selected vertex; Preview / Apply / Cancel buttons (reuse the existing ones' enable rules or mirror them).\n3. Flow: Edit section selects the Section tab. Selecting a vertex (canvas or list) calls BeginSectionEdit the first time (scope from the radios; scope radios lock once a draft exists), then VertexMoved / numeric entry call UpdateSectionDraft. The draft banner (StateBanner) names the draft's station while the user inspects other stations (DSL-16). Fixed vertices show but cannot be edited. Theme brushes only (Styles.axaml).\n4. Keep MainWindow.axaml.cs thin: handlers call the controller; no model state in the window.\n\n## Tests (headless, in tests/CfdWorkbench.Desktop.Tests; add a `--section-flow` scenario AND run it from the default path). Write each first and watch it fail.\n- Shared flow on the Example: DescribeScope(Shared) lists both assignments; BeginSectionEdit → UpdateSectionDraft → PreviewAsync → Apply yields a new accepted revision; Undo restores the original SectionView vertices exactly; Redo re-applies.\n- Cancel before Apply restores the exact prior SectionView.\n- A Fixed vertex cannot start an edit (the controller surfaces DSL-LOCK and the window shows it in the status banner).\n- Scope radios are disabled while a draft is open; the draft banner still names the original station after selecting another station.\n- Window-level: pressing Edit section switches DocumentTabs to the Section tab and the canvas Profile is non-null.\n\n## Verify, then commit\n- `tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\n- Commit(s), e.g. `feat: wire the section editor into the desktop app`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n\n## Return (final message only)\nCommit SHA(s); files changed; new controller members; test output lines; last lines of run-tests.sh and check-docs; any Core or SectionCanvas member you needed but did not have.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3DEHC1KAWDA5YX64QJWA44G",
+      "shortname": "compile-Goal: Wire the section editor into the CFD-Workbench desktop app — stati…",
+      "datetime": "2026-09-25T23:31:17Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Wire the section editor into the CFD-Workbench desktop app — station card, Section tab, scope chooser and the editable SectionCanvas — driving the core profile-edit API, per docs/design/section-editor.md §4.2.\nDone when: from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController; the headless controller tests listed below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-wiring.\nNot in scope: src/CfdWorkbench.Core (use its public API only; if something is missing, stop and report the exact member you need); SectionCanvas.cs internals (use its public surface; report defects instead of editing it); Use source thickness beyond a disabled radio labelled \"M1.1b\"; Insert/Delete CV, Fair/Rebuild; new NuGet packages; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 150 tool calls, 75 minutes\n## Harness notes (Antigravity / agy)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-wiring (branch feature/section-wiring). Stay inside it. No worktrees, no push.\nPath map: .agents/rules/agy-surface.md. Follow the `/implement` loop from .agents/skills/implement/SKILL.md (red → green → refactor); do NOT spawn subagents; do NOT write rulings, ledgers, proof packets or audit entries. Knowledge: .claude/knowledge/<name>.md (C# style: csharp-style-guide.md; UI: ui-interaction-design.md).\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md §4 (contracts) and §7 Desktop tests.\n2. src/CfdWorkbench.Core/Contracts.cs (tail: section records) and the public section members of src/CfdWorkbench.Core/AuthoringSession.cs: ProfileAt, DescribeScope, BeginProfileEdit, UpdateProfileDraft (and the existing Validate/Preview/Apply/Cancel/Undo/Redo).\n3. src/CfdWorkbench.Desktop/SectionCanvas.cs public surface (Profile, Editable, SelectedVertex, VertexSelected, VertexMoved).\n4. src/CfdWorkbench.Desktop/WorkbenchController.cs (the rail-edit flow BeginEdit → UpdateDraft → PreviewAsync → Apply/Cancel, and the Changed event) and MainWindow.axaml(.cs) (Navigator StationList, DocumentTabs, Properties panel, how OnControlSelection/OnNumericChanged call the controller).\n5. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top ~40 lines (headless setup, args scenarios).\n## Build\n1. WorkbenchController: `ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope)`, `ProfileView SectionView(int assignmentIndex)`, `void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId)`, `void UpdateSectionDraft(double x, double y)`; reuse PreviewAsync/Apply/Cancel/Undo/Redo; after each call refresh the section view and raise Changed. Follow the existing operationId/generation handling exactly as the rail edit does.\n2. MainWindow.axaml: in the Navigator, a station card for the selected station — read-only SectionCanvas thumbnail (Editable=false, ~200×80), profile name, station η and physical distance, effective t/c, and an **Edit section** button. Add a **Section** tab to DocumentTabs containing: scope radios (Edit shared profile / Make independent at this station) with a text list of affected assignments and blend intervals (η and metres) from DescribeScope; thickness intent radios (Keep current thickness — checked; Use source thickness — disabled, tooltip \"M1.1b\"); the editable SectionCanvas (fills the tab); a vertex ListBox (accessible alternative: side, id, x, y, fixed); numeric X and Y fields for the selected vertex; Preview / Apply / Cancel buttons (reuse the existing ones' enable rules or mirror them).\n3. Flow: Edit section selects the Section tab. Selecting a vertex (canvas or list) calls BeginSectionEdit the first time (scope from the radios; scope radios lock once a draft exists), then VertexMoved / numeric entry call UpdateSectionDraft. The draft banner (StateBanner) names the draft's station while the user inspects other stations (DSL-16). Fixed vertices show but cannot be edited. Theme brushes only (Styles.axaml).\n4. Keep MainWindow.axaml.cs thin: handlers call the controller; no model state in the window.\n## Tests (headless, in tests/CfdWorkbench.Desktop.Tests; add a `--section-flow` scenario AND run it from the default path). Write each first and watch it fail.\nShared flow on the Example: DescribeScope(Shared) lists both assignments; BeginSectionEdit → UpdateSectionDraft → PreviewAsync → Apply yields a new accepted revision; Undo restores the original SectionView vertices exactly; Redo re-applies.\nCancel before Apply restores the exact prior SectionView.\nA Fixed vertex cannot start an edit (the controller surfaces DSL-LOCK and the window shows it in the status banner).\nScope radios are disabled while a draft is open; the draft banner still names the original station after selecting another station.\nWindow-level: pressing Edit section switches DocumentTabs to the Section tab and the canvas Profile is non-null.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s), e.g. `feat: wire the section editor into the desktop app`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n## Return (final message only)\nCommit SHA(s); files changed; new controller members; test output lines; last lines of run-tests.sh and check-docs; any Core or SectionCanvas member you needed but did not have.\nTrace\n| clause | trace |\n|---|---|\n| done_when: from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController | phrase: from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController |\n| done_when: the headless controller tests listed below pass | phrase: the headless controller tests listed below pass |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: committed on feature/section-wiring. | phrase: committed on feature/section-wiring. |\n| not_in_scope: src/CfdWorkbench.Core (use its public API only | phrase: src/CfdWorkbench.Core (use its public API only |\n| not_in_scope: if something is missing, stop and report the exact member you need) | phrase: if something is missing, stop and report the exact member you need) |\n| not_in_scope: SectionCanvas.cs internals (use its public surface | phrase: SectionCanvas.cs internals (use its public surface |\n| not_in_scope: report defects instead of editing it) | phrase: report defects instead of editing it) |\n| not_in_scope: Use source thickness beyond a disabled radio labelled \"M1.1b\" | phrase: Use source thickness beyond a disabled radio labelled \"M1.1b\" |\n| not_in_scope: Insert/Delete CV, Fair/Rebuild | phrase: Insert/Delete CV, Fair/Rebuild |\n| not_in_scope: new NuGet packages | phrase: new NuGet packages |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope: unresolved (not found)\n- ProfileView SectionView(int assignmentIndex: unresolved (not found)\n- void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId: unresolved (not found)\n- void UpdateSectionDraft(double x, double y: unresolved (not found)\n- --section-flow: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: wire the section editor into the desktop app: unresolved (not found)\n- Co-Authored-By: Gemini 3.8 Flash <noreply@google.com: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58\n- upper/lower: unresolved (not found)\n- X/Y: unresolved (not found)\n- Undo/Redo: unresolved (not found)\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-wiring: unresolved (not found)\n- src/CfdWorkbench.Core: unresolved (not found)\n- Insert/Delete: unresolved (not found)\n- Fair/Rebuild: unresolved (not found)\n- /: unresolved (outside repo)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-wiring: unresolved (outside repo)\n- .agents/rules/agy-surface.md: unresolved (not found; nearest: .agents/rules/agy-surface.md)\n- .agents/skills/implement/SKILL.md: unresolved (not found)\n- .claude/knowledge/<name>.md: unresolved (not found)\n- csharp-style-guide.md: .claude/knowledge/csharp-style-guide.md sha256 c08b9cdf29db065a447609c3419b865630bbc593114ce6903e09ca74e990929b\n- ui-interaction-design.md: .claude/knowledge/ui-interaction-design.md sha256 93963afe3934bbf8eae945343ac38a1a8479aaf24174a43d5f4cc5058d363351\n- src/CfdWorkbench.Core/Contracts.cs: src/CfdWorkbench.Core/Contracts.cs sha256 c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829\n- src/CfdWorkbench.Core/AuthoringSession.cs: src/CfdWorkbench.Core/AuthoringSession.cs sha256 6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e\n- Validate/Preview/Apply/Cancel/Undo/Redo: unresolved (not found)\n- src/CfdWorkbench.Desktop/SectionCanvas.cs: src/CfdWorkbench.Desktop/SectionCanvas.cs sha256 958389ba7015cb4b1358aecf8f0188ce231e44bad33a379ad39e2a0a2ba4e079\n- src/CfdWorkbench.Desktop/WorkbenchController.cs: src/CfdWorkbench.Desktop/WorkbenchController.cs sha256 4dc8d5474f17c5b4bcd68d018a3e26195427267e02b906f54da310ae796b4360\n- Apply/Cancel: unresolved (not found)\n- OnControlSelection/OnNumericChanged: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs: tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs sha256 45b62ea015c372760bd37f4185f4d1897ae03b5e963ebca0d1aa1e7e52e2d29b\n- PreviewAsync/Apply/Cancel/Undo/Redo: unresolved (not found)\n- operationId/generation: unresolved (not found)\n- t/c: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests: unresolved (not found; nearest: tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3DEHBN8MJD7TF01PTKH2M64\nraw sha256: b83b4b40bd36f8cc99d55a680690bc2d627ecea3c071596251812247f6be243a\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3DEHBN8MJD7TF01PTKH2M64 for claude-code v1: 14 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController",
+            "trace": {
+              "kind": "phrase",
+              "ref": "from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the headless controller tests listed below pass",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the headless controller tests listed below pass"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "committed on feature/section-wiring.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "committed on feature/section-wiring."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "src/CfdWorkbench.Core (use its public API only",
+            "trace": {
+              "kind": "phrase",
+              "ref": "src/CfdWorkbench.Core (use its public API only"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "if something is missing, stop and report the exact member you need)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "if something is missing, stop and report the exact member you need)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "SectionCanvas.cs internals (use its public surface",
+            "trace": {
+              "kind": "phrase",
+              "ref": "SectionCanvas.cs internals (use its public surface"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "report defects instead of editing it)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "report defects instead of editing it)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Use source thickness beyond a disabled radio labelled \"M1.1b\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Use source thickness beyond a disabled radio labelled \"M1.1b\""
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Insert/Delete CV, Fair/Rebuild",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Insert/Delete CV, Fair/Rebuild"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "new NuGet packages",
+            "trace": {
+              "kind": "phrase",
+              "ref": "new NuGet packages"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "from the running app a user can select a station, press Edit section, choose Edit shared or Make independent (seeing affected assignments and blend intervals), move upper/lower control vertices by drag, arrow keys or numeric X/Y entry, Preview, Apply or Cancel, and Undo/Redo — all through WorkbenchController",
+            "the headless controller tests listed below pass",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "committed on feature/section-wiring."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Wire the section editor into the CFD-Workbench desktop app — station card, Section tab, scope chooser and the editable SectionCanvas — driving the core profile-edit API, per docs/design/section-editor.md §4.2.",
+          "main_line_budget": "150 tool calls, 75 minutes\n## Harness notes (Antigravity / agy)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-wiring (branch feature/section-wiring). Stay inside it. No worktrees, no push.\nPath map: .agents/rules/agy-surface.md. Follow the `/implement` loop from .agents/skills/implement/SKILL.md (red → green → refactor); do NOT spawn subagents; do NOT write rulings, ledgers, proof packets or audit entries. Knowledge: .claude/knowledge/<name>.md (C# style: csharp-style-guide.md; UI: ui-interaction-design.md).\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Read first (only these)\n1. docs/design/section-editor.md §4 (contracts) and §7 Desktop tests.\n2. src/CfdWorkbench.Core/Contracts.cs (tail: section records) and the public section members of src/CfdWorkbench.Core/AuthoringSession.cs: ProfileAt, DescribeScope, BeginProfileEdit, UpdateProfileDraft (and the existing Validate/Preview/Apply/Cancel/Undo/Redo).\n3. src/CfdWorkbench.Desktop/SectionCanvas.cs public surface (Profile, Editable, SelectedVertex, VertexSelected, VertexMoved).\n4. src/CfdWorkbench.Desktop/WorkbenchController.cs (the rail-edit flow BeginEdit → UpdateDraft → PreviewAsync → Apply/Cancel, and the Changed event) and MainWindow.axaml(.cs) (Navigator StationList, DocumentTabs, Properties panel, how OnControlSelection/OnNumericChanged call the controller).\n5. tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs top ~40 lines (headless setup, args scenarios).\n## Build\n1. WorkbenchController: `ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope)`, `ProfileView SectionView(int assignmentIndex)`, `void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId)`, `void UpdateSectionDraft(double x, double y)`; reuse PreviewAsync/Apply/Cancel/Undo/Redo; after each call refresh the section view and raise Changed. Follow the existing operationId/generation handling exactly as the rail edit does.\n2. MainWindow.axaml: in the Navigator, a station card for the selected station — read-only SectionCanvas thumbnail (Editable=false, ~200×80), profile name, station η and physical distance, effective t/c, and an **Edit section** button. Add a **Section** tab to DocumentTabs containing: scope radios (Edit shared profile / Make independent at this station) with a text list of affected assignments and blend intervals (η and metres) from DescribeScope; thickness intent radios (Keep current thickness — checked; Use source thickness — disabled, tooltip \"M1.1b\"); the editable SectionCanvas (fills the tab); a vertex ListBox (accessible alternative: side, id, x, y, fixed); numeric X and Y fields for the selected vertex; Preview / Apply / Cancel buttons (reuse the existing ones' enable rules or mirror them).\n3. Flow: Edit section selects the Section tab. Selecting a vertex (canvas or list) calls BeginSectionEdit the first time (scope from the radios; scope radios lock once a draft exists), then VertexMoved / numeric entry call UpdateSectionDraft. The draft banner (StateBanner) names the draft's station while the user inspects other stations (DSL-16). Fixed vertices show but cannot be edited. Theme brushes only (Styles.axaml).\n4. Keep MainWindow.axaml.cs thin: handlers call the controller; no model state in the window.\n## Tests (headless, in tests/CfdWorkbench.Desktop.Tests; add a `--section-flow` scenario AND run it from the default path). Write each first and watch it fail.\nShared flow on the Example: DescribeScope(Shared) lists both assignments; BeginSectionEdit → UpdateSectionDraft → PreviewAsync → Apply yields a new accepted revision; Undo restores the original SectionView vertices exactly; Redo re-applies.\nCancel before Apply restores the exact prior SectionView.\nA Fixed vertex cannot start an edit (the controller surfaces DSL-LOCK and the window shows it in the status banner).\nScope radios are disabled while a draft is open; the draft banner still names the original station after selecting another station.\nWindow-level: pressing Edit section switches DocumentTabs to the Section tab and the canvas Profile is non-null.\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line, not piped).\nCommit(s), e.g. `feat: wire the section editor into the desktop app`, trailer `Co-Authored-By: Gemini 3.8 Flash <noreply@google.com>`.\n## Return (final message only)\nCommit SHA(s); files changed; new controller members; test output lines; last lines of run-tests.sh and check-docs; any Core or SectionCanvas member you needed but did not have.",
+          "not_in_scope": [
+            "src/CfdWorkbench.Core (use its public API only",
+            "if something is missing, stop and report the exact member you need)",
+            "SectionCanvas.cs internals (use its public surface",
+            "report defects instead of editing it)",
+            "Use source thickness beyond a disabled radio labelled \"M1.1b\"",
+            "Insert/Delete CV, Fair/Rebuild",
+            "new NuGet packages",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3DEHBN8MJD7TF01PTKH2M64",
+        "raw_sha256": "b83b4b40bd36f8cc99d55a680690bc2d627ecea3c071596251812247f6be243a",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ProfileView SectionView(int assignmentIndex"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "void UpdateSectionDraft(double x, double y"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "--section-flow"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: wire the section editor into the desktop app"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Gemini 3.8 Flash <noreply@google.com"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "e01bd92b66e50766f7a993b31ff1d21c2673b6a2717539494c4f1eed63ecda58",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper/lower"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "X/Y"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Undo/Redo"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-wiring"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Core"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Insert/Delete"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Fair/Rebuild"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-wiring"
+          },
+          {
+            "nearest": ".agents/rules/agy-surface.md",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".agents/rules/agy-surface.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".agents/skills/implement/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".claude/knowledge/<name>.md"
+          },
+          {
+            "nearest": null,
+            "path": ".claude/knowledge/csharp-style-guide.md",
+            "reason": null,
+            "sha256": "c08b9cdf29db065a447609c3419b865630bbc593114ce6903e09ca74e990929b",
+            "status": "resolved",
+            "token": "csharp-style-guide.md"
+          },
+          {
+            "nearest": null,
+            "path": ".claude/knowledge/ui-interaction-design.md",
+            "reason": null,
+            "sha256": "93963afe3934bbf8eae945343ac38a1a8479aaf24174a43d5f4cc5058d363351",
+            "status": "resolved",
+            "token": "ui-interaction-design.md"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/Contracts.cs",
+            "reason": null,
+            "sha256": "c7e89dbcd687310cd7421facdd057b27cd43cc4747ebef71bf349dc02bea9829",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/Contracts.cs"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/AuthoringSession.cs",
+            "reason": null,
+            "sha256": "6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Validate/Preview/Apply/Cancel/Undo/Redo"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Desktop/SectionCanvas.cs",
+            "reason": null,
+            "sha256": "958389ba7015cb4b1358aecf8f0188ce231e44bad33a379ad39e2a0a2ba4e079",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Desktop/SectionCanvas.cs"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Desktop/WorkbenchController.cs",
+            "reason": null,
+            "sha256": "4dc8d5474f17c5b4bcd68d018a3e26195427267e02b906f54da310ae796b4360",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Desktop/WorkbenchController.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Apply/Cancel"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "OnControlSelection/OnNumericChanged"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+            "reason": null,
+            "sha256": "45b62ea015c372760bd37f4185f4d1897ae03b5e963ebca0d1aa1e7e52e2d29b",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "PreviewAsync/Apply/Cancel/Undo/Redo"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "operationId/generation"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "t/c"
+          },
+          {
+            "nearest": "tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3DEJGWM82B3XC091J7JRXXG",
+      "shortname": "Goal: Make recovery of an in-progress profile (section) draft keep its t…",
+      "datetime": "2026-09-25T23:31:55Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Make recovery of an in-progress profile (section) draft keep its target, so Resume continues the same profile edit (FoilDSL DSL-10).\nDone when: RecoveryRow carries the profile target as optional fields; CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume; envelopes written before this change (no such fields) still load and resume rail drafts; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; one commit on feature/section-recovery.\nNot in scope: Geometry.cs; anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; changing the envelope Format string or any existing field; refactoring the rail draft path; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 60 tool calls\n\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery (branch feature/section-recovery). Absolute paths. No worktrees, no push.\n\n## Facts (verified — do not re-investigate)\n- `RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks)` at src/CfdWorkbench.Core/AuthoringSession.cs:15; part of `Envelope` (L16), which the project store persists.\n- `SessionDraft` already has optional `string? Profile = null` and `int Assignment = -1` (added by the profile-edit track). CaptureRecoveryCore (~L435-442) copies Rail and VertexId but not Profile/Assignment; ResumeRecoveryCore (~L444) rebuilds the draft without them, so UpdateProfileDraft then refuses with DSL-PROFILE-TARGET.\n- The profile side of a profile draft is held in the draft's Rail field (\"upper\"/\"lower\") — confirm by reading BeginProfileEditCore before relying on it.\n\n## Build (red first)\n1. Add optional trailing parameters to RecoveryRow: `string? Profile = null, int Assignment = -1` (expand-only; defaults keep old envelopes valid).\n2. CaptureRecoveryCore stores draft.Profile and draft.Assignment; ResumeRecoveryCore restores them. CopyRecovery keeps them.\n3. Find where the envelope is serialized/validated (grep `Envelope`, `Recovery` under src/CfdWorkbench.Core and src/CfdWorkbench.Persistence, e.g. NativeProject.Check). Make serialization write the two fields only when Profile is non-null, read them when present, and validate that a present Profile names a profile in the recovered draft source and Assignment is in range; a rail recovery keeps today's validation exactly.\n4. Tests in tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()` (add checks; keep the existing ones): (a) begin a shared profile edit on the Example, UpdateProfileDraft once, CaptureRecovery, create a fresh session from the saved envelope (follow how existing recovery tests reopen — grep `ResumeRecovery` in tests), ResumeRecovery, UpdateProfileDraft again → succeeds and Validate is Certified; (b) an envelope JSON without the new fields (take one produced before your change, or strip them) still loads and resumes a rail draft; (c) a recovery naming a missing profile is refused at load with the store's existing validation code.\n\n## Verify, then commit\n- `/Users/mallalieut/projects/CFD-Workbench-feature-section-recovery/tools/run-tests.sh` → `all test harnesses passed`.\n- `cd /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery && python3 tools/check-docs.py` → exit 0 (own line).\n- Commit: `fix: keep the profile target when recovering a section draft`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n\n## Return (final message only)\nCommit SHA; files changed; where the envelope is validated; new PASS lines; last lines of run-tests.sh and check-docs. If a step fails twice, stop and report.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3DEJH93SGDJ59PMC0DHD7P8",
+      "shortname": "compile-Goal: Make recovery of an in-progress profile (section) draft keep its t…",
+      "datetime": "2026-09-25T23:31:55Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Make recovery of an in-progress profile (section) draft keep its target, so Resume continues the same profile edit (FoilDSL DSL-10).\nDone when: RecoveryRow carries the profile target as optional fields; CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume; envelopes written before this change (no such fields) still load and resume rail drafts; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; one commit on feature/section-recovery.\nNot in scope: Geometry.cs; anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; changing the envelope Format string or any existing field; refactoring the rail draft path; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 60 tool calls\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery (branch feature/section-recovery). Absolute paths. No worktrees, no push.\n## Facts (verified — do not re-investigate)\n`RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks)` at src/CfdWorkbench.Core/AuthoringSession.cs:15; part of `Envelope` (L16), which the project store persists.\n`SessionDraft` already has optional `string? Profile = null` and `int Assignment = -1` (added by the profile-edit track). CaptureRecoveryCore (~L435-442) copies Rail and VertexId but not Profile/Assignment; ResumeRecoveryCore (~L444) rebuilds the draft without them, so UpdateProfileDraft then refuses with DSL-PROFILE-TARGET.\nThe profile side of a profile draft is held in the draft's Rail field (\"upper\"/\"lower\") — confirm by reading BeginProfileEditCore before relying on it.\n## Build (red first)\n1. Add optional trailing parameters to RecoveryRow: `string? Profile = null, int Assignment = -1` (expand-only; defaults keep old envelopes valid).\n2. CaptureRecoveryCore stores draft.Profile and draft.Assignment; ResumeRecoveryCore restores them. CopyRecovery keeps them.\n3. Find where the envelope is serialized/validated (grep `Envelope`, `Recovery` under src/CfdWorkbench.Core and src/CfdWorkbench.Persistence, e.g. NativeProject.Check). Make serialization write the two fields only when Profile is non-null, read them when present, and validate that a present Profile names a profile in the recovered draft source and Assignment is in range; a rail recovery keeps today's validation exactly.\n4. Tests in tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()` (add checks; keep the existing ones): (a) begin a shared profile edit on the Example, UpdateProfileDraft once, CaptureRecovery, create a fresh session from the saved envelope (follow how existing recovery tests reopen — grep `ResumeRecovery` in tests), ResumeRecovery, UpdateProfileDraft again → succeeds and Validate is Certified; (b) an envelope JSON without the new fields (take one produced before your change, or strip them) still loads and resumes a rail draft; (c) a recovery naming a missing profile is refused at load with the store's existing validation code.\n## Verify, then commit\n`/Users/mallalieut/projects/CFD-Workbench-feature-section-recovery/tools/run-tests.sh` → `all test harnesses passed`.\n`cd /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery && python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `fix: keep the profile target when recovering a section draft`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n## Return (final message only)\nCommit SHA; files changed; where the envelope is validated; new PASS lines; last lines of run-tests.sh and check-docs. If a step fails twice, stop and report.\nTrace\n| clause | trace |\n|---|---|\n| done_when: RecoveryRow carries the profile target as optional fields | phrase: RecoveryRow carries the profile target as optional fields |\n| done_when: CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume | phrase: CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume |\n| done_when: envelopes written before this change (no such fields) still load and resume rail drafts | phrase: envelopes written before this change (no such fields) still load and resume rail drafts |\n| done_when: the tests below pass | phrase: the tests below pass |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: one commit on feature/section-recovery. | phrase: one commit on feature/section-recovery. |\n| not_in_scope: Geometry.cs | phrase: Geometry.cs |\n| not_in_scope: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests | phrase: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests |\n| not_in_scope: changing the envelope Format string or any existing field | phrase: changing the envelope Format string or any existing field |\n| not_in_scope: refactoring the rail draft path | phrase: refactoring the rail draft path |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks: unresolved (not found)\n- Envelope: unresolved (not found)\n- SessionDraft: unresolved (not found)\n- string? Profile = null: unresolved (not found)\n- int Assignment = -1: unresolved (not found)\n- string? Profile = null, int Assignment = -1: unresolved (not found)\n- Recovery: unresolved (not found)\n- Run: unresolved (not found)\n- ResumeRecovery: unresolved (not found)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery/tools/run-tests.sh: unresolved (outside repo)\n- all test harnesses passed: unresolved (not found)\n- cd /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery && python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- fix: keep the profile target when recovering a section draft: unresolved (not found)\n- Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com: unresolved (not found)\n- CaptureRecovery/ResumeRecovery: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-recovery: unresolved (not found)\n- src/CfdWorkbench.Desktop: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests: unresolved (not found; nearest: tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery: unresolved (outside repo)\n- src/CfdWorkbench.Core/AuthoringSession.cs:15: unresolved (not found)\n- Profile/Assignment: unresolved (not found)\n- upper\"/\"lower: unresolved (not found)\n- serialized/validated: unresolved (not found)\n- src/CfdWorkbench.Core: unresolved (not found)\n- src/CfdWorkbench.Persistence: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/SectionEditTests.cs: tests/CfdWorkbench.Core.Tests/SectionEditTests.cs sha256 29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3DEJGWM82B3XC091J7JRXXG\nraw sha256: 40e749a79e3c418acefa014d5976ae4359d3553bd36081f03d9caf50f944e82d\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3DEJGWM82B3XC091J7JRXXG for claude-code v1: 13 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "RecoveryRow carries the profile target as optional fields",
+            "trace": {
+              "kind": "phrase",
+              "ref": "RecoveryRow carries the profile target as optional fields"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume",
+            "trace": {
+              "kind": "phrase",
+              "ref": "CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "envelopes written before this change (no such fields) still load and resume rail drafts",
+            "trace": {
+              "kind": "phrase",
+              "ref": "envelopes written before this change (no such fields) still load and resume rail drafts"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the tests below pass",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the tests below pass"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "one commit on feature/section-recovery.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "one commit on feature/section-recovery."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Geometry.cs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Geometry.cs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "trace": {
+              "kind": "phrase",
+              "ref": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "changing the envelope Format string or any existing field",
+            "trace": {
+              "kind": "phrase",
+              "ref": "changing the envelope Format string or any existing field"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "refactoring the rail draft path",
+            "trace": {
+              "kind": "phrase",
+              "ref": "refactoring the rail draft path"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "RecoveryRow carries the profile target as optional fields",
+            "CaptureRecovery/ResumeRecovery round-trip a profile draft so UpdateProfileDraft works after resume",
+            "envelopes written before this change (no such fields) still load and resume rail drafts",
+            "the tests below pass",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "one commit on feature/section-recovery."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Make recovery of an in-progress profile (section) draft keep its target, so Resume continues the same profile edit (FoilDSL DSL-10).",
+          "main_line_budget": "60 tool calls\n## Where to work\nOnly in /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery (branch feature/section-recovery). Absolute paths. No worktrees, no push.\n## Facts (verified — do not re-investigate)\n`RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks)` at src/CfdWorkbench.Core/AuthoringSession.cs:15; part of `Envelope` (L16), which the project store persists.\n`SessionDraft` already has optional `string? Profile = null` and `int Assignment = -1` (added by the profile-edit track). CaptureRecoveryCore (~L435-442) copies Rail and VertexId but not Profile/Assignment; ResumeRecoveryCore (~L444) rebuilds the draft without them, so UpdateProfileDraft then refuses with DSL-PROFILE-TARGET.\nThe profile side of a profile draft is held in the draft's Rail field (\"upper\"/\"lower\") — confirm by reading BeginProfileEditCore before relying on it.\n## Build (red first)\n1. Add optional trailing parameters to RecoveryRow: `string? Profile = null, int Assignment = -1` (expand-only; defaults keep old envelopes valid).\n2. CaptureRecoveryCore stores draft.Profile and draft.Assignment; ResumeRecoveryCore restores them. CopyRecovery keeps them.\n3. Find where the envelope is serialized/validated (grep `Envelope`, `Recovery` under src/CfdWorkbench.Core and src/CfdWorkbench.Persistence, e.g. NativeProject.Check). Make serialization write the two fields only when Profile is non-null, read them when present, and validate that a present Profile names a profile in the recovered draft source and Assignment is in range; a rail recovery keeps today's validation exactly.\n4. Tests in tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()` (add checks; keep the existing ones): (a) begin a shared profile edit on the Example, UpdateProfileDraft once, CaptureRecovery, create a fresh session from the saved envelope (follow how existing recovery tests reopen — grep `ResumeRecovery` in tests), ResumeRecovery, UpdateProfileDraft again → succeeds and Validate is Certified; (b) an envelope JSON without the new fields (take one produced before your change, or strip them) still loads and resumes a rail draft; (c) a recovery naming a missing profile is refused at load with the store's existing validation code.\n## Verify, then commit\n`/Users/mallalieut/projects/CFD-Workbench-feature-section-recovery/tools/run-tests.sh` → `all test harnesses passed`.\n`cd /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery && python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `fix: keep the profile target when recovering a section draft`, trailer `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`.\n## Return (final message only)\nCommit SHA; files changed; where the envelope is validated; new PASS lines; last lines of run-tests.sh and check-docs. If a step fails twice, stop and report.",
+          "not_in_scope": [
+            "Geometry.cs",
+            "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "changing the envelope Format string or any existing field",
+            "refactoring the rail draft path",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3DEJGWM82B3XC091J7JRXXG",
+        "raw_sha256": "40e749a79e3c418acefa014d5976ae4359d3553bd36081f03d9caf50f944e82d",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Envelope"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "SessionDraft"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "string? Profile = null"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "int Assignment = -1"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "string? Profile = null, int Assignment = -1"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Recovery"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Run"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "ResumeRecovery"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-recovery/tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "cd /Users/mallalieut/projects/CFD-Workbench-feature-section-recovery && python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "fix: keep the profile target when recovering a section draft"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "CaptureRecovery/ResumeRecovery"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-recovery"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Desktop"
+          },
+          {
+            "nearest": "tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-recovery"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs:15"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Profile/Assignment"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper\"/\"lower"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "serialized/validated"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Core"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Persistence"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs",
+            "reason": null,
+            "sha256": "29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M3DEWYWX2BAWNJGY635REVBN",
+      "shortname": "Goal: Make profile x-edits certifiable by moving the paired vertex on th…",
+      "datetime": "2026-09-25T23:37:37Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".\nDone when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft; a y-only update changes only its own side; a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY; an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-paired-x.\nNot in scope: certifying independent abscissae; the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now; do not edit those members); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 80 tool calls, 40 minutes\n\n## Harness notes (Grok Build)\n- Working directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\n- AGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\n- Repair loops are capped at 2 cycles. Same failure twice → stop and report.\n\n## Facts (verified — do not re-investigate)\n- Geometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\n- UpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n\n## Verify, then commit\n- `tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\n- Commit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3DEWZ7TQEVAPHEKVS7N1SA9",
+      "shortname": "compile-Goal: Make profile x-edits certifiable by moving the paired vertex on th…",
+      "datetime": "2026-09-25T23:37:37Z",
+      "session": "fbfa35dc",
+      "prompt": "python3 docs/ai-forward-pack/scripts/audit-log.py start --session fbfa35dc --skill <skill>\nGoal state\nGoal: Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".\nDone when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft; a y-only update changes only its own side; a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY; an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile; the tests below pass; tools/run-tests.sh ends with \"all test harnesses passed\"; python3 tools/check-docs.py exits 0; committed on feature/section-paired-x.\nNot in scope: certifying independent abscissae; the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now; do not edit those members); anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests; docs; pushing; touching main or other worktrees.\nTier: T1\nFan-out cap: 0\nContext ceiling: 400000\nMain-line budget: 80 tool calls, 40 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Facts (verified — do not re-investigate)\nGeometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\nUpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.\nTrace\n| clause | trace |\n|---|---|\n| done_when: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft | phrase: UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft |\n| done_when: a y-only update changes only its own side | phrase: a y-only update changes only its own side |\n| done_when: a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY | phrase: a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY |\n| done_when: an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile | phrase: an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile |\n| done_when: the tests below pass | phrase: the tests below pass |\n| done_when: tools/run-tests.sh ends with \"all test harnesses passed\" | phrase: tools/run-tests.sh ends with \"all test harnesses passed\" |\n| done_when: python3 tools/check-docs.py exits 0 | phrase: python3 tools/check-docs.py exits 0 |\n| done_when: committed on feature/section-paired-x. | phrase: committed on feature/section-paired-x. |\n| not_in_scope: certifying independent abscissae | phrase: certifying independent abscissae |\n| not_in_scope: the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now | phrase: the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now |\n| not_in_scope: do not edit those members) | phrase: do not edit those members) |\n| not_in_scope: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests | phrase: anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests |\n| not_in_scope: docs | phrase: docs |\n| not_in_scope: pushing | phrase: pushing |\n| not_in_scope: touching main or other worktrees. | phrase: touching main or other worktrees. |\nReferences\n- /implement: unresolved (outside repo)\n- Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual: unresolved (not found)\n- SharedAbscissa: unresolved (not found)\n- Run: unresolved (not found)\n- tools/run-tests.sh: tools/run-tests.sh sha256 a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483\n- all test harnesses passed: unresolved (not found)\n- python3 tools/check-docs.py: unresolved (not found; nearest: tools/check-docs.py)\n- feat: pair profile abscissa edits and report crossing sections: unresolved (not found)\n- Co-Authored-By: Grok 4.7 <noreply@x.ai: unresolved (not found)\n- upper/lower: unresolved (not found)\n- docs/design/section-editor.md: docs/design/section-editor.md sha256 eb306cb569bc1a44d77d6d6daf94bd9f442d4ed167cde59f47f31893c4fc3e7c\n- tools/check-docs.py: tools/check-docs.py sha256 911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36\n- feature/section-paired-x: unresolved (not found)\n- src/CfdWorkbench.Desktop: unresolved (not found)\n- tests/CfdWorkbench.Desktop.Tests: unresolved (not found; nearest: tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests)\n- /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x: unresolved (outside repo)\n- AGENTS.md: AGENTS.md sha256 20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85\n- .grok/skills/implement/SKILL.md: unresolved (not found)\n- /: unresolved (outside repo)\n- src/CfdWorkbench.Core/AuthoringSession.cs: src/CfdWorkbench.Core/AuthoringSession.cs sha256 6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e\n- src/CfdWorkbench.Core/FoilSource.cs: src/CfdWorkbench.Core/FoilSource.cs sha256 54384c366329f60ed099696298da0243fc2a5460e646e8c03a9f8805a322740f\n- upper\"/\"lower: unresolved (not found)\n- tests/CfdWorkbench.Core.Tests/SectionEditTests.cs: tests/CfdWorkbench.Core.Tests/SectionEditTests.cs sha256 29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f\n- keep/extend: unresolved (not found)\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M3DEWYWX2BAWNJGY635REVBN\nraw sha256: 20f2ae6c7f0d412a1a00e66c98f3abbd1b4beb1073fae3602089518aca103106\ncompiler model: claude-opus-5-5\nengine seconds: 0.003\ntokens: not recorded\ngate: pass\ndispatchable: true\n",
+      "summary": "compiled al-01M3DEWYWX2BAWNJGY635REVBN for claude-code v1: 15 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft",
+            "trace": {
+              "kind": "phrase",
+              "ref": "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "a y-only update changes only its own side",
+            "trace": {
+              "kind": "phrase",
+              "ref": "a y-only update changes only its own side"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY",
+            "trace": {
+              "kind": "phrase",
+              "ref": "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile",
+            "trace": {
+              "kind": "phrase",
+              "ref": "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "the tests below pass",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the tests below pass"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "trace": {
+              "kind": "phrase",
+              "ref": "tools/run-tests.sh ends with \"all test harnesses passed\""
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "python3 tools/check-docs.py exits 0",
+            "trace": {
+              "kind": "phrase",
+              "ref": "python3 tools/check-docs.py exits 0"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "committed on feature/section-paired-x.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "committed on feature/section-paired-x."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "certifying independent abscissae",
+            "trace": {
+              "kind": "phrase",
+              "ref": "certifying independent abscissae"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now",
+            "trace": {
+              "kind": "phrase",
+              "ref": "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "do not edit those members)",
+            "trace": {
+              "kind": "phrase",
+              "ref": "do not edit those members)"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "trace": {
+              "kind": "phrase",
+              "ref": "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "docs",
+            "trace": {
+              "kind": "phrase",
+              "ref": "docs"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "pushing",
+            "trace": {
+              "kind": "phrase",
+              "ref": "pushing"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "touching main or other worktrees.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "touching main or other worktrees."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 400000,
+          "done_when": [
+            "UpdateProfileDraft with a changed x patches the same-index vertex x on the other side in the same draft",
+            "a y-only update changes only its own side",
+            "a crossing profile validates with code DSL-PROFILE-CROSS instead of DSL-GEOMETRY",
+            "an x edit that breaks the abscissa shared with a neighbouring profile yields DSL-GEOMETRY whose message names the neighbouring profile",
+            "the tests below pass",
+            "tools/run-tests.sh ends with \"all test harnesses passed\"",
+            "python3 tools/check-docs.py exits 0",
+            "committed on feature/section-paired-x."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Make profile x-edits certifiable by moving the paired vertex on the other side, and report upper/lower crossing as DSL-PROFILE-CROSS, per docs/design/section-editor.md §2 \"Shared abscissa\".",
+          "main_line_budget": "80 tool calls, 40 minutes\n## Harness notes (Grok Build)\nWorking directory: /Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x (branch feature/section-paired-x). Stay inside it. No worktrees, no push.\nAGENTS.md is loaded. Follow the `/implement` loop (.grok/skills/implement/SKILL.md): red → green → refactor. No persona sub-agents, no rulings, ledgers, proof packets or audit entries.\nRepair loops are capped at 2 cycles. Same failure twice → stop and report.\n## Facts (verified — do not re-investigate)\nGeometry.Assess requires each profile's upper and lower to share degree, knots and CV x-coordinates (Geometry.cs, the `Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual(...)` check), and the Rule A blend requires adjacent profiles to share an abscissa basis (`SharedAbscissa`, same file). Crossing is currently reported as DSL-GEOMETRY with reason \"Profile separation is not certified.\"\nUpdateProfileDraft / BeginProfileEdit live in src/CfdWorkbench.Core/AuthoringSession.cs; PatchProfilePoint in src/CfdWorkbench.Core/FoilSource.cs. The draft's side is in its Rail field (\"upper\"/\"lower\"); vertex ids are per-curve.\n## Build (red first)\n1. Paired x: in UpdateProfileDraft, when x differs from the vertex's current x, also patch the same-index vertex on the other side to the same x (both patches in one draft update, one generation increment). Resolve \"same index\" by position in the curve, not by id. The DSL-PROFILE-ORDER check applies to both sides.\n2. Crossing: where Geometry reports the profile-separation failure, return code DSL-PROFILE-CROSS (keep the reason text). Only that failure changes code.\n3. Neighbour basis: where SharedAbscissa fails for adjacent stations, keep DSL-GEOMETRY and make the reason name both profiles, e.g. \"Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.\"\n4. Tests — add to tests/CfdWorkbench.Core.Tests/SectionEditTests.cs `Run()`: (a) x-move of an upper interior vertex on the Example (shared) → lower same-index vertex has the same new x; Validate is Certified; Apply → Undo restores exact bytes; (b) y-only move leaves the other side's bytes identical (keep/extend the existing check); (c) drag an upper vertex below the lower one → Validate reports DSL-PROFILE-CROSS; (d) in RunMultiProfile(): independent copy of the middle station, x-move → Validate is DSL-GEOMETRY and the diagnostic names \"section-a\".\n## Verify, then commit\n`tools/run-tests.sh` → `all test harnesses passed`. `python3 tools/check-docs.py` → exit 0 (own line).\nCommit: `feat: pair profile abscissa edits and report crossing sections`, trailer `Co-Authored-By: Grok 4.7 <noreply@x.ai>`.\n## Return (final message only)\nCommit SHA; files changed; new PASS lines; last lines of run-tests.sh and check-docs; anything not done and why.",
+          "not_in_scope": [
+            "certifying independent abscissae",
+            "the recovery envelope (RecoveryRow, CaptureRecovery, ResumeRecovery — another track is changing them now",
+            "do not edit those members)",
+            "anything under src/CfdWorkbench.Desktop or tests/CfdWorkbench.Desktop.Tests",
+            "docs",
+            "pushing",
+            "touching main or other worktrees."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "claude-code",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "claude-opus-5-5",
+          "engine_seconds": 0.003,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M3DEWYWX2BAWNJGY635REVBN",
+        "raw_sha256": "20f2ae6c7f0d412a1a00e66c98f3abbd1b4beb1073fae3602089518aca103106",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/implement"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Require(profile.Upper.Degree == profile.Lower.Degree && ... Points.Select(p => p[0]).SequenceEqual"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "SharedAbscissa"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Run"
+          },
+          {
+            "nearest": null,
+            "path": "tools/run-tests.sh",
+            "reason": null,
+            "sha256": "a1b3bd54253697b8f6ece8216a29d44c25c7fe71e134380bf24b348c66eda483",
+            "status": "resolved",
+            "token": "tools/run-tests.sh"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "all test harnesses passed"
+          },
+          {
+            "nearest": "tools/check-docs.py",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "python3 tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feat: pair profile abscissa edits and report crossing sections"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "Co-Authored-By: Grok 4.7 <noreply@x.ai"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper/lower"
+          },
+          {
+            "nearest": null,
+            "path": "docs/design/section-editor.md",
+            "reason": null,
+            "sha256": "eb306cb569bc1a44d77d6d6daf94bd9f442d4ed167cde59f47f31893c4fc3e7c",
+            "status": "resolved",
+            "token": "docs/design/section-editor.md"
+          },
+          {
+            "nearest": null,
+            "path": "tools/check-docs.py",
+            "reason": null,
+            "sha256": "911ebf015f2f0b9aca2ab40ce82124c98e28cd2467429fa32800009cfce85e36",
+            "status": "resolved",
+            "token": "tools/check-docs.py"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "feature/section-paired-x"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "src/CfdWorkbench.Desktop"
+          },
+          {
+            "nearest": "tests/CfdWorkbench.Desktop.Tests/bin/Debug/net10.0/CfdWorkbench.Desktop.Tests",
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "tests/CfdWorkbench.Desktop.Tests"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/Users/mallalieut/projects/CFD-Workbench-feature-section-paired-x"
+          },
+          {
+            "nearest": null,
+            "path": "AGENTS.md",
+            "reason": null,
+            "sha256": "20e079041570ca75c6a9f616defbd57c5b28b421bdf558fabfd1479bf5736c85",
+            "status": "resolved",
+            "token": "AGENTS.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": ".grok/skills/implement/SKILL.md"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "outside repo",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "/"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/AuthoringSession.cs",
+            "reason": null,
+            "sha256": "6e0658506636ff494666c1e8a8cf972417e50e7bbb060bf89c511cf8680add6e",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/AuthoringSession.cs"
+          },
+          {
+            "nearest": null,
+            "path": "src/CfdWorkbench.Core/FoilSource.cs",
+            "reason": null,
+            "sha256": "54384c366329f60ed099696298da0243fc2a5460e646e8c03a9f8805a322740f",
+            "status": "resolved",
+            "token": "src/CfdWorkbench.Core/FoilSource.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "upper\"/\"lower"
+          },
+          {
+            "nearest": null,
+            "path": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs",
+            "reason": null,
+            "sha256": "29b167464146a2200e0300504dea72a5d7ccec18a09ec60dd0a22c8f83048d5f",
+            "status": "resolved",
+            "token": "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs"
+          },
+          {
+            "nearest": null,
+            "path": null,
+            "reason": "not found",
+            "sha256": null,
+            "status": "unresolved",
+            "token": "keep/extend"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "claude-code",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
     }
   ],
   "changes": [

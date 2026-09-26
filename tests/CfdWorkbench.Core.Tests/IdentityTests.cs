@@ -44,9 +44,14 @@ internal static class IdentityTests
             Equal("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262", Identity.Blake3([])));
         FoilSourceTests.Run();
         GeometryTests.Run();
+        BlendTests.Run();
         AuthoringSessionTests.Run();
         ProjectStoreTests.Run();
         SectionEditTests.Run();
+        SectionEditTests.RunMultiProfile();
+        FitTests.Run();
+        ConstructionTests.Run();
+        FairSessionTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }

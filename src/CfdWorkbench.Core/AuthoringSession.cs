@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 
@@ -12,7 +13,7 @@ public sealed record DesignRow(string Id, string? Parent, string SurfaceHash, st
 public sealed record EditReceipt(string DraftId, long Generation, string Rail, string VertexId);
 public sealed record AcceptedRow(string Id, string? Parent, string SourceId, string DesignId, string OperationId, EditReceipt? Edit);
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
-public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks);
+public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1);
 public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
@@ -26,8 +27,8 @@ public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure
 public sealed class SessionAssessment
 {
     internal SessionAssessment(Guid owner, GeometryStatus status, string code, SessionBinding? key, GeometryCertificate? certificate,
-        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null)
-    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); }
+        AuthoredBinding? sourceBinding = null, IEnumerable<Diagnostic>? diagnostics = null, ConstructionReport? construction = null)
+    { Owner = owner; Status = status; Code = code; Key = key; Certificate = certificate; SourceBinding = sourceBinding; Diagnostics = Array.AsReadOnly((diagnostics ?? []).ToArray()); Construction = construction; }
     internal Guid Owner { get; }
     public GeometryStatus Status { get; }
     public string Code { get; }
@@ -35,6 +36,7 @@ public sealed class SessionAssessment
     public GeometryCertificate? Certificate { get; }
     public AuthoredBinding? SourceBinding { get; }
     public IReadOnlyList<Diagnostic> Diagnostics { get; }
+    public ConstructionReport? Construction { get; }
 }
 
 public sealed class AuthoringSession : IDisposable
@@ -81,7 +83,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear();
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null;
         }
@@ -146,6 +148,14 @@ public sealed class AuthoringSession : IDisposable
         Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId));
     public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
         Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
+    public SessionDraft BeginProfileInsert(string draftId, int assignmentIndex, SectionScope scope, double x) =>
+        Run("begin", () => BeginProfileInsertCore(draftId, assignmentIndex, scope, x));
+    public SessionDraft BeginProfileDelete(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex) =>
+        Run("begin", () => BeginProfileDeleteCore(draftId, assignmentIndex, scope, vertexIndex));
+    public SessionDraft BeginProfileFair(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends) =>
+        Run("begin", () => BeginProfileFairCore(draftId, assignmentIndex, scope, tolerance, ends));
+    public SessionDraft BeginProfileRebuild(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends) =>
+        Run("begin", () => BeginProfileRebuildCore(draftId, assignmentIndex, scope, vertexCount, tolerance, ends));
     public SessionAssessment Validate(string draftId, long generation, CancellationToken cancellation = default) => Run("validate", () => ValidateCore(draftId, generation, cancellation), generation: generation);
     public SessionPreview Preview(string draftId, long generation, double eta, double x, bool upper, bool port = false) => Run("geometry.preview", () =>
     {
@@ -184,6 +194,7 @@ public sealed class AuthoringSession : IDisposable
     readonly Dictionary<string, (string Payload, string Result)> operations = [];
     readonly HashSet<string> retiredDraftIds = [];
     readonly HashSet<string> capturedSaveHashes = [];
+    readonly Dictionary<string, (double MaxDeviation, double Tolerance, int VertexCount, bool WithinTolerance, bool PiecesIncreased)> pendingFairAssessment = [];
     SessionDraft? draft;
     RecoveryRow? recovery;
     string? current;
@@ -354,9 +365,94 @@ public sealed class AuthoringSession : IDisposable
             double previous = index == 0 ? double.NegativeInfinity : curve.Points[index - 1][0];
             double next = index + 1 == curve.Points.Length ? double.PositiveInfinity : curve.Points[index + 1][0];
             Guard.Require(x >= previous && x <= next, "DSL-PROFILE-ORDER");
-            draft = draft with { Generation = expectedGeneration + 1, Bytes = FoilSource.PatchProfilePoint(draft.Bytes, profileName, side, draft.VertexId, x, y) };
+            byte[] bytes = draft.Bytes;
+            if (x != curve.Points[index][0])
+            {
+                var other = side == "upper" ? profile.Lower : profile.Upper;
+                Guard.Require((uint)index < (uint)other.Points.Length, "DSL-PROFILE-TARGET");
+                double otherPrevious = index == 0 ? double.NegativeInfinity : other.Points[index - 1][0];
+                double otherNext = index + 1 == other.Points.Length ? double.PositiveInfinity : other.Points[index + 1][0];
+                Guard.Require(x >= otherPrevious && x <= otherNext, "DSL-PROFILE-ORDER");
+                bytes = FoilSource.PatchProfilePoint(bytes, profileName, side == "upper" ? "lower" : "upper", other.Ids[index], x, other.Points[index][1]);
+            }
+            bytes = FoilSource.PatchProfilePoint(bytes, profileName, side, draft.VertexId, x, y);
+            draft = draft with { Generation = expectedGeneration + 1, Bytes = bytes };
             return Copy(draft);
         }
+    }
+    private SessionDraft BeginProfileInsertCore(string draftId, int assignmentIndex, SectionScope scope, double x)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            Guard.Require(double.IsFinite(x) && x > 0 && x < 1, "DSL-PROFILE-TARGET");
+            if (profile.Upper.Points.Length >= 32) throw new ContractError("DSL-CURVE");
+            var patched = FoilSource.InsertProfileKnot(bytes, target, x);
+            return OpenConstruction(draftId, "insert", patched.VertexId, patched.Source, target, assignmentIndex);
+        }
+    }
+    private SessionDraft BeginProfileDeleteCore(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            int count = profile.Upper.Points.Length;
+            Guard.Require(count == profile.Lower.Points.Length && (uint)vertexIndex < (uint)count, "DSL-PROFILE-TARGET");
+            Guard.Require(vertexIndex != 0 && vertexIndex != count - 1, "DSL-LOCK");
+            if (count <= 7) throw new ContractError("DSL-CURVE", "Delete would leave fewer than p + 2 = 7 vertices");
+            var patched = FoilSource.DeleteProfileVertex(bytes, target, vertexIndex);
+            return OpenConstruction(draftId, "delete", patched.VertexId, patched.Source, target, assignmentIndex);
+        }
+    }
+    private SessionDraft BeginProfileFairCore(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            var (patched, result) = FoilSource.FairProfile(bytes, target, tolerance, ends);
+            RecordFairAssessment(draftId, result, tolerance);
+            return OpenConstruction(draftId, "fair", profile.Upper.Ids[0], patched, target, assignmentIndex);
+        }
+    }
+    private SessionDraft BeginProfileRebuildCore(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
+    {
+        lock (sync)
+        {
+            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
+            var (patched, result) = FoilSource.RebuildProfile(bytes, target, vertexCount, tolerance, ends);
+            RecordFairAssessment(draftId, result, tolerance);
+            return OpenConstruction(draftId, "rebuild", profile.Upper.Ids[0], patched, target, assignmentIndex);
+        }
+    }
+    // Recorded once at Begin (fair/rebuild drafts have no Update step) and read back by
+    // ValidateCore, since the requested tolerance itself is not part of the draft's bytes.
+    private void RecordFairAssessment(string draftId, FairResult result, double tolerance) =>
+        pendingFairAssessment[draftId] = (result.MaxDeviation, tolerance, result.Upper.Points.Length, result.WithinTolerance, result.MonotonePiecesAfter > result.MonotonePiecesBefore);
+    private (byte[] Bytes, string Profile, ProfileDefinition Definition) PrepareConstruction(string draftId, int assignmentIndex, SectionScope scope)
+    {
+        Guard.Require(!closed, "DOC-CLOSED");
+        NativeProject.Uuid(draftId);
+        Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+        Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
+        var definition = ParseOwned(CurrentBytes).Definition!;
+        Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
+        var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
+        byte[] bytes = CurrentBytes;
+        string target = profile.Name;
+        if (scope == SectionScope.Independent)
+        {
+            var made = FoilSource.MakeIndependent(bytes, profile.Name, assignmentIndex);
+            bytes = made.Source;
+            target = made.NewProfile;
+            profile = ParseOwned(bytes).Definition!.Profiles.First(item => item.Name == target);
+        }
+        return (bytes, target, profile);
+    }
+    private SessionDraft OpenConstruction(string draftId, string kind, string vertexId, byte[] bytes, string profile, int assignmentIndex)
+    {
+        retiredDraftIds.Add(draftId);
+        draft = new(draftId, current!, 0, kind, vertexId, bytes, profile, assignmentIndex);
+        return Copy(draft);
     }
     private SessionDraft UpdateDraftCore(string draftId, long expectedGeneration, double si)
     {
@@ -368,29 +464,63 @@ public sealed class AuthoringSession : IDisposable
     private SessionAssessment ValidateCore(string draftId, long generation, CancellationToken cancellation = default)
     {
         SessionDraft capture;
+        byte[]? origin = null;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
+            if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
         }
+        ConstructionReport? construction = null;
+        string? fairIssue = null;
         try
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture));
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
             Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
+            if (parsed.IsParsed && origin is not null) construction = MeasureConstruction(capture, parsed, origin);
+            if (parsed.IsParsed && capture.Rail is "fair" or "rebuild" && pendingFairAssessment.TryGetValue(capture.Id, out var fair))
+            {
+                construction = new ConstructionReport(fair.MaxDeviation, fair.Tolerance, fair.VertexCount);
+                fairIssue = !fair.WithinTolerance ? "Fair result exceeds tolerance" : fair.PiecesIncreased ? "Fair increased monotone pieces" : null;
+            }
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
-                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics);
+                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             var result = AssessOwned(parsed, generation);
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed));
-            Diagnostic[] diagnostics = result.Status == GeometryStatus.Certified ? [] :
-                [new(result.Code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, result.Reason, "Revise the authored curves or retain the last accepted revision.")];
-            return new(authorityId, result.Status, result.Code, key, result.Certificate, DraftBinding(capture, parsed), diagnostics);
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction);
+            GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
+            if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
+            Diagnostic[] diagnostics = status == GeometryStatus.Certified ? [] :
+                [new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision.")];
+            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction);
         }
         catch (ContractError error)
-        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture)); }
+        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction); }
         finally { Interlocked.Exchange(ref validating, 0); }
+    }
+    private byte[] BaseBytes(string acceptedId)
+    {
+        var row = accepted.Single(item => item.Id == acceptedId);
+        return Decode(sources.Single(item => item.Id == row.SourceId).Utf8Base64Chunks);
+    }
+    private static ConstructionReport? MeasureConstruction(SessionDraft capture, SourceParse parsed, byte[] origin)
+    {
+        if (parsed.Definition is null || capture.Profile is null) return null;
+        var originParse = FoilSource.Parse(origin);
+        if (originParse.Definition is null || (uint)capture.Assignment >= (uint)originParse.Definition.Assignments.Length) return null;
+        string assigned = originParse.Definition.Profiles[originParse.Definition.Assignments[capture.Assignment].Profile].Name;
+        if (!string.Equals(assigned, capture.Profile, StringComparison.Ordinal))
+        {
+            var made = FoilSource.MakeIndependent(origin, assigned, capture.Assignment);
+            originParse = FoilSource.Parse(made.Source);
+            if (originParse.Definition is null) return null;
+        }
+        var prior = originParse.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
+        var next = parsed.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
+        if (prior is null || next is null) return null;
+        return new(FoilSource.MaxOrdinateDeviation(prior, next), null, next.Upper.Points.Length);
     }
     private string ApplyCore(string operationId, SessionAssessment assessment)
     {
@@ -436,14 +566,14 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null, "DOC-NO-RECOVERY");
-            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes));
+            var next = new RecoveryRow(draft!.Id, draft.Base, draft.Generation, draft.Rail, draft.VertexId, Chunks(draft.Bytes), draft.Profile, draft.Assignment);
             NativeProject.Preflight(EnvelopeCore() with { Recovery = next }, envelopeCap);
             recovery = next; return CopyRecovery(recovery)!;
         }
     }
     private void ResumeRecoveryCore()
     {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks)); }
+        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(recovery is not null && draft is null && recovery.BaseAcceptedId == current, "DOC-RECOVERY-BASE"); draft = new(recovery!.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, Decode(recovery.Utf8Base64Chunks), recovery.Profile, recovery.Assignment); }
     }
     private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; } }
     static RecoveryRow? CopyRecovery(RecoveryRow? r) => r is null ? null : r with { Utf8Base64Chunks = r.Utf8Base64Chunks.ToArray() };
@@ -504,10 +634,42 @@ public sealed class AuthoringSession : IDisposable
     }
 }
 
+internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
+{
+    // A rail recovery (Profile null) serializes exactly as before this field was
+    // added, so an envelope holding only rail recoveries is byte-for-byte
+    // unchanged and the "no such fields" backward-read path is exercised for real.
+    public override RecoveryRow Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var root = doc.RootElement;
+        string[] chunks = root.GetProperty("utf8Base64Chunks").EnumerateArray().Select(e => e.GetString()!).ToArray();
+        string? profile = root.TryGetProperty("profile", out var p) && p.ValueKind != JsonValueKind.Null ? p.GetString() : null;
+        int assignment = root.TryGetProperty("assignment", out var a) && a.ValueKind != JsonValueKind.Null ? a.GetInt32() : -1;
+        return new RecoveryRow(root.GetProperty("draftId").GetString()!, root.GetProperty("baseAcceptedId").GetString()!,
+            root.GetProperty("generation").GetInt64(), root.GetProperty("rail").GetString()!, root.GetProperty("vertexId").GetString()!,
+            chunks, profile, assignment);
+    }
+    public override void Write(Utf8JsonWriter writer, RecoveryRow value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("draftId", value.DraftId);
+        writer.WriteString("baseAcceptedId", value.BaseAcceptedId);
+        writer.WriteNumber("generation", value.Generation);
+        writer.WriteString("rail", value.Rail);
+        writer.WriteString("vertexId", value.VertexId);
+        writer.WriteStartArray("utf8Base64Chunks");
+        foreach (string chunk in value.Utf8Base64Chunks) writer.WriteStringValue(chunk);
+        writer.WriteEndArray();
+        if (value.Profile is not null) { writer.WriteString("profile", value.Profile); writer.WriteNumber("assignment", value.Assignment); }
+        writer.WriteEndObject();
+    }
+}
+
 public static class NativeProject
 {
     public const int MaxBytes = 8_000_000;
-    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow };
+    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, Converters = { new RecoveryRowConverter() } };
     public static void Uuid(string id) => Guard.Require(Regex.IsMatch(id, @"\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z") && Guid.TryParseExact(id, "D", out _), "DOC-ID");
     static void Hash(string hash) => Guard.Require(Regex.IsMatch(hash, @"\A[0-9a-f]{64}\z"), "DOC-INTEGRITY");
     public static byte[] Encode(Envelope envelope) => JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
@@ -529,14 +691,16 @@ public static class NativeProject
         for (int i = 0; i + 1 < chunks.Length; i++) Guard.Require(!chunks[i].Contains('='), "DOC-SCHEMA");
         _ = SessionSource.Text(result.ToArray()); return result.ToArray();
     }
-    static void Exact(JsonElement element, params string[] keys)
+    static void Exact(JsonElement element, string[] required, string[]? optional = null)
     {
         Guard.Require(element.ValueKind == JsonValueKind.Object, "DOC-SCHEMA");
         var names = element.EnumerateObject().Select(p => p.Name).ToArray();
         Guard.Require(names.Distinct(StringComparer.Ordinal).Count() == names.Length, "DOC-SCHEMA");
-        Guard.Require(keys.All(names.Contains), "DOC-SCHEMA");
-        Guard.Require(names.All(keys.Contains), "DOC-UNSUPPORTED-FIELD");
+        Guard.Require(required.All(names.Contains), "DOC-SCHEMA");
+        var allowed = optional is null ? required : [.. required, .. optional];
+        Guard.Require(names.All(allowed.Contains), "DOC-UNSUPPORTED-FIELD");
     }
+    static void Exact(JsonElement element, params string[] keys) => Exact(element, keys, null);
     public static Envelope Read(byte[] bytes)
     {
         Guard.Require(bytes.Length <= MaxBytes, "DOC-SIZE");
@@ -556,7 +720,12 @@ public static class NativeProject
                 if (a.GetProperty("edit").ValueKind != JsonValueKind.Null) Exact(a.GetProperty("edit"), "draftId", "generation", "rail", "vertexId");
             }
             foreach (var c in root.GetProperty("cursors").EnumerateArray()) Exact(c, "sequence", "target", "reason", "operationId");
-            if (root.GetProperty("recovery").ValueKind != JsonValueKind.Null) Exact(root.GetProperty("recovery"), "draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks");
+            var recoveryElement = root.GetProperty("recovery");
+            if (recoveryElement.ValueKind != JsonValueKind.Null)
+            {
+                Exact(recoveryElement, ["draftId", "baseAcceptedId", "generation", "rail", "vertexId", "utf8Base64Chunks"], ["profile", "assignment"]);
+                Guard.Require(recoveryElement.TryGetProperty("profile", out _) == recoveryElement.TryGetProperty("assignment", out _), "DOC-SCHEMA");
+            }
             var env = JsonSerializer.Deserialize<Envelope>(bytes, Options)!; Check(env); return env;
         }
         catch (Exception e) when (e is JsonException or InvalidOperationException or ArgumentException or NullReferenceException or KeyNotFoundException) { throw new ContractError("DOC-SCHEMA"); }
@@ -601,7 +770,18 @@ public static class NativeProject
         if (e.Recovery is not null)
         {
             var r = e.Recovery; Uuid(r.DraftId); Guard.Require(accepted.ContainsKey(r.BaseAcceptedId) && r.Generation is >= 0 and <= 9007199254740991 && r.Rail is "leading" or "trailing" or "upper" or "lower", "DOC-REFERENCE");
-            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(parsed[accepted[r.BaseAcceptedId].SourceId].Definition!, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            var definition = parsed[accepted[r.BaseAcceptedId].SourceId].Definition!;
+            Guard.Require(r.VertexId.Length > 0 && r.VertexId.EnumerateRunes().Count() <= 4096 && EditTarget(definition, r.Rail, r.VertexId), "DOC-REFERENCE"); _ = Decode(r.Utf8Base64Chunks, allowEmpty: true);
+            if (r.Profile is not null)
+            {
+                // A profile-edit recovery names its target explicitly; a rail
+                // recovery (Profile null) keeps the EditTarget check above unchanged.
+                Guard.Require(r.Rail is "upper" or "lower" && (uint)r.Assignment < (uint)definition.Assignments.Length, "DOC-REFERENCE");
+                var profile = definition.Profiles[definition.Assignments[r.Assignment].Profile];
+                Guard.Require(profile.Name == r.Profile, "DOC-REFERENCE");
+                var curve = r.Rail == "upper" ? profile.Upper : profile.Lower;
+                Guard.Require(curve.Ids.Contains(r.VertexId), "DOC-REFERENCE");
+            }
         }
     }
     public static (string Current, string[] Redo) Replay(Envelope e)

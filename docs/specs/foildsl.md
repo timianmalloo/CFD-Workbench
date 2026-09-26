@@ -331,7 +331,10 @@ inserts source names/diagnostics as text, never HTML or script. Comments cannot 
 | DSL-CURVE | bad knot count, unordered abscissa | Name curve and required count/order. |
 | DSL-REFERENCE | missing profile or asset | Restore referenced asset or choose explicit replacement. |
 | DSL-GEOMETRY | negative chord/crossing profile/fold | Locate span; repair draft; Apply disabled. |
-| DSL-LOCK | violated or conflicting lock | Name lock and affected CV; edit/release explicitly. |
+| DSL-LOCK | violated or conflicting lock; edit of a fixed profile vertex (first CV, or closed TE) | Name lock and affected CV; edit/release explicitly. |
+| DSL-PROFILE-TARGET | section edit names an unknown profile, side or vertex | Reselect the station and vertex; draft unchanged. |
+| DSL-PROFILE-ORDER | profile vertex moved past a neighbour's abscissa | Keep the vertex between its neighbours; draft keeps the last valid position. |
+| DSL-PROFILE-CROSS | upper side not strictly above lower on (0,1) | Locate the crossing; repair draft; Apply disabled. |
 | DSL-ASSERT | failed or unassessed assertion | Show actual, bound, units and uncertainty. |
 | DSL-UNSUPPORTED | valid feature outside prototype capability | Retain exact source; no partial interpretation. |
 | DSL-CONFLICT | base revision changed while draft open | Rebase with a new preview or discard; never overwrite. |
