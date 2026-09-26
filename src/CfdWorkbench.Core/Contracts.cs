@@ -61,3 +61,10 @@ public sealed record ProfilePoint(double X, double Y);
 /// <summary>A read-only projection of one profile for display and editing; the source stays the only authority.</summary>
 public sealed record ProfileView(string Name, string Identity, IReadOnlyList<ProfileVertex> Upper, IReadOnlyList<ProfileVertex> Lower,
     IReadOnlyList<ProfilePoint> UpperCurve, IReadOnlyList<ProfilePoint> LowerCurve, string Closure);
+
+/// <summary>Whether a profile edit may retarget the foil-wide thickness channel. Keep current is the source-compatible default.</summary>
+public enum ThicknessIntent { KeepCurrent, UseSource }
+
+/// <summary>One preview of a thickness-channel edit. Targets are t/c at the scoped assignment stations; residuals are channel minus target.</summary>
+public sealed record ThicknessProposal(IReadOnlyList<double> TargetEta, IReadOnlyList<double> TargetThickness, IReadOnlyList<double> Residuals,
+    double AffectedEtaStart, double AffectedEtaEnd);
