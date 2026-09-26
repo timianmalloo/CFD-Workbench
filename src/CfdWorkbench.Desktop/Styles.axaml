@@ -96,6 +96,9 @@
     <x:Double x:Key="ControlHeight">32</x:Double>
     <x:Double x:Key="StationListHeight">120</x:Double>
     <x:Double x:Key="SectionViewportHeight">96</x:Double>
+    <x:Double x:Key="SectionThumbnailWidth">200</x:Double>
+    <x:Double x:Key="SectionThumbnailHeight">80</x:Double>
+    <x:Double x:Key="SectionEditorMinHeight">160</x:Double>
     <GridLength x:Key="SectionPanelHeight">300</GridLength>
     <x:Double x:Key="ViewportAnnotationWidth">178</x:Double>
     <x:Double x:Key="ViewportAnnotationHeight">160</x:Double>
