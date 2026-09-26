@@ -1,9 +1,21 @@
 namespace CfdWorkbench.Core;
 
 /// <summary>A stable refusal at a document contract boundary.</summary>
-public sealed class ContractError(string code) : Exception(code)
+public sealed class ContractError : Exception
 {
-    public string Code { get; } = code;
+    public string Code { get; }
+    public int? Line { get; }
+
+    public ContractError(string code) : base(code)
+    {
+        Code = code;
+    }
+
+    public ContractError(string code, int line) : base($"{code} at line {line}")
+    {
+        Code = code;
+        Line = line;
+    }
 }
 
 internal static class Guard
@@ -61,3 +73,5 @@ public sealed record ProfilePoint(double X, double Y);
 /// <summary>A read-only projection of one profile for display and editing; the source stays the only authority.</summary>
 public sealed record ProfileView(string Name, string Identity, IReadOnlyList<ProfileVertex> Upper, IReadOnlyList<ProfileVertex> Lower,
     IReadOnlyList<ProfilePoint> UpperCurve, IReadOnlyList<ProfilePoint> LowerCurve, string Closure);
+
+public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance);
