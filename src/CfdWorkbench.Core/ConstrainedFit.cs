@@ -525,7 +525,8 @@ internal static class ProfileFair
             ordinateTokens[index] = new(ordinates[index].ToString("R", CultureInfo.InvariantCulture), 0, 0);
             abscissaTokens[index] = new(abscissae[index].ToString("R", CultureInfo.InvariantCulture), 0, 0);
         }
-        return new Curve(template.Path, 5, knots, points, ids, ordinateTokens, template.InsertAt, true, abscissaTokens, null);
+        return new Curve(template.Path, 5, knots, points, ids, ordinateTokens, template.InsertAt, true, abscissaTokens, null,
+            template.KnotStart, template.KnotEnd, template.PointsStart, template.PointsEnd);
     }
 
     private static double[] Abscissae(Curve curve)
