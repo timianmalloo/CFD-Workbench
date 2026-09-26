@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-screen="workspace" data-state="default" data-viewport="1440" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD Workbench — CAD-first direction (v8)</title>
+<!--
+  Direction mockup v8 — self-contained, dependency-free, opens over file://.
+  Everything inside <header class="harness"> and <section class="audit"> is review chrome and never ships.
+  Everything inside .window is the design under review.
+  Direction brief, measurements and findings: docs/reviews/ui-workbench-v8.md
+-->
+<style>
+:root{
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px;
+  --r-sm:4px; --r-md:6px; --r-lg:10px;
+  --control:32px;
+  --dur:140ms;
+}
+/* dark (default for a model-first CAD canvas) */
+:root[data-theme="dark"]{
+  /* DESIGN.md dark-* and viewport ramps */
+  --canvas:#17272c; --chrome:#1e2d31; --chrome-raised:#2a3d40; --line:#344b50; --line-strong:#79928c;
+  --ink:#ebf3f0; --ink-muted:#b2c4bf; --accent:#66ddc8; --accent-ink:#172326; --accent-soft:#274c47;
+  --model:#85c9c4; --model-dim:#79928c; --grid:#243a40; --axis:#344b50;
+  --ok:#92d1a5; --warn:#efc576; --danger:#ffaeb5; --finish:#92d1a5; --finish-ink:#172326;
+  --ghost:#afc6c7;
+}
+:root[data-theme="light"]{
+  /* DESIGN.md base ramp */
+  --canvas:#f0f2f1; --chrome:#fbfcfb; --chrome-raised:#e8edeb; --line:#c9d3cf; --line-strong:#788d87;
+  --ink:#1b2929; --ink-muted:#526362; --accent:#006c67; --accent-ink:#ffffff; --accent-soft:#d8eeea;
+  --model:#006c67; --model-dim:#788d87; --grid:#e8edeb; --axis:#c9d3cf;
+  --ok:#24653f; --warn:#895900; --danger:#a92e37; --finish:#24653f; --finish-ink:#ffffff;
+  --ghost:#788d87;
+}
+:root[data-theme="contrast"]{
+  /* DESIGN.md contrast-* tokens */
+  --canvas:#000000; --chrome:#000000; --chrome-raised:#000000; --line:#ffffff; --line-strong:#ffffff;
+  --ink:#ffffff; --ink-muted:#ffffff; --accent:#ffee58; --accent-ink:#000000; --accent-soft:#000000;
+  --model:#ffffff; --model-dim:#ffffff; --grid:#000000; --axis:#ffffff;
+  --ok:#ffee58; --warn:#ffee58; --danger:#ffee58; --finish:#ffee58; --finish-ink:#000000;
+  --ghost:#ffffff;
+}
+:root[data-motion="reduced"]{ --dur:0ms; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:#000000; color:#edf4f2; font:13px/1.4 var(--font); }
+button,input,select{ font:inherit; color:inherit; }
+
+/* ---------- review harness (chrome, never ships) ---------- */
+.harness{ position:sticky; top:0; z-index:50; display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+  padding:8px 16px; background:#000000; color:#edf4f2; border-bottom:1px solid #344b50; font-size:12px; }
+.harness select{ background:#17272c; color:#edf4f2; border:1px solid #344b50; border-radius:4px; padding:3px 6px; }
+.harness .spacer{ flex:1; }
+.harness .verdict{ font-family:var(--mono); padding:3px 8px; border-radius:4px; }
+.verdict.pass{ background:#24653f; color:#ffffff; } .verdict.fail{ background:#a92e37; color:#ffffff; }
+.stage{ padding:16px; display:flex; justify-content:center; }
+.fit{ transform-origin:top left; }
+
+/* ---------- the application window (design under review) ---------- */
+.window{ position:relative; overflow:hidden; background:var(--canvas); color:var(--ink);
+  border:1px solid #344b50; border-radius:10px; box-shadow:0 4px 12px #00000080; font:13px/1.4 var(--font); }
+:root[data-viewport="1280"] .window{ width:1280px; height:800px; }
+:root[data-viewport="1440"] .window{ width:1440px; height:900px; }
+:root[data-viewport="1920"] .window{ width:1920px; height:1080px; }
+.titlebar{ height:28px; display:flex; align-items:center; gap:8px; padding:2px 12px; background:var(--chrome); border-bottom:1px solid var(--line); color:var(--ink-muted); font-size:12px; }
+.lights{ display:flex; gap:6px; } .lights i{ width:10px; height:10px; border-radius:50%; background:var(--line-strong); display:block; }
+.titlebar .name{ margin:0 auto; } .dirty{ color:var(--accent); }
+
+.screen{ display:none; position:absolute; inset:28px 0 0 0; }
+:root[data-screen="start"] .screen.start,
+:root[data-screen="workspace"] .screen.workspace,
+:root[data-screen="section"] .screen.section,
+:root[data-screen="fair"] .screen.section{ display:block; }
+
+/* toolbar */
+.toolbar{ height:56px; display:flex; align-items:stretch; gap:2px; padding:4px 8px; background:var(--chrome); border-bottom:1px solid var(--line); }
+.tb-file{ display:flex; align-items:center; gap:8px; padding-right:12px; margin-right:6px; border-right:1px solid var(--line); }
+.tb-file .fname{ max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+.group{ display:flex; flex-direction:column; justify-content:center; padding:0 6px; border-right:1px solid var(--line); }
+.group .tools{ display:flex; gap:2px; }
+.group .glabel{ font-size:11px; color:var(--ink-muted); text-align:center; letter-spacing:.04em; text-transform:uppercase; margin-top:1px; }
+.tool{ min-width:var(--control); height:var(--control); display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:0 8px;
+  background:transparent; border:1px solid transparent; border-radius:var(--r-md); cursor:pointer; color:var(--ink); }
+.tool:hover{ background:var(--chrome-raised); border-color:var(--line); }
+.tool[aria-pressed="true"]{ background:var(--accent-soft); border-color:var(--accent); }
+.tool:focus-visible, .btn:focus-visible, .seg button:focus-visible, .row-btn:focus-visible, .card:focus-visible, input:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.tool svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.6; }
+.tool[disabled]{ opacity:.45; cursor:default; }
+.tb-right{ margin-left:auto; display:flex; align-items:center; gap:6px; }
+.search{ width:180px; height:var(--control); border-radius:var(--r-md); border:1px solid var(--line); background:var(--canvas); color:var(--ink-muted); display:flex; align-items:center; padding:4px 10px; gap:8px; }
+kbd{ font-family:var(--mono); font-size:11px; color:var(--ink-muted); border:1px solid var(--line); border-radius:3px; padding:0 4px; }
+.btn{ height:var(--control); padding:0 14px; border-radius:var(--r-md); border:1px solid var(--line-strong); background:var(--chrome-raised); color:var(--ink); cursor:pointer; font-weight:500; }
+.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.btn.finish{ background:var(--finish); color:var(--finish-ink); border-color:var(--finish); font-weight:600; }
+.btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+/* canvas area */
+.canvas{ position:absolute; inset:56px 0 0 0; }
+.views{ position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:1px; background:var(--line); }
+.views[data-layout="single"]{ grid-template-columns:1fr; grid-template-rows:1fr; }
+.views[data-layout="single"] .view:not(.active){ display:none; }
+.view{ position:relative; background:var(--canvas); overflow:hidden; }
+.view svg.g{ position:absolute; inset:0; width:100%; height:100%; }
+.vlabel{ position:absolute; left:8px; top:6px; min-height:24px; min-width:24px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-muted); background:none; border:0; cursor:pointer; padding:4px 6px; border-radius:3px; z-index:2; }
+.vlabel:hover{ color:var(--ink); background:var(--chrome); }
+.view.active .vlabel{ color:var(--accent); }
+
+/* floating browser */
+.browser{ position:absolute; left:12px; top:12px; width:230px; background:color-mix(in srgb, var(--chrome) 94%, transparent); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; z-index:5; }
+.browser header{ display:flex; align-items:center; gap:6px; padding:6px 8px; border-bottom:1px solid var(--line); font-weight:600; }
+.browser header .chev{ margin-left:auto; }
+.browser[data-collapsed="true"] ul{ display:none; } .browser[data-collapsed="true"] header{ border-bottom:0; }
+.browser ul{ list-style:none; margin:0; padding:4px 0; }
+.row-btn{ width:100%; display:flex; align-items:center; gap:8px; height:28px; padding:0 10px; background:none; border:0; text-align:left; cursor:pointer; color:var(--ink); }
+.row-btn:hover{ background:var(--chrome-raised); }
+.row-btn.sel{ background:var(--accent-soft); }
+.row-btn .sub{ color:var(--ink-muted); margin-left:auto; font-size:12px; }
+.row-btn.child{ padding-left:28px; }
+.eye{ width:14px; height:14px; stroke:var(--ink-muted); fill:none; stroke-width:1.5; }
+
+/* view cube + nav bar */
+.cube{ position:absolute; right:14px; top:12px; z-index:5; width:64px; height:64px; }
+.navbar{ position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; gap:2px; padding:4px; background:color-mix(in srgb, var(--chrome) 94%, transparent); border:1px solid var(--line); border-radius:var(--r-lg); z-index:5; box-shadow:0 2px 8px #00000066; }
+.navbar .sep{ width:1px; background:var(--line); margin:4px 4px; }
+.statusl{ position:absolute; left:14px; bottom:14px; z-index:5; color:var(--ink-muted); font-size:12px; display:flex; gap:12px; align-items:center; }
+.chip{ display:inline-flex; align-items:center; gap:6px; min-height:26px; padding:3px 10px; border-radius:13px; background:var(--chrome); border:1px solid var(--line); color:var(--ink); font-size:12px; }
+.dot{ width:8px; height:8px; border-radius:50%; background:var(--ok); }
+.chip.warn .dot{ background:var(--warn); } .chip.bad .dot{ background:var(--danger); }
+.statusr{ position:absolute; right:14px; bottom:14px; z-index:5; }
+
+/* selection pop-ups */
+.hud{ position:absolute; z-index:6; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; padding:10px 12px; min-width:220px; }
+.hud h3{ margin:0 0 2px; font-size:13px; }
+.hud .meta{ color:var(--ink-muted); font-size:12px; }
+.hud .acts{ display:flex; gap:8px; margin-top:10px; }
+.hud .thumb{ width:100%; height:54px; margin:8px 0 0; }
+.num{ font-family:var(--mono); font-variant-numeric:tabular-nums; }
+.field{ display:grid; grid-template-columns:34px 1fr 28px; align-items:center; gap:6px; margin-top:6px; }
+.field input{ height:28px; width:100%; background:var(--canvas); border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:0 8px; text-align:right; font-family:var(--mono); color:var(--ink); }
+.field .u{ color:var(--ink-muted); font-size:12px; }
+.hidden{ display:none !important; }
+
+/* start screen */
+.start-wrap{ position:absolute; inset:0; display:grid; place-items:center; background:var(--canvas); }
+.start-card{ width:720px; }
+.brand{ display:flex; align-items:center; gap:10px; font-size:20px; font-weight:650; margin-bottom:24px; }
+.newrow{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.card{ display:flex; flex-direction:column; gap:8px; align-items:flex-start; padding:14px; min-height:132px; border-radius:var(--r-lg); border:1px solid var(--line); background:var(--chrome); cursor:pointer; text-align:left; color:var(--ink); }
+.card:hover{ border-color:var(--accent); }
+.card svg{ width:100%; height:56px; }
+.card .t{ font-weight:600; } .card .d{ color:var(--ink-muted); font-size:12px; }
+.recent{ margin-top:28px; } .recent h2{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-muted); margin:0 0 8px; font-weight:600; }
+.recent .row-btn{ height:36px; border-radius:var(--r-md); }
+.msg{ border:1px solid var(--danger); background:color-mix(in srgb, var(--danger) 10%, transparent); border-radius:var(--r-md); padding:12px 14px; margin-bottom:16px; }
+.skel{ background:linear-gradient(90deg, var(--chrome) 0%, var(--chrome-raised) 50%, var(--chrome) 100%); background-size:200% 100%; border-radius:var(--r-md); animation:sh 1.2s linear infinite; }
+:root[data-motion="reduced"] .skel{ animation:none; }
+@keyframes sh{ to{ background-position:-200% 0; } }
+
+/* state gating is scoped to the window (DC-200) and done by toggling .hidden in draw(),
+   so gated elements keep their authored display (grid, flex) — display:revert would reset them to block. */
+
+/* section editor */
+.sec-canvas{ position:absolute; inset:0 0 92px 0; }
+.sec-canvas svg{ position:absolute; inset:0; width:100%; height:100%; }
+.scope{ position:absolute; left:50%; top:12px; transform:translateX(-50%); z-index:5; display:flex; align-items:center; gap:10px; }
+.seg{ display:inline-flex; gap:2px; padding:2px; border:1px solid var(--line-strong); border-radius:var(--r-md); overflow:hidden; background:var(--chrome); }
+.seg button{ height:28px; padding:0 12px; background:none; border:0; border-radius:var(--r-sm); cursor:pointer; color:var(--ink); }
+.seg button[aria-pressed="true"]{ background:var(--accent-soft); color:var(--ink); box-shadow:inset 0 -2px 0 var(--accent); }
+.scope .note{ color:var(--ink-muted); font-size:12px; }
+.strip{ position:absolute; left:0; right:0; bottom:0; height:92px; background:var(--chrome); border-top:1px solid var(--line); display:flex; align-items:center; gap:10px; padding:0 14px; overflow-x:auto; }
+.slice{ flex:0 0 auto; width:132px; height:68px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--canvas); cursor:pointer; padding:4px 6px; display:flex; flex-direction:column; color:var(--ink); }
+.slice.cur{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+.slice svg{ flex:1; width:100%; }
+.slice .l{ font-size:11px; display:flex; justify-content:space-between; color:var(--ink-muted); }
+.slice.cur .l{ color:var(--ink); }
+.readout{ position:absolute; left:14px; bottom:104px; z-index:5; display:flex; gap:8px; }
+.dialog{ position:absolute; right:16px; top:70px; width:280px; z-index:8; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; }
+.dialog header{ padding:10px 12px; font-weight:600; border-bottom:1px solid var(--line); display:flex; align-items:center; }
+.dialog .body{ padding:12px; display:grid; gap:10px; }
+.dialog label{ display:grid; grid-template-columns:1fr 120px; align-items:center; gap:8px; }
+.dialog select, .dialog input{ height:28px; background:var(--canvas); border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:0 8px; color:var(--ink); }
+.dialog footer{ display:flex; justify-content:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--line); }
+.result{ padding:2px 0; display:grid; gap:2px; }
+.warnbox{ display:flex; gap:8px; align-items:flex-start; padding:8px 10px; border-radius:var(--r-md); border:1px solid var(--danger); background:color-mix(in srgb, var(--danger) 10%, transparent); }
+.popover{ position:absolute; right:12px; top:62px; width:340px; z-index:9; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; padding:14px; }
+.popover h3{ margin:0 0 6px; font-size:14px; }
+.popover p{ margin:0 0 12px; color:var(--ink-muted); }
+.popover .acts{ display:flex; gap:8px; justify-content:flex-end; }
+
+/* svg paint */
+.gridline{ stroke:var(--grid); stroke-width:1; }
+.axisline{ stroke:var(--axis); stroke-width:1; }
+.curve{ fill:none; stroke:var(--model); stroke-width:2; }
+.curve.dim{ stroke:var(--model-dim); stroke-width:1.2; }
+.fill{ fill:color-mix(in srgb, var(--model) 14%, transparent); stroke:none; }
+.poly{ fill:none; stroke:var(--line-strong); stroke-width:1; stroke-dasharray:4 4; }
+.cv{ fill:var(--canvas); stroke:var(--model); stroke-width:1.5; cursor:grab; }
+.cv:focus{ outline:none; }
+.cv.fixed{ fill:none; stroke:var(--ink-muted); stroke-dasharray:2 2; cursor:not-allowed; }
+.cv.sel{ fill:var(--accent); stroke:var(--accent); }
+.cv.corner{ stroke-dasharray:none; stroke-width:2.2; }
+.cvring{ fill:none; stroke:var(--accent); stroke-width:2; }
+.hit{ fill:transparent; stroke:none; cursor:grab; }
+.station{ stroke:var(--model-dim); stroke-width:1; stroke-dasharray:3 3; cursor:pointer; }
+.station.sel{ stroke:var(--accent); stroke-width:2; stroke-dasharray:none; }
+.stlabel{ fill:var(--ink-muted); font-size:11px; font-family:var(--font); }
+.ghost{ fill:none; stroke:var(--ghost); stroke-width:1; stroke-dasharray:5 4; }
+.bad{ stroke:var(--danger); stroke-width:3; fill:none; }
+.comb{ stroke:var(--warn); stroke-width:.8; opacity:.8; }
+
+/* audit (chrome, never ships) */
+.audit{ max-width:1200px; margin:8px auto 32px; padding:12px 16px; color:#edf4f2; font-size:12px; }
+.audit table{ border-collapse:collapse; width:100%; }
+.audit td,.audit th{ border-bottom:1px solid #344b50; padding:4px 8px; text-align:left; }
+.audit .pass{ color:#92d1a5; } .audit .fail{ color:#ffaeb5; } .audit .muted{ color:#afc6c7; }
+</style>
+</head>
+<body>
+
+<!-- ============ REVIEW HARNESS (DX10) — review chrome, never ships ============ -->
+<header class="harness" role="region" aria-label="Review harness">
+  <strong>Review · v8 CAD-first</strong>
+  <label>Screen <select id="h-screen">
+    <option value="start">1 · Start</option><option value="workspace" selected>2 · Design workspace</option>
+    <option value="section">3 · Section editor</option><option value="fair">4 · Section · Fair dialog</option></select></label>
+  <label>State <select id="h-state">
+    <option value="default">default</option><option value="loading">loading (opening a file)</option>
+    <option value="error">error (file won't open)</option><option value="invalid">invalid edit (surfaces cross)</option>
+    <option value="notassessed">shape check didn't finish</option><option value="thickness">finish → thickness choice</option>
+    <option value="overflow">overflow (long names, 12 stations)</option></select></label>
+  <label>Theme <select id="h-theme"><option>dark</option><option>light</option><option value="contrast">high-contrast</option></select></label>
+  <label>Window <select id="h-viewport"><option value="1280">1280×800</option><option value="1440" selected>1440×900</option><option value="1920">1920×1080</option></select></label>
+  <label><input type="checkbox" id="h-motion"> Reduced motion</label>
+  <span class="spacer"></span>
+  <span class="verdict" id="h-verdict">audit —</span>
+</header>
+
+<div class="stage"><div class="fit" id="fit">
+<!-- ============ DESIGN UNDER REVIEW ============ -->
+<main class="window" aria-label="CFD Workbench">
+  <div class="titlebar"><span class="lights"><i></i><i></i><i></i></span>
+    <span class="name" id="wintitle">kite-wing-850.foil <span class="dirty" title="Unsaved changes">●</span></span></div>
+
+  <!-- ================= 1 · START ================= -->
+  <section class="screen start" aria-label="Start">
+    <div class="start-wrap">
+      <div class="start-card">
+        <div class="brand">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 16 C8 8, 20 8, 26 14 C20 17, 8 18, 2 16Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          CFD Workbench
+        </div>
+
+        <div class="msg" data-when="error" role="alert">
+          <strong>“old-kite-wing.foil” didn't open.</strong><br>
+          It was saved by a newer version of CFD Workbench. Your file hasn't been changed.
+          <div style="margin-top:10px;display:flex;gap:8px"><button class="btn">Open another file…</button><button class="btn">Check for updates</button></div>
+        </div>
+
+        <div class="newrow" data-when="default error overflow notassessed invalid thickness">
+          <button class="card" id="new-blank"><svg viewBox="0 0 200 56" aria-hidden="true"><path d="M20 40 Q100 4 180 40" fill="none" stroke="var(--model-dim)" stroke-width="2" stroke-dasharray="5 4"/></svg>
+            <span class="t">New foil</span><span class="d">Start from a single straight wing.</span></button>
+          <button class="card" id="new-example"><svg viewBox="0 0 200 56" aria-hidden="true"><path d="M10 30 Q100 6 190 30 Q100 44 10 30Z" fill="var(--accent-soft)" stroke="var(--model)" stroke-width="2"/></svg>
+            <span class="t">New from example</span><span class="d">An 850 mm kite front wing to explore.</span></button>
+          <button class="card" id="open-file"><svg viewBox="0 0 200 56" aria-hidden="true"><path d="M70 14h24l6 6h30v26H70z" fill="none" stroke="var(--model)" stroke-width="2"/></svg>
+            <span class="t">Open…</span><span class="d">A .foil file on this computer. <kbd>⌘O</kbd></span></button>
+        </div>
+
+        <div class="newrow" data-when="loading" aria-busy="true">
+          <div class="skel" style="height:132px"></div><div class="skel" style="height:132px"></div><div class="skel" style="height:132px"></div>
+        </div>
+
+        <div class="recent">
+          <h2>Recent</h2>
+          <div data-when="default error notassessed invalid thickness">
+            <button class="row-btn" id="recent-1"><span>kite-wing-850.foil</span><span class="sub">~/Foils · today 09:12</span></button>
+            <button class="row-btn"><span>pump-foil-1100.foil</span><span class="sub">~/Foils · yesterday</span></button>
+            <button class="row-btn"><span>wing-stabiliser-360.foil</span><span class="sub">~/Foils/Stabs · 21 Sep</span></button>
+          </div>
+          <div data-when="overflow">
+            <button class="row-btn"><span style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27-final-final.foil</span><span class="sub">~/Dropbox/Shared/Foil Lab · today</span></button>
+            <button class="row-btn"><span>kite-wing-850.foil</span><span class="sub">~/Foils · today 09:12</span></button>
+          </div>
+          <div data-when="loading"><div class="skel" style="height:36px;margin-bottom:4px"></div><div class="skel" style="height:36px"></div></div>
+          <p class="d" style="color:var(--ink-muted)" data-when="default">Recent files appear here. Nothing else is needed to start.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 · DESIGN WORKSPACE ================= -->
+  <section class="screen workspace" aria-label="Design workspace">
+    <div class="toolbar" role="toolbar" aria-label="Design tools">
+      <div class="tb-file">
+        <button class="tool" aria-label="File menu" id="to-start"><svg viewBox="0 0 20 20"><path d="M3 5h14M3 10h14M3 15h14"/></svg></button>
+        <span class="fname" id="fname-ws">kite-wing-850</span>
+      </div>
+      <div class="group"><div class="tools">
+        <button class="tool" aria-pressed="true" aria-label="Select (V)"><svg viewBox="0 0 20 20"><path d="M5 3l10 7-5 1-2 5z"/></svg></button>
+      </div><div class="glabel">Select</div></div>
+      <div class="group"><div class="tools">
+        <button class="tool" aria-label="Add point (double-click a curve)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3"/></svg></button>
+        <button class="tool" aria-label="Delete point (Del)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M4 4l12 12"/></svg></button>
+      </div><div class="glabel">Curve</div></div>
+      <div class="group"><div class="tools">
+        <button class="tool" aria-label="Add station"><svg viewBox="0 0 20 20"><path d="M10 2v16M6 6h8M6 14h8"/></svg></button>
+        <button class="tool" id="edit-section-tb" aria-label="Edit section (E)"><svg viewBox="0 0 20 20"><path d="M2 11 C6 5, 14 5, 18 10 C14 13, 6 14, 2 11Z"/></svg></button>
+      </div><div class="glabel">Section</div></div>
+      <div class="group"><div class="tools">
+        <button class="tool" aria-label="Measure (M)"><svg viewBox="0 0 20 20"><path d="M3 15L15 3M5 17L17 5M7 13l2 2M11 9l2 2"/></svg></button>
+        <button class="tool" id="comb-ws" aria-pressed="false" aria-label="Curvature comb (C)"><svg viewBox="0 0 20 20"><path d="M2 14 C7 6, 13 6, 18 14"/><path d="M6 10v-4M10 8V3M14 10V6"/></svg></button>
+      </div><div class="glabel">Inspect</div></div>
+      <div class="tb-right">
+        <button class="tool" aria-label="Undo (⌘Z)"><svg viewBox="0 0 20 20"><path d="M7 5L3 9l4 4M3 9h9a5 5 0 010 10"/></svg></button>
+        <button class="tool" aria-label="Redo (⇧⌘Z)"><svg viewBox="0 0 20 20"><path d="M13 5l4 4-4 4M17 9H8a5 5 0 000 10"/></svg></button>
+        <div class="search" role="search"><svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 12l5 5" stroke="currentColor" stroke-width="1.6"/></svg><span>Search commands</span><kbd>⌘K</kbd></div>
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="views" id="views" data-layout="quad" data-when="default notassessed invalid thickness overflow error">
+        <div class="view active" data-view="plan"><button class="vlabel">Plan</button><svg class="g" id="v-plan" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="view" data-view="3d"><button class="vlabel">3D</button><svg class="g" id="v-3d" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="view" data-view="side"><button class="vlabel">Side</button><svg class="g" id="v-side" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="view" data-view="front"><button class="vlabel">Front</button><svg class="g" id="v-front" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet"></svg></div>
+      </div>
+      <div class="views" data-layout="single" data-when="loading" aria-busy="true"><div class="view active" style="display:grid;place-items:center"><div style="text-align:center;color:var(--ink-muted)"><div class="skel" style="width:420px;height:140px;margin-bottom:12px"></div>Opening kite-wing-850.foil…</div></div></div>
+
+      <!-- floating browser (collapsible) -->
+      <nav class="browser" id="browser" aria-label="Model browser" data-collapsed="true" data-when="default notassessed invalid thickness overflow error">
+        <header><svg class="eye" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+          <span id="bname">kite-wing-850</span>
+          <button class="tool chev" id="collapse" aria-label="Collapse browser" style="min-width:24px;height:24px;padding:0"><svg viewBox="0 0 20 20"><path d="M5 8l5 5 5-5"/></svg></button></header>
+        <ul>
+          <li><button class="row-btn">Leading edge <span class="sub">curve · 3 points</span></button></li>
+          <li><button class="row-btn">Trailing edge <span class="sub">curve · 3 points</span></button></li>
+          <li><button class="row-btn">Dihedral</button></li>
+          <li><button class="row-btn">Twist</button></li>
+          <li><button class="row-btn">Thickness <span class="sub num">11.0 %</span></button></li>
+          <li><button class="row-btn">Sections <span class="sub" id="nsections">3</span></button></li>
+          <li id="brows-sections"></li>
+        </ul>
+      </nav>
+
+      <!-- view cube -->
+      <svg class="cube" viewBox="0 0 64 64" role="img" aria-label="View cube — Top" data-when="default notassessed invalid thickness overflow error">
+        <path d="M14 22 L32 12 L50 22 L50 44 L32 54 L14 44Z" fill="var(--chrome)" stroke="var(--line-strong)"/>
+        <path d="M14 22 L32 32 L50 22 M32 32 L32 54" fill="none" stroke="var(--line-strong)"/>
+        <text x="32" y="25" text-anchor="middle" font-size="8" fill="var(--ink)" font-family="system-ui">TOP</text>
+      </svg>
+
+      <!-- selected station HUD -->
+      <div class="hud hidden" id="station-hud" role="dialog" aria-label="Selected station">
+        <h3 id="hud-title">Mid</h3>
+        <div class="meta"><span class="num" id="hud-pos">212 mm</span> from root · t/c <span class="num">11.0 %</span></div>
+        <div class="meta" id="hud-profile">section-a · shared with Root</div>
+        <svg class="thumb" id="hud-thumb" viewBox="0 0 200 54" aria-hidden="true"></svg>
+        <div class="acts"><button class="btn primary" id="hud-edit">Edit section</button><button class="btn" id="hud-close">Close</button></div>
+      </div>
+
+      <!-- selected point (plan view) — a point is a first-class object with typed values -->
+      <div class="hud hidden" id="plan-hud" role="dialog" aria-label="Selected point" style="min-width:230px">
+        <h3 id="ph-title">Leading edge · tip end</h3>
+        <div class="field"><span class="u">span</span><input id="ph-y" class="num" value="425.0" aria-label="Span position"><span class="u">mm</span></div>
+        <div class="field"><span class="u">aft</span><input id="ph-x" class="num" value="34.0" aria-label="Aft position"><span class="u">mm</span></div>
+        <div class="seg" id="ph-kind" role="group" aria-label="Point type" style="margin-top:8px"><button aria-pressed="true">Smooth</button><button aria-pressed="false">Corner</button></div>
+        <div class="meta" id="ph-note" style="margin-top:6px">Tip chord 87.4 mm.</div>
+        <div class="acts"><button class="btn" id="ph-close">Close</button></div>
+      </div>
+
+      <!-- nav bar -->
+      <div class="navbar" role="toolbar" aria-label="View navigation" data-when="default notassessed invalid thickness overflow error">
+        <button class="tool" aria-label="Orbit"><svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="8" ry="4"/><path d="M15 6l3 0 0-3"/></svg></button>
+        <button class="tool" aria-label="Pan"><svg viewBox="0 0 20 20"><path d="M10 2v16M2 10h16M10 2l-2 2M10 2l2 2M10 18l-2-2M10 18l2-2"/></svg></button>
+        <button class="tool" aria-label="Zoom"><svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><path d="M13 13l5 5M7 9h4M9 7v4"/></svg></button>
+        <button class="tool" aria-label="Fit all (F)"><svg viewBox="0 0 20 20"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg></button>
+        <span class="sep"></span>
+        <button class="tool" id="lay-quad" aria-pressed="true" aria-label="Four views"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6"/><rect x="11" y="3" width="6" height="6"/><rect x="3" y="11" width="6" height="6"/><rect x="11" y="11" width="6" height="6"/></svg></button>
+        <button class="tool" id="lay-single" aria-pressed="false" aria-label="One view"><svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14"/></svg></button>
+      </div>
+
+      <div class="statusl" data-when="default notassessed invalid thickness overflow error"><span>mm</span><span>·</span><span>Unsaved changes</span></div>
+      <div class="statusr">
+        <span class="chip" data-when="default invalid thickness overflow error"><span class="dot"></span>Shape OK</span>
+        <span class="chip warn" data-when="notassessed" role="status"><span class="dot"></span>Shape check didn't finish · <button class="btn" style="height:26px;padding:0 10px">Retry</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3 · SECTION EDITOR (a mode, like Fusion's Sketch) ================= -->
+  <section class="screen section" aria-label="Section editor">
+    <div class="toolbar" role="toolbar" aria-label="Section tools">
+      <div class="tb-file"><span class="fname">kite-wing-850 › <span style="color:var(--accent)" id="sec-name">Mid section</span></span></div>
+      <div class="group"><div class="tools">
+        <button class="tool" aria-pressed="true" aria-label="Move points (V)"><svg viewBox="0 0 20 20"><path d="M5 3l10 7-5 1-2 5z"/></svg></button>
+        <button class="tool" aria-label="Add point (double-click the curve)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3"/></svg></button>
+        <button class="tool" aria-label="Delete point (Del)"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/><path d="M4 4l12 12"/></svg></button>
+      </div><div class="glabel">Points</div></div>
+      <div class="group"><div class="tools">
+        <button class="tool" id="fair-btn">Fair…</button>
+        <button class="tool">Rebuild…</button>
+        <button class="tool">Import .dat…</button>
+      </div><div class="glabel">Shape</div></div>
+      <div class="group"><div class="tools">
+        <button class="tool" id="comb-sec" aria-pressed="true" aria-label="Curvature comb (C)"><svg viewBox="0 0 20 20"><path d="M2 14 C7 6, 13 6, 18 14"/><path d="M6 10v-4M10 8V3M14 10V6"/></svg></button>
+        <button class="tool" id="ghost-btn" aria-pressed="true" aria-label="Show original shape"><svg viewBox="0 0 20 20"><path d="M2 11 C6 5, 14 5, 18 10" stroke-dasharray="3 2"/></svg></button>
+      </div><div class="glabel">Inspect</div></div>
+      <div class="tb-right">
+        <button class="tool" aria-label="Undo (⌘Z)"><svg viewBox="0 0 20 20"><path d="M7 5L3 9l4 4M3 9h9a5 5 0 010 10"/></svg></button>
+        <button class="btn" id="sec-cancel">Cancel</button>
+        <button class="btn finish" id="sec-finish">Finish section</button>
+      </div>
+    </div>
+
+    <div class="canvas">
+      <div class="scope" role="group" aria-label="Edit scope">
+        <div class="seg"><button aria-pressed="true" id="scope-shared">Shared profile</button><button aria-pressed="false" id="scope-only">Only this station</button></div>
+        <span class="note" id="scope-note">Also changes Root · blends toward Tip</span>
+      </div>
+
+      <div class="sec-canvas"><svg id="v-sec" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid meet" aria-label="Section profile. Tab to a point, arrow keys to move it."></svg></div>
+
+      <!-- inline point HUD -->
+      <div class="hud hidden" id="pt-hud" role="dialog" aria-label="Selected point" style="min-width:210px">
+        <h3 id="pt-title">Upper · crest</h3>
+        <div class="field"><span class="u" id="pt-xl">x</span><input id="pt-x" class="num" value="0.280" aria-label="x"><span class="u" id="pt-xu">c</span></div>
+        <div class="field"><span class="u" id="pt-yl">y</span><input id="pt-y" class="num" value="0.074" aria-label="y"><span class="u">c</span></div>
+        <div class="seg" id="pt-kind" role="group" aria-label="Point type" style="margin-top:8px"><button id="k-smooth" aria-pressed="true">Smooth</button><button id="k-corner" aria-pressed="false">Corner</button></div>
+        <div class="meta" style="margin-top:6px"><span class="num" id="pt-mm">x 59.1 mm · y 15.6 mm</span></div>
+        <div class="meta">Arrows nudge 0.001 c · Shift ×10 · C toggles smooth/corner</div>
+      </div>
+
+      <div class="readout">
+        <span class="chip"><span class="num">t/c <span id="tc">11.0</span> %</span></span>
+        <span class="chip"><span class="num">max at x <span id="tcx">0.30</span> c</span></span>
+        <span class="chip bad" data-when="invalid" role="alert"><span class="dot"></span>Upper and lower cross near x 0.82 — move the point back to finish</span>
+        <span class="chip warn" data-when="notassessed" role="status"><span class="dot"></span>Shape check didn't finish · <button class="btn" style="height:26px;padding:0 10px">Retry</button></span>
+      </div>
+
+      <!-- Fair dialog (command dialog, Fusion pattern) -->
+      <div class="dialog" id="fair-dialog" role="dialog" aria-label="Fair section">
+        <header>Fair section</header>
+        <div class="body">
+          <label>Tolerance <input class="num" value="0.10 mm"></label>
+          <label>Keep ends <select><option>Position</option><option>Tangent</option><option>Curvature</option></select></label>
+          <div class="result">
+            <span>Largest change <strong class="num">0.08 mm</strong></span>
+            <span class="meta">Points 12 → 12 · smoother nose curvature</span>
+          </div>
+          <div class="warnbox hidden" id="fair-warn"><span>Can't fair within 0.01 mm without changing the shape more. Raise the tolerance or cancel.</span></div>
+        </div>
+        <footer><button class="btn" id="fair-cancel">Cancel</button><button class="btn primary" id="fair-ok">OK</button></footer>
+      </div>
+
+      <!-- Finish → thickness decision (only when thickness changed) -->
+      <div class="popover" data-when="thickness" role="dialog" aria-label="Thickness">
+        <h3>This section is now 12.6 % thick</h3>
+        <p>The wing's thickness is 11.0 % here. Keep the wing's thickness and use only the new shape, or change the wing to match this section?</p>
+        <div class="acts"><button class="btn">Back</button><button class="btn">Use 12.6 %</button><button class="btn finish">Keep 11.0 %</button></div>
+      </div>
+
+      <div class="strip" role="listbox" aria-label="Stations" id="strip"></div>
+    </div>
+  </section>
+</main>
+</div></div>
+
+<!-- ============ IN-ARTIFACT MECHANICAL AUDIT (DX11) ============ -->
+<section class="audit" aria-label="Mechanical audit">
+  <table><thead><tr><th>Pairing (token on token)</th><th>Contrast</th><th>WCAG AA</th></tr></thead><tbody id="audit-rows"></tbody></table>
+  <p class="muted" id="audit-targets"></p>
+  <p class="muted" id="audit-count"></p>
+  <p class="muted">Computed live from the rendered tokens. Targets are checked against WCAG 2.2 AA 2.5.8 (24×24 CSS px) — a recorded deviation from DESIGN.md's 44 px touch target for this desktop precision-pointer surface.</p>
+</section>
+
+<script>
+/* ---------------- harness wiring ---------------- */
+const root = document.documentElement;
+const $ = id => document.getElementById(id);
+function bind(id, attr, after){ const el = $(id); el.addEventListener('change', () => { root.dataset[attr] = el.value; after && after(); refit(); audit(); }); }
+bind('h-screen','screen', draw); bind('h-state','state', draw); bind('h-theme','theme'); bind('h-viewport','viewport');
+$('h-motion').addEventListener('change', e => { root.dataset.motion = e.target.checked ? 'reduced' : 'full'; });
+function go(screen){ root.dataset.screen = screen; $('h-screen').value = screen; draw(); refit(); audit(); }
+function refit(){ const w = document.querySelector('.window'); const avail = document.documentElement.clientWidth - 32;
+  const s = Math.min(1, avail / w.offsetWidth); const f = $('fit'); f.style.transform = `scale(${s})`; f.style.height = (w.offsetHeight * s) + 'px'; f.style.width = (w.offsetWidth * s) + 'px'; }
+window.addEventListener('resize', refit);
+
+/* ---------------- model (illustrative numbers only) ---------------- */
+const NS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
+const half = 425;                                   // mm half-span
+const chord = e => 182 * (1 - 0.52 * Math.pow(e, 1.6));
+const le = e => 34 * e * e;                          // sweep of the leading edge, mm aft
+const dih = e => -18 * e * e;                        // anhedral, mm
+function stationsFor(state){
+  if (state === 'overflow') return Array.from({length:12}, (_, i) => ({ eta: i/11, name: i===0 ? 'Root' : i===11 ? 'Tip' : `S${i}`, prof: i < 6 ? 'section-a' : 'section-b' }));
+  return [ { eta:0, name:'Root', prof:'section-a' }, { eta:.5, name:'Mid', prof:'section-a' }, { eta:1, name:'Tip', prof:'section-b' } ];
+}
+let selStation = 1, selPlan = null;
+const planPoints = () => [
+  { id:'le0', curve:'LE', eta:0,   end:true,  name:'Leading edge · root end' },
+  { id:'le1', curve:'LE', eta:.55, end:false, name:'Leading edge · point 2' },
+  { id:'le2', curve:'LE', eta:1,   end:true,  name:'Leading edge · tip end' },
+  { id:'te0', curve:'TE', eta:0,   end:true,  name:'Trailing edge · root end' },
+  { id:'te1', curve:'TE', eta:.5,  end:false, name:'Trailing edge · point 2' },
+  { id:'te2', curve:'TE', eta:1,   end:true,  name:'Trailing edge · tip end' } ];
+function showPlanHud(pt, x, y){
+  const h = $('plan-hud'); h.classList.remove('hidden');
+  $('ph-title').textContent = pt.name;
+  $('ph-y').value = y.toFixed(1); $('ph-x').value = x.toFixed(1);
+  $('ph-y').disabled = pt.eta === 0;
+  $('ph-note').textContent = pt.eta === 0 ? 'Root end sits on the centreline: move it forward or aft only.'
+    : pt.end ? `Tip chord ${chord(1).toFixed(1)} mm between the leading- and trailing-edge tip ends.` : 'Drag the handles to shape the curve through this point.';
+  $('ph-kind').classList.toggle('hidden', pt.end);
+  h.style.left = '300px'; h.style.top = '60px';
+}
+
+/* section profile: every curve is on-curve points with tangent handles (levers); ends are named points.
+   Units are chord fractions. hin/hout are handle vectors relative to the point; kind: smooth | corner | end | fixed. */
+const baseUpper = [
+  { name:'Leading edge (nose)', p:[0,0],        hin:null,           hout:[0,0.034],      kind:'fixed' },
+  { name:'Upper · crest',       p:[0.28,0.074], hin:[-0.15,0],      hout:[0.17,0],       kind:'smooth' },
+  { name:'Upper · aft',         p:[0.72,0.044], hin:[-0.16,0.013],  hout:[0.12,-0.010],  kind:'smooth' },
+  { name:'Trailing edge · upper end', p:[1,0.0016], hin:[-0.12,0.019], hout:null,        kind:'end' } ];
+const baseLower = [
+  { name:'Leading edge (nose)', p:[0,0],         hin:null,          hout:[0,-0.024],     kind:'fixed' },
+  { name:'Lower · belly',       p:[0.26,-0.039], hin:[-0.13,0],     hout:[0.17,0],       kind:'smooth' },
+  { name:'Lower · aft',         p:[0.70,-0.014], hin:[-0.18,-0.012],hout:[0.12,0.006],   kind:'smooth' },
+  { name:'Trailing edge · lower end', p:[1,-0.0016], hin:[-0.10,-0.005], hout:null,      kind:'end' } ];
+const clone = A => A.map(a => ({ ...a, p:a.p.slice(), hin:a.hin && a.hin.slice(), hout:a.hout && a.hout.slice() }));
+let upper = clone(baseUpper), lower = clone(baseLower);
+let selPt = { side:'upper', i:1, part:'point' };      // part: point | hin | hout
+function sample(A, n = 40){
+  const out = [];
+  for (let s = 0; s < A.length - 1; s++){
+    const a = A[s], b = A[s+1], p0 = a.p, p1 = [a.p[0]+a.hout[0], a.p[1]+a.hout[1]], p2 = [b.p[0]+b.hin[0], b.p[1]+b.hin[1]], p3 = b.p;
+    for (let k = s ? 1 : 0; k <= n; k++){ const t = k/n, u = 1-t;
+      out.push([u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0], u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]]); }
+  }
+  return out;
+}
+const bspline = (A, n) => sample(A, n ? Math.max(8, Math.round(n / 3)) : 40);   // kept name for the view helpers
+const pathOf = (pts, sx, sy) => pts.map((p, i) => (i ? 'L' : 'M') + sx(p[0]).toFixed(1) + ' ' + sy(p[1]).toFixed(1)).join(' ');
+
+/* ---------------- workspace views ---------------- */
+function grid(svg, w, h, step){ for (let x = step; x < w; x += step) el('line', {x1:x, y1:0, x2:x, y2:h, class:'gridline'}, svg); for (let y = step; y < h; y += step) el('line', {x1:0, y1:y, x2:w, y2:y, class:'gridline'}, svg); }
+function drawPlan(){
+  const svg = $('v-plan'); svg.innerHTML = ''; grid(svg, 700, 420, 35);
+  const cx = 350, sx = y => cx + y * 0.72, sy = x => 110 + x * 0.95;
+  el('line', {x1:cx, y1:20, x2:cx, y2:400, class:'axisline'}, svg);
+  const N = 60, leP = [], teP = [];
+  for (let i = -N; i <= N; i++){ const e = Math.abs(i)/N, y = i/N*half; leP.push([y, le(e)]); teP.push([y, le(e) + chord(e)]); }
+  el('path', {d: pathOf(leP.concat(teP.slice().reverse()), sx, sy) + 'Z', class:'fill'}, svg);
+  el('path', {d: pathOf(leP, sx, sy), class:'curve'}, svg);
+  el('path', {d: pathOf(teP, sx, sy), class:'curve'}, svg);
+  // points on the leading- and trailing-edge curves (right half); ends are named points
+  planPoints().forEach(pt => {
+    const x = pt.curve === 'LE' ? le(pt.eta) : le(pt.eta) + chord(pt.eta), y = pt.eta * half, X = sx(y), Y = sy(x);
+    const isSel = selPlan === pt.id;
+    if (isSel && !pt.end){ const f = e => pt.curve === 'LE' ? le(e) : le(e) + chord(e), d = f(pt.eta + .01) - f(pt.eta - .01);
+      const dy = .02*half, n = Math.hypot(dy*.72, d*.95) || 1, hx = dy*.72/n*46, hy = d*.95/n*46;
+      [-1, 1].forEach(s => { el('line', {x1:X, y1:Y, x2:X+s*hx, y2:Y+s*hy, stroke:'var(--accent)', 'stroke-width':1}, svg); el('circle', {cx:X+s*hx, cy:Y+s*hy, r:4.5, class:'cv'}, svg); }); }
+    const g = el('g', {tabindex:0, role:'button', 'aria-label': pt.name}, svg);
+    el('circle', {cx:X, cy:Y, r:12, class:'hit'}, g);
+    if (pt.end) el('path', {d:`M${X} ${Y-6} l6 6 -6 6 -6 -6z`, class:'cv' + (isSel ? ' sel' : '')}, g);
+    else el('rect', {x:X-4.5, y:Y-4.5, width:9, height:9, class:'cv' + (isSel ? ' sel' : '')}, g);
+    const pick = () => { selPlan = pt.id; $('station-hud').classList.add('hidden'); drawPlan(); showPlanHud(pt, x, y); };
+    g.addEventListener('click', pick); g.addEventListener('keydown', ev => { if (ev.key === 'Enter') pick(); });
+  });
+  stationsFor(root.dataset.state).forEach((s, i) => {
+    [1, -1].forEach(sgn => { if (s.eta === 0 && sgn < 0) return;
+      const y = sgn * s.eta * half, x0 = le(s.eta), x1 = x0 + chord(s.eta);
+      const hitW = 18;
+      el('line', {x1:sx(y), y1:sy(x0)-8, x2:sx(y), y2:sy(x1)+8, class:'station' + (i===selStation ? ' sel' : '')}, svg);
+      const hit = el('rect', {x:sx(y)-hitW/2, y:sy(x0)-10, width:hitW, height:sy(x1)-sy(x0)+20, class:'hit', tabindex: sgn>0 ? 0 : -1, role:'button', 'aria-label': `${s.name} station`}, svg);
+      hit.addEventListener('click', ev => { selStation = i; draw(); showHud(ev); });
+      hit.addEventListener('dblclick', () => { selStation = i; openSection(); });
+      hit.addEventListener('keydown', ev => { if (ev.key === 'Enter'){ selStation = i; openSection(); } });
+      if (sgn > 0 || s.eta === 0) el('text', {x:sx(y)+ (s.eta===1 ? -6 : 6), y:sy(x1)+22, class:'stlabel', 'text-anchor': s.eta===1 ? 'end' : 'start'}, svg).textContent = s.name;
+    });
+  });
+  // points always sit above station bands: a click on a point selects the point, never the station behind it
+  svg.querySelectorAll('g[role="button"]').forEach(g => svg.appendChild(g));
+}
+function drawSide(){
+  const svg = $('v-side'); svg.innerHTML = ''; grid(svg, 700, 420, 35);
+  const sx = x => 170 + x * 2, sy = z => 210 - z * 2;
+  el('line', {x1:40, y1:210, x2:660, y2:210, class:'axisline'}, svg);
+  const s = bspline(upper).concat(bspline(lower).reverse());
+  const c = chord(0);
+  el('path', {d: pathOf(s.map(p => [p[0]*c, p[1]*c]), sx, sy) + 'Z', class:'fill'}, svg);
+  el('path', {d: pathOf(s.map(p => [p[0]*c, p[1]*c]), sx, sy) + 'Z', class:'curve'}, svg);
+  const t = bspline(upper).concat(bspline(lower).reverse()), ct = chord(1);
+  el('path', {d: pathOf(t.map(p => [le(1) + p[0]*ct, dih(1) + p[1]*ct]), sx, sy) + 'Z', class:'curve dim'}, svg);
+}
+function drawFront(){
+  const svg = $('v-front'); svg.innerHTML = ''; grid(svg, 700, 420, 35);
+  const sx = y => 350 + y * 0.72, sy = z => 190 - z * 3;
+  el('line', {x1:350, y1:30, x2:350, y2:390, class:'axisline'}, svg);
+  const top = [], bot = [];
+  for (let i = -60; i <= 60; i++){ const e = Math.abs(i)/60, y = i/60*half, t = 0.11 * chord(e) * .55; top.push([y, dih(e) + t]); bot.push([y, dih(e) - t*.6]); }
+  el('path', {d: pathOf(top.concat(bot.reverse()), sx, sy) + 'Z', class:'fill'}, svg);
+  el('path', {d: pathOf(top, sx, sy), class:'curve'}, svg);
+  el('path', {d: pathOf(bot.slice().reverse(), sx, sy), class:'curve'}, svg);
+}
+function draw3d(){
+  const svg = $('v-3d'); svg.innerHTML = '';
+  const P = (x, y, z) => [350 + y*0.62 - x*0.35, 175 + x*0.42 + y*0.08 - z*1.2];
+  const prof = bspline(upper, 40).concat(bspline(lower, 40).reverse());
+  const sts = stationsFor(root.dataset.state);
+  for (let k = -10; k <= 10; k++){ const e = Math.abs(k)/10, y = k/10*half, c = chord(e);
+    const pts = prof.map(p => P(le(e) + p[0]*c, y, dih(e) + p[1]*c));
+    el('path', {d: pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + 'Z', class: 'curve dim'}, svg); }
+  const edge = f => { const pts = []; for (let k = -40; k <= 40; k++){ const e = Math.abs(k)/40; pts.push(P(f(e), k/40*half, dih(e))); } return pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' '); };
+  el('path', {d: edge(le), class:'curve'}, svg); el('path', {d: edge(e => le(e) + chord(e)), class:'curve'}, svg);
+  const s = sts[selStation]; if (s){ [1,-1].forEach(sg => { if (s.eta===0 && sg<0) return; const c = chord(s.eta);
+    const pts = prof.map(p => P(le(s.eta) + p[0]*c, sg*s.eta*half, dih(s.eta) + p[1]*c));
+    el('path', {d: pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + 'Z', fill:'none', stroke:'var(--accent)', 'stroke-width':2}, svg); }); }
+}
+function browserSections(){
+  const host = $('brows-sections'); host.innerHTML = '';
+  const sts = stationsFor(root.dataset.state); $('nsections').textContent = sts.length;
+  const list = root.dataset.state === 'overflow' ? sts.slice(0, 6) : sts;
+  list.forEach((s, i) => { const b = document.createElement('button'); b.className = 'row-btn child' + (i===selStation ? ' sel' : '');
+    b.innerHTML = `${s.name}<span class="sub">${s.prof}</span>`; b.addEventListener('click', ev => { selStation = i; draw(); showHud(); }); b.addEventListener('dblclick', () => { selStation = i; openSection(); }); host.appendChild(b); });
+  if (root.dataset.state === 'overflow'){ const m = document.createElement('div'); m.className = 'row-btn child'; m.style.color = 'var(--ink-muted)'; m.textContent = `+ ${sts.length - 6} more`; host.appendChild(m); }
+}
+function thumbInto(svg){ svg.innerHTML = ''; const sx = x => 10 + x*180, sy = y => 27 - y*260;
+  el('path', {d: pathOf(bspline(upper, 60).concat(bspline(lower, 60).reverse()), sx, sy) + 'Z', fill:'var(--accent-soft)', stroke:'var(--model)', 'stroke-width':1.5}, svg); }
+function showHud(){
+  const s = stationsFor(root.dataset.state)[selStation]; if (!s) return;
+  $('hud-title').textContent = s.name; $('hud-pos').textContent = Math.round(s.eta*half) + ' mm';
+  const shared = stationsFor(root.dataset.state).filter(o => o.prof === s.prof && o !== s).map(o => o.name);
+  $('hud-profile').textContent = s.prof + (shared.length ? ' · shared with ' + shared.slice(0,3).join(', ') + (shared.length > 3 ? '…' : '') : ' · used only here');
+  thumbInto($('hud-thumb'));
+  const h = $('station-hud'); h.classList.remove('hidden');
+  const views = $('views').getBoundingClientRect(), fit = $('fit').getBoundingClientRect(), sc = fit.width / document.querySelector('.window').offsetWidth || 1;
+  h.style.left = Math.min(260 + s.eta*260, 460) + 'px'; h.style.top = '250px';
+  $('hud-edit').focus({preventScroll:true});
+}
+$('hud-close').addEventListener('click', () => $('station-hud').classList.add('hidden'));
+$('hud-edit').addEventListener('click', openSection);
+$('edit-section-tb').addEventListener('click', openSection);
+function openSection(){ $('station-hud').classList.add('hidden'); const s = stationsFor(root.dataset.state)[selStation]; $('sec-name').textContent = s.name + ' section'; go('section'); }
+
+/* ---------------- section editor: points + handles ---------------- */
+const SX = x => 110 + x*980, SY = y => 270 - y*1900;   // thickness drawn 2x; labelled in the view
+const sideArr = s => s === 'upper' ? upper : lower;
+const abs = (a, v) => [a.p[0] + v[0], a.p[1] + v[1]];
+function selAnchor(){ return sideArr(selPt.side)[selPt.i]; }
+function drawSection(){
+  const svg = $('v-sec'); svg.innerHTML = '';
+  for (let x = 0; x <= 10; x++) el('line', {x1:SX(x/10), y1:60, x2:SX(x/10), y2:480, class:'gridline'}, svg);
+  el('line', {x1:SX(0)-30, y1:SY(0), x2:SX(1)+30, y2:SY(0), class:'axisline'}, svg);
+  const U = sample(upper), L = sample(lower);
+  if ($('ghost-btn').getAttribute('aria-pressed') === 'true') el('path', {d: pathOf(sample(baseUpper).concat(sample(baseLower).reverse()), SX, SY) + 'Z', class:'ghost'}, svg);
+  el('path', {d: pathOf(U.concat(L.slice().reverse()), SX, SY), class:'fill'}, svg);
+  if ($('comb-sec').getAttribute('aria-pressed') === 'true'){
+    [U, L].forEach((C, ci) => { for (let i = 3; i < C.length - 3; i += 3){ const a = C[i-2], b = C[i], c = C[i+2];
+      const k = ((c[1]-b[1])/(c[0]-b[0]+1e-9) - (b[1]-a[1])/(b[0]-a[0]+1e-9)) * 2.0 * (ci ? -1 : 1);
+      el('line', {x1:SX(b[0]), y1:SY(b[1]), x2:SX(b[0]), y2:SY(b[1]) - Math.max(-60, Math.min(60, k*34)), class:'comb'}, svg); } }); }
+  el('path', {d: pathOf(U, SX, SY), class:'curve'}, svg); el('path', {d: pathOf(L, SX, SY), class:'curve'}, svg);
+  if (root.dataset.state === 'invalid'){ const seg = U.filter(p => p[0] > .76 && p[0] < .88); el('path', {d: pathOf(seg, SX, SY), class:'bad'}, svg); }
+  // trailing-edge gap, drawn and dimensioned between the two named end points
+  const tu = upper[upper.length-1].p, tl = lower[lower.length-1].p;
+  el('line', {x1:SX(1)+18, y1:SY(tu[1]), x2:SX(1)+18, y2:SY(tl[1]), stroke:'var(--ink-muted)', 'stroke-width':1}, svg);
+  el('text', {x:SX(1)+26, y:SY(0)+4, class:'stlabel'}, svg).textContent = `TE gap ${((tu[1]-tl[1])*chord(.5)).toFixed(1)} mm`;
+  [['upper', upper], ['lower', lower]].forEach(([side, A]) => {
+    A.forEach((a, i) => {
+      if (side === 'lower' && i === 0) return;                      // the nose is one shared point, drawn once
+      const isSel = selPt.side === side && selPt.i === i;
+      if (isSel){                                                   // levers only on the selected point, like Rhino / Shape3D
+        [['hin', a.hin], ['hout', a.hout]].forEach(([part, v]) => { if (!v) return; const h = abs(a, v);
+          el('line', {x1:SX(a.p[0]), y1:SY(a.p[1]), x2:SX(h[0]), y2:SY(h[1]), stroke:'var(--accent)', 'stroke-width':1}, svg);
+          const hg = el('g', {tabindex:0, role:'button', 'data-k':`${side}:${i}:${part}`, 'aria-label': `${a.name} handle ${part === 'hin' ? 'in' : 'out'}`}, svg);
+          el('circle', {cx:SX(h[0]), cy:SY(h[1]), r:12, class:'hit'}, hg);
+          el('circle', {cx:SX(h[0]), cy:SY(h[1]), r:5, class:'cv' + (selPt.part === part ? ' sel' : '')}, hg);
+          hg.addEventListener('pointerdown', ev => { ev.stopPropagation(); selPt = {side, i, part}; drag = {...selPt}; drawSection(); placePtHud(); });
+          hg.addEventListener('focus', () => { if (selPt.part !== part){ selPt = {side, i, part}; drawSection(); placePtHud(); refocus(); } });
+        });
+      }
+      const g = el('g', {tabindex:0, role:'button', 'data-k':`${side}:${i}:point`, 'aria-label': `${a.name}, x ${a.p[0].toFixed(3)}, y ${a.p[1].toFixed(3)}${a.kind === 'fixed' ? ', fixed at the chord origin' : ''}`}, svg);
+      el('circle', {cx:SX(a.p[0]), cy:SY(a.p[1]), r:12, class:'hit'}, g);
+      const glyph = a.kind === 'end' || a.kind === 'fixed'
+        ? el('path', {d:`M${SX(a.p[0])} ${SY(a.p[1])-7} l7 7 -7 7 -7 -7z`, class:'cv' + (a.kind === 'fixed' ? ' fixed' : '') + (isSel && selPt.part === 'point' ? ' sel' : '')}, g)
+        : el('rect', {x:SX(a.p[0])-5, y:SY(a.p[1])-5, width:10, height:10, class:'cv' + (isSel && selPt.part === 'point' ? ' sel' : '') + (a.kind === 'corner' ? ' corner' : '')}, g);
+      if (isSel && selPt.part === 'point') el('circle', {cx:SX(a.p[0]), cy:SY(a.p[1]), r:12, class:'cvring'}, g);
+      g.addEventListener('pointerdown', () => { selPt = {side, i, part:'point'}; if (a.kind !== 'fixed') drag = {...selPt}; drawSection(); placePtHud(); });
+      g.addEventListener('focus', () => { if (!(selPt.side === side && selPt.i === i && selPt.part === 'point')){ selPt = {side, i, part:'point'}; drawSection(); placePtHud(); refocus(); } });
+    });
+  });
+  el('text', {x:SX(0), y:500, class:'stlabel'}, svg).textContent = 'Thickness drawn 2× for editing · chord 0 → 1 · squares: points · circles: handles · diamonds: end points';
+  const tAt = x => { const a = U.reduce((m, p) => Math.abs(p[0]-x) < Math.abs(m[0]-x) ? p : m), b = L.reduce((m, p) => Math.abs(p[0]-x) < Math.abs(m[0]-x) ? p : m); return a[1]-b[1]; };
+  let best = [0, 0]; for (let x = .05; x < .95; x += .01){ const t = tAt(x); if (t > best[0]) best = [t, x]; }
+  $('tc').textContent = (best[0]*100).toFixed(1); $('tcx').textContent = best[1].toFixed(2);
+}
+let drag = null;
+function refocus(){ const g = $('v-sec').querySelector(`g[data-k="${selPt.side}:${selPt.i}:${selPt.part}"]`); g && g.focus({preventScroll:true}); }
+function move(dx, dy, absX, absY){
+  const A = sideArr(selPt.side), a = A[selPt.i];
+  if (selPt.part === 'point'){
+    if (a.kind === 'fixed') return;
+    if (a.kind === 'end'){ a.p[1] = absY !== undefined ? absY : a.p[1] + dy; return; }        // TE end points move in y only: x stays at the chord end
+    const lo = A[selPt.i-1].p[0] + .01, hi = A[selPt.i+1].p[0] - .01;
+    a.p[0] = Math.min(hi, Math.max(lo, absX !== undefined ? absX : a.p[0] + dx)); a.p[1] = absY !== undefined ? absY : a.p[1] + dy;
+  } else {
+    const v = a[selPt.part]; const nx = absX !== undefined ? absX - a.p[0] : v[0] + dx, ny = absY !== undefined ? absY - a.p[1] : v[1] + dy;
+    v[0] = selPt.i === 0 ? 0 : nx; v[1] = ny;                                               // the nose tangent stays vertical
+    const other = selPt.part === 'hin' ? 'hout' : 'hin';
+    if (a.kind === 'smooth' && a[other]){ const L2 = Math.hypot(...a[other]), L1 = Math.hypot(...v) || 1; a[other] = [-v[0]/L1*L2, -v[1]/L1*L2]; }
+  }
+}
+$('v-sec').addEventListener('pointermove', ev => { if (!drag) return; const svg = $('v-sec'), pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+  const q = pt.matrixTransform(svg.getScreenCTM().inverse()); move(0, 0, (q.x-110)/980, (270-q.y)/1900); drawSection(); placePtHud(); });
+window.addEventListener('pointerup', () => { if (drag){ drag = null; refocus(); } });
+$('v-sec').addEventListener('keydown', ev => {
+  if (ev.key === 'c' || ev.key === 'C'){ const a = selAnchor(); if (a.kind === 'smooth' || a.kind === 'corner'){ a.kind = a.kind === 'smooth' ? 'corner' : 'smooth'; drawSection(); placePtHud(); refocus(); } return; }
+  if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(ev.key)) return; ev.preventDefault();
+  const s = ev.shiftKey ? .01 : .001;
+  move(ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0, ev.key === 'ArrowUp' ? s : ev.key === 'ArrowDown' ? -s : 0);
+  drawSection(); placePtHud(); refocus(); });
+function placePtHud(){
+  const a = selAnchor(), h = $('pt-hud'); h.classList.remove('hidden');
+  const isHandle = selPt.part !== 'point', v = isHandle ? a[selPt.part] : null;
+  $('pt-title').textContent = isHandle ? `${a.name} · ${selPt.part === 'hin' ? 'handle in' : 'handle out'}` : a.name;
+  $('pt-x').value = (isHandle ? Math.atan2(v[1], v[0]) * 180 / Math.PI : a.p[0]).toFixed(isHandle ? 1 : 3);
+  $('pt-y').value = (isHandle ? Math.hypot(...v) : a.p[1]).toFixed(3);
+  $('pt-xl').textContent = isHandle ? '∠' : 'x'; $('pt-yl').textContent = isHandle ? 'len' : 'y'; $('pt-xu').textContent = isHandle ? '°' : 'c';
+  $('pt-x').disabled = !isHandle && (a.kind === 'end' || a.kind === 'fixed'); $('pt-y').disabled = !isHandle && a.kind === 'fixed';
+  const kindRow = $('pt-kind'); kindRow.classList.toggle('hidden', isHandle || a.kind === 'end' || a.kind === 'fixed');
+  $('k-smooth').setAttribute('aria-pressed', a.kind === 'smooth'); $('k-corner').setAttribute('aria-pressed', a.kind === 'corner');
+  $('pt-mm').textContent = a.kind === 'end' ? `TE gap ${((upper.at(-1).p[1]-lower.at(-1).p[1])*chord(.5)).toFixed(1)} mm · x fixed at the chord end`
+    : a.kind === 'fixed' ? 'Leading-edge point is the chord origin · its tangent stays vertical'
+    : isHandle ? `Drag the handle to shape the curve through this point` : `x ${(a.p[0]*chord(.5)).toFixed(1)} mm · y ${(a.p[1]*chord(.5)).toFixed(1)} mm`;
+  const p = isHandle ? abs(a, v) : a.p;
+  const svg = $('v-sec'), r = svg.getBoundingClientRect(), w = document.querySelector('.window'), wr = w.getBoundingClientRect(), k = wr.width / w.offsetWidth || 1;
+  const vb = Math.min(r.width/1200, r.height/520), ox = (r.width - 1200*vb)/2, oy = (r.height - 520*vb)/2;
+  let left = (r.left - wr.left)/k + (ox + SX(p[0])*vb)/k + 22, top = (r.top - wr.top)/k + (oy + SY(p[1])*vb)/k - 196;
+  h.style.left = (w.offsetWidth - 246) + 'px'; h.style.top = '96px';
+}
+$('k-smooth').addEventListener('click', () => { const a = selAnchor(); a.kind = 'smooth'; if (a.hin && a.hout){ const L2 = Math.hypot(...a.hin), L1 = Math.hypot(...a.hout) || 1; a.hin = [-a.hout[0]/L1*L2, -a.hout[1]/L1*L2]; } drawSection(); placePtHud(); });
+$('k-corner').addEventListener('click', () => { selAnchor().kind = 'corner'; drawSection(); placePtHud(); });
+['pt-x','pt-y'].forEach(id => $(id).addEventListener('change', () => {
+  const a = selAnchor(), x = parseFloat($('pt-x').value), y = parseFloat($('pt-y').value); if (!isFinite(x) || !isFinite(y)) return;
+  if (selPt.part === 'point') move(0, 0, a.kind === 'end' ? undefined : x, y);
+  else { const r = x * Math.PI / 180; move(0, 0, a.p[0] + Math.cos(r)*y, a.p[1] + Math.sin(r)*y); }
+  drawSection(); placePtHud(); }));
+function strip(){
+  const host = $('strip'); host.innerHTML = '';
+  stationsFor(root.dataset.state).forEach((s, i) => { const b = document.createElement('button'); b.className = 'slice' + (i === selStation ? ' cur' : ''); b.setAttribute('role','option'); b.setAttribute('aria-selected', i === selStation);
+    b.innerHTML = `<svg viewBox="0 0 200 54" aria-hidden="true"></svg><span class="l"><span>${s.name}</span><span class="num">${Math.round(s.eta*half)} mm</span></span>`;
+    thumbInto(b.querySelector('svg')); host.appendChild(b); });
+}
+[['scope-shared','scope-only']].forEach(([a, b]) => {
+  $(a).addEventListener('click', () => { $(a).setAttribute('aria-pressed','true'); $(b).setAttribute('aria-pressed','false'); $('scope-note').textContent = 'Also changes Root · blends toward Tip'; });
+  $(b).addEventListener('click', () => { $(b).setAttribute('aria-pressed','true'); $(a).setAttribute('aria-pressed','false'); $('scope-note').textContent = 'Makes a copy for Mid only · blends change between Root and Tip'; });
+});
+['comb-sec','ghost-btn','comb-ws'].forEach(id => $(id).addEventListener('click', () => { const b = $(id); b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); drawSection(); }));
+$('sec-cancel').addEventListener('click', () => { upper = clone(baseUpper); lower = clone(baseLower); selPt = { side:'upper', i:1, part:'point' }; go('workspace'); });
+$('sec-finish').addEventListener('click', () => go('workspace'));
+$('fair-btn').addEventListener('click', () => go('fair'));
+$('fair-ok').addEventListener('click', () => go('section')); $('fair-cancel').addEventListener('click', () => go('section'));
+$('ph-close').addEventListener('click', () => { selPlan = null; $('plan-hud').classList.add('hidden'); drawPlan(); });
+$('collapse').addEventListener('click', () => { const b = $('browser'); b.dataset.collapsed = b.dataset.collapsed === 'true' ? 'false' : 'true'; });
+$('lay-quad').addEventListener('click', () => { $('views').dataset.layout = 'quad'; $('lay-quad').setAttribute('aria-pressed','true'); $('lay-single').setAttribute('aria-pressed','false'); });
+$('lay-single').addEventListener('click', () => { $('views').dataset.layout = 'single'; $('lay-single').setAttribute('aria-pressed','true'); $('lay-quad').setAttribute('aria-pressed','false'); });
+document.querySelectorAll('#views .view').forEach(v => {
+  const label = v.querySelector('.vlabel');
+  label.addEventListener('click', () => { document.querySelectorAll('#views .view').forEach(o => o.classList.remove('active')); v.classList.add('active'); });
+  label.addEventListener('dblclick', () => $('lay-single').click());
+});
+['new-blank','new-example','open-file','recent-1','to-start'].forEach(id => $(id) && $(id).addEventListener('click', () => go(id === 'to-start' ? 'start' : 'workspace')));
+
+function draw(){
+  const scr = root.dataset.screen;
+  document.querySelectorAll('.window [data-when]').forEach(e => e.classList.toggle('hidden', !e.dataset.when.split(/\s+/).includes(root.dataset.state)));
+  $('fair-dialog').classList.toggle('hidden', scr !== 'fair');
+  $('pt-hud').classList.toggle('hidden', !(scr === 'section' || scr === 'fair'));
+  const long = root.dataset.state === 'overflow';
+  $('fname-ws').textContent = long ? 'prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27' : 'kite-wing-850';
+  $('bname').textContent = $('fname-ws').textContent;
+  $('wintitle').firstChild.textContent = ($('fname-ws').textContent) + '.foil ';
+  $('sec-finish').disabled = root.dataset.state === 'invalid';
+  if (selStation >= stationsFor(root.dataset.state).length) selStation = 1;
+  drawPlan(); drawSide(); drawFront(); draw3d(); browserSections(); drawSection(); strip();
+  if (scr === 'section' || scr === 'fair') requestAnimationFrame(placePtHud);
+}
+
+/* ---------------- mechanical audit (DX11) ---------------- */
+const AUDIT = [
+  ['--ink','--canvas','body text on canvas','text'], ['--ink-muted','--canvas','secondary text on canvas','text'],
+  ['--ink','--chrome','toolbar text','text'], ['--ink-muted','--chrome','group labels','text'],
+  ['--accent-ink','--accent','primary button label','text'], ['--finish-ink','--finish','Finish button label','text'],
+  ['--danger','--canvas','error text','text'], ['--model','--canvas','model curves','ui'],
+  ['--accent','--canvas','selection / focus ring','ui'], ['--line-strong','--canvas','control polygon / field border','ui'],
+  ['--model-dim','--canvas','station lines','ui'], ['--line','--canvas','dividers','decorative']
+];
+const srgb = c => { c /= 255; return c <= .03928 ? c/12.92 : Math.pow((c+.055)/1.055, 2.4); };
+const lum = ([r,g,b]) => .2126*srgb(r) + .7152*srgb(g) + .0722*srgb(b);
+function parse(v){ const p = document.createElement('span'); p.style.color = v.trim(); document.body.appendChild(p); const m = getComputedStyle(p).color.match(/\d+(\.\d+)?/g); p.remove(); return m ? m.slice(0,3).map(Number) : null; }
+function audit(){
+  const frame = document.querySelector('.window'), box = frame.getBoundingClientRect(), v = $('h-verdict');
+  if (!box.width || !box.height){ v.textContent = 'audit: page not rendered — no number is reported'; v.className = 'verdict fail'; return; }
+  const cs = getComputedStyle(root), rows = [];
+  for (const [fg, bg, label, kind] of AUDIT){ const a = parse(cs.getPropertyValue(fg)), b = parse(cs.getPropertyValue(bg)); if (!a || !b) continue;
+    const r = (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05), need = kind === 'text' ? 4.5 : 3, req = kind !== 'decorative';
+    rows.push({label, fg, bg, kind, r, need, req, pass: r >= need}); }
+  $('audit-rows').innerHTML = rows.map(r => `<tr><td>${r.label} <span class="muted">(${r.fg} on ${r.bg} · ${r.kind})</span></td><td>${r.r.toFixed(2)}:1</td><td class="${r.req ? (r.pass ? 'pass' : 'fail') : 'muted'}">${r.req ? (r.pass ? 'PASS' : 'FAIL') + ` (needs ${r.need}:1)` : 'not required (decorative)'}</td></tr>`).join('');
+  const k = frame.getBoundingClientRect().width / frame.offsetWidth || 1;
+  const vis = [...frame.querySelectorAll('button, input, select')].filter(e => e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden');
+  const small = vis.filter(e => { const r = e.getBoundingClientRect(); return r.width && (r.height/k < 24 || r.width/k < 24); });
+  $('audit-targets').textContent = small.length ? `${small.length} target(s) under 24×24 CSS px: ` + small.map(e => e.getAttribute('aria-label') || e.textContent.trim().slice(0,20)).join(', ') : 'All visible targets meet 24×24 CSS px (WCAG 2.2 AA 2.5.8).';
+  $('audit-count').textContent = `Visible interactive controls on this screen: ${vis.length} (v7 implementation window: 43).`;
+  const fails = rows.filter(r => r.req && !r.pass).length;
+  v.textContent = `audit: ${fails} contrast fail · ${small.length} small target · ${vis.length} controls`; v.className = 'verdict ' + (fails || small.length ? 'fail' : 'pass');
+}
+draw(); refit(); audit();
+</script>
+</body>
+</html>
