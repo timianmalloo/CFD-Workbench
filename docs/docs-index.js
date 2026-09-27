@@ -2848,7 +2848,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4813504e68cd287a1e23a06af4920bf6988bd1a021a92e176cb4b8f194384d14"
+      "sourceSha256": "f543bb3708389c13513ddeb8e9ec6aec79b869c3097885ef45e97e25a018e29d"
     },
     {
       "id": "domain-experts",
@@ -5957,6 +5957,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
     },
     {
+      "id": "proof-c1-red-runs",
+      "path": "docs/proof/c1-red-runs.md",
+      "title": "C1 wing estimates and span red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-c1",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red run of the fourteen C1 checks at 32e59ce, before EditReference accepted a dimension receipt. Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE. The same checks passed at 7d8b588.",
+      "tags": [
+        "app-shell",
+        "wing-estimates",
+        "span",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
+    },
+    {
       "id": "proof-d1-red-runs",
       "path": "docs/proof/d1-red-runs.md",
       "title": "D1 shell model red-first runs",
@@ -6537,7 +6567,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c93213c59da7b2df6501fcd2e40734874af1d20d1b21f19ff121f2d40e5c3355"
+      "sourceSha256": "c8ed4b17d3043c57c460ffab2f56dff140f609ba580fee0b1284f0556df03775"
     },
     {
       "id": "review-ui-application-native",
@@ -7472,5 +7502,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "55020f47451e54213495cc25f75247d9e0e725c3ba2a5ecfae830358c1123f34"
+  "graphSha256": "f0fd6151df84136ed7dad55f31933d4822878318adc85ca674b9cd15d6373bde"
 };

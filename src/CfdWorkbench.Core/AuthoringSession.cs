@@ -23,7 +23,8 @@ public sealed record SessionBinding(string SourceHash, string Base, string Draft
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
-    bool? PublicationKnown = null, bool? DurabilityConfirmed = null);
+    bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null);
+public sealed record DimensionCommand(string Name, string Text);
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
 public sealed class SessionAssessment
@@ -96,7 +97,7 @@ public sealed class AuthoringSession : IDisposable
             draft = null; recovery = null; current = null; activeImportReport = null; importBasisFallback = null;
         }
     }
-    private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null)
+    private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null, string? editKind = null)
     {
         var timer = System.Diagnostics.Stopwatch.StartNew(); string outcome = "OK";
         string? priorTrace = trace.Value; trace.Value = Guid.NewGuid().ToString("N");
@@ -118,17 +119,17 @@ public sealed class AuthoringSession : IDisposable
                 "capture-save" or "acknowledge-save" => "document.save",
                 _ => operation.StartsWith("geometry.", StringComparison.Ordinal) ? operation : "document." + operation
             };
-            Record(name, outcome, timer.Elapsed.TotalMilliseconds, inputBytes, null, generation, null, operation);
+            Record(name, outcome, timer.Elapsed.TotalMilliseconds, inputBytes, null, generation, null, operation, editKind);
             trace.Value = priorTrace;
         }
     }
-    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null)
+    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null)
     {
         lock (sync)
         {
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
-            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation));
+            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind));
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -177,6 +178,8 @@ public sealed class AuthoringSession : IDisposable
         return new SessionPreview(assessment.Key!, point, assessment.Certificate!.PlacementWidthUpper);
     }, 2 * sizeof(double), generation);
     public string Apply(string operationId, SessionAssessment assessment) => Run("apply", () => ApplyCore(operationId, assessment), generation: assessment.Key?.Generation);
+    public string ApplyDimension(string operationId, DimensionCommand command) =>
+        Run("apply", () => ApplyDimensionCore(operationId, command), editKind: "dimension");
     public void Cancel(string draftId) => Run("cancel", () => { CancelCore(draftId); return true; });
     public string Undo(string operationId) => Run("undo", () => UndoCore(operationId));
     public string Redo(string operationId) => Run("redo", () => RedoCore(operationId));
@@ -663,6 +666,41 @@ public sealed class AuthoringSession : IDisposable
         if (prior is null || next is null) return null;
         return new(FoilSource.MaxOrdinateDeviation(prior, next), null, next.Upper.Points.Length);
     }
+    private string ApplyDimensionCore(string operationId, DimensionCommand command)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            string payload = "dimension:" + command.Name + ":" + command.Text;
+            if (Retry(operationId, payload, out string prior)) return prior;
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(command.Name is "span" or "root-chord" or "tip-chord", "DSL-TARGET");
+            Guard.Require(command.Name == "span", "DSL-TARGET");
+            double spanSi = DecimalSi.Parse(command.Text, -3);
+            Guard.Require(spanSi > 0, "DSL-UNIT");
+            byte[] patched = FoilSource.PatchSpan(CurrentBytes, command.Text);
+            var parsed = ParseOwned(patched);
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "dimension", command.Name, patched);
+            try
+            {
+                var key = Key(parsed, draft);
+                RequireAdmission(parsed, key);
+                string id = Commit(parsed, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null;
+                recovery = null;
+                return id;
+            }
+            catch
+            {
+                draft = null;
+                retiredDraftIds.Remove(operationId);
+                throw;
+            }
+        }
+    }
     private string ApplyCore(string operationId, SessionAssessment assessment)
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
@@ -900,6 +938,7 @@ public static class NativeProject
         "insert" => ProfileHas(child, vertexId),
         "delete" or "rebuild" => ProfileHas(parent, vertexId),
         "fair" => ProfileHas(child, vertexId) && ProfileHas(parent, vertexId),
+        "dimension" => vertexId is "span" or "root-chord" or "tip-chord",
         _ => false
     };
     // Same construction rails, against the recovered draft's base: insert/rebuild name a
