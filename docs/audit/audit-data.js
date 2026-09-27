@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T03:11:05Z",
+  "generated": "2026-09-27T15:15:46Z",
   "audit": [
     {
       "actor": null,
@@ -18395,6 +18395,41 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-09-27T02:54:55Z",
       "duration_seconds": 970.0
+    },
+    {
+      "id": "al-01M3HPZF99CSHPAGBRY99C73X1",
+      "shortname": "s8-dock-split-spike",
+      "datetime": "2026-09-27T15:15:46Z",
+      "session": "track-s8",
+      "prompt": "S8 spike: can Dock 11.3.12.1 CanDrop or DockCapabilityOverrides (or any documented public capability) block split drops while still allowing tab drops and floats?",
+      "summary": "300-case probe over DockManager.IsDockTargetVisible/ValidateDockable. CanDrop and all capability overrides/policies block every op incl. Fill and Window: split-only blocking via them = no. Source AllowedDockOperations=Fill|Window blocks all edge splits on every target and keeps tab and float: yes on the model path. GUI drag not driven; IL scan shows the UI states call the same IDockManager methods.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "track-s8",
+      "artifacts": [
+        "docs/proof/cad-first-spikes/dock-split/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Answer S8 from observed DockManager output",
+      "done_when": "dock-split proof dir with probe, run script, raw output and README verdict; check-docs exit 0; one commit",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T15:11:32Z",
+      "duration_seconds": 254.0,
+      "git": {
+        "sha": "73a3674065004d07ea95587a60695aa2e2e78827",
+        "short": "73a367406",
+        "branch": "spike-dock-split",
+        "pushed": null
+      }
     }
   ],
   "changes": [

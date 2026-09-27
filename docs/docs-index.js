@@ -3914,7 +3914,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2efe0d034b63f578c1b8894b844123f1dffed3e6bcad6fcaa2063af3ff2e66df"
+      "sourceSha256": "50f332267815699566f0ddf6b76244726a0bf04eea65db34523644feeb99e17d"
     },
     {
       "id": "kb-hw-glossary",
@@ -5933,6 +5933,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
     },
     {
+      "id": "proof-dock-split-s8",
+      "path": "docs/proof/cad-first-spikes/dock-split/README.md",
+      "title": "S8 spike: can Dock capability overrides block split drops",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-s8",
+      "phase": "design — S8 before G0 (app-shell build)",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Drives Dock 11.3.12.1 DockManager.IsDockTargetVisible and ValidateDockable with no UI, then executes each drop and prints the tree. CanDrop and every capability override or policy block all drops (tab, split and float alike), so they cannot block splits alone. The documented AllowedDockOperations mask (Fill|Window) on the dragged pane blocks every edge split and keeps tab and float drops. The GUI drag gesture was not driven.",
+      "tags": [
+        "dock",
+        "docking",
+        "split",
+        "capability",
+        "candrop",
+        "spike",
+        "s8"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
+    },
+    {
       "id": "proof-foildsl-authoring",
       "path": "docs/proof/foildsl-authoring.md",
       "title": "FoilDSL authoring specification and mockup proof",
@@ -7336,5 +7365,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c8f0bd0c9af796473101a4b362eb4fa8e8ac15ecd054d9eae17aba4a2d735efa"
+  "graphSha256": "a800129ba5e5f092fc9867e4ac3fd051619995f42f650bc4c7be6b5de2abdba0"
 };
