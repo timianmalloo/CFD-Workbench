@@ -40,19 +40,18 @@ public sealed record FloatFrame(string Id, PxRect Rect, CfdWorkbench.Persistence
 {
     public static PxRect From(int x, int y, double widthDip, double heightDip, double desktopScaling)
     {
-        throw new NotImplementedException("track D1 stub");
+        double scale = desktopScaling > 0 ? desktopScaling : 1.0;
+        int width = (int)Math.Round(widthDip * scale);
+        int height = (int)Math.Round(heightDip * scale);
+        return new PxRect(x, y, width, height);
     }
 
     public static PxRect From(PxPoint position, DipSize frameSizeDip, double desktopScaling) =>
         From(position.X, position.Y, frameSizeDip.Width, frameSizeDip.Height, desktopScaling);
 
-    public static double ToDipWidth(int widthPx, double desktopScaling)
-    {
-        throw new NotImplementedException("track D1 stub");
-    }
+    public static double ToDipWidth(int widthPx, double desktopScaling) =>
+        desktopScaling > 0 ? widthPx / desktopScaling : widthPx;
 
-    public static double ToDipHeight(int heightPx, double desktopScaling)
-    {
-        throw new NotImplementedException("track D1 stub");
-    }
+    public static double ToDipHeight(int heightPx, double desktopScaling) =>
+        desktopScaling > 0 ? heightPx / desktopScaling : heightPx;
 }

@@ -28,6 +28,8 @@ public static class FocusRing
 
     public static int NextRegion(int current, bool reverse, IReadOnlyList<FocusRegion> regions)
     {
-        throw new NotImplementedException("track D1 stub");
+        if (regions == null || regions.Count == 0) return -1;
+        var available = regions.Select(r => r.Available).ToArray();
+        return NextRegionIndex(current, reverse, available);
     }
 }
