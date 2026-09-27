@@ -6044,6 +6044,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "e69dd7c13a60ed21e352a98b34f038ce4ffbc3b49950b6d7fd97a0ee0c244583"
     },
     {
+      "id": "proof-g0-red-runs",
+      "path": "docs/proof/g0-red-runs.md",
+      "title": "G0 glue red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-g0",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red-first and green runs for G0 of the app-shell build — the named-test checker's self-test, the Desktop suite spawns, and the LayoutDocument wire-shape probe. The planted-suite red run was not performed (permission denied).",
+      "tags": [
+        "app-shell",
+        "harness",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -7419,5 +7445,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "8fbf8be6756574d3ce6cb412d8d60f4c9fae83f50b7baba3c95817b7a7c3267e"
+  "graphSha256": "6783081032f8fb0556bf7db45532ddd45ff0e8942eeab5aa585b2fee8576dab2"
 };

@@ -45,6 +45,26 @@ if (args.Contains("--section-tools", StringComparer.Ordinal))
     Environment.Exit(0);
 }
 
+// Named-check suites (docs/design/app-shell.md §12.2): each prints PASS/FAIL lines and exits nonzero if any failed.
+if (args.Contains("--shell-model", StringComparer.Ordinal))
+{
+    CfdWorkbench.Desktop.Tests.ShellModelTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
+if (args.Contains("--controller-shell", StringComparer.Ordinal))
+{
+    CfdWorkbench.Desktop.Tests.ControllerShellTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
+if (args.Contains("--shell-window", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
@@ -1872,7 +1892,7 @@ Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42")
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-flow");
 CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-tools");
-Environment.Exit(0);
+Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-model", "--controller-shell", "--shell-window"));
 
 sealed class UncertainStore : IProjectStore
 {
@@ -1933,3 +1953,39 @@ readonly record struct FocusPlacementFacts(
     System.Numerics.Quaternion CompositionOrientation,
     Vector CompositionAnchor,
     Vector3D CompositionCenter);
+
+namespace CfdWorkbench.Desktop.Tests
+{
+    /// <summary>The Desktop named-check harness, like the Core one (docs/design/app-shell.md §12.2).</summary>
+    public static class DesktopChecks
+    {
+        private static int failures;
+
+        /// <summary>The exit code of a named-check suite process: nonzero when any check failed.</summary>
+        public static int ExitCode => failures == 0 ? 0 : 1;
+
+        /// <summary>Runs one named check, prints <c>PASS name</c> or <c>FAIL name …</c>, and continues either way.</summary>
+        public static void Check(string name, Action assertion)
+        {
+            // Test-runner boundary: report unexpected exceptions as failures and continue.
+            try { assertion(); Console.WriteLine("PASS " + name); }
+            catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
+        }
+
+        /// <summary>Runs every suite mode as a child process and returns the first nonzero child exit code, else 0.</summary>
+        public static int Spawn(params string[] modes)
+        {
+            int exitCode = 0;
+            foreach (string mode in modes)
+            {
+                using var child = System.Diagnostics.Process.Start(SelfLaunch.StartInfo(mode))!;
+                child.WaitForExit();
+                Console.WriteLine($"SUITE {mode} exit {child.ExitCode}");
+                if (child.ExitCode == 0) continue;
+                Console.WriteLine($"FAIL {mode} exited {child.ExitCode}");
+                if (exitCode == 0) exitCode = child.ExitCode;
+            }
+            return exitCode;
+        }
+    }
+}

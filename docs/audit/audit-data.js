@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:25:36Z",
+  "generated": "2026-09-27T16:38:05Z",
   "audit": [
     {
       "actor": null,
@@ -18700,6 +18700,43 @@ window.AUDIT_DATA = {
         "short": "bcf7d509a",
         "branch": "feature/ui-cad-direction",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M3HVP6ZT0715K9TZ62K6XENF",
+      "shortname": "g0-shell-glue",
+      "datetime": "2026-09-27T16:38:05Z",
+      "session": "track-g0",
+      "prompt": "Track G0 of docs/coordination/app-shell-build.md (Ruling 54): freeze LayoutDocument (§3.4), the Core Run() lines + empty C1/P1 classes, the Desktop Check helper + --shell-model/--controller-shell/--shell-window spawns + empty classes, and tools/check-named-tests.py with a red-first --self-test. Contract: scratchpad tracks/G0.md.",
+      "summary": "LayoutDocument.cs landed as §3.4 (probe: semantic-equal, byte round trip, integer/unknown enum and unknown member refused). Core Run() lines + 4 empty classes; Desktop DesktopChecks.Check/ExitCode/Spawn + 3 spawned suites + 3 empty classes; Desktop stays out of run-tests.sh named set until its first names land. check-named-tests.py: self-test red 5/7 (no-track, glob) then green 7/7; real-design counts equal the plan (C1 14, P1 23, D1 12, D2 21, D3a 32, D4 26). run-tests.sh exit 0 (wall 31 s); check-docs exit 0. BLOCKED: the planted failing check in a spawned suite was denied by the permission classifier, so that red run is not recorded (Inferred only). Finding for P1: MaxDepth=8 on serializer options makes Serialize of the §3.4 example throw; reader depth 8 is fine. Proof: docs/proof/g0-red-runs.md.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Claude Opus 5.5 (sub-agent)",
+      "artifacts": [
+        "src/CfdWorkbench.Persistence/LayoutDocument.cs",
+        "tools/check-named-tests.py",
+        "docs/proof/g0-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Freeze the G0 interfaces: LayoutDocument, harness spawn lines with empty classes, named-test checker",
+      "done_when": "run-tests.sh 0; check-named-tests --self-test 0 with both plants red first; planted-suite red run recorded; LayoutDocument equals §3.4; check-docs 0; conventional commits",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-27T16:27:15Z",
+      "duration_seconds": 650.0,
+      "git": {
+        "sha": "b41feae63db1418f8f64bd00e390a5ada5becd0c",
+        "short": "b41feae63",
+        "branch": "g0-shell-glue",
+        "pushed": null
       }
     }
   ],
