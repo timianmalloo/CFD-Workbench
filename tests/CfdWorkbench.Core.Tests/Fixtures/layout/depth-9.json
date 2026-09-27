@@ -1,0 +1,16 @@
+{
+  "format": "cfdw-layout",
+  "version": 1,
+  "active": "planform",
+  "workspaces": [
+    {
+      "id": "planform",
+      "views": { "arrangement": "plan-3d", "single": "plan" },
+      "regions": [
+        { "id": "left", "open": true, "size": 260, "groups": [ { "panes": ["browser"], "active": "browser", "share": 1, "extra": { "n": { "n": 1 } } } ] }
+      ],
+      "floats": [],
+      "closed": []
+    }
+  ]
+}

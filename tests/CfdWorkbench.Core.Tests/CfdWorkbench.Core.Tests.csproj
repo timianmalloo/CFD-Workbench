@@ -10,4 +10,7 @@
     <ProjectReference Include="../../src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
     <ProjectReference Include="../../src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Fixtures\layout\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
