@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T17:52:04Z",
+  "generated": "2026-09-27T21:10:42Z",
   "audit": [
     {
       "actor": null,
@@ -19003,6 +19003,35 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-27T17:17:30Z",
       "duration_seconds": 2074.0
+    },
+    {
+      "id": "al-01M3JB9CD387MGSE5VB2M6Y34S",
+      "shortname": "join-d2",
+      "datetime": "2026-09-27T21:10:42Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of d2-controller into feature/ui-cad-direction",
+      "summary": "D2 21/21 named PASS verified; cancel-during-prepare red against as-built controller (TaskCanceledException), now keeps current foil; 33 Desktop PASS; ~55 min vs 63 min box recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/d2-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land D2",
+      "done_when": "merged; fast gates green; named checks green on the integration tree",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T21:10:09Z",
+      "duration_seconds": 33.0
     }
   ],
   "changes": [
