@@ -14,11 +14,27 @@ internal static class Program
     private static void Main(string[] args)
     {
         ManagedStartTicks = Stopwatch.GetTimestamp();
+        StartupFailure.Install();
         NativeReviewOptions.Current = NativeReviewOptions.Parse(Environment.GetEnvironmentVariable);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     private static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>().UsePlatformDetect().LogToTrace();
+}
+
+/// <summary>Turns an unhandled exception into a named non-zero exit instead of a runtime abort and an OS crash report.</summary>
+public static class StartupFailure
+{
+    /// <summary>EX_SOFTWARE from sysexits.h: an internal software error.</summary>
+    public const int ExitCode = 70;
+    public const string Code = "APP-UNHANDLED";
+
+    public static void Install() => AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+    {
+        Console.Error.WriteLine($"{Code} {eventArgs.ExceptionObject}");
+        Console.Error.Flush();
+        Environment.Exit(ExitCode);
+    };
 }
 
 public static class NativeReviewThemes
