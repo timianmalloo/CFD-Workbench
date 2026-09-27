@@ -5719,6 +5719,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-app-shell-test-inventory",
+      "path": "docs/proof/app-shell-test-inventory.md",
+      "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d3a",
+      "phase": "implementation — checkpoint D3a-0",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Checkpoint D3a-0 (design §12.5). Every throw-new assertion in tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs (212, measured) is classified. 93 rows for the 92 lines bound to a control in MainWindow.axaml(.cs) that the shell removes, moves or rewrites: ported (with a D3a, D1 or proposed name), deleted (with the spec Appendix G clause) or kept unchanged (reflection-bound). The other 120 lines are not bound to a removed control and stay.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "d3a",
+        "test-inventory",
+        "harness-migration",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "580307ec2904849321d0fabbc8c434555c5d70ec7e3cc0973a22eafec3366c97"
+    },
+    {
       "id": "proof-application-adapters",
       "path": "docs/proof/application-adapters.md",
       "title": "Native application adapter implementation proof",
@@ -7502,5 +7535,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "f0fd6151df84136ed7dad55f31933d4822878318adc85ca674b9cd15d6373bde"
+  "graphSha256": "0fe20755ca0da6c9117843443f9b001d055a1dd326da4bb139b713273cac8efc"
 };
