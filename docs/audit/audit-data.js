@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:38:05Z",
+  "generated": "2026-09-27T16:40:11Z",
   "audit": [
     {
       "actor": null,
@@ -18738,6 +18738,35 @@ window.AUDIT_DATA = {
         "branch": "g0-shell-glue",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3HVT1TJ0DVJAKZ8YAYBBB9S",
+      "shortname": "join-g0",
+      "datetime": "2026-09-27T16:40:11Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of g0-shell-glue into feature/ui-cad-direction",
+      "summary": "LayoutDocument v1 frozen; empty track suites + spawn lines; check-named-tests.py self-test red-first; spawned-suite red proof moved to D1's red-first run (classifier refused the plant); measured 642 s vs 2.5 h box recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/g0-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "freeze interfaces for the app-shell tracks",
+      "done_when": "merged; fast gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T16:39:37Z",
+      "duration_seconds": 34.0
     }
   ],
   "changes": [
