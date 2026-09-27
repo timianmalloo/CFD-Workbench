@@ -386,7 +386,7 @@ internal static class ProjectStoreTests
         { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
         foreach (string argument in new[] { "-f", "%Lp:%z:%i", path }) info.ArgumentList.Add(argument);
         using var process = System.Diagnostics.Process.Start(info)!;
-        int pid = process.Id; string start = process.StartTime.ToUniversalTime().ToString("O");
+        int pid = process.Id; string start = StartTimeOrNotRecorded(process);
         try
         {
             if (!process.WaitForExit(5000)) throw new TimeoutException("Independent stat timed out");
@@ -396,6 +396,14 @@ internal static class ProjectStoreTests
             Equal(0, process.ExitCode); Equal("600", output.Split(':')[0]);
         }
         finally { if (!process.HasExited) { process.Kill(); process.WaitForExit(5000); } }
+    }
+    // Receipt metadata only, never asserted. A short-lived `stat` can exit and be reaped before
+    // StartTime is read, which throws Win32Exception (observed once under CPU load, 2026-09-27).
+    private static string StartTimeOrNotRecorded(System.Diagnostics.Process process)
+    {
+        try { return process.StartTime.ToUniversalTime().ToString("O"); }
+        catch (System.ComponentModel.Win32Exception) { return "Not recorded"; }
+        catch (InvalidOperationException) { return "Not recorded"; }
     }
 
     private static void Probe()
