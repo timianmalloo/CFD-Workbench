@@ -150,6 +150,20 @@ continuing into the fix.
 - An exception that escapes into native Avalonia callbacks may still fail fast without reaching the handler. Not assessed.
 - The Core and CLI test harnesses still abort on an unhandled exception.
 
+## Adversarial review (csharp-developer, advisory, PASS-WITH-CONDITIONS)
+
+- **Accepted and fixed (repair cycle 1).** The probe did not cover the muxer shape in `run-tests.sh`,
+  and it proved the handler only in the harness. Fix: the probe now also launches the harness under
+  `dotnet <dll>` explicitly, and the product as `dotnet CfdWorkbench.Desktop.dll` with
+  `CFDW_REVIEW_MODE=2`. Each launch has a 60 s timeout and a kill. Mutant observed: with
+  `StartupFailure.Install()` removed from `Program.Main`, the product case fails with
+  `exit 134`, and the harness itself exits 70 with `APP-UNHANDLED`.
+- **Open (residual).** The launch-shape match is by ordinal file name, so a renamed apphost, a
+  single-file publish (empty `Location`) or Windows casing differences can add an extra argument.
+  This is harmless today because the modes match with `args.Contains`. The source scan does not see
+  `GetCommandLineArgs()[0]`, `MainModule` or `AppContext.BaseDirectory`. A `ProcessExit` handler that
+  waits on the UI thread could deadlock `Environment.Exit`; there is none today (Inferred, not swept exhaustively).
+
 ## Gate record
 
 The final gate exit codes, `run-tests.sh`, `check-docs.py` and the crash-report counts are recorded in the track's return message and the audit entry.
