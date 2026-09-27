@@ -20,8 +20,7 @@ summary: >-
   the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file,
   not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize,
   monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.
-review-suggested:
-  - { by: design-app-shell, on: 2026-09-27, reason: "Recorded deviations: per-window NativeMenus generated from the one command table (an Application menu fills only the app menu on macOS, Avalonia source); FrameSize is DIP so one conversion by the float's own DesktopScaling is needed; Screen.Scaling is hard-coded 1 on macOS (resolves the Flagged row); S8 added; layout file moves to layout/ subdirectory." }
+review-suggested: []
 ---
 
 # ADR-0009: CAD-first shell — docking, menus, commands and layout
@@ -56,11 +55,16 @@ menus and shortcuts; and a float that never hides a focused model-area control (
    - *Pinning (ADR-0003 "do not float packages"):* Dock brings about ten transitive packages (among them
      CommunityToolkit.Mvvm 8.4.0, enterprise council, from the nuspec). The Desktop project restores with a committed
      `packages.lock.json` in locked mode, so transitive versions are pinned too.
-2. **Menus: Avalonia `NativeMenu` set on the Application** (macOS system menu bar), so the menu stays whole when a float
-   has focus; `NativeMenuBar` renders the same menu in-window on Windows (**Not assessed** until S1). No second menu
-   definition exists. The command table places the macOS app menu items (About, Settings… ⌘,, Hide, Quit ⌘Q) and the
-   Window menu (Minimize ⌘M, Zoom, Bring All to Front, the pane list); M1.2a proves them from the packaged `.app`, not
-   from `dotnet run` (the spike ran the dll, `run-gui.sh`).
+2. **Menus: per-window Avalonia `NativeMenu`, generated from the one command table.** The Application-level `NativeMenu`
+   fills only the macOS app-name menu (Avalonia source: a key window with no window menu shows only the app menu), so it
+   holds **About** only — Avalonia itself supplies Services, Hide, Hide Others, Show All and Quit there. Every window —
+   the main window at startup and each float in `IFactory.OnWindowOpened` — gets its **own** `NativeMenu`, generated from
+   the same command table, so the menu stays whole (File, Edit, Window present) when a float has focus; `NativeMenuBar`
+   renders the same menu in-window on Windows (**Not assessed** until S1). No second menu definition exists. The command
+   table places the Window menu (Minimize ⌘M, Zoom, Bring All to Front, the pane list); M1.2a proves it from the packaged
+   `.app`, not from `dotnet run` (the spike ran the dll, `run-gui.sh`). **Deviation recorded at design-slice**
+   (`docs/design/app-shell.md` §1): the carrier is per-window menus rather than one Application menu holding File/Edit/
+   Window; the original intent — the menu stays whole when a float has focus, no second menu definition — is kept.
 3. **One command table** (Command pattern): id, title, group, platform gesture, enabled predicate, execute. It feeds
    `NativeMenu`, the toolbar, the command palette and key bindings — installed on the main window **and every float
    window** — so a verb reachable in one place is reachable in all (CAD-21). The platform modifier comes from
@@ -74,8 +78,8 @@ menus and shortcuts; and a float that never hides a focused model-area control (
    station view, foil view, `WingEstimates`) and holds no model state (UX-30 "selection agrees across every view").
    **F6's region ring is owned by the shell** and includes float windows, activating the float when its region is next
    (today F6 cycles inside one window, `MainWindow.axaml.cs:339-360`).
-5. **Layout persistence: our own file**, installation-scoped (`<per-user application data>/CFD-Workbench/layout.json`),
-   versioned, one record per workspace: for each pane id its dock (left · right · bottom · float · closed), tab group,
+5. **Layout persistence: our own file**, installation-scoped (`<per-user application data>/CFD-Workbench/layout/layout.json`
+   — its own subdirectory, so it has its own store claim, design-slice §3.4/§4.4), versioned, one record per workspace: for each pane id its dock (left · right · bottom · float · closed), tab group,
    order and size; for floats the position and size in the platform's window units (the units `Window.Position`,
    `IDockWindow` X/Y and `Screen.WorkingArea` share — the spike shows Dock's X/Y equal `Window.Position`,
    `gui-native.txt`:5,7) plus a screen key (display name, bounds, scaling) used only as a hint. Load rebuilds the Dock
@@ -87,8 +91,10 @@ menus and shortcuts; and a float that never hides a focused model-area control (
 6. **Ours to build (the spike found no Dock support):** pane **Maximize** (restore on Escape); **clamping** floats into
    a connected screen's `WorkingArea` at launch and on `Screens.Changed`, in the same units as the saved position; and
    **focus-safe floats** (option (a)): when a model-area control takes focus, compare its `PointToScreen` rectangle with
-   each float's frame (`FrameSize`) in screen units — never through a DIP conversion — and, if covered, move the float to
-   the nearest model-area corner that clears it and announce it, else dock it back where it came from and announce it.
+   each float's frame (`FloatFrame.From`, built from `FrameSize`) in screen units — `FrameSize` is DIP, so **one**
+   conversion by the float's own `DesktopScaling` is unavoidable and lives in one pure function (deviation recorded at
+   design-slice, `docs/design/app-shell.md` §6.5) — and, if covered, move the float to the nearest model-area corner
+   that clears it and announce it, else dock it back where it came from and announce it.
 7. **Platform scope.** macOS is the M1 target; Windows qualification stays deferred (m1-scope decision). The spikes
    below are scheduled, not run.
 
@@ -108,7 +114,7 @@ menus and shortcuts; and a float that never hides a focused model-area control (
 | Automation peers for dock control, tab strips, tab items, `HostWindow` | Inferred | docs read, not screen-reader tested |
 | `NativeMenu` exported to the macOS menu bar; `CommandModifiers = Meta` | Verified | ran |
 | `Screens.All`, `Screen.WorkingArea`, `Scaling`, `Screens.Changed` exist | Verified | reflection |
-| Retina display reported `Scaling = 1`, bounds 1512 × 982 | **Flagged** | observed; the clamp must be tested against it |
+| Retina display reported `Scaling = 1`, bounds 1512 × 982 — **Avalonia hard-codes `Screen.Scaling = 1` on macOS** (bounds in points) | Verified | observed, then confirmed by Avalonia source (`Screens.mm`, Native Desktop lens, design-slice §1) — resolves this row; the float's own `DesktopScaling` is used, never a saved hint |
 
 ## Spike tasks (scheduled, time-boxed; cannot run in this session)
 
@@ -121,10 +127,12 @@ menus and shortcuts; and a float that never hides a focused model-area control (
 | S5 | VoiceOver and NVDA on docked tabs, a float and the tab menu | 2 h | Pass: tabs announce name and selected state; the float is reachable; Move/Float/Close work by keyboard |
 | S6 | macOS units: Retina display plus a 1× external display | 1 h | Pass: `Window.Position`, `Screen.WorkingArea` and a control's `PointToScreen` agree in one unit on both displays; the clamp keeps a float inside `WorkingArea` |
 | S7 | macOS window behaviour of owned floats: full-screen Space, Stage Manager, ⌘`, Window menu, main window moved while its float sits on monitor 2, app deactivation | 2 h | Pass: floats stay in front of the main window, follow it into its Space, cycle with ⌘`, are listed by pane name in the Window menu, and the File/Edit/Window menus stay whole while a float has focus |
+| S8 | Dock split-drop capability override: does overriding `CanDrop`/capability overrides block a split drop, this Mac | 1 h | Pass: overriding `CanDrop`/capability blocks the split, so G0 lands the one-group shape (no `groups`, `share`, `origin.group`); Fail: splits stay unblockable and the `groups` shape (§3.4/design-slice) is kept |
 
 S1–S5 and S7's second-monitor row cannot run here (no Windows host, no second monitor, no screen-reader session). S6
 and the single-monitor rows of S7 can run on this Mac. Until S1–S5 pass, OI-3 (native floats unspiked on Windows; no
-screen-reader trace) stays open. **Run S1 before the layout file format is frozen** (M1.2e).
+screen-reader trace) stays open. **Run S1 before the layout file format is frozen** (M1.2e); **S8 runs before G0**
+(design-slice §14) and decides whether the layout schema keeps `groups`.
 
 ## Alternatives considered
 

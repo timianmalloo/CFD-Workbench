@@ -28,7 +28,6 @@ summary: >-
   §10 (proposed, spec 1.6) adds the CAD-first shell, point types, driving dimensions, Wing estimates, the section
   draft, catalog and My sections, with ADR-0005–0009 and slices M1.2a–e.
 review-suggested:
-  - { by: design-app-shell, on: 2026-09-27, reason: "App-shell design adds the recent-files store (recent/recent.json, note-20260927-recent-files) missing from §10.2, fixes the as-built open-cancel hazard (build aside then swap), names the stale-claim recovery action, and records the DOC-REFERENCE (not DOC-UNSUPPORTED-FIELD) refusal for rail=dimension receipts." }
   - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }
@@ -317,6 +316,7 @@ T0 deterministic; there is no model call (§7). What 1.6 adds is **editing struc
 | Section draft | recovery row, receipt fields (expand) | step list over bytes | `BeginSectionDraft`, `ApplySectionStep`, `FinishSection` | draft view + step reports | mode state machine | section editor, strip | not exposed (GUI mode); its accepted row reads like any other | certificate on Finish |
 | Catalog, My sections | bundled resource; section folder | entry, flat provenance | catalog reader; Replace step | picker rows with rights | picker, save dialog | Replace from catalog…, Save to My sections… | none in M1.2 | import fit (ADR-0007) |
 | Shell | layout file | pane ids, workspace | — | — | Dock host, command table, selection | panes, menus, floats | — | — |
+| Open (Start/Opening/cancel) | `recent/recent.json` (own store claim, design-slice §4.5) | `OpenOutcome` closed union (Opened · NeedsIds · Refused · Failed · Cancelled · Superseded) | `OpenAsync` — build aside, then atomic swap; cancellation never discards the current document (design-slice §6.2, resolving the as-built open-cancel hazard) | outcome + Recent entries | Start card, Opening status, model-area alert band | Cancel; File ▸ Open Recent ▸ (entries, Clear Menu) | — | — |
 | Accessibility | — | — | — | accessible names/values from the point and station views | automation peers for panes, tabs, floats (Dock peers read, not tested) | VoiceOver pass (S5 for NVDA) | — | — |
 | Licence and SBOM | licence register (A8.5) | — | — | — | Dock + transitive set, lock file | — | — | — |
 
@@ -362,6 +362,9 @@ byte-identical golden master; the rational certificate path is excluded ([note](
   receipt and the recovery row gain optional fields (section step count, dimension and point-type receipts). Each
   expansion is one-way: a build that predates it refuses the project (`DSL-VERSION`, `DOC-UNSUPPORTED-FIELD`) and leaves
   the file unchanged; fixtures prove it (ADR-0005, ADR-0007). No estimate, dimension or point type is stored.
+  **Correction (design-slice, `docs/design/app-shell.md` §3.8):** `DOC-UNSUPPORTED-FIELD` names a genuinely new field;
+  a new *value* in an already-known field — such as the receipt's `rail = "dimension"` — is refused by an old build
+  with `DOC-REFERENCE` instead (`AuthoringSession.cs`:897-903, :934-937, `_ => false`), as ADR-0007 §1 predicts.
 - **My sections:** each entry is one immutable section document named by its SHA-256; the current library is a folder
   scan; names are unique ignoring case (NFC, ordinal) under the store claim (ADR-0008).
 - **Layout:** Type-1 replaceable preference file per installation; not history, not document data (ADR-0009).
@@ -402,22 +405,24 @@ demonstrable from the packaged `.app` (unsigned until the release gate) and test
 
 | ID | Status after this run | Default designed to | Bounded change if overturned |
 |---|---|---|---|
-| DR-2 | Operator | Leading edge held | One enum value; quarter-chord re-sets the frame by a rigid x-translation (ADR-0006) |
+| DR-2 | Operator | Leading edge held | One enum value; quarter-chord re-sets the frame by a rigid x-translation (ADR-0006). **Ruled:** "the quarter-chord line is held. Per ADR-0006, a root edit then translates the planform rigidly so LE(0)=0, and the status line says so." (Ruling 53) |
 | DR-4 | **Settled** (ADR-0007) | — | — |
 | DR-5 | **Settled** (ADR-0005) | — | — |
-| DR-6 | Operator | Commit at gesture end | Controller release handler only (ADR-0007) |
-| DR-7 | Operator | Activity rail outside the left side bar | A shell region outside the Dock host; no Core change |
-| DR-8 | Operator | Installation library; **deviation:** an entry used in a foil is inlined, not pinned as an asset (ADR-0008 §4) | Project library = a store adapter plus envelope expansion; asset pin = an envelope asset set (expand-migrate-contract) |
-| DR-9 | **New**, operator | Strict A4.6 with the operator's linear rule; residual always reported | Root-flat rule, lock release, or report-not-refuse (ADR-0006) |
-| DR-10 | **New**, operator | Channel ceiling stays 10 | ADR-0001 amended; FoilDSL range relaxed, expand-only (ADR-0005) |
-| DR-11 | **New**, operator | Section point types paired per chord position | Independent side bases and their certificates (B6-class) (ADR-0005) |
+| DR-6 | Operator | Commit at gesture end | Controller release handler only (ADR-0007). **Ruled:** "default: a point gesture commits at its end as one undo step." (Ruling 53) |
+| DR-7 | Operator | Activity rail outside the left side bar | A shell region outside the Dock host; no Core change. **Ruled:** "default: the narrow activity rail of area icons, outside the left side bar." (Ruling 53) |
+| DR-8 | Operator | Installation library; **deviation:** an entry used in a foil is inlined, not pinned as an asset (ADR-0008 §4) | Project library = a store adapter plus envelope expansion; asset pin = an envelope asset set (expand-migrate-contract). **Ruled:** "My sections is the app's shared section library." (Ruling 53) |
+| DR-9 | **New**, operator | Strict A4.6 with the operator's linear rule; residual always reported | Root-flat rule, lock release, or report-not-refuse (ADR-0006). **Ruled:** "option (a): the root-flat blend on root-mirror-locked rails, with both numbers reported." (Ruling 53) |
+| DR-10 | **New**, operator | Channel ceiling stays 10 | ADR-0001 amended; FoilDSL range relaxed, expand-only (ADR-0005). **Ruled:** "raise the channel vertex ceiling to 16. ADR-0001 is amended and the FoilDSL range relaxed expand-only, in the M1.2b design-slice." (Ruling 53) |
+| DR-11 | **New**, operator | Section point types paired per chord position | Independent side bases and their certificates (B6-class) (ADR-0005). **Ruled:** "Independent section point types. This requires the B6 restart in the M1.2c wave, and D4 waits on M1.2c." (Ruling 53) |
 
 Open: OI-3 (Windows floats, screen readers) → spike tasks S1–S7 (ADR-0009). B6 (independent profile bases) still gates
 section type changes on multi-profile foils. Findings for the spec owner: CAD-15's gap clause needs a point off the line
 through its neighbours; CAD-15's "no other curve changes" reads "≤ 10 µm, reported" on sections under DR-11; DR-8's
 asset-pin wording versus the inline copy. For design-slice: the import acceptance compares against 1e-5 normalised
 rather than A4.6's 10 µm at local chord (`DatImport.cs:255`); the receipt field names; the Not assessed and residual
-strings; the stale-claim recovery action.
+strings; the stale-claim recovery action — now named in `docs/design/app-shell.md` §4.4: a once-per-session message
+names the file and offers **Show in Finder**, opening the folder holding `.cfd-writer.claim`; the store still never
+deletes a claim itself.
 
 ### 10.8 Council record (Adversary Mode, 2026-09-26)
 
