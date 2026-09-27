@@ -55,6 +55,10 @@ internal static class IdentityTests
         DatImportTests.Run();
         ReopenConstructionTests.Run();
         ThicknessIntentTests.Run();
+        WingEstimatesTests.Run();
+        DimensionTests.Run();
+        LayoutFileTests.Run();
+        PreferenceStoreTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return failures == 0 ? 0 : 1;
     }
