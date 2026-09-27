@@ -187,3 +187,38 @@ Grid.Row 4 to 5 and adding a Section tab. The cause is **Inferred** to be that l
 the CV list without bounds. This diff does not touch the `--theme-controls` path beyond installing
 the handler. It is out of this track's scope (app-shell features) and is reported for its own track.
 The investigator did not self-certify: the fix awaits independent review at the join.
+
+## Addendum — `--theme-controls` cv rows (coordinator follow-up, repair cycle 1)
+
+**Bisect (observed).** In `70c600e..80758ec`, only `7fbd5dd` and `80758ec` touch the desktop. Each
+was built in a throwaway detached worktree and ran `--theme-controls` at 1024 × 700. A
+`DOTNET_STARTUP_HOOKS` exit-on-unhandled hook kept failures from aborting.
+- `7fbd5dd`: exit 0, 40 of 40 `cv.*` rows applied.
+- `80758ec`: exit 70, 0 of 40 applied. Every row reported "Rendered text presenter absent" or "Painted background has no bounds on ListBox".
+
+The earlier **Inferred** cause is now **Verified**.
+
+**Mechanism.** `80758ec` inserted the station card (thumbnail 80 px, wrapped text, Edit section button)
+as an Auto row above "Rail controls". `ControlList` stayed in the navigator's only `*` row, and the
+fixed rows (StationList 120, card, headings, SampleList 180) exceed the navigator height at the
+1024 × 700 minimum. The star row therefore got zero height, and no CV item was realized.
+
+**Product or test?** The product was wrong. The spec makes 1024 × 700 the native minimum (§ layout,
+`cfd-workbench-v1.md:1767`) and requires the station card's thumbnail and Edit section to stay visible
+(CAD-09, UI-31). The rail control list is the only route to select a CV for editing, so it cannot
+collapse. Fix (`37d7e36`): the navigator content sits in a vertical `ScrollViewer`, and `ControlList`
+and `SampleList` each take the `NavigatorListHeight` token (180). The card stays first, so it stays visible.
+Result: 36 of 40 rows passed.
+
+**Second cause (observed).** The remaining 4 rows (`interaction.cv.unselected.rest` in each theme)
+reported `pointerOver=true` before any injected enter. The operator's real cursor, at (287, 611) on
+a 1512 × 982 screen, now sat over the relaid CV item. Experiment: with the cursor parked in the
+top-right corner, 40 of 40 passed with exit 0. With the cursor restored, the failure returned. The
+test had assumed no ambient pointer. Fix (`248499b`): the probe clears ambient pointer-over before
+the rest row. With the cursor in its original place: exit 0, 40 of 40.
+
+**Class.** `NAV-STAR-COLLAPSE`: a new Auto element added above a star-sized list in a fixed-height
+column can starve the list to zero at the minimum viewport. The control is the existing 1024 × 700
+`--theme-controls` matrix in the adapters gate. It caught this, but the harness abort masked it until now.
+`GUI-AMBIENT-INPUT`: a GUI probe that assumes no real OS pointer. The control is the rest state
+established by the probe. Both are registered in `docs/lessons/defect-classes.md`.
