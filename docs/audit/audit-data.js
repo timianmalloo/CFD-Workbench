@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T15:51:39Z",
+  "generated": "2026-09-27T16:12:01Z",
   "audit": [
     {
       "actor": null,
@@ -18479,6 +18479,26 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-27T15:25:55Z",
       "duration_seconds": 1544.0
+    },
+    {
+      "id": "al-01M3HT6FY0C0RSMZ7G25K5SCRB",
+      "shortname": "investigate-theme-controls-cv",
+      "datetime": "2026-09-27T16:12:01Z",
+      "session": "track-crash",
+      "prompt": "Coordinator follow-up: root-cause and fix the --theme-controls cv.* rows (WorkbenchTests.cs:1422) masked by the abort; bisect 70c600e..80758ec; decide product vs test against the spec; adapters gate must exit 0; 1 repair cycle.",
+      "summary": "Bisect: 7fbd5dd 40/40, 80758ec 0/40. The Auto station card starved the star ControlList row to 0 at 1024x700 (product defect under the spec minimum and CAD-09). Fixed by a scrolling navigator with a NavigatorListHeight token (37d7e36). The remaining 4 rest rows came from the operator's real cursor (observed by parking it); the probe now establishes rest (248499b). Gates on a35a1cd: core 0, adapters 0, run-tests 0, check-docs 0; crash reports 12 to 12.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/desktop-launch-abort.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-27T15:58:56Z",
+      "duration_seconds": 785.0
     }
   ],
   "changes": [
