@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T17:16:24Z",
+  "generated": "2026-09-27T17:52:04Z",
   "audit": [
     {
       "actor": null,
@@ -18985,6 +18985,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T17:15:50Z",
       "duration_seconds": 34.0
+    },
+    {
+      "id": "al-01M3HZXNMVFJG01SST4ZQFQDVX",
+      "shortname": "track-d2",
+      "datetime": "2026-09-27T17:52:04Z",
+      "session": "track-d2",
+      "prompt": "D2 brief",
+      "summary": "Implemented track D2 (WorkbenchController, Selection, PropertiesView, OpenOutcome, ControllerShellTests) in C#/.NET 10. Replaced Open flow with build-aside-then-swap and latest-wins cancellation, implemented Selection value objects and reconciliation, pure PropertiesView projection builder, Wing block last, section mode text, and ApplySpan half-span dimension command. All 21 named D2 tests PASS, 12 D1 tests PASS, test suite exits 0, check-docs exits 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-27T17:17:30Z",
+      "duration_seconds": 2074.0
     }
   ],
   "changes": [
