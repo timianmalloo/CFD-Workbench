@@ -2099,6 +2099,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "7bc6de05e2efe44dfa2834e2ba82cee50c9c134a3a7d63cab544c6700b0639a9"
     },
     {
+      "id": "mockup-workbench-v9",
+      "path": "docs/mockups/workbench-v9.md",
+      "title": "CFD-Workbench v9 — docked panes and a Properties pane",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "v8's CAD surface with VS Code / Premiere Pro window management: one narrow left panel holds a selection-driven Properties pane by default; the right side bar and bottom panel are optional; panes tab, dock, float and maximize; workspaces are task presets. Direction evidence only — native floats and menus are build requirements.",
+      "tags": [
+        "mockup",
+        "cad",
+        "docking",
+        "properties",
+        "window-management",
+        "workspaces"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v8",
+          "rel": "supersedes"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-workbench-v9",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "18e3d63f175d0ffa5b7e3d7ddcc955fca46b3cae219aec8ec320f51ae29ea5db"
+    },
+    {
       "id": "workbench-direction",
       "path": "docs/design/workbench-direction.md",
       "title": "CFD-Workbench — interface direction",
@@ -5857,6 +5897,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "0699f7d79250eafc619296d0fdbd8ea51691c3849e4cf84aac9264e258bf6597"
     },
     {
+      "id": "review-ui-workbench-v9",
+      "path": "docs/reviews/ui-workbench-v9.md",
+      "title": "UI review — v9 docked panes and Properties pane (elevate)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "Elevated v8 with VS Code / Premiere Pro window management and a selection-driven Properties pane, placed per the operator in one narrow left panel with optional right and bottom docks. Two repair cycles against accessibility, native-desktop and simplifier lenses; one accessibility Major (floats covering focused canvas targets) is open at the cap.",
+      "tags": [
+        "ui-review",
+        "docking",
+        "properties",
+        "window-management",
+        "accessibility",
+        "native-desktop"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v9",
+          "rel": "documents"
+        },
+        {
+          "to": "review-ui-workbench-v8",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ae84a84568d90bdf4c4bf2afe106a077abdb59e1f302017772df00a39cb29b8a"
+    },
+    {
       "id": "review-visible-presentation",
       "path": "docs/reviews/visible-presentation.md",
       "title": "Independent visible-presentation preparation review",
@@ -6374,6 +6450,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v8"
     },
     {
+      "id": "surface-mockups-workbench-v9",
+      "path": "docs/mockups/workbench-v9.html",
+      "title": "CFD Workbench — docked panes (v9 r2)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v9"
+    },
+    {
       "id": "surface-mockups-design-language",
       "path": "docs/mockups/design-language.html",
       "title": "CFD-Workbench · Design language",
@@ -6477,5 +6561,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "5f05f753c476c0dcb527316cbb7b15f899558016495f60b818015dad5733a982"
+  "graphSha256": "551508d087def29ffa9e498331c4520c7398927a99db91685a2a2f0ccc9104e0"
 };

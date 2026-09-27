@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-26T16:12:19Z",
+  "generated": "2026-09-27T00:04:26Z",
   "audit": [
     {
       "actor": null,
@@ -18176,6 +18176,26 @@ window.AUDIT_DATA = {
       "actor": null,
       "artifacts": [
         "docs/mockups/workbench-v8.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T2",
+      "fan_out": 3
+    },
+    {
+      "id": "al-01M3G2TRQKAKCJKFRFJN9BCPJW",
+      "shortname": "ui-design-workbench-v9",
+      "datetime": "2026-09-27T00:04:25Z",
+      "session": "fbfa35dc",
+      "prompt": "properties should be in a properties pane — window management like VS Code, Adobe Premiere; docked in a side panel or floating; another round of /ui-design to elevate the ux; new mockup. Then: right side and bottom panels optional; left panel the default place for properties, not taking space from the CAD surfaces; side panel then the main views depending on the task.",
+      "summary": "v9: left Properties panel by default, optional right/bottom docks, tab groups, drag-to-dock, floats (menu + Alt-arrow move), maximize, task workspaces (Planform/Precision/Review) with per-workspace memory, platform menus and shortcuts, Points grid, Messages. Two repair cycles vs a11y (Blocker cleared; one Major open at cap: floats can cover focused canvas targets), native desktop (conditions for the build: OS-window floats, NativeMenu, persistence), simplifier (cleared by rationale). 92/92 combos pass; 0 focus failures; craft gate no findings.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v9.html"
       ],
       "tags": [],
       "outcome": "success",
