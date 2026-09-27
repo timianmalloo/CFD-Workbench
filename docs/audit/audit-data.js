@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T15:15:46Z",
+  "generated": "2026-09-27T15:16:53Z",
   "audit": [
     {
       "actor": null,
@@ -18430,6 +18430,35 @@ window.AUDIT_DATA = {
         "branch": "spike-dock-split",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3HQ1GT7BZ8VDA0ZQ8ADMX7M",
+      "shortname": "join-s8",
+      "datetime": "2026-09-27T15:16:53Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of spike-dock-split into feature/ui-cad-direction",
+      "summary": "S8: CanDrop/capability overrides cannot block splits alone (all-or-nothing); source-side AllowedDockOperations=Fill|Window blocks edge splits on the validation path; GUI drag not assessed; re-run reproduced byte-identical output. Design groups shape stands. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/cad-first-spikes/dock-split/README.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land S8 evidence before G0",
+      "done_when": "S8 merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T15:16:50Z",
+      "duration_seconds": 3.0
     }
   ],
   "changes": [
