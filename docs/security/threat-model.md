@@ -10,6 +10,7 @@ links:
   - {to: architecture-application, rel: documents}
   - {to: design-application-foundation, rel: documents}
   - {to: design-application-contracts, rel: documents}
+  - {to: design-app-shell, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Rolls up the offline application's file, command, rendering and telemetry threat analysis.
@@ -42,8 +43,19 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 
 ## Threat register (generated)
 
-| source | Boundary | Threat | Disposition / negative test |
-|---|---|---|---|
+| source | Trust boundary | STRIDE threat | Disposition | Control / rationale | Negative test |
+|---|---|---|---|---|---|
+| [design-app-shell](../design/app-shell.md) | Layout file (user-writable) | T: crafted JSON crashes or hangs launch | mitigate | store-bounded read, version peek, 64 KiB cap, depth 8, closed DTO, source-generated STJ, per-workspace fallback | `LayoutCodec_RandomBytes_NeverThrows`; mutated fixtures → presets |
+| [design-app-shell](../design/app-shell.md) | Layout file | E: type-name deserialization → code execution | mitigate | no polymorphism, no `$type`, no Dock serializer | fixture with `$type` → `LAYOUT-SCHEMA` |
+| [design-app-shell](../design/app-shell.md) | Layout file | T: a float placed off-screen or over the model to hide UI | mitigate | clamp; option (a) | off-screen and oversized floats → clamped |
+| [design-app-shell](../design/app-shell.md) | Layout file | I: disclosure of the user's work | mitigate | ids, sizes and screen bounds only (no display names); mode 0600; directory 0700 | codec refuses strings outside the closed sets; modes asserted |
+| [design-app-shell](../design/app-shell.md) | Preference paths | T: symlink redirects a write | mitigate | `ProjectStore` refuses symlinks and checks the parent identity | symlinked directory → session-only |
+| [design-app-shell](../design/app-shell.md) | Layout / recent files | D: huge file slows launch | mitigate | store cap and 64 KiB cap before parse | 65 KiB file → presets, never written if newer |
+| [design-app-shell](../design/app-shell.md) | Layout / recent files | S, R | accept | single-user OS-principal files (P11); preferences need no audit; residual: another process of the same user can rewrite them, as any user file | — |
+| [design-app-shell](../design/app-shell.md) | Recent file | T: an entry points to a hostile file | mitigate | opened only on explicit choice; full path in the accessible description; FoilDSL/native limits (SRC-09) apply | relative / over-long / wrong-extension entries dropped |
+| [design-app-shell](../design/app-shell.md) | Crash output | I: exception text with paths to stderr / crash reports | mitigate | handlers write type + code only | `Unhandled_Exception_StderrHasNoMarkerPath` |
+| [design-app-shell](../design/app-shell.md) | Dock dependency | T: a changed transitive package | mitigate | exact pins + `packages.lock.json` in locked mode; licence register (A8.5) | restore with a modified lock entry fails |
+| [design-app-shell](../design/app-shell.md) | Command routing | E: a document verb runs while typing | mitigate | Edit-verb router; text-owned chords; single keys inert in fields | ⌘Z / ⌥← in fields never change the document or a float |
 | [design-application-contracts](../design/application-contracts.md) | Source/native input | S/T: forged hashes/evaluator/receipt; R: unauthenticated author claims | Mitigate recomputation and exact binding/replay; operation IDs are not personal attribution; tampered receipt/hash cases |
 | [design-application-contracts](../design/application-contracts.md) | Source/native input | D: exponent allocation, oversized history/escaped IDs | Mitigate preallocation scans and atomic size/line preflight; hostile-exponent and growth boundary cases |
 | [design-application-contracts](../design/application-contracts.md) | Consumer → session | S/T/E: certificate/target substitution or mutated returned payload | Mitigate opaque authority, session-owned draft and defensive copies; wrong-binding/retarget/mutation cases |
@@ -56,7 +68,7 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 | [design-application-foundation](../design/application-foundation.md) | Command → Apply | S/T/R: stale/forged/duplicate write | Opaque certificate binding, operation IDs and append-only facts; mismatch fixtures |
 | [design-application-foundation](../design/application-foundation.md) | Local metadata logs | I/R: source/name leakage or missing outcome | Local metadata-only events, no source/path/name; capture and scan event corpus |
 
-<!-- rolled up from 2 artifact(s) by docs-graph.py rollup on 2026-09-23 -->
+<!-- rolled up from 3 artifact(s) by docs-graph.py rollup on 2026-09-26 -->
 
 
 ## Accepted-risk register

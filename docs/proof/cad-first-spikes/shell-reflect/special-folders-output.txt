@@ -1,0 +1,2 @@
+ApplicationData=/Users/mallalieut/Library/Application Support
+LocalApplicationData=/Users/mallalieut/Library/Application Support

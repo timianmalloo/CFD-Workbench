@@ -452,7 +452,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-app-shell",
+          "on": "2026-09-27",
+          "reason": "Recorded deviations: per-window NativeMenus generated from the one command table (an Application menu fills only the app menu on macOS, Avalonia source); FrameSize is DIP so one conversion by the float's own DesktopScaling is needed; Screen.Scaling is hard-coded 1 on macOS (resolves the Flagged row); S8 added; layout file moves to layout/ subdirectory."
+        }
+      ],
       "summary": "Adopts Dock for Avalonia 11.3.12.1 (MIT; the last release for Avalonia 11) for tabbed, dockable and floating panes; a spike observed a floated pane as its own NSWindow. Menus use Avalonia NativeMenu, exported to the macOS menu bar in the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file, not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize, monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.",
       "tags": [
         "desktop",
@@ -493,7 +499,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a89466a6f8facad543503dc3f055eda1fe2349afa9e9b2a6bf233760e95ef884"
+      "sourceSha256": "74cbb471535da01ab5d42f5a469751d312a09c2f22ebaec6bac2c7db8d037fe4"
     },
     {
       "id": "adr-application-project-contract",
@@ -658,6 +664,11 @@ window.DOCS_INDEX = {
       "reviewBy": "2026-12-23",
       "reviewSuggested": [
         {
+          "by": "design-app-shell",
+          "on": "2026-09-27",
+          "reason": "App-shell design adds the recent-files store (recent/recent.json, note-20260927-recent-files) missing from §10.2, fixes the as-built open-cancel hazard (build aside then swap), names the stale-claim recovery action, and records the DOC-REFERENCE (not DOC-UNSUPPORTED-FIELD) refusal for rail=dimension receipts."
+        },
+        {
           "by": "adr-application-stack",
           "on": "2026-09-23",
           "reason": "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates."
@@ -753,7 +764,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "33fe5e85f2c13d2fe64a810bc88c79ac33db6a0bd3e315b996d5a4e1f374dabc"
+      "sourceSha256": "443b360548aaadfed07d74315036e0d238650f6ea6da406d943134ce304e3098"
     },
     {
       "id": "cad-editing-views",
@@ -1345,6 +1356,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "ceb98bc5764fa8eb3509fac773e4446d1c159029c38b1d78f8da3ddd44a05c9b"
     },
     {
+      "id": "note-20260927-recent-files",
+      "path": "docs/notes/recent-files-preference.md",
+      "title": "Recent files are kept in their own preference file, separate from the layout file",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2a (spec 1.6)",
+      "reviewBy": "2027-03-25",
+      "reviewSuggested": [],
+      "summary": "Start's Recent group (CAD-14) is backed by recent.json beside layout.json, written through the same ProjectStore, at most 10 absolute paths, cleared by File ▸ Open Recent ▸ Clear Menu. The paths are personal data, so they never enter the layout file or telemetry.",
+      "tags": [
+        "decision-note",
+        "desktop",
+        "preferences",
+        "recent-files",
+        "privacy"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e403ec1fa6749f66600021007d59dfa7500598d7dc70f5fca239831f1c7dc0dd"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -1530,6 +1572,90 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "0672dd7af3646799565d45d0cc4eb9aed1ad7e149818f75d84199742b13434dc"
+    },
+    {
+      "id": "design-app-shell",
+      "path": "docs/design/app-shell.md",
+      "title": "Design: the CAD-first app shell — Start, workspaces, docks and floats, selection and Properties, menus and commands",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2a shell parts and M1.2e (spec 1.6)",
+      "reviewBy": "2027-03-25",
+      "reviewSuggested": [],
+      "summary": "Detailed design of the CAD-first shell for slices M1.2a (Start/Opening/open-failed, Planform workspace, left side bar, Properties with the Wing block and typed Span, one command table feeding per-window NativeMenus, Edit-verb routing) and M1.2e (owned OS-window floats, Maximize, focus-safe floats, Review workspace, per-workspace saved layouts with clamping). Settles the layout-file schema with a version-first rollback rule, the selection model, the focus contract, the failure modes and the build tracks with exclusive file ownership and exact test names.",
+      "tags": [
+        "desktop",
+        "shell",
+        "docking",
+        "dock",
+        "layout",
+        "workspaces",
+        "floats",
+        "nativemenu",
+        "commands",
+        "selection",
+        "properties",
+        "focus",
+        "m1.2a",
+        "m1.2e"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0008-section-library",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-20260926-command-table-selection",
+          "rel": "refines"
+        },
+        {
+          "to": "note-20260927-recent-files",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aeb72e40719db9bb8c56cd7ba8549720795cba0cff25e1a99708b6e1fdaf6a9c"
     },
     {
       "id": "design-application-contracts",
@@ -5361,10 +5487,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-application-contracts",
           "rel": "documents"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "be49bb94a74fde6c72386fd3f89d3439b63918c42699873823cb5e85332f8ba9"
+      "sourceSha256": "0680ab4bb815a4b38df056395bd2e3395e6a3c67371445bc11e017d72a729d3c"
     },
     {
       "id": "coordination-application-c-launch",
@@ -6668,6 +6798,11 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-03-26",
       "reviewSuggested": [
         {
+          "by": "design-app-shell",
+          "on": "2026-09-27",
+          "reason": "Part C: app-shell design writes the three owed C2 strings (other open failures, empty My sections, catalog cannot load) plus span Not-assessed, layout, recent and maximize strings (§11); B7's text-field shortcut rule interpreted (DR-S2); A8.5 needs rows for layout.json and recent.json; UX-29 S1-Switch-to-Analysis needs a written N/A (OI-S1)."
+        },
+        {
           "by": "mockup-workbench-v3",
           "on": "2026-09-20",
           "reason": "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a."
@@ -6889,7 +7024,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "d77b62107507e74ea33d4120789fa203307f91c7b83cb4e1378e4a13d8756b1e"
+      "sourceSha256": "a76b6439d4759e95b49da0ceeb5f822ff636d7bb50e9421d640d331bdb081288"
     },
     {
       "id": "spec-foildsl",
@@ -6997,10 +7132,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-application-contracts",
           "rel": "documents"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "41ddfe6c84794e0cbf2c2f8e17710dc03ba832c597fc1b53b67d986724236786"
+      "sourceSha256": "5e10ca434e218a123100ff84f9d0db81d0cbd7018157892354c85f75a0763313"
     }
   ],
   "surfaces": [
@@ -7140,5 +7279,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "e733cfc7194bd2ca926d6baa7ab1455e602b756ddd64e721b1ec0b509dced6f3"
+  "graphSha256": "33e049d8bce48820ce0cab043eeb77f12e5ac194a3a8805b9b56e1da50148429"
 };

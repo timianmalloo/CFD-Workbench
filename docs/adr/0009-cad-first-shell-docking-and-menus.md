@@ -20,7 +20,8 @@ summary: >-
   the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file,
   not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize,
   monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.
-review-suggested: []
+review-suggested:
+  - { by: design-app-shell, on: 2026-09-27, reason: "Recorded deviations: per-window NativeMenus generated from the one command table (an Application menu fills only the app menu on macOS, Avalonia source); FrameSize is DIP so one conversion by the float's own DesktopScaling is needed; Screen.Scaling is hard-coded 1 on macOS (resolves the Flagged row); S8 added; layout file moves to layout/ subdirectory." }
 ---
 
 # ADR-0009: CAD-first shell — docking, menus, commands and layout

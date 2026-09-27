@@ -1,0 +1,83 @@
+DM get_Position() virtual=False sealedType=False
+DM set_Position(DockPoint value) virtual=False sealedType=False
+DM get_ScreenPosition() virtual=False sealedType=False
+DM set_ScreenPosition(DockPoint value) virtual=False sealedType=False
+DM get_PreventSizeConflicts() virtual=False sealedType=False
+DM set_PreventSizeConflicts(Boolean value) virtual=False sealedType=False
+DM get_IsDockingEnabled() virtual=False sealedType=False
+DM set_IsDockingEnabled(Boolean value) virtual=False sealedType=False
+DM get_Options() virtual=False sealedType=False
+DM get_LastCapabilityEvaluation() virtual=False sealedType=False
+DM ValidateTool(ITool sourceTool,IDockable targetDockable,DragAction action,DockOperation operation,Boolean bExecute) virtual=False sealedType=False
+DM ValidateDocument(IDocument sourceDocument,IDockable targetDockable,DragAction action,DockOperation operation,Boolean bExecute) virtual=False sealedType=False
+DM ValidateDock(IDock sourceDock,IDockable targetDockable,DragAction action,DockOperation operation,Boolean bExecute) virtual=False sealedType=False
+DM ValidateDockable(IDockable sourceDockable,IDockable targetDockable,DragAction action,DockOperation operation,Boolean bExecute) virtual=False sealedType=False
+DM IsDockTargetVisible(IDockable sourceDockable,IDockable targetDockable,DockOperation operation) virtual=False sealedType=False
+DC DockManager:IDockManager set=
+DC DockManagerOptions:DockManagerOptions set=
+DC Layout:IDock set=True
+DC InitializeLayout:Boolean set=True
+DC InitializeFactory:Boolean set=True
+DC HostWindowFactory:Func`1 set=True
+DC Factory:IFactory set=True
+DC UseLayoutRounding:Boolean set=True
+OWNERMODE Default,None,ParentWindow,RootWindow,DockableWindow
+CAPS Dock.Model.Core.DockCapabilityOverrides = HasAnyOverride CanClose CanPin CanFloat CanDrag CanDrop CanDockAsDocument
+API TextBox.Undo = Void Undo()
+API TextBox.Redo = Void Redo()
+API TextBox.CanUndo = Boolean CanUndo
+API TextBox.CanRedo = Boolean CanRedo
+API TextBox.Cut = Void Cut()
+API TextBox.Copy = Void Copy()
+API TextBox.Paste = Void Paste()
+API TextBox.SelectAll = Void SelectAll()
+API TextBox.IsUndoEnabled = Boolean IsUndoEnabled
+API NativeMenuItem.Gesture = Avalonia.Input.KeyGesture Gesture
+API NativeMenuItem.Command = System.Windows.Input.ICommand Command
+API NativeMenuItem.IsEnabled = Boolean IsEnabled
+API NativeMenuItem.Click = System.EventHandler Click
+API NativeMenuItem.Header = System.String Header
+API NativeMenuItem.ToggleType = Avalonia.Controls.NativeMenuItemToggleType ToggleType
+API NativeMenuItem.IsChecked = Boolean IsChecked
+API IFocusManager.GetFocusedElement = Avalonia.Input.IInputElement GetFocusedElement()
+API TopLevel.FocusManager = Avalonia.Input.IFocusManager FocusManager
+API TopLevel.Screens = Avalonia.Controls.Screens Screens
+API TopLevel.PlatformSettings = Avalonia.Platform.IPlatformSettings PlatformSettings
+API TopLevel.GetTopLevel = Avalonia.Controls.TopLevel GetTopLevel(Avalonia.Visual)
+API Screens.Changed = System.EventHandler Changed
+API Screens.ScreenFromWindow = Avalonia.Platform.Screen ScreenFromWindow(Avalonia.Controls.WindowBase) | Avalonia.Platform.Screen ScreenFromWindow(Avalonia.Platform.IWindowBaseImpl)
+API Screens.ScreenFromPoint = Avalonia.Platform.Screen ScreenFromPoint(Avalonia.PixelPoint)
+API Screens.All = System.Collections.Generic.IReadOnlyList`1[Avalonia.Platform.Screen] All
+API Screen.WorkingArea = Avalonia.PixelRect WorkingArea
+API Screen.Bounds = Avalonia.PixelRect Bounds
+API Screen.Scaling = Double Scaling
+API Screen.DisplayName = System.String DisplayName
+API Screen.TryGetPlatformHandle = Avalonia.Platform.IPlatformHandle TryGetPlatformHandle()
+API Window.Owner = Avalonia.Controls.WindowBase Owner
+API Window.Position = Avalonia.PixelPoint Position
+API Window.FrameSize = System.Nullable`1[Avalonia.Size] FrameSize
+API Window.ShowActivated = Boolean ShowActivated
+API Window.PositionChanged = System.EventHandler`1[Avalonia.Controls.PixelPointEventArgs] PositionChanged
+API Window.Activated = System.EventHandler Activated
+API Window.Deactivated = System.EventHandler Deactivated
+API VisualExtensions.PointToScreen = Avalonia.PixelPoint PointToScreen(Avalonia.Visual, Avalonia.Point)
+API VisualExtensions.PointToClient = Avalonia.Point PointToClient(Avalonia.Visual, Avalonia.PixelPoint)
+API InputElement.IsHitTestVisible = Boolean IsHitTestVisible
+API InputElement.GotFocusEvent = Avalonia.Interactivity.RoutedEvent`1[Avalonia.Input.GotFocusEventArgs] GotFocusEvent
+API InputElement.IsKeyboardFocusWithin = Boolean IsKeyboardFocusWithin
+API Control.IsEffectivelyEnabled = Boolean IsEffectivelyEnabled
+API InputElement.IsEffectivelyEnabled = Boolean IsEffectivelyEnabled
+MEMBERS Dock.Model.Core.IDockable = M:GetPinnedBounds M:GetPointerPosition M:GetPointerScreenPosition M:GetTabBounds M:GetVisibleBounds M:OnClose M:OnPinnedBoundsChanged M:OnPointerPositionChanged M:OnPointerScreenPositionChanged M:OnSelected M:OnTabBoundsChanged M:OnVisibleBoundsChanged M:SetPinnedBounds M:SetPointerPosition M:SetPointerScreenPosition M:SetTabBounds M:SetVisibleBounds P:CanClose P:CanDockAsDocument P:CanDrag P:CanDrop P:CanFloat P:CanPin P:CollapsedProportion P:Column P:ColumnSpan P:Context P:Dock P:DockCapabilityOverrides P:DockGroup P:DockingState P:Factory P:Id P:IsCollapsable P:IsEmpty P:IsModified P:IsSharedSizeScope P:KeepPinnedDockableVisible P:MaxHeight P:MaxWidth P:MinHeight P:MinWidth P:OriginalOwner P:Owner P:PinnedBounds P:PinnedDockDisplayModeOverride P:Proportion P:Row P:RowSpan P:Title
+MEMBERS Dock.Model.Core.IDockWindow = M:Exit M:OnClose M:OnMoveDrag M:OnMoveDragBegin M:OnMoveDragEnd M:Present M:Save M:SetActive P:Factory P:Height P:Host P:Id P:IsModal P:Layout P:Owner P:OwnerMode P:ParentWindow P:ShowInTaskbar P:Title P:Topmost P:Width P:WindowState P:X P:Y
+MEMBERS Dock.Model.Core.IFactory = M:FloatAllDockables M:FloatDockable M:GetHostWindow M:OnActiveDockableChanged M:OnDockableActivated M:OnDockableAdded M:OnDockableClosed M:OnDockableClosing M:OnDockableDeactivated M:OnDockableDocked M:OnDockableHidden M:OnDockableInit M:OnDockableMoved M:OnDockablePinned M:OnDockableRemoved M:OnDockableRestored M:OnDockableSwapped M:OnDockableUndocked M:OnDockableUnpinned M:OnFocusedDockableChanged M:OnWindowActivated M:OnWindowAdded M:OnWindowClosed M:OnWindowClosing M:OnWindowDeactivated M:OnWindowMoveDrag M:OnWindowMoveDragBegin M:OnWindowMoveDragEnd M:OnWindowOpened M:OnWindowRemoved P:CurrentHostWindow P:DefaultHostWindowLocator P:HostWindowLocator P:HostWindows
+MEMBERS Dock.Settings.DockSettings = F:BringWindowsToFrontOnDrag F:CloseFloatingWindowsOnMainWindowClose F:DefaultFloatingWindowOwnerMode F:DiagnosticsLogHandler F:DocumentWindowDragScope F:DragPreviewOpacity F:EnableDiagnosticsLogging F:EnableWindowMagnetism F:FloatingWindowHostMode F:FloatingWindowOwnerPolicy F:GlobalDockingPreset F:GlobalDockingProportion F:MinimumHorizontalDragDistance F:MinimumVerticalDragDistance F:ShowDockablePreviewOnDrag F:UpdateItemsSourceOnUnregister F:UseFloatingDockAdorner F:UseManagedWindows F:UseOwnerForFloatingWindows F:UsePinnedDockWindow F:WindowMagnetDistance M:Equals M:GetHashCode M:GetType M:IsManagedWindowHostingEnabled M:IsMinimumDragDistance M:ResolveFloatingWindowHostMode M:ShouldUseOwnerForFloatingWindows M:ToString P:CommandBarMergingEnabled P:CommandBarMergingScope P:DocumentSelectorKeyGesture P:SelectorEnabled P:ToolSelectorKeyGesture
+MEMBERS Dock.Avalonia.Controls.HostWindow = C:.ctor F:DocumentChromeControlsWholeWindowProperty F:IsToolWindowProperty F:ToolChromeControlsWholeWindowProperty M:AttachGrip M:DetachGrip M:Exit M:GetPosition M:GetSize M:GetWindowState M:Present M:SetLayout M:SetPosition M:SetSize M:SetTitle M:SetWindowState P:DocumentChromeControlsWholeWindow P:HostWindowState P:IsToolWindow P:IsTracked P:ToolChromeControlsWholeWindow P:Window
+DockOperation.None DockOperation.Fill DockOperation.Left DockOperation.Bottom DockOperation.Right DockOperation.Top DockOperation.Window 
+ENUM Dock.Model.Core.DockMode = Center,Left,Bottom,Right,Top
+ENUM Dock.Settings.DockFloatingWindowOwnerPolicy = Default,AlwaysOwned,NeverOwned
+MEMBERS Dock.Model.Core.IDockManager = M:IsDockTargetVisible M:ValidateDock M:ValidateDockable M:ValidateDocument M:ValidateTool P:IsDockingEnabled P:LastCapabilityEvaluation P:Position P:PreventSizeConflicts P:ScreenPosition
+MISSING Dock.Avalonia.Internal.DockManager
+MEMBERS Dock.Model.DockManager = C:.ctor M:Equals M:GetHashCode M:GetType M:IsDockTargetVisible M:ToString M:ValidateDock M:ValidateDockable M:ValidateDocument M:ValidateTool P:IsDockingEnabled P:LastCapabilityEvaluation P:Options P:Position P:PreventSizeConflicts P:ScreenPosition
+TYPE Dock.Model.Core.DockWindowOwnerMode
+TYPE Dock.Settings.DockFloatingWindowOwnerPolicy
+TYPE Dock.Avalonia.Converters.OwnerIsToolDockConverter

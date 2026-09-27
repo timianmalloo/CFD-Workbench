@@ -1,0 +1,2 @@
+// Spike: where .NET 10 puts per-user folders on macOS.
+foreach (var f in new[]{Environment.SpecialFolder.ApplicationData, Environment.SpecialFolder.LocalApplicationData}) Console.WriteLine($"{f}={Environment.GetFolderPath(f)}");

@@ -48,6 +48,7 @@ summary: >-
   derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and
   Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).
 review-suggested:
+  - { by: design-app-shell, on: 2026-09-27, reason: "Part C: app-shell design writes the three owed C2 strings (other open failures, empty My sections, catalog cannot load) plus span Not-assessed, layout, recent and maximize strings (§11); B7's text-field shortcut rule interpreted (DR-S2); A8.5 needs rows for layout.json and recent.json; UX-29 S1-Switch-to-Analysis needs a written N/A (OI-S1)." }
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs." }

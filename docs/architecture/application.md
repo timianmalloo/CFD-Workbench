@@ -28,6 +28,7 @@ summary: >-
   §10 (proposed, spec 1.6) adds the CAD-first shell, point types, driving dimensions, Wing estimates, the section
   draft, catalog and My sections, with ADR-0005–0009 and slices M1.2a–e.
 review-suggested:
+  - { by: design-app-shell, on: 2026-09-27, reason: "App-shell design adds the recent-files store (recent/recent.json, note-20260927-recent-files) missing from §10.2, fixes the as-built open-cancel hazard (build aside then swap), names the stale-claim recovery action, and records the DOC-REFERENCE (not DOC-UNSUPPORTED-FIELD) refusal for rail=dimension receipts." }
   - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }

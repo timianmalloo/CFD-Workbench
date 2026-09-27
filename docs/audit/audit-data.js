@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T02:17:07Z",
+  "generated": "2026-09-27T02:53:56Z",
   "audit": [
     {
       "actor": null,
@@ -18349,6 +18349,28 @@ window.AUDIT_DATA = {
         "branch": "feature/ui-cad-direction",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3GCH53G5X7646MET72ESZ43",
+      "shortname": "design-slice-app-shell",
+      "datetime": "2026-09-27T02:53:56Z",
+      "session": "fbfa35dc-design",
+      "prompt": "Coordinator brief 4: run /design-slice for the new CFD-Workbench app shell layout (start screen, task workspaces, docking host with tabbed/floatable panes, selection model and Properties pane, platform menus and shortcuts, hand-off into the section editor) against spec rev 1.6 and the final architecture (commit 6301eb9; M1.2a shell parts + M1.2e), with the adversarial gate (Patterns Expert/Simplifier, Test Architect hard veto, UX & Accessibility, native desktop, data-persistence), tracks allocated to Grok (Core/persistence), Agy (Desktop) and Claude (UI judgement).",
+      "summary": "docs/design/app-shell.md: layout-file schema cfdw-layout v1 (per-workspace aggregates, version-first peek for safe rollback, per-file subdirectories, CAS with merge retry, stale-claim recovery action), recent-files store (decision note), selection model and Properties projection, typed-Span receipt (rail=dimension), open state machine (build aside then swap), per-window NativeMenus from one command table (ADR-0009 deviation), focus-safe floats, FMEA, STRIDE, LINDDUN, telemetry, UX-29 and v10 focus ledgers, 9 tracks with exact test names. Gate: 7 lenses, 2 of 2 repair cycles, all vetoes cleared by their own lenses; conditions recorded. Reflection spike committed under docs/proof/cad-first-spikes/shell-reflect/.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/app-shell.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Detailed design of the CFD-Workbench app shell (M1.2a shell parts + M1.2e) gated and committed",
+      "done_when": "app-shell.md complete per brief; gate vetoes cleared by their lenses within 2 cycles; rollups, index, V16 flags; check-docs exit 0; audit + change entries; one docs: commit",
+      "started_at": "2026-09-27T02:18:31Z",
+      "duration_seconds": 2125.0
     }
   ],
   "changes": [
@@ -18953,6 +18975,28 @@ window.AUDIT_DATA = {
       "git": {
         "before": "f56d259",
         "after": "f56d2595c071d2b45f81bbc628c0a6adf5a51f00",
+        "branch": "feature/ui-cad-direction",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3GCH5AX03CY0CS303MPP0V6",
+      "datetime": "2026-09-27T02:53:56Z",
+      "session": "fbfa35dc-design",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "App shell design: own layout file with version-first rollback, per-window menus from one command table, focus-safe floats",
+      "prompt": "Coordinator brief 4: run /design-slice for the new CFD-Workbench app shell layout (start screen, task workspaces, docking host with tabbed/floatable panes, selection model and Properties pane, platform menus and shortcuts, hand-off into the section editor) against spec rev 1.6 and the final architecture (commit 6301eb9; M1.2a shell parts + M1.2e), with the adversarial gate (Patterns Expert/Simplifier, Test Architect hard veto, UX & Accessibility, native desktop, data-persistence), tracks allocated to Grok (Core/persistence), Agy (Desktop) and Claude (UI judgement).",
+      "summary": "docs/design/app-shell.md: layout-file schema cfdw-layout v1 (per-workspace aggregates, version-first peek for safe rollback, per-file subdirectories, CAS with merge retry, stale-claim recovery action), recent-files store (decision note), selection model and Properties projection, typed-Span receipt (rail=dimension), open state machine (build aside then swap), per-window NativeMenus from one command table (ADR-0009 deviation), focus-safe floats, FMEA, STRIDE, LINDDUN, telemetry, UX-29 and v10 focus ledgers, 9 tracks with exact test names. Gate: 7 lenses, 2 of 2 repair cycles, all vetoes cleared by their own lenses; conditions recorded. Reflection spike committed under docs/proof/cad-first-spikes/shell-reflect/.",
+      "rationale": "ADR-0009 left the layout schema, command table, selection model and focus contract to design-slice; the gate found that an Application-level NativeMenu hides File/Edit/Window while a float is key (Avalonia source) and that a strict reader would overwrite a newer file, so the design records a per-window-menu deviation and a version-first reader.",
+      "artifacts": [
+        "docs/design/app-shell.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "6301eb9",
+        "after": "6301eb9c0958d5413f8d101c2403f93f5e7e65b7",
         "branch": "feature/ui-cad-direction",
         "pushed": null,
         "commits": []
