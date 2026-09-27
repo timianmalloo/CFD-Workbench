@@ -101,12 +101,120 @@ public sealed class WorkbenchController : IDisposable
     private bool draftInputValid = true;
     private readonly Dictionary<int, (string Key, ProfileView View)> sectionViews = new();
 
+    private long openRequestGeneration;
+    private bool isNotifying;
+    private Selection? queuedSelection;
+
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
     }
     public event Action? Changed;
+    public Selection Selection { get; private set; } = new Selection.None();
+    public event Action? SelectionChanged;
+    public WingEstimates? Estimates { get; private set; }
+
+    public AuthoredProjection? CurrentProjection => Inspection?.Authored ?? DraftProjection ?? PendingProjection;
+
+    public void Select(Selection selection)
+    {
+        ArgumentNullException.ThrowIfNull(selection);
+        if (isNotifying)
+        {
+            queuedSelection = selection;
+            return;
+        }
+        queuedSelection = selection;
+        Notify();
+    }
+
+    public static Selection Reconcile(Selection current, AuthoredProjection? projection)
+    {
+        if (projection is null) return new Selection.None();
+        if (current is Selection.None) return new Selection.Foil();
+        if (current is Selection.Foil) return current;
+
+        if (current is Selection.Station station)
+        {
+            if (station.Index >= 0 && station.Index < projection.Assignments.Count &&
+                projection.Assignments[station.Index].Eta == station.Eta)
+            {
+                return station;
+            }
+
+            for (int i = 0; i < projection.Assignments.Count; i++)
+            {
+                if (projection.Assignments[i].Eta == station.Eta)
+                    return new Selection.Station(i, station.Eta);
+            }
+
+            return new Selection.Foil();
+        }
+
+        if (current is Selection.Points points)
+        {
+            var kept = new List<PointRef>();
+            foreach (var item in points.Items)
+            {
+                if (PointExists(item, projection))
+                    kept.Add(item);
+            }
+            if (kept.Count > 0)
+                return new Selection.Points(kept);
+            return new Selection.Foil();
+        }
+
+        return new Selection.Foil();
+    }
+
+    private static bool PointExists(PointRef item, AuthoredProjection projection)
+    {
+        var rail = projection.Rails.FirstOrDefault(r => r.Name == item.Curve);
+        if (rail is not null && rail.Controls.Any(c => c.Id == item.VertexId))
+            return true;
+
+        if (item.Profile is not null && projection.Assignments.Any(a => a.ProfileName == item.Profile))
+            return true;
+
+        return false;
+    }
+
+    private void UpdateEstimates()
+    {
+        if (Inspection is null)
+        {
+            Estimates = null;
+            return;
+        }
+        try
+        {
+            byte[] source = session.Snapshot().Source;
+            Estimates = WingEstimates.From(source, "accepted", 0);
+        }
+        catch
+        {
+            Estimates = null;
+        }
+    }
+
+    public void ApplySpan(string text)
+    {
+        RequireCertifiedFoil();
+        if (draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
+        double spanSi = DecimalSi.Parse(text, -3);
+        if (spanSi <= 0) throw new ContractError("DSL-UNIT");
+        if (spanSi >= 1e6) throw new ContractError("DSL-EDGES-CROSS");
+
+        string opId = Guid.NewGuid().ToString("D");
+        session.ApplyDimension(opId, new("span", text));
+        Inspection = session.InspectAccepted();
+        UpdateEstimates();
+        Status = "Span applied as one accepted source revision. Save to persist it.";
+        Notify();
+        _ = RefreshAcceptedAsync();
+    }
+
     public AcceptedInspection? Inspection { get; private set; }
     public AuthoredProjection? PendingProjection { get; private set; }
     public byte[]? PendingOriginal { get; private set; }
@@ -167,28 +275,150 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task OpenExampleAsync() => await OpenFoilAsync(CfdWorkbench.Cli.Cli.ExampleBytes(), "Embedded Example");
 
+    public async Task<OpenOutcome> OpenAsync(string path, CancellationToken cancellation = default)
+    {
+        long requestGen = Interlocked.Increment(ref openRequestGeneration);
+
+        if (cancellation.IsCancellationRequested)
+            return new OpenOutcome.Cancelled();
+
+        bool isNative = path.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase);
+        bool isFoil = path.EndsWith(".foil", StringComparison.OrdinalIgnoreCase);
+
+        if (!isNative && !isFoil)
+            return new OpenOutcome.Failed(new OpenFailure.NotRecognised("DOC-TYPE", path));
+
+        byte[] bytes;
+        ReadResult? nativeRead = null;
+        try
+        {
+            if (isFoil)
+            {
+                bytes = await Task.Run(() => CfdWorkbench.Cli.Cli.ReadFoilBoundedAsync(path, cancellation), cancellation);
+            }
+            else
+            {
+                nativeRead = await Task.Run(() => store.ReadAsync(path, cancellation), cancellation);
+                bytes = nativeRead.Image;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return new OpenOutcome.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            return new OpenOutcome.Failed(OpenFailure.Classify(ex, path));
+        }
+
+        if (cancellation.IsCancellationRequested)
+            return new OpenOutcome.Cancelled();
+
+        if (requestGen != Volatile.Read(ref openRequestGeneration))
+            return new OpenOutcome.Superseded();
+
+        var preparedSession = new AuthoringSession();
+        try
+        {
+            if (isFoil)
+            {
+                var parsed = FoilSource.Parse(bytes);
+                if (!parsed.IsParsed)
+                {
+                    preparedSession.Dispose();
+                    string code = parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-SYNTAX";
+                    return new OpenOutcome.Refused(code, bytes);
+                }
+
+                var candidate = FoilSource.MaterializeIds(parsed);
+                if (!candidate.AsSpan().SequenceEqual(bytes))
+                {
+                    preparedSession.Dispose();
+                    return new OpenOutcome.NeedsIds(candidate, bytes);
+                }
+
+                var assessment = Geometry.Assess(parsed);
+                if (assessment.Status != GeometryStatus.Certified)
+                {
+                    preparedSession.Dispose();
+                    return new OpenOutcome.Refused(assessment.Code, bytes);
+                }
+
+                preparedSession.Open(bytes, Guid.NewGuid().ToString("D"), false);
+            }
+            else
+            {
+                preparedSession.Reopen(bytes);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Failed(OpenFailure.Classify(ex, path));
+        }
+
+        if (cancellation.IsCancellationRequested)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Cancelled();
+        }
+
+        if (requestGen != Volatile.Read(ref openRequestGeneration))
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Superseded();
+        }
+
+        Adopt(preparedSession);
+        if (isNative)
+        {
+            expectedDiskSha = nativeRead?.DiskSha256;
+            NativePath = path;
+        }
+        OpenedPath = path;
+        UpdateEstimates();
+
+        _ = RefreshAcceptedAsync(CancellationToken.None);
+
+        Status = isNative && HasRecovery
+            ? "Accepted project reopened. A separate recovery draft is available."
+            : (isNative ? "Accepted project reopened." : "Opened.");
+        Notify();
+
+        return new OpenOutcome.Opened(path);
+    }
+
     public async Task OpenPathAsync(string path, CancellationToken cancellation = default)
     {
-        if (path.EndsWith(".foil", StringComparison.OrdinalIgnoreCase))
+        var outcome = await OpenAsync(path, cancellation);
+        if (outcome is OpenOutcome.Failed failed)
+            throw new ContractError(failed.Failure.Code);
+        if (outcome is OpenOutcome.Refused refused)
         {
-            var bytes = await CfdWorkbench.Cli.Cli.ReadFoilBoundedAsync(path, cancellation);
-            await OpenFoilAsync(bytes, path, cancellation);
-        }
-        else if (path.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase))
-        {
-            var read = await store.ReadAsync(path, cancellation);
-            var next = new AuthoringSession();
-            try { next.Reopen(read.Image); }
-            catch { next.Dispose(); throw; }
-            Adopt(next);
-            expectedDiskSha = read.DiskSha256;
-            NativePath = path;
-            OpenedPath = path;
-            await RefreshAcceptedAsync(cancellation);
-            Status = HasRecovery ? "Accepted project reopened. A separate recovery draft is available." : "Accepted project reopened.";
+            ClearPendingImport();
+            PendingOriginal = refused.Original;
+            var parsed = FoilSource.Parse(refused.Original);
+            PendingProjection = parsed.Authored();
+            Status = $"{refused.Code}: Refused. Original source retained read-only.";
+            Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
             Notify();
         }
-        else throw new ContractError("DOC-TYPE");
+        else if (outcome is OpenOutcome.NeedsIds needs)
+        {
+            ClearPendingImport();
+            PendingOriginal = needs.Original;
+            PendingCandidate = needs.Candidate;
+            var parsed = FoilSource.Parse(needs.Original);
+            PendingProjection = parsed.Authored();
+            Status = "Source has no explicit control IDs. Compare the retained original with the candidate, then accept IDs.";
+            Provenance = Inspection is null ? "ID candidate — not accepted" : "accepted — ID candidate pending";
+            Notify();
+        }
     }
 
     public async Task OpenFoilAsync(byte[] bytes, string label, CancellationToken cancellation = default)
@@ -234,6 +464,7 @@ public sealed class WorkbenchController : IDisposable
         catch { next.Dispose(); throw; }
         Adopt(next);
         OpenedPath = label;
+        UpdateEstimates();
         await RefreshAcceptedAsync(cancellation);
     }
 
@@ -431,6 +662,7 @@ public sealed class WorkbenchController : IDisposable
         Frame = acceptedFrame;
         Provenance = "accepted";
         Status = "Draft applied as one accepted source revision. Save to persist it.";
+        UpdateEstimates();
         Notify();
     }
 
@@ -455,6 +687,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSampling();
         session.Undo(Guid.NewGuid().ToString("D"));
         Inspection = session.InspectAccepted();
+        UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
         Status = "Undo selected the preceding accepted source revision. Sampling…";
@@ -467,6 +700,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSampling();
         session.Redo(Guid.NewGuid().ToString("D"));
         Inspection = session.InspectAccepted();
+        UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
         Status = "Redo selected the next accepted source revision. Sampling…";
@@ -668,7 +902,7 @@ public sealed class WorkbenchController : IDisposable
         session.Dispose();
         session = next;
         store = storeFactory(session);
-        Inspection = null;
+        Inspection = session.InspectAccepted();
         ClearPendingImport();
         NativePath = null;
         OpenedPath = null;
@@ -685,8 +919,15 @@ public sealed class WorkbenchController : IDisposable
         currentAssessment = null;
         SectionReport = null;
         sectionViews.Clear();
+        UpdateEstimates();
+        var prevSelection = Selection;
+        Selection = new Selection.Foil();
         Provenance = "empty";
         Status = "Opening…";
+        if (!Equals(prevSelection, Selection))
+        {
+            SelectionChanged?.Invoke();
+        }
         Notify();
     }
 
@@ -759,7 +1000,49 @@ public sealed class WorkbenchController : IDisposable
         return accepted + ":" + hash + ":a";
     }
 
-    private void Notify() => Changed?.Invoke();
+    private void Notify()
+    {
+        if (isNotifying) return;
+        isNotifying = true;
+        try
+        {
+            while (true)
+            {
+                if (queuedSelection is not null)
+                {
+                    var next = queuedSelection;
+                    queuedSelection = null;
+                    var reconciled = Reconcile(next, CurrentProjection);
+                    if (Equals(Selection, reconciled))
+                    {
+                        if (queuedSelection is null)
+                            break;
+                        continue;
+                    }
+                    Selection = reconciled;
+                    SelectionChanged?.Invoke();
+                }
+                else
+                {
+                    var reconciled = Reconcile(Selection, CurrentProjection);
+                    if (!Equals(Selection, reconciled))
+                    {
+                        Selection = reconciled;
+                        SelectionChanged?.Invoke();
+                    }
+                }
+
+                Changed?.Invoke();
+
+                if (queuedSelection is null)
+                    break;
+            }
+        }
+        finally
+        {
+            isNotifying = false;
+        }
+    }
 
     public void Dispose()
     {
@@ -768,5 +1051,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSampling();
         store.Dispose();
         session.Dispose();
+        Selection = new Selection.None();
+        Estimates = null;
     }
 }

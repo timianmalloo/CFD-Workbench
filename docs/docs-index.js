@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "522d5367269634091aa53966f8884298f210e12cd748956fd33c433d93f40e39"
+      "sourceSha256": "50703997fa8772e63e6148ccd7bc7591f1b4a1e1c0210dc83a138351f685fa8f"
     },
     {
       "id": "design-application-contracts",
@@ -3938,7 +3938,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aa5d081d05186b55d8846cc9316b1500cef9db8aab4972ed816c35dd76cfd7d8"
+      "sourceSha256": "b5f280508c62a3f524f1bbc4380c00ada0cbb179426e2add9393cada7df337d5"
     },
     {
       "id": "kb-hw-glossary",
@@ -6047,6 +6047,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "9df5fa6f94e4c4610dfbbd4e436035b32e6e08971fd1bedc98961d44cead1b3c"
     },
     {
+      "id": "proof-d2-red-runs",
+      "path": "docs/proof/d2-red-runs.md",
+      "title": "D2 controller red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d2",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red-first run for track D2 (Controller) of the app-shell build — proves that the spawned --controller-shell suite fails and turns tools/run-tests.sh red with exit code 1, including Open_CancelDuringPrepare_CurrentFoilUnchanged red against the old controller.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "controller",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5b2ecaa87814cd9d5ee6faf37838233a02fc3c1a666a10e068b10ad044fcafa4"
+    },
+    {
       "id": "proof-dock-split-s8",
       "path": "docs/proof/cad-first-spikes/dock-split/README.md",
       "title": "S8 spike: can Dock capability overrides block split drops",
@@ -6198,6 +6225,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
+    },
+    {
+      "id": "proof-p1-red-runs",
+      "path": "docs/proof/p1-red-runs.md",
+      "title": "P1 preferences red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-p1",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red run of the P1 checks at 92079ab, while the codec and store still threw. With the version-first return removed, the three v2 rollback fixtures were overwritten. The same checks passed at 4efe980. Reader depth stays 8; the writer uses 9.",
+      "tags": [
+        "app-shell",
+        "preferences",
+        "layout",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
       "id": "proof-visible-presentation",
@@ -7535,5 +7588,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "0fe20755ca0da6c9117843443f9b001d055a1dd326da4bb139b713273cac8efc"
+  "graphSha256": "f60a925aec7ad8f090e664391f5bfe8ae0a250114b64eb35541520f9ba31b3cb"
 };

@@ -676,3 +676,17 @@ P6 = adopted. D3a and D4 exit criteria read 'the join's xaml-token-lint check cl
 NOT DECIDED HERE: the open items in section 9 (clock-independent BUDGET-DISPLAY control, per-suite timeout, CPU-second budget, CI workflow for the C# suites). They are findings, not scope of this ruling.
 
 - request: req-01M3HTCHKWX3EMKZ97Y27JTGTD · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T16:16:45Z
+
+### Ruling 55 — D3a-0: rail editor pane, Section sample tab, count, seven D3a names
+
+DECISION: the operator's answers to the D3a-0 inventory questions (docs/proof/app-shell-test-inventory.md section 2), recorded as given. This ruling adds nothing to them.
+
+Q1 = Keep it in a pane (Recommended). The rail CV editor (Navigator ControlList plus the Properties NumericInput with rail Preview/Apply/Cancel) moves unchanged into a pane in M1.2a, as design section 6.7 does for the section panel, until M1.2b replaces it; this also keeps a UI for a resumed recovery draft, so the section 2 Q1 hazard does not arise. The inventory's assume (M1.2a removes the rail CV editor) is false: the 22 deleted rows it names become kept-unchanged or ported.
+
+Q2 = Model-area tab (Recommended). The Section sample tab (SectionPosition, SectionViewport, SectionReadout) becomes a model-area document tab beside Foil source; rows :1301 and :1382 stay ported.
+
+Q3 = the design's throw count is corrected from 213 to the measured 212 (docs/design/app-shell.md sections 1 and 12.5); the design owner makes the edit.
+
+Q4 = the seven proposed names are adopted as D3a test names: ThemeMatrix_ShellControls_AppliedContrast, DockTabFocus_FreshBatch_ReadyAndTwoRing, F6_RegionEntry_FocusesSelectedTabOrRow, Browser_AcceptedIdentity_KeepsOrReplacesRows, Review_Persona_FocusesShellRegion, ModelArea_MinimumWindow_PlotWidthAtLeast250, Controller_LockedRailControl_RefusesDraft.
+
+- request: req-01M3JBBB0AYHCG5PGC0K120VVF · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T21:13:10Z
