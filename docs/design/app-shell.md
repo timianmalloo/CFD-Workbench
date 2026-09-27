@@ -839,7 +839,8 @@ Also: `Focus_HideDockHoldingFocus_ToToggle` (D3a), `Focus_DockRerender_NeverWind
 
 Before D3a changes any source, it commits `docs/proof/app-shell-test-inventory.md`: every `WorkbenchTests.cs`
 assertion bound to a control the shell removes (the file has 213 `throw new` lines; several reach private fields by
-reflection, e.g. `:359-362`), each row either **ported** (new test name, red run recorded on the ported copy) or
+reflection, e.g. `:359-362`), each row either **ported** (new test name; mutations may be batched, but every ported
+row goes red in at least one recorded mutation run (Ruling 54)) or
 **deleted** with its superseded clause (Appendix G). For D3a, `tools/check-named-tests.py` also reads the inventory's
 ported-name column and fails if that column is empty while the inventory lists removed controls. No assertion is
 dropped silently.
@@ -885,7 +886,7 @@ loops capped at 2.
 U1's test command: `python3 tools/check-docs.py` exit 0 and `python3 docs/ai-forward-pack/scripts/design-lint.py --strict DESIGN.md` clean.
 Order: S8 → G0 → {C1, P1, D1} → D2 → D3a → U1 (M1.2a) → [M1.2b–d] → D4 → U1 (M1.2e). Join: the coordinator runs both
 commands on each branch, and for D3a and D4 runs `tools/run-tests.sh` **three times** and requires identical `PASS`
-sets (the window-tier stability rule of §12.3); `tools/check-spiral.py` applies. C1's red-first receipt fixture:
+sets, with every named suite's PASS set non-empty (Ruling 54) (the window-tier stability rule of §12.3); `tools/check-spiral.py` applies. C1's red-first receipt fixture:
 the commit and its run log are recorded in the proof pack.
 
 ## Adversarial analysis (STRIDE-lite)

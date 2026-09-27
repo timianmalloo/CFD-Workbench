@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:14:25Z",
+  "generated": "2026-09-27T16:25:36Z",
   "audit": [
     {
       "actor": null,
@@ -18670,6 +18670,37 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T16:13:51Z",
       "duration_seconds": 33.0
+    },
+    {
+      "id": "al-01M3HTZ5Y5QZ1TSVJCQJTA28H6",
+      "shortname": "ruling-54-amend",
+      "datetime": "2026-09-27T16:25:30Z",
+      "session": "fbfa35dc-amend",
+      "prompt": "Apply Ruling 54 to docs/coordination/app-shell-build.md and docs/design/app-shell.md per docs/reviews/test-ci-waste.md §5 (P1-P6); set plan status accepted; mark R0/S8 done with merge commits.",
+      "summary": "Applied Ruling 54 (P1-P6) to docs/coordination/app-shell-build.md and docs/design/app-shell.md; set plan status accepted (Ruling 52); marked R0/S8 done with merge commits.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/app-shell-build.md",
+        "docs/design/app-shell.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Apply Ruling 54 (docs/notes/rulings.md) — the six test/CI plan-ceremony patches P1-P6 from docs/reviews/test-ci-waste.md §5 — to docs/coordination/app-shell-build.md and docs/design/app-shell.md, citing \"(Ruling 54)\" at each change; also set the plan's frontmatter status to accepted (Ruling 52) and mark R0/S8 done with their merge commits in the Status table.",
+      "done_when": "verify-ruling-citations.py exits 0 and tools/check-docs.py exits 0 on the amended docs/coordination/app-shell-build.md and docs/design/app-shell.md, and the patches are committed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-27T16:17:38Z",
+      "duration_seconds": 472.0,
+      "git": {
+        "sha": "bcf7d509a0079964cfaf460778797dbe03ed5f7c",
+        "short": "bcf7d509a",
+        "branch": "feature/ui-cad-direction",
+        "pushed": false
+      }
     }
   ],
   "changes": [

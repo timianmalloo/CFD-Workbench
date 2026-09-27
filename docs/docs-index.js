@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aeb72e40719db9bb8c56cd7ba8549720795cba0cff25e1a99708b6e1fdaf6a9c"
+      "sourceSha256": "522d5367269634091aa53966f8884298f210e12cd748956fd33c433d93f40e39"
     },
     {
       "id": "design-application-contracts",
@@ -3938,7 +3938,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "50f332267815699566f0ddf6b76244726a0bf04eea65db34523644feeb99e17d"
+      "sourceSha256": "aa5d081d05186b55d8846cc9316b1500cef9db8aab4972ed816c35dd76cfd7d8"
     },
     {
       "id": "kb-hw-glossary",
@@ -5046,7 +5046,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/app-shell-build.md",
       "title": "Coordination plan - app-shell build (M1.2a shell and M1.2e floats and layouts)",
       "type": "plan",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@cfd-leader-fbfa35dc",
       "phase": "",
       "reviewBy": "2026-10-27",
@@ -5088,7 +5088,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b9a33f71737bd2125d67b7acf3e1bb6a2391964137e5399a7a564b76e7beec36"
+      "sourceSha256": "e4b9fc3c4a485a38cf848dcf41da868dff4bce23d57a2e375b33ad82c61579cb"
     },
     {
       "id": "coordination-application-build",
@@ -7419,5 +7419,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3034285df2748647391de20657504e4353a9861d271068e0e6503d0a878451f2"
+  "graphSha256": "8fbf8be6756574d3ce6cb412d8d60f4c9fae83f50b7baba3c95817b7a7c3267e"
 };
