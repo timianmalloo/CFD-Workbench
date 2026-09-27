@@ -644,6 +644,10 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             string row = prefix + "." + state;
             CheckRow(theme, row, () =>
             {
+                // Rest is established by the probe, not assumed: the operator's real cursor may sit over the target.
+                if (state == "rest" && target.IsPointerOver)
+                    target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                        target, pointer, window, new Point(-100, -100), 9, default, KeyModifiers.None));
                 if (state == "hover") Enter(target, window, pointer, 10);
                 else if (state == "pressed" && selection == "unselected" &&
                          target is TabItem or ListBoxItem)
