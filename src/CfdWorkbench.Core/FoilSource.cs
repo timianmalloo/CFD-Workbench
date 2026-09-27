@@ -166,6 +166,9 @@ public static class FoilSource
         return candidate;
     }
 
+    public static byte[] PatchSpan(byte[] source, string spanMillimetres) =>
+        throw new NotImplementedException();
+
     public static byte[] PatchRail(SourceParse parsed, string rail, string vertexId, double ordinateSi)
     {
         var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");

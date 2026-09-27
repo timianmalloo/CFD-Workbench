@@ -23,7 +23,8 @@ public sealed record SessionBinding(string SourceHash, string Base, string Draft
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
-    bool? PublicationKnown = null, bool? DurabilityConfirmed = null);
+    bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null);
+public sealed record DimensionCommand(string Name, string Text);
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
 public sealed class SessionAssessment
@@ -177,6 +178,8 @@ public sealed class AuthoringSession : IDisposable
         return new SessionPreview(assessment.Key!, point, assessment.Certificate!.PlacementWidthUpper);
     }, 2 * sizeof(double), generation);
     public string Apply(string operationId, SessionAssessment assessment) => Run("apply", () => ApplyCore(operationId, assessment), generation: assessment.Key?.Generation);
+    public string ApplyDimension(string operationId, DimensionCommand command) =>
+        throw new NotImplementedException();
     public void Cancel(string draftId) => Run("cancel", () => { CancelCore(draftId); return true; });
     public string Undo(string operationId) => Run("undo", () => UndoCore(operationId));
     public string Redo(string operationId) => Run("redo", () => RedoCore(operationId));
