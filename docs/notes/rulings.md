@@ -620,3 +620,39 @@ PRIVACY/REVIEW: disclose transient shareable-window metadata lookup, target-only
 HANDOFF: preserve source-bound durable minimum raw evidence in each already-owned proof, and include named failing/passing controls, real elapsed/process facts and honest unmeasured costs. Coordinator owns shared-register recurrence updates: final observation failures must not degrade to ordinary diagnostic failures; tests must reach the real ownership/observation boundary. No simultaneous writer to shared proof or registers. Windows runtime and actual on-screen timing remain M1 obligations; full section editor stays stopped for a new session.
 
 - request: req-01M3BMM9NBYC9ZVD86QYV1DEAG · ruled by: cfd-owner-20260923 · at: 2026-09-25T06:42:05Z
+
+### Ruling 52 — Accept the app-shell coordination plan (O1)
+
+DECISION: accepted as written. The operator answered "Yes Plan accepted"; this ruling records that answer and adds nothing to it.
+
+ACCEPTED: design-app-shell (docs/design/app-shell.md, status was "Owner acceptance pending"). ADR-0006, ADR-0007 and ADR-0009, with ADR-0009's two recorded deviations. Architecture §10 for M1.2a and M1.2e. Seam 1: G0 creates the empty Desktop test classes (ShellModelTests, ControllerShellTests, ShellWindowTests) so the spawn lines G0 owns compile; ownership passes at G0's merge. Seam 7: the recent-add runs in D3a's ShellHost on the Opened outcome of D2's OpenAsync, so D2 stays free of preference storage. The track count as planned in docs/coordination/app-shell-build.md.
+
+DR-S1 = No. No Avalonia.Headless. Window tests use the repo's existing harness.
+
+DR-S2 = Yes. Modified app chords act after committing the text field; text-owned chords are excluded.
+
+OI-S1: sent to the spec owner. A written N/A for UX-29 S1-Switch-to-Analysis is requested before the M1.2e merge.
+
+- request: req-01M3HPKHH75T4Q100138PMW0SA · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T15:10:15Z
+
+### Ruling 53 — Operator answers to spec 1.6 decision requests DR-2, DR-6 to DR-11
+
+DECISION: the operator's answers, recorded as given. This ruling adds nothing to them.
+
+DR-2 = the quarter-chord line is held. Per ADR-0006, a root edit then translates the planform rigidly so LE(0)=0, and the status line says so.
+
+DR-6 = default: a point gesture commits at its end as one undo step.
+
+DR-7 = default: the narrow activity rail of area icons, outside the left side bar.
+
+DR-8 = My sections is the app's shared section library.
+
+DR-9 = option (a): the root-flat blend on root-mirror-locked rails, with both numbers reported.
+
+DR-10 = raise the channel vertex ceiling to 16. ADR-0001 is amended and the FoilDSL range relaxed expand-only, in the M1.2b design-slice.
+
+DR-11 = Independent section point types. This requires the B6 restart in the M1.2c wave, and D4 waits on M1.2c.
+
+None of these gates the M1.2a shell.
+
+- request: req-01M3HPKHT44ZZMED9ZJ8TJ8HBJ · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T15:10:23Z
