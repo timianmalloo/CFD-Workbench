@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T17:10:33Z",
+  "generated": "2026-09-27T17:16:24Z",
   "audit": [
     {
       "actor": null,
@@ -18874,24 +18874,108 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3HXA5SGVSS28DG8M4672A0B",
-      "shortname": "join-d1",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/d1-red-runs.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-27T17:06:28Z",
-      "session": "fbfa35dc",
+      "done_when": "merged; fast gates green; named D1 green on the integration tree",
+      "duration_seconds": 33.0,
+      "fan_out": 0,
+      "goal": "land the pure shell model",
+      "id": "al-01M3HXA5SGVSS28DG8M4672A0B",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of d1-shell-model into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-d1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T17:05:55Z",
       "summary": "D1 12/12 named PASS verified; red-first run exit 1 recorded (closes G0's spawned-suite red proof); Desktop added to named suites; no Avalonia/Dock types in Shell model; ~21 min vs 70 min box recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T17:10:33Z",
+      "done_when": "CFD_TEST_ONLY=Store_ tools/run-tests.sh runs the full 236-PASS Core suite; tools/run-tests.sh and python3 tools/check-docs.py both exit 0; fix committed to tools/run-tests.sh only.",
+      "duration_seconds": 213.0,
+      "git": {
+        "branch": "feature/ui-cad-direction",
+        "pushed": false,
+        "sha": "79d7a338eb765589cefb76f9d26631ab4e0559c0",
+        "short": "79d7a338e"
+      },
+      "goal": "Fix tools/run-tests.sh so exported CFD_TEST_ONLY / CFD_NATIVE_CAPABILITY_PROBE / CFD_OWNER_STRIPPING_* selectors cannot silently narrow the Core suite and still report green.",
+      "id": "al-01M3HXHNG5A2EN383BHYGGJSXX",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Coordinator seam fix (Test Architect condition, COREGATE track): tools/run-tests.sh must clear CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE, and CFD_OWNER_STRIPPING_* before running the Core harness, so an exported selector cannot pass a subset and report green.",
+      "session": "fbfa35dc-seam",
+      "shortname": "run-tests-selector-seam-fix",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-27T17:07:00Z",
+      "summary": "Red-first: CFD_TEST_ONLY=Store_ tools/run-tests.sh exited 0 with Core 29 PASS (a leaked subset reporting green). Fix: run-tests.sh now unsets CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE and every CFD_OWNER_STRIPPING_* var near the top (bash 3.2-safe, via compgen -e). After: same command runs the full suite, Core 236 PASS. Gates: tools/run-tests.sh exit 0 (Core 236 PASS), python3 tools/check-docs.py exit 0. Committed 79d7a33 to tools/run-tests.sh only.",
+      "tags": [
+        "COREGATE",
+        "seam-fix",
+        "run-tests"
+      ],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T17:13:15Z",
+      "duration_seconds": 1764.0,
+      "id": "al-01M3HXPKNSFNHAVXWQ25ARDBW8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "C1 brief",
+      "session": "track-c1",
+      "shortname": "track-c1",
+      "skill": "implement",
+      "started_at": "2026-09-27T16:43:51Z",
+      "summary": "C1 landed WingEstimates.From (derived span, chords, area, mean chord, MAC, max t/c, AR, estimates.compute) and ApplyDimension for span: exact half_span halving, station eta held, one undo step, dimension receipt reopens, recovery still refused. 14/14 PASS. run-tests.sh, check-named-tests.py C1, and check-docs.py exited 0.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M3HXWBSSV5HBRYRHF4FWMQKR",
+      "shortname": "join-c1",
+      "datetime": "2026-09-27T17:16:24Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "summary": "C1 14/14 named PASS verified; MAC oracle checked against closed form (0.140 for taper 0.25); dimension receipt reopen + Recovery_Dimension_Refused hold (EDIT-KIND-REOPEN); 31 min vs 90 min box recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/d1-red-runs.md"
+        "docs/proof/c1-red-runs.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land the pure shell model",
-      "done_when": "merged; fast gates green; named D1 green on the integration tree",
+      "goal": "land Core wing estimates and typed Span",
+      "done_when": "merged; fast gates green; named C1 and D1 green on the integration tree",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -18899,45 +18983,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-27T17:05:55Z",
-      "duration_seconds": 33.0
-    },
-    {
-      "id": "al-01M3HXHNG5A2EN383BHYGGJSXX",
-      "shortname": "run-tests-selector-seam-fix",
-      "datetime": "2026-09-27T17:10:33Z",
-      "session": "fbfa35dc-seam",
-      "prompt": "Coordinator seam fix (Test Architect condition, COREGATE track): tools/run-tests.sh must clear CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE, and CFD_OWNER_STRIPPING_* before running the Core harness, so an exported selector cannot pass a subset and report green.",
-      "summary": "Red-first: CFD_TEST_ONLY=Store_ tools/run-tests.sh exited 0 with Core 29 PASS (a leaked subset reporting green). Fix: run-tests.sh now unsets CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE and every CFD_OWNER_STRIPPING_* var near the top (bash 3.2-safe, via compgen -e). After: same command runs the full suite, Core 236 PASS. Gates: tools/run-tests.sh exit 0 (Core 236 PASS), python3 tools/check-docs.py exit 0. Committed 79d7a33 to tools/run-tests.sh only.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [
-        "COREGATE",
-        "seam-fix",
-        "run-tests"
-      ],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Fix tools/run-tests.sh so exported CFD_TEST_ONLY / CFD_NATIVE_CAPABILITY_PROBE / CFD_OWNER_STRIPPING_* selectors cannot silently narrow the Core suite and still report green.",
-      "done_when": "CFD_TEST_ONLY=Store_ tools/run-tests.sh runs the full 236-PASS Core suite; tools/run-tests.sh and python3 tools/check-docs.py both exit 0; fix committed to tools/run-tests.sh only.",
-      "tier": "T0",
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true,
-        "regression": false
-      },
-      "started_at": "2026-09-27T17:07:00Z",
-      "duration_seconds": 213.0,
-      "git": {
-        "sha": "79d7a338eb765589cefb76f9d26631ab4e0559c0",
-        "short": "79d7a338e",
-        "branch": "feature/ui-cad-direction",
-        "pushed": false
-      }
+      "started_at": "2026-09-27T17:15:50Z",
+      "duration_seconds": 34.0
     }
   ],
   "changes": [
