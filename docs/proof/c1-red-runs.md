@@ -12,7 +12,7 @@ links:
 review-by: 2026-10-27
 summary: >-
   Red run of the fourteen C1 checks at 32e59ce, before EditReference accepted a dimension receipt.
-  Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE against the old validator.
+  Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE. The same checks passed at 7d8b588.
 review-suggested: []
 ---
 
@@ -47,3 +47,7 @@ RESULT failures=13
 `Receipt_Dimension_OldReaderRefusesDocReference` is the old-validator observation: reopening a hand-built `rail = "dimension"`, `vertexId = "span"` receipt threw `DOC-REFERENCE`. `Recovery_Dimension_Refused` already passed, because a dimension recovery is not on the recovery allowlist.
 
 Suite summary: Core exit 1 (237 PASS outside these failures), Cli exit 0, Desktop exit 0, wall 31 s, `tools/run-tests.sh` exit 1.
+
+## Green run
+
+`7d8b588` teaches `EditReference` the `dimension` rail and replaces the throwing signatures. `tools/run-tests.sh` exited 0: Core 250 PASS, `RESULT failures=0`, wall 30 s. `python3 tools/check-named-tests.py C1` exited 0, 14/14. Each C1 name printed `PASS` in `.tmp-tests/Core.log`, including `Receipt_Dimension_OldReaderRefusesDocReference` (the span receipt reopens) and `Recovery_Dimension_Refused`.

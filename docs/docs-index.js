@@ -5966,7 +5966,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-27",
       "reviewSuggested": [],
-      "summary": "Red run of the fourteen C1 checks at 32e59ce, before EditReference accepted a dimension receipt. Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE against the old validator.",
+      "summary": "Red run of the fourteen C1 checks at 32e59ce, before EditReference accepted a dimension receipt. Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE. The same checks passed at 7d8b588.",
       "tags": [
         "app-shell",
         "wing-estimates",
@@ -5984,7 +5984,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "57eb63b558f90979247842ff19546980c3929938f6367aac2b2344104361ee94"
+      "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
     },
     {
       "id": "proof-dock-split-s8",
@@ -7475,5 +7475,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9827ad014c96ddac0c798dd21821fd9b9d821da792a2f2b51928fd1d7352bfe8"
+  "graphSha256": "7457db210dcbdd6c6f9273d3a51c3e4e4cafd5041f938f57bc92cd0b4f7d2096"
 };
