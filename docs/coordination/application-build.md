@@ -17,6 +17,7 @@ review-suggested:
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: plan-application-build, on: 2026-09-23, reason: "Execution readback records B0/G3 gates and serial G4 checkpoints; review coordination timing and claims." }
   - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 ---
 
 # First application increment: coordination plan

@@ -18,6 +18,8 @@ summary: >-
   A CAD-first rethink at the Fusion 360 / Shape3D bar: open or create a foil, edit it in model-filling views, then enter
   the section editor as a mode. Every curve is on-curve points with tangent handles; ends are named points with typed
   values. Direction evidence only — not native proof.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 ---
 
 # CFD-Workbench v8 — CAD-first direction

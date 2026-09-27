@@ -21,6 +21,7 @@ review-suggested:
   - { by: plan-application-build, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review the execution graph's gate claims." }
   - { by: coordination-application-build, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate and defers Windows qualification; review coordination status." }
   - { by: coordination-contract-c-native, on: 2026-09-25, reason: "D1/D2 revision removes on-screen timing as an M1 gate; review §3 budget requirement." }
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 summary: >-
   The user approved Windows x64 runtime and measured on-screen budgets in M1 and
   placed the full section editor in M1.1. A 2026-09-25 revision then removed

@@ -16,6 +16,8 @@ summary: >-
   v9's docked-pane CAD workspace, elevated: first-run, opening and open-failed states inside the workspace; floats
   move clear of any focused target in the model area; per-point Anchor / Control type; a Wing block with typed span
   and chords above running estimates; and, in the section editor, Replace from catalog and Save to My sections.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 ---
 
 # CFD-Workbench v10

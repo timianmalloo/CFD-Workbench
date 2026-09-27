@@ -16,6 +16,8 @@ summary: >-
   Measured the shipped native window (43 controls, 38 labels, three always-on panels, implementation vocabulary),
   set a CAD-first direction at the Fusion 360 / Shape3D bar, and built mockup v8 through two repair cycles against
   accessibility, simplifier and marine-CAD adversaries. Mechanical checks pass; three decisions remain the operator's.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 ---
 
 # UI review — CAD-first direction v8

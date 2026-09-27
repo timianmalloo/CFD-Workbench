@@ -1,6 +1,6 @@
 ---
 id: spec-cfd-workbench-v1
-title: CFD-Workbench — product specification v1.5 (section editing and design decisions)
+title: CFD-Workbench — product specification v1.6 (CAD-first editing, Wing estimates and section catalog)
 type: spec
 status: in-review
 owner: "@timianmalloo"
@@ -28,7 +28,13 @@ links:
   - {to: cad-editing-views, rel: relates-to}
   - {to: thick-client-shell, rel: relates-to}
   - {to: plan-knowledge-experts-spec-v1, rel: relates-to}
-review-by: 2027-03-19
+  - {to: mockup-workbench-v10, rel: depends-on}
+  - {to: review-ui-workbench-v10, rel: depends-on}
+  - {to: review-ui-workbench-v9, rel: depends-on}
+  - {to: review-ui-workbench-v8, rel: depends-on}
+  - {to: design-section-editor, rel: relates-to}
+  - {to: note-m1-scope-decision, rel: depends-on}
+review-by: 2027-03-26
 summary: >-
   The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis ·
   Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated,
@@ -37,6 +43,10 @@ summary: >-
   catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with
   evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for
   every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.
+  Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left
+  Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible
+  derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and
+  Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
@@ -51,14 +61,14 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.5 · 22 September 2026 · *(1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.6 · 26 September 2026 · *(1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
 the Run and Results areas are specified in full and are **first-class in the model and the UI**, while their
 *acceptance* still waits on the two spikes named in A2 (unattended meshing; the mesh-convergence oracle).
 
-[FoilDSL language specification](foildsl.md) · [Current interactive mockup v7](../mockups/workbench-v7.html) · [Reference reconciliation](../notes/foildsl-reconciliation.md) · [Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
+[FoilDSL language specification](foildsl.md) · [CAD-first mockup v10](../mockups/workbench-v10.html) and [its review](../reviews/ui-workbench-v10.md) · [Mockup v7 (authoring and design decisions)](../mockups/workbench-v7.html) · [Reference reconciliation](../notes/foildsl-reconciliation.md) · [Revision 0.2 (superseded)](cfd-workbench.md) · [Critique that produced revision 1.0](../reviews/spec-v02-critique.md) · [Knowledge base](../knowledge/hydrofoil-workbench/index.md) · [Domain experts](../domain-experts.md) · [Design language](../../DESIGN.md) · [Mockup v1](../mockups/workbench-v1.html) · [Mockup v2 (seven areas)](../mockups/workbench-v2.html)
 
 **Authority and citations.** The knowledge base `docs/knowledge/hydrofoil-workbench/` is the evidence floor; a
 design implication is cited as **KB-n** (its index) and an area file as **NN** (01–13). Revision 0.2's story
@@ -234,14 +244,21 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 | **Assistance proposal** | entity | A typed proposal of one **kind per area** — setup-seed (Setup brief fields only) · geometry-edit (a Geometry edit draft: parameter deltas, station add/remove, profile assignment, lock changes) · experiment-config (an Experiment) · environment-step (a step id from the allow-list, plus for "set the resource limit" one integer inside the product-declared range — no other field) · case-diff (a typed change to the case model of a failed attempt, inside the emitter's closed subset, producing a new Experiment version in Draft) · explanation (cited answer over a local calculation, a run's logs or a result) — with per-field provenance (Stated · Inferred · Defaulted), prompt version, schema version, model id, SDK version and disposition |
 | **Candidate** | entity | A designated **Evaluation** of an optimize Experiment on the COMMIT-01 ladder: references its Evaluation by id; status enum (surrogate-candidate → vlm-checked → cfd-checked → experimentally-compared); **promotion evidence** = 0..* Analysis run ids at the higher tier (one per multipoint point, on the Candidate's own Design revision) and 0..* Discrepancy record keys against the lower tier; 0..1 Design revision set when the user applies it (that revision's recipe provenance names the Candidate); Accept opens a Geometry edit draft at that moment — nothing transient is stored, and a Candidate never becomes geometry on its own (COMMIT-01) |
 | **Evaluation** | fact | One design-vector evaluation of one optimize Experiment: design-vector values, objective and constraint values at every multipoint point (α solved per point to the required load), tier, feasible · infeasible · non-computable; append-only, owned by the Experiment |
-| **Station document** | document view | The editor-group tab that edits one station's section in 2D (CAD-05); opened by the verb **Edit section**; its draft is a section draft, distinct from a geometry draft |
+| **Station document** | document view | *Superseded in 1.6 by **Section editor**.* The editor-group tab that edits one station's section in 2D (CAD-05); opened by the verb **Edit section**; its draft is a section draft, distinct from a geometry draft |
+| **Section editor** | mode (1.6) | The mode the verb **Edit section** enters for one station's section (CAD-20): the model area shows that section in 2D, the toolbar reads "Editing <station> section" with **Section ▾**, **Cancel** and **Finish section**; its edits are one section draft. Replaces the Station document tab |
+| **Point** | user-facing term (1.6) | What the designer selects on any curve. Its **point type** is **Anchor point** (on the curve, with tangent handles and a **tangent kind**) or **Control point** (off the curve; it pulls the curve and the curve does not pass through it). A **named point** has a fixed meaning and a constrained type: root end, tip end, nose (the leading-edge point shared by both section surfaces), upper and lower **trailing-edge terminal points**. How a point maps to the Control vertex record is open (A4.15, DR-5) |
+| **Tangent kind** | value (1.6) | The rule an Anchor point's handles obey: **Smooth** (collinear, lengths independent) · **Symmetric** (collinear, equal lengths) · **Corner** (independent); on a section also **Horizontal** · **Vertical** · **Fixed angle** |
+| **Driving dimension** | command (1.6) | A typed planform value — **Span**, **Root chord**, **Tip chord** — whose commit edits the curves of record by the rule A4.15 names; it is never stored as a second value (derive, don't store) |
+| **Wing estimate** | derived (1.6) | A running readout derived on read from the current geometry: span b, root chord, tip chord, mean chord S/b, MAC, max t/c, AR (projected, b²/S) and area S (A4.15); shown with "≈"; never stored |
+| **My sections** | library family (1.6) | The designer's saved sections: each entry is a name plus a reference to one immutable Profile revision, with provenance ("Modified from <source>") from which the rights class of its source is derived. It is a family in the catalog picker, not a fourth admission class |
+| **Pane · dock · float · workspace** | shell terms (1.6) | A **pane** (Properties, Browser, Points, Messages) lives in a **dock** (left side bar, right side bar, bottom panel) or **floats**; a **workspace** (Planform · Precision · Review) is a task preset of views and panes that remembers its own layout. Layout is an installation preference, never document data |
 | **Design alternative** | entity | A named project branch referencing an accepted Design revision and its parent alternative; edits append revisions on that branch. It is a human design option, distinct from an optimizer Candidate. |
 | **Pinned baseline** | immutable value | A project reference to one accepted Design revision, fixed until explicitly repinned; it never follows later edits or the current selection. |
 | **Comparison** | derived view | A selected baseline/alternative pair: geometric differences and only compatible run evidence, each with its revision, basis and availability. Missing evidence has no numeric substitute. |
 | **Design decision** | append-only fact | One Keep or Discard disposition of a named alternative at a particular accepted revision, with its baseline and a user-entered rationale. Discard archives the branch without deleting source or evidence. |
 | **Control frame** | control | The control polygon of a curve drawn in the elevation that shapes it (CAD-04): dashed polygon, square vertices, circle levers, diamond ends; every curve's frame is shown, the active one emphasised, the others dimmed but draggable |
-| **Tool palette** | control | The vertical strip of CAD verbs beside the workspace (CAD-07): Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its name and a single key that acts only while the workspace has focus; the active tool is pressed |
-| **Viewport** | document view | One of the four quadrants of the workspace (CAD-08), each showing any view (Top · Front · Starboard · Perspective · η-plot) chosen from its title menu, maximised by double-click or Return on its title; the default arrangement is the lines drawing |
+| **Tool palette** | control | *Superseded in 1.6 as a presentation (CAD-21, UX-30); its verbs remain.* The vertical strip of CAD verbs beside the workspace (CAD-07): Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its name and a single key that acts only while the workspace has focus; the active tool is pressed |
+| **Viewport** | document view | One of the four quadrants of the workspace (CAD-08), each showing any view (Top · Front · Starboard · Perspective · η-plot) chosen from its title menu, maximised by double-click or Return on its title; the default arrangement is the lines drawing *(superseded in 1.6: the default is the Planform workspace, Plan + 3D; Four views and One view are layouts, UX-31)* |
 | **Display cage** | derived view | The control polygons of every station section and the five master curves drawn over or instead of the loft skin (Body: Smooth · Box · Cage over smooth); a *display* of the record, never a second record and never a T-spline (A4.12) |
 | **Geometry kernel** | dependency | The evaluator the product owns (curves, constraints, sampling, comb) plus the licensed components that loft, tessellate and write geometry (A4.12) |
 | **Load case · Layup · Manufacturing policy · Elastic axis · Bend–twist coupling** | reserved terms | Structural and manufacturing vocabulary reserved in the glossary; no field modelled until a consumer exists (KB-18). The one v1 field is the **TE floor setting** GEO-12 consumes: an application default copied into the document on first use and into every Run manifest, so the same file yields the same findings on every machine |
@@ -257,7 +274,8 @@ input inside a method's validity range) and *method-capable* (a quantity a tier 
 |---|---|---|
 | Surface revision | curves, controls, constraint rows, stations, rules, tolerances, frame, evaluator version | The payload alone reproduces the evaluated surface, every station readout and every derived dimension within the identity tolerance, on both platforms |
 | Profile revision | B-spline pair, provenance, residual, design-point metadata | One revision identifies one immutable normalised shape; coordinates are provenance with a measured residual, never a second authority |
-| Geometry edit draft | base revision, candidate, deviation, validation, DRC findings | Nothing replaces accepted geometry until every hard constraint row is satisfied and Apply is chosen; Cancel changes no accepted definition or analysis input |
+| Geometry edit draft | base revision, candidate, deviation, validation, DRC findings | Nothing replaces accepted geometry until every hard constraint row is satisfied and Apply is chosen; Cancel changes no accepted definition or analysis input. *(1.6: a committed driving dimension is a draft that applies on commit when valid and is refused with geometry unchanged when not — decided; subject to DR-6, a workspace point gesture applies the same way when it ends; Finish section is the Apply of a section draft.)* |
+| Section library (My sections, 1.6) | named entries, each referencing one Profile revision whose provenance names its source (the rights class is derived from it) | An entry name is unique ignoring case; an entry references exactly one immutable Profile revision and never changes it; saving never alters the source section, the catalog original or any assignment |
 | Design revision | Surface revision reference, recipe provenance, parent | Append-only: every accepted design references exactly one Surface revision by identity and hash and names its parent; nothing on the node is ever updated in place |
 | Project design choices | named alternatives, pinned baseline references, decision facts | Every alternative, baseline and decision resolves to an immutable accepted revision; changing active choice never rewrites the revisions or their evidence. |
 | Setup brief | entry kind, text or parameters, soft targets, provenance | A brief seeds exactly one Goal state version and one Design revision and is never edited afterwards; a new seed is a new brief version |
@@ -288,7 +306,8 @@ aggregate (DM2 iv).
 - **Strip load** — one row is one strip of one run; forces are additive across strips within one run only, never
   across attempts or tiers.
 - Span, area, AR, mean chord, wetted area, volume, ranges and evaluated coordinates are **derived on read** and
-  never stored as authority. The native file carries a `derived_check` block — labelled cache, keyed by the
+  never stored as authority; revision 1.6 adds root chord, tip chord, MAC and max t/c (the Wing estimates, A4.15)
+  to this list — none of them is written to the native file, the `.foil` source or the `derived_check` block. The native file carries a `derived_check` block — labelled cache, keyed by the
   Surface revision hash and the evaluator id + version — holding the last displayed span, area, AR and mean chord;
   on load the recomputed values are compared with it by the scalar oracle (A4.5) and a mismatch flags an evaluator
   change (a new revision), never a silent overwrite; the block is discarded, never trusted, on mismatch. σ, Fr_h
@@ -516,8 +535,11 @@ annotation carrying its convention (the CEHINAV wing is 6.8 by b²/S and 10.9 by
 
 #### A4.8 Precision input
 
-Three nudge steps per unit family (fine · default · coarse): 0.1 / 1 / 10 mm for lengths; 0.0001 / 0.001 / 0.01
-chord for normalised sections; 0.01 / 0.1 / 1 ° for angles; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
+Three nudge steps per unit family (fine · default · coarse): ~~0.1 / 1 / 10 mm for lengths; 0.0001 / 0.001 / 0.01
+chord for normalised sections~~ *(superseded in 1.6 by the v8–v10 ladder: **0.01 / 0.1 / 1 mm** for lengths — the
+platform modifier ⌘/Ctrl + arrow is fine, arrow alone is default, Shift + arrow is coarse — and a section point
+nudges in millimetres at the station's local chord with the same ladder; a typed or placed length displays at
+0.01 mm, the finest step, UI-40)*; 0.01 / 0.1 / 1 ° for angles; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
 so a weight never reaches zero) (01). Every numeric field accepts `value [unit]` and expressions over named project
 dimensions (`#root_chord * 0.35`) whose result is unitless or first-power in the field's family, and echoes the
 resolved model-unit value. A handle can be clicked to type. Return accepts a preview, Escape cancels it, a
@@ -529,7 +551,8 @@ Comb evaluated on the curve at even spacing with a visible scale and density, li
 every split, monotone-piece count, hovered κ and radius; a **Tracing** pointer probe in every curve editor (η,
 % half-span, evaluated chord/t/c/twist/elevation at the pointer; section thickness in the section editor) (03);
 live derived readouts while dragging: span, area, AR, mean chord, t/c, TE thickness in mm at the local chord, and
-the estimator's L/D; a **Fair within tolerance** action (GEO-15) with Rhino Fair's contract (tolerance,
+the estimator's L/D *(1.6: the planform readouts are the Wing estimates of A4.15 — root chord, tip chord and MAC
+added — and live in the Wing block at the end of Properties, CAD-17, not in an options strip)*; a **Fair within tolerance** action (GEO-15) with Rhino Fair's contract (tolerance,
 PreserveEnds ∈ {position, tangency, curvature}, achieved deviation reported); **Rebuild** (vertex count, deviation reported) and **Fit points** (residual reported) as constructions (A4.2); numeric **guideline markers** that
 never constrain; degree, vertex count and knot form shown read-only in Properties; the comb is computed from the
 evaluator's analytic derivatives, never from finite differences; it **scales to its longest tooth and never clips**,
@@ -548,7 +571,9 @@ written down (currently none: UIUC states no licence — Eppler E817/E818/E874/E
 are "Pending admission — terms requested", 06); **LINK** — cite only (Speer H105, Airfoil Tools, UIUC LSAT
 polars under GPL). Strut/mast is a separate role; E862–E864 are fairings and never appear as mast candidates.
 Each Profile revision carries design Cl, design Re and intended σ range with a source per field (Unknown for
-Eppler/H105 until sourced). Presets default to GEN sections and name their pending preference.
+Eppler/H105 until sourced). Presets default to GEN sections and name their pending preference. *(1.6: the catalog is
+also reachable from the section editor as **Replace from catalog…**, and a designer's sections are kept in **My
+sections**; both follow these admission rules — A4.15, CAD-18, CAD-19.)*
 
 **Add profile from DAT** is a **two-layout detector** (Selig: name, TE→LE→TE; Lednicer: name, count line, blank,
 upper LE→TE, lower LE→TE) with fail-closed rules and a preview naming the detected layout, point order, closure,
@@ -690,7 +715,8 @@ The held rail's complete record stays unchanged. Solving a pin on the other rail
 show its actual changed curve and derived area/AR before Apply. Existing bounds/root-origin/locks can reject
 the command. Independent rail edits remain available and never invoke this command implicitly.
 
-**Span intent.** A span command explicitly chooses **Keep relative station positions** or **Keep absolute station
+**Span intent.** *(1.6: the Wing block's typed Span is a second, direct-commit route with the effect of Keep relative
+station positions — no preview, one undo step, A4.15; this previewed command remains.)* A span command explicitly chooses **Keep relative station positions** or **Keep absolute station
 positions**. Both set the new half-span; root and tip assignments remain boundary anchors at 0 and the new
 half-span. Keep relative station positions retains all station η, rail/channel CVs and profile assignments. Keep absolute
 station positions retains each interior station's old distance d and sets η'=d/newHalfSpan; channel CVs still retain
@@ -725,6 +751,135 @@ not a claim of hydrodynamic superiority. `.foil` contains no alternatives or dec
 | CAD-11 · Inspect during a draft | Given a draft on the middle section, when selecting another station, orbiting, changing views, reading Source or inspecting a baseline, then the draft's base/target/values remain unchanged and visible; trying to edit the newly selected item is refused with the original target named. Return to the target restores its draft view; Apply affects only its declared scope. |
 | CAD-12 · Compare and decide | Given a named alternative and pinned baseline, when geometry changes are accepted and compared, then geometry differences have explicit basis and any missing/incompatible scientific evidence has a reason with no substituted number. Keep/Discard without rationale is refused. Keep records the alternative/revision/baseline/rationale; Discard archives it and returns to baseline without deleting evidence. |
 | CAD-13 · State dimension intent | Given a chord change at an unlocked interior station, when Hold LE or Hold TE is selected, then only the other rail changes and target chord is met within the stated tolerance. Given a span change, each station-policy fixture follows its named mapping; an out-of-range absolute station blocks Apply. Cancel/Undo restore rails, span, assignments and source together. |
+
+#### A4.15 CAD-first editing contract (revision 1.6)
+
+**Sources.** The operator's words (quoted verbatim below), mockup v10 (final at `1d3bee2`,
+[review](../reviews/ui-workbench-v10.md) §1 and its DR table), the v8 and v9 reviews, and the M1.1 section editor as
+built ([design](../design/section-editor.md)). This section states **behaviour**. How each behaviour is represented in
+the geometry of record is `/define-architecture`'s decision; until it is taken, A4.1's record stays the only geometry
+authority and nothing below creates a second one.
+
+**The journey.** Operator: *"open a file or create a new file and have a CAD experience with the views for editing and
+then if you choose a section you have the section editor experience"*; the bar is Fusion 360 and Shape3D. The CAD area
+starts on a start card (or the opened foil), shows the foil in model-filling views, and enters the **section editor**
+as a mode when a station's section is chosen (F11, CAD-14, CAD-20).
+
+**Everything is a curve or a point.** Operator: *"everything 'is a curve or a point' … handles … specify a 'point' …
+terminal point of the trailing edge of the top or bottom of a section or the end point of the le or te"*. Every
+editable thing is a curve or a **Point** on a curve (A3.1). **Point types — decided** (operator, 2026-09-26: *"in the
+property sheet i should be able to change the behavior of a point on the curve: control point, anchor point, point
+with the specific semantics for them"*):
+
+- **Anchor point** — the curve passes through it; it carries tangent handles and a **tangent kind** (Smooth ·
+  Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle).
+- **Control point** — off the curve; it pulls the curve toward it and the curve does not pass through it; it has no
+  handles.
+- **Named points** keep a constrained type that cannot be changed: the **root end** of each rail (Anchor; stays on the
+  centre line with its tangent perpendicular to it — the root-mirror tangent lock of A4.2); the **tip end** (Anchor;
+  carries the tip closure); the section **nose** (Anchor; fixed, vertical tangent, shared by both surfaces, with an
+  upper and a lower handle length and the LE radius as readouts); the **upper and lower trailing-edge terminal
+  points** (Anchor; move up and down only; the TE gap and wedge angle are readouts). Selecting a named point and typing
+  its position is how the designer "specifies a point".
+- Changing a point's type is one undoable step. It changes this curve only between the nearest Anchor points on either
+  side of the point, and never another curve.
+- **Open to `/define-architecture` (DR-5):** how Anchor and Control points mix on one curve against the record's
+  clamped B-splines (degree 5 for sections, degree 3 for master curves, A4.1–A4.2), and whether keeping a point's type
+  and tangent kind across save and reopen needs a FoilDSL grammar change (the 4.0 grammar writes control vertices only,
+  [foildsl.md](foildsl.md) §6). This supersedes the v8 fit-point-only default.
+
+**Driving dimensions — decided** (operator, 2026-09-26: *"i should be able to enter the span and root (and tip) chord in
+text"*; the behaviour below confirmed as *"perfect"*). **Span**, **Root chord** and **Tip chord** are typed in
+millimetres in the Wing block. Mean chord, MAC, max t/c, AR and area stay derived.
+
+- **Span** sets the full projected span b and scales the planform spanwise; the chord at every η and every station's η
+  are unchanged. It has the effect of A4.14's span command with **Keep relative station positions**, but it is a
+  **direct-commit route with no preview and no Apply** (operator decision, v10 R7): the Wing estimates after the
+  commit are its feedback, and Undo is its recovery. A4.14's previewed span command remains for the other policy.
+- **Root chord** or **Tip chord** changes that end only. The chord scale factor blends linearly along the span to 1 at
+  the other end: typing root chord f_r·c(0) gives c′(η) = (f_r + (1 − f_r)·η)·c(η); typing tip chord f_t·c(1) gives
+  c′(η) = (1 + (f_t − 1)·η)·c(η). The line held fixed while the chord scales is **DR-2** (default: the leading edge
+  is held and the trailing edge moves; alternative: the quarter-chord line is held, keeping the c/4 sweep).
+- **Tip chord** is the chord at the outermost authored station. A closing tip (zero chord, A4.4) is not editable here:
+  the field reads "Tip closes — edit the tip station".
+- A value commits on Return or when the field loses focus; Escape restores the shown value. Each field accepts
+  `value [unit]` and expressions per A4.8 and echoes the resolved value in millimetres; a named dimension such as
+  `#root_chord` is a derived reference, never a stored value. One commit is one undo step, and the estimates update
+  after it. Input that is not a number or a length ≤ 0 is refused with its message. As a guard on the mapping to the
+  curves of record (DR-5), a commit whose mapped rails would cross or reach zero chord inside the span is refused
+  with "That would make the leading and trailing edges cross. Enter a different value."; a commit that must move a
+  locked point is refused naming the lock. In every refusal the geometry and the undo depth are unchanged.
+- Inside the section editor the three fields are read-only ("Set these in the workspace."), because Cancel rolls the
+  section draft back.
+- These are planform-wide commands. A4.14's station chord command (Hold LE / Hold TE) and its two span policies remain.
+- **Open to `/define-architecture`:** how a typed dimension maps to edits of the planform curves of record (FoilDSL
+  authority, ADR 0002) without a second geometry authority. The product of a linear factor and a B-spline is not in
+  general a B-spline of the same degree, so the mapping either keeps c′ exact or reports its residual per A4.6.
+
+**Wing estimates — decided** (operator: *"the properties should always show a running estimate of: span, chord,
+thickness, aspect ratio, area"*; *"show root chord and mean chord"*; *"it would be good to show MAC as well"*). Each is
+derived on read from the geometry on screen (the accepted revision, or the open preview while editing) and never stored
+(A3.3):
+
+| Readout | Definition |
+|---|---|
+| Chord basis (all chord readouts) | chord c(η) = trailing(η) − leading(η), measured along x in the unrotated, unpitched planform (A4.4, A4.7, A4.14); the same basis for root chord, tip chord, S/b and MAC |
+| Span | b, the full projected span, tip to tip (A4.7) |
+| Root chord | the chord at the centre line, η = 0 |
+| Tip chord | the chord at the outermost authored station |
+| Mean chord | S / b, the area-weighted mean chord (A4.7's mean geometric chord) |
+| MAC | (2/S) ∫₀^{b/2} c(y)² dy over the whole wing; labelled "not the same as S / b"; its spanwise position is not shown |
+| Max t/c | the largest value of the effective t/c channel over the span (A4.4's per-station definition) |
+| Aspect ratio | AR = b² / S, projected (A4.7) |
+| Area | S, the projected planform area over both halves (A4.7's reference area) |
+
+The estimates show "≈" because they are running readouts at display precision; the computed values are those of GEO-02
+and the scalar oracle (A4.5). They follow a drag live. In the section editor the station's chord and t/c are added.
+"Always" means whenever the Properties pane is visible, docked or floating. **assume:** the Review workspace, which
+hides every pane by design (v10), satisfies the operator's "always" because ⌘/Ctrl+B or Window → Properties brings the
+pane back in one action; confirm with the operator; if wrong, Review keeps the left side bar with Properties.
+
+**Catalog and My sections in the section editor** (operator: *"In the edit section — i should be able to choose an
+existing known foil profile from the catalog of foil sections … use known foils like eppler, naca etc but also i should
+be able to save a foil section to re-use"*). This extends A4.10, CAT-01, CAT-02 and GEO-08; it does not replace them.
+
+- **Replace from catalog…** lists the families NACA · Eppler · Speer · My sections with a search. Admission follows
+  A4.10: GEN sections and My sections entries can be chosen; a VEND section pending terms is listed disabled with
+  "Pending admission — terms requested from UIUC · GEN sections remain"; a LINK section (Speer H105) is listed disabled
+  with "Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here". A disabled entry stays
+  reachable so its reason can be read.
+- The choice is previewed on the section before Replace, with how closely the editor's points follow the catalog shape
+  and every station it replaces (shared stations named, A4.14). Replace is one undoable step inside the section draft;
+  Finish commits it with the rest of the edit (CAD-20). The chip then reads "Catalog original · <source>", and after any
+  further edit "Modified from <source>". The conversion reports its residual per A4.6. Original catalog polars never
+  attach to a modified profile.
+- **Open to `/define-architecture` (DR-4):** how a catalog section is brought into the editor's point model. v10 fits a
+  nose and three points per surface and shows the fit deviation; the build stores the degree-5 record and reports the
+  A4.6 conversion residual.
+- **Save to My sections…** takes a name (required; unique ignoring case) and records provenance: "Modified from
+  <source>" when an edited catalog or saved section is saved, otherwise its source. The entry's rights class is derived
+  from its Profile revision's provenance (the class of its source), never stored as a second value. Saving changes no
+  assignment, not the section being edited, and not the catalog original; the entry survives Cancel of the section
+  draft, and document Undo never removes it. Where the library lives, and which family lists CAT-02's DAT imports, is
+  **DR-8** (default: the installation's section library that CAT-02 adds to, so an entry is available
+  in every foil; a project that uses an entry pins it as a content-addressed profile, A4.13).
+
+**Undo contract (GEO-14, as built in M1.1 and in v10).** Cancel of a section draft adds no undo step and restores the
+section and its assignments. Finish section adds exactly one undo step for the whole edit, however many moves, type
+changes and Replace steps it held. Inside the section editor Undo steps back through the draft and never past its
+entry. Escape never discards work: it steps back (drag → handle → point → selection); with unsaved edits it moves focus
+to Cancel and says "This section has unsaved changes. Cancel discards them; Finish keeps them." Only Cancel discards.
+
+| ID | Falsifiable acceptance criterion |
+|---|---|
+| CAD-14 · Start, open or fail safely | Given no foil open, then the model area shows **Start a foil** ("Start with a foil, then make it yours.") with New foil · New from example · Open… · Recent and focus on the first card; New from example opens the Example labelled Illustrative in one action. Given Open or a Recent file, then "Opening <file>…" shows with Cancel; Cancel returns to Start with "Opening cancelled. Nothing changed." Given a file saved by a newer version, then "“<file>” didn't open. It was saved by a newer version of CFD Workbench. The file hasn't been changed." names it, Open another file… is offered and the file's bytes are unchanged. Given a Recent file that no longer exists, an older migratable version or unknown optional content, then the outcome is F1's (H Locate/Open/Example · H3 migrate to a copy, original kept · H4 retain read-only or refuse before save) with the cause named and Start kept. Given New from example with the Example fixture missing or corrupt, then DOC-01's failure clause holds: the fixture is named, nothing is overwritten and New foil stays available. |
+| CAD-15 · Choose a point's type | Given a point on a rail or section surface that is not a named point, when Type is set to Control point, then the evaluated curve no longer passes through it (measured gap > the identity tolerance), its handles are removed and "A control point pulls the curve toward it. The curve does not pass through it." shows; when set to Anchor point, then the curve passes through it within the identity tolerance and it has handles and a tangent kind. In both cases no other curve changes, and this curve is unchanged outside the nearest Anchor points on either side (the tolerance is set with the DR-5 representation; 10⁻¹² relative where that representation makes the change exact). Given Symmetric, a handle-length change sets the opposite handle to the same length; Smooth keeps the handles collinear with independent lengths; Corner leaves the other handle unchanged; Horizontal and Vertical keep the handle direction; under Fixed angle a turn by keyboard or pointer leaves the handle direction unchanged. Given a named point, then its type is shown read-only with its constraint and cannot be changed. Given Undo, the previous type and curve return exactly. Given save and reopen, then each type and tangent kind is as saved (gated on DR-5). |
+| CAD-16 · Type span and chords | Given a three-station fixture (root, mid and tip authored stations, open tip), when Span is typed as 1.5 × b, then b equals the typed value by the scalar oracle and the chord at 201 η samples and every station η are unchanged. When Root chord is typed as f_r × c(0), then c′(η) = (f_r + (1 − f_r)η)·c(η) at 201 η samples within the model/join tolerance or with the residual reported (A4.6), the tip chord is unchanged, and the held line (DR-2 default: the leading-edge rail's record) is unchanged; Tip chord mirrors this. Given "12abc", "", 0 or −5, then "Enter a number. <Dimension> is unchanged." or "Enter a length greater than 0 mm. <Dimension> is unchanged." shows, the field is marked invalid, and geometry and undo depth are unchanged. Given "15 cm" or `#root_chord * 0.5` in Tip chord, then the resolved value is echoed in mm and committed. Given a mapping fixture whose mapped rails would cross or reach zero chord inside the span (built once DR-5 fixes the mapping), then "That would make the leading and trailing edges cross. Enter a different value." and nothing changes. Given a locked trailing-edge point that the commit must move, then the commit is refused naming the lock, and geometry and undo depth are unchanged. Given a valid commit, then exactly one undo step is added, no preview or Apply is shown, and Undo restores the rails exactly. Given a closing tip, Tip chord is not an input. Given the section editor, the three fields are read-only. |
+| CAD-17 · Always see the Wing estimates | Given a foil open, in the workspace or the section editor, with any selection or none, then Properties ends with the Wing block: Span, Root chord, Tip chord, then ≈ Mean chord, MAC, Max t/c, Aspect ratio, Area, with a definitions disclosure stating the A4.15 table. Given b = 1.2 m and constant chord 0.18 m, then Area ≈ 2160 cm², AR ≈ 6.67, Mean chord ≈ 180.0 mm, MAC ≈ 180.0 mm. Given b = 1.0 m and chord linear in \|y\| on each half from 0.20 m at the root to 0.05 m at the tip, then Root chord 200.00 mm, Tip chord 50.00 mm, Area ≈ 1250 cm², AR ≈ 8.00, Mean chord ≈ 125.0 mm and MAC ≈ 140.0 mm (MAC differs from S / b). Given a drag, then the estimates change during the drag, before release. Given no foil open, then no Wing block renders. Given save, then no field of record in the native schema or the FoilDSL grammar holds an estimate; the labelled `derived_check` cache (A3.3) holds only span, area, AR and mean chord, and root chord, tip chord, MAC and max t/c are absent from the file. |
+| CAD-18 · Replace a section from the catalog | Given the section editor on a station whose section is shared, when Replace from catalog… opens, then NACA · Eppler · Speer · My sections are listed; typing filters the list and the match count is announced once typing pauses; no match reads "No sections match “<query>”. Try NACA, Eppler or a name."; Eppler rows are disabled with the pending-admission string and Speer H105 with the cite-only string, and both stay reachable. When a GEN section is chosen, then a dashed preview shows on the section and the detail line names the fit deviation and every station replaced. When Replace is chosen, then the section takes the catalog shape, the chip reads "Catalog original · <source>", one Undo inside the draft reverts it, and the A4.6 residual shows; after one point edit the chip reads "Modified from <source>". Given a disabled entry and Replace, then nothing changes. Given Cancel of the section, then the section and every assignment return to their entry state. |
+| CAD-19 · Save a section to re-use | Given a section in the editor, when Save to My sections… is completed with a new name, then an entry with that name, its provenance and its source's rights class appears under My sections in Replace from catalog…, including in another foil (DR-8 default); the section being edited, its assignments and the catalog original are byte-identical to before. Given an empty name, then "Name the section to save it." and nothing is saved; given a name already in My sections ignoring case, then "“<name>” is already in My sections. Choose another name." and nothing is saved. Given Cancel or Escape in the save dialog, then nothing is saved and focus returns to Section ▾. Given a saved entry, when the section draft is then cancelled or the document is undone, then the entry remains in My sections. |
+| CAD-20 · A section edit is a mode with one Finish | *(Supersedes CAD-05.)* Given a selected station, when Edit section is chosen (the button in Properties, or double-click or Return on the station), then the section editor opens in the model area with focus on its first point and the toolbar reads "Editing <station> section" with Section ▾, Curvature, Thickness ×2, Cancel and Finish section. Given edits and no crossing, when Finish section, then exactly one undo step is added and focus returns to the station in the workspace. Given a crossing, then Finish is disabled with "⚠ Upper and lower surfaces cross. Move the point back to finish." and clearing it announces "Surfaces no longer cross. Finish is available." Given Cancel, then the section and assignments return to the entry state and the undo depth is unchanged. Given Escape with unsaved edits, then nothing is discarded and focus moves to Cancel. Given Undo at the entry depth, then nothing is undone. Given unsaved edits and another station in the strip, then the switch is refused with "Finish or cancel <station> before editing <other>." Carried over from CAD-05: given CAD ⇄ Analysis with a section draft open, then the draft is hidden, not lost, and the section editor is back on return (ANA-22); given the edited station is removed, then the mode ends with the draft discarded and the reason in the status line; given the window or app is closed with a section draft open, then F1's unsaved-close choice applies with focus on the safe choice, and Discard is never the default: Cancel returns to the section editor; Save first asks to Finish or Cancel the section and saves or discards nothing until then (A4.11, SRC-07: Save never silently discards a dirty draft); Discard closes and drops the draft and unsaved changes only by that explicit choice. CAD-10's scope and thickness choices, CAD-11's read-only inspection and GEO-08's residual still apply inside the mode. |
+| CAD-21 · The verbs stay reachable without a palette | *(Supersedes CAD-07's tool palette and options strip; its verbs remain.)* Given the workspace, then the toolbar carries Add station · Measure · Curvature and Undo · Redo; the section editor's Section ▾ carries Replace from catalog… · Save to My sections… · Smooth…; File carries New foil · Open… · Import section from .dat… · Save; and every other CAD verb of the B1 table is reachable from a menu-bar menu and from the command palette, each with a keyboard route (where each verb sits is a `/ui-design` decision; v10 renders only the verbs listed here). No always-on palette or options strip renders. With one point selected, the workspace shows at most 25 controls by the v9 counting rule (button, input, select). |
 
 ### A5. Analysis contract
 
@@ -964,7 +1119,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 
 | ID · Story | Acceptance criteria |
 |---|---|
-| DOC-01 · I can start without setup | **Given** no document, key or backend, **when** I launch for the first time, **then** Example · race light opens with a station selected in zero actions, labelled Illustrative, with the curve-tool tips visible until dismissed (the tip text is a DESIGN.md copy row; dismissal persists per installation, never per document); New, Open and the other Example are one action away. **Given** an Example fixture is missing or corrupt, **then** New opens with the parameter form and the failure is named; nothing is overwritten. |
+| DOC-01 · I can start without setup | *(1.6: the first-launch clause up to "one action away" is superseded by CAD-14 — first launch shows the Start a foil card and the Example is one action away; the missing-fixture clause stands.)* **Given** no document, key or backend, **when** I launch for the first time, **then** Example · race light opens with a station selected in zero actions, labelled Illustrative, with the curve-tool tips visible until dismissed (the tip text is a DESIGN.md copy row; dismissal persists per installation, never per document); New, Open and the other Example are one action away. **Given** an Example fixture is missing or corrupt, **then** New opens with the parameter form and the failure is named; nothing is overwritten. |
 | DOC-02 · I can preserve my work | **Given** any edited design, **when** I save and reopen on either platform, **then** the record payload (A4.1), editing state and provenance survive and the re-evaluated surface passes the identity oracle. **Given** write denial or disk full, **then** the previous file remains readable, dirty state remains and Save as is offered. |
 | DOC-03 · I can undo complete operations | **Given** any accepted edit or proposal, **when** I Undo, **then** shape and recipe state return together and Redo restores both. **Given** a cancelled preview, **then** the undo stack length is unchanged. **Given** a failed Apply, **then** the base revision is fully restored before the error is shown. |
 | DOC-04 · I can recover or open safely | **Given** interrupted saving, **when** the app restarts, **then** the last complete recovery revision is offered beside the saved one. **Given** an unsupported major version, **then** the active document is intact, the version and path are named and no migration code runs; a migration preserves the original copy. |
@@ -1025,11 +1180,11 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | CAD-01 · I can work the outline, twist and dihedral as distinct curves | **Given** CAD, **then** the five master curves — LE rail and TE rail of the Outline, Dihedral/Anhedral, Twist, Thickness t/c — are separately selectable from the options strip, by a click on the curve in any elevation, or from the η-plot view, sharing the span coordinate, with independent CV abscissae, knots and locks; every curve shows its **control frame** (dashed polygon, square vertices, circle levers, diamond ends) in the elevation that shapes it — the selected curve's frame emphasised, the others dimmed but draggable (a press selects the curve) — so no handle has to be found by first finding a curve; editing one never rewrites another; each carries its own unit family, nudge ladder and Tracing readout; the 3D view updates within the preview budget. |
 | CAD-02 · I can add and remove stations and tune their profiles | **Given** an inspection slice at η 0.35, **when** I add a station there, **then** it becomes an authored station with the profile the blend produced (deviation ≤ 10⁻¹² relative under rule A), selectable in every view, with an explicit thickness command policy and referenced profile closure; **when** I assign or edit its profile, **then** the neighbouring blend updates and the endpoint sections stay within the conversion acceptance; **when** I remove it, **then** the shape is refit through the remaining stations with the measured deviation reported and Apply disabled above the acceptance; root and tip stations cannot be removed. |
 | CAD-03 · CAD is productive as well as visual | **Given** any curve, **then** the keyboard path selects a station in ≤ 1 action, opens its profile in ≤ 1 more, nudges at three steps, types an exact value or expression with echo, applies with Return and cancels with Escape; the command palette and native menus expose every CAD verb; a numeric change is echoed in the inspector, the status strip and the canvas within 100 ms p95 on the reference fixture (A8.1). |
-| CAD-04 · I can edit the master curves in the elevation that shapes them | **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named `role=slider` with η and value in its accessible value. |
-| CAD-05 · A station is a document, not a modal | **Given** an authored station selected (from the list, the toolbar, an elevation or a 3D pick, which select only), **when** I choose Edit section (the palette, or Return on the workspace) with no geometry draft open, **then** a **Station document tab** opens in the editor group — a full 2D section view with grid, chord and thickness dimensions, the upper and lower control points, the catalog original ghosted, the comb, the section's own control vertices and levers (degree 5, the vertex count the conversion chose to meet its acceptance, the residual **measured** at the catalog points and shown identically in the HUD, the options strip and Properties), the section strip (vertex · value · step · comb) on the toolbar and the section's own Properties; **then** Return applies as a Modified Profile revision (the catalog original intact, source polars detached) and closes the tab, Escape, Delete on the tab or the tab's close button discards the draft **onto the undo stack** (⌘/Ctrl+Z restores it and reopens the tab) and returns focus to the Edit section tool; the document does not follow a change of selection (its station is fixed in its title); removing its station closes it with the draft discarded and the reason in the status line; CAD ⇄ Analysis with a section draft open follows the ANA-22 rule (the draft is hidden, not lost, and the tab is back on return); Edit section is disabled with the reason while a geometry draft is open (one draft at a time, UX-23); the design document stays open beside it and the shell never becomes modal. |
+| CAD-04 · I can edit the master curves in the elevation that shapes them | *(1.6, subject to DR-6: in the workspace a point drag or nudge run commits as one undo step when it ends, without Return/Escape — the "opens the one draft" clause is superseded for point gestures; the elevations, lock refusals, focus ring and accessible values stand.)* **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named `role=slider` with η and value in its accessible value. |
+| CAD-05 · A station is a document, not a modal | *(Superseded in 1.6 by CAD-20: the section editor is a mode, not a tab; Escape and closing never discard onto the undo stack — only Cancel discards and it adds no undo step.)* **Given** an authored station selected (from the list, the toolbar, an elevation or a 3D pick, which select only), **when** I choose Edit section (the palette, or Return on the workspace) with no geometry draft open, **then** a **Station document tab** opens in the editor group — a full 2D section view with grid, chord and thickness dimensions, the upper and lower control points, the catalog original ghosted, the comb, the section's own control vertices and levers (degree 5, the vertex count the conversion chose to meet its acceptance, the residual **measured** at the catalog points and shown identically in the HUD, the options strip and Properties), the section strip (vertex · value · step · comb) on the toolbar and the section's own Properties; **then** Return applies as a Modified Profile revision (the catalog original intact, source polars detached) and closes the tab, Escape, Delete on the tab or the tab's close button discards the draft **onto the undo stack** (⌘/Ctrl+Z restores it and reopens the tab) and returns focus to the Edit section tool; the document does not follow a change of selection (its station is fixed in its title); removing its station closes it with the draft discarded and the reason in the status line; CAD ⇄ Analysis with a section draft open follows the ANA-22 rule (the draft is hidden, not lost, and the tab is back on return); Edit section is disabled with the reason while a geometry draft is open (one draft at a time, UX-23); the design document stays open beside it and the shell never becomes modal. |
 | CAD-06 · One camera over one model | **Given** the Perspective viewport, **then** Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport's title menu and the keyboard; free orbit, pan and zoom follow the navigation preset's pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; `[` `]` 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are **Starboard** and **Port** everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or "Free · az · el"; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; **Body** shows the loft as Smooth, as the **display cage** (Box: every station's section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it. |
-| CAD-07 · The verbs are a palette, the parameters an options strip | **Given** CAD or Analysis, **then** a vertical **tool palette** beside the workspace carries Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its visible name, its key in the accessible name, the active tool pressed, and a single key (S · I · A · M · ⇧F · R · P · Return · G) that acts only while the workspace has focus (SC 2.1.4) — Escape cancels the draft and returns to Select in one press; every pointer verb has a keyboard equivalent on the options strip (Insert at η; Add station at η; Measure between two η values) and the pointer path is the same verb; at the 640 × 400 reflow preset the palette becomes a row above the viewports, never hidden (a 44 px row: the reflow preset is for orientation, and the palette keeps its own target class rather than shrinking to a 32 px dense row that would leave a 12 px taller viewport); the application toolbar keeps only Edit (Undo · Redo), Find (⌘/Ctrl+K) and View (CAD ⇄ Analysis) plus **Draft (Apply · Cancel) while a draft is open**; the row beneath the toolbar is an **options strip** — the curve selector, the active tool's options (η for Add station and Insert CV, two η values for Measure, tolerance and PreserveEnds for Fair, vertex count for Rebuild, the comb scale and the monotone-piece count while the comb is shown), the draft chip and the derived b · S · AR · c̄ · TE readouts; the nudge step and the locks live in Properties; the bottom panel is the Checks drawer only; the Navigator starts collapsed on first entry; at 1280 × 800 the CAD area shows at most 51 visible chrome controls (revision 1.5 permits three approved persistent entry actions—Edit section, Edit intent and Alternatives—above the previous 48 ceiling; v4 measured 71). Existing target-size, viewport, overflow and keyboard requirements remain unchanged. |
-| CAD-08 · Four viewports, one model | **Given** the workspace, **then** it is **four viewports** in the lines-drawing arrangement (Top · Perspective over Front · Starboard), each with a **title menu** (View: Top · Front · Starboard · Perspective · η-plot; Display: Control frame · Curvature comb · Ghost; Body: Smooth · Box · Cage over smooth; Maximise / restore — a WAI-ARIA menu: opening focuses the first item, arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave) and **double-click or Return on its title to maximise** it to the whole workspace and back; the η-plot is a view like any other (the active curve's vertices against η) and the 1.2 curve pane is gone; every viewport renders at its own pixel size so a vertex target is never scaled below 24 px, and the workspace re-renders when a dock, the bottom panel or the window changes its box; below 480 × 240 px the workspace shows one viewport (the title menu still reaches every view); the tracing readout is a strip beneath the viewports, never an overlay, and it is a **pointer probe**: moving over any elevation writes η, % half-span, the evaluated channels and the active curve's graph curvature κ and radius at the pointer, and returns to the selected station on leave. |
+| CAD-07 · The verbs are a palette, the parameters an options strip | *(Superseded in 1.6 by CAD-21 for the palette, the options strip, the Checks-only bottom panel and the 51-control ceiling; the verbs, their single-key scope (SC 2.1.4) and their keyboard equivalents remain.)* **Given** CAD or Analysis, **then** a vertical **tool palette** beside the workspace carries Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its visible name, its key in the accessible name, the active tool pressed, and a single key (S · I · A · M · ⇧F · R · P · Return · G) that acts only while the workspace has focus (SC 2.1.4) — Escape cancels the draft and returns to Select in one press; every pointer verb has a keyboard equivalent on the options strip (Insert at η; Add station at η; Measure between two η values) and the pointer path is the same verb; at the 640 × 400 reflow preset the palette becomes a row above the viewports, never hidden (a 44 px row: the reflow preset is for orientation, and the palette keeps its own target class rather than shrinking to a 32 px dense row that would leave a 12 px taller viewport); the application toolbar keeps only Edit (Undo · Redo), Find (⌘/Ctrl+K) and View (CAD ⇄ Analysis) plus **Draft (Apply · Cancel) while a draft is open**; the row beneath the toolbar is an **options strip** — the curve selector, the active tool's options (η for Add station and Insert CV, two η values for Measure, tolerance and PreserveEnds for Fair, vertex count for Rebuild, the comb scale and the monotone-piece count while the comb is shown), the draft chip and the derived b · S · AR · c̄ · TE readouts; the nudge step and the locks live in Properties; the bottom panel is the Checks drawer only; the Navigator starts collapsed on first entry; at 1280 × 800 the CAD area shows at most 51 visible chrome controls (revision 1.5 permits three approved persistent entry actions—Edit section, Edit intent and Alternatives—above the previous 48 ceiling; v4 measured 71). Existing target-size, viewport, overflow and keyboard requirements remain unchanged. |
+| CAD-08 · Four viewports, one model | *(1.6: the four-viewport default arrangement is superseded by UX-31 — Plan + 3D by default, Four views and One view as layouts; per-viewport rendering at its own pixel size and the pointer probe stand.)* **Given** the workspace, **then** it is **four viewports** in the lines-drawing arrangement (Top · Perspective over Front · Starboard), each with a **title menu** (View: Top · Front · Starboard · Perspective · η-plot; Display: Control frame · Curvature comb · Ghost; Body: Smooth · Box · Cage over smooth; Maximise / restore — a WAI-ARIA menu: opening focuses the first item, arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave) and **double-click or Return on its title to maximise** it to the whole workspace and back; the η-plot is a view like any other (the active curve's vertices against η) and the 1.2 curve pane is gone; every viewport renders at its own pixel size so a vertex target is never scaled below 24 px, and the workspace re-renders when a dock, the bottom panel or the window changes its box; below 480 × 240 px the workspace shows one viewport (the title menu still reaches every view); the tracing readout is a strip beneath the viewports, never an overlay, and it is a **pointer probe**: moving over any elevation writes η, % half-span, the evaluated channels and the active curve's graph curvature κ and radius at the pointer, and returns to the selected station on leave. |
 | ANA-21 · I can read 2D and 3D local analysis with rich visuals | **Given** a Design revision and an operating point, **then** the section view draws Cp on the profile (vik pinned at 0), the transition point and the cavitation margin, and the wing view draws per-strip lift vectors (length ∝ local load, direction along the local normal), the total force vector at the center of lift, the spanwise loading strips (batlow), the depth band and the ventilation margin on the geometry, each with its legend fields and a table twin; every visual carries the tier chip and "local calculation". |
 | ANA-22 · I can toggle between the CAD view and the analysis view seamlessly | **Given** CAD and Analysis, **when** I switch (one action: the toggle or a shortcut — the toggle *is* navigation between areas 2 and 3 and the area strip follows), **then** the camera, selection, station and viewport size are preserved and the analysis layers appear over the accepted Design revision within the preview budget; **given** an open edit preview, **then** the preview is hidden with "Preview hidden — Apply or Cancel in CAD" and the layers draw over the accepted revision, never the preview; switching back restores the preview untouched; a Historical run's layers carry the Historical banner in either view. |
 | ANA-23 · I can see force directions and magnitudes | **Given** a wing result, **then** lift, drag and the resultant are drawn as labelled vectors in the body frame with their sign convention, magnitude in N (or lbf) and the datum named; the moment about the named datum is drawn as a labelled arc; Undefined and Unavailable vectors are not drawn and their absence is stated. |
@@ -1078,7 +1233,7 @@ RANS backend (tripped data for fully turbulent, untripped for a transition model
 | Lens | Requirement |
 |---|---|
 | Functional suitability | every A6 story traces to an observed-red test; excluded physics never appears as supported (LAB-01) |
-| Performance efficiency | reference fixture: 21 authored stations, 201 slices, 50k triangles, 10k plot points on a 16 GB Apple-silicon Mac and a 16 GB Windows x64 laptop (machines fixed in architecture); edit feedback p95 ≤ 100 ms, preview regeneration p95 ≤ 250 ms, CAD ↔ analysis toggle p95 ≤ 250 ms, orbit p95 frame time ≤ 33 ms over a 10 s recorded interaction, cold launch ≤ 5 s; Results: a reduced surface artifact of 500k triangles loads ≤ 2 s and replays at ≥ 20 samples/s from cache — **proposed targets, measured by `geometry.preview`, `results.load` and per-view events** |
+| Performance efficiency | reference fixture: 21 authored stations, 201 slices, 50k triangles, 10k plot points on a 16 GB Apple-silicon Mac and a 16 GB Windows x64 laptop (machines fixed in architecture); edit feedback p95 ≤ 100 ms, preview regeneration p95 ≤ 250 ms, CAD ↔ analysis toggle p95 ≤ 250 ms, orbit p95 frame time ≤ 33 ms over a 10 s recorded interaction, cold launch ≤ 5 s; Results: a reduced surface artifact of 500k triangles loads ≤ 2 s and replays at ≥ 20 samples/s from cache — **proposed targets, measured by `geometry.preview`, `results.load` and per-view events** · *1.6: per the [M1 scope decision](../notes/m1-scope-decision.md) revision of 2026-09-25 (D1), on-screen timing is not an M1 release gate and no on-screen capture is planned; these stay product targets and their events stay emitted* |
 | Reliability | atomic saves; fault injection at write/replace; Cancel acknowledgement ≤ 250 ms |
 | Compatibility | CLI-02 both-OS ring 0; pinned by digest or asset hash, never a floating tag |
 | Usability | keyboard-only New → edit → save → inspect; UX-05 protocol; the persona falsifier |
@@ -1087,7 +1242,7 @@ RANS backend (tripped data for fully turbulent, untripped for a transition model
 | Security | boundary table A8.5 with negative tests; parser caps published (file ≤ 8 MB, line ≤ 4 kB, points ≤ 10⁵; assistant excerpts ≤ 4 kB each and ≤ 32 kB per prompt); fuzz corpus for DAT and native files; export and recovery writes never leave their chosen directory nor follow symlinks |
 | Privacy | local by default; no telemetry egress — fixture: with a network monitor attached, a full F1–F5 walk with no key opens zero outbound connections; AI context opt-in and inspectable; rider mass is personal data with a stated purpose and no third-party egress |
 | Maintainability | testing floors A8.4; regression controls for signs, units, freshness, conversions |
-| Portability | macOS Apple silicon and Windows x64; Intel Mac and Windows ARM are open support-matrix decisions |
+| Portability | macOS Apple silicon and Windows x64; Intel Mac and Windows ARM are open support-matrix decisions · *1.6: Windows x64 runtime qualification is deferred (M1 scope decision D2, 2026-09-25); Windows x64 stays a target platform, and M1 is not two-platform-complete until it resumes* |
 | Safety | the fixed strings of A5.6 render whenever their condition holds, tested as content |
 | Release / supply chain | signed and notarized packages; SBOM; the licence register A8.5; no solver binary redistributed |
 | Observability | event families emitted on the normal path with cost axes: `geometry.preview`, `document.save`, `analysis.run` (tier, key, duration, outcome, confidence), `drc.evaluate`, `assistant.request` (provider, model, usage or Not recorded, proposal kind), `export.validate`, `environment.check` (substrate, version, outcome), `environment.step` (step id, pinned parameter hash, consent action, exit outcome, elevation used), `mesh.generate` (cells, wall-clock, gate outcome), `solver.process` (cells, ranks, substrate, wall-clock, CPU s, peak RSS, achieved y+, oracle outcome), `results.load` (artifact, triangles, load ms, cache hit). Missing metrics say "Not recorded" |
@@ -1198,7 +1353,7 @@ in the global column; a chip that jumps is not a verb.
 | Area | Verbs (exclusive) | Jump chips |
 |---|---|---|
 | Setup | Describe a starting design · Seed from parameters · Edit constraint row · Validate against class · Acknowledge | → CAD · → Analysis |
-| CAD | Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft | → Analysis (toggle) |
+| CAD | Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft · *1.6:* Set point type · Set tangent kind · Type span · Type root chord · Type tip chord · Replace from catalog · Save to My sections · Smooth (Fair / Rebuild, assumed below) · Finish section · Cancel section · Curvature · Thickness ×2 | → Analysis (toggle) |
 | Analysis | Set operating point · Set depth · Choose water · Toggle layer · Compare · Ask about this calculation | → CAD (toggle) · → Experiment |
 | Experiment | New sweep · New optimize · Describe the experiment · Queue · New version | → Run |
 | Run | Check · Prepare my environment · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff | → Results · → Experiment (Open repaired draft) |
@@ -1243,6 +1398,31 @@ One selection links the planform, station list, curve control, profile and inspe
 station marker and the influence control have distinct glyphs and labels. Selecting a run pins its snapshot;
 editing never changes the selected run.
 
+**CAD area IA (revision 1.6, mockup v10).** The CAD area has three places, in journey order: **Start** (Start a
+foil: New foil · New from example · Open… · Recent, with an Opening state and an open-failed message) → the **design
+workspace** (the model area of views, the left side bar, optional docks) → the **section editor** (a mode over one
+station's section, left by Finish section or Cancel). Inside the workspace:
+
+| Region | Content | Default |
+|---|---|---|
+| Model area | Views Plan · 3D · Side · Front; layouts Plan + 3D · Four views · One view (Views ▾, or double-click a view label for One view); Fit | Plan + 3D |
+| Left side bar | **Properties** (follows the selection: a point, several points, a station, or the foil; always ends with the Wing block) · **Browser** (the sections, each with the profile it uses — not a third copy of the points) | shown, 260 px (200–420) |
+| Bottom panel | **Points** (a grid of every point with typed edits and two-way selection) · **Messages** (anything that stops Finish or Save, each with Show) | hidden |
+| Right side bar | empty until a pane is moved there; an opened empty dock says how to fill it | hidden |
+| Workspaces (Window menu) | **Planform** (Plan + 3D, left side bar) · **Precision** (adds Points and Messages in the bottom panel) · **Review** (four views, no panes); each remembers its own layout; Reset layout restores the preset | Planform |
+
+The operator's layout words govern this table: properties in *"a 'properties pane'"*, window management *"like in … VS
+Code, Adobe Premier"*, *"docked in a side panel or floating"*, *"right side and bottom panels should be 'optional'"*,
+*"the left panel should be the default place for properties and not take too much space away from the cad
+surfaces"*, *"by default it would have the side panel then the main views depending on the task"*.
+**assume:** v10's view labels map onto CAD-06's cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the
+right), Front = Front; confirm at the next `/ui-design` run; if wrong, only labels change. **assume:** the **Messages**
+pane is the CAD presentation of the Checks drawer's findings for the open foil (DRC-01 stands); confirm at the next
+`/ui-design` run; if wrong, the Checks drawer needs its own place in the CAD shell. **assume:** v10's **Smooth…**
+dialog (tolerance, points per side, largest change) is the Fair / Rebuild construction of GEO-15 under a plainer name;
+if wrong, Smooth is a new verb and needs its own story. **How the six other areas are
+reached from this shell is DR-7** (default: the activity rail of UI-18/UI-24 stays, outside the left side bar).
+
 ### B2. Flow F1 — start, first launch, preserve (DOC-01–04)
 
 ```mermaid
@@ -1283,6 +1463,8 @@ Z -->|Cancel| G
 ```
 
 Unsaved close focuses the safe choice. Nothing simulated is smuggled into the Examples as evidence.
+*1.6: node D (first launch opens the Example with a station selected) is superseded by F11's Start a foil card
+(UX-28); the other F1 nodes and edges stand.*
 
 ### B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)
 
@@ -1554,6 +1736,10 @@ R -->|No| R2[Absence string; surface floods and forces remain]
 
 ### B7. Wireframe structure
 
+*1.6: for the CAD area, the Navigator dock, the right-hand Properties dock with the prompt entry beneath it, the tool
+palette, the options strip, the Checks-only bottom panel and the four-viewport default below are superseded by the
+**CAD-first window** at the end of this section. The rest of B7 stands for the other areas.*
+
 **The window is the unit** (revision 1.1a): a fixed frame whose regions scroll inside themselves; the window
 never scrolls as a page. Top: the menu bar (native on macOS; a strip on Windows) and a **one-row toolbar** filled
 from the B1 verb table for the current area and *measured* — groups that do not fit move, from the tail, into a
@@ -1582,6 +1768,24 @@ Rhino) plus a trackpad mode (A8.1 `simplify:` row), and the **per-OS convention 
 mirrored one-for-one; right-click is a context menu; Ctrl-click on macOS has no other meaning; Return accepts and
 Escape cancels; arrows nudge the selection; Option/Alt+arrows orbit in steps; function keys are avoided; the macOS
 menu bar is native; Windows declares per-monitor DPI v2.
+
+**The CAD-first window (revision 1.6, mockup v10).** The window still never scrolls. **Top:** one app bar — on
+Windows the File · Edit · Window menus in the window and the caption buttons at the right; on macOS those menus in the
+system menu bar — then the file name and an unsaved-changes mark, then the mode's commands: in the workspace **Add
+station · Measure · Curvature**; in the section editor **Editing <station> section · Section ▾ · Curvature · Thickness
+×2**, with **Cancel · Finish section** at the right. Then **Undo · Redo** and three layout toggles (left side bar ·
+bottom panel · right side bar). **Body:** the left side bar (Properties | Browser), the model area (views with a Fit ·
+Views ▾ bar; in the section editor the section canvas with its scope and source chips, its status line and a strip of
+station thumbnails), the optional bottom panel (Points | Messages) and the optional right side bar; floating panes sit
+over the model area. **Panes:** each pane's tab has a menu (Move to · Float · Size · Maximize · Close); a tab can be
+dragged to a highlighted drop zone; a float moves with Alt + arrows or its Position menu and docks back with ⤓ or
+Escape; a dock closes when its last pane leaves. **Keyboard:** F6 cycles regions; ⌘/Ctrl+B, ⌘/Ctrl+J and ⌥⌘B /
+Ctrl+Alt+B toggle the left side bar, bottom panel and right side bar; ⌘/Ctrl+Shift+M maximizes a pane; splitters take
+arrows and Home/End; shortcuts never act while a text field has focus. **Native build conditions carried from the v9
+review as requirements where the user sees them (UX-32):** a float is a real OS window that can move to another
+monitor; menus and shortcuts follow the platform (macOS menu bar and ⌘; Windows in-window menus and Ctrl; Windows
+Snap Layouts preserved); each workspace's layout is remembered across sessions, with floats clamped to connected
+monitors.
 
 ### B8. UX acceptance criteria
 
@@ -1621,11 +1825,11 @@ menu bar is native; Windows declares per-monitor DPI v2.
   and no deep-water value is shown.
 - **UX-12:** with two conflicting locks the preview names both and offers releasing either in one action; Apply
   stays disabled until one is released.
-- **UX-13:** first launch reaches an editable, selected station in zero actions; the strategy tip stays until
+- **UX-13:** *(Superseded in 1.6 by UX-28.)* first launch reaches an editable, selected station in zero actions; the strategy tip stays until
   dismissed.
 - **UX-14:** editing in any viewport updates the other three within the preview budget.
-- **UX-24:** a tool is a mode the user can always see and always leave: the palette shows the pressed tool, the options strip shows its parameters, Escape returns to Select, and a single-key tool shortcut acts only while the workspace has focus (SC 2.1.4); one draft at a time across writing entry points, with a refusal naming the open draft; read-only picks and curve selection remain available and never retarget it.
-- **UX-23:** an elevation edit (CAD-04), an η-plot edit, a Properties edit, a palette construction (Fair · Rebuild · Fit points · Insert · Delete) and a station-document edit (CAD-05) are one draft model — a nudge or drag continues the open vertex draft on the same curve; every competing construction, lock change or edit refuses while a draft is open, naming the draft to apply or cancel. Read-only picking, station/curve selection, orbit, pan, zoom, view switching, baseline inspection and source reading remain available. Selection never retargets the draft; its pinned target and base remain visible; Add station and Remove station are their own undo items: at most one preview open, the same Apply/Cancel keys, the same status-bar line, the same undo item; opening the Station document never loses the design document's selection or camera.
+- **UX-24:** *(1.6: the palette and options-strip clauses are superseded by UX-30; the one-draft clause stands.)* a tool is a mode the user can always see and always leave: the palette shows the pressed tool, the options strip shows its parameters, Escape returns to Select, and a single-key tool shortcut acts only while the workspace has focus (SC 2.1.4); one draft at a time across writing entry points, with a refusal naming the open draft; read-only picks and curve selection remain available and never retarget it.
+- **UX-23:** *(1.6, subject to DR-6: a workspace point gesture commits as one undo step when it ends and so is no longer a pinned draft; the station-document clause reads "section editor" (CAD-20); the rest stands.)* an elevation edit (CAD-04), an η-plot edit, a Properties edit, a palette construction (Fair · Rebuild · Fit points · Insert · Delete) and a station-document edit (CAD-05) are one draft model — a nudge or drag continues the open vertex draft on the same curve; every competing construction, lock change or edit refuses while a draft is open, naming the draft to apply or cancel. Read-only picking, station/curve selection, orbit, pan, zoom, view switching, baseline inspection and source reading remain available. Selection never retargets the draft; its pinned target and base remain visible; Add station and Remove station are their own undo items: at most one preview open, the same Apply/Cancel keys, the same status-bar line, the same undo item; opening the Station document never loses the design document's selection or camera.
 - **UX-15:** with a draft open on the TE rail and two locks the strip reads "TE rail · mm · 1 mm · Draft
   open · 2 locks" without opening Properties.
 - **UX-16:** step budgets — overlay a second admitted section at the same Re ≤ 2 actions from a computed polar
@@ -1737,6 +1941,149 @@ events `section.scope`, `dimension.preview`, `alternative.create`, `comparison.o
 with revision identities, elapsed time/outcome and counts. User source/rationale text is excluded by default;
 missing timing or scientific evidence reads Not recorded/Not run rather than an invented value.
 
+### B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)
+
+```mermaid
+flowchart TD
+A[Launch or File menu] --> B{Foil open?}
+B -->|No| C[Start a foil: New foil, New from example, Open, Recent]
+C -->|New foil or New from example| W[Design workspace: views, Properties with Wing block]
+C -->|Example fixture missing or corrupt| E1[Fixture named; nothing overwritten; New foil available]
+E1 --> C
+C -->|Open or Recent| O[Opening file with Cancel]
+O -->|Cancel| O2[Opening cancelled. Nothing changed]
+O2 --> C
+O -->|Newer version| O3[File named; file unchanged; Open another file]
+O3 --> C
+O -->|Missing, migratable or unknown content| O4[F1 outcome: Locate, migrate to a copy, or read-only; cause named]
+O4 -->|Resolved| W
+O4 -->|Not resolved| C
+O -->|Opened| W
+B -->|Yes| W
+W --> P{Select}
+P -->|Point| P1[Properties: type, position, tangent kind, handles]
+P1 -->|Drag or nudge| P2{Edges cross?}
+P2 -->|No| P3[One undo step; estimates follow live]
+P2 -->|Yes| P4[Refused; geometry unchanged; reason shown]
+P3 --> W
+P4 --> P1
+P1 -->|Change type| P5[One undo step; curve changes between neighbouring anchors only]
+P5 --> W
+P -->|Several points| M[Properties: shared values, Mixed where they differ; a typed value sets every point]
+M --> W
+P -->|Any selection| D[Wing block: type Span, Root chord or Tip chord]
+D --> D1{Valid length and edges stay apart?}
+D1 -->|No| D2[Inline error; geometry and undo depth unchanged]
+D2 --> D
+D1 -->|Yes| D3[One undo step; estimates update]
+D3 --> W
+D -->|Tip closes| D4[Tip chord not editable; edit the tip station]
+D4 --> W
+P -->|Station, then Edit section| S[Section editor: focus on first point; Wing dimensions read-only]
+S --> S1{Action}
+S1 -->|Edit points or types| S2{Surfaces cross?}
+S2 -->|Yes| S3[Finish disabled with the reason]
+S3 --> S1
+S2 -->|No| S1
+S1 -->|Replace from catalog| K[Search NACA, Eppler, Speer, My sections]
+K -->|No match| K1[No sections match; try NACA, Eppler or a name]
+K1 --> K
+K -->|Pending or cite-only entry| K2[Disabled with its reason; nothing changes]
+K2 --> K
+K -->|Admitted entry| K3[Dashed preview; fit deviation; stations replaced named]
+K3 -->|Replace| K4[Catalog original chip; one step inside the draft]
+K3 -->|Cancel| S1
+K -->|Cancel or Escape| S1
+K4 --> S1
+S1 -->|Save to My sections| V[Name and provenance]
+V -->|Empty or duplicate name| V1[Inline error; nothing saved]
+V1 --> V
+V -->|Cancel or Escape| S1
+V -->|Save| V2[Entry in My sections; section and assignments unchanged]
+V2 --> S1
+S1 -->|Smooth| SM[Smooth dialog: tolerance, points, largest change]
+SM -->|OK| S1
+SM -->|Cancel| S1
+S1 -->|Switch to Analysis| S8[Draft hidden, not lost; editor back on return]
+S8 --> S1
+S1 -->|Edited station removed| S9[Mode ends; draft discarded; reason in the status line]
+S9 --> W
+S1 -->|Close window with unsaved edits| S10[F1 unsaved-close choice; safe choice focused]
+S10 -->|Cancel| S1
+S10 -->|Save| S11[Finish or Cancel the section first; nothing saved or discarded]
+S11 --> S1
+S10 -->|Discard| S12[Window closes; section draft and unsaved changes discarded by explicit choice]
+S1 -->|Other station with unsaved edits| S4[Refused: finish or cancel first]
+S4 --> S1
+S1 -->|Escape with unsaved edits| S5[Focus moves to Cancel; nothing discarded]
+S5 --> S1
+S1 -->|Finish section| S6[One undo step; back to the station in the workspace]
+S1 -->|Cancel| S7[Entry state restored; undo depth unchanged]
+S6 --> W
+S7 --> W
+```
+
+### B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)
+
+```mermaid
+flowchart TD
+A[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]
+A -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]
+L --> F
+B -->|Maximize| X[Pane fills the window; the rest inert]
+X -->|Escape or restore| B
+B -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]
+J2 --> B
+B -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]
+B -->|Float| F[Float over the model area]
+C --> B
+F -->|Escape or dock back| B
+F -->|Alt and arrows or Position menu| F
+F -->|A control under the float takes focus| G{A corner of the model area clears it?}
+G -->|Yes| H[Float moves to the nearest clear corner and says so]
+G -->|No| I[Float docks back where it came from and says so]
+H --> F
+I --> B
+B -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]
+J --> B
+B -->|Switch workspace| K[That workspace's remembered layout]
+K --> B
+B -->|Reset layout| A
+```
+
+**UX acceptance criteria added in revision 1.6** (each traces to F11 or F12):
+
+- **UX-28** *(supersedes UX-13)*: from launch with no foil open, an editable foil is reached in ≤ 1 action (New foil or
+  New from example) or ≤ 2 actions (Open…, then the file); focus starts on the first start card; Opening can be
+  cancelled from the keyboard; an open failure keeps Start with Open another file… and changes no file.
+- **UX-29**: every non-happy edge of F11 and F12 shows its cause, keeps the user's work and offers a reachable
+  recovery. **Counting rule:** a non-happy edge is one labelled with a failure, a refusal, a Cancel or Escape, or an
+  interruption of an open draft; F11's B-No (no foil open) is the normal first-run path and is not counted. The
+  edges, by node: F11 — C-Example-missing, O-Cancel, O-Newer, O-Missing-migratable-unknown, O4-Not-resolved, P2-Yes,
+  D1-No, D-Tip-closes, S2-Yes, K-No-match, K-Pending-or-cite-only, K-Cancel, K3-Cancel, V-Empty-or-duplicate,
+  V-Cancel, SM-Cancel, S1-Other-station, S1-Escape, S1-Cancel, S1-Switch-to-Analysis, S1-Station-removed,
+  S1-Close-window, S10-Save (23); F12 — A-Monitor-gone, G-Yes, G-No, X-Escape-or-restore, F-Escape-or-dock-back (5):
+  **28 edges**, each a test row, in addition to UX-03's 80.
+- **UX-30** *(supersedes UX-24's palette clause; its one-draft clause stands)*: the model gets the space — in the
+  default Planform workspace the left side bar is 260 px (resizable 200–420 px), the right side bar and bottom panel are
+  hidden, and no palette or options strip renders; a point, a station, the section editor and every B1 CAD verb are
+  reachable by keyboard; selection agrees across every visible view and the Properties pane.
+- **UX-31** *(supersedes the four-viewport default of CAD-08)*: Planform opens Plan + 3D with Properties on the left;
+  Precision adds Points and Messages in the bottom panel; Review shows four views and no panes. Each workspace
+  remembers its own layout; Reset layout restores its preset; switching workspace or layout keeps the selection, the
+  camera and any section draft.
+- **UX-32**: window management is VS Code / Premiere-class and never pointer-only — every pane can be moved, floated,
+  sized, maximized and closed from its tab menu, a float moves with Alt + arrows and docks back with Escape, and F6
+  reaches every region. In the native build a float is an OS window that can sit on another monitor; menus and
+  shortcuts follow the platform; each workspace's layout survives a restart with floats clamped to the monitors
+  connected at launch. A control in the model area that takes focus is never left under a float (option (a),
+  operator-confirmed): the float moves to the nearest clear corner of the model area and says so, or docks back where it
+  came from when no corner clears.
+- **UX-33**: coincident points are all reachable — where two points share one hit target at the current zoom (the upper
+  and lower trailing-edge terminal points at small scale are the known case), a pointer-only user can select each of
+  them at that zoom, and keyboard and Points-grid users can reach both. The pointer mechanism is a `/ui-design`
+  decision; the v10 review recommends selection cycling on a repeated press, the CAD convention (open item OI-2).
+
 ## Part C — UI specification
 
 ### C1. Archetype and direction
@@ -1770,6 +2117,17 @@ HTML is the interaction prototype.
 Triggers: UI-T1 (expert quantities) applies; UI-T3 (optional model) applies; UI-T4 (native client) applies at
 handoff; UI-T2 (generated assets) does not.
 
+**Revision 1.6 (CAD area, mockups v8 → v10).** The archetype is unchanged: **G1 Parametric Modeling Workbench**,
+re-checked against the task in the v10 review (editing is serial — one point, one field at a time; the one added
+reading surface is the Wing block). The operator named the UX references — Fusion 360 and Shape3D for the CAD
+experience; VS Code and Premiere Pro for window management — so the archetype was not auto-selected. Recorded facet
+deviations for the CAD area: **no feature-history timeline** (Undo is the history); **Layout:ViewportWorkbench** is
+realised as a model area with a narrow, selection-driven Properties pane in the left side bar and optional right and
+bottom docks, not three always-on columns; **Nav** in the CAD area is the menu bar, workspaces and Views ▾ (how the
+other areas are reached is DR-7); **Motion:None** in the CAD area (v10 has no animation; the opening state is a static
+skeleton). Direction adjectives (v8): **quiet** (not busy) · **direct** (not form-driven) · **precise** (not
+approximate). `DESIGN.md` §12.0e holds the v10 rules; COPY-103 to COPY-124 are its copy rows.
+
 ### C2. Design system, states, charts and colour
 
 `DESIGN.md` is the token and copy authority. Numbers are tabular, right-aligned, unit-bearing, consistent in
@@ -1799,12 +2157,12 @@ run that ships the mockup).
 
 | State | Fixed string | Component | Owner |
 |---|---|---|---|
-| First launch | "Example · race light — Illustrative, not computed for this design" + strategy tip | start banner · tip | DOC-01, UX-13 |
+| First launch *(1.6: superseded as the first-launch state by "No foil open" below (CAD-14, UX-28); the string stays as the Example's Illustrative banner once it is opened)* | "Example · race light — Illustrative, not computed for this design" + strategy tip | start banner · tip | DOC-01, UX-13 |
 | Example missing | "Example fixture missing or corrupt: <file> — nothing was overwritten · New · Open" | start dialog | DOC-01 |
-| Unsupported file version | "This file was saved by a newer version (<n>) — not opened; your active document is unchanged · <path>" | open dialog | DOC-04 |
+| Unsupported file version *(superseded in 1.6 by the "Open failed" row, COPY-103 — one state, one string)* | "This file was saved by a newer version (<n>) — not opened; your active document is unchanged · <path>" | open dialog | DOC-04 |
 | Save denied | "Save failed: <cause> — the previous file is intact and your changes are kept · Retry · Save as" | save toast (persistent) | DOC-02 |
 | Recovery | "A recovery revision from <time> exists beside the saved one · Compare · Keep saved · Use recovery" | recovery dialog | DOC-04 |
-| Control vertex | "<curve> control vertex <i> of <n>" (+ "(tangent lever)" · "(end, on the curve)" · "· Locked by <source>") | vertex accessible name · Properties | CAD-04, GEO-05 |
+| Control vertex *(superseded in 1.6 by UI-37: UI-37 alone governs a point's accessible name; this row is kept for history and returns only if DR-5 exposes control vertices as their own editable objects)* | "<curve> control vertex <i> of <n>" (+ "(tangent lever)" · "(end, on the curve)" · "· Locked by <source>") | vertex accessible name · Properties | CAD-04, GEO-05 |
 | Vertex role | "end vertex (on the curve)" / "tangent lever" / "interior vertex (pulls the curve, never on it)" | Properties role row | GEO-03, UI-11 |
 | Editable / locked | "Locked by <source>" | inspector lock row | GEO-03 |
 | Draft open | "Draft open — <kind> · deviation <d>" | status strip · options-strip chip | UX-15 |
@@ -1864,6 +2222,32 @@ run that ships the mockup).
 | Thickness frozen | "Thickness is frozen until a structural proxy row or the Beam tier exists — without one, thickness collapses to the floor (Garg 2017)" | Experiment form | XS-02 |
 | Mesh differs | "Unavailable — mesh differs" | Results difference flood | RES-03 |
 | Not ready at Run | "Not ready — no backend row matches the pin <backend, version, digest>" | Run queue row | XS-03 |
+| *1.6* No foil open | "Start a foil" · "Start with a foil, then make it yours." (COPY-08) | start card | CAD-14, UX-28 |
+| Opening | "Opening <file>…" (COPY-104) + Cancel | opening status | CAD-14 |
+| Opening cancelled | "Opening cancelled. Nothing changed." (COPY-105) | live region | CAD-14 |
+| Open failed | "“<file>” didn't open. It was saved by a newer version of CFD Workbench. The file hasn't been changed." (COPY-103) | start card alert | CAD-14 |
+| Not a number | "Enter a number. <Field> is unchanged." (COPY-118) | field error | CAD-16, UI-39 |
+| Length not positive | "Enter a length greater than 0 mm. <Dimension> is unchanged." (COPY-106) | field error | CAD-16, UI-39 |
+| Edges would cross | "That would make the leading and trailing edges cross. Enter a different value." (COPY-107) | Wing field error | CAD-16 |
+| Tip closes | "Tip closes — edit the tip station" (COPY-108) | Wing block, Tip chord | CAD-16 |
+| Dimensions read-only | "Set these in the workspace." (COPY-122) | Wing block in the section editor | CAD-16 |
+| Pending admission (catalog) | "Pending admission — terms requested from UIUC · GEN sections remain" (COPY-109) | catalog option | CAD-18 |
+| Cite only | "Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here" (COPY-110) | catalog option | CAD-18 |
+| Catalog source | "Catalog original · <source>" / "Modified from <source>" (COPY-111 / COPY-112) | section source chip | CAD-18, CAD-19 |
+| No catalog match | "No sections match “<query>”. Try NACA, Eppler or a name." (COPY-115) · count "<n> sections match" (COPY-121) | catalog detail · status | CAD-18 |
+| Save name empty · duplicate | "Name the section to save it." (COPY-113) · "“<name>” is already in My sections. Choose another name." (COPY-114) | save dialog | CAD-19 |
+| Control point | "A control point pulls the curve toward it. The curve does not pass through it." (COPY-117) | Properties note | CAD-15 |
+| Float moved · docked | "<Pane> moved so it doesn't cover <target>" (COPY-116) · "<Pane> docked so it doesn't cover <target>" (COPY-120) | live region | UX-32, UI-41 |
+| Section unsaved on Escape | "This section has unsaved changes. Cancel discards them; Finish keeps them." (COPY-119) | live region, focus to Cancel | CAD-20 |
+| Section crossing · cleared | "⚠ Upper and lower surfaces cross. Move the point back to finish." (COPY-123) · "Surfaces no longer cross. Finish is available." (COPY-124) | section status alert | CAD-20, UI-43 |
+| Station switch refused | "Finish or cancel <station> before editing <other>." *(v10 string; not yet a DESIGN.md COPY row — obligation on the next `ui-design` run)* | section status alert | CAD-20 |
+| *1.6, v10 strings not yet COPY rows (same obligation; one rendering per state)* No foil open (panes) | "No foil open" + "Open or start a foil. Whatever you select in it shows its properties here." (Properties); the Browser and Points panes render the same heading — v10's second rendering "No foil open." is retired | Properties · Browser · Points | CAD-14, UI-42 |
+| Open another file | "Open another file…" | open-failed alert action | CAD-14 |
+| Other open failure | *To be written by the next `ui-design` run:* names the file, the cause (missing, unreadable, permission denied, migratable, unknown content) and the next action (F1 H/H3/H4); states that the file has not been changed | start card alert | CAD-14, UX-29 |
+| Thickness exaggerated | "Thickness drawn ×2" while the toggle is on | section canvas label | UI-43 |
+| Section scope | "Shared with <stations>" + "Make unique to <station>" · "Only <station> uses this section" (Properties' "only here" is retired for this string) | section scope chip · Properties | CAD-20, UI-43 |
+| Saved to My sections | "Saved “<name>” to My sections" | live region | CAD-19 |
+| My sections empty · catalog unavailable | *To be written by the next `ui-design` run:* an empty My sections group says how to add one (Save to My sections…); a catalog that cannot load names the cause, keeps the section unchanged and leaves Cancel available | catalog dialog | CAD-18, UI-38 |
 
 ### C3. Copy — one state, one string
 
@@ -1891,7 +2275,7 @@ exactly one rendering; "Model uncertainty not quantified" is the only uncertaint
   cannot clear it.
 - **UI-07:** every flood or chart carries the C2 legend fields; sequential fields use batlow or cividis, signed
   fields a diverging map at the physical zero; every flood has isolines, a probe and a table twin.
-- **UI-08:** first launch opens Example · race light; every error state in the C2 table names its next action;
+- **UI-08:** *(1.6: the first-launch clause is superseded by UI-42 and CAD-14; the rest stands.)* first launch opens Example · race light; every error state in the C2 table names its next action;
   overflow includes a 64-character project name, a negative angle and a 12-case table without overlap.
 - **UI-09:** the assistant applies HAX G1/G2 (capability disclosure), G7/G8 (invocation, dismissal), G9
   (correction on a wrong answer), G11 (why), G16 (disclosure) and G17 (global off = no key); Shape-of-AI
@@ -1927,8 +2311,8 @@ exactly one rendering; "Model uncertainty not quantified" is the only uncertaint
   1024 × 700 minimum); the parameter row is one row; the bottom panel collapses to its tab strip; the docks collapse
   behind named toggles and become drawers at 640 × 400 — `tools/check-mockup-v3.mjs` is the oracle.
 - **UI-24:** the activity rail is icons with names — an inline glyph per area, the name beneath it at desktop widths and always in the accessible name with the C2 readiness string; never numerals.
-- **UI-25:** every curve on screen is a spline path (rails, sections, control curves, the section editor, charts' fitted curves); every curve's **control frame** is the visible editing surface in its elevation (dashed polygon, 13 px square vertices, circle levers, diamond ends, a 20 px hit circle, a focus ring ≥ 3:1 on the viewport), the active frame emphasised and the others at reduced opacity but operable; a polyline where a spline belongs is a defect; the 3D view draws the sections at every station and slice, both rails, a translucent skin and, on demand, the display cage as a named group — `tools/check-mockup-v5.mjs` is the oracle for UI-24–27 and CAD-04–08.
-- **UI-26:** the tool palette is icons *with* names (never icon-only), 44 px targets, `aria-pressed` on the active tool, the key in the accessible name and the tooltip; separators group edit · construct · display.
+- **UI-25:** *(1.6: the glyph mapping — square vertices, circle levers — is superseded by UI-37's point glyphs; spline paths, the 20 px hit circle, the ≥ 3:1 focus ring and the 3D drawing stand.)* every curve on screen is a spline path (rails, sections, control curves, the section editor, charts' fitted curves); every curve's **control frame** is the visible editing surface in its elevation (dashed polygon, 13 px square vertices, circle levers, diamond ends, a 20 px hit circle, a focus ring ≥ 3:1 on the viewport), the active frame emphasised and the others at reduced opacity but operable; a polyline where a spline belongs is a defect; the 3D view draws the sections at every station and slice, both rails, a translucent skin and, on demand, the display cage as a named group — `tools/check-mockup-v5.mjs` is the oracle for UI-24–27 and CAD-04–08.
+- **UI-26:** *(Superseded in 1.6 by CAD-21 and UX-30: no palette renders in the CAD-first shell.)* the tool palette is icons *with* names (never icon-only), 44 px targets, `aria-pressed` on the active tool, the key in the accessible name and the tooltip; separators group edit · construct · display.
 - **UI-27:** a viewport title bar is 32 px: the view name is a button (Return maximises), the menu is a `details` whose closed items are not rendered, and every viewport renders at its own pixel size (no scaled SVG) so a vertex target is never under 24 px; the tracing strip sits beneath the viewports.
 - **UI-19:** analysis layers on the geometry (vectors, loading strips, Cp, bands) use the DESIGN.md data colours
   only, carry a legend with the C2 fields and are distinguishable by shape and label without colour.
@@ -1980,13 +2364,78 @@ flow. The prototype labels its geometry differences sampled/illustrative and its
 fixture evidence is explicitly shown as illustrative. Existing WCAG 2.2 AA, keyboard-target, focus and
 preview-latency floors apply to every added control; no new animation is required to understand state.
 
+### C4b. CAD-first surface acceptance (revision 1.6)
+
+Evidence for every criterion below is mockup v10's oracle `tools/check-mockup-v10.mjs`
+([browser check](../proof/workbench-v10-browser-check.json)) and the craft gate; that is direction evidence. **Except**
+the floors the 1.6 gate added — UI-37's selected-point shape and its nose and handle names, UI-38's empty and
+unavailable states, and the single "No foil open" rendering — which v10 does not yet meet; they are red-first
+obligations on the next `ui-design` run. Native
+proof (UIA / NSAccessibility tree, VoiceOver and Narrator or NVDA traces, DPI, OS-window floats) stays the A8.1
+obligation of the build (UI-T4).
+
+- **UI-36 (Wing block):** while a foil is open, Properties ends with a section headed **Wing** that is not
+  collapsible: the typed Span, Root chord and Tip chord (label, input, "mm") above the estimates, separated by a rule;
+  every estimate is prefixed "≈"; an **Estimates · definitions** disclosure — a keyboard-operable control, the
+  required route to the definitions — lists the A4.15 definitions; a tooltip on each label is supplementary only. At the 200 px dock no value is clipped, and at 1280 × 800 the
+  selection content and the Wing block fit without scrolling. In the section editor the three dimensions render as
+  text, not as disabled inputs, with "Set these in the workspace."
+- **UI-37 (point glyphs and names):** Anchor point = square; end and named points = diamond (dashed when locked);
+  Control point = circle joined to its neighbours by a dashed control polygon in the `model-dim` token; a tangent
+  handle is drawn on a line from its Anchor with a glyph distinct from a Control point's. The selected point paints over a coincident neighbour; a hover
+  ring (`line-strong`) shows what a press will pick. **A selected point differs from an unselected one by shape or
+  weight (a ring or outline), not by fill colour alone, at ≥ 3:1 against both the unselected point and the canvas in
+  every theme** (SC 1.4.1, 1.4.11) — v10 marks selection by an accent fill that equals the model colour in the light
+  theme, so this is a new floor, and the contrast check gains the accent-on-model pair. Every point's accessible name
+  carries its curve, its name, its type and its position with units; the nose is named "Nose" with its type and handle
+  lengths; a tangent handle is named by its point and its direction ("toward the nose", "toward the tail", "toward the
+  root", "toward the tip") with its angle in degrees and its length in mm. The Type row is a labelled select (Anchor point · Control point); a named point shows
+  its type as read-only text with its constraint; the tangent kind is a labelled select.
+- **UI-38 (catalog picker):** Replace from catalog… is a dialog whose search is an APG combobox controlling a listbox
+  grouped by family; disabled options are `aria-disabled`, stay reachable with the arrow keys and carry their reason;
+  the match count is announced in a status region once typing pauses, and moving through options is quiet; the
+  preview on the section is a dashed outline in the accent token; Replace is `aria-disabled` with the detail line as
+  its description when the choice cannot be used. Save to My sections… is a dialog with a labelled Name field, its
+  provenance line and an inline error. Both dialogs close with Cancel or Escape and return focus to Section ▾. The
+  picker renders an empty My sections group and a catalog-unavailable state (C2 rows), each with its next action.
+- **UI-39 (typed numbers, SC 3.3.1):** every typed number is checked one way — a non-number or a length ≤ 0 is refused
+  with COPY-118 or COPY-106, `aria-invalid` and an alert tied by `aria-describedby`; the geometry is unchanged; Escape
+  restores the shown value; commit is on Return or on leaving the field.
+- **UI-40 (one precision per quantity):** a length that is typed or placed shows 0.01 mm; a derived length (chord,
+  span estimate, MAC, LE radius) 0.1 mm; an angle 0.1°; a ratio 0.1 %; AR two decimals; area 1 cm². A value shows the
+  same precision in Properties, the Points grid and the canvas label, so the finest nudge is visible in all three.
+  (DESIGN.md §12.0e does not yet state the AR and area rules — obligation on the next `ui-design` run.)
+- **UI-41 (panes and floats, SC 2.4.11, 2.1.1, 2.5.7):** with a float open, no focusable target in the model area is
+  hidden or overlapped by it at 1280, 1440 and 1920 px across the workspace, section, catalog and start screens (v10
+  measured 318 targets, 0 hidden, 0 overlapped, by hit-testing the page — `elementFromPoint` at the centre plus eight
+  samples; that method does not check paint, so the native build adds a check of what is painted); each move or
+  dock-back is announced (COPY-116, COPY-120); focus is never lost when a dock re-renders; a maximized pane makes the
+  rest inert and Escape restores it; drop zones highlight while a tab is dragged. **SC 2.5.7:** every drag has a
+  single-pointer alternative — a splitter: the pane menu's Size; a tab: its menu's Move to; a float: its Position
+  menu; a point: its typed fields in Properties and the Points grid. *Flagged:* whether typed fields count as the
+  single-pointer route for a point is for the next `ui-design` run to confirm, or it adds a click-to-place route.
+- **UI-42 (start, opening, open failed):** the start card is a labelled region with three card buttons (title and one
+  line each) and a Recent group; Opening is a `status` with a Cancel button over a static skeleton; an open failure is
+  an `alert` on the start card naming the file with Open another file…; with no foil open Properties says "No foil
+  open" and what to do; a 64-character foil name does not overlap any control.
+- **UI-43 (section editor states):** Finish section stays visible and becomes `aria-disabled` with its reason tied by
+  `aria-describedby` while the surfaces cross; the crossing alert speaks only when a crossing appears or clears;
+  **Thickness ×2** is a pressed toggle that says the drawing is exaggerated whenever it is on; the station strip shows
+  each station's thumbnail with its name and distance from the root; the source chip ("Catalog original · …" /
+  "Modified from …") and the scope chip ("Shared with …" with Make unique to <station>, or "Only <station> uses this
+  section") are text, not colour.
+
+The existing floors apply to every control above: text contrast ≥ 4.5:1 and control boundaries ≥ 3:1 (UI-02; v10
+measured 0 failures over 15 token pairs per theme), targets ≥ 24 px (UI-04; v10 measured 0 under 24 × 24), keyboard
+reach (UI-03) and reduced motion (UI-05).
+
 ### C5. Traceability
 
 | Area / screen | Flow | Stories |
 |---|---|---|
 | Start / Example | F1 | DOC-01–04, UX-13 |
 | 1 Setup | F6, F3 | SET-01–04, GOAL-01–03, CAT-04, ANA-20, AI-02, UX-19 |
-| 2 CAD (curves, stations, section editor, catalog) | F2 | GEO-01–15, CAD-01–03, CAD-07, CAT-01–03, ANA-09, DOC-02/03, AI-07, UX-07/12/14/15/20/24, UI-11, UI-26 |
+| 2 CAD (curves, stations, section editor, catalog) | F2 | GEO-01–15, CAD-01–03, CAD-07, CAT-01–03, ANA-09, DOC-02/03, AI-07, UX-07/12/14/15/20/24, UI-11, UI-26 *(1.6: CAD-07, UX-24's palette clause and UI-26 superseded — see CAD-21, UX-30)* |
 | 3 Analysis | F4 | ANA-01–23, DRC-01, AI-08, UX-08–11/16/18, UI-07/12–15/17/19 |
 | 4 Experiment | F7 | XS-01–03, AI-09, UX-09 |
 | 5 Run | F7 | RUN-01–06, AI-05, AI-11, UX-21, UI-20 |
@@ -1995,8 +2444,12 @@ preview-latency floors apply to every added control; no new animation is require
 | Checks drawer | all | DRC-01, LAB-01 |
 | Prompt entry (every area) | F2, F4, F5, F6, F7, F8 | AI-01–11, CAND-01, UI-22 |
 | Activity rail (area strip in 1.1) | all | UX-17, UI-18, UI-23, UI-24 |
-| Viewports · elevations · Station document | F2 | CAD-04–08, UX-14, UX-23, UX-24, UI-25–27 |
+| Viewports · elevations · Station document | F2 | CAD-04–08, UX-14, UX-23, UX-24, UI-25–27 *(1.6: the Station document is superseded by the section editor, CAD-20; UI-25's glyphs by UI-37; UI-26 by CAD-21)* |
 | Station card · edit scope · design alternatives · comparison | F10 | CAD-09–13, UX-26–27, UI-31–35 |
+| *1.6* Start · opening · open failed | F11 | CAD-14, DOC-01 (failure clause), UX-28, UX-29, UI-42 |
+| *1.6* Design workspace · Properties · Wing block | F11 | CAD-15–17, CAD-21, GEO-02, UX-29–30, UI-36, UI-37, UI-39, UI-40 |
+| *1.6* Section editor · catalog · My sections | F11 | CAD-18–20, CAT-01–02, GEO-08, GEO-14, UX-29, UX-33, UI-38, UI-43 |
+| *1.6* Panes · docks · floats · workspaces | F12 | UX-31–32, UI-41 |
 
 ---
 
@@ -2019,6 +2472,11 @@ preview-latency floors apply to every added control; no new animation is require
 | Control vertices with levers give the designer the Fusion/Rhino feel the operator asked for | Inferred (mockup measurement: influence-not-through gap, local support, 71 → 45 chrome controls; no user session) | UX-05 formative session on mockup v5 |
 | Degree 3 with seven vertices is the right default for a master curve | Verified by execution (the ADR-0001 fixture: fairer than degree 5 at seven vertices on all five curves; support and lever effect measured) | ADR-0001 accepted 2026-09-21 |
 | A NURBS loft with a display cage satisfies the "T-spline body" ask | Inferred (no star points or T-junctions in a wing body) | operator confirmation on mockup v5 |
+| *1.6* The CAD-first shell (start card, model-filling views, narrow left Properties, optional docks, section editor mode) is the experience the operator asked for | Verified as the operator's stated direction ("this is much better"; v10 final); Inferred as usable (no formative session) | UX-26 / UX-05 protocol run on the built shell |
+| *1.6* MAC and mean chord definitions and the CAD-17 fixtures | Verified by execution (exact rational arithmetic, 2026-09-26: constant 0.18 m → 180.0 / 180.0 mm; linear 0.20 → 0.05 m, b = 1 m → S/b 125.0 mm, MAC 140.0 mm, AR 8.00) | product fixture red-first in `/implement` |
+| *1.6* Focus-safe floats (option a) clear WCAG 2.4.11 | Verified in the HTML mockup (318 targets, 0 hidden or overlapped; hit-testing, not paint); Flagged for native OS-window floats | native float spike on mixed-DPI dual monitors (v9 §5.2) |
+| *1.6* v10's view labels Plan · 3D · Side · Front map onto CAD-06's Top · Perspective · Starboard · Front | Inferred (assume, B1) | next `/ui-design` run |
+| *1.6* Announcements in the CAD-first shell are correct | Inferred from ARIA; no screen-reader trace | VoiceOver and NVDA/Narrator pass on the built shell (v10 §7.3) |
 
 ### Open decisions (owner lens · exit evidence)
 
@@ -2032,6 +2490,36 @@ Researcher) — instrumented session · UX-05 formative study (UX Researcher) �
 `ux.formative` events · Backend matrix, meshing, cancellation *(reserved)* — SPIKE-03/03b, in-substrate
 process listing, TMR with GCI · STEP (Manufacturing · Geometry) — open-and-measure in two CAM systems · Assistant
 provider (AI · Security) — SDK smoke test with structured outputs, ten evals · Free-form 3D (Product · Marine CAD UX) — the brief's "T-spline bodies" is met in 1.3 as a NURBS loft with a display cage (A4.12) and 3D vertex dragging stays deferred (double-click a 3D vertex maximises its elevation); confirm with the operator on mockup v5 whether a gizmo-based 3D edit is still wanted, in which case CAD-06 is rewritten, not extended.
+
+**Revision 1.6 — decided by the operator (recorded as decisions, not requests).** Point types per point in Properties
+(Control · Anchor · named points with constrained types; supersedes the v8 fit-point-only default) · floating panes
+never occlude a focused target — option (a) · Wing estimates show root chord, mean chord (S/b) and MAC, each defined
+(the chord assumption is removed) · Span, Root chord and Tip chord are typed driving dimensions: span scales spanwise
+with chords unchanged (v10 DR-1); a root or tip chord changes that end with a linear spanwise blend of the chord scale
+(v10 DR-2, blend part); tip chord is the outermost authored station and a closing tip is not editable there (v10
+DR-3); a commit is one undo step and invalid input leaves geometry unchanged · on-screen timing is not an M1 gate and
+Windows x64 qualification is deferred (M1 scope decision, 2026-09-25).
+
+**Revision 1.6 — decision requests (each with the default this revision is written to).**
+
+| ID | Question | Default in 1.6 | Owner · where it is settled | What changes if the default is overturned |
+|---|---|---|---|---|
+| DR-2 | When a root or tip chord is typed, which line stays fixed? | The **leading edge** stays fixed; the trailing edge moves | Operator | The quarter-chord line is held instead (keeps c/4 sweep); only CAD-16's held-line clause changes |
+| DR-4 | How is a catalog section brought into the editor's point model? | Behaviour as A4.15 states; the build stores the degree-5 record and reports the A4.6 residual | `/define-architecture` (Computational Geometry lens) | The conversion path and residual of CAD-18 |
+| DR-5 | How do Anchor and Control points mix on one curve against the B-spline record, and does keeping a point's type and tangent kind across save/reopen need a FoilDSL grammar change? | Behaviour as A4.15 states; A4.1's record stays the only authority; CAD-15's save/reopen clause is gated on this | `/define-architecture` (Computational Geometry lens; FoilDSL companion if the grammar changes) | A4.1, A4.2, the FoilDSL grammar, CAD-15 |
+| DR-6 | In the workspace, does a point drag or nudge commit when it ends (v10), or open a draft that Return applies and Escape cancels (1.3, UX-23)? | **Commit at the end of the gesture** as one undo step; an invalid gesture is refused with geometry unchanged | Operator, with the UX Researcher / IA lens | CAD-04's and UX-23's draft clauses return for point gestures |
+| DR-7 | How are the six non-CAD areas reached from the CAD-first shell? | The **activity rail** (B1, UI-18, UI-24) stays, outside the left side bar | Operator, then `/ui-design` | B1's area navigation and UI-18/UI-24 |
+| DR-8 | Where does My sections live, and where do CAT-02's DAT imports appear in the picker? | The **installation's section library** (the one CAT-02 adds to), so an entry is available in every foil; a project that uses an entry pins it as a content-addressed profile (A4.13); DAT imports are listed under My sections with their import provenance | Operator, then `/define-architecture` (Data & Persistence) | CAD-19's "in another foil" clause and the Section library aggregate |
+
+**Revision 1.6 — open items (not decisions).** **OI-1** — surfaces v10 does not render and whose requirements stand,
+with their placement in the CAD-first shell left to the next `/ui-design` run: the η-plot view and per-viewport title
+menus (CAD-08, UI-27; v10 has Views ▾), the Tracing readout (A4.9), editing the dihedral, twist and t/c curves in their
+elevations (CAD-01, CAD-04; v10's Browser lists sections only), the verbs Insert CV · Delete CV · Rebuild · Fit points ·
+Ghost · Remove station · Assign profile (CAD-21), the station card's thumbnail (CAD-09, UI-31; v10 shows the thumbnails
+in the section editor's strip), the prompt entry in CAD (A5.12), and FoilDSL source reading (B9). **OI-2** — the
+pointer mechanism for coincident points (UX-33). **OI-3** — no screen-reader trace yet, and native OS-window floats
+unspiked (v10 §7.3–7.4). **OI-4** — "Finish or cancel <station> before editing <other>." is not yet a DESIGN.md COPY
+row.
 
 ### Gate record
 
@@ -2074,6 +2562,28 @@ roads asserted on the Surface revision; verb × area table as the UX-17 oracle; 
 (80); sixteen C2 rows; ParaView and substrate terms in the register; Fusion claim softened to what the KB supports)
 · verdict after fixes: PASS-WITH-CONDITIONS — Run and Results remain gated on SPIKE-03/03b/04; the live-model
 behaviours are proven by A8.6 thresholds, never by A6 · author cleared nothing.`
+
+`GATE specify · revision 1.6 · 2026-09-26 · delta authored bottom-up (A3 terms and aggregate → A4.15 with CAD-14–21 →
+B1 IA, B7 window, F11–F12, UX-28–33 → C1, C2, C4b UI-36–43) from mockup v10 (final, 1d3bee2), the v8–v10 reviews, the
+M1.1 section-editor design and the M1 scope decision · three independent lenses in Adversary Mode · verdicts before
+fixes: UX Researcher/IA PASS-WITH-CONDITIONS (4 Majors: dead-end catalog and save dialogs; orphaned missing-Example
+recovery; open failures other than a newer version undefined; CAD-05's area-switch, station-removal and close paths
+dropped), UX & Accessibility BLOCK (soft; 4 Majors: selected point marked by fill alone at ~1:1 in the light theme;
+two strings for the newer-version state; the superseded first-launch row and UI-08 unmarked; two accessible-name
+contracts for one point), Product Strategist PASS-WITH-CONDITIONS (5 Majors: CAD-17 contradicted the derived_check
+cache; no chord basis; typed Span vs A4.14's preview unraised; an unreachable edges-cross refusal; CAD-05's edges
+dropped) · 0 Blockers · 13 Majors · 22 Minors/Nits · repair cycle 1 of 2 fixed every Major and every Minor in place
+(edits: F11 cancel, failure and interruption edges, S10 exits; F12 monitor, maximize and close-pane edges; UX-29
+counting rule, 28 edges; CAD-14 routes to F1; CAD-16 guard, lock, unit and expression cases; CAD-17 fixtures and cache
+clause; CAD-19 cancel and survival; CAD-20 carried CAD-05 paths; chord-basis row; A4.14 direct-commit mark; UI-37
+selection floor ≥ 3:1 by shape, names for nose and handles; UI-36 disclosure as the keyboard route; UI-38 empty and
+unavailable states; UI-41 method and SC 2.5.7 routes; seven C2 rows, two owed as copy; supersession marks on C2, UI-08
+and C5) · verdicts after cycle 1: Product Strategist PASS; UX & Accessibility PASS-WITH-CONDITIONS — **veto cleared by
+the lens** (its three Minor conditions applied: C4b evidence exception, SC 2.5.7 wording with a Flagged point route,
+handle units); UX Researcher/IA PASS-WITH-CONDITIONS — **veto cleared by the lens** (its two Minor conditions applied
+after its pass and not re-reviewed: UX-29's edge list realigned to the rule, S10's Save and Discard exits grounded in
+A4.11/SRC-07) · open at close: DR-2, DR-4–8, OI-1–4, the Review "always" assume, the owed copy rows, and the native
+proof of UI-T4 · author cleared nothing.`
 
 ---
 
@@ -2204,3 +2714,54 @@ Source syntax remains the unapproved FoilDSL 4.0 draft; alternatives/baselines/d
 not hidden language geometry. [Design-iteration decision](../notes/design-iteration.md) records the boundaries.
 Functional prototype evidence does not constitute scientific or native-product validation. A further-gap
 review follows these changes as a separate artifact; findings do not authorize additional implementation.
+
+## Appendix G — Changes from revision 1.5 (revision 1.6, 2026-09-26)
+
+**Why.** The operator found the CAD experience "SUPER BUSY" and set the bar at Fusion 360 and Shape3D: open or create
+a file, edit in views, and enter a section editor when a section is chosen; everything is a curve or a point;
+properties in a narrow left pane with VS Code / Premiere-style optional docks and floats. Mockups v8, v9 and v10
+answered that direction, and v10 (`1d3bee2`) is final. During the v10 run the operator added the always-visible
+running estimates, the catalog and My sections in the section editor, per-point types, focus-safe floats (option a),
+root and mean chord plus MAC, and typed Span / Root chord / Tip chord. On 2026-09-25 the operator also removed on-screen
+timing as an M1 gate and deferred Windows qualification.
+
+**Added.** A4.15 (the CAD-first editing contract: journey, point types, driving dimensions, Wing estimates with
+definitions, catalog and My sections in the section editor, the GEO-14 undo contract) with CAD-14–21; A3.1 terms
+(Section editor, Point, Tangent kind, Driving dimension, Wing estimate, My sections, pane · dock · float · workspace);
+the Section library aggregate (A3.2); B1's CAD area IA table; B7's CAD-first window; flows F11 and F12 (B11, B12);
+UX-28–33 (28 new non-happy edges); C1's 1.6 archetype record; 26 C2 rows (two of them owed as copy by the next
+`ui-design` run); C4b UI-36–43; C5 rows; five ledger rows;
+DR-2, DR-4–8 and OI-1–4. **Changed (Part A, because the UX changed a functional promise):** A3.2's edit-draft invariant
+(gesture commit, DR-6); A3.3's derived-on-read list; A4.8's nudge ladder; A4.9's readout home; A4.10's pointer to the
+section-editor catalog; A8.1's performance and portability rows.
+
+**Superseded — marked in place, not deleted.**
+
+| Item | Superseded by | What stands |
+|---|---|---|
+| DOC-01 first-launch clause (Example opens with a station selected) | CAD-14, UX-28 | the missing-fixture clause |
+| F1 node D (B2) | F11, UX-28 | the rest of F1 |
+| UX-13 | UX-28 | — |
+| CAD-04 "opens the one draft" for point gestures | DR-6 default, A3.2 | elevations, lock refusals, focus ring, accessible values |
+| CAD-05 (Station document tab; discard onto the undo stack) | CAD-20 | its ANA-22 area-switch, station-removal and unsaved-close behaviours, carried into CAD-20 |
+| CAD-07 tool palette, options strip, Checks-only bottom panel, 51-control ceiling | CAD-21, UX-30 | the verbs, their single-key scope and keyboard equivalents |
+| CAD-08 four-viewport default | UX-31 | per-viewport pixel rendering, the pointer probe |
+| UX-23 pinned draft for point gestures; "station document" | DR-6 default; CAD-20 | the one-draft model for constructions, proposals and sections |
+| UX-24 palette and options-strip clauses | UX-30 | the one-draft clause |
+| UI-25 glyph mapping (square vertices, circle levers) | UI-37 | spline paths, hit circle, focus ring, 3D drawing |
+| UI-26 (the palette) | CAD-21, UX-30 | — |
+| A3.1 rows Station document, Tool palette; Viewport's default arrangement | Section editor; CAD-21; UX-31 | the rows remain for history |
+| A4.8 length ladder 0.1 / 1 / 10 mm and 0.0001 / 0.001 / 0.01 chord | 0.01 / 0.1 / 1 mm, sections in mm at the local chord | the angle and weight ladders |
+| B7's Navigator dock, right-hand Properties dock, palette, options strip and four-viewport default (CAD area) | B7's CAD-first window | B7 for the other areas |
+| The v8 fit-point-only curve-model default | A4.15 point types (operator decision) | — |
+| The v10 chord assumption (mean chord only) | A4.15 Wing estimates (root chord, S/b, MAC) | — |
+| C2 "First launch" row as the first-launch state; UI-08's first-launch clause | CAD-14, UI-42 | the Example's Illustrative banner; the rest of UI-08 |
+| C2 "Unsupported file version" string | C2 "Open failed" (COPY-103) | — |
+| C2 "Control vertex" accessible-name row | UI-37 | kept for history pending DR-5 |
+| A4.14's span command as the only span route (preview, then Apply) | A4.15 typed Span: a direct commit with no preview, one undo step (operator decision) | A4.14's previewed command for both station policies |
+
+**Unchanged.** Every tolerance, label, safety string and licence contract; the seven areas and their verbs; the six
+proposal kinds; the geometry of record (A4.1–A4.2) until DR-5 is settled; FoilDSL 4.0's grammar (a change, if DR-5
+needs one, goes to `/define-architecture`); A4.14's station chord command and its previewed span command. **Count:** 8 functional stories
+(CAD-14–21), 6 UX criteria (UX-28–33) and 8 UI criteria (UI-36–43) added — 22 acceptance criteria; 20 items
+superseded in whole or in part, each marked in place.

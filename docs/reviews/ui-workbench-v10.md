@@ -18,6 +18,8 @@ summary: >-
   readable at 200 px, and floats that move clear of a focused target (option a, operator-confirmed). Folded in the
   operator's four requests plus the chord, MAC and typed-dimension decisions. One repair cycle; the accessibility veto
   cleared by the lens, the Simplifier's veto cleared, 15 of 15 oracle gates green.
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
 ---
 
 # UI review — v10 (elevate)

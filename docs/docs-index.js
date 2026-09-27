@@ -421,6 +421,11 @@ window.DOCS_INDEX = {
           "by": "design-application-foundation",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
@@ -467,7 +472,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
         }
       ],
-      "sourceSha256": "376daf976e460e40eae408fb3c7aff9418453e12265c8fba4a33c9100daaf70b"
+      "sourceSha256": "2f8d44335b150835195bdc874b179ca068ba6381f8b19ae2fd1d162eba224fc6"
     },
     {
       "id": "cad-editing-views",
@@ -1036,6 +1041,11 @@ window.DOCS_INDEX = {
           "by": "coordination-contract-c-native",
           "on": "2026-09-25",
           "reason": "D1/D2 revision removes on-screen timing as an M1 gate; review §3 budget requirement."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "The user approved Windows x64 runtime and measured on-screen budgets in M1 and placed the full section editor in M1.1. A 2026-09-25 revision then removed on-screen timing as an M1 gate and deferred Windows x64 qualification; section editing in M1.1 is unchanged.",
@@ -1073,7 +1083,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7d7c3462c2f72bbbf580633881d13e2b68ff10c9a977f73a9de5757bc4a74735"
+      "sourceSha256": "1e0f6c012b58b20223e3ffef24b40cef762c22c4c770f9a6ccc3c2d135817da1"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -1213,6 +1223,11 @@ window.DOCS_INDEX = {
           "by": "proof-application-contracts",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Defines the complete serial M1 session, source patch, native-v1 history, identity and persistence seams. Executable contract fixtures establish bounded behavior without certifying geometry or claiming a native store. Owner and independent review retain the production gate.",
@@ -1250,7 +1265,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3ee3893d53c36b68c0be7da96a3ab687d131292eb3f7fd1d6b6b2b2d68ce2bcb"
+      "sourceSha256": "e4aef2c723f005e573eee85742a6a4881c85290d43f04ff63f8ed9848938b354"
     },
     {
       "id": "design-application-foundation",
@@ -1276,6 +1291,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft, certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary, failure/security/privacy tests and exact downstream ownership proposals without production implementation.",
@@ -1313,7 +1333,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bcfc775b03a55e950a419eef6ac328d4934340a4f026161996acf1c9045e0dd5"
+      "sourceSha256": "112e0195200f8e197bc33fdff3fd74296fe5f7125da32b307bedc4c8daed0beb"
     },
     {
       "id": "design-authoring-decisions",
@@ -1422,7 +1442,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-leader-fbfa35dc",
       "phase": "design",
       "reviewBy": "2026-12-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "Design for the M1.1 section editor: profile control-vertex editing with shared or independent scope, certified multi-profile blending, and a UI-25 control-frame canvas in the desktop app. Delivered in two named increments (M1.1a edit core, M1.1b construction operations and thickness proposals); the editor is called \"full\" only once both land.",
       "tags": [
         "section",
@@ -1455,7 +1481,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c6906aec2ee4badc6a04a3268e2b0b08ca7449745828cecdfe7b8af7e4430d31"
+      "sourceSha256": "356b747a44aa4e70ad304fb80b19555f2fcbdfe0cac5eb1ce4c031ee4677bcb8"
     },
     {
       "id": "design-visible-presentation",
@@ -1667,7 +1693,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "v9's docked-pane CAD workspace, elevated: first-run, opening and open-failed states inside the workspace; floats move clear of any focused target in the model area; per-point Anchor / Control type; a Wing block with typed span and chords above running estimates; and, in the section editor, Replace from catalog and Save to My sections.",
       "tags": [
         "mockup",
@@ -1698,7 +1730,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b1faf28fa27b7d4d0bf0b7f026e6ca3d8c7aa617cfb89e2df4166d30ed6531ed"
+      "sourceSha256": "644a8e0cb6cf350de5f2cc660c7012a7681f87ee887320f698e55e4154fa2457"
     },
     {
       "id": "mockup-workbench-v2",
@@ -2101,7 +2133,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "A CAD-first rethink at the Fusion 360 / Shape3D bar: open or create a foil, edit it in model-filling views, then enter the section editor as a mode. Every curve is on-curve points with tangent handles; ends are named points with typed values. Direction evidence only — not native proof.",
       "tags": [
         "mockup",
@@ -2138,7 +2176,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7bc6de05e2efe44dfa2834e2ba82cee50c9c134a3a7d63cab544c6700b0639a9"
+      "sourceSha256": "fef049ac93611c965dee8cd5e66a1a17f645119a4c85e0d13aa61fc9a81cbe9f"
     },
     {
       "id": "mockup-workbench-v9",
@@ -2149,7 +2187,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "v8's CAD surface with VS Code / Premiere Pro window management: one narrow left panel holds a selection-driven Properties pane by default; the right side bar and bottom panel are optional; panes tab, dock, float and maximize; workspaces are task presets. Direction evidence only — native floats and menus are build requirements.",
       "tags": [
         "mockup",
@@ -2178,7 +2222,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18e3d63f175d0ffa5b7e3d7ddcc955fca46b3cae219aec8ec320f51ae29ea5db"
+      "sourceSha256": "8aae9b4de90e8269819016fccc1b1c7e42ad25f6d8f730b1565b98e1dd822c3f"
     },
     {
       "id": "workbench-direction",
@@ -2457,6 +2501,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v7",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "A gated, bounded graph for the first working offline CFD-Workbench slice and later dependency-ready increments.",
@@ -2486,7 +2535,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\nG0 --> G1 --> G2 --> G3\nG3 --> G4 --> G6\nG3 --> G5 --> G6\nG6 -. new session only .-> G7"
         }
       ],
-      "sourceSha256": "d86b80bd01f6f32cbfe26fff84672e4b4b44b402a54b8b70ab2d2437b46d763b"
+      "sourceSha256": "79e964ce5f0a6131ea249ba4877ef35116dba15b16cfb92d35390012483d1f51"
     },
     {
       "id": "plan-authoring-decisions",
@@ -4441,7 +4490,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-timing-evidence-20260925",
       "phase": "",
       "reviewBy": "2026-12-24",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "Records the approved M1 timing authority and distinguishes it from illustrative prototype and small-fixture diagnostics.",
       "tags": [
         "performance",
@@ -4458,7 +4513,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64e2c1f1aa2e8a6014662fdabb07b50217931721f42fdf375cf0199f93d06e37"
+      "sourceSha256": "6464201a60a355bd0f2c03619ef409cac7d94183857ff53e4339bf14e405667d"
     },
     {
       "id": "kb-visible-presentation-sources",
@@ -4508,6 +4563,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v7",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Track accepted architecture and core, isolated permission and adapter repairs, and the independent M1 join gates.",
@@ -4536,7 +4596,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "80cf4a211c11922e1993ddf4a5ff41427bf303a57ed120afd437d0277e051e25"
+      "sourceSha256": "cfba797958fff76505451299da30d6db6280137d3199687d10376a36ed8f5195"
     },
     {
       "id": "coordination-contract-b-core",
@@ -4861,6 +4921,11 @@ window.DOCS_INDEX = {
           "by": "coordination-application-build",
           "on": "2026-09-24",
           "reason": "R47/R50 joined source, independent review and bounded status changed this dependency; reassess current claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. A hosted Windows job ran, but its native qualification failed; interactive and product gates remain open.",
@@ -4893,7 +4958,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2b4c623a37e344aafaccea05b563f73540014d46b56c75df0a3b7735f60ac3be"
+      "sourceSha256": "721d7b2cde788b801ab8862d0c6d27f1dc75e626b6d6f59245c744f8eb1c075e"
     },
     {
       "id": "privacy-review",
@@ -5514,6 +5579,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Independent lead review of the first application architecture and contract spikes. Records observed native interaction evidence, contract findings and outstanding gates; it does not certify an application implementation or Windows runtime behavior.",
@@ -5539,7 +5609,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "614996ff01d65e035b041f559b345e8600bbf53081ede4e64400a12f778cecf7"
+      "sourceSha256": "87f51d884298aea0a26e445490eb70ae9b6e6a2486fff34b9be0c51f949da3c1"
     },
     {
       "id": "review-application-contracts",
@@ -5560,6 +5630,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Independent review of the serial B0 contract fixture, its durable identity and session boundaries, with explicit limits on what fixture evidence establishes.",
@@ -5589,7 +5664,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83bb9fdef821577fdf37b50f58c403a8f0c241c26c182e557d1be58cff6f3264"
+      "sourceSha256": "b2331eecaeb6b95bbd35145b9eab231f88ae4abd860ca6be6bc9463437952371"
     },
     {
       "id": "review-application-core",
@@ -5615,6 +5690,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
       "summary": "Records independent observations against named frozen production-core checkpoints, including numeric and continuous-geometry oracles and a reproduced cancelled-assessment defect. Review remains open; these partial results do not authorize integration or application acceptance.",
@@ -5649,7 +5729,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1317e568ca4a0a37eac9964eda5d93a1c93127154fb79a88dbbd5b699e983353"
+      "sourceSha256": "7445730f0ec31bf91dca72db4ebe50a7196d1e8870eb92ee5935c1206a20e5df"
     },
     {
       "id": "review-foil-editing-flow-results",
@@ -5906,7 +5986,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "Elevated v9 after measuring it: restored the first-run and loading states, one precision per quantity, Properties readable at 200 px, and floats that move clear of a focused target (option a, operator-confirmed). Folded in the operator's four requests plus the chord, MAC and typed-dimension decisions. One repair cycle; the accessibility veto cleared by the lens, the Simplifier's veto cleared, 15 of 15 oracle gates green.",
       "tags": [
         "ui-review",
@@ -5941,7 +6027,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fa3bc8839d1b45b7572dbaedddc7807d892127968c1f77a7d26ffc8d1d17a1e0"
+      "sourceSha256": "a778ef36defe60b44cd18442c74eb8afae4e5987515c69f998eb616108c0c0ea"
     },
     {
       "id": "review-ui-workbench-v8",
@@ -5952,7 +6038,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        }
+      ],
       "summary": "Measured the shipped native window (43 controls, 38 labels, three always-on panels, implementation vocabulary), set a CAD-first direction at the Fusion 360 / Shape3D bar, and built mockup v8 through two repair cycles against accessibility, simplifier and marine-CAD adversaries. Mechanical checks pass; three decisions remain the operator's.",
       "tags": [
         "ui-review",
@@ -5982,7 +6074,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0699f7d79250eafc619296d0fdbd8ea51691c3849e4cf84aac9264e258bf6597"
+      "sourceSha256": "9cdb4fec7c5e22418ee277fe8061ef38d197a993ae9e123d5d483dbe1c531b4d"
     },
     {
       "id": "review-ui-workbench-v9",
@@ -6211,12 +6303,12 @@ window.DOCS_INDEX = {
     {
       "id": "spec-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.md",
-      "title": "CFD-Workbench — product specification v1.5 (section editing and design decisions)",
+      "title": "CFD-Workbench — product specification v1.6 (CAD-first editing, Wing estimates and section catalog)",
       "type": "spec",
       "status": "in-review",
       "owner": "@timianmalloo",
       "phase": "specification",
-      "reviewBy": "2027-03-19",
+      "reviewBy": "2027-03-26",
       "reviewSuggested": [
         {
           "by": "mockup-workbench-v3",
@@ -6254,7 +6346,7 @@ window.DOCS_INDEX = {
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring.",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -6347,6 +6439,30 @@ window.DOCS_INDEX = {
         {
           "to": "plan-knowledge-experts-spec-v1",
           "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-workbench-v9",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-workbench-v8",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-m1-scope-decision",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [
@@ -6404,9 +6520,19 @@ window.DOCS_INDEX = {
           "kind": "flowchart",
           "title": "B10. Flow F10 — one uninterrupted design decision (revision 1.5)",
           "mermaid": "flowchart TD\nA[Inspect accepted design] --> B[Pin immutable baseline]\nB --> C[Create and name alternative]\nC --> D[Select middle authored station]\nD --> E[Persistent thumbnail and Edit section]\nE --> F{Shared or independent scope}\nF -->|Shared| G[Show all assignments and adjacent intervals]\nF -->|Independent| H[Copy profile and preview selected assignment intervals]\nG --> I[Choose thickness policy and edit section]\nH --> I\nI --> J[Inspect another station or 3D impact without retargeting draft]\nJ --> K{Valid supported change}\nK -->|No| L[Explain lock or geometry failure; retain draft]\nL --> I\nK -->|Cancel| D\nK -->|Apply| M[Accepted alternative revision and source]\nM --> N[Compare geometry and compatible evidence with pinned baseline]\nN --> O{Evidence available and compatible}\nO -->|Yes| P[Show provenance and difference basis]\nO -->|No| Q[Show missing or incompatible reason without a number]\nP --> R[Write decision rationale]\nQ --> R\nR --> S{Keep or discard}\nS -->|Keep| T[Record decision; chosen alternative stays active]\nS -->|Discard| U[Record decision; archive alternative; return to baseline]\nS -->|No rationale| R"
+        },
+        {
+          "kind": "flowchart",
+          "title": "B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)",
+          "mermaid": "flowchart TD\nA[Launch or File menu] --> B{Foil open?}\nB -->|No| C[Start a foil: New foil, New from example, Open, Recent]\nC -->|New foil or New from example| W[Design workspace: views, Properties with Wing block]\nC -->|Example fixture missing or corrupt| E1[Fixture named; nothing overwritten; New foil available]\nE1 --> C\nC -->|Open or Recent| O[Opening file with Cancel]\nO -->|Cancel| O2[Opening cancelled. Nothing changed]\nO2 --> C\nO -->|Newer version| O3[File named; file unchanged; Open another file]\nO3 --> C\nO -->|Missing, migratable or unknown content| O4[F1 outcome: Locate, migrate to a copy, or read-only; cause named]\nO4 -->|Resolved| W\nO4 -->|Not resolved| C\nO -->|Opened| W\nB -->|Yes| W\nW --> P{Select}\nP -->|Point| P1[Properties: type, position, tangent kind, handles]\nP1 -->|Drag or nudge| P2{Edges cross?}\nP2 -->|No| P3[One undo step; estimates follow live]\nP2 -->|Yes| P4[Refused; geometry unchanged; reason shown]\nP3 --> W\nP4 --> P1\nP1 -->|Change type| P5[One undo step; curve changes between neighbouring anchors only]\nP5 --> W\nP -->|Several points| M[Properties: shared values, Mixed where they differ; a typed value sets every point]\nM --> W\nP -->|Any selection| D[Wing block: type Span, Root chord or Tip chord]\nD --> D1{Valid length and edges stay apart?}\nD1 -->|No| D2[Inline error; geometry and undo depth unchanged]\nD2 --> D\nD1 -->|Yes| D3[One undo step; estimates update]\nD3 --> W\nD -->|Tip closes| D4[Tip chord not editable; edit the tip station]\nD4 --> W\nP -->|Station, then Edit section| S[Section editor: focus on first point; Wing dimensions read-only]\nS --> S1{Action}\nS1 -->|Edit points or types| S2{Surfaces cross?}\nS2 -->|Yes| S3[Finish disabled with the reason]\nS3 --> S1\nS2 -->|No| S1\nS1 -->|Replace from catalog| K[Search NACA, Eppler, Speer, My sections]\nK -->|No match| K1[No sections match; try NACA, Eppler or a name]\nK1 --> K\nK -->|Pending or cite-only entry| K2[Disabled with its reason; nothing changes]\nK2 --> K\nK -->|Admitted entry| K3[Dashed preview; fit deviation; stations replaced named]\nK3 -->|Replace| K4[Catalog original chip; one step inside the draft]\nK3 -->|Cancel| S1\nK -->|Cancel or Escape| S1\nK4 --> S1\nS1 -->|Save to My sections| V[Name and provenance]\nV -->|Empty or duplicate name| V1[Inline error; nothing saved]\nV1 --> V\nV -->|Cancel or Escape| S1\nV -->|Save| V2[Entry in My sections; section and assignments unchanged]\nV2 --> S1\nS1 -->|Smooth| SM[Smooth dialog: tolerance, points, largest change]\nSM -->|OK| S1\nSM -->|Cancel| S1\nS1 -->|Switch to Analysis| S8[Draft hidden, not lost; editor back on return]\nS8 --> S1\nS1 -->|Edited station removed| S9[Mode ends; draft discarded; reason in the status line]\nS9 --> W\nS1 -->|Close window with unsaved edits| S10[F1 unsaved-close choice; safe choice focused]\nS10 -->|Cancel| S1\nS10 -->|Save| S11[Finish or Cancel the section first; nothing saved or discarded]\nS11 --> S1\nS10 -->|Discard| S12[Window closes; section draft and unsaved changes discarded by explicit choice]\nS1 -->|Other station with unsaved edits| S4[Refused: finish or cancel first]\nS4 --> S1\nS1 -->|Escape with unsaved edits| S5[Focus moves to Cancel; nothing discarded]\nS5 --> S1\nS1 -->|Finish section| S6[One undo step; back to the station in the workspace]\nS1 -->|Cancel| S7[Entry state restored; undo depth unchanged]\nS6 --> W\nS7 --> W"
+        },
+        {
+          "kind": "flowchart",
+          "title": "B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)",
+          "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "abb66411cb65a2ceccffc8dd481603aec70b9313e4c68a601ba78b7cf56fbd47"
+      "sourceSha256": "d77b62107507e74ea33d4120789fa203307f91c7b83cb4e1378e4a13d8756b1e"
     },
     {
       "id": "spec-foildsl",
@@ -6657,5 +6783,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "cd34e837f7b88dabd1347b41f52f80be8c2b7b02cddd8b1e468fb11baddd13c8"
+  "graphSha256": "46d35f57b4d7ad1c52cfd438d59559f1e8790d1887028d319f604cdf8c98e744"
 };

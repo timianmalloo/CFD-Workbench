@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T01:15:42Z",
+  "generated": "2026-09-27T01:41:50Z",
   "audit": [
     {
       "actor": null,
@@ -18259,6 +18259,26 @@ window.AUDIT_DATA = {
         "branch": "feature/ui-cad-direction",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3G8CA4MZNPD50H0KBQ11SP3",
+      "shortname": "specify-spec-1.6-cad-first",
+      "datetime": "2026-09-27T01:41:23Z",
+      "session": "fbfa35dc-specify",
+      "prompt": "/specify — revision 1.6 of docs/specs/cfd-workbench-v1.md per brief-2-specify.md: fully reflect the settled CAD-first UX (mockups v8 → v10, v10 final at 1d3bee2) and the operator decisions since revision 1.5 — CAD-first journey (Fusion 360 / Shape3D bar); \"everything is a curve or a point\"; Properties pane in a narrow left panel with VS Code / Premiere docking, optional right and bottom panels, floats (occlusion option a); per-point Control / Anchor / named point types; always-visible running estimates of span, chord, thickness, aspect ratio, area with root chord, mean chord (S/b) and MAC; typed Span / Root chord / Tip chord as driving dimensions (decided behaviour); Replace from catalog and Save to My sections in the section editor; undo contract (Cancel adds no step, Finish exactly one); on-screen timing not an M1 gate; Windows qualification deferred. Part B/C bottom-up with falsifiable criteria; superseded items marked and listed in Appendix G; open decisions as decision requests with defaults; adversarial review by UX Researcher/IA, UX & Accessibility and Product Strategist.",
+      "summary": "Spec revision 1.6: A4.15 CAD-first editing contract (point types, typed Span/Root/Tip chord, Wing estimates incl. S/b and MAC, section editor mode, catalog Replace and My sections, GEO-14 undo) with CAD-14-21; B1 CAD IA, B7 CAD-first window, flows F11-F12, UX-28-33; C1/C2/C4b UI-36-43; 20 superseded items marked in place and listed in Appendix G; DR-2, DR-4-8 and OI-1-4 recorded with defaults. Gate: UX-IA and UX&A11y vetoes cleared by the lenses after 1 repair cycle, Product PASS; 13 Majors fixed. HTML re-rendered and parity-checked; index derived; 17 inbound neighbours flagged (V16).",
+      "kind": "skill",
+      "skill": "specify",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-27T01:17:06Z",
+      "duration_seconds": 1457.0
     }
   ],
   "changes": [
@@ -18814,6 +18834,29 @@ window.AUDIT_DATA = {
         "pushed": null,
         "commits": []
       }
+    },
+    {
+      "id": "cl-01M3G8D4R6Q41H96ZRP75E1K0M",
+      "datetime": "2026-09-27T01:41:50Z",
+      "session": "fbfa35dc-specify",
+      "kind": "spec",
+      "skill": "specify",
+      "title": "Spec 1.6: CAD-first editing contract, Wing estimates and section catalog",
+      "prompt": "/specify — revision 1.6 of docs/specs/cfd-workbench-v1.md per brief-2-specify.md: fully reflect the settled CAD-first UX (mockups v8 → v10, v10 final at 1d3bee2) and the operator decisions since revision 1.5 — CAD-first journey (Fusion 360 / Shape3D bar); \"everything is a curve or a point\"; Properties pane in a narrow left panel with VS Code / Premiere docking, optional right and bottom panels, floats (occlusion option a); per-point Control / Anchor / named point types; always-visible running estimates of span, chord, thickness, aspect ratio, area with root chord, mean chord (S/b) and MAC; typed Span / Root chord / Tip chord as driving dimensions (decided behaviour); Replace from catalog and Save to My sections in the section editor; undo contract (Cancel adds no step, Finish exactly one); on-screen timing not an M1 gate; Windows qualification deferred. Part B/C bottom-up with falsifiable criteria; superseded items marked and listed in Appendix G; open decisions as decision requests with defaults; adversarial review by UX Researcher/IA, UX & Accessibility and Product Strategist.",
+      "summary": "Encodes the operator's CAD-first decisions: per-point Control/Anchor/named types; typed Span (spanwise scale, chords unchanged, direct commit), Root/Tip chord (that end, linear spanwise blend; tip = outermost authored station; closing tip not editable); always-visible derived Wing estimates (chord basis, S/b, MAC=(2/S)∫c²dy, max t/c, AR=b²/S, S; never stored); section editor as a mode (Cancel adds no undo step, Finish exactly one); Replace from catalog and Save to My sections under A4.10 admission; focus-safe floats option (a); on-screen timing not an M1 gate; Windows deferred. Supersedes CAD-05, UI-26, UX-13 and parts of DOC-01, CAD-04/07/08, UX-23/24, UI-25, A4.8, A4.14 span route (Appendix G). Open: DR-2 held line (default LE), DR-4/DR-5 representation to /define-architecture, DR-6 gesture commit, DR-7 area navigation, DR-8 My sections scope.",
+      "rationale": "v10 is final and the operator decided point types, float occlusion, chord/MAC readouts and typed-dimension behaviour; the spec must be the build basis before /define-architecture and /design-slice take the representation questions.",
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "1d3bee2",
+        "after": "1d3bee25d38bbecf392fedd3ab5823cde26b63c0",
+        "branch": "feature/ui-cad-direction",
+        "pushed": null,
+        "commits": []
+      },
+      "audit_ref": "al-01M3G8CA4MZNPD50H0KBQ11SP3"
     }
   ],
   "messages": []
