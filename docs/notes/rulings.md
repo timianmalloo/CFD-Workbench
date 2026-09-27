@@ -656,3 +656,23 @@ DR-11 = Independent section point types. This requires the B6 restart in the M1.
 None of these gates the M1.2a shell.
 
 - request: req-01M3HPKHT44ZZMED9ZJ8TJ8HBJ · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T15:10:23Z
+
+### Ruling 54 — Adopt the test/CI plan-ceremony patches
+
+DECISION: P1, P2, P3, P4, P5 and P6 are adopted exactly as the Test Architect ruled them in docs/reviews/test-ci-waste.md section 5. The operator asked for waste and ceremony to be cut; the Test Architect's vetoes on P2 and P3 are hard vetoes and the Owner does not overturn them, because cheaper is never weaker. The Coordinator amends docs/coordination/app-shell-build.md and docs/design/app-shell.md section 12 before G0 dispatches; the plan accepted in Ruling 52 is amended only in these six places.
+
+P1 = adopted with the Test Architect's condition. A track's time box is 3x a measured prior from the same class of work. Without such a prior the box stays as written and the measured time goes in the audit entry. Reason: a shorter box surfaces a silent exit sooner, and one 254 s spike is not a prior for a T2 port, so S8 keeps its box until a same-class measurement exists.
+
+P2 = adopted as the Test Architect ruled: three full run-tests.sh runs with identical PASS sets, and the compared PASS set must be non-empty for every named suite. The Desktop-only cut is not adopted. Reason: it would save about 18 s and drop the only repeat of the clock-dependent Core test under load; the runner change already brings three runs to about 90 s.
+
+P3 = adopted as the Test Architect ruled: mutation runs may be batched, and every ported row must go red in at least one recorded mutation run. One-mutation-per-group is not adopted. Reason: reflection-bound ported tests can bind to nothing, so each row needs its own red; batching is where the saving is.
+
+P4 = adopted. check-named-tests.py and the 28-edge ledger stay. Reason: both are mechanical and cheap, and they are the control that a named test exists.
+
+P5 = adopted with the condition already applied: app gates and recounts run at readiness before the merge to main, per join.json; xaml-token-lint stays in the fast ring; readiness is checkable by receipt. Reason: this moves the GUI gates off every join without removing them, and the design's CD8 control on D3a and D4 is kept in the fast ring.
+
+P6 = adopted. D3a and D4 exit criteria read 'the join's xaml-token-lint check clean' instead of the verify-application-adapters.py step. Reason: it follows from P5; the fast ring runs the lint directly, so the GUI gate is no longer the way to prove it.
+
+NOT DECIDED HERE: the open items in section 9 (clock-independent BUDGET-DISPLAY control, per-suite timeout, CPU-second budget, CI workflow for the C# suites). They are findings, not scope of this ruling.
+
+- request: req-01M3HTCHKWX3EMKZ97Y27JTGTD · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T16:16:45Z
