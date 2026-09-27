@@ -19,6 +19,13 @@ import sys
 import tempfile
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT = Path(__file__).resolve().parent.parent
 DESIGN = ROOT / "docs" / "design" / "app-shell.md"
 LOGS = ROOT / ".tmp-tests"
@@ -166,10 +173,10 @@ def self_test() -> int:
         for number, (label, plant, extra, track, inventory_text, expected) in enumerate(SELF_CASES):
             case = Path(scratch) / f"case{number}"
             case.mkdir()
-            (case / "Core.log").write_text(C1_PASSES + extra, encoding="utf-8")
+            (case / "Core.log").write_text(C1_PASSES + extra, encoding="utf-8", newline="\n")
             inventory = case / "inventory.md"
             if inventory_text is not None:
-                inventory.write_text(inventory_text, encoding="utf-8")
+                inventory.write_text(inventory_text, encoding="utf-8", newline="\n")
             _, errors = check(track, SELF_DESIGN.format(plant=plant), case, inventory)
             if expected is None:
                 ok = not errors
