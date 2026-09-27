@@ -137,7 +137,8 @@ public static class ControllerShellTests
         {
             using var controller = new WorkbenchController();
             using var cts = new CancellationTokenSource();
-            var task = controller.OpenAsync("docs/examples/foildsl/foil-basic.foil", cts.Token);
+            const string path = "src/CfdWorkbench.Desktop/Assets/example.foil";
+            var task = controller.OpenAsync(path, cts.Token);
             var outcome = task.GetAwaiter().GetResult();
             if (outcome is not OpenOutcome.Opened)
                 throw new InvalidOperationException($"Expected Opened outcome, got {outcome.GetType().Name}");
@@ -145,7 +146,7 @@ public static class ControllerShellTests
             cts.Cancel();
             if (controller.AcceptedSource == "")
                 throw new InvalidOperationException("Foil was discarded after cancel-after-commit.");
-            if (controller.OpenedPath != "docs/examples/foildsl/foil-basic.foil")
+            if (controller.OpenedPath != path)
                 throw new InvalidOperationException("OpenedPath was reset after cancel-after-commit.");
         });
 
@@ -183,7 +184,7 @@ public static class ControllerShellTests
         {
             using var controller = new WorkbenchController();
             var first = controller.OpenAsync("docs/examples/foildsl/foil-precision.foil");
-            var second = controller.OpenAsync("docs/examples/foildsl/foil-basic.foil");
+            var second = controller.OpenAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
 
             var outcome1 = first.GetAwaiter().GetResult();
             var outcome2 = second.GetAwaiter().GetResult();
@@ -197,12 +198,23 @@ public static class ControllerShellTests
         DesktopChecks.Check("Open_Uncertified_RefusedReadOnly", () =>
         {
             using var controller = new WorkbenchController();
-            var outcome = controller.OpenAsync("docs/examples/foildsl/invalid-geometry.foil").GetAwaiter().GetResult();
-            if (outcome is not OpenOutcome.Refused refused)
-                throw new InvalidOperationException($"Expected Refused outcome, got {outcome.GetType().Name}");
+            var parsed = FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/invalid-geometry.foil"));
+            var candidateWithIds = FoilSource.MaterializeIds(parsed);
+            string tempPath = Path.Combine(Path.GetTempPath(), $"uncertified-{Guid.NewGuid():N}.foil");
+            File.WriteAllBytes(tempPath, candidateWithIds);
+            try
+            {
+                var outcome = controller.OpenAsync(tempPath).GetAwaiter().GetResult();
+                if (outcome is not OpenOutcome.Refused refused)
+                    throw new InvalidOperationException($"Expected Refused outcome, got {outcome.GetType().Name}");
 
-            if (refused.Original is null || refused.Original.Length == 0)
-                throw new InvalidOperationException("Original bytes missing from Refused outcome.");
+                if (refused.Original is null || refused.Original.Length == 0)
+                    throw new InvalidOperationException("Original bytes missing from Refused outcome.");
+            }
+            finally
+            {
+                if (File.Exists(tempPath)) File.Delete(tempPath);
+            }
         });
 
         DesktopChecks.Check("Properties_SectionMode_WingAsText", () =>

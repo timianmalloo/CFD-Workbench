@@ -67,12 +67,8 @@ public abstract record OpenFailure(string Code, string Path)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
-        // Check if file is absent on disk
-        if (exception is FileNotFoundException or DirectoryNotFoundException || !File.Exists(path))
-        {
-            string code = exception is ContractError ce ? ce.Code : "DOC-NOT-FOUND";
-            return new Missing(code, path);
-        }
+        if (exception is FileNotFoundException or DirectoryNotFoundException)
+            return new Missing("FILE-NOT-FOUND", path);
 
         if (exception is UnauthorizedAccessException)
             return new AccessDenied("DOC-ACCESS", path);
