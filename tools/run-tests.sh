@@ -8,6 +8,11 @@
 # · 3 green but over the wall budget (TEST-BUDGET; CFD_TEST_BUDGET_SECONDS, default 60 s = 2x the
 # measured 30 s; the serial Debug runner this replaced took 67 s).
 set -euo pipefail
+# Clear any inherited Core-harness test-subset/probe selectors so an exported one from a prior
+# debugging session cannot silently narrow this run and still report green (bash 3.2-safe: no
+# associative arrays, no `${!prefix@}`).
+unset CFD_TEST_ONLY CFD_NATIVE_CAPABILITY_PROBE
+for v in $(compgen -e | grep '^CFD_OWNER_STRIPPING_'); do unset "$v"; done
 root="$(cd "$(dirname "$0")/.." && pwd -P)"
 scratch="$root/.tmp-tests"
 mkdir -p "$scratch"
