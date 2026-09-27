@@ -107,6 +107,16 @@ public sealed class WorkbenchController : IDisposable
         store = this.storeFactory(session);
     }
     public event Action? Changed;
+    public Selection Selection { get; private set; } = new Selection.None();
+    public event Action? SelectionChanged;
+    public void Select(Selection selection) { SelectionChanged?.Invoke(); }
+    public WingEstimates? Estimates => null;
+    public void ApplySpan(string text) => throw new NotImplementedException();
+    public async Task<OpenOutcome> OpenAsync(string path, CancellationToken cancellation = default)
+    {
+        await OpenPathAsync(path, cancellation);
+        return new OpenOutcome.Opened(path);
+    }
     public AcceptedInspection? Inspection { get; private set; }
     public AuthoredProjection? PendingProjection { get; private set; }
     public byte[]? PendingOriginal { get; private set; }
