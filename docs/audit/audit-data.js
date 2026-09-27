@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:48:02Z",
+  "generated": "2026-09-27T17:06:28Z",
   "audit": [
     {
       "actor": null,
@@ -18827,24 +18827,71 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3HW8DK46D7GZ57WF65A7H67",
-      "shortname": "join-coregate",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/test-ci-waste.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-27T16:48:02Z",
-      "session": "fbfa35dc",
+      "done_when": "merged; fast gates green",
+      "duration_seconds": 34.0,
+      "fan_out": 0,
+      "goal": "bring the core gate under its 300 s limit without weakening it",
+      "id": "al-01M3HW8DK46D7GZ57WF65A7H67",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/core-gate-cost into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-coregate",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T16:47:28Z",
       "summary": "core gate 302s->88s verified; umask/native variants run the 32 store checks via CFD_TEST_ONLY; FAIL SELECTOR on empty match; STORE-SUBSET guard; 0077 plant and silent-skip plant caught red-first; seam: run-tests.sh should unset CFD_TEST_ONLY etc. (after D1) recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T17:03:41Z",
+      "duration_seconds": 1163.0,
+      "id": "al-01M3HX52T4Z78FGT8PAJGSPQAM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "D1 brief",
+      "session": "track-d1",
+      "shortname": "track-d1",
+      "skill": "implement",
+      "started_at": "2026-09-27T16:44:18Z",
+      "summary": "Implement track D1 pure shell model (workspace presets, float frames and placement, focus ring, command table, screen source, shell events), 12 named checks, red-run proof pack, and named test integration",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M3HXA5SGVSS28DG8M4672A0B",
+      "shortname": "join-d1",
+      "datetime": "2026-09-27T17:06:28Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of d1-shell-model into feature/ui-cad-direction",
+      "summary": "D1 12/12 named PASS verified; red-first run exit 1 recorded (closes G0's spawned-suite red proof); Desktop added to named suites; no Avalonia/Dock types in Shell model; ~21 min vs 70 min box recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/test-ci-waste.md"
+        "docs/proof/d1-red-runs.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "bring the core gate under its 300 s limit without weakening it",
-      "done_when": "merged; fast gates green",
+      "goal": "land the pure shell model",
+      "done_when": "merged; fast gates green; named D1 green on the integration tree",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -18852,8 +18899,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-27T16:47:28Z",
-      "duration_seconds": 34.0
+      "started_at": "2026-09-27T17:05:55Z",
+      "duration_seconds": 33.0
     }
   ],
   "changes": [
