@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:13:26Z",
+  "generated": "2026-09-27T16:14:25Z",
   "audit": [
     {
       "actor": null,
@@ -18583,24 +18583,84 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3HT92XDPMTJNTWDHEKKZEM6",
-      "shortname": "join-crash",
-      "datetime": "2026-09-27T16:13:26Z",
-      "session": "fbfa35dc",
-      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "harness relaunch under the dotnet muxer fixed; APP-UNHANDLED named exit 70; core gate telemetry opt-out; navigator scroll + token list heights fix CV list collapse at 1024x700 (bisected to 80758ec); probe parks real pointer; defect-classes union-resolved recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/investigations/desktop-launch-abort.md"
       ],
+      "compiled": false,
+      "datetime": "2026-09-27T16:13:26Z",
+      "done_when": "merged; all 12 verify gates green; no new crash report",
+      "duration_seconds": 33.0,
+      "fan_out": 0,
+      "goal": "stop the SIGABRT crash dialogs and make both application gates green",
+      "id": "al-01M3HT92XDPMTJNTWDHEKKZEM6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-crash",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T16:12:53Z",
+      "summary": "harness relaunch under the dotnet muxer fixed; APP-UNHANDLED named exit 70; core gate telemetry opt-out; navigator scroll + token list heights fix CV list collapse at 1024x700 (bisected to 80758ec); probe parks real pointer; defect-classes union-resolved recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/adr/0009-cad-first-shell-docking-and-menus.md",
+        "docs/architecture/application.md",
+        "docs/adr/0005-point-types-in-the-b-spline-record.md",
+        "docs/adr/0006-driving-dimensions-and-wing-estimates.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-27T15:23:54Z",
+      "done_when": "design-app-shell flags gone from spec/ADR-0009/architecture; DR-2,6-11 rows carry Ruled (Ruling 53); verify-ruling-citations.py and check-docs.py exit 0",
+      "duration_seconds": 743.0,
+      "git": {
+        "branch": "review-flags-app-shell",
+        "pushed": null,
+        "sha": "36b86997b5733b8c375f1f2dbb02a1211bde2144",
+        "short": "36b86997b"
+      },
+      "goal": "Clear the design-app-shell review flags (track R0) and record Owner Rulings 52/53 in the DR tables",
+      "id": "al-01M3HQECES6VMB8MHXB00WDR8M",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track R0 contract: clear the design-app-shell review flags (docs/coordination/app-shell-build.md) and record Owner Rulings 52/53 in the decision-request tables.",
+      "session": "track-r0",
+      "shortname": "R0: clear app-shell review flags",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T15:11:31Z",
+      "summary": "Resolved the three design-app-shell review-suggested flags in place (spec C2/A8.5/B7 DR-S2, ADR-0009 five deviations, architecture E7/section-10.4/section-10.7), added Ruling 53 citations to DR-2, DR-6..DR-11 rows in the spec, architecture 10.7, ADR-0005 and ADR-0006, cleared the flags via docs-graph.py clear-flag. UX-29 S1-Switch-to-Analysis N/A left open (spec-owner decision, out of scope). Gates: verify-ruling-citations.py exit 0, tools/check-docs.py exit 0. Commit 36b86997b5733b8c375f1f2dbb02a1211bde2144.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M3HTAVN0MWAVFCF3KMB4M6QV",
+      "shortname": "join-r0",
+      "datetime": "2026-09-27T16:14:24Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "summary": "design-app-shell flags cleared on spec, ADR-0009, architecture; DR rows carry Ruling 53; OI-S1 N/A still open recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "stop the SIGABRT crash dialogs and make both application gates green",
-      "done_when": "merged; all 12 verify gates green; no new crash report",
+      "goal": "clear review flags before the first product merge",
+      "done_when": "merged; gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -18608,7 +18668,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-27T16:12:53Z",
+      "started_at": "2026-09-27T16:13:51Z",
       "duration_seconds": 33.0
     }
   ],
