@@ -165,7 +165,7 @@ svg g[role="button"]{ outline:none; } svg g[role="button"]:focus-visible .ring{ 
 
   <div class="body" id="body">
     <aside class="dock" id="dock-left" data-dock="left" aria-label="Left side bar"></aside>
-    <button class="split v" id="split-left" role="separator" aria-orientation="vertical" aria-label="Resize left side bar (also: pane menu, Size)" aria-valuemin="200" aria-valuemax="420"></button>
+    <div class="split v" id="split-left" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize left side bar (also: pane menu, Size)" aria-controls="dock-left" aria-valuemin="200" aria-valuemax="420"></div>
     <div class="mid">
       <div class="center" id="center">
         <div class="views" id="views" data-layout="plan3d">
@@ -188,10 +188,10 @@ svg g[role="button"]{ outline:none; } svg g[role="button"]:focus-visible .ring{ 
           <nav class="strip" id="strip" aria-label="Stations"></nav>
         </div>
       </div>
-      <button class="split h" id="split-bottom" role="separator" aria-orientation="horizontal" aria-label="Resize bottom panel (also: pane menu, Size)" aria-valuemin="120" aria-valuemax="420"></button>
+      <div class="split h" id="split-bottom" role="separator" tabindex="0" aria-orientation="horizontal" aria-label="Resize bottom panel (also: pane menu, Size)" aria-controls="dock-bottom" aria-valuemin="120" aria-valuemax="420"></div>
       <section class="dock" id="dock-bottom" data-dock="bottom" aria-label="Bottom panel"></section>
     </div>
-    <button class="split v" id="split-right" role="separator" aria-orientation="vertical" aria-label="Resize right side bar (also: pane menu, Size)" aria-valuemin="200" aria-valuemax="420"></button>
+    <div class="split v" id="split-right" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize right side bar (also: pane menu, Size)" aria-controls="dock-right" aria-valuemin="200" aria-valuemax="420"></div>
     <aside class="dock" id="dock-right" data-dock="right" aria-label="Right side bar"></aside>
     <div id="floats"></div>
     <div class="dropzones hidden" id="dropzones" aria-hidden="true"></div>
@@ -258,7 +258,7 @@ function switchWorkspace(k, reset){ if (L) saved[WS] = JSON.parse(JSON.stringify
 const where = id => { for (const d of ['left', 'right', 'bottom']) if (L[d].includes(id)) return d; return L.float.some(f => f.id === id) ? 'float' : null; };
 function detach(id){ for (const d of ['left', 'right', 'bottom']){ const had = L[d].includes(id); L[d] = L[d].filter(x => x !== id); if (L.active[d] === id) L.active[d] = L[d][0]; if (had && !L[d].length) L.shown[d] = false; } L.float = L.float.filter(f => f.id !== id); if (L.maxed === id) L.maxed = null; }
 function movePane(id, to){ const from = where(id); detach(id);
-  if (to === 'float') L.float.push({ id, from: from === 'float' ? HOME[id] : (from || HOME[id]), x: 16, y: 16 });
+  if (to === 'float'){ const p = floatSpot('centre'); L.float.push({ id, from: from === 'float' ? HOME[id] : (from || HOME[id]), x: p.x, y: p.y }); }
   else if (to !== 'closed'){ L[to].push(id); L.active[to] = id; L.shown[to] = true; }
   layout();
   if (to === 'closed'){ const d = from === 'float' ? null : from, next = d && L[d][0]; (next ? $('dock-' + d).querySelector(`[data-tab="${next}"]`) : $(d ? 't-' + d : 'v-plan'))?.focus?.(); if (!d) focusCanvas(); }
@@ -266,6 +266,9 @@ function movePane(id, to){ const from = where(id); detach(id);
   announce(`${PANES[id].title} ${to === 'float' ? 'is floating. Press Escape to dock it back.' : to === 'closed' ? 'closed' : 'moved to the ' + ({ left:'left side bar', right:'right side bar', bottom:'bottom panel' })[to]}`); }
 const focusTab = id => { const t = document.querySelector(`[data-tab="${id}"]`); t && t.focus({ preventScroll:true }); };
 function focusCanvas(){ const f = root.dataset.screen === 'workspace' ? $('v-plan').querySelector('g[role="button"]') : $('v-sec').querySelector('g[role="button"]'); f && f.focus({ preventScroll:true }); }
+function floatSpot(where){ const b = $('body'), W = b.offsetWidth, H = b.offsetHeight, lw = L.shown.left ? L.sizes.left + 6 : 0, rw = L.shown.right ? L.sizes.right + 6 : 0, bh = L.shown.bottom ? L.sizes.bottom + 6 : 0, fw = 300, fh = 430, cw = W - lw - rw;
+  if (where === 'topright') return { x: lw + cw - fw - 16, y: 16 }; if (where === 'bottomright') return { x: lw + cw - fw - 16, y: Math.max(16, H - bh - fh - 16) }; return { x: lw + Math.max(16, (cw - fw)/2), y: Math.max(16, (H - bh - fh)/2) }; }
+function moveFloat(id, x, y){ const f = L.float.find(f => f.id === id); if (!f) return; const b = $('body'); f.x = Math.max(0, Math.min(b.offsetWidth - 300, x)); f.y = Math.max(0, Math.min(b.offsetHeight - 60, y)); layout(); focusTab(id); announce(`${PANES[id].title} moved`); }
 function toggleMax(id){ L.maxed = L.maxed === id ? null : id; layout(); focusTab(id); announce(L.maxed ? `${PANES[id].title} maximized. Press Escape to restore.` : `${PANES[id].title} restored`); }
 function toggleDock(d){ const opening = !L.shown[d];
   if (opening && !L[d].length){ const w = WORKSPACES[WS]; const fill = d === 'bottom' ? ['points', 'messages'] : d === 'left' ? ['properties', 'browser'] : []; fill.forEach(id => { if (!where(id)) L[d].push(id); }); L.active[d] = L[d][0]; }
@@ -290,12 +293,14 @@ function groupEl(dockKey, ids, floatRec){
   const body = h('div', { class:'pane-body', role:'tabpanel', id:'panel-' + active, 'aria-labelledby':'tab-' + active, tabindex:'-1' }); PANES[active].render(body);
   g.append(tabs, body); return g; }
 function tabKeys(ev, dockKey, ids, id, floatRec){ const i = ids.indexOf(id);
+  if (floatRec && ev.altKey && ev.key.startsWith('Arrow')){ ev.preventDefault(); const s = ev.shiftKey ? 80 : 20; moveFloat(id, floatRec.x + (ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0), floatRec.y + (ev.key === 'ArrowDown' ? s : ev.key === 'ArrowUp' ? -s : 0)); return; }
   if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){ ev.preventDefault(); const n = ids[(i + (ev.key === 'ArrowRight' ? 1 : ids.length - 1)) % ids.length]; if (!floatRec){ L.active[dockKey] = n; layout(); } focusTab(n); }
   else if ((ev.key === 'F10' && ev.shiftKey) || ev.key === 'ContextMenu'){ ev.preventDefault(); openMenu(paneMenu(id), ev.currentTarget); }
-  else if (ev.key === 'Escape' && floatRec){ ev.preventDefault(); movePane(id, floatRec.from); } }
+  else if (ev.key === 'Escape' && floatRec){ ev.preventDefault(); movePane(id, floatRec.from); }
+  else if (floatRec && ev.altKey && ev.key.startsWith('Arrow')){ ev.preventDefault(); const s = ev.shiftKey ? 80 : 20; moveFloat(id, floatRec.x + (ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0), floatRec.y + (ev.key === 'ArrowDown' ? s : ev.key === 'ArrowUp' ? -s : 0)); } }
 function paneMenu(id){ const at = where(id), d = at === 'float' ? null : at, opt = (to, t) => at === to ? null : { t, a:`move:${id}:${to}` };
   return [ { head: PANES[id].title }, opt('left', 'Move to left side bar'), opt('right', 'Move to right side bar'), opt('bottom', 'Move to bottom panel'), opt('float', 'Float'), '-',
-    ...(d ? [{ head:'Size' }, ...Object.entries(SIZES[d]).map(([n, v]) => ({ t:n, a:`size:${d}:${v}`, role:'menuitemradio', checked: L.sizes[d] === v }))] : []), '-',
+    ...(d ? [{ head:'Size' }, ...Object.entries(SIZES[d]).map(([n, v]) => ({ t:n, a:`size:${d}:${v}`, role:'menuitemradio', checked: L.sizes[d] === v }))] : [{ head:'Position' }, { t:'Centre', a:`pos:${id}:centre` }, { t:'Top right', a:`pos:${id}:topright` }, { t:'Bottom right', a:`pos:${id}:bottomright` }, { t:'Move with Alt + arrow keys', a:'x', ak:'Alt+ArrowUp' }]), '-',
     { t: L.maxed === id ? 'Restore' : 'Maximize', a:`max:${id}`, k:key('⇧M'), ak:ariaKey('Shift+M') }, { t:'Close', a:`move:${id}:closed` } ].filter(Boolean); }
 
 function layout(){
@@ -305,7 +310,7 @@ function layout(){
     if (ids.length){ if (!ids.includes(L.active[d])) L.active[d] = ids[0]; dock.appendChild(groupEl(d, ids)); }
     else if (shown){ dock.appendChild(h('div', { class:'empty', role:'note' }, `This ${d === 'right' ? 'side bar' : 'panel'} is empty. Drag a pane's tab here, or choose ⋯ → Move to ${d === 'right' ? 'right side bar' : 'bottom panel'} on any pane.`));
       const c = h('button', { class:'btn sm', style:'margin:0 14px', 'data-fk':'close:' + d }, 'Close'); c.addEventListener('click', () => toggleDock(d)); dock.appendChild(c); }
-    $('split-' + d).dataset.shown = shown; $('split-' + d).setAttribute('aria-valuenow', L.sizes[d]); $('t-' + d).setAttribute('aria-pressed', shown); });
+    $('split-' + d).dataset.shown = shown; $('split-' + d).setAttribute('aria-valuenow', L.sizes[d]); $('split-' + d).setAttribute('aria-valuetext', `${L.sizes[d]} pixels`); $('t-' + d).setAttribute('aria-pressed', shown); });
   const fl = $('floats'); fl.innerHTML = '';
   L.float.forEach(f => { const w = h('div', { class:'float', role:'dialog', 'aria-label': `${PANES[f.id].title}, floating`, style:`left:${f.x}px;top:${f.y}px` }); w.appendChild(groupEl('float', [f.id], f)); fl.appendChild(w);
     w.querySelector('.tabs').addEventListener('pointerdown', ev => { if (ev.target.closest('button') && !ev.target.classList.contains('tab')) return; startFloatMove(ev, f, w); }); });
@@ -322,7 +327,7 @@ function layout(){
 
 /* splitters: drag or keyboard; the pane menu's Size items are the single-pointer equivalent (2.5.7) */
 ['left', 'right', 'bottom'].forEach(d => { const s = $('split-' + d), lim = d === 'bottom' ? [120, 420] : [200, 420], set = v => { L.sizes[d] = Math.max(lim[0], Math.min(lim[1], v)); layout(); };
-  s.addEventListener('keydown', ev => { const inc = d === 'bottom' ? (ev.key === 'ArrowUp' ? 16 : ev.key === 'ArrowDown' ? -16 : 0) : d === 'left' ? (ev.key === 'ArrowRight' ? 16 : ev.key === 'ArrowLeft' ? -16 : 0) : (ev.key === 'ArrowLeft' ? 16 : ev.key === 'ArrowRight' ? -16 : 0); if (inc){ ev.preventDefault(); set(L.sizes[d] + inc); s.focus(); } });
+  s.addEventListener('keydown', ev => { if (ev.key === 'Home' || ev.key === 'End'){ ev.preventDefault(); set(ev.key === 'Home' ? lim[0] : lim[1]); s.focus(); return; } const inc = d === 'bottom' ? (ev.key === 'ArrowUp' ? 16 : ev.key === 'ArrowDown' ? -16 : 0) : d === 'left' ? (ev.key === 'ArrowRight' ? 16 : ev.key === 'ArrowLeft' ? -16 : 0) : (ev.key === 'ArrowLeft' ? 16 : ev.key === 'ArrowRight' ? -16 : 0); if (inc){ ev.preventDefault(); set(L.sizes[d] + inc); s.focus(); } });
   s.addEventListener('pointerdown', ev => { ev.preventDefault(); s.classList.add('active'); const x0 = ev.clientX, y0 = ev.clientY, v0 = L.sizes[d], k = scaleK();
     const mv = e => set(v0 + (d === 'bottom' ? (y0 - e.clientY) : d === 'left' ? (e.clientX - x0) : (x0 - e.clientX)) / k), up = () => { s.classList.remove('active'); removeEventListener('pointermove', mv); removeEventListener('pointerup', up); };
     addEventListener('pointermove', mv); addEventListener('pointerup', up); }); });
@@ -567,7 +572,8 @@ $('menu').addEventListener('keydown', ev => { const b = [...$('menu').querySelec
   else if (ev.key === 'ArrowDown'){ ev.preventDefault(); b[(i+1) % b.length].focus(); } else if (ev.key === 'ArrowUp'){ ev.preventDefault(); b[(i-1+b.length) % b.length].focus(); } });
 document.addEventListener('pointerdown', ev => { if (!$('menu').contains(ev.target) && !ev.target.closest('[aria-haspopup]')) closeMenu(false); });
 function act(a){ const [verb, id, to] = a.split(':');
-  if (verb === 'move') movePane(id, to); else if (verb === 'max') toggleMax(id); else if (verb === 'size'){ L.sizes[id] = +to; layout(); announce(`Size ${to} pixels`); refocusOpener(); }
+  if (verb === 'move') movePane(id, to); else if (verb === 'max') toggleMax(id); else if (verb === 'pos'){ const p = floatSpot(to); moveFloat(id, p.x, p.y); }
+  else if (verb === 'size'){ L.sizes[id] = +to; layout(); announce(`Size ${to} pixels`); refocusOpener(); }
   else if (verb === 'ws'){ switchWorkspace(id, false); opener?.focus(); } else if (verb === 'reset'){ switchWorkspace(WS, true); opener?.focus(); }
   else if (verb === 'dock') toggleDock(id); else if (verb === 'views'){ setViews(id); $('views-btn').focus(); }
   else if (verb === 'show'){ const d = where(id); if (!d) movePane(id, HOME[id]); else if (d !== 'float'){ L.active[d] = id; L.shown[d] = true; layout(); focusTab(id); } else focusTab(id); } }
@@ -583,7 +589,7 @@ $('views-btn').addEventListener('click', () => openMenu([{ t:'Plan + 3D', a:'vie
 /* global keys: platform modifier only, never while typing; F6 cycles regions; Escape restores a maximized pane */
 document.addEventListener('keydown', ev => { const typing = ev.target.matches('input, select, textarea'), mod = isMac() ? ev.metaKey && !ev.ctrlKey : ev.ctrlKey && !ev.metaKey;
   if (ev.key === 'F6'){ ev.preventDefault(); cycleRegions(ev.shiftKey ? -1 : 1); return; }
-  if (ev.key === 'Escape' && L.maxed && !$('menu').contains(ev.target)){ ev.preventDefault(); toggleMax(L.maxed); return; }
+  if (ev.key === 'Escape' && L.maxed && !typing && !$('menu').contains(ev.target)){ ev.preventDefault(); toggleMax(L.maxed); return; }
   if (!mod || typing) return;
   if (ev.code === 'KeyB' && ev.altKey){ ev.preventDefault(); toggleDock('right'); } else if (ev.code === 'KeyB'){ ev.preventDefault(); toggleDock('left'); } else if (ev.code === 'KeyJ'){ ev.preventDefault(); toggleDock('bottom'); }
   else if (ev.code === 'KeyM' && ev.shiftKey){ const t = document.activeElement.closest('.dock, .float'); const id = t?.querySelector('[aria-selected="true"]')?.dataset.tab; if (id){ ev.preventDefault(); toggleMax(id); } } });
@@ -600,7 +606,7 @@ function harness(){ const scr = $('h-screen').value, lay = $('h-layout').value, 
   if (scr === 'workspace') S = sl === 'none' ? { kind:'none' } : sl === 'point' ? { kind:'plan', ids:['le1'] } : sl === 'station' ? { kind:'station', i:1 } : { kind:'plan', ids:['le1', 'te1'] };
   else S = sl === 'none' ? { kind:'none' } : sl === 'multi' ? { kind:'sec', key:'u2', part:'point', keys:['u1', 'u2'] } : sl === 'station' ? { kind:'sec', key:'nose', part:'point' } : { kind:'sec', key:'u1', part:'point' };
   for (const k in saved) delete saved[k]; L = null; switchWorkspace(['float', 'drag', 'right'].includes(lay) ? 'planform' : lay === 'max' ? 'precision' : lay, true);
-  if (lay === 'float'){ detach('properties'); L.float.push({ id:'properties', from:'left', x:16, y:16 }); } if (lay === 'max') L.maxed = 'points'; if (lay === 'right') L.shown.right = true;
+  if (lay === 'float'){ detach('properties'); const p = floatSpot('centre'); L.float.push({ id:'properties', from:'left', x:p.x, y:p.y }); } if (lay === 'max') L.maxed = 'points'; if (lay === 'right') L.shown.right = true;
   screen(); refresh(); if (lay === 'drag') showZones('right'); else hideZones(); }
 ['h-screen', 'h-layout', 'h-sel', 'h-state'].forEach(id => $(id).addEventListener('change', harness));
 $('h-theme').addEventListener('change', e => { root.dataset.theme = e.target.value; audit(); });
@@ -617,7 +623,7 @@ function audit(){ const frame = document.querySelector('.window'), box = frame.g
   const cs = getComputedStyle(root), rows = AUDIT.map(([fg, bg, label, kind]) => { const a = parse(cs.getPropertyValue(fg)), b = parse(cs.getPropertyValue(bg)), r = (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05), need = kind === 'text' ? 4.5 : 3; return { label, fg, bg, kind, r, need, req: kind !== 'decorative', pass: r >= need }; });
   $('audit-rows').innerHTML = rows.map(r => `<tr><td>${r.label} <span class="muted">(${r.fg} on ${r.bg} · ${r.kind})</span></td><td>${r.r.toFixed(2)}:1</td><td class="${r.req ? (r.pass ? 'pass' : 'fail') : 'muted'}">${r.req ? (r.pass ? 'PASS' : 'FAIL') + ` (needs ${r.need}:1)` : 'not required (decorative)'}</td></tr>`).join('');
   const k = scaleK(), vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('.hidden') && !e.closest('[inert]') && !e.closest('[data-shown="false"]'); };
-  const html = [...frame.querySelectorAll('button:not(.split), input, select')].filter(e => vis(e) && !e.disabled), canvas = [...frame.querySelectorAll('svg g[role="button"]')].filter(vis).map(g => ({ el:g, r:(g.querySelector('.hit') || g).getBoundingClientRect() })), splits = [...frame.querySelectorAll('.split')].filter(vis);
+  const html = [...frame.querySelectorAll('button:not(.split), input, select')].filter(e => vis(e) && !e.disabled), canvas = [...frame.querySelectorAll('svg g[role="button"]')].filter(vis).map(g => ({ el:g, r:(g.querySelector('.hit') || g).getBoundingClientRect() })), splits = [...frame.querySelectorAll('[role="separator"]')].filter(vis);
   const small = [...html.map(e => ({ el:e, r:e.getBoundingClientRect() })), ...canvas].filter(o => o.r.width/k < 24 - .01 || o.r.height/k < 24 - .01);
   $('audit-targets').textContent = small.length ? `${small.length} target(s) under 24×24 CSS px: ` + small.map(o => o.el.getAttribute('aria-label') || o.el.textContent.trim().slice(0, 24)).join(' · ') : `All ${html.length} controls and ${canvas.length} canvas targets meet 24×24 CSS px. ${splits.length} splitter(s) use the equivalent-control exception (pane menu → Size).`;
   $('audit-count').textContent = `Visible controls: ${html.length}; canvas targets: ${canvas.length}; splitters: ${splits.length}.`;
