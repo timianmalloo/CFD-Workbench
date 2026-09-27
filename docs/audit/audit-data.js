@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:40:11Z",
+  "generated": "2026-09-27T16:48:02Z",
   "audit": [
     {
       "actor": null,
@@ -18645,118 +18645,205 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3HTAVN0MWAVFCF3KMB4M6QV",
-      "shortname": "join-r0",
-      "datetime": "2026-09-27T16:14:24Z",
-      "session": "fbfa35dc",
-      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "design-app-shell flags cleared on spec, ADR-0009, architecture; DR rows carry Ruling 53; OI-S1 N/A still open recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "clear review flags before the first product merge",
+      "datetime": "2026-09-27T16:14:24Z",
       "done_when": "merged; gates green",
-      "tier": "T1",
+      "duration_seconds": 33.0,
       "fan_out": 0,
+      "goal": "clear review flags before the first product merge",
+      "id": "al-01M3HTAVN0MWAVFCF3KMB4M6QV",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-r0",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-27T16:13:51Z",
-      "duration_seconds": 33.0
+      "summary": "design-app-shell flags cleared on spec, ADR-0009, architecture; DR rows carry Ruling 53; OI-S1 N/A still open recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3HTZ5Y5QZ1TSVJCQJTA28H6",
-      "shortname": "ruling-54-amend",
-      "datetime": "2026-09-27T16:25:30Z",
-      "session": "fbfa35dc-amend",
-      "prompt": "Apply Ruling 54 to docs/coordination/app-shell-build.md and docs/design/app-shell.md per docs/reviews/test-ci-waste.md §5 (P1-P6); set plan status accepted; mark R0/S8 done with merge commits.",
-      "summary": "Applied Ruling 54 (P1-P6) to docs/coordination/app-shell-build.md and docs/design/app-shell.md; set plan status accepted (Ruling 52); marked R0/S8 done with merge commits.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/app-shell-build.md",
         "docs/design/app-shell.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Apply Ruling 54 (docs/notes/rulings.md) — the six test/CI plan-ceremony patches P1-P6 from docs/reviews/test-ci-waste.md §5 — to docs/coordination/app-shell-build.md and docs/design/app-shell.md, citing \"(Ruling 54)\" at each change; also set the plan's frontmatter status to accepted (Ruling 52) and mark R0/S8 done with their merge commits in the Status table.",
+      "datetime": "2026-09-27T16:25:30Z",
       "done_when": "verify-ruling-citations.py exits 0 and tools/check-docs.py exits 0 on the amended docs/coordination/app-shell-build.md and docs/design/app-shell.md, and the patches are committed.",
-      "tier": "T1",
-      "fan_out": 0,
-      "started_at": "2026-09-27T16:17:38Z",
       "duration_seconds": 472.0,
+      "fan_out": 0,
       "git": {
-        "sha": "bcf7d509a0079964cfaf460778797dbe03ed5f7c",
-        "short": "bcf7d509a",
         "branch": "feature/ui-cad-direction",
-        "pushed": false
-      }
+        "pushed": false,
+        "sha": "bcf7d509a0079964cfaf460778797dbe03ed5f7c",
+        "short": "bcf7d509a"
+      },
+      "goal": "Apply Ruling 54 (docs/notes/rulings.md) — the six test/CI plan-ceremony patches P1-P6 from docs/reviews/test-ci-waste.md §5 — to docs/coordination/app-shell-build.md and docs/design/app-shell.md, citing \"(Ruling 54)\" at each change; also set the plan's frontmatter status to accepted (Ruling 52) and mark R0/S8 done with their merge commits in the Status table.",
+      "id": "al-01M3HTZ5Y5QZ1TSVJCQJTA28H6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Apply Ruling 54 to docs/coordination/app-shell-build.md and docs/design/app-shell.md per docs/reviews/test-ci-waste.md §5 (P1-P6); set plan status accepted; mark R0/S8 done with merge commits.",
+      "session": "fbfa35dc-amend",
+      "shortname": "ruling-54-amend",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T16:17:38Z",
+      "summary": "Applied Ruling 54 (P1-P6) to docs/coordination/app-shell-build.md and docs/design/app-shell.md; set plan status accepted (Ruling 52); marked R0/S8 done with merge commits.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3HVP6ZT0715K9TZ62K6XENF",
-      "shortname": "g0-shell-glue",
-      "datetime": "2026-09-27T16:38:05Z",
-      "session": "track-g0",
-      "prompt": "Track G0 of docs/coordination/app-shell-build.md (Ruling 54): freeze LayoutDocument (§3.4), the Core Run() lines + empty C1/P1 classes, the Desktop Check helper + --shell-model/--controller-shell/--shell-window spawns + empty classes, and tools/check-named-tests.py with a red-first --self-test. Contract: scratchpad tracks/G0.md.",
-      "summary": "LayoutDocument.cs landed as §3.4 (probe: semantic-equal, byte round trip, integer/unknown enum and unknown member refused). Core Run() lines + 4 empty classes; Desktop DesktopChecks.Check/ExitCode/Spawn + 3 spawned suites + 3 empty classes; Desktop stays out of run-tests.sh named set until its first names land. check-named-tests.py: self-test red 5/7 (no-track, glob) then green 7/7; real-design counts equal the plan (C1 14, P1 23, D1 12, D2 21, D3a 32, D4 26). run-tests.sh exit 0 (wall 31 s); check-docs exit 0. BLOCKED: the planted failing check in a spawned suite was denied by the permission classifier, so that red run is not recorded (Inferred only). Finding for P1: MaxDepth=8 on serializer options makes Serialize of the §3.4 example throw; reader depth 8 is fine. Proof: docs/proof/g0-red-runs.md.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": "Claude Opus 5.5 (sub-agent)",
       "artifacts": [
         "src/CfdWorkbench.Persistence/LayoutDocument.cs",
         "tools/check-named-tests.py",
         "docs/proof/g0-red-runs.md"
       ],
-      "tags": [],
-      "outcome": "partial",
       "compiled": false,
-      "goal": "Freeze the G0 interfaces: LayoutDocument, harness spawn lines with empty classes, named-test checker",
+      "datetime": "2026-09-27T16:38:05Z",
       "done_when": "run-tests.sh 0; check-named-tests --self-test 0 with both plants red first; planted-suite red run recorded; LayoutDocument equals §3.4; check-docs 0; conventional commits",
-      "tier": "T2",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": false
-      },
-      "started_at": "2026-09-27T16:27:15Z",
       "duration_seconds": 650.0,
+      "fan_out": 0,
       "git": {
-        "sha": "b41feae63db1418f8f64bd00e390a5ada5becd0c",
-        "short": "b41feae63",
         "branch": "g0-shell-glue",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "b41feae63db1418f8f64bd00e390a5ada5becd0c",
+        "short": "b41feae63"
+      },
+      "goal": "Freeze the G0 interfaces: LayoutDocument, harness spawn lines with empty classes, named-test checker",
+      "id": "al-01M3HVP6ZT0715K9TZ62K6XENF",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Track G0 of docs/coordination/app-shell-build.md (Ruling 54): freeze LayoutDocument (§3.4), the Core Run() lines + empty C1/P1 classes, the Desktop Check helper + --shell-model/--controller-shell/--shell-window spawns + empty classes, and tools/check-named-tests.py with a red-first --self-test. Contract: scratchpad tracks/G0.md.",
+      "session": "track-g0",
+      "shortname": "g0-shell-glue",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-27T16:27:15Z",
+      "summary": "LayoutDocument.cs landed as §3.4 (probe: semantic-equal, byte round trip, integer/unknown enum and unknown member refused). Core Run() lines + 4 empty classes; Desktop DesktopChecks.Check/ExitCode/Spawn + 3 spawned suites + 3 empty classes; Desktop stays out of run-tests.sh named set until its first names land. check-named-tests.py: self-test red 5/7 (no-track, glob) then green 7/7; real-design counts equal the plan (C1 14, P1 23, D1 12, D2 21, D3a 32, D4 26). run-tests.sh exit 0 (wall 31 s); check-docs exit 0. BLOCKED: the planted failing check in a spawned suite was denied by the permission classifier, so that red run is not recorded (Inferred only). Finding for P1: MaxDepth=8 on serializer options makes Serialize of the §3.4 example throw; reader depth 8 is fine. Proof: docs/proof/g0-red-runs.md.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     },
     {
-      "id": "al-01M3HVT1TJ0DVJAKZ8YAYBBB9S",
-      "shortname": "join-g0",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/g0-red-runs.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-27T16:40:11Z",
-      "session": "fbfa35dc",
+      "done_when": "merged; fast gates green",
+      "duration_seconds": 34.0,
+      "fan_out": 0,
+      "goal": "freeze interfaces for the app-shell tracks",
+      "id": "al-01M3HVT1TJ0DVJAKZ8YAYBBB9S",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of g0-shell-glue into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-g0",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T16:39:37Z",
       "summary": "LayoutDocument v1 frozen; empty track suites + spawn lines; check-named-tests.py self-test red-first; spawned-suite red proof moved to D1's red-first run (classifier refused the plant); measured 642 s vs 2.5 h box recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "agent_runs": [
+        {
+          "agent": "test-architect",
+          "duration_seconds": 180.0,
+          "ended_at": "2026-09-27T16:42:00Z",
+          "started_at": "2026-09-27T16:39:00Z"
+        }
+      ],
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T16:45:23Z",
+      "done_when": "gate exit 0 well under 300 s measured; red-first plant caught; run-tests.sh 0; check-docs 0; F2 resolved; TEST-COST updated",
+      "duration_seconds": 1090.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "fix/core-gate-cost",
+        "pushed": null,
+        "sha": "9825f4b5a89cfb713469327993f368d551eabffa",
+        "short": "9825f4b5a"
+      },
+      "goal": "Make the core gate fit well under its 300 s limit without weakening what it proves (F2)",
+      "id": "al-01M3HW3JTH4BK4KN40XDJM380K",
+      "kind": "skill",
+      "outcome": "success",
+      "parallelism": {
+        "agent_seconds": 180.0,
+        "peak_concurrency": 1,
+        "span_seconds": 180.0,
+        "speedup": 1.0
+      },
+      "persona_yield": [
+        {
+          "accepted": 3,
+          "persona": "test-architect",
+          "raised": 4
+        }
+      ],
+      "prompt": "First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-coregate --skill implement`\nExport `AGENT_SESSION=track-coregate AGENT_WI=COREGATE` in every shell call.\nTree: /Users/mallalieut/projects/CFD-Workbench-fix-core-gate-cost (branch fix/core-gate-cost). Work only there, using absolute paths. Never call EnterWorktree. Never push.\n\n## Observed\nThe readiness ring on 06a5bf0 failed with: `verify-application-core.py … 300.0 s ran past 300 s (killed with its children)`. No crash occurred.\n\n`tools/verify-application-core.py` (222 lines) runs the **whole** Core suite (236 tests, about 28 s per run) roughly 9 times:\n- 3 umasks (0, 0o22, 0o77) on the debug build (L184–186);\n- one publish, then 3 umasks on the published build (L189–196);\n- once more at L203;\n- 2 isolated variants, \"missing\" and \"unloadable\" (L208–217).\n\nThe test/CI review recorded this as finding F2 (\"the core gate re-runs the whole Core suite 8 extra times\"); see docs/reviews/test-ci-waste.md.\n\n## Goal\nMake the core gate fit well under its 300 s limit without weakening what it proves.\n\nEstablish what each repeated run proves before changing anything. Read the gate, its receipt fields, and the tests that read the umask, file modes, the native store (`libcfd_store`) or the capability probe:\n- `ProjectStoreTests.cs`\n- anything using `CFD_NATIVE_CAPABILITY_PROBE` / `CFD_OWNER_STRIPPING_*`\n\nExpected shape (confirm or refute it with evidence; do not assume it):\n- Only the store and permission tests depend on the umask and the native/isolated variants.\n- The rest of the suite is umask-independent, and it already runs once in `tools/run-tests.sh`.\n\nThen:\n- Run the full suite once per build shape (debug and published).\n- Run only the umask- and native-sensitive subset under the other masks and variants.\n- If the Core harness has no subset selector, add the smallest one, e.g. an env var or `--only <prefix>` read in the harness `Main`. It must print PASS lines only for what it ran. A selector that matches nothing must fail, not pass empty; that is the HARNESS-SILENT-EXIT shape.\n- Keep the receipt fields. If a field changes meaning, say so in the receipt.\n\n## Rules\n- Cheaper is never weaker. Before the change, list each run → the property it proves → the tests that exercise that property. After the change, show that the same list is still covered.\n- Red-first: plant a store-permission defect that only shows under umask 0o77, and show the new gate still catches it. For example, temporarily make the store create files world-readable. Record the red run, then remove the plant.\n- Measure the gate's wall time before (use the 300 s kill as the \"before\" if a full run is too long) and after.\n- Convene `test-architect` once, adversarially, with the Agent tool. It holds a hard veto. At most 2 repair cycles.\n\n## Done when\n- `python3 tools/verify-application-core.py` exits 0 in well under 300 s, with the measured time stated.\n- The red-first plant was caught.\n- `tools/run-tests.sh` exits 0.\n- `python3 tools/check-docs.py` exits 0.\n- F2 is marked resolved in docs/reviews/test-ci-waste.md with before → after numbers.\n- The TEST-COST class entry in docs/lessons/defect-classes.md is updated if the control changes.\n- Conventional commits, each ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n- The audit entry is appended.\n\n## Not in scope\n- The G0 track and its files: LayoutDocument.cs, IdentityTests.cs Run() lines, WorkbenchTests.cs, check-named-tests.py. A parallel track owns them.\n- The adapters gate.\n- run-tests.sh budget rules.\n- Pushing.\n\n## Owned paths\n- `tools/verify-application-core.py`\n- The Core harness entry point (`tests/CfdWorkbench.Core.Tests/Program.cs` or wherever `Main` lives), for the selector only. If `Main` is in `IdentityTests.cs`, add the selector without touching its `Run()` lines: G0 owns those. If that is impossible, stop and raise it in your Return as a seam request.\n\n## Budget\nTier T2 · fan-out 1 · box: no measured same-class prior → 90 min, record the measured time (Ruling 54 P1) · 100 tool calls · 300k tokens.\n\nShell: never pipe a gate's status. A multi-line program goes in a file, then gets run.\n\n## Return (≤180 words)\n- run → property map, before and after;\n- the selector design;\n- the red-first evidence;\n- wall time before → after;\n- gate exit codes;\n- SHAs;\n- any seam request.",
+      "session": "track-coregate",
+      "shortname": "coregate-f2-core-gate-cost",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-09-27T16:27:13Z",
+      "summary": "Core gate 302 s -> 87-90 s. Full suite once per build shape (Debug, published) at umask 0022; the 32 store checks alone at 0000/0077 and single checks for owner-stripping/missing/unloadable via new CFD_TEST_ONLY harness selector (unmatched prefix fails). Gate STORE-SUBSET guards: selectable store names, partition scan, exact source-named store PASS set per run. Red: 0077-only fchmod 0644 plant caught (20 FAIL); silent skip at 0000 caught; selector negatives exit 1. Test Architect PASS-with-conditions; 3 fixed, run-tests.sh unset raised as seam.",
+      "tags": [
+        "TEST-COST",
+        "F2"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M3HW8DK46D7GZ57WF65A7H67",
+      "shortname": "join-coregate",
+      "datetime": "2026-09-27T16:48:02Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/core-gate-cost into feature/ui-cad-direction",
+      "summary": "core gate 302s->88s verified; umask/native variants run the 32 store checks via CFD_TEST_ONLY; FAIL SELECTOR on empty match; STORE-SUBSET guard; 0077 plant and silent-skip plant caught red-first; seam: run-tests.sh should unset CFD_TEST_ONLY etc. (after D1) recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/g0-red-runs.md"
+        "docs/reviews/test-ci-waste.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "freeze interfaces for the app-shell tracks",
+      "goal": "bring the core gate under its 300 s limit without weakening it",
       "done_when": "merged; fast gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -18765,7 +18852,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-27T16:39:37Z",
+      "started_at": "2026-09-27T16:47:28Z",
       "duration_seconds": 34.0
     }
   ],
