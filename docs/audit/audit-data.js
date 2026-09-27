@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T02:53:56Z",
+  "generated": "2026-09-27T03:11:05Z",
   "audit": [
     {
       "actor": null,
@@ -18371,6 +18371,30 @@ window.AUDIT_DATA = {
       "done_when": "app-shell.md complete per brief; gate vetoes cleared by their lenses within 2 cycles; rollups, index, V16 flags; check-docs exit 0; audit + change entries; one docs: commit",
       "started_at": "2026-09-27T02:18:31Z",
       "duration_seconds": 2125.0
+    },
+    {
+      "id": "al-01M3GDGHY1DRQM9C216DZFSPWN",
+      "shortname": "coordination-app-shell-build",
+      "datetime": "2026-09-27T03:11:05Z",
+      "session": "fbfa35dc-prepare",
+      "prompt": "Goal: run the `/prepare-for-coordination` skill to derive, from spec rev 1.6, the updated architecture and the app-shell design, the division of the app-shell build (and the pending section-editor M1.1b follow-ups) across sessions and harnesses with maximum parallelism and minimum contention, and emit the plan.\nDone when: the coordination layer is on per the skill; the plan is committed as the skill's md + html pair; it assigns tracks with exclusive file/artifact ownership, dependencies, join points and gates, and names harness + model per track under the operator's standing allocation — Leader and Coordinator: Claude Code Opus 5.5; Owner: Claude Code Fable; coding: Grok (`grok-4.7`, `grok-4.7-build-fast` for routine) and Agy (`gemini-3.8-flash-high`, briefs must say \"foreground only; no background processes\"); Codex only as fallback on `gpt-6-sol`; design, UI and high-level decisions stay in Claude Code; simple Claude-side edits on Sonnet; every delegation carries a compiled prompt for its target harness; repair loops are capped at 2 cycles and `tools/check-spiral.py` is a join gate; the plan includes the spike from the architecture run (OS-window floats on mixed-DPI dual monitors, macOS + Windows) as an early, time-boxed track whose result gates the docking tracks; `python3 tools/check-docs.py` exits 0; audit entry appended; committed.\nNot in scope: starting any track, creating track worktrees beyond what the skill requires to turn coordination on, pushing, merging to main.\nTier: T2 · Fan-out cap: 2 · Context ceiling: 400k · Main-line budget: 200 tool calls.\n\n## Where\nOnly in `/Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction` (branch `feature/ui-cad-direction`). Invoke the skill with the Skill tool (`prepare-for-coordination`); read its reference files once. Multi-line programs go in files; never pipe a gate's exit status.\n\n## Sources of truth\n`docs/specs/cfd-workbench-v1.md` (rev 1.6), `docs/architecture/application.md` + new ADRs, `docs/design/app-shell.md`, `docs/design/section-editor.md` (M1.1b and B6 deferral), `docs/lessons/defect-classes.md` (COORD-SPIRAL, HARNESS-SILENT-EXIT and the join lessons), `AGENTS.md` project section (repair cap), memory of harness commands is in the operator's notes — use: `grok --cwd <wt> -m grok-4.7 --always-approve --no-subagents --output-format plain -p \"$(cat brief.md)\"` and `cd <wt> && agy --model gemini-3.8-flash-high --dangerously-skip-permissions --print-timeout 70m -p \"$(cat brief.md)\"`; tests run with `tools/run-tests.sh` (not `dotnet test`).\n\n## Return (final message only, ≤ 300 words)\nThe tracks (name · owner files · harness/model · depends on), the critical path, join gates, the plan file paths, commit SHA.\n\n## Inputs are final — they win over this brief where they differ\n- Spec 1.6 `f56d259`; architecture + ADR-0005..0009 `6301eb9` (slices M1.2a–e in application.md §10.6); app-shell design `494aef2` (`docs/design/app-shell.md` — its track table S8 · G0 · U1 · C1 · P1 · D1 · D2 · D3a · D4 with file ownership and test commands is the starting decomposition; do not re-decompose what it settles, only schedule and assign it).\n- Scope of this plan: the app-shell build (M1.2a shell + M1.2e). M1.2b–d have no design yet — list them as later waves gated on their own /design-slice and on operator decisions DR-9 (M1.2b) and DR-11 (M1.2c); do not plan their tracks. The spike from the architecture is superseded by the design's gates: S8 runs before G0; S1 gates freezing the layout format; S6/S7 gate the M1.2e merge; S1–S7 need hardware or Windows the Mac session lacks — plan them as operator-run or deferred, never as done.\n- Open decision requests with defaults (DR-2, 6, 7, 8, 9, 10, 11, DR-S1, DR-S2): the plan names which track each one gates.\n- The spec, ADR-0009 and the architecture carry review-suggested flags from the design run; the plan includes a small Claude track to clear them before the first merge.\n- Session id for the start marker: fbfa35dc-prepare.",
+      "summary": "docs/coordination/app-shell-build.md + .html: the design's tracks S8, G0, C1, P1, D1, D2, D3a, D4 and U1 plus R0 (review flags) and OP-S (operator spikes), scheduled over a serial spine (O1 Owner rulings, S8, G0, D3a, M1.2c merged before D4, S6/S7 before the D4 merge) and two coding lanes (A: C1 Grok then D2 Agy; B: D1 Agy then P1 Grok) with a width cap of 2. Seams 1-7 (G0 test stubs; ICommand-only D1; the --shell-float handover; recent rows in D3a). GO14a guards; DR gating table; M1.2b-d, B6 and the DatImport A4.6 acceptance fix placed in later waves. Struck: the mixed-DPI spike track, a third lane, a separate inventory track, a D3a split, B6 now, the DatImport fix now. Gate: Test Architect and Simplifier cleared after 1 of 2 cycles. Finding: coord classify init from a linked worktree wrote the primary checkout (reverted). tools/render-coordination-plan.mjs takes PLAN and PLAN_DATE (default output byte-identical).",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/app-shell-build.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Derive and emit the coordination plan for the app-shell build (M1.2a shell + M1.2e) from spec 1.6, the architecture and the app-shell design",
+      "done_when": "coordination layer measured; md + html plan committed with tracks, exclusive ownership, dependencies, joins, gates, harness and model per track; check-docs exit 0; audit entry appended",
+      "tier": "T2",
+      "fan_out": 2,
+      "started_at": "2026-09-27T02:54:55Z",
+      "duration_seconds": 970.0
     }
   ],
   "changes": [

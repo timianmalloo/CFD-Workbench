@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="b9a33f71737bd2125d67b7acf3e1bb6a2391964137e5399a7a564b76e7beec36">
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
+body{margin:0;background:Canvas;color:CanvasText}
+main{max-width:1180px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2,h3{line-height:1.2;margin:2rem 0 .7rem}h1{font-size:2rem}h2{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding-bottom:.4rem}
+a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
+code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
+header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="app-shell-build.md">app-shell-build.md</a> · 27 September 2026</p></header>
+<h1>Coordination plan: the app-shell build</h1>
+<ul>
+<li><strong>Scope:</strong> the app-shell build, meaning the shell parts of M1.2a and all of M1.2e
+(<a href="../design/app-shell.md">design</a> §14, <a href="../architecture/application.md">architecture</a> §10.6). The design&#39;s track table
+(S8 · G0 · C1 · P1 · D1 · D2 · D3a · D4 · U1) is the decomposition. This plan schedules and assigns it; it does not
+re-cut it. M1.2b–d and the M1.1b follow-ups appear only as gated later waves.</li>
+<li><strong>Inputs (final):</strong> spec 1.6 <code>f56d259</code>; architecture §10 and ADR-0005–0009 <code>6301eb9</code>; app-shell design <code>494aef2</code>.</li>
+<li><strong>Seats:</strong> Leader and Coordinator = Claude Code Opus 5.5, session <code>fbfa35dc</code> (the main session). Owner = Claude Code
+Fable, seat <code>cfd-owner-fbfa35dc</code>. <code>assume:</code> that is the session id the Coordinator gives the Owner when it spawns
+it. Confirm with <code>coord session list</code> at step 2. If it differs, change the one &quot;rules&quot; string in Track detail. The
+Owner rules into <code>docs/notes/rulings.md</code> (class <code>register</code>). The Owner never authors track code or clears its own veto.</li>
+<li><strong>Author:</strong> <code>/prepare-for-coordination</code> sub-agent <code>fbfa35dc-prepare</code>, 2026-09-27. Git before: <code>494aef2</code>.</li>
+</ul>
+<p>Labels: <strong>Verified</strong> = observed in this run; <strong>Inferred</strong> = reasoned, not observed; <strong>Flagged</strong> = observed but suspect.</p>
+<h2>Layer state</h2>
+<p>Measured with <code>coord doctor</code> in this tree on 2026-09-27 (exit 1), <code>pack-doctor.py --json</code> (20 PASS · 2 WARN · 0 FAIL)
+and <code>coord session list</code> (0 active sessions, 71 files scanned).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>registry</td>
+<td>ok - 8 pattern(s)</td>
+<td><code>.agents/artifacts.yml</code> is present and parses. Anything not listed stays <code>authored</code></td>
+</tr>
+<tr>
+<td>merge driver</td>
+<td>effective - coord-regen, coord-register declared and registered</td>
+<td>derived files regenerate and registers union-merge at every join. It was installed <strong>once, in the primary checkout</strong>. Each worktree <strong>inherits</strong> it through the shared <code>.git/config</code> and <code>.git/hooks</code>. Never run <code>coord install</code> in a track tree</td>
+</tr>
+<tr>
+<td>regeneration</td>
+<td>1 artifact OWED, then <code>coord regen</code> rendered <code>docs/audit/audit-data.js</code> (338 audit + 25 change entries)</td>
+<td>cleared in this tree. The regenerated file is committed with this plan</td>
+</tr>
+<tr>
+<td>leader</td>
+<td>EXPIRED 126137 s ago (epoch 29, was <code>fbfa35dc</code>)</td>
+<td>no live designation. Order of operations step 1 pins it</td>
+</tr>
+<tr>
+<td>heartbeat</td>
+<td>5 sessions, newest beat 162731 s ago; 0 live</td>
+<td>no track is running. Nothing is held</td>
+</tr>
+<tr>
+<td>requests</td>
+<td><strong>FAIL</strong> <code>COORD-REQUEST-SILENT-EXPIRY</code>: <code>req-01M3BWBXBGBHHTKCC9ZBRCT2S2</code> is past its deadline with no outcome</td>
+<td>step 1 runs <code>coord request expire</code>, which records the fallback as the outcome. This is the Coordinator&#39;s action, not this run&#39;s</td>
+</tr>
+<tr>
+<td>lease overlap</td>
+<td>none (0 live leases)</td>
+<td>no contention now</td>
+</tr>
+<tr>
+<td>harness capability</td>
+<td>claude edit boundary &quot;enforcing&quot; (spike S5, 2026-08-24, <strong>not measured here</strong>); copilot &quot;historical&quot;</td>
+<td>see Harness qualification and the pre-commit floor row</td>
+</tr>
+<tr>
+<td>pack-doctor <code>doorbells</code></td>
+<td>not recorded (no <code>coord-mail.py dispatch</code> probe run)</td>
+<td>every track row carries doorbell = not recorded</td>
+</tr>
+<tr>
+<td>pack-doctor WARN</td>
+<td>copilot <code>contextTier=long_context</code>; knowledge graph has stale or flagged nodes</td>
+<td>not on this plan&#39;s path, except the three <code>design-app-shell</code> flags, which R0 clears because the brief requires them cleared before the first merge</td>
+</tr>
+<tr>
+<td>pre-commit floor</td>
+<td><code>.git/hooks/pre-commit</code> runs <code>coord-core.py precommit</code> from the primary checkout</td>
+<td>Verified present, but <strong>advisory unless <code>AGENT_SESSION</code> is set</strong>. This run&#39;s own commit printed &quot;advisory: AGENT_SESSION is unset, so nothing was checked.&quot; So every dispatch exports <code>AGENT_SESSION=&lt;track session&gt;</code> (and <code>AGENT_WI=&lt;track&gt;</code>) in the worktree shell before it runs the harness command. Whether an external harness passes that environment to its <code>git commit</code> is <strong>not assessed</strong>, so the Leader&#39;s branch read stays the real control</td>
+</tr>
+</tbody></table></div>
+<p><strong>Finding (Flagged, for the Coordinator&#39;s defect register):</strong> <code>coord classify init --force</code> run from this linked worktree
+wrote the <strong>primary checkout&#39;s</strong> <code>.agents/artifacts.yml</code>. It also regenerated <code>docs/audit/audit-data.js</code>,
+<code>docs/docs-index.js</code> and <code>docs/audit/index.html</code> there. All four files had the same mtime (19:55:29 local), which was
+the second of this run&#39;s command, so they were this run&#39;s writes. They were restored with <code>git checkout --</code> in the primary
+checkout, which is now back to <code>?? .agents/log/</code> only. Class: a coordination command resolves the primary checkout from a
+linked worktree and writes there. Rule for this plan: <strong>no track runs <code>coord classify</code> or <code>coord install</code>.</strong> The
+Coordinator runs them only in the primary checkout. Registering this class and building its control belongs to the
+Coordinator. This run did neither.</p>
+<h2>Artifact classes</h2>
+<p>Classes are read from <code>.agents/artifacts.yml</code> in this tree. Each derived command was run in this tree during this run:
+<code>coord regen</code> ran the audit render, and <code>docs-graph.py derive</code> ran at emit.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>path / pattern</th>
+<th>class</th>
+<th>mechanism</th>
+<th>coordination needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docs/docs-index.js</code></td>
+<td>derived</td>
+<td><code>python docs/ai-forward-pack/scripts/docs-graph.py derive</code> via the coord-regen driver</td>
+<td><strong>none</strong>: any track that edits frontmatter regenerates it, and the join regenerates it again</td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-data.js</code>, <code>docs/audit/index.html</code></td>
+<td>derived</td>
+<td><code>python docs/ai-forward-pack/scripts/audit-log.py --root docs --project CFD-Workbench render</code></td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-log.jsonl</code>, <code>docs/audit/change-log.jsonl</code></td>
+<td>register</td>
+<td>union merge (coord-register)</td>
+<td><strong>none</strong>: every track appends its own audit entry</td>
+</tr>
+<tr>
+<td><code>docs/notes/rulings.md</code></td>
+<td>register</td>
+<td>union merge</td>
+<td><strong>none</strong>: only the Owner appends</td>
+</tr>
+<tr>
+<td><code>.agents/log/*.jsonl</code>, <code>.agents/requests.jsonl</code></td>
+<td>register</td>
+<td>union merge</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>.tmp-tests/</code></td>
+<td>ignored (<code>.gitignore</code>:30)</td>
+<td>per-tree test logs read by <code>check-named-tests.py</code></td>
+<td><strong>none</strong>: never committed</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/packages.lock.json</code> (new, D3a)</td>
+<td>authored</td>
+<td>Kept authored on purpose. Regenerating a lock file resolves versions, so a merge driver would hide a pin change (STRIDE row &quot;a changed transitive package&quot;)</td>
+<td>one owner: D3a</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Core.Tests/Fixtures/layout/**</code></td>
+<td>authored</td>
+<td>golden fixtures are the assertion; nothing regenerates them</td>
+<td>one owner: P1</td>
+</tr>
+<tr>
+<td><code>docs/design/app-shell.md</code></td>
+<td>authored, <strong>frozen for the wave</strong></td>
+<td>the single authority <code>check-named-tests.py</code> reads</td>
+<td>Coordinator only, after an Owner ruling, and only serially (Serial spine)</td>
+</tr>
+<tr>
+<td><code>src/**</code>, <code>tests/**</code>, <code>tools/check-named-tests.py</code>, <code>DESIGN.md</code>, <code>docs/proof/**</code>, <code>docs/reviews/app-shell-native.md</code>, spec, ADR, architecture</td>
+<td>authored</td>
+<td>conventional conflict markers</td>
+<td><strong>one owner per file</strong>. See Tracks and Track detail</td>
+</tr>
+</tbody></table></div>
+<p>The only real contention is authored C# and AXAML. Every file has exactly one owner at a time. Four files change hands
+at a merge, never concurrently (Seams).</p>
+<h2>Tracks</h2>
+<p>Width cap: <strong>two concurrent delegated coding tracks</strong> (one Grok and one Agy), plus the Claude lane. Every track&#39;s test
+command follows the design&#39;s §14 wording: &quot;<code>tools/run-tests.sh</code> (exit 0), then `python3 tools/check-named-tests.py</p>
+<track>` (exit 0)". Named-check counts are simulated from §12.2's rule over §9 and §12.4. They are **Inferred** until
+G0's script lands: C1 14 · D1 12 · D2 21 · D3a 32 · D4 26 · P1 23.
+
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owns (authored)</th>
+<th>depends on</th>
+<th>tier</th>
+<th>fan-out cap</th>
+<th>budget</th>
+<th>exit evidence</th>
+<th>harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>R0 review flags</strong></td>
+<td><code>docs/specs/cfd-workbench-v1.md</code>, <code>docs/adr/0009-cad-first-shell-docking-and-menus.md</code>, <code>docs/architecture/application.md</code> (the <code>design-app-shell</code> <code>review-suggested</code> entries, and the rows those flags name)</td>
+<td>O1 rulings</td>
+<td>T1</td>
+<td>0</td>
+<td>40 calls · 150k tokens · 45 min</td>
+<td>the <code>design-app-shell</code> flags on the spec, ADR-0009 and the architecture are cleared through <code>docs-graph.py</code>. Each resolution cites an Owner ruling or an in-place edit. <code>python3 tools/check-docs.py</code> exit 0. R0 does not send OI-S1, which O1 sends</td>
+<td>Claude Code <strong>Sonnet</strong></td>
+</tr>
+<tr>
+<td><strong>S8 spike</strong></td>
+<td><code>docs/proof/cad-first-spikes/dock-split/</code> (probe + raw output)</td>
+<td>O1</td>
+<td>T1</td>
+<td>0</td>
+<td><strong>time box 1 h</strong> · 60 calls · 200k tokens</td>
+<td>probe source and raw output committed. Verdict: &quot;split drops blocked by <code>CanDrop</code>/capability overrides: yes or no&quot;. The G0 schema variant is named from it</td>
+<td>Claude Code <strong>Opus 5.5</strong> (this Mac)</td>
+</tr>
+<tr>
+<td><strong>G0 glue</strong></td>
+<td><code>src/CfdWorkbench.Persistence/LayoutDocument.cs</code>; <code>Run()</code> lines in <code>tests/CfdWorkbench.Core.Tests/IdentityTests.cs</code> + empty <code>WingEstimatesTests.cs</code>, <code>DimensionTests.cs</code>, <code>LayoutFileTests.cs</code>, <code>PreferenceStoreTests.cs</code>; the Desktop <code>Check</code> helper + spawn lines in <code>tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs</code> + empty <code>ShellModelTests.cs</code>, <code>ControllerShellTests.cs</code>, <code>ShellWindowTests.cs</code> (seam 1); <code>tools/check-named-tests.py</code></td>
+<td>S8 (and its design amendment, if any)</td>
+<td>T2</td>
+<td>0</td>
+<td>120 calls · 400k tokens · 2.5 h</td>
+<td><code>tools/run-tests.sh</code> exit 0. <code>check-named-tests.py --self-test</code> exit 0, and each of its two planted failures (no-track name, glob) was red first. A planted failing check in a spawned suite made <code>run-tests.sh</code> exit nonzero, and that red run is recorded. <code>LayoutDocument.cs</code> equals §3.4 (or the one-group shape if S8 says yes). <code>check-docs.py</code> exit 0</td>
+<td>Claude Code <strong>Opus 5.5</strong></td>
+</tr>
+<tr>
+<td><strong>C1 core estimates + Span</strong></td>
+<td><code>src/CfdWorkbench.Core/WingEstimates.cs</code>; <code>ApplyDimension</code> + <code>EditReference &quot;dimension&quot;</code> in <code>src/CfdWorkbench.Core/AuthoringSession.cs</code>; span patch in <code>src/CfdWorkbench.Core/FoilSource.cs</code>; <code>tests/CfdWorkbench.Core.Tests/WingEstimatesTests.cs</code>, <code>DimensionTests.cs</code></td>
+<td>G0</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded by the harness · 90 min</td>
+<td>the test command, with C1&#39;s 14 names PASS. The red-first <code>Receipt_Dimension_OldReaderRefusesDocReference</code> commit and its run log are in the proof pack before the <code>EditReference</code> change</td>
+<td>Grok <code>grok-4.7</code></td>
+</tr>
+<tr>
+<td><strong>D1 shell model</strong></td>
+<td><code>src/CfdWorkbench.Desktop/Shell/WorkspacePresets.cs</code>, <code>FloatFrame.cs</code>, <code>FloatPlacement.cs</code>, <code>ScreenSource.cs</code>, <code>FocusRing.cs</code>, <code>CommandTable.cs</code>, <code>ShellEvents.cs</code>, <code>FocusTargetEvents.cs</code>; <code>tests/CfdWorkbench.Desktop.Tests/ShellModelTests.cs</code></td>
+<td>G0</td>
+<td>T2</td>
+<td>0</td>
+<td>70 min (Agy <code>--print-timeout</code>) · tokens not recorded</td>
+<td>the test command, with D1&#39;s 12 names PASS. <code>CommandTable</code> references only BCL <code>System.Windows.Input.ICommand</code> (seam 2)</td>
+<td>Agy <code>gemini-3.8-flash-high</code></td>
+</tr>
+<tr>
+<td><strong>D2 controller</strong></td>
+<td><code>src/CfdWorkbench.Desktop/WorkbenchController.cs</code>, <code>Selection.cs</code>, <code>PropertiesView.cs</code>, <code>OpenOutcome.cs</code>; <code>tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs</code></td>
+<td>C1</td>
+<td>T2</td>
+<td>0</td>
+<td>70 min · tokens not recorded</td>
+<td>the test command, with D2&#39;s 21 names PASS, including <code>Open_CancelDuringPrepare_CurrentFoilUnchanged</code> (the as-built open-cancel hazard)</td>
+<td>Agy <code>gemini-3.8-flash-high</code></td>
+</tr>
+<tr>
+<td><strong>P1 preferences</strong></td>
+<td><code>src/CfdWorkbench.Persistence/LayoutCodec.cs</code>, <code>RecentList.cs</code>, <code>PreferenceStore.cs</code>; <code>tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs</code>, <code>PreferenceStoreTests.cs</code>, <code>Fixtures/layout/**</code>, <code>CfdWorkbench.Core.Tests.csproj</code></td>
+<td>G0</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · 90 min</td>
+<td>the test command, with P1&#39;s 23 names PASS. The three v2 rollback fixtures were red, then green, with both runs recorded (the Data &amp; Persistence condition)</td>
+<td>Grok <code>grok-4.7</code></td>
+</tr>
+<tr>
+<td><strong>D3a shell host (M1.2a)</strong></td>
+<td><code>src/CfdWorkbench.Desktop/Shell/ShellHost.cs</code>, <code>ShellLayout.cs</code>, <code>NativeMenuBuilder.cs</code>, <code>EditVerbRouter.cs</code>; <code>App.axaml(.cs)</code>, <code>MainWindow.axaml(.cs)</code>, <code>Styles.axaml</code>, <code>CfdWorkbench.Desktop.csproj</code> + <code>packages.lock.json</code>, <code>Program.cs</code>; <code>Panes/StartView.axaml(.cs)</code>, <code>Panes/PropertiesPane.axaml(.cs)</code>, <code>Panes/BrowserPane.axaml(.cs)</code>, <code>ModelArea.axaml(.cs)</code>, <code>SectionEditorView.axaml(.cs)</code>; <code>FocusedTargetChanged</code> raising in <code>Viewport.cs</code>, <code>SectionCanvas.cs</code>; <code>tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs</code>; <code>docs/proof/app-shell-test-inventory.md</code> + the ported and deleted rows of <code>WorkbenchTests.cs</code></td>
+<td>D1, D2, P1 (seam 7)</td>
+<td>T2</td>
+<td>0</td>
+<td>up to 3 dispatches × 70 min, each ending in a commit and a Return · tokens not recorded</td>
+<td><strong>checkpoint D3a-0:</strong> the inventory is committed before any source change and the Coordinator reviews it. Each ported row has a red run recorded on its ported copy (design §12.5). Then the test command with D3a&#39;s 32 names PASS, and <code>check-named-tests.py</code> fails if the ported-name column is empty. <code>Architecture_DockConfinedToShell</code> was red first with a planted <code>Dock.</code> reference, and that log is recorded. <code>dotnet restore --locked-mode</code> exits 0 (design §12.1 T3). <code>run-tests.sh</code> is run <strong>three times</strong> with identical <code>PASS</code> sets. <code>tools/verify-application-adapters.py</code> xaml-token-lint step clean</td>
+<td>Agy <code>gemini-3.8-flash-high</code></td>
+</tr>
+<tr>
+<td><strong>U1a UI judgement (M1.2a)</strong></td>
+<td><code>DESIGN.md</code> §7 COPY rows for §11&#39;s strings; <code>docs/reviews/app-shell-native.md</code> (M1.2a rows)</td>
+<td>D3a</td>
+<td>T1</td>
+<td>1 (UX &amp; A11y lens, Adversary Mode)</td>
+<td>80 calls · 300k tokens · 2 h, plus one operator session</td>
+<td><code>python3 tools/check-docs.py</code> exit 0. <code>python3 docs/ai-forward-pack/scripts/design-lint.py --strict DESIGN.md</code> clean. The native review holds attach proof (CO-UI-READY), not launch success. It includes the M1.2 entry-gate rendered/AX proof (architecture §10.6). If a native row cannot run in the session, it is recorded as operator-run and not done. <strong>U1a, and so M1.2a, stays open until the operator runs that row</strong></td>
+<td>Claude Code <strong>Opus 5.5</strong></td>
+</tr>
+<tr>
+<td><strong>D4 floats, workspaces, layouts (M1.2e)</strong></td>
+<td><code>Shell/ShellHost.cs</code>, <code>ShellLayout.cs</code> (handed over after D3a merges), <code>Shell/Maximize.cs</code>, <code>Shell/FocusSafeFloats.cs</code>, <code>Shell/PaneViewState.cs</code>; <code>tests/CfdWorkbench.Desktop.Tests/ShellFloatTests.cs</code>; the <code>--shell-float</code> spawn line in <code>WorkbenchTests.cs</code> (seam 3)</td>
+<td>P1, D3a, <strong>M1.2c merged</strong></td>
+<td>T2</td>
+<td>0</td>
+<td>up to 3 dispatches × 70 min · tokens not recorded</td>
+<td>the test command, with D4&#39;s 26 names PASS. <code>run-tests.sh</code> is run three times with identical <code>PASS</code> sets. OP-S&#39;s S6 and S7 single-monitor rows PASS from the packaged <code>.app</code> <strong>before merge</strong></td>
+<td>Agy <code>gemini-3.8-flash-high</code></td>
+</tr>
+<tr>
+<td><strong>U1e UI judgement (M1.2e)</strong></td>
+<td><code>DESIGN.md</code> §7 rows for the M1.2e strings; <code>docs/reviews/app-shell-native.md</code> (M1.2e rows: per-window menus with a float key, S6/S7 rows)</td>
+<td>D4</td>
+<td>T1</td>
+<td>1</td>
+<td>80 calls · 300k tokens · 2 h, plus one operator session</td>
+<td>as U1a, for M1.2e</td>
+<td>Claude Code <strong>Opus 5.5</strong></td>
+</tr>
+<tr>
+<td><strong>OP-S operator spikes</strong></td>
+<td><code>docs/proof/cad-first-spikes/</code> rows for S6, S7 (single-monitor), S2, S3</td>
+<td>a D4 build on its branch</td>
+<td>T1</td>
+<td>0</td>
+<td>ADR-0009 time boxes: S6 1 h · S7 2 h · S2 3 h · S3 1 h</td>
+<td><strong>operator-run, never marked done by an agent.</strong> S6 and S7 single-monitor rows gate D4&#39;s merge. S2 and S3 stay Inferred in the proof pack until run</td>
+<td>operator (hardware: a Retina display plus a 1× external display)</td>
+</tr>
+</tbody></table></div>
+<p>Deferred, not scheduled: <strong>S1</strong> (Windows 11), <strong>S4</strong> (Snap Layouts), <strong>S5 NVDA</strong>. The machine has no Windows host. S1&#39;s
+gate is quoted from ADR-0009 §Spikes: &quot;<strong>Run S1 before the layout file format is frozen</strong> (M1.2e)&quot;. The design (§3.5)
+bounds that gate: &quot;<strong>S1 gates freezing</strong> it for Windows (a new member → v2 with a v1 → v2 migration before any Windows
+build writes)&quot;. So v1 ships macOS-only in M1.2e, and S1 runs before any Windows build writes a layout file.</p>
+<h3>Track detail</h3>
+<p>Every track uses the same termination condition. It ends at its exit evidence. Or it ends when the <strong>2-cycle repair cap</strong>
+fires (AGENTS.md project section). At the cap the track stops and the Coordinator reports to the operator. It never
+issues a third cycle. A missing Return section, or a branch without the claimed commit, counts as a failed cycle
+(HARNESS-SILENT-EXIT). Seam requests go to the Coordinator with <code>coord request add</code>, and each needs a deadline and a
+fallback. Decision requests go to the Owner with <code>coord decide request --to cfd-owner-fbfa35dc</code>. Every row carries the
+leader epoch that step 1 reads back (<code>assume:</code> 30, which is 29 + 1 after <code>coord leader pin</code>; <code>coord leader who</code> confirms
+it). Doorbell for every row: <strong>not recorded</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owner seat</th>
+<th>rules (Owner)</th>
+<th>seam requests expected</th>
+<th>deadline (wall from dispatch)</th>
+<th>fallback</th>
+<th>lane</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R0</td>
+<td>Claude Sonnet sub-agent</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none. If a flag needs a spec decision beyond O1, it becomes a decision request</td>
+<td>45 min</td>
+<td>Opus 5.5 takes the leftover flags</td>
+<td>Claude</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>Claude Opus sub-agent</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none</td>
+<td>1 h (hard)</td>
+<td>undecided at 1 h → S8 is recorded <strong>not done</strong>, and the Owner rules the schema before G0. The default is the design&#39;s <code>groups</code> shape. What is Verified is that validation cannot be overridden (design §3.4). Whether <code>CanDrop</code> or capability overrides block splits is <strong>Not assessed</strong> (design §5.2)</td>
+<td>Claude</td>
+</tr>
+<tr>
+<td>G0</td>
+<td>Claude Opus sub-agent</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none (it owns all the glue)</td>
+<td>2.5 h</td>
+<td>Coordinator finishes it inline. G0 is serial, so a second sub-agent saves nothing</td>
+<td>Claude</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>Grok session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>C1 → G0: <code>IdentityTests.cs</code> <code>Run()</code> line shape</td>
+<td>90 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle</td>
+<td>A</td>
+</tr>
+<tr>
+<td>D1</td>
+<td>Agy session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none</td>
+<td>70 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle</td>
+<td>B</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>Agy session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>D2 → C1 (merged): <code>WingEstimates</code> members</td>
+<td>70 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle</td>
+<td>A</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Grok session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>P1 → G0: any <code>LayoutDocument</code> change is a schema change (serial; Owner)</td>
+<td>90 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle</td>
+<td>B</td>
+</tr>
+<tr>
+<td>D3a</td>
+<td>Agy session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>D3a → D1 or D2 (both merged): member gaps. D3a → U1: string mismatches</td>
+<td>3 × 70 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle. A continuation dispatch that returns with a commit is not a repair cycle</td>
+<td>A</td>
+</tr>
+<tr>
+<td>U1a / U1e</td>
+<td>Claude Opus sub-agent + operator</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>U1 → D3a or D4: AXAML string fixes (a Sonnet edit after merge)</td>
+<td>2 h</td>
+<td>native rows recorded &quot;operator-run, not done&quot;. U1 and its slice stay open until the operator runs them</td>
+<td>Claude</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Agy session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>seam 3; D4 → controller owner at that time (M1.2c merged)</td>
+<td>3 × 70 min</td>
+<td>Codex <code>gpt-6-sol</code> as cycle 2 only when cycle 1 failed from a harness fault (stall, silent exit, no Return); a code fault repeats on the same harness. No third cycle. A continuation dispatch that returns with a commit is not a repair cycle</td>
+<td>A</td>
+</tr>
+<tr>
+<td>OP-S</td>
+<td>operator</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none</td>
+<td>operator-scheduled</td>
+<td>S6 or S7 not run → D4 does not merge</td>
+<td>operator</td>
+</tr>
+</tbody></table></div>
+<h3>Harness qualification (from what was verified here)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>harness · version (Verified present)</th>
+<th>needed from the delegation mechanism</th>
+<th>edit boundary</th>
+<th>dispatch</th>
+<th>basis</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code (Opus 5.5, Sonnet, Fable)</td>
+<td>exclusive paths, a Return block, audit entry</td>
+<td><strong>observed-only</strong> here. Spike S5 records &quot;enforcing&quot; (2026-08-24), but it was not re-measured in this run</td>
+<td>observed-only</td>
+<td><code>coord doctor</code> capability block. The commit floor is advisory without <code>AGENT_SESSION</code></td>
+</tr>
+<tr>
+<td>Grok 1.0.41, <code>grok-4.7</code> / <code>grok-4.7-build-fast</code></td>
+<td>foreground run, commits on its branch, Return block</td>
+<td><strong>unsupported</strong> (no hook qualification; the floor is enforcing only if <code>AGENT_SESSION</code> reaches its commit, which is not assessed)</td>
+<td>observed-only: the M1.1 B-track runs of 2026-09-25 returned with commits (session run logs)</td>
+<td>the commit floor (if <code>AGENT_SESSION</code> reaches it) and the Leader&#39;s branch read</td>
+</tr>
+<tr>
+<td>Agy 1.2.11, <code>gemini-3.8-flash-high</code></td>
+<td>the same; <strong>&quot;foreground only; no background processes&quot;</strong> in every brief</td>
+<td><strong>unsupported</strong></td>
+<td>observed-only, with one recorded silent exit 0 (HARNESS-SILENT-EXIT)</td>
+<td>the commit floor (if <code>AGENT_SESSION</code> reaches it). The Leader reads <code>git log</code> and <code>git status</code> and requires the Return section</td>
+</tr>
+<tr>
+<td>Codex, <code>gpt-6-sol</code></td>
+<td>fallback only</td>
+<td><strong>unsupported</strong></td>
+<td>not exercised in this run</td>
+<td>fallback only</td>
+</tr>
+</tbody></table></div>
+<p>Dispatch commands, exactly as the operator gave them:
+<code>grok --cwd &lt;wt&gt; -m grok-4.7 --always-approve --no-subagents --output-format plain -p &quot;$(cat brief.md)&quot;</code> and
+<code>cd &lt;wt&gt; &amp;&amp; agy --model gemini-3.8-flash-high --dangerously-skip-permissions --print-timeout 70m -p &quot;$(cat brief.md)&quot;</code>.
+Every delegation carries a prompt compiled for its target harness with <code>/compile</code> (CO-S0). A compile whose
+<code>dispatchable</code> is false, or whose text has a <code>DR-n</code> line, is not dispatched: stop with
+<code>decision request unanswered: DR-n</code>. <strong>Known pack issue (Flagged):</strong> <code>prompt-compile.py</code> sets <code>dispatchable</code> false
+whenever <code>decision_requests</code> is non-empty, even when every one is answered. So briefs state Owner rulings as settled
+facts with the ruling number, never as DR lines.</p>
+<h3>Decision requests and what each one gates</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>DR</th>
+<th>Default</th>
+<th>Gates (this plan)</th>
+<th>Later wave it gates</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DR-S1 <code>Avalonia.Headless</code></td>
+<td>No</td>
+<td><strong>G0</strong> harness shape. D3a and D4 window suites use the §12.3 rules</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DR-S2 modified chords after committing a text field</td>
+<td>Yes (§6.4)</td>
+<td><strong>D3a</strong> (<code>EditVerbRouter</code> chord list); <strong>R0</strong> (B7 wording, the design&#39;s &quot;Finding for the spec owner&quot;)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>OI-S1 S1-Switch-to-Analysis N/A</td>
+<td>written N/A requested</td>
+<td><strong>O1</strong> (the request); <strong>D4 merge</strong> (the Test Architect&#39;s condition: &quot;OI-S1 and the 15 M1.2b–d edges before the M1.2e merge&quot;)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DR-2 held line for typed chords</td>
+<td>leading edge</td>
+<td>none. C1 types Span only</td>
+<td>M1.2b</td>
+</tr>
+<tr>
+<td>DR-6 gesture commit</td>
+<td>commit at gesture end</td>
+<td>none</td>
+<td>M1.2b</td>
+</tr>
+<tr>
+<td>DR-7 activity rail</td>
+<td>rail outside the left side bar, not built in M1.2</td>
+<td>none. If ruled &quot;build in M1.2&quot;, D3a gains a shell region outside the Dock host</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DR-8 My sections location</td>
+<td>installation library</td>
+<td>none</td>
+<td>M1.2d</td>
+</tr>
+<tr>
+<td>DR-9 chord rule</td>
+<td>strict A4.6 with the operator&#39;s rule</td>
+<td>none</td>
+<td><strong>M1.2b</strong> (and its <code>/design-slice</code>)</td>
+</tr>
+<tr>
+<td>DR-10 channel ceiling</td>
+<td>6–10</td>
+<td>none</td>
+<td>M1.2b</td>
+</tr>
+<tr>
+<td>DR-11 section point types</td>
+<td>paired per chord position</td>
+<td>none</td>
+<td><strong>M1.2c</strong> (and B6, below)</td>
+</tr>
+</tbody></table></div>
+<p>The shell does not depend on DR-2 or DR-6 to DR-11 (design §13). The plan relies on that statement and does not re-derive it.</p>
+<h3>Later waves (not planned here)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>wave</th>
+<th>gated on</th>
+<th>notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M1.2b rail points</td>
+<td>its own <code>/design-slice</code>; DR-9 (and DR-2, DR-6, DR-10)</td>
+<td>will own <code>WorkbenchController.cs</code>, <code>Viewport.cs</code> and Properties point rows after D3a</td>
+</tr>
+<tr>
+<td>M1.2c section editor mode</td>
+<td>its own <code>/design-slice</code>; DR-11</td>
+<td><strong>D4 depends on M1.2c merged</strong>. The <code>section-editor.md</code> spec-1.6 and architecture flags, and its as-built &quot;full&quot; label (B1–B5 merged), are cleared by that <code>/design-slice</code>. The M1.1b follow-up <strong>B6</strong> (independent abscissae) belongs here. It was deferred when its 2-of-2 cap fired (section-editor §9). A restart needs an Owner ruling that uses the recorded restart point, and only matters if DR-11 is overturned or the multi-profile refusal must lift</td>
+</tr>
+<tr>
+<td>M1.2d catalog and My sections</td>
+<td>its own <code>/design-slice</code>; DR-8</td>
+<td>M1.1b follow-up: DAT import accepts at <code>maxRes &lt;= 1e-5</code> normalised (<code>DatImport.cs</code>:255), not A4.6&#39;s 10 µm at local chord. Architecture §10.7 routes it &quot;For design-slice&quot;</td>
+</tr>
+<tr>
+<td>M1.2e join</td>
+<td>D4, U1e, OP-S S6/S7, OI-S1</td>
+<td>the S1 freeze stays open for Windows</td>
+</tr>
+</tbody></table></div>
+<h2>Serial spine</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>item</th>
+<th>why it cannot be parallel</th>
+<th>who owns it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>O1 Owner rulings: accept <code>design-app-shell</code> (status &quot;Owner acceptance pending&quot;), ADR-0006, ADR-0007 and ADR-0009 with its two recorded deviations, architecture §10 for M1.2a and M1.2e; DR-S1 and DR-S2 defaults; seams 1 and 7; the track count (Tech Lead casting vote); send OI-S1 to the spec owner</td>
+<td>decision edge into every track. §10 and ADR-0005–0009 are &quot;Proposed until the Owner rules them&quot; (architecture §10). Fails GO5(b)</td>
+<td>Owner <code>cfd-owner-fbfa35dc</code></td>
+</tr>
+<tr>
+<td>S8 → (design amendment if splits are blockable) → G0</td>
+<td>the design orders it: &quot;<strong>S8 runs before G0</strong> (§14): if <code>CanDrop</code>/capability overrides do block splits, G0 lands the one-group shape&quot;. Data edge</td>
+<td>S8 track; the amendment is the Coordinator&#39;s after an Owner ruling</td>
+</tr>
+<tr>
+<td>G0</td>
+<td>freezes <code>LayoutDocument</code>, the Desktop harness and <code>check-named-tests.py</code>. Until they are fixed, every track&#39;s result changes shape. Fails GO5(b)</td>
+<td>G0</td>
+</tr>
+<tr>
+<td>C1 → D2</td>
+<td>data edge: D2 calls <code>WingEstimates.From</code> and <code>ApplyDimension</code></td>
+<td>lane A</td>
+</tr>
+<tr>
+<td>D3a</td>
+<td>joins D1, D2 and P1, and owns <code>App</code>, <code>MainWindow</code>, the csproj and the lock file that every Desktop surface shares. Two sessions in the same layer fail GO5(c)</td>
+<td>D3a</td>
+</tr>
+<tr>
+<td>handover of <code>ShellHost.cs</code>, <code>ShellLayout.cs</code> and the <code>WorkbenchTests.cs</code> spawn line from D3a to D4</td>
+<td>the same files change hands; only one owner at a time</td>
+<td>D3a, then D4</td>
+</tr>
+<tr>
+<td>M1.2c merged → D4</td>
+<td>named in the design&#39;s dependency column</td>
+<td>D4</td>
+</tr>
+<tr>
+<td>OP-S S6/S7 → D4 merge</td>
+<td>the design: &quot;<strong>S6</strong> gates M1.2e&#39;s merge&quot;</td>
+<td>operator</td>
+</tr>
+<tr>
+<td>first product join after G0</td>
+<td>read <code>coord doctor</code> in the integration tree before two lanes rely on the driver. It was measured effective here, but it is re-read at the first join</td>
+<td>Coordinator</td>
+</tr>
+</tbody></table></div>
+<h2>Seams</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>from -&gt; to</th>
+<th>the request</th>
+<th>resolved by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 · G0 -&gt; D1, D2, D3a</td>
+<td>the spawn lines G0 owns call <code>ShellModelTests.Run</code>, <code>ControllerShellTests.Run</code>, <code>ShellWindowTests.Run</code>, which must exist to compile</td>
+<td>G0 creates them as empty classes. This is the design&#39;s &quot;empty classes for C1/P1&quot; pattern applied to Desktop. Ownership passes at G0&#39;s merge. <code>assume:</code> the design names stubs only for C1 and P1. <strong>O1 confirms</strong>; if refused, each Desktop track owns its own spawn line, as seam 3 already does for D4</td>
+</tr>
+<tr>
+<td>2 · D1 -&gt; D3a</td>
+<td><code>CommandTable</code> rows hold an <code>ICommand</code>. <code>RelayCommand</code> comes from <code>CommunityToolkit.Mvvm</code>, a transitive of <code>Dock.Model.Mvvm</code>, which D3a adds to the csproj (Verified: the Desktop csproj references no Dock package today)</td>
+<td>D1 uses only BCL <code>System.Windows.Input.ICommand</code> and test stubs. D3a creates the <code>RelayCommand</code> instances. No edge points back, so there is no cycle</td>
+</tr>
+<tr>
+<td>3 · D4 -&gt; D3a (merged)</td>
+<td>add the <code>--shell-float</code> spawn line in <code>WorkbenchTests.cs</code> (the design: &quot;and later <code>--shell-float</code>&quot;)</td>
+<td>that line&#39;s ownership passes to D4 when D3a merges</td>
+</tr>
+<tr>
+<td>4 · D4 -&gt; controller owner (M1.2c merged)</td>
+<td>any controller member for <code>Workspace_Switch_KeepsSelectionCameraDraftAndFocus</code></td>
+<td><code>coord request add</code> to the Coordinator, who hands <code>WorkbenchController.cs</code> to D4 while no M1.2c track holds it</td>
+</tr>
+<tr>
+<td>5 · P1 -&gt; G0</td>
+<td>any <code>LayoutDocument</code> change</td>
+<td>refused inside the wave. It is a schema change and goes to the Owner (version-first rule, §3.5)</td>
+</tr>
+<tr>
+<td>6 · U1 -&gt; D3a / D4</td>
+<td>an AXAML string that disagrees with a COPY row</td>
+<td>during the track: counted against its repair cap. After merge: a Sonnet edit on its own branch</td>
+</tr>
+<tr>
+<td>7 · D3a -&gt; P1 (merged); D2 -&gt; recent add</td>
+<td>the Start Recent rows and File ▸ Open Recent read <code>RecentList</code>. The design&#39;s E7 row puts &quot;<code>OpenAsync</code> on success&quot; as the recent-add point, but §14 lists neither P1 → D3a nor P1 → D2</td>
+<td>D3a consumes <code>PreferenceStore.LoadRecentAsync</code> and <code>UpdateRecentAsync</code>. The recent add runs in D3a&#39;s <code>ShellHost</code> on the <code>Opened</code> outcome of D2&#39;s <code>OpenAsync</code>, so D2 stays free of preference storage and runs in parallel with P1. <code>assume:</code> this placement matches the design&#39;s intent. <strong>O1 confirms</strong>. If refused, moving Recent to D4 would ship Start without the design&#39;s &quot;3 card buttons + Recent&quot; (§11). That is a <strong>design deviation</strong>, and it needs its own Owner ruling after UX &amp; A11y review. It is not a silent fallback</td>
+</tr>
+</tbody></table></div>
+<h3>Guards over shared surfaces (GO14a)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>guard (owner)</th>
+<th>root · recursion · token set · allowlist</th>
+<th>other tracks it reads</th>
+<th>jointly satisfiable with what the owner writes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tools/check-named-tests.py &lt;track&gt;</code> (G0)</td>
+<td><code>docs/design/app-shell.md</code> §9 and §12.4, one file, no recursion. Tokens: backticked names, attributed to the first <code>(&lt;track&gt;</code> closed by <code>)</code>, <code>,</code> or <code>;</code> on the same line. <code>*</code> or <code>&lt;…&gt;</code> in a name fails. Also <code>.tmp-tests/*.log</code> (non-recursive): <code>PASS &lt;name&gt;</code>, any <code>FAIL</code>. For D3a, the inventory&#39;s ported-name column. Allowlist: none</td>
+<td>every coding track</td>
+<td>yes. No track edits the design. Each track writes tests with exactly its names. Renaming a test reddens at the join, which is intended</td>
+</tr>
+<tr>
+<td><code>Architecture_DockConfinedToShell</code> (D3a)</td>
+<td>root <code>src/</code>, recursive <code>**/*.cs</code> text. Tokens: <code>Dock.</code> namespaces, plus <code>Avalonia</code> or <code>Dock</code> inside <code>CfdWorkbench.Core</code>. Allowlist: namespace <code>CfdWorkbench.Desktop.Shell</code> (<code>src/CfdWorkbench.Desktop/Shell/**</code>)</td>
+<td>D1 (inside the allowlist), D2, C1, P1, G0 (must stay Dock-free)</td>
+<td>yes. D2, C1, P1 and G0 are Dock-free by design. D3a&#39;s <code>MainWindow.axaml.cs</code> hosts Dock only through <code>ShellHost</code>. AXAML is not scanned. This is recorded, not widened</td>
+</tr>
+<tr>
+<td>xaml-token-lint (D3a, D4)</td>
+<td><code>xaml-token-lint.py --root &lt;repo&gt; src/CfdWorkbench.Desktop</code>, recursive (<code>rglob</code>, <code>:154</code>), extensions <code>.xaml</code> and <code>.axaml</code> (<code>:57</code>). Tokens: raw colours, inline <code>SolidColorBrush</code> colours, raw dimension literals. Allowlist: <code>is_allowed_dimension</code> (<code>:64</code>)</td>
+<td>D3a&#39;s new <code>Panes/*.axaml</code> are linted. <code>verify-application-adapters.py</code>&#39;s corpus receipt globs top-level <code>*.axaml</code> only (<code>:628</code>), but the lint itself recurses</td>
+<td>yes, if pane AXAML uses <code>Styles.axaml</code> tokens</td>
+</tr>
+<tr>
+<td><code>tools/check-spiral.py</code> (all, via <code>check-docs.py</code>)</td>
+<td><code>main..HEAD</code> commits. Tokens: the bookkeeping vocabulary. Fails when there are ≥ 12 commits, none touching <code>src/</code> or <code>tests/</code>, and ≥ 60 % bookkeeping</td>
+<td>every branch</td>
+<td>yes. This branch is at 11 docs commits (3 bookkeeping), 12 with this plan, and G0 is its first product commit. The pre-G0 docs commits (S8, R0) add at most 2, which gives 3 of 14 bookkeeping, so it stays green</td>
+</tr>
+</tbody></table></div>
+<h2>Struck tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>why it was not worth its multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>brief&#39;s early &quot;mixed-DPI dual-monitor OS-window float&quot; spike track</td>
+<td>superseded by the design&#39;s gates (inputs are final). S8 is the early time-boxed track that gates docking (G0). S2 and S6 need hardware this session lacks, so they go to OP-S. S1, S4 and S5 need Windows and are deferred</td>
+</tr>
+<tr>
+<td>P1 as a third concurrent lane beside C1 and D1</td>
+<td>P1 feeds D3a: the Start card&#39;s Recent rows and File ▸ Open Recent come from <code>RecentList</code> and <code>PreferenceStore</code> (design §8 E7 &quot;Recent files&quot; row, §11 &quot;Start card</td>
+</tr>
+<tr>
+<td>a separate test-inventory track (§12.5)</td>
+<td>tightly coupled to the port it governs; one coherent session is cheaper. It stays in D3a as checkpoint D3a-0 with a Coordinator review</td>
+</tr>
+<tr>
+<td>splitting D3a into host and panes</td>
+<td>both halves write <code>MainWindow</code>, <code>App</code>, the csproj and <code>WorkbenchTests.cs</code>. Splitting would create shared authored files, which is a wrong boundary</td>
+</tr>
+<tr>
+<td>B6 restart now</td>
+<td>the 2-cycle cap fired (section-editor §9). It is off the M1.2a and M1.2e path and needs an Owner ruling (M1.2c wave)</td>
+</tr>
+<tr>
+<td>DAT-import A4.6 acceptance fix now</td>
+<td>architecture §10.7 routes it to design-slice. The local-chord rule is a design decision (M1.2d wave)</td>
+</tr>
+<tr>
+<td>a Sonnet track to render the HTML and derive the index</td>
+<td>derived work; no coordination is needed (Artifact classes)</td>
+</tr>
+</tbody></table></div>
+<h2>Order of operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>action</th>
+<th>cost</th>
+<th>why now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Coordinator: <code>coord leader pin fbfa35dc</code>, then <code>coord leader who</code> (read the epoch back); <code>coord request expire</code> (clears the silent expiry)</td>
+<td>seconds</td>
+<td>the leader is expired. Every row carries the epoch (CO-L)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Owner (Fable): rulings O1 into <code>docs/notes/rulings.md</code>; OI-S1 request to the spec owner</td>
+<td>one Owner session</td>
+<td>decision edge for every track</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>coord worktree new</code> for R0 and S8 → run both (Claude lane, width 2). Each tree runs <code>coord doctor</code> to read the inherited registration and never runs <code>coord install</code> or <code>coord classify</code></td>
+<td>1 h wall</td>
+<td>S8 is the first node on the critical path. R0 must join before the first product merge</td>
+</tr>
+<tr>
+<td>4</td>
+<td>If S8 says &quot;yes&quot;: the Owner rules and the Coordinator amends §3.4, V8 and <code>Snapshot_SplitGroup_RoundTrips</code> in the design. Join R0 and S8</td>
+<td>15 min</td>
+<td>G0 freezes the schema from this</td>
+</tr>
+<tr>
+<td>5</td>
+<td>G0 (Claude Opus) → join: the gates, then <code>coord doctor</code> in the integration tree</td>
+<td>2.5 h</td>
+<td>freezes the interfaces (serial spine)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>compile briefs → lane A <strong>C1</strong> (Grok) ∥ lane B <strong>D1</strong> (Agy)</td>
+<td>90 min</td>
+<td>first parallel wave; disjoint files; no data or decision edge between them (GO5)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>join C1 and D1 → lane A <strong>D2</strong> (Agy) ∥ lane B <strong>P1</strong> (Grok)</td>
+<td>90 min</td>
+<td>D2 needs C1. P1 fills lane B&#39;s slack</td>
+</tr>
+<tr>
+<td>8</td>
+<td>join D2 and P1 → <strong>D3a</strong>: D3a-0 inventory → Coordinator review → D3a-1, D3a-2</td>
+<td>≤ 3.5 h</td>
+<td>joins D1, D2 and P1 (serial spine)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>join D3a (three identical runs) → <strong>U1a</strong> + operator native session (M1.2 entry-gate AX proof)</td>
+<td>2 h + operator</td>
+<td>M1.2a is done only when U1a passes with every native row run and attached, including the operator rows. It is never done because the app launched</td>
+</tr>
+<tr>
+<td>10</td>
+<td>later waves: M1.2b, M1.2c and M1.2d <code>/design-slice</code> runs with DR-9, DR-11 and DR-8</td>
+<td>per design</td>
+<td>not planned here</td>
+</tr>
+<tr>
+<td>11</td>
+<td>after M1.2c merges: <strong>D4</strong> → OP-S S6 and S7 → <strong>U1e</strong> → M1.2e join (OI-S1 and the 15 M1.2b–d edges settled)</td>
+<td>≤ 3.5 h + operator</td>
+<td>the design&#39;s dependency column</td>
+</tr>
+</tbody></table></div>
+<p><strong>Critical path (M1.2a):</strong> O1 → S8 (1 h) → G0 → (C1 → D2 ∥ D1 → P1) → D3a → U1a. Both lanes have a 160 min budget, so either can be the longer one. <strong>M1.2e</strong> adds M1.2c merged → D4 → OP-S → U1e.</p>
+<p><strong>Join gates (run by the Coordinator on the track branch, then again on the integration tree after the merge):</strong></p>
+<ol>
+<li><code>tools/run-tests.sh</code> exit 0. D3a and D4 also need <code>dotnet restore --locked-mode</code> to exit 0.</li>
+<li>Coding tracks (G0, C1, D1, D2, P1, D3a, D4) only: <code>python3 tools/check-named-tests.py &lt;track&gt;</code> exits 0 (G0 uses <code>--self-test</code>). After each merge, the integration tree re-runs this for <strong>every track already merged</strong>. The docs tracks (R0, S8, U1a, U1e) are gated by their own exit evidence and gate 3. OP-S is gated by the operator&#39;s attached rows.</li>
+<li><code>python3 tools/check-docs.py</code> exit 0, which includes <code>tools/check-spiral.py</code>.</li>
+<li><code>git log</code> and <code>git status</code> show the claimed commit, and the final message holds the brief&#39;s Return section.</li>
+<li>D3a and D4 only: <code>run-tests.sh</code> three times with identical <code>PASS</code> sets.</li>
+<li>C1: reviewers first check that a <code>dimension</code> receipt reopens and that <code>Recovery_Dimension_Refused</code> holds (EDIT-KIND-REOPEN).</li>
+<li>A suspect merge is probed in a throwaway worktree at the pre-merge commit before a repair is delegated.</li>
+<li>At the 2-cycle cap: stop the track and report to the operator.</li>
+</ol>
+<p><strong>Cost (honest):</strong> the orchestrator-worker shape costs about <strong>15×</strong> a single session (GO6). What that buys here is
+<strong>context hygiene</strong>: the Core, Persistence and Desktop tracks each fit one context, while the whole build does not. It
+also buys <strong>harness isolation</strong>: an Agy stall cannot touch a Grok tree. And it buys real <strong>independence</strong> in steps 6
+and 7 (disjoint files, no data or decision edge). It does not buy speed on M1.2a&#39;s critical path. That path is serial
+through G0, the two lanes and D3a. The lanes run D1 and P1 beside C1 and D2, instead of after them. The alternative is one serial session for the
+whole shell. The author rejects it because that session would carry Core numerics, persistence and Avalonia in one
+context, which is class CTX-A. <strong>The track count is not settled.</strong> The Tech Lead was not convened (the run&#39;s fan-out cap
+was 2, and those two slots went to the Test Architect and the Simplifier). The casting vote goes to the Owner in O1.</p>
+<h2>Gate record</h2>
+<p><code>GATE plan · 2026-09-27 · test-architect (hard), the-simplifier (soft) · verdict: PASS-WITH-CONDITIONS · vetoes → resolution: Test Architect cleared on re-review; Simplifier cleared on re-review (R0 kept by written rationale: the brief requires it)</code>. Each lens ran as a separate agent in Adversary Mode. The author cleared no veto. Repair cycles used: <strong>1 of 2</strong>,
+and the residual Minors from the re-reviews were applied without another cycle. The Tech Lead was not convened, so the
+track count goes to the Owner in O1.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Lens</th>
+<th>Round 1</th>
+<th>Main findings</th>
+<th>Repair</th>
+<th>Final</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Test Architect (hard veto)</td>
+<td>PASS-WITH-CONDITIONS, 5 Major, 1 Minor</td>
+<td>S8 fallback claimed a result nobody observed; D3a lacked the red-first Dock check, <code>--locked-mode</code> and per-row red runs; U1a could close M1.2a with operator rows open; no integration-tree re-run; gate 2 applied to docs tracks</td>
+<td>all applied (S8 row, D3a evidence, U1a and step 9, join gates 1–2)</td>
+<td><strong>Cleared</strong>. Residual Minor: P1 is on the path into D3a (critical path rewritten)</td>
+</tr>
+<tr>
+<td>Simplifier (soft veto)</td>
+<td><strong>SOFT VETO</strong>, 3 Major, 1 Minor, 1 Nit</td>
+<td>R0 unneeded; fallback chains exceeded the cap; P1 consumer misread (Recent rows in D3a); dead join gate 7; impossible seam 1 fallback</td>
+<td>R0 trimmed and kept by the brief&#39;s rationale; one fallback per track inside the cap; seam 7 and the P1 → D3a edge; gate 7 deleted; seam 1 fallback rewritten</td>
+<td><strong>Cleared</strong>. Residuals applied: OI-S1 gated by O1, not R0; the seam 7 refusal is a design deviation that needs a ruling</td>
+</tr>
+</tbody></table></div>
+<h2>Status</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Completed</strong></td>
+<td>Layer state measured (<code>coord doctor</code>, <code>pack-doctor</code>); <code>coord regen</code> cleared the owed artifact; artifact classes recorded; the design&#39;s tracks scheduled into a serial spine, two lanes and gated later waves with owners, budgets, exit evidence, harness and model, DR gating, seams, GO14a guards and struck tracks; a cross-tree write by <code>coord classify init</code> found and reverted</td>
+</tr>
+<tr>
+<td><strong>Remaining</strong></td>
+<td>O1 rulings; leader pin and request expiry; every track; OP-S; S1, S4 and S5 (Windows); M1.2b–d designs; registering the classify cross-tree class</td>
+</tr>
+<tr>
+<td><strong>Best next action</strong></td>
+<td>Step 1, then the Owner&#39;s O1 rulings, then dispatch S8 and R0</td>
+</tr>
+</tbody></table></div>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>b9a33f71737bd2125d67b7acf3e1bb6a2391964137e5399a7a564b76e7beec36</code>.</p></footer></main></body></html>

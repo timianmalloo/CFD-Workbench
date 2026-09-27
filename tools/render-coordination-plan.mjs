@@ -1,5 +1,6 @@
 /** Render the canonical coordination plan as a self-contained HTML view.
- * Usage: node tools/render-coordination-plan.mjs [directory-containing-installed-node-modules]
+ * Usage: [PLAN=<plan-file-stem>] [PLAN_DATE=<display date>] node tools/render-coordination-plan.mjs [directory-containing-installed-node-modules]
+ * PLAN defaults to application-build (and PLAN_DATE to its date), so the original plan renders unchanged.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,8 +10,11 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const deps = process.argv[2];
 const {marked} = await import(deps ? pathToFileURL(path.join(deps, 'marked/lib/marked.esm.js')).href : 'marked');
-const sourcePath = path.join(root, 'docs/coordination/application-build.md');
-const targetPath = path.join(root, 'docs/coordination/application-build.html');
+const plan = process.env.PLAN || 'application-build';
+if (!/^[a-z0-9-]+$/.test(plan)) throw new Error(`PLAN must be a plan file stem: ${plan}`);
+const planDate = process.env.PLAN_DATE || '23 September 2026';
+const sourcePath = path.join(root, `docs/coordination/${plan}.md`);
+const targetPath = path.join(root, `docs/coordination/${plan}.html`);
 const source = fs.readFileSync(sourcePath, 'utf8');
 const sha = createHash('sha256').update(source).digest('hex');
 const body = source.replace(/^---\n[\s\S]*?\n---\n/, '');
@@ -27,7 +31,7 @@ a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
 .table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
 code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
 header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
-</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="application-build.md">application-build.md</a> · 23 September 2026</p></header>
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="${plan}.md">${plan}.md</a> · ${planDate}</p></header>
 ${content}<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>${sha}</code>.</p></footer></main></body></html>
 `;
 fs.writeFileSync(targetPath, html, 'utf8');

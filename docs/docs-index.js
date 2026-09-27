@@ -5018,6 +5018,55 @@ window.DOCS_INDEX = {
       "sourceSha256": "8669892cc3300712ec64a124ec982ef2fc4710df3655a7ec1a151580db6a028b"
     },
     {
+      "id": "coordination-app-shell-build",
+      "path": "docs/coordination/app-shell-build.md",
+      "title": "Coordination plan - app-shell build (M1.2a shell and M1.2e floats and layouts)",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-leader-fbfa35dc",
+      "phase": "",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Schedules the app-shell design's nine tracks plus one review-flag track across Claude Code, Grok and Agy with two concurrent coding lanes, a serial spine of Owner rulings, S8, G0 and D3a, and M1.2b-d and the M1.1b follow-ups as gated later waves.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "desktop",
+        "shell",
+        "m1.2a",
+        "m1.2e"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-application-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b9a33f71737bd2125d67b7acf3e1bb6a2391964137e5399a7a564b76e7beec36"
+    },
+    {
       "id": "coordination-application-build",
       "path": "docs/coordination/application-build.md",
       "title": "Coordination plan - first CFD-Workbench application increment",
@@ -7191,6 +7240,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench"
     },
     {
+      "id": "surface-coordination-app-shell-build",
+      "path": "docs/coordination/app-shell-build.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-app-shell-build"
+    },
+    {
       "id": "surface-coordination-application-build",
       "path": "docs/coordination/application-build.html",
       "title": "CFD-Workbench — coordination plan",
@@ -7279,5 +7336,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "33e049d8bce48820ce0cab043eeb77f12e5ac194a3a8805b9b56e1da50148429"
+  "graphSha256": "c8f0bd0c9af796473101a4b362eb4fa8e8ac15ecd054d9eae17aba4a2d735efa"
 };
