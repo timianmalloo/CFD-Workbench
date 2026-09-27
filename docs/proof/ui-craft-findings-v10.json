@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "clipped-overflow-container",
+    "location": "/Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction/docs/mockups/workbench-v10.html",
+    "dimension": "12 State completeness",
+    "cluster": "State & overflow integrity",
+    "directive": "U9/DX9/DX16",
+    "severity": "Minor",
+    "evidence": "Positioned child clipped by overflow container - `main.window clips a positioned child`",
+    "fix": "A clipping container (overflow hidden or clip) wrapping an absolutely-positioned child cuts off tooltips, menus, and popovers that need to escape. Let the overflow be visible, or move the positioned layer out of the clip.",
+    "confidence": "Verified"
+  }
+]

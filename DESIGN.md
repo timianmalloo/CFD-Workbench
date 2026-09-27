@@ -387,6 +387,28 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-100 | Apply or cancel the open <curve> draft first (one draft at a time) |
 | COPY-101 | Fair · deviation <d> mm above the <t> mm tolerance — Apply disabled |
 | COPY-102 | Conversion residual <r> µm (acceptance 10 µm at local chord · measured at the catalog points) |
+| COPY-103 | “<file>” didn't open. It was saved by a newer version of CFD Workbench. The file hasn't been changed. |
+| COPY-104 | Opening <file>… |
+| COPY-105 | Opening cancelled. Nothing changed. |
+| COPY-106 | Enter a length greater than 0 mm. <Dimension> is unchanged. |
+| COPY-107 | That would make the leading and trailing edges cross. Enter a different value. |
+| COPY-108 | Tip closes — edit the tip station |
+| COPY-109 | Pending admission — terms requested from UIUC · GEN sections remain |
+| COPY-110 | Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here |
+| COPY-111 | Catalog original · <source> |
+| COPY-112 | Modified from <source> |
+| COPY-113 | Name the section to save it. |
+| COPY-114 | “<name>” is already in My sections. Choose another name. |
+| COPY-115 | No sections match “<query>”. Try NACA, Eppler or a name. |
+| COPY-116 | <Pane> moved so it doesn't cover <target> |
+| COPY-117 | A control point pulls the curve toward it. The curve does not pass through it. |
+| COPY-118 | Enter a number. <Field> is unchanged. |
+| COPY-119 | This section has unsaved changes. Cancel discards them; Finish keeps them. |
+| COPY-120 | <Pane> docked so it doesn't cover <target> |
+| COPY-121 | <n> sections match |
+| COPY-122 | Set these in the workspace. |
+| COPY-123 | ⚠ Upper and lower surfaces cross. Move the point back to finish. |
+| COPY-124 | Surfaces no longer cross. Finish is available. |
 
 COPY-28 to COPY-97 are quoted verbatim from specification v1.1's C2 state table, its
 fixed strings (A5.1, A5.3, A5.4, A5.6, A5.9, A7) and the A5.12 entry-point names; the spec is their authority and this
@@ -451,6 +473,34 @@ solver validity, performance at project scale, and assistive technology testing 
 Windows/macOS are **Flagged** future implementation obligations.
 
 ## 12. Prototype interaction boundary and verification
+
+### 12.0e Mockup v10 (2026-09-26) — `docs/mockups/workbench-v10.html`
+
+No token changes: every colour, size and radius in v10 is an existing token (the craft gate reports no findings, and
+an injected off-token colour is caught, so the run scanned a live corpus). v10 adds these rules to the language:
+
+- **One precision per quantity.** A length you type or place shows 0.01 mm (the finest nudge); a derived length
+  (chord, span estimate, MAC, LE radius) shows 0.1 mm; angles 0.1°; ratios 0.1 %. A value appears at the same
+  precision in Properties, the Points grid and the canvas label.
+- **Properties at 200 px.** Field labels take 56 px (72 px for the Wing dimensions) so a value such as −175.60 is
+  never clipped. Smooth and symmetric anchors show one Angle and two lengths.
+- **Wing block.** Properties always ends with the Wing block while a foil is open: typed driving dimensions (Span,
+  Root chord, Tip chord) above read-only estimates prefixed "≈", separated by a rule, with an "Estimates ·
+  definitions" disclosure. MAC is (2/S)∫₀^{b/2} c(y)² dy and is never labelled as S/b.
+- **Point glyphs.** Anchor: square; end point: diamond (dashed when locked); control point: circle joined to its
+  neighbours by a dashed control polygon in `model-dim`. The selected point paints over a coincident neighbour.
+- **Floats and focus.** A control in the model area that takes focus is never under a float: the float moves to the
+  nearest clear corner of the model area and says so (COPY-116); when no corner clears it, the pane docks back (COPY-120). Decorative drawing never takes the pointer.
+- **Typed numbers.** Every typed number is checked the same way: a non-number, or a length ≤ 0, is refused with
+  COPY-118 or COPY-106, `aria-invalid` and an alert tied by `aria-describedby`; the geometry is unchanged; Escape restores.
+- **Escape never discards work.** In the section editor Escape steps back (drag → handle → point → selection); with
+  unsaved edits it moves focus to Cancel and says COPY-119. Only Cancel discards.
+- **Motion.** None. v10 has no animation; the opening state is a static skeleton, so the reduced-motion path is
+  identical by construction.
+
+Copy added: COPY-103 to COPY-124 (§7); COPY-08 is reused on the first-run card. Oracle:
+`tools/check-mockup-v10.mjs` (evidence `docs/proof/workbench-v10-browser-check.json`, craft findings
+`docs/proof/ui-craft-findings-v10.json`).
 
 ### 12.0d Mockup v5 (2026-09-21) — `docs/mockups/workbench-v5.html`
 

@@ -1659,6 +1659,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "a2f9efd56da20d32a6dbbcf813c9f8911ff97d2ac8901cc95714a6e1bcb68b96"
     },
     {
+      "id": "mockup-workbench-v10",
+      "path": "docs/mockups/workbench-v10.md",
+      "title": "CFD-Workbench v10 — first run, focus-safe floats, point types, catalog and a Wing block",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "v9's docked-pane CAD workspace, elevated: first-run, opening and open-failed states inside the workspace; floats move clear of any focused target in the model area; per-point Anchor / Control type; a Wing block with typed span and chords above running estimates; and, in the section editor, Replace from catalog and Save to My sections.",
+      "tags": [
+        "mockup",
+        "cad",
+        "docking",
+        "properties",
+        "catalog",
+        "point-types",
+        "estimates",
+        "first-run"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v9",
+          "rel": "supersedes"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b1faf28fa27b7d4d0bf0b7f026e6ca3d8c7aa617cfb89e2df4166d30ed6531ed"
+    },
+    {
       "id": "mockup-workbench-v2",
       "path": "docs/mockups/workbench-v2.md",
       "title": "CFD-Workbench interactive design mockup v2 — seven areas",
@@ -2295,7 +2337,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "33b344cc2a1d54003d01fbf9b4c4e17c4b23105ceff4b1b54a948d3b1620914c"
+      "sourceSha256": "ad220eb25aefceb69eb754f4db57d21a03046a78bce9a9f0c824ee7561ac1faa"
     },
     {
       "id": "domain-experts",
@@ -5856,6 +5898,52 @@ window.DOCS_INDEX = {
       "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
     },
     {
+      "id": "review-ui-workbench-v10",
+      "path": "docs/reviews/ui-workbench-v10.md",
+      "title": "UI review — v10 first run, focus-safe floats, point types, catalog and Wing block (elevate)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-26",
+      "reviewSuggested": [],
+      "summary": "Elevated v9 after measuring it: restored the first-run and loading states, one precision per quantity, Properties readable at 200 px, and floats that move clear of a focused target (option a, operator-confirmed). Folded in the operator's four requests plus the chord, MAC and typed-dimension decisions. One repair cycle; the accessibility veto cleared by the lens, the Simplifier's veto cleared, 15 of 15 oracle gates green.",
+      "tags": [
+        "ui-review",
+        "accessibility",
+        "properties",
+        "catalog",
+        "point-types",
+        "estimates",
+        "first-run",
+        "docking"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "documents"
+        },
+        {
+          "to": "review-ui-workbench-v9",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fa3bc8839d1b45b7572dbaedddc7807d892127968c1f77a7d26ffc8d1d17a1e0"
+    },
+    {
       "id": "review-ui-workbench-v8",
       "path": "docs/reviews/ui-workbench-v8.md",
       "title": "UI review — CAD-first direction v8 (elevate)",
@@ -6450,6 +6538,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v8"
     },
     {
+      "id": "surface-mockups-workbench-v10",
+      "path": "docs/mockups/workbench-v10.html",
+      "title": "CFD Workbench — docked panes (v10)",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-workbench-v10"
+    },
+    {
       "id": "surface-mockups-workbench-v9",
       "path": "docs/mockups/workbench-v9.html",
       "title": "CFD Workbench — docked panes (v9 r2)",
@@ -6561,5 +6657,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "551508d087def29ffa9e498331c4520c7398927a99db91685a2a2f0ccc9104e0"
+  "graphSha256": "cd34e837f7b88dabd1347b41f52f80be8c2b7b02cddd8b1e468fb11baddd13c8"
 };

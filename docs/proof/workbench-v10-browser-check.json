@@ -1,0 +1,288 @@
+{
+ "artifact": "docs/mockups/workbench-v10.html",
+ "when": "2026-09-27T01:12:41.094Z",
+ "combos": 232,
+ "failing": 0,
+ "failSamples": [],
+ "focusChecks": 39,
+ "focusFailures": [],
+ "gates": {
+  "every harness combination: 0 contrast failures, 0 targets under 24 px": true,
+  "focus lands visibly after every action": true,
+  "no focused model-area target hidden by or overlapped by a float": true,
+  "no clipped value at the 200 px dock; selection and Wing fit at 1280": true,
+  "fine nudge visible everywhere": true,
+  "estimates on every screen with a foil, live while dragging": true,
+  "typed dimensions commit, undo, reject, revert": true,
+  "point type changes locally and undoes": true,
+  "catalog: pending not applied, replace, provenance, undo": true,
+  "section editor: Finish adds one undo step, Cancel none": true,
+  "first run, opening, cancel, open failed": true,
+  "a11y cycle 1: invalid numbers refused with a message (3.3.1)": true,
+  "a11y cycle 1: catalog search result is a status message (4.1.3)": true,
+  "a11y cycle 1: Escape never discards a section edit; floats scroll; undo stops at the draft; narrow model area; opening; multi height; TE label; F6": true,
+  "no JS errors": true
+ },
+ "checks": {
+  "planformDefault": {
+   "left": true,
+   "right": false,
+   "bottom": false,
+   "views": "plan3d",
+   "firstTab": "Properties"
+  },
+  "leftShare": "0.181",
+  "tabWiring": "tab-properties -> panel-properties labelledby=tab-properties",
+  "hoverRule": true,
+  "browserRows": "tree:st0 tree:st1 tree:st2",
+  "focusAfterBrowserEnter": "tree:st2",
+  "browserSelects": "{\"kind\":\"station\",\"i\":2}",
+  "focusAfterCommitTab": "Aft in millimetres",
+  "commitApplied": 170,
+  "paneMenuRoles": "menuitem:Move to right side bar | menuitem:Move to bottom panel | menuitem:Float | menuitemradio(false):Narrow | menuitemradio(true):Default | menuitemradio(false):Wide | menuitem:Maximize | menuitem:Close",
+  "sizeViaMenu": 360,
+  "focusAfterSize": "properties",
+  "focusAfterClose": "properties",
+  "browserAfterClose": "none",
+  "focusAfterLastClose": "Left side bar",
+  "leftAutoClosed": true,
+  "focusAfterShowProperties": "properties",
+  "propertiesBack": "left",
+  "maxed": 1,
+  "inertWhileMaxed": "true,true,true",
+  "focusWhileMaxed": "points",
+  "tabStaysInMaxedx5": true,
+  "restoredByEscape": true,
+  "focusAfterRestore": "points",
+  "floating": "float",
+  "focusAfterFloat": "properties",
+  "floatClearOfLeftDock": true,
+  "floatAltArrow": "569 -> 589",
+  "focusAfterFloatMove": "properties",
+  "focusAfterPosition": "properties",
+  "escapeDocksBack": "left",
+  "focusAfterEscapeDock": "properties",
+  "focusAfterMoveRight": "properties",
+  "focusAfterMoveLeft": "properties",
+  "splitEnd": 420,
+  "splitHome": 200,
+  "gridRoles": "grid rows=6 tabbable=1",
+  "gridSpaceSelects": "Tip end",
+  "focusAfterGridSelect": "row:le2",
+  "gridTypedEdit": 55,
+  "focusAfterGridEdit": "Leading edge Tip end Aft in millimetres",
+  "f6Cycle": "points -> Add station -> properties -> Root station. Enter edits its section.",
+  "cmdBIgnoredWhileTyping": true,
+  "winIgnoresMeta": true,
+  "winCtrlBHides": true,
+  "winWindowMenuInApp": true,
+  "reviewPreset": "quad",
+  "focusAfterWorkspace": "Window",
+  "reviewRemembered": true,
+  "reviewResetHidesLeft": true,
+  "tabClosesMenu": true,
+  "focusAfterMenuTab": "Window",
+  "focusInSection": "Upper surface, Crest, 45.05 mm along, 11.91 mm high, anchor, tangent horizontal",
+  "escBackToWorkspace": "workspace",
+  "focusAfterEscSection": "Mid station. Enter edits its section.",
+  "occlusion": {
+   "configs": 36,
+   "targetsChecked": 318,
+   "occluded": 0,
+   "floatOverlapsFocusedTarget": 0,
+   "floatOutsideModelArea": 0,
+   "failures": []
+  },
+  "tabWalkWithFloat": {
+   "steps": 14,
+   "invisible": 0,
+   "moveAnnounced": true
+  },
+  "fineNudge": {
+   "model": "13.01",
+   "props": "13.01",
+   "grid": "13.01",
+   "canvas": "13.01"
+  },
+  "narrowDock": {
+   "cases": 16,
+   "clippedFields": 0,
+   "clipSamples": [],
+   "selectionScrolls": [],
+   "wingScrolls": []
+  },
+  "estimatesAlways": "20/20",
+  "dimsReadOnlyInSection": true,
+  "sectionRows": "Mean chord | MAC | Max t/c | Aspect ratio | Area | Mid chord | Mid t/c",
+  "macDefined": "Mean aerodynamic chord, (2/S)∫₀^{b/2} c(y)² dy — not the same as S / b",
+  "noEstimatesWithoutDoc": true,
+  "estimatesLiveDuringDrag": {
+   "changedMidDrag": true,
+   "before": "≈ 151.4 mm ≈ 156.2 mm ≈ 11.3 % ≈ 5.61 ≈ 1287 cm²",
+   "during": "≈ 170.4 mm ≈ 176.0 mm ≈ 11.3 % ≈ 4.99 ≈ 1449 cm²"
+  },
+  "spanCommit": {
+   "span": "900.00",
+   "rootChord": "182.00",
+   "areaGrew": true,
+   "undoDepth": 1
+  },
+  "focusAfterSpanCommit": "Span in millimetres",
+  "spanUndo": "850.00",
+  "focusAfterUndo": "Leading edge, Point 2, smooth, span 245.00 mm, aft 13.00 mm",
+  "rootCommit": {
+   "root": "200.00",
+   "tip": "88.00"
+  },
+  "focusAfterRootCommitTab": "Root chord in millimetres",
+  "tipCommit": {
+   "root": "200.00",
+   "tip": "70.00"
+  },
+  "spanNegative": {
+   "span": "850.00",
+   "err": "Enter a length greater than 0 mm. Span is unchanged.",
+   "invalid": "true"
+  },
+  "focusAfterInvalid": "Span in millimetres",
+  "spanText": "850.00",
+  "escapeReverts": {
+   "value": "850.00",
+   "errHidden": true
+  },
+  "dimTargets": "127x28 127x28 127x28",
+  "tipCloses": "Tip closes — edit the tip station",
+  "toControl": {
+   "curveChanged": true,
+   "glyph": "circle",
+   "handlesGone": true,
+   "handlesPane": 0,
+   "polygon": 1,
+   "trailingEdgeUntouched": "230,166"
+  },
+  "focusAfterTypeChange": "le1:type",
+  "typeUndo": {
+   "type": "anchor",
+   "curveRestored": true
+  },
+  "symmetric": "80.00 = 80.00",
+  "lockedTypes": [
+   "te0: Anchor · root end, locked",
+   "te2: Anchor · tip end",
+   "u3: Anchor · trailing-edge end, locked",
+   "nose: Anchor · nose, fixed, tangent vertical"
+  ],
+  "sectionControl": {
+   "glyph": "circle",
+   "lowerUntouched": true,
+   "upperChangedAtAft": true
+  },
+  "focusAfterSectionTypeChange": "u2:type",
+  "secMenuItems": "Replace from catalog… | Save to My sections… | Smooth…",
+  "focusInCatalog": "cat-q",
+  "comboAria": "combobox expanded=true controls=cat-list active=opt-naca0009",
+  "listboxShape": "listbox groups=4 options=10 disabled=6 families=NACA/Eppler/Speer/My sections",
+  "ghostWhileOpen": 1,
+  "arrowMovesActive": "opt-naca0012",
+  "pending": {
+   "active": "opt-e817",
+   "replaceDisabled": "true",
+   "detail": "Eppler E817 can't be used. Pending admission — terms requested from UIUC · GEN sections remain.",
+   "ghost": 0
+  },
+  "pendingNotApplied": true,
+  "noMatch": "No sections match “zzz”. Try NACA, Eppler or a name.",
+  "fitDeviation": "NACA 0012 · the editable points follow it within 0.03 mm. Replaces Mid and Root (shared).",
+  "replaced": {
+   "screen": "section",
+   "src": "Catalog original · NACA 0012",
+   "crest": "0.300,0.060",
+   "tc": "12.0"
+  },
+  "focusAfterReplace": "sec-menu",
+  "chipAfterEdit": "Modified from NACA 0012",
+  "focusInSave": "save-name",
+  "saveProv": "Provenance: Modified from NACA 0012",
+  "saveEmpty": "Name the section to save it.",
+  "focusAfterSaveError": "save-name",
+  "saveDuplicate": "“Main section” is already in My sections. Choose another name.",
+  "saved": "Saved “Kite mid, reflexed” to My sections",
+  "focusAfterSave": "sec-menu",
+  "savedInCatalog": "Kite mid, reflexedMineModified from NACA 0012",
+  "focusAfterCatalogEscape": "sec-menu",
+  "catalogClosed": true,
+  "undoReplace": {
+   "src": "hidden",
+   "crest": "0.280,0.074"
+  },
+  "pointerOptionSize": "43",
+  "finishAddsOne": "0 -> 1",
+  "cancelKeepsDepth": "1 -> 1",
+  "startFocusTarget": "New foilA straight w",
+  "openingState": "opening",
+  "focusWhileOpening": "Cancel opening",
+  "afterOpen": {
+   "screen": "workspace",
+   "title": "kite-wing-850.foil"
+  },
+  "focusAfterOpen": "Root station. Enter edits its section.",
+  "cancelOpen": "start",
+  "focusAfterCancelOpen": "kite-wing-850.foiltoday 09:12",
+  "cancelHolds": "start",
+  "openError": {
+   "screen": "openerror",
+   "alert": "“old-kite-wing.foil” didn't open.It was saved by a newer ver"
+  },
+  "focusAfterOpenError": "open-another",
+  "newFoil": {
+   "title": "Untitled.foil",
+   "straight": true,
+   "rootChord": "150.0"
+  },
+  "focusAfterNewFoil": "Root station. Enter edits its section.",
+  "undoDisabledWithoutDoc": true,
+  "a11y1_textRejected": {
+   "unchanged": true,
+   "invalid": "true",
+   "message": "Enter a number. Aft is unchanged."
+  },
+  "focusAfterInvalidField": "Aft in millimetres",
+  "a11y1_partialNumberRejected": true,
+  "a11y1_escapeRestores": "13.00 invalid=null",
+  "a11y1_negativeLength": "true",
+  "a11y1_gridCell": {
+   "unchanged": true,
+   "invalid": "true",
+   "message": "Enter a number. Leading edge Point 2 Aft is unchanged."
+  },
+  "a11y2_noMatchStatus": "No sections match “zzz”. Try NACA, Eppler or a name.",
+  "a11y2_countStatus": "4 sections match",
+  "a11y3_escapeKeepsEdit": {
+   "screen": "section",
+   "kept": true
+  },
+  "focusAfterEscapeWithEdits": "sec-cancel",
+  "a11y4_floatReachable_workspace": true,
+  "a11y4_floatReachable_section": true,
+  "a11y5_undoStopsAtDraft": {
+   "depth": true,
+   "said": "Nothing to undo in this section edit. Cancel leaves the editor unchanged."
+  },
+  "a11y6_narrowModelArea": {
+   "targets": 11,
+   "overlap": 0,
+   "docked": 11,
+   "moved": 0
+  },
+  "a11y8_openingSemantics": {
+   "busy": null,
+   "cancelName": "Cancel opening"
+  },
+  "a11y9_multiHeight": "5.00 = 5.00",
+  "a11y10_teGapInside": true,
+  "a11y12_f6ReachesDialog": true,
+  "stubAnnounces": "Add station isn't part of this mockup."
+ },
+ "errors": [],
+ "screenshots": "/private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/fbfa35dc-d25f-45a1-8c87-1500e2d960ba/scratchpad/shots-v10"
+}

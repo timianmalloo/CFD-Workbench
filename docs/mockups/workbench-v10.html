@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-screen="workspace" data-state="default" data-viewport="1440" data-platform="mac">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD Workbench — docked panes (v10)</title>
+<!--
+  Direction mockup v10 — self-contained, dependency-free, opens over file://.
+  v9's window management (left Properties panel, optional right and bottom docks, floats, workspaces) plus: first-run,
+  opening and open-failed states inside the workspace; a float moves clear of any focused target in the model area;
+  one precision per quantity; Properties sized for the 200 px dock; the Browser as a real outline.
+  <header class="harness">, the faux macOS menu bar and <section class="audit"> are review chrome. Every colour is a DESIGN.md token.
+  Review record: docs/reviews/ui-workbench-v10.md
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, "SF Mono", Menlo, monospace; --r-sm:4px; --r-md:6px; --r-lg:10px; --control:32px; }
+:root[data-theme="dark"]{ --canvas:#17272c; --chrome:#1e2d31; --chrome-raised:#2a3d40; --line:#344b50; --line-strong:#79928c; --ink:#ebf3f0; --ink-muted:#b2c4bf; --accent:#66ddc8; --accent-ink:#172326; --accent-soft:#274c47; --model:#85c9c4; --model-dim:#79928c; --grid:#243a40; --axis:#344b50; --warn:#efc576; --danger:#ffaeb5; --finish:#92d1a5; --finish-ink:#172326; --ghost:#afc6c7; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --chrome:#fbfcfb; --chrome-raised:#e8edeb; --line:#c9d3cf; --line-strong:#788d87; --ink:#1b2929; --ink-muted:#526362; --accent:#006c67; --accent-ink:#ffffff; --accent-soft:#d8eeea; --model:#006c67; --model-dim:#788d87; --grid:#e8edeb; --axis:#c9d3cf; --warn:#895900; --danger:#a92e37; --finish:#24653f; --finish-ink:#ffffff; --ghost:#788d87; }
+:root[data-theme="contrast"]{ --canvas:#000000; --chrome:#000000; --chrome-raised:#000000; --line:#ffffff; --line-strong:#ffffff; --ink:#ffffff; --ink-muted:#ffffff; --accent:#ffee58; --accent-ink:#000000; --accent-soft:#000000; --model:#ffffff; --model-dim:#ffffff; --grid:#000000; --axis:#ffffff; --warn:#ffee58; --danger:#ffee58; --finish:#ffee58; --finish-ink:#000000; --ghost:#ffffff; }
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:#000000; color:#edf4f2; font:13px/1.4 var(--font); }
+button,input,select{ font:inherit; color:inherit; }
+.harness{ position:sticky; top:0; z-index:60; display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:8px 16px; background:#000000; color:#edf4f2; border-bottom:1px solid #344b50; font-size:12px; }
+.harness select{ background:#17272c; color:#edf4f2; border:1px solid #344b50; border-radius:4px; padding:3px 6px; }
+.harness .spacer{ flex:1; } .harness .verdict{ font-family:var(--mono); padding:3px 8px; border-radius:4px; }
+.verdict.pass{ background:#24653f; color:#ffffff; } .verdict.fail{ background:#a92e37; color:#ffffff; }
+.stage{ padding:16px; display:flex; flex-direction:column; align-items:center; } .fit{ transform-origin:top left; }
+.osbar{ display:flex; align-items:center; gap:2px; height:26px; padding:0 10px; background:#17272c; color:#edf4f2; border-radius:8px 8px 0 0; font-size:13px; }
+.osbar .app{ font-weight:700; margin-right:8px; } .osbar button{ background:none; border:0; color:#edf4f2; min-height:24px; padding:0 8px; border-radius:4px; cursor:pointer; }
+.osbar button:hover, .osbar button[aria-expanded="true"]{ background:#344b50; }
+:root[data-platform="win"] .osbar{ display:none; }
+
+.window{ position:relative; overflow:hidden; background:var(--canvas); color:var(--ink); border:1px solid #344b50; border-radius:10px; box-shadow:0 4px 12px #00000080; display:flex; flex-direction:column; }
+:root[data-viewport="1280"] .window{ width:1280px; height:800px; } :root[data-viewport="1440"] .window{ width:1440px; height:900px; } :root[data-viewport="1920"] .window{ width:1920px; height:1080px; }
+.appbar{ flex:0 0 46px; display:flex; align-items:center; gap:6px; padding:4px 8px; background:var(--chrome); border-bottom:1px solid var(--line); }
+.lights{ display:flex; gap:6px; padding:0 6px; } .lights i{ width:11px; height:11px; border-radius:50%; background:var(--line-strong); display:block; }
+:root[data-platform="win"] .lights, :root[data-platform="mac"] .winmenu, :root[data-platform="mac"] .caption{ display:none; }
+.fname{ font-weight:600; max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .dirty{ color:var(--accent); }
+.caption{ display:flex; } .caption span{ width:40px; text-align:center; color:var(--ink-muted); }
+.tsep{ width:1px; align-self:stretch; background:var(--line); margin:6px 4px; }
+.tool{ min-width:var(--control); height:var(--control); display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:0 10px; background:transparent; border:1px solid transparent; border-radius:var(--r-md); cursor:pointer; color:var(--ink); }
+.tool.sm{ min-width:28px; height:28px; padding:0 6px; } .tool:hover{ background:var(--chrome-raised); border-color:var(--line); }
+.tool[aria-pressed="true"], .tool[aria-expanded="true"]{ background:var(--accent-soft); border-color:var(--accent); }
+.tool svg{ width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.6; }
+.badge{ min-width:16px; height:16px; border-radius:8px; background:var(--danger); color:var(--accent-ink); font-size:10px; line-height:16px; padding:0 4px; font-weight:700; }
+.push{ margin-left:auto; } .cluster{ display:flex; align-items:center; gap:4px; }
+.btn{ height:var(--control); padding:0 14px; border-radius:var(--r-md); border:1px solid var(--line-strong); background:var(--chrome-raised); color:var(--ink); cursor:pointer; font-weight:500; }
+.btn.sm{ height:28px; padding:0 10px; } .btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.btn.finish{ background:var(--finish); color:var(--finish-ink); border-color:var(--finish); font-weight:600; } .btn[aria-disabled="true"]{ opacity:.5; cursor:not-allowed; }
+:is(.tool,.btn,.tab,.row-btn,.chipbtn,.slice,.vlabel,.menu button,.split,.pgroup > summary,.defs > summary,.card,.osbar button,[role="row"]):focus-visible, input:focus-visible, select:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+svg g[role="button"]{ outline:none; } .ring{ fill:none; stroke:transparent; }
+svg g[role="button"]:hover .ring{ stroke:var(--line-strong); stroke-width:1.5; } svg g[role="button"]:focus-visible .ring{ stroke:var(--accent); stroke-width:2.5; }
+.hidden{ display:none !important; }
+.sr{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+.body{ flex:1; min-height:0; display:flex; position:relative; }
+.mid{ flex:1; min-width:0; display:flex; flex-direction:column; } .center{ flex:1; min-height:0; position:relative; background:var(--canvas); }
+.dock{ display:flex; flex-direction:column; background:var(--chrome); min-width:0; min-height:0; }
+.dock[data-shown="false"]{ display:none; }
+#dock-left{ border-right:1px solid var(--line); } #dock-right{ border-left:1px solid var(--line); } #dock-bottom{ border-top:1px solid var(--line); }
+.split{ flex:0 0 6px; background:transparent; border:0; padding:0; z-index:4; } .split.v{ cursor:col-resize; } .split.h{ cursor:row-resize; }
+.split:hover, .split.active{ background:var(--accent-soft); } .split[data-shown="false"]{ display:none; }
+.tabs{ flex:0 0 34px; display:flex; align-items:stretch; border-bottom:1px solid var(--line); background:var(--chrome); padding:0 2px 0 4px; }
+.tab{ display:flex; align-items:center; min-height:33px; padding:0 10px; border:0; border-bottom:2px solid transparent; background:none; color:var(--ink-muted); cursor:grab; font-size:12px; font-weight:600; white-space:nowrap; max-width:170px; overflow:hidden; text-overflow:ellipsis; }
+.tab[aria-selected="true"]{ color:var(--ink); border-bottom-color:var(--accent); } .tabs .gap{ flex:1; }
+.pane-body{ flex:1; min-height:0; overflow:auto; }
+.float{ position:absolute; z-index:30; width:300px; height:430px; display:flex; flex-direction:column; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; overflow:hidden; }
+.float .tabs{ cursor:move; }
+.dropzones{ position:absolute; inset:0; z-index:40; pointer-events:none; }
+.dz{ position:absolute; border:2px dashed var(--accent); background:var(--accent-soft); opacity:.85; display:grid; place-items:center; color:var(--ink); font-weight:600; border-radius:var(--r-md); } .dz.hot{ opacity:1; border-style:solid; }
+.maxed{ position:absolute !important; inset:0 !important; width:auto !important; height:auto !important; z-index:35; border:0 !important; display:flex !important; }
+/* a floating Properties pane scrolls as one: the Wing block joins the scroll so nothing is cut off at 430 px */
+.float .pane-body.split-body{ overflow:auto; } .float .pscroll{ flex:none; overflow:visible; } .float .pgroup.wing{ max-height:none; overflow:visible; }
+
+.pgroup{ border-bottom:1px solid var(--line); }
+.pgroup > summary{ list-style:none; display:flex; align-items:center; gap:6px; min-height:30px; padding:0 12px; cursor:pointer; font-weight:600; font-size:12px; color:var(--ink); }
+.pgroup > summary::-webkit-details-marker{ display:none; } .pgroup > summary::before{ content:"▸"; color:var(--ink-muted); font-size:10px; } .pgroup[open] > summary::before{ content:"▾"; }
+.pgroup .pbody{ padding:2px 12px 10px; }
+.pane-body.split-body{ display:flex; flex-direction:column; overflow:hidden; } .pscroll{ flex:1; min-height:0; overflow:auto; }
+.pgroup.wing{ flex:none; max-height:55%; overflow:auto; border-top:1px solid var(--line-strong); border-bottom:0; background:var(--chrome); } .wing-h{ margin:0; padding:8px 12px 0; font-size:12px; font-weight:600; color:var(--ink); }
+.field.dim{ grid-template-columns:72px minmax(0,1fr) 24px; } .field .fixed{ grid-column:2 / 4; font-size:12px; color:var(--ink); }
+.ferr{ grid-column:1 / -1; color:var(--danger); font-size:12px; }
+.est-h{ margin-top:8px; padding-top:4px; border-top:1px solid var(--line); } .wing .kv{ margin-top:2px; gap:2px 12px; } .wing .field{ margin-top:4px; }
+.defs{ margin-top:6px; } .defs > summary{ display:flex; align-items:center; gap:4px; min-height:24px; cursor:pointer; color:var(--ink); font-size:12px; font-weight:600; } .defs .how{ color:var(--ink-muted); font-weight:400; }
+.defl{ margin:4px 0 0; padding-left:16px; color:var(--ink-muted); font-size:12px; } .defl li{ margin-top:2px; }
+.phead{ padding:10px 12px 8px; border-bottom:1px solid var(--line); } .phead h2{ margin:0; font-size:14px; } .crumb{ color:var(--ink-muted); font-size:12px; margin-top:2px; }
+.field{ display:grid; grid-template-columns:56px minmax(0,1fr) 24px; align-items:center; gap:6px; margin-top:6px; }
+.field label, .field .u{ color:var(--ink-muted); font-size:12px; white-space:nowrap; }
+.field input, .field select{ height:28px; width:100%; min-width:0; background:var(--canvas); border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:0 6px; color:var(--ink); } .field input{ text-align:right; font-family:var(--mono); }
+.sub-h{ margin-top:8px; font-size:12px; color:var(--ink); }
+.kv{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; font-size:12px; } .kv dt{ color:var(--ink-muted); } .kv dd{ margin:0; font-family:var(--mono); text-align:right; }
+.empty{ padding:16px 14px; color:var(--ink-muted); } .note{ color:var(--ink-muted); font-size:12px; margin-top:8px; }
+.row-btn{ width:100%; display:flex; align-items:center; gap:8px; min-height:28px; padding:0 10px; background:none; border:0; border-left:3px solid transparent; text-align:left; cursor:pointer; color:var(--ink); }
+.row-btn:hover{ background:var(--chrome-raised); } .row-btn[aria-current="true"]{ background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+.row-btn.child{ padding-left:24px; } .row-btn .sub{ color:var(--ink-muted); margin-left:auto; font-size:12px; font-weight:400; } .rowhead{ padding:8px 10px 2px; color:var(--ink-muted); font-size:12px; }
+.ptable{ width:100%; border-collapse:collapse; font-size:12px; }
+.ptable th{ position:sticky; top:0; background:var(--chrome); text-align:left; color:var(--ink-muted); font-weight:600; padding:6px 8px; border-bottom:1px solid var(--line); }
+.ptable td{ padding:2px 8px; border-bottom:1px solid var(--line); }
+.ptable td input{ width:86px; height:26px; background:var(--canvas); border:1px solid var(--line-strong); border-radius:var(--r-sm); padding:0 6px; text-align:right; font-family:var(--mono); color:var(--ink); }
+.ptable tr[aria-selected="true"] td{ background:var(--accent-soft); } .ptable tr[aria-selected="true"] td:first-child{ box-shadow:inset 3px 0 0 var(--accent); }
+.msgitem{ display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line); }
+
+.views{ position:absolute; inset:0; display:grid; gap:1px; background:var(--line); }
+.views[data-layout="quad"]{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
+.views[data-layout="plan3d"]{ grid-template-columns:2fr 1fr; grid-template-rows:1fr; } .views[data-layout="plan3d"] .view[data-v="side"], .views[data-layout="plan3d"] .view[data-v="front"]{ display:none; }
+.views[data-layout="single"]{ grid-template-columns:1fr; grid-template-rows:1fr; } .views[data-layout="single"] .view:not(.active){ display:none; }
+.view{ position:relative; background:var(--canvas); overflow:hidden; } .view svg.g{ position:absolute; inset:0; width:100%; height:100%; }
+.vlabel{ position:absolute; left:8px; top:6px; min-height:24px; min-width:24px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-muted); background:none; border:0; border-bottom:2px solid transparent; cursor:pointer; padding:4px 6px; z-index:2; }
+.vlabel[aria-pressed="true"]{ color:var(--ink); border-bottom-color:var(--accent); }
+.cube{ position:absolute; right:12px; top:10px; z-index:5; width:56px; height:56px; }
+.navbar{ position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; gap:4px; padding:4px; background:var(--chrome); border:1px solid var(--line); border-radius:var(--r-lg); z-index:5; }
+.chip{ display:inline-flex; align-items:center; gap:8px; min-height:28px; padding:3px 10px; border-radius:14px; background:var(--chrome); border:1px solid var(--line-strong); color:var(--ink); font-size:12px; } .chip.alert{ border:2px solid var(--danger); }
+.chipbtn{ min-height:24px; padding:0 10px; border-radius:12px; border:1px solid var(--line-strong); background:var(--chrome-raised); color:var(--ink); cursor:pointer; }
+.sec{ position:absolute; inset:0; } .sec .canvasbox{ position:absolute; inset:0 0 84px 0; } .sec svg{ position:absolute; inset:0; width:100%; height:100%; }
+.scopebar{ position:absolute; left:50%; top:10px; transform:translateX(-50%); z-index:5; }
+.status{ position:absolute; left:12px; bottom:94px; z-index:5; display:flex; gap:8px; flex-wrap:wrap; max-width:80%; }
+.strip{ position:absolute; left:0; right:0; bottom:0; height:84px; background:var(--chrome); border-top:1px solid var(--line); display:flex; align-items:center; gap:10px; padding:0 12px; overflow-x:auto; }
+.slice{ flex:0 0 auto; width:128px; height:62px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--canvas); cursor:pointer; padding:4px 6px; display:flex; flex-direction:column; color:var(--ink); }
+.slice[aria-current="true"]{ border:2px solid var(--accent); } .slice svg{ flex:1; width:100%; }
+.slice .l{ font-size:11px; display:flex; justify-content:space-between; color:var(--ink-muted); } .slice[aria-current="true"] .l{ color:var(--ink); font-weight:600; }
+.dialog{ position:absolute; right:16px; top:56px; width:300px; z-index:8; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); box-shadow:0 2px 8px #00000066; }
+.dialog header{ padding:10px 12px; font-weight:600; border-bottom:1px solid var(--line); } .dialog .body{ padding:12px; display:grid; gap:10px; }
+.dialog footer{ display:flex; justify-content:flex-end; gap:8px; padding:10px 12px; border-top:1px solid var(--line); }
+.dialog.wide{ width:340px; } .sec[data-dialog="true"] .canvasbox{ right:356px; }
+.field.search{ grid-template-columns:56px minmax(0,1fr) 0; } .field.search input{ text-align:left; font-family:var(--font); }
+.catlist{ margin-top:2px; max-height:250px; overflow:auto; border:1px solid var(--line-strong); border-radius:var(--r-md); background:var(--canvas); }
+.cathead{ position:sticky; top:0; z-index:1; padding:4px 10px; background:var(--chrome-raised); color:var(--ink-muted); font-size:12px; font-weight:600; }
+.opt{ display:grid; grid-template-columns:1fr auto; column-gap:8px; min-height:32px; padding:4px 10px; cursor:pointer; color:var(--ink); }
+.opt .d{ grid-column:1 / -1; color:var(--ink-muted); font-size:12px; } .opt .tag{ align-self:center; font-size:11px; border:1px solid var(--line-strong); border-radius:9px; padding:0 6px; }
+.opt[aria-selected="true"]{ background:var(--accent-soft); box-shadow:inset 3px 0 0 var(--accent); } .opt[aria-disabled="true"]{ cursor:not-allowed; } .opt[aria-disabled="true"] .n{ color:var(--ink-muted); }
+.catdetail{ font-size:12px; min-height:34px; } .catempty{ padding:10px; color:var(--ink-muted); }
+.menu{ position:fixed; z-index:70; min-width:250px; padding:4px; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-md); box-shadow:0 2px 8px #00000066; color:var(--ink); font:13px/1.4 var(--font); }
+.menu button{ width:100%; display:flex; justify-content:space-between; gap:16px; min-height:28px; padding:0 10px; background:none; border:0; border-radius:var(--r-sm); text-align:left; color:var(--ink); cursor:pointer; }
+.menu button:hover{ background:var(--chrome-raised); } .menu .k{ color:var(--ink-muted); font-family:var(--mono); font-size:11px; }
+.menu [aria-checked="true"]::before{ content:"✓"; margin-right:6px; color:var(--accent); } .menu [aria-checked="false"]::before{ content:"✓"; margin-right:6px; visibility:hidden; }
+.menu hr{ border:0; border-top:1px solid var(--line); margin:4px 0; } .menu .mh{ padding:4px 10px; color:var(--ink-muted); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+
+.start{ position:absolute; inset:0; display:grid; place-items:center; overflow:auto; padding:24px; }
+.start-card{ width:min(640px, 100%); } .start-card h2{ margin:0 0 4px; font-size:18px; } .start-card .lead{ color:var(--ink-muted); margin:0 0 16px; }
+.newrow{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.card{ display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:12px; border:1px solid var(--line-strong); border-radius:var(--r-lg); background:var(--chrome); color:var(--ink); cursor:pointer; text-align:left; }
+.card:hover{ border-color:var(--accent); } .card svg{ width:100%; height:44px; } .card .t{ font-weight:600; } .card .d{ color:var(--ink-muted); font-size:12px; }
+.recent{ margin-top:24px; } .recent h3{ margin:0 0 6px; font-size:12px; color:var(--ink-muted); font-weight:600; }
+.recent .row-btn{ min-height:32px; border-radius:var(--r-md); } .recent .name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.msg{ border:2px solid var(--danger); background:var(--chrome); border-radius:var(--r-md); padding:12px 14px; margin-bottom:16px; }
+.skel{ background:var(--chrome-raised); border-radius:var(--r-md); }
+.opening{ position:absolute; inset:0; display:grid; grid-template-columns:2fr 1fr; gap:1px; background:var(--line); } .opening .skel{ border-radius:0; background:var(--canvas); }
+.opening-status{ position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--chrome); border:1px solid var(--line-strong); border-radius:var(--r-lg); }
+.gridline{ stroke:var(--grid); stroke-width:1; } .axisline{ stroke:var(--axis); stroke-width:1; }
+.curve{ fill:none; stroke:var(--model); stroke-width:2; } .curve.dim{ stroke:var(--model-dim); stroke-width:1.1; } .fill{ fill:var(--accent-soft); stroke:none; opacity:.55; }
+.cv{ fill:var(--canvas); stroke:var(--model); stroke-width:1.5; } .cv.sel{ fill:var(--accent); stroke:var(--accent); } .cv.locked{ stroke-dasharray:2 2; }
+.hit{ fill:transparent; stroke:none; cursor:grab; } .handleline{ stroke:var(--accent); stroke-width:1; }
+.station{ stroke:var(--model-dim); stroke-width:1; stroke-dasharray:3 3; } .station.sel{ stroke:var(--accent); stroke-width:2; stroke-dasharray:none; }
+.stchip rect.face{ fill:var(--chrome); stroke:var(--line-strong); } .stchip.sel rect.face{ stroke:var(--accent); stroke-width:2; } .stchip text{ fill:var(--ink); font-size:11px; font-family:var(--font); }
+.label{ fill:var(--ink-muted); font-size:11px; font-family:var(--font); } .ghost{ fill:none; stroke:var(--ghost); stroke-width:1; stroke-dasharray:5 4; } .ghost.preview{ stroke:var(--accent); stroke-width:2; }
+.ctlpoly{ fill:none; stroke:var(--model-dim); stroke-width:1; stroke-dasharray:3 3; } .cv.ctl{ fill:var(--model); } .cv.ctl.sel{ fill:var(--accent); }
+/* drawing that is not a target never takes the pointer: a handle line over its own point hid the point from clicks and from the focus-occlusion check */
+:is(.handleline, .ctlpoly, .ghost, .comb, .combenv, .brk, .label, .badmark, .station, .gridline, .axisline, .fill, .curve, .raise){ pointer-events:none; }
+.bad{ stroke:var(--danger); stroke-width:4; fill:none; stroke-dasharray:6 3; } .badmark text{ fill:var(--ink); font-size:12px; font-weight:600; font-family:var(--font); } .badmark rect{ fill:var(--chrome); stroke:var(--danger); stroke-width:2; }
+.comb{ stroke:var(--warn); stroke-width:.9; } .combenv{ fill:none; stroke:var(--warn); stroke-width:1.2; } .brk{ stroke:var(--ink); stroke-width:2; }
+.audit{ max-width:1200px; margin:8px auto 32px; padding:12px 16px; color:#edf4f2; font-size:12px; } .audit table{ border-collapse:collapse; width:100%; } .audit td,.audit th{ border-bottom:1px solid #344b50; padding:4px 8px; text-align:left; }
+.audit .pass{ color:#92d1a5; } .audit .fail{ color:#ffaeb5; } .audit .muted{ color:#afc6c7; }
+</style>
+</head>
+<body>
+<header class="harness" role="region" aria-label="Review harness">
+  <strong>Review · v10</strong>
+  <label>Platform <select id="h-platform"><option value="mac" selected>macOS</option><option value="win">Windows</option></select></label>
+  <label>Screen <select id="h-screen"><option value="start">No foil open (first run)</option><option value="opening">Opening a file</option><option value="openerror">File didn't open</option><option value="workspace" selected>Design workspace</option><option value="section">Section editor</option><option value="fair">Section · Smooth dialog</option><option value="catalog">Section · Replace from catalog</option><option value="save">Section · Save to My sections</option></select></label>
+  <label>Layout <select id="h-layout"><option value="planform" selected>Planform (default)</option><option value="precision">Precision</option><option value="review">Review</option><option value="float">Properties floating</option><option value="drag">Dragging a pane</option><option value="right">Right side bar opened</option><option value="max">Points maximized</option></select></label>
+  <label>Selection <select id="h-sel"><option value="none">nothing</option><option value="point" selected>a point</option><option value="station">a station / the nose</option><option value="multi">two points</option></select></label>
+  <label>State <select id="h-state"><option value="default">default</option><option value="invalid">invalid edit (real crossing)</option><option value="overflow">overflow</option></select></label>
+  <label>Theme <select id="h-theme"><option>dark</option><option>light</option><option value="contrast">high-contrast</option></select></label>
+  <label>Window <select id="h-viewport"><option value="1280">1280×800</option><option value="1440" selected>1440×900</option><option value="1920">1920×1080</option></select></label>
+  <span class="spacer"></span><span class="verdict" id="h-verdict">audit —</span>
+</header>
+
+<div class="stage"><div class="fit" id="fit">
+<nav class="osbar" aria-label="macOS menu bar (system)"><span class="app">CFD Workbench</span><button data-menu="file" aria-haspopup="menu" aria-expanded="false">File</button><button aria-haspopup="menu" aria-expanded="false" data-menu="edit">Edit</button><button data-menu="window" aria-haspopup="menu" aria-expanded="false">Window</button></nav>
+<main class="window" aria-label="CFD Workbench">
+  <div class="appbar" role="toolbar" aria-label="Application" id="appbar">
+    <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="winmenu cluster"><button class="tool sm" data-menu="file" aria-haspopup="menu" aria-expanded="false">File</button><button class="tool sm" data-menu="edit" aria-haspopup="menu" aria-expanded="false">Edit</button><button class="tool sm" data-menu="window" aria-haspopup="menu" aria-expanded="false">Window</button></span>
+    <span class="fname" id="fname">kite-wing-850.foil</span><span class="dirty" id="dirty" title="Unsaved changes">●</span>
+    <span class="tsep"></span>
+    <span class="cluster" id="cmd-ws"><button class="tool" data-stub="Add station">Add station</button><button class="tool" data-stub="Measure">Measure</button><button class="tool" id="comb-ws" aria-pressed="false" title="Curvature (K)">Curvature</button></span>
+    <span class="cluster hidden" id="cmd-sec"><span style="font-weight:600;margin:0 6px">Editing <span id="sec-name" style="color:var(--accent)">Mid section</span></span><button class="tool" id="sec-menu" aria-haspopup="menu" aria-expanded="false">Section ▾</button><button class="tool" id="comb-sec" aria-pressed="true" title="Curvature (K)">Curvature</button><button class="tool" id="exag" aria-pressed="true">Thickness ×2</button></span>
+    <span class="cluster push"><button class="tool sm" id="undo" aria-label="Undo"><svg viewBox="0 0 20 20"><path d="M7 5L3 9l4 4M3 9h9a5 5 0 010 10"/></svg></button><button class="tool sm" id="redo" aria-label="Redo"><svg viewBox="0 0 20 20"><path d="M13 5l4 4-4 4M17 9H8a5 5 0 000 10"/></svg></button></span>
+    <span class="cluster hidden" id="sec-actions"><button class="btn" id="sec-cancel">Cancel</button><button class="btn finish" id="sec-finish" aria-describedby="finish-why">Finish section</button></span>
+    <span class="tsep"></span>
+    <span class="cluster" role="group" aria-label="Layout">
+      <button class="tool sm" id="t-left" aria-pressed="true" aria-label="Left side bar"><svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="1.5"/><path d="M7.5 3.5v13"/></svg></button>
+      <button class="tool sm" id="t-bottom" aria-pressed="false" aria-label="Bottom panel"><svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="1.5"/><path d="M2.5 12h15"/></svg><span class="badge hidden" id="msg-badge" aria-label="1 problem">1</span></button>
+      <button class="tool sm" id="t-right" aria-pressed="false" aria-label="Right side bar"><svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="1.5"/><path d="M12.5 3.5v13"/></svg></button>
+    </span>
+    <span class="caption" aria-hidden="true"><span>─</span><span>☐</span><span>✕</span></span>
+  </div>
+
+  <div class="body" id="body">
+    <aside class="dock" id="dock-left" data-dock="left" aria-label="Left side bar"></aside>
+    <div class="split v" id="split-left" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize left side bar (also: pane menu, Size)" aria-controls="dock-left" aria-valuemin="200" aria-valuemax="420"></div>
+    <div class="mid">
+      <div class="center" id="center">
+        <div class="views" id="views" data-layout="plan3d">
+          <div class="view active" data-v="plan"><button class="vlabel" aria-pressed="true">Plan</button><svg class="g" id="v-plan" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet" role="application" aria-label="Plan view. Tab to a point or station; arrows move a point; Enter on a station edits its section."></svg></div>
+          <div class="view" data-v="3d"><button class="vlabel" aria-pressed="false">3D</button><svg class="g" id="v-3d" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>
+          <div class="view" data-v="side"><button class="vlabel" aria-pressed="false">Side</button><svg class="g" id="v-side" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>
+          <div class="view" data-v="front"><button class="vlabel" aria-pressed="false">Front</button><svg class="g" id="v-front" viewBox="0 0 700 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>
+        </div>
+        <svg class="cube" id="cube" viewBox="0 0 64 64" role="img" aria-label="View cube, top"><path d="M14 22 L32 12 L50 22 L50 44 L32 54 L14 44Z" fill="var(--chrome)" stroke="var(--line-strong)"/><path d="M14 22 L32 32 L50 22 M32 32 L32 54" fill="none" stroke="var(--line-strong)"/><text x="32" y="26" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)" font-family="system-ui">TOP</text></svg>
+        <div class="navbar" id="navbar" role="toolbar" aria-label="View"><button class="tool" data-stub="Fit">Fit</button><button class="tool" id="views-btn" aria-haspopup="menu" aria-expanded="false">Views ▾</button></div>
+        <div class="start hidden" id="start" role="region" aria-labelledby="start-h">
+          <div class="start-card">
+            <div class="msg hidden" id="open-error" role="alert"><strong>“old-kite-wing.foil” didn't open.</strong><br>It was saved by a newer version of CFD Workbench. The file hasn't been changed.
+              <div style="margin-top:10px"><button class="btn sm" data-act="open" id="open-another">Open another file…</button></div></div>
+            <h2 id="start-h">Start a foil</h2><p class="lead">Start with a foil, then make it yours.</p>
+            <div class="newrow">
+              <button class="card" data-act="new" id="start-first"><svg viewBox="0 0 200 44" aria-hidden="true"><path d="M20 32 Q100 2 180 32" fill="none" stroke="var(--model-dim)" stroke-width="2" stroke-dasharray="5 4"/></svg><span class="t">New foil</span><span class="d">A straight wing to shape.</span></button>
+              <button class="card" data-act="example"><svg viewBox="0 0 200 44" aria-hidden="true"><path d="M10 24 Q100 2 190 24 Q100 36 10 24Z" fill="var(--accent-soft)" stroke="var(--model)" stroke-width="2"/></svg><span class="t">New from example</span><span class="d">An 850 mm kite front wing.</span></button>
+              <button class="card" data-act="open"><svg viewBox="0 0 200 44" aria-hidden="true"><path d="M74 8h22l6 6h28v24H74z" fill="none" stroke="var(--model)" stroke-width="2"/></svg><span class="t">Open…</span><span class="d">A .foil file on this computer.</span></button>
+            </div>
+            <div class="recent"><h3 id="recent-h">Recent</h3><div role="group" aria-labelledby="recent-h" id="recent"></div></div>
+          </div>
+        </div>
+        <div class="opening hidden" id="opening">
+          <div class="skel"></div><div class="skel"></div>
+          <div class="opening-status" role="status"><span id="opening-text">Opening kite-wing-850.foil…</span><button class="btn sm" id="open-cancel" aria-label="Cancel opening">Cancel</button></div>
+        </div>
+        <div class="sec hidden" id="sec">
+          <div class="scopebar"><span class="chip hidden" id="src-chip"></span><span class="chip" id="scope-chip"></span></div>
+          <div class="canvasbox"><svg id="v-sec" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid meet" role="application" aria-label="Section. Tab to a point, then its handles. Arrows 0.1 mm, with the platform modifier 0.01, Shift 1. Enter finishes, Escape steps back."></svg></div>
+          <div class="status" id="sec-status"></div>
+          <div class="dialog hidden" id="smooth-dialog" role="dialog" aria-labelledby="sd-title">
+            <header id="sd-title">Smooth section</header>
+            <div class="body"><div class="field"><label for="sd-tol">Tolerance</label><input id="sd-tol" value="0.10"><span class="u">mm</span></div><div class="field"><label for="sd-pts">Points</label><input id="sd-pts" value="4"><span class="u">each</span></div><div>Largest change <strong style="font-family:var(--mono)">0.08 mm</strong> · nose curvature evened out</div></div>
+            <footer><button class="btn" id="sd-cancel">Cancel</button><button class="btn primary" id="sd-ok">OK</button></footer>
+          </div>
+          <div class="dialog wide hidden" id="cat-dialog" role="dialog" aria-labelledby="cat-title" aria-describedby="cat-note">
+            <header id="cat-title">Replace section from catalog</header>
+            <div class="body">
+              <div class="field search"><label for="cat-q">Search</label><input id="cat-q" role="combobox" aria-expanded="true" aria-controls="cat-list" aria-autocomplete="list" autocomplete="off" spellcheck="false"><span></span></div>
+              <div class="catlist" id="cat-list" role="listbox" aria-label="Sections by family"></div>
+              <div class="catdetail" id="cat-detail"></div><div class="sr" id="cat-status" role="status"></div>
+              <p class="note" id="cat-note">The dashed outline previews the choice on the section. Replace can be undone.</p>
+            </div>
+            <footer><button class="btn" id="cat-cancel">Cancel</button><button class="btn primary" id="cat-ok" aria-describedby="cat-detail">Replace</button></footer>
+          </div>
+          <div class="dialog hidden" id="save-dialog" role="dialog" aria-labelledby="save-title">
+            <header id="save-title">Save to My sections</header>
+            <div class="body">
+              <div class="field search"><label for="save-name">Name</label><input id="save-name" aria-describedby="save-prov save-err" autocomplete="off" spellcheck="false"><span></span></div>
+              <div class="note" id="save-prov"></div>
+              <div class="ferr hidden" id="save-err" role="alert"></div>
+            </div>
+            <footer><button class="btn" id="save-cancel">Cancel</button><button class="btn primary" id="save-ok">Save</button></footer>
+          </div>
+          <nav class="strip" id="strip" aria-label="Stations"></nav>
+        </div>
+      </div>
+      <div class="split h" id="split-bottom" role="separator" tabindex="0" aria-orientation="horizontal" aria-label="Resize bottom panel (also: pane menu, Size)" aria-controls="dock-bottom" aria-valuemin="120" aria-valuemax="420"></div>
+      <section class="dock" id="dock-bottom" data-dock="bottom" aria-label="Bottom panel"></section>
+    </div>
+    <div class="split v" id="split-right" role="separator" tabindex="0" aria-orientation="vertical" aria-label="Resize right side bar (also: pane menu, Size)" aria-controls="dock-right" aria-valuemin="200" aria-valuemax="420"></div>
+    <aside class="dock" id="dock-right" data-dock="right" aria-label="Right side bar"></aside>
+    <div id="floats"></div>
+    <div class="dropzones hidden" id="dropzones" aria-hidden="true"></div>
+  </div>
+</main>
+</div></div>
+<div class="menu hidden" id="menu" role="menu"></div>
+<div class="sr" id="sr-live" aria-live="polite"></div>
+
+<section class="audit" aria-label="Mechanical audit">
+  <table><thead><tr><th>Pairing (token on token)</th><th>Contrast</th><th>WCAG AA</th></tr></thead><tbody id="audit-rows"></tbody></table>
+  <p class="muted" id="audit-targets"></p><p class="muted" id="audit-count"></p>
+  <p class="muted">Measures every token pair above in the current theme and every visible HTML control plus every canvas point, handle and station chip against WCAG 2.2 AA 2.5.8 (24×24 CSS px). Splitters are counted separately: they use the 2.5.8 "equivalent" exception (pane menu → Size) and 2.5.7 is met the same way.</p>
+</section>
+
+<script>
+const root = document.documentElement, $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg', el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+const h = (tag, attrs = {}, html = '') => { const e = document.createElement(tag); for (const k in attrs) if (attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k]); e.innerHTML = html; return e; };
+const isMac = () => root.dataset.platform === 'mac', key = k => (isMac() ? '⌘' : 'Ctrl+') + k, ariaKey = k => (isMac() ? 'Meta+' : 'Control+') + k;
+function announce(t){ const n = $('sr-live'); n.textContent = ''; requestAnimationFrame(() => n.textContent = t); }
+
+/* ============================ geometry (same model as v8) ============================ */
+let half = 425; const cloneA = A => A.map(a => ({ ...a, p:a.p.slice(), hin:a.hin && a.hin.slice(), hout:a.hout && a.hout.slice() }));
+/* Mixed per-point model (operator decision, v10): an anchor is on the curve and carries tangent handles; a control point is
+   off the curve and pulls it. A segment runs anchor to anchor; the control points between them are extra Bézier vertices,
+   so changing a point's type redraws only the segment(s) it touches. Ends and named points are always anchors. */
+const isCtl = a => a.type === 'control';
+function segs(A){ const o = []; let i = 0;
+  while (i < A.length - 1){ const a = A[i], mid = []; let j = i + 1; while (j < A.length - 1 && isCtl(A[j])){ mid.push(A[j].p); j++; } const b = A[j];
+    o.push([a.p, [a.p[0]+a.hout[0], a.p[1]+a.hout[1]], ...mid, [b.p[0]+b.hin[0], b.p[1]+b.hin[1]], b.p]); i = j; } return o; }
+function bez(P, t){ let Q = P.map(p => p.slice()); while (Q.length > 1) Q = Q.slice(1).map((q, i) => [0,1].map(j => (1-t)*Q[i][j] + t*q[j])); return Q[0]; }
+const diff = (P, n) => P.slice(1).map((q, i) => [0,1].map(j => n*(q[j] - P[i][j])));
+function curvePts(A, n = 24){ const out = []; segs(A).forEach((P, s) => { for (let k = s ? 1 : 0; k <= n; k++) out.push(bez(P, k/n)); }); return out; }
+function toAnchor(A, i){ const a = A[i], prev = A[i-1].p, next = A[i+1].p, d = [next[0]-prev[0], next[1]-prev[1]], L = Math.hypot(...d) || 1, u = [d[0]/L, d[1]/L];
+  a.type = 'anchor'; a.kind = a.kind && a.kind !== 'end' ? a.kind : 'smooth'; const li = Math.hypot(a.p[0]-prev[0], a.p[1]-prev[1]) / 3, lo = Math.hypot(next[0]-a.p[0], next[1]-a.p[1]) / 3; a.hin = [-u[0]*li, -u[1]*li]; a.hout = [u[0]*lo, u[1]*lo]; }
+function toControl(a){ a.type = 'control'; delete a.hin; delete a.hout; }
+const LE0 = [ { id:'le0', curve:'Leading edge', name:'Root end', p:[0,0], hout:[120,0], kind:'end', lock:'perpendicular' }, { id:'le1', curve:'Leading edge', name:'Point 2', p:[245,13], hin:[-90,-7], hout:[90,7], kind:'smooth' }, { id:'le2', curve:'Leading edge', name:'Tip end', p:[425,48], hin:[-70,-14], kind:'end', closure:'square (open)' } ];
+const TE0 = [ { id:'te0', curve:'Trailing edge', name:'Root end', p:[0,182], hout:[120,0], kind:'end', lock:'perpendicular' }, { id:'te1', curve:'Trailing edge', name:'Point 2', p:[230,166], hin:[-90,6], hout:[95,-8], kind:'smooth' }, { id:'te2', curve:'Trailing edge', name:'Tip end', p:[425,136], hin:[-60,14], kind:'end', closure:'square (open)' } ];
+const straight = (curve, p, aft) => [ { id:p + '0', curve, name:'Root end', p:[0,aft], hout:[70,0], kind:'end', lock:'perpendicular' }, { id:p + '1', curve, name:'Point 2', p:[212.5,aft], hin:[-70,0], hout:[70,0], kind:'smooth' }, { id:p + '2', curve, name:'Tip end', p:[425,aft], hin:[-70,0], kind:'end', closure:'square (open)' } ];
+const LE_NEW = straight('Leading edge', 'le', 0), TE_NEW = straight('Trailing edge', 'te', 150);
+let LE = cloneA(LE0), TE = cloneA(TE0), docName = 'kite-wing-850';
+const NODOC = ['start', 'opening', 'openerror'], noDoc = () => NODOC.includes(root.dataset.screen), isSec = () => ['section', 'fair', 'catalog', 'save'].includes(root.dataset.screen);
+function atSpan(A, y){ const s = curvePts(A, 30); for (let i = 1; i < s.length; i++) if (s[i][0] >= y){ const a = s[i-1], b = s[i], t = (y - a[0]) / ((b[0] - a[0]) || 1); return a[1] + t*(b[1]-a[1]); } return s.at(-1)[1]; }
+const le = e => atSpan(LE, e*half), te = e => atSpan(TE, e*half), chord = e => te(e) - le(e), dih = e => -18*e*e;
+const NOSE0 = { hUp:[0,0.034], hLo:[0,-0.024] };
+const UP0 = [ { id:'u1', curve:'Upper surface', name:'Crest', p:[0.28,0.074], hin:[-0.15,0], hout:[0.17,0], kind:'horizontal' }, { id:'u2', curve:'Upper surface', name:'Aft', p:[0.72,0.044], hin:[-0.16,0.013], hout:[0.12,-0.010], kind:'smooth' }, { id:'u3', curve:'Upper surface', name:'Trailing-edge end', p:[1,0.0016], hin:[-0.12,0.019], kind:'end' } ];
+const LO0 = [ { id:'l1', curve:'Lower surface', name:'Belly', p:[0.26,-0.039], hin:[-0.13,0], hout:[0.17,0], kind:'horizontal' }, { id:'l2', curve:'Lower surface', name:'Aft', p:[0.70,-0.014], hin:[-0.18,-0.012], hout:[0.12,0.006], kind:'smooth' }, { id:'l3', curve:'Lower surface', name:'Trailing-edge end', p:[1,-0.0016], hin:[-0.10,-0.005], kind:'end' } ];
+let NOSE = { hUp:NOSE0.hUp.slice(), hLo:NOSE0.hLo.slice() }, UP = cloneA(UP0), LO = cloneA(LO0);
+const upperA = () => [{ p:[0,0], hout:NOSE.hUp }, ...UP], lowerA = () => [{ p:[0,0], hout:NOSE.hLo }, ...LO];
+let SECBASE = null; const base = () => SECBASE || { NOSE:NOSE0, UP:UP0, LO:LO0 };
+const baseUpper = () => [{ p:[0,0], hout:base().NOSE.hUp }, ...base().UP], baseLower = () => [{ p:[0,0], hout:base().NOSE.hLo }, ...base().LO];
+function yAt(S, x){ for (let i = 1; i < S.length; i++) if (S[i][0] >= x){ const a = S[i-1], b = S[i], t = (x-a[0])/((b[0]-a[0]) || 1); return a[1] + t*(b[1]-a[1]); } return S.at(-1)[1]; }
+function thickness(U, Lw){ const su = curvePts(U), sl = curvePts(Lw); let best = [0,0]; for (let x = .02; x < .98; x += .005){ const t = yAt(su, x) - yAt(sl, x); if (t > best[0]) best = [t, x]; } return best; }
+function crossing(){ const su = curvePts(upperA()), sl = curvePts(lowerA()), xs = []; for (let x = .03; x < .995; x += .005) if (yAt(su, x) - yAt(sl, x) <= 0.0004) xs.push(x); return xs.length ? [xs[0], xs.at(-1)] : null; }
+function leRadius(A){ const P = segs(A)[0], n = P.length - 1, d1 = [P[1][0]-P[0][0], P[1][1]-P[0][1]], d2 = [P[2][0]-P[0][0], P[2][1]-P[0][1]], cr = Math.abs(d1[0]*d2[1] - d1[1]*d2[0]), l = Math.hypot(...d1), k = (n-1)/n * cr/(l*l*l); return k ? 1/k : Infinity; }
+function area(){ let a = 0; for (let i = 0; i < 100; i++) a += chord((i + .5)/100) * half/100; return 2*a; }
+function stations(){ if (root.dataset.state === 'overflow') return Array.from({length:12}, (_, i) => ({ eta:i/11, name: i === 0 ? 'Root' : i === 11 ? 'Tip' : `Station ${i}`, prof: i < 6 ? 'Main section' : 'Tip section' }));
+  return [ { eta:0, name:'Root', prof:'Main section' }, { eta:.5, name:'Mid', prof:'Main section' }, { eta:1, name:'Tip', prof:'Tip section' } ]; }
+const mm = f => f * chord(stations()[selStation].eta), deg = v => Math.atan2(v[1], v[0]) * 180/Math.PI;
+function mirrorHandle(a, hk){ const o = hk === 'hin' ? 'hout' : 'hin'; if (a[o] && a[hk]){ const L1 = Math.hypot(...a[hk]) || 1, L2 = a.kind === 'symmetric' ? L1 : Math.hypot(...a[o]); a[o] = [-a[hk][0]/L1*L2, -a[hk][1]/L1*L2]; } }
+function constrain(a, hk){ const v = a[hk]; if (!v) return; if (a.kind === 'horizontal') v[1] = 0; if (a.kind === 'vertical') v[0] = 0; if (a.kind !== 'corner' && a.kind !== 'end') mirrorHandle(a, hk); }
+
+/* ============================ running estimates (operator: always visible in Properties) ============================ */
+function wingEst(){ const b = 2*half, S = area(), n = 200; let m = 0; for (let i = 0; i < n; i++){ const c = chord((i + .5)/n); m += c*c*half/n; }
+  return { b, S, c0:chord(0), cm:S/b, mac:2*m/S, tc:thickness(upperA(), lowerA())[0], ar:b*b/S }; }
+
+/* ============================ profile catalog (spec A4.10: GEN admitted · VEND pending · LINK cite only) ============================ */
+function naca4(m, p, t){ const yt = x => 5*t*(0.2969*Math.sqrt(x) - 0.1260*x - 0.3516*x*x + 0.2843*x**3 - 0.1015*x**4),
+    yc = x => !m ? 0 : x < p ? m/(p*p)*(2*p*x - x*x) : m/((1-p)**2)*(1 - 2*p + 2*p*x - x*x), dyc = x => !m ? 0 : x < p ? 2*m/(p*p)*(p - x) : 2*m/((1-p)**2)*(p - x);
+  return sg => { const P = []; for (let i = 0; i <= 160; i++){ const x = (1 - Math.cos(Math.PI*i/160))/2, th = Math.atan(dyc(x)); P.push([x - sg*yt(x)*Math.sin(th), yc(x) + sg*yt(x)*Math.cos(th)]); } return P.sort((a, b) => a[0] - b[0]); }; }
+/* Fit a catalog definition to the editor's points (nose + three points per surface) and measure how closely the points follow it. */
+function fitProfile(def){ const TU = def(1), TL = def(-1), sl = (P, x) => { const a = Math.max(0, x - .004), b = Math.min(1, x + .004); return (yAt(P, b) - yAt(P, a)) / (b - a); };
+  const side = (P, sg, ids, names, curve) => { let xc = .3, best = -Infinity; for (let x = .05; x <= .5; x += .01){ const v = sg*yAt(P, x); if (v > best){ best = v; xc = x; } }
+    const X = [xc, .70, 1], pts = X.map((x, i) => ({ id:ids[i], curve, name:names[i], p:[x, yAt(P, x)], kind: i === 2 ? 'end' : 'smooth', type:'anchor' }));
+    pts.forEach((a, i) => { const s = i === 2 ? sl(P, .996) : sl(P, a.p[0]), din = (a.p[0] - (i ? X[i-1] : 0))/3; a.hin = [-din, -din*s]; if (i < 2){ const dout = (X[i+1] - a.p[0])/3; a.hout = [dout, dout*s]; } }); return pts; };
+  const up = side(TU, 1, ['u1', 'u2', 'u3'], ['Crest', 'Aft', 'Trailing-edge end'], 'Upper surface'), lo = side(TL, -1, ['l1', 'l2', 'l3'], ['Belly', 'Aft', 'Trailing-edge end'], 'Lower surface');
+  const err = (A, T, x1) => { const F = curvePts(A, 40); let e = 0; for (let x = .004; x <= x1; x += .004) e = Math.max(e, Math.abs(yAt(F, x) - yAt(T, x))); return e; };
+  const tune = (pts, T, sg) => { let bestE = Infinity, bh = .03, bk = 1/3; const a = pts[0], x0 = a.p[0], s = a.hin[1] / a.hin[0];
+    for (let hN = .004; hN <= .09; hN += .002) for (let k = .2; k <= .7; k += .05){ a.hin = [-k*x0, -k*x0*s]; const e = err([{ p:[0,0], hout:[0, sg*hN] }, a], T, x0); if (e < bestE){ bestE = e; bh = hN; bk = k; } }
+    a.hin = [-bk*x0, -bk*x0*s]; return sg*bh; };
+  const errR = (A, T, x0, x1) => { const F = curvePts(A, 40); let e = 0; for (let x = x0; x <= x1; x += .004) e = Math.max(e, Math.abs(yAt(F, x) - yAt(T, x))); return e; };
+  const tuneSegs = (pts, T, hN) => { for (let i = 0; i < 2; i++){ const a = pts[i], b = pts[i+1], dx = b.p[0] - a.p[0], sa = a.hout[1]/a.hout[0], sb = b.hin[1]/b.hin[0]; let best = Infinity, bk = [1/3, 1/3];
+      for (let ka = .15; ka <= .61; ka += .05) for (let kb = .15; kb <= .61; kb += .05){ a.hout = [ka*dx, ka*dx*sa]; b.hin = [-kb*dx, -kb*dx*sb]; const e = errR([{ p:[0,0], hout:[0, hN] }, ...pts], T, a.p[0], Math.min(.996, b.p[0])); if (e < best){ best = e; bk = [ka, kb]; } }
+      a.hout = [bk[0]*dx, bk[0]*dx*sa]; b.hin = [-bk[1]*dx, -bk[1]*dx*sb]; } };
+  const hUp = tune(up, TU, 1), hLo = tune(lo, TL, -1), N = { hUp:[0, hUp], hLo:[0, hLo] }; tuneSegs(up, TU, hUp); tuneSegs(lo, TL, hLo);
+  const dev = Math.max(err([{ p:[0,0], hout:N.hUp }, ...up], TU, .996), err([{ p:[0,0], hout:N.hLo }, ...lo], TL, .996));
+  let tc = 0; for (let x = .01; x < .99; x += .005) tc = Math.max(tc, yAt(TU, x) - yAt(TL, x));
+  return { NOSE:N, UP:up, LO:lo, dev, tc }; }
+const CATALOG = [
+  { fam:'NACA', id:'naca0009', name:'NACA 0009', cls:'GEN', def:naca4(0, 0, .09) }, { fam:'NACA', id:'naca0012', name:'NACA 0012', cls:'GEN', def:naca4(0, 0, .12) }, { fam:'NACA', id:'naca4412', name:'NACA 4412', cls:'GEN', def:naca4(.04, .4, .12) },
+  ...['E817', 'E818', 'E874', 'E904', 'E908'].map(n => ({ fam:'Eppler', id:n.toLowerCase(), name:'Eppler ' + n, cls:'VEND', why:'Pending admission — terms requested from UIUC · GEN sections remain' })),
+  { fam:'Speer', id:'h105', name:'Speer H105', cls:'LINK', why:'Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here' } ];
+let MINE = [{ fam:'My sections', id:'mine-main', name:'Main section', cls:'MINE', prov:'Drawn in kite-wing-850', shape:{ NOSE:NOSE0, UP:UP0, LO:LO0 } }];
+const catAll = () => [...CATALOG, ...MINE], catById = id => catAll().find(c => c.id === id), admitted = c => c.cls === 'GEN' || c.cls === 'MINE';
+const shapeOf = c => c.shape ? { ...JSON.parse(JSON.stringify(c.shape)), dev:0, tc:null } : (c.fit ||= fitProfile(c.def));
+/* where the section came from: a catalog entry, or one of My sections; "modified" is derived by comparing with that source */
+function defaultSrc(){ return { name:'Main section', catalog:false, prov:'Drawn in kite-wing-850', base:JSON.stringify({ NOSE:NOSE0, UP:UP0, LO:LO0 }) }; }
+let SRC = defaultSrc();
+const secShape = () => JSON.stringify({ NOSE, UP, LO }), modified = () => secShape() !== SRC.base;
+const provenance = () => modified() ? `Modified from ${SRC.name}` : SRC.catalog ? `Copy of ${SRC.name}` : SRC.prov;
+
+/* ============================ undo (commands, typed values, drags, nudge bursts) ============================ */
+let UNDO = [], REDO = [], lastNudge = null, SECENTRY = null;
+const snapshot = () => JSON.stringify({ LE, TE, NOSE, UP, LO, SRC, half });
+function restoreSnap(j){ const s = JSON.parse(j); LE = s.LE; TE = s.TE; NOSE = s.NOSE; UP = s.UP; LO = s.LO; SRC = s.SRC; half = s.half; }
+function pushUndo(label, nudgeKey){ if (nudgeKey && nudgeKey === lastNudge) return; lastNudge = nudgeKey || null; UNDO.push({ label, s:snapshot() }); REDO = []; }
+function undo(){ if (isSec() && SECENTRY && UNDO.length <= SECENTRY.depth){ announce('Nothing to undo in this section edit. Cancel leaves the editor unchanged.'); return; } const u = UNDO.pop(); if (!u){ announce('Nothing to undo'); return; } REDO.push({ label:u.label, s:snapshot() }); restoreSnap(u.s); lastNudge = null; dirty = true; refresh(); announce(`Undid ${u.label}`); }
+function redo(){ const r = REDO.pop(); if (!r){ announce('Nothing to redo'); return; } UNDO.push({ label:r.label, s:snapshot() }); restoreSnap(r.s); lastNudge = null; dirty = true; refresh(); announce(`Redid ${r.label}`); }
+
+/* ============================ selection ============================ */
+let selStation = 1, S = { kind:'plan', ids:['le1'] }, drag = null, dirty = false, unique = false, snap = null;
+const planCurve = id => [LE, TE].find(A => A.some(a => a.id === id)), planPt = id => (planCurve(id) || []).find(a => a.id === id), findA = k => UP.find(a => a.id === k) || LO.find(a => a.id === k);
+
+/* ============================ panes, docks, workspaces ============================ */
+const PANES = { properties:{ title:'Properties', render:renderProperties }, browser:{ title:'Browser', render:renderBrowser }, points:{ title:'Points', render:renderPoints }, messages:{ title:'Messages', render:renderMessages } };
+const HOME = { properties:'left', browser:'left', points:'bottom', messages:'bottom' };
+const SIZES = { left:{ Narrow:200, Default:260, Wide:360 }, right:{ Narrow:200, Default:260, Wide:360 }, bottom:{ Narrow:130, Default:190, Wide:300 } };
+const WORKSPACES = {
+  planform:  { name:'Planform',  views:'plan3d', left:['properties', 'browser'], right:[], bottom:[], shown:{ left:true, right:false, bottom:false } },
+  precision: { name:'Precision', views:'plan3d', left:['properties', 'browser'], right:[], bottom:['points', 'messages'], shown:{ left:true, right:false, bottom:true } },
+  review:    { name:'Review',    views:'quad',   left:['properties', 'browser'], right:[], bottom:[], shown:{ left:false, right:false, bottom:false } } };
+let WS = 'planform', L = null; const saved = {};
+const preset = k => { const w = WORKSPACES[k]; return { left:[...w.left], right:[...w.right], bottom:[...w.bottom], float:[], active:{ left:w.left[0], right:w.right[0], bottom:w.bottom[0] }, shown:{ ...w.shown }, sizes:{ left:260, right:260, bottom:190 }, maxed:null, views:w.views }; };
+function switchWorkspace(k, reset){ if (L) saved[WS] = JSON.parse(JSON.stringify(L)); WS = k; L = reset || !saved[k] ? preset(k) : JSON.parse(JSON.stringify(saved[k])); $('views').dataset.layout = L.views; layout(); announce(`${WORKSPACES[k].name} workspace${reset ? ', layout reset' : ''}`); }
+const where = id => { for (const d of ['left', 'right', 'bottom']) if (L[d].includes(id)) return d; return L.float.some(f => f.id === id) ? 'float' : null; };
+function detach(id){ for (const d of ['left', 'right', 'bottom']){ const had = L[d].includes(id); L[d] = L[d].filter(x => x !== id); if (L.active[d] === id) L.active[d] = L[d][0]; if (had && !L[d].length) L.shown[d] = false; } L.float = L.float.filter(f => f.id !== id); if (L.maxed === id) L.maxed = null; }
+function movePane(id, to){ const from = where(id); detach(id);
+  if (to === 'float'){ const p = floatSpot('centre'); L.float.push({ id, from: from === 'float' ? HOME[id] : (from || HOME[id]), x: p.x, y: p.y }); }
+  else if (to !== 'closed'){ L[to].push(id); L.active[to] = id; L.shown[to] = true; }
+  layout();
+  if (to === 'closed'){ const d = from === 'float' ? null : from, next = d && L[d][0]; (next ? $('dock-' + d).querySelector(`[data-tab="${next}"]`) : $(d ? 't-' + d : 'v-plan'))?.focus?.(); if (!d) focusCanvas(); }
+  else focusTab(id);
+  announce(`${PANES[id].title} ${to === 'float' ? 'is floating. Press Escape to dock it back.' : to === 'closed' ? 'closed' : 'moved to the ' + ({ left:'left side bar', right:'right side bar', bottom:'bottom panel' })[to]}`); }
+const focusTab = id => { const t = document.querySelector(`[data-tab="${id}"]`); t && t.focus({ preventScroll:true }); };
+const centerTarget = () => { const s = root.dataset.screen; return s === 'workspace' ? $('v-plan').querySelector('g[role="button"]') : isSec() ? $('v-sec').querySelector('g[role="button"]') : s === 'opening' ? $('open-cancel') : $('start').querySelector('.msg:not(.hidden) button, .card'); };
+function focusCanvas(){ centerTarget()?.focus({ preventScroll:true }); }
+/* Focus contract (operator decision, option a): a control in the model area that takes focus is never left under a float.
+   The float moves to the nearest corner of the model area that clears the target, and the move is announced. */
+function clearFloatsOf(target){ if (!L || !L.float.length) return; const b = $('body').getBoundingClientRect(), k = scaleK(), rel = r => ({ l:(r.left - b.left)/k, t:(r.top - b.top)/k, r:(r.right - b.left)/k, b:(r.bottom - b.top)/k });
+  const T = rel(target.getBoundingClientRect()), C = rel($('center').getBoundingClientRect()), what = (target.getAttribute('aria-label') || target.textContent).split(',').slice(0, 2).join(',').trim(), toDock = [];
+  [...$('floats').children].forEach((w, n) => { const f = L.float[n], fw = w.offsetWidth, fh = w.offsetHeight, hits = (x, y) => x < T.r + 8 && x + fw > T.l - 8 && y < T.b + 8 && y + fh > T.t - 8;
+    if (!hits(f.x, f.y)) return;
+    const spots = [C.r - fw - 16, C.l + 16].flatMap(x => [C.t + 16, Math.max(C.t + 16, C.b - fh - 16)].map(y => ({ x, y }))).filter(p => !hits(p.x, p.y) && p.x >= C.l && p.x + fw <= C.r && p.y + fh <= C.b).sort((p, q) => Math.hypot(p.x - f.x, p.y - f.y) - Math.hypot(q.x - f.x, q.y - f.y));
+    if (!spots.length){ toDock.push(f); return; } f.x = spots[0].x; f.y = spots[0].y; w.style.left = f.x + 'px'; w.style.top = f.y + 'px';
+    announce(`${PANES[f.id].title} moved so it doesn't cover ${what}`); });
+  /* no corner of the model area clears the target (a narrow model area): dock the pane back where it came from; focus stays on the target */
+  if (toDock.length){ toDock.forEach(f => { const home = f.from || HOME[f.id]; L.float = L.float.filter(x => x !== f); L[home].push(f.id); L.active[home] = f.id; L.shown[home] = true; }); layout();
+    announce(`${toDock.map(f => PANES[f.id].title).join(', ')} docked so it doesn't cover ${what}`); } }
+document.addEventListener('focusin', e => { const t = e.target; if (L && t.closest && t.closest('#center')) clearFloatsOf(t); });
+function floatSpot(where){ const b = $('body'), W = b.offsetWidth, H = b.offsetHeight, lw = L.shown.left ? L.sizes.left + 6 : 0, rw = L.shown.right ? L.sizes.right + 6 : 0, bh = L.shown.bottom ? L.sizes.bottom + 6 : 0, fw = 300, fh = 430, cw = W - lw - rw;
+  if (where === 'topright') return { x: lw + cw - fw - 16, y: 16 }; if (where === 'bottomright') return { x: lw + cw - fw - 16, y: Math.max(16, H - bh - fh - 16) }; return { x: lw + Math.max(16, (cw - fw)/2), y: Math.max(16, (H - bh - fh)/2) }; }
+function moveFloat(id, x, y){ const f = L.float.find(f => f.id === id); if (!f) return; const b = $('body'); f.x = Math.max(0, Math.min(b.offsetWidth - 300, x)); f.y = Math.max(0, Math.min(b.offsetHeight - 60, y)); layout(); focusTab(id); announce(`${PANES[id].title} moved`); }
+function toggleMax(id){ L.maxed = L.maxed === id ? null : id; layout(); focusTab(id); announce(L.maxed ? `${PANES[id].title} maximized. Press Escape to restore.` : `${PANES[id].title} restored`); }
+function toggleDock(d){ const opening = !L.shown[d];
+  if (opening && !L[d].length){ const w = WORKSPACES[WS]; const fill = d === 'bottom' ? ['points', 'messages'] : d === 'left' ? ['properties', 'browser'] : []; fill.forEach(id => { if (!where(id)) L[d].push(id); }); L.active[d] = L[d][0]; }
+  L.shown[d] = opening; if (!opening && L.maxed && where(L.maxed) === d) L.maxed = null; layout();
+  if (opening) (L[d].length ? focusTab(L.active[d]) : $('dock-' + d).querySelector('button')?.focus()); else $('t-' + d).focus();
+  announce(`${({ left:'Left side bar', right:'Right side bar', bottom:'Bottom panel' })[d]} ${opening ? 'shown' : 'hidden'}`); }
+['left', 'right', 'bottom'].forEach(d => $('t-' + d).addEventListener('click', () => toggleDock(d)));
+
+/* stable focus across rebuilds: every focusable pane control carries data-fk */
+let pendingFk = null;
+document.addEventListener('focusout', e => { const n = e.relatedTarget; pendingFk = n && n.closest && n.closest('.dock, .float') ? (n.dataset.tab ? `[data-tab="${n.dataset.tab}"]` : n.dataset.fk ? `[data-fk="${n.dataset.fk}"]` : null) : null; });
+function focusKey(){ const a = document.activeElement; if (!a || !a.closest('.dock, .float')) return null; return a.dataset.tab ? `[data-tab="${a.dataset.tab}"]` : a.dataset.fk ? `[data-fk="${a.dataset.fk}"]` : null; }
+function groupEl(dockKey, ids, floatRec){
+  const g = h('div', { style:'display:flex;flex-direction:column;flex:1;min-height:0' }), active = floatRec ? floatRec.id : (L.active[dockKey] || ids[0]);
+  const tabs = h('div', { class:'tabs', role:'tablist', 'aria-label': floatRec ? `${PANES[active].title}, floating` : ({ left:'Left side bar', right:'Right side bar', bottom:'Bottom panel' })[dockKey] });
+  ids.forEach(id => { const on = id === active, t = h('button', { class:'tab', role:'tab', id:'tab-' + id, 'data-tab':id, 'aria-selected':on, 'aria-controls': on ? 'panel-' + id : null, tabindex: on ? 0 : -1, title: PANES[id].title + ': drag to dock or float' }, PANES[id].title);
+    t.addEventListener('click', () => { if (!floatRec){ L.active[dockKey] = id; layout(); focusTab(id); } });
+    t.addEventListener('keydown', ev => tabKeys(ev, dockKey, ids, id, floatRec)); t.addEventListener('pointerdown', ev => startPaneDrag(ev, id)); tabs.appendChild(t); });
+  tabs.appendChild(h('span', { class:'gap' }));
+  const mb = h('button', { class:'tool sm', 'aria-haspopup':'menu', 'aria-expanded':'false', 'aria-label':`${PANES[active].title} pane actions`, 'data-fk':`menu:${active}` }, '⋯'); mb.addEventListener('click', () => openMenu(paneMenu(active), mb)); tabs.appendChild(mb);
+  if (floatRec){ const db = h('button', { class:'tool sm', 'aria-label':`Dock ${PANES[active].title} back`, title:'Dock back (Escape)', 'data-fk':`dock:${active}` }, '⤓'); db.addEventListener('click', () => movePane(active, floatRec.from)); tabs.appendChild(db); }
+  const body = h('div', { class:'pane-body', role:'tabpanel', id:'panel-' + active, 'aria-labelledby':'tab-' + active, tabindex:'-1' }); PANES[active].render(body);
+  g.append(tabs, body); return g; }
+function tabKeys(ev, dockKey, ids, id, floatRec){ const i = ids.indexOf(id);
+  if (floatRec && ev.altKey && ev.key.startsWith('Arrow')){ ev.preventDefault(); const s = ev.shiftKey ? 80 : 20; moveFloat(id, floatRec.x + (ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0), floatRec.y + (ev.key === 'ArrowDown' ? s : ev.key === 'ArrowUp' ? -s : 0)); return; }
+  if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft'){ ev.preventDefault(); const n = ids[(i + (ev.key === 'ArrowRight' ? 1 : ids.length - 1)) % ids.length]; if (!floatRec){ L.active[dockKey] = n; layout(); } focusTab(n); }
+  else if ((ev.key === 'F10' && ev.shiftKey) || ev.key === 'ContextMenu'){ ev.preventDefault(); openMenu(paneMenu(id), ev.currentTarget); }
+  else if (ev.key === 'Escape' && floatRec){ ev.preventDefault(); movePane(id, floatRec.from); }
+  else if (floatRec && ev.altKey && ev.key.startsWith('Arrow')){ ev.preventDefault(); const s = ev.shiftKey ? 80 : 20; moveFloat(id, floatRec.x + (ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0), floatRec.y + (ev.key === 'ArrowDown' ? s : ev.key === 'ArrowUp' ? -s : 0)); } }
+function paneMenu(id){ const at = where(id), d = at === 'float' ? null : at, opt = (to, t) => at === to ? null : { t, a:`move:${id}:${to}` };
+  return [ { head: PANES[id].title }, opt('left', 'Move to left side bar'), opt('right', 'Move to right side bar'), opt('bottom', 'Move to bottom panel'), opt('float', 'Float'), '-',
+    ...(d ? [{ head:'Size' }, ...Object.entries(SIZES[d]).map(([n, v]) => ({ t:n, a:`size:${d}:${v}`, role:'menuitemradio', checked: L.sizes[d] === v }))] : [{ head:'Position' }, { t:'Centre', a:`pos:${id}:centre` }, { t:'Top right', a:`pos:${id}:topright` }, { t:'Bottom right', a:`pos:${id}:bottomright` }, { t:'Move with Alt + arrow keys', a:'x', ak:'Alt+ArrowUp' }]), '-',
+    { t: L.maxed === id ? 'Restore' : 'Maximize', a:`max:${id}`, k:key('⇧M'), ak:ariaKey('Shift+M') }, { t:'Close', a:`move:${id}:closed` } ].filter(Boolean); }
+
+function layout(){
+  const fk = focusKey() || pendingFk; pendingFk = null;
+  ['left', 'right', 'bottom'].forEach(d => { const dock = $('dock-' + d), ids = L[d], shown = !!L.shown[d]; dock.innerHTML = ''; dock.dataset.shown = shown;
+    if (d === 'bottom') dock.style.height = L.sizes.bottom + 'px'; else dock.style.width = L.sizes[d] + 'px';
+    if (ids.length){ if (!ids.includes(L.active[d])) L.active[d] = ids[0]; dock.appendChild(groupEl(d, ids)); }
+    else if (shown){ dock.appendChild(h('div', { class:'empty', role:'note' }, `This ${d === 'right' ? 'side bar' : 'panel'} is empty. Drag a pane's tab here, or choose ⋯ → Move to ${d === 'right' ? 'right side bar' : 'bottom panel'} on any pane.`));
+      const c = h('button', { class:'btn sm', style:'margin:0 14px', 'data-fk':'close:' + d }, 'Close'); c.addEventListener('click', () => toggleDock(d)); dock.appendChild(c); }
+    $('split-' + d).dataset.shown = shown; $('split-' + d).setAttribute('aria-valuenow', L.sizes[d]); $('split-' + d).setAttribute('aria-valuetext', `${L.sizes[d]} pixels`); $('t-' + d).setAttribute('aria-pressed', shown); });
+  const fl = $('floats'); fl.innerHTML = '';
+  L.float.forEach(f => { const w = h('div', { class:'float', role:'dialog', 'aria-label': `${PANES[f.id].title}, floating`, style:`left:${f.x}px;top:${f.y}px` }); w.appendChild(groupEl('float', [f.id], f)); fl.appendChild(w);
+    w.querySelector('.tabs').addEventListener('pointerdown', ev => { if (ev.target.closest('button') && !ev.target.classList.contains('tab')) return; startFloatMove(ev, f, w); }); });
+  // maximize: the maximized pane covers the window body; everything else is inert
+  const hosts = [...['left', 'right', 'bottom'].map(d => $('dock-' + d)), ...$('floats').children]; let maxHost = null;
+  if (L.maxed){ const d = where(L.maxed); maxHost = d === 'float' ? [...$('floats').children].find(w => w.querySelector(`[data-tab="${L.maxed}"]`)) : $('dock-' + d); if (d && d !== 'float') L.active[d] = L.maxed; }
+  hosts.forEach(n => n.classList.toggle('maxed', n === maxHost));
+  [$('center'), ...['left', 'right', 'bottom'].map(d => $('split-' + d)), ...hosts, $('appbar')].forEach(n => { n.inert = !!maxHost && n !== maxHost; });
+  if (maxHost && maxHost.dataset.shown === 'false') maxHost.dataset.shown = true;
+  $('msg-badge').classList.toggle('hidden', !(crossing() && root.dataset.screen !== 'workspace'));
+  if (!layout.busy){ layout.busy = true; drawPlan(); drawSection(); layout.busy = false; }
+  if (fk){ const n = document.querySelector(`.dock ${fk}, .float ${fk}`); n && n.focus({ preventScroll:true }); }
+  audit(); }
+
+/* splitters: drag or keyboard; the pane menu's Size items are the single-pointer equivalent (2.5.7) */
+['left', 'right', 'bottom'].forEach(d => { const s = $('split-' + d), lim = d === 'bottom' ? [120, 420] : [200, 420], set = v => { L.sizes[d] = Math.max(lim[0], Math.min(lim[1], v)); layout(); };
+  s.addEventListener('keydown', ev => { if (ev.key === 'Home' || ev.key === 'End'){ ev.preventDefault(); set(ev.key === 'Home' ? lim[0] : lim[1]); s.focus(); return; } const inc = d === 'bottom' ? (ev.key === 'ArrowUp' ? 16 : ev.key === 'ArrowDown' ? -16 : 0) : d === 'left' ? (ev.key === 'ArrowRight' ? 16 : ev.key === 'ArrowLeft' ? -16 : 0) : (ev.key === 'ArrowLeft' ? 16 : ev.key === 'ArrowRight' ? -16 : 0); if (inc){ ev.preventDefault(); set(L.sizes[d] + inc); s.focus(); } });
+  s.addEventListener('pointerdown', ev => { ev.preventDefault(); s.classList.add('active'); const x0 = ev.clientX, y0 = ev.clientY, v0 = L.sizes[d], k = scaleK();
+    const mv = e => set(v0 + (d === 'bottom' ? (y0 - e.clientY) : d === 'left' ? (e.clientX - x0) : (x0 - e.clientX)) / k), up = () => { s.classList.remove('active'); removeEventListener('pointermove', mv); removeEventListener('pointerup', up); };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up); }); });
+const scaleK = () => { const w = document.querySelector('.window'); return w.getBoundingClientRect().width / w.offsetWidth || 1; };
+
+/* drag a tab to dock or float (Premiere drop zones) */
+function zones(){ const b = $('body'), W = b.offsetWidth, H = b.offsetHeight, lw = L.shown.left ? L.sizes.left : 0, rw = L.shown.right ? L.sizes.right : 0;
+  return [ { key:'left', label:'Left side bar', x:0, y:0, w:Math.max(160, lw), h:H }, { key:'right', label:'Right side bar', x:W - Math.max(180, rw), y:0, w:Math.max(180, rw), h:H }, { key:'bottom', label:'Bottom panel', x:Math.max(160, lw) + 8, y:H - 150, w:W - Math.max(160, lw) - Math.max(180, rw) - 16, h:142 } ]; }
+function showZones(hot){ const dz = $('dropzones'); dz.innerHTML = ''; dz.classList.remove('hidden'); zones().forEach(z => dz.appendChild(h('div', { class:'dz' + (hot === z.key ? ' hot' : ''), style:`left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px` }, z.label)));
+  const W = $('body').offsetWidth, H = $('body').offsetHeight; dz.appendChild(h('div', { class:'dz' + (hot === 'float' ? ' hot' : ''), style:`left:${W/2-110}px;top:${H/2-40}px;width:220px;height:80px` }, 'Float here')); }
+const hideZones = () => { $('dropzones').classList.add('hidden'); $('dropzones').innerHTML = ''; };
+function zoneAt(ev){ const b = $('body').getBoundingClientRect(), k = scaleK(), x = (ev.clientX - b.left)/k, y = (ev.clientY - b.top)/k, z = zones().find(z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h); return { key: z ? z.key : 'float', x, y }; }
+function startPaneDrag(ev, id){ if (ev.button !== 0) return; const x0 = ev.clientX, y0 = ev.clientY; let live = false;
+  const mv = e => { if (!live && Math.hypot(e.clientX - x0, e.clientY - y0) < 6) return; live = true; showZones(zoneAt(e).key); };
+  const up = e => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); if (!live) return; hideZones(); const z = zoneAt(e); movePane(id, z.key); if (z.key === 'float'){ const f = L.float.find(f => f.id === id); f.x = Math.max(8, z.x - 150); f.y = Math.max(8, z.y - 16); layout(); focusTab(id); } };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up); }
+function startFloatMove(ev, f, w){ if (ev.button !== 0) return; const x0 = ev.clientX, y0 = ev.clientY, fx = f.x, fy = f.y, k = scaleK();
+  const mv = e => { f.x = fx + (e.clientX - x0)/k; f.y = fy + (e.clientY - y0)/k; w.style.left = f.x + 'px'; w.style.top = f.y + 'px'; const z = zoneAt(e); z.key !== 'float' ? showZones(z.key) : hideZones(); };
+  const up = e => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); const z = zoneAt(e); hideZones(); if (z.key !== 'float') movePane(f.id, z.key); };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up); }
+
+/* ============================ pane content ============================ */
+const KIND = { smooth:'Smooth', symmetric:'Symmetric', corner:'Corner', horizontal:'Horizontal', vertical:'Vertical', fixed:'Fixed angle' };
+const kindText = a => isCtl(a) ? 'control point' : a.kind === 'end' ? 'end point' : KIND[a.kind].toLowerCase();
+function renderBrowser(body){
+  if (noDoc()){ body.appendChild(h('div', { class:'empty' }, root.dataset.screen === 'opening' ? 'Opening…' : 'No foil open.')); return; }
+  /* the Browser lists what the canvas and the Points grid do not: the sections, with the section each uses (simplifier M1 applied) */
+  const wrap = h('div', { role:'group', 'aria-label':'Sections' }); wrap.appendChild(h('div', { class:'rowhead', 'aria-hidden':'true' }, 'Sections'));
+  stations().forEach((s, i) => { const cur = isSec() ? i === selStation : S.kind === 'station' && S.i === i, b = h('button', { class:'row-btn child', 'aria-current': cur, 'data-fk':'tree:st' + i }, `${s.name}<span class="sub">${s.prof}</span>`);
+    b.addEventListener('click', () => { if (isSec()){ $('strip').children[i]?.click(); return; } selStation = i; select({ kind:'station', i }); }); wrap.appendChild(b); });
+  body.appendChild(wrap); }
+/* one precision per quantity: lengths you type or place 0.01 mm · derived lengths 0.1 mm · angles 0.1° · ratios 0.1 % */
+const f2 = v => v.toFixed(2), f1 = v => v.toFixed(1);
+/* one validator for every typed number (WCAG 3.3.1): a non-number, or a length ≤ 0, is refused with a message and aria-invalid,
+   the geometry is unchanged; Escape restores the shown value. Commit on Enter or blur. */
+function numberInput(inp, box, label, positive, commit){ const orig = inp.value, fail = t => { inp.setAttribute('aria-invalid', 'true'); box.textContent = t; box.classList.remove('hidden'); }, clear = () => { inp.removeAttribute('aria-invalid'); box.textContent = ''; box.classList.add('hidden'); };
+  inp.addEventListener('keydown', e => { if (e.key === 'Escape' && (inp.value !== orig || inp.getAttribute('aria-invalid'))){ e.preventDefault(); e.stopPropagation(); inp.value = orig; clear(); } });
+  inp.addEventListener('change', () => { const s = inp.value.trim(), v = Number(s); if (!s || !isFinite(v)) return fail(`Enter a number. ${label} is unchanged.`); if (positive && v <= 0) return fail(`Enter a length greater than 0 mm. ${label} is unchanged.`); clear(); const err = commit(v); if (err) fail(err); }); }
+function field(fk, label, val, unit, opts = {}){ const id = 'f-' + fk.replace(/[^a-z0-9]/gi, '');
+  const f = h('div', { class:'field' }, `<label for="${id}">${label}</label><input id="${id}" data-fk="${fk}" value="${val}" aria-label="${opts.name || label} in ${unit === '°' ? 'degrees' : 'millimetres'}" aria-describedby="${id}-err" ${opts.disabled ? 'disabled' : ''}><span class="u">${unit}</span><div class="ferr hidden" id="${id}-err" role="alert"></div>`);
+  if (opts.onchange) numberInput(f.querySelector('input'), f.querySelector('.ferr'), opts.name || label, opts.positive, v => { pushUndo(`set ${(opts.name || label).toLowerCase()}`); opts.onchange(v); }); return f; }
+function selectField(fk, label, value, options, onchange){ const id = 's-' + fk.replace(/[^a-z0-9]/gi, '');
+  const f = h('div', { class:'field' }, `<label for="${id}">${label}</label><select id="${id}" data-fk="${fk}">${value === 'mixed' ? '<option value="mixed">Mixed</option>' : ''}${options.map(([k, t]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${t}</option>`).join('')}</select><span></span>`);
+  f.querySelector('select').addEventListener('change', e => onchange(e.target.value)); return f; }
+const kindField = (fk, value, kinds, onchange) => selectField(fk, 'Tangent', value, kinds.map(k => [k, KIND[k]]), k => { pushUndo('change tangent'); onchange(k); });
+function typeField(fk, a, A, i){ return selectField(fk, 'Type', isCtl(a) ? 'control' : 'anchor', [['anchor', 'Anchor point'], ['control', 'Control point']], t => { pushUndo('change point type'); t === 'control' ? toControl(a) : toAnchor(A, i); refresh(); announce(`${a.name} is now ${t === 'control' ? 'a control point. The curve is pulled toward it.' : 'an anchor point. The curve passes through it.'}`); }); }
+function lockedType(text){ const f = h('div', { class:'field' }, `<span class="u">Type</span><span class="fixed">${text}</span><span></span>`); return f; }
+function group(title, nodes){ const d = h('details', { class:'pgroup', open:'' }); d.appendChild(h('summary', { 'data-fk':'grp:' + title }, title)); const b = h('div', { class:'pbody' }); nodes.forEach(n => n && b.appendChild(n)); d.appendChild(b); return d; }
+function kv(pairs){ const dl = h('dl', { class:'kv' }); pairs.forEach(([k, v, def]) => { dl.appendChild(h('dt', def ? { title:def } : {}, k)); dl.appendChild(h('dd', {}, v)); }); return dl; }
+const head = (t, c) => h('div', { class:'phead' }, `<h2>${t}</h2>${c ? `<div class="crumb">${c}</div>` : ''}`);
+/* handles: a smooth or symmetric anchor has one direction and two lengths; a corner or an end has one angle and length per handle */
+function handleFields(a, names, lockAngle, conv){ const both = a.hin && a.hout, linked = both && a.kind !== 'corner';
+  const setAng = (k, v) => { const L2 = Math.hypot(...a[k]), r = v*Math.PI/180; a[k] = [Math.cos(r)*L2, Math.sin(r)*L2]; constrain(a, k); refresh(); };
+  const setLen = (k, v) => { const r = Math.atan2(a[k][1], a[k][0]), l = conv(v); a[k] = [Math.cos(r)*l, Math.sin(r)*l]; if (a.kind === 'symmetric') mirrorHandle(a, k); refresh(); };
+  const len = (k, lab, nm) => field(`${a.id}:${k}:len`, lab, f2(conv.back(Math.hypot(...a[k]))), 'mm', { name:nm, positive:true, onchange: v => setLen(k, v) });
+  const ang = (k, nm) => lockAngle ? null : field(`${a.id}:${k}:ang`, 'Angle', f1(deg(a[k])), '°', { name:nm, onchange: v => setAng(k, v) }); // a locked direction is stated by the tangent kind, not repeated as a disabled field
+  if (linked) return a.kind === 'symmetric' ? [ang('hout', 'Tangent angle'), len('hin', 'Length', 'Handle length, both handles')]
+    : [ang('hout', 'Tangent angle'), len('hin', names[0], `Handle length ${names[2]}`), len('hout', names[1], `Handle length ${names[3]}`)];
+  return [['hin', names[2]], ['hout', names[3]]].filter(([k]) => a[k]).flatMap(([k, t]) => [h('div', { class:'sub-h' }, 'Handle ' + t), ang(k, `Handle angle ${t}`), len(k, 'Length', `Handle length ${t}`)]); }
+const ident = Object.assign(v => v, { back: v => v });
+function renderSelection(body){
+  if (noDoc()){ if (root.dataset.screen === 'opening'){ body.append(head('Opening…', $('opening-text').textContent.replace(/^Opening |…$/g, '')));
+      const sk = h('div', { class:'empty', 'aria-hidden':'true' }); [70, 90, 60].forEach(w => sk.appendChild(h('div', { class:'skel', style:`height:14px;width:${w}%;margin-bottom:10px` }))); body.append(sk); return; }
+    body.append(head('No foil open', 'Properties')); body.append(h('div', { class:'empty' }, 'Open or start a foil. Whatever you select in it shows its properties here.')); return; }
+  if (root.dataset.screen === 'workspace'){
+    if (S.kind === 'plan' && S.ids.length > 1){ const pts = S.ids.map(planPt), aft = pts.every(p => p.p[1] === pts[0].p[1]) ? f2(pts[0].p[1]) : '—', anch = pts.filter(p => !isCtl(p) && p.kind !== 'end');
+      body.append(head(`${pts.length} points selected`, pts.map(p => `${p.curve} · ${p.name}`).join(', ')));
+      body.append(group('Position', [field('multi:aft', 'Aft', aft, 'mm', { onchange: v => { pts.forEach(p => p.p[1] = v); refresh(); } }),
+        anch.length ? kindField('multi:kind', anch.every(p => p.kind === anch[0].kind) ? anch[0].kind : 'mixed', ['smooth', 'symmetric', 'corner'], k => { anch.forEach(p => { p.kind = k; if (p.hout) constrain(p, 'hout'); }); refresh(); }) : null,
+        aft === '—' ? h('div', { class:'note' }, 'Values differ. Typing a value sets every selected point.') : null])); return; }
+    if (S.kind === 'plan'){ const a = planPt(S.ids[0]), A = planCurve(a.id), i = A.indexOf(a), fixed = a.lock || a.closure;
+      body.append(head(a.name, `${a.curve} · ${isCtl(a) ? 'control point' : 'point'} ${i + 1} of ${A.length}`));
+      body.append(group('Position', [ fixed ? lockedType(a.lock ? 'Anchor · root end, locked' : 'Anchor · tip end') : typeField(`${a.id}:type`, a, A, i),
+        field(`${a.id}:span`, 'Span', f2(a.p[0]), 'mm', { name:'Span position', disabled: !!fixed, onchange: v => { movePlanPoint(A, i, v, a.p[1]); refresh(); } }),
+        field(`${a.id}:aft`, 'Aft', f2(a.p[1]), 'mm', { onchange: v => { movePlanPoint(A, i, a.p[0], v); refresh(); } }),
+        !isCtl(a) && a.kind !== 'end' ? kindField(`${a.id}:kind`, a.kind, ['smooth', 'symmetric', 'corner'], k => { a.kind = k; constrain(a, 'hout'); refresh(); }) : null,
+        isCtl(a) ? h('div', { class:'note' }, 'A control point pulls the curve toward it. The curve does not pass through it.') : null ]));
+      if (!isCtl(a)) body.append(group('Handles', handleFields(a, ['To root', 'To tip', 'toward the root', 'toward the tip'], !!a.lock, ident)));
+      if (fixed) body.append(group('Constraints', [h('div', { class:'note' }, a.lock ? 'Stays on the centreline; tangent locked perpendicular to it so both halves meet smoothly.' : `Tip closure ${a.closure}. Tip chord ${f1(chord(1))} mm.`)]));
+      return; }
+    if (S.kind === 'station'){ const s = stations()[S.i], others = stations().filter((o, j) => o.prof === s.prof && j !== S.i).map(o => o.name);
+      body.append(head(s.name, `Station · ${f1(s.eta*half)} mm from root`));
+      const edit = h('button', { class:'btn primary', style:'margin-top:10px;width:100%', 'data-fk':'edit-section' }, 'Edit section'); edit.addEventListener('click', openSection);
+      body.append(group('Section', [kv([['Section', s.prof], ['Shared with', others.length ? others.join(', ') : 'only here'], ['Chord', f1(chord(s.eta)) + ' mm'], ['t/c', f1(thickness(upperA(), lowerA())[0]*100) + ' %']]), edit]));
+      return; }
+    body.append(head(root.dataset.state === 'overflow' ? 'prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27' : docName, 'Foil · nothing selected'));
+    body.append(h('div', { class:'empty' }, 'Select a point or station to see its properties here. Set span and chords under Wing.')); return; }
+  const conv = Object.assign(v => v/mm(1), { back: v => mm(v) });
+  if (S.kind === 'sec' && S.keys){ const pts = S.keys.map(findA), anch = pts.filter(p => !isCtl(p) && p.kind !== 'end'); body.append(head(`${pts.length} points selected`, pts.map(p => `${p.curve} · ${p.name}`).join(', ')));
+    body.append(group('Position', [field('multi:h', 'Height', '—', 'mm', { onchange: v => { pts.forEach(p => moveSecPoint(p, p.p[0], v/mm(1))); refresh(); } }), anch.length ? kindField('multi:kind', anch.every(p => p.kind === anch[0].kind) ? anch[0].kind : 'mixed', ['smooth', 'symmetric', 'corner', 'horizontal', 'vertical', 'fixed'], k => { anch.forEach(p => { p.kind = k; if (p.hout) constrain(p, 'hout'); }); refresh(); }) : null, h('div', { class:'note' }, 'Values differ. Typing a value sets every selected point.')])); return; }
+  if (S.kind === 'sec' && S.key === 'nose'){ body.append(head('Nose', 'Leading edge · shared by both surfaces'));
+    body.append(group('Position', [lockedType('Anchor · nose, fixed, tangent vertical')]));
+    body.append(group('Handles', [field('nose:up', 'Upper', f2(mm(NOSE.hUp[1])), 'mm', { positive:true, name:'Upper nose handle length', onchange: v => { NOSE.hUp[1] = Math.max(.005, v/mm(1)); refresh(); } }), field('nose:lo', 'Lower', f2(mm(-NOSE.hLo[1])), 'mm', { positive:true, name:'Lower nose handle length', onchange: v => { NOSE.hLo[1] = -Math.max(.005, v/mm(1)); refresh(); } })]));
+    body.append(group('Shape', [kv([['LE radius, upper', f1(mm(leRadius(upperA()))) + ' mm'], ['LE radius, lower', f1(mm(leRadius(lowerA()))) + ' mm']])])); return; }
+  if (S.kind === 'sec'){ const a = findA(S.key), side = UP.includes(a) ? UP : LO, i = side.indexOf(a), lk = ['horizontal', 'vertical', 'fixed'].includes(a.kind), sideA = side === UP ? upperA() : lowerA();
+    body.append(head(a.name, `${a.curve} · ${isCtl(a) ? 'control point' : 'point'} ${i + 2} of ${side.length + 1}${S.part !== 'point' ? ' · handle ' + (S.part === 'hin' ? 'toward the nose' : 'toward the tail') : ''}`));
+    body.append(group('Position', [ a.kind === 'end' ? lockedType('Anchor · trailing-edge end, locked') : typeField(`${a.id}:type`, a, sideA, i + 1),
+      field(`${a.id}:along`, 'Along', f2(mm(a.p[0])), 'mm', { disabled: a.kind === 'end', onchange: v => { moveSecPoint(a, v/mm(1), a.p[1]); refresh(); } }), field(`${a.id}:height`, 'Height', f2(mm(a.p[1])), 'mm', { onchange: v => { moveSecPoint(a, a.p[0], v/mm(1)); refresh(); } }),
+      !isCtl(a) && a.kind !== 'end' ? kindField(`${a.id}:kind`, a.kind, ['smooth', 'symmetric', 'corner', 'horizontal', 'vertical', 'fixed'], k => { a.kind = k; if (a.hout) constrain(a, 'hout'); refresh(); }) : null,
+      isCtl(a) ? h('div', { class:'note' }, 'A control point pulls the curve toward it. The curve does not pass through it.') : null ]));
+    if (!isCtl(a)) body.append(group('Handles', handleFields(a, ['To nose', 'To tail', 'toward the nose', 'toward the tail'], lk, conv)));
+    if (a.kind === 'end'){ const wedge = Math.abs((Math.atan2(-UP.at(-1).hin[1], -UP.at(-1).hin[0]) - Math.atan2(-LO.at(-1).hin[1], -LO.at(-1).hin[0])) * 180/Math.PI);
+      body.append(group('Trailing edge', [kv([['Gap', f2(mm(UP.at(-1).p[1] - LO.at(-1).p[1])) + ' mm'], ['Wedge angle', f1(wedge) + '°'], ['Moves', 'up and down only']])])); }
+    return; }
+  const [t, x] = thickness(upperA(), lowerA()); body.append(head(stations()[selStation].name + ' section', 'Section · nothing selected'));
+  body.append(group('Shape', [kv([['Max thickness at', Math.round(x*100) + ' % chord'], ['LE radius', f1(mm(leRadius(upperA()))) + ' mm']])]));
+  body.append(h('div', { class:'empty' }, 'Select a point or handle on the section to see its properties here.')); }
+
+/* Wing: driving dimensions you type (span, root chord, tip chord) above read-only running estimates. Always shown while a foil is open. */
+let defsOpen = false;
+function planformBad(){ for (let e = 0; e <= .98; e += .01) if (!(chord(e) > .5)) return true; return false; }
+function applyChordScale(fn){ const leAt = y => atSpan(LE, Math.max(0, Math.min(half, y))), map = (y, x) => leAt(y) + (x - leAt(y))*fn(Math.max(0, Math.min(half, y)));
+  TE.forEach(a => { const P = a.p.slice(), m0 = map(P[0], P[1]); ['hin', 'hout'].forEach(k => { if (a[k]) a[k] = [a[k][0], map(P[0] + a[k][0], P[1] + a[k][1]) - m0]; }); a.p = [P[0], m0]; if (a.lock && a.hout) a.hout[1] = 0; }); }
+function commitDim(label, apply){ const before = snapshot(); apply(); if (planformBad()){ restoreSnap(before); return 'That would make the leading and trailing edges cross. Enter a different value.'; }
+  UNDO.push({ label, s:before }); REDO = []; lastNudge = null; dirty = true; refresh(); announce(`${label[0].toUpperCase() + label.slice(1)}. Estimates updated.`); return null; }
+function dimField(fk, label, val, commit){ const id = 'd-' + fk.replace(/[^a-z0-9]/gi, ''), eid = id + '-err';
+  const f = h('div', { class:'field dim' }, `<label for="${id}">${label}</label><input id="${id}" data-fk="${fk}" value="${val}" aria-label="${label} in millimetres" aria-describedby="${eid}"><span class="u">mm</span><div class="ferr hidden" id="${eid}" role="alert"></div>`);
+  numberInput(f.querySelector('input'), f.querySelector('.ferr'), label, true, commit); return f; }
+/* always shown, so not collapsible; inside a section draft the planform is read-only, because Cancel rolls the draft back (simplifier M2 applied) */
+function wingBlock(){ const e = wingEst(), d = h('section', { class:'pgroup wing', 'aria-labelledby':'wing-h' }), ro = isSec();
+  d.appendChild(h('h3', { class:'wing-h', id:'wing-h' }, 'Wing')); const b = h('div', { class:'pbody' });
+  const fixedDim = (label, text) => h('div', { class:'field dim' }, `<span class="u">${label}</span><span class="fixed">${text}</span><span></span>`), tip = chord(1);
+  if (ro){ b.append(fixedDim('Span', f2(e.b) + ' mm'), fixedDim('Root chord', f2(e.c0) + ' mm'), fixedDim('Tip chord', tip > .5 ? f2(tip) + ' mm' : 'Tip closes — edit the tip station'), h('div', { class:'note' }, 'Set these in the workspace.')); }
+  else { b.appendChild(dimField('dim:span', 'Span', f2(e.b), v => commitDim(`span set to ${f2(v)} mm`, () => { const k = v/(2*half); [...LE, ...TE].forEach(a => { a.p[0] *= k; if (a.hin) a.hin[0] *= k; if (a.hout) a.hout[0] *= k; }); half *= k; })));
+    b.appendChild(dimField('dim:root', 'Root chord', f2(e.c0), v => { const f = v/chord(0); return commitDim(`root chord set to ${f2(v)} mm`, () => applyChordScale(y => f + (1 - f)*y/half)); }));
+    b.appendChild(tip > .5 ? dimField('dim:tip', 'Tip chord', f2(tip), v => { const f = v/tip; return commitDim(`tip chord set to ${f2(v)} mm`, () => applyChordScale(y => 1 + (f - 1)*y/half)); }) : fixedDim('Tip chord', 'Tip closes — edit the tip station')); }
+  const rows = [['Mean chord', '≈ ' + f1(e.cm) + ' mm', 'Area-weighted mean chord, S / b'], ['MAC', '≈ ' + f1(e.mac) + ' mm', 'Mean aerodynamic chord, (2/S)∫₀^{b/2} c(y)² dy — not the same as S / b'],
+    ['Max t/c', '≈ ' + f1(e.tc*100) + ' %', 'Largest thickness over chord at any station'], ['Aspect ratio', '≈ ' + e.ar.toFixed(2), 'AR = b² / S, projected'], ['Area', '≈ ' + (e.S/100).toFixed(0) + ' cm²', 'Projected planform area S']];
+  if (isSec()){ const s = stations()[selStation]; rows.push([`${s.name} chord`, '≈ ' + f1(chord(s.eta)) + ' mm', 'Chord at this station'], [`${s.name} t/c`, '≈ ' + f1(thickness(upperA(), lowerA())[0]*100) + ' %', 'This section’s thickness over chord']); }
+  const defs = h('details', { class:'defs est-h' }); if (defsOpen) defs.setAttribute('open', ''); defs.addEventListener('toggle', () => { defsOpen = defs.open; });
+  defs.appendChild(h('summary', { 'data-fk':'grp:Estimates' }, 'Estimates <span class="how">· definitions</span>'));
+  defs.appendChild(h('ul', { class:'defl' }, ['Span b: projected, tip to tip', 'Root and tip chord: at the centreline and the outermost station', ...rows.map(([k, , d2]) => `${k}: ${d2}`)].map(t => `<li>${t}</li>`).join('')));
+  b.append(defs, kv(rows)); d.appendChild(b); return d; }
+function renderProperties(body){ body.classList.add('split-body'); const sc = h('div', { class:'pscroll' }); body.append(sc); renderSelection(sc); if (!noDoc()) body.append(wingBlock()); }
+function renderPoints(body){ if (noDoc()){ body.appendChild(h('div', { class:'empty' }, 'No foil open.')); return; }
+  const ws = root.dataset.screen === 'workspace', rows = ws ? [...LE, ...TE].map(a => ({ key:a.id, curve:a.curve, name:a.name, a:a.p[0], b:a.p[1], kind:kindText(a), la:'Span', lb:'Aft' })) : [...UP, ...LO].map(a => ({ key:a.id, curve:a.curve, name:a.name, a:mm(a.p[0]), b:mm(a.p[1]), kind:kindText(a), la:'Along', lb:'Height' }));
+  const selKeys = ws ? (S.kind === 'plan' ? S.ids : []) : (S.kind === 'sec' ? (S.keys || [S.key]) : []), focusRow = rows.find(r => selKeys.includes(r.key)) || rows[0];
+  const t = h('table', { class:'ptable', role:'grid', 'aria-label':'Points', 'aria-multiselectable':'true' });
+  t.innerHTML = `<thead><tr><th scope="col">Curve</th><th scope="col">Point</th><th scope="col">${rows[0].la} (mm)</th><th scope="col">${rows[0].lb} (mm)</th><th scope="col">Tangent</th></tr></thead>`;
+  const tb = h('tbody'), gerr = h('div', { class:'ferr hidden', id:'grid-err', role:'alert', style:'padding:6px 8px' });
+  rows.forEach(r => { const tr = h('tr', { tabindex: r === focusRow ? 0 : -1, 'aria-selected': selKeys.includes(r.key), 'data-fk':'row:' + r.key },
+      `<td>${r.curve}</td><td>${r.name}</td><td><input data-fk="cell:${r.key}:a" value="${r.a.toFixed(2)}" aria-label="${r.curve} ${r.name} ${r.la} in millimetres" aria-describedby="grid-err"></td><td><input data-fk="cell:${r.key}:b" value="${r.b.toFixed(2)}" aria-label="${r.curve} ${r.name} ${r.lb} in millimetres" aria-describedby="grid-err"></td><td>${r.kind}</td>`);
+    const pick = shift => ws ? select({ kind:'plan', ids: shift && S.kind === 'plan' ? [...new Set([...S.ids, r.key])] : [r.key] }) : select({ kind:'sec', key:r.key, part:'point', keys: shift && S.kind === 'sec' ? [...new Set([...(S.keys || [S.key]), r.key])] : null });
+    tr.addEventListener('click', ev => { if (ev.target.tagName !== 'INPUT') pick(ev.shiftKey); });
+    tr.addEventListener('keydown', ev => { if (ev.target !== tr) return; const all = [...tb.children], i = all.indexOf(tr);
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp'){ ev.preventDefault(); const n = all[Math.max(0, Math.min(all.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))]; all.forEach(x => x.tabIndex = -1); n.tabIndex = 0; n.focus(); }
+      else if (ev.key === ' ' || ev.key === 'Enter'){ ev.preventDefault(); pick(ev.shiftKey); } });
+    tr.querySelectorAll('input').forEach((inp, ci) => { inp.addEventListener('focus', () => { if (tr.getAttribute('aria-selected') === 'true') return;
+        S = ws ? { kind:'plan', ids:[r.key] } : { kind:'sec', key:r.key, part:'point' }; drawAll();
+        tb.querySelectorAll('tr').forEach(x => { const on = x === tr; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; });
+        document.querySelectorAll('.pane-body[id="panel-properties"]').forEach(p => { p.innerHTML = ''; renderProperties(p); }); });
+      numberInput(inp, gerr, `${r.curve} ${r.name} ${ci ? r.lb : r.la}`, false, v => { pushUndo(`set ${r.name} ${ci ? r.lb : r.la}`.toLowerCase());
+        if (ws){ const A = planCurve(r.key), i = A.findIndex(x => x.id === r.key), p = A[i].p; movePlanPoint(A, i, ci ? p[0] : v, ci ? v : p[1]); }
+        else { const a = findA(r.key); moveSecPoint(a, ci ? a.p[0] : v/mm(1), ci ? v/mm(1) : a.p[1]); } refresh(); }); });
+    tb.appendChild(tr); });
+  t.appendChild(tb); body.append(t, gerr); }
+function renderMessages(body){ const cx = isSec() ? crossing() : null;
+  if (!cx){ body.appendChild(h('div', { class:'empty' }, 'No problems. Anything that stops Finish or Save appears here with a way to find it.')); return; }
+  const m = h('div', { class:'msgitem' }, `<span aria-hidden="true">⚠</span><span>Upper and lower surfaces cross between ${Math.round(cx[0]*100)} % and ${Math.round(cx[1]*100)} % of chord.</span>`);
+  const b = h('button', { class:'btn sm', style:'margin-left:auto', 'data-fk':'msg:show' }, 'Show'); b.addEventListener('click', () => { select({ kind:'sec', key:'u2', part:'point' }); $('v-sec').querySelector('[data-k="u2"]')?.focus({ preventScroll:true }); }); m.appendChild(b); body.appendChild(m); }
+
+/* ============================ selection + refresh ============================ */
+function select(s){ S = s; refresh(); }
+function refresh(){ drawAll(); layout(); }
+
+/* ============================ canvas: plan, side, front, 3D, section ============================ */
+const PX = { cx:350, sx:.72, x0:92, sy:.95 }, psx = y => PX.cx + y*PX.sx, psy = x => PX.x0 + x*PX.sy;
+const path = (P, fx, fy) => P.map((p, i) => (i ? 'L' : 'M') + fx(p[0]).toFixed(1) + ' ' + fy(p[1]).toFixed(1)).join(' ');
+function grid(svg, w, hh, s){ for (let x = s; x < w; x += s) el('line', {x1:x, y1:0, x2:x, y2:hh, class:'gridline'}, svg); for (let y = s; y < hh; y += s) el('line', {x1:0, y1:y, x2:w, y2:y, class:'gridline'}, svg); }
+function svgPoint(svg, ev){ const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+function hitR(svg, vbW, vbH){ const r = svg.getBoundingClientRect(), u = Math.min(r.width / vbW, r.height / vbH) / scaleK() || 1; return Math.max(15, 13.5 / u); }
+const remember = svg => { const f = document.activeElement; return f && svg.contains(f) ? f.dataset.k : null; }, restore = (svg, k) => { if (k){ const n = svg.querySelector(`[data-k="${k}"]`); n && n.focus({ preventScroll:true }); } };
+function comb(svg, A, fx, fy, sx, sy){ const teeth = [];
+  segs(A).forEach((P, si) => { const n = P.length - 1, D1 = diff(P, n), D2 = diff(D1, n - 1); for (let k = 0; k <= 16; k++){ const t = k/16, B = bez(P, t), d1 = bez(D1, t), d2 = bez(D2, t);
+    const sp = Math.hypot(...d1) || 1e-12, kap = (d1[0]*d2[1] - d1[1]*d2[0]) / (sp*sp*sp), X1 = d1[0]*sx, Y1 = d1[1]*sy, spd = Math.hypot(X1, Y1) || 1e-9; teeth.push({ x0:fx(B[0]), y0:fy(B[1]), nx:-Y1/spd, ny:X1/spd, kap, nose: si === 0 && t < .3 }); } });
+  const mags = teeth.filter(q => !q.nose).map(q => Math.abs(q.kap)).sort((a, b) => a - b), scale = 40 / (mags[Math.floor(mags.length*.9)] || 1), env = [];
+  teeth.forEach(q => { const raw = q.kap*scale, len = Math.max(-70, Math.min(70, raw)), x1 = q.x0 + q.nx*len, y1 = q.y0 - q.ny*len; el('line', {x1:q.x0, y1:q.y0, x2:x1, y2:y1, class:'comb'}, svg); env.push([x1, y1]); if (Math.abs(raw) > 70) el('circle', {cx:x1, cy:y1, r:2.5, fill:'var(--warn)'}, svg); });
+  el('path', {d: env.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' '), class:'combenv'}, svg);
+  A.forEach(a => { if (a.kind === 'corner' && !isCtl(a)){ const X = fx(a.p[0]), Y = fy(a.p[1]); el('line', {x1:X-8, y1:Y-8, x2:X+8, y2:Y+8, class:'brk'}, svg); el('line', {x1:X-8, y1:Y+8, x2:X+8, y2:Y-8, class:'brk'}, svg); } }); }
+function drawPlan(){ const svg = $('v-plan'), keep = remember(svg), R = hitR(svg, 700, 420); svg.innerHTML = ''; grid(svg, 700, 420, 35); el('line', {x1:PX.cx, y1:20, x2:PX.cx, y2:400, class:'axisline'}, svg);
+  const mir = P => P.map(([y, x]) => [-y, x]).reverse(), l = curvePts(LE), t = curvePts(TE), lF = mir(l).concat(l.slice(1)), tF = mir(t).concat(t.slice(1));
+  el('path', {d: path(lF.concat(tF.slice().reverse()), psx, psy) + 'Z', class:'fill'}, svg); el('path', {d: path(lF, psx, psy), class:'curve'}, svg); el('path', {d: path(tF, psx, psy), class:'curve'}, svg);
+  if ($('comb-ws').getAttribute('aria-pressed') === 'true'){ comb(svg, LE, psx, psy, PX.sx, -PX.sy); comb(svg, TE, psx, psy, PX.sx, -PX.sy); }
+  [LE, TE].forEach(A => segs(A).forEach(P => { if (P.length > 4) el('path', {d: path(P.slice(1, -1), psx, psy), class:'ctlpoly'}, svg); }));
+  stations().forEach((s, i) => { const y = s.eta*half, x0 = le(s.eta), x1 = te(s.eta), cur = S.kind === 'station' && S.i === i;
+    [1, -1].forEach(sg => { if (s.eta === 0 && sg < 0) return; el('line', {x1:psx(sg*y), y1:psy(x0) + 14, x2:psx(sg*y), y2:psy(x1) - 14, class:'station' + (cur ? ' sel' : '')}, svg); });
+    if (root.dataset.state === 'overflow' && i % 2 && i !== stations().length - 1) return;
+    const w = Math.max(48, s.name.length*7 + 20, 2*R + 2), ch = Math.max(32, 2*R + 2), cx = Math.min(640 - w/2, psx(y)), top = psy(x1) + 18;
+    const g = el('g', {class:'stchip' + (cur ? ' sel' : ''), tabindex:0, role:'button', 'data-k':'st' + i, 'aria-label': `${s.name} station. Enter edits its section.`, 'aria-pressed': cur}, svg);
+    el('rect', {x:cx - w/2, y:top, width:w, height:ch, rx:7, class:'face hit'}, g); el('text', {x:cx, y:top + ch/2 + 4, 'text-anchor':'middle'}, g).textContent = s.name; el('rect', {x:cx - w/2 - 3, y:top - 3, width:w + 6, height:ch + 6, rx:9, class:'ring'}, g);
+    g.addEventListener('click', () => { selStation = i; select({ kind:'station', i }); $('v-plan').querySelector(`[data-k="st${i}"]`)?.focus({ preventScroll:true }); });
+    g.addEventListener('dblclick', () => { selStation = i; openSection(); });
+    g.addEventListener('keydown', ev => { if (ev.key === 'Enter'){ ev.preventDefault(); selStation = i; openSection(); } else if (ev.key === ' '){ ev.preventDefault(); selStation = i; select({ kind:'station', i }); } }); });
+  [LE, TE].forEach(A => A.forEach((a, i) => { const on = S.kind === 'plan' && S.ids.includes(a.id), X = psx(a.p[0]), Y = psy(a.p[1]);
+    const g = el('g', {id:'pp-' + a.id, tabindex:0, role:'button', 'data-k': a.id, 'aria-label': `${a.curve}, ${a.name}, ${kindText(a)}, span ${f2(a.p[0])} mm, aft ${f2(a.p[1])} mm`, 'aria-pressed': on}, svg);
+    el('circle', {cx:X, cy:Y, r:R, class:'hit'}, g); if (a.kind === 'end') el('path', {d:`M${X} ${Y-7} l7 7 -7 7 -7 -7z`, class:'cv' + (on ? ' sel' : '') + (a.lock ? ' locked' : '')}, g); else if (isCtl(a)) el('circle', {cx:X, cy:Y, r:5.5, class:'cv ctl' + (on ? ' sel' : '')}, g); else el('rect', {x:X-5, y:Y-5, width:10, height:10, class:'cv' + (on ? ' sel' : '')}, g); el('circle', {cx:X, cy:Y, r:10, class:'ring'}, g);
+    g.addEventListener('pointerdown', ev => { ev.preventDefault(); S = { kind:'plan', ids: ev.shiftKey && S.kind === 'plan' ? [...new Set([...S.ids, a.id])] : [a.id] }; drag = { kind:'plan', A, i }; refresh(); $('v-plan').querySelector(`[data-k="${a.id}"]`)?.focus({ preventScroll:true }); });
+    g.addEventListener('focus', () => { if (!(S.kind === 'plan' && S.ids.includes(a.id))){ S = { kind:'plan', ids:[a.id] }; refresh(); } });
+    g.addEventListener('keydown', ev => planKeys(ev, A, i, null));
+    if (on && S.ids.length === 1) ['hin', 'hout'].forEach(hk => { if (!a[hk]) return; const hx = psx(a.p[0] + a[hk][0]), hy = psy(a.p[1] + a[hk][1]); el('line', {x1:X, y1:Y, x2:hx, y2:hy, class:'handleline'}, svg);
+      const hg = el('g', {tabindex:0, role:'button', 'data-k': a.id + ':' + hk, 'aria-label': `${a.curve}, ${a.name}, handle toward ${hk === 'hin' ? 'the root' : 'the tip'}`}, svg);
+      el('circle', {cx:hx, cy:hy, r:R, class:'hit'}, hg); el('circle', {cx:hx, cy:hy, r:5, class:'cv' + (a.lock ? ' locked' : '')}, hg); el('circle', {cx:hx, cy:hy, r:9, class:'ring'}, hg);
+      hg.addEventListener('pointerdown', ev => { ev.stopPropagation(); ev.preventDefault(); drag = { kind:'planh', A, i, h:hk }; }); hg.addEventListener('keydown', ev => planKeys(ev, A, i, hk)); }); }));
+  if (S.kind === 'plan' && S.ids.length === 1) el('use', {href:'#pp-' + S.ids[0], class:'raise', 'aria-hidden':'true'}, svg); // the selected point paints over a neighbour it overlaps; Tab order is unchanged
+  restore(svg, keep); }
+function movePlanPoint(A, i, y, x){ const a = A[i]; if (a.lock === 'perpendicular') y = 0; else if (i === A.length - 1) y = half; else y = Math.min(A[i+1].p[0] - 10, Math.max(A[i-1].p[0] + 10, y)); a.p = [y, x]; dirty = true; }
+function planKeys(ev, A, i, hk){ const a = A[i];
+  if (ev.key === 'Escape'){ ev.preventDefault(); if (hk){ $('v-plan').querySelector(`[data-k="${a.id}"]`)?.focus({ preventScroll:true }); return; } select({ kind:'none' }); return; }
+  if (!ev.key.startsWith('Arrow')) return; ev.preventDefault(); pushUndo('move point', `plan:${a.id}:${hk || ''}`); const fine = isMac() ? ev.metaKey : ev.ctrlKey, s = ev.shiftKey ? 1 : fine ? 0.01 : 0.1;
+  if (hk){ const v = a[hk], ang = Math.atan2(v[1], v[0]), L2 = Math.hypot(...v); if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight'){ if (a.lock) return; const d = (ev.shiftKey ? 5 : 1) * Math.PI/180 * (ev.key === 'ArrowLeft' ? 1 : -1); a[hk] = [Math.cos(ang + d)*L2, Math.sin(ang + d)*L2]; } else { const nL = Math.max(10, L2 + (ev.key === 'ArrowUp' ? 1 : -1) * s * 10); a[hk] = [Math.cos(ang)*nL, Math.sin(ang)*nL]; } constrain(a, hk); }
+  else movePlanPoint(A, i, a.p[0] + (ev.key === 'ArrowRight' ? s : ev.key === 'ArrowLeft' ? -s : 0), a.p[1] + (ev.key === 'ArrowDown' ? s : ev.key === 'ArrowUp' ? -s : 0));
+  dirty = true; refresh(); }
+$('v-plan').addEventListener('pointermove', ev => { if (!drag || !drag.kind.startsWith('plan')) return; if (!drag.pushed){ pushUndo('move point'); drag.pushed = true; }const q = svgPoint($('v-plan'), ev), y = (q.x - PX.cx)/PX.sx, x = (q.y - PX.x0)/PX.sy, a = drag.A[drag.i];
+  if (drag.kind === 'plan') movePlanPoint(drag.A, drag.i, y, x); else if (a.lock) a[drag.h] = [Math.max(10, Math.abs(y - a.p[0])), 0]; else { a[drag.h] = [y - a.p[0], x - a.p[1]]; constrain(a, drag.h); } refresh(); });
+function drawSide(){ const svg = $('v-side'); svg.innerHTML = ''; grid(svg, 700, 420, 35); const sx = x => 170 + x*2, sy = z => 210 - z*2; el('line', {x1:40, y1:210, x2:660, y2:210, class:'axisline'}, svg); const P = curvePts(upperA()).concat(curvePts(lowerA()).reverse()), c0 = chord(0), c1 = chord(1);
+  el('path', {d: path(P.map(p => [p[0]*c0, p[1]*c0]), sx, sy) + 'Z', class:'curve'}, svg); el('path', {d: path(P.map(p => [le(1) + p[0]*c1, dih(1) + p[1]*c1]), sx, sy) + 'Z', class:'curve dim'}, svg); }
+function drawFront(){ const svg = $('v-front'); svg.innerHTML = ''; grid(svg, 700, 420, 35); const sx = y => 350 + y*.72, sy = z => 190 - z*3; el('line', {x1:350, y1:30, x2:350, y2:390, class:'axisline'}, svg); const top = [], bot = [];
+  for (let i = -60; i <= 60; i++){ const e = Math.abs(i)/60, y = i/60*half, t = .11*chord(e)*.55; top.push([y, dih(e) + t]); bot.push([y, dih(e) - t*.6]); } el('path', {d: path(top, sx, sy), class:'curve'}, svg); el('path', {d: path(bot, sx, sy), class:'curve'}, svg); }
+function draw3d(){ const svg = $('v-3d'); svg.innerHTML = ''; const P = (x, y, z) => [350 + y*.62 - x*.35, 160 + x*.42 + y*.08 - z*1.2], prof = curvePts(upperA(), 8).concat(curvePts(lowerA(), 8).reverse()), line = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  for (let k = -10; k <= 10; k++){ const e = Math.abs(k)/10, y = k/10*half, c = chord(e); el('path', {d: line(prof.map(p => P(le(e) + p[0]*c, y, dih(e) + p[1]*c))) + 'Z', class:'curve dim'}, svg); }
+  const edge = f => { const pts = []; for (let k = -40; k <= 40; k++){ const e = Math.abs(k)/40; pts.push(P(f(e), k/40*half, dih(e))); } return line(pts); }; el('path', {d: edge(le), class:'curve'}, svg); el('path', {d: edge(te), class:'curve'}, svg);
+  const s = stations()[selStation]; [1, -1].forEach(sg => { if (s.eta === 0 && sg < 0) return; const c = chord(s.eta); el('path', {d: line(prof.map(p => P(le(s.eta) + p[0]*c, sg*s.eta*half, dih(s.eta) + p[1]*c))) + 'Z', fill:'none', stroke:'var(--accent)', 'stroke-width':2}, svg); }); }
+function thumb(svg){ svg.innerHTML = ''; el('path', {d: path(curvePts(upperA(), 10).concat(curvePts(lowerA(), 10).reverse()), x => 10 + x*180, y => 27 - y*260) + 'Z', fill:'var(--accent-soft)', stroke:'var(--model)', 'stroke-width':1.5}, svg); }
+let SYS = 1900; const SX = x => 110 + x*980, SY = y => 270 - y*SYS;
+function drawSection(){ const svg = $('v-sec'), keep = remember(svg), R = hitR(svg, 1200, 520); svg.innerHTML = ''; SYS = $('exag').getAttribute('aria-pressed') === 'true' ? 1900 : 950;
+  for (let x = 0; x <= 10; x++) el('line', {x1:SX(x/10), y1:60, x2:SX(x/10), y2:480, class:'gridline'}, svg); el('line', {x1:SX(0)-30, y1:SY(0), x2:SX(1)+30, y2:SY(0), class:'axisline'}, svg);
+  const U = curvePts(upperA()), Lw = curvePts(lowerA()), outline = sh => path(curvePts([{ p:[0,0], hout:sh.NOSE.hUp }, ...sh.UP]).concat(curvePts([{ p:[0,0], hout:sh.NOSE.hLo }, ...sh.LO]).reverse()), SX, SY) + 'Z';
+  if (drag && drag.kind === 'sec') el('path', {d: outline(base()), class:'ghost'}, svg);
+  const cand = root.dataset.screen === 'catalog' && catById(CATSEL); if (cand && admitted(cand)) el('path', {d: outline(shapeOf(cand)), class:'ghost preview'}, svg);
+  el('path', {d: path(U.concat(Lw.slice().reverse()), SX, SY) + 'Z', class:'fill'}, svg); if ($('comb-sec').getAttribute('aria-pressed') === 'true'){ comb(svg, upperA(), SX, SY, 980, SYS); comb(svg, lowerA(), SX, SY, 980, SYS); }
+  el('path', {d: path(U, SX, SY), class:'curve'}, svg); el('path', {d: path(Lw, SX, SY), class:'curve'}, svg);
+  [upperA(), lowerA()].forEach(A => segs(A).forEach(P => { if (P.length > 4) el('path', {d: path(P.slice(1, -1), SX, SY), class:'ctlpoly'}, svg); }));
+  const cx = crossing(); if (cx){ el('path', {d: path(U.filter(p => p[0] >= cx[0] - .01 && p[0] <= cx[1] + .01), SX, SY), class:'bad'}, svg); const g = el('g', {class:'badmark'}, svg), mx = SX((cx[0] + cx[1])/2), my = SY(-0.07); el('rect', {x:mx - 118, y:my, width:236, height:26, rx:6}, g); el('text', {x:mx, y:my + 17, 'text-anchor':'middle'}, g).textContent = '⚠ Upper and lower surfaces cross'; }
+  const tu = UP.at(-1).p, tl = LO.at(-1).p; el('line', {x1:SX(1)+24, y1:SY(tu[1]), x2:SX(1)+24, y2:SY(tl[1]), stroke:'var(--ink-muted)'}, svg); el('text', {x:SX(1)+18, y:SY(tl[1])+22, 'text-anchor':'end', class:'label'}, svg).textContent = `TE gap ${f2(mm(tu[1]-tl[1]))} mm`;
+  if ($('exag').getAttribute('aria-pressed') === 'true') el('text', {x:SX(0), y:500, class:'label'}, svg).textContent = 'Thickness drawn ×2';
+  const keys = S.kind === 'sec' ? (S.keys || [S.key]) : [];
+  const pt = (k, name, P, diamond, locked, ctl) => { const on = keys.includes(k) && (S.part === 'point' || S.keys), g = el('g', {id:'sp-' + k, tabindex:0, role:'button', 'data-k':k, 'aria-label':name, 'aria-pressed':!!on}, svg); el('circle', {cx:SX(P[0]), cy:SY(P[1]), r:R, class:'hit'}, g);
+    if (diamond) el('path', {d:`M${SX(P[0])} ${SY(P[1])-8} l8 8 -8 8 -8 -8z`, class:'cv' + (on ? ' sel' : '') + (locked ? ' locked' : '')}, g); else if (ctl) el('circle', {cx:SX(P[0]), cy:SY(P[1]), r:6, class:'cv ctl' + (on ? ' sel' : '')}, g); else el('rect', {x:SX(P[0])-5.5, y:SY(P[1])-5.5, width:11, height:11, class:'cv' + (on ? ' sel' : '') + (locked ? ' locked' : '')}, g);
+    el('circle', {cx:SX(P[0]), cy:SY(P[1]), r:12, class:'ring'}, g); wireSec(g, k, 'point'); };
+  const hd = (k, part, label, base, v, locked) => { const H = [base[0]+v[0], base[1]+v[1]]; el('line', {x1:SX(base[0]), y1:SY(base[1]), x2:SX(H[0]), y2:SY(H[1]), class:'handleline'}, svg); const g = el('g', {tabindex:0, role:'button', 'data-k': k + ':' + part, 'aria-label':label}, svg);
+    el('circle', {cx:SX(H[0]), cy:SY(H[1]), r:R, class:'hit'}, g); el('circle', {cx:SX(H[0]), cy:SY(H[1]), r:5.5, class:'cv' + (S.key === k && S.part === part ? ' sel' : '') + (locked ? ' locked' : '')}, g); el('circle', {cx:SX(H[0]), cy:SY(H[1]), r:10, class:'ring'}, g); wireSec(g, k, part); };
+  pt('nose', 'Nose, fixed at the chord start, tangent locked vertical', [0,0], true, true);
+  if (S.kind === 'sec' && S.key === 'nose' && !S.keys){ hd('nose', 'hUp', 'Nose, upper handle, vertical', [0,0], NOSE.hUp, true); hd('nose', 'hLo', 'Nose, lower handle, vertical', [0,0], NOSE.hLo, true); }
+  [...UP, ...LO].forEach(a => { const lk = ['horizontal', 'vertical', 'fixed'].includes(a.kind); pt(a.id, `${a.curve}, ${a.name}, ${f2(mm(a.p[0]))} mm along, ${f2(mm(a.p[1]))} mm high, ${a.kind === 'end' ? 'end point, moves up and down only' : isCtl(a) ? 'control point' : 'anchor, tangent ' + KIND[a.kind].toLowerCase()}`, a.p, a.kind === 'end', lk && !isCtl(a), isCtl(a));
+    if (S.kind === 'sec' && S.key === a.id && !S.keys) [['hin', 'toward the nose'], ['hout', 'toward the tail']].forEach(([k, t]) => a[k] && hd(a.id, k, `${a.curve}, ${a.name}, handle ${t}`, a.p, a[k], lk)); });
+  if (S.kind === 'sec' && !S.keys && S.part === 'point') el('use', {href:'#sp-' + S.key, class:'raise', 'aria-hidden':'true'}, svg);
+  restore(svg, keep); }
+function wireSec(g, k, part){
+  g.addEventListener('pointerdown', ev => { ev.stopPropagation(); ev.preventDefault();
+    if (ev.shiftKey && part === 'point' && S.kind === 'sec' && k !== 'nose'){ const ks = [...new Set([...(S.keys || [S.key]), k])].filter(x => x !== 'nose'); S = { kind:'sec', key:k, part:'point', keys: ks.length > 1 ? ks : null }; refresh(); return; }
+    S = { kind:'sec', key:k, part }; if (!(k === 'nose' && part === 'point')){ drag = { kind:'sec', key:k, part }; snap = JSON.stringify({ NOSE, UP, LO }); }
+    refresh(); $('v-sec').querySelector(`[data-k="${k}${part === 'point' ? '' : ':' + part}"]`)?.focus({ preventScroll:true }); });
+  g.addEventListener('focus', () => { if (S.kind !== 'sec' || S.key !== k || S.part !== part || S.keys){ S = { kind:'sec', key:k, part }; refresh(); } }); }
+function setHandleTo(a, hk, X, Y){ if (a.kind === 'fixed'){ const ang = Math.atan2(a[hk][1], a[hk][0]), l = Math.max(.01, (X - a.p[0])*Math.cos(ang) + (Y - a.p[1])*Math.sin(ang)); a[hk] = [Math.cos(ang)*l, Math.sin(ang)*l]; mirrorHandle(a, hk); return; } a[hk] = [X - a.p[0], Y - a.p[1]]; constrain(a, hk); }
+function moveSecPoint(a, X, Y){ dirty = true; if (a.kind === 'end'){ a.p[1] = Y; return; } const side = UP.includes(a) ? UP : LO, i = side.indexOf(a), lo = i ? side[i-1].p[0] + .02 : .05, hi = side[i+1].p[0] - .02; a.p = [Math.min(hi, Math.max(lo, X)), Y]; }
+$('v-sec').addEventListener('pointermove', ev => { if (!drag || drag.kind !== 'sec') return; if (!drag.pushed){ pushUndo('move point'); drag.pushed = true; }const q = svgPoint($('v-sec'), ev), X = (q.x - 110)/980, Y = (270 - q.y)/SYS;
+  if (drag.key === 'nose'){ const v = NOSE[drag.part]; v[1] = drag.part === 'hUp' ? Math.max(.005, Y) : Math.min(-.005, Y); } else { const a = findA(drag.key); drag.part === 'point' ? moveSecPoint(a, X, Y) : setHandleTo(a, drag.part, X, Y); } dirty = true; refresh(); });
+addEventListener('pointerup', () => { if (!drag) return; const was = drag; drag = null; snap = null; refresh(); if (was.kind === 'sec') $('v-sec').querySelector(`[data-k="${was.key}${was.part === 'point' ? '' : ':' + was.part}"]`)?.focus({ preventScroll:true }); });
+$('v-sec').addEventListener('keydown', ev => {
+  if (ev.key === 'Escape'){ ev.preventDefault(); if (drag && snap){ const s = JSON.parse(snap); NOSE = s.NOSE; UP = s.UP; LO = s.LO; drag = null; snap = null; refresh(); return; }
+    if (S.kind === 'sec' && S.part !== 'point'){ S = { kind:'sec', key:S.key, part:'point' }; refresh(); $('v-sec').querySelector(`[data-k="${S.key}"]`)?.focus({ preventScroll:true }); return; }
+    if (dirty){ S = { kind:'none' }; refresh(); $('sec-cancel').focus(); announce('This section has unsaved changes. Cancel discards them; Finish keeps them.'); return; } cancelSection(); return; }
+  if (ev.key === 'Enter'){ ev.preventDefault(); finishSection(); return; } if (ev.key === 'k' || ev.key === 'K'){ tog('comb-sec'); return; }
+  if (!ev.key.startsWith('Arrow') || S.kind !== 'sec') return; ev.preventDefault(); pushUndo('move point', `sec:${S.key}:${S.part}`); const fine = isMac() ? ev.metaKey : ev.ctrlKey, f = (ev.shiftKey ? 1 : fine ? 0.01 : 0.1) / chord(stations()[selStation].eta);
+  if (S.key === 'nose'){ if (S.part === 'point' || !(ev.key === 'ArrowUp' || ev.key === 'ArrowDown')) return; const v = NOSE[S.part], d = (ev.key === 'ArrowUp' ? f : -f) * 5; v[1] = S.part === 'hUp' ? Math.max(.005, v[1] + d) : Math.min(-.005, v[1] - d); }
+  else { const a = findA(S.key); if (S.part === 'point') moveSecPoint(a, a.p[0] + (ev.key === 'ArrowRight' ? f : ev.key === 'ArrowLeft' ? -f : 0), a.p[1] + (ev.key === 'ArrowUp' ? f : ev.key === 'ArrowDown' ? -f : 0));
+    else { const v = a[S.part], ang = Math.atan2(v[1], v[0]), L2 = Math.hypot(...v); if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight'){ if (['horizontal', 'vertical', 'fixed'].includes(a.kind)) return; const d = (ev.shiftKey ? 5 : 1) * Math.PI/180 * (ev.key === 'ArrowLeft' ? 1 : -1); a[S.part] = [Math.cos(ang + d)*L2, Math.sin(ang + d)*L2]; constrain(a, S.part); }
+      else { const nL = Math.max(.005, L2 + (ev.key === 'ArrowUp' ? f : -f) * 5); a[S.part] = [Math.cos(ang)*nL, Math.sin(ang)*nL]; if (a.kind !== 'corner') mirrorHandle(a, S.part); } } }
+  dirty = true; refresh(); });
+/* the readout is not live (it would speak on every nudge); the alert is created once and speaks only when its text changes,
+   which happens when a crossing appears or clears — its range sits in the readout, not in the alert */
+function secStatus(){ const host = $('sec-status'); let tc = $('tc-chip'), why = $('finish-why');
+  if (!tc){ host.innerHTML = ''; tc = h('span', { class:'chip', id:'tc-chip', style:'font-family:var(--mono)' }); why = h('span', { id:'finish-why', role:'alert', class:'hidden' }); host.append(tc, why); }
+  const [t, x] = thickness(upperA(), lowerA()), cx = crossing(); tc.textContent = `t/c ${f1(t*100)} % at ${Math.round(x*100)} %${cx ? ` · crossing ${Math.round(cx[0]*100)}–${Math.round(cx[1]*100)} % of chord` : ''}`;
+  const msg = cx ? '⚠ Upper and lower surfaces cross. Move the point back to finish.' : ''; if (why.textContent !== msg){ if (!msg && why.textContent.startsWith('⚠')) announce('Surfaces no longer cross. Finish is available.'); why.textContent = msg; } why.className = cx ? 'chip alert' : 'hidden'; $('sec-finish').setAttribute('aria-disabled', !!cx); }
+function scopeChip(){ const s = stations()[selStation], others = stations().filter((o, j) => o.prof === s.prof && j !== selStation).map(o => o.name), chip = $('scope-chip'), src = $('src-chip');
+  src.classList.toggle('hidden', !SRC.catalog); src.textContent = SRC.catalog ? (modified() ? `Modified from ${SRC.name}` : `Catalog original · ${SRC.name}`) : '';
+  if (unique || !others.length){ chip.textContent = `Only ${s.name} uses this section`; return; }
+  chip.innerHTML = `Shared with ${others.slice(0,2).join(', ')}${others.length > 2 ? ` and ${others.length-2} more` : ''} <button class="chipbtn" id="make-unique">Make unique to ${s.name}</button>`; $('make-unique').addEventListener('click', () => { unique = true; scopeChip(); }); }
+function strip(){ const host = $('strip'); host.innerHTML = '';
+  stations().forEach((s, i) => { const b = h('button', { class:'slice', 'aria-current': i === selStation, 'aria-label': `${s.name} section, ${f1(s.eta*half)} millimetres from the root` }, `<svg viewBox="0 0 200 54" aria-hidden="true"></svg><span class="l"><span>${s.name}</span><span style="font-family:var(--mono)">${f1(s.eta*half)} mm</span></span>`); thumb(b.querySelector('svg'));
+    b.addEventListener('click', () => { if (i === selStation) return; if (dirty){ const w = $('finish-why'); w.className = 'chip alert'; w.setAttribute('role', 'alert'); w.textContent = `Finish or cancel ${stations()[selStation].name} before editing ${s.name}.`; return; } selStation = i; $('sec-name').textContent = s.name + ' section'; refresh(); $('strip').children[i].focus({ preventScroll:true }); }); host.appendChild(b); }); }
+function enterSectionDraft(){ SECENTRY = { depth:UNDO.length, s:snapshot() }; SECBASE = JSON.parse(secShape()); REDO = []; }
+function openSection(){ root.dataset.screen = 'section'; $('h-screen').value = 'section'; dirty = false; unique = false; enterSectionDraft(); S = { kind:'sec', key:'u1', part:'point' }; $('sec-name').textContent = stations()[selStation].name + ' section'; screen(); refresh(); requestAnimationFrame(() => $('v-sec').querySelector('[data-k="u1"]')?.focus({ preventScroll:true })); }
+function done(){ dirty = false; root.dataset.screen = 'workspace'; $('h-screen').value = 'workspace'; S = { kind:'station', i:selStation }; screen(); refresh(); requestAnimationFrame(() => $('v-plan').querySelector(`[data-k="st${selStation}"]`)?.focus({ preventScroll:true })); }
+/* GEO-14 undo contract: Cancel leaves the undo depth unchanged; Finish adds exactly one step for the whole edit */
+function finishSection(){ if ($('sec-finish').getAttribute('aria-disabled') === 'true'){ const w = $('finish-why'); w.setAttribute('tabindex', '-1'); w.focus(); return; }
+  if (UNDO.length > SECENTRY.depth){ UNDO.length = SECENTRY.depth; UNDO.push({ label:`edit ${stations()[selStation].name} section`, s:SECENTRY.s }); REDO = []; } SECBASE = null; done(); }
+function cancelSection(){ restoreSnap(SECENTRY.s); UNDO.length = SECENTRY.depth; REDO = []; SECBASE = null; done(); }
+$('sec-finish').addEventListener('click', finishSection); $('sec-cancel').addEventListener('click', cancelSection);
+/* ============================ section commands: Section ▾ → Replace from catalog… · Save to My sections… · Smooth… ============================ */
+const setSecScreen = s => { root.dataset.screen = s; $('h-screen').value = s; screen(); };
+function openSmooth(){ setSecScreen('fair'); requestAnimationFrame(() => $('sd-tol').focus()); }
+function closeDialog(){ setSecScreen('section'); refresh(); $('sec-menu').focus(); }
+$('sd-cancel').addEventListener('click', closeDialog); $('sd-ok').addEventListener('click', () => { closeDialog(); announce("Smooth isn't part of this mockup. The section is unchanged."); });
+['smooth-dialog', 'cat-dialog', 'save-dialog'].forEach(id => $(id).addEventListener('keydown', ev => { if (ev.key === 'Escape'){ ev.preventDefault(); ev.stopPropagation(); closeDialog(); } }));
+$('sec-menu').addEventListener('click', () => openMenu([{ t:'Replace from catalog…', a:'cat' }, { t:'Save to My sections…', a:'save' }, '-', { t:'Smooth…', a:'smooth' }], $('sec-menu')));
+
+/* catalog picker: APG combobox (search input) controlling a listbox grouped by family; disabled rows stay reachable so their reason is heard */
+let CATSEL = null, CATQ = '';
+const catMatch = c => { const q = CATQ.trim().toLowerCase(); return !q || [c.name, c.fam, c.cls, c.why || '', c.prov || ''].join(' ').toLowerCase().includes(q); };
+const catVisible = () => catAll().filter(catMatch);
+function openCatalog(){ CATQ = ''; $('cat-q').value = ''; CATSEL = null; setSecScreen('catalog'); renderCatalog(); requestAnimationFrame(() => $('cat-q').focus()); }
+function renderCatalog(){ const list = $('cat-list'), vis = catVisible(); list.innerHTML = ''; $('cat-title').textContent = `Replace ${stations()[selStation].name} section from catalog`;
+  if (!vis.some(c => c.id === CATSEL)) CATSEL = (vis.find(admitted) || vis[0] || {}).id || null;
+  [...new Set(vis.map(c => c.fam))].forEach(fam => { const g = h('div', { role:'group', 'aria-label':fam }); g.appendChild(h('div', { class:'cathead', 'aria-hidden':'true' }, fam));
+    vis.filter(c => c.fam === fam).forEach(c => { const ok = admitted(c), sh = ok && c.def ? shapeOf(c) : null,
+        tag = c.cls === 'GEN' ? 'GEN' : c.cls === 'MINE' ? 'Mine' : c.cls === 'VEND' ? 'Pending admission' : 'LINK · cite only',
+        sub = ok ? (c.prov || 'Generated from its public definition') + (sh ? ` · t/c ${f1(sh.tc*100)} %` : '') : c.why;
+      const o = h('div', { class:'opt', role:'option', id:'opt-' + c.id, 'aria-selected': c.id === CATSEL, 'aria-disabled': ok ? null : 'true' }, `<span class="n">${c.name}</span><span class="tag">${tag}</span><span class="d">${sub}</span>`);
+      o.addEventListener('pointerdown', ev => ev.preventDefault()); o.addEventListener('click', () => { CATSEL = c.id; catUpdate(); $('cat-q').focus(); }); g.appendChild(o); });
+    list.appendChild(g); });
+  catUpdate(); }
+function catUpdate(){ const c = catById(CATSEL), q = $('cat-q'), ok = !!c && admitted(c), s = stations()[selStation];
+  $('cat-list').querySelectorAll('[role="option"]').forEach(o => o.setAttribute('aria-selected', o.id === 'opt-' + CATSEL));
+  if (c){ q.setAttribute('aria-activedescendant', 'opt-' + c.id); $('opt-' + c.id)?.scrollIntoView({ block:'nearest' }); } else q.removeAttribute('aria-activedescendant');
+  const others = unique ? [] : stations().filter((o, j) => o.prof === s.prof && j !== selStation).map(o => o.name);
+  $('cat-detail').textContent = !c ? `No sections match “${CATQ.trim()}”. Try NACA, Eppler or a name.` : ok ? `${c.name}${c.fit ? ` · the editable points follow it within ${f2(mm(c.fit.dev))} mm` : ''}. Replaces ${s.name}${others.length ? ' and ' + others.join(', ') + ' (shared)' : ''}.` : `${c.name} can't be used. ${c.why}.`;
+  $('cat-ok').setAttribute('aria-disabled', !ok); drawSection(); }
+let catTimer = null; // result count spoken once typing pauses (4.1.3); the detail line is not live, so arrowing through rows stays quiet
+$('cat-q').addEventListener('input', () => { CATQ = $('cat-q').value; renderCatalog(); clearTimeout(catTimer); catTimer = setTimeout(() => { const n = catVisible().length; $('cat-status').textContent = n ? `${n} section${n === 1 ? '' : 's'} match` : $('cat-detail').textContent; }, 300); });
+$('cat-q').addEventListener('keydown', ev => { const vis = catVisible(), i = vis.findIndex(c => c.id === CATSEL);
+  if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && vis.length){ ev.preventDefault(); CATSEL = vis[Math.max(0, Math.min(vis.length - 1, i + (ev.key === 'ArrowDown' ? 1 : -1)))].id; catUpdate(); }
+  else if (ev.key === 'Enter'){ ev.preventDefault(); applyCatalog(); } });
+function applyCatalog(){ const c = catById(CATSEL); if (!c || !admitted(c)){ announce(c ? `${c.name} can't be used. ${c.why}` : 'Nothing selected'); return; }
+  const sh = shapeOf(c), name = stations()[selStation].name; pushUndo(`replace ${name} section with ${c.name}`);
+  NOSE = { hUp:sh.NOSE.hUp.slice(), hLo:sh.NOSE.hLo.slice() }; UP = cloneA(sh.UP); LO = cloneA(sh.LO);
+  SRC = { name:c.name, catalog: c.cls === 'GEN', prov: c.prov || '', base: secShape() }; dirty = true;
+  S = { kind:'none' }; setSecScreen('section'); refresh(); $('sec-menu').focus(); announce(`${name} section replaced with ${c.name}. Undo reverts it.`); }
+$('cat-ok').addEventListener('click', applyCatalog); $('cat-cancel').addEventListener('click', closeDialog);
+
+/* Save to My sections: a name, and provenance recorded from where the section came from */
+function saveErr(t){ const e = $('save-err'), n = $('save-name'); e.textContent = t; e.classList.toggle('hidden', !t); t ? n.setAttribute('aria-invalid', 'true') : n.removeAttribute('aria-invalid'); }
+function prepSave(){ $('save-name').value = `${stations()[selStation].name} section (${docName})`; saveErr(''); $('save-prov').textContent = `Provenance: ${provenance()}`; }
+function openSave(){ setSecScreen('save'); prepSave(); requestAnimationFrame(() => { $('save-name').focus(); $('save-name').select(); }); }
+function doSave(){ const n = $('save-name').value.trim(); if (!n) return saveErr('Name the section to save it.'); if (MINE.some(m => m.name.toLowerCase() === n.toLowerCase())) return saveErr(`“${n}” is already in My sections. Choose another name.`);
+  MINE.push({ fam:'My sections', id:'mine-' + MINE.length, name:n, cls:'MINE', prov:provenance(), shape:JSON.parse(secShape()) }); closeDialog(); announce(`Saved “${n}” to My sections`); }
+$('save-ok').addEventListener('click', doSave); $('save-cancel').addEventListener('click', closeDialog); $('save-name').addEventListener('keydown', ev => { if (ev.key === 'Enter'){ ev.preventDefault(); doSave(); } });
+function tog(id){ const b = $(id); b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); refresh(); } ['comb-sec', 'comb-ws', 'exag'].forEach(id => $(id).addEventListener('click', () => tog(id)));
+function setViews(v){ L.views = v; $('views').dataset.layout = v; audit(); refresh(); announce(v === 'plan3d' ? 'Plan and 3D views' : v === 'quad' ? 'Four views' : 'One view'); }
+document.querySelectorAll('#views .view').forEach(v => { const lb = v.querySelector('.vlabel'); lb.addEventListener('click', () => { document.querySelectorAll('#views .view').forEach(o => { o.classList.remove('active'); o.querySelector('.vlabel').setAttribute('aria-pressed', 'false'); }); v.classList.add('active'); lb.setAttribute('aria-pressed', 'true'); }); lb.addEventListener('dblclick', () => setViews('single')); });
+
+/* ============================ menus (menubar pattern; roles, aria-keyshortcuts, Tab closes) ============================ */
+let opener = null;
+function openMenu(items, anchor){ closeMenu(false); const m = $('menu'), r = anchor.getBoundingClientRect(); opener = anchor; anchor.setAttribute('aria-expanded', 'true');
+  m.innerHTML = items.map(it => it === '-' ? '<hr>' : it.head ? `<div class="mh" role="presentation">${it.head}</div>` : `<button role="${it.role || 'menuitem'}" ${it.role ? `aria-checked="${!!it.checked}"` : ''} ${it.ak ? `aria-keyshortcuts="${it.ak}"` : ''} data-a="${it.a}">${it.t}<span class="k" aria-hidden="true">${it.k || ''}</span></button>`).join('');
+  m.style.left = Math.min(r.left, innerWidth - 270) + 'px'; m.style.top = Math.min(r.bottom + 4, innerHeight - m.offsetHeight - 8) + 'px'; m.classList.remove('hidden'); requestAnimationFrame(() => { m.style.top = Math.min(r.bottom + 4, innerHeight - m.offsetHeight - 8) + 'px'; });
+  m.querySelector('button').focus(); m.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { const a = b.dataset.a; closeMenu(false); act(a); })); }
+function refocusOpener(){ if (opener?.isConnected){ opener.focus({ preventScroll:true }); return; } const d = opener?.dataset || {}, sel = d.tab ? `[data-tab="${d.tab}"]` : d.fk ? `[data-fk="${d.fk}"]` : null, n = sel && document.querySelector(sel); n && n.focus({ preventScroll:true }); }
+function closeMenu(refocus){ const m = $('menu'); if (m.classList.contains('hidden')) return; m.classList.add('hidden'); opener?.setAttribute('aria-expanded', 'false'); if (refocus && opener?.isConnected) opener.focus({ preventScroll:true }); }
+$('menu').addEventListener('keydown', ev => { const b = [...$('menu').querySelectorAll('button')], i = b.indexOf(document.activeElement);
+  if (ev.key === 'Escape'){ ev.preventDefault(); ev.stopPropagation(); closeMenu(true); } else if (ev.key === 'Tab'){ ev.preventDefault(); closeMenu(true); }
+  else if (ev.key === 'ArrowDown'){ ev.preventDefault(); b[(i+1) % b.length].focus(); } else if (ev.key === 'ArrowUp'){ ev.preventDefault(); b[(i-1+b.length) % b.length].focus(); } });
+document.addEventListener('pointerdown', ev => { if (!$('menu').contains(ev.target) && !ev.target.closest('[aria-haspopup]')) closeMenu(false); });
+function act(a){ const [verb, id, to] = a.split(':');
+  if (verb === 'move') movePane(id, to); else if (verb === 'max') toggleMax(id); else if (verb === 'pos'){ const p = floatSpot(to); moveFloat(id, p.x, p.y); }
+  else if (verb === 'size'){ L.sizes[id] = +to; layout(); announce(`Size ${to} pixels`); refocusOpener(); }
+  else if (verb === 'ws'){ switchWorkspace(id, false); opener?.focus(); } else if (verb === 'reset'){ switchWorkspace(WS, true); opener?.focus(); }
+  else if (verb === 'dock') toggleDock(id); else if (verb === 'views'){ setViews(id); $('views-btn').focus(); }
+  else if (verb === 'show'){ const d = where(id); if (!d) movePane(id, HOME[id]); else if (d !== 'float'){ L.active[d] = id; L.shown[d] = true; layout(); focusTab(id); } else focusTab(id); }
+  else if (verb === 'cat') openCatalog(); else if (verb === 'save') openSave(); else if (verb === 'smooth') openSmooth();
+  else if (verb === 'new') newFoil(); else if (verb === 'open') openFile('kite-wing-850.foil'); else if (verb === 'undo'){ undo(); refocusOpener(); } else if (verb === 'redo'){ redo(); refocusOpener(); }
+  else if (verb === 'stub'){ announce(`${id} isn't part of this mockup.`); refocusOpener(); } }
+function windowMenu(){ return [ { head:'Workspace' }, ...Object.entries(WORKSPACES).map(([k, w]) => ({ t:w.name, a:'ws:' + k, role:'menuitemradio', checked: WS === k })), { t:'Reset layout', a:'reset' }, '-', { head:'Panes' },
+  ...Object.entries(PANES).map(([k, p]) => ({ t:p.title, a:'show:' + k, role:'menuitemcheckbox', checked: !!where(k) })), '-',
+  { t:'Left side bar', a:'dock:left', role:'menuitemcheckbox', checked: !!L.shown.left, k:key('B'), ak:ariaKey('B') }, { t:'Bottom panel', a:'dock:bottom', role:'menuitemcheckbox', checked: !!L.shown.bottom, k:key('J'), ak:ariaKey('J') },
+  { t:'Right side bar', a:'dock:right', role:'menuitemcheckbox', checked: !!L.shown.right, k:(isMac() ? '⌥⌘B' : 'Ctrl+Alt+B'), ak:(isMac() ? 'Alt+Meta+B' : 'Control+Alt+B') } ]; }
+const fileMenu = () => [{ t:'New foil', a:'new', k:key('N'), ak:ariaKey('N') }, { t:'Open…', a:'open', k:key('O'), ak:ariaKey('O') }, '-', { t:'Import section from .dat…', a:'stub:Import section from .dat' }, '-', { t:'Save', a:'stub:Save', k:key('S'), ak:ariaKey('S') }];
+const editMenu = () => [{ t:'Undo', a:'undo', k:key('Z'), ak:ariaKey('Z') }, { t:'Redo', a:'redo', k:(isMac() ? '⇧⌘Z' : 'Ctrl+Y'), ak:(isMac() ? 'Shift+Meta+Z' : 'Control+Y') }];
+document.querySelectorAll('[data-menu]').forEach(b => b.addEventListener('click', () => openMenu(({ file:fileMenu, edit:editMenu, window:windowMenu })[b.dataset.menu](), b)));
+$('views-btn').addEventListener('click', () => openMenu([{ t:'Plan + 3D', a:'views:plan3d', role:'menuitemradio', checked:L.views === 'plan3d' }, { t:'Four views', a:'views:quad', role:'menuitemradio', checked:L.views === 'quad' }, { t:'One view', a:'views:single', role:'menuitemradio', checked:L.views === 'single' }], $('views-btn')));
+
+/* global keys: platform modifier only, never while typing; F6 cycles regions; Escape restores a maximized pane */
+document.addEventListener('keydown', ev => { const typing = ev.target.matches('input, select, textarea'), mod = isMac() ? ev.metaKey && !ev.ctrlKey : ev.ctrlKey && !ev.metaKey;
+  if (ev.key === 'F6'){ ev.preventDefault(); cycleRegions(ev.shiftKey ? -1 : 1); return; }
+  if (ev.key === 'Escape' && L.maxed && !typing && !$('menu').contains(ev.target)){ ev.preventDefault(); toggleMax(L.maxed); return; }
+  if (!mod || typing) return;
+  if (ev.code === 'KeyB' && ev.altKey){ ev.preventDefault(); toggleDock('right'); } else if (ev.code === 'KeyB'){ ev.preventDefault(); toggleDock('left'); } else if (ev.code === 'KeyJ'){ ev.preventDefault(); toggleDock('bottom'); }
+  else if (ev.code === 'KeyZ' && !noDoc()){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); } else if (ev.code === 'KeyY' && !isMac() && !noDoc()){ ev.preventDefault(); redo(); }
+  else if (ev.code === 'KeyM' && ev.shiftKey){ const t = document.activeElement.closest('.dock, .float'); const id = t?.querySelector('[aria-selected="true"]')?.dataset.tab; if (id){ ev.preventDefault(); toggleMax(id); } } });
+$('undo').addEventListener('click', undo); $('redo').addEventListener('click', redo);
+document.querySelectorAll('[data-stub]').forEach(b => b.addEventListener('click', () => announce(`${b.dataset.stub} isn't part of this mockup.`)));
+function cycleRegions(dir){ const regions = [ [...$('appbar').querySelectorAll('button:not([disabled])')].find(b => b.offsetParent !== null), ...['left', 'center', 'bottom', 'right'].map(r => r === 'center' ? centerTarget() : (L.shown[r] ? $('dock-' + r).querySelector('[aria-selected="true"], button') : null)), ...[...$('floats').children].map(f => f.querySelector('[role="tab"]')), document.querySelector('#sec:not(.hidden) .dialog:not(.hidden)')?.querySelector('input, button') ].filter(n => n && !n.closest('[inert]'));
+  const cur = regions.findIndex(n => n === document.activeElement || n.closest('.dock, .float, .appbar, .dialog, .center') === document.activeElement.closest('.dock, .float, .appbar, .dialog, .center')), next = regions[(cur + dir + regions.length) % regions.length]; next?.focus({ preventScroll:true }); }
+
+/* ============================ first run, opening, open failed (inside the workspace) ============================ */
+let openTimer = null;
+function recent(){ const files = root.dataset.state === 'overflow' ? [['prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27-final-final.foil', 'today'], ['old-kite-wing.foil', '21 Sep']] : [['kite-wing-850.foil', 'today 09:12'], ['old-kite-wing.foil', '21 Sep']];
+  $('recent').innerHTML = files.map(([n, d]) => `<button class="row-btn" data-act="open" data-file="${n}"><span class="name">${n}</span><span class="sub">${d}</span></button>`).join(''); }
+function resetDoc(le, te, name){ half = 425; LE = cloneA(le); TE = cloneA(te); docName = name; NOSE = { hUp:NOSE0.hUp.slice(), hLo:NOSE0.hLo.slice() }; UP = cloneA(UP0); LO = cloneA(LO0); SRC = defaultSrc(); UNDO = []; REDO = []; lastNudge = null; SECBASE = null; dirty = false; }
+const goScreen = s => { root.dataset.screen = s; $('h-screen').value = s; S = { kind:'none' }; screen(); refresh(); };
+function enterWorkspace(msg){ goScreen('workspace'); requestAnimationFrame(focusCanvas); announce(msg); }
+function newFoil(){ clearTimeout(openTimer); resetDoc(LE_NEW, TE_NEW, 'Untitled'); enterWorkspace('New foil: a straight wing to shape.'); }
+function newExample(){ clearTimeout(openTimer); resetDoc(LE0, TE0, 'Untitled'); enterWorkspace('New foil from the 850 mm kite front wing example.'); }
+function openFile(name){ clearTimeout(openTimer);
+  if (name === 'old-kite-wing.foil'){ goScreen('openerror'); requestAnimationFrame(() => $('open-another').focus()); return; }
+  $('opening-text').textContent = `Opening ${name}…`; goScreen('opening'); $('open-cancel').focus();
+  openTimer = setTimeout(() => { if (root.dataset.screen !== 'opening') return; resetDoc(LE0, TE0, name.replace(/\.foil$/, '')); enterWorkspace(`${name} is open.`); }, 900); }
+function cancelOpen(){ clearTimeout(openTimer); goScreen('start'); $('recent').querySelector('button')?.focus(); announce('Opening cancelled. Nothing changed.'); }
+$('start').addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act; a === 'new' ? newFoil() : a === 'example' ? newExample() : openFile(b.dataset.file || 'kite-wing-850.foil'); });
+$('open-cancel').addEventListener('click', cancelOpen); $('opening').addEventListener('keydown', ev => { if (ev.key === 'Escape'){ ev.preventDefault(); cancelOpen(); } });
+
+/* ============================ screens + harness ============================ */
+function screen(){ const scr = root.dataset.screen, nd = noDoc(), sec = isSec();
+  ['views', 'cube', 'navbar'].forEach(i => $(i).classList.toggle('hidden', sec || nd)); $('sec').classList.toggle('hidden', !sec);
+  $('start').classList.toggle('hidden', scr !== 'start' && scr !== 'openerror'); $('open-error').classList.toggle('hidden', scr !== 'openerror'); $('opening').classList.toggle('hidden', scr !== 'opening');
+  $('cmd-ws').classList.toggle('hidden', sec || nd); $('cmd-sec').classList.toggle('hidden', !sec); $('sec-actions').classList.toggle('hidden', !sec);
+  $('smooth-dialog').classList.toggle('hidden', scr !== 'fair'); $('cat-dialog').classList.toggle('hidden', scr !== 'catalog'); $('save-dialog').classList.toggle('hidden', scr !== 'save'); $('sec').dataset.dialog = ['fair', 'catalog', 'save'].includes(scr);
+  ['undo', 'redo'].forEach(i => { $(i).disabled = nd; }); $('dirty').classList.toggle('hidden', nd); recent(); }
+function drawAll(){ $('fname').textContent = noDoc() ? 'CFD Workbench' : (root.dataset.state === 'overflow' ? 'prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27' : docName) + '.foil'; if (selStation >= stations().length) selStation = 1;
+  drawPlan(); drawSide(); drawFront(); draw3d(); drawSection(); secStatus(); scopeChip(); strip(); }
+function harness(){ const scr = $('h-screen').value, lay = $('h-layout').value, sl = $('h-sel').value; clearTimeout(openTimer); root.dataset.screen = scr; root.dataset.state = $('h-state').value;
+  resetDoc(LE0, TE0, 'kite-wing-850'); if (isSec()) enterSectionDraft();
+  if (root.dataset.state === 'invalid' && isSec()){ Object.assign(UP[1], { p:[0.80,-0.020], hin:[-0.10,0.02], hout:[0.10,0], kind:'corner' }); dirty = true; }
+  if (scr === 'workspace') S = sl === 'none' ? { kind:'none' } : sl === 'point' ? { kind:'plan', ids:['le1'] } : sl === 'station' ? { kind:'station', i:1 } : { kind:'plan', ids:['le1', 'te1'] };
+  else if (isSec()) S = sl === 'none' ? { kind:'none' } : sl === 'multi' ? { kind:'sec', key:'u2', part:'point', keys:['u1', 'u2'] } : sl === 'station' ? { kind:'sec', key:'nose', part:'point' } : { kind:'sec', key:'u1', part:'point' };
+  else S = { kind:'none' };
+  if (scr === 'opening'){ $('opening-text').textContent = 'Opening kite-wing-850.foil…'; }
+  for (const k in saved) delete saved[k]; L = null; switchWorkspace(['float', 'drag', 'right'].includes(lay) ? 'planform' : lay === 'max' ? 'precision' : lay, true);
+  if (lay === 'float'){ detach('properties'); const p = floatSpot('centre'); L.float.push({ id:'properties', from:'left', x:p.x, y:p.y }); } if (lay === 'max') L.maxed = 'points'; if (lay === 'right') L.shown.right = true;
+  if (scr === 'catalog'){ CATQ = ''; $('cat-q').value = ''; CATSEL = 'naca0012'; } if (scr === 'save') prepSave();
+  screen(); refresh(); if (scr === 'catalog') renderCatalog(); if (lay === 'drag') showZones('right'); else hideZones(); }
+['h-screen', 'h-layout', 'h-sel', 'h-state'].forEach(id => $(id).addEventListener('change', harness));
+$('h-theme').addEventListener('change', e => { root.dataset.theme = e.target.value; audit(); });
+$('h-platform').addEventListener('change', e => { root.dataset.platform = e.target.value; refit(); layout(); });
+$('h-viewport').addEventListener('change', e => { root.dataset.viewport = e.target.value; refit(); refresh(); });
+function refit(){ const w = document.querySelector('.window'), s = Math.min(1, (document.documentElement.clientWidth - 32) / w.offsetWidth), f = $('fit'); f.style.transform = `scale(${s})`; f.style.width = (w.offsetWidth * s) + 'px'; f.style.height = ((w.offsetHeight + (isMac() ? 26 : 0)) * s) + 'px'; }
+addEventListener('resize', refit);
+
+/* ============================ mechanical audit (DX11) ============================ */
+const AUDIT = [ ['--ink','--canvas','body text on canvas','text'], ['--ink-muted','--canvas','secondary text on canvas','text'], ['--ink','--chrome','pane and toolbar text','text'], ['--ink-muted','--chrome','pane secondary text','text'], ['--ink','--accent-soft','selected row text','text'], ['--accent-ink','--accent','primary button label','text'], ['--finish-ink','--finish','Finish button label','text'], ['--model','--canvas','model curves','ui'], ['--accent','--canvas','selection and focus ring','ui'], ['--line-strong','--chrome','field borders','ui'], ['--danger','--chrome','error border','ui'], ['--danger','--chrome','inline error text','text'], ['--ink-muted','--chrome-raised','catalog family headers','text'], ['--ink-muted','--accent-soft','reason on the active catalog row','text'], ['--line','--canvas','dividers','decorative'] ];
+const srgb = c => { c /= 255; return c <= .03928 ? c/12.92 : Math.pow((c+.055)/1.055, 2.4); }, lum = ([r,g,b]) => .2126*srgb(r)+.7152*srgb(g)+.0722*srgb(b);
+function parse(v){ const p = document.createElement('span'); p.style.color = v.trim(); document.body.appendChild(p); const m = getComputedStyle(p).color.match(/\d+(\.\d+)?/g); p.remove(); return m ? m.slice(0,3).map(Number) : null; }
+function audit(){ const frame = document.querySelector('.window'), box = frame.getBoundingClientRect(), v = $('h-verdict'); if (!box.width || !box.height){ v.textContent = 'audit: page not rendered — no number is reported'; v.className = 'verdict fail'; return; }
+  const cs = getComputedStyle(root), rows = AUDIT.map(([fg, bg, label, kind]) => { const a = parse(cs.getPropertyValue(fg)), b = parse(cs.getPropertyValue(bg)), r = (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05), need = kind === 'text' ? 4.5 : 3; return { label, fg, bg, kind, r, need, req: kind !== 'decorative', pass: r >= need }; });
+  $('audit-rows').innerHTML = rows.map(r => `<tr><td>${r.label} <span class="muted">(${r.fg} on ${r.bg} · ${r.kind})</span></td><td>${r.r.toFixed(2)}:1</td><td class="${r.req ? (r.pass ? 'pass' : 'fail') : 'muted'}">${r.req ? (r.pass ? 'PASS' : 'FAIL') + ` (needs ${r.need}:1)` : 'not required (decorative)'}</td></tr>`).join('');
+  const k = scaleK(), vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('.hidden') && !e.closest('[inert]') && !e.closest('[data-shown="false"]'); };
+  const html = [...frame.querySelectorAll('button:not(.split), input, select, summary, [role="option"]')].filter(e => vis(e) && !e.disabled), canvas = [...frame.querySelectorAll('svg g[role="button"]')].filter(vis).map(g => ({ el:g, r:(g.querySelector('.hit') || g).getBoundingClientRect() })), splits = [...frame.querySelectorAll('[role="separator"]')].filter(vis);
+  const small = [...html.map(e => ({ el:e, r:e.getBoundingClientRect() })), ...canvas].filter(o => o.r.width/k < 24 - .01 || o.r.height/k < 24 - .01);
+  $('audit-targets').textContent = small.length ? `${small.length} target(s) under 24×24 CSS px: ` + small.map(o => o.el.getAttribute('aria-label') || o.el.textContent.trim().slice(0, 24)).join(' · ') : `All ${html.length} controls and ${canvas.length} canvas targets meet 24×24 CSS px. ${splits.length} splitter(s) use the equivalent-control exception (pane menu → Size).`;
+  $('audit-count').textContent = `Visible controls: ${html.length}; canvas targets: ${canvas.length}; splitters: ${splits.length}.`;
+  const fails = rows.filter(r => r.req && !r.pass).length; v.textContent = `audit: ${fails} contrast fail · ${small.length} small target · ${html.length} controls · ${canvas.length} canvas targets`; v.className = 'verdict ' + (fails || small.length ? 'fail' : 'pass'); }
+
+harness(); refit();
+</script>
+</body>
+</html>

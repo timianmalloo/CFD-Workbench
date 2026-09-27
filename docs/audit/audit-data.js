@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T00:13:29Z",
+  "generated": "2026-09-27T01:15:42Z",
   "audit": [
     {
       "actor": null,
@@ -18217,6 +18217,48 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M3G6X960RBK6R02DWE4VPTDC",
+      "shortname": "ui-design-workbench-v10",
+      "datetime": "2026-09-27T01:15:42Z",
+      "session": "fbfa35dc",
+      "prompt": "/ui-design elevate on the CFD-Workbench v9 mockup → v10 for operator review. Resolve the open v9 accessibility Major with option (a): move a float clear of a focused canvas target; drop the sweep's SVG exemption. Elevate the weakest remaining layer against the Fusion 360 / Shape3D bar (measured first, structure before surface); keep every v9 capability. Operator additions during the run: \"the properties should always show a running estimate of: span, chord, thickness, aspect ratio, area\"; \"In the edit section — i should be able to choose an existing known foil profile from the catalog of foil sections … use known foils like eppler, naca etc but also i should be able to save a foil section to re-use\"; \"in the property sheet i should be able to change the behavior of a point on the curve: control point, anchor point, point with the specific semantics for them\"; option (a) confirmed; \"show root chord and mean chord\"; \"it would be good to show MAC as well\"; \"i should be able to enter the span and root (and tip) chord in text\".",
+      "summary": "Measured v9 first (no first-run/loading state; one quantity at two precisions with an invisible 0.01 mm nudge; 2/7 and 5/7 fields clipped at the 200 px dock; 3 inert Browser rows), then built v10: first-run / opening / open-failed inside the workspace; floats move clear of a focused model-area target or dock back (option a); one precision per quantity; Properties readable at 200 px; per-point Anchor/Control type with Smooth/Symmetric/Corner; a Wing block with typed span/root/tip chord above running estimates (mean chord S/b, MAC, max t/c, AR, area); section catalog (Replace from catalog, Save to My sections, pending sections disabled with reason, preview, undoable); undo with the GEO-14 draft contract. Oracle tools/check-mockup-v10.mjs: 15/15 gates, 232 combinations 0 contrast/0 small targets, 39 focus checks 0 failures, 318 focus targets with a float 0 hidden/0 overlapped (SVG included). Craft gate 0 Major (1 Minor, deliberate). Accessibility lens BLOCK → PASS after one repair cycle (3.3.1 validator, 4.1.3 status, Escape never discards, float scroll); Simplifier BLOCK → cleared (Browser = Sections, planform read-only in the section draft). Five defect classes UI-O…UI-S registered with controls. Open: spec update for the mixed point model and catalog flows, screen-reader pass, selection cycling for coincident points.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/workbench-v10.html",
+        "docs/mockups/workbench-v10.md",
+        "docs/reviews/ui-workbench-v10.md",
+        "tools/check-mockup-v10.mjs",
+        "docs/proof/workbench-v10-browser-check.json"
+      ],
+      "tags": [
+        "ui-design",
+        "mockup",
+        "accessibility"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "v10 mockup, hub and review with the a11y Major resolved by option (a), operator requests folded in, sweep and craft gate green, a11y lens pass recorded",
+      "done_when": "v10 html+md+review exist; sweep contrast/24px/focus/occlusion green incl. SVG; craft gate no Major; a11y pass recorded; check-docs 0; index derived; audit appended; committed",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "18917579e901a3cd0409bce0d48d1bb1c5d7906b",
+        "short": "18917579e",
+        "branch": "feature/ui-cad-direction",
+        "pushed": null
+      }
     }
   ],
   "changes": [
