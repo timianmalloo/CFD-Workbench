@@ -6194,6 +6194,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-p1-red-runs",
+      "path": "docs/proof/p1-red-runs.md",
+      "title": "P1 preferences red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-p1",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red run of the P1 checks at 92079ab, while the codec and store still threw. With the version-first return removed, the three v2 rollback fixtures were overwritten. The same checks passed at 4efe980. Reader depth stays 8; the writer uses 9.",
+      "tags": [
+        "app-shell",
+        "preferences",
+        "layout",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -7529,5 +7555,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "63fdb2f5f475f6211506d2b408271286695278eccb5a67adb78c6a637d5db6c1"
+  "graphSha256": "c8dc0e7f2f2bd4d8de71a34e16451c7d23997f6a824ba0e857babf5c5988be39"
 };

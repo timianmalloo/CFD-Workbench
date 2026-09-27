@@ -1,0 +1,18 @@
+{
+  "format": "cfdw-layout",
+  "version": 1,
+  "active": "planform",
+  "workspaces": [
+    {
+      "id": "planform",
+      "views": { "arrangement": "plan-3d", "single": "plan" },
+      "regions": [
+        { "id": "right", "open": false, "size": 260, "groups": [ { "panes": ["properties"], "active": "properties", "share": 1 } ] },
+        { "id": "left", "open": true, "size": 260, "groups": [ { "panes": ["browser", "ghost", "properties"], "active": "browser", "share": 1 } ] },
+        { "id": "bottom", "open": false, "size": 190, "groups": [ { "panes": ["points", "messages"], "active": "points", "share": 1 } ] }
+      ],
+      "floats": [],
+      "closed": ["browser"]
+    }
+  ]
+}
