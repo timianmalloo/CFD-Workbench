@@ -1,8 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><TreatWarningsAsErrors>true</TreatWarningsAsErrors><AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault></PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Desktop" Version="11.3.14" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.14" />
+    <PackageReference Include="Dock.Avalonia" Version="11.3.12.1" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="11.3.12.1" />
+    <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="11.3.12.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <ProjectReference Include="../CfdWorkbench.Cli/CfdWorkbench.Cli.csproj" />
   </ItemGroup>
   <ItemGroup><AvaloniaResource Include="Assets/example.foil" /></ItemGroup>

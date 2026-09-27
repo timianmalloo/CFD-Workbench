@@ -3,6 +3,7 @@ using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using System.Globalization;
 
@@ -21,6 +22,21 @@ public sealed class Viewport : Grid
     public long RenderSerial { get; private set; }
     public long LastRecordedRevision { get; private set; }
     public DisplayFrame? LastRecordedFrame { get; private set; }
+    public event Shell.FocusedTargetChangedEventHandler? FocusedTargetChanged;
+
+    public void FocusVertex(string id)
+    {
+        if (!semanticControls.TryGetValue(id, out var label)) return;
+        var top = TopLevel.GetTopLevel(this);
+        var origin = top is null
+            ? new PixelPoint((int)label.Bounds.X, (int)label.Bounds.Y)
+            : top.PointToScreen(label.TranslatePoint(default, top) ?? default);
+        var bounds = new Shell.PxRect(origin.X, origin.Y,
+            Math.Max(1, (int)Math.Ceiling(label.Bounds.Width)),
+            Math.Max(1, (int)Math.Ceiling(label.Bounds.Height)));
+        var name = semantics.First(item => item.Id == id).Name;
+        FocusedTargetChanged?.Invoke(this, new Shell.FocusedTargetEventArgs(bounds, name));
+    }
     public Viewport()
     {
         drawing = new ViewportDrawing(this);

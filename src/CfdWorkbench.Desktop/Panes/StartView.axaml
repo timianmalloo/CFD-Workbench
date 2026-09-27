@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Panes.StartView">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="{StaticResource Space6}" Spacing="16" MaxWidth="{StaticResource WindowMinWidth}">
+      <!-- Alert Panel for Open Failures / Warnings -->
+      <Border x:Name="AlertPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+              Padding="{StaticResource Space4}">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="AlertTitle" Classes="heading" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
+          <TextBlock x:Name="AlertMessage" TextWrapping="Wrap" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button x:Name="AlertLocateButton" Content="Locate…" IsVisible="False" />
+            <Button x:Name="AlertOpenAnotherButton" Content="Open another file…" IsVisible="False" />
+            <Button x:Name="AlertTryAgainButton" Content="Try again" IsVisible="False" />
+            <Button x:Name="AlertRemoveRecentButton" Content="Remove from Recent" IsVisible="False" />
+            <Button x:Name="AlertNewFoilButton" Content="New foil" IsVisible="False" />
+            <Button x:Name="AlertDismissButton" Content="Dismiss" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Opening State Overlay / Panel -->
+      <Border x:Name="OpeningPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+              Padding="{StaticResource Space4}">
+        <StackPanel Spacing="12">
+          <TextBlock x:Name="OpeningText" Classes="heading" Text="Opening…" />
+          <Button x:Name="OpenCancelButton" Content="Cancel" AutomationProperties.Name="Cancel opening" />
+        </StackPanel>
+      </Border>
+
+      <!-- Main Cards -->
+      <StackPanel x:Name="CardsPanel" Spacing="16">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Start a foil" Classes="heading" />
+          <TextBlock Text="Start with a foil, then make it yours." Classes="caption" />
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,*,*">
+          <Button Grid.Column="0" x:Name="StartNewButton" Margin="{StaticResource Space2}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                  AutomationProperties.Name="New foil">
+            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
+              <TextBlock Text="New foil" FontWeight="SemiBold" />
+              <TextBlock Text="A straight wing to shape." Classes="caption" TextWrapping="Wrap" />
+            </StackPanel>
+          </Button>
+
+          <Button Grid.Column="1" x:Name="StartExampleButton" Margin="{StaticResource Space2}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                  AutomationProperties.Name="New from example">
+            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
+              <TextBlock Text="New from example" FontWeight="SemiBold" />
+              <TextBlock Text="An 850 mm kite front wing." Classes="caption" TextWrapping="Wrap" />
+            </StackPanel>
+          </Button>
+
+          <Button Grid.Column="2" x:Name="StartOpenButton" Margin="{StaticResource Space2}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                  AutomationProperties.Name="Open…">
+            <StackPanel Spacing="4" Margin="{StaticResource Space2}">
+              <TextBlock Text="Open…" FontWeight="SemiBold" />
+              <TextBlock Text="A .foil file on this computer." Classes="caption" TextWrapping="Wrap" />
+            </StackPanel>
+          </Button>
+        </Grid>
+
+        <!-- Recent Section -->
+        <StackPanel x:Name="RecentSection" Spacing="8">
+          <DockPanel LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left" Text="Recent" Classes="heading" VerticalAlignment="Center" />
+            <Button DockPanel.Dock="Right" x:Name="ClearRecentButton" Content="Clear Recent"
+                    Padding="{StaticResource Space2}" MinHeight="{StaticResource ControlHeight}" />
+          </DockPanel>
+          <ListBox x:Name="RecentListBox" MaxHeight="{StaticResource StationListHeight}"
+                   AutomationProperties.Name="Recent files" />
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

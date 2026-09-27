@@ -6074,6 +6074,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "5b2ecaa87814cd9d5ee6faf37838233a02fc3c1a666a10e068b10ad044fcafa4"
     },
     {
+      "id": "proof-d3a-red-runs",
+      "path": "docs/proof/d3a-red-runs.md",
+      "title": "D3a shell window red runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d3a",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Recorded foreground red runs for the D3a subset landed in this dispatch. The architecture check was exercised against a planted Dock reference outside Shell.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "d3a",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0745f7a5043eb2389ab4b790f551ac8a0a85b5fca16b38a7435e538eacd89148"
+    },
+    {
       "id": "proof-dock-split-s8",
       "path": "docs/proof/cad-first-spikes/dock-split/README.md",
       "title": "S8 spike: can Dock capability overrides block split drops",
@@ -7588,5 +7614,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "835e748a3ef9907d986e1ab9cdebb4456678d1e80215356581a853f8ae901a34"
+  "graphSha256": "b1b80a01756d798c6f794103bf7afa5aae420b5248f355106f7a1b1d65bf77f3"
 };

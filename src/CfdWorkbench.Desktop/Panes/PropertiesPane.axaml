@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="{StaticResource Space4}" Spacing="12">
+      <TextBlock Classes="heading" Text="Properties" />
+
+      <!-- Error State for PaneBind_Throws -->
+      <Border x:Name="ErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+              Padding="{StaticResource Space3}">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="ErrorText" Text="Properties couldn't be shown." Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
+          <Button x:Name="TryAgainButton" Content="Try again" />
+        </StackPanel>
+      </Border>
+
+      <!-- Empty State -->
+      <StackPanel x:Name="EmptyPanel" Spacing="8" IsVisible="True">
+        <TextBlock Classes="heading" Text="No foil open" />
+        <TextBlock Classes="caption" Text="Open or start a foil. Whatever you select in it shows its properties here." TextWrapping="Wrap" />
+      </StackPanel>
+
+      <!-- Content Panel -->
+      <StackPanel x:Name="ContentPanel" Spacing="12" IsVisible="False">
+        <TextBlock x:Name="SelectionHeading" Classes="heading" Text="Selected Properties" />
+
+        <!-- Blocks Container -->
+        <StackPanel x:Name="BlocksPanel" Spacing="12" />
+
+        <!-- Wing Block (Always Last when foil is open) -->
+        <Border x:Name="WingBlock" Background="{DynamicResource SurfaceSoftBrush}"
+                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                Padding="{StaticResource Space3}">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="heading" Text="Wing" />
+            <TextBlock Text="Span" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0" x:Name="SpanInput" AutomationProperties.Name="Span in millimetres" />
+              <TextBlock Grid.Column="1" x:Name="SpanUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+            </Grid>
+            <!-- Span error alert -->
+            <Border x:Name="SpanErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                    Padding="{StaticResource Space2}">
+              <TextBlock x:Name="SpanErrorText" Foreground="{DynamicResource DangerBrush}" Classes="caption" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Readouts for root and tip chord -->
+            <TextBlock x:Name="RootChordLabel" Classes="caption" Text="Root chord" />
+            <TextBlock x:Name="RootChordText" Text="—" />
+            <TextBlock x:Name="TipChordLabel" Classes="caption" Text="Tip chord" />
+            <TextBlock x:Name="TipChordText" Text="—" />
+
+            <!-- Wing estimates -->
+            <TextBlock Classes="caption" Text="Estimates" FontWeight="SemiBold" Margin="{StaticResource Space2}" />
+            <TextBlock x:Name="EstimatesAreaText" Classes="caption" Text="Area: —" />
+            <TextBlock x:Name="EstimatesAspectRatioText" Classes="caption" Text="Aspect ratio: —" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
