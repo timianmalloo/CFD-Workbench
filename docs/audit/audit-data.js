@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T00:04:26Z",
+  "generated": "2026-09-27T00:13:29Z",
   "audit": [
     {
       "actor": null,
@@ -18202,6 +18202,21 @@ window.AUDIT_DATA = {
       "compiled": false,
       "tier": "T2",
       "fan_out": 3
+    },
+    {
+      "id": "al-01M3G3BBH37VJ65J4N9K2RW24R",
+      "shortname": "also some things i missed: the properties should always show a running e…",
+      "datetime": "2026-09-27T00:13:29Z",
+      "session": "prompt-log",
+      "prompt": "also some things i missed: the properties should always show a running estimate of span, chord, thickness, aspect ratio, area. In the edit section i should be able to choose an existing known foil profile from the catalog of foil sections (eppler, naca etc) and save a foil section to re-use. /specify, /ui-design, /define-architecture, /prepare-for-coordination. Decisions: curve model — in the property sheet change the behavior of a point: control point, anchor point, point with specific semantics; floating panes — option a.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
