@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T17:16:24Z",
+  "generated": "2026-09-27T17:47:25Z",
   "audit": [
     {
       "actor": null,
@@ -18985,6 +18985,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T17:15:50Z",
       "duration_seconds": 34.0
+    },
+    {
+      "id": "al-01M3HZN4ZM6Y282NB86VG1QGR6",
+      "shortname": "D3a-0 test inventory",
+      "datetime": "2026-09-27T17:47:25Z",
+      "session": "track-d3a",
+      "prompt": "Checkpoint D3a-0 of docs/coordination/app-shell-build.md: commit docs/proof/app-shell-test-inventory.md (design §12.5) before any source change.",
+      "summary": "Measured 212 throw-new lines in WorkbenchTests.cs (design says 213; d27dc03 changed it). 93 rows for 92 bound lines: 55 ported (7 proposed names, 1 D1 name), 22 deleted with App G clauses G-B7/G-CAD04, 16 kept-unchanged reflection-bound; 120 lines not bound. 31 reflection rows (26 live). Flags Q1 rail CV editor has no M1.2a home (Resume hazard), Q2 Section sample tab placement. Commit d47607f.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/app-shell-test-inventory.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Commit the D3a-0 inventory for Coordinator review",
+      "done_when": "inventory committed; check-named-tests D3a reports no inventory error; check-docs exits 0; audit entry appended",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-09-27T17:37:56Z",
+      "duration_seconds": 569.0,
+      "git": {
+        "sha": "d47607fd555ae7909dd9ca48b4e523dfeca19a2b",
+        "short": "d47607fd5",
+        "branch": "d3a-shell-host",
+        "pushed": null
+      }
     }
   ],
   "changes": [
