@@ -43,7 +43,7 @@ Machine: macOS, 16 logical CPUs, .NET 10.0.203. Every number below is measured o
 | — `verify-application-adapters.py` | 17.2 s, red | fails at the Desktop suite |
 | — 10 other gates | 1.2 s total | |
 | Builds per join | **5 builds + 5 publishes** | core gate: build + publish (cold NuGet); adapters gate: build + 4 self-contained publishes (cold NuGet); 2 recount spike builds; `run-tests.sh` is not in the join at all |
-| Test suites run per join | Core ×9, Cli ×1, Desktop ×2 (+ theme mode) | all inside the two app gates; see F2 |
+| Test suites run per join | Core ×9, Cli ×1, Desktop ×2 (+ theme mode) | all inside the two app gates; see F2 (now Core ×2 full + 7 store-only runs) |
 
 **Inferred — the green cost of the two app gates today.** Model: the step list in each gate × the
 step times measured today (Core suite 39.8 s Debug, 26.8 s Release; build with a cold NuGet cache
@@ -61,7 +61,7 @@ Plan time boxes against measured work: S8 was boxed at **1 h**; its measured run
 | # | Location | Category | Evidence | Cost | Fix | Confidence |
 |---|---|---|---|---|---|---|
 | F1 | `tools/run-tests.sh` | serial suites, Debug | Core 40 s and Desktop 24 s ran one after the other; no data shared | 67 s per run, ×3 where the plan asks for three runs | run the three suites in parallel after one build; build Release | Verified (6 runs each way) |
-| F2 | `verify-application-core.py` | redundant re-runs | the umask/probe variants return early only from `ProjectStoreTests.Run()`; `IdentityTests.Main` still runs all ~230 other tests, which do not read the umask. 9 full-suite runs | ≈ 240 s of ≈ 306 s (Inferred) | run only the store tests in the 8 variant runs | Verified (code) · cost Inferred |
+| F2 | `verify-application-core.py` | redundant re-runs | the umask/probe variants return early only from `ProjectStoreTests.Run()`; `IdentityTests.Main` still runs all ~230 other tests, which do not read the umask. 9 full-suite runs | ≈ 240 s of ≈ 306 s (Inferred) | run only the store tests in the 8 variant runs | Verified (code) · cost Inferred · **Resolved (track COREGATE): 302 s → 87–90 s measured, see F2 resolution** |
 | F3 | `docs/coordination/join.json` | wrong ring | every join runs both app gates (GUI launch, cold restore, 4 cross-RID publishes) but **no** `run-tests.sh` | ≈ 376 s per join when green (Inferred); crash pop-ups today | fast ring: `run-tests.sh` + light gates; app gates at readiness | Verified (config) |
 | F4 | `join.json` `recount` | wrong ring | both recounts read only `tools/spikes/**`; a join that does not touch it re-proves unchanged input | 20 s per code join | move to the readiness ring | Verified |
 | F5 | app gates | gate ignored | both were red on the joined tree `bdcbefb` and on `main`; joins went ahead | a red gate nobody acts on is noise | a cheap, green fast ring that can be enforced; slow ring at readiness | Verified |
@@ -103,6 +103,43 @@ certificate's 1e-14, then restored. Release: `Reopen_InsertThenDelete_NeverThrow
 (`GEOMETRY-BUDGET`), but the named control `Rebuild_TenVertices_CertifiedOneUndoItem` stays green.
 Debug: both are red. So the defect is still caught on every Release run, through a different test.
 The named control catches it only in Debug. Both catches depend on the clock (condition 2, open).
+
+**F2 resolution (track COREGATE, 2026-09-27).** Measured, not modeled. Before: 302 s, exit 0 (the
+readiness ring kills at 300 s); build 11.5 s, 3 Debug suites 40.5 s each, publish 3.9 s, 6 Release
+suites 27–28 s each. After: **87 s**, exit 0; build 11.2 s, Debug full 41.9 s, publish 3.9 s,
+Release full 28.0 s, and each of the 7 selected runs 0.15–0.46 s. Almost all the suite time is the
+geometry checks; the 32 store checks take under 0.5 s.
+
+| Run | Property it proves | Checks that exercise it | Before | After |
+|---|---|---|---|---|
+| Debug, umask 0022 | the whole suite passes on the Debug build | all 236 | full | full (236) |
+| Debug, umask 0000 and 0077 | the store forces 0600 and fails closed whatever the umask | `Store_*`, `NativePrimitive_*` (32; 6 `PERMISSION RECEIPT`s) | full | store subset (32) |
+| Release publish, umask 0022 | the whole suite passes on the published layout (helper beside the DLL) | all 236 | full | full (236) |
+| Published, umask 0000 and 0077 | as the Debug masks, on the published helper | the same 32 | full | store subset (32) |
+| Owner-stripping, umask 0600 | an owner-stripping umask fails closed, no repair | `Store_OwnerStrippingUmask_FailsClosedWithoutRepair` | 1 + 204 others | that check |
+| Helper missing / unloadable | persistence fails closed without the native helper | `Store_MissingOrUnloadableHelper_FailsClosed` | 1 + 204 others | that check |
+
+Why the cut is safe: only `ProjectStoreTests.cs` reads `CFD_*`, creates files or loads
+`libcfd_store`; `src/CfdWorkbench.Core` has no file, environment or native call, and the other
+suites only read `docs/examples`. The 204 other checks gave the same PASS set in every variant run.
+Per run, the after PASS sets equal the before store PASS sets (and the full sets are identical).
+
+Controls. The Core harness takes `CFD_TEST_ONLY` (comma-separated check-name prefixes); only
+matching checks run and print, and a prefix that selects nothing, or an empty selector, prints
+`FAIL SELECTOR` and exits 1. The gate fails (`STORE-SUBSET`) when a check in `ProjectStoreTests.cs`
+has a non-literal or non-store name; when any other Core test file or `src/CfdWorkbench.Core`
+writes files, reads the environment or the temp path, or reaches Persistence or a native import
+(only example-file reads are allowed), since such a check would run at one umask only; and when a
+run does not pass exactly the 32 normal-run store checks named in the source (full and subset
+runs alike). Receipts gain `suite` (`full` or the selector), because a
+`tests-0000` label no longer means the full suite. Red-first: a native helper that `fchmod`s new
+files to 0644 when the umask is 0077 left the full 0022 run green (236) and the 0000 subset green,
+and the 0077 subset failed 20 checks; gate exit 1. A planted early `return` at umask 0000 made the harness exit 0
+with 5 of 32 store checks; the gate failed `STORE-SUBSET` naming the 27 missing. Selector red:
+`Nope_`, `Canonical_,Nope_`, `""` and `" , "` all exit 1. Final green run: 90 s. Test Architect
+(adversary): PASS with conditions; three are fixed above, one is a seam: `tools/run-tests.sh` does
+not unset `CFD_TEST_ONLY` (or the older `CFD_NATIVE_CAPABILITY_PROBE` / `CFD_OWNER_STRIPPING_*`),
+so a selector exported in a shell would make it report a subset as green (open item).
 
 **Handed to the crash track (not edited here, by boundary):** F2 (the core gate re-runs the whole
 Core suite 9 times; only the store tests read the umask), F6 (the core gate lacks
@@ -178,6 +215,6 @@ Repair cycles used: 1 of 2.
 - No CI workflow builds or runs the C# suites (F10). The readiness ring is local and operator-run.
 - The merge to main is refused by rule (AGENTS.md) and by `run-readiness.py --check`, but no hook
   calls `--check` yet. The pre-commit floor is the pack's (`coord-core.py precommit`).
-- F2, F6 and F7 are with the crash track. Until it lands, readiness is red, and it stays red, not skipped.
+- F2 is resolved (core gate 302 s → 87–90 s, above). Seam: `tools/run-tests.sh` should unset `CFD_TEST_ONLY` and the other `CFD_*` probe selectors. F6 and F7 are with the crash track. Until it lands, readiness is red, and it stays red, not skipped.
 - The SRE's per-suite timeout and CPU-second budget.
 - The `tools/*.mjs` mockup oracles run in no ring; they are evidence for frozen reviews, cost 0 s per join, and are kept.
