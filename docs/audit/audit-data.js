@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T15:57:51Z",
+  "generated": "2026-09-27T16:00:20Z",
   "audit": [
     {
       "actor": null,
@@ -18512,6 +18512,35 @@ window.AUDIT_DATA = {
         "branch": "chore/test-ci-waste",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3HSH2STVP1MBCWKW5VCVSAJ",
+      "shortname": "join-testci",
+      "datetime": "2026-09-27T16:00:20Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of chore/test-ci-waste into feature/ui-cad-direction",
+      "summary": "run-tests 67.4s->29s (verified), builds per join 5+5 publishes->1, 0 tests removed (none met the rule), fast ring green, app gates moved to readiness ring, check-spiral encoding fix, controls TEST-BUDGET/TEST-RING/TEST-RECEIPT-RACE recount_seconds=12 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/test-ci-waste.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "cut test/CI waste without weakening coverage",
+      "done_when": "merged; fast-ring gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T16:00:04Z",
+      "duration_seconds": 16.0
     }
   ],
   "changes": [
