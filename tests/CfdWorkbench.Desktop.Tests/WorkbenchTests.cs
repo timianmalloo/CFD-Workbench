@@ -16,6 +16,11 @@ using SolidColorBrush = Avalonia.Media.SolidColorBrush;
 using System.Text;
 using System.Text.Json.Nodes;
 
+StartupFailure.Install();
+if (args.Contains(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparer.Ordinal))
+    throw new InvalidOperationException(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe);
+if (args.Length == 0) CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run();
+
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -639,6 +644,10 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             string row = prefix + "." + state;
             CheckRow(theme, row, () =>
             {
+                // Rest is established by the probe, not assumed: the operator's real cursor may sit over the target.
+                if (state == "rest" && target.IsPointerOver)
+                    target.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent,
+                        target, pointer, window, new Point(-100, -100), 9, default, KeyModifiers.None));
                 if (state == "hover") Enter(target, window, pointer, 10);
                 else if (state == "pressed" && selection == "unselected" &&
                          target is TabItem or ListBoxItem)
@@ -1861,16 +1870,8 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-using (var sectionFlow = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--section-flow") { UseShellExecute = false }))
-{
-    sectionFlow!.WaitForExit();
-    if (sectionFlow.ExitCode != 0) throw new Exception($"section-flow exited {sectionFlow.ExitCode}");
-}
-using (var sectionTools = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!, "--section-tools") { UseShellExecute = false }))
-{
-    sectionTools!.WaitForExit();
-    if (sectionTools.ExitCode != 0) throw new Exception($"section-tools exited {sectionTools.ExitCode}");
-}
+CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-flow");
+CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-tools");
 Environment.Exit(0);
 
 sealed class UncertainStore : IProjectStore
