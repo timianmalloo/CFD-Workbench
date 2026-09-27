@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T17:06:28Z",
+  "generated": "2026-09-27T17:10:33Z",
   "audit": [
     {
       "actor": null,
@@ -18901,6 +18901,43 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T17:05:55Z",
       "duration_seconds": 33.0
+    },
+    {
+      "id": "al-01M3HXHNG5A2EN383BHYGGJSXX",
+      "shortname": "run-tests-selector-seam-fix",
+      "datetime": "2026-09-27T17:10:33Z",
+      "session": "fbfa35dc-seam",
+      "prompt": "Coordinator seam fix (Test Architect condition, COREGATE track): tools/run-tests.sh must clear CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE, and CFD_OWNER_STRIPPING_* before running the Core harness, so an exported selector cannot pass a subset and report green.",
+      "summary": "Red-first: CFD_TEST_ONLY=Store_ tools/run-tests.sh exited 0 with Core 29 PASS (a leaked subset reporting green). Fix: run-tests.sh now unsets CFD_TEST_ONLY, CFD_NATIVE_CAPABILITY_PROBE and every CFD_OWNER_STRIPPING_* var near the top (bash 3.2-safe, via compgen -e). After: same command runs the full suite, Core 236 PASS. Gates: tools/run-tests.sh exit 0 (Core 236 PASS), python3 tools/check-docs.py exit 0. Committed 79d7a33 to tools/run-tests.sh only.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "COREGATE",
+        "seam-fix",
+        "run-tests"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix tools/run-tests.sh so exported CFD_TEST_ONLY / CFD_NATIVE_CAPABILITY_PROBE / CFD_OWNER_STRIPPING_* selectors cannot silently narrow the Core suite and still report green.",
+      "done_when": "CFD_TEST_ONLY=Store_ tools/run-tests.sh runs the full 236-PASS Core suite; tools/run-tests.sh and python3 tools/check-docs.py both exit 0; fix committed to tools/run-tests.sh only.",
+      "tier": "T0",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-27T17:07:00Z",
+      "duration_seconds": 213.0,
+      "git": {
+        "sha": "79d7a338eb765589cefb76f9d26631ab4e0559c0",
+        "short": "79d7a338e",
+        "branch": "feature/ui-cad-direction",
+        "pushed": false
+      }
     }
   ],
   "changes": [
