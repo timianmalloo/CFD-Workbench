@@ -5957,6 +5957,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
     },
     {
+      "id": "proof-c1-red-runs",
+      "path": "docs/proof/c1-red-runs.md",
+      "title": "C1 wing estimates and span red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-c1",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red run of the fourteen C1 checks at 32e59ce, before EditReference accepted a dimension receipt. Receipt_Dimension_OldReaderRefusesDocReference failed with DOC-REFERENCE against the old validator.",
+      "tags": [
+        "app-shell",
+        "wing-estimates",
+        "span",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "57eb63b558f90979247842ff19546980c3929938f6367aac2b2344104361ee94"
+    },
+    {
       "id": "proof-dock-split-s8",
       "path": "docs/proof/cad-first-spikes/dock-split/README.md",
       "title": "S8 spike: can Dock capability overrides block split drops",
@@ -7445,5 +7475,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6783081032f8fb0556bf7db45532ddd45ff0e8942eeab5aa585b2fee8576dab2"
+  "graphSha256": "9827ad014c96ddac0c798dd21821fd9b9d821da792a2f2b51928fd1d7352bfe8"
 };
