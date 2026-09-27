@@ -61,7 +61,45 @@ def run_spiral_check():
         raise SystemExit(result.stdout.strip() or "check-spiral.py failed.")
 
 
+SLOW_GATES = ("verify-application-core.py", "verify-application-adapters.py")
+RECOUNTS = ("tools/recount-architecture-spike.py", "tools/recount-application-contracts.py")
+
+
+def join_ring_problems(contract):
+    """TEST-RING: the join's fast ring runs the tests and skips the slow gates; the readiness
+    ring keeps every slow gate and recount (docs/reviews/test-ci-waste.md)."""
+    def lines(key):
+        return [" ".join(command) for command in contract.get(key) or []]
+
+    checks, gates, readiness = lines("checks"), lines("gates"), lines("readiness")
+    problems = []
+    if not any("tools/run-tests.sh" in line for line in checks):
+        problems.append("join checks do not run tools/run-tests.sh")
+    if not any("xaml-token-lint.py" in line for line in checks):
+        problems.append("join checks do not run xaml-token-lint.py")
+    if any(recount in line for line in lines("recount") + gates for recount in RECOUNTS):
+        problems.append("a spike recount is in the every-join ring")
+    for gate in SLOW_GATES:
+        if not all("--skip" in line and gate in line for line in gates if "run-verify-gates.py" in line):
+            problems.append("join gates run " + gate + " on every join")
+    if not any("run-verify-gates.py" in line and "--skip" not in line for line in readiness):
+        problems.append("readiness does not run every verify gate")
+    for recount in RECOUNTS:
+        if not any(recount in line for line in readiness):
+            problems.append("readiness does not run " + recount)
+    return problems
+
+
+def check_join_rings():
+    path = ROOT / "docs" / "coordination" / "join.json"
+    problems = join_ring_problems(json.loads(path.read_text(encoding="utf-8")))
+    if problems:
+        raise SystemExit("TEST-RING: " + "; ".join(problems) + " (" + str(path.relative_to(ROOT)) + ")")
+    print("join rings ok: tests every join, slow gates and recounts at readiness", flush=True)
+
+
 def main():
+    check_join_rings()
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
     run_spiral_check()

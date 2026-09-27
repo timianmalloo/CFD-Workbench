@@ -13,6 +13,13 @@ import subprocess
 import sys
 import tempfile
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT_MARKERS = ("src", "tests")
 
 BOOKKEEPING_RE = re.compile(
@@ -36,6 +43,8 @@ def touches_product(sha, cwd):
         check=True,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     for path in result.stdout.splitlines():
         path = path.strip()
@@ -53,6 +62,8 @@ def get_merge_base(cwd):
         cwd=cwd,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     if result.returncode != 0:
         return None
@@ -66,6 +77,8 @@ def get_commits(base, cwd):
         check=True,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     commits = []
     for line in result.stdout.splitlines():
@@ -88,6 +101,8 @@ def evaluate(cwd):
         check=True,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     ).stdout.strip()
 
     if head == base:
@@ -139,7 +154,7 @@ def _init_repo(directory):
 def _commit(directory, filename, content, subject):
     path = os.path.join(directory, filename)
     os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(filename) else None
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(content)
     subprocess.run(["git", "add", "-A"], cwd=directory, check=True)
     subprocess.run(["git", "commit", "-q", "-m", subject], cwd=directory, check=True)
