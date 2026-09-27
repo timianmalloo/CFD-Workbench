@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T21:10:42Z",
+  "generated": "2026-09-27T21:11:21Z",
   "audit": [
     {
       "actor": null,
@@ -18958,71 +18958,118 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3HXWBSSV5HBRYRHF4FWMQKR",
-      "shortname": "join-c1",
-      "datetime": "2026-09-27T17:16:24Z",
-      "session": "fbfa35dc",
-      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "C1 14/14 named PASS verified; MAC oracle checked against closed form (0.140 for taper 0.25); dimension receipt reopen + Recovery_Dimension_Refused hold (EDIT-KIND-REOPEN); 31 min vs 90 min box recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/c1-red-runs.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "land Core wing estimates and typed Span",
+      "datetime": "2026-09-27T17:16:24Z",
       "done_when": "merged; fast gates green; named C1 and D1 green on the integration tree",
-      "tier": "T1",
+      "duration_seconds": 34.0,
       "fan_out": 0,
+      "goal": "land Core wing estimates and typed Span",
+      "id": "al-01M3HXWBSSV5HBRYRHF4FWMQKR",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-c1",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-27T17:15:50Z",
-      "duration_seconds": 34.0
+      "summary": "C1 14/14 named PASS verified; MAC oracle checked against closed form (0.140 for taper 0.25); dimension receipt reopen + Recovery_Dimension_Refused hold (EDIT-KIND-REOPEN); 31 min vs 90 min box recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3HZXNMVFJG01SST4ZQFQDVX",
-      "shortname": "track-d2",
-      "datetime": "2026-09-27T17:52:04Z",
-      "session": "track-d2",
-      "prompt": "D2 brief",
-      "summary": "Implemented track D2 (WorkbenchController, Selection, PropertiesView, OpenOutcome, ControllerShellTests) in C#/.NET 10. Replaced Open flow with build-aside-then-swap and latest-wins cancellation, implemented Selection value objects and reconciliation, pure PropertiesView projection builder, Wing block last, section mode text, and ApplySpan half-span dimension command. All 21 named D2 tests PASS, 12 D1 tests PASS, test suite exits 0, check-docs exits 0.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
+      "datetime": "2026-09-27T17:52:04Z",
+      "duration_seconds": 2074.0,
+      "id": "al-01M3HZXNMVFJG01SST4ZQFQDVX",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "D2 brief",
+      "session": "track-d2",
+      "shortname": "track-d2",
+      "skill": "implement",
       "started_at": "2026-09-27T17:17:30Z",
-      "duration_seconds": 2074.0
+      "summary": "Implemented track D2 (WorkbenchController, Selection, PropertiesView, OpenOutcome, ControllerShellTests) in C#/.NET 10. Replaced Open flow with build-aside-then-swap and latest-wins cancellation, implemented Selection value objects and reconciliation, pure PropertiesView projection builder, Wing block last, section mode text, and ApplySpan half-span dimension command. All 21 named D2 tests PASS, 12 D1 tests PASS, test suite exits 0, check-docs exits 0.",
+      "tags": [],
+      "tool": null
     },
     {
-      "id": "al-01M3JB9CD387MGSE5VB2M6Y34S",
-      "shortname": "join-d2",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/d2-red-runs.md"
+      ],
+      "compiled": false,
       "datetime": "2026-09-27T21:10:42Z",
-      "session": "fbfa35dc",
+      "done_when": "merged; fast gates green; named checks green on the integration tree",
+      "duration_seconds": 33.0,
+      "fan_out": 0,
+      "goal": "land D2",
+      "id": "al-01M3JB9CD387MGSE5VB2M6Y34S",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of d2-controller into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-d2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-27T21:10:09Z",
       "summary": "D2 21/21 named PASS verified; cancel-during-prepare red against as-built controller (TaskCanceledException), now keeps current foil; 33 Desktop PASS; ~55 min vs 63 min box recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T18:01:05Z",
+      "duration_seconds": 2624.0,
+      "id": "al-01M3J0E6NBNYPQRR0W88B30MYN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "P1 brief",
+      "session": "track-p1",
+      "shortname": "track-p1",
+      "skill": "implement",
+      "started_at": "2026-09-27T17:17:21Z",
+      "summary": "P1 landed the layout codec, recent list, and preference store. The 23 named checks pass. Reader depth is 8 and writer depth is 9. The three v2 rollback fixtures were overwritten with the version peek removed, then left unchanged with it restored.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M3JBAJA95RZZN7MPAB1KHKH8",
+      "shortname": "join-p1",
+      "datetime": "2026-09-27T21:11:21Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "summary": "P1 23/23 named PASS verified; v2 rollback fixtures red by mutation then green; MaxDepth writer/reader split; 42 min vs 90 min box recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/d2-red-runs.md"
+        "docs/proof/p1-red-runs.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land D2",
-      "done_when": "merged; fast gates green; named checks green on the integration tree",
+      "goal": "land P1",
+      "done_when": "merged; fast gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -19030,7 +19077,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-27T21:10:09Z",
+      "started_at": "2026-09-27T21:10:48Z",
       "duration_seconds": 33.0
     }
   ],
