@@ -113,7 +113,7 @@ the lock but is a different shape — 0.4–15 mm from the operator's rule — s
 
 | ID | Question | Default in this ADR | Owner | If overturned |
 |---|---|---|---|---|
-| DR-9 | The operator's linear chord blend cannot meet 10 µm on a rail with the default root-mirror lock. Which rule wins, and is a residual above 10 µm a refusal? | **Strict A4.6 with the operator's rule** (`chord-blend-linear/1`): the residual is reported; above 10 µm the commit is refused with the number. Consequence: on documents without a `locks` block most typed chords are refused | Operator, then Computational Geometry | (a) *Root-flat rule* (`chord-blend-rootflat/1`) on locked rails, reporting both numbers; (b) *the command releases the root-mirror lock* in the same undo step (a visible lock change, root kink accepted); (c) *report, don't refuse* above 10 µm |
+| DR-9 | The operator's linear chord blend cannot meet 10 µm on a rail with the default root-mirror lock. Which rule wins, and is a residual above 10 µm a refusal? | **Strict A4.6 with the operator's rule** (`chord-blend-linear/1`): the residual is reported; above 10 µm the commit is refused with the number. Consequence: on documents without a `locks` block most typed chords are refused | Operator, then Computational Geometry | (a) *Root-flat rule* (`chord-blend-rootflat/1`) on locked rails, reporting both numbers; (b) *the command releases the root-mirror lock* in the same undo step (a visible lock change, root kink accepted); (c) *report, don't refuse* above 10 µm. **Ruled:** "option (a): the root-flat blend on root-mirror-locked rails, with both numbers reported." (Ruling 53) |
 
 ## Alternatives considered
 

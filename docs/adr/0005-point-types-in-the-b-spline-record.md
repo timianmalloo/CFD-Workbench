@@ -164,8 +164,8 @@ Code as built constrains the choice:
 
 | ID | Question | Default | Owner | If overturned |
 |---|---|---|---|---|
-| DR-10 | Raise the channel vertex ceiling above 10 so a rail can hold more than one interior anchor? | Keep 6–10 (ADR-0001); refuse with the ceiling named | Operator, then Computational Geometry | ADR-0001 amended to 6–16; `foildsl.md`:189 range relaxed (expand-only) |
-| DR-11 | On a section, is a point type per surface or per chord position? | Per chord position (paired), because the surfaces share one certified basis; removal refits the other surface ≤ 10 µm, reported | Operator, then Computational Geometry | Per surface needs independent side bases and their separation/blend certificates (B6-class work) before it can ship |
+| DR-10 | Raise the channel vertex ceiling above 10 so a rail can hold more than one interior anchor? | Keep 6–10 (ADR-0001); refuse with the ceiling named | Operator, then Computational Geometry | ADR-0001 amended to 6–16; `foildsl.md`:189 range relaxed (expand-only). **Ruled:** "raise the channel vertex ceiling to 16. ADR-0001 is amended and the FoilDSL range relaxed expand-only, in the M1.2b design-slice." (Ruling 53) |
+| DR-11 | On a section, is a point type per surface or per chord position? | Per chord position (paired), because the surfaces share one certified basis; removal refits the other surface ≤ 10 µm, reported | Operator, then Computational Geometry | Per surface needs independent side bases and their separation/blend certificates (B6-class work) before it can ship. **Ruled:** "Independent section point types. This requires the B6 restart in the M1.2c wave, and D4 waits on M1.2c." (Ruling 53) |
 
 ## Evidence
 
