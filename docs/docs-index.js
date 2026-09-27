@@ -2859,7 +2859,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad220eb25aefceb69eb754f4db57d21a03046a78bce9a9f0c824ee7561ac1faa"
+      "sourceSha256": "7f654ab38f7116f1201897b5360ee256f2ca621331cbe0cee91078a91aabb8c7"
     },
     {
       "id": "domain-experts",
@@ -2929,6 +2929,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
+    },
+    {
+      "id": "investigation-desktop-launch-abort",
+      "path": "docs/investigations/desktop-launch-abort.md",
+      "title": "Desktop test harness aborts with SIGABRT under the application gates",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@track-crash",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Under `dotnet CfdWorkbench.Desktop.Tests.dll`, the harness relaunched Environment.ProcessPath (the dotnet muxer) with only `--section-flow`. The child ran `dotnet --section-flow` and exited 1, and the unhandled exception aborted the process, which wrote a macOS crash report. Fixed with a launch-shape-aware relaunch and a named exit 70 for unhandled exceptions. The core gate's separate \"live owned descendants\" failure is Avalonia's build telemetry collector.",
+      "tags": [
+        "application",
+        "desktop",
+        "test-harness",
+        "gates",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "design-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "65146ab731ba0083b7a42dc628435060e38bd0e2d3206bddd20146a5d4498eb1"
     },
     {
       "id": "investigation-native-save-permissions",
@@ -7365,5 +7400,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a800129ba5e5f092fc9867e4ac3fd051619995f42f650bc4c7be6b5de2abdba0"
+  "graphSha256": "1215e9afa8b80250e26320d8b01566f254370968d839992b1a8098035c1ee7df"
 };
