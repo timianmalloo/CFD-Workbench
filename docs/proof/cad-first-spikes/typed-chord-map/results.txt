@@ -1,0 +1,20 @@
+A Example, constant chord 120 mm                           f=1.5  end=root lock=on  max residual =    2785.11 um
+A Example, constant chord 120 mm                           f=1.5  end=root lock=off max residual =       0.00 um
+A Example, constant chord 120 mm (tip x0.8)                f=0.8  end=tip  lock=on  max residual =    1114.04 um
+B CAD-17 linear taper 200->50 mm                           f=1.2  end=root lock=off max residual =       0.00 um
+B CAD-17 linear taper 200->50 mm                           f=0.8  end=tip  lock=off max residual =       0.00 um
+C mirrored taper 200->80 mm, swept LE                      f=1.2  end=root lock=on  max residual =    1580.57 um
+C mirrored taper 200->80 mm, swept LE                      f=1.2  end=root lock=off max residual =      16.00 um
+C mirrored taper 200->80 mm, swept LE                      f=0.8  end=tip  lock=on  max residual =    1580.57 um
+C mirrored taper, small change                             f=1.01 end=root lock=on  max residual =      79.03 um
+A Example, constant chord 120 mm             f=1.5  end=root lock=on  root-flat: fit     56.39 um · from operator rule  14950.67 um
+A Example, constant chord 120 mm             f=0.8  end=tip  lock=on  root-flat: fit     22.55 um · from operator rule   5980.27 um
+C mirrored taper 200->80 mm, swept LE        f=1.2  end=root lock=on  root-flat: fit     32.28 um · from operator rule   8710.44 um
+C mirrored taper 200->80 mm, swept LE        f=0.8  end=tip  lock=on  root-flat: fit     32.28 um · from operator rule   8710.44 um
+C mirrored taper, small change               f=1.01 end=root lock=on  root-flat: fit      1.61 um · from operator rule    435.52 um
+C mirrored taper, linear  s=f+(1-f)eta   f=1.01 lock on  residual um @7/8/9/10 CVs:    78.89 /    41.75 /    21.20 /    20.94
+C mirrored taper, linear  s=f+(1-f)eta   f=1.2  lock on  residual um @7/8/9/10 CVs:  1577.87 /   834.95 /   424.03 /   418.90
+C mirrored taper, linear  s=f+(1-f)eta   f=1.5  lock on  residual um @7/8/9/10 CVs:  3944.67 /  2087.37 /  1060.08 /  1047.24
+C mirrored taper, rootflat s=f+(1-f)eta^2 f=1.01 lock on  residual um @7/8/9/10 CVs:     1.61 /     1.57 /     1.57 /     1.47
+C mirrored taper, rootflat s=f+(1-f)eta^2 f=1.2  lock on  residual um @7/8/9/10 CVs:    32.28 /    31.43 /    31.36 /    29.37
+C mirrored taper, rootflat s=f+(1-f)eta^2 f=1.5  lock on  residual um @7/8/9/10 CVs:    80.69 /    78.57 /    78.39 /    73.43

@@ -1,0 +1,12 @@
+HOTKEY CommandModifiers=Meta Copy=[Cmd+C,Ctrl+Insert]
+NATIVEMENU exported(main)=True
+SCREEN name=Built-in Retina Display primary=True bounds=0, 0, 1512, 982 working=0, 33, 1512, 888 scaling=1
+ROOT.Windows=1 HostWindows=1
+DOCKWINDOW id=IDockWindow x=2 y=61 w=196 h=478 state=Normal host=Dock.Avalonia.Controls.HostWindow
+AVWINDOW type=MainWindow title=DockProbe Main pos=256, 73 size=1000, 700 handle=NSWindow:519740737408 screen=Built-in Retina Display
+AVWINDOW type=Dock.Avalonia.Controls.HostWindow title=DockProbe Main pos=2, 61 size=196, 478 handle=NSWindow:519731261312 screen=Built-in Retina Display
+SER stj-IDock FAIL JsonException: A possible object cycle was detected. This can either be due to a cycle or if the object depth is larger than the maximum allowed depth of 64. Consider using ReferenceHandler.Preserve on JsonSerializerOptions to support cycles. Path: $.
+SER stj-RootDock FAIL JsonException: A possible object cycle was detected. This can either be due to a cycle or if the object depth is larger than the maximum allowed depth of 64. Consider using ReferenceHandler.Preserve on JsonSerializerOptions to support cycles. Path: $.
+SER newtonsoft-RootDock OK len=28827 backType=RootDock windows=1 win0=(2,61,196,478) ids=[Browser,,Model,,Points,,Messages,float:Properties]
+SER newtonsoft-RootDock InitLayout OK; Properties owner=
+READY_FOR_EXTERNAL_COUNT

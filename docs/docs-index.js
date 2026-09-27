@@ -241,6 +241,261 @@ window.DOCS_INDEX = {
       "sourceSha256": "812913d53b18e115062df46ffc3b64b38cdb42b1c60c5d0218d41bfc5629f613"
     },
     {
+      "id": "adr-0005-point-types",
+      "path": "docs/adr/0005-point-types-in-the-b-spline-record.md",
+      "title": "ADR-0005: point types are knot multiplicity in the existing B-spline record; tangent kinds are a FoilDSL 4.1 curve annotation",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Settles DR-5. A Point is a control vertex of the clamped non-rational B-spline of record. An interior vertex is an Anchor point exactly when one interior knot of multiplicity p sits at it, so point type is derived from the knot vector and never stored. Tangent kinds are editing intent in an optional FoilDSL 4.1 `tangents` block outside geometry identity. Every type change is measured and reported on the A4.5 oracle. On a section the two surfaces share one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact on Anchor creation and refitted within 10 µm, reported, on Anchor removal.",
+      "tags": [
+        "geometry",
+        "b-spline",
+        "point-type",
+        "anchor",
+        "control-point",
+        "foildsl",
+        "adr",
+        "dr-5",
+        "dr-10",
+        "dr-11"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8928352fdb6881a730d1d111e5d45606e3b47bbc402904e0d6acdb4bd15587b1"
+    },
+    {
+      "id": "adr-0006-driving-dimensions",
+      "path": "docs/adr/0006-driving-dimensions-and-wing-estimates.md",
+      "title": "ADR-0006: driving dimensions are commands that refit the rails of record; Wing estimates are derived in Core",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Typed Span patches half_span only (exact). Typed Root or Tip chord refits the moved rail on its own knots and abscissae, ordinates only, with the typed end pinned exactly and every lock a hard row; the held line (DR-2) is one parameter and the quarter-chord option re-sets the frame. A spike shows the operator's linear chord blend cannot meet 10 µm on a rail with the default root-mirror lock (0.08–4 mm), so DR-9 asks which rule wins; until then A4.6 is strict and the residual against the operator's rule is always reported. Wing estimates are the FoilDSL metric definitions, computed by one pure Core function and never stored.",
+      "tags": [
+        "geometry",
+        "planform",
+        "driving-dimension",
+        "wing-estimates",
+        "mac",
+        "adr",
+        "dr-2",
+        "dr-9"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8e5258b46141a8f508875e2f0d88135b2051029390a3ccb91314445c706cb250"
+    },
+    {
+      "id": "adr-0007-edit-transactions",
+      "path": "docs/adr/0007-edit-transactions-section-draft-and-gesture-commit.md",
+      "title": "ADR-0007: one multi-step section draft per section-editor visit; a workspace gesture commits at its end; catalog Replace is a draft step",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "The section editor holds one draft whose bytes advance through an ordered list of source-patch steps (moves, type changes, Replace, constructions); inner Undo pops a step, Cancel discards the draft, Finish applies it as exactly one accepted revision. A workspace point gesture (DR-6 default) is a draft opened at pointer-down and applied at release when certified. Catalog Replace (DR-4) reuses the as-built import fit as one draft step with its residual reported.",
+      "tags": [
+        "authoring-session",
+        "draft",
+        "undo",
+        "section-editor",
+        "gesture",
+        "catalog",
+        "adr",
+        "dr-4",
+        "dr-6"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a39569689b1578ae635f373b87d1913aec1d55cc28b7ff83bb965853992231b5"
+    },
+    {
+      "id": "adr-0008-section-library",
+      "path": "docs/adr/0008-profile-catalog-and-section-library.md",
+      "title": "ADR-0008: the Profile catalog is bundled and read-only; My sections is a folder of immutable, create-only section documents",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Designs to the DR-8 default location. The catalog is a bundled, read-only set of GEN coordinate sets with generator and hash; VEND and LINK rows ship metadata only. My sections is a per-user folder of create-only standalone FoilDSL section documents named by their SHA-256, each carrying its own name and a flat provenance (origin plus a modified flag); the current library is a folder scan. Rights class is derived from the origin. A foil that uses an entry gets an inline copy — a stated deviation from the spec's content-addressed pin.",
+      "tags": [
+        "catalog",
+        "section-library",
+        "my-sections",
+        "persistence",
+        "provenance",
+        "rights",
+        "adr",
+        "dr-8"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-catalog-admission-classes",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6d6a53e3478d1bd54c3a82f9cdecfaa6c136e8e71fabd1168f7fbdcf21ab0c40"
+    },
+    {
+      "id": "adr-0009-cad-first-shell",
+      "path": "docs/adr/0009-cad-first-shell-docking-and-menus.md",
+      "title": "ADR-0009: the CAD-first shell uses Dock for Avalonia 11.3.12.1 with OS-window floats, Avalonia NativeMenu, one command table and our own layout file",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Adopts Dock for Avalonia 11.3.12.1 (MIT; the last release for Avalonia 11) for tabbed, dockable and floating panes; a spike observed a floated pane as its own NSWindow. Menus use Avalonia NativeMenu, exported to the macOS menu bar in the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file, not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize, monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.",
+      "tags": [
+        "desktop",
+        "avalonia",
+        "docking",
+        "dock",
+        "nativemenu",
+        "layout",
+        "preferences",
+        "adr",
+        "ux-31",
+        "ux-32"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-workbench-v9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a89466a6f8facad543503dc3f055eda1fe2349afa9e9b2a6bf233760e95ef884"
+    },
+    {
       "id": "adr-application-project-contract",
       "path": "docs/adr/0004-application-project-contract.md",
       "title": "Native-v1 immutable receipts and bounded admission",
@@ -421,19 +676,16 @@ window.DOCS_INDEX = {
           "by": "design-application-foundation",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
-        },
-        {
-          "by": "spec-cfd-workbench-v1",
-          "on": "2026-09-26",
-          "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
         }
       ],
-      "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates.",
+      "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates. §10 (proposed, spec 1.6) adds the CAD-first shell, point types, driving dimensions, Wing estimates, the section draft, catalog and My sections, with ADR-0005–0009 and slices M1.2a–e.",
       "tags": [
         "application",
         "native",
         "offline",
-        "architecture"
+        "architecture",
+        "cad-first",
+        "spec-1.6"
       ],
       "links": [
         {
@@ -463,6 +715,30 @@ window.DOCS_INDEX = {
         {
           "to": "rulings",
           "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0008-section-library",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [
@@ -470,9 +746,14 @@ window.DOCS_INDEX = {
           "kind": "flowchart",
           "title": "4. Components and composition",
           "mermaid": "flowchart LR\n  GUI[Native desktop adapter] --> Session[Authoring session commands]\n  CLI[Command line adapter] --> Session\n  Session --> Parser[Lossless source parser and patcher]\n  Parser --> Kernel[Deterministic geometry and interval validator]\n  Kernel --> Identity[Canonical identity]\n  Session --> Store[Native project store]\n  Store --> Bytes[Immutable source snapshots and history facts]\n  Kernel --> View[Derived viewport and section projection]\n  View --> GUI\n  Session --> Unavailable[Analysis unavailable in M1]"
+        },
+        {
+          "kind": "flowchart",
+          "title": "10.3 Components and layers (additions to §4)",
+          "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "2f8d44335b150835195bdc874b179ca068ba6381f8b19ae2fd1d162eba224fc6"
+      "sourceSha256": "33fe5e85f2c13d2fe64a810bc88c79ac33db6a0bd3e315b996d5a4e1f374dabc"
     },
     {
       "id": "cad-editing-views",
@@ -1003,6 +1284,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "6d3771f50f16013e3003d30d25b5733c133cf180dbe079923198dede8ff9f2c2"
     },
     {
+      "id": "note-20260926-binary64-evaluator",
+      "path": "docs/notes/binary64-evaluator.md",
+      "title": "Core keeps one binary64 B-spline basis (SplineBasis); only the FoilSource copy is folded into it",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "2027-03-25",
+      "reviewSuggested": [],
+      "summary": "The Wing estimates and every display path use the shared binary64 `SplineBasis`; the one duplicate private evaluator (`FoilSource.cs:574`) is folded into it under a byte-identical golden master of every fit and patch. The rational certificate and its display sampler are excluded, because they are the proof path.",
+      "tags": [
+        "decision-note",
+        "geometry",
+        "evaluator",
+        "refactor"
+      ],
+      "links": [
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7d191b6a6628b6c838fa70d98551d264a9d2cdde66baf473e518b4747268a1ad"
+    },
+    {
+      "id": "note-20260926-command-table-selection",
+      "path": "docs/notes/command-table-and-selection.md",
+      "title": "The CAD-first shell has one command table and one selection state; telemetry reuses the apply event",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "architecture — spec 1.6 (CAD-first)",
+      "reviewBy": "2027-03-25",
+      "reviewSuggested": [],
+      "summary": "Every CAD verb is one row in a command table that feeds the native menu, toolbar, palette and key bindings on every window; the controller owns one selection state that every view and pane observe. Applies of every kind emit the existing apply event with an edit_kind attribute instead of new per-kind events.",
+      "tags": [
+        "decision-note",
+        "desktop",
+        "commands",
+        "selection",
+        "telemetry"
+      ],
+      "links": [
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "refines"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ceb98bc5764fa8eb3509fac773e4446d1c159029c38b1d78f8da3ddd44a05c9b"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -1447,6 +1789,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 revision (§10 proposed): point types as knot multiplicity + FoilDSL 4.1 tangents (ADR-0005), driving dimensions/Wing estimates (ADR-0006), multi-step section draft and gesture commit (ADR-0007), catalog and My sections (ADR-0008), Dock/NativeMenu shell (ADR-0009); DR-9/10/11 raised."
         }
       ],
       "summary": "Design for the M1.1 section editor: profile control-vertex editing with shared or independent scope, certified multi-profile blending, and a UI-25 control-frame canvas in the desktop app. Delivered in two named increments (M1.1a edit core, M1.1b construction operations and thickness proposals); the editor is called \"full\" only once both land.",
@@ -1481,7 +1828,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "356b747a44aa4e70ad304fb80b19555f2fcbdfe0cac5eb1ce4c031ee4677bcb8"
+      "sourceSha256": "97b70ff221af3ffe6d67db18417d25d4e74b4e2d32d33d8c1dd5f5ec205c4044"
     },
     {
       "id": "design-visible-presentation",
@@ -1541,6 +1888,11 @@ window.DOCS_INDEX = {
           "by": "coordination-windows-runtime-route",
           "on": "2026-09-24",
           "reason": "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 revision (§10 proposed): point types as knot multiplicity + FoilDSL 4.1 tangents (ADR-0005), driving dimensions/Wing estimates (ADR-0006), multi-step section draft and gesture commit (ADR-0007), catalog and My sections (ADR-0008), Dock/NativeMenu shell (ADR-0009); DR-9/10/11 raised."
         }
       ],
       "summary": "Defines the disposable W0 Windows file and process experiment, its fixed failure matrix and receipt boundary. It does not admit a production Windows store: directory durability, complete hostile-namespace containment and passing native qualification remain open after the failed W1 hosted run.",
@@ -1575,7 +1927,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  G[Ground contract] --> R[Receipt RED and negative controls]\n  R --> N[Native spike and local build]\n  G --> W[Prepare hosted workflow]\n  N --> P[Proof and exact-path handback]\n  W --> P\n  P --> V[Independent root review]"
         }
       ],
-      "sourceSha256": "caa512bbcddeb6ad2b792c878a561047393e33509a55f95df86a15c36a9915e5"
+      "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
     },
     {
       "id": "mockup-workbench",
@@ -4926,6 +5278,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "architecture-application",
+          "on": "2026-09-26",
+          "reason": "Spec 1.6 revision (§10 proposed): point types as knot multiplicity + FoilDSL 4.1 tangents (ADR-0005), driving dimensions/Wing estimates (ADR-0006), multi-step section draft and gesture commit (ADR-0007), catalog and My sections (ADR-0008), Dock/NativeMenu shell (ADR-0009); DR-9/10/11 raised."
         }
       ],
       "summary": "Route real Windows x64 M1 execution through an unattended hosted runner and a separately qualified interactive desktop, with distinct store, adapter and independent proof ownership. A hosted Windows job ran, but its native qualification failed; interactive and product gates remain open.",
@@ -4958,7 +5315,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "721d7b2cde788b801ab8862d0c6d27f1dc75e626b6d6f59245c744f8eb1c075e"
+      "sourceSha256": "29e9139be1d7c2f42645cb1905d23a44d2e00e74f79329be1e320b20d70024a0"
     },
     {
       "id": "privacy-review",
@@ -6783,5 +7140,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "46d35f57b4d7ad1c52cfd438d59559f1e8790d1887028d319f604cdf8c98e744"
+  "graphSha256": "e733cfc7194bd2ca926d6baa7ab1455e602b756ddd64e721b1ec0b509dced6f3"
 };

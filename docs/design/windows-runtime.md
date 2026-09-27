@@ -20,6 +20,7 @@ summary: >-
 review-suggested:
   - { by: proof-windows-runtime, on: 2026-09-24, reason: "W1 real Windows x64 execution failed native qualification; review source-bound proof and open product gates." }
   - { by: coordination-windows-runtime-route, on: 2026-09-24, reason: "R43-R44 hosted route executed with failed native cases and a DACL receipt refusal; review route dependencies." }
+  - { by: architecture-application, on: 2026-09-26, reason: "Spec 1.6 revision (§10 proposed): point types as knot multiplicity + FoilDSL 4.1 tangents (ADR-0005), driving dimensions/Wing estimates (ADR-0006), multi-step section draft and gesture commit (ADR-0007), catalog and My sections (ADR-0008), Dock/NativeMenu shell (ADR-0009); DR-9/10/11 raised." }
 ---
 
 # Windows qualification contract

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T01:41:50Z",
+  "generated": "2026-09-27T02:17:07Z",
   "audit": [
     {
       "actor": null,
@@ -18279,6 +18279,76 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-27T01:17:06Z",
       "duration_seconds": 1457.0
+    },
+    {
+      "id": "al-01M3GADQZQP0EHQBMB4J5HVN2R",
+      "shortname": "define-architecture-spec-1-6-cad-first",
+      "datetime": "2026-09-27T02:17:07Z",
+      "session": "fbfa35dc-arch",
+      "prompt": "/define-architecture sub-agent (brief-3-architecture.md): update the CFD-Workbench application architecture for spec revision 1.6 (CAD-first shell, docking panes, selection-driven Properties, point-and-handle curve editing, section mode) and the as-built section editor. Revise docs/architecture/application.md (not replace); every load-bearing decision an ADR from 0005; spike Dock for Avalonia and NativeMenu; decide the curve representation within ADR-0001/0002 (operator: per-point Control/Anchor/named types); settle DR-4 and DR-5; design DR-2/6/7/8 to defaults with bounded reversal; running estimates (span, root/tip/mean chord, MAC, t/c, AR, area) derived in Core, never stored; typed Span/Root/Tip chord mapped to the curves of record without a second authority; catalog Replace and My sections storage and provenance; float occlusion option (a); architect council adversarially (enterprise-architect, computational-geometry-expert, native-desktop-developer, the-simplifier, data-persistence-architect), max 2 repair cycles; check-docs exits 0; audit + change-log; one docs: commit on feature/ui-cad-direction.",
+      "summary": "Revised docs/architecture/application.md with a proposed §10 for spec 1.6 and wrote ADR-0005–0009 plus two decision notes.\n- ADR-0005 settles DR-5: point type is derived from knot multiplicity p in the existing B-spline record; tangent kinds go in an additive FoilDSL 4.1 `tangents` block that stays outside identity; every change is measured and reported.\n- ADR-0006: typed Span patches half_span. Root and tip chord are refitted on the rail's own basis under strict A4.6. Wing estimates use the FoilDSL metric definitions and are never stored.\n- ADR-0007 settles DR-4: the section draft is multi-step with one Finish, a gesture commits at its end, and Replace is a draft step.\n- ADR-0008: a bundled catalog, and My sections as a folder of immutable files.\n- ADR-0009: Dock 11.3.12.1 with owned OS-window floats, NativeMenu, one command table, and our own layout file.\nSpikes were run: a typed-chord mapping spike (numpy) and a Dock/NativeMenu spike (a float as its own NSWindow; the STJ serializer fails).\nNew decision requests: DR-9 (the linear chord blend conflicts with the default root-mirror lock; 0.08–4 mm), DR-10 (channel vertex ceiling) and DR-11 (paired section point types). Spike tasks S1–S7 are scheduled.\nCouncil: the Geometry hard veto and the Simplifier soft veto were cleared after 1 repair cycle; Persistence conditions are met; Desktop and Enterprise findings were folded in.\ncheck-docs exits 0.",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/architecture/application.md",
+        "docs/adr/0005-point-types-in-the-b-spline-record.md",
+        "docs/adr/0006-driving-dimensions-and-wing-estimates.md",
+        "docs/adr/0007-edit-transactions-section-draft-and-gesture-commit.md",
+        "docs/adr/0008-profile-catalog-and-section-library.md",
+        "docs/adr/0009-cad-first-shell-docking-and-menus.md",
+        "docs/notes/binary64-evaluator.md",
+        "docs/notes/command-table-and-selection.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Revise the application architecture for spec 1.6 with ADRs from 0005, spikes, and an adversarial council",
+      "done_when": "application.md revised; ADR-0005..0009; Dock/NativeMenu spiked or scheduled; DR-4/DR-5 settled; council vetoes cleared within 2 cycles; check-docs 0; audit+change; one docs: commit",
+      "tier": "T2",
+      "fan_out": 5,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-27T01:42:48Z",
+      "duration_seconds": 2059.0,
+      "persona_yield": [
+        {
+          "persona": "computational-geometry-expert",
+          "raised": 10,
+          "accepted": 10
+        },
+        {
+          "persona": "data-persistence-architect",
+          "raised": 9,
+          "accepted": 9
+        },
+        {
+          "persona": "native-desktop-developer",
+          "raised": 10,
+          "accepted": 9
+        },
+        {
+          "persona": "enterprise-architect",
+          "raised": 10,
+          "accepted": 10
+        },
+        {
+          "persona": "the-simplifier",
+          "raised": 13,
+          "accepted": 11
+        }
+      ],
+      "change": "cl-01M3GADFGZV097ZPMQPEWXN3D0",
+      "git": {
+        "sha": "f56d2595c071d2b45f81bbc628c0a6adf5a51f00",
+        "short": "f56d2595c",
+        "branch": "feature/ui-cad-direction",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -18857,6 +18927,36 @@ window.AUDIT_DATA = {
         "commits": []
       },
       "audit_ref": "al-01M3G8CA4MZNPD50H0KBQ11SP3"
+    },
+    {
+      "id": "cl-01M3GADFGZV097ZPMQPEWXN3D0",
+      "datetime": "2026-09-27T02:16:59Z",
+      "session": "fbfa35dc-arch",
+      "kind": "architecture",
+      "skill": "define-architecture",
+      "title": "Spec 1.6 CAD-first architecture: point types as knot multiplicity, driving dimensions, section draft, My sections, Dock/NativeMenu shell",
+      "prompt": "/define-architecture sub-agent (brief-3-architecture.md): update the CFD-Workbench application architecture for spec revision 1.6 (CAD-first shell, docking panes, selection-driven Properties, point-and-handle curve editing, section mode) and the as-built section editor. Revise docs/architecture/application.md (not replace); every load-bearing decision an ADR from 0005; spike Dock for Avalonia and NativeMenu; decide the curve representation within ADR-0001/0002 (operator: per-point Control/Anchor/named types); settle DR-4 and DR-5; design DR-2/6/7/8 to defaults with bounded reversal; running estimates (span, root/tip/mean chord, MAC, t/c, AR, area) derived in Core, never stored; typed Span/Root/Tip chord mapped to the curves of record without a second authority; catalog Replace and My sections storage and provenance; float occlusion option (a); architect council adversarially (enterprise-architect, computational-geometry-expert, native-desktop-developer, the-simplifier, data-persistence-architect), max 2 repair cycles; check-docs exits 0; audit + change-log; one docs: commit on feature/ui-cad-direction.",
+      "summary": "Revised docs/architecture/application.md with a proposed §10 for spec 1.6 and wrote ADR-0005–0009 plus two decision notes.\n- ADR-0005 settles DR-5: point type is derived from knot multiplicity p in the existing B-spline record; tangent kinds go in an additive FoilDSL 4.1 `tangents` block that stays outside identity; every change is measured and reported.\n- ADR-0006: typed Span patches half_span. Root and tip chord are refitted on the rail's own basis under strict A4.6. Wing estimates use the FoilDSL metric definitions and are never stored.\n- ADR-0007 settles DR-4: the section draft is multi-step with one Finish, a gesture commits at its end, and Replace is a draft step.\n- ADR-0008: a bundled catalog, and My sections as a folder of immutable files.\n- ADR-0009: Dock 11.3.12.1 with owned OS-window floats, NativeMenu, one command table, and our own layout file.\nSpikes were run: a typed-chord mapping spike (numpy) and a Dock/NativeMenu spike (a float as its own NSWindow; the STJ serializer fails).\nNew decision requests: DR-9 (the linear chord blend conflicts with the default root-mirror lock; 0.08–4 mm), DR-10 (channel vertex ceiling) and DR-11 (paired section point types). Spike tasks S1–S7 are scheduled.\nCouncil: the Geometry hard veto and the Simplifier soft veto were cleared after 1 repair cycle; Persistence conditions are met; Desktop and Enterprise findings were folded in.\ncheck-docs exits 0.",
+      "rationale": "Spec 1.6 A4.15 left DR-4/DR-5 and the dimension mapping to architecture; the as-built shared section basis (Geometry.cs:302-304) and root-mirror default (foildsl.md:219) constrain the choices; spikes measured the chord-blend conflict and Dock's float/serializer contract.",
+      "artifacts": [
+        "docs/architecture/application.md",
+        "docs/adr/0005-point-types-in-the-b-spline-record.md",
+        "docs/adr/0006-driving-dimensions-and-wing-estimates.md",
+        "docs/adr/0007-edit-transactions-section-draft-and-gesture-commit.md",
+        "docs/adr/0008-profile-catalog-and-section-library.md",
+        "docs/adr/0009-cad-first-shell-docking-and-menus.md"
+      ],
+      "tags": [
+        "spec-1.6",
+        "cad-first"
+      ],
+      "git": {
+        "before": "f56d259",
+        "after": "f56d2595c071d2b45f81bbc628c0a6adf5a51f00",
+        "branch": "feature/ui-cad-direction",
+        "pushed": null,
+        "commits": []
+      }
     }
   ],
   "messages": []
