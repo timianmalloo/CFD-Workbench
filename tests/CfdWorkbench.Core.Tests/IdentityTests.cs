@@ -5,6 +5,13 @@ namespace CfdWorkbench.Core.Tests;
 internal static class IdentityTests
 {
     private static int failures;
+    // Subset selector owned by tools/verify-application-core.py: comma-separated check-name prefixes.
+    // Unset runs every check. Set, only matching checks run and print; a prefix that selects no check
+    // fails the run, so a subset can never pass empty (HARNESS-SILENT-EXIT).
+    private static readonly string[]? only = Environment.GetEnvironmentVariable("CFD_TEST_ONLY")?
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    private static readonly HashSet<string> matched = [];
+    private static int selected, skipped;
     private static int Main()
     {
         // Independent published binary64/canonical pairs, RFC 8785 Appendix B:
@@ -60,11 +67,26 @@ internal static class IdentityTests
         LayoutFileTests.Run();
         PreferenceStoreTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
-        return failures == 0 ? 0 : 1;
+        return SelectionMatched() && failures == 0 ? 0 : 1;
+    }
+
+    private static bool SelectionMatched()
+    {
+        if (only is null) return true;
+        Console.WriteLine($"SUBSET CFD_TEST_ONLY={string.Join(',', only)} ran={selected} skipped={skipped}");
+        string[] unmatched = only.Length == 0 ? ["(empty selector)"] : only.Where(prefix => !matched.Contains(prefix)).ToArray();
+        foreach (string prefix in unmatched) Console.WriteLine("FAIL SELECTOR " + prefix + " matched no check");
+        return unmatched.Length == 0;
     }
 
     internal static void Check(string name, Action assertion)
     {
+        if (only is not null)
+        {
+            string[] hits = only.Where(prefix => name.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
+            if (hits.Length == 0) { skipped++; return; }
+            matched.UnionWith(hits); selected++;
+        }
         // Test-runner boundary: report unexpected exceptions as failures and continue.
         try { assertion(); Console.WriteLine("PASS " + name); }
         catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
