@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T03:11:05Z",
+  "generated": "2026-09-27T15:23:54Z",
   "audit": [
     {
       "actor": null,
@@ -18395,6 +18395,39 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-09-27T02:54:55Z",
       "duration_seconds": 970.0
+    },
+    {
+      "id": "al-01M3HQECES6VMB8MHXB00WDR8M",
+      "shortname": "R0: clear app-shell review flags",
+      "datetime": "2026-09-27T15:23:54Z",
+      "session": "track-r0",
+      "prompt": "Track R0 contract: clear the design-app-shell review flags (docs/coordination/app-shell-build.md) and record Owner Rulings 52/53 in the decision-request tables.",
+      "summary": "Resolved the three design-app-shell review-suggested flags in place (spec C2/A8.5/B7 DR-S2, ADR-0009 five deviations, architecture E7/section-10.4/section-10.7), added Ruling 53 citations to DR-2, DR-6..DR-11 rows in the spec, architecture 10.7, ADR-0005 and ADR-0006, cleared the flags via docs-graph.py clear-flag. UX-29 S1-Switch-to-Analysis N/A left open (spec-owner decision, out of scope). Gates: verify-ruling-citations.py exit 0, tools/check-docs.py exit 0. Commit 36b86997b5733b8c375f1f2dbb02a1211bde2144.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/adr/0009-cad-first-shell-docking-and-menus.md",
+        "docs/architecture/application.md",
+        "docs/adr/0005-point-types-in-the-b-spline-record.md",
+        "docs/adr/0006-driving-dimensions-and-wing-estimates.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Clear the design-app-shell review flags (track R0) and record Owner Rulings 52/53 in the DR tables",
+      "done_when": "design-app-shell flags gone from spec/ADR-0009/architecture; DR-2,6-11 rows carry Ruled (Ruling 53); verify-ruling-citations.py and check-docs.py exit 0",
+      "tier": "T1",
+      "started_at": "2026-09-27T15:11:31Z",
+      "duration_seconds": 743.0,
+      "git": {
+        "sha": "36b86997b5733b8c375f1f2dbb02a1211bde2144",
+        "short": "36b86997b",
+        "branch": "review-flags-app-shell",
+        "pushed": null
+      }
     }
   ],
   "changes": [
