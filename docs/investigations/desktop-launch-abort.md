@@ -166,5 +166,24 @@ continuing into the fix.
 
 ## Gate record
 
-The final gate exit codes, `run-tests.sh`, `check-docs.py` and the crash-report counts are recorded in the track's return message and the audit entry.
+The final run was on `bf9f703`, a clean tree, 08:43–08:50 local on 2026-09-27:
+
+| Check | Exit |
+|---|---|
+| `tools/verify-application-core.py` | 0 |
+| `tools/verify-application-adapters.py` | 1: a different, previously masked step (below) |
+| `tools/run-tests.sh` | 0 |
+| `tools/check-docs.py` | 0 |
+| `.ips` crash reports in `~/Library/Logs/DiagnosticReports` | 11 before, 11 after: none new |
+
+**The adapters gate now fails at `theme-applied-controls` (`dotnet <dll> --theme-controls`)** and names
+itself: exit 70, `APP-UNHANDLED System.Exception: Applied theme matrix refused: Light/cv.selected:
+Rendered text presenter absent for ListBoxItem | … Painted background has no bounds on ListBox | …
+cv.focused: Actual Example CV item lacks keyboard focus` (`WorkbenchTests.cs:1422`). Only the `cv.*`
+rows fail, in all four themes. Before this fix the gate never reached this step, because it stopped at the
+harness abort. The last retained run that passed this step was at `70c600e` (2026-09-25). The section-editor
+wiring (`80758ec`, `d32abf0`) came later and re-rowed `MainWindow.axaml`, moving `ControlList` from
+Grid.Row 4 to 5 and adding a Section tab. The cause is **Inferred** to be that layout change leaving
+the CV list without bounds. This diff does not touch the `--theme-controls` path beyond installing
+the handler. It is out of this track's scope (app-shell features) and is reported for its own track.
 The investigator did not self-certify: the fix awaits independent review at the join.

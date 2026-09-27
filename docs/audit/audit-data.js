@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T15:16:53Z",
+  "generated": "2026-09-27T15:51:39Z",
   "audit": [
     {
       "actor": null,
@@ -18459,6 +18459,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T15:16:50Z",
       "duration_seconds": 3.0
+    },
+    {
+      "id": "al-01M3HS161ERA52XCHEFFPW66WM",
+      "shortname": "investigate-desktop-launch-abort",
+      "datetime": "2026-09-27T15:51:39Z",
+      "session": "track-crash",
+      "prompt": "CRASH track: find the root cause of the desktop-app abort under the verify gates, fix it at the cause, make the two application gates pass, and stop the crash dialogs during gate runs (contract scratchpad/tracks/CRASH.md).",
+      "summary": "Root cause (verified): WorkbenchTests.cs:1864/1869 relaunched Environment.ProcessPath with only --section-flow; under dotnet X.dll that is the muxer, so the child ran 'dotnet --section-flow' (exit 1). The harness threw 'section-flow exited 1' (1867), and the unhandled exception aborted with SIGABRT and a crash report. Fix: SelfLaunch passes the entry assembly under the muxer; StartupFailure (APP-UNHANDLED, exit 70) in the app and the harness; core gate AVALONIA_TELEMETRY_OPTOUT; class HARNESS-LAUNCH-SHAPE. Gates: core 0, adapters 1 at the previously masked theme-applied-controls cv rows (Inferred: section-editor layout), run-tests 0, check-docs 0, crash reports 11 to 11.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/investigations/desktop-launch-abort.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-27T15:25:55Z",
+      "duration_seconds": 1544.0
     }
   ],
   "changes": [
