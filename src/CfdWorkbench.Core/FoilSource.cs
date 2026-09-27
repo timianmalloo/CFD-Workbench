@@ -166,8 +166,22 @@ public static class FoilSource
         return candidate;
     }
 
-    public static byte[] PatchSpan(byte[] source, string spanMillimetres) =>
-        throw new NotImplementedException();
+    public static byte[] PatchSpan(byte[] source, string spanMillimetres)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        var parsed = Parse(source);
+        if (!parsed.IsParsed || parsed.Definition is not { Kind: "foil" })
+            throw new ContractError(parsed.Diagnostics.Count > 0 ? parsed.Diagnostics[0].Code : "DSL-PATCH");
+        string text = Utf8.GetString(parsed.Source);
+        var grammar = new Grammar(text);
+        grammar.ReadDocument();
+        foreach (var edit in grammar.SpanEdits(spanMillimetres).OrderByDescending(item => item.Start))
+            text = text[..edit.Start] + edit.Value + text[edit.End..];
+        byte[] candidate = Utf8.GetBytes(text);
+        var result = Parse(candidate);
+        Guard.Require(result.IsParsed && result.Definition is { Kind: "foil" }, "DSL-PATCH");
+        return candidate;
+    }
 
     public static byte[] PatchRail(SourceParse parsed, string rail, string vertexId, double ordinateSi)
     {
@@ -643,6 +657,76 @@ public static class FoilSource
         return list.ToArray();
     }
 
+    private readonly struct Dec
+    {
+        public readonly int Sign;
+        public readonly BigInteger Digits;
+        public readonly int Exp;
+        private Dec(int sign, BigInteger digits, int exp) { Sign = sign; Digits = digits; Exp = exp; }
+        public static Dec Parse(string text)
+        {
+            var match = Regex.Match(text ?? "", @"\A([+-]?)(?:([0-9]+)(?:\.([0-9]+))?|\.([0-9]+))(?:[eE]([+-]?[0-9]+))?\z", RegexOptions.CultureInvariant);
+            Guard.Require(match.Success, "DSL-LEX");
+            int sign = match.Groups[1].Value == "-" ? -1 : 1;
+            string fraction = match.Groups[3].Success ? match.Groups[3].Value : match.Groups[4].Value;
+            string digits = (match.Groups[2].Value + fraction).TrimStart('0');
+            if (digits.Length == 0) return new(1, BigInteger.Zero, 0);
+            string exponentText = match.Groups[5].Success ? match.Groups[5].Value : "0";
+            int exponent = int.Parse(exponentText, CultureInfo.InvariantCulture) - fraction.Length;
+            return Normalize(sign, BigInteger.Parse(digits, CultureInfo.InvariantCulture), exponent);
+        }
+        public Dec Shift(int places) => Normalize(Sign, Digits, Exp + places);
+        public Dec Multiply(Dec other) => Normalize(Sign * other.Sign, Digits * other.Digits, Exp + other.Exp);
+        public Dec Divide(int divisor) => Divide(new Dec(1, new BigInteger(divisor), 0));
+        public Dec Divide(Dec other)
+        {
+            Guard.Require(!other.Digits.IsZero, "DSL-PATCH");
+            int sign = Sign * other.Sign;
+            BigInteger numerator = Digits;
+            BigInteger denominator = other.Digits;
+            int exponent = Exp - other.Exp;
+            if (exponent >= 0) numerator *= BigInteger.Pow(10, exponent);
+            else denominator *= BigInteger.Pow(10, -exponent);
+            if (numerator.IsZero) return new(1, BigInteger.Zero, 0);
+            var divisor = BigInteger.GreatestCommonDivisor(numerator, denominator);
+            numerator /= divisor;
+            denominator /= divisor;
+            int twos = 0, fives = 0;
+            while (denominator % 2 == 0) { denominator /= 2; twos++; }
+            while (denominator % 5 == 0) { denominator /= 5; fives++; }
+            if (denominator != 1)
+            {
+                double magnitude = DecimalSi.Round(numerator, denominator);
+                return Parse(ExactDecimal(sign < 0 ? -magnitude : magnitude));
+            }
+            int scale = Math.Max(twos, fives);
+            numerator *= BigInteger.Pow(2, scale - twos) * BigInteger.Pow(5, scale - fives);
+            return Normalize(sign, numerator, -scale);
+        }
+        public string Format()
+        {
+            if (Digits.IsZero) return "0";
+            string digits = Digits.ToString(CultureInfo.InvariantCulture);
+            string body;
+            if (Exp >= 0) body = digits + new string('0', Exp);
+            else
+            {
+                int scale = -Exp;
+                if (digits.Length <= scale) digits = digits.PadLeft(scale + 1, '0');
+                int dot = digits.Length - scale;
+                body = digits[..dot] + "." + digits[dot..];
+            }
+            return Sign < 0 ? "-" + body : body;
+        }
+        private static Dec Normalize(int sign, BigInteger digits, int exp)
+        {
+            if (digits.IsZero || sign == 0) return new(1, BigInteger.Zero, 0);
+            if (digits.Sign < 0) { digits = BigInteger.Abs(digits); sign = -sign; }
+            while (digits % 10 == 0) { digits /= 10; exp++; }
+            return new(sign < 0 ? -1 : 1, digits, exp);
+        }
+    }
+
     private sealed class Grammar
     {
         private static readonly Regex TokenPattern = new(@"\G(?:[ \t\r\n]+|\#[^\r\n]*|""(?:[^""\\\x00-\x1f]|\\(?:[""\\/bfnrt]|u[0-9a-fA-F]{4}))*""|[+-]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|>=|<=|==|[{}\[\](),%])", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1));
@@ -803,6 +887,27 @@ public static class FoilSource
             else foreach (string channel in new[] { "leading", "trailing", "dihedral", "twist", "thickness" }) locks.Add(new("root_mirror", new(channel, 0, 0), null, null, []));
             if (Optional("constrain")) { Expect("{"); while (Current.Text != "}") ReadAssertion(); Expect("}"); }
             Expect("}"); End();
+        }
+        internal List<(int Start, int End, string Value)> SpanEdits(string spanMillimetres)
+        {
+            int halfScale = Scale(halfSpanUnit);
+            var oldHalf = Dec.Parse(halfSpan.Text);
+            var newHalf = Dec.Parse(spanMillimetres).Shift(-3 - halfScale).Divide(2);
+            var edits = new List<(int Start, int End, string Value)>();
+            string halfText = newHalf.Format();
+            if (!string.Equals(halfText, halfSpan.Text, StringComparison.Ordinal))
+                edits.Add((halfSpan.Start, halfSpan.End, halfText));
+            void Station(StationSource? station)
+            {
+                if (station?.Unit is null || station.Unit.Text == "%" || station.Value.Text is "root" or "center" or "tip") return;
+                string next = Dec.Parse(station.Value.Text).Multiply(newHalf).Divide(oldHalf).Format();
+                if (!string.Equals(next, station.Value.Text, StringComparison.Ordinal))
+                    edits.Add((station.Value.Start, station.Value.End, next));
+            }
+            foreach (var assignment in assignments) Station(assignment.Station);
+            foreach (var constraint in locks)
+                if (constraint.Kind == "value") Station(constraint.Station);
+            return edits;
         }
         private static int Scale(SourceToken unit, bool area = false) => unit.Text switch
         {
