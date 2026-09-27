@@ -5957,6 +5957,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
     },
     {
+      "id": "proof-d1-red-runs",
+      "path": "docs/proof/d1-red-runs.md",
+      "title": "D1 shell model red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d1",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red-first run for track D1 (Shell model) of the app-shell build — proves that the spawned --shell-model suite fails and turns tools/run-tests.sh red with exit code 1.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "shell-model",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9df5fa6f94e4c4610dfbbd4e436035b32e6e08971fd1bedc98961d44cead1b3c"
+    },
+    {
       "id": "proof-dock-split-s8",
       "path": "docs/proof/cad-first-spikes/dock-split/README.md",
       "title": "S8 spike: can Dock capability overrides block split drops",
@@ -7445,5 +7472,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6783081032f8fb0556bf7db45532ddd45ff0e8942eeab5aa585b2fee8576dab2"
+  "graphSha256": "55020f47451e54213495cc25f75247d9e0e725c3ba2a5ecfae830358c1123f34"
 };
