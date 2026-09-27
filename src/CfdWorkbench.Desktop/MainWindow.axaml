@@ -20,7 +20,9 @@
     </Border>
     <Grid Grid.Row="2" ColumnDefinitions="240,*,300">
       <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0" Padding="{StaticResource Space4}">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,180">
+        <!-- The station card, rail controls and samples exceed the 1024 x 700 minimum; the navigator scrolls instead of collapsing a list to zero height. -->
+        <ScrollViewer x:Name="NavigatorScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
           <TextBlock Grid.Row="0" Classes="heading" Text="Navigator" />
           <TextBlock Grid.Row="1" Classes="caption" Text="Accepted stations · normalized span η" Margin="{StaticResource Space2}" />
           <ListBox Grid.Row="2" x:Name="StationList" AutomationProperties.Name="Accepted station assignments and profile identities" MaxHeight="{StaticResource StationListHeight}" />
@@ -37,10 +39,11 @@
             </StackPanel>
           </Border>
           <TextBlock Grid.Row="4" Classes="heading" Text="Rail controls" Margin="{StaticResource Space2}" />
-          <ListBox Grid.Row="5" x:Name="ControlList" AutomationProperties.Name="Authored rail control vertices; select one to edit" />
+          <ListBox Grid.Row="5" x:Name="ControlList" Height="{StaticResource NavigatorListHeight}" AutomationProperties.Name="Authored rail control vertices; select one to edit" />
           <TextBlock Grid.Row="6" Classes="heading" Text="Sample data" Margin="{StaticResource Space2}" />
-          <ListBox Grid.Row="7" x:Name="SampleList" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
+          <ListBox Grid.Row="7" x:Name="SampleList" Height="{StaticResource NavigatorListHeight}" AutomationProperties.Name="Inspectable sampled point coordinates and uncertainty" />
         </Grid>
+        </ScrollViewer>
       </Border>
       <Grid Grid.Column="1">
         <Grid.RowDefinitions>
