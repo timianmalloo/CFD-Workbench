@@ -85,8 +85,9 @@ Traversal: `spec-cfd-workbench-v1` (B1, B7, F11, F12, UX-28–33, CAD-14/16/17/2
 - Desktop tests: `UsePlatformDetect().SetupWithoutStarting()`, sub-suites by flag, only `--section-flow` and
   `--section-tools` spawned from the default run (`tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs`:19-41, :1863-1873);
   the Desktop harness throws on the first failure; only the Core harness prints `PASS`/`FAIL` lines
-  (`tests/CfdWorkbench.Core.Tests/IdentityTests.cs`:62-66). `WorkbenchTests.cs` holds 213 `throw new` assertion lines
-  (grep). There is no `Avalonia.Headless` package in the repo. No `UnhandledException` handler exists under `src/`.
+  (`tests/CfdWorkbench.Core.Tests/IdentityTests.cs`:62-66). `WorkbenchTests.cs` holds 212 `throw new` assertion lines
+  (grep; corrected from 213, Ruling 55). There is no `Avalonia.Headless` package in the repo. No `UnhandledException`
+  handler exists under `src/`.
 
 **Spikes and evidence** ([`docs/proof/cad-first-spikes/shell-reflect/`](../proof/cad-first-spikes/shell-reflect/), run
 2026-09-27, plus the Native Desktop lens's source reading of Avalonia `release/11.3.14`):
@@ -546,9 +547,13 @@ curve and name, not its full coordinate string); two results join with "; ".
 The model area hosts **Start** (no foil), the **views** (Plan + 3D · Four views · One view; Fit), or the **section
 editor** body. Until M1.2c ships ADR-0007's draft, the as-built section panel (`MainWindow.axaml`:82-145) moves
 unchanged into `SectionEditorView` so M1.1 capability is never lost. The FoilDSL source stays a second document tab
-("Foil source", read-only as built). The **alert band** at the top of the model area holds the ID-candidate offer
-(Accept IDs), the recovery offer (Resume / Discard) and open failures while a foil is open. No activity-rail column is
-reserved (DR-7 is independent: the rail sits outside the Dock host whenever it is built).
+("Foil source", read-only as built). The "Section sample" tab (`SectionPosition`, `SectionViewport`, `SectionReadout`;
+`MainWindow.axaml`:67-79) is a model-area document tab beside "Foil source" (Ruling 55). The rail CV editor (Navigator
+`ControlList` plus the Properties `NumericInput` with rail Preview/Apply/Cancel, `MainWindow.axaml`:42 and :159-167)
+moves unchanged into a pane in M1.2a, the same way this section already does for the section panel, until M1.2b
+replaces it; a resumed recovery draft edits there (Ruling 55). The **alert band** at the top of the model area holds
+the ID-candidate offer (Accept IDs), the recovery offer (Resume / Discard) and open failures while a foil is open. No
+activity-rail column is reserved (DR-7 is independent: the rail sits outside the Dock host whenever it is built).
 
 ## 7. Error and concurrency model
 
@@ -835,11 +840,22 @@ No AI triggers.
 
 Also: `Focus_HideDockHoldingFocus_ToToggle` (D3a), `Focus_DockRerender_NeverWindowRoot` (D3a), `Palette_Keyboard_FiltersAndRuns` (D3a), `F6_IntoAndOutOfFloat` (D4).
 
+**D3a-0 additional names, adopted by the inventory's proposed-name table (Ruling 55).**
+
+- `ThemeMatrix_ShellControls_AppliedContrast` (D3a): the `--theme-controls` applied-theme matrix, retargeted: toolbar → app-bar button, `DocumentTabs` → Dock document tabs, station rows → Browser rows, numeric TextBox → Wing Span field, `SourceText` → "Foil source" tab; the pointer-RED repro mode.
+- `DockTabFocus_FreshBatch_ReadyAndTwoRing` (D3a): the `--focus-readiness` and `--focus-diagnostic` modes, retargeted from the first `DocumentTabs` item to the first Dock document tab.
+- `F6_RegionEntry_FocusesSelectedTabOrRow` (D3a): `MainWindow.FocusCandidates` for the document-tab region and the station region → Dock tab and Browser row.
+- `Browser_AcceptedIdentity_KeepsOrReplacesRows` (D3a): `MainWindow.BindNavigatorItems` → Browser pane rows (same identity keeps AX items; new identity replaces them).
+- `Review_Persona_FocusesShellRegion` (D3a): `MainWindow.ReviewFocusTarget`, whose `numeric-or-open` / `stations` / `controls` targets are removed.
+- `ModelArea_MinimumWindow_PlotWidthAtLeast250` (D3a): the removed 240 px Navigator and 300 px Properties columns, checked against `Viewport.PlotWidth`.
+- `Controller_LockedRailControl_RefusesDraft` (D3a): the locked-CV no-draft assertion, retargeted to `WorkbenchController.BeginEdit` (`WorkbenchController.cs`:254).
+
 ### 12.5 Existing tests (harness migration) — gated
 
 Before D3a changes any source, it commits `docs/proof/app-shell-test-inventory.md`: every `WorkbenchTests.cs`
-assertion bound to a control the shell removes (the file has 213 `throw new` lines; several reach private fields by
-reflection, e.g. `:359-362`), each row either **ported** (new test name; mutations may be batched, but every ported
+assertion bound to a control the shell removes (the file has 212 `throw new` lines, corrected from 213 (Ruling 55);
+several reach private fields by reflection, e.g. `:359-362`), each row either **ported** (new test name; mutations
+may be batched, but every ported
 row goes red in at least one recorded mutation run (Ruling 54)) or
 **deleted** with its superseded clause (Appendix G). For D3a, `tools/check-named-tests.py` also reads the inventory's
 ported-name column and fails if that column is empty while the inventory lists removed controls. No assertion is
