@@ -168,11 +168,13 @@ def main() -> None:
         environment[key] = str(path)
     (scratch / "receipts").mkdir(exist_ok=True)
     environment.update(DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1", DOTNET_CLI_TELEMETRY_OPTOUT="1",
-                       DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER="1", DOTNET_GENERATE_ASPNET_CERTIFICATE="false")
+                       DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER="1", DOTNET_GENERATE_ASPNET_CERTIFICATE="false",
+                       # Without it Avalonia's build telemetry collector joins the build's process group and can outlive it.
+                       AVALONIA_TELEMETRY_OPTOUT="1")
     receipt_environment = {key: environment[key] for key in (
         "DOTNET_CLI_HOME", "NUGET_PACKAGES", "NUGET_HTTP_CACHE_PATH", "TMPDIR", "TMP", "TEMP",
         "DOTNET_SKIP_FIRST_TIME_EXPERIENCE", "DOTNET_CLI_TELEMETRY_OPTOUT",
-        "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER", "DOTNET_GENERATE_ASPNET_CERTIFICATE",
+        "DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER", "DOTNET_GENERATE_ASPNET_CERTIFICATE", "AVALONIA_TELEMETRY_OPTOUT",
     )}
     (scratch / "receipts" / "environment.json").write_text(json.dumps(receipt_environment, indent=2), encoding="utf-8", newline="\n")
     artifacts = scratch / "artifacts"
