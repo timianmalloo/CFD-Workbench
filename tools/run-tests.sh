@@ -17,7 +17,7 @@ cd "$root"
 # A certificate-precision display-sampling mutant (BUDGET-DISPLAY) is red in both configurations.
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
 budget="${CFD_TEST_BUDGET_SECONDS:-60}"
-named=" Core "   # suites that print PASS <name>; add Desktop when its Check helper lands
+named=" Core Desktop "   # suites that print PASS <name>; add Desktop when its Check helper lands
 started=$SECONDS
 dotnet build CFDWorkbench.slnx -c "$configuration" -nologo -v q
 echo "build $((SECONDS - started)) s ($configuration)"
