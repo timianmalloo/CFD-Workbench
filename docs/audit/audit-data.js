@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T15:16:53Z",
+  "generated": "2026-09-27T15:57:51Z",
   "audit": [
     {
       "actor": null,
@@ -18459,6 +18459,59 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T15:16:50Z",
       "duration_seconds": 3.0
+    },
+    {
+      "id": "al-01M3HQ6YX8Y6VTDC9DVR4A4Q0A",
+      "shortname": "a 1-hour test is SUPER LONG. create a task in a sub-agent and separate w…",
+      "datetime": "2026-09-27T15:19:51Z",
+      "session": "prompt-log",
+      "prompt": "a 1-hour test is SUPER LONG. create a task in a sub-agent and separate work tree to review and critique our test coverage and CI infrastructure: optimize tokens, actions and clock-time; eliminate redundancy; find coverage added as ceremony rather than pragmatic intention; eliminate useless or inappropriate tests. Build the plan then execute on it to reduce waste and ceremony in our test strategy; take the learnings and add repo controls to avoid more test-side waste. (Also pasted a dotnet SIGABRT crash report from the gate run.)",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3HSCH4CESJGZWXG9CJ3EPW5",
+      "shortname": "testci-test-ci-waste",
+      "datetime": "2026-09-27T15:57:51Z",
+      "session": "track-testci",
+      "prompt": "TESTCI track: measure the repo's test and CI cost, cut waste and ceremony, fix the red gates, add controls (operator: a 1-hour test is SUPER LONG ... build the plan then execute on it).",
+      "summary": "run-tests.sh 67.4 s -> ~30 s (parallel suites, one Release build, identical 236-name PASS set over 12 runs incl. 3 under load). Join fast ring 35 s green with the tests (it ran none before); two GUI/publish app gates and two spike recounts moved to a readiness ring with a HEAD receipt (tools/run-readiness.py). 0 tests removed (none met the rule). check-spiral text I/O fixed (2 gates green); a store-test receipt race found under load fixed. Controls: TEST-BUDGET exit 3, zero-PASS refusal, check-docs TEST-RING, readiness --check, AGENTS rule; classes TEST-RING, TEST-COST, TEST-RECEIPT-RACE. Partial: the two app gates stay red, owned by the crash investigation (root causes F6/F7 handed over); clock-independent BUDGET-DISPLAY control and CI for C# open.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/test-ci-waste.md",
+        "tools/run-tests.sh",
+        "tools/run-readiness.py",
+        "docs/coordination/join.json"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "measure test/CI cost, cut waste and ceremony, fix red gates, add controls that stop the waste returning",
+      "done_when": "run-tests.sh and check-docs exit 0; verify gates green or named blocked; review doc with before/after, ledger, patch list, controls; committed on chore/test-ci-waste",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-27T15:20:36Z",
+      "duration_seconds": 2235.0,
+      "git": {
+        "sha": "e1248c72866692ef10e8d34ec40b9904cb0be61c",
+        "short": "e1248c728",
+        "branch": "chore/test-ci-waste",
+        "pushed": null
+      }
     }
   ],
   "changes": [

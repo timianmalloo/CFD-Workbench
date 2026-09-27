@@ -2859,7 +2859,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad220eb25aefceb69eb754f4db57d21a03046a78bce9a9f0c824ee7561ac1faa"
+      "sourceSha256": "c8c2c17ae7b7b67e0c014cf1cfa707f68f69e78de7eb8f6a75d48ac9ff9a8706"
     },
     {
       "id": "domain-experts",
@@ -6428,6 +6428,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "4f7269fa4a2586f8fbcc18e814e208fca70da09995d1ad12f37e079f8d74f1dc"
     },
     {
+      "id": "review-test-ci-waste",
+      "path": "docs/reviews/test-ci-waste.md",
+      "title": "Test and CI waste review — measured baseline, cuts and controls",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-testci",
+      "phase": "",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Measured cost of the test harnesses, repo checks, verify gates and join on 2026-09-27; the waste found, what was cut and why, the ring split, the plan-ceremony patch list and the controls that stop the waste returning.",
+      "tags": [
+        "testing",
+        "ci",
+        "cost",
+        "rings",
+        "controls"
+      ],
+      "links": [
+        {
+          "to": "coordination-app-shell-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c93213c59da7b2df6501fcd2e40734874af1d20d1b21f19ff121f2d40e5c3355"
+    },
+    {
       "id": "review-ui-application-native",
       "path": "docs/reviews/ui-application-native.md",
       "title": "Independent native application and adapter review",
@@ -7365,5 +7400,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a800129ba5e5f092fc9867e4ac3fd051619995f42f650bc4c7be6b5de2abdba0"
+  "graphSha256": "2e501a6c7e4b98319b9ab1684eec17603eedf4332b17b0d3947d18e6d9cc03e6"
 };
