@@ -73,15 +73,30 @@ public static class SelfLaunchTests
     }
 
     // A child that throws must exit with the named startup-failure code, never abort (SIGABRT, 134) with an OS crash report.
+    // Covered in this run's own launch shape, under the muxer explicitly (the gate's shape), and for the product's Main.
     private static void UnhandledChildExitsNamed()
     {
-        var info = SelfLaunch.StartInfo(FailureProbe);
+        string entry = Assembly.GetEntryAssembly()!.Location;
+        ExpectNamedExit(SelfLaunch.StartInfo(FailureProbe), $"System.InvalidOperationException: {FailureProbe}");
+        ExpectNamedExit(SelfLaunch.StartInfo("dotnet", entry, FailureProbe), $"System.InvalidOperationException: {FailureProbe}");
+        var product = new ProcessStartInfo("dotnet") { UseShellExecute = false };
+        product.ArgumentList.Add(Path.Combine(Path.GetDirectoryName(entry)!, "CfdWorkbench.Desktop.dll"));
+        product.Environment["CFDW_REVIEW_MODE"] = "2";
+        ExpectNamedExit(product, "System.ArgumentException: CFDW_REVIEW_MODE must be 1");
+    }
+
+    private static void ExpectNamedExit(ProcessStartInfo info, string exception)
+    {
         info.RedirectStandardError = true;
         using var child = Process.Start(info)!;
-        string stderr = child.StandardError.ReadToEnd();
-        child.WaitForExit();
-        if (child.ExitCode != StartupFailure.ExitCode || !stderr.Contains($"{StartupFailure.Code} System.InvalidOperationException: {FailureProbe}", StringComparison.Ordinal))
-            throw new Exception($"exit {child.ExitCode}, stderr: {stderr.Split('\n')[0]}");
+        var stderr = child.StandardError.ReadToEndAsync();
+        if (!child.WaitForExit(TimeSpan.FromSeconds(60)))
+        {
+            child.Kill(entireProcessTree: true);
+            throw new Exception($"{string.Join(' ', info.ArgumentList)} did not exit within 60 s");
+        }
+        if (child.ExitCode != StartupFailure.ExitCode || !stderr.Result.Contains($"{StartupFailure.Code} {exception}", StringComparison.Ordinal))
+            throw new Exception($"{string.Join(' ', info.ArgumentList)}: exit {child.ExitCode}, stderr: {stderr.Result.Split('\n')[0]}");
     }
 
     // Every relaunch must go through SelfLaunch; the sources are located from this file's build-time path.
