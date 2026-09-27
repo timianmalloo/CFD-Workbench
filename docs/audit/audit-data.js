@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:25:36Z",
+  "generated": "2026-09-27T16:45:23Z",
   "audit": [
     {
       "actor": null,
@@ -18700,6 +18700,64 @@ window.AUDIT_DATA = {
         "short": "bcf7d509a",
         "branch": "feature/ui-cad-direction",
         "pushed": false
+      }
+    },
+    {
+      "id": "al-01M3HW3JTH4BK4KN40XDJM380K",
+      "shortname": "coregate-f2-core-gate-cost",
+      "datetime": "2026-09-27T16:45:23Z",
+      "session": "track-coregate",
+      "prompt": "First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-coregate --skill implement`\nExport `AGENT_SESSION=track-coregate AGENT_WI=COREGATE` in every shell call.\nTree: /Users/mallalieut/projects/CFD-Workbench-fix-core-gate-cost (branch fix/core-gate-cost). Work only there, using absolute paths. Never call EnterWorktree. Never push.\n\n## Observed\nThe readiness ring on 06a5bf0 failed with: `verify-application-core.py … 300.0 s ran past 300 s (killed with its children)`. No crash occurred.\n\n`tools/verify-application-core.py` (222 lines) runs the **whole** Core suite (236 tests, about 28 s per run) roughly 9 times:\n- 3 umasks (0, 0o22, 0o77) on the debug build (L184–186);\n- one publish, then 3 umasks on the published build (L189–196);\n- once more at L203;\n- 2 isolated variants, \"missing\" and \"unloadable\" (L208–217).\n\nThe test/CI review recorded this as finding F2 (\"the core gate re-runs the whole Core suite 8 extra times\"); see docs/reviews/test-ci-waste.md.\n\n## Goal\nMake the core gate fit well under its 300 s limit without weakening what it proves.\n\nEstablish what each repeated run proves before changing anything. Read the gate, its receipt fields, and the tests that read the umask, file modes, the native store (`libcfd_store`) or the capability probe:\n- `ProjectStoreTests.cs`\n- anything using `CFD_NATIVE_CAPABILITY_PROBE` / `CFD_OWNER_STRIPPING_*`\n\nExpected shape (confirm or refute it with evidence; do not assume it):\n- Only the store and permission tests depend on the umask and the native/isolated variants.\n- The rest of the suite is umask-independent, and it already runs once in `tools/run-tests.sh`.\n\nThen:\n- Run the full suite once per build shape (debug and published).\n- Run only the umask- and native-sensitive subset under the other masks and variants.\n- If the Core harness has no subset selector, add the smallest one, e.g. an env var or `--only <prefix>` read in the harness `Main`. It must print PASS lines only for what it ran. A selector that matches nothing must fail, not pass empty; that is the HARNESS-SILENT-EXIT shape.\n- Keep the receipt fields. If a field changes meaning, say so in the receipt.\n\n## Rules\n- Cheaper is never weaker. Before the change, list each run → the property it proves → the tests that exercise that property. After the change, show that the same list is still covered.\n- Red-first: plant a store-permission defect that only shows under umask 0o77, and show the new gate still catches it. For example, temporarily make the store create files world-readable. Record the red run, then remove the plant.\n- Measure the gate's wall time before (use the 300 s kill as the \"before\" if a full run is too long) and after.\n- Convene `test-architect` once, adversarially, with the Agent tool. It holds a hard veto. At most 2 repair cycles.\n\n## Done when\n- `python3 tools/verify-application-core.py` exits 0 in well under 300 s, with the measured time stated.\n- The red-first plant was caught.\n- `tools/run-tests.sh` exits 0.\n- `python3 tools/check-docs.py` exits 0.\n- F2 is marked resolved in docs/reviews/test-ci-waste.md with before → after numbers.\n- The TEST-COST class entry in docs/lessons/defect-classes.md is updated if the control changes.\n- Conventional commits, each ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n- The audit entry is appended.\n\n## Not in scope\n- The G0 track and its files: LayoutDocument.cs, IdentityTests.cs Run() lines, WorkbenchTests.cs, check-named-tests.py. A parallel track owns them.\n- The adapters gate.\n- run-tests.sh budget rules.\n- Pushing.\n\n## Owned paths\n- `tools/verify-application-core.py`\n- The Core harness entry point (`tests/CfdWorkbench.Core.Tests/Program.cs` or wherever `Main` lives), for the selector only. If `Main` is in `IdentityTests.cs`, add the selector without touching its `Run()` lines: G0 owns those. If that is impossible, stop and raise it in your Return as a seam request.\n\n## Budget\nTier T2 · fan-out 1 · box: no measured same-class prior → 90 min, record the measured time (Ruling 54 P1) · 100 tool calls · 300k tokens.\n\nShell: never pipe a gate's status. A multi-line program goes in a file, then gets run.\n\n## Return (≤180 words)\n- run → property map, before and after;\n- the selector design;\n- the red-first evidence;\n- wall time before → after;\n- gate exit codes;\n- SHAs;\n- any seam request.",
+      "summary": "Core gate 302 s -> 87-90 s. Full suite once per build shape (Debug, published) at umask 0022; the 32 store checks alone at 0000/0077 and single checks for owner-stripping/missing/unloadable via new CFD_TEST_ONLY harness selector (unmatched prefix fails). Gate STORE-SUBSET guards: selectable store names, partition scan, exact source-named store PASS set per run. Red: 0077-only fchmod 0644 plant caught (20 FAIL); silent skip at 0000 caught; selector negatives exit 1. Test Architect PASS-with-conditions; 3 fixed, run-tests.sh unset raised as seam.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "TEST-COST",
+        "F2"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the core gate fit well under its 300 s limit without weakening what it proves (F2)",
+      "done_when": "gate exit 0 well under 300 s measured; red-first plant caught; run-tests.sh 0; check-docs 0; F2 resolved; TEST-COST updated",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-27T16:27:13Z",
+      "duration_seconds": 1090.0,
+      "agent_runs": [
+        {
+          "agent": "test-architect",
+          "started_at": "2026-09-27T16:39:00Z",
+          "ended_at": "2026-09-27T16:42:00Z",
+          "duration_seconds": 180.0
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 180.0,
+        "span_seconds": 180.0,
+        "speedup": 1.0,
+        "peak_concurrency": 1
+      },
+      "persona_yield": [
+        {
+          "persona": "test-architect",
+          "raised": 4,
+          "accepted": 3
+        }
+      ],
+      "git": {
+        "sha": "9825f4b5a89cfb713469327993f368d551eabffa",
+        "short": "9825f4b5a",
+        "branch": "fix/core-gate-cost",
+        "pushed": null
       }
     }
   ],
