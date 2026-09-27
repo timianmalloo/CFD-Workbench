@@ -5728,7 +5728,7 @@ window.DOCS_INDEX = {
       "phase": "implementation — checkpoint D3a-0",
       "reviewBy": "2026-10-27",
       "reviewSuggested": [],
-      "summary": "Checkpoint D3a-0 (design §12.5). Every throw-new assertion in tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs (212, measured) is classified. 93 rows for the 92 lines bound to a control in MainWindow.axaml(.cs) that the shell removes, moves or rewrites: ported (with a D3a, D1 or proposed name), deleted (with the spec Appendix G clause) or kept unchanged (reflection-bound). The other 120 lines are not bound to a removed control and stay.",
+      "summary": "Checkpoint D3a-0 (design §12.5). Every throw-new assertion in tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs (212, measured) is classified. 93 rows for the 92 lines bound to a control in MainWindow.axaml(.cs) that the shell removes, moves or rewrites: 60 ported (with a D3a or D1 name) and 33 kept unchanged, none deleted (Ruling 55: the rail CV editor moves unchanged into a pane). The other 120 lines are not bound and stay.",
       "tags": [
         "app-shell",
         "desktop",
@@ -5749,7 +5749,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "580307ec2904849321d0fabbc8c434555c5d70ec7e3cc0973a22eafec3366c97"
+      "sourceSha256": "4bbf0169ec319bbcf1c8845dc37e784e602af10ff08b01b2d12b576b93ec5955"
     },
     {
       "id": "proof-application-adapters",
@@ -7588,5 +7588,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "f60a925aec7ad8f090e664391f5bfe8ae0a250114b64eb35541520f9ba31b3cb"
+  "graphSha256": "835e748a3ef9907d986e1ab9cdebb4456678d1e80215356581a853f8ae901a34"
 };
