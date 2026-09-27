@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T16:40:11Z",
+  "generated": "2026-09-27T17:03:41Z",
   "audit": [
     {
       "actor": null,
@@ -18767,6 +18767,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T16:39:37Z",
       "duration_seconds": 34.0
+    },
+    {
+      "id": "al-01M3HX52T4Z78FGT8PAJGSPQAM",
+      "shortname": "track-d1",
+      "datetime": "2026-09-27T17:03:41Z",
+      "session": "track-d1",
+      "prompt": "D1 brief",
+      "summary": "Implement track D1 pure shell model (workspace presets, float frames and placement, focus ring, command table, screen source, shell events), 12 named checks, red-run proof pack, and named test integration",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-27T16:44:18Z",
+      "duration_seconds": 1163.0
     }
   ],
   "changes": [
