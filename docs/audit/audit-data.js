@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T22:52:43Z",
+  "generated": "2026-09-28T14:12:15Z",
   "audit": [
     {
       "actor": null,
@@ -19127,6 +19127,24 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-27T22:32:59Z",
       "duration_seconds": 1184.0
+    },
+    {
+      "id": "al-01M3M5QXE1S7NAPRQZ4ER0QJP0",
+      "shortname": "track-d3a",
+      "datetime": "2026-09-28T14:12:15Z",
+      "session": "track-d3a",
+      "prompt": "D3a brief",
+      "summary": "Connected Dock ShellHost to normal MainWindow launch, ported eight inventory rows, added shell focus and recent-file coverage with red receipts; 29 of 40 D3a names pass, remaining work and seams reported.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-28T13:26:03Z",
+      "duration_seconds": 2772.0
     }
   ],
   "changes": [

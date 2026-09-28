@@ -61,11 +61,23 @@ The process ended after each run. Mutations listed here were removed after obser
 | 19 | Document Undo focused the side bar toggle after restoring the source | 1 | `Focus_UndoFromCanvas_StaysOnCanvas` |
 | 20 | `Start_Opened_FocusModelArea` opened after the Start view had rendered | 1 | `Call from invalid thread` while controller Changed bound panes off the UI thread; after marshaling, the same test failed because the viewport was not yet materialized. Bounded deferred focus made it pass. |
 | 21 | Application About menu missing | 1 | `NativeMenu_Application_AboutOnly`. The first assertion expected exactly one item and revealed Avalonia's standard Services/Hide/Quit items; the final assertion permits those but requires one About and no workbench File/Edit/Window group. |
+| 22 | `RefreshRecentMenu` populated no entries while the real preference file held one path | 1 | `Recent_StoredRows_StartAndFileMenu`: Start contained the stored row, File ▸ Open Recent contained only Clear Menu. Restoring the entries made both surfaces pass. |
+| 23 | Removed the recent-add call from `HandleOpenOutcome(Opened)` | 1 | `Recent_OpenedOutcome_AppendsPath`: an actual `.foil` open completed but no P1 recent row appeared before the bounded 8 s deadline. Restoring the call passed. |
+| 24 | Added a duplicate ⌘Z `KeyBinding` beside the native menu gesture | 1 | `KeyBindings_MenuGesture_NotBound`: duplicate binding detected. The plant was removed. |
+| 25 | `Review_Persona_FocusesShellRegion` before `ShellHost.FocusForPersona` existed | 1 | CS1061: the four persona routes were absent. The shell now focuses Start Open, the viewport, a Browser row, or a rail control row. |
 
 The first minimum-window attempt also exited 1 while Dock's deferred presenter had
 not materialized. It was not counted as mutation evidence. The test now runs bounded
 dispatcher jobs before measuring the rendered model area. A run with the .9 mutation
 then failed on the actual 100 DIP model width; restoring .25 passed.
+
+Dispatch 3 closed with three consecutive `tools/run-tests.sh` runs at exit 0.
+Each had 274 Core and 67 Desktop PASS lines, with identical sorted PASS-set SHA-256
+`65ac7c9429aca1bcb87684016a23a13f35b94c0f549379c023cb9bca6a885ab1`.
+The D3a named check reached 29/40. The remaining 11 names and 52 inventory rows
+are not claimed as complete by this proof. D1, D2, C1, and P1 named checks,
+locked restore, token lint, documentation checks, and a foreground startup smoke
+all exited 0. `pgrep -fl CfdWorkbench` found no remaining process.
 
 ## Green checks observed after removing mutations
 

@@ -310,6 +310,32 @@ public sealed class ShellHost : Grid
         return false;
     }
 
+    public void FocusForPersona(string persona)
+    {
+        switch (persona)
+        {
+            case "designer":
+                FocusModelWhenReady();
+                break;
+            case "keyboard":
+                if (Controller.Inspection is null) ModelView.StartCardView.StartOpenButton.Focus();
+                else FocusControlWhenReady(() => Properties.FindControl<TextBox>("SpanInput"));
+                break;
+            case "screen-reader":
+                LayoutFactory.LeftToolDock.ActiveDockable = LayoutFactory.BrowserTool;
+                FocusControlWhenReady(() => Browser.FindControl<ListBox>("StationList")?.Items
+                    .OfType<ListBoxItem>().FirstOrDefault());
+                break;
+            case "dense":
+                LayoutFactory.LeftToolDock.ActiveDockable = LayoutFactory.RailControlsTool;
+                FocusControlWhenReady(() => RailEditor.FindControl<ListBox>("ControlList")?.Items
+                    .OfType<ListBoxItem>().FirstOrDefault());
+                break;
+            default:
+                throw new ArgumentException("Unknown review persona", nameof(persona));
+        }
+    }
+
     public void ClosePane(string id)
     {
         var dockable = LayoutFactory.FindDockable(id);
@@ -385,6 +411,16 @@ public sealed class ShellHost : Grid
         {
             if (ModelView.FoilViewport.Focus()) return;
             if (attempts > 1) FocusModelWhenReady(attempts - 1);
+            else LeftSidebarToggle.Focus();
+        }, DispatcherPriority.Background);
+    }
+
+    private void FocusControlWhenReady(Func<Control?> target, int attempts = 3)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (target()?.Focus() == true) return;
+            if (attempts > 1) FocusControlWhenReady(target, attempts - 1);
             else LeftSidebarToggle.Focus();
         }, DispatcherPriority.Background);
     }

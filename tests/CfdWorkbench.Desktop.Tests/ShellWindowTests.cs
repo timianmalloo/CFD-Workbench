@@ -6,6 +6,7 @@ using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Desktop.Panes;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -35,6 +36,75 @@ public static class ShellWindowTests
             if (items.Count(item => item == "About CFD Workbench") != 1 ||
                 items.Any(item => item is "File" or "Edit" or "Window"))
                 throw new InvalidOperationException("Application menu mixes workbench commands with OS items");
+        });
+
+        DesktopChecks.Check("Recent_StoredRows_StartAndFileMenu", () =>
+        {
+            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-d3a-recent-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            string recentPath = Path.Combine(root, "opened.foil");
+            var preferences = new PreferenceStore(root, () => new ProjectStore());
+            var save = preferences.UpdateRecentAsync(new RecentOp.Add(recentPath), CancellationToken.None)
+                .GetAwaiter().GetResult();
+            var loaded = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (loaded.Entries.Count != 1)
+                throw new InvalidOperationException($"Recent fixture was not stored: {save.Outcome}/{save.Code}/{loaded.Outcome} root={root}");
+            var window = new MainWindow(shellMode: true, preferences);
+            try
+            {
+                window.Show();
+                Settle(window);
+                var host = (ShellHost)window.Content!;
+                var rows = host.ModelView.FindControl<StartView>("StartCardView")!
+                    .FindControl<ListBox>("RecentListBox")!;
+                var file = NativeMenu.GetMenu(window)!.Items.OfType<NativeMenuItem>()
+                    .Single(item => Equals(item.Header, "File"));
+                var openRecent = file.Menu!.Items.OfType<NativeMenuItem>()
+                    .Single(item => Equals(item.Header, "Open Recent"));
+                if (rows.Items.OfType<ListBoxItem>().All(item => !Equals(item.Content, recentPath)) ||
+                    openRecent.Menu!.Items.OfType<NativeMenuItem>().All(item => !Equals(item.Header, recentPath)))
+                    throw new InvalidOperationException("Stored recent file is missing: rows=" +
+                        string.Join(",", rows.Items.OfType<ListBoxItem>().Select(item => item.Content)) +
+                        " menu=" + string.Join(",", openRecent.Menu!.Items.OfType<NativeMenuItem>().Select(item => item.Header)));
+            }
+            finally
+            {
+                window.Close();
+                Directory.Delete(root, recursive: true);
+            }
+        });
+
+        DesktopChecks.Check("Recent_OpenedOutcome_AppendsPath", () =>
+        {
+            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-d3a-open-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            string path = Path.Combine(root, "opened.foil");
+            File.Copy(Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil"), path);
+            var preferences = new PreferenceStore(Path.Combine(root, "preferences"), () => new ProjectStore());
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller, preferences);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                bool recentLoaded = false;
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                host.RecentLoaded += entries =>
+                {
+                    recentLoaded = entries.Any(entry => entry.Path == path);
+                    if (recentLoaded) timeout.Cancel();
+                };
+                var open = host.OpenFileAsync(path);
+                Avalonia.Threading.Dispatcher.UIThread.MainLoop(timeout.Token);
+                if (!open.IsCompletedSuccessfully || controller.Inspection is null || !recentLoaded)
+                    throw new InvalidOperationException("D2 Opened did not add the file to P1 recent rows");
+            }
+            finally
+            {
+                window.Close();
+                Directory.Delete(root, recursive: true);
+            }
         });
 
         DesktopChecks.Check("Architecture_DockConfinedToShell", () =>
@@ -72,6 +142,54 @@ public static class ShellWindowTests
             var expectedModifier = OperatingSystem.IsMacOS() ? Avalonia.Input.KeyModifiers.Meta : Avalonia.Input.KeyModifiers.Control;
             if (undo.Gesture?.Key != Avalonia.Input.Key.Z || undo.Gesture.KeyModifiers != expectedModifier)
                 throw new InvalidOperationException("Native undo shortcut does not match the platform");
+        });
+
+        DesktopChecks.Check("KeyBindings_MenuGesture_NotBound", () =>
+        {
+            var window = new MainWindow(shellMode: true);
+            try
+            {
+                var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture))
+                    .Where(gesture => gesture is not null).ToArray();
+                if (exported.Length == 0)
+                    throw new InvalidOperationException("Command table exported no menu gestures");
+                if (window.KeyBindings.Any(binding => binding.Gesture is { } bound &&
+                    exported.Any(menu => menu!.Key == bound.Key && menu.KeyModifiers == bound.KeyModifiers)))
+                    throw new InvalidOperationException("A native menu gesture was also bound on the window");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Review_Persona_FocusesShellRegion", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.FocusForPersona("keyboard");
+                Settle(window);
+                if (!host.ModelView.FindControl<StartView>("StartCardView")!
+                    .FindControl<Button>("StartOpenButton")!.IsFocused)
+                    throw new InvalidOperationException("Keyboard persona missed Start Open");
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                Settle(window);
+                host.FocusForPersona("designer");
+                Settle(window);
+                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                    throw new InvalidOperationException("Designer persona missed the viewport");
+                host.FocusForPersona("screen-reader");
+                Settle(window);
+                if (!host.Browser.FindControl<ListBox>("StationList")!.Items.OfType<ListBoxItem>().Any(item => item.IsFocused))
+                    throw new InvalidOperationException("Screen-reader persona missed Browser rows");
+                host.FocusForPersona("dense");
+                Settle(window);
+                if (!host.RailEditor.FindControl<ListBox>("ControlList")!.Items.OfType<ListBoxItem>().Any(item => item.IsFocused))
+                    throw new InvalidOperationException("Dense persona missed rail controls");
+            }
+            finally { window.Close(); }
         });
 
         DesktopChecks.Check("ShellHost_PlanformLayout_ContainsModelAndSidePanes", () =>

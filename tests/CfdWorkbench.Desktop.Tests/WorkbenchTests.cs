@@ -1460,11 +1460,6 @@ if (review.Persona != "keyboard" || review.Width != 1024 || review.Height != 700
     review.State != "invalid-input" || review.Theme != "dark" || !review.ReducedMotion ||
     NativeReviewOptions.Parse(_ => null) is not null)
     throw new Exception("Native review selectors did not round-trip");
-if (MainWindow.ReviewFocusTarget("designer") != "viewport" ||
-    MainWindow.ReviewFocusTarget("keyboard") != "numeric-or-open" ||
-    MainWindow.ReviewFocusTarget("screen-reader") != "stations" ||
-    MainWindow.ReviewFocusTarget("dense") != "controls")
-    throw new Exception("Review persona did not select a real initial focus region");
 var motionControl = new Button { Transitions = new Transitions { new DoubleTransition { Property = Button.OpacityProperty, Duration = TimeSpan.FromSeconds(1) } } };
 MainWindow.SuppressTransitions(motionControl);
 if (motionControl.Transitions is { Count: > 0 }) throw new Exception("Reduced-motion review retained a control transition");
