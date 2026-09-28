@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
@@ -105,6 +106,76 @@ internal static class FoilSourceTests
             Equal(parsed.SurfaceHash, FoilSource.Parse(materialized).SurfaceHash);
             Equal(true, materialized.AsSpan().SequenceEqual(FoilSource.MaterializeIds(FoilSource.Parse(materialized))));
         });
+        Check("NewDefault_ParsesAndCertifies", () =>
+        {
+            byte[] source = FoilSource.NewDefault();
+            var parsed = FoilSource.Parse(source);
+            Equal(true, parsed.IsParsed);
+            var definition = parsed.Definition ?? throw new InvalidOperationException("Parsed foil has no definition.");
+            Equal("open", definition.Tip);
+            Equal("foil", definition.Kind);
+            var assessment = Geometry.Assess(parsed);
+            Equal(GeometryStatus.Certified, assessment.Status);
+            var estimates = WingEstimates.From(source, "accepted", 0);
+            Near(1, estimates.SpanMeters, 1e-9);
+            Near(0.1, estimates.MeanChordMeters, 1e-6);
+            Near(0.1, estimates.TipChordMeters / estimates.RootChordMeters, 1e-9);
+            Equal(true, definition.Curves["twist"].Points.All(point => point[1] == 0));
+            Equal(true, definition.Curves["dihedral"].Points.All(point => point[1] == 0));
+            Equal(0d, definition.Curves["leading"].Points[0][1]);
+            Equal(0d, definition.Curves["dihedral"].Points[0][1]);
+            Equal(5, definition.Profiles[0].Upper.Degree);
+            Equal(3, definition.Curves["leading"].Degree);
+            Equal(3, definition.Curves["trailing"].Degree);
+            int profileCount = definition.Profiles[0].Upper.Points.Length;
+            int railCount = definition.Curves["leading"].Points.Length;
+            Equal(true, profileCount is >= 6 and <= 10);
+            Equal(true, railCount is >= 6 and <= 10);
+        });
+        Check("NewDefault_SectionResidualWithinAcceptance", () =>
+        {
+            byte[] source = FoilSource.NewDefault();
+            var definition = FoilSource.Parse(source).Definition ?? throw new InvalidOperationException("Parsed foil has no definition.");
+            var profile = definition.Profiles[0];
+            double normalised = SectionResidual(profile);
+            var estimates = WingEstimates.From(source, "accepted", 0);
+            double atRoot = normalised * estimates.RootChordMeters;
+            double atTip = normalised * estimates.TipChordMeters;
+            Console.WriteLine("NACA0012 residual root " + atRoot.ToString("G17") + " m tip " + atTip.ToString("G17") + " m vertices " + profile.Upper.Points.Length.ToString() + " normalised " + normalised.ToString("G17"));
+            Equal(true, atRoot <= 10e-6);
+            Equal(true, atTip <= 10e-6);
+        });
+        Check("NewDefault_NoExampleDependency", () =>
+        {
+            byte[] source = FoilSource.NewDefault();
+            string text = Encoding.UTF8.GetString(source);
+            foreach (string token in new[] { "Basic foil", "section-a", "Embedded Example", "example.foil", "CfdWorkbench.Example", "foil-basic" })
+                Equal(false, text.Contains(token, StringComparison.Ordinal));
+            Equal(false, source.AsSpan().SequenceEqual(Example));
+        });
+        Check("NewDefault_WingEstimates_AreaAndAspectRatioExact", () =>
+        {
+            byte[] source = FoilSource.NewDefault();
+            var estimates = WingEstimates.From(source, "accepted", 0);
+            Near(1, estimates.SpanMeters, 1e-6);
+            Near(0.1, estimates.AreaSquareMeters, 1e-6);
+            Near(10, estimates.AspectRatio, 1e-6);
+            Near(0.1, estimates.MeanChordMeters, 1e-6);
+            double analyticMac = AnalyticMac(estimates.RootChordMeters);
+            double deviation = ChordOracle(source);
+            Console.WriteLine("planform deviation " + deviation.ToString("G17") + " m analytic MAC " + analyticMac.ToString("G17") + " m fitted MAC " + estimates.MacMeters.ToString("G17"));
+            Equal(true, Math.Abs(estimates.MacMeters - analyticMac) <= deviation);
+        });
+        Check("NewDefault_PlanformNearElliptic", () =>
+        {
+            byte[] source = FoilSource.NewDefault();
+            var estimates = WingEstimates.From(source, "accepted", 0);
+            double deviation = ChordOracle(source);
+            double tipError = Math.Abs(estimates.TipChordMeters - 0.10 * estimates.RootChordMeters);
+            Console.WriteLine("chord oracle deviation " + deviation.ToString("G17") + " m tip error " + tipError.ToString("G17") + " m");
+            Equal(true, tipError <= deviation);
+            Equal(true, deviation < 1e-3);
+        });
     }
 
     private static string Text => Encoding.UTF8.GetString(Example);
@@ -119,4 +190,115 @@ internal static class FoilSourceTests
     }
     private static SourceParse Parse(string text) => FoilSource.Parse(Encoding.UTF8.GetBytes(text));
     private static void Code(string file, string code) => Equal(code, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/" + file)).Diagnostics[0].Code);
+
+    private static void Near(double expected, double actual, double relative)
+    {
+        double scale = Math.Max(1e-30, Math.Abs(expected));
+        if (Math.Abs(actual - expected) / scale > relative)
+            throw new InvalidOperationException("Expected " + expected.ToString("G17", CultureInfo.InvariantCulture) + "; actual " + actual.ToString("G17", CultureInfo.InvariantCulture));
+    }
+
+    private static double SectionResidual(ProfileDefinition profile)
+    {
+        double worst = 0;
+        void Sample(double x)
+        {
+            double analytic = Naca(x);
+            worst = Math.Max(worst, Math.Abs(OrdinateAt(profile.Upper, x) - analytic));
+            worst = Math.Max(worst, Math.Abs(OrdinateAt(profile.Lower, x) - (-analytic)));
+        }
+        for (int index = 0; index < 201; index++)
+            Sample(0.5 * (1 - Math.Cos(Math.PI * index / 200d)));
+        foreach (double knot in profile.Upper.Knots)
+            Sample(Math.Clamp(Abscissa(profile.Upper, knot), 0, 1));
+        for (int index = 0; index < 2001; index++)
+            Sample(index / 2000d);
+        return worst;
+    }
+
+    private static double Naca(double x)
+    {
+        if (x <= 0 || x >= 1) return 0;
+        double s = Math.Sqrt(x);
+        double x2 = x * x;
+        return 0.6 * (0.2969 * s - 0.1260 * x - 0.3516 * x2 + 0.2843 * x2 * x - 0.1036 * x2 * x2);
+    }
+
+    private static double ChordOracle(byte[] source)
+    {
+        var definition = FoilSource.Parse(source).Definition ?? throw new InvalidOperationException("Parsed foil has no definition.");
+        var leading = definition.Curves["leading"];
+        var trailing = definition.Curves["trailing"];
+        double root = ChannelAt(trailing, 0) - ChannelAt(leading, 0);
+        var stations = new List<double>();
+        for (int index = 0; index < 201; index++) stations.Add(index / 200d);
+        foreach (var curve in new[] { leading, trailing })
+            foreach (double knot in curve.Knots)
+                stations.Add(Math.Clamp(Abscissa(curve, knot), 0, 1));
+        double deviation = 0;
+        foreach (double eta in stations)
+        {
+            double chord = ChannelAt(trailing, eta) - ChannelAt(leading, eta);
+            double analytic = root * Math.Sqrt(Math.Max(0, 1 - 0.99 * eta * eta));
+            deviation = Math.Max(deviation, Math.Abs(chord - analytic));
+        }
+        return deviation;
+    }
+
+    private static double AnalyticMac(double rootChord)
+    {
+        double Chord(double eta) => rootChord * Math.Sqrt(Math.Max(0, 1 - 0.99 * eta * eta));
+        const int panels = 2000;
+        double h = 1d / panels;
+        double Integrate(Func<double, double> f)
+        {
+            double sum = f(0) + f(1);
+            for (int index = 1; index < panels; index++)
+                sum += (index % 2 == 0 ? 2 : 4) * f(index * h);
+            return sum * h / 3;
+        }
+        double area = Integrate(Chord);
+        double square = Integrate(eta => { double chord = Chord(eta); return chord * chord; });
+        return square / area;
+    }
+
+    private static double ChannelAt(Curve curve, double eta)
+    {
+        if (eta <= 0) return Ordinate(curve, 0);
+        if (eta >= 1) return Ordinate(curve, 1);
+        double low = 0, high = 1;
+        for (int step = 0; step < 60; step++)
+        {
+            double mid = 0.5 * (low + high);
+            if (Abscissa(curve, mid) < eta) low = mid;
+            else high = mid;
+        }
+        return Ordinate(curve, 0.5 * (low + high));
+    }
+
+    private static double OrdinateAt(Curve curve, double x)
+    {
+        double At(double parameter) => Abscissa(curve, parameter);
+        if (x <= At(0)) return Ordinate(curve, 0);
+        if (x >= At(1)) return Ordinate(curve, 1);
+        double low = 0, high = 1;
+        for (int step = 0; step < 80; step++)
+        {
+            double mid = 0.5 * (low + high);
+            if (At(mid) < x) low = mid;
+            else high = mid;
+        }
+        return Ordinate(curve, 0.5 * (low + high));
+    }
+
+    private static double Abscissa(Curve curve, double parameter) => Dot(curve, parameter, 0);
+    private static double Ordinate(Curve curve, double parameter) => Dot(curve, parameter, 1);
+
+    private static double Dot(Curve curve, double parameter, int coordinate)
+    {
+        double[] basis = SplineBasis.Values(curve.Knots, curve.Degree, parameter);
+        double sum = 0;
+        for (int index = 0; index < curve.Points.Length; index++) sum += basis[index] * curve.Points[index][coordinate];
+        return sum;
+    }
 }

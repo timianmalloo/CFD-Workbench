@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-27T21:11:21Z",
+  "generated": "2026-09-28T13:53:57Z",
   "audit": [
     {
       "actor": null,
@@ -19079,6 +19079,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-27T21:10:48Z",
       "duration_seconds": 33.0
+    },
+    {
+      "id": "al-01M3M4PCBJESR1TGG1ARVQ2NVF",
+      "shortname": "track-newfoil",
+      "datetime": "2026-09-28T13:53:57Z",
+      "session": "track-newfoil",
+      "prompt": "NEWFOIL brief",
+      "summary": "New foil landed. FoilSource.NewDefault emits a certified untitled NACA 0012 wing (span 1 m, area 0.1 m2, AR 10, open tip, degree-3 rails, degree-5 section, 10 vertices). WorkbenchController.NewFoilAsync uses the Open build-aside path with no path and no Example dependency. Commits 7912d5e (red tests) and c466adc (implementation). tools/run-tests.sh, check-named-tests D2, check-named-tests C1, and check-docs.py exited 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-28T13:27:49Z",
+      "duration_seconds": 1568.0
     }
   ],
   "changes": [

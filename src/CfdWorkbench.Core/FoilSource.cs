@@ -280,6 +280,187 @@ public static class FoilSource
 
     public static ImportedProfile ImportDat(byte[] bytes, string name) => DatImport.Fit(DatImport.Parse(bytes), name);
 
+    /// <summary>
+    /// Untitled symmetric NACA 0012 wing: span 1 m, area 0.1 m², open tip, no twist, no dihedral.
+    /// Channels are degree 3 with at most 10 vertices (FoilDSL 4.0). Power 3 clusters those knots
+    /// at the tip, the spacing that measured the smallest A4.5 chord deviation in that family.
+    /// The section is the degree-5 sqrt basis used by <see cref="DatImport"/>, at 10 vertices.
+    /// </summary>
+    public static byte[] NewDefault()
+    {
+        const int profileCount = 10;
+        const int railCount = 10;
+        const double tipPower = 3;
+        var (profileKnots, profileX) = SqrtProfileBasis(profileCount);
+        double[] upper = FitNaca(profileKnots, profileCount);
+        double[] lower = upper.Select(value => -value).ToArray();
+        lower[0] = 0;
+        lower[^1] = 0;
+        var (railKnots, railX) = TipClusteredChannel(railCount, tipPower);
+        const int samples = 401;
+        var eta = new double[samples];
+        var leadTarget = new double[samples];
+        var trailTarget = new double[samples];
+        for (int index = 0; index < samples; index++)
+        {
+            eta[index] = index / (double)(samples - 1);
+            double chord = UnitChord(eta[index]);
+            leadTarget[index] = (1 - chord) / 4;
+            trailTarget[index] = leadTarget[index] + chord;
+        }
+        double[] lead = FitChannel(railKnots, eta, leadTarget, [(0, 0d), (1, 0d), (railCount - 1, (1 - UnitChord(1)) / 4)]);
+        double[] trail = FitChannel(railKnots, eta, trailTarget, [(0, 1d), (1, 1d), (railCount - 1, (1 - UnitChord(1)) / 4 + UnitChord(1))]);
+        double scale = 1;
+        byte[] source = [];
+        for (int step = 0; step < 4; step++)
+        {
+            source = DefaultDocument(railKnots, railX, Scale(lead, scale), Scale(trail, scale), profileKnots, profileX, upper, lower);
+            var parsed = Parse(source);
+            if (!parsed.IsParsed) throw new ContractError(parsed.Diagnostics[0].Code);
+            double area = WingEstimates.From(source, "accepted", 0).AreaSquareMeters;
+            if (Math.Abs(area - 0.1) / 0.1 <= 1e-12) return source;
+            scale *= 0.1 / area;
+        }
+        throw new ContractError("DSL-GEOMETRY");
+    }
+
+    private static double UnitChord(double eta) => Math.Sqrt(Math.Max(0, 1 - 0.99 * eta * eta));
+
+    private static double[] Scale(double[] values, double factor) => values.Select(value => value * factor).ToArray();
+
+    private static double[] FitNaca(double[] knots, int count)
+    {
+        const int samples = 401;
+        var parameter = new double[samples];
+        var target = new double[samples];
+        for (int index = 0; index < samples; index++)
+        {
+            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            parameter[index] = Math.Sqrt(Math.Max(0, x));
+            target[index] = Naca0012(x);
+        }
+        return FitOrdinates(knots, 5, parameter, target, [(0, 0d), (count - 1, 0d)]);
+    }
+
+    private static double Naca0012(double x)
+    {
+        if (x <= 0 || x >= 1) return 0;
+        double root = Math.Sqrt(x);
+        double square = x * x;
+        return 0.6 * (0.2969 * root - 0.1260 * x - 0.3516 * square + 0.2843 * square * x - 0.1036 * square * square);
+    }
+
+    private static double[] FitChannel(double[] knots, double[] parameter, double[] target, (int Index, double Value)[] pins) =>
+        FitOrdinates(knots, 3, parameter, target, pins);
+
+    private static double[] FitOrdinates(double[] knots, int degree, double[] parameter, double[] target, (int Index, double Value)[] pins)
+    {
+        int width = knots.Length - degree - 1;
+        var design = new double[target.Length, width];
+        var weight = new double[target.Length];
+        for (int row = 0; row < target.Length; row++)
+        {
+            weight[row] = 1;
+            double[] basis = SplineBasis.Values(knots, degree, parameter[row]);
+            for (int column = 0; column < width; column++) design[row, column] = basis[column];
+        }
+        var constraints = new double[pins.Length, width];
+        var bound = new double[pins.Length];
+        for (int index = 0; index < pins.Length; index++)
+        {
+            constraints[index, pins[index].Index] = 1;
+            bound[index] = pins[index].Value;
+        }
+        var smoothing = new double[width, width];
+        double[] solved = ConstrainedFit.Solve(design, target, weight, smoothing, 0, constraints, bound);
+        foreach (var pin in pins) solved[pin.Index] = pin.Value;
+        return solved;
+    }
+
+    private static (double[] Knots, double[] X) SqrtProfileBasis(int count)
+    {
+        var knots = new double[count + 6];
+        for (int index = 0; index <= 5; index++) knots[index] = 0;
+        int interior = count - 6;
+        for (int index = 1; index <= interior; index++) knots[5 + index] = (double)index / (interior + 1);
+        for (int index = knots.Length - 6; index < knots.Length; index++) knots[index] = 1;
+        var controlX = new double[count];
+        for (int index = 0; index < count; index++)
+        {
+            double sum = 0;
+            for (int left = 1; left <= 5; left++)
+                for (int right = left + 1; right <= 5; right++)
+                    sum += knots[index + left] * knots[index + right];
+            controlX[index] = sum / 10;
+        }
+        controlX[0] = 0;
+        controlX[1] = 0;
+        controlX[^1] = 1;
+        return (knots, controlX);
+    }
+
+    private static (double[] Knots, double[] X) TipClusteredChannel(int count, double power)
+    {
+        const int degree = 3;
+        int interior = count - degree - 1;
+        var knots = new double[count + degree + 1];
+        for (int index = 0; index <= degree; index++) knots[index] = 0;
+        for (int index = 1; index <= interior; index++)
+        {
+            double fraction = (double)index / (interior + 1);
+            knots[degree + index] = 1 - Math.Pow(1 - fraction, power);
+        }
+        for (int index = knots.Length - degree - 1; index < knots.Length; index++) knots[index] = 1;
+        var controlX = new double[count];
+        for (int index = 0; index < count; index++)
+        {
+            double sum = 0;
+            for (int offset = 1; offset <= degree; offset++) sum += knots[index + offset];
+            controlX[index] = sum / degree;
+        }
+        return (knots, controlX);
+    }
+
+    private static byte[] DefaultDocument(double[] railKnots, double[] railX, double[] lead, double[] trail,
+        double[] profileKnots, double[] profileX, double[] upper, double[] lower)
+    {
+        string flat = ChannelText(3, railKnots, railX, new double[railX.Length]);
+        string thick = ChannelText(3, railKnots, railX, Enumerable.Repeat(0.12, railX.Length).ToArray());
+        string text =
+            "foildsl \"4.0\"\n" +
+            "foil \"Untitled\" {\n" +
+            "  units m\n" +
+            "  half_span " + ExactDecimal(0.5) + " m\n" +
+            "  evaluator \"cfdw-cv\" \"2\"\n" +
+            "  symmetry mirror_y\n" +
+            "  planform {\n" +
+            "    leading cv { " + ChannelText(3, railKnots, railX, lead) + " }\n" +
+            "    trailing cv { " + ChannelText(3, railKnots, railX, trail) + " }\n" +
+            "  }\n" +
+            "  dihedral cv { " + flat + " }\n" +
+            "  twist cv { " + flat + " }\n" +
+            "  thickness cv { " + thick + " }\n" +
+            "  profiles {\n" +
+            "    profile \"naca-0012\" {\n" +
+            "      upper cv { " + ChannelText(5, profileKnots, profileX, upper) + " }\n" +
+            "      lower cv { " + ChannelText(5, profileKnots, profileX, lower) + " }\n" +
+            "      closure closed\n" +
+            "    }\n" +
+            "  }\n" +
+            "  sections { at root profile \"naca-0012\" at tip profile \"naca-0012\" }\n" +
+            "  tip open\n" +
+            "}\n";
+        return Utf8.GetBytes(text);
+    }
+
+    private static string ChannelText(int degree, double[] knots, double[] x, double[] y)
+    {
+        string knotText = string.Join(", ", knots.Select(value => ExactDecimal(value)));
+        string points = string.Join(", ", x.Zip(y, (abscissa, ordinate) => "(" + ExactDecimal(abscissa) + ", " + ExactDecimal(ordinate) + ")"));
+        string ids = string.Join(", ", Enumerable.Range(0, x.Length).Select(index => "\"cv-" + index.ToString(CultureInfo.InvariantCulture) + "\""));
+        return "degree " + degree.ToString(CultureInfo.InvariantCulture) + " knots [" + knotText + "] points [" + points + "] ids [" + ids + "]";
+    }
+
     // A finite binary64 is an integer divided by a power of two. Multiplying
     // by the inverse decimal unit gives a terminating decimal without rounding.
     internal static string ExactDecimal(double value, int unitScale = 0)

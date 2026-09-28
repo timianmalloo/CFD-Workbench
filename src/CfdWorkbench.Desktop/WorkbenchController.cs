@@ -275,6 +275,29 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task OpenExampleAsync() => await OpenFoilAsync(CfdWorkbench.Cli.Cli.ExampleBytes(), "Embedded Example");
 
+    public async Task<OpenOutcome> NewFoilAsync(CancellationToken cancellation = default)
+    {
+        long requestGen = Interlocked.Increment(ref openRequestGeneration);
+        if (cancellation.IsCancellationRequested)
+            return new OpenOutcome.Cancelled();
+
+        byte[] bytes;
+        try
+        {
+            bytes = await Task.Run(FoilSource.NewDefault, cancellation);
+        }
+        catch (OperationCanceledException)
+        {
+            return new OpenOutcome.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            return new OpenOutcome.Failed(OpenFailure.Classify(ex, ""));
+        }
+
+        return CommitPreparedFoil(requestGen, bytes, null, cancellation);
+    }
+
     public async Task<OpenOutcome> OpenAsync(string path, CancellationToken cancellation = default)
     {
         long requestGen = Interlocked.Increment(ref openRequestGeneration);
@@ -317,39 +340,13 @@ public sealed class WorkbenchController : IDisposable
         if (requestGen != Volatile.Read(ref openRequestGeneration))
             return new OpenOutcome.Superseded();
 
+        if (isFoil)
+            return CommitPreparedFoil(requestGen, bytes, path, cancellation);
+
         var preparedSession = new AuthoringSession();
         try
         {
-            if (isFoil)
-            {
-                var parsed = FoilSource.Parse(bytes);
-                if (!parsed.IsParsed)
-                {
-                    preparedSession.Dispose();
-                    string code = parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-SYNTAX";
-                    return new OpenOutcome.Refused(code, bytes);
-                }
-
-                var candidate = FoilSource.MaterializeIds(parsed);
-                if (!candidate.AsSpan().SequenceEqual(bytes))
-                {
-                    preparedSession.Dispose();
-                    return new OpenOutcome.NeedsIds(candidate, bytes);
-                }
-
-                var assessment = Geometry.Assess(parsed);
-                if (assessment.Status != GeometryStatus.Certified)
-                {
-                    preparedSession.Dispose();
-                    return new OpenOutcome.Refused(assessment.Code, bytes);
-                }
-
-                preparedSession.Open(bytes, Guid.NewGuid().ToString("D"), false);
-            }
-            else
-            {
-                preparedSession.Reopen(bytes);
-            }
+            preparedSession.Reopen(bytes);
         }
         catch (OperationCanceledException)
         {
@@ -375,22 +372,87 @@ public sealed class WorkbenchController : IDisposable
         }
 
         Adopt(preparedSession);
-        if (isNative)
-        {
-            expectedDiskSha = nativeRead?.DiskSha256;
-            NativePath = path;
-        }
+        expectedDiskSha = nativeRead?.DiskSha256;
+        NativePath = path;
         OpenedPath = path;
         UpdateEstimates();
 
         _ = RefreshAcceptedAsync(CancellationToken.None);
 
-        Status = isNative && HasRecovery
+        Status = HasRecovery
             ? "Accepted project reopened. A separate recovery draft is available."
-            : (isNative ? "Accepted project reopened." : "Opened.");
+            : "Accepted project reopened.";
         Notify();
 
         return new OpenOutcome.Opened(path);
+    }
+
+    private OpenOutcome CommitPreparedFoil(long requestGen, byte[] bytes, string? openedPath, CancellationToken cancellation)
+    {
+        if (cancellation.IsCancellationRequested)
+            return new OpenOutcome.Cancelled();
+
+        if (requestGen != Volatile.Read(ref openRequestGeneration))
+            return new OpenOutcome.Superseded();
+
+        var preparedSession = new AuthoringSession();
+        try
+        {
+            var parsed = FoilSource.Parse(bytes);
+            if (!parsed.IsParsed)
+            {
+                preparedSession.Dispose();
+                string code = parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-SYNTAX";
+                return new OpenOutcome.Refused(code, bytes);
+            }
+
+            var candidate = FoilSource.MaterializeIds(parsed);
+            if (!candidate.AsSpan().SequenceEqual(bytes))
+            {
+                preparedSession.Dispose();
+                return new OpenOutcome.NeedsIds(candidate, bytes);
+            }
+
+            var assessment = Geometry.Assess(parsed);
+            if (assessment.Status != GeometryStatus.Certified)
+            {
+                preparedSession.Dispose();
+                return new OpenOutcome.Refused(assessment.Code, bytes);
+            }
+
+            preparedSession.Open(bytes, Guid.NewGuid().ToString("D"), false);
+        }
+        catch (OperationCanceledException)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Cancelled();
+        }
+        catch (Exception ex)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Failed(OpenFailure.Classify(ex, openedPath ?? ""));
+        }
+
+        if (cancellation.IsCancellationRequested)
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Cancelled();
+        }
+
+        if (requestGen != Volatile.Read(ref openRequestGeneration))
+        {
+            preparedSession.Dispose();
+            return new OpenOutcome.Superseded();
+        }
+
+        Adopt(preparedSession);
+        if (openedPath is not null)
+            OpenedPath = openedPath;
+        UpdateEstimates();
+        _ = RefreshAcceptedAsync(CancellationToken.None);
+        Status = openedPath is null ? "New foil." : "Opened.";
+        Notify();
+        return new OpenOutcome.Opened(openedPath ?? "");
     }
 
     public async Task OpenPathAsync(string path, CancellationToken cancellation = default)
