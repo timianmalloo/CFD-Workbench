@@ -176,7 +176,7 @@ public sealed class ShellHost : Grid
                 ModelView.StartCardView.HideOpening();
                 ModelView.ShowFoilOpen(true);
                 RefreshPanes();
-                ModelView.FoilViewport.Focus();
+                FocusModelWhenReady();
                 _ = RecordRecentAsync(path);
                 break;
 
@@ -240,8 +240,14 @@ public sealed class ShellHost : Grid
         }
     }
 
-    private void OnControllerChanged() => RefreshPanes();
-    private void OnSelectionChanged() => RefreshPanes();
+    private void OnControllerChanged() => RefreshOnUiThread();
+    private void OnSelectionChanged() => RefreshOnUiThread();
+
+    private void RefreshOnUiThread()
+    {
+        if (Dispatcher.UIThread.CheckAccess()) RefreshPanes();
+        else Dispatcher.UIThread.Post(RefreshPanes, DispatcherPriority.Background);
+    }
 
     public void RefreshPanes()
     {
@@ -316,7 +322,7 @@ public sealed class ShellHost : Grid
                 if (parent.VisibleDockables?.Count > 0)
                 {
                     parent.ActiveDockable = parent.VisibleDockables[0];
-                    (parent.ActiveDockable as Control)?.Focus();
+                    FocusDockableTab(parent.ActiveDockable);
                 }
                 else
                 {
@@ -332,7 +338,8 @@ public sealed class ShellHost : Grid
         var dockable = LayoutFactory.FindDockable(id);
         if (dockable != null)
         {
-            var parent = ShellLayoutFactory.FindParentDock(LayoutRoot, dockable);
+            var parent = ShellLayoutFactory.FindParentDock(LayoutRoot, dockable) ??
+                (dockable is ITool ? LayoutFactory.LeftToolDock : LayoutFactory.MainDocumentDock);
             if (parent != null)
             {
                 if (parent.VisibleDockables?.Contains(dockable) != true)
@@ -340,7 +347,7 @@ public sealed class ShellHost : Grid
                     parent.VisibleDockables?.Add(dockable);
                 }
                 parent.ActiveDockable = dockable;
-                (dockable as Control)?.Focus();
+                FocusDockableTab(dockable);
             }
         }
     }
@@ -355,22 +362,47 @@ public sealed class ShellHost : Grid
             sourceParent?.VisibleDockables?.Remove(dockable);
             targetDock.VisibleDockables?.Add(dockable);
             targetDock.ActiveDockable = dockable;
-            (dockable as Control)?.Focus();
+            FocusDockableTab(dockable);
         }
+    }
+
+    private void FocusDockableTab(IDockable dockable, int attempts = 3)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            var tab = DockHost.GetVisualDescendants().OfType<Control>()
+                .FirstOrDefault(control => control is ToolTabStripItem or DocumentTabStripItem &&
+                    ReferenceEquals(control.DataContext, dockable));
+            if (tab?.Focus() == true) return;
+            if (attempts > 1) FocusDockableTab(dockable, attempts - 1);
+            else LeftSidebarToggle.Focus();
+        }, DispatcherPriority.Background);
+    }
+
+    private void FocusModelWhenReady(int attempts = 3)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (ModelView.FoilViewport.Focus()) return;
+            if (attempts > 1) FocusModelWhenReady(attempts - 1);
+            else LeftSidebarToggle.Focus();
+        }, DispatcherPriority.Background);
     }
 
     public void SetPaneSize(string id, string sizeName)
     {
         var dockable = LayoutFactory.FindDockable(id);
-        if (dockable is IToolDock td)
+        var toolDock = ShellLayoutFactory.FindParentDock(LayoutRoot, dockable!) as IToolDock;
+        if (dockable is not null && toolDock is not null)
         {
-            td.Proportion = sizeName switch
+            toolDock.Proportion = sizeName switch
             {
                 "Narrow" => 0.15,
                 "Wide" => 0.35,
                 _ => 0.25
             };
-            (dockable as Control)?.Focus();
+            toolDock.ActiveDockable = dockable;
+            FocusDockableTab(dockable);
         }
     }
 

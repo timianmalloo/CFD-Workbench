@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using CfdWorkbench.Desktop.Shell;
@@ -13,6 +14,9 @@ public sealed class App : Application
         Console.Error.WriteLine("NATIVE-STARTUP app-initialize");
         AvaloniaXamlLoader.Load(this);
         ShellHost.InstallTheme(this);
+        var applicationMenu = new NativeMenu();
+        applicationMenu.Add(new NativeMenuItem("About CFD Workbench"));
+        NativeMenu.SetMenu(this, applicationMenu);
     }
 
     public override void OnFrameworkInitializationCompleted()

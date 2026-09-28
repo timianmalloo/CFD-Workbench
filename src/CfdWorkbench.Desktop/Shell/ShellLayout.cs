@@ -117,7 +117,17 @@ public sealed class ShellLayoutFactory : Factory
         return root;
     }
 
-    public IDockable? FindDockable(string id) => FindDockable(RootLayout, id);
+    public IDockable? FindDockable(string id) => id switch
+    {
+        "properties" => PropertiesTool,
+        "browser" => BrowserTool,
+        "rail-controls" => RailControlsTool,
+        "model" => ModelDocument,
+        "section-sample" => SectionSampleDocument,
+        "foil-source" => FoilSourceDocument,
+        "section" => SectionDocument,
+        _ => FindDockable(RootLayout, id)
+    };
 
     public static IDockable? FindDockable(IDockable? root, string id)
     {

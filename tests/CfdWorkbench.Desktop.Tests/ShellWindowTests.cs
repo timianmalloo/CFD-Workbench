@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
@@ -25,6 +26,15 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Main window has no native menu");
             }
             finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("NativeMenu_Application_AboutOnly", () =>
+        {
+            var menu = NativeMenu.GetMenu(Application.Current!);
+            var items = menu?.Items.OfType<NativeMenuItem>().Select(item => item.Header?.ToString()).ToArray() ?? [];
+            if (items.Count(item => item == "About CFD Workbench") != 1 ||
+                items.Any(item => item is "File" or "Edit" or "Window"))
+                throw new InvalidOperationException("Application menu mixes workbench commands with OS items");
         });
 
         DesktopChecks.Check("Architecture_DockConfinedToShell", () =>
@@ -272,20 +282,224 @@ public static class ShellWindowTests
         DesktopChecks.Check("Start_Opened_FocusModelArea", () =>
         {
             using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                host.HandleOpenOutcome(new OpenOutcome.Opened("example.foil"), "example.foil");
+                Settle(window);
+                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                    throw new InvalidOperationException("Opened foil did not focus the model area");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_ClosePane_NextTab", () =>
+        {
+            using var controller = new WorkbenchController();
             Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
             var host = new ShellHost(controller);
             var window = new Window { Content = host, Width = 1024, Height = 700 };
             try
             {
                 window.Show();
-                for (int attempt = 0; attempt < 10; attempt++)
+                Settle(window);
+                host.Properties.FindControl<TextBox>("SpanInput")!.Focus();
+                host.ClosePane("properties");
+                Settle(window);
+                if (!FocusedToolTab(host, "browser"))
+                    throw new InvalidOperationException("Closing Properties did not focus the next tool tab");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_WindowPanesShow_PaneTab", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.ClosePane("properties");
+                Settle(window);
+                host.ShowPane("properties");
+                Settle(window);
+                if (!FocusedToolTab(host, "properties"))
+                    throw new InvalidOperationException("Window ▸ Panes did not restore and focus Properties");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_HideDockHoldingFocus_ToToggle", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                if (!host.Properties.FindControl<TextBox>("SpanInput")!.Focus())
+                    throw new InvalidOperationException("Properties field cannot take focus");
+                host.ToggleLeftSidebar();
+                Settle(window);
+                if (!host.LeftSidebarToggle.IsFocused)
+                    throw new InvalidOperationException("Hiding the focused dock lost its focus target");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_CloseLastPane_DockToggle", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.ClosePane("properties");
+                Settle(window);
+                host.ClosePane("browser");
+                Settle(window);
+                host.ClosePane("rail-controls");
+                Settle(window);
+                if (!host.LeftSidebarToggle.IsFocused)
+                    throw new InvalidOperationException("Closing the final tool pane did not focus the dock toggle");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_SizeMenu_ReturnsToTab", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.SetPaneSize("properties", "Wide");
+                Settle(window);
+                if (Math.Abs(host.LayoutFactory.LeftToolDock.Proportion - 0.35) > 1e-6 ||
+                    !FocusedToolTab(host, "properties"))
+                    throw new InvalidOperationException("Size menu did not resize the tool dock and return focus");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_MoveTo_StaysOnMovedTab", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.MovePane("browser", "LeftDock");
+                Settle(window);
+                if (host.LayoutFactory.LeftToolDock.VisibleDockables?.Count(item => item.Id == "browser") != 1 ||
+                    !FocusedToolTab(host, "browser"))
+                    throw new InvalidOperationException("Move to left lost the Browser tab or its focus");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_DockRerender_NeverWindowRoot", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var span = host.Properties.FindControl<TextBox>("SpanInput")!;
+                if (!span.Focus()) throw new InvalidOperationException("Span field cannot take focus");
+                host.RefreshPanes();
+                Settle(window);
+                if (!span.IsFocused || window.IsFocused)
+                    throw new InvalidOperationException("Dock rerender moved focus to the window root");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_SpanInvalid_StaysInFieldWithAlert", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var span = host.Properties.FindControl<TextBox>("SpanInput")!;
+                span.Focus();
+                span.Text = "-";
+                if (host.Properties.CommitSpan() || !span.IsFocused ||
+                    !host.Properties.FindControl<Control>("SpanErrorPanel")!.IsVisible)
+                    throw new InvalidOperationException("Invalid Span did not retain field focus with an error");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_BrowserEnter_StaysOnRowSelectsStation", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                host.LayoutFactory.LeftToolDock.ActiveDockable = host.LayoutFactory.BrowserTool;
+                Settle(window);
+                var rows = host.Browser.FindControl<ListBox>("StationList")!;
+                var row = rows.Items.OfType<ListBoxItem>().Skip(1).First();
+                rows.SelectedItem = row;
+                if (!row.Focus()) throw new InvalidOperationException("Browser row cannot take focus");
+                row.RaiseEvent(new Avalonia.Input.KeyEventArgs
                 {
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                    window.UpdateLayout();
-                }
-                host.HandleOpenOutcome(new OpenOutcome.Opened("example.foil"), "example.foil");
-                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
-                    throw new InvalidOperationException("Opened foil did not focus the model area");
+                    RoutedEvent = Avalonia.Input.InputElement.KeyDownEvent,
+                    Source = row,
+                    Key = Avalonia.Input.Key.Enter
+                });
+                if (!row.IsFocused || controller.Selection is not Selection.Station { Index: 1 })
+                    throw new InvalidOperationException("Enter did not keep row focus and select the station");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_UndoFromCanvas_StaysOnCanvas", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            string before = controller.AcceptedSource;
+            controller.ApplySpan("900");
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                if (!viewport.Focus()) throw new InvalidOperationException("Viewport cannot take focus");
+                if (!host.RouteEditVerb("undo", viewport) || !viewport.IsFocused ||
+                    controller.AcceptedSource != before)
+                    throw new InvalidOperationException("Canvas Undo changed focus or missed document history");
             }
             finally { window.Close(); }
         });
@@ -402,4 +616,19 @@ public static class ShellWindowTests
 
     private static T StartControl<T>(StartView start, string name) where T : Control =>
         start.FindControl<T>(name) ?? throw new InvalidOperationException($"Start control {name} missing");
+
+    private static void Settle(Window window)
+    {
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+        }
+    }
+
+    private static bool FocusedToolTab(ShellHost host, string id) =>
+        host.DockHost.GetVisualDescendants().OfType<Control>().Any(control =>
+            control.GetType().Name == "ToolTabStripItem" && control.IsFocused &&
+            string.Equals(control.DataContext?.GetType().GetProperty("Id")?.GetValue(control.DataContext)?.ToString(),
+                id, StringComparison.Ordinal));
 }

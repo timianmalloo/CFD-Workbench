@@ -54,6 +54,13 @@ The process ended after each run. Mutations listed here were removed after obser
 | 12 | `PaneBind_Throws_ShowsErrorStateClearsOld` before pane catch paths retained the error state | 1 | `NullReferenceException` escaped Properties `Bind` |
 | 13 | `EditVerbRouter` sent a focused TextBox's Undo to the document | 1 | `EditVerb_UndoInSpanField_EditsText`: field text was not undone |
 | 14 | `HandleOpenOutcome(Opened)` focused the side bar toggle instead of the viewport | 1 | `Start_Opened_FocusModelArea`: model focus absent |
+| 15 | Before tab focus and closed-pane lookup were added | 1 | `Focus_ClosePane_NextTab`, `Focus_WindowPanesShow_PaneTab` |
+| 16 | Hide and final-close focus targets changed to the viewport; each close settled before the next | 1 | `Focus_HideDockHoldingFocus_ToToggle`, `Focus_CloseLastPane_DockToggle` |
+| 17 | Before size targeted the owning dock and moved tabs regained focus | 1 | `Focus_SizeMenu_ReturnsToTab`, `Focus_MoveTo_StaysOnMovedTab` |
+| 18 | Rerender focused the toggle, invalid Span hid its alert, and Browser Enter cleared the selection | 1 | `Focus_DockRerender_NeverWindowRoot`, `Focus_SpanInvalid_StaysInFieldWithAlert`, `Focus_BrowserEnter_StaysOnRowSelectsStation` |
+| 19 | Document Undo focused the side bar toggle after restoring the source | 1 | `Focus_UndoFromCanvas_StaysOnCanvas` |
+| 20 | `Start_Opened_FocusModelArea` opened after the Start view had rendered | 1 | `Call from invalid thread` while controller Changed bound panes off the UI thread; after marshaling, the same test failed because the viewport was not yet materialized. Bounded deferred focus made it pass. |
+| 21 | Application About menu missing | 1 | `NativeMenu_Application_AboutOnly`. The first assertion expected exactly one item and revealed Avalonia's standard Services/Hide/Quit items; the final assertion permits those but requires one About and no workbench File/Edit/Window group. |
 
 The first minimum-window attempt also exited 1 while Dock's deferred presenter had
 not materialized. It was not counted as mutation evidence. The test now runs bounded
