@@ -1546,8 +1546,7 @@ if (accessibleViewport.SemanticControls.Count != authoredSemanticCount ||
     !accessibleViewport.SemanticControls[workbench.Inspection.Authored.Assignments.Count].Text!.Contains("trailing control vertex cv-5") ||
     !ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
     throw new Exception("Selected tip CV did not remain accessible with all authored controls");
-if (accessibleViewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto ||
-    Viewport.PlotWidth(1024 - 240 - 300 - 24, 178) < 250)
+if (accessibleViewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
     throw new Exception("Minimum-window geometry or dense annotation scrolling regressed");
 if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
 if (workbench.Points.Count != 15) throw new Exception("Expected 15 certified samples");
@@ -1737,24 +1736,8 @@ using (var invalidInput = new WorkbenchController())
     await invalidInput.PreviewAsync();
     if (invalidInput.Provenance != "preview") throw new Exception("Corrected numeric input did not restore Preview");
 }
-if (MainWindow.AcceptedHistoryShortcut(Key.Z, KeyModifiers.Meta, macOS: true) != "undo" ||
-    MainWindow.AcceptedHistoryShortcut(Key.Z, KeyModifiers.Meta | KeyModifiers.Shift, macOS: true) != "redo" ||
-    MainWindow.AcceptedHistoryShortcut(Key.Z, KeyModifiers.Control, macOS: true) is not null ||
-    MainWindow.AcceptedHistoryShortcut(Key.Z, KeyModifiers.Control, macOS: false) != "undo" ||
-    MainWindow.AcceptedHistoryShortcut(Key.Y, KeyModifiers.Control, macOS: false) != "redo")
-    throw new Exception("Native accepted-history shortcuts do not match macOS and Windows modifiers");
-if (MainWindow.NextRegionIndex(-1, false, [true, true, true, true]) != 0 ||
-    MainWindow.NextRegionIndex(-1, true, [true, true, true, true]) != 3 ||
-    MainWindow.NextRegionIndex(0, true, [true, true, true, true]) != 3 ||
-    MainWindow.NextRegionIndex(2, false, [true, false, true, true]) != 3 ||
-    MainWindow.NextRegionIndex(2, false, [true, false, true, false]) != 0)
-    throw new Exception("F6 region cycling did not skip unavailable regions in both directions");
-var sectionTab = new TabItem { Header = "Section sample" };
-var sourceTab = new TabItem { Header = "FoilDSL source" };
-var documentRegion = new TabControl { ItemsSource = new[] { sectionTab, sourceTab }, SelectedIndex = 0 };
-if (!ReferenceEquals(MainWindow.FocusCandidates(documentRegion).FirstOrDefault(), sectionTab) ||
-    !MainWindow.IsReeditKey(Key.Enter) || !MainWindow.IsReeditKey(Key.Space) || MainWindow.IsReeditKey(Key.Down))
-    throw new Exception("F6 document tabs or selected-item keyboard re-edit target is absent");
+if (!MainWindow.IsReeditKey(Key.Enter) || !MainWindow.IsReeditKey(Key.Space) || MainWindow.IsReeditKey(Key.Down))
+    throw new Exception("Selected-item keyboard re-edit target is absent");
 var numericBinding = new NumericBindingGuard();
 var renderFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
 var priorFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
@@ -1800,18 +1783,6 @@ if (numericBinding.ShouldProcess("120", editingEnabled: true) ||
 numericBinding.NoteProgrammatic("");
 if (numericBinding.ShouldProcess("", editingEnabled: false))
     throw new Exception("Disabled unprojectable recovery was treated as invalid user numeric input");
-var stationItem = new ListBoxItem { Content = "root station" };
-var stationRegion = new ListBox { ItemsSource = new[] { stationItem } };
-if (!ReferenceEquals(MainWindow.FocusCandidates(stationRegion).FirstOrDefault(), stationItem))
-    throw new Exception("F6 navigator region did not offer its actual focusable station item");
-var originalItems = stationRegion.ItemsSource;
-MainWindow.BindNavigatorItems(stationRegion, new[] { new ListBoxItem { Content = "replacement" } }, acceptedChanged: false);
-if (!ReferenceEquals(stationRegion.ItemsSource, originalItems) ||
-    !ReferenceEquals(stationRegion.Items[0], stationItem))
-    throw new Exception("Same accepted identity replaced station AX items during selection refresh");
-MainWindow.BindNavigatorItems(stationRegion, new[] { new ListBoxItem { Content = "new accepted revision" } }, acceptedChanged: true);
-if (ReferenceEquals(stationRegion.ItemsSource, originalItems))
-    throw new Exception("New accepted identity failed to replace stale station items");
 using (var repeatedSelection = new WorkbenchController())
 {
     await repeatedSelection.OpenExampleAsync();

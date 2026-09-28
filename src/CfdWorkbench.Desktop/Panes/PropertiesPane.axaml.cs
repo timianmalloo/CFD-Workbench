@@ -119,7 +119,7 @@ public partial class PropertiesPane : UserControl
             ErrorText.Text = "Properties couldn't be shown.";
             ErrorPanel.IsVisible = true;
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
-            throw;
+            return;
         }
     }
 

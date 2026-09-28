@@ -10,8 +10,8 @@ links:
   - {to: design-app-shell, rel: depends-on}
 review-by: 2026-10-27
 summary: >-
-  Recorded foreground red runs for the D3a subset landed in this dispatch. The
-  architecture check was exercised against a planted Dock reference outside Shell.
+  Recorded foreground red runs across D3a dispatches 2 and 3. The architecture
+  check was exercised against a planted Dock reference outside Shell.
 ---
 
 # D3a red runs — dispatch 2
@@ -35,6 +35,30 @@ their deliberate mutation; a final post-revert run is recorded by the harness ga
 `NativeMenu_MainWindow_BuiltFromTable` passed on first execution with the selected menu
 builder code. It has no red-first receipt in this dispatch and is not claimed as such.
 The other D3a names and the reflection-bound inventory rows remain unproven here.
+
+## Dispatch 3 red runs
+
+Each run used `AGENT_SESSION=track-d3a AGENT_WI=D3a` and the foreground command
+`dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.
+The process ended after each run. Mutations listed here were removed after observation.
+
+| Run | Test or mutation | Exit | Observed failure |
+|---|---|---:|---|
+| 5 | `MainWindow_ShellMode_ContainsDockHostAndNativeMenu` before its constructor existed | 1 | CS1739: no `shellMode` parameter |
+| 6 | `NativeMenu_MainWindow_BuiltFromTable` while New foil was enabled | 1 | New foil enabled before controller seam |
+| 7 | Browser `BindStations` changed to always replace | 1 | `Browser_AcceptedIdentity_KeepsOrReplacesRows`: selection refresh replaced row (inventory :1811) |
+| 8 | Browser `BindStations` changed to never replace | 1 | `Browser_AcceptedIdentity_KeepsOrReplacesRows`: new identity retained row (inventory :1814) |
+| 9 | Rail editor selection changed to enable numeric input for locked controls | 1 | `Controller_LockedRailControl_RefusesDraft`: locked control enabled draft input (inventory :1326) |
+| 10 | Left Dock proportion changed from .25 to .9, after deferred content settled | 1 | `ModelArea_MinimumWindow_PlotWidthAtLeast250`: measured plot width 1 (inventory :1551) |
+| 11 | `F6_RegionEntry_FocusesSelectedTabOrRow` before `ShellHost.MoveFocus` existed | 1 | CS1061: missing `MoveFocus` (inventory :1757a, :1806) |
+| 12 | `PaneBind_Throws_ShowsErrorStateClearsOld` before pane catch paths retained the error state | 1 | `NullReferenceException` escaped Properties `Bind` |
+| 13 | `EditVerbRouter` sent a focused TextBox's Undo to the document | 1 | `EditVerb_UndoInSpanField_EditsText`: field text was not undone |
+| 14 | `HandleOpenOutcome(Opened)` focused the side bar toggle instead of the viewport | 1 | `Start_Opened_FocusModelArea`: model focus absent |
+
+The first minimum-window attempt also exited 1 while Dock's deferred presenter had
+not materialized. It was not counted as mutation evidence. The test now runs bounded
+dispatcher jobs before measuring the rendered model area. A run with the .9 mutation
+then failed on the actual 100 DIP model width; restoring .25 passed.
 
 ## Green checks observed after removing mutations
 

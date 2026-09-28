@@ -127,7 +127,8 @@ public partial class RailEditorPane : UserControl
             ErrorText.Text = "Rail editor couldn't be shown.";
             ErrorPanel.IsVisible = true;
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
-            throw;
+            refreshing = false;
+            return;
         }
     }
 
@@ -137,6 +138,7 @@ public partial class RailEditorPane : UserControl
         if (ControlList.SelectedIndex >= 0 && ControlList.SelectedIndex < targets.Count)
         {
             var selected = targets[ControlList.SelectedIndex];
+            NumericInput.IsEnabled = selected.Control.Editable;
             if (selected.Control.Editable && boundController.Draft == null)
             {
                 try

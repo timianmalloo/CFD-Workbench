@@ -6083,7 +6083,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-27",
       "reviewSuggested": [],
-      "summary": "Recorded foreground red runs for the D3a subset landed in this dispatch. The architecture check was exercised against a planted Dock reference outside Shell.",
+      "summary": "Recorded foreground red runs across D3a dispatches 2 and 3. The architecture check was exercised against a planted Dock reference outside Shell.",
       "tags": [
         "app-shell",
         "desktop",
@@ -6097,7 +6097,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0745f7a5043eb2389ab4b790f551ac8a0a85b5fca16b38a7435e538eacd89148"
+      "sourceSha256": "f39821b91d0af3129e7db9ab20b664ec01eb29f7a28a557cb532ad7dbe5b9b9b"
     },
     {
       "id": "proof-dock-split-s8",
@@ -7614,5 +7614,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b1b80a01756d798c6f794103bf7afa5aae420b5248f355106f7a1b1d65bf77f3"
+  "graphSha256": "a4eb7d0a8ad016a95f79ed2b2c8e771afe45b9a492f79dfef98cce0bb623399f"
 };

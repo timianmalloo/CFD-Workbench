@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using CfdWorkbench.Core;
 
@@ -7,6 +8,7 @@ namespace CfdWorkbench.Desktop.Panes;
 public partial class StartView : UserControl
 {
     private Control? originatingControl;
+    public event Action<string>? RecentRequested;
 
     public StartView()
     {
@@ -14,6 +16,19 @@ public partial class StartView : UserControl
 
         AlertDismissButton.Click += (_, _) => DismissAlert();
         OpenCancelButton.Click += (_, _) => CancelOpening();
+        RecentListBox.DoubleTapped += (_, _) => RequestSelectedRecent();
+        RecentListBox.KeyDown += (_, args) =>
+        {
+            if (args.Key != Key.Enter) return;
+            RequestSelectedRecent();
+            args.Handled = true;
+        };
+    }
+
+    private void RequestSelectedRecent()
+    {
+        if (RecentListBox.SelectedItem is ListBoxItem { Content: string path })
+            RecentRequested?.Invoke(path);
     }
 
     public void PopulateRecent(IReadOnlyList<string> paths)

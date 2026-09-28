@@ -96,6 +96,8 @@ public static class NativeMenuBuilder
                         onAction?.Invoke(row.Id);
                     }
                 });
+                // Hook point: NEWFOIL adds WorkbenchController.NewFoilAsync at the coordinator join.
+                if (row.Id == "file.new") item.IsEnabled = false;
 
                 menu.Add(item);
 
@@ -157,5 +159,16 @@ public static class NativeMenuBuilder
             Command = new DelegateCommand(() => onClearRecent?.Invoke())
         };
         menu.Add(clearItem);
+    }
+
+    public static void RefreshRecentMenu(Window window, IReadOnlyList<RecentEntry> entries,
+        Action<string> onOpenRecent, Action onClearRecent)
+    {
+        var file = NativeMenu.GetMenu(window)?.Items.OfType<NativeMenuItem>()
+            .FirstOrDefault(item => Equals(item.Header, "File"));
+        var recent = file?.Menu?.Items.OfType<NativeMenuItem>()
+            .FirstOrDefault(item => Equals(item.Header, "Open Recent"));
+        if (recent?.Menu is { } menu)
+            PopulateRecentMenu(menu, entries, onOpenRecent, onClearRecent);
     }
 }

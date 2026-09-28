@@ -82,7 +82,8 @@ public partial class BrowserPane : UserControl
             ErrorText.Text = "Browser couldn't be shown.";
             ErrorPanel.IsVisible = true;
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
-            throw;
+            refreshing = false;
+            return;
         }
     }
 

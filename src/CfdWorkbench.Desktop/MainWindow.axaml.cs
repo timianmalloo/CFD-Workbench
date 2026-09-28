@@ -14,6 +14,8 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 using System.Globalization;
 using System.Diagnostics;
 using System.Text.Json;
@@ -58,6 +60,24 @@ public sealed partial class MainWindow : Window
     private long nativeMetricSequence;
     private readonly NumericBindingGuard numericBinding = new();
     private readonly NativeReviewOptions? review = NativeReviewOptions.Current;
+    private bool shellMode;
+    private ShellHost? shellHost;
+
+    public MainWindow(bool shellMode, PreferenceStore? preferences = null) : this()
+    {
+        if (!shellMode) return;
+        this.shellMode = true;
+        shellHost = new ShellHost(workbench, preferences);
+        Content = shellHost;
+        NativeMenuBuilder.BuildMenu(this,
+            onAction: id => _ = RunShellActionAsync(id),
+            onOpenRecent: path => _ = shellHost.OpenFileAsync(path),
+            onClearRecent: () => _ = shellHost.ClearRecentAsync(),
+            onSelectPane: shellHost.ShowPane);
+        shellHost.RecentLoaded += entries => NativeMenuBuilder.RefreshRecentMenu(this, entries,
+            path => _ = shellHost.OpenFileAsync(path), () => _ = shellHost.ClearRecentAsync());
+        _ = shellHost.LoadRecentAsync();
+    }
 
     public MainWindow()
     {
@@ -164,6 +184,12 @@ public sealed partial class MainWindow : Window
         Opened += async (_, _) =>
         {
             Console.Error.WriteLine("NATIVE-STARTUP window-opened");
+            if (shellMode)
+            {
+                if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
+                    Dispatcher.UIThread.Post(Close, DispatcherPriority.Background);
+                return;
+            }
             if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
             {
                 Console.Error.WriteLine("NATIVE-STARTUP smoke-opened");
@@ -187,6 +213,26 @@ public sealed partial class MainWindow : Window
         };
         if (review?.ReducedMotion == true) LayoutUpdated += (_, _) => ApplyReviewMotionPreference();
         Refresh();
+    }
+
+    private async Task RunShellActionAsync(string id)
+    {
+        if (shellHost is null) return;
+        switch (id)
+        {
+            // NewFoilAsync is supplied by the NEWFOIL track at the coordinator join.
+            case "file.new": break;
+            case "file.new-example": await shellHost.OpenExampleAsync(); break;
+            case "file.open": await shellHost.OpenFileInteractiveAsync(); break;
+            case "file.save": await Guarded(SaveWithPickerAsync); break;
+            case "file.save-as": await Guarded(SaveWithPickerAsync); break;
+            case "file.close": Close(); break;
+            case "view.toggle-left": shellHost.ToggleLeftSidebar(); break;
+            case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;
+            case "edit.redo": shellHost.RouteEditVerb("redo", FocusManager?.GetFocusedElement()); break;
+            case "window.minimize": WindowState = WindowState.Minimized; break;
+            case "window.zoom": WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; break;
+        }
     }
 
     private async Task Guarded(Func<Task> action)
@@ -336,6 +382,12 @@ public sealed partial class MainWindow : Window
 
     private void OnWindowKeyDown(object? sender, KeyEventArgs args)
     {
+        if (shellMode)
+        {
+            if (args.Key == Key.F6 && shellHost is not null)
+                args.Handled = shellHost.MoveFocus(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
+            return;
+        }
         if (args.Key == Key.F6)
         {
             var groups = new Control[][]

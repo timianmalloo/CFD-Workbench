@@ -1,22 +1,32 @@
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Panes;
 using CfdWorkbench.Persistence;
 using Dock.Avalonia.Controls;
+using Dock.Avalonia.Themes.Fluent;
 using Dock.Model.Core;
 using Dock.Model.Controls;
+using Dock.Model.Mvvm.Controls;
 
 namespace CfdWorkbench.Desktop.Shell;
 
 public sealed class ShellHost : Grid
 {
+    public static void InstallTheme(Application application)
+    {
+        application.Styles.Add(new DockFluentTheme());
+        application.DataTemplates.Add(new FuncDataTemplate<Document>((document, _) => document.Context as Control));
+        application.DataTemplates.Add(new FuncDataTemplate<Tool>((tool, _) => tool.Context as Control));
+    }
     public WorkbenchController Controller { get; }
     public PreferenceStore? Preferences { get; }
     public ShellLayoutFactory LayoutFactory { get; }
@@ -29,6 +39,8 @@ public sealed class ShellHost : Grid
     public ModelArea ModelView { get; }
 
     public Button LeftSidebarToggle { get; }
+    public event Action<IReadOnlyList<RecentEntry>>? RecentLoaded;
+    private CancellationTokenSource? opening;
 
     public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null)
     {
@@ -106,10 +118,11 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
+        ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path);
+        ModelView.StartCardView.OpenCancelButton.Click += (_, _) => opening?.Cancel();
 
         // Initial Bind
         RefreshPanes();
-        _ = LoadRecentAsync();
     }
 
     public async Task OpenExampleAsync()
@@ -128,9 +141,16 @@ public sealed class ShellHost : Grid
 
     public async Task OpenFileAsync(string path)
     {
+        if (opening is not null) return;
+        using var cancellation = new CancellationTokenSource();
+        opening = cancellation;
         ModelView.StartCardView.ShowOpening(System.IO.Path.GetFileName(path));
-        var outcome = await Controller.OpenAsync(path);
-        HandleOpenOutcome(outcome, path);
+        try
+        {
+            var outcome = await Controller.OpenAsync(path, cancellation.Token);
+            HandleOpenOutcome(outcome, path);
+        }
+        finally { opening = null; }
     }
 
     public async Task OpenFileInteractiveAsync()
@@ -200,7 +220,7 @@ public sealed class ShellHost : Grid
         }
     }
 
-    private async Task ClearRecentAsync()
+    public async Task ClearRecentAsync()
     {
         if (Preferences != null)
         {
@@ -216,6 +236,7 @@ public sealed class ShellHost : Grid
             var load = await Preferences.LoadRecentAsync(CancellationToken.None);
             var paths = load.Entries.Select(e => e.Path).ToList();
             ModelView.StartCardView.PopulateRecent(paths);
+            RecentLoaded?.Invoke(load.Entries);
         }
     }
 
@@ -259,6 +280,28 @@ public sealed class ShellHost : Grid
                 (dock.ActiveDockable as Control)?.Focus();
             }
         }
+    }
+
+    public bool MoveFocus(bool reverse)
+    {
+        var browserRow = Browser.FindControl<ListBox>("StationList")?.Items
+            .OfType<ListBoxItem>().FirstOrDefault(item => item.IsVisible && item.IsEnabled);
+        var documentTab = DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
+            .FirstOrDefault(item => ReferenceEquals(item.DataContext, LayoutFactory.MainDocumentDock.ActiveDockable)
+                && item.IsVisible && item.IsEnabled);
+        var leftTarget = (Control?)browserRow ?? LeftSidebarToggle;
+        var targets = new[] { leftTarget, (Control?)documentTab };
+        int current = leftTarget.IsKeyboardFocusWithin ? 0 : documentTab?.IsKeyboardFocusWithin == true ? 1 : -1;
+        var available = targets.Select(target => target is { IsVisible: true, IsEnabled: true }).ToArray();
+        for (int attempt = 0; attempt < targets.Length; attempt++)
+        {
+            int next = FocusRing.NextRegionIndex(current, reverse, available);
+            if (next < 0) return false;
+            if (targets[next]?.Focus() == true) return true;
+            available[next] = false;
+            current = next;
+        }
+        return false;
     }
 
     public void ClosePane(string id)

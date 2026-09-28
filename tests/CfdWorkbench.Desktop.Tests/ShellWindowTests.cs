@@ -1,5 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Desktop.Panes;
@@ -10,6 +12,21 @@ public static class ShellWindowTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
+        {
+            var window = new MainWindow(shellMode: true);
+            try
+            {
+                window.Show();
+                window.UpdateLayout();
+                if (window.Content is not ShellHost host || !host.DockHost.IsVisible)
+                    throw new InvalidOperationException("Main window did not render the shell host");
+                if (NativeMenu.GetMenu(window)?.Items.Count == 0)
+                    throw new InvalidOperationException("Main window has no native menu");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("Architecture_DockConfinedToShell", () =>
         {
             string root = FindRepoRoot();
@@ -36,6 +53,15 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("Native menu lacks: " + string.Join(", ", expected.Except(actual)));
             if (!ReferenceEquals(NativeMenu.GetMenu(window), menu))
                 throw new InvalidOperationException("Menu was not installed on the window");
+            var file = menu.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "File"));
+            var newFoil = file.Menu!.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "New foil"));
+            if (newFoil.IsEnabled)
+                throw new InvalidOperationException("New foil is enabled before the controller seam is joined");
+            var edit = menu.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Edit"));
+            var undo = edit.Menu!.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Undo"));
+            var expectedModifier = OperatingSystem.IsMacOS() ? Avalonia.Input.KeyModifiers.Meta : Avalonia.Input.KeyModifiers.Control;
+            if (undo.Gesture?.Key != Avalonia.Input.Key.Z || undo.Gesture.KeyModifiers != expectedModifier)
+                throw new InvalidOperationException("Native undo shortcut does not match the platform");
         });
 
         DesktopChecks.Check("ShellHost_PlanformLayout_ContainsModelAndSidePanes", () =>
@@ -89,6 +115,177 @@ public static class ShellWindowTests
                     !host.Properties.FindControl<Control>("ContentPanel")!.IsVisible ||
                     !host.Properties.FindControl<Control>("WingBlock")!.IsVisible)
                     throw new InvalidOperationException("Accepted foil did not reach the model and pane surfaces");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Browser_AcceptedIdentity_KeepsOrReplacesRows", () =>
+        {
+            var original = new ListBoxItem { Content = "root station" };
+            var list = new ListBox { ItemsSource = new[] { original } };
+            var source = list.ItemsSource;
+            BrowserPane.BindStations(list, [new ListBoxItem { Content = "selection refresh" }], acceptedChanged: false);
+            if (!ReferenceEquals(list.ItemsSource, source) || !ReferenceEquals(list.Items[0], original))
+                throw new InvalidOperationException("Selection refresh replaced a Browser row");
+            BrowserPane.BindStations(list, [new ListBoxItem { Content = "new accepted foil" }], acceptedChanged: true);
+            if (ReferenceEquals(list.ItemsSource, source) || Equals((list.Items[0] as ListBoxItem)?.Content, "root station"))
+                throw new InvalidOperationException("New accepted identity retained stale Browser rows");
+        });
+
+        DesktopChecks.Check("Controller_LockedRailControl_RefusesDraft", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var locked = controller.Inspection!.Authored.Rails
+                .SelectMany(rail => rail.Controls.Select(control => (rail.Name, control)))
+                .First(pair => !pair.control.Editable);
+            var pane = new RailEditorPane();
+            pane.Bind(controller);
+            var list = pane.FindControl<ListBox>("ControlList")!;
+            int index = controller.Inspection.Authored.Rails
+                .SelectMany(rail => rail.Controls).TakeWhile(control => control.Id != locked.control.Id).Count();
+            list.SelectedIndex = index;
+            try
+            {
+                controller.BeginEdit(locked.Name, locked.control.Id);
+                throw new InvalidOperationException("Locked rail control accepted an edit");
+            }
+            catch (ContractError error) when (error.Code == "DSL-LOCK") { }
+            if (controller.Draft is not null || pane.FindControl<TextBox>("NumericInput")!.IsEnabled)
+                throw new InvalidOperationException("Locked rail control enabled the numeric draft");
+        });
+
+        DesktopChecks.Check("ModelArea_MinimumWindow_PlotWidthAtLeast250", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                for (int attempt = 0; attempt < 10; attempt++)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    window.UpdateLayout();
+                }
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                double width = Viewport.PlotWidth(viewport.Bounds.Width, 178);
+                if (width < 250 || viewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
+                    throw new InvalidOperationException($"Minimum-window plot is too narrow: {width}");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("F6_RegionEntry_FocusesSelectedTabOrRow", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                for (int attempt = 0; attempt < 10; attempt++)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    window.UpdateLayout();
+                }
+                host.LayoutFactory.LeftToolDock.ActiveDockable = host.LayoutFactory.BrowserTool;
+                for (int attempt = 0; attempt < 10; attempt++)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    window.UpdateLayout();
+                }
+                var row = host.Browser.FindControl<ListBox>("StationList")!.Items.OfType<ListBoxItem>().First();
+                if (!row.Focus()) throw new InvalidOperationException("Browser row cannot take focus");
+                host.MoveFocus(reverse: false);
+                if (!host.DockHost.GetVisualDescendants().OfType<Control>()
+                    .Any(control => control.GetType().Name == "DocumentTabStripItem" && control.IsFocused))
+                    throw new InvalidOperationException("F6 did not focus the selected Dock document tab: " +
+                        string.Join(", ", host.DockHost.GetVisualDescendants().OfType<Control>()
+                            .Where(control => control.GetType().Name == "DocumentTabStripItem")
+                            .Select(control => $"{control.IsVisible}/{control.IsEnabled}/{control.IsFocused}/{control.Focusable}/{control.GetType().GetProperty("IsActive")?.GetValue(control)}/{control.DataContext?.GetType().Name}")));
+                host.MoveFocus(reverse: true);
+                if (!row.IsFocused)
+                    throw new InvalidOperationException("Shift+F6 did not focus the Browser row");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("PaneBind_Throws_ShowsErrorStateClearsOld", () =>
+        {
+            var properties = new PropertiesPane();
+            properties.FindControl<StackPanel>("BlocksPanel")!.Children.Add(new TextBlock { Text = "stale property" });
+            properties.Bind(null!);
+            if (!properties.FindControl<Control>("ErrorPanel")!.IsVisible ||
+                properties.FindControl<Control>("ContentPanel")!.IsVisible ||
+                properties.FindControl<StackPanel>("BlocksPanel")!.Children.Count != 0)
+                throw new InvalidOperationException("Properties pane retained stale content after a bind failure");
+            var browser = new BrowserPane();
+            browser.FindControl<ListBox>("StationList")!.ItemsSource = new[] { new ListBoxItem { Content = "stale row" } };
+            browser.Bind(null!);
+            if (!browser.FindControl<Control>("ErrorPanel")!.IsVisible ||
+                browser.FindControl<ListBox>("StationList")!.ItemCount != 0)
+                throw new InvalidOperationException("Browser pane retained stale rows after a bind failure");
+            var rail = new RailEditorPane();
+            rail.FindControl<ListBox>("ControlList")!.ItemsSource = new[] { new ListBoxItem { Content = "stale control" } };
+            rail.Bind(null!);
+            if (!rail.FindControl<Control>("ErrorPanel")!.IsVisible ||
+                rail.FindControl<ListBox>("ControlList")!.ItemCount != 0)
+                throw new InvalidOperationException("Rail editor retained stale controls after a bind failure");
+        });
+
+        DesktopChecks.Check("EditVerb_UndoInSpanField_EditsText", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                for (int attempt = 0; attempt < 10; attempt++)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    window.UpdateLayout();
+                }
+                var span = host.Properties.FindControl<TextBox>("SpanInput")!;
+                string before = span.Text ?? "";
+                string source = controller.AcceptedSource;
+                if (before.Length == 0 || !span.Focus())
+                    throw new InvalidOperationException("Span field was not ready for text input");
+                span.SelectAll();
+                span.RaiseEvent(new Avalonia.Input.TextInputEventArgs
+                {
+                    RoutedEvent = Avalonia.Input.InputElement.TextInputEvent,
+                    Source = span,
+                    Text = "5"
+                });
+                if (span.Text != "5") throw new InvalidOperationException("Span text input was not applied");
+                if (!host.RouteEditVerb("undo", span) || span.Text != before || controller.AcceptedSource != source)
+                    throw new InvalidOperationException("Undo in Span edited the foil or missed the text field");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Start_Opened_FocusModelArea", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                for (int attempt = 0; attempt < 10; attempt++)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    window.UpdateLayout();
+                }
+                host.HandleOpenOutcome(new OpenOutcome.Opened("example.foil"), "example.foil");
+                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                    throw new InvalidOperationException("Opened foil did not focus the model area");
             }
             finally { window.Close(); }
         });
