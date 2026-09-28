@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "522d5367269634091aa53966f8884298f210e12cd748956fd33c433d93f40e39"
+      "sourceSha256": "50703997fa8772e63e6148ccd7bc7591f1b4a1e1c0210dc83a138351f685fa8f"
     },
     {
       "id": "design-application-contracts",
@@ -3938,7 +3938,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aa5d081d05186b55d8846cc9316b1500cef9db8aab4972ed816c35dd76cfd7d8"
+      "sourceSha256": "b5f280508c62a3f524f1bbc4380c00ada0cbb179426e2add9393cada7df337d5"
     },
     {
       "id": "kb-hw-glossary",
@@ -6194,6 +6194,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-newfoil-red-runs",
+      "path": "docs/proof/newfoil-red-runs.md",
+      "title": "NEWFOIL red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-newfoil",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "Red run of the New foil checks before FoilSource.NewDefault and WorkbenchController.NewFoilAsync existed. tools/run-tests.sh exited 1 at the Release build with nine missing-member errors and zero warnings.",
+      "tags": [
+        "app-shell",
+        "new-foil",
+        "foildsl",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0a8fae111d27b62989f3791fec1e6cadd331aaa144aebf350b126c9b8870070a"
+    },
+    {
       "id": "proof-p1-red-runs",
       "path": "docs/proof/p1-red-runs.md",
       "title": "P1 preferences red-first runs",
@@ -7555,5 +7589,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c8dc0e7f2f2bd4d8de71a34e16451c7d23997f6a824ba0e857babf5c5988be39"
+  "graphSha256": "5fc6204dc1be34d07ff2832bd220523938c277f2b22927aa0bf52bb96e549ae2"
 };
