@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-28T13:53:57Z",
+  "generated": "2026-09-28T13:56:43Z",
   "audit": [
     {
       "actor": null,
@@ -19097,6 +19097,35 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-28T13:27:49Z",
       "duration_seconds": 1568.0
+    },
+    {
+      "id": "al-01M3M4VF27NBE2S9PX2E3H6JQH",
+      "shortname": "join-newfoil",
+      "datetime": "2026-09-28T13:56:43Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of newfoil-default into feature/ui-cad-direction",
+      "summary": "New foil = untitled near-elliptic wing, b=1 m, AR 10 exact (S=0.1), tip chord 10% root, NACA 0012 (residual 0.19 um root), c0=0.12674 m, chord dev 63 um vs ellipse, MAC 0.10762; NewFoilAsync via build-aside path; 8 tests red-first recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/newfoil-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "New foil independent of the Example (operator decision 2026-09-28)",
+      "done_when": "merged; fast gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-28T13:56:10Z",
+      "duration_seconds": 33.0
     }
   ],
   "changes": [
