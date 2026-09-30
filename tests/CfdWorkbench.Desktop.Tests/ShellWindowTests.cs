@@ -323,13 +323,16 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("DockTabFocus_FreshBatch_ReadyAndTwoRing", () =>
         {
-            using var controller = new WorkbenchController();
-            var host = new ShellHost(controller);
-            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            var window = new MainWindow(shellMode: true) { Width = 1024, Height = 700 };
             try
             {
                 window.Show();
                 Settle(window);
+                var reflection = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var controller = typeof(MainWindow).GetField("workbench", reflection)?.GetValue(window) as WorkbenchController
+                    ?? throw new InvalidOperationException("Shell controller field is unreadable");
+                var host = window.Content as ShellHost
+                    ?? throw new InvalidOperationException("Shell host did not load");
                 var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
                     .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.ModelDocument))
                     ?? throw new InvalidOperationException("Model Dock tab did not render");
@@ -339,6 +342,8 @@ public static class ShellWindowTests
                 Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
                 host.RefreshPanes();
                 Settle(window);
+                if (!ReferenceEquals(ElementComposition.GetElementVisual(tab)?.Compositor, visual.Compositor))
+                    throw new InvalidOperationException("Dock tab lost its compositor after the fixture opened");
                 if (!tab.Focus(NavigationMethod.Tab))
                     throw new InvalidOperationException("Dock tab refused keyboard focus");
                 Settle(window);
@@ -363,7 +368,14 @@ public static class ShellWindowTests
                 if (!fresh.Rendered.IsCompletedSuccessfully || !tab.IsFocused || tab.Bounds.Width <= 0 || adorner.Bounds.Width <= 0)
                     throw new InvalidOperationException("Fresh Dock focus batch did not render a visible focused tab");
             }
-            finally { window.Close(); }
+            finally
+            {
+                var approval = typeof(MainWindow).GetField("closeApproved", System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.NonPublic)
+                    ?? throw new InvalidOperationException("Shell close approval field is unreadable");
+                approval.SetValue(window, true);
+                window.Close();
+            }
         });
 
         DesktopChecks.Check("Review_Persona_FocusesShellRegion", () =>
@@ -513,6 +525,8 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("F6_RegionEntry_FocusesSelectedTabOrRow", () =>
         {
+            if (FocusRing.NextRegionIndex(0, reverse: false, [true, true, false, true]) != 1)
+                throw new InvalidOperationException("F6 ring did not skip an unavailable region");
             using var controller = new WorkbenchController();
             Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
             var host = new ShellHost(controller);
@@ -750,6 +764,67 @@ public static class ShellWindowTests
                 if (Math.Abs(host.LayoutFactory.LeftToolDock.Proportion - 0.35) > 1e-6 ||
                     !FocusedToolTab(host, "properties"))
                     throw new InvalidOperationException("Size menu did not resize the tool dock and return focus");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_MenuTab_ClosesMenuReturns", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var tab = host.DockHost.GetVisualDescendants().OfType<ToolTabStripItem>()
+                    .First(item => ReferenceEquals(item.DataContext, host.LayoutFactory.PropertiesTool));
+                if (tab.ContextMenu is not { } menu || !tab.Focus(NavigationMethod.Tab))
+                    throw new InvalidOperationException("Properties tab menu or keyboard focus is missing");
+                menu.Open(tab);
+                Settle(window);
+                if (!menu.IsOpen)
+                    throw new InvalidOperationException("Properties tab menu did not open");
+                menu.RaiseEvent(new KeyEventArgs
+                {
+                    RoutedEvent = InputElement.KeyDownEvent,
+                    Source = menu,
+                    Key = Key.Escape
+                });
+                Settle(window);
+                if (menu.IsOpen || !tab.IsFocused)
+                    throw new InvalidOperationException("Closing the tab menu did not restore tab focus");
+                menu.Open(tab);
+                var close = menu.Items.OfType<MenuItem>().Single(item => Equals(item.Header, "Close"));
+                close.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+                menu.Close();
+                Settle(window);
+                if (!FocusedToolTab(host, "browser"))
+                    throw new InvalidOperationException("Menu Close returned focus to the removed tab");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("AppBar_LiveThemeSwitch_RefreshesBrushes", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700,
+                RequestedThemeVariant = ThemeVariant.Light };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var bar = (Border)host.Children[0];
+                var light = ((ISolidColorBrush)bar.Background!).Color;
+                var lightBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
+                window.RequestedThemeVariant = ThemeVariant.Dark;
+                Settle(window);
+                var dark = ((ISolidColorBrush)bar.Background!).Color;
+                var darkBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
+                if (light == dark || lightBorder == darkBorder)
+                    throw new InvalidOperationException($"App bar kept the old theme brushes: {light} / {dark}");
             }
             finally { window.Close(); }
         });

@@ -94,12 +94,19 @@ public sealed class ShellHost : Grid
             BorderThickness = new Thickness(0, 0, 0, 1),
             Padding = new Thickness(4)
         };
+        void RefreshAppBarBrushes()
+        {
+            if (this.TryFindResource("SurfaceSoftBrush", ActualThemeVariant, out var background))
+                appBar.Background = background as IBrush;
+            if (this.TryFindResource("LineBrush", ActualThemeVariant, out var border))
+                appBar.BorderBrush = border as IBrush;
+        }
         AttachedToVisualTree += (_, _) =>
         {
-            appBar.Background = this.FindResource("SurfaceSoftBrush") as IBrush;
-            appBar.BorderBrush = this.FindResource("LineBrush") as IBrush;
+            RefreshAppBarBrushes();
             RefreshPanes();
         };
+        ActualThemeVariantChanged += (_, _) => RefreshAppBarBrushes();
         var appPanel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8 };
         LeftSidebarToggle = new Button
         {
@@ -144,6 +151,7 @@ public sealed class ShellHost : Grid
             Layout = LayoutRoot,
             InitializeFactory = true
         };
+        DockHost.LayoutUpdated += (_, _) => InstallToolTabMenus();
         SetRow(DockHost, 1);
         Children.Add(DockHost);
 
@@ -488,6 +496,32 @@ public sealed class ShellHost : Grid
             if (attempts > 1) FocusDockableTab(dockable, attempts - 1);
             else LeftSidebarToggle.Focus();
         }, DispatcherPriority.Background);
+    }
+
+    private void InstallToolTabMenus()
+    {
+        foreach (var tab in DockHost.GetVisualDescendants().OfType<ToolTabStripItem>())
+        {
+            if (tab.ContextMenu is not null || tab.DataContext is not IDockable dockable || dockable.Id is not { } id)
+                continue;
+            var size = new MenuItem { Header = "Size" };
+            size.ItemsSource = new[] { "Narrow", "Default", "Wide" }.Select(name =>
+            {
+                var item = new MenuItem { Header = name };
+                item.Click += (_, _) => SetPaneSize(id, name);
+                return item;
+            }).ToArray();
+            var close = new MenuItem { Header = "Close" };
+            close.Click += (_, _) => ClosePane(id);
+            var menu = new ContextMenu { ItemsSource = new[] { size, close } };
+            menu.Closed += (_, _) => Dispatcher.UIThread.Post(() =>
+            {
+                if (tab.IsEffectivelyVisible && ShellLayoutFactory.FindParentDock(LayoutRoot, dockable)?
+                    .VisibleDockables?.Contains(dockable) == true)
+                    tab.Focus(NavigationMethod.Tab);
+            }, DispatcherPriority.Input);
+            tab.ContextMenu = menu;
+        }
     }
 
     private void FocusModelWhenReady(int attempts = 3)

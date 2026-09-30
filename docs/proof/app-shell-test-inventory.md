@@ -4,24 +4,23 @@ title: App-shell test inventory — WorkbenchTests.cs assertions bound to contro
 type: proof-pack
 status: in-review
 owner: "@track-d3a"
-phase: implementation — checkpoint D3a-0
+phase: implementation — D3b completion
 tags: [app-shell, desktop, d3a, test-inventory, harness-migration, named-tests, proof]
 links:
   - {to: design-app-shell, rel: depends-on}
   - {to: spec-cfd-workbench-v1, rel: relates-to}
 review-by: 2026-10-27
 summary: >-
-  Checkpoint D3a-0 (design §12.5). Every throw-new assertion in tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs
-  (212, measured) is classified. 93 rows for the 92 lines bound to a control in MainWindow.axaml(.cs) that the
-  shell removes, moves or rewrites: 60 ported (with a D3a or D1 name) and 33 kept unchanged, none deleted
-  (Ruling 55: the rail CV editor moves unchanged into a pane). The other 120 lines are not bound and stay.
+  Every throw-new assertion in WorkbenchTests.cs (212, measured) is classified.
+  All 60 ported rows have destination tests and recorded red evidence; 33 rows stay
+  unchanged under Ruling 55. None are deleted.
 ---
 
 # App-shell test inventory (checkpoint D3a-0)
 
-**D3b checkpoint (2026-09-30).** The Dock tab focus name now passes in the shell suite, but it has no red receipt. The theme matrix reached a measured dark Dock tab contrast failure (1.19) and hit the two-cycle repair cap. No additional inventory row is marked done by D3b; the 52 rows remaining after D3a still require porting and red evidence. The `ported` column below names each intended destination and does not claim completion.
+**D3b completion (2026-09-30).** The 21 rows whose disposition was still `ported` after THEME now have recorded red evidence: seven from D3a dispatch 3, and fourteen in D3b runs 45–57 (with :389 and :1141 sharing one run). Each reflection-bound Dock row (:387, :453, :513) has its own run; the locked-control row :1326 has D3a run 9. All 60 ported rows are marked done.
 
-**THEME checkpoint (2026-09-30).** `ThemeMatrix_ShellControls_AppliedContrast` now passes in the shell suite after a recorded red run (`d3a-red-runs.md` run 34). Its 39 rows are marked `done (THEME, red run N)` in the disposition column. The 8 reflection-bound rows among them (:721, :740, :977, :1018, :1215 and the framework rows :1219, :1221, :1228) each cite their own red run (35-42); :1446 cites run 34. The kept-unchanged matrix rows (:1295, :1297, :1315, :1333, :1353) stay in `WorkbenchTests.cs`. By this count, 13 of the 52 rows remain for D3b. A row is done only when its disposition cell says so.
+**THEME checkpoint (2026-09-30).** `ThemeMatrix_ShellControls_AppliedContrast` passes in the shell suite after red run 34. Its 39 rows are marked `done (THEME, red run N)`. The 8 reflection-bound rows among them (:721, :740, :977, :1018, :1215 and the framework rows :1219, :1221, :1228) each cite their own red run (35–42); :1446 cites run 34. The kept-unchanged matrix rows (:1295, :1297, :1315, :1333, :1353) stay in `WorkbenchTests.cs`.
 
 **Result.** `tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs` holds **212** `throw new` lines (grep, at `bf54a54`).
 The design's figure of 213 (§1, §12.5) is one high. The design counted at `494aef2`. Commit `d27dc03` then removed two
@@ -86,14 +85,14 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 347 | modal Cancel keeps accepted and draft state | unsaved-close modal | kept-unchanged | | | yes |
 | 351 | cancelled-close window accepts a later draft update | MainWindow + controller | kept-unchanged | | | yes |
 | 359 | no callback escapes after cleanup (`closeApproved` set by reflection) | MainWindow `closeApproved` field | kept-unchanged | | | yes |
-| 387 | focus-readiness: controller field readable | MainWindow `workbench` field | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
-| 389 | focus-readiness: `DocumentTabs` found | DocumentTabs → Dock document tabs | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 434 | readiness tab has a compositor | first DocumentTabs item | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 448 | readiness finds `FoilViewport` by name | FoilViewport → model-area view (pane namescope) | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 453 | opened fixture bound to the viewport before the barrier | FoilViewport | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
-| 455 | readiness compositor not lost | first DocumentTabs item | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 458 | stale pre-fixture batch refused as a fresh barrier | first DocumentTabs item | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 513 | readiness result is `ready` (`closeApproved` set by reflection) | first DocumentTabs item, FoilViewport | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
+| 387 | focus-readiness: controller field readable | MainWindow `workbench` field | ported · done (D3b, red run 45) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
+| 389 | focus-readiness: `DocumentTabs` found | DocumentTabs → Dock document tabs | ported · done (D3b, red run 46) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 434 | readiness tab has a compositor | first DocumentTabs item | ported · done (D3b, red run 47) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 448 | readiness finds `FoilViewport` by name | FoilViewport → model-area view (pane namescope) | ported · done (D3b, red run 48) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 453 | opened fixture bound to the viewport before the barrier | FoilViewport | ported · done (D3b, red run 49) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
+| 455 | readiness compositor not lost | first DocumentTabs item | ported · done (D3b, red run 50) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 458 | stale pre-fixture batch refused as a fresh barrier | first DocumentTabs item | ported · done (D3b, red run 51) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 513 | readiness result is `ready` (`closeApproved` set by reflection) | first DocumentTabs item, FoilViewport | ported · done (D3b, red run 52) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
 | 694 | focus-hover reset button exists | ExampleButton (toolbar) → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 696 | focus-hover reset takes focus | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 721 | TextBox probe has an owned draft identity | NumericInput rail draft → Span field (direct commit, no draft; clause dropped for Span) | ported · done (THEME, red run 39) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
@@ -117,10 +116,10 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 1064 | numeric-paint RED: sibling paint order | NumericInput template (moves unchanged) | kept-unchanged |  |  | no |
 | 1104 | numeric-paint RED: focus reset exists | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
 | 1118 | numeric-paint RED: text input replaces the selection | NumericInput, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | no |
-| 1141 | focus-diagnostic: `DocumentTabs` found | DocumentTabs → Dock document tabs | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 1146 | focus-diagnostic: tab takes keyboard focus | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 1149 | focus-diagnostic: adorner layer present | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 1156 | focus-diagnostic: two-ring adorner present | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 1141 | focus-diagnostic: `DocumentTabs` found | DocumentTabs → Dock document tabs | ported · done (D3b, red run 46) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 1146 | focus-diagnostic: tab takes keyboard focus | first DocumentTabs item → Dock tab | ported · done (D3b, red run 53) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 1149 | focus-diagnostic: adorner layer present | first DocumentTabs item → Dock tab | ported · done (D3b, red run 54) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
+| 1156 | focus-diagnostic: two-ring adorner present | first DocumentTabs item → Dock tab | ported · done (D3b, red run 55) | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 1210 | pointer RED: `DocumentTabs` found | DocumentTabs "FoilDSL source" tab → "Foil source" Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1215 | pointer RED: controller field readable | MainWindow `workbench` field | ported · done (THEME, red run 35) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
 | 1219 | pointer RED: protected `PseudoClasses` readable | source tab → Foil source Dock tab | ported · done (THEME, red run 40) | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
@@ -140,7 +139,7 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 1301 | matrix: exactly 3 tabs "Section sample", "FoilDSL source", "Section" | DocumentTabs → model-area Dock tabs (views, Foil source, section editor) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1313 | matrix: Example station binds and selects | StationList → Browser row | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1315 | matrix: authored rails available for CV selection | ControlList precondition (controller) | kept-unchanged |  |  | yes |
-| 1326 | locked CV creates no draft and leaves the numeric field disabled | ControlList + NumericInput → controller `BeginEdit` | ported | `Controller_LockedRailControl_RefusesDraft` | | yes |
+| 1326 | locked CV creates no draft and leaves the numeric field disabled | ControlList + NumericInput → controller `BeginEdit` | ported · done (D3a, red run 9) | `Controller_LockedRailControl_RefusesDraft` | | yes |
 | 1333 | editable CV opens an owned draft and enables the numeric field | ControlList + NumericInput, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | yes |
 | 1348 | station item takes keyboard focus | StationList item → Browser row | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1353 | CV item takes keyboard focus | ControlList item, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | no |
@@ -156,20 +155,20 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 1419 | modal Cancel is default, cancel and focused | unsaved-close modal | kept-unchanged | | | yes |
 | 1422 | modal closes with safe Cancel | unsaved-close modal | kept-unchanged | | | yes |
 | 1446 | applied theme matrix: no row failures | whole matrix | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 1467 | review persona picks a real focus region (`numeric-or-open`, `stations`, `controls`) | `MainWindow.ReviewFocusTarget` → NumericInput, OpenButton, StationList, ControlList | ported | `Review_Persona_FocusesShellRegion` | | no |
+| 1467 | review persona picks a real focus region (`numeric-or-open`, `stations`, `controls`) | `MainWindow.ReviewFocusTarget` → NumericInput, OpenButton, StationList, ControlList | ported · done (D3a, red run 25) | `Review_Persona_FocusesShellRegion` | | no |
 | 1479 | fresh review draft gives its numeric value and unit | `MainWindow.DraftField` (NumericInput projection; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
-| 1551 | minimum-window plot width ≥ 250 and dense annotation scrolls | 240 px Navigator + 300 px Properties columns | ported | `ModelArea_MinimumWindow_PlotWidthAtLeast250` | | no |
+| 1551 | minimum-window plot width ≥ 250 and dense annotation scrolls | 240 px Navigator + 300 px Properties columns | ported · done (D3a, red run 10) | `ModelArea_MinimumWindow_PlotWidthAtLeast250` | | no |
 | 1669 | resumed recovery binds its draft value and unit | `MainWindow.DraftField` (resumed recovery edits in the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
 | 1687 | clause `MainWindow.TryDraftField(...) is not null` (the whole line is kept unchanged) | `MainWindow.TryDraftField` (NumericInput projection; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
-| 1745 | ⌘Z / ⌘⇧Z on macOS, Ctrl+Z / Ctrl+Y on Windows | `MainWindow.AcceptedHistoryShortcut` (window `KeyDown`) → command table gestures | ported | `NativeMenu_MainWindow_BuiltFromTable` | | no |
-| 1751 | F6 skips unavailable regions in both directions | `MainWindow.NextRegionIndex` → `FocusRing` (D1) | ported | `FocusRing_HiddenRegionsAndFloats_Order` | | no |
-| 1757 (a) | F6 into the document region focuses the selected tab | `MainWindow.FocusCandidates` over DocumentTabs → Dock tabs | ported | `F6_RegionEntry_FocusesSelectedTabOrRow` | | no |
+| 1745 | ⌘Z / ⌘⇧Z on macOS, Ctrl+Z / Ctrl+Y on Windows | `MainWindow.AcceptedHistoryShortcut` (window `KeyDown`) → command table gestures | ported · done (D3b, red run 56) | `NativeMenu_MainWindow_BuiltFromTable` | | no |
+| 1751 | F6 skips unavailable regions in both directions | `MainWindow.NextRegionIndex` → `FocusRing` (D1) | ported · done (D3b, red run 57) | `FocusRing_HiddenRegionsAndFloats_Order` | | no |
+| 1757 (a) | F6 into the document region focuses the selected tab | `MainWindow.FocusCandidates` over DocumentTabs → Dock tabs | ported · done (D3a, red run 11) | `F6_RegionEntry_FocusesSelectedTabOrRow` | | no |
 | 1757 (b) | Enter and Space re-edit the selected CV; Down does not | `MainWindow.IsReeditKey` (ControlList item `KeyDown`, `MainWindow.axaml.cs:262-266`; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
 | 1799 | queued programmatic value neither advances an untouched draft nor blocks input | `NumericBindingGuard` (NumericInput; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
 | 1802 | disabled unprojectable recovery is not invalid numeric input | `NumericBindingGuard` (NumericInput; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
-| 1806 | F6 navigator region offers its focusable station item | `MainWindow.FocusCandidates` over StationList → Browser | ported | `F6_RegionEntry_FocusesSelectedTabOrRow` | | no |
-| 1811 | same accepted identity keeps station AX items | `MainWindow.BindNavigatorItems` (StationList) → Browser rows | ported | `Browser_AcceptedIdentity_KeepsOrReplacesRows` | | no |
-| 1814 | new accepted identity replaces stale station items | `MainWindow.BindNavigatorItems` → Browser rows | ported | `Browser_AcceptedIdentity_KeepsOrReplacesRows` | | no |
+| 1806 | F6 navigator region offers its focusable station item | `MainWindow.FocusCandidates` over StationList → Browser | ported · done (D3a, red run 11) | `F6_RegionEntry_FocusesSelectedTabOrRow` | | no |
+| 1811 | same accepted identity keeps station AX items | `MainWindow.BindNavigatorItems` (StationList) → Browser rows | ported · done (D3a, red run 7) | `Browser_AcceptedIdentity_KeepsOrReplacesRows` | | no |
+| 1814 | new accepted identity replaces stale station items | `MainWindow.BindNavigatorItems` → Browser rows | ported · done (D3a, red run 8) | `Browser_AcceptedIdentity_KeepsOrReplacesRows` | | no |
 | 1827 | Cancel leaves no stale numeric text; the same selected CV can be re-edited | `MainWindow.AcceptedControlField`, `CanRestartSelectedEdit` (the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
 
 ## 2. Findings for the Coordinator (decision requests, not decided here)

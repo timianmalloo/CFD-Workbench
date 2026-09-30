@@ -5725,10 +5725,10 @@ window.DOCS_INDEX = {
       "type": "proof-pack",
       "status": "in-review",
       "owner": "@track-d3a",
-      "phase": "implementation — checkpoint D3a-0",
+      "phase": "implementation — D3b completion",
       "reviewBy": "2026-10-27",
       "reviewSuggested": [],
-      "summary": "Checkpoint D3a-0 (design §12.5). Every throw-new assertion in tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs (212, measured) is classified. 93 rows for the 92 lines bound to a control in MainWindow.axaml(.cs) that the shell removes, moves or rewrites: 60 ported (with a D3a or D1 name) and 33 kept unchanged, none deleted (Ruling 55: the rail CV editor moves unchanged into a pane). The other 120 lines are not bound and stay.",
+      "summary": "Every throw-new assertion in WorkbenchTests.cs (212, measured) is classified. All 60 ported rows have destination tests and recorded red evidence; 33 rows stay unchanged under Ruling 55. None are deleted.",
       "tags": [
         "app-shell",
         "desktop",
@@ -5749,7 +5749,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4bbf0169ec319bbcf1c8845dc37e784e602af10ff08b01b2d12b576b93ec5955"
+      "sourceSha256": "26730784e14cf0e60bc1beae9afb3f6547cc690b1529ddbfe8d4190ced964069"
     },
     {
       "id": "proof-application-adapters",
@@ -6083,7 +6083,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-27",
       "reviewSuggested": [],
-      "summary": "Recorded foreground red runs across D3a dispatches 2 and 3. The architecture check was exercised against a planted Dock reference outside Shell.",
+      "summary": "Recorded foreground red runs across D3a, D3b and THEME. All 60 ported inventory rows have destination tests and red evidence.",
       "tags": [
         "app-shell",
         "desktop",
@@ -6097,7 +6097,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5f57f1f16fc636320ef3d202048318f83d660318c0828793d7031cb376e6ca96"
+      "sourceSha256": "6fc8d736919d6e164dd704d9d7ffadc013b0872f5fceeec02b7bb27922c03e0a"
     },
     {
       "id": "proof-dock-split-s8",
@@ -7648,5 +7648,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9351dc55e4995b83661daecf36d07e684b7455ae4ec265d1f559c0afb3d97e70"
+  "graphSha256": "056987d63475be73a4c7cc95b295d76ad7623a09b3006c5899b6e2f637c845d4"
 };

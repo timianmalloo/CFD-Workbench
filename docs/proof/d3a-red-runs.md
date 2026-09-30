@@ -10,8 +10,8 @@ links:
   - {to: design-app-shell, rel: depends-on}
 review-by: 2026-10-27
 summary: >-
-  Recorded foreground red runs across D3a dispatches 2 and 3. The architecture
-  check was exercised against a planted Dock reference outside Shell.
+  Recorded foreground red runs across D3a, D3b and THEME. All 60 ported
+  inventory rows have destination tests and red evidence.
 ---
 
 # D3a red runs — dispatch 2
@@ -190,3 +190,54 @@ fills. The outer ring against the strip stays at 5.59 / 10.73 / 19.56.
 **Proof.** Five consecutive foreground `tools/run-tests.sh` runs all exited 0. Each printed 279 Core and 80 Desktop PASS
 lines, with the same sorted PASS-set SHA-256:
 `b73bb5ab6e2b0814644d96d56556b3228102b7504ecb53a32c198dc7a49229f4`.
+
+## D3b dispatch 2: remaining inventory and live shell seams
+
+Commands ran with `AGENT_SESSION=track-d3b AGENT_WI=D3b` in the assigned tree. The
+foreground red command was `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.
+Every run exited 1 with the named failure below. The mutation script restored the
+original test source after each run; its measured result list was retained at
+`/tmp/d3b_red_rows_results.json` for this dispatch. A post-revert shell-window run
+exited 0, with no `FAIL` line.
+
+The menu-focus test first failed `Properties tab menu or keyboard focus is missing`.
+The live app-bar switch test first failed because the bar had no usable brush.
+After the bar began resolving both brush keys on attach and `ActualThemeVariantChanged`,
+the test oracle's own `host.FindResource` returned `UnsetValue`; that assertion was
+corrected to check both *rendered bar brushes* changed on Light→Dark. The corrected
+test passed. The two initial red failures are separate from the inventory mutations.
+
+| Run | Inventory row(s) | Mutation | Observed `FAIL` |
+|---:|---|---|---|
+| 45 | :387 | reflected `workbench` → missing field | Dock: shell controller field unreadable |
+| 46 | :389, :1141 | model Dock tab lookup → Properties tool | Dock: model tab did not render |
+| 47 | :434 | compositor lookup on detached Border | Dock: tab lacks composition visual |
+| 48 | :448 | `FoilViewport` lookup → missing name | Dock: `NullReferenceException` at viewport check |
+| 49 | :453 | bound frame compared with another object | Dock: accepted frame not bound before barrier |
+| 50 | :455 | retained compositor compared with another object | Dock: tab lost compositor after fixture open |
+| 51 | :458 | stale/fresh identity check reversed | Dock: stale batch reused |
+| 52 | :513 | reflected `closeApproved` → missing field | Dock: shell close approval field unreadable |
+| 53 | :1146 | focus a detached Border instead of the Dock tab | Dock: tab refused keyboard focus |
+| 54 | :1149 | adorner lookup on a detached Border | Dock: no adorner layer |
+| 55 | :1156 | select borders with null brushes | Dock: lacks two focus rings |
+| 56 | :1745 | native Undo key oracle Z → Y | Native menu: undo shortcut mismatched platform |
+| 57 | :1751 | F6 next-region oracle 1 → 2 | F6: did not skip unavailable region |
+
+Runs 45, 49 and 52 are separate reflection-bound red runs under Ruling 54 P3.
+The locked-control reflection-bound row :1326 already had its own D3a run 9.
+The seven other non-theme rows had D3a runs 7, 8, 10, 11 and 25; the inventory
+records each row's receipt. The 39 THEME rows retain runs 34–42 and their own
+reflection receipts. This completes the measured 60 ported rows.
+
+**Final gates on the restored source.** Three consecutive foreground
+`tools/run-tests.sh` runs exited `0, 0, 0`. Each copied log held 279 Core and
+82 Desktop `PASS` lines, and each sorted combined PASS set had SHA-256
+`5ca132cc62203367e34039fb1ad790a73c6b4ded11d086a00a61c6c7c4c741fe`.
+The `--shell-window` suite was nonempty, including the menu Escape/Close focus and
+live app-bar theme-switch tests. `check-named-tests.py` reported D3a 40/40,
+D1 12/12, D2 21/21, C1 14/14 and P1 23/23, all exit 0. `check-docs.py`,
+XAML token lint and locked restore each exited 0. The default shell launch with
+`CFDW_STARTUP_SMOKE=1` exited 0 after `main-window-assigned=True` and
+`window-opened`; its startup hook closed the window. `pgrep -fl CfdWorkbench`
+returned no process. The harness cannot establish native Windows behavior or
+full macOS accessibility acceptance from these foreground runs.

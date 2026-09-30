@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T14:50:19Z",
+  "generated": "2026-09-30T15:32:15Z",
   "audit": [
     {
       "actor": null,
@@ -19300,6 +19300,37 @@ window.AUDIT_DATA = {
         "branch": "d3b-shell-finish",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SF3TXK2G9C00SVJ0RRJDTA",
+      "shortname": "track-d3b",
+      "datetime": "2026-09-30T15:32:15Z",
+      "session": "track-d3b",
+      "prompt": "D3b brief",
+      "summary": "Completed D3a shell menu focus, live app-bar theme refresh, all 60 inventory rows with red receipts, and three identical green full test runs; proof in docs/proof/d3a-red-runs.md",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Shell/ShellHost.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/app-shell-test-inventory.md",
+        "docs/proof/d3a-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Finish D3a named shell tests and every app-shell test inventory row in the assigned D3b worktree",
+      "done_when": "D3a and dependency named checks, three identical full PASS sets, docs, XAML lint, locked restore, shell launch, and 60/60 inventory rows pass",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T14:53:11Z",
+      "duration_seconds": 2344.0
     }
   ],
   "changes": [
