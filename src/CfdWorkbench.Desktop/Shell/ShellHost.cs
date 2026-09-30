@@ -141,6 +141,7 @@ public sealed class ShellHost : Grid
         {
             InstallToolTabMenus();
             LabelToolChrome();
+            PlaceToolTabs();
             PlaceSidebarToggle();
         };
         SetRow(DockHost, 0);
@@ -650,6 +651,18 @@ public sealed class ShellHost : Grid
                 }
             }
         }
+    }
+
+    private void PlaceToolTabs()
+    {
+        foreach (var strip in DockHost.GetVisualDescendants().OfType<ToolTabStrip>())
+            if (DockPanel.GetDock(strip) != Avalonia.Controls.Dock.Top)
+                DockPanel.SetDock(strip, Avalonia.Controls.Dock.Top);
+        foreach (var chrome in DockHost.GetVisualDescendants().OfType<ToolChromeControl>())
+            foreach (var title in chrome.GetVisualDescendants().OfType<TextBlock>()
+                .Where(text => !text.GetVisualAncestors().OfType<Button>().Any() &&
+                    !text.GetVisualAncestors().OfType<ToolTabStrip>().Any()))
+                title.IsVisible = false;
     }
 
     private void FocusModelWhenReady(int attempts = 3)

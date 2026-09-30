@@ -192,8 +192,6 @@ public static class ShellWindowTests
                 var tab = host.DockHost.GetVisualDescendants().OfType<ToolTabStripItem>()
                     .Single(item => ReferenceEquals(item.DataContext, host.LayoutFactory.PropertiesTool));
                 var tabTop = tab.TranslatePoint(default, pane)?.Y ?? double.PositiveInfinity;
-                foreach (var ancestor in tab.GetVisualAncestors().TakeWhile(item => !ReferenceEquals(item, pane)))
-                    Console.WriteLine($"SHELL-TAB-PARENT {ancestor.GetType().Name} name={(ancestor as Control)?.Name ?? "none"} row={(ancestor as Control is { } control ? Grid.GetRow(control) : -1)} height={(ancestor as Control)?.Bounds.Height ?? 0}");
                 if (labels.Length != 1 || tabTop > 55)
                     throw new InvalidOperationException($"Properties has {labels.Length} visible labels; tab top={tabTop}");
             }
