@@ -40,10 +40,14 @@
         <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" HorizontalAlignment="Left" x:Name="SectionImportButton" Content="Import .dat" AutomationProperties.Name="Import dat profile" />
       </Grid>
 
-      <local:SectionCanvas x:Name="EditableSectionCanvas" MinHeight="{StaticResource SectionEditorMinHeight}" HorizontalAlignment="Stretch"
-                           BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
-                           StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
-                           AutomationProperties.Name="Editable section control vertices" />
+      <Grid MinHeight="{StaticResource SectionEditorMinHeight}">
+        <local:SectionCanvas x:Name="EditableSectionCanvas" HorizontalAlignment="Stretch"
+                             BackgroundBrush="{DynamicResource ViewportBrush}" FoilBrush="{DynamicResource FoilBrush}"
+                             StationBrush="{DynamicResource StationBrush}" FocusBrush="{DynamicResource PrimaryBrush}"
+                             AutomationProperties.Name="Editable section control vertices" />
+        <TextBlock x:Name="SectionEmptyText" Text="No station selected." IsVisible="True"
+                   Foreground="{DynamicResource ViewportInkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+      </Grid>
 
       <TextBlock Text="Control vertices" />
       <ListBox x:Name="SectionVertexList" MaxHeight="{StaticResource StationListHeight}"

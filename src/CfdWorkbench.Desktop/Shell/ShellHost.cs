@@ -460,6 +460,7 @@ public sealed class ShellHost : Grid
         Properties.Bind(Controller);
         Browser.Bind(Controller);
         RailEditor.Bind(Controller);
+        ModelView.SectionEditor.Bind(Controller);
 
         bool foilOpen = Controller.Inspection is not null;
         ModelView.ShowFoilOpen(foilOpen);

@@ -90,6 +90,52 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Shell_F9_SectionSelectedStation_DrawsProfile", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var station = controller.Inspection!.Authored.Assignments[0];
+                controller.Select(new Selection.Station(0, station.Eta));
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var canvas = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!
+                    .FindControl<SectionCanvas>("EditableSectionCanvas")!;
+                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || !canvas.IsEffectivelyVisible ||
+                    canvas.Bounds.Width <= 0 || canvas.Bounds.Height <= 0 ||
+                    canvas.Profile is null || canvas.Profile.UpperCurve.Count == 0 || canvas.FoilBrush is null)
+                    throw new InvalidOperationException("Selected station Section canvas has no realized profile drawing inputs");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F9_SectionNoStation_ShowsEmptyCopy", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var editor = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!;
+                var canvas = editor.FindControl<SectionCanvas>("EditableSectionCanvas")!;
+                var empty = editor.FindControl<TextBlock>("SectionEmptyText");
+                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || canvas.Profile is not null ||
+                    empty is null || !empty.IsEffectivelyVisible || empty.Text != "No station selected.")
+                    throw new InvalidOperationException("Section document omitted its No station selected empty state");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);
