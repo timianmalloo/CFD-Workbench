@@ -69,6 +69,18 @@ public static class ControllerShellTests
                 throw new InvalidOperationException("Accepted source changed after refused ApplySpan.");
         });
 
+        DesktopChecks.Check("Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            string before = controller.AcceptedSource;
+            var result = controller.ApplySpanAsync("1000000000").GetAwaiter().GetResult();
+            Require(result is CommitOutcome.Refused { Code: "DSL-EDGES-CROSS" },
+                "Async Span did not return Core's boundary refusal.");
+            Require(controller.Gesture == GestureState.Idle && controller.AcceptedSource == before && !controller.CanUndo,
+                "Refused async Span changed source, history, or Busy state.");
+        });
+
         DesktopChecks.Check("OpenFailure_AccessDenied_Classified", () =>
         {
             var failure = OpenFailure.Classify(new UnauthorizedAccessException("Permission denied"), "/test/locked.foil");
@@ -387,9 +399,543 @@ public static class ControllerShellTests
             if (controller.Inspection?.Geometry.Status != GeometryStatus.Certified)
                 throw new InvalidOperationException("New foil without the example is not certified.");
         });
+
+        RunPointControllerChecks();
+        RunGestureCellChecks();
     }
 
-    // Readiness-tier check, excluded from run-tests.sh (PRE's --readiness switch spawns it; docs/design/m12b-points.md §12.3).
-    // `Readiness_NewFoilDrag_FrameP95Under100Ms` and `Readiness_NewFoilCommit_P95Under250Ms` are written here by U1a.
-    public static void RunReadiness() { }
+    private static object GestureEnum(string type, string member) => Enum.Parse(
+        typeof(WorkbenchController).Assembly.GetType($"CfdWorkbench.Desktop.{type}")
+            ?? throw new InvalidOperationException($"Missing {type} controller contract"), member);
+
+    private static (WorkbenchController Controller, PointRef Reference, PointView Point) OpenPoint(int index = 3, string curve = "trailing")
+    {
+        var controller = new WorkbenchController();
+        controller.NewFoilAsync().GetAwaiter().GetResult();
+        var plan = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0);
+        var point = (curve == "leading" ? plan.Leading : plan.Trailing).Points[index];
+        if (point.Freedom == PointFreedom.Fixed) throw new InvalidOperationException("Fixture point is fixed.");
+        return (controller, new PointRef(curve, point.Id), point);
+    }
+
+    private static bool Begin(WorkbenchController controller, PointRef point, string input = "Pointer")
+    {
+        dynamic target = controller;
+        dynamic value = GestureEnum("GestureInput", input);
+        return target.BeginGesture(point, value);
+    }
+
+    private static void Move(WorkbenchController controller, PointView point, double spanDelta, double aftDelta = 0)
+    {
+        dynamic target = controller;
+        target.UpdateGesture(point.SpanMeters + spanDelta, point.AftMeters + aftDelta);
+    }
+
+    private static dynamic End(WorkbenchController controller, string reason = "Release")
+    {
+        dynamic target = controller;
+        dynamic value = GestureEnum("GestureEnd", reason);
+        return target.EndGestureAsync(value).GetAwaiter().GetResult();
+    }
+
+    private static void Require(bool condition, string message)
+    {
+        if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private static void RunPointControllerChecks()
+    {
+        DesktopChecks.Check("GestureStateTable_EveryCell_TransitionOrIgnored", () =>
+        {
+            using var fixture = OpenPoint().Controller;
+            var plan = Planform.View(System.Text.Encoding.UTF8.GetBytes(fixture.AcceptedSource), "accepted", 0);
+            var point = plan.Trailing.Points[3];
+            var reference = new PointRef("trailing", point.Id);
+            dynamic c = fixture;
+            Require(c.Gesture.ToString() == "Idle", "Initial state is not Idle.");
+            Require(Begin(fixture, reference), "Idle pointer down was ignored.");
+            Require(c.Gesture.ToString() == "Pressed", "Pointer down did not enter Pressed.");
+            Require(!Begin(fixture, reference), "Second pointer down was not ignored.");
+            Move(fixture, point, 0.01);
+            Require(c.Gesture.ToString() == "Dragging", "Move did not enter Dragging.");
+            Require(!Begin(fixture, reference), "Pointer down during Dragging was not ignored.");
+            End(fixture, "Escape");
+            Require(c.Gesture.ToString() == "Idle", "Escape did not return to Idle.");
+            Require(Begin(fixture, reference, "Keyboard"), "Keyboard begin was ignored.");
+            Move(fixture, point, 0.001);
+            Require(c.Gesture.ToString() == "Nudging", "Arrow did not enter Nudging.");
+            End(fixture, "FocusLost");
+            Require(c.Gesture.ToString() == "Idle", "Nudge completion did not return to Idle.");
+        });
+
+        DesktopChecks.Check("Controller_MoveTwoPixels_NoDraft", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                Require(Begin(controller, pointRef), "Pointer begin failed.");
+                Move(controller, point, 0.002);
+                Require(c.Gesture.ToString() == "Pressed", "Two-pixel move opened a drag.");
+                Require(controller.Draft is null, "Two-pixel move opened a Core draft.");
+                Require(End(controller).GetType().Name == "NoChange", "Click did not end as NoChange.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_MoveFourPixels_DraftOpened", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                Begin(controller, pointRef);
+                Move(controller, point, 0.004);
+                Require(c.Gesture.ToString() == "Dragging" && controller.Draft is not null, "Four-pixel move did not open draft.");
+                End(controller, "Escape");
+            }
+        });
+
+        DesktopChecks.Check("Controller_DragPoint_OneUndoStepUndoExact", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                string before = controller.AcceptedSource;
+                Begin(controller, pointRef); Move(controller, point, 0, 0.005);
+                Require(End(controller).GetType().Name == "Committed", "Drag did not commit.");
+                Require(controller.AcceptedSource != before && controller.CanUndo, "Drag did not add one accepted edit.");
+                controller.Undo();
+                Require(controller.AcceptedSource == before && !controller.CanUndo, "One undo did not restore exact source.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_ReleaseWithPendingFrame_CommitsLastPointerTarget", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef);
+                Move(controller, point, 0, 0.001);
+                Move(controller, point, 0, 0.004);
+                Require(End(controller).GetType().Name == "Committed", "Release did not commit.");
+                var now = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0).Trailing.Points[3];
+                Require(Math.Abs(now.AftMeters - (point.AftMeters + 0.004)) < 0.000002, "Last pointer target was not committed.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_NudgeLadder_CommandPlainShift", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                foreach (var (modifier, expected) in new[] { ("Command", 0.00001), ("Plain", 0.0001), ("Shift", 0.001) })
+                {
+                    Require(Begin(controller, pointRef, "Keyboard"), "Nudge begin failed.");
+                    dynamic value = GestureEnum("NudgeModifier", modifier);
+                    c.Nudge(0, 1, value);
+                    var draftPoint = ((PlanformView)c.Planform).Trailing.Points[3];
+                    Require(Math.Abs(draftPoint.AftMeters - (point.AftMeters + expected)) < 0.000002, $"{modifier} ladder wrong.");
+                    End(controller, "Escape");
+                }
+            }
+        });
+
+        DesktopChecks.Check("Controller_NudgeRunHeld_OneRowOnKeyUp", () => CheckNudgeCommit("KeyUp"));
+        DesktopChecks.Check("Controller_NudgeRunFocusLost_CommitsOneRow", () => CheckNudgeCommit("FocusLost"));
+        DesktopChecks.Check("Controller_NudgeRunWindowDeactivated_CommitsOneRow", () => CheckNudgeCommit("Deactivated"));
+
+        DesktopChecks.Check("Controller_CaptureLostDuringDrag_Cancelled", () => CheckCancellation("CaptureLost"));
+        DesktopChecks.Check("Controller_EscapeDuringDrag_NoRowGeometryBack", () => CheckCancellation("Escape"));
+
+        DesktopChecks.Check("Controller_SaveDuringDrag_CommitsThenSaves", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                string path = Path.Combine(Path.GetTempPath(), $"u1a-{Guid.NewGuid():N}.cfdw.json");
+                try
+                {
+                    Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                    var result = controller.SaveAsync(path).GetAwaiter().GetResult();
+                    Require(result.Code == "OK" && controller.Draft is null && controller.CanUndo,
+                        $"Save did not commit drag first: code={result.Code}, draft={controller.Draft is not null}, undo={controller.CanUndo}.");
+                    Require(File.Exists(path), "Save did not publish a project.");
+                }
+                finally { if (File.Exists(path)) File.Delete(path); }
+            }
+        });
+
+        DesktopChecks.Check("Controller_StaleCommitCompletion_ReturnsToIdle", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                var pending = c.EndGestureAsync(release);
+                pending.GetAwaiter().GetResult();
+                Require(c.Gesture.ToString() == "Idle", "Completion left controller Busy.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_PointerDownDuringChordCommit_NoDraft", () =>
+        {
+            var (controller, pointRef, _) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                var pending = c.ApplyChordAsync("root-chord", "190 mm");
+                if (c.Gesture.ToString() == "Busy")
+                    Require(!Begin(controller, pointRef) && controller.Draft is null, "Pointer down opened draft during chord commit.");
+                pending.GetAwaiter().GetResult();
+                Require(c.Gesture.ToString() == "Idle", "Chord commit did not leave Busy.");
+            }
+        });
+
+        DesktopChecks.Check("Gesture_ReleaseEdgesCross_RefusedGeometryUnchanged", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(5); using (controller)
+            {
+                string before = controller.AcceptedSource;
+                Begin(controller, pointRef); Move(controller, point, 0, -1);
+                Require(End(controller).GetType().Name == "Refused", "Crossing was not refused.");
+                Require(controller.AcceptedSource == before && !controller.CanUndo, "Crossing changed accepted geometry.");
+            }
+        });
+
+        DesktopChecks.Check("Gesture_ReleaseNotAssessed_RefusedDistinctCopy", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                dynamic outcome = c.EndGestureAsync(release, cancelled.Token).GetAwaiter().GetResult();
+                Require(outcome.GetType().Name == "Refused", "Cancelled validation did not refuse.");
+                Require(((string)outcome.Copy).Contains("couldn't be checked", StringComparison.OrdinalIgnoreCase), "Not-assessed copy is not distinct.");
+            }
+        });
+
+        DesktopChecks.Check("Gesture_BeginDuringCommit_NoDraftNoBusy", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                var pending = c.EndGestureAsync(release);
+                if (c.Gesture.ToString() == "Busy") Require(!Begin(controller, pointRef), "Busy accepted another begin.");
+                pending.GetAwaiter().GetResult();
+                Require(controller.Draft is null && c.Gesture.ToString() == "Idle", "Commit left a draft or Busy state.");
+            }
+        });
+
+        DesktopChecks.Check("Gesture_ThousandMoves_CoalescedFramesBounded", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef);
+                for (int i = 0; i < 1000; i++) Move(controller, point, 0, 0.004 + i * 0.000001);
+                End(controller);
+                dynamic c = controller;
+                Require((int)c.LastGestureFrames < 1000, "Every pointer move became a Core frame.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_DuringDrag_EstimatesFromDraftGeneration", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                dynamic c = controller; c.FlushGestureFrame();
+                Require(controller.Draft is not null && controller.Estimates?.Basis == "preview" &&
+                    controller.Estimates.Generation == controller.Draft.Generation, "Estimates did not follow draft generation.");
+                End(controller, "Escape");
+            }
+        });
+
+        DesktopChecks.Check("Controller_UndoDisabledDuringGesture_EnabledAfter", () =>
+        {
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+                Require(!controller.CanUndo && !controller.CanRedo, "History was enabled during gesture.");
+                End(controller);
+                Require(controller.CanUndo, "Undo was not enabled after commit.");
+            }
+        });
+
+        DesktopChecks.Check("Controller_Reconcile_MakeControlDropsHandleSelection", () =>
+        {
+            var (controller, pointRef, _) = OpenPoint(); using (controller)
+            {
+                dynamic c = controller;
+                var anchor = new CfdWorkbench.Core.PointCommand.MakeAnchor(pointRef.Curve, pointRef.VertexId);
+                dynamic made = c.ApplyPointCommandAsync(anchor).GetAwaiter().GetResult();
+                Require(made.GetType().Name == "Committed", "Anchor command failed.");
+                var plan = (PlanformView)c.Planform;
+                var points = plan.Trailing.Points;
+                int i = points.ToList().FindIndex(p => p.Id == pointRef.VertexId);
+                controller.Select(new Selection.Points(new[] { new PointRef(pointRef.Curve, points[i - 1].Id) }));
+                dynamic removed = c.ApplyPointCommandAsync(new CfdWorkbench.Core.PointCommand.MakeControl(pointRef.Curve, pointRef.VertexId)).GetAwaiter().GetResult();
+                Require(removed.GetType().Name == "Committed", "Control command failed.");
+                Require(controller.Selection is Selection.Foil, "Removed handle stayed selected.");
+            }
+        });
+
+        DesktopChecks.Check("GestureEnd_Committed_EmitsFramesAndP95", () =>
+        {
+            CfdWorkbench.Desktop.Shell.ShellEvents.Clear();
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004); End(controller);
+                var ev = CfdWorkbench.Desktop.Shell.ShellEvents.Read().LastOrDefault(e => e.Name == "gesture.end");
+                Require(ev is { Outcome: "committed", Frames: > 0, UpdateP95Ms: >= 0 },
+                    $"Gesture end event lacks frame and p95 measurements: outcome={ev?.Outcome}, frames={ev?.Frames}, p95={ev?.UpdateP95Ms}.");
+            }
+        });
+
+        DesktopChecks.Check("Telemetry_PointEdits_NoIdsOrPositions", () =>
+        {
+            CfdWorkbench.Desktop.Shell.ShellEvents.Clear();
+            var (controller, pointRef, point) = OpenPoint(); using (controller)
+            {
+                Begin(controller, pointRef); Move(controller, point, 0, 0.004); End(controller);
+                string payload = System.Text.Json.JsonSerializer.Serialize(CfdWorkbench.Desktop.Shell.ShellEvents.Read());
+                Require(!payload.Contains(pointRef.VertexId, StringComparison.Ordinal) &&
+                    !payload.Contains(point.AftMeters.ToString("G17", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
+                    "Telemetry leaked a point id or position.");
+            }
+        });
+    }
+
+    private static void CheckNudgeCommit(string reason)
+    {
+        var (controller, pointRef, point) = OpenPoint(); using (controller)
+        {
+            dynamic c = controller;
+            Begin(controller, pointRef, "Keyboard");
+            dynamic plain = GestureEnum("NudgeModifier", "Plain");
+            c.Nudge(0, 1, plain);
+            c.Nudge(0, 1, plain);
+            Require(End(controller, reason).GetType().Name == "Committed", $"{reason} did not commit nudge run.");
+            Require(controller.CanUndo, "Nudge run has no undo row.");
+            controller.Undo();
+            var restored = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0).Trailing.Points[3];
+            Require(Math.Abs(restored.AftMeters - point.AftMeters) < 0.0000001 && !controller.CanUndo,
+                "Nudge run was not one undo row.");
+        }
+    }
+
+    private static void CheckCancellation(string reason)
+    {
+        var (controller, pointRef, point) = OpenPoint(); using (controller)
+        {
+            string before = controller.AcceptedSource;
+            Begin(controller, pointRef); Move(controller, point, 0, 0.004);
+            Require(End(controller, reason).GetType().Name == "Cancelled", $"{reason} did not cancel.");
+            Require(controller.AcceptedSource == before && controller.Draft is null && !controller.CanUndo,
+                $"{reason} changed accepted geometry or history.");
+        }
+    }
+
+    // Every column of every §6.2 row has its own named check. The fixture is shared so
+    // the controller tier adds transitions, rather than 70 certificate preparations.
+    private static void RunGestureCellChecks()
+    {
+        var (controller, reference, _) = OpenPoint();
+        using (controller)
+        {
+            var rows = new (string Event, string[] Outcomes)[]
+            {
+                ("PointerMovable", ["Pressed", "Ignored", "Ignored", "BusySelect", "SelectedWhileBusy"]),
+                ("PointerFixed", ["SelectedLocked", "Ignored", "Ignored", "Busy", "SelectedWhileBusy"]),
+                ("MoveUnder3", ["Ignored", "Pressed", "Updated", "Ignored", "Ignored"]),
+                ("MoveAtLeast3", ["Ignored", "Dragging", "Updated", "Ignored", "Ignored"]),
+                ("Release", ["Ignored", "NoChange", "BusyOrNoChange", "Ignored", "Ignored"]),
+                ("ArrowDown", ["Nudging", "Ignored", "Ignored", "Updated", "IgnoredStatus"]),
+                ("KeyUp", ["Ignored", "Ignored", "Ignored", "Busy", "Ignored"]),
+                ("Escape", ["SelectionCleared", "Cancelled", "Cancelled", "Cancelled", "Ignored"]),
+                ("CaptureLost", ["Ignored", "Cancelled", "Cancelled", "Ignored", "Ignored"]),
+                ("FocusLost", ["Ignored", "Cancelled", "Cancelled", "Busy", "Continues"]),
+                ("DocumentAction", ["Proceed", "CancelProceed", "CommitProceed", "CommitProceed", "WaitProceed"]),
+                ("TypedPosition", ["Busy", "Ignored", "Ignored", "Ignored", "Ignored"]),
+                ("DirectCommand", ["Busy", "Ignored", "Ignored", "Ignored", "Refused"]),
+                ("BusyComplete", ["Ignored", "Ignored", "Ignored", "Ignored", "Idle"])
+            };
+            foreach (var row in rows)
+            foreach (var state in Enum.GetValues<GestureState>())
+            {
+                string eventName = row.Event;
+                string outcome = row.Outcomes[(int)state];
+                DesktopChecks.Check($"Controller_Gesture_{state}_{eventName}_{outcome}",
+                    () => CheckGestureCell(controller, reference, state, eventName, outcome));
+            }
+        }
+    }
+
+    private static void CheckGestureCell(WorkbenchController controller, PointRef reference,
+        GestureState from, string eventName, string expected)
+    {
+        if (controller.Gesture == GestureState.Busy)
+        {
+            var pending = (Task<GestureOutcome>?)typeof(WorkbenchController)
+                .GetField("pendingCommit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(controller);
+            if (pending is null) SetCellState(controller, GestureState.Idle);
+            else pending.GetAwaiter().GetResult();
+        }
+        else if (controller.Gesture != GestureState.Idle)
+            End(controller, "Escape");
+        var point = controller.Planform!.Trailing.Points.First(item => item.Id == reference.VertexId);
+        var fixedPoint = controller.Planform.Leading.Points.First(item => item.Freedom == PointFreedom.Fixed);
+        var fixedReference = new PointRef("leading", fixedPoint.Id);
+        controller.Select(new Selection.Points([reference]));
+        if (from == GestureState.Pressed || from == GestureState.Dragging)
+        {
+            Require(Begin(controller, reference), "Cell setup: pointer begin failed.");
+            if (from == GestureState.Dragging) Move(controller, point, 0, 0.004);
+        }
+        else if (from == GestureState.Nudging)
+        {
+            Require(Begin(controller, reference, "Keyboard"), "Cell setup: keyboard begin failed.");
+            controller.Nudge(0, 1, NudgeModifier.Plain);
+        }
+        else if (from == GestureState.Busy)
+            SetCellState(controller, GestureState.Busy);
+        if (eventName is ("PointerMovable" or "PointerFixed") && from is (GestureState.Nudging or GestureState.Busy))
+            controller.Select(new Selection.Foil());
+        Require(controller.Gesture == from, $"Cell setup produced {controller.Gesture}, wanted {from}.");
+        var originalDraft = controller.Draft;
+        var before = controller.AcceptedSource;
+        var beforeSelection = controller.Selection;
+        GestureOutcome? gestureResult = null;
+        CommitOutcome? commandResult = null;
+        bool began = false;
+        switch (eventName)
+        {
+            case "PointerMovable": began = Begin(controller, reference); break;
+            case "PointerFixed": began = Begin(controller, fixedReference); break;
+            case "MoveUnder3": Move(controller, point, 0, 0.002); controller.FlushGestureFrame(); break;
+            case "MoveAtLeast3": Move(controller, point, 0, 0.004); controller.FlushGestureFrame(); break;
+            case "Release": gestureResult = controller.EndGestureAsync(GestureEnd.Release).GetAwaiter().GetResult(); break;
+            case "ArrowDown":
+                began = Begin(controller, reference, "Keyboard");
+                if (from is GestureState.Idle or GestureState.Nudging)
+                    controller.Nudge(0, 1, NudgeModifier.Plain);
+                break;
+            case "KeyUp": gestureResult = controller.EndGestureAsync(GestureEnd.KeyUp).GetAwaiter().GetResult(); break;
+            case "Escape": gestureResult = controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult(); break;
+            case "CaptureLost": gestureResult = controller.EndGestureAsync(GestureEnd.CaptureLost).GetAwaiter().GetResult(); break;
+            case "FocusLost": gestureResult = controller.EndGestureAsync(GestureEnd.FocusLost).GetAwaiter().GetResult(); break;
+            case "DocumentAction":
+                if (from == GestureState.Busy)
+                {
+                    var pendingField = typeof(WorkbenchController).GetField("pendingDirectCommand",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                    Require(pendingField is not null, "Busy direct command has no document-action wait handle.");
+                    var completion = new TaskCompletionSource<CommitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    pendingField!.SetValue(controller, completion.Task);
+                    var document = controller.NewFoilAsync();
+                    Require(!document.IsCompleted && controller.AcceptedSource == before,
+                        "Document action passed an unfinished direct command.");
+                    SetCellState(controller, GestureState.Idle);
+                    completion.SetResult(new CommitOutcome.Refused("DSL-TARGET", "Synthetic completion"));
+                    document.GetAwaiter().GetResult();
+                    pendingField!.SetValue(controller, null);
+                }
+                else controller.NewFoilAsync().GetAwaiter().GetResult();
+                break;
+            case "TypedPosition":
+                began = Begin(controller, reference, "Typed");
+                if (began)
+                {
+                    Move(controller, point, 0, 0.004);
+                    gestureResult = controller.EndGestureAsync(GestureEnd.Release).GetAwaiter().GetResult();
+                }
+                break;
+            case "DirectCommand": commandResult = controller.ApplyChordAsync("root-chord", "190 mm").GetAwaiter().GetResult(); break;
+            case "BusyComplete":
+                if (from == GestureState.Busy)
+                {
+                    SetCellState(controller, GestureState.Idle);
+                    commandResult = controller.ApplyChordAsync("root-chord", "190 mm").GetAwaiter().GetResult();
+                }
+                break;
+        }
+        if (from == GestureState.Nudging && eventName is ("PointerMovable" or "PointerFixed"))
+        {
+            var pending = (Task<GestureOutcome>?)typeof(WorkbenchController)
+                .GetField("pendingCommit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(controller);
+            pending?.GetAwaiter().GetResult();
+        }
+        switch (expected)
+        {
+            case "Pressed": Require(controller.Gesture == GestureState.Pressed && controller.Draft is null, "Pointer did not enter Pressed without draft."); break;
+            case "SelectedLocked": Require(!began && controller.Gesture == GestureState.Idle && controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase), "Fixed point was not selected with lock status."); break;
+            case "Dragging": Require(controller.Gesture == GestureState.Dragging && controller.Draft is not null, "Threshold did not start drag."); break;
+            case "Nudging": Require(began && controller.Gesture == GestureState.Nudging, "Arrow did not start nudge."); break;
+            case "Updated": Require(controller.Gesture == from && controller.Draft?.Generation > originalDraft?.Generation, "Move did not update active draft."); break;
+            case "NoChange": Require(gestureResult is GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Click did not cancel unchanged."); break;
+            case "BusyOrNoChange": Require(gestureResult is GestureOutcome.Committed or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle, "Drag release did not finish."); break;
+            case "Cancelled": Require(gestureResult is GestureOutcome.Cancelled or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Cancellation changed geometry or stayed active."); break;
+            case "SelectionCleared": Require(controller.Selection is Selection.Foil or Selection.None, "Escape did not clear point selection."); break;
+            case "Busy": Require(controller.Gesture == GestureState.Busy || gestureResult is GestureOutcome.Committed ||
+                    commandResult is CommitOutcome.Committed || from == GestureState.Nudging &&
+                    controller.Gesture == GestureState.Idle && controller.AcceptedSource != before,
+                    "Event did not enter Busy/commit."); break;
+            case "BusySelect": Require(!began && controller.Gesture is (GestureState.Busy or GestureState.Idle) &&
+                    HasSelectedPoint(controller, reference), "Nudge pointer down did not end run and select."); break;
+            case "SelectedWhileBusy": Require(!began && HasSelectedPoint(controller,
+                    eventName == "PointerFixed" ? fixedReference : reference) && controller.Gesture == GestureState.Busy,
+                    "Busy pointer down did not select only."); break;
+            case "IgnoredStatus": Require(!began && controller.Gesture == GestureState.Busy && controller.Status.Contains("Checking", StringComparison.Ordinal), "Busy arrow did not report checking status."); break;
+            case "Proceed": case "CancelProceed": case "CommitProceed": case "WaitProceed":
+                Require(controller.Gesture == GestureState.Idle && controller.Draft is null && controller.Inspection is not null, "Document action did not finish cleanly.");
+                break;
+            case "Refused": Require(commandResult is CommitOutcome.Refused && controller.Gesture == GestureState.Busy, "Busy command was not refused."); break;
+            case "Idle": Require(controller.Gesture == GestureState.Idle && commandResult is CommitOutcome.Committed, "Busy completion did not enter Idle."); break;
+            default:
+                Require(controller.Gesture == from && controller.Draft?.Id == originalDraft?.Id &&
+                    controller.AcceptedSource == before && !began && commandResult is not CommitOutcome.Committed &&
+                    SameSelection(controller.Selection, beforeSelection), $"{eventName} was not ignored in {from}.");
+                break;
+        }
+    }
+
+    private static bool HasSelectedPoint(WorkbenchController controller, PointRef reference) =>
+        controller.Selection is Selection.Points selected && selected.Items.Any(item => item == reference);
+
+    private static bool SameSelection(Selection left, Selection right) =>
+        left is Selection.Points a && right is Selection.Points b
+            ? a.Items.SequenceEqual(b.Items)
+            : left.GetType() == right.GetType();
+
+    private static void SetCellState(WorkbenchController controller, GestureState value) =>
+        typeof(WorkbenchController).GetProperty(nameof(WorkbenchController.Gesture))!.SetValue(controller, value);
+
+    // Readiness only: these measurements are reported, never used as an on-screen timing gate.
+    public static void RunReadiness()
+    {
+        var frameMilliseconds = new List<double>();
+        var commitMilliseconds = new List<double>();
+        for (int gesture = 0; gesture < 5; gesture++)
+        {
+            var (controller, pointRef, point) = OpenPoint();
+            using (controller)
+            {
+                Begin(controller, pointRef);
+                for (int frame = 0; frame < 8; frame++)
+                {
+                    Move(controller, point, 0, 0.004 + frame * 0.0001);
+                    var timer = System.Diagnostics.Stopwatch.StartNew();
+                    dynamic c = controller;
+                    c.FlushGestureFrame();
+                    frameMilliseconds.Add(timer.Elapsed.TotalMilliseconds);
+                }
+                var timerCommit = System.Diagnostics.Stopwatch.StartNew();
+                End(controller);
+                commitMilliseconds.Add(timerCommit.Elapsed.TotalMilliseconds);
+            }
+        }
+        static double P95(List<double> values) => values.OrderBy(value => value).ElementAt((int)Math.Ceiling(values.Count * .95) - 1);
+        Console.WriteLine($"READINESS Readiness_NewFoilDrag_FrameP95Under100Ms value_ms={P95(frameMilliseconds):F3} target_ms=100 samples={frameMilliseconds.Count}");
+        Console.WriteLine($"READINESS Readiness_NewFoilCommit_P95Under250Ms value_ms={P95(commitMilliseconds):F3} target_ms=250 samples={commitMilliseconds.Count}");
+    }
 }

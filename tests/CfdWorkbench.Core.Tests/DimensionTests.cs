@@ -105,6 +105,12 @@ internal static class DimensionTests
             RefuseUnchanged(session, "DSL-UNIT", "0");
             RefuseUnchanged(session, "DSL-UNIT", "-5");
         });
+        Check("ApplyDimension_SpanAtOneMillionMeters_RefusedEdgesCross", () =>
+        {
+            using var session = Opened();
+            RefuseUnchanged(session, "DSL-EDGES-CROSS", "1000000000");
+            RefuseUnchanged(session, "DSL-EDGES-CROSS", "1000000001");
+        });
         // Red-first: before EditReference learned "dimension", Reopen threw DOC-REFERENCE
         // (docs/proof/c1-red-runs.md). A span receipt now reopens. An unknown dimension name still refuses DOC-REFERENCE.
         Check("Receipt_Dimension_OldReaderRefusesDocReference", () =>

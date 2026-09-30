@@ -6815,7 +6815,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "de6fc397501f6bdaccbbdb8970cf31a47dca342e2e34d5d54f5a69ba3e036d73"
+      "sourceSha256": "8ac6bc7cbab13cb0aaa11074e791c0e38db67c6c1784d9c293c13c7980b0dc86"
     },
     {
       "id": "proof-m12b-old-build",
@@ -6850,6 +6850,72 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "03d41ba3af24e65ff2dcfb228579b07ec31d34bae66aa9bb9f62d0724a0ee51a"
+    },
+    {
+      "id": "proof-m12b-u1a",
+      "path": "docs/proof/m12b/U1a.md",
+      "title": "M1.2b U1a controller proof pack",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-u1a2",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records U1a controller red-first and current green evidence, the 3 px activation mutant, readiness measurements, and the remaining Core Span seam before this track can exit.",
+      "tags": [
+        "m12b",
+        "u1a",
+        "desktop",
+        "controller",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-m12b-u1a-red-runs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3ffd1cf704b4b58c57ed2bb26d1c34f3b3304ec32ed84dd50ea61d3d364db736"
+    },
+    {
+      "id": "proof-m12b-u1a-red-runs",
+      "path": "docs/proof/m12b-u1a-red-runs.md",
+      "title": "M1.2b U1a red runs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-u1a2",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records the foreground red run of all 23 named U1a controller checks before the controller implementation, and the separate threshold mutant run required by the U1a exit evidence.",
+      "tags": [
+        "m12b",
+        "u1a",
+        "desktop",
+        "controller",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c4f8279350a7a3fd8da3b66d657b842f01db2c9420c0b10eb35e98ae50d66672"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -8484,5 +8550,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "1ee3c3f71cbd46b0b414f0688670d5b0d8ed6ac1bf9f12820e594e25290cff69"
+  "graphSha256": "262c341f92443d19e919883c01cab3ef69bc02bf94d9dd97bd5d57238604cd27"
 };
