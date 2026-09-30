@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T17:02:30Z",
+  "generated": "2026-09-30T17:18:47Z",
   "audit": [
     {
       "actor": null,
@@ -19487,6 +19487,43 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T17:01:44Z",
       "duration_seconds": 46.0
+    },
+    {
+      "id": "al-01M3SN6WMZR45760BQWM17HZ3Z",
+      "shortname": "track-copyfix",
+      "datetime": "2026-09-30T17:18:47Z",
+      "session": "track-copyfix",
+      "prompt": "Track COPYFIX contract (scratchpad tracks/COPYFIX.md): close M1.2a findings C-4, C-5, C-9, C-12, C-14 and seam req-01M3SG5TE62HKD3T7CPYMDXVZ3 (atomic Remove from Recent).",
+      "summary": "C-4 dead fallback removed (ShowAlert takes a non-null failure). COPY-140..148 added: ID candidate, refused, failed accept, missing example (New foil first), Dismiss, Span not assessed, Recent not cleared and its two reasons. Clear Recent now reports a failed clear with Try again. RecentOp.Remove applied in the single CAS write; Desktop switched from Clear+Add. 8 new named checks; red runs in docs/proof/copyfix-red-runs.md. Findings left for other tracks: NeedsIds via ShellHost never sets PendingOriginal so Accept candidate IDs always fails; Refused/NeedsIds leave Start for an empty workspace, against design 6.2; the Span catch-all shows COPY-145 for DSL-LEX (NaN) and DSL-DRAFT-OWNED; spec COPY-29 needs a 1.6 supersession mark.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "claude",
+      "artifacts": [
+        "DESIGN.md",
+        "docs/proof/copyfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close the last M1.2a code findings (C-4, C-5, C-9, C-12, C-14) and make Remove from Recent atomic.",
+      "done_when": "run-tests exits 0 three times with identical PASS sets; D3a/D1/D2/C1/P1 named checks, check-docs, design-lint --strict and xaml-token-lint clean; the app launches and closes; audit entry appended.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T17:03:30Z",
+      "duration_seconds": 917.0,
+      "git": {
+        "sha": "5cba23fd81f4d2e2d54500995e949f91d9fa384e",
+        "short": "5cba23fd8",
+        "branch": "fix/m12a-copy-and-recent",
+        "pushed": null
+      }
     }
   ],
   "changes": [
