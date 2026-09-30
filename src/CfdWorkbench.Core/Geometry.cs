@@ -295,6 +295,7 @@ public static class Geometry
                 var curve = definition.Curves[item.Channel.Text];
                 Require(curve.Points[0][1] == curve.Points[1][1], "Root tangent lock is not satisfied.", GeometryStatus.Invalid, "DSL-LOCK");
             }
+            CheckTangentRows(definition);
             Require(definition.Curves["leading"].Points[0][1] == 0 && definition.Curves["dihedral"].Points[0][1] == 0,
                 "Root leading edge and elevation must be zero.", GeometryStatus.Invalid);
             foreach (var profile in definition.Profiles)
@@ -389,6 +390,38 @@ public static class Geometry
             return result;
         }
         catch (ProofRefusal refusal) { return new(null, refusal.Message, refusal.Status, refusal.Code); }
+    }
+
+    private static void CheckTangentRows(Definition definition)
+    {
+        foreach (var curve in definition.Curves.Values)
+        {
+            foreach (var row in curve.Tangents)
+            {
+                int index = Array.IndexOf(curve.Ids, row.Id);
+                Require(index > 0 && index < curve.Points.Length - 1, "A tangent row names an interior anchor.", GeometryStatus.Invalid, "DSL-LOCK");
+                double[] anchor = curve.Points[index], left = curve.Points[index - 1], right = curve.Points[index + 1];
+                double span = definition.HalfSpan;
+                double leftSpan = (anchor[0] - left[0]) * span, leftAft = anchor[1] - left[1];
+                double rightSpan = (right[0] - anchor[0]) * span, rightAft = right[1] - anchor[1];
+                double leftLength = Math.Sqrt(leftSpan * leftSpan + leftAft * leftAft);
+                double rightLength = Math.Sqrt(rightSpan * rightSpan + rightAft * rightAft);
+                if (row.Kind == "smooth")
+                {
+                    Require(leftLength > 0 && rightLength > 0, "A smooth row has a zero-length handle.", GeometryStatus.Invalid, "DSL-LOCK");
+                    double dot = Math.Clamp((leftSpan * rightSpan + leftAft * rightAft) / (leftLength * rightLength), -1, 1);
+                    double degrees = Math.Acos(dot) * (180 / Math.PI);
+                    Require(degrees <= 0.1, "Smooth row is off by more than 0.1 degrees.", GeometryStatus.Invalid, "DSL-LOCK");
+                }
+                else if (row.Kind == "symmetric")
+                {
+                    double midSpan = (left[0] + right[0]) / 2, midAft = (left[1] + right[1]) / 2;
+                    double distance = Math.Sqrt(Math.Pow((anchor[0] - midSpan) * span, 2) + Math.Pow(anchor[1] - midAft, 2));
+                    double handle = Math.Sqrt(Math.Pow((right[0] - left[0]) * span, 2) + Math.Pow(right[1] - left[1], 2)) / 2;
+                    Require(handle > 0 && distance <= 1e-6 * handle, "Symmetric row is not the handle midpoint.", GeometryStatus.Invalid, "DSL-LOCK");
+                }
+            }
+        }
     }
 
     internal static void Require(bool condition, string reason, GeometryStatus status = GeometryStatus.NotAssessed, string code = "DSL-GEOMETRY")
@@ -667,11 +700,13 @@ internal sealed class ProofRefusal(string reason, GeometryStatus status = Geomet
 
 internal sealed class ProofBudget
 {
+    internal static int Entries;
     private readonly Stopwatch watch = Stopwatch.StartNew();
     private readonly TimeSpan limit;
     private readonly CancellationToken cancellation;
     internal ProofBudget(TimeSpan? requested = null, CancellationToken cancellationToken = default)
     {
+        Entries++;
         cancellation = cancellationToken;
         limit = requested ?? TimeSpan.FromSeconds(1);
         Guard.Require(limit >= TimeSpan.Zero && limit <= TimeSpan.FromSeconds(1), "DSL-RANGE");

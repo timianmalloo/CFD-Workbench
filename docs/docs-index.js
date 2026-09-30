@@ -6716,6 +6716,74 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-m12b-b0-red-runs",
+      "path": "docs/proof/m12b-b0-red-runs.md",
+      "title": "M1.2b B0 red run of the named checks",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "The 29 B0 checks at commit 9ab4603, run by tools/run-tests.sh before the FoilDSL 4.1 grammar change. Exit 1. Twenty-six checks fail; three already match the unchanged reader.",
+      "tags": [
+        "m12b",
+        "foildsl",
+        "red-first",
+        "b0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-m12b-old-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4f2194835126e5d05954f026d84c3f383be080ba71dc5f9558d0f5da0e9d88ef"
+    },
+    {
+      "id": "proof-m12b-old-build",
+      "path": "docs/proof/m12b-old-build/README.md",
+      "title": "M1.2b old-build characterization of FoilDSL 4.1",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "Codes the committed 4.1 fixtures and a drag, nudge and span project draw from the parser at 10f0628, recorded before B0 changes that parser.",
+      "tags": [
+        "m12b",
+        "foildsl",
+        "characterization",
+        "b0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "03d41ba3af24e65ff2dcfb228579b07ec31d34bae66aa9bb9f62d0724a0ee51a"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8131,7 +8199,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "43dc33824f0bcc3d78f402282f93d0151dbc00dcb2f5e086547d0b2aa979e61d"
+      "sourceSha256": "2e5491affa63a5ae11ffd1ff1bcaa374b0eafe12cee8eb11315f53e6c418886a"
     },
     {
       "id": "threat-model",
@@ -8348,5 +8416,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a35c8da52f3ee724de90148d7b47239abc962c360d21829280a0b7ea033ecec1"
+  "graphSha256": "3870289c8daf7be5cbe935c8bea99bd16fb5cd4295f4d023c5a1c55f3b5877de"
 };
