@@ -4178,7 +4178,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c3a75e9fc1d702ba0541c223e66edf3952d1f3a71c6e452333db3c26be899d6a"
+      "sourceSha256": "83cff29f3a9f9825bb7c6ef1a8872a97ab24938b3d156cac90748232a58de210"
     },
     {
       "id": "kb-hw-glossary",
@@ -6540,6 +6540,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-m12b-old-build",
+      "path": "docs/proof/m12b-old-build/README.md",
+      "title": "M1.2b old-build characterization of FoilDSL 4.1",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "Codes the committed 4.1 fixtures and a drag, nudge and span project draw from the parser at 10f0628, recorded before B0 changes that parser.",
+      "tags": [
+        "m12b",
+        "foildsl",
+        "characterization",
+        "b0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4c0d9f1d334383efd5a4cadd5039e9581f6122a05569f4e451bf60f0393776e8"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8163,5 +8197,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "409ce18d64ac71c731e1f502ce931b8d75a0e4e47d312a1bfea191518183e0f6"
+  "graphSha256": "825cfdec4b1fd710b64b5c75c47b26336af1100d9083a8195d6d4763eac4fdb6"
 };

@@ -1,0 +1,4 @@
+foildsl "4.2"
+foil "Future" {
+  alien { }
+}
