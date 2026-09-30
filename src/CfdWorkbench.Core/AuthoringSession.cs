@@ -12,7 +12,8 @@ namespace CfdWorkbench.Core;
 public sealed record SourceRow(string Id, string[] Utf8Base64Chunks);
 public sealed record DesignRow(string Id, string? Parent, string SurfaceHash, string Evaluator);
 public sealed record EditReceipt(string DraftId, long Generation, string Rail, string VertexId,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] ThicknessIntent Intent = ThicknessIntent.KeepCurrent,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Rule = null);
 public sealed record AcceptedRow(string Id, string? Parent, string SourceId, string DesignId, string OperationId, EditReceipt? Edit);
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
 public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
@@ -23,7 +24,8 @@ public sealed record SessionBinding(string SourceHash, string Base, string Draft
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
-    bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null);
+    bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
+    double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null);
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
@@ -180,6 +182,8 @@ public sealed class AuthoringSession : IDisposable
     public string Apply(string operationId, SessionAssessment assessment) => Run("apply", () => ApplyCore(operationId, assessment), generation: assessment.Key?.Generation);
     public string ApplyDimension(string operationId, DimensionCommand command) =>
         Run("apply", () => ApplyDimensionCore(operationId, command), editKind: "dimension");
+    public DimensionOutcome ApplyChord(string operationId, DimensionCommand command) =>
+        throw new NotImplementedException();
     public void Cancel(string draftId) => Run("cancel", () => { CancelCore(draftId); return true; });
     public string Undo(string operationId) => Run("undo", () => UndoCore(operationId));
     public string Redo(string operationId) => Run("redo", () => RedoCore(operationId));
