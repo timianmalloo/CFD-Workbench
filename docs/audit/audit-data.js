@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:48:32Z",
+  "generated": "2026-09-30T18:52:01Z",
   "audit": [
     {
       "actor": null,
@@ -19764,6 +19764,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T18:47:45Z",
       "duration_seconds": 47.0
+    },
+    {
+      "id": "al-01M3STHKPG90135H9617SJQJHP",
+      "shortname": "coordinate-app-shell-build",
+      "datetime": "2026-09-30T18:52:01Z",
+      "session": "fbfa35dc-exec",
+      "prompt": "Yes Plan accepted ... Push yes push first, then /execute-with-coordination using the plan you have; show me the rest of the questions interactively with your recommendations",
+      "summary": "M1.2a code complete at 10f0628 on feature/ui-cad-direction; readiness GREEN for 10f0628; tracks R0,S8,G0,C1,D1,D2,P1,NEWFOIL,D3a(3),D3b(2),THEME,U1a,U1FIX,COPYFIX,OPENFIX,READYFIX + TESTCI,COREGATE,CRASH; rulings 52-55; every track re-verified by the Coordinator before join; planned vs actual in the plan. Open: operator native session (app-shell-native.md §4) and a11y re-review; M1.2b-d designs; D4/M1.2e after M1.2c",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/app-shell-build.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "execute the app-shell coordination plan for M1.2a",
+      "done_when": "every M1.2a track merged with gates green; readiness green; native session handed to the operator",
+      "tier": "T2",
+      "fan_out": 2,
+      "started_at": "2026-09-27T15:08:28Z",
+      "duration_seconds": 272613.0
     }
   ],
   "changes": [
