@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:14:33Z",
+  "generated": "2026-09-30T20:15:56Z",
   "audit": [
     {
       "actor": null,
@@ -19887,6 +19887,35 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-30T20:12:48Z",
       "duration_seconds": 105.0
+    },
+    {
+      "id": "al-01M3SZB82AANXC3BXBCFZJSW5F",
+      "shortname": "join-m12b-design",
+      "datetime": "2026-09-30T20:15:55Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of design/m12b-points into feature/ui-cad-direction",
+      "summary": "m12b-points.md: Plan view CAD surface, typed glyphs, Tracing probe, comb, gesture state table, point types/tangents 4.1, typed chords (DR-2/9, DR-12 accept+warn), DR-13 pan; 187 test names incl. rendered-pixel and dead-control tiers; tracks B0,B1a,B1b,U1a,U1b,U2,U3; ADR-0001 Amendment 1 channels 6-16 under 4.1; 7-lens gate cleared; Ruling 56 applied recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/m12b-points.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "design M1.2b CAD point editing",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T20:15:05Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
