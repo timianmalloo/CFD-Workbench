@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T17:55:09Z",
+  "generated": "2026-09-30T18:02:42Z",
   "audit": [
     {
       "actor": null,
@@ -19607,6 +19607,35 @@ window.AUDIT_DATA = {
         "branch": "fix/m12a-open-outcomes",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SQQA9WZWMS9VBRXMWCV2KF",
+      "shortname": "join-openfix",
+      "datetime": "2026-09-30T18:02:42Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/m12a-open-outcomes into feature/ui-cad-direction",
+      "summary": "NeedsIds now stages values for AcceptCandidateAsync (controller contract fixed); Refused/NeedsIds keep origin + COPY-140/141 alert + focus first action; NaN/Infinity Span -> invalid row, geometry unchanged; COPY-29 superseded by COPY-143; 3 identical runs verified recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/openfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "fix the last M1.2a Open-flow defects",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T18:01:57Z",
+      "duration_seconds": 45.0
     }
   ],
   "changes": [
