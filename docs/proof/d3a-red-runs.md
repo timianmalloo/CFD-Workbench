@@ -112,3 +112,42 @@ lines), and the sorted PASS set across `.tmp-tests/*.log` had 318 entries with
 the same SHA-256 each time:
 `d2c0e1c916033bdeb49223ff97fafb2bc672ec4635978d226268f4676cf2f3f3`.
 The D3a checker found 10 of 40 required names; the remaining 30 are outstanding.
+
+## THEME track (2026-09-30)
+
+Every command ran with `AGENT_SESSION=track-theme AGENT_WI=THEME` in this worktree, as
+`dotnet run --project tests/CfdWorkbench.Desktop.Tests -c Release -- --shell-window`.
+
+**Cause (observed).** Dock 11.3.12.1 `Accents/Fluent.axaml` (package commit `f891bdb`) defines
+`DockThemeForegroundBrush` (line 15) and the other theme brushes (lines 12-16, 20) once, outside
+`ThemeDictionaries`, with `Color="{DynamicResource System*Color}"`. That color resolves against the
+Application's variant. Lines 21-46 alias them by `StaticResource`, which freezes those instances. A window
+with `RequestedThemeVariant` Dark (`MainWindow.axaml.cs:95`) under a Light Application therefore got
+Light Fluent values: tab text `#FF000000` (`SystemBaseHighColor`) and the selected tab fill `#66000000`
+(`SystemBaseMediumLowColor`). No app key mapped Dock's brushes, and `DockFluentTheme` is added after
+`Styles.axaml` (`App.axaml.cs:16` → `ShellHost.cs:26`). The D3b selectors could not work either: they
+targeted `TabItem`, and Dock tabs are `TabStripItem`s.
+
+| Run | Mutation or pre-implementation state | Exit | Observed failure |
+|---|---|---:|---|
+| 34 | `ThemeMatrix_ShellControls_AppliedContrast` on `685bb1e` (test only) | 1 | 30 rows. Dark Dock tab text `Black` on `#101a1d` = 1.19 (doc and tool tabs); HC `Black` on `Black` = 1.00; Dock blue hover 2.77, active fill 3.96, selected tool text 2.80; selected tab fill `#66000000` (partial alpha) in all three themes. Inventory :113 and :1446 (matrix, no row failures). |
+| 35 | Controller lookup renamed to `workbenchRenamed` | 1 | `Controller field unreadable` (inventory :1215) |
+| 36 | Example open removed before the theme barrier | 1 | `Opened Example not bound before the theme barrier` (inventory :977) |
+| 37 | Barrier wait cut to `TimeSpan.Zero` | 1 | `Theme barrier focus composition was not ready` (inventory :1018) |
+| 38 | `SourceText.IsReadOnly` set false | 1 | `Foil source tab lost its read-only accepted text` (inventory :740) |
+| 39 | Editable rail control `BeginEdit` before Span typing | 1 | `Span typing opened a draft` (inventory :721) |
+| 40 | `PseudoClasses` lookup renamed | 1 | `Installed protected PseudoClasses unavailable` (inventory :1219) |
+| 41 | Reflected property swapped for `Name` (not an `IPseudoClasses`) | 1 | `Installed IPseudoClasses unavailable` (inventory :1221) |
+| 42 | Hover raised `PointerExited` instead of `PointerEntered` | 1 | `PointerEntered/Exited did not set :pointerover`, 15 rows (inventory :1228) |
+
+Two plants were not evidence and were redone: a `span.SelectAll()` anchor that matched twice, and a
+`control.Classes` cast that still yielded an `IPseudoClasses` (it passed). Runs 39 and 41 are the redone plants.
+Each plant was reverted by the script before the next; the green run after the fix exited 0.
+
+**Fix.** `App.axaml` maps the 22 Dock brush keys its templates read onto our color tokens in
+`Application.Resources` `ThemeDictionaries` (Light, Dark, HighContrast). `Application.Resources` is searched
+before `Application.Styles`, so it wins over `DockFluentTheme`. After the UX & Accessibility veto (selection
+carried by a 1.00-1.15 fill difference), `Styles.axaml` sets the selected Dock tab fill to `PrimaryBrush` with
+`OnPrimaryBrush` text; a Style outranks Dock's ControlTheme. Applied contrast after, minimum per theme: text
+light 6.29, dark 5.29, HC 19.56; selected fill vs strip light 5.59, dark 9.35, HC 19.56; focus ring vs its
+surface light 5.31, dark 7.79, HC 19.56; live Light→Dark switch 15.85 (text) and 10.73 (fill).

@@ -21,6 +21,8 @@ summary: >-
 
 **D3b checkpoint (2026-09-30).** The Dock tab focus name now passes in the shell suite, but it has no red receipt. The theme matrix reached a measured dark Dock tab contrast failure (1.19) and hit the two-cycle repair cap. No additional inventory row is marked done by D3b; the 52 rows remaining after D3a still require porting and red evidence. The `ported` column below names each intended destination and does not claim completion.
 
+**THEME checkpoint (2026-09-30).** `ThemeMatrix_ShellControls_AppliedContrast` now passes in the shell suite after a recorded red run (`d3a-red-runs.md` run 34). Its 39 rows are marked `done (THEME, red run N)` in the disposition column. The 8 reflection-bound rows among them (:721, :740, :977, :1018, :1215 and the framework rows :1219, :1221, :1228) each cite their own red run (35-42); :1446 cites run 34. The kept-unchanged matrix rows (:1295, :1297, :1315, :1333, :1353) stay in `WorkbenchTests.cs`. By this count, 13 of the 52 rows remain for D3b. A row is done only when its disposition cell says so.
+
 **Result.** `tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs` holds **212** `throw new` lines (grep, at `bf54a54`).
 The design's figure of 213 (§1, §12.5) is one high. The design counted at `494aef2`. Commit `d27dc03` then removed two
 child-exit throws and added the self-launch failure probe (`:21`), so the count is 212. **92 lines are bound** to a
@@ -76,7 +78,7 @@ reflection is Avalonia's protected `PseudoClasses`.
 
 | WorkbenchTests.cs line | assertion (short) | control | disposition | ported | superseded clause | reflection? |
 |---|---|---|---|---|---|---|
-| 113 | frozen 18+60+21 per-theme row table (toolbar, tab, station, cv, numeric rows) | ExampleButton, DocumentTabs, StationList, ControlList, NumericInput, SourceText | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 113 | frozen 18+60+21 per-theme row table (toolbar, tab, station, cv, numeric rows) | ExampleButton, DocumentTabs, StationList, ControlList, NumericInput, SourceText | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 284 | closed-callback repro: controller field readable | MainWindow `workbench` field | kept-unchanged | | | yes |
 | 328 | closed window callback does not escape; next window stays open | MainWindow close, second window | kept-unchanged | | | yes |
 | 334 | next window publishes its accepted update | MainWindow + controller (via :281-284) | kept-unchanged | | | yes |
@@ -92,60 +94,60 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 455 | readiness compositor not lost | first DocumentTabs item | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 458 | stale pre-fixture batch refused as a fresh barrier | first DocumentTabs item | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 513 | readiness result is `ready` (`closeApproved` set by reflection) | first DocumentTabs item, FoilViewport | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | yes |
-| 694 | focus-hover reset button exists | ExampleButton (toolbar) → app-bar button | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 696 | focus-hover reset takes focus | ExampleButton → app-bar button | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 721 | TextBox probe has an owned draft identity | NumericInput rail draft → Span field (direct commit, no draft; clause dropped for Span) | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 724 | TextBox probe focus-reset button exists | ExampleButton → app-bar button | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 740 | TextBox state and authority (accepted id, draft id, generation) match | NumericInput, SourceText → Span field, Foil source tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 796 | typed replacement input applied | NumericInput → Span field | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 964 | theme barrier tab has a compositor | DocumentTabs item → Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 972 | theme barrier finds `FoilViewport` | FoilViewport → model-area view | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 977 | opened Example bound before the focus barrier | FoilViewport | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 979 | barrier tab receives keyboard focus | DocumentTabs item → Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 987 | barrier compositor not lost | DocumentTabs item → Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1018 | theme focus composition readiness is `ready` | DocumentTabs item, FoilViewport | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 1032 | numeric-paint RED: `DocumentTabs` found | DocumentTabs → Dock document tabs (numeric-paint RED mode) | ported | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
+| 694 | focus-hover reset button exists | ExampleButton (toolbar) → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 696 | focus-hover reset takes focus | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 721 | TextBox probe has an owned draft identity | NumericInput rail draft → Span field (direct commit, no draft; clause dropped for Span) | ported · done (THEME, red run 39) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 724 | TextBox probe focus-reset button exists | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 740 | TextBox state and authority (accepted id, draft id, generation) match | NumericInput, SourceText → Span field, Foil source tab | ported · done (THEME, red run 38) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 796 | typed replacement input applied | NumericInput → Span field | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 964 | theme barrier tab has a compositor | DocumentTabs item → Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 972 | theme barrier finds `FoilViewport` | FoilViewport → model-area view | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 977 | opened Example bound before the focus barrier | FoilViewport | ported · done (THEME, red run 36) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 979 | barrier tab receives keyboard focus | DocumentTabs item → Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 987 | barrier compositor not lost | DocumentTabs item → Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1018 | theme focus composition readiness is `ready` | DocumentTabs item, FoilViewport | ported · done (THEME, red run 37) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 1032 | numeric-paint RED: `DocumentTabs` found | DocumentTabs → Dock document tabs (numeric-paint RED mode) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
 | 1035 | numeric-paint RED: controller field readable | MainWindow `workbench` field | kept-unchanged |  |  | yes |
-| 1038 | numeric-paint RED: CV list found | ControlList → rail-editor pane (Ruling 55), found in the pane's namescope | ported | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
+| 1038 | numeric-paint RED: CV list found | ControlList → rail-editor pane (Ruling 55), found in the pane's namescope | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
 | 1042 | numeric-paint RED: an editable authored CV exists | ControlList selection | kept-unchanged |  |  | yes |
-| 1048 | numeric-paint RED: numeric field found | NumericInput → rail-editor pane (Ruling 55), found in the pane's namescope | ported | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
+| 1048 | numeric-paint RED: numeric field found | NumericInput → rail-editor pane (Ruling 55), found in the pane's namescope | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
 | 1052 | numeric-paint RED: owned non-empty numeric field | NumericInput + rail draft, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | yes |
 | 1057 | numeric-paint RED: TextBox sibling panel | NumericInput template (moves unchanged) | kept-unchanged |  |  | no |
 | 1060 | numeric-paint RED: TextBox text-host sibling | NumericInput template (moves unchanged) | kept-unchanged |  |  | no |
 | 1064 | numeric-paint RED: sibling paint order | NumericInput template (moves unchanged) | kept-unchanged |  |  | no |
-| 1104 | numeric-paint RED: focus reset exists | ExampleButton → app-bar button | ported | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
+| 1104 | numeric-paint RED: focus reset exists | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
 | 1118 | numeric-paint RED: text input replaces the selection | NumericInput, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | no |
 | 1141 | focus-diagnostic: `DocumentTabs` found | DocumentTabs → Dock document tabs | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 1146 | focus-diagnostic: tab takes keyboard focus | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 1149 | focus-diagnostic: adorner layer present | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
 | 1156 | focus-diagnostic: two-ring adorner present | first DocumentTabs item → Dock tab | ported | `DockTabFocus_FreshBatch_ReadyAndTwoRing` | | no |
-| 1210 | pointer RED: `DocumentTabs` found | DocumentTabs "FoilDSL source" tab → "Foil source" Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1215 | pointer RED: controller field readable | MainWindow `workbench` field | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
-| 1219 | pointer RED: protected `PseudoClasses` readable | source tab → Foil source Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
-| 1221 | pointer RED: `IPseudoClasses` readable | source tab → Foil source Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
-| 1224 | pointer RED: tab position resolvable | source tab → Foil source Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1228 | pointer RED: PointerEntered sets `:pointerover` | source tab → Foil source Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
-| 1277 | pointer RED: always throws (reproduces the HC selected-hover low contrast) | source tab → Foil source Dock tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1280 | matrix: toolbar button loads | ExampleButton → app-bar button | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1282 | matrix: document tabs load | DocumentTabs → Dock document tabs | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1284 | matrix: CV list loads | ControlList → rail-editor pane (Ruling 55), found in the pane's namescope | ported | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
-| 1286 | matrix: numeric field loads | NumericInput → Span field | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1288 | matrix: read-only source field loads | SourceText → Foil source tab (pane namescope) | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1290 | matrix: station list loads | StationList → Browser rows | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1291 | matrix: empty-state numeric field disabled | NumericInput → Span field absent or disabled with no foil ("No foil open", §11) | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1210 | pointer RED: `DocumentTabs` found | DocumentTabs "FoilDSL source" tab → "Foil source" Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1215 | pointer RED: controller field readable | MainWindow `workbench` field | ported · done (THEME, red run 35) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 1219 | pointer RED: protected `PseudoClasses` readable | source tab → Foil source Dock tab | ported · done (THEME, red run 40) | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
+| 1221 | pointer RED: `IPseudoClasses` readable | source tab → Foil source Dock tab | ported · done (THEME, red run 41) | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
+| 1224 | pointer RED: tab position resolvable | source tab → Foil source Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1228 | pointer RED: PointerEntered sets `:pointerover` | source tab → Foil source Dock tab | ported · done (THEME, red run 42) | `ThemeMatrix_ShellControls_AppliedContrast` | | framework |
+| 1277 | pointer RED: always throws (reproduces the HC selected-hover low contrast) | source tab → Foil source Dock tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1280 | matrix: toolbar button loads | ExampleButton → app-bar button | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1282 | matrix: document tabs load | DocumentTabs → Dock document tabs | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1284 | matrix: CV list loads | ControlList → rail-editor pane (Ruling 55), found in the pane's namescope | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` |  | no |
+| 1286 | matrix: numeric field loads | NumericInput → Span field | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1288 | matrix: read-only source field loads | SourceText → Foil source tab (pane namescope) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1290 | matrix: station list loads | StationList → Browser rows | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1291 | matrix: empty-state numeric field disabled | NumericInput → Span field absent or disabled with no foil ("No foil open", §11) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1295 | matrix: controller field present | MainWindow `workbench` field | kept-unchanged | | | yes |
 | 1297 | matrix: controller value present | MainWindow `workbench` field | kept-unchanged | | | yes |
-| 1301 | matrix: exactly 3 tabs "Section sample", "FoilDSL source", "Section" | DocumentTabs → model-area Dock tabs (views, Foil source, section editor) | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1313 | matrix: Example station binds and selects | StationList → Browser row | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1301 | matrix: exactly 3 tabs "Section sample", "FoilDSL source", "Section" | DocumentTabs → model-area Dock tabs (views, Foil source, section editor) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1313 | matrix: Example station binds and selects | StationList → Browser row | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1315 | matrix: authored rails available for CV selection | ControlList precondition (controller) | kept-unchanged |  |  | yes |
 | 1326 | locked CV creates no draft and leaves the numeric field disabled | ControlList + NumericInput → controller `BeginEdit` | ported | `Controller_LockedRailControl_RefusesDraft` | | yes |
 | 1333 | editable CV opens an owned draft and enables the numeric field | ControlList + NumericInput, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | yes |
-| 1348 | station item takes keyboard focus | StationList item → Browser row | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1348 | station item takes keyboard focus | StationList item → Browser row | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1353 | CV item takes keyboard focus | ControlList item, in the rail-editor pane (Ruling 55) | kept-unchanged |  |  | no |
-| 1373 | sibling-only low-contrast mutation refused by the painter oracle | NumericInput → Span field | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1380 | viewport annotation present | ViewportProvenance → model-area view header | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1382 | section annotation present | SectionReadout ("Section sample" tab; placement open, §2 Q2) | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
-| 1391 | active source tab keeps read-only accepted text | SourceText → Foil source tab | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1373 | sibling-only low-contrast mutation refused by the painter oracle | NumericInput → Span field | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1380 | viewport annotation present | ViewportProvenance → model-area view header | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1382 | section annotation present | SectionReadout ("Section sample" tab; placement open, §2 Q2) | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
+| 1391 | active source tab keeps read-only accepted text | SourceText → Foil source tab | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | no |
 | 1397 | unsaved dialog method reachable | MainWindow `UnsavedDialogAsync` (private) | kept-unchanged | | | yes |
 | 1399 | unsaved dialog task returned | MainWindow `UnsavedDialogAsync` | kept-unchanged | | | yes |
 | 1401 | unsaved modal owned by the window | unsaved-close modal | kept-unchanged | | | yes |
@@ -153,7 +155,7 @@ reflection is Avalonia's protected `PseudoClasses`.
 | 1407 | unsaved modal body present | unsaved-close modal | kept-unchanged | | | yes |
 | 1419 | modal Cancel is default, cancel and focused | unsaved-close modal | kept-unchanged | | | yes |
 | 1422 | modal closes with safe Cancel | unsaved-close modal | kept-unchanged | | | yes |
-| 1446 | applied theme matrix: no row failures | whole matrix | ported | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
+| 1446 | applied theme matrix: no row failures | whole matrix | ported · done (THEME, red run 34) | `ThemeMatrix_ShellControls_AppliedContrast` | | yes |
 | 1467 | review persona picks a real focus region (`numeric-or-open`, `stations`, `controls`) | `MainWindow.ReviewFocusTarget` → NumericInput, OpenButton, StationList, ControlList | ported | `Review_Persona_FocusesShellRegion` | | no |
 | 1479 | fresh review draft gives its numeric value and unit | `MainWindow.DraftField` (NumericInput projection; the rail-editor pane (Ruling 55)) | kept-unchanged |  |  | no |
 | 1551 | minimum-window plot width ≥ 250 and dense annotation scrolls | 240 px Navigator + 300 px Properties columns | ported | `ModelArea_MinimumWindow_PlotWidthAtLeast250` | | no |
