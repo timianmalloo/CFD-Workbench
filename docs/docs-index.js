@@ -6549,7 +6549,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-30",
       "reviewSuggested": [],
-      "summary": "Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint. Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo.",
+      "summary": "Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint. Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo. A hand mutant of the limit to 20 µm turned the 10.1 µm fixture red and left the 9.9 µm fixture green; the committed limit is 10 µm.",
       "tags": [
         "m12b",
         "chords",
@@ -6575,7 +6575,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d7ea1a5a74f7426e0c5f6e9cb61cc6eb68e8cb606aa2eb570627a02abb69cef8"
+      "sourceSha256": "a3c8def8df25300d137222db33bf3892be4a7ecca2ac4aadbf2ab829409a9292"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -8201,5 +8201,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6cfd14b47d765f2b6e044e3d72a9f7240d28007de507c3c087313877b0e5d8dc"
+  "graphSha256": "1bbccd9280289bc65e4f5cd6686e935b5cc300c59625f7ba803005380e12eb6d"
 };
