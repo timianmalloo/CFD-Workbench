@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T23:11:56Z",
+  "generated": "2026-09-30T23:31:13Z",
   "audit": [
     {
       "actor": null,
@@ -20459,6 +20459,43 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T23:10:58Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3TAGTYNV7QW6W1FN1VFHC3M",
+      "shortname": "speed-desktop-spawn",
+      "datetime": "2026-09-30T23:31:13Z",
+      "session": "track-speed",
+      "prompt": "Track SPEED: profile the Desktop suite, run DesktopChecks.Spawn children concurrently if independent, prove with 5+2 identical runs and a planted red",
+      "summary": "Desktop 51.6->21.4 s; run-tests.sh wall 52->34 s (37-38 s under 16-way load). Spawn: <=min(CPU/2,4) children, buffered output in mode order, SUITE lines + first-nonzero exit kept, SUITE-TIME added; flow/tools folded in, SelfLaunch.RunChild deleted. PASS set 29aa8f2c5ca3a621 identical on 2 before + 7 after runs; 12/12 concurrent --shell-window copies identical (window-focus probe); planted red exits 1 with FAIL visible.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+        "docs/reviews/test-ci-waste.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Desktop suite measurably faster with the PASS set unchanged, or the blocker named",
+      "done_when": "profile recorded; 5+2 identical hashes; red plant shown; named checks and check-docs exit 0",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T23:15:00Z",
+      "duration_seconds": 973.0,
+      "git": {
+        "sha": "070ade8ceb0fb9b874c96a5bf9084d7443f7032b",
+        "short": "070ade8ce",
+        "branch": "chore/desktop-suite-speed",
+        "pushed": null
+      }
     }
   ],
   "changes": [
