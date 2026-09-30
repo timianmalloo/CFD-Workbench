@@ -130,6 +130,7 @@ public sealed class WorkbenchController : IDisposable
     private Selection? queuedSelection;
     private PointRef? gesturePoint;
     private PointView? gestureOrigin;
+    private GestureInput? gestureInput;
     private (double Span, double Aft)? pendingGestureTarget;
     private bool gestureFrameScheduled;
     private readonly List<double> gestureUpdateTimes = new();
@@ -138,6 +139,7 @@ public sealed class WorkbenchController : IDisposable
     private int gestureFrames;
     private int gestureClamped;
     private Task<GestureOutcome>? pendingCommit;
+    private Task<CommitOutcome>? pendingDirectCommand;
     private string? gestureOperationId;
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null)
@@ -275,24 +277,35 @@ public sealed class WorkbenchController : IDisposable
 
     public bool BeginGesture(PointRef point, GestureInput input)
     {
-        if (Gesture != GestureState.Idle || draft is not null || Inspection?.Geometry.Status != GeometryStatus.Certified)
-        {
-            if (Gesture == GestureState.Busy) { Status = "Checking the last change…"; Notify(); }
-            return false;
-        }
         var plan = Planform;
         var view = (point.Curve == "leading" ? plan?.Leading : point.Curve == "trailing" ? plan?.Trailing : null)?
             .Points.FirstOrDefault(candidate => candidate.Id == point.VertexId);
         if (view is null) return false;
+        if (Gesture == GestureState.Busy)
+        {
+            if (input == GestureInput.Pointer) Select(new Selection.Points([point]));
+            Status = "Checking the last change…";
+            Notify();
+            return false;
+        }
+        if (Gesture == GestureState.Nudging && input == GestureInput.Pointer)
+        {
+            _ = EndGestureAsync(GestureEnd.KeyUp);
+            Select(new Selection.Points([point]));
+            return false;
+        }
+        if (Gesture != GestureState.Idle || draft is not null || Inspection?.Geometry.Status != GeometryStatus.Certified)
+            return false;
         Select(new Selection.Points([point]));
         if (view.Freedom == PointFreedom.Fixed)
         {
-            Status = "This point is fixed by the foil definition.";
+            Status = $"This {view.Role} point is fixed by the foil definition.";
             Notify();
             return false;
         }
         gesturePoint = point;
         gestureOrigin = view;
+        gestureInput = input;
         pendingGestureTarget = null;
         gestureFrames = gestureClamped = 0;
         gestureUpdateTimes.Clear();
@@ -304,6 +317,12 @@ public sealed class WorkbenchController : IDisposable
     }
 
     public void UpdateGesture(double spanMeters, double aftMeters)
+    {
+        if (Gesture == GestureState.Nudging && gestureInput == GestureInput.Keyboard) return;
+        UpdateGestureTarget(spanMeters, aftMeters);
+    }
+
+    private void UpdateGestureTarget(double spanMeters, double aftMeters)
     {
         if (Gesture is not (GestureState.Pressed or GestureState.Dragging or GestureState.Nudging) || gestureOrigin is null)
             return;
@@ -325,7 +344,7 @@ public sealed class WorkbenchController : IDisposable
         if (Gesture != GestureState.Nudging || gestureOrigin is null) return;
         double step = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
         var current = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.AftMeters);
-        UpdateGesture(current.Item1 + spanDirection * step, current.Item2 + aftDirection * step);
+        UpdateGestureTarget(current.Item1 + spanDirection * step, current.Item2 + aftDirection * step);
         FlushGestureFrame();
     }
 
@@ -370,8 +389,24 @@ public sealed class WorkbenchController : IDisposable
 
     public Task<GestureOutcome> EndGestureAsync(GestureEnd reason, CancellationToken cancellation = default)
     {
-        if (Gesture == GestureState.Busy) return pendingCommit ?? Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
-        if (Gesture == GestureState.Idle) return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
+        if (Gesture == GestureState.Busy) return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
+        if (Gesture == GestureState.Idle)
+        {
+            if (reason == GestureEnd.Escape && Selection is Selection.Points selected)
+            {
+                var chosen = selected.Items.FirstOrDefault();
+                var rail = chosen?.Curve == "leading" ? Planform?.Leading : Planform?.Trailing;
+                var handle = rail?.Points.FirstOrDefault(item => item.Id == chosen?.VertexId);
+                Select(handle?.AnchorId is { } anchorId
+                    ? new Selection.Points([new PointRef(chosen!.Curve, anchorId)])
+                    : new Selection.Foil());
+            }
+            return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
+        }
+        if (reason == GestureEnd.KeyUp && Gesture != GestureState.Nudging ||
+            Gesture == GestureState.Nudging && gestureInput == GestureInput.Keyboard &&
+            reason is (GestureEnd.Release or GestureEnd.CaptureLost))
+            return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
         if (reason is GestureEnd.Escape or GestureEnd.CaptureLost ||
             Gesture == GestureState.Pressed || Gesture == GestureState.Dragging && reason is GestureEnd.FocusLost or GestureEnd.Deactivated)
             return Task.FromResult(CancelPointGesture(reason, Gesture == GestureState.Pressed));
@@ -434,6 +469,7 @@ public sealed class WorkbenchController : IDisposable
             draftProjection = null;
             pendingGestureTarget = null;
             pendingCommit = null;
+            gestureInput = null;
             LastGestureFrames = gestureFrames;
             Gesture = GestureState.Idle;
             UpdateEstimates();
@@ -457,6 +493,7 @@ public sealed class WorkbenchController : IDisposable
         draft = null;
         draftProjection = null;
         pendingGestureTarget = null;
+        gestureInput = null;
         LastGestureFrames = gestureFrames;
         Gesture = GestureState.Idle;
         UpdateEstimates();
@@ -521,7 +558,9 @@ public sealed class WorkbenchController : IDisposable
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-NOT-ASSESSED", "This foil couldn't be checked. Nothing changed."));
         Gesture = GestureState.Busy;
         Notify();
-        return CompleteDirectCommandAsync(action, session, stateVersion);
+        var completion = CompleteDirectCommandAsync(action, session, stateVersion);
+        pendingDirectCommand = completion;
+        return completion;
     }
 
     private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version)
@@ -546,6 +585,7 @@ public sealed class WorkbenchController : IDisposable
         finally
         {
             Gesture = GestureState.Idle;
+            pendingDirectCommand = null;
             Notify();
         }
     }
@@ -555,6 +595,7 @@ public sealed class WorkbenchController : IDisposable
         if (Gesture == GestureState.Busy)
         {
             if (pendingCommit is not null) await pendingCommit;
+            else if (pendingDirectCommand is not null) await pendingDirectCommand;
             return;
         }
         if (Gesture != GestureState.Idle) await EndGestureAsync(reason);

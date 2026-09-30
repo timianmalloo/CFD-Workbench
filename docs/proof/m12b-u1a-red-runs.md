@@ -93,3 +93,17 @@ FAIL Controller_Gesture_Nudging_CaptureLost_Ignored InvalidOperationException: C
 ```
 
 `Controller_Gesture_Pressed_MoveUnder3_Pressed` and `Controller_Gesture_Busy_TypedPosition_Ignored` also failed from assertion defects (the former required a begin call that the cell did not make; the latter compared selection record identity after notification). Their assertions are corrected before the green run.
+
+## Dispatch 2: Busy document-action wait red
+
+Test-only commits `7df3cd6` and `704b748` strengthen the `Controller_Gesture_Busy_DocumentAction_WaitProceed` cell with a controlled, unfinished direct-command task. The first compile failed on nullable reflection flow (`CS8602`); `704b748` corrected that assertion code before behavior was assessed. Command: `dotnet run -c Release --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --controller-shell`, with the runner's non-symlinked `TMPDIR` set. Exit **1**; all other controller and cell checks passed. The red output was:
+
+```text
+FAIL Controller_Gesture_Busy_DocumentAction_WaitProceed InvalidOperationException: Busy direct command has no document-action wait handle.
+```
+
+The direct-command task is not tracked by the controller yet, so a New action cannot await it. This is behavior red before the fix commit.
+
+## Dispatch 2: §6.2 cell green
+
+The fixed controller passes all **70** `Controller_Gesture_<FromState>_<Event>_<Outcome>` checks, one for each cell in the 14-row × 5-state table. A focused `--controller-shell` run after the Busy wait fix exits **0**; its PASS output includes the 23 design names, the existing D2 names, and all 70 cell names. Before the Busy wait assertion was added, `tools/run-tests.sh` exited **0** at **51 s** wall (Core 376 PASS / 32 s; Desktop 212 PASS / 50 s). The final full-run receipt is recorded after the span seam lands.
