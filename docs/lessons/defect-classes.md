@@ -280,6 +280,27 @@ paths with the correct session while its claims were live; each returned
 enforced original commit. A future review commit must prefix the actual
 `git commit` process, not only the preceding audit or claim command.
 
+Recurrence (M1.2a/M1.2b waves, 5 more): `coord-core.py precommit` prints
+`"advisory: AGENT_SESSION is unset, so nothing was checked"` and exits 0 —
+enforcing nothing — whenever the committing shell lacks that variable. Every
+coordination brief already says "export `AGENT_SESSION` in EVERY shell call,
+including `git commit`" — the same per-mutation identity rule recorded above —
+and it still failed five more times across the M1.2a/M1.2b waves alone (U1a,
+the Owner seat twice, G0 repair, the Coordinator once), on top of the five
+occurrences already named here (Root, B0 `cb73079e`, R37, W1, R45 `fce9759`).
+The prose mitigation is not a control: the committing shell is free to ignore
+a sentence in a brief. **Control, proposed and not yet implemented** (pack
+scripts under `docs/ai-forward-pack/scripts/` are vendored, not repo-owned —
+an open "pack patch" item for the pack maintainers, not a local fix): change
+`coord-core.py precommit` to FAIL (nonzero exit, blocking the commit) rather
+than print an advisory line, whenever it is invoked inside a linked worktree
+that a session has registered against (i.e., `coord worktree list`/the
+session registry already knows this path) and `AGENT_SESSION` is unset in the
+environment; it may remain advisory only in the primary checkout or an
+unregistered tree. Until that patch lands, the only real control is the
+Leader's post-hoc branch read (`git log`, `git status` against the track's
+owned paths) — a readback, not a commit-boundary check.
+
 **TOOL-PATCH · A replace operation is expressed as delete-plus-add in one patch.**
 The first full parser patch asked `apply_patch` to delete and add the same
 path in one transaction; the tool rejected it and changed no file. Sweep:
@@ -1221,7 +1242,3 @@ a curve), and the sign fixture `Placement_SignFixture_PositiveTwistTrailingEdgeD
 **CLAMP-RAW-NOT-DERIVED · An overflow guard checked the raw input for finiteness but not the value derived from it, so a large-but-finite input still produced a non-finite delta.** `UpdatePointGesture` (`AuthoringSession.cs`) rejected non-finite `spanMeters`/`aftMeters` up front, then computed `rawEta = (spanMeters - selected.SpanMeters) / halfSpan` and `rawAft = (aftMeters - selected.AftMeters) * 1e6` and rounded them without checking whether the arithmetic itself had overflowed. A finite `double.MaxValue` target survived the input check, overflowed in the subtract/scale, and reached `PatchGesture`/the DSL patch encoder, which is where the guard actually fired (`DSL-PATCH`) — not the gesture clamp that was supposed to catch it. Red run: `docs/proof/m12b-b1b-red-runs.md` § "Gesture observability and overflow reds" (`FAIL UpdatePointGesture_BypassedClamp_DslPatch ContractError: DSL-PATCH`), fixed in `d1e8d45`.
 
 **Class → sweep → derive → prevent:** signature: a finiteness/bounds check runs on the operands but not on the value the next step actually consumes. Derive: check `IsFinite` again on every derived quantity between the input check and the point it is used, and fall back to the last known-good state rather than continuing. Control: `AuthoringSession.cs`:373-375 adds `if (!double.IsFinite(rawEta) || !double.IsFinite(rawAft)) return LastFrame();` before rounding, where `LastFrame()` re-reads the selected point's current, already-committed position instead of propagating the overflowed delta. `UpdatePointGesture_BypassedClamp_DslPatch` (`tests/CfdWorkbench.Core.Tests/PointGestureTests.cs`:143-151) now drives both a `double.MaxValue` span and a `double.MaxValue` aft target through the public gesture API and requires each to report `Clamped == true`, then calls the now-`internal` `AuthoringSession.PatchGesture` directly with an out-of-order coordinate to prove the DSL-level backstop (`DSL-PATCH`) still refuses a bad patch even if a caller bypassed the gesture clamp entirely — defense in depth, not a replacement for the clamp fix. Sweep for a future track: any other derived-then-rounded quantity computed from two independently-checked inputs (scale, divide, subtract) before a downstream contract boundary.
-
-**COORD-UNSESSIONED-COMMIT · The pre-commit floor is advisory-by-default, and a prose instruction to export `AGENT_SESSION` is not a control.** `coord-core.py precommit` prints `"advisory: AGENT_SESSION is unset, so nothing was checked"` and exits 0 — enforcing nothing — whenever the committing shell lacks that variable. Every coordination brief already says "export `AGENT_SESSION` in EVERY shell call, including `git commit`" (the same mitigation `COORD-ENV` recorded), and it still failed: observed at least five more times across the M1.2a/M1.2b waves alone (U1a, the Owner seat twice, G0 repair, the Coordinator once), on top of the five `COORD-ENV` already names (Root, B0 `cb73079e`, R37, W1, R45 `fce9759`). This is the same underlying signature as `COORD-ENV` — a missing/dropped `AGENT_SESSION` leaves the hook advisory — recurring because the only control on record for it is the brief's own sentence, which the committing shell is free to ignore.
-
-**Class → sweep → derive → prevent:** signature: a gate whose enforcement is conditional on an environment variable the caller must remember to set, with no fail-closed default. Derive: a linked worktree that has a registered coordination session (i.e., one `coord worktree new` created and tracks) must never be allowed to commit unsessioned — the absence of `AGENT_SESSION` in that worktree is itself the defect, not a reason to skip checking. **Control, proposed and not yet implemented** (pack scripts under `docs/ai-forward-pack/scripts/` are vendored, not repo-owned — this is an open "pack patch" item for the pack maintainers, not a local fix): change `coord-core.py precommit` to FAIL (nonzero exit, blocking the commit) rather than print an advisory line, whenever it is invoked inside a linked worktree that a session has registered against (i.e., `coord worktree list`/the session registry already knows this path) and `AGENT_SESSION` is unset in the environment; it may remain advisory only in the primary checkout or an unregistered tree. Until that patch lands, the only real control is the Leader's post-hoc branch read (`git log`, `git status` against the track's owned paths), which is a readback, not a commit-boundary check — the same limitation `COORD-ENV` already recorded.
