@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T19:49:09Z",
+  "generated": "2026-09-30T19:57:48Z",
   "audit": [
     {
       "actor": null,
@@ -19818,6 +19818,35 @@ window.AUDIT_DATA = {
         "branch": "fix/m12a-shell-visuals",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SYA25S6N8VPB4VW2627H45",
+      "shortname": "join-shellfix",
+      "datetime": "2026-09-30T19:57:48Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/m12a-shell-visuals into feature/ui-cad-direction",
+      "summary": "operator session 1 findings: F7 fixed (Dock reveal left viewport undrawn; reentry render tests for all 4 tabs), F6, F9, F1, F2 fixed red-first; F3/F4/F5 not fixed at repair cap; class UI-RENDERED-STATE; readiness GREEN for f8af586; 3 identical runs (397 PASS) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/shellfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "fix the operator's M1.2a shell findings",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T19:56:57Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
