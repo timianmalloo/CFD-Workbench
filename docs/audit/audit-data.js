@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T14:00:42Z",
+  "generated": "2026-09-30T14:26:05Z",
   "audit": [
     {
       "actor": null,
@@ -19210,6 +19210,58 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-30T13:18:05Z",
       "duration_seconds": 2557.0
+    },
+    {
+      "id": "al-01M3SBANH5T6552PSCXYF8DNXX",
+      "shortname": "theme-dock-contrast",
+      "datetime": "2026-09-30T14:26:05Z",
+      "session": "track-theme",
+      "prompt": "First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-theme --skill implement`\nExport `AGENT_SESSION=track-theme AGENT_WI=THEME` in every shell call.\nTree: /Users/mallalieut/projects/CFD-Workbench-d3b-shell-finish (branch d3b-shell-finish, HEAD 685bb1e; D3b's Codex run has ended and nobody else is in this tree). Work only there, using absolute paths. Never call EnterWorktree. Never push.\n\n## Observed defect (from D3b, 2026-09-30)\n- In the dark theme, a Dock tab renders black text on `#101a1d`, measured contrast 1.19:1. WCAG 2.2 AA (1.4.3) needs 4.5:1 for text.\n- D3b's Codex tried to fix it twice, hit the repair cap, and removed its ineffective style changes and the incomplete theme test.\n- `src/CfdWorkbench.Desktop/App.axaml` includes `<FluentTheme />`; no Dock theme include was visible on grep. That is a lead, NOT a verified cause.\n\n## Goal\n1. Find the root cause, from observation. Open the Dock 11.3.12.1 package theme resources, e.g. in `~/.nuget/packages/dock.avalonia*/11.3.12.1/`, and read which theme or style files Dock ships and which resource keys set the tab foreground and background in each variant. Check how the app includes them, how `ThemeVariant` dark is applied, and how `Styles.axaml` tokens (from `DESIGN.md`: dark-* ramps) map onto Dock's keys. State the cause with file:line evidence before changing anything.\n2. Fix it at the cause, using tokens only. `python3 docs/ai-forward-pack/scripts/xaml-token-lint.py --root . src/CfdWorkbench.Desktop` must stay clean. Tab text, the selected tab, hover, and the focus ring must all meet AA in light and dark: 4.5:1 for text, 3:1 for non-text and the focus ring.\n3. Write `ThemeMatrix_ShellControls_AppliedContrast` in `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`, following the existing theme-probe idiom and the design's row for this name. It measures applied (rendered/resolved) foreground/background contrast for the shell controls in both variants. Red first: it must fail on today's HEAD with the 1.19 value. Record that in `docs/proof/d3a-red-runs.md` (append).\n4. Port the inventory rows of `docs/proof/app-shell-test-inventory.md` whose ported name is `ThemeMatrix_ShellControls_AppliedContrast`, or which are theme-matrix probes. Each reflection-bound row gets its own red run (Ruling 54 P3). Update each row's status. Leave every non-theme row for D3b's next dispatch; do not port them.\n5. Convene `native-desktop-developer` once, in Adversary Mode, via the Agent tool, to review the fix: Dock theming on macOS, and whether the variant switch holds live. Convene `ux-accessibility` once for the contrast floor; it holds a hard veto, and the author never clears it. At most 2 repair cycles.\n\n## Owned files\n- `src/CfdWorkbench.Desktop/App.axaml`\n- `src/CfdWorkbench.Desktop/Styles.axaml`\n- The theme test and the theme rows in `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`\n- The theme rows of the inventory\n- `docs/proof/d3a-red-runs.md` (append only)\n\nDo not edit the shell's C#, the controller, D1/D2 files, the design or DESIGN.md. If a token is missing in DESIGN.md, stop and report it as a seam request.\n\n## Done when\n- The root cause is stated with evidence.\n- `ThemeMatrix_ShellControls_AppliedContrast` PASSes, after being observed red.\n- The theme rows are ported.\n- `tools/run-tests.sh` exits 0.\n- `python3 tools/check-named-tests.py D3a` shows only `Focus_MenuTab_ClosesMenuReturns` still missing.\n- D1/D2/C1/P1 named checks exit 0.\n- `python3 tools/check-docs.py` exits 0.\n- xaml-token-lint is clean.\n- The app launches and you closed it (`pgrep -fl CfdWorkbench` empty).\n- Commits are conventional (`fix:`, `test:`), each ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n- The audit entry is appended.\n\nTier T2 · fan-out 2 · box 90 min · 120 tool calls · 400k tokens.\n\nAnti-spiral:\n- No timing investigations.\n- One launch per verification.\n- Progress is a src/ or tests/ diff.\n\nShell: never pipe a gate's status. A multi-line program goes in a file, then gets run.\n\n## Return (≤200 words)\n- the root cause with file:line;\n- the fix;\n- contrast before and after, per control and variant;\n- the red evidence;\n- the theme rows ported and the count left for D3b;\n- gate exits;\n- the SHAs;\n- any seam request.",
+      "summary": "Cause: Dock Accents/Fluent.axaml:12-46 brushes resolve System colors against the Application variant, frozen by StaticResource aliases; a Dark window under a Light app got black tab text (1.19). Fix: App.axaml per-variant ThemeDictionaries map 22 Dock keys to tokens; Styles.axaml selected Dock tab = Primary fill (UX veto repair 1, then CLEAR). Red runs 34-42. Seams: floated HostWindow variant; ShellHost app bar FindResource at attach.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "claude",
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/App.axaml",
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/d3a-red-runs.md",
+        "docs/proof/app-shell-test-inventory.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix dark-theme Dock tab contrast at its root cause with a red-first ThemeMatrix_ShellControls_AppliedContrast and port its inventory rows",
+      "done_when": "Cause stated with evidence; theme test red then PASS; 39 theme rows ported with red runs; run-tests, named checks, check-docs, token lint green; app launched and closed",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T14:04:17Z",
+      "duration_seconds": 1308.0,
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 4,
+          "accepted": 3
+        },
+        {
+          "persona": "native-desktop-developer",
+          "raised": 5,
+          "accepted": 3
+        }
+      ],
+      "git": {
+        "sha": "70e6a1a05a013ce106ef43b0ab86447726e1d097",
+        "short": "70e6a1a05",
+        "branch": "d3b-shell-finish",
+        "pushed": null
+      }
     }
   ],
   "changes": [
