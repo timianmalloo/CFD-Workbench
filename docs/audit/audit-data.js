@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T21:04:49Z",
+  "generated": "2026-09-30T21:46:31Z",
   "audit": [
     {
       "actor": null,
@@ -20175,12 +20175,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3T24RC12C2048HYZX8384WH",
-      "shortname": "join-m12b2-design",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-09-30T21:04:49Z",
+      "done_when": "merged",
+      "duration_seconds": 52.0,
+      "fan_out": 0,
+      "goal": "design M1.2b2",
+      "id": "al-01M3T24RC12C2048HYZX8384WH",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-m12b2-design",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-30T21:03:57Z",
+      "summary": "design recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-30T21:41:59Z",
+      "duration_seconds": 3202.0,
+      "id": "al-01M3T48T61JKF9S8GR66Y0959D",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "B0 brief",
+      "session": "track-b0",
+      "shortname": "track-b0",
+      "skill": "implement",
+      "started_at": "2026-09-30T20:48:37Z",
+      "summary": "FoilDSL 4.1 is expand-only: optional tangent rows, channel ceiling 16, version gate before any block, EnsureHeader41, fixed-seed parse/print round trip, and the planform point model. tools/run-tests.sh exit 0 in 47 s. Named checks B0 29/29, D3a 40/40, D1 12/12, D2 21/21, C1 14/14, P1 23/23. check-docs exit 0. Readiness_SixteenPointThreeAnchors_AssessUnderProofBudget assess_ms=26.828, Certified, under the 1 s budget, excluded from run-tests.sh. PointModel.cs has no Avalonia reference.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M3T4H42A0MVZ768KKZBPCCTE",
+      "shortname": "join-b0",
+      "datetime": "2026-09-30T21:46:31Z",
       "session": "fbfa35dc",
       "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "design recount_seconds=0 (docs_only=True).",
+      "summary": "B0 29/29 verified; old-build characterization before parser change; 4.1 round trip; identity hashes unchanged recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -20189,7 +20234,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "design M1.2b2",
+      "goal": "land B0",
       "done_when": "merged",
       "tier": "T1",
       "fan_out": 0,
@@ -20198,8 +20243,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-30T21:03:57Z",
-      "duration_seconds": 52.0
+      "started_at": "2026-09-30T21:45:40Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
