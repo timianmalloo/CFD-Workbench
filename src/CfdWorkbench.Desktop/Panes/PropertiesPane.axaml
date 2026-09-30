@@ -3,6 +3,8 @@
              x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane">
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="{StaticResource Space4}" Spacing="12">
+      <TextBlock Classes="heading" Text="Properties" />
+
       <!-- Error State for PaneBind_Throws -->
       <Border x:Name="ErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
               BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"

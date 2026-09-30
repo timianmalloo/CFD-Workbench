@@ -185,3 +185,32 @@ AX tree exposes hidden controls and live regions is unknown until VoiceOver runs
 **Code follow-on list (not edited here):** F-ATTACH (§1.1); A1–A5 and A7 (D3a lane, with tests); copy fixes C-1 to
 C-9 and C-12 to C-14 (Sonnet AXAML/C# edit).
 
+## Operator session 1 (2026-09-30)
+
+The operator launched the unsigned packaged macOS app and captured N1–N3. The source record is the operator's
+`native-session-1.md` in the dispatch scratchpad; captures are `scratchpad/native/n1.png`, `n2.png`, and `n3.png`.
+This was an operator walkthrough and screen capture, not a supported native attach receipt.
+
+N1 showed the menu bar, three Start cards, and the empty Properties copy. The operator reported F1, a stray
+“Sidebar” band across the top; F2, two blank grey squares at the left pane's top right; F3, “Properties” three
+times; F4, a left pane about one quarter of the window rather than 260 DIP; and F5, no visible first-card focus ring.
+
+The operator's words on the later tabs are preserved verbatim:
+
+> "the menu tabs: Paln +3D, Section Sample etc are repeated... one in the top menu which is functional and once in the Plan 3D view which is not functional · leaving Plan + 3D and coming back to it... i dont see the model any more · I can only edit span / not chord · Foil Source seems to show what i would expect · Section tab doesnt seem fucntional a bunch of empty boxes · Was I supposed to see a working CAD view? because i did not"
+
+Those observations became F6 (duplicate model tabs), F7 (model missing after tab return), and F9 (empty Section
+canvas). Typed chord and CAD point editing are M1.2b/M1.2c scope, recorded as F8 and an expectation gap. The
+session paused after N1; no later native review row was completed.
+
+| Native row | Updated status |
+|---|---|
+| N2 Opening with Cancel | not run — paused for SHELLFIX and M1.2b |
+| N3 Open-failed | not run — paused for SHELLFIX and M1.2b |
+| N4 Planform workspace and left side bar | not run — paused for SHELLFIX and M1.2b |
+| N5 Properties with Wing block last | not run — paused for SHELLFIX and M1.2b |
+| N6 Browser, rail-editor pane, Section sample tab | not run — paused for SHELLFIX and M1.2b |
+| N7 macOS menu bar | not run — paused for SHELLFIX and M1.2b |
+| N8 ⌘Z in Span | not run — paused for SHELLFIX and M1.2b |
+| N9 F6 region cycling | not run — paused for SHELLFIX and M1.2b |
+| N10 near-elliptic New foil | not run — paused for SHELLFIX and M1.2b |
