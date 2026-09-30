@@ -218,6 +218,72 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Shell_F3_Properties_OneTopTabLabel", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                // The class, not the instance: every left-pane tool shows its name once, in the one tab row at the top.
+                foreach (var tool in new[] { host.LayoutFactory.PropertiesTool, host.LayoutFactory.BrowserTool,
+                             host.LayoutFactory.RailControlsTool })
+                {
+                    host.LayoutFactory.LeftToolDock.ActiveDockable = tool;
+                    Settle(window);
+                    var labels = host.DockHost.GetVisualDescendants().OfType<TextBlock>()
+                        .Where(text => text.IsEffectivelyVisible && text.Text == tool.Title).ToArray();
+                    var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                    var tab = host.DockHost.GetVisualDescendants().OfType<ToolTabStripItem>()
+                        .Single(item => ReferenceEquals(item.DataContext, tool));
+                    var tabTop = tab.TranslatePoint(default, pane)?.Y ?? double.PositiveInfinity;
+                    if (labels.Length != 1 || tabTop > 55)
+                        throw new InvalidOperationException($"{tool.Title} has {labels.Length} visible labels; tab top={tabTop}");
+                }
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F4_LeftPane_Default260At1440And1280", () =>
+        {
+            foreach (double width in new[] { 1440d, 1280d })
+            {
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller);
+                var window = new Window { Content = host, Width = width, Height = 800 };
+                try
+                {
+                    window.Show();
+                    Settle(window);
+                    var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                    if (Math.Abs(pane.Bounds.Width - 260) > 1)
+                        throw new InvalidOperationException($"At {width} DIP, left pane is {pane.Bounds.Width} DIP rather than 260");
+                }
+                finally { window.Close(); }
+            }
+        });
+
+        DesktopChecks.Check("Shell_F5_Start_FirstCardFocusedWithRing", () =>
+        {
+            var window = new MainWindow(shellMode: true) { Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var host = (ShellHost)window.Content!;
+                var card = host.ModelView.FindControl<StartView>("StartCardView")!
+                    .FindControl<Button>("StartNewButton")!;
+                var layer = AdornerLayer.GetAdornerLayer(card);
+                bool ring = layer?.Children.OfType<Control>().Any(child =>
+                    ReferenceEquals(AdornerLayer.GetAdornedElement(child), card) && child.Bounds.Width > 0) == true;
+                if (!card.IsFocused || !ring)
+                    throw new InvalidOperationException($"First start card focus/ring absent: focused={card.IsFocused}, ring={ring}");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);

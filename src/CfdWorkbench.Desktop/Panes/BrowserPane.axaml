@@ -1,10 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CfdWorkbench.Desktop.Panes.BrowserPane">
+             x:Class="CfdWorkbench.Desktop.Panes.BrowserPane" AutomationProperties.Name="Browser">
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="{StaticResource Space4}" Spacing="12">
-      <TextBlock Classes="heading" Text="Browser" />
-
       <!-- Error State for PaneBind_Throws -->
       <Border x:Name="ErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
               BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
