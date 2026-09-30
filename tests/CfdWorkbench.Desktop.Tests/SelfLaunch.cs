@@ -77,12 +77,12 @@ public static class SelfLaunchTests
     private static void UnhandledChildExitsNamed()
     {
         string entry = Assembly.GetEntryAssembly()!.Location;
-        ExpectNamedExit(SelfLaunch.StartInfo(FailureProbe), $"System.InvalidOperationException: {FailureProbe}");
-        ExpectNamedExit(SelfLaunch.StartInfo("dotnet", entry, FailureProbe), $"System.InvalidOperationException: {FailureProbe}");
+        ExpectNamedExit(SelfLaunch.StartInfo(FailureProbe), "System.InvalidOperationException");
+        ExpectNamedExit(SelfLaunch.StartInfo("dotnet", entry, FailureProbe), "System.InvalidOperationException");
         var product = new ProcessStartInfo("dotnet") { UseShellExecute = false };
         product.ArgumentList.Add(Path.Combine(Path.GetDirectoryName(entry)!, "CfdWorkbench.Desktop.dll"));
         product.Environment["CFDW_REVIEW_MODE"] = "2";
-        ExpectNamedExit(product, "System.ArgumentException: CFDW_REVIEW_MODE must be 1");
+        ExpectNamedExit(product, "System.ArgumentException");
     }
 
     private static void ExpectNamedExit(ProcessStartInfo info, string exception)
@@ -95,7 +95,8 @@ public static class SelfLaunchTests
             child.Kill(entireProcessTree: true);
             throw new Exception($"{string.Join(' ', info.ArgumentList)} did not exit within 60 s");
         }
-        if (child.ExitCode != StartupFailure.ExitCode || !stderr.Result.Contains($"{StartupFailure.Code} {exception}", StringComparison.Ordinal))
+        if (child.ExitCode != StartupFailure.ExitCode ||
+            !stderr.Result.Split('\n').Any(line => line.TrimEnd('\r') == $"{StartupFailure.Code} {StartupFailure.FailureCode} {exception}"))
             throw new Exception($"{string.Join(' ', info.ArgumentList)}: exit {child.ExitCode}, stderr: {stderr.Result.Split('\n')[0]}");
     }
 

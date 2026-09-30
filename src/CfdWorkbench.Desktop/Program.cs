@@ -28,10 +28,11 @@ public static class StartupFailure
     /// <summary>EX_SOFTWARE from sysexits.h: an internal software error.</summary>
     public const int ExitCode = 70;
     public const string Code = "APP-UNHANDLED";
+    public const string FailureCode = "APP-CRASH";
 
     public static void Install() => AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
     {
-        Console.Error.WriteLine($"{Code} {eventArgs.ExceptionObject}");
+        Console.Error.WriteLine($"{Code} {FailureCode} {eventArgs.ExceptionObject?.GetType().FullName ?? "UnknownException"}");
         Console.Error.Flush();
         Environment.Exit(ExitCode);
     };

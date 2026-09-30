@@ -3,6 +3,8 @@ using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
+using System.Diagnostics;
+using System.Text.Json;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Desktop.Panes;
@@ -195,6 +197,67 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Undo did not flip document menu history");
             }
             finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Unhandled_Exception_StderrHasNoMarkerPath", () =>
+        {
+            string marker = "/tmp/CFDW-PRIVATE-" + Guid.NewGuid().ToString("N");
+            var info = SelfLaunch.StartInfo(SelfLaunchTests.FailureProbe + "=" + marker);
+            info.RedirectStandardError = true;
+            using var child = Process.Start(info)!;
+            string stderr = child.StandardError.ReadToEnd();
+            if (!child.WaitForExit(TimeSpan.FromSeconds(30)))
+            {
+                child.Kill(entireProcessTree: true);
+                throw new InvalidOperationException("Failure probe did not exit");
+            }
+            if (child.ExitCode != StartupFailure.ExitCode ||
+                !stderr.Contains($"{StartupFailure.Code} {StartupFailure.FailureCode} System.InvalidOperationException", StringComparison.Ordinal) ||
+                stderr.Contains(marker, StringComparison.Ordinal))
+                throw new InvalidOperationException("Unhandled stderr leaked the marker or lost its exit contract");
+        });
+
+        DesktopChecks.Check("Telemetry_MarkerInjection_AbsentEverywhere", () =>
+        {
+            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-private-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            string marker = "CFDW-PRIVATE-" + Guid.NewGuid().ToString("N");
+            var preferences = new PreferenceStore(Path.Combine(root, "preferences"), () => new ProjectStore());
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller, preferences);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            var priorError = Console.Error;
+            using var capturedError = new StringWriter();
+            try
+            {
+                Console.SetError(capturedError);
+                window.Show();
+                Settle(window);
+                foreach (string name in new[] { marker + ".foil", "win\\" + marker + ".foil" })
+                {
+                    string path = Path.Combine(root, name);
+                    File.Copy(Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil"), path);
+                    var open = host.OpenFileAsync(path);
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                    while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    open.GetAwaiter().GetResult();
+                }
+                var recent = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
+                if (controller.Inspection is null || recent.Entries.Count == 0)
+                    throw new InvalidOperationException("Marker probe did not open and record the file");
+                string emitted = JsonSerializer.Serialize(controller.LocalEvents) +
+                    JsonSerializer.Serialize(new { recent.Outcome, recent.Codes, recent.NeverWrite, recent.SessionOnly }) +
+                    capturedError;
+                if (emitted.Contains(marker, StringComparison.Ordinal))
+                    throw new InvalidOperationException("Marker appeared in telemetry or stderr");
+            }
+            finally
+            {
+                Console.SetError(priorError);
+                window.Close();
+                Directory.Delete(root, recursive: true);
+            }
         });
 
         DesktopChecks.Check("Review_Persona_FocusesShellRegion", () =>

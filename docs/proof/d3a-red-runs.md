@@ -25,9 +25,12 @@ All D3b commands run with `AGENT_SESSION=track-d3b AGENT_WI=D3b` in the assigned
 | 26 | New foil tests added before the shell path existed | 1 | `ShellWindowTests.cs` CS1061: `ShellHost.OpenNewFoilAsync` absent; the test's first attempt also used an inaccessible generated `ModelArea` field and was corrected to use the named control. |
 | 27 | Menu history test added before the controller exposed `CanUndo` / `CanRedo` | 1 | CS1061 for both controller properties. |
 | 28 | Controller properties added, but native menu command still had unconditional `CanExecute` | 1 | `Menu_UndoEnabled_FollowsFocusAndHistory`: empty document enabled Undo or Redo. |
+| 29 | Crash output test added before `StartupFailure.FailureCode` existed | 1 | CS0117 for the missing stable code. |
+| 30 | Temporary `Console.Error.WriteLine(path)` in `ShellHost.OpenFileAsync` | 1 | `Telemetry_MarkerInjection_AbsentEverywhere`: marker appeared in captured stderr. Plant removed. |
 
 After wiring the card, File menu, controller call, and Opening/Cancel outcome, the foreground `--shell-window` run exited 0 with both new Start names and `NativeMenu_MainWindow_BuiltFromTable` passing.
 After binding the menu command predicates and raising `CanExecuteChanged`, the foreground `--shell-window` run exited 0 with `Menu_UndoEnabled_FollowsFocusAndHistory` passing.
+With the handler changed to type and code only, the foreground `--shell-window` run exited 0 with both privacy names passing. The telemetry test observes session events, preference result metadata, and stderr; the design's separate shell and preference telemetry rings are not yet implemented in this track.
 
 Every command below ran with `AGENT_SESSION=track-d3a AGENT_WI=D3a` in this worktree.
 Each run used `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.

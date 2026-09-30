@@ -17,8 +17,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 
 StartupFailure.Install();
-if (args.Contains(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparer.Ordinal))
-    throw new InvalidOperationException(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe);
+if (args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal)) is { } failureProbe)
+    throw new InvalidOperationException(failureProbe);
 if (args.Length == 0) CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run();
 
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
