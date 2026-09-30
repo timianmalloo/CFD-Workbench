@@ -9,25 +9,36 @@ internal static class PointCommandTests
 {
     private static PointOutcome Anchor(AuthoringSession s, string rail, int index) =>
         s.ApplyPointCommand(Id(), new PointCommand.MakeAnchor(rail, Point(s, rail, index).Id));
-    private static PointOutcome Control(AuthoringSession s, string rail, int index) =>
-        s.ApplyPointCommand(Id(), new PointCommand.MakeControl(rail, Point(s, rail, index).Id));
     private static PointOutcome Tangent(AuthoringSession s, TangentKind kind, string? kept = null) =>
         s.ApplyPointCommand(Id(), new PointCommand.SetTangent("leading", Point(s, "leading", 3).Id, kind, kept));
+    private static AuthoringSession WithAnchor()
+    {
+        var s = Open(FoilSource.NewDefault());
+        Anchor(s, "leading", 3);
+        return s;
+    }
+    private static PointView AnchorPoint(AuthoringSession s) =>
+        Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.Single(p => p.Role == PointRole.Anchor);
     private static void SourceUnchanged(AuthoringSession s, Action action, string code)
     {
-        var prior = s.Snapshot(); int rows = s.Envelope().Accepted.Length;
+        var prior = s.Snapshot(); int rows = s.Envelope().Accepted.Length; int cursors = s.Envelope().Cursors.Length;
         Refuses(code, action);
         Equal(true, prior.Source.AsSpan().SequenceEqual(s.Snapshot().Source));
         Equal(rows, s.Envelope().Accepted.Length);
+        Equal(cursors, s.Envelope().Cursors.Length);
     }
     internal static void Run()
     {
         Check("MakeAnchor_ControlPoint_PassesThroughWithinIdentity", () =>
         {
-            using var s = Open(); var p = Point(s, "leading", 3); double before = p.AftMeters;
+            byte[] source = Encoding.UTF8.GetBytes(File.ReadAllText("docs/examples/foildsl/foil-basic.foil")
+                .Replace("(0.5, 0), (0.7, 0)", "(0.5, 4), (0.7, 0)", StringComparison.Ordinal));
+            using var s = Open(source); var p = Point(s, "leading", 3); double before = p.AftMeters;
             var outcome = Anchor(s, "leading", 3);
-            Equal(PointRole.Anchor, Point(s, "leading", 3).Role);
-            Near(before, Point(s, "leading", 3).AftMeters, 1e-6);
+            var anchored = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.Single(item => item.Id == p.Id);
+            Equal(PointRole.Anchor, anchored.Role);
+            Near(before, anchored.AftMeters, 1e-6);
+            Near(before, Planform.Probe(Planform.View(s.Snapshot().Source, "Accepted", 0), p.Eta).LeadingAftMeters, 1e-6);
             True(outcome.PointsAfter > outcome.PointsBefore, "anchor adds handles");
         });
         Check("MakeAnchor_Locality_OutsideSegmentWithinIdentity", () =>
@@ -53,17 +64,20 @@ internal static class PointCommandTests
         });
         Check("MakeAnchor_FourteenPointsNoSnap_RefusedNamesCeiling", () =>
         {
-            using var s = Open(FoilSource.NewDefault()); Anchor(s, "trailing", 3);
-            // A valid 14-point rail can be supplied by the construction fixture once the first anchor is present.
+            using var s = Open(File.ReadAllBytes("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/foil-41-sixteen-three-anchors.foil"));
+            s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", Point(s, "leading", 7).Id));
+            Equal(14, Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.Count);
             string message = "";
-            try { Anchor(s, "trailing", 9); Anchor(s, "trailing", 6); }
+            try { Anchor(s, "leading", 7); }
             catch (ContractError error) { Equal("DSL-CURVE", error.Code); message = error.Message; }
             True(message.Contains("16", StringComparison.Ordinal), "refusal names 16-point ceiling");
         });
         Check("MakeAnchor_HandleGapBelowGrid_Refused", () =>
         {
-            using var s = Open(); Anchor(s, "leading", 3);
-            SourceUnchanged(s, () => Anchor(s, "leading", 2), "DSL-LOCK");
+            byte[] source = Encoding.UTF8.GetBytes(File.ReadAllText("docs/examples/foildsl/foil-basic.foil")
+                .Replace("(0.3, 0), (0.5, 0), (0.7, 0)", "(0.3, 0), (0.30000001, 0), (0.30000002, 0)", StringComparison.Ordinal));
+            using var s = Open(source);
+            SourceUnchanged(s, () => Anchor(s, "leading", 3), "DSL-CURVE");
         });
         Check("MakeAnchor_RootEnd_DslLock", () =>
         {
@@ -71,37 +85,52 @@ internal static class PointCommandTests
         });
         Check("MakeControl_OffLinePoint_GapAboveIdentity", () =>
         {
-            using var s = Open(Row());
-            var outcome = Control(s, "leading", 3);
+            using var s = WithAnchor();
+            var outcome = s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", AnchorPoint(s).Id));
             True(outcome.MaxDeviationMeters > 0, "off-line point changes shape");
         });
         Check("MakeControl_Locality_OutsideSegmentWithinIdentity", () =>
         {
-            using var s = Open(Row()); var prior = Point(s, "leading", 0);
-            Control(s, "leading", 3); Near(prior.AftMeters, Point(s, "leading", 0).AftMeters);
+            using var s = WithAnchor(); var prior = Point(s, "leading", 0);
+            s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", AnchorPoint(s).Id));
+            Near(prior.AftMeters, Point(s, "leading", 0).AftMeters);
         });
         Check("MakeControl_Undo_RestoresExactly", () =>
         {
-            using var s = Open(Row()); byte[] source = s.Snapshot().Source.ToArray();
-            Control(s, "leading", 3); s.Undo(Id()); Equal(true, source.AsSpan().SequenceEqual(s.Snapshot().Source));
+            using var s = WithAnchor(); byte[] source = s.Snapshot().Source.ToArray();
+            s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", AnchorPoint(s).Id));
+            s.Undo(Id()); Equal(true, source.AsSpan().SequenceEqual(s.Snapshot().Source));
         });
         Check("MakeControl_LastRowRemoved_HeaderStays41", () =>
         {
-            using var s = Open(Row()); Control(s, "leading", 3);
+            using var s = WithAnchor(); s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", AnchorPoint(s).Id));
             string source = Encoding.UTF8.GetString(s.Snapshot().Source);
             True(source.Contains("foildsl \"4.1\"", StringComparison.Ordinal), "header never lowers");
             True(!source.Contains("tangents {", StringComparison.Ordinal), "last row removed");
         });
         Check("SetTangent_HandleSelected_SelectionKept", () =>
         {
-            using var s = Open(Row()); var h = Point(s, "leading", 2);
-            Tangent(s, TangentKind.Smooth, h.Id);
-            Equal(h.Id, Point(s, "leading", 2).Id);
+            using var s = Open(Row()); Tangent(s, TangentKind.Corner);
+            var left = Point(s, "leading", 2); var right = Point(s, "leading", 4);
+            var draft = s.BeginPointGesture(Id(), "leading", right.Id);
+            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, right.SpanMeters, right.AftMeters + 0.008);
+            s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
+            Tangent(s, TangentKind.Smooth, left.Id);
+            Near(left.SpanMeters, Point(s, "leading", 2).SpanMeters);
+            Near(left.AftMeters, Point(s, "leading", 2).AftMeters);
         });
         Check("SetTangent_SmoothNoHandleSelected_BothOnBisector", () =>
         {
-            using var s = Open(Row("corner")); Tangent(s, TangentKind.Smooth);
+            using var s = Open(Row()); Tangent(s, TangentKind.Corner);
+            var left = Point(s, "leading", 2);
+            var draft = s.BeginPointGesture(Id(), "leading", left.Id);
+            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, left.SpanMeters, left.AftMeters + 0.008);
+            s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
+            var beforeLeft = Point(s, "leading", 2); var beforeRight = Point(s, "leading", 4);
+            Tangent(s, TangentKind.Smooth);
             Equal(TangentKind.Smooth, Point(s, "leading", 3).Kind);
+            True(Math.Abs(Point(s, "leading", 2).AftMeters - beforeLeft.AftMeters) > 1e-6, "left handle moves to bisector");
+            True(Math.Abs(Point(s, "leading", 4).AftMeters - beforeRight.AftMeters) > 1e-6, "right handle moves to bisector");
         });
         Check("SetTangent_SymmetricNextToNeighbour_OrderKept", () =>
         {

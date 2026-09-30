@@ -4,6 +4,13 @@ public enum PointRole { RootEnd, RootHandle, Control, AnchorHandle, Anchor, TipH
 public enum TangentKind { Corner, Smooth, Symmetric }
 public enum PointFreedom { Fixed, SpanOnly, AftOnly, Free }
 
+public static class PointModel
+{
+    // One source of truth for the rails on which point editing is defined.
+    public static IReadOnlySet<string> EditableCurves { get; } = new HashSet<string>(StringComparer.Ordinal)
+    { "leading", "trailing" };
+}
+
 public sealed record PointView(string Curve, string Id, int Index, double Eta, double SpanMeters, double AftMeters,
     PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks);
 public sealed record PlanSample(double SpanMeters, double AftMeters);

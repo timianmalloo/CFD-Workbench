@@ -6788,6 +6788,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "a3c8def8df25300d137222db33bf3892be4a7ecca2ac4aadbf2ab829409a9292"
     },
     {
+      "id": "proof-m12b-b1b-red-runs",
+      "path": "docs/proof/m12b-b1b-red-runs.md",
+      "title": "M1.2b B1b red-first and mutation runs",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "track-b1b",
+      "phase": "implementation — M1.2b",
+      "reviewBy": "2027-03-29",
+      "reviewSuggested": [],
+      "summary": "Red-first run of the B1b named tests and recorded hand-mutant observations. The complete run output is preserved below before the implementation commit.",
+      "tags": [
+        "m12b",
+        "b1b",
+        "red-first",
+        "point-editing"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "de6fc397501f6bdaccbbdb8970cf31a47dca342e2e34d5d54f5a69ba3e036d73"
+    },
+    {
       "id": "proof-m12b-old-build",
       "path": "docs/proof/m12b-old-build/README.md",
       "title": "M1.2b old-build characterization of FoilDSL 4.1",
@@ -8454,5 +8484,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "83b4dd44a952c192623f578aa6e48200ee0451e56d34642160b3ddc3b8c6dae8"
+  "graphSha256": "1ee3c3f71cbd46b0b414f0688670d5b0d8ed6ac1bf9f12820e594e25290cff69"
 };

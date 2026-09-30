@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json.Nodes;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
 using static CfdWorkbench.Core.Tests.PointGestureTests;
@@ -39,9 +38,10 @@ internal static class ReopenPointEditTests
         });
         Check("Reopen_PointTypeAndTangentRows_UndoRedoRoundTrip", () =>
         {
-            using var s = Open(); var outcome = s.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("leading", Point(s, "leading", 3).Id));
+            using var s = Open(); string vertex = Point(s, "leading", 3).Id;
+            var outcome = s.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("leading", vertex));
             using var reopened = Reopen(s);
-            Equal(PointRole.Anchor, Point(reopened, "leading", 3).Role);
+            Equal(PointRole.Anchor, Planform.View(reopened.Snapshot().Source, "Accepted", 0).Leading.Points.Single(p => p.Id == vertex).Role);
             reopened.Undo(Id()); reopened.Redo(Id());
             Equal(outcome.AcceptedId, reopened.Snapshot().AcceptedId);
         });
@@ -60,10 +60,10 @@ internal static class ReopenPointEditTests
             using var s = Open(); var point = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", point.Id);
             var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.AftMeters + 0.003);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
-            var json = JsonNode.Parse(s.SaveImage())!;
-            json["accepted"]![1]!["edit"]!["curve"] = "leading";
+            var env = s.Envelope(); var rows = env.Accepted.ToArray();
+            rows[1] = rows[1] with { Edit = rows[1].Edit! with { Curve = "leading" } };
             using var next = new AuthoringSession();
-            Refuses("DOC-REFERENCE", () => next.Reopen(Encoding.UTF8.GetBytes(json.ToJsonString())));
+            Refuses("DOC-REFERENCE", () => next.Reopen(NativeProject.Encode(env with { Accepted = rows })));
         });
         Check("Save_DragAndSpanOnlyHistory_NoNewReceiptKeys", () =>
         {
