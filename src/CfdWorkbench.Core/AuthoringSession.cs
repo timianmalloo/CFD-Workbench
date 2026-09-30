@@ -18,7 +18,7 @@ public sealed record AcceptedRow(string Id, string? Parent, string SourceId, str
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
 public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
 public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
-public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
+public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
@@ -129,9 +129,15 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
+            double? fit = pendingFitUm;
+            double? deviation = pendingDeviationUm;
+            double? shift = pendingShiftUm;
+            bool? above = pendingFitAboveLimit;
+            pendingFitUm = pendingDeviationUm = pendingShiftUm = null;
+            pendingFitAboveLimit = null;
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
-            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind));
+            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above));
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -183,7 +189,7 @@ public sealed class AuthoringSession : IDisposable
     public string ApplyDimension(string operationId, DimensionCommand command) =>
         Run("apply", () => ApplyDimensionCore(operationId, command), editKind: "dimension");
     public DimensionOutcome ApplyChord(string operationId, DimensionCommand command) =>
-        throw new NotImplementedException();
+        Run("apply", () => ApplyChordCore(operationId, command), editKind: "dimension");
     public void Cancel(string draftId) => Run("cancel", () => { CancelCore(draftId); return true; });
     public string Undo(string operationId) => Run("undo", () => UndoCore(operationId));
     public string Redo(string operationId) => Run("redo", () => RedoCore(operationId));
@@ -222,6 +228,8 @@ public sealed class AuthoringSession : IDisposable
     readonly HashSet<string> capturedSaveHashes = [];
     readonly Dictionary<string, (double MaxDeviation, double Tolerance, int VertexCount, bool WithinTolerance, bool PiecesIncreased)> pendingFairAssessment = [];
     SessionDraft? draft;
+    double? pendingFitUm, pendingDeviationUm, pendingShiftUm;
+    bool? pendingFitAboveLimit;
     RecoveryRow? recovery;
     ImportReport? activeImportReport;
     string? importBasisFallback;
@@ -253,6 +261,10 @@ public sealed class AuthoringSession : IDisposable
         if (operations.TryGetValue(op, out var prior)) { Guard.Require(prior.Payload == payload, "DOC-OPERATION-CONFLICT"); result = prior.Result; return true; }
         result = ""; return false;
     }
+
+    // Persisted members only. curve is the B1b slot; chords pass the empty slot.
+    internal static string Fingerprint(EditReceipt receipt, string? parentId, string sourceId, string curve = "") =>
+        string.Join('\u001f', "dimension", receipt.Rail, curve, receipt.VertexId, receipt.Rule ?? "", parentId ?? "", sourceId);
     private byte[] OpenCore(byte[] source, string operationId, bool acceptIdInsertion)
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
@@ -276,7 +288,7 @@ public sealed class AuthoringSession : IDisposable
         if (!nextDesigns.Any(d => d.Id == design)) nextDesigns.Add(new(design, priorDesign, p.SurfaceHash!, "cfdw-cv/2"));
         if (!nextSources.Any(s => s.Id == p.SourceHash)) nextSources.Add(new(p.SourceHash, Chunks(p.Source)));
         string id = Guid.NewGuid().ToString("D");
-        var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent));
+        var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
         var prospective = new Envelope("cfdw-project-1", projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null);
         NativeProject.Preflight(prospective, envelopeCap);
@@ -675,24 +687,25 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            string payload = "dimension:" + command.Name + ":" + command.Text;
-            if (Retry(operationId, payload, out string prior)) return prior;
-            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
             Guard.Require(command.Name is "span" or "root-chord" or "tip-chord", "DSL-TARGET");
             Guard.Require(command.Name == "span", "DSL-TARGET");
-            double spanSi = DecimalSi.Parse(command.Text, -3);
-            Guard.Require(spanSi > 0, "DSL-UNIT");
-            byte[] patched = FoilSource.PatchSpan(CurrentBytes, command.Text);
-            var parsed = ParseOwned(patched);
+            if (operations.ContainsKey(operationId))
+            {
+                var replay = PrepareSpan(operationId, command, true);
+                if (Retry(operationId, replay.Payload, out string prior)) return prior;
+            }
+            NativeProject.Uuid(operationId);
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
             Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            var fresh = PrepareSpan(operationId, command, false);
             retiredDraftIds.Add(operationId);
-            draft = new(operationId, current!, 0, "dimension", command.Name, patched);
+            draft = new(operationId, current!, 0, "dimension", command.Name, fresh.Patched);
             try
             {
-                var key = Key(parsed, draft);
-                RequireAdmission(parsed, key);
-                string id = Commit(parsed, operationId, "apply");
-                operations.Add(operationId, (payload, id));
+                var key = Key(fresh.Parsed, draft);
+                RequireAdmission(fresh.Parsed, key);
+                string id = Commit(fresh.Parsed, operationId, "apply");
+                operations.Add(operationId, (fresh.Payload, id));
                 draft = null;
                 recovery = null;
                 return id;
@@ -704,6 +717,98 @@ public sealed class AuthoringSession : IDisposable
                 throw;
             }
         }
+    }
+
+    private DimensionOutcome ApplyChordCore(string operationId, DimensionCommand command)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(command.Name is "root-chord" or "tip-chord", "DSL-TARGET");
+            if (operations.ContainsKey(operationId))
+            {
+                var replay = PrepareChord(operationId, command, true);
+                if (Retry(operationId, replay.Payload, out string prior))
+                {
+                    Remember(replay.Report);
+                    return new(prior, replay.Report);
+                }
+            }
+            NativeProject.Uuid(operationId);
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            var fresh = PrepareChord(operationId, command, false);
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, "dimension", command.Name, fresh.Patched, Rule: fresh.Report.Rule);
+            try
+            {
+                var key = Key(fresh.Parsed, draft);
+                RequireAdmission(fresh.Parsed, key);
+                string id = Commit(fresh.Parsed, operationId, "apply");
+                operations.Add(operationId, (fresh.Payload, id));
+                draft = null;
+                recovery = null;
+                Remember(fresh.Report);
+                return new(id, fresh.Report);
+            }
+            catch
+            {
+                draft = null;
+                retiredDraftIds.Remove(operationId);
+                throw;
+            }
+        }
+    }
+
+    private (string Payload, byte[] Patched, SourceParse Parsed) PrepareSpan(string operationId, DimensionCommand command, bool replay)
+    {
+        string? parentId;
+        byte[] basis;
+        if (replay)
+        {
+            var row = accepted.Single(item => item.OperationId == operationId && item.Edit?.Rail == "dimension");
+            parentId = row.Parent;
+            basis = BaseBytes(parentId!);
+        }
+        else
+        {
+            parentId = current;
+            basis = CurrentBytes;
+        }
+        double spanSi = DecimalSi.Parse(command.Text, -3);
+        Guard.Require(spanSi > 0, "DSL-UNIT");
+        byte[] patched = FoilSource.PatchSpan(basis, command.Text);
+        var parsed = ParseOwned(patched);
+        return (Fingerprint(new EditReceipt(operationId, 0, "dimension", "span"), parentId, parsed.SourceHash), patched, parsed);
+    }
+
+    private (string Payload, byte[] Patched, SourceParse Parsed, DimensionReport Report) PrepareChord(string operationId, DimensionCommand command, bool replay)
+    {
+        string? parentId;
+        byte[] basis;
+        if (replay)
+        {
+            var row = accepted.Single(item => item.OperationId == operationId && item.Edit?.Rail == "dimension");
+            parentId = row.Parent;
+            basis = BaseBytes(parentId!);
+        }
+        else
+        {
+            parentId = current;
+            basis = CurrentBytes;
+        }
+        var (report, patched) = ChordDimension.Evaluate(basis, command);
+        var parsed = ParseOwned(patched);
+        var receipt = new EditReceipt(operationId, 0, "dimension", command.Name, Rule: report.Rule);
+        return (Fingerprint(receipt, parentId, parsed.SourceHash), patched, parsed, report);
+    }
+
+    private void Remember(DimensionReport report)
+    {
+        pendingFitUm = report.FitResidualMeters * 1e6;
+        pendingDeviationUm = report.DeviationFromLinearMeters * 1e6;
+        pendingShiftUm = report.PlanformShiftMeters * 1e6;
+        pendingFitAboveLimit = report.FitAboveLimit;
     }
     private string ApplyCore(string operationId, SessionAssessment assessment)
     {
@@ -810,7 +915,11 @@ public sealed class AuthoringSession : IDisposable
                 {
                     var a = env.Accepted.Single(a => a.Id == c.Target);
                     var d = env.Designs.Single(d => d.Id == a.DesignId);
-                    string payload = c.Reason == "open" ? "open:" + a.SourceId : "apply:" + JsonSerializer.Serialize(new SessionBinding(a.SourceId, a.Parent!, a.Edit!.DraftId, a.Edit.Generation, d.Evaluator, d.SurfaceHash!, a.Edit.Rail, a.Edit.VertexId));
+                    string payload = c.Reason == "open"
+                        ? "open:" + a.SourceId
+                        : a.Edit?.Rail == "dimension"
+                            ? Fingerprint(a.Edit, a.Parent, a.SourceId)
+                            : "apply:" + JsonSerializer.Serialize(new SessionBinding(a.SourceId, a.Parent!, a.Edit!.DraftId, a.Edit.Generation, d.Evaluator, d.SurfaceHash!, a.Edit.Rail, a.Edit.VertexId));
                     operations[c.OperationId] = (payload, c.Target);
                 }
             }
@@ -910,7 +1019,7 @@ public static class NativeProject
             {
                 Exact(a, "id", "parent", "sourceId", "designId", "operationId", "edit");
                 if (a.GetProperty("edit").ValueKind != JsonValueKind.Null)
-                    Exact(a.GetProperty("edit"), ["draftId", "generation", "rail", "vertexId"], ["intent"]);
+                    Exact(a.GetProperty("edit"), ["draftId", "generation", "rail", "vertexId"], ["intent", "rule"]);
             }
             foreach (var c in root.GetProperty("cursors").EnumerateArray()) Exact(c, "sequence", "target", "reason", "operationId");
             var recoveryElement = root.GetProperty("recovery");
@@ -936,13 +1045,16 @@ public static class NativeProject
     // Delete's and rebuild's vertex is read off the profile before the operation runs (and
     // rebuild may then renumber every id, per FoilSource.RebuildProfile.NextVertexIds), so
     // only the parent is guaranteed to hold it. Fair renumbers neither, so both must.
-    static bool EditReference(Definition child, Definition parent, string rail, string vertexId) => rail switch
+    static bool EditReference(Definition child, Definition parent, EditReceipt edit) => edit.Rail switch
     {
-        "leading" or "trailing" or "upper" or "lower" => EditTarget(child, rail, vertexId) && EditTarget(parent, rail, vertexId),
-        "insert" => ProfileHas(child, vertexId),
-        "delete" or "rebuild" => ProfileHas(parent, vertexId),
-        "fair" => ProfileHas(child, vertexId) && ProfileHas(parent, vertexId),
-        "dimension" => vertexId is "span" or "root-chord" or "tip-chord",
+        "leading" or "trailing" or "upper" or "lower" => EditTarget(child, edit.Rail, edit.VertexId) && EditTarget(parent, edit.Rail, edit.VertexId),
+        "insert" => ProfileHas(child, edit.VertexId),
+        "delete" or "rebuild" => ProfileHas(parent, edit.VertexId),
+        "fair" => ProfileHas(child, edit.VertexId) && ProfileHas(parent, edit.VertexId),
+        "dimension" => edit.VertexId is "span" or "root-chord" or "tip-chord"
+            && (edit.VertexId == "span"
+                ? edit.Rule is null
+                : edit.Rule is ChordDimension.RootFlat or ChordDimension.Linear),
         _ => false
     };
     // Same construction rails, against the recovered draft's base: insert/rebuild name a
@@ -977,7 +1089,7 @@ public static class NativeProject
                 Guard.Require(a.Edit is not null, "DOC-REFERENCE"); Uuid(a.Edit!.DraftId);
                 Guard.Require(a.Edit.Generation is >= 0 and <= 9007199254740991, "DOC-REFERENCE");
                 var parent = accepted[a.Parent]; bool same = parsed[a.SourceId].SurfaceHash! == parsed[parent.SourceId].SurfaceHash!;
-                Guard.Require(EditReference(parsed[a.SourceId].Definition!, parsed[parent.SourceId].Definition!, a.Edit.Rail, a.Edit.VertexId), "DOC-REFERENCE");
+                Guard.Require(EditReference(parsed[a.SourceId].Definition!, parsed[parent.SourceId].Definition!, a.Edit), "DOC-REFERENCE");
                 Guard.Require(same ? a.DesignId == parent.DesignId : designs[a.DesignId].Parent == parent.DesignId, "DOC-REFERENCE");
             }
             else Guard.Require(a.Edit is null, "DOC-REFERENCE");

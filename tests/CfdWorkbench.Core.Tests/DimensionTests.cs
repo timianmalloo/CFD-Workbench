@@ -263,11 +263,11 @@ internal static class DimensionTests
         });
         Check("ApplyDimension_EdgesWouldCross_DslEdgesCross", () =>
         {
-            using var session = OpenedExample();
+            using var session = OpenedBytes(WithLocks(FoilSource.NewDefault(), "    root_mirror leading\n"));
             byte[] before = session.Snapshot().Source.ToArray();
             int accepted = session.Envelope().Accepted.Length;
             int cursors = session.Envelope().Cursors.Length;
-            Refuses("DSL-EDGES-CROSS", () => session.ApplyChord(Id(), new("root-chord", "0.02")));
+            Refuses("DSL-EDGES-CROSS", () => session.ApplyChord(Id(), new("root-chord", "0.01")));
             Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
             Equal(accepted, session.Envelope().Accepted.Length);
             Equal(cursors, session.Envelope().Cursors.Length);
