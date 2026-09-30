@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T16:57:13Z",
+  "generated": "2026-09-30T17:02:30Z",
   "audit": [
     {
       "actor": null,
@@ -19458,6 +19458,35 @@ window.AUDIT_DATA = {
       "fan_out": 1,
       "started_at": "2026-09-30T15:48:15Z",
       "duration_seconds": 4138.0
+    },
+    {
+      "id": "al-01M3SM926N5JPZGVCT5D8CE271",
+      "shortname": "join-u1fix",
+      "datetime": "2026-09-30T17:02:30Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/m12a-review-findings into feature/ui-cad-direction",
+      "summary": "C-10/A1 alert buttons wired with effect tests; UI-DEAD-CONTROL check red-first (7 dead buttons) now green; F-ATTACH review mode hosts ShellHost with exact title; A3/A4/A5/A7 fixed with tests; copy C-1,2,3,6,7,8,11,13 aligned; open: C-4,C-5,C-12,C-14 need COPY rows, C-9 unbuilt states, RecentOp.Remove atomicity seam; 3 identical runs verified (99 Desktop) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/u1fix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "fix the M1.2a review findings",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T17:01:44Z",
+      "duration_seconds": 46.0
     }
   ],
   "changes": [
