@@ -4178,7 +4178,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c3a75e9fc1d702ba0541c223e66edf3952d1f3a71c6e452333db3c26be899d6a"
+      "sourceSha256": "83cff29f3a9f9825bb7c6ef1a8872a97ab24938b3d156cac90748232a58de210"
     },
     {
       "id": "kb-hw-glossary",
@@ -6540,6 +6540,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-m12b-b1a-red-runs",
+      "path": "docs/proof/m12b-b1a-red-runs.md",
+      "title": "M1.2b B1a chord red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-b1a",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint. Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo.",
+      "tags": [
+        "m12b",
+        "chords",
+        "length-expression",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d7ea1a5a74f7426e0c5f6e9cb61cc6eb68e8cb606aa2eb570627a02abb69cef8"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8163,5 +8201,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "409ce18d64ac71c731e1f502ce931b8d75a0e4e47d312a1bfea191518183e0f6"
+  "graphSha256": "6cfd14b47d765f2b6e044e3d72a9f7240d28007de507c3c087313877b0e5d8dc"
 };
