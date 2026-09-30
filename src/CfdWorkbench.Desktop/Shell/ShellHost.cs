@@ -199,6 +199,7 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
+        ModelView.StatusTryAgainButton.Click += async (_, _) => await ClearRecentAsync();
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -338,7 +339,7 @@ public sealed class ShellHost : Grid
 
             case OpenOutcome.Cancelled:
                 ModelView.StartCardView.CancelOpening();
-                ModelView.ShowStatus("Opening cancelled. Nothing changed.");
+                ShowStatus("Opening cancelled. Nothing changed.");
                 break;
 
             case OpenOutcome.NeedsIds:
@@ -367,11 +368,29 @@ public sealed class ShellHost : Grid
 
     public async Task ClearRecentAsync()
     {
-        if (Preferences != null)
+        if (Preferences is null) return;
+        var save = await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
+        if (save.Outcome == "Recent list not cleared")
         {
-            await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
-            await LoadRecentAsync();
+            // simplify: two <reason> values (COPY-147, COPY-148); a held claim and an I/O failure both read as
+            // "couldn't be saved". Upgrade trigger: a reason whose recovery differs from Try again.
+            string reason = save.Code == "LAYOUT-VERSION"
+                ? "it was saved by a newer version of CFD Workbench"
+                : "it couldn't be saved";
+            ShowStatus($"The recent-files list wasn't cleared: {reason}. The list is unchanged.", offerTryAgain: true);
         }
+        else if (ModelView.StatusTryAgainButton.IsVisible)
+        {
+            ModelView.StatusText.IsVisible = false;
+            ModelView.StatusTryAgainButton.IsVisible = false;
+        }
+        await LoadRecentAsync();
+    }
+
+    private void ShowStatus(string message, bool offerTryAgain = false)
+    {
+        ModelView.ShowStatus(message);
+        ModelView.StatusTryAgainButton.IsVisible = offerTryAgain;
     }
 
     public async Task RemoveFailedRecentAsync()
