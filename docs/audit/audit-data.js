@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T17:18:47Z",
+  "generated": "2026-09-30T17:22:11Z",
   "audit": [
     {
       "actor": null,
@@ -19524,6 +19524,35 @@ window.AUDIT_DATA = {
         "branch": "fix/m12a-copy-and-recent",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SND3KAYKS3TNMD9N13Q5EN",
+      "shortname": "join-copyfix",
+      "datetime": "2026-09-30T17:22:11Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/m12a-copy-and-recent into feature/ui-cad-direction",
+      "summary": "C-4 dead fallback removed; C-5/C-12/C-14 COPY-140..144; C-9 Recent not cleared built (COPY-146..148), Span not assessed pinned (COPY-145); RecentOp.Remove atomic with write-failure test; 3 identical runs verified; findings: accept-IDs always fails via ShellHost, Refused/NeedsIds leave Start for empty workspace, NaN Span shows COPY-145 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/copyfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close the last M1.2a copy findings and the Recent seam",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T17:21:26Z",
+      "duration_seconds": 45.0
     }
   ],
   "changes": [
