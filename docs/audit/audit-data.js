@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T19:57:48Z",
+  "generated": "2026-09-30T20:15:12Z",
   "audit": [
     {
       "actor": null,
@@ -19847,6 +19847,52 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T19:56:57Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3SZ9X67TS5W1DRZ22C7V0GD",
+      "shortname": "leftpane-f3-f5",
+      "datetime": "2026-09-30T20:15:12Z",
+      "session": "track-leftpane",
+      "prompt": "First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-leftpane --skill implement`\nExport `AGENT_SESSION=track-leftpane AGENT_WI=LEFTPANE` in every shell call, including `git commit`.\nTree: /Users/mallalieut/projects/CFD-Workbench-fix-m12a-left-pane (branch fix/m12a-left-pane, base d0f94c3). Work only in this tree, with absolute paths. Never call EnterWorktree. Never push.\n\n## Context\nThese three findings come from operator session 1 (see `docs/reviews/app-shell-native.md`, section \"Operator session 1\"). SHELLFIX (Codex) reached its 2-cycle repair cap on all three. Treat that cap as a signal to change approach: find the cause in Dock's actual source before changing anything. Do not retry the same tweaks. Dock 11.3.12.1 is in `~/.nuget/packages/dock.*/11.3.12.1/`. The THEME track found its answer the same way, in `Accents/Fluent.axaml`.\n\n- **F3: \"Properties\" appears three times.** The three sources are the pane heading, the Dock chrome title, and a bottom tab strip. The left pane must have ONE tab row, at the TOP (Properties · Browser · Rail controls), as in `docs/mockups/workbench-v10.html`. SHELLFIX's top-tab attempt passed its own test but failed six Browser contrast rows in `ThemeMatrix_ShellControls_AppliedContrast`, so it was rolled back. Its red evidence is in `docs/proof/shellfix-red-runs.md`. Find out which Dock template or tab-strip placement property puts ToolDock tabs at the bottom, and why moving them changed the Browser's resolved brushes.\n- **F4: default left-pane width.** Dock starts the pane at 25% (the red test measured 359 DIP at a 1440 DIP window). The spec default is 260 px (range 200–420). Changing the model's proportion and invalidating layout did not change the realized width. Find how Dock's ProportionalDock or ProportionalStackPanel resolves the initial size. Candidates: `Proportion`, `MinWidth`/`MaxWidth` on the dockable, or `ProportionalStackPanel.Proportion` attached properties set at layout creation rather than afterwards. Apply it where `ShellHost` builds the layout.\n- **F5: focus at launch.** The production launch path does not focus the first start card, and there is no visible ring (UX-28). Find where the Start card becomes visible in the production path (`App.axaml.cs` → `MainWindow` → `ShellHost`). Focus \"New foil\" once it is realized and the window is active.\n\n## Goal\nFix F3, F4 and F5 at their causes. Each test must be observed red first:\n- `Shell_F3_Properties_OneTopTabLabel`\n- `Shell_F4_LeftPane_Default260At1440And1280`: at 1440, 260 ± 1 DIP; at 1280, 260 ± 1 DIP or the spec's rule if it scales.\n- `Shell_F5_Start_FirstCardFocusedWithRing`\n\nSHELLFIX already wrote these tests red. Check whether they are still in `ShellWindowTests.cs` or were removed from the green subset, and restore them as needed.\n\nThe theme matrix must stay green in every variant, with no contrast regression. Measure it; do not assume it.\n\n## Owned files\n- `src/CfdWorkbench.Desktop/Shell/ShellHost.cs`, `Shell/ShellLayout.cs`\n- `App.axaml(.cs)`, `MainWindow.axaml(.cs)`, `Styles.axaml`\n- `Panes/**`\n- `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`\n- `docs/proof/shellfix-red-runs.md` (append)\n\nNot in scope: M1.2b features, the design and spec, and native attach.\n\n## Done when\n- The three tests pass, with the red evidence recorded.\n- `tools/run-tests.sh` exits 0 three times with identical PASS sets.\n- The D3a, D1, D2, C1 and P1 named checks exit 0.\n- `check-docs.py` exits 0. Run `python3 docs/ai-forward-pack/scripts/docs-graph.py derive` if the index drifts.\n- xaml-token-lint is clean.\n- The app launches and you close it (`pgrep -fl CfdWorkbench` shows nothing).\n- Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n- The audit entry is appended.\n\n## Budget\nTier T1 · fan-out 1 (ux-accessibility for F3/F5, Adversary Mode) · box 90 min · 120 tool calls. At most 2 repair cycles.\n\nAnti-spiral: progress is a src/ or tests/ diff. Cite the Dock source file:line for each cause.\nShell: never pipe a gate's status.\n\n## Return (≤180 words)\n- For each finding: the cause, with Dock file:line; the fix; and the test.\n- Theme-matrix before → after.\n- Gate exits.\n- SHAs.",
+      "summary": "Causes found in Dock 11.3.12.1 source: ToolControl.axaml:52 docks the tab strip Bottom; ToolChromeControl.axaml:169 PART_Title repeats the title; ProportionManager.cs:118 writes Proportion as a local value that shadows the model binding; DeferredContentControl realizes content at Background priority. Fixed in ShellHost/Styles/Panes/MainWindow; three checks red then green; theme matrix 98 rows byte-identical; 3 runs 400 PASS sha cc39ae45f6bf; named checks green; commit c32eb76. Residual: SetPaneSize sets only the model Proportion (same shadowing).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "claude-opus-5.5",
+      "artifacts": [
+        "docs/proof/shellfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix operator findings F3 (one top tab row), F4 (260 DIP left pane) and F5 (focused first Start card) at their Dock-source causes",
+      "done_when": "Shell_F3/F4/F5 green after observed red; run-tests x3 identical; D3a/D1/D2/C1/P1 exit 0; lint clean; check-docs 0; app launched and closed",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T19:58:24Z",
+      "duration_seconds": 1008.0,
+      "parallelism": {
+        "unparseable_runs": 1
+      },
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 3,
+          "accepted": 2
+        }
+      ],
+      "git": {
+        "sha": "c32eb764d49c445c931958e121e068814e8696e7",
+        "short": "c32eb764d",
+        "branch": "fix/m12a-left-pane",
+        "pushed": null
+      }
     }
   ],
   "changes": [
