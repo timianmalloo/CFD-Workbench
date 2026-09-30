@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T15:45:25Z",
+  "generated": "2026-09-30T15:47:17Z",
   "audit": [
     {
       "actor": null,
@@ -19402,6 +19402,35 @@ window.AUDIT_DATA = {
         "branch": "u1a-native-review",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SFZB4TH0NC2J92TWPQZ7NS",
+      "shortname": "join-u1a",
+      "datetime": "2026-09-30T15:47:17Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of u1a-native-review into feature/ui-cad-direction",
+      "summary": "COPY rows added; 14 copy mismatches C-1..C-14 incl. C-10 dead alert buttons (verified: no Click handlers); a11y veto held (A1-A7); native rows operator-run: cua_repl unavailable and review mode disables the Dock shell (F-ATTACH, verified App.axaml.cs:32) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/app-shell-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "record M1.2a UI judgement",
+      "done_when": "merged; gates green; M1.2a stays open",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T15:46:31Z",
+      "duration_seconds": 46.0
     }
   ],
   "changes": [
