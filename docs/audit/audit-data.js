@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:47:47Z",
+  "generated": "2026-09-30T21:41:59Z",
   "audit": [
     {
       "actor": null,
@@ -20150,6 +20150,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T20:46:57Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M3T48T61JKF9S8GR66Y0959D",
+      "shortname": "track-b0",
+      "datetime": "2026-09-30T21:41:59Z",
+      "session": "track-b0",
+      "prompt": "B0 brief",
+      "summary": "FoilDSL 4.1 is expand-only: optional tangent rows, channel ceiling 16, version gate before any block, EnsureHeader41, fixed-seed parse/print round trip, and the planform point model. tools/run-tests.sh exit 0 in 47 s. Named checks B0 29/29, D3a 40/40, D1 12/12, D2 21/21, C1 14/14, P1 23/23. check-docs exit 0. Readiness_SixteenPointThreeAnchors_AssessUnderProofBudget assess_ms=26.828, Certified, under the 1 s budget, excluded from run-tests.sh. PointModel.cs has no Avalonia reference.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T20:48:37Z",
+      "duration_seconds": 3202.0
     }
   ],
   "changes": [
