@@ -665,7 +665,7 @@ public static class ControllerShellTests
             {
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004); End(controller);
                 dynamic? ev = CfdWorkbench.Desktop.Shell.ShellEvents.Read().LastOrDefault(e => e.Name == "gesture.end");
-                Require(ev is not null && ev.Outcome == "committed" && ev.Frames is > 0 && ev.UpdateP95Ms is >= 0,
+                Require(ev is not null && ev!.Outcome == "committed" && ev!.Frames is > 0 && ev!.UpdateP95Ms is >= 0,
                     "Gesture end event lacks frame and p95 measurements.");
             }
         });
