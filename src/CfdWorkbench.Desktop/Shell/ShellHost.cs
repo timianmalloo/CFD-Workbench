@@ -23,6 +23,9 @@ public sealed class ShellHost : Grid
 {
     public static void InstallTheme(Application application)
     {
+        // The shell has no reveal motion. A delayed Dock reveal can leave an invalidated
+        // viewport unpainted after returning to its document tab.
+        Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
         application.Styles.Add(new DockFluentTheme());
         application.DataTemplates.Add(new FuncDataTemplate<Document>((document, _) => document.Context as Control));
         application.DataTemplates.Add(new FuncDataTemplate<Tool>((tool, _) => tool.Context as Control));
@@ -39,6 +42,7 @@ public sealed class ShellHost : Grid
     public ModelArea ModelView { get; }
 
     public Button LeftSidebarToggle { get; }
+    private DocumentTabStrip? sidebarToggleStrip;
     public event Action<IReadOnlyList<RecentEntry>>? RecentLoaded;
     public event Action<string>? PaletteCommand;
     public AutoCompleteBox PaletteSearch { get; }
@@ -89,38 +93,17 @@ public sealed class ShellHost : Grid
         Preferences = preferences;
         this.pickOpenFile = pickOpenFile;
 
-        RowDefinitions = new RowDefinitions("Auto,*");
-
-        // Top App Bar / Toggle Bar
-        var appBar = new Border
-        {
-            BorderThickness = new Thickness(0, 0, 0, 1),
-            Padding = new Thickness(4)
-        };
-        void RefreshAppBarBrushes()
-        {
-            if (this.TryFindResource("SurfaceSoftBrush", ActualThemeVariant, out var background))
-                appBar.Background = background as IBrush;
-            if (this.TryFindResource("LineBrush", ActualThemeVariant, out var border))
-                appBar.BorderBrush = border as IBrush;
-        }
+        RowDefinitions = new RowDefinitions("*");
         AttachedToVisualTree += (_, _) =>
         {
-            RefreshAppBarBrushes();
             RefreshPanes();
         };
-        ActualThemeVariantChanged += (_, _) => RefreshAppBarBrushes();
-        var appPanel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8 };
         LeftSidebarToggle = new Button
         {
-            Content = "Sidebar",
+            Content = "◧",
             [AutomationProperties.NameProperty] = "Toggle left sidebar"
         };
         LeftSidebarToggle.Click += (_, _) => ToggleLeftSidebar();
-        appPanel.Children.Add(LeftSidebarToggle);
-        appBar.Child = appPanel;
-        SetRow(appBar, 0);
-        Children.Add(appBar);
 
         // Initialize Dock
         LayoutFactory = new ShellLayoutFactory();
@@ -136,13 +119,13 @@ public sealed class ShellHost : Grid
         LayoutFactory.BrowserTool.Context = Browser;
         LayoutFactory.RailControlsTool.Context = RailEditor;
 
-        // A view has one logical parent. Move these bodies into Dock's document tabs.
-        var sectionSample = ModelView.SectionSampleTab.Content;
-        var foilSource = ModelView.FoilSourceTab.Content;
-        var sectionEditor = ModelView.SectionTab.Content;
-        ModelView.SectionSampleTab.Content = null;
-        ModelView.FoilSourceTab.Content = null;
-        ModelView.SectionTab.Content = null;
+        // A view has one logical parent. Dock owns the only document tab strip.
+        var sectionSample = ModelView.SectionSampleBody;
+        var foilSource = ModelView.FoilSourceBody;
+        var sectionEditor = ModelView.SectionEditor;
+        ModelView.DetachedDocumentBodies.Children.Remove(sectionSample);
+        ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
+        ModelView.DetachedDocumentBodies.Children.Remove(sectionEditor);
         LayoutFactory.ModelDocument.Context = ModelView;
         LayoutFactory.SectionSampleDocument.Context = sectionSample;
         LayoutFactory.FoilSourceDocument.Context = foilSource;
@@ -154,8 +137,13 @@ public sealed class ShellHost : Grid
             Layout = LayoutRoot,
             InitializeFactory = true
         };
-        DockHost.LayoutUpdated += (_, _) => InstallToolTabMenus();
-        SetRow(DockHost, 1);
+        DockHost.LayoutUpdated += (_, _) =>
+        {
+            InstallToolTabMenus();
+            LabelToolChrome();
+            PlaceSidebarToggle();
+        };
+        SetRow(DockHost, 0);
         Children.Add(DockHost);
 
         PaletteSearch = new AutoCompleteBox
@@ -186,7 +174,6 @@ public sealed class ShellHost : Grid
             paletteOverlay.BorderBrush = this.FindResource("LineBrush") as IBrush;
             paletteOverlay.BorderThickness = new Thickness(1);
         };
-        SetRowSpan(paletteOverlay, 2);
         Children.Add(paletteOverlay);
 
         // Wire Controller updates
@@ -457,6 +444,7 @@ public sealed class ShellHost : Grid
         Properties.Bind(Controller);
         Browser.Bind(Controller);
         RailEditor.Bind(Controller);
+        ModelView.SectionEditor.Bind(Controller);
 
         bool foilOpen = Controller.Inspection is not null;
         ModelView.ShowFoilOpen(foilOpen);
@@ -631,6 +619,36 @@ public sealed class ShellHost : Grid
                     tab.Focus(NavigationMethod.Tab);
             }, DispatcherPriority.Input);
             tab.ContextMenu = menu;
+        }
+    }
+
+    private void PlaceSidebarToggle()
+    {
+        var strip = DockHost.GetVisualDescendants().OfType<DocumentTabStrip>().FirstOrDefault();
+        if (strip is null || ReferenceEquals(strip, sidebarToggleStrip)) return;
+        if (sidebarToggleStrip is not null) sidebarToggleStrip.RightContent = null;
+        strip.RightContent = LeftSidebarToggle;
+        sidebarToggleStrip = strip;
+    }
+
+    private void LabelToolChrome()
+    {
+        foreach (var dock in DockHost.GetVisualDescendants().OfType<ToolDockControl>())
+        {
+            foreach (var button in dock.GetVisualDescendants().OfType<Button>())
+            {
+                switch (button.Name)
+                {
+                    case "PART_MenuButton" when button.Content is not string:
+                        button.Content = "⋯";
+                        AutomationProperties.SetName(button, "Pane menu");
+                        break;
+                    case "PART_CloseButton" when button.Content is not string:
+                        button.Content = "×";
+                        AutomationProperties.SetName(button, "Close left side bar");
+                        break;
+                }
+            }
         }
     }
 

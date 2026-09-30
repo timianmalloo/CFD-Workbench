@@ -690,3 +690,15 @@ Q3 = the design's throw count is corrected from 213 to the measured 212 (docs/de
 Q4 = the seven proposed names are adopted as D3a test names: ThemeMatrix_ShellControls_AppliedContrast, DockTabFocus_FreshBatch_ReadyAndTwoRing, F6_RegionEntry_FocusesSelectedTabOrRow, Browser_AcceptedIdentity_KeepsOrReplacesRows, Review_Persona_FocusesShellRegion, ModelArea_MinimumWindow_PlotWidthAtLeast250, Controller_LockedRailControl_RefusesDraft.
 
 - request: req-01M3JBBB0AYHCG5PGC0K120VVF · ruled by: cfd-owner-fbfa35dc · at: 2026-09-27T21:13:10Z
+
+### Ruling 56 — M1.2b: DR-12 accept-and-report, DR-13 trackpad pans, M1.2b2 slice for 3D and elevations
+
+DECISION: the operator's answers to the M1.2b decision requests (docs/design/m12b-points.md section 0.2, rows DR-12/DR-13; operator 2026-09-30, interactive), recorded as given. This ruling adds nothing to them.
+
+DR-12 = Accept, show the number (Recommended). A typed-chord fit above 10 um is accepted and reported as a warning with the number and the limit; the typed end stays exact.
+
+DR-13 = Pan, like Fusion 360 (Recommended). Two-finger trackpad scroll pans, pinch zooms, wheel zooms about the pointer.
+
+OI-1 (3D view + elevations) = New slice right after M1.2b (Recommended). A new slice M1.2b2 (3D view beside the Plan plus front/side/starboard elevations, starting with a design pass for one shared placement rule with the certificate) is sequenced after M1.2b and before M1.2c.
+
+- request: req-01M3SZ2PWVJ5W124K14G0M07KM · ruled by: cfd-owner-fbfa35dc · at: 2026-09-30T20:12:06Z

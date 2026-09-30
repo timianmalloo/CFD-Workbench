@@ -3063,7 +3063,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5b8f812f7aab7b2cecbd8f334b9d9595dbee1fdfa952a18afe3c2e8f832f35a6"
+      "sourceSha256": "cd5908bba9ffed11a3782875669e478d63e1d1013865200479445080d2112fba"
     },
     {
       "id": "domain-experts",
@@ -4178,7 +4178,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5f280508c62a3f524f1bbc4380c00ada0cbb179426e2add9393cada7df337d5"
+      "sourceSha256": "c3a75e9fc1d702ba0541c223e66edf3952d1f3a71c6e452333db3c26be899d6a"
     },
     {
       "id": "kb-hw-glossary",
@@ -6618,6 +6618,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-shellfix-red-runs",
+      "path": "docs/proof/shellfix-red-runs.md",
+      "title": "Shell visual defect red runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "m1.2a-shellfix",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Red-first rendered-control checks for the operator's first native shell findings. Each row records the observed failure before its production fix.",
+      "tags": [
+        "app-shell",
+        "rendered-ui",
+        "regression"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "tested-by"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "40bed83ef00399852b700cbe5850f36b14fa95e976c12b009325018ef7f8c44e"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -6774,7 +6803,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "96c3dc789c479539e55b6c4d8f50b5d0b7ffbda2fbd4eecf5c181c551845ffe8"
+      "sourceSha256": "52f02005ed6f91de53d6b51ed3f026fd9aea17cc4b3bc0c4df1b44417f3b84c9"
     },
     {
       "id": "review-application-architecture",
@@ -8076,5 +8105,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6c75077686d994ee18a317d63b4e220f82ea3c3d1d385eaed099cf025dc07995"
+  "graphSha256": "725f4be8a04c8cb2cf6f0fc72215d7e44c0847f6c1a8be27cdc8d1a4f41c9307"
 };
