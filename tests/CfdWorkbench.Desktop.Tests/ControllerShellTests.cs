@@ -69,6 +69,18 @@ public static class ControllerShellTests
                 throw new InvalidOperationException("Accepted source changed after refused ApplySpan.");
         });
 
+        DesktopChecks.Check("Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            string before = controller.AcceptedSource;
+            var result = controller.ApplySpanAsync("1000000000").GetAwaiter().GetResult();
+            Require(result is CommitOutcome.Refused { Code: "DSL-EDGES-CROSS" },
+                "Async Span did not return Core's boundary refusal.");
+            Require(controller.Gesture == GestureState.Idle && controller.AcceptedSource == before && !controller.CanUndo,
+                "Refused async Span changed source, history, or Busy state.");
+        });
+
         DesktopChecks.Check("OpenFailure_AccessDenied_Classified", () =>
         {
             var failure = OpenFailure.Classify(new UnauthorizedAccessException("Permission denied"), "/test/locked.foil");
