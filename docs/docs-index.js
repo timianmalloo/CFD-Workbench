@@ -6384,6 +6384,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "review-app-shell-native",
+      "path": "docs/reviews/app-shell-native.md",
+      "title": "Native review — CAD-first app shell, M1.2a rows",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design — U1a (M1.2a)",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "U1a for M1.2a. COPY-125 to COPY-139 recorded; the build has fourteen copy and behaviour findings (C-1 to C-14; C-10, dead open-failed buttons, is a Blocker). No native row was attached: the supported CUA adapter is absent from this harness, and review mode turns the Dock shell off, so the supported attach cannot bind the M1.2a shell. Every native row is operator-run, not done. The accessibility veto is held. M1.2a stays open.",
+      "tags": [
+        "native-ui",
+        "accessibility",
+        "app-shell",
+        "m1.2a",
+        "copy",
+        "operator-run"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "documents"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-application-native",
+          "rel": "refines"
+        },
+        {
+          "to": "investigation-review-window-attach",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3bd6f1004200dded41ee9b080ec6547d7a94baf2a6e5dd245306e9c93b0e355b"
+    },
+    {
       "id": "review-application-architecture",
       "path": "docs/reviews/application-architecture.md",
       "title": "Independent review of the application foundation architecture",
@@ -7648,5 +7696,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "056987d63475be73a4c7cc95b295d76ad7623a09b3006c5899b6e2f637c845d4"
+  "graphSha256": "6c4cc92dc7c4e5ff0b2c656f8974208b5463fa4616cd68f5737d94e7763ea789"
 };
