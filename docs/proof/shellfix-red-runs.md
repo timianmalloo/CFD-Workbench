@@ -1,0 +1,24 @@
+---
+id: proof-shellfix-red-runs
+title: Shell visual defect red runs
+type: proof-pack
+status: in-review
+owner: "@timianmalloo"
+phase: m1.2a-shellfix
+tags: [app-shell, rendered-ui, regression]
+links:
+  - {to: design-app-shell, rel: tested-by}
+  - {to: defect-classes, rel: relates-to}
+review-by: 2026-10-30
+summary: >-
+  Red-first rendered-control checks for the operator's first native shell findings.
+  Each row records the observed failure before its production fix.
+---
+
+# Shell visual defect red runs
+
+All runs used `AGENT_SESSION=track-shellfix AGENT_WI=SHELLFIX` and the Release Desktop named-check harness.
+
+| Finding | Red check and observed failure | Cause and green evidence |
+|---|---|---|
+| F7 | `Shell_F7_ModelTabReentry_RendersAcceptedFoil`: `FAIL ... re-entry: model viewport was not attached and drawn; root=Window, visible=True, bounds=0, 14, 907, 599, render=2, revision=0/1`. A forced frame invalidation after returning from Foil source did not draw. | Dock's nonzero deferred reveal duration held the document presentation: a diagnostic run with `RevealDuration = TimeSpan.Zero` passed without another change. Setting zero in `ShellHost.InstallTheme` follows design §11's “Motion: none”; the same check then passed with the diagnostic override removed. |

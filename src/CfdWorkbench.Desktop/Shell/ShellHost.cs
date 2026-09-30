@@ -23,6 +23,9 @@ public sealed class ShellHost : Grid
 {
     public static void InstallTheme(Application application)
     {
+        // The shell has no reveal motion. A delayed Dock reveal can leave an invalidated
+        // viewport unpainted after returning to its document tab.
+        Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
         application.Styles.Add(new DockFluentTheme());
         application.DataTemplates.Add(new FuncDataTemplate<Document>((document, _) => document.Context as Control));
         application.DataTemplates.Add(new FuncDataTemplate<Tool>((tool, _) => tool.Context as Control));

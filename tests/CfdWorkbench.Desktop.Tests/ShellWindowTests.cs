@@ -22,6 +22,54 @@ public static class ShellWindowTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("Shell_F7_ModelTabReentry_RendersAcceptedFoil", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenNewFoilAsync();
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                void AssertDrawn(string step)
+                {
+                    if (!ReferenceEquals(viewport.GetVisualRoot(), window) || !viewport.IsEffectivelyVisible ||
+                        viewport.Bounds.Width <= 0 || viewport.Bounds.Height <= 0 ||
+                        !ReferenceEquals(viewport.Frame, controller.Frame) ||
+                        !ReferenceEquals(viewport.LastRecordedFrame, controller.Frame) ||
+                        viewport.LastRecordedRevision != viewport.FrameRevision || viewport.RenderSerial == 0 ||
+                        viewport.FoilBrush is null || viewport.StationBrush is null)
+                        throw new InvalidOperationException($"{step}: model viewport was not attached and drawn; " +
+                            $"root={viewport.GetVisualRoot()?.GetType().Name ?? "none"}, visible={viewport.IsEffectivelyVisible}, " +
+                            $"bounds={viewport.Bounds}, render={viewport.RenderSerial}, revision={viewport.LastRecordedRevision}/{viewport.FrameRevision}");
+                }
+                AssertDrawn("initial");
+                var tabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
+                var sourceTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.FoilSourceDocument));
+                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.ModelDocument));
+                sourceTab.IsSelected = true;
+                Settle(window);
+                if (!sourceTab.IsSelected)
+                    throw new InvalidOperationException("Foil source tab did not select");
+                modelTab.IsSelected = true;
+                Settle(window);
+                long beforeRedraw = viewport.RenderSerial;
+                viewport.InvalidateFrameForMetric();
+                Settle(window);
+                AssertDrawn("re-entry");
+                if (viewport.RenderSerial <= beforeRedraw)
+                    throw new InvalidOperationException("Re-entered viewport did not draw its accepted foil");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);
