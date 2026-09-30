@@ -96,8 +96,6 @@ public static class NativeMenuBuilder
                         onAction?.Invoke(row.Id);
                     }
                 });
-                // Hook point: NEWFOIL adds WorkbenchController.NewFoilAsync at the coordinator join.
-                if (row.Id == "file.new") item.IsEnabled = false;
 
                 menu.Add(item);
 

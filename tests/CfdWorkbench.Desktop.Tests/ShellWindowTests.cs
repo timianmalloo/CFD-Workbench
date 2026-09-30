@@ -135,8 +135,8 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("Menu was not installed on the window");
             var file = menu.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "File"));
             var newFoil = file.Menu!.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "New foil"));
-            if (newFoil.IsEnabled)
-                throw new InvalidOperationException("New foil is enabled before the controller seam is joined");
+            if (!newFoil.IsEnabled)
+                throw new InvalidOperationException("New foil is disabled after the controller seam joined");
             var edit = menu.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Edit"));
             var undo = edit.Menu!.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Undo"));
             var expectedModifier = OperatingSystem.IsMacOS() ? Avalonia.Input.KeyModifiers.Meta : Avalonia.Input.KeyModifiers.Control;
@@ -413,6 +413,39 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Opened foil did not focus the model area");
             }
             finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Start_NewFoil_FocusModelArea", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                if (!host.ModelView.FindControl<StartView>("StartCardView")!.FindControl<Button>("StartNewButton")!.IsEnabled)
+                    throw new InvalidOperationException("New foil card is disabled");
+                var task = host.OpenNewFoilAsync();
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!task.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                task.GetAwaiter().GetResult();
+                Settle(window);
+                if (controller.Inspection is null || controller.OpenedPath is not null ||
+                    !host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                    throw new InvalidOperationException("New foil did not open an unsaved foil and focus the model area");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Start_ExampleFixtureMissing_NamesFixtureNewFoilAvailable", () =>
+        {
+            var start = new StartView();
+            start.ShowAlert("example.foil", new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil"), isMissingFixture: true);
+            if (StartControl<TextBlock>(start, "AlertTitle").Text?.Contains("example.foil", StringComparison.Ordinal) != true ||
+                !StartControl<Button>(start, "AlertNewFoilButton").IsVisible)
+                throw new InvalidOperationException("Missing example alert omitted fixture name or New foil action");
         });
 
         DesktopChecks.Check("Focus_ClosePane_NextTab", () =>

@@ -16,6 +16,16 @@ summary: >-
 
 # D3a red runs — dispatch 2
 
+## D3b continuation
+
+All D3b commands run with `AGENT_SESSION=track-d3b AGENT_WI=D3b` in the assigned tree.
+
+| Run | Pre-implementation state | Exit | Observed failure |
+|---|---|---:|---|
+| 26 | New foil tests added before the shell path existed | 1 | `ShellWindowTests.cs` CS1061: `ShellHost.OpenNewFoilAsync` absent; the test's first attempt also used an inaccessible generated `ModelArea` field and was corrected to use the named control. |
+
+After wiring the card, File menu, controller call, and Opening/Cancel outcome, the foreground `--shell-window` run exited 0 with both new Start names and `NativeMenu_MainWindow_BuiltFromTable` passing.
+
 Every command below ran with `AGENT_SESSION=track-d3a AGENT_WI=D3a` in this worktree.
 Each run used `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.
 The complete process exited after each run; no test window was left open.

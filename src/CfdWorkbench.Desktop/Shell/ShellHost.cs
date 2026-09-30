@@ -112,9 +112,9 @@ public sealed class ShellHost : Grid
         Controller.Changed += OnControllerChanged;
         Controller.SelectionChanged += OnSelectionChanged;
 
-        // Wire StartView actions in ModelView
-        // The controller's blank-foil outcome contract is a pending D2 seam.
-        ModelView.StartCardView.StartNewButton.IsEnabled = false;
+        // Wire StartView actions in ModelView.
+        ModelView.StartCardView.StartNewButton.Click += async (_, _) => await OpenNewFoilAsync();
+        ModelView.StartCardView.AlertNewFoilButton.Click += async (_, _) => await OpenNewFoilAsync();
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
@@ -135,8 +135,23 @@ public sealed class ShellHost : Grid
         }
         catch (Exception)
         {
-            HandleOpenOutcome(new OpenOutcome.Failed(new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil")), "example.foil");
+            ModelView.StartCardView.HideOpening();
+            ModelView.StartCardView.ShowAlert("example.foil", new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil"), isMissingFixture: true);
         }
+    }
+
+    public async Task OpenNewFoilAsync()
+    {
+        if (opening is not null) return;
+        using var cancellation = new CancellationTokenSource();
+        opening = cancellation;
+        ModelView.StartCardView.ShowOpening("new foil", ModelView.StartCardView.StartNewButton);
+        try
+        {
+            var outcome = await Controller.NewFoilAsync(cancellation.Token);
+            HandleOpenOutcome(outcome, "new foil", recordRecent: false);
+        }
+        finally { opening = null; }
     }
 
     public async Task OpenFileAsync(string path)
@@ -167,7 +182,7 @@ public sealed class ShellHost : Grid
         await OpenFileAsync(file.Path.LocalPath);
     }
 
-    public void HandleOpenOutcome(OpenOutcome outcome, string path)
+    public void HandleOpenOutcome(OpenOutcome outcome, string path, bool recordRecent = true)
     {
         string fileName = System.IO.Path.GetFileName(path);
         switch (outcome)
@@ -177,7 +192,7 @@ public sealed class ShellHost : Grid
                 ModelView.ShowFoilOpen(true);
                 RefreshPanes();
                 FocusModelWhenReady();
-                _ = RecordRecentAsync(path);
+                if (recordRecent) _ = RecordRecentAsync(path);
                 break;
 
             case OpenOutcome.Failed failed:

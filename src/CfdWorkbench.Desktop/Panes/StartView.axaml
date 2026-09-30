@@ -44,7 +44,7 @@
                   AutomationProperties.Name="New foil">
             <StackPanel Spacing="4" Margin="{StaticResource Space2}">
               <TextBlock Text="New foil" FontWeight="SemiBold" />
-              <TextBlock Text="A straight wing to shape." Classes="caption" TextWrapping="Wrap" />
+              <TextBlock Text="A near-elliptic wing to shape." Classes="caption" TextWrapping="Wrap" />
             </StackPanel>
           </Button>
 

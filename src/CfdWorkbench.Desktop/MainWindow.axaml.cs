@@ -220,8 +220,7 @@ public sealed partial class MainWindow : Window
         if (shellHost is null) return;
         switch (id)
         {
-            // NewFoilAsync is supplied by the NEWFOIL track at the coordinator join.
-            case "file.new": break;
+            case "file.new": await shellHost.OpenNewFoilAsync(); break;
             case "file.new-example": await shellHost.OpenExampleAsync(); break;
             case "file.open": await shellHost.OpenFileInteractiveAsync(); break;
             case "file.save": await Guarded(SaveWithPickerAsync); break;
