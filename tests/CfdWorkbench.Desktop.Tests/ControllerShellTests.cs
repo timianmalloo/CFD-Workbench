@@ -818,14 +818,14 @@ public static class ControllerShellTests
                         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
                     Require(pendingField is not null, "Busy direct command has no document-action wait handle.");
                     var completion = new TaskCompletionSource<CommitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
-                    pendingField.SetValue(controller, completion.Task);
+                    pendingField!.SetValue(controller, completion.Task);
                     var document = controller.NewFoilAsync();
                     Require(!document.IsCompleted && controller.AcceptedSource == before,
                         "Document action passed an unfinished direct command.");
                     SetCellState(controller, GestureState.Idle);
                     completion.SetResult(new CommitOutcome.Refused("DSL-TARGET", "Synthetic completion"));
                     document.GetAwaiter().GetResult();
-                    pendingField.SetValue(controller, null);
+                    pendingField!.SetValue(controller, null);
                 }
                 else controller.NewFoilAsync().GetAwaiter().GetResult();
                 break;
