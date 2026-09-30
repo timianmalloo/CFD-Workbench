@@ -29,7 +29,7 @@ public sealed class App : Application
                 var preferences = new PreferenceStore(
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench"),
                     () => new ProjectStore());
-                desktop.MainWindow = new MainWindow(shellMode: NativeReviewOptions.Current is null, preferences);
+                desktop.MainWindow = CreateMainWindow(preferences);
                 Console.Error.WriteLine($"NATIVE-STARTUP main-window-assigned={desktop.MainWindow is not null}");
             }
             catch (Exception error)
@@ -40,4 +40,7 @@ public sealed class App : Application
         }
         base.OnFrameworkInitializationCompleted();
     }
+
+    public static MainWindow CreateMainWindow(PreferenceStore? preferences = null) =>
+        new(shellMode: true, preferences);
 }

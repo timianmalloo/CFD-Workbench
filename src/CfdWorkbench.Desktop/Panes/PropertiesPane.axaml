@@ -40,7 +40,7 @@
               <TextBlock Grid.Column="1" x:Name="SpanUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
             </Grid>
             <!-- Span error alert -->
-            <Border x:Name="SpanErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceBrush}"
+            <Border x:Name="SpanErrorPanel" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                     Padding="{StaticResource Space2}">
               <TextBlock x:Name="SpanErrorText" Foreground="{DynamicResource DangerBrush}" Classes="caption" TextWrapping="Wrap" />

@@ -25,6 +25,12 @@ public partial class PropertiesPane : UserControl
         };
     }
 
+    public void ShowRenderFailure(bool foilOpen)
+    {
+        ErrorText.Text = "Properties couldn't be shown." + (foilOpen ? " Your foil hasn't changed." : "");
+        ErrorPanel.IsVisible = true;
+    }
+
     public void Bind(WorkbenchController controller)
     {
         boundController = controller;
@@ -117,8 +123,7 @@ public partial class PropertiesPane : UserControl
             BlocksPanel.Children.Clear();
             ContentPanel.IsVisible = false;
             EmptyPanel.IsVisible = false;
-            ErrorText.Text = "Properties couldn't be shown.";
-            ErrorPanel.IsVisible = true;
+            ShowRenderFailure(controller?.Inspection is not null);
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
             return;
         }
@@ -138,7 +143,10 @@ public partial class PropertiesPane : UserControl
             if (!ok)
             {
                 e.Handled = true;
-                SpanInput.Focus();
+                if (e.Key == Key.Tab)
+                    (TopLevel.GetTopLevel(this) as IInputRoot)?.KeyboardNavigationHandler?.Move(SpanInput,
+                        e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? NavigationDirection.Previous : NavigationDirection.Next,
+                        e.KeyModifiers);
             }
             else if (e.Key == Key.Tab)
             {
@@ -153,11 +161,19 @@ public partial class PropertiesPane : UserControl
         if (boundController == null) return false;
         var text = SpanInput.Text?.Trim() ?? "";
 
-        if (string.IsNullOrEmpty(text) || !double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double val) || val <= 0)
+        if (string.IsNullOrEmpty(text) || !double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double val))
         {
-            SpanErrorText.Text = "Invalid span. Enter a positive number.";
+            SpanErrorText.Text = "Enter a number. Span is unchanged.";
             SpanErrorPanel.IsVisible = true;
-            SpanInput.Focus();
+            Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, SpanErrorText.Text);
+            return false;
+        }
+
+        if (val <= 0)
+        {
+            SpanErrorText.Text = "Enter a length greater than 0 mm. Span is unchanged.";
+            SpanErrorPanel.IsVisible = true;
+            Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, SpanErrorText.Text);
             return false;
         }
 
@@ -166,13 +182,16 @@ public partial class PropertiesPane : UserControl
             boundController.ApplySpan(text);
             lastCommittedSpan = text;
             SpanErrorPanel.IsVisible = false;
+            Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, "");
             return true;
         }
         catch (Exception ex)
         {
-            SpanErrorText.Text = ex is ContractError ce ? $"{ce.Code}: {ce.Message}" : ex.Message;
+            SpanErrorText.Text = ex is ContractError { Code: "DSL-EDGES-CROSS" }
+                ? "That would make the leading and trailing edges cross. Enter a different value."
+                : "The new span couldn't be checked. Span is unchanged. Try again or enter a different value.";
             SpanErrorPanel.IsVisible = true;
-            SpanInput.Focus();
+            Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, SpanErrorText.Text);
             return false;
         }
     }

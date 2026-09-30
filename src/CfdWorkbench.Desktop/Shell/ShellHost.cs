@@ -49,6 +49,8 @@ public sealed class ShellHost : Grid
     private readonly Border paletteOverlay;
     private Control? paletteOrigin;
     private CancellationTokenSource? opening;
+    private readonly Func<Task<string?>>? pickOpenFile;
+    private string? failedPath;
 
     public static void BindF6(Window window, ShellHost host)
     {
@@ -81,10 +83,11 @@ public sealed class ShellHost : Grid
         if (id is not null) PaletteCommand?.Invoke(id);
     }
 
-    public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null)
+    public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null, Func<Task<string?>>? pickOpenFile = null)
     {
         Controller = controller;
         Preferences = preferences;
+        this.pickOpenFile = pickOpenFile;
 
         RowDefinitions = new RowDefinitions("Auto,*");
 
@@ -196,8 +199,48 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
-        ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path);
+        ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
+            origin: ModelView.StartCardView.SelectedRecentControl);
+        ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
+        ModelView.StartCardView.OpenAnotherRequested += () => _ = OpenFileInteractiveAsync();
+        ModelView.StartCardView.TryAgainRequested += () =>
+        {
+            if (failedPath is not null) _ = OpenFileAsync(failedPath);
+        };
+        ModelView.StartCardView.RemoveRecentRequested += () => _ = RemoveFailedRecentAsync();
+        ModelView.BandLocateButton.Click += async (_, _) => await OpenFileInteractiveAsync();
+        ModelView.BandOpenAnotherButton.Click += async (_, _) => await OpenFileInteractiveAsync();
+        ModelView.BandTryAgainButton.Click += async (_, _) =>
+        {
+            if (failedPath is not null) await OpenFileAsync(failedPath);
+        };
+        ModelView.BandRemoveRecentButton.Click += async (_, _) => await RemoveFailedRecentAsync();
         ModelView.StartCardView.OpenCancelButton.Click += (_, _) => opening?.Cancel();
+        ModelView.AcceptIdsButton.Click += async (_, _) =>
+        {
+            try
+            {
+                await Controller.AcceptCandidateAsync();
+                ModelView.HideAlertBand();
+                RefreshPanes();
+            }
+            catch (Exception)
+            {
+                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The original file hasn't changed.");
+            }
+        };
+        ModelView.ResumeRecoveryButton.Click += (_, _) =>
+        {
+            Controller.ResumeRecovery();
+            ModelView.HideAlertBand();
+            RefreshPanes();
+        };
+        ModelView.DiscardRecoveryButton.Click += (_, _) =>
+        {
+            Controller.DiscardRecovery();
+            ModelView.HideAlertBand();
+            RefreshPanes();
+        };
 
         // Initial Bind
         RefreshPanes();
@@ -232,22 +275,28 @@ public sealed class ShellHost : Grid
         finally { opening = null; }
     }
 
-    public async Task OpenFileAsync(string path)
+    public async Task OpenFileAsync(string path, bool fromRecent = false, Control? origin = null)
     {
         if (opening is not null) return;
         using var cancellation = new CancellationTokenSource();
         opening = cancellation;
-        ModelView.StartCardView.ShowOpening(System.IO.Path.GetFileName(path));
+        ModelView.StartCardView.ShowOpening(System.IO.Path.GetFileName(path), origin);
         try
         {
             var outcome = await Controller.OpenAsync(path, cancellation.Token);
-            HandleOpenOutcome(outcome, path);
+            HandleOpenOutcome(outcome, path, fromRecent: fromRecent);
         }
         finally { opening = null; }
     }
 
     public async Task OpenFileInteractiveAsync()
     {
+        if (pickOpenFile is not null)
+        {
+            var selected = await pickOpenFile();
+            if (selected is not null) await OpenFileAsync(selected, origin: ModelView.StartCardView.StartOpenButton);
+            return;
+        }
         var top = TopLevel.GetTopLevel(this);
         if (top is null) return;
         var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
@@ -257,10 +306,10 @@ public sealed class ShellHost : Grid
         });
         if (files.Count == 0) return;
         using var file = files[0];
-        await OpenFileAsync(file.Path.LocalPath);
+        await OpenFileAsync(file.Path.LocalPath, origin: ModelView.StartCardView.StartOpenButton);
     }
 
-    public void HandleOpenOutcome(OpenOutcome outcome, string path, bool recordRecent = true)
+    public void HandleOpenOutcome(OpenOutcome outcome, string path, bool recordRecent = true, bool fromRecent = false)
     {
         string fileName = System.IO.Path.GetFileName(path);
         switch (outcome)
@@ -274,20 +323,22 @@ public sealed class ShellHost : Grid
                 break;
 
             case OpenOutcome.Failed failed:
+                failedPath = path;
                 ModelView.StartCardView.HideOpening();
                 if (Controller.Inspection is not null)
                 {
                     // Foil already open: show in alert band
-                    ModelView.ShowAlertBand($"Failed to open {fileName}: {failed.Failure}");
+                    ModelView.ShowOpenFailure(fileName, failed.Failure, fromRecent);
                 }
                 else
                 {
-                    ModelView.StartCardView.ShowAlert(fileName, failed.Failure);
+                    ModelView.StartCardView.ShowAlert(fileName, failed.Failure, fromRecent: fromRecent);
                 }
                 break;
 
             case OpenOutcome.Cancelled:
                 ModelView.StartCardView.CancelOpening();
+                ModelView.ShowStatus("Opening cancelled. Nothing changed.");
                 break;
 
             case OpenOutcome.NeedsIds:
@@ -320,6 +371,33 @@ public sealed class ShellHost : Grid
             await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
             await LoadRecentAsync();
         }
+    }
+
+    public async Task RemoveFailedRecentAsync()
+    {
+        if (Preferences is null || failedPath is null) return;
+        string path = failedPath;
+        var load = await Preferences.LoadRecentAsync(CancellationToken.None);
+        if (load.NeverWrite || load.SessionOnly) return;
+        var retained = load.Entries.Where(entry => entry.Path != path).Select(entry => entry.Path).ToArray();
+        if (retained.Length == load.Entries.Count) return;
+        // simplify: P1 currently exposes only Add and Clear. Rebuild at most ten entries; replace with
+        // RecentOp.Remove when the Persistence seam lands, since a failed intermediate Add is not atomic.
+        var clear = await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
+        if (clear.Outcome != "saved" || !clear.DurabilityConfirmed) return;
+        foreach (string entry in retained.Reverse())
+        {
+            var added = await Preferences.UpdateRecentAsync(new RecentOp.Add(entry), CancellationToken.None);
+            if (added.Outcome != "saved" || !added.DurabilityConfirmed)
+            {
+                ModelView.ShowStatus("The recent-files list couldn't be restored after removal.");
+                await LoadRecentAsync();
+                return;
+            }
+        }
+        await LoadRecentAsync();
+        ModelView.StartCardView.DismissAlert();
+        ModelView.HideAlertBand();
     }
 
     public async Task LoadRecentAsync()
