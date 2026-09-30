@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""Named-test checker for the app-shell build (docs/design/app-shell.md §12.2).
+"""Named-test checker for the app-shell and M1.2b builds (docs/design/app-shell.md §12.2, m12b-points.md §12.2).
 
-    python3 tools/check-named-tests.py <track>     e.g. C1, P1, D1, D2, D3a, D4
+    python3 tools/check-named-tests.py <track> [--design <path>]   e.g. C1, P1, D1, D2, D3a, D4, B0
     python3 tools/check-named-tests.py --self-test
 
 The design is the single authority for test names: every backticked test name in §9 or §12.4 belongs to the first
 `(<track>` after it on the same line (closed by `)`, `,` or `;`). A track is green only when each of its names printed
 `PASS <name>` in `.tmp-tests/*.log` (run `tools/run-tests.sh` first), no log has a `FAIL` line, and its list is not
 empty. Names are exact, never globs. For D3a the ported-name column of docs/proof/app-shell-test-inventory.md is read
-as well (§12.5).
+as well (§12.5). `--design <path>` reads that design instead of the default `docs/design/app-shell.md` — e.g. the
+M1.2b design, `docs/design/m12b-points.md`.
 
 Exit 0 green · 1 a rule failed · 2 usage.
 """
 from __future__ import annotations
 
+import io
 import re
 import sys
 import tempfile
+from contextlib import redirect_stdout
 from pathlib import Path
 
 for _stream in (sys.stdout, sys.stderr):
@@ -155,6 +158,21 @@ Also: `Epsilon_Case_Passes` (C1), `IScreenSource`, `LAYOUT-SCHEMA`.
 C1_PASSES = "PASS Alpha_Case_Passes\nPASS Beta_Case_Passes\nPASS Gamma_Case_Passes\nPASS Epsilon_Case_Passes\n"
 INVENTORY_EMPTY = "| Control | Ported name | Deleted clause |\n|---|---|---|\n| numericBox | | |\n"
 
+# A second, standalone design (not SELF_DESIGN) used only to prove --design routes through main() end to end: the
+# existing SELF_CASES call check() directly, so they would catch a planted unattributed name even if --design were
+# never wired into main() at all.
+SECOND_DESIGN = """# Second planted design
+## 9. Failure-mode analysis
+| Mode | Test (track) |
+|---|---|
+| one | `Theta_Case_Passes` (C1) |
+| two | `Unattributed_Name_Planted` |
+## 14. Build tracks
+| Track | Owns |
+|---|---|
+| **C1 Core** | x |
+"""
+
 # (case, planted design line, extra log text, track, inventory text, expected error fragment or None for green)
 SELF_CASES = [
     ("green control", "", "", "C1", None, None),
@@ -184,18 +202,47 @@ def self_test() -> int:
                 ok = any(expected in error for error in errors)
             print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": expected {expected or 'green'}, got {errors or 'green'}"))
             failures += not ok
-    print(f"SELFTEST {len(SELF_CASES) - failures}/{len(SELF_CASES)} cases")
+
+        # --design end to end through main(): a second design, on disk, read only because the flag names it.
+        design_file = Path(scratch) / "second-design.md"
+        design_file.write_text(SECOND_DESIGN, encoding="utf-8", newline="\n")
+        global LOGS, INVENTORY
+        saved_logs, saved_inventory = LOGS, INVENTORY
+        LOGS, INVENTORY = Path(scratch), Path(scratch) / "inventory.md"
+        try:
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = main(["check-named-tests.py", "C1", "--design", str(design_file)])
+        finally:
+            LOGS, INVENTORY = saved_logs, saved_inventory
+        output = buffer.getvalue()
+        fragment = "has no (<track>) after it on its line"
+        ok = exit_code == 1 and fragment in output
+        label = "--design routes through main()"
+        print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": exit {exit_code}, expected {fragment!r} in {output!r}"))
+        failures += not ok
+        total = len(SELF_CASES) + 1
+    print(f"SELFTEST {total - failures}/{total} cases")
     return 1 if failures else 0
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 2:
+    args = list(argv[1:])
+    design_path = DESIGN
+    if "--design" in args:
+        flag = args.index("--design")
+        if flag + 1 >= len(args):
+            print(__doc__.strip().splitlines()[2], file=sys.stderr)
+            return 2
+        design_path = Path(args[flag + 1])
+        del args[flag:flag + 2]
+    if len(args) != 1:
         print(__doc__.strip().splitlines()[2], file=sys.stderr)
         return 2
-    if argv[1] == "--self-test":
+    if args[0] == "--self-test":
         return self_test()
-    track = argv[1]
-    required, errors = check(track, DESIGN.read_text(encoding="utf-8"), LOGS, INVENTORY)
+    track = args[0]
+    required, errors = check(track, design_path.read_text(encoding="utf-8"), LOGS, INVENTORY)
     for error in errors:
         print("FAILED: " + error)
     passed = len(required) - sum(error.startswith("no PASS line") for error in errors)
