@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T23:11:56Z",
+  "generated": "2026-09-30T23:17:07Z",
   "audit": [
     {
       "actor": null,
@@ -20459,6 +20459,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T23:10:58Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3T9Q0ZEVJP6WNV1BBZGC6HM",
+      "shortname": "implement-u1b-plan-canvas-seam",
+      "datetime": "2026-09-30T23:17:07Z",
+      "session": "track-u1b",
+      "prompt": "U1b M1.2b PlanCanvas build brief; complete the 43 named tests, rendered proof, gates, launch, and commits within owned paths.",
+      "summary": "Blocked before code changes: the required separate Plan and 3D samples Dock documents need ShellLayout.cs document registration, ShellHost.cs context wiring, and ShellWindowTests.cs tab-count update outside U1b ownership. Sent seam request req-01M3T9PH7KFBSC6C2RYAZ4AGMM to coordinator. No tests claimed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/m12b-build.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Implement the U1b PlanCanvas in the assigned worktree and satisfy its exit evidence.",
+      "done_when": "43 U1b names pass, three identical under-budget suite runs, all specified gates pass, app launches and closes, proof and audit are committed.",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-09-30T23:14:27Z",
+      "duration_seconds": 160.0,
+      "git": {
+        "sha": "233b604716d543afed272641018ad072ec74f168",
+        "short": "233b60471",
+        "branch": "m12b-u1b-plan-canvas",
+        "pushed": null
+      }
     }
   ],
   "changes": [
