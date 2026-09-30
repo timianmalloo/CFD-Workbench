@@ -65,6 +65,22 @@ if (args.Contains("--shell-window", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+if (args.Contains("--plan-canvas", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.PlanCanvasTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
+// Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
+// PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
+if (args.Contains("--readiness", StringComparer.Ordinal))
+{
+    CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
     args.Contains("--theme-pointer-red", StringComparer.Ordinal) ||
     args.Contains("--numeric-paint-red", StringComparer.Ordinal) ||
@@ -1858,7 +1874,7 @@ Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42")
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-flow");
 CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-tools");
-Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-model", "--controller-shell", "--shell-window"));
+Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-model", "--controller-shell", "--shell-window", "--plan-canvas"));
 
 sealed class UncertainStore : IProjectStore
 {

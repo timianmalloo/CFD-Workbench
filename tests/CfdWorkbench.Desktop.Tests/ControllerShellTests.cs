@@ -388,4 +388,8 @@ public static class ControllerShellTests
                 throw new InvalidOperationException("New foil without the example is not certified.");
         });
     }
+
+    // Readiness-tier check, excluded from run-tests.sh (PRE's --readiness switch spawns it; docs/design/m12b-points.md §12.3).
+    // `Readiness_NewFoilDrag_FrameP95Under100Ms` and `Readiness_NewFoilCommit_P95Under250Ms` are written here by U1a.
+    public static void RunReadiness() { }
 }

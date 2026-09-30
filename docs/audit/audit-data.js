@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:36:50Z",
+  "generated": "2026-09-30T20:45:29Z",
   "audit": [
     {
       "actor": null,
@@ -20087,6 +20087,42 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M3T11C752J13AMYNEY0MHRJA",
+      "shortname": "pre-checker-flag-and-stubs",
+      "datetime": "2026-09-30T20:45:29Z",
+      "session": "track-pre",
+      "prompt": "Track PRE of the M1.2b build (docs/coordination/m12b-build.md, Tracks table row \"PRE checker flag and stubs\"): add --design <path> to tools/check-named-tests.py (default docs/design/app-shell.md) with a red-first self-test case that calls main() end to end; wire seam S1 (empty PointModelTests, LengthExpressionTests, PointGestureTests, PointCommandTests, ReopenPointEditTests classes and their Run() lines in IdentityTests.cs) and seam S2 (empty PlanCanvasTests.cs, the --plan-canvas branch, and its DesktopChecks.Spawn(...) entry in WorkbenchTests.cs); add a --readiness switch in both harnesses, never spawned by run-tests.sh, calling empty RunReadiness() members on PointModelTests, ControllerShellTests and PlanCanvasTests.",
+      "summary": "Self-test red (before --design existed in main(), via a temporary revert): \"SELFTEST FAIL --design routes through main(): exit 2, expected 'has no (<track>) after it on its line' in ''\" (7/8 cases passed, exit 1). Self-test green (after): \"SELFTEST PASS --design routes through main()\" (8/8 cases, exit 0). Both runs made against the same commit sequence by toggling main()'s --design parsing.\n\nB0 extraction line: \"(B0) 0/29 named tests PASS · 29 failures\" — all 29 are \"no PASS line for ...\" (B0's test bodies are not yet written; that is this track's expected state). A direct extract() call over the whole m12b-points.md design confirms 187 names, 0 errors, split B0 29 · B1a 24 · B1b 43 · U1a 23 · U1b 43 · U2 25 · U3 0, matching the coordination doc.\n\nGate exits (all re-run at HEAD ccf292b): check-named-tests.py --self-test 0; check-named-tests.py D3a 0 (40/40); D1 0 (12/12); D2 0 (21/21); C1 0 (14/14); P1 0 (23/23); check-named-tests.py B0 --design docs/design/m12b-points.md 1 (expected: missing PASS lines only, 0 extraction errors); tools/run-tests.sh 0 (Core 281 PASS, Desktop 119 PASS incl. SUITE --plan-canvas exit 0, wall 46s under the 60s budget); docs/ai-forward-pack/scripts/verify-portable-text-io.py 0; tools/check-docs.py 0.\n\nSHAs: 31f609d (checker --design flag + red-first self-test case) and ccf292b (S1/S2 empty suites, --plan-canvas wiring, --readiness switch).\n\nNote: the contract's first command (audit-log.py start) was run late (after the code changes, before this append) rather than at the true session start, so duration_seconds on this entry undercounts actual elapsed time.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "PRE",
+        "m12b"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Land PRE (docs/coordination/m12b-build.md Tracks table row) inline: the check-named-tests.py --design flag and seams S1/S2, the join gate for every M1.2b coding track.",
+      "done_when": "check-named-tests.py --self-test exits 0 with the red-then-green evidence recorded; B0 extraction shows 187 names, 0 errors; D3a/D1/D2/C1/P1 named checks still exit 0; tools/run-tests.sh exits 0; verify-portable-text-io.py exits 0; check-docs.py exits 0; commits conventional with Co-Authored-By; audit entry appended.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T20:43:38Z",
+      "duration_seconds": 111.0,
+      "git": {
+        "sha": "ccf292b744781398a3fe58d4fe48d7926e46ba18",
+        "short": "ccf292b74",
+        "branch": "m12b-pre",
+        "pushed": null
+      }
     }
   ],
   "changes": [
