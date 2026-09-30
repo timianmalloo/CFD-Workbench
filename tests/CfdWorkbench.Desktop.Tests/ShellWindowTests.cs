@@ -4,6 +4,8 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
 using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Styling;
 using Dock.Avalonia.Controls;
 using Avalonia.Rendering.Composition;
 using System.Diagnostics;
@@ -986,6 +988,245 @@ public static class ShellWindowTests
                 !StartControl<Button>(start, "StartNewButton").IsVisible)
                 throw new InvalidOperationException("Dismissing open failure did not keep the Start card");
         });
+
+        // The --theme-controls matrix retargeted to the shell (design §12.4; inventory rows 113–1446).
+        DesktopChecks.Check("ThemeMatrix_ShellControls_AppliedContrast", () =>
+        {
+            var rowFailures = new List<string>();
+            var reflection = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var pseudoProperty = typeof(StyledElement).GetProperty("PseudoClasses", reflection)
+                ?? throw new InvalidOperationException("Installed protected PseudoClasses unavailable");
+            void Measure(string theme, string row, Color foreground, Color background, double floor)
+            {
+                double ratio = Contrast(foreground, background);
+                Console.WriteLine($"THEME-ROW {theme}/{row} fg={foreground} bg={background} ratio={ratio:F2} floor={floor}");
+                if (ratio < floor) rowFailures.Add($"{theme}/{row} {foreground} on {background} = {ratio:F2} < {floor}");
+            }
+            void Probe(string theme, string row, Action probe)
+            {
+                try { probe(); }
+                catch (Exception error) { rowFailures.Add($"{theme}/{row}: {error.Message}"); }
+            }
+            void TextRow(string theme, string row, Control target)
+            {
+                var text = TextVisual(target);
+                Measure(theme, row, Solid(PropertyBrush(text, "Foreground"), row + " ink"), Backing(text), 4.5);
+            }
+            void TextBoxRow(string theme, string row, TextBox box)
+            {
+                var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
+                var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                Measure(theme, row, Solid(presenter.Foreground, row + " ink"), Solid(border.Background, row + " backdrop"), 4.5);
+            }
+            void RingRow(string theme, string row, Control target, Window window)
+            {
+                Settle(window);
+                // Readiness barrier, bounded: Dock's deferred presenters fade a newly shown pane in.
+                var deadline = DateTime.UtcNow.AddSeconds(2);
+                while (target.GetVisualAncestors().Any(layer => Math.Abs(layer.Opacity - 1) > 0.000001) && DateTime.UtcNow < deadline)
+                {
+                    Thread.Sleep(16);
+                    Settle(window);
+                }
+                var outside = target.GetVisualParent() ?? throw new InvalidOperationException("Focus target has no parent");
+                if (target is TextBox box)
+                {
+                    // Fluent TextBox has no focus adorner; its focus indicator is the PART_BorderElement stroke.
+                    var stroke = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                    Measure(theme, row, Solid(stroke.BorderBrush, row + " stroke"), Backing(outside), 3);
+                    return;
+                }
+                var layer = AdornerLayer.GetAdornerLayer(target) ?? throw new InvalidOperationException("No adorner layer");
+                var adorner = layer.Children.OfType<Control>().SingleOrDefault(child =>
+                    ReferenceEquals(AdornerLayer.GetAdornedElement(child), target))
+                    ?? throw new InvalidOperationException("No focus adorner");
+                var ring = adorner.GetVisualDescendants().OfType<Border>().Prepend(adorner as Border)
+                    .FirstOrDefault(border => border?.BorderBrush is not null)
+                    ?? throw new InvalidOperationException("No focus ring");
+                // The outer ring is drawn outside the target (negative margin), so it sits on the parent's surface.
+                var corner = ring.TranslatePoint(default, target)
+                    ?? throw new InvalidOperationException("Focus ring position unresolvable");
+                if (corner.X >= 0 || corner.Y >= 0)
+                    throw new InvalidOperationException($"Focus ring is not outside the target (offset {corner})");
+                Measure(theme, row, Solid(ring.BorderBrush, row + " ring"), Backing(outside), 3);
+            }
+            void SelectedRow(string theme, string row, Control tab) =>
+                // The selected state's cue (SC 1.4.11): the tab's own fill against the strip it sits on.
+                Measure(theme, row, Solid(PropertyBrush(tab, "Background"), row + " fill"),
+                    Backing(tab.GetVisualParent() ?? throw new InvalidOperationException("Tab has no strip")), 3);
+            IPseudoClasses Pseudo(Control control) => pseudoProperty.GetValue(control) as IPseudoClasses
+                ?? throw new InvalidOperationException("Installed IPseudoClasses unavailable");
+            void Hover(Control target, Window window, bool enter)
+            {
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                var origin = target.TranslatePoint(new Point(4, 4), window)
+                    ?? throw new InvalidOperationException("Hover target position unresolvable");
+                target.RaiseEvent(new PointerEventArgs(enter ? InputElement.PointerEnteredEvent : InputElement.PointerExitedEvent,
+                    target, pointer, window, origin, 1, default, KeyModifiers.None));
+                Settle(window);
+                if (target.IsPointerOver != enter || Pseudo(target).Contains(":pointerover") != enter)
+                    throw new InvalidOperationException("PointerEntered/Exited did not set :pointerover");
+            }
+
+            foreach (var (theme, variant) in new[] { ("light", ThemeVariant.Light), ("dark", ThemeVariant.Dark),
+                         ("high-contrast", NativeReviewThemes.HighContrast) })
+            {
+                var window = new MainWindow(shellMode: true) { RequestedThemeVariant = variant, Width = 1024, Height = 700 };
+                var controller = typeof(MainWindow).GetField("workbench", reflection)?.GetValue(window) as WorkbenchController
+                    ?? throw new InvalidOperationException("Controller field unreadable");
+                try
+                {
+                    window.Show();
+                    Settle(window);
+                    var host = window.Content as ShellHost ?? throw new InvalidOperationException("Shell host did not load");
+                    var span = host.Properties.FindControl<TextBox>("SpanInput") ?? throw new InvalidOperationException("Span field did not load");
+                    if (span.IsEffectivelyVisible && span.IsEnabled)
+                        throw new InvalidOperationException("Empty-state Span field is enabled with no foil open");
+                    Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                    host.RefreshPanes();
+                    Settle(window);
+
+                    var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
+                    string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
+                    if (!titles.SequenceEqual(["Plan + 3D", "Section sample", "Foil source", "Section"]))
+                        throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
+                    var modelTab = docTabs[0];
+                    var sourceTab = docTabs[2];
+
+                    // Theme barrier: a fresh composition batch renders the focused tab after the Example is bound.
+                    var composition = ElementComposition.GetElementVisual(modelTab)
+                        ?? throw new InvalidOperationException("Barrier tab lacks a compositor");
+                    var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")
+                        ?? throw new InvalidOperationException("Barrier did not find FoilViewport");
+                    if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
+                        throw new InvalidOperationException("Opened Example not bound before the theme barrier");
+                    if (!modelTab.Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException("Barrier tab refused keyboard focus");
+                    var fresh = composition.Compositor.RequestCompositionBatchCommitAsync();
+                    using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8)))
+                        while (!fresh.Rendered.IsCompleted && !timeout.IsCancellationRequested)
+                            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    if (!fresh.Rendered.IsCompletedSuccessfully || !modelTab.IsFocused)
+                        throw new InvalidOperationException("Theme barrier focus composition was not ready");
+                    if (ElementComposition.GetElementVisual(modelTab) is null)
+                        throw new InvalidOperationException("Barrier tab lost its compositor");
+                    Probe(theme, "focus.tab", () => RingRow(theme, "focus.tab", modelTab, window));
+
+                    foreach (var (tab, index) in docTabs.Select((tab, index) => (tab, index)))
+                    {
+                        Probe(theme, $"tab.{titles[index]}.{(tab.IsSelected ? "selected" : "unselected")}.rest",
+                            () => TextRow(theme, $"tab.{titles[index]}.{(tab.IsSelected ? "selected" : "unselected")}.rest", tab));
+                        if (tab.IsSelected) Probe(theme, $"select.tab.{titles[index]}", () => SelectedRow(theme, $"select.tab.{titles[index]}", tab));
+                    }
+                    Probe(theme, "tab.Foil source.unselected.hover", () =>
+                    {
+                        Hover(sourceTab, window, true);
+                        TextRow(theme, "tab.Foil source.unselected.hover", sourceTab);
+                        Hover(sourceTab, window, false);
+                    });
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
+                    Settle(window);
+                    Probe(theme, "tab.Foil source.selected.rest", () => TextRow(theme, "tab.Foil source.selected.rest", sourceTab));
+                    Probe(theme, "select.tab.Foil source", () => SelectedRow(theme, "select.tab.Foil source", sourceTab));
+                    Probe(theme, "tab.Foil source.selected.hover", () =>
+                    {
+                        Hover(sourceTab, window, true);
+                        TextRow(theme, "tab.Foil source.selected.hover", sourceTab);
+                        Hover(sourceTab, window, false);
+                    });
+
+                    var toolTabs = host.DockHost.GetVisualDescendants().OfType<Control>()
+                        .Where(control => control.GetType().Name == "ToolTabStripItem" && control.IsEffectivelyVisible).ToArray();
+                    if (toolTabs.Length == 0) throw new InvalidOperationException("No Dock tool tabs rendered");
+                    foreach (var tool in toolTabs)
+                    {
+                        string name = (tool.DataContext as Dock.Model.Core.IDockable)?.Title ?? "?";
+                        string state = tool is ISelectable { IsSelected: true } ? "selected" : "unselected";
+                        Probe(theme, $"tool.{name}.{state}.rest", () => TextRow(theme, $"tool.{name}.{state}.rest", tool));
+                        if (state == "selected") Probe(theme, $"select.tool.{name}", () => SelectedRow(theme, $"select.tool.{name}", tool));
+                        Probe(theme, $"tool.{name}.{state}.hover", () =>
+                        {
+                            Hover(tool, window, true);
+                            TextRow(theme, $"tool.{name}.{state}.hover", tool);
+                            Hover(tool, window, false);
+                        });
+                    }
+
+                    var sidebar = host.LeftSidebarToggle;
+                    Probe(theme, "appbar.sidebar.rest", () => TextRow(theme, "appbar.sidebar.rest", sidebar));
+                    if (!sidebar.Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException("App-bar button refused keyboard focus");
+                    Probe(theme, "focus.appbar", () => RingRow(theme, "focus.appbar", sidebar, window));
+
+                    host.ShowPane("browser");
+                    Settle(window);
+                    var stations = host.Browser.FindControl<ListBox>("StationList")
+                        ?? throw new InvalidOperationException("Browser rows did not load");
+                    var rowItems = stations.Items.OfType<ListBoxItem>().ToArray();
+                    if (rowItems.Length < 2) throw new InvalidOperationException("Example Browser rows did not bind");
+                    stations.SelectedIndex = 0;
+                    Settle(window);
+                    if (!rowItems[0].IsSelected) throw new InvalidOperationException("Example Browser row did not select");
+                    Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
+                    Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
+                    if (!rowItems[1].Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException("Browser row refused keyboard focus");
+                    Probe(theme, "focus.browser", () => RingRow(theme, "focus.browser", rowItems[1], window));
+
+                    host.ShowPane("properties");
+                    Settle(window);
+                    if (!span.IsEffectivelyVisible || !span.IsEnabled)
+                        throw new InvalidOperationException("Span field not editable with the Example open");
+                    Probe(theme, "span.text", () => TextBoxRow(theme, "span.text", span));
+                    Probe(theme, "span.painter-oracle", () =>
+                    {
+                        var presenter = span.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
+                        var border = span.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                        presenter.Foreground = border.Background;
+                        double ratio = Contrast(Solid(presenter.Foreground, "mutated ink"), Solid(border.Background, "backdrop"));
+                        presenter.ClearValue(Avalonia.Controls.Documents.TextElement.ForegroundProperty);
+                        if (ratio >= 4.5) throw new InvalidOperationException("Painter oracle accepted a low-contrast mutation");
+                    });
+                    if (!span.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Span field refused keyboard focus");
+                    span.SelectAll();
+                    span.RaiseEvent(new TextInputEventArgs { RoutedEvent = InputElement.TextInputEvent, Text = "1234" });
+                    if (span.Text != "1234") throw new InvalidOperationException("Typed replacement was not applied to Span");
+                    if (controller.Draft is not null) throw new InvalidOperationException("Span typing opened a draft");
+                    Probe(theme, "focus.span", () => RingRow(theme, "focus.span", span, window));
+                    span.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Escape });
+
+                    var source = host.ModelView.FindControl<TextBox>("SourceText")
+                        ?? throw new InvalidOperationException("Foil source field did not load");
+                    if (!source.IsReadOnly || source.Text != controller.AcceptedSource)
+                        throw new InvalidOperationException("Foil source tab lost its read-only accepted text");
+                    Probe(theme, "source.text", () => TextBoxRow(theme, "source.text", source));
+                    if (host.ModelView.FindControl<TextBlock>("ViewportProvenance") is null ||
+                        host.ModelView.FindControl<TextBlock>("SectionReadout") is null)
+                        throw new InvalidOperationException("Viewport or section annotation absent");
+                    if (host.RailEditor.FindControl<ListBox>("ControlList") is null ||
+                        host.RailEditor.FindControl<TextBox>("NumericInput") is null)
+                        throw new InvalidOperationException("Rail-editor CV list or numeric field absent from the pane namescope");
+
+                    if (variant == ThemeVariant.Light)
+                    {
+                        // The variant must follow a live switch on an open window, not only the one it opened with.
+                        window.RequestedThemeVariant = ThemeVariant.Dark;
+                        Settle(window);
+                        Probe(theme, "live-flip.dark.tab.Section.unselected",
+                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[3]));
+                        Probe(theme, "live-flip.dark.select.tab.Foil source",
+                            () => SelectedRow(theme, "live-flip.dark.select.tab.Foil source", sourceTab));
+                    }
+                }
+                finally
+                {
+                    typeof(MainWindow).GetField("closeApproved", reflection)?.SetValue(window, true);
+                    window.Close();
+                }
+            }
+            if (rowFailures.Count > 0)
+                throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
+        });
     }
 
     private static string FindRepoRoot()
@@ -1006,6 +1247,60 @@ public static class ShellWindowTests
             Avalonia.Threading.Dispatcher.UIThread.RunJobs();
             window.UpdateLayout();
         }
+    }
+
+    // simplify: the applied-paint oracle of WorkbenchTests.cs:125-176 and :219-227, whose top-level local functions no
+    // other class can call; upgrade trigger: the legacy --theme-controls mode retires (D3b), then this is the only copy.
+    private static Color Solid(IBrush? brush, string label) =>
+        brush is ISolidColorBrush { Color.A: 255 } solid && Math.Abs(brush.Opacity - 1) < 0.000001
+            ? solid.Color
+            : throw new InvalidOperationException($"Applied {label} has unresolved/nonopaque brush");
+
+    private static IBrush? PropertyBrush(object value, string name) =>
+        value.GetType().GetProperty(name)?.GetValue(value) as IBrush;
+
+    private static Visual TextVisual(Control target)
+    {
+        if (target is TextBlock block && block.Text?.Length > 0 && block.Bounds.Width > 0 && block.Bounds.Height > 0)
+            return block;
+        return target.GetVisualDescendants().FirstOrDefault(item =>
+            item.GetType().Name is "AccessText" or "TextBlock" &&
+            PropertyBrush(item, "Foreground") is not null && item.Bounds.Width > 0 && item.Bounds.Height > 0)
+            ?? throw new InvalidOperationException($"Rendered text presenter absent for {target.Name ?? target.GetType().Name}");
+    }
+
+    private static Color Backing(Visual text)
+    {
+        var visibleBounds = new Rect(text.Bounds.Size);
+        Color? backing = null;
+        foreach (var layer in text.GetVisualAncestors().Reverse().Append(text))
+        {
+            if (Math.Abs(layer.Opacity - 1) > 0.000001)
+                throw new InvalidOperationException($"Unknown group opacity on {layer.GetType().Name}");
+            if (PropertyBrush(layer, "Background") is not { } paint) continue;
+            if (paint is not ISolidColorBrush solid || Math.Abs(paint.Opacity - 1) > 0.000001)
+                throw new InvalidOperationException($"Unknown background paint on {layer.GetType().Name}");
+            if (solid.Color.A == 0) continue;
+            if (solid.Color.A != 255)
+                throw new InvalidOperationException($"Partial alpha {solid.Color} on {layer.GetType().Name}");
+            var transform = text.TransformToVisual(layer);
+            var origin = text.TranslatePoint(visibleBounds.Position, layer);
+            if (transform is null || Math.Abs(transform.Value.M11 - 1) > 0.000001 || Math.Abs(transform.Value.M22 - 1) > 0.000001 ||
+                origin is null || origin.Value.X < 0 || origin.Value.Y < 0 ||
+                origin.Value.X + visibleBounds.Width > layer.Bounds.Width + .01 ||
+                origin.Value.Y + visibleBounds.Height > layer.Bounds.Height + .01)
+                throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}");
+            backing = solid.Color;
+        }
+        return backing ?? throw new InvalidOperationException("No proven opaque backing for rendered text");
+    }
+
+    private static double Contrast(Color first, Color second)
+    {
+        static double Linear(byte channel) { double value = channel / 255.0; return value <= .04045 ? value / 12.92 : Math.Pow((value + .055) / 1.055, 2.4); }
+        static double Luminance(Color color) => .2126 * Linear(color.R) + .7152 * Linear(color.G) + .0722 * Linear(color.B);
+        double a = Luminance(first), b = Luminance(second);
+        return (Math.Max(a, b) + .05) / (Math.Min(a, b) + .05);
     }
 
     private static bool FocusedToolTab(ShellHost host, string id) =>
