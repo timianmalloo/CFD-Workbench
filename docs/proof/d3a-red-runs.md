@@ -151,3 +151,42 @@ carried by a 1.00-1.15 fill difference), `Styles.axaml` sets the selected Dock t
 `OnPrimaryBrush` text; a Style outranks Dock's ControlTheme. Applied contrast after, minimum per theme: text
 light 6.29, dark 5.29, HC 19.56; selected fill vs strip light 5.59, dark 9.35, HC 19.56; focus ring vs its
 surface light 5.31, dark 7.79, HC 19.56; live Light→Dark switch 15.85 (text) and 10.73 (fill).
+
+### THEME repair cycle 1 (Coordinator verification of `b0d5a28`)
+
+**Flake.** One of three Coordinator `tools/run-tests.sh` runs on `b0d5a28` exited 1:
+`FAIL ThemeMatrix_ShellControls_AppliedContrast InvalidOperationException: 1 theme rows failed: high-contrast/focus.span: Unknown group opacity on DeferredContentPresenter`.
+The 2 s opacity poll in `RingRow` did not prevent it. It was removed.
+
+**Cause (observed).** A diagnostic in the opacity refusal caught the state on run 8 of a `run-tests.sh` loop:
+`DeferredContentPresenter#PART_ContentPresenter op=0.9642615023796038 prio=Animation animating=True transitions=1`,
+templated by `DeferredContentControl`. Dock's `DeferredContentControl.cs` (package commit `f891bdb`) is the source.
+Its `ApplyRevealAnimation` (lines 1104-1116) sets the presenter's opacity to 0.85 when presented content changes.
+It then adds a `DoubleTransition` to 1 over `RevealDuration`, which is 90 ms by default (line 60). `ShowPane("properties")`
+swaps the left dock's content, so the probe after it could land mid-fade. The run's load decided whether it did.
+
+**Fix.** The matrix sets `DeferredContentPresentationSettings.RevealDuration` to zero for its duration and restores
+it afterwards. With a zero duration, Dock sets opacity to 1 and adds no transition (line 1106). The probe measures
+settled paint. `Backing` still refuses any group opacity it cannot resolve. No skip, retry or sleep was added.
+
+**Focus ring on a selected fill (ux-accessibility should-fix).** Fluent's adorner has two rings. The observed geometry
+corrects the r1 note above, which read an adorner-layer `TranslatePoint`. The outer ring (2 px, Primary) is the
+target's own size and paints over its edge. The inner ring (1 px) is inset by 2 px and meets the fill. On a Primary
+selected fill, the inner Ink tone measured 2.39 light, 1.48 dark and 1.07 HC. A tab focused and then selected kept
+that adorner, because Avalonia builds the adorner at focus time.
+
+| Run | Mutation or pre-implementation state | Exit | Observed failure |
+|---|---|---:|---|
+| 43 | Ring rows extended (`.vs-fill`: the best ring tone against the target's fill) before any style change | 1 | `focus.tab.vs-fill` and `focus.browser.selected.vs-fill`: `#1b2929` on `#006c67` = 2.39, `#edf4f2` on `#66ddc8` = 1.48, `White` on `Yellow` = 1.07 |
+| 44 | Adorner override scoped to `:selected` only; new row focuses the Foil source tab, then selects it | 1 | `focus.tab.selected-while-focused.vs-fill` = 2.39 / 1.48 / 1.07: the adorner is not rebuilt on selection |
+
+A global `SystemControlFocusVisualSecondaryBrush` change was tried first. The kept `WorkbenchTests.cs:1837` pin
+(inner focus brush equals Ink) failed it, so the change was reverted. The fix sets a token-only `FocusAdorner`
+on `DocumentTabStripItem`, `ToolTabStripItem` and `ListBoxItem`. It uses Fluent's own thickness and margin resources,
+the Primary outer ring and an OnPrimary inner ring, in every state. The ring now separates from the fill:
+6.29 light, 10.73 dark and 19.56 HC on a selected fill. The outer tone gives 6.11 / 9.35 / 19.56 on unselected
+fills. The outer ring against the strip stays at 5.59 / 10.73 / 19.56.
+
+**Proof.** Five consecutive foreground `tools/run-tests.sh` runs all exited 0. Each printed 279 Core and 80 Desktop PASS
+lines, with the same sorted PASS-set SHA-256:
+`b73bb5ab6e2b0814644d96d56556b3228102b7504ecb53a32c198dc7a49229f4`.
