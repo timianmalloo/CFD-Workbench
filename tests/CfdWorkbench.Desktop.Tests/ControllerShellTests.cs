@@ -389,6 +389,7 @@ public static class ControllerShellTests
         });
 
         RunPointControllerChecks();
+        RunGestureCellChecks();
     }
 
     private static object GestureEnum(string type, string member) => Enum.Parse(
@@ -720,6 +721,136 @@ public static class ControllerShellTests
                 $"{reason} changed accepted geometry or history.");
         }
     }
+
+    // Every column of every §6.2 row has its own named check. The fixture is shared so
+    // the controller tier adds transitions, rather than 70 certificate preparations.
+    private static void RunGestureCellChecks()
+    {
+        var (controller, reference, _) = OpenPoint();
+        using (controller)
+        {
+            var rows = new (string Event, string[] Outcomes)[]
+            {
+                ("PointerMovable", ["Pressed", "Ignored", "Ignored", "BusySelect", "SelectedWhileBusy"]),
+                ("PointerFixed", ["SelectedLocked", "Ignored", "Ignored", "Busy", "SelectedWhileBusy"]),
+                ("MoveUnder3", ["Ignored", "Pressed", "Updated", "Ignored", "Ignored"]),
+                ("MoveAtLeast3", ["Ignored", "Dragging", "Updated", "Ignored", "Ignored"]),
+                ("Release", ["Ignored", "NoChange", "BusyOrNoChange", "Ignored", "Ignored"]),
+                ("ArrowDown", ["Nudging", "Ignored", "Ignored", "Updated", "IgnoredStatus"]),
+                ("KeyUp", ["Ignored", "Ignored", "Ignored", "Busy", "Ignored"]),
+                ("Escape", ["SelectionCleared", "Cancelled", "Cancelled", "Cancelled", "Ignored"]),
+                ("CaptureLost", ["Ignored", "Cancelled", "Cancelled", "Ignored", "Ignored"]),
+                ("FocusLost", ["Ignored", "Cancelled", "Cancelled", "Busy", "Continues"]),
+                ("DocumentAction", ["Proceed", "CancelProceed", "CommitProceed", "CommitProceed", "WaitProceed"]),
+                ("TypedPosition", ["Busy", "Ignored", "Ignored", "Ignored", "Ignored"]),
+                ("DirectCommand", ["Busy", "Ignored", "Ignored", "Ignored", "Refused"]),
+                ("BusyComplete", ["Ignored", "Ignored", "Ignored", "Ignored", "Idle"])
+            };
+            foreach (var row in rows)
+            foreach (var state in Enum.GetValues<GestureState>())
+            {
+                string eventName = row.Event;
+                string outcome = row.Outcomes[(int)state];
+                DesktopChecks.Check($"Controller_Gesture_{state}_{eventName}_{outcome}",
+                    () => CheckGestureCell(controller, reference, state, eventName, outcome));
+            }
+        }
+    }
+
+    private static void CheckGestureCell(WorkbenchController controller, PointRef reference,
+        GestureState from, string eventName, string expected)
+    {
+        if (controller.Gesture == GestureState.Busy)
+            SetCellState(controller, GestureState.Idle);
+        else if (controller.Gesture != GestureState.Idle)
+            End(controller, "Escape");
+        var point = controller.Planform!.Trailing.Points.First(item => item.Id == reference.VertexId);
+        var fixedPoint = controller.Planform.Trailing.Points.First(item => item.Freedom == PointFreedom.Fixed);
+        var fixedReference = new PointRef("trailing", fixedPoint.Id);
+        controller.Select(new Selection.Points([reference]));
+        if (from == GestureState.Pressed || from == GestureState.Dragging)
+        {
+            Require(Begin(controller, reference), "Cell setup: pointer begin failed.");
+            if (from == GestureState.Dragging) Move(controller, point, 0, 0.004);
+        }
+        else if (from == GestureState.Nudging)
+        {
+            Require(Begin(controller, reference, "Keyboard"), "Cell setup: keyboard begin failed.");
+            controller.Nudge(0, 1, NudgeModifier.Plain);
+        }
+        else if (from == GestureState.Busy)
+            SetCellState(controller, GestureState.Busy);
+        Require(controller.Gesture == from, $"Cell setup produced {controller.Gesture}, wanted {from}.");
+        var originalDraft = controller.Draft;
+        var before = controller.AcceptedSource;
+        var beforeSelection = controller.Selection;
+        GestureOutcome? gestureResult = null;
+        CommitOutcome? commandResult = null;
+        bool began = false;
+        switch (eventName)
+        {
+            case "PointerMovable": began = Begin(controller, reference); break;
+            case "PointerFixed": began = Begin(controller, fixedReference); break;
+            case "MoveUnder3": Move(controller, point, 0, 0.002); controller.FlushGestureFrame(); break;
+            case "MoveAtLeast3": Move(controller, point, 0, 0.004); controller.FlushGestureFrame(); break;
+            case "Release": gestureResult = controller.EndGestureAsync(GestureEnd.Release).GetAwaiter().GetResult(); break;
+            case "ArrowDown":
+                began = Begin(controller, reference, "Keyboard");
+                if (from is GestureState.Idle or GestureState.Nudging)
+                    controller.Nudge(0, 1, NudgeModifier.Plain);
+                break;
+            case "KeyUp": gestureResult = controller.EndGestureAsync(GestureEnd.KeyUp).GetAwaiter().GetResult(); break;
+            case "Escape": gestureResult = controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult(); break;
+            case "CaptureLost": gestureResult = controller.EndGestureAsync(GestureEnd.CaptureLost).GetAwaiter().GetResult(); break;
+            case "FocusLost": gestureResult = controller.EndGestureAsync(GestureEnd.FocusLost).GetAwaiter().GetResult(); break;
+            case "DocumentAction": controller.NewFoilAsync().GetAwaiter().GetResult(); break;
+            case "TypedPosition":
+                began = Begin(controller, reference, "Typed");
+                if (began)
+                {
+                    Move(controller, point, 0, 0.004);
+                    gestureResult = controller.EndGestureAsync(GestureEnd.Release).GetAwaiter().GetResult();
+                }
+                break;
+            case "DirectCommand": commandResult = controller.ApplyChordAsync("root-chord", "190 mm").GetAwaiter().GetResult(); break;
+            case "BusyComplete":
+                if (from == GestureState.Busy)
+                {
+                    SetCellState(controller, GestureState.Idle);
+                    commandResult = controller.ApplyChordAsync("root-chord", "190 mm").GetAwaiter().GetResult();
+                }
+                break;
+        }
+        switch (expected)
+        {
+            case "Pressed": Require(began && controller.Gesture == GestureState.Pressed && controller.Draft is null, "Pointer did not enter Pressed without draft."); break;
+            case "SelectedLocked": Require(!began && controller.Gesture == GestureState.Idle && controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase), "Fixed point was not selected with lock status."); break;
+            case "Dragging": Require(controller.Gesture == GestureState.Dragging && controller.Draft is not null, "Threshold did not start drag."); break;
+            case "Nudging": Require(began && controller.Gesture == GestureState.Nudging, "Arrow did not start nudge."); break;
+            case "Updated": Require(controller.Gesture == from && controller.Draft?.Generation > originalDraft?.Generation, "Move did not update active draft."); break;
+            case "NoChange": Require(gestureResult is GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Click did not cancel unchanged."); break;
+            case "BusyOrNoChange": Require(gestureResult is GestureOutcome.Committed or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle, "Drag release did not finish."); break;
+            case "Cancelled": Require(gestureResult is GestureOutcome.Cancelled or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Cancellation changed geometry or stayed active."); break;
+            case "SelectionCleared": Require(controller.Selection is Selection.Foil or Selection.None, "Escape did not clear point selection."); break;
+            case "Busy": Require(controller.Gesture == GestureState.Busy || gestureResult is GestureOutcome.Committed || commandResult is CommitOutcome.Committed, "Event did not enter Busy/commit."); break;
+            case "BusySelect": Require(!began && controller.Gesture is GestureState.Busy or GestureState.Idle && controller.Selection is Selection.Points, "Nudge pointer down did not end run and select."); break;
+            case "SelectedWhileBusy": Require(!began && controller.Selection is Selection.Points && controller.Gesture == GestureState.Busy, "Busy pointer down did not select only."); break;
+            case "IgnoredStatus": Require(!began && controller.Gesture == GestureState.Busy && controller.Status.Contains("Checking", StringComparison.Ordinal), "Busy arrow did not report checking status."); break;
+            case "Proceed": case "CancelProceed": case "CommitProceed": case "WaitProceed":
+                Require(controller.Gesture == GestureState.Idle && controller.Draft is null && controller.Inspection is not null, "Document action did not finish cleanly.");
+                break;
+            case "Refused": Require(commandResult is CommitOutcome.Refused && controller.Gesture == GestureState.Busy, "Busy command was not refused."); break;
+            case "Idle": Require(controller.Gesture == GestureState.Idle && commandResult is CommitOutcome.Committed, "Busy completion did not enter Idle."); break;
+            default:
+                Require(controller.Gesture == from && controller.Draft?.Id == originalDraft?.Id &&
+                    controller.AcceptedSource == before && !began && commandResult is not CommitOutcome.Committed &&
+                    controller.Selection.Equals(beforeSelection), $"{eventName} was not ignored in {from}.");
+                break;
+        }
+    }
+
+    private static void SetCellState(WorkbenchController controller, GestureState value) =>
+        typeof(WorkbenchController).GetProperty(nameof(WorkbenchController.Gesture))!.SetValue(controller, value);
 
     // Readiness only: these measurements are reported, never used as an on-screen timing gate.
     public static void RunReadiness()
