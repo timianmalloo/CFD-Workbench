@@ -327,5 +327,65 @@ public static class ControllerShellTests
             if (!selectionChangedFired || !checkedInChanged)
                 throw new InvalidOperationException($"Event order check failed. SelectionChanged: {selectionChangedFired}, Checked in Changed: {checkedInChanged}");
         });
+
+        DesktopChecks.Check("NewFoil_Opened_UntitledNoPath", () =>
+        {
+            using var controller = new WorkbenchController();
+            var outcome = controller.NewFoilAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (outcome is not OpenOutcome.Opened opened)
+                throw new InvalidOperationException($"Expected Opened outcome, got {outcome.GetType().Name}");
+            if (opened.Path.Length != 0)
+                throw new InvalidOperationException($"Expected an empty path on a new foil, got '{opened.Path}'.");
+            if (controller.OpenedPath is not null)
+                throw new InvalidOperationException($"New foil has a path '{controller.OpenedPath}'.");
+            if (controller.NativePath is not null)
+                throw new InvalidOperationException($"New foil has a native path '{controller.NativePath}'.");
+            if (controller.Inspection?.Geometry.Status != GeometryStatus.Certified)
+                throw new InvalidOperationException($"New foil is not certified ({controller.Inspection?.Geometry.Status.ToString() ?? "none"}).");
+            string expected = System.Text.Encoding.UTF8.GetString(FoilSource.NewDefault());
+            if (controller.AcceptedSource != expected)
+                throw new InvalidOperationException("Opened source is not FoilSource.NewDefault().");
+        });
+
+        DesktopChecks.Check("NewFoil_CancelDuringPrepare_CurrentFoilUnchanged", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.OpenExampleAsync().GetAwaiter().GetResult();
+            string initial = controller.AcceptedSource;
+            string? path = controller.OpenedPath;
+            if (string.IsNullOrEmpty(initial))
+                throw new InvalidOperationException("Initial example foil failed to open.");
+
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            var outcome = controller.NewFoilAsync(cts.Token).GetAwaiter().GetResult();
+            if (outcome is not OpenOutcome.Cancelled)
+                throw new InvalidOperationException($"Expected Cancelled outcome, got {outcome.GetType().Name}");
+            if (controller.AcceptedSource != initial)
+                throw new InvalidOperationException("Current foil changed after cancelled new foil.");
+            if (controller.OpenedPath != path)
+                throw new InvalidOperationException("Opened path changed after cancelled new foil.");
+        });
+
+        DesktopChecks.Check("NewFoil_WorksWithoutExample", () =>
+        {
+            using var controller = new WorkbenchController();
+            var outcome = controller.NewFoilAsync(CancellationToken.None).GetAwaiter().GetResult();
+            if (outcome is not OpenOutcome.Opened)
+                throw new InvalidOperationException($"Expected Opened outcome, got {outcome.GetType().Name}");
+            if (controller.OpenedPath is not null || controller.NativePath is not null)
+                throw new InvalidOperationException("New foil without the example acquired a path.");
+            string text = controller.AcceptedSource;
+            byte[] example = File.ReadAllBytes("docs/examples/foildsl/foil-basic.foil");
+            if (System.Text.Encoding.UTF8.GetBytes(text).AsSpan().SequenceEqual(example))
+                throw new InvalidOperationException("New foil returned the example fixture.");
+            foreach (string token in new[] { "Basic foil", "section-a", "Embedded Example", "example.foil" })
+            {
+                if (text.Contains(token, StringComparison.Ordinal))
+                    throw new InvalidOperationException($"New foil source contains example identifier '{token}'.");
+            }
+            if (controller.Inspection?.Geometry.Status != GeometryStatus.Certified)
+                throw new InvalidOperationException("New foil without the example is not certified.");
+        });
     }
 }

@@ -6253,6 +6253,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-newfoil-red-runs",
+      "path": "docs/proof/newfoil-red-runs.md",
+      "title": "NEWFOIL red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-newfoil",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "Red run of the New foil checks before FoilSource.NewDefault and WorkbenchController.NewFoilAsync existed. tools/run-tests.sh exited 1 at the Release build with nine missing-member errors and zero warnings.",
+      "tags": [
+        "app-shell",
+        "new-foil",
+        "foildsl",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0a8fae111d27b62989f3791fec1e6cadd331aaa144aebf350b126c9b8870070a"
+    },
+    {
       "id": "proof-p1-red-runs",
       "path": "docs/proof/p1-red-runs.md",
       "title": "P1 preferences red-first runs",
@@ -7614,5 +7648,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "656b9e79505747b8fa42351b4c082d6ec230fdde497b21f0d2b03a669ec42cd4"
+  "graphSha256": "9351dc55e4995b83661daecf36d07e684b7455ae4ec265d1f559c0afb3d97e70"
 };
