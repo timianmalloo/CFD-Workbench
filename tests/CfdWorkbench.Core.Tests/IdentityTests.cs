@@ -12,8 +12,16 @@ internal static class IdentityTests
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     private static readonly HashSet<string> matched = [];
     private static int selected, skipped;
-    private static int Main()
+    private static int Main(string[] args)
     {
+        // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh, which
+        // calls this harness with no arguments. PRE adds the switch; B0 fills PointModelTests.RunReadiness.
+        if (args.Contains("--readiness"))
+        {
+            PointModelTests.RunReadiness();
+            Console.WriteLine($"RESULT failures={failures}");
+            return failures == 0 ? 0 : 1;
+        }
         // Independent published binary64/canonical pairs, RFC 8785 Appendix B:
         // https://www.rfc-editor.org/rfc/rfc8785.txt
         (ulong Bits, string Canonical)[] rfcVectors =
@@ -66,6 +74,11 @@ internal static class IdentityTests
         DimensionTests.Run();
         LayoutFileTests.Run();
         PreferenceStoreTests.Run();
+        PointModelTests.Run();
+        LengthExpressionTests.Run();
+        PointGestureTests.Run();
+        PointCommandTests.Run();
+        ReopenPointEditTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return SelectionMatched() && failures == 0 ? 0 : 1;
     }
