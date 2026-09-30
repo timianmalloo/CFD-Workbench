@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:45:29Z",
+  "generated": "2026-09-30T20:47:47Z",
   "audit": [
     {
       "actor": null,
@@ -20123,6 +20123,33 @@ window.AUDIT_DATA = {
         "branch": "m12b-pre",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3T15JW0RQ0MZZJ38EMBE4M8",
+      "shortname": "join-m12b-pre",
+      "datetime": "2026-09-30T20:47:47Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of m12b-pre into feature/ui-cad-direction",
+      "summary": "--design flag red-first; 187 names extract 0 errors; S1/S2 stubs; run-tests 46 s of 60 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "M1.2b preconditions",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T20:46:57Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
