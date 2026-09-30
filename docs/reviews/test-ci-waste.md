@@ -218,3 +218,108 @@ Repair cycles used: 1 of 2.
 - F2 is resolved (core gate 302 s → 87–90 s, above). Seam: `tools/run-tests.sh` should unset `CFD_TEST_ONLY` and the other `CFD_*` probe selectors. F6 and F7 are with the crash track. Until it lands, readiness is red, and it stays red, not skipped.
 - The SRE's per-suite timeout and CPU-second budget.
 - The `tools/*.mjs` mockup oracles run in no ring; they are evidence for frozen reviews, cost 0 s per join, and are kept.
+
+## 10. Desktop suite profile (2026-09-30)
+
+**Result first.** `tools/run-tests.sh` went from **51.3–52.1 s to 33.7–34.5 s** warm (32–35 s gate
+`wall`), and to 37.4–37.9 s under a 16-way CPU load. The Desktop suite went from 50–51 s to 21–22 s.
+The PASS set is byte-identical on all 9 runs (2 before, 5 after, 2 after under load): 591 sorted
+`PASS` lines, sha256 prefix `29aa8f2c5ca3a621`. The Desktop PASS lines, in printed order, hash to
+`7b02f8f91b73b01e` on every run. The 60 s budget is unchanged. Core (33 s) is now the critical path.
+
+**Why.** At 51–53 s of a 60 s budget, M1.2b U1b (43 Plan-canvas tests) and U2 (25 pane tests) would
+fire TEST-BUDGET. Raising the budget with no measured reason is TEST-COST, so the fix had to be real
+speed.
+
+### How the harness ran (read from `WorkbenchTests.cs`, not inferred)
+
+With no arguments, the harness runs the in-process checks: `SelfLaunchTests`, the theme and
+document checks, and `SectionCanvasTests`. Then it ran two children one at a time through
+`SelfLaunch.RunChild` (`--section-flow`, `--section-tools`), then
+`DesktopChecks.Spawn("--shell-model", "--controller-shell", "--shell-window", "--plan-canvas")`.
+`Spawn` was a sequential loop: start the child, wait, print `SUITE <mode> exit N`. The children
+inherited the parent's stdout. Each child is a separate process of the same assembly
+(`SelfLaunch.StartInfo`).
+
+### Profile (Release, warm, measured with a line timestamper and by running each mode alone)
+
+| Stage | Before (sequential) | After (parallel, 4 slots) |
+|---|---|---|
+| In-process checks, incl. `SelfLaunchTests` 0.6–0.7 s | 6.5 s | 4.8 s |
+| `--section-flow` child | 8.5–8.6 s | 9.1–9.3 s |
+| `--section-tools` child | 11.3–11.4 s | 12.2–12.4 s |
+| `--shell-model` child | 0.05–0.08 s | 0.1 s |
+| `--controller-shell` child | 8.6–9.3 s | 9.3–11.1 s |
+| `--shell-window` child | 15.6–16.0 s | 16.8–17.6 s |
+| `--plan-canvas` child (empty; Avalonia setup only) | 0.2 s | 0.2 s |
+| Children stage | 45.1 s (sum) | 16.5 s (≈ the longest child) |
+| Desktop harness total | 51.6 s | 21.4 s |
+
+Child start-up cost is 0.04 s (`--startup-failure-probe`, which throws at once) to 0.2 s (`--plan-canvas`,
+which only sets up Avalonia). The cost is the suites themselves, not process start. The "after"
+per-child times come from the new `SUITE-TIME <mode> <s> s` line, which prints on every run. Under
+concurrency each child is 5–15 % slower (shared CPU), which the overlap more than repays.
+
+### Independence (why concurrency is safe)
+
+- **Files.** Every child scratch path is a GUID name under `Path.GetTempPath()`
+  (`ControllerShellTests` 215 and 550, `ShellWindowTests.ScratchPath`). `run-tests.sh` points
+  `TMPDIR` at `.tmp-tests/`. Repo reads (`RepoRootFromSource`, the example `.foil`) are read-only.
+  `SectionFlowTests`, `SectionToolsTests` and `ShellModelTests` touch no files.
+- **Ports, pipes, mutexes, settings.** None found (grep over all six child suites).
+- **The one candidate shared resource: macOS window activation.** The window suites show real
+  windows (`UsePlatformDetect`), and `ShellWindowTests` asserts Avalonia logical focus (`IsFocused`)
+  about 30 times. If one process activating a window cleared focus in another, a focus check would
+  flake. Probe: 4 `--shell-window` copies at once, 3 rounds. Result: 12 of 12 exit 0, each with 83
+  PASS and one hash (`1211ddffd3c1d3e5`), 0 FAIL. The 7 parallel gate runs also ran
+  `--shell-window` beside the window-showing `--section-flow` and `--section-tools`, with no
+  difference. Confidence: **Verified** for these 19 observations. Absence of a rare race is
+  **Inferred**; see the residual risk below.
+
+### Change
+
+- `DesktopChecks.Spawn` runs children at most `Math.Clamp(ProcessorCount / 2, 1, 4)` at a time
+  (4 here; 16 CPUs). It starts them in mode order, buffers each child's stdout and stderr, and prints
+  them in mode order after the child finishes. It keeps `SUITE <mode> exit N`, adds `SUITE-TIME`, and
+  keeps the first-nonzero-exit rule and the `FAIL <mode> exited N` line.
+- `--section-flow` and `--section-tools` moved into the same `Spawn` call. A failure there now prints
+  `SUITE`/`FAIL` lines and returns the child's exit code, instead of throwing out of `RunChild`
+  (exit 70). `SelfLaunch.RunChild` had no other caller and is deleted (seam touch in `SelfLaunch.cs`,
+  a file no parallel track owns).
+- `tools/run-tests.sh` is unchanged.
+
+### Proof
+
+| Run | Gate exit | Measured wall | PASS | Set hash | Desktop ordered hash |
+|---|---|---|---|---|---|
+| before 1 | 0 | 52.1 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| before 2 | 0 | 51.3 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after 1 | 0 | 34.5 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after 2 | 0 | 33.9 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after 3 | 0 | 33.8 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after 4 | 0 | 33.7 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after 5 | 0 | 33.8 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after, 16 × `yes` load 1 | 0 | 37.9 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+| after, 16 × `yes` load 2 | 0 | 37.4 s | 591 | `29aa8f2c5ca3a621` | `7b02f8f91b73b01e` |
+
+Set hash: sha256 of the sorted `^PASS ` lines of the Core, Cli and Desktop logs. Ordered hash: the
+Desktop log's `^PASS ` lines in printed order.
+
+**Red plant.** A temporary `DesktopChecks.Check("SPEED_Plant_Red", () => throw …)` in
+`ShellModelTests.Run` (a middle child, so later children ran concurrently). `run-tests.sh` exited
+**1** and printed `FAIL SPEED_Plant_Red InvalidOperationException: planted red`,
+`FAIL --shell-model exited 1` and `FAILED: CfdWorkbench.Desktop.Tests (exit 1)`. The other children
+still printed their `SUITE … exit 0` lines in mode order. The plant was removed with
+`git checkout`, and it is not in any commit.
+
+### Residual risk and next steps
+
+- Cross-process window activation is not proven absent, only unobserved in 19 concurrent
+  observations. If a focus check ever flakes only in the full run, first rerun `Spawn` with 1 slot.
+- The Desktop children stage is now bounded by its longest child (`--shell-window`, 17 s). U1b's
+  Plan-canvas tests land in `--plan-canvas`, which runs beside it, so they add wall time only past
+  about 17 s of their own. U2's additions go to `ShellModelTests.cs` and `ShellWindowTests.cs`
+  (m12b-points §14), so every second U2 adds to `--shell-window` adds a second to the Desktop wall.
+  If `--shell-window` passes about 30 s, the cheapest next cut is to split it into two modes.
+  `SUITE-TIME` shows when that happens.
+- The next critical path is Core at 33 s, not Desktop.
