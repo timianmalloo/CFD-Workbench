@@ -7,7 +7,7 @@ owner: "@track-u1a2"
 phase: implementation
 tags: [m12b, u1a, desktop, controller, red-first]
 links:
-  - { to: design-m12b-points, rel: verifies }
+  - { to: design-m12b-points, rel: depends-on }
   - { to: coordination-m12b-build, rel: implements }
 review-by: "2026-10-30"
 summary: >-

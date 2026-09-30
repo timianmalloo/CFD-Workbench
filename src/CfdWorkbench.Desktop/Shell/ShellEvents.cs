@@ -18,7 +18,14 @@ public sealed record ShellEvent(
     string? ExceptionType = null,
     bool? PublicationKnown = null,
     bool? DurabilityConfirmed = null,
-    bool? Retried = null);
+    bool? Retried = null,
+    int? Frames = null,
+    double? UpdateP95Ms = null,
+    double? EstimatesP95Ms = null,
+    double? RenderP95Ms = null,
+    double? CommitMs = null,
+    string? EditKind = null,
+    string? OperationId = null);
 
 public static class ShellEvents
 {
@@ -52,14 +59,22 @@ public static class ShellEvents
         string? exceptionType = null,
         bool? publicationKnown = null,
         bool? durabilityConfirmed = null,
-        bool? retried = null)
+        bool? retried = null,
+        int? frames = null,
+        double? updateP95Ms = null,
+        double? estimatesP95Ms = null,
+        double? renderP95Ms = null,
+        double? commitMs = null,
+        string? editKind = null,
+        string? operationId = null)
     {
         lock (sync)
         {
             long seq = sequence++;
             Record(new ShellEvent(
                 seq, name, outcome, durationMs, traceId, code, bytes, droppedCount, clampedCount,
-                trigger, pane, from, to, corner, exceptionType, publicationKnown, durabilityConfirmed, retried));
+                trigger, pane, from, to, corner, exceptionType, publicationKnown, durabilityConfirmed, retried,
+                frames, updateP95Ms, estimatesP95Ms, renderP95Ms, commitMs, editKind, operationId));
         }
     }
 

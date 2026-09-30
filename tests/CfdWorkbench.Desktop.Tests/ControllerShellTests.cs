@@ -408,7 +408,8 @@ public static class ControllerShellTests
     private static bool Begin(WorkbenchController controller, PointRef point, string input = "Pointer")
     {
         dynamic target = controller;
-        return target.BeginGesture(point, GestureEnum("GestureInput", input));
+        dynamic value = GestureEnum("GestureInput", input);
+        return target.BeginGesture(point, value);
     }
 
     private static void Move(WorkbenchController controller, PointView point, double spanDelta, double aftDelta = 0)
@@ -420,7 +421,8 @@ public static class ControllerShellTests
     private static dynamic End(WorkbenchController controller, string reason = "Release")
     {
         dynamic target = controller;
-        return target.EndGestureAsync(GestureEnum("GestureEnd", reason)).GetAwaiter().GetResult();
+        dynamic value = GestureEnum("GestureEnd", reason);
+        return target.EndGestureAsync(value).GetAwaiter().GetResult();
     }
 
     private static void Require(bool condition, string message)
@@ -512,7 +514,8 @@ public static class ControllerShellTests
                 foreach (var (modifier, expected) in new[] { ("Command", 0.00001), ("Plain", 0.0001), ("Shift", 0.001) })
                 {
                     Require(Begin(controller, pointRef, "Keyboard"), "Nudge begin failed.");
-                    c.Nudge(0, 1, GestureEnum("NudgeModifier", modifier));
+                    dynamic value = GestureEnum("NudgeModifier", modifier);
+                    c.Nudge(0, 1, value);
                     var draftPoint = ((PlanformView)c.Planform).Trailing.Points[3];
                     Require(Math.Abs(draftPoint.AftMeters - (point.AftMeters + expected)) < 0.000002, $"{modifier} ladder wrong.");
                     End(controller, "Escape");
@@ -536,7 +539,8 @@ public static class ControllerShellTests
                 {
                     Begin(controller, pointRef); Move(controller, point, 0, 0.004);
                     var result = controller.SaveAsync(path).GetAwaiter().GetResult();
-                    Require(result.Code == "OK" && controller.Draft is null && controller.CanUndo, "Save did not commit drag first.");
+                    Require(result.Code == "OK" && controller.Draft is null && controller.CanUndo,
+                        $"Save did not commit drag first: code={result.Code}, draft={controller.Draft is not null}, undo={controller.CanUndo}.");
                     Require(File.Exists(path), "Save did not publish a project.");
                 }
                 finally { if (File.Exists(path)) File.Delete(path); }
@@ -549,7 +553,8 @@ public static class ControllerShellTests
             {
                 dynamic c = controller;
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004);
-                var pending = c.EndGestureAsync(GestureEnum("GestureEnd", "Release"));
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                var pending = c.EndGestureAsync(release);
                 pending.GetAwaiter().GetResult();
                 Require(c.Gesture.ToString() == "Idle", "Completion left controller Busy.");
             }
@@ -586,7 +591,8 @@ public static class ControllerShellTests
                 dynamic c = controller;
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004);
                 using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
-                dynamic outcome = c.EndGestureAsync(GestureEnum("GestureEnd", "Release"), cancelled.Token).GetAwaiter().GetResult();
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                dynamic outcome = c.EndGestureAsync(release, cancelled.Token).GetAwaiter().GetResult();
                 Require(outcome.GetType().Name == "Refused", "Cancelled validation did not refuse.");
                 Require(((string)outcome.Copy).Contains("couldn't be checked", StringComparison.OrdinalIgnoreCase), "Not-assessed copy is not distinct.");
             }
@@ -598,7 +604,8 @@ public static class ControllerShellTests
             {
                 dynamic c = controller;
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004);
-                var pending = c.EndGestureAsync(GestureEnum("GestureEnd", "Release"));
+                dynamic release = GestureEnum("GestureEnd", "Release");
+                var pending = c.EndGestureAsync(release);
                 if (c.Gesture.ToString() == "Busy") Require(!Begin(controller, pointRef), "Busy accepted another begin.");
                 pending.GetAwaiter().GetResult();
                 Require(controller.Draft is null && c.Gesture.ToString() == "Idle", "Commit left a draft or Busy state.");
@@ -664,9 +671,9 @@ public static class ControllerShellTests
             var (controller, pointRef, point) = OpenPoint(); using (controller)
             {
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004); End(controller);
-                dynamic? ev = CfdWorkbench.Desktop.Shell.ShellEvents.Read().LastOrDefault(e => e.Name == "gesture.end");
-                Require(ev is not null && ev!.Outcome == "committed" && ev!.Frames is > 0 && ev!.UpdateP95Ms is >= 0,
-                    "Gesture end event lacks frame and p95 measurements.");
+                var ev = CfdWorkbench.Desktop.Shell.ShellEvents.Read().LastOrDefault(e => e.Name == "gesture.end");
+                Require(ev is { Outcome: "committed", Frames: > 0, UpdateP95Ms: >= 0 },
+                    $"Gesture end event lacks frame and p95 measurements: outcome={ev?.Outcome}, frames={ev?.Frames}, p95={ev?.UpdateP95Ms}.");
             }
         });
 
@@ -690,8 +697,9 @@ public static class ControllerShellTests
         {
             dynamic c = controller;
             Begin(controller, pointRef, "Keyboard");
-            c.Nudge(0, 1, GestureEnum("NudgeModifier", "Plain"));
-            c.Nudge(0, 1, GestureEnum("NudgeModifier", "Plain"));
+            dynamic plain = GestureEnum("NudgeModifier", "Plain");
+            c.Nudge(0, 1, plain);
+            c.Nudge(0, 1, plain);
             Require(End(controller, reason).GetType().Name == "Committed", $"{reason} did not commit nudge run.");
             Require(controller.CanUndo, "Nudge run has no undo row.");
             controller.Undo();
@@ -713,7 +721,32 @@ public static class ControllerShellTests
         }
     }
 
-    // Readiness-tier check, excluded from run-tests.sh (PRE's --readiness switch spawns it; docs/design/m12b-points.md §12.3).
-    // `Readiness_NewFoilDrag_FrameP95Under100Ms` and `Readiness_NewFoilCommit_P95Under250Ms` are written here by U1a.
-    public static void RunReadiness() { }
+    // Readiness only: these measurements are reported, never used as an on-screen timing gate.
+    public static void RunReadiness()
+    {
+        var frameMilliseconds = new List<double>();
+        var commitMilliseconds = new List<double>();
+        for (int gesture = 0; gesture < 5; gesture++)
+        {
+            var (controller, pointRef, point) = OpenPoint();
+            using (controller)
+            {
+                Begin(controller, pointRef);
+                for (int frame = 0; frame < 8; frame++)
+                {
+                    Move(controller, point, 0, 0.004 + frame * 0.0001);
+                    var timer = System.Diagnostics.Stopwatch.StartNew();
+                    dynamic c = controller;
+                    c.FlushGestureFrame();
+                    frameMilliseconds.Add(timer.Elapsed.TotalMilliseconds);
+                }
+                var timerCommit = System.Diagnostics.Stopwatch.StartNew();
+                End(controller);
+                commitMilliseconds.Add(timerCommit.Elapsed.TotalMilliseconds);
+            }
+        }
+        static double P95(List<double> values) => values.OrderBy(value => value).ElementAt((int)Math.Ceiling(values.Count * .95) - 1);
+        Console.WriteLine($"READINESS Readiness_NewFoilDrag_FrameP95Under100Ms value_ms={P95(frameMilliseconds):F3} target_ms=100 samples={frameMilliseconds.Count}");
+        Console.WriteLine($"READINESS Readiness_NewFoilCommit_P95Under250Ms value_ms={P95(commitMilliseconds):F3} target_ms=250 samples={commitMilliseconds.Count}");
+    }
 }
