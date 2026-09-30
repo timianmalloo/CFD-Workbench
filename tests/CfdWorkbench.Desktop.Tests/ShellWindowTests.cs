@@ -167,10 +167,11 @@ public static class ShellWindowTests
                     .Where(button => button.IsEffectivelyVisible &&
                         button.TranslatePoint(default, host) is { } point && point.Y < 80)
                     .ToArray();
-                foreach (var button in chrome)
-                    Console.WriteLine($"SHELL-CHROME type={button.GetType().Name} name={button.Name ?? "none"} ax={Avalonia.Automation.AutomationProperties.GetName(button) ?? "none"} content={button.Content?.GetType().Name ?? "none"} children={button.GetVisualDescendants().Count()} bounds={button.Bounds}");
-                if (chrome.Any(button => string.IsNullOrWhiteSpace(Avalonia.Automation.AutomationProperties.GetName(button)) ||
-                    button.Content is null && !button.GetVisualDescendants().OfType<PathIcon>().Any()))
+                if (chrome.Length != 2 ||
+                    chrome.Single(button => button.Name == "PART_MenuButton").Content as string != "⋯" ||
+                    Avalonia.Automation.AutomationProperties.GetName(chrome.Single(button => button.Name == "PART_MenuButton")) != "Pane menu" ||
+                    chrome.Single(button => button.Name == "PART_CloseButton").Content as string != "×" ||
+                    Avalonia.Automation.AutomationProperties.GetName(chrome.Single(button => button.Name == "PART_CloseButton")) != "Close left side bar")
                     throw new InvalidOperationException("Left pane has blank or unnamed chrome buttons");
             }
             finally { window.Close(); }

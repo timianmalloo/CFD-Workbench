@@ -140,6 +140,7 @@ public sealed class ShellHost : Grid
         DockHost.LayoutUpdated += (_, _) =>
         {
             InstallToolTabMenus();
+            LabelToolChrome();
             PlaceSidebarToggle();
         };
         SetRow(DockHost, 0);
@@ -628,6 +629,27 @@ public sealed class ShellHost : Grid
         if (sidebarToggleStrip is not null) sidebarToggleStrip.RightContent = null;
         strip.RightContent = LeftSidebarToggle;
         sidebarToggleStrip = strip;
+    }
+
+    private void LabelToolChrome()
+    {
+        foreach (var dock in DockHost.GetVisualDescendants().OfType<ToolDockControl>())
+        {
+            foreach (var button in dock.GetVisualDescendants().OfType<Button>())
+            {
+                switch (button.Name)
+                {
+                    case "PART_MenuButton" when button.Content is not string:
+                        button.Content = "⋯";
+                        AutomationProperties.SetName(button, "Pane menu");
+                        break;
+                    case "PART_CloseButton" when button.Content is not string:
+                        button.Content = "×";
+                        AutomationProperties.SetName(button, "Close left side bar");
+                        break;
+                }
+            }
+        }
     }
 
     private void FocusModelWhenReady(int attempts = 3)
