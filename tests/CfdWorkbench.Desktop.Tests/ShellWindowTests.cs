@@ -1021,13 +1021,6 @@ public static class ShellWindowTests
             void RingRow(string theme, string row, Control target, Window window)
             {
                 Settle(window);
-                // Readiness barrier, bounded: Dock's deferred presenters fade a newly shown pane in.
-                var deadline = DateTime.UtcNow.AddSeconds(2);
-                while (target.GetVisualAncestors().Any(layer => Math.Abs(layer.Opacity - 1) > 0.000001) && DateTime.UtcNow < deadline)
-                {
-                    Thread.Sleep(16);
-                    Settle(window);
-                }
                 var outside = target.GetVisualParent() ?? throw new InvalidOperationException("Focus target has no parent");
                 if (target is TextBox box)
                 {
@@ -1040,15 +1033,22 @@ public static class ShellWindowTests
                 var adorner = layer.Children.OfType<Control>().SingleOrDefault(child =>
                     ReferenceEquals(AdornerLayer.GetAdornedElement(child), target))
                     ?? throw new InvalidOperationException("No focus adorner");
-                var ring = adorner.GetVisualDescendants().OfType<Border>().Prepend(adorner as Border)
-                    .FirstOrDefault(border => border?.BorderBrush is not null)
-                    ?? throw new InvalidOperationException("No focus ring");
-                // The outer ring is drawn outside the target (negative margin), so it sits on the parent's surface.
-                var corner = ring.TranslatePoint(default, target)
-                    ?? throw new InvalidOperationException("Focus ring position unresolvable");
-                if (corner.X >= 0 || corner.Y >= 0)
-                    throw new InvalidOperationException($"Focus ring is not outside the target (offset {corner})");
-                Measure(theme, row, Solid(ring.BorderBrush, row + " ring"), Backing(outside), 3);
+                var rings = adorner.GetVisualDescendants().OfType<Border>().Prepend(adorner as Border)
+                    .OfType<Border>().Where(border => border.BorderBrush is not null).Distinct().ToArray();
+                // Observed Fluent geometry: the outer ring has the target's own size and paints over its edge, so its
+                // outer edge meets the parent's surface; the inner ring is inset by the outer thickness and meets the fill.
+                if (rings.Length != 2 || rings[0].Bounds.Size != target.Bounds.Size ||
+                    rings[1].Bounds != new Rect(rings[0].Bounds.Size).Deflate(rings[0].BorderThickness))
+                    throw new InvalidOperationException($"Focus adorner geometry changed ({rings.Length} rings, outer {rings[0].Bounds}, target {target.Bounds})");
+                Measure(theme, row, Solid(rings[0].BorderBrush, row + " ring"), Backing(outside), 3);
+                // On a filled target the two-tone ring must also stand out from the fill: one of its tones reaches 3:1
+                // against the fill (the outer tone on an unselected fill, the inner tone on a Primary selected fill).
+                if (PropertyBrush(target, "Background") is ISolidColorBrush { Color.A: 255 } fill)
+                {
+                    var best = rings.Select(ring => Solid(ring.BorderBrush, row + " ring tone"))
+                        .MaxBy(tone => Contrast(tone, fill.Color));
+                    Measure(theme, row + ".vs-fill", best, fill.Color, 3);
+                }
             }
             void SelectedRow(string theme, string row, Control tab) =>
                 // The selected state's cue (SC 1.4.11): the tab's own fill against the strip it sits on.
@@ -1068,6 +1068,14 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("PointerEntered/Exited did not set :pointerover");
             }
 
+            // Dock's deferred presenter fades a pane in when its content changes (DeferredContentControl.cs: opacity
+            // 0.85 → 1 over a 90 ms DoubleTransition), so a probe after ShowPane could land mid-fade (observed:
+            // opacity 0.964 at Animation priority). The matrix measures settled paint, so the fade is off for it;
+            // Backing still refuses any unresolved group opacity.
+            var reveal = Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration;
+            Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
+            try
+            {
             foreach (var (theme, variant) in new[] { ("light", ThemeVariant.Light), ("dark", ThemeVariant.Dark),
                          ("high-contrast", NativeReviewThemes.HighContrast) })
             {
@@ -1124,8 +1132,15 @@ public static class ShellWindowTests
                         TextRow(theme, "tab.Foil source.unselected.hover", sourceTab);
                         Hover(sourceTab, window, false);
                     });
+                    // Focus first, then select: the focus ring must follow the selected state it now surrounds.
+                    if (!sourceTab.Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException("Foil source tab refused keyboard focus");
                     host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
                     Settle(window);
+                    if (sourceTab.IsFocused)
+                        Probe(theme, "focus.tab.selected-while-focused",
+                            () => RingRow(theme, "focus.tab.selected-while-focused", sourceTab, window));
+                    else rowFailures.Add($"{theme}/focus.tab.selected-while-focused: selecting the tab moved focus away");
                     Probe(theme, "tab.Foil source.selected.rest", () => TextRow(theme, "tab.Foil source.selected.rest", sourceTab));
                     Probe(theme, "select.tab.Foil source", () => SelectedRow(theme, "select.tab.Foil source", sourceTab));
                     Probe(theme, "tab.Foil source.selected.hover", () =>
@@ -1172,6 +1187,9 @@ public static class ShellWindowTests
                     if (!rowItems[1].Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Browser row refused keyboard focus");
                     Probe(theme, "focus.browser", () => RingRow(theme, "focus.browser", rowItems[1], window));
+                    if (!rowItems[0].Focus(NavigationMethod.Tab))
+                        throw new InvalidOperationException("Selected Browser row refused keyboard focus");
+                    Probe(theme, "focus.browser.selected", () => RingRow(theme, "focus.browser.selected", rowItems[0], window));
 
                     host.ShowPane("properties");
                     Settle(window);
@@ -1224,6 +1242,8 @@ public static class ShellWindowTests
                     window.Close();
                 }
             }
+            }
+            finally { Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = reveal; }
             if (rowFailures.Count > 0)
                 throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
         });

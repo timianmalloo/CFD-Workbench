@@ -121,6 +121,17 @@
   <!-- Dock tabs are TabStripItems, not TabItems. Dock styles them in ControlThemes, which any Style outranks, but its
        selected, hover and active states share brush keys, so the selected fill is set here per control type. -->
   <Style Selector="dock|DocumentTabStripItem:selected, dock|ToolTabStripItem:selected"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
+  <!-- A Primary selected fill hides Fluent's inner focus tone (Ink), so these selectable items use OnPrimary inside the
+       Primary ring. Set for every state: Avalonia builds the adorner at focus time, and selection can follow focus. -->
+  <Style Selector="dock|DocumentTabStripItem, dock|ToolTabStripItem, ListBoxItem">
+    <Setter Property="FocusAdorner">
+      <FocusAdornerTemplate>
+        <Border BorderThickness="{DynamicResource SystemControlFocusVisualPrimaryThickness}" BorderBrush="{DynamicResource SystemControlFocusVisualPrimaryBrush}" Margin="{DynamicResource SystemControlFocusVisualMargin}">
+          <Border BorderThickness="{DynamicResource SystemControlFocusVisualSecondaryThickness}" BorderBrush="{DynamicResource OnPrimaryBrush}" />
+        </Border>
+      </FocusAdornerTemplate>
+    </Setter>
+  </Style>
   <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
   <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource InkBrush}" /><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /></Style>
   <Style Selector="TextBox"><Setter Property="MinHeight" Value="{StaticResource ControlHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="CaretBrush" Value="{DynamicResource InkBrush}" /><Setter Property="SelectionBrush" Value="{DynamicResource PrimaryBrush}" /><Setter Property="SelectionForegroundBrush" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /></Style>
