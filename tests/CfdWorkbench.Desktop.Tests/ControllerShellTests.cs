@@ -780,6 +780,8 @@ public static class ControllerShellTests
         }
         else if (from == GestureState.Busy)
             SetCellState(controller, GestureState.Busy);
+        if (eventName is ("PointerMovable" or "PointerFixed") && from is (GestureState.Nudging or GestureState.Busy))
+            controller.Select(new Selection.Foil());
         Require(controller.Gesture == from, $"Cell setup produced {controller.Gesture}, wanted {from}.");
         var originalDraft = controller.Draft;
         var before = controller.AcceptedSource;
@@ -823,7 +825,7 @@ public static class ControllerShellTests
         }
         switch (expected)
         {
-            case "Pressed": Require(began && controller.Gesture == GestureState.Pressed && controller.Draft is null, "Pointer did not enter Pressed without draft."); break;
+            case "Pressed": Require(controller.Gesture == GestureState.Pressed && controller.Draft is null, "Pointer did not enter Pressed without draft."); break;
             case "SelectedLocked": Require(!began && controller.Gesture == GestureState.Idle && controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase), "Fixed point was not selected with lock status."); break;
             case "Dragging": Require(controller.Gesture == GestureState.Dragging && controller.Draft is not null, "Threshold did not start drag."); break;
             case "Nudging": Require(began && controller.Gesture == GestureState.Nudging, "Arrow did not start nudge."); break;
@@ -833,8 +835,11 @@ public static class ControllerShellTests
             case "Cancelled": Require(gestureResult is GestureOutcome.Cancelled or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Cancellation changed geometry or stayed active."); break;
             case "SelectionCleared": Require(controller.Selection is Selection.Foil or Selection.None, "Escape did not clear point selection."); break;
             case "Busy": Require(controller.Gesture == GestureState.Busy || gestureResult is GestureOutcome.Committed || commandResult is CommitOutcome.Committed, "Event did not enter Busy/commit."); break;
-            case "BusySelect": Require(!began && controller.Gesture is GestureState.Busy or GestureState.Idle && controller.Selection is Selection.Points, "Nudge pointer down did not end run and select."); break;
-            case "SelectedWhileBusy": Require(!began && controller.Selection is Selection.Points && controller.Gesture == GestureState.Busy, "Busy pointer down did not select only."); break;
+            case "BusySelect": Require(!began && controller.Gesture is (GestureState.Busy or GestureState.Idle) &&
+                    HasSelectedPoint(controller, reference), "Nudge pointer down did not end run and select."); break;
+            case "SelectedWhileBusy": Require(!began && HasSelectedPoint(controller,
+                    eventName == "PointerFixed" ? fixedReference : reference) && controller.Gesture == GestureState.Busy,
+                    "Busy pointer down did not select only."); break;
             case "IgnoredStatus": Require(!began && controller.Gesture == GestureState.Busy && controller.Status.Contains("Checking", StringComparison.Ordinal), "Busy arrow did not report checking status."); break;
             case "Proceed": case "CancelProceed": case "CommitProceed": case "WaitProceed":
                 Require(controller.Gesture == GestureState.Idle && controller.Draft is null && controller.Inspection is not null, "Document action did not finish cleanly.");
@@ -844,10 +849,18 @@ public static class ControllerShellTests
             default:
                 Require(controller.Gesture == from && controller.Draft?.Id == originalDraft?.Id &&
                     controller.AcceptedSource == before && !began && commandResult is not CommitOutcome.Committed &&
-                    controller.Selection.Equals(beforeSelection), $"{eventName} was not ignored in {from}.");
+                    SameSelection(controller.Selection, beforeSelection), $"{eventName} was not ignored in {from}.");
                 break;
         }
     }
+
+    private static bool HasSelectedPoint(WorkbenchController controller, PointRef reference) =>
+        controller.Selection is Selection.Points selected && selected.Items.Any(item => item == reference);
+
+    private static bool SameSelection(Selection left, Selection right) =>
+        left is Selection.Points a && right is Selection.Points b
+            ? a.Items.SequenceEqual(b.Items)
+            : left.GetType() == right.GetType();
 
     private static void SetCellState(WorkbenchController controller, GestureState value) =>
         typeof(WorkbenchController).GetProperty(nameof(WorkbenchController.Gesture))!.SetValue(controller, value);

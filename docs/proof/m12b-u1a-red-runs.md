@@ -75,3 +75,21 @@ FAIL --controller-shell exited 1
 ```
 
 This run is a test-fixture red, not yet evidence of a missing transition. The fixture is corrected before assessing behavior; the test-only commit remains the red-first checkpoint.
+
+## Dispatch 2: §6.2 behavior red
+
+Command: `dotnet run -c Release --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --controller-shell` after test-only commit `2a6ef2c`; exit **1**. This focused command did not set the runner's non-symlinked `TMPDIR`, so its unrelated `Controller_SaveDuringDrag_CommitsThenSaves` failure (`DOC-UNSUPPORTED-PERSISTENCE`) is not a gate result. Cell failures with direct behavior oracles:
+
+```text
+FAIL Controller_Gesture_Nudging_PointerMovable_BusySelect InvalidOperationException: Nudge pointer down did not end run and select.
+FAIL Controller_Gesture_Nudging_PointerFixed_Busy InvalidOperationException: Event did not enter Busy/commit.
+FAIL Controller_Gesture_Nudging_MoveUnder3_Ignored InvalidOperationException: MoveUnder3 was not ignored in Nudging.
+FAIL Controller_Gesture_Nudging_MoveAtLeast3_Ignored InvalidOperationException: MoveAtLeast3 was not ignored in Nudging.
+FAIL Controller_Gesture_Nudging_Release_Ignored InvalidOperationException: Release was not ignored in Nudging.
+FAIL Controller_Gesture_Pressed_KeyUp_Ignored InvalidOperationException: KeyUp was not ignored in Pressed.
+FAIL Controller_Gesture_Dragging_KeyUp_Ignored InvalidOperationException: KeyUp was not ignored in Dragging.
+FAIL Controller_Gesture_Idle_Escape_SelectionCleared InvalidOperationException: Escape did not clear point selection.
+FAIL Controller_Gesture_Nudging_CaptureLost_Ignored InvalidOperationException: CaptureLost was not ignored in Nudging.
+```
+
+`Controller_Gesture_Pressed_MoveUnder3_Pressed` and `Controller_Gesture_Busy_TypedPosition_Ignored` also failed from assertion defects (the former required a begin call that the cell did not make; the latter compared selection record identity after notification). Their assertions are corrected before the green run.
