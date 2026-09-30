@@ -90,7 +90,7 @@ public partial class StartView : UserControl
         _ => "It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed."
     };
 
-    public void ShowAlert(string fileName, OpenFailure? failure, string? customMessage = null, bool fromRecent = false, bool isMissingFixture = false)
+    public void ShowAlert(string fileName, OpenFailure failure, bool fromRecent = false, bool isMissingFixture = false)
     {
         AlertTitle.Text = $"“{fileName}” didn't open.";
         AlertLocateButton.IsVisible = false;
@@ -101,7 +101,7 @@ public partial class StartView : UserControl
 
         if (isMissingFixture)
         {
-            AlertMessage.Text = "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed.";
+            AlertMessage.Text = "The built-in example is missing or damaged. Nothing was overwritten.";
             AlertNewFoilButton.IsVisible = true;
             AlertOpenAnotherButton.IsVisible = true;
             AlertPanel.IsVisible = true;
@@ -109,41 +109,21 @@ public partial class StartView : UserControl
             return;
         }
 
-        if (failure is null)
+        AlertMessage.Text = FailureMessage(failure, fileName);
+        switch (failure)
         {
-            AlertMessage.Text = customMessage ?? "An error occurred while opening the file.";
-            AlertOpenAnotherButton.IsVisible = true;
-        }
-        else
-        {
-            AlertMessage.Text = FailureMessage(failure, fileName);
-            switch (failure)
-            {
-                case OpenFailure.Missing:
-                    AlertLocateButton.IsVisible = true;
-                    AlertOpenAnotherButton.IsVisible = true;
-                    if (fromRecent) AlertRemoveRecentButton.IsVisible = true;
-                    break;
-                case OpenFailure.AccessDenied:
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-                case OpenFailure.Unreadable:
-                    AlertTryAgainButton.IsVisible = true;
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-                case OpenFailure.NotRecognised:
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-                case OpenFailure.TooLarge:
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-                case OpenFailure.UnknownContent:
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-                case OpenFailure.Newer:
-                    AlertOpenAnotherButton.IsVisible = true;
-                    break;
-            }
+            case OpenFailure.Missing:
+                AlertLocateButton.IsVisible = true;
+                AlertOpenAnotherButton.IsVisible = true;
+                if (fromRecent) AlertRemoveRecentButton.IsVisible = true;
+                break;
+            case OpenFailure.Unreadable:
+                AlertTryAgainButton.IsVisible = true;
+                AlertOpenAnotherButton.IsVisible = true;
+                break;
+            default:
+                AlertOpenAnotherButton.IsVisible = true;
+                break;
         }
 
         AlertPanel.IsVisible = true;

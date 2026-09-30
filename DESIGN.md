@@ -424,6 +424,15 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-137 | Open or start a foil. Whatever you select in it shows its properties here. |
 | COPY-138 | <Pane> couldn't be shown. Your foil hasn't changed. · Try again |
 | COPY-139 | <Pane> couldn't be shown. · Try again |
+| COPY-140 | “<file>” has no control-point IDs. CFD Workbench can add them. The file hasn't been changed. · Accept candidate IDs |
+| COPY-141 | “<file>” couldn't be checked, so it wasn't opened for editing. The file hasn't been changed. |
+| COPY-142 | The candidate IDs couldn't be accepted. The file hasn't been changed. |
+| COPY-143 | “<file>” didn't open. The built-in example is missing or damaged. Nothing was overwritten. · New foil · Open another file… |
+| COPY-144 | Dismiss |
+| COPY-145 | The new span couldn't be checked. Span is unchanged. Try again or enter a different value. |
+| COPY-146 | The recent-files list wasn't cleared: <reason>. The list is unchanged. · Try again |
+| COPY-147 | it was saved by a newer version of CFD Workbench |
+| COPY-148 | it couldn't be saved |
 
 COPY-125 to COPY-139 are quoted verbatim from `docs/design/app-shell.md` §11 (track U1a, 2026-09-30).
 COPY-125 to COPY-131 are the open failures other than COPY-103; the built start card renders the
@@ -431,6 +440,12 @@ sentence after “<file>” didn't open. as a second text line. COPY-131 has no 
 COPY-132 to COPY-135 belong to the catalog dialog (M1.2d; COPY-134 and COPY-135 are the two
 `<cause>` values of COPY-133) and are not in the M1.2a build. Where the M1.2a build differs from a
 row, the difference is a finding in `docs/reviews/app-shell-native.md`, not a second record.
+COPY-140 to COPY-148 were added by track COPYFIX (2026-09-30). COPY-145 and COPY-146 quote §11 verbatim;
+COPY-147 and COPY-148 are the two `<reason>` values of COPY-146. COPY-140 (ID candidate) and COPY-141 (refused)
+are the alert-band strings for states §11 names without a string; COPY-142 is the failed Accept candidate IDs.
+COPY-143 is the M1 start-card rendering of COPY-29's state (DOC-01: the fixture is named, nothing is
+overwritten, New foil stays available); the spec's COPY-29 row still needs its 1.6 supersession mark.
+COPY-144 is the Dismiss button on the start-card alert and the model-area alert band.
 
 COPY-28 to COPY-97 are quoted verbatim from specification v1.1's C2 state table, its
 fixed strings (A5.1, A5.3, A5.4, A5.6, A5.9, A7) and the A5.12 entry-point names; the spec is their authority and this

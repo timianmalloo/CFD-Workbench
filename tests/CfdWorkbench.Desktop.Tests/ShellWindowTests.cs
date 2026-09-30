@@ -1314,6 +1314,118 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("COPY-106 differs from built Span error");
         });
 
+        DesktopChecks.Check("Copy_SpanNotAssessed_MatchesDesignRow", () =>
+        {
+            // No certified foil: ApplySpan refuses with DSL-NOT-ASSESSED (WorkbenchController.RequireCertifiedFoil).
+            using var controller = new WorkbenchController();
+            var pane = new PropertiesPane();
+            pane.Bind(controller);
+            pane.FindControl<TextBox>("SpanInput")!.Text = "900";
+            bool committed = pane.CommitSpan();
+            string? built = pane.FindControl<TextBlock>("SpanErrorText")!.Text;
+            string expected = CopyRow(DesignCopyRows(), "COPY-145");
+            if (committed || built != expected || controller.Inspection is not null)
+                throw new InvalidOperationException($"COPY-145: expected '{expected}', built '{built}', committed={committed}");
+        });
+
+        DesktopChecks.Check("Copy_StartAlert_NoUncataloguedFallback", () =>
+        {
+            // C-4: every OpenFailure has a COPY row, so ShowAlert takes no null failure and no free-text message.
+            var show = typeof(StartView).GetMethod(nameof(StartView.ShowAlert))!;
+            var failure = show.GetParameters().Single(parameter => parameter.ParameterType == typeof(OpenFailure));
+            var nullability = new System.Reflection.NullabilityInfoContext().Create(failure);
+            if (show.GetParameters().Any(parameter => parameter.Name == "customMessage") ||
+                nullability.WriteState != System.Reflection.NullabilityState.NotNull)
+                throw new InvalidOperationException("StartView.ShowAlert still accepts an uncatalogued fallback message");
+        });
+
+        DesktopChecks.Check("Copy_ExampleMissing_MatchesDesignRow", () =>
+        {
+            var start = new StartView();
+            start.ShowAlert("example.foil", new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil"), isMissingFixture: true);
+            string expected = CopyRow(DesignCopyRows(), "COPY-143").Replace("<file>", "example.foil", StringComparison.Ordinal);
+            string built = StartAlertLine(start);
+            if (built != expected)
+                throw new InvalidOperationException($"COPY-143: expected '{expected}', built '{built}'");
+        });
+
+        DesktopChecks.Check("Copy_Dismiss_MatchesDesignRow", () =>
+        {
+            string expected = CopyRow(DesignCopyRows(), "COPY-144");
+            var start = new StartView();
+            var area = new ModelArea();
+            string?[] built = [StartControl<Button>(start, "AlertDismissButton").Content?.ToString(),
+                area.FindControl<Button>("DismissAlertBandButton")!.Content?.ToString()];
+            if (built.Any(label => label != expected))
+                throw new InvalidOperationException($"COPY-144: expected '{expected}', built '{string.Join("', '", built)}'");
+        });
+
+        DesktopChecks.Check("Copy_AlertBand_IdCandidateRefusedAcceptFailed_MatchDesignRows", () =>
+        {
+            var rows = DesignCopyRows();
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            host.HandleOpenOutcome(new OpenOutcome.NeedsIds([1], [2]), "/example/sample.foil");
+            string candidate = BandLine(host.ModelView);
+            host.HandleOpenOutcome(new OpenOutcome.Refused("DSL-SYNTAX", [2]), "/example/sample.foil");
+            string refused = BandLine(host.ModelView);
+            host.HandleOpenOutcome(new OpenOutcome.NeedsIds([1], [2]), "/example/sample.foil");
+            // Nothing is pending in the controller on this path, so Accept candidate IDs fails and says COPY-142.
+            host.ModelView.FindControl<Button>("AcceptIdsButton")!
+                .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            string acceptFailed = BandLine(host.ModelView);
+            var cases = new (string Row, string Built)[] { ("COPY-140", candidate), ("COPY-141", refused), ("COPY-142", acceptFailed) };
+            foreach (var item in cases)
+            {
+                string expected = CopyRow(rows, item.Row).Replace("<file>", "sample.foil", StringComparison.Ordinal);
+                if (item.Built != expected)
+                    throw new InvalidOperationException($"{item.Row}: expected '{expected}', built '{item.Built}'");
+            }
+        });
+
+        DesktopChecks.Check("Copy_RecentNotCleared_StatusAndTryAgain", () =>
+        {
+            var rows = DesignCopyRows();
+            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "copyfix-clear-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                // Newer list (COPY-147) and a failing write (COPY-148): both keep the list and offer Try again.
+                string newerRoot = Path.Combine(root, "newer");
+                Directory.CreateDirectory(Path.Combine(newerRoot, "recent"));
+                string newerPath = Path.Combine(newerRoot, "recent", "recent.json");
+                byte[] newer = System.Text.Encoding.UTF8.GetBytes("{\"format\":\"cfdw-recent\",\"version\":2,\"entries\":[]}");
+                File.WriteAllBytes(newerPath, newer);
+                string failRoot = Path.Combine(root, "fail");
+                string kept = Path.Combine(failRoot, "kept.foil");
+                var seed = new PreferenceStore(failRoot, () => new ProjectStore());
+                seed.UpdateRecentAsync(new RecentOp.Add(kept), CancellationToken.None).GetAwaiter().GetResult();
+                var cases = new (string Reason, PreferenceStore Store, Func<bool> Unchanged)[]
+                {
+                    ("COPY-147", new PreferenceStore(newerRoot, () => new ProjectStore()),
+                        () => File.ReadAllBytes(newerPath).AsSpan().SequenceEqual(newer)),
+                    ("COPY-148", new PreferenceStore(failRoot, () => new FailingSaveStore()),
+                        () => seed.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult().Entries.Single().Path == kept)
+                };
+                foreach (var item in cases)
+                {
+                    using var controller = new WorkbenchController();
+                    var host = new ShellHost(controller, item.Store);
+                    Pump(host.ClearRecentAsync());
+                    string expected = CopyRow(rows, "COPY-146").Replace("<reason>", CopyRow(rows, item.Reason), StringComparison.Ordinal);
+                    var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
+                    var retry = host.ModelView.FindControl<Button>("StatusTryAgainButton");
+                    string built = status.Text + (retry?.IsVisible == true ? " · " + retry.Content : "");
+                    if (built != expected || !status.IsVisible || !item.Unchanged())
+                        throw new InvalidOperationException($"{item.Reason}: expected '{expected}', built '{built}', unchanged={item.Unchanged()}");
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+            }
+        });
+
         DesktopChecks.Check("OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath", () =>
         {
             string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "u1fix-remove-" + Guid.NewGuid().ToString("N"));
@@ -1688,6 +1800,53 @@ public static class ShellWindowTests
 
     private static T StartControl<T>(StartView start, string name) where T : Control =>
         start.FindControl<T>(name) ?? throw new InvalidOperationException($"Start control {name} missing");
+
+    /// <summary>DESIGN.md §7 COPY rows by id — the copy record every Copy_* check compares the build against.</summary>
+    private static Dictionary<string, string> DesignCopyRows() =>
+        File.ReadAllLines(Path.Combine(FindRepoRoot(), "DESIGN.md"))
+            .Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal))
+            .Select(line => line.Split('|', 4))
+            .Where(parts => parts.Length >= 3)
+            .ToDictionary(parts => parts[1].Trim(), parts => parts[2].Trim());
+
+    private static string CopyRow(Dictionary<string, string> rows, string id) =>
+        rows.TryGetValue(id, out var row) ? row : throw new InvalidOperationException($"{id} is not a DESIGN.md COPY row");
+
+    /// <summary>The start-card alert as one COPY-row line: title, message, then visible actions other than Dismiss.</summary>
+    private static string StartAlertLine(StartView start)
+    {
+        var actions = ((Panel)StartControl<Button>(start, "AlertLocateButton").Parent!).Children.OfType<Button>()
+            .Where(button => button.IsVisible && button.Name != "AlertDismissButton").Select(button => button.Content?.ToString());
+        return string.Join(" · ", new[] { StartControl<TextBlock>(start, "AlertTitle").Text + " " +
+            StartControl<TextBlock>(start, "AlertMessage").Text }.Concat(actions));
+    }
+
+    /// <summary>The model-area alert band as one COPY-row line: text, then visible actions other than Dismiss.</summary>
+    private static string BandLine(ModelArea area)
+    {
+        var text = area.FindControl<TextBlock>("AlertBandText")!;
+        var actions = ((Panel)text.Parent!).Children.OfType<Button>()
+            .Where(button => button.IsVisible && button.Name != "DismissAlertBandButton").Select(button => button.Content?.ToString());
+        return string.Join(" · ", new[] { text.Text }.Concat(actions));
+    }
+
+    private static void Pump(Task task)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+        while (!task.IsCompleted && !timeout.IsCancellationRequested)
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        task.GetAwaiter().GetResult();
+    }
+
+    /// <summary>Reads through the real store; every save fails with <c>DOC-IO</c> and publishes nothing.</summary>
+    private sealed class FailingSaveStore : IProjectStore
+    {
+        private readonly ProjectStore inner = new();
+        public void Dispose() => inner.Dispose();
+        public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) => inner.ReadAsync(path, cancellation);
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default) =>
+            Task.FromResult(new SaveResult("DOC-IO", null, false, false));
+    }
 
     private static void Settle(Window window)
     {

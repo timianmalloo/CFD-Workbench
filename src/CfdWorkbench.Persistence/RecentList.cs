@@ -10,6 +10,7 @@ public abstract record RecentOp
 {
     public sealed record Add(string Path) : RecentOp;
     public sealed record Clear : RecentOp;
+    public sealed record Remove(string Path) : RecentOp;
 }
 
 public sealed record RecentDocument(IReadOnlyList<RecentEntry> Entries)
@@ -42,6 +43,8 @@ public static class RecentList
     public static IReadOnlyList<RecentEntry> Apply(IReadOnlyList<RecentEntry> current, RecentOp op)
     {
         if (op is RecentOp.Clear) return [];
+        if (op is RecentOp.Remove remove)
+            return current.Where(entry => !string.Equals(entry.Path, remove.Path, StringComparison.Ordinal)).ToArray();
         if (op is not RecentOp.Add add || !Accepts(add.Path)) return current;
         var list = new List<RecentEntry> { new(add.Path) };
         foreach (var entry in current)

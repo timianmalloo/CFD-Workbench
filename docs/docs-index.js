@@ -6020,6 +6020,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
     },
     {
+      "id": "proof-copyfix-red-runs",
+      "path": "docs/proof/copyfix-red-runs.md",
+      "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-copyfix",
+      "phase": "implementation — M1.2a review fixes",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red runs for track COPYFIX. Four new Copy_* checks failed against the U1FIX build and one new preference-store check failed against a Remove op with no Apply support. Two checks pinned strings U1FIX had already built, so their red evidence is a string mutant, recorded as such.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "copy",
+        "recent-files",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "711ca0f0fa03ea865db7996d59c384f1f354a215477182310bee76d044d9f0cf"
+    },
+    {
       "id": "proof-d1-red-runs",
       "path": "docs/proof/d1-red-runs.md",
       "title": "D1 shell model red-first runs",
@@ -7730,5 +7758,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "81b194d49f81c9c2704bb04229e3f91c74275a72a936d0091522e4eb32ecc9a8"
+  "graphSha256": "6f47cd691ebe2b4921b1fd9fb0da7645f606a5ef7a6d78576820077f64593c2e"
 };

@@ -199,6 +199,7 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
+        ModelView.StatusTryAgainButton.Click += async (_, _) => await ClearRecentAsync();
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -226,7 +227,7 @@ public sealed class ShellHost : Grid
             }
             catch (Exception)
             {
-                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The original file hasn't changed.");
+                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The file hasn't been changed.");
             }
         };
         ModelView.ResumeRecoveryButton.Click += (_, _) =>
@@ -338,19 +339,20 @@ public sealed class ShellHost : Grid
 
             case OpenOutcome.Cancelled:
                 ModelView.StartCardView.CancelOpening();
-                ModelView.ShowStatus("Opening cancelled. Nothing changed.");
+                ShowStatus("Opening cancelled. Nothing changed.");
                 break;
 
             case OpenOutcome.NeedsIds:
                 ModelView.StartCardView.HideOpening();
                 ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand("Explicit candidate IDs available for insertion.", showAcceptIds: true);
+                ModelView.ShowAlertBand($"“{fileName}” has no control-point IDs. CFD Workbench can add them. The file hasn't been changed.",
+                    showAcceptIds: true);
                 break;
 
-            case OpenOutcome.Refused refused:
+            case OpenOutcome.Refused:
                 ModelView.StartCardView.HideOpening();
                 ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand($"Opening refused ({refused.Code}): foil opened as read-only.");
+                ModelView.ShowAlertBand($"“{fileName}” couldn't be checked, so it wasn't opened for editing. The file hasn't been changed.");
                 break;
         }
     }
@@ -366,36 +368,39 @@ public sealed class ShellHost : Grid
 
     public async Task ClearRecentAsync()
     {
-        if (Preferences != null)
+        if (Preferences is null) return;
+        var save = await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
+        if (save.Outcome == "Recent list not cleared")
         {
-            await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
-            await LoadRecentAsync();
+            // simplify: two <reason> values (COPY-147, COPY-148); a held claim and an I/O failure both read as
+            // "couldn't be saved". Upgrade trigger: a reason whose recovery differs from Try again.
+            string reason = save.Code == "LAYOUT-VERSION"
+                ? "it was saved by a newer version of CFD Workbench"
+                : "it couldn't be saved";
+            ShowStatus($"The recent-files list wasn't cleared: {reason}. The list is unchanged.", offerTryAgain: true);
         }
+        else if (ModelView.StatusTryAgainButton.IsVisible)
+        {
+            ModelView.StatusText.IsVisible = false;
+            ModelView.StatusTryAgainButton.IsVisible = false;
+        }
+        await LoadRecentAsync();
+    }
+
+    private void ShowStatus(string message, bool offerTryAgain = false)
+    {
+        ModelView.ShowStatus(message);
+        ModelView.StatusTryAgainButton.IsVisible = offerTryAgain;
     }
 
     public async Task RemoveFailedRecentAsync()
     {
         if (Preferences is null || failedPath is null) return;
         string path = failedPath;
-        var load = await Preferences.LoadRecentAsync(CancellationToken.None);
-        if (load.NeverWrite || load.SessionOnly) return;
-        var retained = load.Entries.Where(entry => entry.Path != path).Select(entry => entry.Path).ToArray();
-        if (retained.Length == load.Entries.Count) return;
-        // simplify: P1 currently exposes only Add and Clear. Rebuild at most ten entries; replace with
-        // RecentOp.Remove when the Persistence seam lands, since a failed intermediate Add is not atomic.
-        var clear = await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
-        if (clear.Outcome != "saved" || !clear.DurabilityConfirmed) return;
-        foreach (string entry in retained.Reverse())
-        {
-            var added = await Preferences.UpdateRecentAsync(new RecentOp.Add(entry), CancellationToken.None);
-            if (added.Outcome != "saved" || !added.DurabilityConfirmed)
-            {
-                ModelView.ShowStatus("The recent-files list couldn't be restored after removal.");
-                await LoadRecentAsync();
-                return;
-            }
-        }
+        // One compare-and-swap write: a failed write leaves the list as it was, and the alert stays.
+        var removed = await Preferences.UpdateRecentAsync(new RecentOp.Remove(path), CancellationToken.None);
         await LoadRecentAsync();
+        if (removed.Outcome != "saved") return;
         ModelView.StartCardView.DismissAlert();
         ModelView.HideAlertBand();
     }

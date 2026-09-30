@@ -25,6 +25,8 @@ internal static class PreferenceStoreTests
         Check("Recent_Conflict_ReappliesAdd", RecentConflict);
         Check("Recent_ClearFails_ReportedNotCleared", ClearFails);
         Check("Recent_Clear_NoFileContainsMarkerPath", ClearErases);
+        Check("Recent_Remove_KeepsEveryOtherEntry", RemoveKeepsOthers);
+        Check("Recent_RemoveWriteFails_ListUnchanged", RemoveFails);
         Check("StoreContract_CancelBeforePublish_DocCancelled", CancelContract);
     }
 
@@ -287,6 +289,37 @@ internal static class PreferenceStoreTests
             throw new InvalidOperationException("recent v2 bytes changed");
     }
 
+    private static void RemoveKeepsOthers()
+    {
+        string root = LayoutFileTests.Root();
+        var store = new PreferenceStore(root, () => new ProjectStore());
+        foreach (string path in new[] { "/abs/a.foil", "/abs/b.foil", "/abs/c.foil" })
+            Equal("saved", Wait(store.UpdateRecentAsync(new RecentOp.Add(path), CancellationToken.None)).Outcome);
+        // Adds prepend, so the list is c, b, a. Removing b keeps c then a, in order, in one write.
+        var save = Wait(store.UpdateRecentAsync(new RecentOp.Remove("/abs/b.foil"), CancellationToken.None));
+        Equal("saved", save.Outcome);
+        var recent = Wait(store.LoadRecentAsync(CancellationToken.None));
+        Equal("/abs/c.foil,/abs/a.foil", string.Join(",", recent.Entries.Select(entry => entry.Path)));
+    }
+
+    private static void RemoveFails()
+    {
+        string root = LayoutFileTests.Root();
+        var seed = new PreferenceStore(root, () => new ProjectStore());
+        Wait(seed.UpdateRecentAsync(new RecentOp.Add("/abs/a.foil"), CancellationToken.None));
+        Wait(seed.UpdateRecentAsync(new RecentOp.Add("/abs/b.foil"), CancellationToken.None));
+        string path = Path.Combine(root, "recent", "recent.json");
+        byte[] before = File.ReadAllBytes(path);
+        var failing = new PreferenceStore(root, () => new SaveFailStore());
+        var save = Wait(failing.UpdateRecentAsync(new RecentOp.Remove("/abs/a.foil"), CancellationToken.None));
+        Equal("failed", save.Outcome);
+        Equal("DOC-IO", save.Code);
+        if (!File.ReadAllBytes(path).AsSpan().SequenceEqual(before))
+            throw new InvalidOperationException("recent bytes changed after a failed Remove");
+        var recent = Wait(seed.LoadRecentAsync(CancellationToken.None));
+        Equal("/abs/b.foil,/abs/a.foil", string.Join(",", recent.Entries.Select(entry => entry.Path)));
+    }
+
     private static void ClearErases()
     {
         const string marker = "P1_RECENT_MARKER_7f3a";
@@ -455,6 +488,16 @@ internal static class PreferenceStoreTests
         }
         public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) =>
             Task.FromException<ReadResult>(new ContractError(code));
+    }
+
+    /// <summary>Reads through the real store; every save fails with <c>DOC-IO</c> and publishes nothing.</summary>
+    private sealed class SaveFailStore : IProjectStore
+    {
+        private readonly ProjectStore inner = new();
+        public void Dispose() => inner.Dispose();
+        public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) => inner.ReadAsync(path, cancellation);
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default) =>
+            Task.FromResult(new SaveResult("DOC-IO", null, false, false));
     }
 
     private sealed class CancelStore(CancellationTokenSource cts, byte[] image, string hash) : IProjectStore
