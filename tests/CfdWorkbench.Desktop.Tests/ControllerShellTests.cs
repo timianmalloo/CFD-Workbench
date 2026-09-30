@@ -761,7 +761,13 @@ public static class ControllerShellTests
         GestureState from, string eventName, string expected)
     {
         if (controller.Gesture == GestureState.Busy)
-            SetCellState(controller, GestureState.Idle);
+        {
+            var pending = (Task<GestureOutcome>?)typeof(WorkbenchController)
+                .GetField("pendingCommit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(controller);
+            if (pending is null) SetCellState(controller, GestureState.Idle);
+            else pending.GetAwaiter().GetResult();
+        }
         else if (controller.Gesture != GestureState.Idle)
             End(controller, "Escape");
         var point = controller.Planform!.Trailing.Points.First(item => item.Id == reference.VertexId);
@@ -805,7 +811,24 @@ public static class ControllerShellTests
             case "Escape": gestureResult = controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult(); break;
             case "CaptureLost": gestureResult = controller.EndGestureAsync(GestureEnd.CaptureLost).GetAwaiter().GetResult(); break;
             case "FocusLost": gestureResult = controller.EndGestureAsync(GestureEnd.FocusLost).GetAwaiter().GetResult(); break;
-            case "DocumentAction": controller.NewFoilAsync().GetAwaiter().GetResult(); break;
+            case "DocumentAction":
+                if (from == GestureState.Busy)
+                {
+                    var pendingField = typeof(WorkbenchController).GetField("pendingDirectCommand",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                    Require(pendingField is not null, "Busy direct command has no document-action wait handle.");
+                    var completion = new TaskCompletionSource<CommitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    pendingField.SetValue(controller, completion.Task);
+                    var document = controller.NewFoilAsync();
+                    Require(!document.IsCompleted && controller.AcceptedSource == before,
+                        "Document action passed an unfinished direct command.");
+                    SetCellState(controller, GestureState.Idle);
+                    completion.SetResult(new CommitOutcome.Refused("DSL-TARGET", "Synthetic completion"));
+                    document.GetAwaiter().GetResult();
+                    pendingField.SetValue(controller, null);
+                }
+                else controller.NewFoilAsync().GetAwaiter().GetResult();
+                break;
             case "TypedPosition":
                 began = Begin(controller, reference, "Typed");
                 if (began)
@@ -823,6 +846,13 @@ public static class ControllerShellTests
                 }
                 break;
         }
+        if (from == GestureState.Nudging && eventName is ("PointerMovable" or "PointerFixed"))
+        {
+            var pending = (Task<GestureOutcome>?)typeof(WorkbenchController)
+                .GetField("pendingCommit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(controller);
+            pending?.GetAwaiter().GetResult();
+        }
         switch (expected)
         {
             case "Pressed": Require(controller.Gesture == GestureState.Pressed && controller.Draft is null, "Pointer did not enter Pressed without draft."); break;
@@ -834,7 +864,10 @@ public static class ControllerShellTests
             case "BusyOrNoChange": Require(gestureResult is GestureOutcome.Committed or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle, "Drag release did not finish."); break;
             case "Cancelled": Require(gestureResult is GestureOutcome.Cancelled or GestureOutcome.NoChange && controller.Gesture == GestureState.Idle && controller.AcceptedSource == before, "Cancellation changed geometry or stayed active."); break;
             case "SelectionCleared": Require(controller.Selection is Selection.Foil or Selection.None, "Escape did not clear point selection."); break;
-            case "Busy": Require(controller.Gesture == GestureState.Busy || gestureResult is GestureOutcome.Committed || commandResult is CommitOutcome.Committed, "Event did not enter Busy/commit."); break;
+            case "Busy": Require(controller.Gesture == GestureState.Busy || gestureResult is GestureOutcome.Committed ||
+                    commandResult is CommitOutcome.Committed || from == GestureState.Nudging &&
+                    controller.Gesture == GestureState.Idle && controller.AcceptedSource != before,
+                    "Event did not enter Busy/commit."); break;
             case "BusySelect": Require(!began && controller.Gesture is (GestureState.Busy or GestureState.Idle) &&
                     HasSelectedPoint(controller, reference), "Nudge pointer down did not end run and select."); break;
             case "SelectedWhileBusy": Require(!began && HasSelectedPoint(controller,
