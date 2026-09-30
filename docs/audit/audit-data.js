@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:32:25Z",
+  "generated": "2026-09-30T20:33:56Z",
   "audit": [
     {
       "actor": null,
@@ -20015,6 +20015,33 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-09-30T20:20:30Z",
       "duration_seconds": 715.0
+    },
+    {
+      "id": "al-01M3T0C6Y20FQHXZBSCTS4VSR4",
+      "shortname": "join-m12b-plan",
+      "datetime": "2026-09-30T20:33:56Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of plan/m12b-build into feature/ui-cad-direction",
+      "summary": "m12b-build.md: PRE, B0, B1a, B1b, U1a, U1b, U2, U3; critical path 697 min of boxes; Test Architect + Simplifier cleared recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "plan the M1.2b build",
+      "done_when": "merged",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T20:33:06Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
