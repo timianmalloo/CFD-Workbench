@@ -70,6 +70,26 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Shell_F6_ModelArea_OnlyDockDocumentTabs", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                int innerRows = host.ModelView.GetVisualDescendants().OfType<TabControl>()
+                    .Count(tab => tab.IsEffectivelyVisible);
+                int dockTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
+                    .Count(tab => tab.IsEffectivelyVisible);
+                if (innerRows != 0 || dockTabs != 4)
+                    throw new InvalidOperationException($"Model area has {innerRows} inner tab rows and {dockTabs} Dock document tabs");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);
@@ -579,7 +599,7 @@ public static class ShellWindowTests
             {
                 window.Show();
                 window.UpdateLayout();
-                if (!host.ModelView.FindControl<Control>("DocumentTabs")!.IsVisible ||
+                if (!host.ModelView.FindControl<Control>("Plan3DContent")!.IsVisible ||
                     host.Browser.FindControl<ListBox>("StationList")!.ItemCount == 0 ||
                     !host.Properties.FindControl<Control>("ContentPanel")!.IsVisible ||
                     !host.Properties.FindControl<Control>("WingBlock")!.IsVisible)

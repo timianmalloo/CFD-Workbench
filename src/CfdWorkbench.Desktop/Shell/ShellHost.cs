@@ -139,13 +139,13 @@ public sealed class ShellHost : Grid
         LayoutFactory.BrowserTool.Context = Browser;
         LayoutFactory.RailControlsTool.Context = RailEditor;
 
-        // A view has one logical parent. Move these bodies into Dock's document tabs.
-        var sectionSample = ModelView.SectionSampleTab.Content;
-        var foilSource = ModelView.FoilSourceTab.Content;
-        var sectionEditor = ModelView.SectionTab.Content;
-        ModelView.SectionSampleTab.Content = null;
-        ModelView.FoilSourceTab.Content = null;
-        ModelView.SectionTab.Content = null;
+        // A view has one logical parent. Dock owns the only document tab strip.
+        var sectionSample = ModelView.SectionSampleBody;
+        var foilSource = ModelView.FoilSourceBody;
+        var sectionEditor = ModelView.SectionEditor;
+        ModelView.DetachedDocumentBodies.Children.Remove(sectionSample);
+        ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
+        ModelView.DetachedDocumentBodies.Children.Remove(sectionEditor);
         LayoutFactory.ModelDocument.Context = ModelView;
         LayoutFactory.SectionSampleDocument.Context = sectionSample;
         LayoutFactory.FoilSourceDocument.Context = foilSource;
