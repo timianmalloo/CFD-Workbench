@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T23:31:13Z",
+  "generated": "2026-09-30T23:35:15Z",
   "audit": [
     {
       "actor": null,
@@ -20496,6 +20496,35 @@ window.AUDIT_DATA = {
         "branch": "chore/desktop-suite-speed",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3TAR70R9K6MZX5T2XVNX9VR",
+      "shortname": "join-speed",
+      "datetime": "2026-09-30T23:35:15Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of chore/desktop-suite-speed into feature/ui-cad-direction",
+      "summary": "profile recorded; bounded parallel Spawn via SelfLaunch.StartInfo; 5 + 2 loaded runs identical (591 PASS); planted red caught; verified by Coordinator: PASS hash 672d7063d8f3 unchanged, adapters gate 0, SelfLaunchTests 5/5 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/test-ci-waste.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "keep the test budget with real speed",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T23:34:35Z",
+      "duration_seconds": 40.0
     }
   ],
   "changes": [
