@@ -2848,7 +2848,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32ca7567d6d732098bb6617134307447347f03d7a9cb0d55128cd90a16d7de9f"
+      "sourceSha256": "cc206dc4bace9cbf45980cfbce7aaaf3a7a5d454c58f3157aae318039c65a765"
     },
     {
       "id": "domain-experts",
@@ -6369,6 +6369,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-shellfix-red-runs",
+      "path": "docs/proof/shellfix-red-runs.md",
+      "title": "Shell visual defect red runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "m1.2a-shellfix",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Red-first rendered-control checks for the operator's first native shell findings. Each row records the observed failure before its production fix.",
+      "tags": [
+        "app-shell",
+        "rendered-ui",
+        "regression"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "tested-by"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "40bed83ef00399852b700cbe5850f36b14fa95e976c12b009325018ef7f8c44e"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -6519,7 +6548,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3bd6f1004200dded41ee9b080ec6547d7a94baf2a6e5dd245306e9c93b0e355b"
+      "sourceSha256": "7131ef6dd9a645208b031122bc0391ada82a277dc96c5c620f578e4a689bb023"
     },
     {
       "id": "review-application-architecture",
@@ -7786,5 +7815,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b7f6246ea49653234d3543cea3ac00cfcb0061817f09ec22ffe8c2fe824a87f4"
+  "graphSha256": "ef076ee30ce74d21ec820d3605368a3c446237f5595c0bddb3280201bd58a760"
 };

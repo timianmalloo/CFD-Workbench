@@ -22,6 +22,202 @@ public static class ShellWindowTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("Shell_F7_ModelTabReentry_RendersAcceptedFoil", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenNewFoilAsync();
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                void AssertDrawn(string step)
+                {
+                    if (!ReferenceEquals(viewport.GetVisualRoot(), window) || !viewport.IsEffectivelyVisible ||
+                        viewport.Bounds.Width <= 0 || viewport.Bounds.Height <= 0 ||
+                        !ReferenceEquals(viewport.Frame, controller.Frame) ||
+                        !ReferenceEquals(viewport.LastRecordedFrame, controller.Frame) ||
+                        viewport.LastRecordedRevision != viewport.FrameRevision || viewport.RenderSerial == 0 ||
+                        viewport.FoilBrush is null || viewport.StationBrush is null)
+                        throw new InvalidOperationException($"{step}: model viewport was not attached and drawn; " +
+                            $"root={viewport.GetVisualRoot()?.GetType().Name ?? "none"}, visible={viewport.IsEffectivelyVisible}, " +
+                            $"bounds={viewport.Bounds}, render={viewport.RenderSerial}, revision={viewport.LastRecordedRevision}/{viewport.FrameRevision}");
+                }
+                AssertDrawn("initial");
+                var tabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
+                var sourceTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.FoilSourceDocument));
+                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.ModelDocument));
+                sourceTab.IsSelected = true;
+                Settle(window);
+                if (!sourceTab.IsSelected)
+                    throw new InvalidOperationException("Foil source tab did not select");
+                modelTab.IsSelected = true;
+                Settle(window);
+                long beforeRedraw = viewport.RenderSerial;
+                viewport.InvalidateFrameForMetric();
+                Settle(window);
+                AssertDrawn("re-entry");
+                if (viewport.RenderSerial <= beforeRedraw)
+                    throw new InvalidOperationException("Re-entered viewport did not draw its accepted foil");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_AllModelTabs_ReentryRealizesContent", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var station = controller.Inspection!.Authored.Assignments[0];
+            controller.Select(new Selection.Station(0, station.Eta));
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var documents = new (Dock.Model.Controls.IDocument Document, Control Surface, Func<bool> Ready)[]
+                {
+                    (host.LayoutFactory.ModelDocument, host.ModelView.FindControl<Viewport>("FoilViewport")!,
+                        () => ReferenceEquals(host.ModelView.FindControl<Viewport>("FoilViewport")!.LastRecordedFrame, controller.Frame)),
+                    (host.LayoutFactory.SectionSampleDocument, host.ModelView.FindControl<Viewport>("SectionViewport")!,
+                        () => ReferenceEquals(host.ModelView.FindControl<Viewport>("SectionViewport")!.LastRecordedFrame, controller.Frame)),
+                    (host.LayoutFactory.FoilSourceDocument, host.ModelView.FindControl<TextBox>("SourceText")!,
+                        () => !string.IsNullOrWhiteSpace(host.ModelView.FindControl<TextBox>("SourceText")!.Text)),
+                    (host.LayoutFactory.SectionDocument,
+                        host.ModelView.FindControl<SectionEditorView>("SectionEditor")!.FindControl<SectionCanvas>("EditableSectionCanvas")!,
+                        () => host.ModelView.FindControl<SectionEditorView>("SectionEditor")!
+                            .FindControl<SectionCanvas>("EditableSectionCanvas")!.Profile is not null)
+                };
+                foreach (var (document, surface, ready) in documents)
+                {
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = document;
+                    Settle(window);
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.ModelDocument;
+                    Settle(window);
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = document;
+                    Settle(window);
+                    if (!ReferenceEquals(surface.GetVisualRoot(), window) || !surface.IsEffectivelyVisible ||
+                        surface.Bounds.Width <= 0 || surface.Bounds.Height <= 0 || !ready())
+                        throw new InvalidOperationException($"Re-entered {document.Title} has no realized content");
+                }
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F6_ModelArea_OnlyDockDocumentTabs", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                int innerRows = host.ModelView.GetVisualDescendants().OfType<TabControl>()
+                    .Count(tab => tab.IsEffectivelyVisible);
+                int dockTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
+                    .Count(tab => tab.IsEffectivelyVisible);
+                if (innerRows != 0 || dockTabs != 4)
+                    throw new InvalidOperationException($"Model area has {innerRows} inner tab rows and {dockTabs} Dock document tabs");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F9_SectionSelectedStation_DrawsProfile", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var station = controller.Inspection!.Authored.Assignments[0];
+                controller.Select(new Selection.Station(0, station.Eta));
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var canvas = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!
+                    .FindControl<SectionCanvas>("EditableSectionCanvas")!;
+                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || !canvas.IsEffectivelyVisible ||
+                    canvas.Bounds.Width <= 0 || canvas.Bounds.Height <= 0 ||
+                    canvas.Profile is null || canvas.Profile.UpperCurve.Count == 0 || canvas.FoilBrush is null)
+                    throw new InvalidOperationException("Selected station Section canvas has no realized profile drawing inputs");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F9_SectionNoStation_ShowsEmptyCopy", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var editor = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!;
+                var canvas = editor.FindControl<SectionCanvas>("EditableSectionCanvas")!;
+                var empty = editor.FindControl<TextBlock>("SectionEmptyText");
+                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || canvas.Profile is not null ||
+                    empty is null || !empty.IsEffectivelyVisible || empty.Text != "No station selected.")
+                    throw new InvalidOperationException("Section document omitted its No station selected empty state");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F1_NoSidebarHeaderBand", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                if (host.RowDefinitions.Count != 1 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
+                    host.GetVisualDescendants().OfType<TextBlock>().Any(text => text.IsEffectivelyVisible && text.Text == "Sidebar") ||
+                    host.LeftSidebarToggle.Content is string { Length: > 2 })
+                    throw new InvalidOperationException("Standalone Sidebar header band is visible");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F2_LeftPaneChromeButtons_NamedAndDrawn", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                var chrome = pane.GetVisualDescendants().OfType<Button>()
+                    .Where(button => button.IsEffectivelyVisible &&
+                        button.TranslatePoint(default, host) is { } point && point.Y < 80)
+                    .ToArray();
+                if (chrome.Length != 2 ||
+                    chrome.Single(button => button.Name == "PART_MenuButton").Content as string != "⋯" ||
+                    Avalonia.Automation.AutomationProperties.GetName(chrome.Single(button => button.Name == "PART_MenuButton")) != "Pane menu" ||
+                    chrome.Single(button => button.Name == "PART_CloseButton").Content as string != "×" ||
+                    Avalonia.Automation.AutomationProperties.GetName(chrome.Single(button => button.Name == "PART_CloseButton")) != "Close left side bar")
+                    throw new InvalidOperationException("Left pane has blank or unnamed chrome buttons");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);
@@ -531,7 +727,7 @@ public static class ShellWindowTests
             {
                 window.Show();
                 window.UpdateLayout();
-                if (!host.ModelView.FindControl<Control>("DocumentTabs")!.IsVisible ||
+                if (!host.ModelView.FindControl<Control>("Plan3DContent")!.IsVisible ||
                     host.Browser.FindControl<ListBox>("StationList")!.ItemCount == 0 ||
                     !host.Properties.FindControl<Control>("ContentPanel")!.IsVisible ||
                     !host.Properties.FindControl<Control>("WingBlock")!.IsVisible)
@@ -999,7 +1195,7 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
-        DesktopChecks.Check("AppBar_LiveThemeSwitch_RefreshesBrushes", () =>
+        DesktopChecks.Check("SidebarToggle_LiveThemeSwitch_RefreshesBrush", () =>
         {
             using var controller = new WorkbenchController();
             var host = new ShellHost(controller);
@@ -1009,15 +1205,12 @@ public static class ShellWindowTests
             {
                 window.Show();
                 Settle(window);
-                var bar = (Border)host.Children[0];
-                var light = ((ISolidColorBrush)bar.Background!).Color;
-                var lightBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
+                var light = ((ISolidColorBrush)host.LeftSidebarToggle.Background!).Color;
                 window.RequestedThemeVariant = ThemeVariant.Dark;
                 Settle(window);
-                var dark = ((ISolidColorBrush)bar.Background!).Color;
-                var darkBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
-                if (light == dark || lightBorder == darkBorder)
-                    throw new InvalidOperationException($"App bar kept the old theme brushes: {light} / {dark}");
+                var dark = ((ISolidColorBrush)host.LeftSidebarToggle.Background!).Color;
+                if (light == dark)
+                    throw new InvalidOperationException($"Sidebar toggle kept the old theme brush: {light} / {dark}");
             }
             finally { window.Close(); }
         });

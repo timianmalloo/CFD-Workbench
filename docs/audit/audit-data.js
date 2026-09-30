@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:52:01Z",
+  "generated": "2026-09-30T19:49:09Z",
   "audit": [
     {
       "actor": null,
@@ -19788,6 +19788,36 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-09-27T15:08:28Z",
       "duration_seconds": 272613.0
+    },
+    {
+      "id": "al-01M3SXT7K18N3A0NK34P3Q77SJ",
+      "shortname": "shellfix-rendered-state",
+      "datetime": "2026-09-30T19:49:09Z",
+      "session": "track-shellfix",
+      "prompt": "Fix F7 F6 F9 F1 F2 F3 F4 F5 shell defects red-first in the assigned worktree; commit each; run named checks, docs, restore, readiness and close the app.",
+      "summary": "F7 F6 F9 F1 F2 fixed with rendered-control tests; F3 candidate rolled back after Browser contrast regressions; F4 stopped at two-cycle cap; F5 not fixed; three full suites had identical PASS sets; docs index seam remains.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/shellfix-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Repair the eight observed app-shell visual defects in priority order in the SHELLFIX tree.",
+      "done_when": "Each defect has a red-first realized-control test and fix; three identical green suites, named gates, docs, restore and readiness green; app closed; commits and Return written.",
+      "tier": "T2",
+      "fan_out": 1,
+      "started_at": "2026-09-30T19:16:44Z",
+      "duration_seconds": 1945.0,
+      "git": {
+        "sha": "74f1d5dae30169dd2fd7edb60600c5113bce637a",
+        "short": "74f1d5dae",
+        "branch": "fix/m12a-shell-visuals",
+        "pushed": null
+      }
     }
   ],
   "changes": [

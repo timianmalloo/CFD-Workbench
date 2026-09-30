@@ -17,11 +17,7 @@ public partial class ModelArea : UserControl
     public void ShowFoilOpen(bool isOpen)
     {
         StartCardView.IsVisible = !isOpen;
-        // Review attach requires both stable AX identifiers while the Start card is shown.
-        bool reviewStart = NativeReviewOptions.Current is not null && !isOpen;
-        DocumentTabs.IsVisible = isOpen || reviewStart;
-        DocumentTabs.Opacity = reviewStart ? 0 : 1;
-        DocumentTabs.IsHitTestVisible = isOpen;
+        Plan3DContent.IsVisible = isOpen;
     }
 
     public void ShowAlertBand(string message, bool showAcceptIds = false, bool showResumeRecovery = false)
