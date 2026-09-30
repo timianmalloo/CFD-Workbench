@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
@@ -144,6 +145,244 @@ internal static class DimensionTests
             Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
             Equal(draft, session.Snapshot().Draft!.Id);
         });
+        Check("ApplyChord_NewFoilRootX12_AcceptedBothNumbers", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            double tip = WingEstimates.ChordMeters(before, 1);
+            var outcome = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2)));
+            var report = outcome.Report;
+            Equal("root-chord", report.Dimension);
+            Equal(ChordDimension.RootFlat, report.Rule);
+            Equal(false, report.FitAboveLimit);
+            Equal(10e-6, report.ToleranceMeters);
+            True(report.FitResidualMeters > 1e-6 && report.FitResidualMeters <= 10e-6, "residual " + report.FitResidualMeters);
+            True(report.DeviationFromLinearMeters > 1e-4, "deviation " + report.DeviationFromLinearMeters);
+            True(report.PlanformShiftMeters > 1e-4, "shift " + report.PlanformShiftMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+            WithinUm(tip, WingEstimates.ChordMeters(session.Snapshot().Source, 1), 0.01);
+        });
+        Check("ApplyDimension_FitJustBelowLimit_Accepted", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, Factor(9.9)))).Report;
+            Equal(false, report.FitAboveLimit);
+            True(report.FitResidualMeters > 5e-6 && report.FitResidualMeters < 10e-6, "residual " + report.FitResidualMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+        });
+        Check("ApplyDimension_FitJustAboveLimit_AcceptedWithWarning", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, Factor(10.1)))).Report;
+            Equal(true, report.FitAboveLimit);
+            Equal(10e-6, report.ToleranceMeters);
+            True(report.FitResidualMeters > 10e-6 && report.FitResidualMeters < 20e-6, "residual " + report.FitResidualMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+        });
+        Check("ApplyDimension_NewFoilRootX15_AcceptedWithFitWarning", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.5))).Report;
+            Equal(ChordDimension.RootFlat, report.Rule);
+            Equal(true, report.FitAboveLimit);
+            Equal(10e-6, report.ToleranceMeters);
+            True(report.FitResidualMeters > 10e-6 && report.FitResidualMeters < 100e-6, "residual " + report.FitResidualMeters);
+            True(report.DeviationFromLinearMeters > 1e-3, "deviation " + report.DeviationFromLinearMeters);
+            True(report.PlanformShiftMeters > 1e-3, "shift " + report.PlanformShiftMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+        });
+        Check("ApplyDimension_RootChordShift_P0EqualsP1BitsZero", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2)));
+            var definition = FoilSource.Parse(session.Snapshot().Source).Definition!;
+            ulong zero = BitConverter.DoubleToUInt64Bits(+0d);
+            var leading = definition.Curves["leading"];
+            var trailing = definition.Curves["trailing"];
+            Equal(zero, Bits(leading.Points[0][1]));
+            Equal(Bits(leading.Points[0][1]), Bits(leading.Points[1][1]));
+            Equal(Bits(trailing.Points[0][1]), Bits(trailing.Points[1][1]));
+        });
+        Check("ApplyDimension_TipChord_NoShiftRootChordUnchanged", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            double root = WingEstimates.ChordMeters(before, 0);
+            var report = session.ApplyChord(Id(), new("tip-chord", ScaledMillimetres(before, 1, 0.8))).Report;
+            Equal(0d, report.PlanformShiftMeters);
+            Equal(false, report.FitAboveLimit);
+            WithinUm(root, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 1), 0.01);
+        });
+        Check("ApplyDimension_LocksOff_LinearRuleExact", () =>
+        {
+            using var session = OpenedBytes(GrevilleChord(450, _ => 120, ""));
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2))).Report;
+            Equal(ChordDimension.Linear, report.Rule);
+            Equal(false, report.FitAboveLimit);
+            True(report.FitResidualMeters < 1e-8, "residual " + report.FitResidualMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+        });
+        Check("ApplyDimension_OneRailLocked_ResidualReported", () =>
+        {
+            using var session = OpenedBytes(WithLocks(FoilSource.NewDefault(), "    root_mirror leading\n"));
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2))).Report;
+            Equal(ChordDimension.RootFlat, report.Rule);
+            True(report.FitResidualMeters > 1e-9 && double.IsFinite(report.DeviationFromLinearMeters), "residual " + report.FitResidualMeters);
+        });
+        Check("ApplyDimension_Cad17Taper_ChordRuleWithinTolerance", () =>
+        {
+            using var session = OpenedBytes(GrevilleChord(500, eta => 200 - 150 * eta, ""));
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2))).Report;
+            Equal(ChordDimension.Linear, report.Rule);
+            Equal(false, report.FitAboveLimit);
+            True(report.FitResidualMeters <= 10e-6, "residual " + report.FitResidualMeters);
+            WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
+        });
+        Check("ApplyDimension_Refused_HistoryUnchanged", () =>
+        {
+            using var session = OpenedNew();
+            RefuseChord(session, "DSL-INVALID-NUMERIC", "root-chord", "12abc");
+            RefuseChord(session, "DSL-UNIT", "root-chord", "0");
+            RefuseChord(session, "DSL-UNIT", "root-chord", "-5");
+            RefuseChord(session, "DSL-TARGET", "camber", "10");
+        });
+        Check("ApplyDimension_TipChordClosingTip_DslTarget", () =>
+        {
+            string text = Encoding.UTF8.GetString(FoilSourceTests.Example);
+            int close = text.LastIndexOf('}');
+            byte[] closing = Encoding.UTF8.GetBytes(text[..close] + "  tip point\n" + text[close..]);
+            Refuses("DSL-TARGET", () => ChordDimension.Evaluate(closing, new("tip-chord", "80")));
+        });
+        Check("ApplyDimension_EdgesWouldCross_DslEdgesCross", () =>
+        {
+            using var session = OpenedBytes(WithLocks(FoilSource.NewDefault(), "    root_mirror leading\n"));
+            byte[] before = session.Snapshot().Source.ToArray();
+            int accepted = session.Envelope().Accepted.Length;
+            int cursors = session.Envelope().Cursors.Length;
+            Refuses("DSL-EDGES-CROSS", () => session.ApplyChord(Id(), new("root-chord", "0.01")));
+            Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
+            Equal(accepted, session.Envelope().Accepted.Length);
+            Equal(cursors, session.Envelope().Cursors.Length);
+        });
+        Check("ChordRefit_SyntheticLinearRows_HeldExactly", () =>
+        {
+            var curve = FoilSource.Parse(FoilSourceTests.Example).Definition!.Curves["leading"];
+            var row = new double[curve.Points.Length];
+            row[2] = 1;
+            double[] solved = ChordDimension.FitOrdinates(curve, _ => 0d, false, [(row, 0.01)]);
+            Equal(0d, solved[0]);
+            Equal(0d, solved[^1]);
+            True(Math.Abs(solved[2] - 0.01) < 1e-9, "cv-2 " + solved[2]);
+        });
+        Check("ApplyDimension_Receipt_CarriesRuleId", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            string id = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.2))).AcceptedId;
+            var edit = session.Envelope().Accepted.Single(row => row.Id == id).Edit!;
+            Equal("dimension", edit.Rail);
+            Equal("root-chord", edit.VertexId);
+            Equal(ChordDimension.RootFlat, edit.Rule);
+        });
+        Check("BlendRule_LockStateToRuleId_Pinned", () =>
+        {
+            using var locked = OpenedNew();
+            byte[] lockedBytes = locked.Snapshot().Source.ToArray();
+            string lockedId = locked.ApplyChord(Id(), new("root-chord", ScaledMillimetres(lockedBytes, 0, 1.2))).AcceptedId;
+            Equal(ChordDimension.RootFlat, locked.Envelope().Accepted.Single(row => row.Id == lockedId).Edit!.Rule);
+            using var free = OpenedBytes(GrevilleChord(450, _ => 120, ""));
+            byte[] freeBytes = free.Snapshot().Source.ToArray();
+            string freeId = free.ApplyChord(Id(), new("root-chord", ScaledMillimetres(freeBytes, 0, 1.2))).AcceptedId;
+            Equal(ChordDimension.Linear, free.Envelope().Accepted.Single(row => row.Id == freeId).Edit!.Rule);
+        });
+        Check("ApplyChord_FitAboveLimit_ApplyEventCarriesFitAndWarning", () =>
+        {
+            using var session = OpenedNew();
+            byte[] before = session.Snapshot().Source.ToArray();
+            var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, 1.5))).Report;
+            var apply = session.ReadLocalEvents().Last(item => item.Operation == "document.apply" && item.Outcome == "OK");
+            Equal("dimension", apply.EditKind);
+            Equal(true, apply.FitAboveLimit);
+            Equal(report.FitResidualMeters * 1e6, apply.FitMicrometres);
+            Equal(report.DeviationFromLinearMeters * 1e6, apply.DeviationMicrometres);
+            Equal(report.PlanformShiftMeters * 1e6, apply.ShiftMicrometres);
+        });
+        Check("Reopen_ChordRows_UndoRedoRoundTrip", () =>
+        {
+            using var session = OpenedNew();
+            byte[] original = session.Snapshot().Source.ToArray();
+            string id = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(original, 0, 1.2))).AcceptedId;
+            byte[] patched = session.Snapshot().Source.ToArray();
+            string rule = session.Envelope().Accepted.Single(row => row.Id == id).Edit!.Rule!;
+            session.Undo(Id());
+            Equal(true, original.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Redo(Id());
+            Equal(true, patched.AsSpan().SequenceEqual(session.Snapshot().Source));
+            byte[] saved = session.SaveImage();
+            using var reopened = new AuthoringSession();
+            reopened.Reopen(saved);
+            Equal(true, patched.AsSpan().SequenceEqual(reopened.Snapshot().Source));
+            Equal(rule, reopened.Envelope().Accepted.Single(row => row.Id == id).Edit!.Rule);
+            reopened.Undo(Id());
+            Equal(true, original.AsSpan().SequenceEqual(reopened.Snapshot().Source));
+        });
+        Check("Reopen_ForgedRuleValue_DocReference", () =>
+        {
+            using var session = OpenedExample();
+            string id = session.ApplyDimension(Id(), new("span", "1350"));
+            var envelope = session.Envelope();
+            var row = envelope.Accepted.Single(item => item.Id == id);
+            var accepted = envelope.Accepted.ToArray();
+            int index = Array.FindIndex(accepted, item => item.Id == id);
+            accepted[index] = row with { Edit = row.Edit! with { VertexId = "root-chord", Rule = "not-a-rule" } };
+            using var reopened = new AuthoringSession();
+            Refuses("DOC-REFERENCE", () => reopened.Reopen(NativeProject.Encode(envelope with { Accepted = accepted })));
+        });
+        Check("Reopen_ChordRowWithoutRule_DocReference", () =>
+        {
+            using var session = OpenedExample();
+            string id = session.ApplyDimension(Id(), new("span", "1350"));
+            var envelope = session.Envelope();
+            var row = envelope.Accepted.Single(item => item.Id == id);
+            var accepted = envelope.Accepted.ToArray();
+            int index = Array.FindIndex(accepted, item => item.Id == id);
+            accepted[index] = row with { Edit = row.Edit! with { VertexId = "root-chord" } };
+            using var reopened = new AuthoringSession();
+            Refuses("DOC-REFERENCE", () => reopened.Reopen(NativeProject.Encode(envelope with { Accepted = accepted })));
+        });
+        Check("Reopen_RetrySameDimensionOperationId_ReturnsPriorId", () =>
+        {
+            using var session = Opened();
+            string operation = Id();
+            string first = session.ApplyDimension(operation, new("span", "1350"));
+            byte[] saved = session.SaveImage();
+            using var reopened = new AuthoringSession();
+            reopened.Reopen(saved);
+            string second = reopened.ApplyDimension(operation, new("span", "1350"));
+            Equal(first, second);
+            var spanEvent = reopened.ReadLocalEvents().Last(item => item.Operation == "document.apply" && item.Outcome == "OK");
+            Equal(null, spanEvent.FitMicrometres);
+            Equal(null, spanEvent.DeviationMicrometres);
+            Equal(null, spanEvent.ShiftMicrometres);
+            Equal(null, spanEvent.FitAboveLimit);
+            Refuses("DOC-OPERATION-CONFLICT", () => reopened.ApplyDimension(operation, new("span", "1400")));
+            string chordOp = Id();
+            var outcome = reopened.ApplyChord(chordOp, new("root-chord", "152.09"));
+            byte[] image = reopened.SaveImage();
+            using var again = new AuthoringSession();
+            again.Reopen(image);
+            var replay = again.ApplyChord(chordOp, new("root-chord", "152.090"));
+            Equal(outcome.AcceptedId, replay.AcceptedId);
+            Equal(outcome.Report.TypedMeters, replay.Report.TypedMeters);
+        });
     }
 
     private static string Id() => Guid.NewGuid().ToString("D");
@@ -201,5 +440,85 @@ internal static class DimensionTests
         Equal(null, after.Draft);
         Equal(accepted, session.Envelope().Accepted.Length);
         Equal(cursors, session.Envelope().Cursors.Length);
+    }
+
+    private static AuthoringSession OpenedNew()
+    {
+        var session = new AuthoringSession();
+        session.Open(FoilSource.NewDefault(), Id(), true);
+        return session;
+    }
+
+    private static AuthoringSession OpenedBytes(byte[] source)
+    {
+        var session = new AuthoringSession();
+        session.Open(source, Id(), true);
+        return session;
+    }
+
+    // Spike linearity on the New foil: trailing residual is about 45.05 µm per unit of |f-1|.
+    // 9.9 µm stays under the 10 µm limit; 10.1 µm sits strictly between 10 µm and 20 µm.
+    private const double PerUnitMicrons = 45.05;
+    private static double Factor(double microns) => 1 + microns / PerUnitMicrons;
+
+    private static string ScaledMillimetres(byte[] source, double eta, double factor) =>
+        (WingEstimates.ChordMeters(source, eta) * factor * 1000d).ToString("G17", CultureInfo.InvariantCulture);
+
+    private static void True(bool condition, string message)
+    {
+        if (!condition) throw new InvalidOperationException(message);
+    }
+
+    private static void WithinUm(double expected, double actual, double micrometres)
+    {
+        if (Math.Abs(actual - expected) > micrometres * 1e-6)
+            throw new InvalidOperationException($"expected {expected} m, actual {actual} m");
+    }
+
+    private static ulong Bits(double value) => BitConverter.DoubleToUInt64Bits(value);
+
+    private static void RefuseChord(AuthoringSession session, string code, string name, string text)
+    {
+        byte[] before = session.Snapshot().Source.ToArray();
+        string acceptedId = session.Snapshot().AcceptedId;
+        int accepted = session.Envelope().Accepted.Length;
+        int cursors = session.Envelope().Cursors.Length;
+        Refuses(code, () => session.ApplyChord(Id(), new(name, text)));
+        Equal(acceptedId, session.Snapshot().AcceptedId);
+        Equal(true, before.AsSpan().SequenceEqual(session.Snapshot().Source));
+        Equal(accepted, session.Envelope().Accepted.Length);
+        Equal(cursors, session.Envelope().Cursors.Length);
+    }
+
+    private static byte[] WithLocks(byte[] source, string body)
+    {
+        string text = Encoding.UTF8.GetString(source);
+        int close = text.LastIndexOf('}');
+        return Encoding.UTF8.GetBytes(text[..close] + "  locks {\n" + body + "  }\n" + text[close..]);
+    }
+
+    private static byte[] GrevilleChord(double halfSpanMillimetres, Func<double, double> trailingMillimetres, string locksBody)
+    {
+        string text = Encoding.UTF8.GetString(FoilSourceTests.Example);
+        double[] knots = [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1];
+        const int degree = 3;
+        int count = knots.Length - degree - 1;
+        var abscissa = new double[count];
+        for (int index = 0; index < count; index++)
+        {
+            double sum = 0;
+            for (int offset = 1; offset <= degree; offset++) sum += knots[index + offset];
+            abscissa[index] = sum / degree;
+        }
+        string knotText = string.Join(", ", knots.Select(value => FoilSource.ExactDecimal(value)));
+        string Points(Func<double, double> ordinateMillimetres) => string.Join(", ", abscissa.Select(x =>
+            "(" + FoilSource.ExactDecimal(x) + ", " + FoilSource.ExactDecimal(ordinateMillimetres(x) / 1000d, -3) + ")"));
+        string leading = "leading cv { degree 3 knots [" + knotText + "] points [" + Points(_ => 0) + "] }";
+        string trailing = "trailing cv { degree 3 knots [" + knotText + "] points [" + Points(trailingMillimetres) + "] }";
+        const string oldLeading = "leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }";
+        const string oldTrailing = "trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }";
+        text = text.Replace(oldLeading, leading, StringComparison.Ordinal).Replace(oldTrailing, trailing, StringComparison.Ordinal);
+        text = text.Replace("half_span 450 mm", "half_span " + halfSpanMillimetres.ToString("G17", CultureInfo.InvariantCulture) + " mm", StringComparison.Ordinal);
+        return WithLocks(Encoding.UTF8.GetBytes(text), locksBody);
     }
 }

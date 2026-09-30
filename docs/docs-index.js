@@ -6750,6 +6750,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "4f2194835126e5d05954f026d84c3f383be080ba71dc5f9558d0f5da0e9d88ef"
     },
     {
+      "id": "proof-m12b-b1a-red-runs",
+      "path": "docs/proof/m12b-b1a-red-runs.md",
+      "title": "M1.2b B1a chord red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-b1a",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint. Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo. A hand mutant of the limit to 20 µm turned the 10.1 µm fixture red and left the 9.9 µm fixture green; the committed limit is 10 µm.",
+      "tags": [
+        "m12b",
+        "chords",
+        "length-expression",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a3c8def8df25300d137222db33bf3892be4a7ecca2ac4aadbf2ab829409a9292"
+    },
+    {
       "id": "proof-m12b-old-build",
       "path": "docs/proof/m12b-old-build/README.md",
       "title": "M1.2b old-build characterization of FoilDSL 4.1",
@@ -8416,5 +8454,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "3870289c8daf7be5cbe935c8bea99bd16fb5cd4295f4d023c5a1c55f3b5877de"
+  "graphSha256": "83b4dd44a952c192623f578aa6e48200ee0451e56d34642160b3ddc3b8c6dae8"
 };
