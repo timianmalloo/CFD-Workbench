@@ -255,13 +255,10 @@ public sealed class WorkbenchController : IDisposable
 
     public void ApplySpan(string text)
     {
+        // The existing pane still calls this entry point until its owner ports that call to ApplySpanAsync.
         RequireCertifiedFoil();
         if (draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
-        double spanSi = DecimalSi.Parse(text, -3);
-        if (spanSi <= 0) throw new ContractError("DSL-UNIT");
-        if (spanSi >= 1e6) throw new ContractError("DSL-EDGES-CROSS");
-        string opId = Guid.NewGuid().ToString("D");
-        session.ApplyDimension(opId, new("span", text));
+        session.ApplyDimension(Guid.NewGuid().ToString("D"), new("span", text));
         Inspection = session.InspectAccepted();
         UpdateEstimates();
         Status = "Span applied as one accepted source revision. Save to persist it.";

@@ -107,3 +107,26 @@ The direct-command task is not tracked by the controller yet, so a New action ca
 ## Dispatch 2: §6.2 cell green
 
 The fixed controller passes all **70** `Controller_Gesture_<FromState>_<Event>_<Outcome>` checks, one for each cell in the 14-row × 5-state table. A focused `--controller-shell` run after the Busy wait fix exits **0**; its PASS output includes the 23 design names, the existing D2 names, and all 70 cell names. Before the Busy wait assertion was added, `tools/run-tests.sh` exited **0** at **51 s** wall (Core 376 PASS / 32 s; Desktop 212 PASS / 50 s). The final full-run receipt is recorded after the span seam lands.
+
+## Dispatch 2: Core span-boundary red
+
+Test-only commit: `13268b1`. Command: `CFD_TEST_ONLY=ApplyDimension_SpanAtOneMillionMeters_RefusedEdgesCross dotnet run -c Release --project tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj`. Exit **1**; selected 1, skipped 376. The exact 1,000,000 m input was accepted by Core before the granted `PrepareSpan` guard:
+
+```text
+FAIL ApplyDimension_SpanAtOneMillionMeters_RefusedEdgesCross InvalidOperationException: Expected refusal DSL-EDGES-CROSS
+RESULT failures=1
+```
+
+The Desktop async-path test was committed separately at `c9e6d6d` before the same Core fix. Its focused `--controller-shell` run (with the runner's `TMPDIR`) exited **1** with all other controller and cell checks PASS:
+
+```text
+FAIL Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged InvalidOperationException: Async Span did not return Core's boundary refusal.
+```
+
+## Dispatch 2: span seam green and final gates
+
+`PrepareSpan` now refuses spans at and above 1,000,000 m with `DSL-EDGES-CROSS`. The focused Core boundary test exits **0** (1 selected, 376 skipped). The focused Desktop `--controller-shell` run exits **0**, including `Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged`, all 70 gesture cells, the 23 design names and D2's existing checks. The controller's synchronous compatibility entry point no longer parses or bounds the numeric span; Core owns those refusal rules.
+
+Final `tools/run-tests.sh`: exit **0**, **52 s** wall against 60 s; Core **377 PASS / 31 s**, CLI **1 PASS / 1 s**, Desktop **213 PASS / 49 s**. Named checker exits: U1a **0** (23/23), D3a **0** (40/40), D1 **0** (12/12), D2 **0** (21/21), C1 **0** (14/14), P1 **0** (23/23). `python3 tools/check-docs.py`: exit **0**. The one-time readiness run exited **0** and measured drag frame p95 **16.397 ms** (40 samples) and commit p95 **72.776 ms** (5 samples); on-screen timing is not a gate.
+
+**Owned-file seam:** `src/CfdWorkbench.Desktop/Panes/PropertiesPane.axaml.cs` still calls synchronous `ApplySpan` from `CommitSpan` and has its own number/positive-value checks. U2 owns that pane; it must port the UI handler to `ApplySpanAsync` and handle `CommitOutcome` without blocking the UI thread. U1a did not edit that file.

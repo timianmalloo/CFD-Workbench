@@ -956,6 +956,7 @@ public sealed class AuthoringSession : IDisposable
         }
         double spanSi = DecimalSi.Parse(command.Text, -3);
         Guard.Require(spanSi > 0, "DSL-UNIT");
+        Guard.Require(spanSi < 1e6, "DSL-EDGES-CROSS");
         byte[] patched = FoilSource.PatchSpan(basis, command.Text);
         var parsed = ParseOwned(patched);
         return (Fingerprint(new EditReceipt(operationId, 0, "dimension", "span"), parentId, parsed.SourceHash), patched, parsed);
