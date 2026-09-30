@@ -21,6 +21,7 @@ summary: >-
 review-suggested:
   - { by: investigation-review-window-attach, on: 2026-09-24, reason: "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred." }
   - { by: architecture-application, on: 2026-09-24, reason: "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims." }
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # Independent native application review

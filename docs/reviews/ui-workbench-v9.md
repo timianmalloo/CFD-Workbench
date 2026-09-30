@@ -15,6 +15,8 @@ summary: >-
   Elevated v8 with VS Code / Premiere Pro window management and a selection-driven Properties pane, placed per the
   operator in one narrow left panel with optional right and bottom docks. Two repair cycles against accessibility,
   native-desktop and simplifier lenses; one accessibility Major (floats covering focused canvas targets) is open at the cap.
+review-suggested:
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # UI review — v9 docked panes

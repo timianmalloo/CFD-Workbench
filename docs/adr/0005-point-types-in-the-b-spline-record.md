@@ -22,7 +22,8 @@ summary: >-
   geometry identity. Every type change is measured and reported on the A4.5 oracle. On a section the two surfaces share
   one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact
   on Anchor creation and refitted within 10 µm, reported, on Anchor removal.
-review-suggested: []
+review-suggested:
+  - { by: adr-0001-master-curve-degree, on: 2026-09-30, reason: "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)." }
 ---
 
 # ADR-0005: point types are knot multiplicity in the existing B-spline record

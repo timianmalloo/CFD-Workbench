@@ -1,0 +1,16 @@
+New foil: root chord 126.738 mm, tip chord 12.674 mm, LE(0) -0.000 mm
+New foil (10 CV, near-elliptic)    root f=1.01  residual LE     0.15 um · TE     0.45 um · from linear rule    210.71 um · translation    0.317 mm · new root chord  128.01 mm
+New foil (10 CV, near-elliptic)    root f=1.05  residual LE     0.75 um · TE     2.25 um · from linear rule   1053.57 um · translation    1.584 mm · new root chord  133.07 mm
+New foil (10 CV, near-elliptic)    root f=1.1   residual LE     1.50 um · TE     4.51 um · from linear rule   2107.14 um · translation    3.168 mm · new root chord  139.41 mm
+New foil (10 CV, near-elliptic)    root f=1.2   residual LE     3.00 um · TE     9.01 um · from linear rule   4214.28 um · translation    6.337 mm · new root chord  152.09 mm
+New foil (10 CV, near-elliptic)    root f=1.5   residual LE     7.51 um · TE    22.53 um · from linear rule  10535.70 um · translation   15.842 mm · new root chord  190.11 mm
+New foil (10 CV, near-elliptic)    root f=0.9   residual LE     1.50 um · TE     4.51 um · from linear rule   2107.14 um · translation   -3.168 mm · new root chord  114.06 mm
+New foil (10 CV, near-elliptic)    root f=0.8   residual LE     3.00 um · TE     9.01 um · from linear rule   4214.28 um · translation   -6.337 mm · new root chord  101.39 mm
+New foil (10 CV, near-elliptic)    tip  f=1.1   residual LE     1.50 um · TE     4.51 um · from linear rule   2107.14 um · translation    0.000 mm · new root chord  126.74 mm
+New foil (10 CV, near-elliptic)    tip  f=0.8   residual LE     3.00 um · TE     9.01 um · from linear rule   4214.28 um · translation    0.000 mm · new root chord  126.74 mm
+New foil (10 CV, near-elliptic)    tip  f=0.5   residual LE     7.51 um · TE    22.53 um · from linear rule  10535.70 um · translation    0.000 mm · new root chord  126.74 mm
+Example (7 CV, constant 120 mm)    root f=1.01  residual LE     0.28 um · TE     0.85 um · from linear rule    224.26 um · translation    0.300 mm · new root chord  121.20 mm
+Example (7 CV, constant 120 mm)    root f=1.1   residual LE     2.82 um · TE     8.46 um · from linear rule   2242.60 um · translation    3.000 mm · new root chord  132.00 mm
+Example (7 CV, constant 120 mm)    root f=1.2   residual LE     5.64 um · TE    16.92 um · from linear rule   4485.20 um · translation    6.000 mm · new root chord  144.00 mm
+Example (7 CV, constant 120 mm)    root f=1.5   residual LE    14.10 um · TE    42.29 um · from linear rule  11213.00 um · translation   15.000 mm · new root chord  180.00 mm
+Example (7 CV, constant 120 mm)    tip  f=0.8   residual LE     5.64 um · TE    16.92 um · from linear rule   4485.20 um · translation   -0.000 mm · new root chord  120.00 mm

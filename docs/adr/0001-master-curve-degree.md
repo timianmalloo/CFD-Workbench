@@ -5,12 +5,14 @@ type: adr
 status: accepted
 owner: "@timianmalloo"
 phase: specification 1.3
-tags: [geometry, b-spline, degree, control-vertex, adr]
+tags: [geometry, b-spline, degree, control-vertex, adr, dr-10, amended]
 links:
   - { to: spec-cfd-workbench-v1, rel: refines }
   - { to: control-vertex-workspace, rel: relates-to }
   - { to: kernel-spike-occt-loft, rel: relates-to }
   - { to: kb-hydrofoil-workbench, rel: relates-to }
+  - { to: design-m12b-points, rel: relates-to }
+  - { to: rulings, rel: depends-on }
 review-by: "none while accepted"
 summary: >-
   Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default
@@ -24,7 +26,7 @@ review-suggested:
 
 # ADR-0001: master curves are degree-3 B-splines with seven vertices; the degree is a record field
 
-- **Status:** Accepted
+- **Status:** Accepted · **amended 2026-09-30** (DR-10, Ruling 53) — see *Amendment 1* at the end
 - **Date:** 2026-09-21
 - **Deciders:** the operator (product), Computational Geometry lens (record), Marine CAD UX lens (editing feel)
 - **Context spec/architecture:** `docs/specs/cfd-workbench-v1.md` A4.1, A4.2, A4.3; `docs/knowledge/hydrofoil-workbench/data-and-constants.md` (Alias CV count; Rhino Fair "best on degree 3"); KB index item 7 (degree-5 record *for profiles*)
@@ -67,3 +69,41 @@ Read: at seven vertices, degree 3 is fairer than degree 5 on all five curves (a 
 - Sections keep degree 5 (KB item 7 stands for profiles: the LE turn needs it, as the section-fit fixture in the v5 review shows — 7.5 µm with twelve vertices).
 - The knowledge base's data-and-constants row on continuity is annotated to cite this ADR (the table stays true for any p).
 - If a fairing study later shows degree-3 master curves cannot hold a required G3 at the root mirror, this ADR is superseded, not edited.
+
+## Amendment 1 — channel vertex ceiling 16 under FoilDSL 4.1 (DR-10, 2026-09-30)
+
+- **Ruling:** Ruling 53, DR-10 — "raise the channel vertex ceiling to 16. ADR-0001 is amended and the FoilDSL range
+  relaxed expand-only, in the M1.2b design-slice." The amendment is written by `docs/design/m12b-points.md` §3.8.
+- **Decision (amended):** a master (channel) curve has **6 to 16** control vertices when its document declares
+  `foildsl "4.1"`; under `"4.0"` the range stays 6 to 10. The degree (3), the default count (seven for a hand-authored
+  curve; ten for New foil, `FoilSource.cs`:292), section curves (degree 5, 6–32) and every other statement above are
+  unchanged. The original Decision text is kept as the record of what was decided on 2026-09-21.
+- **Why (measured on the record, not assumed):** an interior Anchor point is a knot of multiplicity p = 3
+  (ADR-0005 §2); making a Control point an Anchor inserts that knot to multiplicity 3 by Boehm and adds **one to three**
+  vertices (fewer when u\* lands on an existing knot, which the parser allows up to multiplicity 3,
+  `FoilSource.cs`:1124). New foil ships at 10 vertices per rail, so under 6–10 it can hold **no** interior anchor. At 16
+  it holds two (10 → 13 → 16); the seven-vertex Example holds three (7 → 10 → 13 → 16).
+- **Why the range is gated on 4.1:** a document that needs more than 10 channel vertices is a newer document, and the
+  one version gate (`"4.1"`, shared with the `tangents` block) says so. The patch that first takes a channel above 10
+  writes the `"4.1"` header in the same transaction (`EnsureHeader41`, the single writer; it never lowers the header).
+  Expand-only: nothing that parsed before stops parsing, and the definition hash of unchanged geometry does not move when
+  the header is rewritten. **What an old build reports (corrected at the gate):** builds up to M1.2a check the version
+  only after the whole grammar pass (`FoilSource.cs`:130-131, :1162), so a 4.1 file with 11–16 points and no row gives
+  `DSL-VERSION`, but a 4.1 file with a `tangents` row gives `DSL-SYNTAX`, and a project with a point-type receipt gives
+  `DOC-UNSUPPORTED-FIELD`; the file is unchanged in every case. M1.2b moves the version check to right after the version
+  is read, so later versions are refused as newer (`docs/design/m12b-points.md` §3.8).
+- **Alternatives considered:** *13* (one anchor on New foil) — too tight for a root-to-tip pair of anchors on the
+  shipped default; *32* (the section ceiling) — a distribution curve with 32 vertices is no longer a few meaningful
+  handles (this ADR's premise) and invites wiggle; the fixture above measured fairness only to 10; *unbounded* — no
+  resource bound on certification. *Keep 10* — every New foil would refuse Control → Anchor forever.
+- **Consequences:** Insert CV and Rebuild may take a channel to 16 under 4.1; fairness above 10 vertices is measured
+  (comb, A4.3), never asserted from this ADR's fixture, which covered 6–10 only — a 16-vertex comb fairness fixture is
+  added; certification cost grows with span count and is bounded by the 1 s proof budget, checked as a deterministic
+  work count in the fast test ring and as wall time on the worst case (three anchors at 16 vertices) at readiness, on
+  macOS now and on Windows at its qualification; a project with a 4.1 revision cannot be opened by a 4.0-only build (the
+  file is unchanged). `foildsl.md` §5 item 3 changes in the same change as the parser (M1.2b track B0), never before.
+- **Council verdict (M1.2b gate, 2026-09-30):** Computational Geometry — **accept with conditions** (worst-case
+  budget run at 16 vertices with three anchors; header-rewrite hash test; "one to three" insertions; 16-vertex comb
+  fairness fixture) — all four written into this amendment and the design's test ledger. Data & Persistence — **accept
+  with conditions** (correct the old-build refusal claim; single header writer that never lowers) — both written above.
+  No veto. Record: `docs/design/m12b-points.md`, *Gate record*.

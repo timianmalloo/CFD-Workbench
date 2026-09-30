@@ -11,6 +11,7 @@ links:
   - {to: design-application-foundation, rel: documents}
   - {to: design-application-contracts, rel: documents}
   - {to: design-app-shell, rel: documents}
+  - {to: design-m12b-points, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Rolls up the offline application's file, command, rendering and telemetry threat analysis.
@@ -67,8 +68,15 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 | [design-application-foundation](../design/application-foundation.md) | Save → filesystem | T/E: symlink/path escape, external replacement | No-follow path/parent validation and scoped handle policy; link ancestor/race tests |
 | [design-application-foundation](../design/application-foundation.md) | Command → Apply | S/T/R: stale/forged/duplicate write | Opaque certificate binding, operation IDs and append-only facts; mismatch fixtures |
 | [design-application-foundation](../design/application-foundation.md) | Local metadata logs | I/R: source/name leakage or missing outcome | Local metadata-only events, no source/path/name; capture and scan event corpus |
+| [design-m12b-points](../design/m12b-points.md) | FoilDSL file (user-writable) → parser | T: crafted `tangents` block (unknown kind, row on a missing id, very many rows) | mitigate | closed kind set; id must be an interior Anchor; existing token and count limits (`FoilSource.cs`:942, :954, :1165) | `Parse_TangentRowOnControlPoint_DslLock`, `Parse_Foil41RoundTrip_RandomRowsStable` |
+| [design-m12b-points](../design/m12b-points.md) | FoilDSL file → parser | D: 16-point rails make certification slow | mitigate | 1 s proof budget; Not assessed, never a hang | `Assess_SixteenPointThreeAnchors_WorkCountBounded` |
+| [design-m12b-points](../design/m12b-points.md) | Native envelope (user-writable) → reopen | T: forged `curve`, `rule` or `rail` value | mitigate | closed per-rail sets in `EditReference`; `DOC-REFERENCE` | `Reopen_CurveOnGestureReceipt_DocReference`, `Reopen_ForgedRuleValue_DocReference` |
+| [design-m12b-points](../design/m12b-points.md) | Wing and Properties text fields → expression parser | D/T: huge or recursive expression | mitigate | 256 chars, depth 16, closed names | `LengthExpression_RandomText_NeverThrowsUnexpected` |
+| [design-m12b-points](../design/m12b-points.md) | Telemetry ring | I: point positions or ids leak | mitigate | fields limited to counts, durations, codes and µm figures | `Telemetry_PointEdits_NoIdsOrPositions` |
+| [design-m12b-points](../design/m12b-points.md) | History | R: an edit without attribution | accept | single local user; receipts name the edit kind, point and rule; the product has no identity | — |
+| [design-m12b-points](../design/m12b-points.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
 
-<!-- rolled up from 3 artifact(s) by docs-graph.py rollup on 2026-09-26 -->
+<!-- rolled up from 4 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
 
 
 ## Accepted-risk register
@@ -84,6 +92,7 @@ platform capability disables publication; new-file publication requires atomic n
 | Arbitrary writer after final hash check | Declare cooperative write policy; do not promise compare-and-swap | OS-specific conflict policy and race/fault suite |
 | Ancestor swap or symlink race | Handle-relative no-follow implementation, chosen directory identity | macOS and Windows real filesystem negative tests |
 | Native package authenticity/distribution | Pinned packages, transitive notices/SBOM, signed application | Signing/notarization and Windows installer proof |
+| Edit history has no user attribution (M1.2b receipts name the edit kind, point and blend rule only) | Proposed accept: single local user, no identity in the product (`docs/design/m12b-points.md` STRIDE-lite, R row) | None; revisit if accounts or shared projects arrive |
 
 ## Cross-cutting controls and gaps
 
