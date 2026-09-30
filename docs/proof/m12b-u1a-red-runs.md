@@ -11,8 +11,8 @@ links:
   - { to: coordination-m12b-build, rel: implements }
 review-by: "2026-10-30"
 summary: >-
-  Records the foreground red run of all 23 named U1a controller checks before the controller implementation,
-  and the separate threshold mutant run required by the U1a exit evidence.
+  Records U1a's 23 named-test red run, threshold mutant, all 70 gesture-cell red/green checks,
+  the Busy document-action wait red run, and the Core and Desktop span-boundary red runs.
 ---
 
 # U1a red-run receipt
@@ -127,6 +127,6 @@ FAIL Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged InvalidOperationExce
 
 `PrepareSpan` now refuses spans at and above 1,000,000 m with `DSL-EDGES-CROSS`. The focused Core boundary test exits **0** (1 selected, 376 skipped). The focused Desktop `--controller-shell` run exits **0**, including `Controller_ApplySpanAsync_CoreBoundaryRefusalUnchanged`, all 70 gesture cells, the 23 design names and D2's existing checks. The controller's synchronous compatibility entry point no longer parses or bounds the numeric span; Core owns those refusal rules.
 
-Final `tools/run-tests.sh`: exit **0**, **52 s** wall against 60 s; Core **377 PASS / 31 s**, CLI **1 PASS / 1 s**, Desktop **213 PASS / 49 s**. Named checker exits: U1a **0** (23/23), D3a **0** (40/40), D1 **0** (12/12), D2 **0** (21/21), C1 **0** (14/14), P1 **0** (23/23). `python3 tools/check-docs.py`: exit **0**. The one-time readiness run exited **0** and measured drag frame p95 **16.397 ms** (40 samples) and commit p95 **72.776 ms** (5 samples); on-screen timing is not a gate.
+Final `tools/run-tests.sh` on span-fix commit `e83ed34`: exit **0**, **53 s** wall against 60 s; Core **377 PASS / 32 s**, CLI **1 PASS / 1 s**, Desktop **213 PASS / 50 s**. Named checker exits: U1a **0** (23/23), D3a **0** (40/40), D1 **0** (12/12), D2 **0** (21/21), C1 **0** (14/14), P1 **0** (23/23). `python3 tools/check-docs.py`: exit **0**. The one-time readiness run exited **0** and measured drag frame p95 **16.397 ms** (40 samples) and commit p95 **72.776 ms** (5 samples); on-screen timing is not a gate.
 
 **Owned-file seam:** `src/CfdWorkbench.Desktop/Panes/PropertiesPane.axaml.cs` still calls synchronous `ApplySpan` from `CommitSpan` and has its own number/positive-value checks. U2 owns that pane; it must port the UI handler to `ApplySpanAsync` and handle `CommitOutcome` without blocking the UI thread. U1a did not edit that file.
