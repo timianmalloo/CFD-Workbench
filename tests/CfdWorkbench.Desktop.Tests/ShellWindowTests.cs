@@ -1314,6 +1314,62 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("COPY-106 differs from built Span error");
         });
 
+        DesktopChecks.Check("Copy_StartAlert_NoUncataloguedFallback", () =>
+        {
+            // C-4: every OpenFailure has a COPY row, so ShowAlert takes no null failure and no free-text message.
+            var show = typeof(StartView).GetMethod(nameof(StartView.ShowAlert))!;
+            var failure = show.GetParameters().Single(parameter => parameter.ParameterType == typeof(OpenFailure));
+            var nullability = new System.Reflection.NullabilityInfoContext().Create(failure);
+            if (show.GetParameters().Any(parameter => parameter.Name == "customMessage") ||
+                nullability.WriteState != System.Reflection.NullabilityState.NotNull)
+                throw new InvalidOperationException("StartView.ShowAlert still accepts an uncatalogued fallback message");
+        });
+
+        DesktopChecks.Check("Copy_ExampleMissing_MatchesDesignRow", () =>
+        {
+            var start = new StartView();
+            start.ShowAlert("example.foil", new OpenFailure.Missing("FILE-NOT-FOUND", "example.foil"), isMissingFixture: true);
+            string expected = CopyRow(DesignCopyRows(), "COPY-143").Replace("<file>", "example.foil", StringComparison.Ordinal);
+            string built = StartAlertLine(start);
+            if (built != expected)
+                throw new InvalidOperationException($"COPY-143: expected '{expected}', built '{built}'");
+        });
+
+        DesktopChecks.Check("Copy_Dismiss_MatchesDesignRow", () =>
+        {
+            string expected = CopyRow(DesignCopyRows(), "COPY-144");
+            var start = new StartView();
+            var area = new ModelArea();
+            string?[] built = [StartControl<Button>(start, "AlertDismissButton").Content?.ToString(),
+                area.FindControl<Button>("DismissAlertBandButton")!.Content?.ToString()];
+            if (built.Any(label => label != expected))
+                throw new InvalidOperationException($"COPY-144: expected '{expected}', built '{string.Join("', '", built)}'");
+        });
+
+        DesktopChecks.Check("Copy_AlertBand_IdCandidateRefusedAcceptFailed_MatchDesignRows", () =>
+        {
+            var rows = DesignCopyRows();
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            host.HandleOpenOutcome(new OpenOutcome.NeedsIds([1], [2]), "/example/sample.foil");
+            string candidate = BandLine(host.ModelView);
+            host.HandleOpenOutcome(new OpenOutcome.Refused("DSL-SYNTAX", [2]), "/example/sample.foil");
+            string refused = BandLine(host.ModelView);
+            host.HandleOpenOutcome(new OpenOutcome.NeedsIds([1], [2]), "/example/sample.foil");
+            // Nothing is pending in the controller on this path, so Accept candidate IDs fails and says COPY-142.
+            host.ModelView.FindControl<Button>("AcceptIdsButton")!
+                .RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            string acceptFailed = BandLine(host.ModelView);
+            var cases = new (string Row, string Built)[] { ("COPY-140", candidate), ("COPY-141", refused), ("COPY-142", acceptFailed) };
+            foreach (var item in cases)
+            {
+                string expected = CopyRow(rows, item.Row).Replace("<file>", "sample.foil", StringComparison.Ordinal);
+                if (item.Built != expected)
+                    throw new InvalidOperationException($"{item.Row}: expected '{expected}', built '{item.Built}'");
+            }
+        });
+
         DesktopChecks.Check("OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath", () =>
         {
             string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "u1fix-remove-" + Guid.NewGuid().ToString("N"));
@@ -1688,6 +1744,35 @@ public static class ShellWindowTests
 
     private static T StartControl<T>(StartView start, string name) where T : Control =>
         start.FindControl<T>(name) ?? throw new InvalidOperationException($"Start control {name} missing");
+
+    /// <summary>DESIGN.md §7 COPY rows by id — the copy record every Copy_* check compares the build against.</summary>
+    private static Dictionary<string, string> DesignCopyRows() =>
+        File.ReadAllLines(Path.Combine(FindRepoRoot(), "DESIGN.md"))
+            .Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal))
+            .Select(line => line.Split('|', 4))
+            .Where(parts => parts.Length >= 3)
+            .ToDictionary(parts => parts[1].Trim(), parts => parts[2].Trim());
+
+    private static string CopyRow(Dictionary<string, string> rows, string id) =>
+        rows.TryGetValue(id, out var row) ? row : throw new InvalidOperationException($"{id} is not a DESIGN.md COPY row");
+
+    /// <summary>The start-card alert as one COPY-row line: title, message, then visible actions other than Dismiss.</summary>
+    private static string StartAlertLine(StartView start)
+    {
+        var actions = ((Panel)StartControl<Button>(start, "AlertLocateButton").Parent!).Children.OfType<Button>()
+            .Where(button => button.IsVisible && button.Name != "AlertDismissButton").Select(button => button.Content?.ToString());
+        return string.Join(" · ", new[] { StartControl<TextBlock>(start, "AlertTitle").Text + " " +
+            StartControl<TextBlock>(start, "AlertMessage").Text }.Concat(actions));
+    }
+
+    /// <summary>The model-area alert band as one COPY-row line: text, then visible actions other than Dismiss.</summary>
+    private static string BandLine(ModelArea area)
+    {
+        var text = area.FindControl<TextBlock>("AlertBandText")!;
+        var actions = ((Panel)text.Parent!).Children.OfType<Button>()
+            .Where(button => button.IsVisible && button.Name != "DismissAlertBandButton").Select(button => button.Content?.ToString());
+        return string.Join(" · ", new[] { text.Text }.Concat(actions));
+    }
 
     private static void Settle(Window window)
     {

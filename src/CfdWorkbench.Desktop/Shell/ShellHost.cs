@@ -226,7 +226,7 @@ public sealed class ShellHost : Grid
             }
             catch (Exception)
             {
-                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The original file hasn't changed.");
+                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The file hasn't been changed.");
             }
         };
         ModelView.ResumeRecoveryButton.Click += (_, _) =>
@@ -344,13 +344,14 @@ public sealed class ShellHost : Grid
             case OpenOutcome.NeedsIds:
                 ModelView.StartCardView.HideOpening();
                 ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand("Explicit candidate IDs available for insertion.", showAcceptIds: true);
+                ModelView.ShowAlertBand($"“{fileName}” has no control-point IDs. CFD Workbench can add them. The file hasn't been changed.",
+                    showAcceptIds: true);
                 break;
 
-            case OpenOutcome.Refused refused:
+            case OpenOutcome.Refused:
                 ModelView.StartCardView.HideOpening();
                 ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand($"Opening refused ({refused.Code}): foil opened as read-only.");
+                ModelView.ShowAlertBand($"“{fileName}” couldn't be checked, so it wasn't opened for editing. The file hasn't been changed.");
                 break;
         }
     }
