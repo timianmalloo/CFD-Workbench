@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:02:42Z",
+  "generated": "2026-09-30T18:47:03Z",
   "audit": [
     {
       "actor": null,
@@ -19636,6 +19636,105 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T18:01:57Z",
       "duration_seconds": 45.0
+    },
+    {
+      "id": "al-01M3SS42Y86PMVE9PRX6G8APWK",
+      "shortname": "READYFIX: repo-root walk + STORE-SUBSET fix",
+      "datetime": "2026-09-30T18:27:09Z",
+      "session": "track-readyfix",
+      "prompt": "Track READYFIX: fix the two readiness causes (ShellWindowTests.cs FindRepoRoot() runtime repo-root walk; STORE-SUBSET excluding LayoutFileTests.cs/PreferenceStoreTests.cs from the umask-varying run) and add a control for the TEST-REPO-LAYOUT class, per scratchpad/tracks/READYFIX.md.",
+      "summary": "Both assigned causes fixed and verified green: FindRepoRoot() replaced with ScratchPath/ExamplePath (temp dir + Content-linked fixtures, AppContext.BaseDirectory) and CallerFilePath for the one genuine repo-tree scan; STORE_PREFIXES/STORE_TEST_FILES widened to cover LayoutFileTests.cs and PreferenceStoreTests.cs (58 store checks, was 32). New fast-ring control SelfLaunchTests.NoRuntimeRepoRootWalk added with red-first evidence (unfixed file + a planted offender in an unrelated tests/ file). run-tests.sh green x3 (Core 281, Cli 0, Desktop 109 PASS each run). check-docs.py exits 0. verify-application-core.py and the Desktop.Tests run inside verify-application-adapters.py's out-of-repo artifacts dir both pass clean (109 PASS/0 FAIL, SelfLaunchTests: all 5 cases passed) - direct proof both causes are fixed in the real gate context. run-readiness.py is still RED: a pre-existing, unrelated, out-of-scope defect in MainWindow.axaml.cs (native-xaml-startup-smoke: the shellMode path closes on CFDW_STARTUP_SMOKE without printing NATIVE-STARTUP smoke-opened, only window-opened) blocks full GREEN. Confirmed via git diff db1e7a2..HEAD --stat that MainWindow.axaml.cs/App.axaml.cs/verify-application-adapters.py are untouched by this track's 3 commits - not caused by this fix. Reported to the Coordinator rather than fixed, since product code and native attach are out of scope for READYFIX. No new dotnet crash reports (0 before, 0 after).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": "Claude Code",
+      "actor": null,
+      "artifacts": [
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "tests/CfdWorkbench.Desktop.Tests/SelfLaunch.cs",
+        "tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj",
+        "tools/verify-application-core.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "READYFIX",
+        "TEST-REPO-LAYOUT",
+        "STORE-SUBSET"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Fix the two readiness causes: ShellWindowTests.cs's FindRepoRoot() AppContext.BaseDirectory walk (11+ Desktop check failures under verify-application-adapters.py) and STORE-SUBSET excluding LayoutFileTests.cs/PreferenceStoreTests.cs from the umask-varying run; add a TEST-REPO-LAYOUT control.",
+      "done_when": "python3 tools/run-readiness.py exits 0 GREEN; run-tests.sh green x3 identical PASS sets; check-docs.py exits 0; no new crash reports; commits with Co-Authored-By; audit entry appended.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-09-30T18:06:22Z",
+      "duration_seconds": 1247.0,
+      "git": {
+        "sha": "90253f863f68317052cd917f94502c357f3f3ee4",
+        "short": "90253f863",
+        "branch": "fix/readiness-launch-shape",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3SSNXYCCBWD1VEQMZC54EKB",
+      "shortname": "readyfix-smoke",
+      "datetime": "2026-09-30T18:36:54Z",
+      "session": "track-readyfix",
+      "prompt": "smoke marker fix",
+      "summary": "Fixed: shell-mode Opened handler in MainWindow.axaml.cs now prints NATIVE-STARTUP smoke-opened before Close, matching the non-shell branch (commit e0984ea6c). tools/run-tests.sh exited 0 (281+0+109 PASS). dotnet crash report count unchanged (0 before, 0 after). python3 tools/run-readiness.py still exits 1 / RED for HEAD e0984ea6c: verify-application-adapters.py fails its sourceInputsUnchanged invariant because src/CfdWorkbench.Desktop/packages.lock.json is missing a net10.0/win-x64 section, so the win-x64 publish step's implicit restore mutates the tracked lock file (53 lines added). Confirmed pre-existing and unrelated to this fix: the lock file has lacked that section since at least commit e59e1da, predating this track. Reverted the unintended lock-file mutation to keep the tree clean at HEAD. Out of scope for READYFIX (one-line MainWindow.axaml.cs fix only); reported to Coordinator rather than repaired.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T18:29:02Z",
+      "duration_seconds": 472.0
+    },
+    {
+      "id": "al-01M3ST8GXV6WA62K0H4SPQR011",
+      "shortname": "READYFIX lock-file RID fix",
+      "datetime": "2026-09-30T18:47:03Z",
+      "session": "track-readyfix",
+      "prompt": "Fix the readiness gate: tools/verify-application-adapters.py publishes win-x64, whose implicit restore appends a missing net10.0/win-x64 section (~53 lines) to the tracked src/CfdWorkbench.Desktop/packages.lock.json, failing the gate's sourceInputsUnchanged invariant. The lock file was generated on macOS only (D3a, e59e1da). Add RuntimeIdentifiers to the csproj and regenerate the lock file to cover every RID the gate publishes (osx-arm64, win-x64), prove the diff is additive-only, run the tests and readiness gate, and commit.",
+      "summary": "Declared <RuntimeIdentifiers>osx-arm64;win-x64<\/RuntimeIdentifiers> in src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj and ran 'dotnet restore --force-evaluate' to add net10.0/osx-arm64 and net10.0/win-x64 sections to packages.lock.json (107 lines added, 0 deletions, 0 existing dependency entries changed - verified by git diff and SHA256 hash). Base 'dotnet restore --locked-mode' (all RIDs) exits 0. Per-RID 'dotnet restore -r <rid> --locked-mode' exits 1 with NU1004 ('project's runtime identifiers have changed') - a NuGet/SDK 10.0.203 constraint: a single -r RID is always compared against the lock file's full plural RID list and never matches, regardless of lock-file correctness; confirmed non-destructive (lock file hash unchanged after each failed attempt) via repeated isolated tests, so it does not corrupt the committed artifact. The gate's actual invocation pattern (dotnet publish -r <rid> --self-contained true, no --locked-mode) was simulated directly for both RIDs and both projects (CfdWorkbench.Desktop, CfdWorkbench.Cli): the tracked lock file's SHA256 hash was byte-identical before and after every one of those publishes, proving the fix stops the gate from mutating tracked files. tools/run-tests.sh exited 0 (Core 281 pass, Cli 0 pass smoke, Desktop 109 pass). Committed d48311a (fix: lock file covers every published RID). python3 tools/run-readiness.py printed GREEN for d48311aad and exited 0. git status was clean after the readiness run; dotnet crash-report count stayed at 0 throughout.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "lock-file",
+        "readiness-gate",
+        "RuntimeIdentifiers"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Stop tools/verify-application-adapters.py's win-x64 publish from mutating the tracked src/CfdWorkbench.Desktop/packages.lock.json during its implicit restore, without changing any existing dependency's resolved version or contentHash.",
+      "done_when": "git diff on the lock file shows only additive new-RID-section lines (0 existing entries changed); tools/run-tests.sh exits 0; python3 tools/run-readiness.py prints GREEN for HEAD and exits 0; git status is clean afterward; the dotnet crash-report count is unchanged.",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T18:37:45Z",
+      "duration_seconds": 558.0,
+      "git": {
+        "sha": "d48311aad05dfd3a452b008ae385c67f82fe8b21",
+        "short": "d48311aad",
+        "branch": "fix/readiness-launch-shape",
+        "pushed": null
+      }
     }
   ],
   "changes": [

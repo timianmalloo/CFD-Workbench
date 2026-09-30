@@ -40,8 +40,9 @@ public static class SelfLaunchTests
         Check(failures, "muxer launch passes the entry assembly", MuxerLaunchPassesEntryAssembly);
         Check(failures, "apphost launch passes the mode only", AppHostLaunchPassesModeOnly);
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
+        Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 4 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 5 cases passed.");
     }
 
     private static void Check(List<string> failures, string name, Action test)
@@ -113,5 +114,26 @@ public static class SelfLaunchTests
                            File.ReadAllText(file).Contains("Environment.ProcessPath", StringComparison.Ordinal))
             .Select(file => Path.GetRelativePath(root, file)).ToList();
         if (offenders.Count > 0) throw new Exception("use SelfLaunch.StartInfo in " + string.Join(", ", offenders));
+    }
+
+    // Track TEST-REPO-LAYOUT (docs/lessons/defect-classes.md): a test that walks AppContext.BaseDirectory
+    // looking for CFDWorkbench.slnx breaks when the gate runs the built assembly from an artifacts
+    // directory outside the repo (HARNESS-LAUNCH-SHAPE's sibling). The only safe way a test may resolve
+    // the checked-out tree is the compile-time CallerFilePath path this file uses, never a runtime walk.
+    private static void NoRuntimeRepoRootWalk([CallerFilePath] string self = "")
+    {
+        var root = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", ".."));
+        var offenders = Directory.EnumerateFiles(Path.Combine(root, "tests"), "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(file =>
+            {
+                string text = File.ReadAllText(file);
+                return text.Contains("CFDWorkbench.slnx", StringComparison.Ordinal) &&
+                       !text.Contains("CallerFilePath", StringComparison.Ordinal);
+            })
+            .Select(file => Path.GetRelativePath(root, file)).ToList();
+        if (offenders.Count > 0)
+            throw new Exception("runtime repo-root walk toward CFDWorkbench.slnx outside CallerFilePath in " + string.Join(", ", offenders));
     }
 }

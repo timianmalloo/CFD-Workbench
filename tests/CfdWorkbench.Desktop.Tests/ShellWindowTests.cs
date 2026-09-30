@@ -9,6 +9,7 @@ using Avalonia.Styling;
 using Dock.Avalonia.Controls;
 using Avalonia.Rendering.Composition;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
@@ -121,7 +122,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Recent_StoredRows_StartAndFileMenu", () =>
         {
-            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-d3a-recent-" + Guid.NewGuid().ToString("N"));
+            string root = ScratchPath("cfdw-d3a-recent-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string recentPath = Path.Combine(root, "opened.foil");
             var preferences = new PreferenceStore(root, () => new ProjectStore());
@@ -157,10 +158,10 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Recent_OpenedOutcome_AppendsPath", () =>
         {
-            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-d3a-open-" + Guid.NewGuid().ToString("N"));
+            string root = ScratchPath("cfdw-d3a-open-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string path = Path.Combine(root, "opened.foil");
-            File.Copy(Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil"), path);
+            File.Copy(ExamplePath(), path);
             var preferences = new PreferenceStore(Path.Combine(root, "preferences"), () => new ProjectStore());
             using var controller = new WorkbenchController();
             var host = new ShellHost(controller, preferences);
@@ -190,7 +191,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Architecture_DockConfinedToShell", () =>
         {
-            string root = FindRepoRoot();
+            string root = RepoRootFromSource();
             string desktop = Path.Combine(root, "src", "CfdWorkbench.Desktop");
             var offenders = Directory.EnumerateFiles(desktop, "*.cs", SearchOption.AllDirectories)
                 .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
@@ -298,7 +299,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Telemetry_MarkerInjection_AbsentEverywhere", () =>
         {
-            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "cfdw-private-" + Guid.NewGuid().ToString("N"));
+            string root = ScratchPath("cfdw-private-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string marker = "CFDW-PRIVATE-" + Guid.NewGuid().ToString("N");
             var preferences = new PreferenceStore(Path.Combine(root, "preferences"), () => new ProjectStore());
@@ -315,7 +316,7 @@ public static class ShellWindowTests
                 foreach (string name in new[] { marker + ".foil", "win\\" + marker + ".foil" })
                 {
                     string path = Path.Combine(root, name);
-                    File.Copy(Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil"), path);
+                    File.Copy(ExamplePath(), path);
                     var open = host.OpenFileAsync(path);
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
                     while (!open.IsCompleted && !timeout.IsCancellationRequested)
@@ -779,7 +780,7 @@ public static class ShellWindowTests
             var window = new Window { Content = host, Width = 1024, Height = 700 };
             var parsed = FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/invalid-geometry.foil"));
             byte[] original = FoilSource.MaterializeIds(parsed);
-            string path = Path.Combine(FindRepoRoot(), ".tmp-tests", $"openfix-refused-{Guid.NewGuid():N}.foil");
+            string path = ScratchPath($"openfix-refused-{Guid.NewGuid():N}.foil");
             File.WriteAllBytes(path, original);
             try
             {
@@ -1318,7 +1319,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Copy_OpenFailures_MatchesDesignRows", () =>
         {
-            var rows = File.ReadAllLines(Path.Combine(FindRepoRoot(), "DESIGN.md"))
+            var rows = File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"))
                 .Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal))
                 .Select(line => line.Split('|', 4))
                 .Where(parts => parts.Length >= 3)
@@ -1525,7 +1526,7 @@ public static class ShellWindowTests
         DesktopChecks.Check("Copy_RecentNotCleared_StatusAndTryAgain", () =>
         {
             var rows = DesignCopyRows();
-            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "copyfix-clear-" + Guid.NewGuid().ToString("N"));
+            string root = ScratchPath("copyfix-clear-" + Guid.NewGuid().ToString("N"));
             try
             {
                 // Newer list (COPY-147) and a failing write (COPY-148): both keep the list and offer Try again.
@@ -1566,7 +1567,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath", () =>
         {
-            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "u1fix-remove-" + Guid.NewGuid().ToString("N"));
+            string root = ScratchPath("u1fix-remove-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             string failed = Path.Combine(root, "missing.foil");
             string kept = Path.Combine(root, "kept.foil");
@@ -1640,7 +1641,7 @@ public static class ShellWindowTests
         {
             DesktopChecks.Check($"OpenFailure_{action}_OpensFile", () =>
             {
-                string path = Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil");
+                string path = ExamplePath();
                 int picks = 0;
                 using var controller = new WorkbenchController();
                 var host = new ShellHost(controller, pickOpenFile: () =>
@@ -1928,12 +1929,32 @@ public static class ShellWindowTests
         });
     }
 
-    private static string FindRepoRoot()
+    /// <summary>A non-symlinked scratch path under the harness's temp root — TMPDIR under
+    /// <c>tools/run-tests.sh</c> and under the readiness gate, the OS default otherwise — never
+    /// a repo-relative path, so a scratch fixture does not depend on where the binary runs. macOS
+    /// aliases /tmp to /private/tmp; the store refuses symlinked paths, so resolve the alias the
+    /// same way <c>tools/run-tests.sh</c> and <c>LayoutFileTests.Root()</c> do.</summary>
+    private static string ScratchPath(string name)
     {
-        string? dir = AppContext.BaseDirectory;
-        while (dir is not null && !File.Exists(Path.Combine(dir, "CFDWorkbench.slnx")))
-            dir = Path.GetDirectoryName(dir);
-        return dir ?? throw new DirectoryNotFoundException("CFDWorkbench.slnx not found");
+        string temp = Path.GetTempPath();
+        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
+        return Path.Combine(temp, name);
+    }
+
+    /// <summary>The Desktop example fixture, linked into the test output by the .csproj Content
+    /// item — read from AppContext.BaseDirectory so it does not depend on where the binary runs.</summary>
+    private static string ExamplePath() => Path.Combine(AppContext.BaseDirectory, "Assets", "example.foil");
+
+    /// <summary>The repository root from this file's build-time source path (mirrors
+    /// <c>SelfLaunch.cs</c>'s <c>NoRawProcessPathRelaunch</c>) — for the one check that genuinely
+    /// needs the checked-out source tree (a scan of every .cs file under src/CfdWorkbench.Desktop),
+    /// not a single linked fixture. Compile-time, so it never depends on where the binary runs.</summary>
+    private static string RepoRootFromSource([CallerFilePath] string self = "")
+    {
+        string root = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", ".."));
+        if (!File.Exists(Path.Combine(root, "CFDWorkbench.slnx")))
+            throw new DirectoryNotFoundException($"repository root not found from {self}");
+        return root;
     }
 
     private static T StartControl<T>(StartView start, string name) where T : Control =>
@@ -1941,7 +1962,7 @@ public static class ShellWindowTests
 
     /// <summary>DESIGN.md §7 COPY rows by id — the copy record every Copy_* check compares the build against.</summary>
     private static Dictionary<string, string> DesignCopyRows() =>
-        File.ReadAllLines(Path.Combine(FindRepoRoot(), "DESIGN.md"))
+        File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"))
             .Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal))
             .Select(line => line.Split('|', 4))
             .Where(parts => parts.Length >= 3)

@@ -18,11 +18,21 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[1]
-# The umask- and native-sensitive checks: every check in ProjectStoreTests.cs. They are the only
-# Core checks that create files, read CFD_TEST_UMASK or load libcfd_store. The rest of the suite
-# runs once per build shape; these also run under the other masks and the fault variants (F2).
+# The umask- and native-sensitive checks: every check in ProjectStoreTests.cs, LayoutFileTests.cs
+# and PreferenceStoreTests.cs. They are the only Core checks that create files, read
+# CFD_TEST_UMASK, load libcfd_store, or (P1) depend on the preference store's owner-only file
+# modes. The rest of the suite runs once per build shape; these also run under the other masks
+# and the fault variants (F2).
 STORE_TESTS = ROOT / "tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs"
-STORE_PREFIXES = ("Store_", "NativePrimitive_")
+STORE_TEST_FILES = (
+    STORE_TESTS,
+    ROOT / "tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs",
+    ROOT / "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs",
+)
+STORE_PREFIXES = ("Store_", "NativePrimitive_",
+                   "LayoutParse_", "LayoutCodec_", "RecentParse_",
+                   "LayoutLoad_", "Rollback_", "PrefStore_", "PrefsSave_", "LayoutSave_",
+                   "Recent_", "StoreContract_")
 STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
 VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_MissingOrUnloadableHelper_FailsClosed"}
@@ -32,24 +42,27 @@ VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_M
 SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.|\bFileStream\b|\bFileInfo\b|GetTempPath"
                        r"|GetEnvironmentVariable|DllImport|LibraryImport|\bProjectStore\b"
                        r'|(?<!InternalsVisibleTo\(")CfdWorkbench\.Persistence')
-PARTITION_EXEMPT = {STORE_TESTS.name, "IdentityTests.cs"}
+PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs"}
 
 
 def store_checks_selectable() -> set[str]:
     """Return the normal-run store check names; fail if the umask partition no longer holds."""
-    source = STORE_TESTS.read_text(encoding="utf-8")
-    names = re.findall(r'\bCheck\("([^"]+)"', source)
-    stray = [name for name in names if not name.startswith(STORE_PREFIXES)]
-    if not names or stray or len(names) != len(re.findall(r"\bCheck\(", source)):
-        raise SystemExit(f"STORE-SUBSET: every check in {STORE_TESTS.name} needs a literal name "
-                         f"starting with one of {STORE_PREFIXES}; found {len(names)}, stray {stray}")
-    # A file, environment or native dependency outside the store file would run at one umask only.
+    names: list[str] = []
+    for file in STORE_TEST_FILES:
+        source = file.read_text(encoding="utf-8")
+        file_names = re.findall(r'\bCheck\("([^"]+)"', source)
+        stray = [name for name in file_names if not name.startswith(STORE_PREFIXES)]
+        if not file_names or stray or len(file_names) != len(re.findall(r"\bCheck\(", source)):
+            raise SystemExit(f"STORE-SUBSET: every check in {file.name} needs a literal name "
+                             f"starting with one of {STORE_PREFIXES}; found {len(file_names)}, stray {stray}")
+        names.extend(file_names)
+    # A file, environment or native dependency outside the store files would run at one umask only.
     others = [path for path in sorted(STORE_TESTS.parent.glob("*.cs")) if path.name not in PARTITION_EXEMPT]
     others += sorted((ROOT / "src/CfdWorkbench.Core").glob("*.cs"))
     leaks = [f"{path.parent.name}/{path.name}:{number}" for path in others
              for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if SENSITIVE.search(line)]
     if leaks:
-        raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TESTS.name} would run at one "
+        raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TEST_FILES} would run at one "
                          f"umask only; move it into the store checks or widen the subset: {leaks}")
     return set(names) - VARIANT_CHECKS
 
