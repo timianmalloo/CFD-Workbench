@@ -192,7 +192,10 @@ public sealed partial class MainWindow : Window
             if (shellMode)
             {
                 if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
+                {
+                    Console.Error.WriteLine("NATIVE-STARTUP smoke-opened");
                     Dispatcher.UIThread.Post(Close, DispatcherPriority.Background);
+                }
                 else if (review is not null)
                 {
                     await Guarded(() => review.ApplyStateAsync(workbench));
