@@ -1198,3 +1198,18 @@ Design control (M1.2b): signature: a visible behaviour (a view, a selection, a f
 **REPLAY-MEMO · An idempotency memo is rebuilt with a different key than the one written.** A dimension commit memoizes `"dimension:"+Name+":"+Text` (`AuthoringSession.cs`:674), but reopen rebuilds every non-open, non-undo cursor's memo as `"apply:"+SessionBinding` (`:802-810`). After a reopen, a retry with the same operation id is refused `DOC-OPERATION-CONFLICT` instead of returning the prior id. Found by the Patterns Expert at the M1.2b design gate, by reading, not by a test.
 
 **Class → sweep → derive → prevent:** signature: two functions compute the same memo or cache key (one at write, one at rebuild). Control: one `Fingerprint(receipt)` used at commit and at replay, landing in M1.2b B1a; tests `Reopen_RetrySameDimensionOperationId_ReturnsPriorId` and `Reopen_RetrySamePointOperationId_ReturnsPriorId`. Sweep for the implementer: every `operations[...] =` and `operations.Add` site in `AuthoringSession.cs`.
+
+**GEOM-AUTHORITY · A display re-derives the placement rule and becomes a second geometry definition.** The reviewed
+v10 mockup's `draw3d` and `drawSide` (`docs/mockups/workbench-v10.html`:690-697) place sections as `(le + x·c, y,
+dih + z·c)` with no twist rotation, although the example foil carries −2° at the tip: a display that re-wrote FoilDSL §6
+dropped a term and nothing failed. The M1.2b geometry lens refused the same shape for a 3D view (m12b-points §0.2, OI-1).
+
+**Class → sweep → derive → prevent:** signature: any code outside the certificate that computes a placed point from
+channel values (twist rotation, dihedral offset, Rule A normalization), or restates the radians-per-degree constant.
+Sweep (2026-09-30, `3a37f5f`): `src/` computes placement only in `Geometry.PointAt` (`Geometry.cs`:85-119); the constant
+appears four times, all in `Geometry.cs` (`:100`, `:413`, `:477`, `:640`); the v10 mockup is the one instance. Controls
+(ADR-0010, M1.2b2 design §9): `PlacementRule_RadiansConstant_SingleSiteInSource` (the literal occurs once in `src/`),
+`PlacementRule_SelectBlend_SameStationsAsCertificate`, `Placement_DisplayWithinCertifiedEnclosure_Fixtures` (every
+display point within 1 nm of the certified enclosure), the certificate golden master (its failure names the bound
+models to review), the compiler (curve records and the evaluator are `internal` to Core, so the Desktop cannot evaluate
+a curve), and the sign fixture `Placement_SignFixture_PositiveTwistTrailingEdgeDown` rendered in every view.

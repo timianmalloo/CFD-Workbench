@@ -12,6 +12,7 @@ links:
   - {to: design-application-contracts, rel: documents}
   - {to: design-app-shell, rel: documents}
   - {to: design-m12b-points, rel: documents}
+  - {to: design-m12b2-3d-elevations, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Rolls up the offline application's file, command, rendering and telemetry threat analysis.
@@ -75,8 +76,14 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 | [design-m12b-points](../design/m12b-points.md) | Telemetry ring | I: point positions or ids leak | mitigate | fields limited to counts, durations, codes and µm figures | `Telemetry_PointEdits_NoIdsOrPositions` |
 | [design-m12b-points](../design/m12b-points.md) | History | R: an edit without attribution | accept | single local user; receipts name the edit kind, point and rule; the product has no identity | — |
 | [design-m12b-points](../design/m12b-points.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | FoilDSL file → parser → display projection | D: a file whose mesh is expensive (16-point channels, many profiles) | mitigate | fixed mesh size (41 × 101 plus ≤ 32 authored stations); off-thread single-flight; cancellable; work count bounded | `Placement_Surface_EvaluatorCallsBounded` |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | FoilDSL file → display | T: a file that certifies nothing but is drawn as if it did | mitigate | not-certified foils are dimmed "· not checked" and read-only | `ModelArea_NotCertifiedFoil_ViewsDimmedWithCaption` |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | Native envelope → reopen | T: forged `rail`/`curve` values | mitigate | closed sets in `EditReference` | `Reopen_UnknownCurveOnReceipt_DocReference` |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | Telemetry ring | I: point ids or positions leak | mitigate | curve family, counts, durations only | `Telemetry_ChannelEdits_CurveFamilyNoIdsOrPositions` |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | History | R: an edit without attribution | accept | single local user; receipts name curve and point (M1.2b) | — |
+| [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
 
-<!-- rolled up from 4 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
+<!-- rolled up from 5 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
 
 
 ## Accepted-risk register
@@ -93,6 +100,7 @@ platform capability disables publication; new-file publication requires atomic n
 | Ancestor swap or symlink race | Handle-relative no-follow implementation, chosen directory identity | macOS and Windows real filesystem negative tests |
 | Native package authenticity/distribution | Pinned packages, transitive notices/SBOM, signed application | Signing/notarization and Windows installer proof |
 | Edit history has no user attribution (M1.2b receipts name the edit kind, point and blend rule only) | Proposed accept: single local user, no identity in the product (`docs/design/m12b-points.md` STRIDE-lite, R row) | None; revisit if accounts or shared projects arrive |
+| Channel edits (M1.2b2: dihedral, twist, thickness) inherit the same unattributed history; an M1.2b build refuses a project holding them (`DOC-REFERENCE`, file unchanged, D-5b) | Proposed accept: single local user; forward refusal is loud and non-destructive | Owner disposition with the M1.2b row |
 
 ## Cross-cutting controls and gaps
 

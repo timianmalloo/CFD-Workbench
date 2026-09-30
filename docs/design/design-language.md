@@ -12,6 +12,7 @@ review-by: 2027-03-18
 summary: Discoverability hub for the root DESIGN.md token system and its visual preview. Tokens remain authored once in DESIGN.md; this hub does not duplicate them.
 review-suggested:
   - { by: spec-cfd-workbench, on: 2026-09-19, reason: "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision." }
+  - { by: design-m12b2-3d-elevations, on: 2026-09-30, reason: "M1.2b2 adds token foil-shade-lit (#3f6a6c), the Shaded surface and Elevation lane rows and updates the View cube row in DESIGN.md." }
 ---
 
 # Design language

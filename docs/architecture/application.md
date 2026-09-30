@@ -32,6 +32,7 @@ review-suggested:
   - { by: spec-foildsl, on: 2026-09-23, reason: "Ruling 15 clarifies diagnostic phase when numeric range depends on a trusted unit and role binding; review citations without changing accepted syntax." }
   - { by: coordination-application-build, on: 2026-09-23, reason: "Active-seat dispatch control and observed serial core checkpoints added; review execution references." }
   - { by: design-application-foundation, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: design-m12b2-3d-elevations, on: 2026-09-30, reason: "Ruling 56 adds slice M1.2b2 (after M1.2b, before M1.2c): 10.6 phasing needs its row; ADR-0010 makes FoilDSL 6 one generic Core rule instantiated by the certificate and every display." }
 ---
 
 # Application architecture
