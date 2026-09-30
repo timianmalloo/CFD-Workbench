@@ -11,8 +11,8 @@ links:
   - { to: coordination-m12b-build, rel: implements }
 review-by: "2026-10-30"
 summary: >-
-  Records U1a's 23 named-test red run, threshold mutant, all 70 gesture-cell red/green checks,
-  the Busy document-action wait red run, and the Core and Desktop span-boundary red runs.
+  Records the foreground red run of all 23 named U1a controller checks before the controller implementation,
+  and the separate threshold mutant run required by the U1a exit evidence.
 ---
 
 # U1a red-run receipt
