@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:33:56Z",
+  "generated": "2026-09-30T20:36:50Z",
   "audit": [
     {
       "actor": null,
@@ -20042,6 +20042,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T20:33:06Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M3T0HGEEXCT5A9FJFBB82RBX",
+      "shortname": "open the app for me and walk me through the native session",
+      "datetime": "2026-09-30T20:36:49Z",
+      "session": "prompt-log",
+      "prompt": "open the app for me and walk me through the native session",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3T0HGQ58MFQ7MB12Q7W7NM9",
+      "shortname": "Native session findings (verbatim): Plan + 3D - the menu tabs: Paln +3D,…",
+      "datetime": "2026-09-30T20:36:50Z",
+      "session": "prompt-log",
+      "prompt": "Native session findings (verbatim): Plan + 3D - the menu tabs: Paln +3D, Section Sample etc are repeated... one in the top menu which is functional and once in the Plan 3D view which is not functional - leaving Plan + 3D and coming back to it... i dont see the model any more - I can only edit span / not chord. Foil Source seems to show what i would expect. Section tab doesnt seem fucntional a bunch of empty boxes. Was I supposed to see a working CAD view? because i did not",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3T0HGZWFB2MR6CQM67S11JA",
+      "shortname": "Operator answers 2026-09-30 (interactive): next step = 'Fix shell bugs, …",
+      "datetime": "2026-09-30T20:36:50Z",
+      "session": "prompt-log",
+      "prompt": "Operator answers 2026-09-30 (interactive): next step = 'Fix shell bugs, then CAD editing (Recommended)'; DR-12 = 'Accept, show the number (Recommended)'; DR-13 = 'Pan, like Fusion 360 (Recommended)'; 3D + elevations = 'New slice right after M1.2b (Recommended)'",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
