@@ -765,8 +765,8 @@ public static class ControllerShellTests
         else if (controller.Gesture != GestureState.Idle)
             End(controller, "Escape");
         var point = controller.Planform!.Trailing.Points.First(item => item.Id == reference.VertexId);
-        var fixedPoint = controller.Planform.Trailing.Points.First(item => item.Freedom == PointFreedom.Fixed);
-        var fixedReference = new PointRef("trailing", fixedPoint.Id);
+        var fixedPoint = controller.Planform.Leading.Points.First(item => item.Freedom == PointFreedom.Fixed);
+        var fixedReference = new PointRef("leading", fixedPoint.Id);
         controller.Select(new Selection.Points([reference]));
         if (from == GestureState.Pressed || from == GestureState.Dragging)
         {

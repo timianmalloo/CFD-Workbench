@@ -62,3 +62,16 @@ MUTANT_EXIT=1
 ```
 
 The focused pair distinguishes a 2 px click from a 4 px drag. The same run also found `ApplySpan_EdgesCross_Refused`, `Controller_SaveDuringDrag_CommitsThenSaves` and `GestureEnd_Committed_EmitsFramesAndP95` failing; these are tracked in the implementation pass. Other U1a named checks passed in this mutant run.
+
+## Dispatch 2: §6.2 cell tests, first red run
+
+Test-only commit: `7cba37e`. Command: `tools/run-tests.sh`; exit **1**, wall **50 s** (60 s budget). Build: 0 warnings, 0 errors. Core: 376 PASS / 32 s. Desktop: 142 PASS / 48 s. All 70 generated cell names failed before behavior could be exercised because the synthetic fixture searched the trailing rail for a `Fixed` point, while the point model assigns that freedom to leading index zero. Representative output:
+
+```text
+FAIL Controller_Gesture_Idle_PointerMovable_Pressed InvalidOperationException: Sequence contains no matching element
+FAIL Controller_Gesture_Nudging_KeyUp_Busy InvalidOperationException: Sequence contains no matching element
+FAIL Controller_Gesture_Busy_DirectCommand_Refused InvalidOperationException: Sequence contains no matching element
+FAIL --controller-shell exited 1
+```
+
+This run is a test-fixture red, not yet evidence of a missing transition. The fixture is corrected before assessing behavior; the test-only commit remains the red-first checkpoint.
