@@ -6540,6 +6540,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-m12b-b0-red-runs",
+      "path": "docs/proof/m12b-b0-red-runs.md",
+      "title": "M1.2b B0 red run of the named checks",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "The 29 B0 checks at commit 9ab4603, run by tools/run-tests.sh before the FoilDSL 4.1 grammar change. Exit 1. Twenty-six checks fail; three already match the unchanged reader.",
+      "tags": [
+        "m12b",
+        "foildsl",
+        "red-first",
+        "b0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-m12b-old-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4f2194835126e5d05954f026d84c3f383be080ba71dc5f9558d0f5da0e9d88ef"
+    },
+    {
       "id": "proof-m12b-old-build",
       "path": "docs/proof/m12b-old-build/README.md",
       "title": "M1.2b old-build characterization of FoilDSL 4.1",
@@ -6571,7 +6605,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4c0d9f1d334383efd5a4cadd5039e9581f6122a05569f4e451bf60f0393776e8"
+      "sourceSha256": "03d41ba3af24e65ff2dcfb228579b07ec31d34bae66aa9bb9f62d0724a0ee51a"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -8197,5 +8231,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "825cfdec4b1fd710b64b5c75c47b26336af1100d9083a8195d6d4763eac4fdb6"
+  "graphSha256": "9a9be822759e4dbb0d2d1d26fcf83f1118860d3661c08427d2828926e9059f0a"
 };
