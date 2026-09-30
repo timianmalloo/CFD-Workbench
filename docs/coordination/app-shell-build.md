@@ -285,3 +285,40 @@ track count goes to the Owner in O1.
 | **S8** | Done. Measured 254 s (Ruling 54). Merge commit `3e47767` |
 | **Remaining** | O1 rulings; leader pin and request expiry; every track; OP-S; S1, S4 and S5 (Windows); M1.2b–d designs; registering the classify cross-tree class |
 | **Best next action** | Step 1, then the Owner's O1 rulings, then dispatch S8 and R0 |
+
+## Planned vs actual (M1.2a wave, 2026-09-27 → 2026-09-30)
+
+Measured from each dispatch's recorded start to its branch's last commit (Coordinator, `git log -1 --format=%cI`).
+Every result below was re-verified by the Coordinator on the track branch (three `run-tests.sh` runs with identical
+PASS-set hashes for Desktop tracks, named checks, docs gate) before its join; no track was accepted on its own report.
+
+| Track | Harness · model | Box | Measured | Outcome |
+|---|---|---|---|---|
+| R0 | Claude · Sonnet 5 | 45 min | — | Done; merged `06a5bf0` |
+| S8 | Claude · Opus 5.5 | 1 h | 254 s | Done; verdict "no" — design `groups` shape stands |
+| G0 | Claude · Opus 5.5 | 2.5 h | 642 s | Done + 1 repair (portable text I/O); spawned-suite red proof moved to D1 (classifier refused the plant) |
+| C1 | Grok · grok-4.7 | 90 min | 30 min | Done, first pass |
+| D1 | Agy · gemini-3.8-flash-high | 70 min | 21 min | Done, first pass; its red run closed G0's proof |
+| D2 | Agy · gemini-3.8-flash-high | 63 min | 35 min | Done, first pass |
+| P1 | Grok · grok-4.7 | 90 min | 45 min | Done, first pass |
+| NEWFOIL (added: operator decision) | Grok · grok-4.7 | 90 min | 27 min | Done; restarted once when the operator changed the shape to near-elliptic AR 10 |
+| D3a-0 inventory | Claude · Opus 5.5 (deviation from Agy) | 45 min | — | Done; 2 questions to the operator (Ruling 55) |
+| D3a dispatch 1 | Agy | 70 min | 70 min (timeout) | **Failed — HARNESS-SILENT-EXIT** (background tasks despite the brief; no commit, no Return); partial work salvaged to `d3a-salvage-agy1` |
+| D3a dispatches 2–3 | Codex · gpt-6-sol (fallback) | 70 min each | 20 / 47 min | Green subset, 29/40 named |
+| D3b dispatches 1–2 (operator-authorized follow-on) | Codex · gpt-6-sol | 70 min each | 43 / 40 min | 40/40 named, 60/60 inventory ports |
+| THEME (split from D3b at its repair cap) | Claude · Opus 5.5 | 90 min | — | Dock dark-tab contrast 1.19 → 5.29; 1 repair (flaky probe caught by Coordinator re-run) |
+| U1a | Claude · Opus 5.5 | 2 h | — | Copy rows; native rows operator-run; a11y veto held (dead buttons, focus) |
+| U1FIX / COPYFIX / OPENFIX | Codex / Claude / Codex | 70 / 60 / 45 min | — | All findings fixed with red-first tests; UI-DEAD-CONTROL control added |
+| COREGATE, TESTCI, crash investigation | Claude · Opus 5.5 | — | — | Joins unblocked; core gate 302 s → 88 s; run-tests 67 s → 29 s |
+
+**What paid:** the two parallel lanes (C1 ∥ D1, then D2 ∥ P1) each finished in under half their box. The
+Coordinator's independent re-runs caught one flaky test and one "green" report that was not green, and the U1a
+review caught dead controls that 40 green named tests missed.
+
+**What did not:** boxes were 2–3× the measured time (Ruling 54's "3× a measured prior" now has priors). Agy is not
+fit for a long UI track (second HARNESS-SILENT-EXIT). The prompt compiler has no Grok/Agy templates, so those briefs
+were hand-compiled. The leader lease (900 s TTL) expired between joins and was reclaimed at every join.
+
+**Open at the end of the wave:** the operator's native session (`docs/reviews/app-shell-native.md` §4) and the
+ux-accessibility re-review after it; M1.2a is not done until both pass. M1.2b–d need their own `/design-slice`
+(M1.2c includes the B6 restart for DR-11); D4/M1.2e waits on M1.2c.

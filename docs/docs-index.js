@@ -5088,7 +5088,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4b9fc3c4a485a38cf848dcf41da868dff4bce23d57a2e375b33ad82c61579cb"
+      "sourceSha256": "d19a802fe8a9046ed9ee813e7ad2353c7b5778439d8a0388d319f64cd77464ee"
     },
     {
       "id": "coordination-application-build",
@@ -7786,5 +7786,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "e60a4c44f323c6ca853031a6da6884ed087a5487ccf37f2097bebec868c0bc68"
+  "graphSha256": "b7f6246ea49653234d3543cea3ac00cfcb0061817f09ec22ffe8c2fe824a87f4"
 };
