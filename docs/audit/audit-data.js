@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T22:43:20Z",
+  "generated": "2026-09-30T23:06:11Z",
   "audit": [
     {
       "actor": null,
@@ -20353,6 +20353,24 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-30T22:27:33Z",
       "duration_seconds": 947.0
+    },
+    {
+      "id": "al-01M3T92ZQG86QSYHTVW25DM8FY",
+      "shortname": "track-u1a2",
+      "datetime": "2026-09-30T23:06:11Z",
+      "session": "track-u1a2",
+      "prompt": "U1a brief",
+      "summary": "U1a controller: 70 of 70 §6.2 gesture cells PASS; Core PrepareSpan refuses >=1e6 m with DSL-EDGES-CROSS; Desktop numeric refusal copies removed and ApplySpanAsync proven. run-tests.sh 53 s/60 s exit 0; U1a 23/23, D3a, D1, D2, C1, P1 and check-docs exit 0. Readiness one-time p95: drag frame 16.397 ms (40 samples), commit 72.776 ms (5 samples). Proof: docs/proof/m12b-u1a-red-runs.md. Seam for U2: PropertiesPane CommitSpan still calls synchronous ApplySpan; port the pane to ApplySpanAsync without blocking UI.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T22:45:32Z",
+      "duration_seconds": 1239.0
     }
   ],
   "changes": [
