@@ -377,25 +377,10 @@ public sealed class ShellHost : Grid
     {
         if (Preferences is null || failedPath is null) return;
         string path = failedPath;
-        var load = await Preferences.LoadRecentAsync(CancellationToken.None);
-        if (load.NeverWrite || load.SessionOnly) return;
-        var retained = load.Entries.Where(entry => entry.Path != path).Select(entry => entry.Path).ToArray();
-        if (retained.Length == load.Entries.Count) return;
-        // simplify: P1 currently exposes only Add and Clear. Rebuild at most ten entries; replace with
-        // RecentOp.Remove when the Persistence seam lands, since a failed intermediate Add is not atomic.
-        var clear = await Preferences.UpdateRecentAsync(new RecentOp.Clear(), CancellationToken.None);
-        if (clear.Outcome != "saved" || !clear.DurabilityConfirmed) return;
-        foreach (string entry in retained.Reverse())
-        {
-            var added = await Preferences.UpdateRecentAsync(new RecentOp.Add(entry), CancellationToken.None);
-            if (added.Outcome != "saved" || !added.DurabilityConfirmed)
-            {
-                ModelView.ShowStatus("The recent-files list couldn't be restored after removal.");
-                await LoadRecentAsync();
-                return;
-            }
-        }
+        // One compare-and-swap write: a failed write leaves the list as it was, and the alert stays.
+        var removed = await Preferences.UpdateRecentAsync(new RecentOp.Remove(path), CancellationToken.None);
         await LoadRecentAsync();
+        if (removed.Outcome != "saved") return;
         ModelView.StartCardView.DismissAlert();
         ModelView.HideAlertBand();
     }
