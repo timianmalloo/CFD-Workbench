@@ -53,4 +53,12 @@ RUN_TESTS_EXIT=1
 
 ## Threshold-zero mutant
 
-Pending the controller implementation; this section will hold the distinct red mutation output before the fix commit.
+The U1a controller implementation was built locally with the `UpdateGesture` activation comparison set to `px < 0` (zero-pixel threshold). This was **before the fix commit**. Command: `dotnet run -c Release --no-build --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --controller-shell`. Exit: **1**.
+
+```text
+FAIL Controller_MoveTwoPixels_NoDraft InvalidOperationException: Two-pixel move opened a drag.
+PASS Controller_MoveFourPixels_DraftOpened
+MUTANT_EXIT=1
+```
+
+The focused pair distinguishes a 2 px click from a 4 px drag. The same run also found `ApplySpan_EdgesCross_Refused`, `Controller_SaveDuringDrag_CommitsThenSaves` and `GestureEnd_Committed_EmitsFramesAndP95` failing; these are tracked in the implementation pass. Other U1a named checks passed in this mutant run.
