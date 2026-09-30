@@ -8018,7 +8018,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "43dc33824f0bcc3d78f402282f93d0151dbc00dcb2f5e086547d0b2aa979e61d"
+      "sourceSha256": "2e5491affa63a5ae11ffd1ff1bcaa374b0eafe12cee8eb11315f53e6c418886a"
     },
     {
       "id": "threat-model",
@@ -8231,5 +8231,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9a9be822759e4dbb0d2d1d26fcf83f1118860d3661c08427d2828926e9059f0a"
+  "graphSha256": "e16baebfe50b76b996c43d04df8380458ad0a9d2d2554e2fb519278ce08aff98"
 };

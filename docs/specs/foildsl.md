@@ -129,7 +129,7 @@ Every mandatory field occurs once. Repetition is legal only where braces say so.
 are errors, replacing v3's last-writer-wins semantics.
 
 ```ebnf
-document = "foildsl", '"4.0"', (foil | standalone-profile), EOF ;
+document = "foildsl", ('"4.0"' | '"4.1"'), (foil | standalone-profile), EOF ;
 foil = "foil", string, "{", "units", length-unit,
        "half_span", length, evaluator, "symmetry", "mirror_y",
        "planform", "{", "leading", curve, "trailing", curve, "}",
@@ -145,7 +145,9 @@ profile-body = "upper", curve, "lower", curve,
                ["closure", ("open" | "closed")], ["provenance", string] ;
 asset = "asset", "sha256", string ;
 curve = "cv", "{", "degree", integer, "knots", numbers,
-        "points", points, ["ids", strings], "}" ;
+        "points", points, ["ids", strings],
+        ["tangents", "{", {tangent}, "}"], "}" ;
+tangent = string, ("smooth" | "symmetric" | "horizontal" | "vertical" | "angle", number) ;
 numbers = "[", number, {",", number}, "]" ;
 points = "[", point, {",", point}, "]" ;
 point = "(", number, ",", number, ")" ;
@@ -186,7 +188,8 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
 3. For N points and degree p, `knots` has **N+p+1** entries (N is count, not highest index).
    End values are 0 and 1, each repeated p+1 times; interior knots are in (0,1), nondecreasing,
    with multiplicity at most p. All rational weights are exactly one by language definition.
-   Channels have p=3 and N in [6,10] in 4.0; profile sides have p=5 and N in [6,32].
+   Channels have p=3 and N in [6,10] in 4.0 and N in [6,16] in 4.1; profile sides have p=5 and N in [6,32].
+   A `tangents` block is legal only in 4.1, after `ids`. On a channel only `smooth` and `symmetric` are legal, and the row names an interior anchor. Corner is the absence of a row. Under 4.0 the block is `DSL-SYNTAX`. A version other than 4.0 or 4.1 is `DSL-VERSION` when the version token is read.
    This profile capacity includes the existing 8–16 fitting policy without making that construction an authority.
 4. Channel points are `(eta-coordinate, ordinate)`. The first abscissa is 0, last 1, and all abscissae strictly
    increase. The evaluated parametric B-spline is inverted at a requested eta, then its ordinate is read.
@@ -357,7 +360,7 @@ Canonical semantic input is a labelled object containing format `foildsl-geometr
 SI half-span, fixed frame/symmetry, five ordered curves (degree, complete knots, ordered point pairs), resolved
 ordered profile definitions and eta assignments, closure and tip mode. Resolve profile names to their numeric
 definitions; sort profiles by first assignment occurrence and replace references by their resulting index.
-Strip unused metadata, source names, comments, IDs, locks, provenance and assertions. Under `cfdw-cv/2`,
+Strip unused metadata, source names, comments, IDs, locks, tangent rows, provenance and assertions. Document version 4.0 versus 4.1 is not part of the geometry identity; the canonical format string stays `foildsl-geometry-4.0`. Under `cfdw-cv/2`,
 retain the parsed binary64 degree ordinates of twist controls; do not convert them to radians for hashing.
 The canonical record must retain the defining inputs used by §6. Normalize negative zero to zero.
 Serialize this object with RFC 8785 canonical JSON and shortest-round-trip numbers; BLAKE3 hashes UTF-8 bytes.
@@ -534,6 +537,7 @@ unrotated planform rails, not an assertion that every placed 3D point on the oth
 Conformance has separate claims: **syntax**, **static semantics**, **evaluated geometry**, **serialization**,
 **editor transactions**, and **scientific analysis**. Passing one never grants the others. The fixtures in
 [examples](../examples/foildsl/README.md) specify required outcomes, including negative and metamorphic cases.
+FoilDSL 4.1 is expand-only: it adds the optional tangents block and raises the channel ceiling to 16 points. The canonical format string remains `foildsl-geometry-4.0`.
 The review mockup advertises its supported subset and illustrative calculations. A valid 4.0 document outside
 that subset is retained verbatim and rejected with DSL-UNSUPPORTED; it is never partially applied.
 No browser check in this task certifies a production geometry kernel or Windows/macOS native accessibility.

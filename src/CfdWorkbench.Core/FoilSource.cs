@@ -107,7 +107,10 @@ internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, 
 }
 internal sealed record Definition(string Kind, int UnitScale, double HalfSpan, Dictionary<string, Curve> Curves,
     ProfileDefinition[] Profiles, (double Eta, int Profile)[] Assignments, string Tip, LockSource[] Locks,
-    AssertionSource[] Assertions, object Semantic, string Name, SourceToken[] AssignmentProfiles);
+    AssertionSource[] Assertions, object Semantic, string Name, SourceToken[] AssignmentProfiles)
+{
+    internal string Version { get; init; } = "4.0";
+}
 internal sealed class SourceFailure(string code, string phase, SourceToken token, string? entity = null, string? reason = null) : Exception(code)
 {
     internal string Code { get; } = code;
@@ -160,17 +163,123 @@ public static class FoilSource
         }
         return (line, column);
     }
-    // Header rewrite only. The grammar reader is unchanged in this commit; a 4.1 file is returned as the same array.
     public static byte[] EnsureHeader41(byte[] source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        return source;
+        string text;
+        try { text = Utf8.GetString(source); }
+        catch (DecoderFallbackException) { throw new ContractError("DSL-LEX"); }
+        Grammar grammar;
+        try { grammar = new Grammar(text); }
+        catch (SourceFailure failure) { throw new ContractError(failure.Code); }
+        SourceToken version;
+        try { version = grammar.VersionToken(); }
+        catch (SourceFailure) { throw new ContractError("DSL-VERSION"); }
+        if (version.String == "4.1") return source;
+        if (version.String != "4.0") throw new ContractError("DSL-VERSION");
+        int zero = Utf8.GetByteCount(text.AsSpan(0, version.Start + 3));
+        if ((uint)zero >= (uint)source.Length || source[zero] != (byte)'0') throw new ContractError("DSL-VERSION");
+        byte[] bytes = source.ToArray();
+        bytes[zero] = (byte)'1';
+        return bytes;
     }
 
     internal static byte[] Print(Definition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
-        throw new NotImplementedException();
+        string unit = definition.UnitScale switch { -3 => "mm", -2 => "cm", 0 => "m", _ => throw new ContractError("DSL-UNIT") };
+        var text = new StringBuilder();
+        text.Append("foildsl \"").Append(definition.Version).Append("\"\n");
+        text.Append("foil ").Append(Jcs.Quote(definition.Name)).Append(" {\n");
+        text.Append("  units ").Append(unit).Append('\n');
+        text.Append("  half_span ").Append(ExactDecimal(definition.HalfSpan, definition.UnitScale)).Append(' ').Append(unit).Append('\n');
+        text.Append("  evaluator \"cfdw-cv\" \"2\"\n");
+        text.Append("  symmetry mirror_y\n");
+        text.Append("  planform {\n");
+        text.Append("    leading cv { ").Append(CurveBody(definition.Curves["leading"], definition.UnitScale)).Append(" }\n");
+        text.Append("    trailing cv { ").Append(CurveBody(definition.Curves["trailing"], definition.UnitScale)).Append(" }\n");
+        text.Append("  }\n");
+        text.Append("  dihedral cv { ").Append(CurveBody(definition.Curves["dihedral"], definition.UnitScale)).Append(" }\n");
+        text.Append("  twist cv { ").Append(CurveBody(definition.Curves["twist"], 0)).Append(" }\n");
+        text.Append("  thickness cv { ").Append(CurveBody(definition.Curves["thickness"], 0)).Append(" }\n");
+        text.Append("  profiles {\n");
+        foreach (var profile in definition.Profiles)
+        {
+            text.Append("    profile ").Append(Jcs.Quote(profile.Name)).Append(" {\n");
+            text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
+            text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
+            text.Append("      closure ").Append(profile.Closure).Append('\n');
+            text.Append("    }\n");
+        }
+        text.Append("  }\n");
+        text.Append("  sections {");
+        foreach (var assignment in definition.Assignments)
+        {
+            string station = assignment.Eta == 0 ? "root" : assignment.Eta == 1 ? "tip" : ExactDecimal(assignment.Eta) + " " + unit;
+            text.Append(" at ").Append(station).Append(" profile ").Append(Jcs.Quote(definition.Profiles[assignment.Profile].Name));
+        }
+        text.Append(" }\n");
+        text.Append("  tip ").Append(definition.Tip).Append('\n');
+        if (definition.Locks.Length > 0)
+        {
+            text.Append("  locks {\n");
+            foreach (var item in definition.Locks)
+            {
+                text.Append("    ").Append(item.Kind).Append(' ').Append(item.Channel.Text);
+                if (item.Id is not null) text.Append(' ').Append(item.Id.Text);
+                if (item.Station is not null)
+                {
+                    text.Append(" at ").Append(item.Station.Value.Text);
+                    if (item.Station.Unit is not null) text.Append(' ').Append(item.Station.Unit.Text);
+                }
+                foreach (var value in item.Values) text.Append(' ').Append(value.Text);
+                text.Append('\n');
+            }
+            text.Append("  }\n");
+        }
+        if (definition.Assertions.Length > 0)
+        {
+            text.Append("  constrain {\n");
+            foreach (var item in definition.Assertions)
+            {
+                text.Append("    ").Append(item.Metric.Text).Append(' ').Append(item.Comparison).Append(' ').Append(item.Value.Number.Text);
+                if (item.Value.Unit is not null) text.Append(' ').Append(item.Value.Unit.Text);
+                if (item.Tolerance is not null)
+                {
+                    text.Append(" tolerance ").Append(item.Tolerance.Number.Text);
+                    if (item.Tolerance.Unit is not null) text.Append(' ').Append(item.Tolerance.Unit.Text);
+                }
+                text.Append('\n');
+            }
+            text.Append("  }\n");
+        }
+        text.Append("}\n");
+        return Utf8.GetBytes(text.ToString());
+    }
+
+    internal static bool IsAnchor(double[] knots, int count, int degree, int index)
+    {
+        if (degree != 3 || index < 3 || index > count - 4) return false;
+        double knot = knots[index + 1];
+        if (knots[index + 2] != knot || knots[index + 3] != knot) return false;
+        if (knots[index] == knot || knots[index + 4] == knot) return false;
+        return knot > 0 && knot < 1;
+    }
+
+    private static string CurveBody(Curve curve, int scale)
+    {
+        var text = new StringBuilder();
+        text.Append("degree ").Append(curve.Degree.ToString(CultureInfo.InvariantCulture));
+        text.Append(" knots [").Append(string.Join(", ", curve.Knots.Select(knot => ExactDecimal(knot)))).Append(']');
+        text.Append(" points [").Append(string.Join(", ", curve.Points.Select(point => "(" + ExactDecimal(point[0]) + ", " + ExactDecimal(point[1], scale) + ")"))).Append(']');
+        text.Append(" ids [").Append(string.Join(", ", curve.Ids.Select(Jcs.Quote))).Append(']');
+        if (curve.Tangents.Length > 0)
+        {
+            text.Append(" tangents { ");
+            text.Append(string.Join(" ", curve.Tangents.Select(row => Jcs.Quote(row.Id) + " " + row.Kind + (row.Angle is double angle ? " " + ExactDecimal(angle) : ""))));
+            text.Append(" }");
+        }
+        return text.ToString();
     }
 
     public static byte[] MaterializeIds(SourceParse parsed)
@@ -975,6 +1084,11 @@ public static class FoilSource
             catch (InvalidOperationException) { throw Failure("DSL-LEX", "Lexical", token); }
             catch (ContractError) { throw Failure("DSL-LEX", "Lexical", token); }
         }
+        internal SourceToken VersionToken()
+        {
+            Need(tokens.Count >= 2 && tokens[0].Text == "foildsl", "DSL-VERSION", "Version", tokens.Count == 0 ? new("foildsl", 0, 0) : tokens[0]);
+            return tokens[1];
+        }
         private SourceToken Current => tokens[Math.Min(position, tokens.Count - 1)];
         private SourceToken Take() { var token = Current; Need(position < tokens.Count, "DSL-SYNTAX", "Syntactic", token); position++; return token; }
         private SourceToken Expect(string value)
@@ -1015,8 +1129,24 @@ public static class FoilSource
                 points.Add((x, y));
             } while (Optional(","));
             Expect("]"); SourceToken[]? ids = Optional("ids") ? List(Name) : null;
+            var tangents = new List<TangentDraft>();
+            if (Current.Text == "tangents")
+            {
+                var keyword = Current;
+                if (version.String != "4.1") throw Failure("DSL-SYNTAX", "Syntactic", keyword);
+                Take();
+                Expect("{");
+                while (Current.Text != "}")
+                {
+                    var id = Name();
+                    var kindToken = Word();
+                    SourceToken? angle = kindToken.Text == "angle" ? Number() : null;
+                    tangents.Add(new(id, kindToken, angle));
+                }
+                Expect("}");
+            }
             int insert = Current.Start; Expect("}");
-            var curve = new RawCurve(path, degree, knots, points.ToArray(), ids, insert, profile, pointsStart, pointsEnd);
+            var curve = new RawCurve(path, degree, knots, points.ToArray(), ids, insert, profile, pointsStart, pointsEnd) { Tangents = tangents.ToArray() };
             rawCurves.Add(curve); return curve;
         }
         private void ReadEvaluator() { Expect("evaluator"); evaluator = Name(); evaluatorVersion = Name(); }
@@ -1061,7 +1191,9 @@ public static class FoilSource
         internal void ReadDocument()
         {
             if (Current.Text != "foildsl") throw Failure("DSL-VERSION", "Version", Current);
-            Expect("foildsl"); version = Name(); kind = Choice("foil", "section"); var name = Name(); Expect("{");
+            Expect("foildsl"); version = Name();
+            if (version.String is not ("4.0" or "4.1")) throw Failure("DSL-VERSION", "Version", version);
+            kind = Choice("foil", "section"); var name = Name(); Expect("{");
             documentName = name.String;
             if (kind == "section")
             {
@@ -1122,18 +1254,47 @@ public static class FoilSource
         }
         private Curve ConvertCurve(RawCurve raw, int scale)
         {
-            try { return ConvertCurveValues(raw, scale); }
+            try
+            {
+                var curve = ConvertCurveValues(raw, scale);
+                BindTangents(curve, raw);
+                if (raw.Tangents.Length == 0) return curve;
+                var rows = raw.Tangents.Select(row => new TangentRow(row.Id.String, row.Kind.Text, row.Angle is null ? null : ConvertNumber(row.Angle))).ToArray();
+                return curve with { Tangents = rows };
+            }
             catch (SourceFailure failure) when (failure.Code == "DSL-CURVE")
             {
                 int degree = raw.Profile ? 5 : 3;
+                string range = raw.Profile ? "6–32" : version.String == "4.1" ? "6–16" : "6–10";
                 throw new SourceFailure(failure.Code, failure.Phase, failure.Token, raw.Path,
-                    $"Curve {raw.Path} requires degree {degree}, {(raw.Profile ? "6–32" : "6–10")} points and {raw.Points.Length + degree + 1} knots for its {raw.Points.Length} points; knots must be ordered and clamped, with ordered abscissae from 0 to 1.");
+                    $"Curve {raw.Path} requires degree {degree}, {range} points and {raw.Points.Length + degree + 1} knots for its {raw.Points.Length} points; knots must be ordered and clamped, with ordered abscissae from 0 to 1.");
+            }
+        }
+        private void BindTangents(Curve curve, RawCurve raw)
+        {
+            if (raw.Tangents.Length == 0) return;
+            if (raw.Ids is null) throw new SourceFailure("DSL-SYNTAX", "Syntactic", raw.Tangents[0].Id, raw.Path, "A tangents block requires ids.");
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var row in raw.Tangents)
+            {
+                string kindName = row.Kind.Text;
+                if (kindName is not ("smooth" or "symmetric" or "horizontal" or "vertical" or "angle"))
+                    throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Kind);
+                if (kindName == "angle" && row.Angle is null) throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Kind);
+                if (!seen.Add(row.Id.String)) throw new SourceFailure("DSL-SYNTAX", "Syntactic", row.Id);
+                if (!raw.Profile && kindName is not ("smooth" or "symmetric"))
+                    throw new SourceFailure("DSL-LOCK", "Structural", row.Kind, raw.Path, "A channel tangent row is smooth or symmetric.");
+                int index = Array.IndexOf(curve.Ids, row.Id.String);
+                if (index < 0) throw new SourceFailure("DSL-REFERENCE", "References", row.Id, row.Id.String, "Tangent row does not name a point.");
+                if (!IsAnchor(curve.Knots, curve.Points.Length, curve.Degree, index))
+                    throw new SourceFailure("DSL-LOCK", "Structural", row.Id, raw.Path, "A tangent row names an interior anchor.");
             }
         }
         private Curve ConvertCurveValues(RawCurve raw, int scale)
         {
             Need(int.TryParse(raw.Degree.Text, CultureInfo.InvariantCulture, out int degree) && degree == (raw.Profile ? 5 : 3), "DSL-CURVE", "Structural", raw.Degree);
-            Need(raw.Points.Length >= 6 && raw.Points.Length <= (raw.Profile ? 32 : 10), "DSL-CURVE", "Structural", raw.Degree);
+            int max = raw.Profile ? 32 : version.String == "4.1" ? 16 : 10;
+        Need(raw.Points.Length >= 6 && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
             var knots = raw.Knots.Select(token => ConvertNumber(token)).ToArray();
             var points = raw.Points.Select(point => new[] { ConvertNumber(point.X), ConvertNumber(point.Y, scale) }).ToArray();
             Need(knots.Length == points.Length + degree + 1, "DSL-CURVE", "Structural", raw.Degree);
@@ -1178,7 +1339,7 @@ public static class FoilSource
         }
         internal Definition Validate()
         {
-            Need(version.String == "4.0", "DSL-VERSION", "Version", version);
+            Need(version.String is "4.0" or "4.1", "DSL-VERSION", "Version", version);
             Need(evaluator.String == "cfdw-cv" && evaluatorVersion.String == "2", "DSL-VERSION", "Version", evaluator);
             CheckNumericRange();
             Need(profiles.Count <= 4096 && assignments.Count <= 4096 && locks.Count + assertions.Count <= 4096, "DSL-LIMIT", "Resource", version);
@@ -1225,7 +1386,8 @@ public static class FoilSource
                 };
             }
             return new(kind, scale, h, curves, definitions, resolved.ToArray(), tip, locks.ToArray(), assertions.ToArray(), semantic, documentName,
-                assignments.Select(item => item.Profile).ToArray());
+                assignments.Select(item => item.Profile).ToArray())
+            { Version = version.String };
         }
         private static int? BoundLengthScale(SourceToken? unit) => unit?.Text switch
         { "m" => 0, "cm" => -2, "mm" => -3, _ => null };
@@ -1249,6 +1411,7 @@ public static class FoilSource
                 int? scale = raw.Path is "leading" or "trailing" or "dihedral" ? BoundLengthScale(units) : 0;
                 foreach (var knot in raw.Knots) Bind(knot, 0);
                 foreach (var point in raw.Points) { Bind(point.X, 0); Bind(point.Y, scale); }
+                foreach (var row in raw.Tangents) if (row.Angle is not null) Bind(row.Angle, 0);
             }
             foreach (var assignment in assignments) Station(assignment.Station);
             foreach (var constraint in locks)

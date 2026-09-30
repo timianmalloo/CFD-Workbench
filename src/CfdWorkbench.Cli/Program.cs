@@ -113,9 +113,23 @@ public static class Cli
                 }
             }
             var section = certificate is null ? null : Geometry.SectionAt(certificate, .5, .5, TimeSpan.FromSeconds(1), cancellation);
+            object? pointModel = null;
+            {
+                var plan = Planform.View(source, "accepted", 0);
+                static object Rail(CurveView curve) => curve.Points.Select(point => new
+                {
+                    id = point.Id,
+                    role = point.Role.ToString(),
+                    kind = point.Kind?.ToString(),
+                    locks = point.Locks,
+                    freedom = point.Freedom.ToString()
+                }).ToArray();
+                pointModel = new { leading = Rail(plan.Leading), trailing = Rail(plan.Trailing) };
+            }
             await WriteAsync(output, new
             {
                 schemaVersion = 1,
+                points = pointModel,
                 acceptedSourceSha256 = view.SourceHash,
                 definitionHash = view.SurfaceHash,
                 evaluator = inspection.Authored.Binding.Evaluator,
