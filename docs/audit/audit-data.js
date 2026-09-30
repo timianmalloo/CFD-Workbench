@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T15:32:15Z",
+  "generated": "2026-09-30T15:37:04Z",
   "audit": [
     {
       "actor": null,
@@ -19331,6 +19331,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T14:53:11Z",
       "duration_seconds": 2344.0
+    },
+    {
+      "id": "al-01M3SFCN3E5AFKP7ZKK2JC68PZ",
+      "shortname": "join-d3a-d3b",
+      "datetime": "2026-09-30T15:37:04Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of d3b-shell-finish into feature/ui-cad-direction",
+      "summary": "New Dock shell launches; Start/Opening/Open-failed, Planform workspace, Properties+Wing block, Browser, rail editor pane, Section sample tab, per-window NativeMenus, EditVerbRouter, Recent, New foil (near-elliptic), Undo/Redo availability; Dock dark-tab contrast 1.19->5.29 (THEME); crash output type+code only; 3 identical runs verified; D3a: Agy timeout -> Codex x2 + D3b x2 + THEME (Claude) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/d3a-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the M1.2a shell window",
+      "done_when": "merged; fast gates green; all named checks green on the integration tree",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T15:36:21Z",
+      "duration_seconds": 43.0
     }
   ],
   "changes": [
