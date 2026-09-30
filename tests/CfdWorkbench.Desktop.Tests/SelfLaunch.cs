@@ -19,14 +19,6 @@ public static class SelfLaunch
         info.ArgumentList.Add(mode);
         return info;
     }
-
-    /// <summary>Runs a child mode to completion and throws when it exits non-zero.</summary>
-    public static void RunChild(string mode)
-    {
-        using var child = Process.Start(StartInfo(mode))!;
-        child.WaitForExit();
-        if (child.ExitCode != 0) throw new Exception($"{mode.TrimStart('-')} exited {child.ExitCode}");
-    }
 }
 
 public static class SelfLaunchTests
