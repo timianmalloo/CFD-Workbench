@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T22:26:36Z",
+  "generated": "2026-09-30T22:32:47Z",
   "audit": [
     {
       "actor": null,
@@ -20335,6 +20335,40 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T22:25:45Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3T75V8D3FKK3KPCMCQVXH8B",
+      "shortname": "defect-classes-m12b",
+      "datetime": "2026-09-30T22:32:47Z",
+      "session": "track-classes",
+      "prompt": "Record three defect classes from B1b commit d1e8d45 (operation replay across kinds; gesture tangent-clamp overflow) and from repeated M1.2a/M1.2b AGENT_SESSION-unset commits (COORD-UNSESSIONED-COMMIT), matching the file's HARNESS-LAUNCH-SHAPE/UI-DEAD-CONTROL format; run check-docs.py; commit; append audit entry.",
+      "summary": "Added REPLAY-CROSS-KIND (untyped InvalidOperationException instead of DOC-OPERATION-CONFLICT when a memoized operation id from ApplyDimension/Undo is replayed as a PointCommand; cites ApplyPointCommand_SameOperationDifferentKind_DocOperationConflict, Reopen_SameOperationDifferentKind_DocOperationConflict, History_ReapplyOperationDifferentPayload_Refused) and CLAMP-RAW-NOT-DERIVED (UpdatePointGesture checked raw span/aft for finiteness but not the derived rawEta/rawAft, letting double.MaxValue overflow past the clamp into DSL-PATCH; cites UpdatePointGesture_BypassedClamp_DslPatch) from commit d1e8d45. Added COORD-UNSESSIONED-COMMIT documenting 5 more AGENT_SESSION-unset commits in the M1.2a/M1.2b waves beyond the 5 COORD-ENV already recorded, proposing an unimplemented pack-patch: fail (not advisory) coord-core.py precommit when AGENT_SESSION is unset inside a registered linked worktree. tools/check-docs.py exited 0. Committed d21edaf on chore/defect-classes-m12b.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": "Claude Sonnet 5",
+      "actor": "track-classes",
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Append three defect-class entries to docs/lessons/defect-classes.md: operation replay across kinds (B1b, commit d1e8d45), gesture/tangent clamp arithmetic overflow (same commit), and COORD-UNSESSIONED-COMMIT (repeated missing AGENT_SESSION defeating the pre-commit floor, an escalation of the already-recorded COORD-ENV class with a proposed fail-closed pack-patch control).",
+      "done_when": "Three entries appended in the file's existing bold-header two-paragraph Class-to-sweep-to-derive-to-prevent format, each citing real tests/commits; tools/check-docs.py exits 0; commit created; audit entry appended.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T22:27:18Z",
+      "duration_seconds": 329.0,
+      "git": {
+        "sha": "d21edaf2512f5fd3ac4274c7ba23b4084ce777d7",
+        "short": "d21edaf25",
+        "branch": "chore/defect-classes-m12b",
+        "pushed": null
+      }
     }
   ],
   "changes": [
