@@ -19,6 +19,8 @@ summary: >-
 
 # App-shell test inventory (checkpoint D3a-0)
 
+**D3b checkpoint (2026-09-30).** The Dock tab focus name now passes in the shell suite, but it has no red receipt. The theme matrix reached a measured dark Dock tab contrast failure (1.19) and hit the two-cycle repair cap. No additional inventory row is marked done by D3b; the 52 rows remaining after D3a still require porting and red evidence. The `ported` column below names each intended destination and does not claim completion.
+
 **Result.** `tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs` holds **212** `throw new` lines (grep, at `bf54a54`).
 The design's figure of 213 (§1, §12.5) is one high. The design counted at `494aef2`. Commit `d27dc03` then removed two
 child-exit throws and added the self-launch failure probe (`:21`), so the count is 212. **92 lines are bound** to a

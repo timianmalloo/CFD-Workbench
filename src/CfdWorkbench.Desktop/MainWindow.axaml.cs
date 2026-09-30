@@ -69,6 +69,8 @@ public sealed partial class MainWindow : Window
         this.shellMode = true;
         shellHost = new ShellHost(workbench, preferences);
         Content = shellHost;
+        ShellHost.BindF6(this, shellHost);
+        shellHost.PaletteCommand += id => _ = RunShellActionAsync(id);
         NativeMenuBuilder.BuildMenu(this,
             onAction: id => _ = RunShellActionAsync(id),
             onOpenRecent: path => _ = shellHost.OpenFileAsync(path),
@@ -230,6 +232,7 @@ public sealed partial class MainWindow : Window
             case "file.save-as": await Guarded(SaveWithPickerAsync); break;
             case "file.close": Close(); break;
             case "view.toggle-left": shellHost.ToggleLeftSidebar(); break;
+            case "view.palette": shellHost.OpenPalette(); break;
             case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;
             case "edit.redo": shellHost.RouteEditVerb("redo", FocusManager?.GetFocusedElement()); break;
             case "window.minimize": WindowState = WindowState.Minimized; break;
@@ -404,8 +407,6 @@ public sealed partial class MainWindow : Window
     {
         if (shellMode)
         {
-            if (args.Key == Key.F6 && shellHost is not null)
-                args.Handled = shellHost.MoveFocus(args.KeyModifiers.HasFlag(KeyModifiers.Shift));
             return;
         }
         if (args.Key == Key.F6)

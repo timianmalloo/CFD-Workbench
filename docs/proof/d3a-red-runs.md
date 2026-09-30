@@ -27,10 +27,15 @@ All D3b commands run with `AGENT_SESSION=track-d3b AGENT_WI=D3b` in the assigned
 | 28 | Controller properties added, but native menu command still had unconditional `CanExecute` | 1 | `Menu_UndoEnabled_FollowsFocusAndHistory`: empty document enabled Undo or Redo. |
 | 29 | Crash output test added before `StartupFailure.FailureCode` existed | 1 | CS0117 for the missing stable code. |
 | 30 | Temporary `Console.Error.WriteLine(path)` in `ShellHost.OpenFileAsync` | 1 | `Telemetry_MarkerInjection_AbsentEverywhere`: marker appeared in captured stderr. Plant removed. |
+| 31 | F6 and palette tests before shell APIs existed | 1 | CS0117/CS1061: `BindF6`, `PaletteCommand`, `OpenPalette`, and palette state absent. |
+| 32 | Span Tab test before the focus advance | 1 | `Focus_SpanCommitTab_NextField`: focus stayed in Span. After adding the focus move, the test's `900` fixture was discovered to equal the example's existing full span; `1000` then passed. |
+| 33 | Applied shell theme matrix before a Dock text correction | 1 | `ThemeMatrix_ShellControls_AppliedContrast`: dark model Dock tab text was black on `#101a1d` (ratio 1.19). Two `Styles.axaml` selector repairs left the rendered result unchanged. The 2-cycle repair cap fired; those ineffective selectors and the incomplete test were removed. |
 
 After wiring the card, File menu, controller call, and Opening/Cancel outcome, the foreground `--shell-window` run exited 0 with both new Start names and `NativeMenu_MainWindow_BuiltFromTable` passing.
 After binding the menu command predicates and raising `CanExecuteChanged`, the foreground `--shell-window` run exited 0 with `Menu_UndoEnabled_FollowsFocusAndHistory` passing.
-With the handler changed to type and code only, the foreground `--shell-window` run exited 0 with both privacy names passing. The telemetry test observes session events, preference result metadata, and stderr; the design's separate shell and preference telemetry rings are not yet implemented in this track.
+With the handler changed to type and code only, the foreground `--shell-window` run exited 0 with both privacy names passing. The telemetry test initially observed session events, preference result metadata, and stderr.
+
+The subsequent telemetry test also reads `ShellEvents.Read()`. The preference store has no separate telemetry ring in the inspected source; only its result metadata is checked. `KeyBindings_F6InFloat_Bound`, `Palette_Keyboard_FiltersAndRuns`, and `Focus_SpanCommitTab_NextField` passed in the foreground shell suite. `DockTabFocus_FreshBatch_ReadyAndTwoRing` passed on first execution, so it has no red receipt. The 52 remaining inventory rows were not marked done. `ThemeMatrix_ShellControls_AppliedContrast` and `Focus_MenuTab_ClosesMenuReturns` remain unwritten in the committed suite.
 
 Every command below ran with `AGENT_SESSION=track-d3a AGENT_WI=D3a` in this worktree.
 Each run used `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.

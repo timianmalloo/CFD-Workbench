@@ -40,7 +40,46 @@ public sealed class ShellHost : Grid
 
     public Button LeftSidebarToggle { get; }
     public event Action<IReadOnlyList<RecentEntry>>? RecentLoaded;
+    public event Action<string>? PaletteCommand;
+    public AutoCompleteBox PaletteSearch { get; }
+    public bool PaletteVisible => paletteOverlay.IsVisible;
+    public IReadOnlyList<PaletteEntry> PaletteMatches => CommandTable.PaletteEntries()
+        .Where(entry => string.IsNullOrWhiteSpace(PaletteSearch.Text) ||
+            entry.Title.Contains(PaletteSearch.Text, StringComparison.OrdinalIgnoreCase)).ToArray();
+    private readonly Border paletteOverlay;
+    private Control? paletteOrigin;
     private CancellationTokenSource? opening;
+
+    public static void BindF6(Window window, ShellHost host)
+    {
+        window.KeyBindings.Add(new KeyBinding
+        {
+            Gesture = new KeyGesture(Key.F6),
+            Command = new DelegateCommand(() => host.MoveFocus(false))
+        });
+        window.KeyBindings.Add(new KeyBinding
+        {
+            Gesture = new KeyGesture(Key.F6, KeyModifiers.Shift),
+            Command = new DelegateCommand(() => host.MoveFocus(true))
+        });
+    }
+
+    public void OpenPalette()
+    {
+        paletteOrigin = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as Control;
+        PaletteSearch.Text = "";
+        paletteOverlay.IsVisible = true;
+        PaletteSearch.Focus();
+        PaletteSearch.IsDropDownOpen = true;
+    }
+
+    private void ClosePalette(bool runSelection)
+    {
+        string? id = runSelection ? PaletteMatches.FirstOrDefault()?.Id : null;
+        paletteOverlay.IsVisible = false;
+        paletteOrigin?.Focus();
+        if (id is not null) PaletteCommand?.Invoke(id);
+    }
 
     public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null)
     {
@@ -107,6 +146,37 @@ public sealed class ShellHost : Grid
         };
         SetRow(DockHost, 1);
         Children.Add(DockHost);
+
+        PaletteSearch = new AutoCompleteBox
+        {
+            [AutomationProperties.NameProperty] = "Command palette",
+            ItemsSource = CommandTable.PaletteEntries().Select(entry => entry.Title).ToArray(),
+            MinimumPrefixLength = 0,
+            Width = 360
+        };
+        PaletteSearch.KeyDown += (_, args) =>
+        {
+            if (args.Key is not (Key.Enter or Key.Escape)) return;
+            ClosePalette(args.Key == Key.Enter);
+            args.Handled = true;
+        };
+        paletteOverlay = new Border
+        {
+            Child = PaletteSearch,
+            Padding = new Thickness(16),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(0, 64, 0, 0),
+            IsVisible = false
+        };
+        paletteOverlay.AttachedToVisualTree += (_, _) =>
+        {
+            paletteOverlay.Background = this.FindResource("SurfaceBrush") as IBrush;
+            paletteOverlay.BorderBrush = this.FindResource("LineBrush") as IBrush;
+            paletteOverlay.BorderThickness = new Thickness(1);
+        };
+        SetRowSpan(paletteOverlay, 2);
+        Children.Add(paletteOverlay);
 
         // Wire Controller updates
         Controller.Changed += OnControllerChanged;
@@ -480,14 +550,13 @@ public sealed class ShellHost : Grid
                 return false;
 
             case EditVerbTarget.ToDocument:
-                bool docCanUndoRedo = Controller.Inspection is not null && Controller.Draft is null;
                 switch (verb.ToLowerInvariant())
                 {
                     case "undo":
-                        if (docCanUndoRedo) { Controller.Undo(); return true; }
+                        if (Controller.CanUndo) { Controller.Undo(); return true; }
                         break;
                     case "redo":
-                        if (docCanUndoRedo) { Controller.Redo(); return true; }
+                        if (Controller.CanRedo) { Controller.Redo(); return true; }
                         break;
                 }
                 return false;

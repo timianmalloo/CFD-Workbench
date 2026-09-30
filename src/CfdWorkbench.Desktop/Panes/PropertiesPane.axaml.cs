@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using System.Globalization;
@@ -138,6 +139,11 @@ public partial class PropertiesPane : UserControl
             {
                 e.Handled = true;
                 SpanInput.Focus();
+            }
+            else if (e.Key == Key.Tab)
+            {
+                e.Handled = true;
+                this.FindAncestorOfType<ShellHost>()?.MoveFocus(false);
             }
         }
     }

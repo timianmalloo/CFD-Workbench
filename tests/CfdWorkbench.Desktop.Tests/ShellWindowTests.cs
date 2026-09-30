@@ -3,6 +3,9 @@ using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
+using Avalonia.Input;
+using Dock.Avalonia.Controls;
+using Avalonia.Rendering.Composition;
 using System.Diagnostics;
 using System.Text.Json;
 using CfdWorkbench.Core;
@@ -243,10 +246,20 @@ public static class ShellWindowTests
                         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
                     open.GetAwaiter().GetResult();
                 }
-                var recent = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
+                RecentLoad recent;
+                using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8)))
+                {
+                    do
+                    {
+                        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                        recent = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
+                    }
+                    while (recent.Entries.Count == 0 && !timeout.IsCancellationRequested);
+                }
                 if (controller.Inspection is null || recent.Entries.Count == 0)
                     throw new InvalidOperationException("Marker probe did not open and record the file");
                 string emitted = JsonSerializer.Serialize(controller.LocalEvents) +
+                    JsonSerializer.Serialize(ShellEvents.Read()) +
                     JsonSerializer.Serialize(new { recent.Outcome, recent.Codes, recent.NeverWrite, recent.SessionOnly }) +
                     capturedError;
                 if (emitted.Contains(marker, StringComparison.Ordinal))
@@ -258,6 +271,97 @@ public static class ShellWindowTests
                 window.Close();
                 Directory.Delete(root, recursive: true);
             }
+        });
+
+        DesktopChecks.Check("KeyBindings_F6InFloat_Bound", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var floatWindow = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                ShellHost.BindF6(floatWindow, host);
+                if (!floatWindow.KeyBindings.Any(binding => binding.Gesture?.Key == Avalonia.Input.Key.F6 &&
+                    binding.Gesture.KeyModifiers == Avalonia.Input.KeyModifiers.None) ||
+                    !floatWindow.KeyBindings.Any(binding => binding.Gesture?.Key == Avalonia.Input.Key.F6 &&
+                    binding.Gesture.KeyModifiers == Avalonia.Input.KeyModifiers.Shift))
+                    throw new InvalidOperationException("Float window lacks both F6 region bindings");
+            }
+            finally { floatWindow.Close(); }
+        });
+
+        DesktopChecks.Check("Palette_Keyboard_FiltersAndRuns", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                string? invoked = null;
+                host.PaletteCommand += id => invoked = id;
+                host.OpenPalette();
+                var search = host.PaletteSearch;
+                search.Text = "New foil";
+                if (!search.IsFocused || host.PaletteMatches.Count != 1 ||
+                    host.PaletteMatches[0].Id != "file.new")
+                    throw new InvalidOperationException("Palette did not focus and filter to New foil");
+                search.RaiseEvent(new Avalonia.Input.KeyEventArgs
+                {
+                    RoutedEvent = Avalonia.Input.InputElement.KeyDownEvent,
+                    Source = search,
+                    Key = Avalonia.Input.Key.Enter
+                });
+                if (invoked != "file.new" || host.PaletteVisible)
+                    throw new InvalidOperationException("Palette Enter did not run and close the command");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("DockTabFocus_FreshBatch_ReadyAndTwoRing", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
+                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.ModelDocument))
+                    ?? throw new InvalidOperationException("Model Dock tab did not render");
+                var visual = ElementComposition.GetElementVisual(tab)
+                    ?? throw new InvalidOperationException("Dock tab lacks composition visual");
+                var early = visual.Compositor.RequestCompositionBatchCommitAsync();
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                host.RefreshPanes();
+                Settle(window);
+                if (!tab.Focus(NavigationMethod.Tab))
+                    throw new InvalidOperationException("Dock tab refused keyboard focus");
+                Settle(window);
+                var layer = AdornerLayer.GetAdornerLayer(tab)
+                    ?? throw new InvalidOperationException("Dock tab has no adorner layer");
+                var adorner = layer.Children.OfType<Control>().SingleOrDefault(child =>
+                    ReferenceEquals(AdornerLayer.GetAdornedElement(child), tab))
+                    ?? throw new InvalidOperationException("Dock tab has no focus adorner");
+                var rings = adorner.GetVisualDescendants().OfType<Border>()
+                    .Prepend(adorner as Border).Where(border => border?.BorderBrush is not null).ToArray();
+                if (rings.Length < 2)
+                    throw new InvalidOperationException("Dock tab lacks the two focus rings");
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
+                    throw new InvalidOperationException("Accepted frame not bound before Dock focus barrier");
+                var fresh = visual.Compositor.RequestCompositionBatchCommitAsync();
+                if (ReferenceEquals(early, fresh))
+                    throw new InvalidOperationException("Stale batch reused for Dock focus barrier");
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!fresh.Rendered.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                if (!fresh.Rendered.IsCompletedSuccessfully || !tab.IsFocused || tab.Bounds.Width <= 0 || adorner.Bounds.Width <= 0)
+                    throw new InvalidOperationException("Fresh Dock focus batch did not render a visible focused tab");
+            }
+            finally { window.Close(); }
         });
 
         DesktopChecks.Check("Review_Persona_FocusesShellRegion", () =>
@@ -703,6 +807,33 @@ public static class ShellWindowTests
                 if (host.Properties.CommitSpan() || !span.IsFocused ||
                     !host.Properties.FindControl<Control>("SpanErrorPanel")!.IsVisible)
                     throw new InvalidOperationException("Invalid Span did not retain field focus with an error");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Focus_SpanCommitTab_NextField", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var span = host.Properties.FindControl<TextBox>("SpanInput")!;
+                span.Focus();
+                string before = controller.AcceptedSource;
+                span.Text = "1000";
+                span.RaiseEvent(new Avalonia.Input.KeyEventArgs
+                {
+                    RoutedEvent = Avalonia.Input.InputElement.KeyDownEvent,
+                    Source = span,
+                    Key = Avalonia.Input.Key.Tab
+                });
+                Settle(window);
+                if (controller.AcceptedSource == before || span.IsFocused || window.FocusManager?.GetFocusedElement() is not Control)
+                    throw new InvalidOperationException($"Tab did not commit Span and advance focus: changed={controller.AcceptedSource != before}, spanFocused={span.IsFocused}, focus={window.FocusManager?.GetFocusedElement()?.GetType().Name ?? "none"}, text={span.Text}, status={controller.Status}, error={host.Properties.FindControl<Control>("SpanErrorPanel")!.IsVisible}");
             }
             finally { window.Close(); }
         });
