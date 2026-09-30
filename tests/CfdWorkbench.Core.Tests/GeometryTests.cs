@@ -146,6 +146,45 @@ internal static class GeometryTests
         Check("Geometry_RootLockViolation_BlocksCertificate", () => Equal(GeometryStatus.Invalid, Geometry.Assess(Prepared(Text.Replace("(0.1, 0)", "(0.1, 1)"))).Status));
         Check("Geometry_MissingIds_NotCertified", () => Equal(GeometryStatus.Unsupported, Geometry.Assess(FoilSource.Parse(Encoding.UTF8.GetBytes(Text))).Status));
         Check("Geometry_OpaqueCertificate_NoPublicConstructor", () => Equal(0, typeof(GeometryCertificate).GetConstructors().Length));
+        Check("Assess_SmoothRowSatisfied_Certified", () => Equal(GeometryStatus.Certified, AssessFixture("foil-41-tangents.foil").Status));
+        Check("Assess_SmoothRowOffByHalfDegree_Invalid", () =>
+        {
+            var assessment = AssessText(BendLeadingHandle("foil-41-tangents.foil", "(0.7, 0)", "(0.7, 0.7853881948536542)"));
+            Equal(GeometryStatus.Invalid, assessment.Status);
+            Equal("DSL-LOCK", assessment.Code);
+        });
+        Check("Assess_SymmetricRowNotMidpoint_Invalid", () =>
+        {
+            var assessment = AssessText(BendLeadingHandle("foil-41-tangents.foil", "(0.5, 0)", "(0.55, 0)").Replace("\"cv-3\" smooth", "\"cv-3\" symmetric", StringComparison.Ordinal));
+            Equal(GeometryStatus.Invalid, assessment.Status);
+            Equal("DSL-LOCK", assessment.Code);
+        });
+        Check("Assess_SixteenPointThreeAnchors_WorkCountBounded", () =>
+        {
+            var assessment = AssessFixture("foil-41-sixteen-three-anchors.foil");
+            Equal(GeometryStatus.Certified, assessment.Status);
+            long operations = assessment.Certificate!.QueryFeasibility!.RationalOperationsUpper;
+            Equal(true, operations > 0 && operations <= 1_000_000);
+        });
+    }
+
+    private static GeometryAssessment AssessFixture(string name) => AssessText(File.ReadAllText("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name));
+
+    private static GeometryAssessment AssessText(string text)
+    {
+        var parsed = FoilSource.Parse(Encoding.UTF8.GetBytes(text));
+        if (parsed.IsParsed && parsed.Definition!.Curves.Values.Any(curve => curve.MissingIds))
+            parsed = FoilSource.Parse(FoilSource.MaterializeIds(parsed));
+        return Geometry.Assess(parsed);
+    }
+
+    private static string BendLeadingHandle(string name, string from, string to)
+    {
+        string text = File.ReadAllText("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name);
+        int at = text.IndexOf("leading cv", StringComparison.Ordinal);
+        int next = text.IndexOf("trailing cv", at, StringComparison.Ordinal);
+        string leading = text[at..next].Replace(from, to, StringComparison.Ordinal);
+        return text[..at] + leading + text[next..];
     }
     private static string Text => Encoding.UTF8.GetString(FoilSourceTests.Example);
     private static void Contains(EnclosedOrdinate interval, double value)

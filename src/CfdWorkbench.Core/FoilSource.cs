@@ -79,8 +79,13 @@ internal sealed record SourceToken(string Text, int Start, int End)
 {
     internal string String => JsonSerializer.Deserialize<string>(Text) ?? "";
 }
+internal readonly record struct TangentDraft(SourceToken Id, SourceToken Kind, SourceToken? Angle);
+internal readonly record struct TangentRow(string Id, string Kind, double? Angle);
 internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] Knots,
-    (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile, int PointsStart, int PointsEnd);
+    (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile, int PointsStart, int PointsEnd)
+{
+    internal TangentDraft[] Tangents { get; init; } = [];
+}
 internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0);
 internal sealed record StationSource(SourceToken Value, SourceToken? Unit);
 internal sealed record AssignmentSource(StationSource Station, SourceToken Profile);
@@ -91,6 +96,7 @@ internal sealed record Curve(string Path, int Degree, double[] Knots, double[][]
     SourceToken[] Ordinates, int InsertAt, bool MissingIds, SourceToken[] Abscissae, SourceToken[]? IdTokens,
     int KnotStart, int KnotEnd, int PointsStart, int PointsEnd)
 {
+    internal TangentRow[] Tangents { get; init; } = [];
     internal object Semantic() => new Dictionary<string, object?>
     { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] }).ToArray() };
 }
@@ -154,6 +160,19 @@ public static class FoilSource
         }
         return (line, column);
     }
+    // Header rewrite only. The grammar reader is unchanged in this commit; a 4.1 file is returned as the same array.
+    public static byte[] EnsureHeader41(byte[] source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return source;
+    }
+
+    internal static byte[] Print(Definition definition)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        throw new NotImplementedException();
+    }
+
     public static byte[] MaterializeIds(SourceParse parsed)
     {
         var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");

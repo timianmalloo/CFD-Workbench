@@ -667,11 +667,13 @@ internal sealed class ProofRefusal(string reason, GeometryStatus status = Geomet
 
 internal sealed class ProofBudget
 {
+    internal static int Entries;
     private readonly Stopwatch watch = Stopwatch.StartNew();
     private readonly TimeSpan limit;
     private readonly CancellationToken cancellation;
     internal ProofBudget(TimeSpan? requested = null, CancellationToken cancellationToken = default)
     {
+        Entries++;
         cancellation = cancellationToken;
         limit = requested ?? TimeSpan.FromSeconds(1);
         Guard.Require(limit >= TimeSpan.Zero && limit <= TimeSpan.FromSeconds(1), "DSL-RANGE");
