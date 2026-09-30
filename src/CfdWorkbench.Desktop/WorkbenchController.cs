@@ -415,6 +415,12 @@ public sealed class WorkbenchController : IDisposable
             {
                 preparedSession.Dispose();
                 string code = parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-SYNTAX";
+                ClearPendingImport();
+                PendingOriginal = bytes.ToArray();
+                PendingProjection = parsed.Authored();
+                Status = $"{code}: Refused. Original source retained read-only.";
+                Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
+                Notify();
                 return new OpenOutcome.Refused(code, bytes);
             }
 
@@ -422,6 +428,13 @@ public sealed class WorkbenchController : IDisposable
             if (!candidate.AsSpan().SequenceEqual(bytes))
             {
                 preparedSession.Dispose();
+                ClearPendingImport();
+                PendingOriginal = bytes.ToArray();
+                PendingCandidate = candidate;
+                PendingProjection = parsed.Authored();
+                Status = "Source has no explicit control IDs. Compare the retained original with the candidate, then accept IDs.";
+                Provenance = Inspection is null ? "ID candidate — not accepted" : "accepted — ID candidate pending";
+                Notify();
                 return new OpenOutcome.NeedsIds(candidate, bytes);
             }
 
@@ -429,6 +442,12 @@ public sealed class WorkbenchController : IDisposable
             if (assessment.Status != GeometryStatus.Certified)
             {
                 preparedSession.Dispose();
+                ClearPendingImport();
+                PendingOriginal = bytes.ToArray();
+                PendingProjection = parsed.Authored();
+                Status = $"{assessment.Code}: Refused. Original source retained read-only.";
+                Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
+                Notify();
                 return new OpenOutcome.Refused(assessment.Code, bytes);
             }
 
@@ -472,27 +491,6 @@ public sealed class WorkbenchController : IDisposable
         var outcome = await OpenAsync(path, cancellation);
         if (outcome is OpenOutcome.Failed failed)
             throw new ContractError(failed.Failure.Code);
-        if (outcome is OpenOutcome.Refused refused)
-        {
-            ClearPendingImport();
-            PendingOriginal = refused.Original;
-            var parsed = FoilSource.Parse(refused.Original);
-            PendingProjection = parsed.Authored();
-            Status = $"{refused.Code}: Refused. Original source retained read-only.";
-            Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
-            Notify();
-        }
-        else if (outcome is OpenOutcome.NeedsIds needs)
-        {
-            ClearPendingImport();
-            PendingOriginal = needs.Original;
-            PendingCandidate = needs.Candidate;
-            var parsed = FoilSource.Parse(needs.Original);
-            PendingProjection = parsed.Authored();
-            Status = "Source has no explicit control IDs. Compare the retained original with the candidate, then accept IDs.";
-            Provenance = Inspection is null ? "ID candidate — not accepted" : "accepted — ID candidate pending";
-            Notify();
-        }
     }
 
     public async Task OpenFoilAsync(byte[] bytes, string label, CancellationToken cancellation = default)

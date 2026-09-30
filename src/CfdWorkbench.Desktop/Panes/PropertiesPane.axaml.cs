@@ -161,7 +161,7 @@ public partial class PropertiesPane : UserControl
         if (boundController == null) return false;
         var text = SpanInput.Text?.Trim() ?? "";
 
-        if (string.IsNullOrEmpty(text) || !double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double val))
+        if (string.IsNullOrEmpty(text) || !double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double val) || !double.IsFinite(val))
         {
             SpanErrorText.Text = "Enter a number. Span is unchanged.";
             SpanErrorPanel.IsVisible = true;

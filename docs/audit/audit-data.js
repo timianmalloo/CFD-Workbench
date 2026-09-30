@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T17:22:11Z",
+  "generated": "2026-09-30T17:55:09Z",
   "audit": [
     {
       "actor": null,
@@ -19553,6 +19553,60 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T17:21:26Z",
       "duration_seconds": 45.0
+    },
+    {
+      "id": "al-01M3SQ6FAG9PGKTPHPN5EA9473",
+      "shortname": "OPENFIX M1.2a Open outcomes and Span",
+      "datetime": "2026-09-30T17:53:30Z",
+      "session": "track-openfix",
+      "prompt": "You are track OPENFIX of the CFD-Workbench app-shell build. The harness is Codex, with model gpt-6-sol.\n- Run everything in the foreground.\n- Terminate every process you launch. Before you finish, check that `pgrep -fl CfdWorkbench` shows nothing.\n- When the work is committed, write your Return and stop.\n\nFirst command, from the repo root: `AGENT_SESSION=track-openfix python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-openfix --skill implement`\nExport `AGENT_SESSION=track-openfix AGENT_WI=OPENFIX` for every shell command, including `git commit`.\nWorktree: /Users/mallalieut/projects/CFD-Workbench-fix-m12a-open-outcomes (branch fix/m12a-open-outcomes, base 7382e1a). Work only in this tree, using absolute paths. Never push.\n\nGOAL: fix three M1.2a Open-flow defects found by the COPYFIX track. The authority is design `docs/design/app-shell.md` §6.2, the Open outcomes and transitions table, around L438–450:\n- NeedsIds, Refused and Failed each go to the origin state plus an alert, and focus goes to the alert's first action.\n- The design adds: Refused keeps \"original kept read-only, as built\".\nAlso use §6.3 and DESIGN.md COPY-140/141/142 (the ID candidate, refused and accept-failed strings).\n\n1. Accept candidate IDs always fails through ShellHost.\n   - Reproduce it first with a test that drives ShellHost the way the operator would: open an ID-candidate foil, then press Accept. The test must go red.\n   - Root-cause it by reading ShellHost's accept path and D2's controller contract (`OpenOutcome.NeedsIds`, the accept method). Fix it at the cause.\n   - Test: `Open_IdCandidate_AcceptThroughShell_Opens`.\n2. Refused and NeedsIds leave Start for an empty workspace.\n   - Make them follow the §6.2 table: return to the origin state with the alert (COPY-140/141), and focus the alert's first action.\n   - For Refused, apply the design's read-only rule exactly as §6.2 states it. Read it; do not reinterpret.\n   - Tests, red first: `Open_Refused_ReturnsToOriginWithAlert` and `Open_NeedsIds_ReturnsToOriginWithAlert`.\n3. NaN typed into Span shows COPY-145 (\"not assessed\") instead of the invalid-number message.\n   - Non-numeric input, including NaN and Infinity, must show the invalid-Span COPY row that U1FIX's `Copy_SpanErrors_MatchDesignRows` uses, with geometry unchanged.\n   - Test, red first: `Span_NaNOrInfinity_InvalidNotNotAssessed`.\n4. Doc: in DESIGN.md, mark COPY-29 \"superseded by COPY-143 in the M1 start card (1.6)\". Edit that row only.\n\nRecord every red run in `docs/proof/openfix-red-runs.md` (frontmatter type: proof-pack).\n\nFILES YOU OWN:\n- `src/CfdWorkbench.Desktop/Shell/ShellHost.cs`\n- `src/CfdWorkbench.Desktop/Panes/**`\n- `src/CfdWorkbench.Desktop/WorkbenchController.cs`, only if the accept contract itself is broken; say so in your Return\n- `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`\n- `tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs`\n- DESIGN.md, the COPY-29 row only\n- the proof file\n\nDo not edit Core. If the accept failure is in Core, stop and raise a seam request.\n\nDONE WHEN:\n- `tools/run-tests.sh` exits 0 three times with identical PASS sets.\n- The D3a, D1, D2, C1 and P1 named checks exit 0.\n- `check-docs.py` exits 0.\n- `design-lint --strict` is clean.\n- xaml-token-lint is clean.\n- The app launches, and you closed it.\n- Commits are conventional, each ending with `Co-Authored-By: GPT-6 <noreply@openai.com>`.\n- The audit entry is appended.\n\nBUDGET: box 45 min, one dispatch. Repair loops are capped at 2.\nANTI-SPIRAL: progress is a src/ or tests/ diff. No timing investigations, no native attach, no tool call over 10 minutes.\nSHELL: never pipe a test or gate command's exit status.\n\nRETURN: your final message MUST contain a section headed exactly `## Return`, with:\n- each defect's root cause (file:line), fix and test;\n- gate exits;\n- SHAs;\n- any seam request.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3SQ9FXEY2HFGXPNS3TJPHFB",
+      "shortname": "implement-openfix-m12a",
+      "datetime": "2026-09-30T17:55:09Z",
+      "session": "track-openfix",
+      "prompt": "You are track OPENFIX of the CFD-Workbench app-shell build. The harness is Codex, with model gpt-6-sol.\n- Run everything in the foreground.\n- Terminate every process you launch. Before you finish, check that `pgrep -fl CfdWorkbench` shows nothing.\n- When the work is committed, write your Return and stop.\n\nFirst command, from the repo root: `AGENT_SESSION=track-openfix python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-openfix --skill implement`\nExport `AGENT_SESSION=track-openfix AGENT_WI=OPENFIX` for every shell command, including `git commit`.\nWorktree: /Users/mallalieut/projects/CFD-Workbench-fix-m12a-open-outcomes (branch fix/m12a-open-outcomes, base 7382e1a). Work only in this tree, using absolute paths. Never push.\n\nGOAL: fix three M1.2a Open-flow defects found by the COPYFIX track. The authority is design `docs/design/app-shell.md` §6.2, the Open outcomes and transitions table, around L438–450:\n- NeedsIds, Refused and Failed each go to the origin state plus an alert, and focus goes to the alert's first action.\n- The design adds: Refused keeps \"original kept read-only, as built\".\nAlso use §6.3 and DESIGN.md COPY-140/141/142 (the ID candidate, refused and accept-failed strings).\n\n1. Accept candidate IDs always fails through ShellHost.\n   - Reproduce it first with a test that drives ShellHost the way the operator would: open an ID-candidate foil, then press Accept. The test must go red.\n   - Root-cause it by reading ShellHost's accept path and D2's controller contract (`OpenOutcome.NeedsIds`, the accept method). Fix it at the cause.\n   - Test: `Open_IdCandidate_AcceptThroughShell_Opens`.\n2. Refused and NeedsIds leave Start for an empty workspace.\n   - Make them follow the §6.2 table: return to the origin state with the alert (COPY-140/141), and focus the alert's first action.\n   - For Refused, apply the design's read-only rule exactly as §6.2 states it. Read it; do not reinterpret.\n   - Tests, red first: `Open_Refused_ReturnsToOriginWithAlert` and `Open_NeedsIds_ReturnsToOriginWithAlert`.\n3. NaN typed into Span shows COPY-145 (\"not assessed\") instead of the invalid-number message.\n   - Non-numeric input, including NaN and Infinity, must show the invalid-Span COPY row that U1FIX's `Copy_SpanErrors_MatchDesignRows` uses, with geometry unchanged.\n   - Test, red first: `Span_NaNOrInfinity_InvalidNotNotAssessed`.\n4. Doc: in DESIGN.md, mark COPY-29 \"superseded by COPY-143 in the M1 start card (1.6)\". Edit that row only.\n\nRecord every red run in `docs/proof/openfix-red-runs.md` (frontmatter type: proof-pack).\n\nFILES YOU OWN:\n- `src/CfdWorkbench.Desktop/Shell/ShellHost.cs`\n- `src/CfdWorkbench.Desktop/Panes/**`\n- `src/CfdWorkbench.Desktop/WorkbenchController.cs`, only if the accept contract itself is broken; say so in your Return\n- `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`\n- `tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs`\n- DESIGN.md, the COPY-29 row only\n- the proof file\n\nDo not edit Core. If the accept failure is in Core, stop and raise a seam request.\n\nDONE WHEN:\n- `tools/run-tests.sh` exits 0 three times with identical PASS sets.\n- The D3a, D1, D2, C1 and P1 named checks exit 0.\n- `check-docs.py` exits 0.\n- `design-lint --strict` is clean.\n- xaml-token-lint is clean.\n- The app launches, and you closed it.\n- Commits are conventional, each ending with `Co-Authored-By: GPT-6 <noreply@openai.com>`.\n- The audit entry is appended.\n\nBUDGET: box 45 min, one dispatch. Repair loops are capped at 2.\nANTI-SPIRAL: progress is a src/ or tests/ diff. No timing investigations, no native attach, no tool call over 10 minutes.\nSHELL: never pipe a test or gate command's exit status.\n\nRETURN: your final message MUST contain a section headed exactly `## Return`, with:\n- each defect's root cause (file:line), fix and test;\n- gate exits;\n- SHAs;\n- any seam request.",
+      "summary": "Fixed ShellHost candidate acceptance, Open origin alerts and retained refused original, nonfinite Span validation, COPY-29 supersession; proof pack records red runs and all requested gates.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/openfix-red-runs.md",
+        "src/CfdWorkbench.Desktop/Shell/ShellHost.cs",
+        "src/CfdWorkbench.Desktop/WorkbenchController.cs",
+        "src/CfdWorkbench.Desktop/Panes/PropertiesPane.axaml.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix M1.2a Open-flow defects and Span invalid-number behavior in the assigned worktree.",
+      "done_when": "Three identical green test PASS sets, named checks and docs/design/XAML gates green, app launched and closed, audit entry and conventional commit.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T17:23:26Z",
+      "duration_seconds": 1903.0,
+      "git": {
+        "sha": "7382e1afea55cf4d1971c8727121e2e6183a120b",
+        "short": "7382e1afe",
+        "branch": "fix/m12a-open-outcomes",
+        "pushed": null
+      }
     }
   ],
   "changes": [

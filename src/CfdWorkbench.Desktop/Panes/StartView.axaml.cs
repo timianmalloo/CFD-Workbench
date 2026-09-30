@@ -13,6 +13,7 @@ public partial class StartView : UserControl
     public event Action? OpenAnotherRequested;
     public event Action? TryAgainRequested;
     public event Action? RemoveRecentRequested;
+    public event Action? AcceptIdsRequested;
     public Control? SelectedRecentControl => RecentListBox.SelectedItem as Control;
 
     public StartView()
@@ -24,6 +25,7 @@ public partial class StartView : UserControl
         AlertOpenAnotherButton.Click += (_, _) => OpenAnotherRequested?.Invoke();
         AlertTryAgainButton.Click += (_, _) => TryAgainRequested?.Invoke();
         AlertRemoveRecentButton.Click += (_, _) => RemoveRecentRequested?.Invoke();
+        AlertAcceptIdsButton.Click += (_, _) => AcceptIdsRequested?.Invoke();
         OpenCancelButton.Click += (_, _) => CancelOpening();
         RecentListBox.DoubleTapped += (_, _) => RequestSelectedRecent();
         RecentListBox.KeyDown += (_, args) =>
@@ -98,6 +100,7 @@ public partial class StartView : UserControl
         AlertTryAgainButton.IsVisible = false;
         AlertRemoveRecentButton.IsVisible = false;
         AlertNewFoilButton.IsVisible = false;
+        AlertAcceptIdsButton.IsVisible = false;
 
         if (isMissingFixture)
         {
@@ -130,6 +133,21 @@ public partial class StartView : UserControl
         if (AlertLocateButton.IsVisible) AlertLocateButton.Focus();
         else if (AlertOpenAnotherButton.IsVisible) AlertOpenAnotherButton.Focus();
         else if (AlertTryAgainButton.IsVisible) AlertTryAgainButton.Focus();
+        else AlertDismissButton.Focus();
+    }
+
+    public void ShowImportAlert(string title, string message, bool showAcceptIds)
+    {
+        AlertTitle.Text = title;
+        AlertMessage.Text = message;
+        AlertLocateButton.IsVisible = false;
+        AlertTryAgainButton.IsVisible = false;
+        AlertNewFoilButton.IsVisible = false;
+        AlertOpenAnotherButton.IsVisible = false;
+        AlertRemoveRecentButton.IsVisible = false;
+        AlertAcceptIdsButton.IsVisible = showAcceptIds;
+        AlertPanel.IsVisible = true;
+        if (showAcceptIds) AlertAcceptIdsButton.Focus();
         else AlertDismissButton.Focus();
     }
 

@@ -313,7 +313,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-26 | Signed wall-shear coefficient C𝒻 · dimensionless |
 | COPY-27 | Field unavailable |
 | COPY-28 | Example · race light — Illustrative, not computed for this design |
-| COPY-29 | Example fixture missing or corrupt: <file> — nothing was overwritten · New · Open |
+| COPY-29 | Example fixture missing or corrupt: <file> — nothing was overwritten · New · Open — superseded by COPY-143 in the M1 start card (1.6) |
 | COPY-30 | This file was saved by a newer version (<n>) — not opened; your active document is unchanged · <path> |
 | COPY-31 | Save failed: <cause> — the previous file is intact and your changes are kept · Retry · Save as |
 | COPY-32 | A recovery revision from <time> exists beside the saved one · Compare · Keep saved · Use recovery |
