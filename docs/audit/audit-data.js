@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:47:03Z",
+  "generated": "2026-09-30T18:48:32Z",
   "audit": [
     {
       "actor": null,
@@ -19735,6 +19735,35 @@ window.AUDIT_DATA = {
         "branch": "fix/readiness-launch-shape",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3STB74KV9KPTZDW0GVCPCCE",
+      "shortname": "join-readyfix",
+      "datetime": "2026-09-30T18:48:32Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/readiness-launch-shape into feature/ui-cad-direction",
+      "summary": "adapters Desktop suite 109/0 out-of-repo; STORE_PREFIXES +LayoutFile/PreferenceStore (58 checks); TEST-REPO-LAYOUT control red-first; shell-mode smoke-opened marker; RuntimeIdentifiers osx-arm64;win-x64 lock file (+2 RID sections, 0 existing changed); readiness GREEN on d48311a, tree clean, 0 crash reports recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "green readiness ring",
+      "done_when": "merged; fast gates green; readiness re-run on integration",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T18:47:45Z",
+      "duration_seconds": 47.0
     }
   ],
   "changes": [
