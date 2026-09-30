@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-28T14:12:15Z",
+  "generated": "2026-09-30T14:00:42Z",
   "audit": [
     {
       "actor": null,
@@ -19111,30 +19111,95 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3JH45QCFXQ40XNQ6TYGRM7P",
-      "shortname": "track-d3a",
-      "datetime": "2026-09-27T22:52:43Z",
-      "session": "track-d3a",
-      "prompt": "D3a brief",
-      "summary": "Partial D3a shell foundation: pinned Dock and CommunityToolkit with lockfile; standalone Dock ShellHost with Planform documents and panes, Start states, menu builder, edit router, focused-target events, red proof; 3 identical green test runs, D3a named 10/40, MainWindow integration and remaining names open.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
+      "datetime": "2026-09-27T22:52:43Z",
+      "duration_seconds": 1184.0,
+      "id": "al-01M3JH45QCFXQ40XNQ6TYGRM7P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "D3a brief",
+      "session": "track-d3a",
+      "shortname": "track-d3a",
+      "skill": "implement",
       "started_at": "2026-09-27T22:32:59Z",
-      "duration_seconds": 1184.0
+      "summary": "Partial D3a shell foundation: pinned Dock and CommunityToolkit with lockfile; standalone Dock ShellHost with Planform documents and panes, Start states, menu builder, edit router, focused-target events, red proof; 3 identical green test runs, D3a named 10/40, MainWindow integration and remaining names open.",
+      "tags": [],
+      "tool": null
     },
     {
-      "id": "al-01M3M5QXE1S7NAPRQZ4ER0QJP0",
-      "shortname": "track-d3a",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-09-28T14:12:15Z",
-      "session": "track-d3a",
+      "duration_seconds": 2772.0,
+      "id": "al-01M3M5QXE1S7NAPRQZ4ER0QJP0",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "D3a brief",
+      "session": "track-d3a",
+      "shortname": "track-d3a",
+      "skill": "implement",
+      "started_at": "2026-09-28T13:26:03Z",
       "summary": "Connected Dock ShellHost to normal MainWindow launch, ported eight inventory rows, added shell focus and recent-file coverage with red receipts; 29 of 40 D3a names pass, remaining work and seams reported.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-28T13:53:57Z",
+      "duration_seconds": 1568.0,
+      "id": "al-01M3M4PCBJESR1TGG1ARVQ2NVF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "NEWFOIL brief",
+      "session": "track-newfoil",
+      "shortname": "track-newfoil",
+      "skill": "implement",
+      "started_at": "2026-09-28T13:27:49Z",
+      "summary": "New foil landed. FoilSource.NewDefault emits a certified untitled NACA 0012 wing (span 1 m, area 0.1 m2, AR 10, open tip, degree-3 rails, degree-5 section, 10 vertices). WorkbenchController.NewFoilAsync uses the Open build-aside path with no path and no Example dependency. Commits 7912d5e (red tests) and c466adc (implementation). tools/run-tests.sh, check-named-tests D2, check-named-tests C1, and check-docs.py exited 0.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/newfoil-red-runs.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-28T13:56:43Z",
+      "done_when": "merged; fast gates green",
+      "duration_seconds": 33.0,
+      "fan_out": 0,
+      "goal": "New foil independent of the Example (operator decision 2026-09-28)",
+      "id": "al-01M3M4VF27NBE2S9PX2E3H6JQH",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of newfoil-default into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-newfoil",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-28T13:56:10Z",
+      "summary": "New foil = untitled near-elliptic wing, b=1 m, AR 10 exact (S=0.1), tip chord 10% root, NACA 0012 (residual 0.19 um root), c0=0.12674 m, chord dev 63 um vs ellipse, MAC 0.10762; NewFoilAsync via build-aside path; 8 tests red-first recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M3S9W5VSENNRA4Y1KSYQ15BH",
+      "shortname": "track-d3b",
+      "datetime": "2026-09-30T14:00:42Z",
+      "session": "track-d3b",
+      "prompt": "D3b brief",
+      "summary": "Wired New foil; bound Undo and Redo menu history; redacted unhandled stderr; added F6, palette, Span Tab, Dock focus and privacy checks. D3a remains 38/40 after theme contrast repair cap; 52 inventory rows remain.",
       "kind": "skill",
       "skill": "implement",
       "tool": null,
@@ -19143,8 +19208,8 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "started_at": "2026-09-28T13:26:03Z",
-      "duration_seconds": 2772.0
+      "started_at": "2026-09-30T13:18:05Z",
+      "duration_seconds": 2557.0
     }
   ],
   "changes": [

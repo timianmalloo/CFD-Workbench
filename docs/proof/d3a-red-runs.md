@@ -37,6 +37,10 @@ With the handler changed to type and code only, the foreground `--shell-window` 
 
 The subsequent telemetry test also reads `ShellEvents.Read()`. The preference store has no separate telemetry ring in the inspected source; only its result metadata is checked. `KeyBindings_F6InFloat_Bound`, `Palette_Keyboard_FiltersAndRuns`, and `Focus_SpanCommitTab_NextField` passed in the foreground shell suite. `DockTabFocus_FreshBatch_ReadyAndTwoRing` passed on first execution, so it has no red receipt. The 52 remaining inventory rows were not marked done. `ThemeMatrix_ShellControls_AppliedContrast` and `Focus_MenuTab_ClosesMenuReturns` remain unwritten in the committed suite.
 
+## D3b exit checks
+
+Three foreground `tools/run-tests.sh` runs exited 0. Each printed 279 Core PASS and 79 Desktop PASS lines, with a non-empty `--shell-window` suite. Their sorted PASS sets had identical SHA-256 `e930608447f0526b746c8e5a99a40d7ee8083a4544f9c8ab0b5963d23a08d75b`. The D3a checker reported 38/40 PASS (exit 1); D1 12/12, D2 21/21, C1 14/14, and P1 23/23 all exited 0. `check-docs.py`, XAML token lint, locked restore, and the `CFDW_STARTUP_SMOKE=1 dotnet run --project src/CfdWorkbench.Desktop` launch each exited 0. The smoke log showed `main-window-assigned=True` and `window-opened`; it closed itself.
+
 Every command below ran with `AGENT_SESSION=track-d3a AGENT_WI=D3a` in this worktree.
 Each run used `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.
 The complete process exited after each run; no test window was left open.
