@@ -136,6 +136,107 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Shell_F1_NoSidebarHeaderBand", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                if (host.RowDefinitions.Count != 1 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
+                    host.GetVisualDescendants().OfType<TextBlock>().Any(text => text.IsEffectivelyVisible && text.Text == "Sidebar") ||
+                    host.LeftSidebarToggle.Content is string { Length: > 2 })
+                    throw new InvalidOperationException("Standalone Sidebar header band is visible");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F2_LeftPaneChromeButtons_NamedAndDrawn", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                var chrome = pane.GetVisualDescendants().OfType<Button>()
+                    .Where(button => button.IsEffectivelyVisible &&
+                        button.TranslatePoint(default, host) is { } point && point.Y < 80)
+                    .ToArray();
+                foreach (var button in chrome)
+                    Console.WriteLine($"SHELL-CHROME type={button.GetType().Name} name={button.Name ?? "none"} ax={Avalonia.Automation.AutomationProperties.GetName(button) ?? "none"} content={button.Content?.GetType().Name ?? "none"} children={button.GetVisualDescendants().Count()} bounds={button.Bounds}");
+                if (chrome.Any(button => string.IsNullOrWhiteSpace(Avalonia.Automation.AutomationProperties.GetName(button)) ||
+                    button.Content is null && !button.GetVisualDescendants().OfType<PathIcon>().Any()))
+                    throw new InvalidOperationException("Left pane has blank or unnamed chrome buttons");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F3_Properties_OneTopTabLabel", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var labels = host.DockHost.GetVisualDescendants().OfType<TextBlock>()
+                    .Where(text => text.IsEffectivelyVisible && text.Text == "Properties").ToArray();
+                var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                var tab = host.DockHost.GetVisualDescendants().OfType<ToolTabStripItem>()
+                    .Single(item => ReferenceEquals(item.DataContext, host.LayoutFactory.PropertiesTool));
+                var tabTop = tab.TranslatePoint(default, pane)?.Y ?? double.PositiveInfinity;
+                foreach (var ancestor in tab.GetVisualAncestors().TakeWhile(item => !ReferenceEquals(item, pane)))
+                    Console.WriteLine($"SHELL-TAB-PARENT {ancestor.GetType().Name} name={(ancestor as Control)?.Name ?? "none"} row={(ancestor as Control is { } control ? Grid.GetRow(control) : -1)} height={(ancestor as Control)?.Bounds.Height ?? 0}");
+                if (labels.Length != 1 || tabTop > 55)
+                    throw new InvalidOperationException($"Properties has {labels.Length} visible labels; tab top={tabTop}");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Shell_F4_LeftPane_Default260At1440And1280", () =>
+        {
+            foreach (double width in new[] { 1440d, 1280d })
+            {
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller);
+                var window = new Window { Content = host, Width = width, Height = 800 };
+                try
+                {
+                    window.Show();
+                    Settle(window);
+                    var pane = host.DockHost.GetVisualDescendants().OfType<ToolDockControl>().Single();
+                    if (Math.Abs(pane.Bounds.Width - 260) > 3)
+                        throw new InvalidOperationException($"At {width} DIP, left pane is {pane.Bounds.Width} DIP rather than 260");
+                }
+                finally { window.Close(); }
+            }
+        });
+
+        DesktopChecks.Check("Shell_F5_Start_FirstCardFocusedWithRing", () =>
+        {
+            var window = new MainWindow(shellMode: true) { Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var host = (ShellHost)window.Content!;
+                var card = host.ModelView.FindControl<StartView>("StartCardView")!
+                    .FindControl<Button>("StartNewButton")!;
+                var layer = AdornerLayer.GetAdornerLayer(card);
+                bool ring = layer?.Children.OfType<Control>().Any(child =>
+                    ReferenceEquals(AdornerLayer.GetAdornedElement(child), card) && child.Bounds.Width > 0) == true;
+                if (!card.IsFocused || !ring)
+                    throw new InvalidOperationException($"First start card focus/ring absent: focused={card.IsFocused}, ring={ring}");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
             var window = new MainWindow(shellMode: true);
@@ -1113,7 +1214,7 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
-        DesktopChecks.Check("AppBar_LiveThemeSwitch_RefreshesBrushes", () =>
+        DesktopChecks.Check("SidebarToggle_LiveThemeSwitch_RefreshesBrush", () =>
         {
             using var controller = new WorkbenchController();
             var host = new ShellHost(controller);
@@ -1123,15 +1224,12 @@ public static class ShellWindowTests
             {
                 window.Show();
                 Settle(window);
-                var bar = (Border)host.Children[0];
-                var light = ((ISolidColorBrush)bar.Background!).Color;
-                var lightBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
+                var light = ((ISolidColorBrush)host.LeftSidebarToggle.Background!).Color;
                 window.RequestedThemeVariant = ThemeVariant.Dark;
                 Settle(window);
-                var dark = ((ISolidColorBrush)bar.Background!).Color;
-                var darkBorder = ((ISolidColorBrush)bar.BorderBrush!).Color;
-                if (light == dark || lightBorder == darkBorder)
-                    throw new InvalidOperationException($"App bar kept the old theme brushes: {light} / {dark}");
+                var dark = ((ISolidColorBrush)host.LeftSidebarToggle.Background!).Color;
+                if (light == dark)
+                    throw new InvalidOperationException($"Sidebar toggle kept the old theme brush: {light} / {dark}");
             }
             finally { window.Close(); }
         });
