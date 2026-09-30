@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T22:21:05Z",
+  "generated": "2026-09-30T22:26:36Z",
   "audit": [
     {
       "actor": null,
@@ -20308,6 +20308,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "started_at": "2026-09-30T21:48:09Z",
       "duration_seconds": 1976.0
+    },
+    {
+      "id": "al-01M3T6TGGHMN6TV8N8TEZR60KG",
+      "shortname": "join-b1b",
+      "datetime": "2026-09-30T22:26:36Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of m12b-b1b-receipts into feature/ui-cad-direction",
+      "summary": "B1b 43/43 verified (3 identical runs); ceiling-15 mutant red; golden M1.2a recovery fixture; SR-4 EditableCurves; seam: record cursor-operation replay + tangent-clamp classes recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land B1b",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T22:25:45Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
