@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:27:09Z",
+  "generated": "2026-09-30T18:36:54Z",
   "audit": [
     {
       "actor": null,
@@ -19680,6 +19680,24 @@ window.AUDIT_DATA = {
         "branch": "fix/readiness-launch-shape",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3SSNXYCCBWD1VEQMZC54EKB",
+      "shortname": "readyfix-smoke",
+      "datetime": "2026-09-30T18:36:54Z",
+      "session": "track-readyfix",
+      "prompt": "smoke marker fix",
+      "summary": "Fixed: shell-mode Opened handler in MainWindow.axaml.cs now prints NATIVE-STARTUP smoke-opened before Close, matching the non-shell branch (commit e0984ea6c). tools/run-tests.sh exited 0 (281+0+109 PASS). dotnet crash report count unchanged (0 before, 0 after). python3 tools/run-readiness.py still exits 1 / RED for HEAD e0984ea6c: verify-application-adapters.py fails its sourceInputsUnchanged invariant because src/CfdWorkbench.Desktop/packages.lock.json is missing a net10.0/win-x64 section, so the win-x64 publish step's implicit restore mutates the tracked lock file (53 lines added). Confirmed pre-existing and unrelated to this fix: the lock file has lacked that section since at least commit e59e1da, predating this track. Reverted the unintended lock-file mutation to keep the tree clean at HEAD. Out of scope for READYFIX (one-line MainWindow.axaml.cs fix only); reported to Coordinator rather than repaired.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T18:29:02Z",
+      "duration_seconds": 472.0
     }
   ],
   "changes": [
