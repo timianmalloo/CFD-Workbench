@@ -37,8 +37,8 @@ review-suggested:
 
 # Design: M1.2b — CAD point editing on the Plan view
 
-- **Status:** In review — gate passed with conditions after 2 of 2 repair cycles (Gate record); every veto cleared by its own lens. Owner acceptance and
-  the DR-12 and DR-13 rulings pending.
+- **Status:** In review — gate passed with conditions after 2 of 2 repair cycles (Gate record); every veto cleared by its own lens. Owner acceptance pending.
+  DR-12, DR-13 and OI-1 ruled by Ruling 56 (2026-09-30) and applied here.
 - **Spec / architecture:** [spec rev 1.6](../specs/cfd-workbench-v1.md) A4.8, A4.9, A4.15, CAD-03/04, CAD-15, CAD-16,
   CAD-17, F11 (P, P1–P5, M, D–D4), UX-23 (1.6 note), B7 navigation · [architecture §10](../architecture/application.md)
   (§10.2, §10.6 row M1.2b, §10.7) · [ADR-0005](../adr/0005-point-types-in-the-b-spline-record.md) ·
@@ -87,13 +87,15 @@ nothing on it could be picked. **M1.2b is the slice that makes the Plan view a C
    `tangents` block.
 9. **Wing block → Root chord.** Type `152.09` (×1.2): one undo step; "Root chord 152.09 mm. Fit 9.01 µm (limit 10 µm).
    4.21 mm from a straight taper. Planform moved 6.34 mm so the leading edge stays at the root." Type `190` (×1.5):
-   refused, "Root chord 190.00 mm needs a 22.53 µm fit; the limit is 10 µm. Root chord is unchanged." (§3.9 spike.)
+   accepted with a **warning**, "Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a
+   straight taper. Planform moved 15.84 mm so the leading edge stays at the root." (§3.9 spike; Ruling 56 DR-12.)
    **Tip chord** works the same way; `15 cm` and `#root_chord * 0.1` are accepted and echoed in mm.
 10. **Keyboard only:** Tab enters the Plan and moves point to point; arrows nudge; Return jumps to the point's Span
     field; Escape returns to the point; Tab past the last target leaves the Plan. ⌥+arrows pan, ⌘= and ⌘− zoom, ⌘0
     fits.
-11. **Pointer navigation (Workbench preset, spec B7):** wheel zooms about the pointer; middle-drag or Shift-drag on empty
-    canvas pans; right-click (Control-click) on a point opens Make Anchor Point / Make Control Point / Tangent / Fit.
+11. **Pointer navigation (Workbench preset, spec B7; trackpad per Ruling 56 DR-13):** the wheel zooms about the
+    pointer; on the trackpad two-finger scroll pans and pinch zooms; middle-drag or Shift-drag on empty canvas pans;
+    right-click (Control-click) on a point opens Make Anchor Point / Make Control Point / Tangent / Fit.
 12. **View ▸ Curvature comb** (C with the Plan focused) shows the comb on the selected rail, live during a drag.
 
 ### 0.2 What the operator will NOT see yet, and which slice brings it
@@ -103,11 +105,11 @@ nothing on it could be picked. **M1.2b is the slice that makes the Plan view a C
 | Section editor mode, section point types (independent per surface, B6 restart), Points and Messages panes, Precision workspace | **M1.2c** |
 | Replace from catalog, Save to My sections | **M1.2d** |
 | Floating panes, Maximize pane, saved layouts, the Review workspace (four views) | **M1.2e** |
-| A 3D view beside the Plan (wireframe or shaded, with orbit) — the certified sample plot stays in its own tab | **No slice yet** — OI-1 (§13). A wireframe needs one shared placement rule with the certificate (twist, dihedral, section placement); inventing a display copy of it here would be a second geometry definition |
-| Front, Side and Starboard elevations; editing dihedral, twist and thickness channels | **No slice yet** — OI-1; Core commands are curve-named, only the two rails are wired |
+| A 3D view beside the Plan (wireframe or shaded, with orbit) — the certified sample plot stays in its own tab | **M1.2b2** (Ruling 56; right after M1.2b, before M1.2c), starting with a design pass for one shared placement rule. A wireframe needs one shared placement rule with the certificate (twist, dihedral, section placement); inventing a display copy of it here would be a second geometry definition |
+| Front, Side and Starboard elevations; editing dihedral, twist and thickness channels | **M1.2b2** (Ruling 56); Core commands are curve-named, only the two rails are wired |
 | Insert / Delete / Fair / Rebuild on rails; an "insert anchor on the curve without changing its shape" verb | **No slice yet** — OI-2 |
 | Moving or typing several points at once (a multi-selection shows shared values and "Mixed", read-only) | **No slice yet** — OI-3 |
-| The Rhino navigation preset and a trackpad-mode setting | **No slice yet** — OI-4; the two-finger gesture on the trackpad is DR-13 |
+| The Rhino navigation preset and a trackpad-mode setting | **No slice yet** — OI-4 (the trackpad gestures themselves are ruled: two-finger scroll pans, pinch zooms — DR-13) |
 | Comb scale and density controls, the monotone-piece count, a curvature/radius readout on hover (A4.9) | **No slice yet** — OI-5 |
 | A history list of edit reports (the last report shows in the status line and under the edited field) | **M1.2c** (Messages pane) |
 | A CLI `dimension` command (CLI `inspect` does show point types and tangent rows) | **No slice yet** — deviation D-3 |
@@ -251,7 +253,7 @@ until a new rule id is added (Data & Persistence F3, Geometry F9).
 
 - Append-only: re-applying an operation id with a different payload is refused (`History_ReapplyOperationDifferentPayload_Refused`);
   a refused command leaves source, accepted count and undo depth byte-identical (`ApplyPointCommand_Refused_HistoryUnchanged`,
-  `ApplyDimension_ResidualAboveLimit_HistoryUnchanged`).
+  `ApplyDimension_Refused_HistoryUnchanged`).
 - One memo fingerprint per command, used at commit **and** at reopen replay, built only from persisted values: `rail`,
   `curve`, `vertexId`, `rule`, the parent accepted id and the **resulting source id**. Apply evaluates first (pure, under
   the lock), then compares; so the same operation id with a different Kind, kept handle or typed value produces a
@@ -358,20 +360,23 @@ station at η = 1 (parser `:1187`):
   Both rails are refitted on their own knots and abscissae, ordinates only (`ConstrainedFit.Solve`), with hard rows: typed
   end exact, other end exact, `root_mirror` (P0 = P1), tangent rows (§3.6). A root edit then shifts both rails by
   **δ := the fitted LE P0 bits**, so LE(0) = 0 and P0 = P1 hold bitwise (Geometry F8); the status line says so.
-- **Acceptance (A4.6 strict; DR-12):** the fit residual against the blend target, max over both rails on the
-  distribution-curve oracle (201 η + every knot image), must be ≤ 10 µm; above it the command is refused with the number.
-  Every commit reports **both numbers**: the fit residual and the deviation from the straight taper.
+- **Acceptance (DR-12, ruled accept-and-report, Ruling 56):** the fit residual against the blend target, max over both
+  rails on the distribution-curve oracle (201 η + every knot image), is compared with the 10 µm model/join tolerance.
+  At or below it the commit is plain; **above it the commit is still accepted** and reported as a **warning** with the
+  number and the limit. The typed end stays exact in both cases (hard row). Every commit reports **both numbers**: the
+  fit residual and the deviation from the straight taper. This is a deliberate deviation from A4.6's "above its
+  acceptance disables Apply" for typed chords only (D-6; spec-owner finding F-8).
 - **Spike** (`docs/proof/cad-first-spikes/m12b-quarter-chord/`, run 2026-09-30; re-run bit-identical by the Geometry lens):
 
-| Foil | Edit | Fit residual LE · TE | From straight taper | Planform shift | Strict verdict |
+| Foil | Edit | Fit residual LE · TE | From straight taper | Planform shift | Result (Ruling 56) |
 |---|---|---|---|---|---|
 | New foil (10 pts) | root ×1.01 · ×1.1 · ×1.2 | 0.15 · 0.45 / 1.50 · 4.51 / 3.00 · 9.01 µm | 0.21 / 2.11 / 4.21 mm | 0.32 / 3.17 / 6.34 mm | accepted |
-| New foil | root ×1.5 | 7.51 · 22.53 µm | 10.54 mm | 15.84 mm | **refused** |
-| New foil | tip ×0.8 · ×0.5 | 3.00 · 9.01 / 7.51 · 22.53 µm | 4.21 / 10.54 mm | 0 | accepted / **refused** |
-| Example (7 pts) | root ×1.1 · ×1.2 · ×1.5 | 2.82 · 8.46 / 5.64 · 16.92 / 14.10 · 42.29 µm | 2.24 / 4.49 / 11.21 mm | 3 / 6 / 15 mm | accepted / **refused** / **refused** |
+| New foil | root ×1.5 | 7.51 · 22.53 µm | 10.54 mm | 15.84 mm | accepted, **warning** |
+| New foil | tip ×0.8 · ×0.5 | 3.00 · 9.01 / 7.51 · 22.53 µm | 4.21 / 10.54 mm | 0 | accepted / accepted, **warning** |
+| Example (7 pts) | root ×1.1 · ×1.2 · ×1.5 | 2.82 · 8.46 / 5.64 · 16.92 / 14.10 · 42.29 µm | 2.24 / 4.49 / 11.21 mm | 3 / 6 / 15 mm | accepted / accepted, **warning** / accepted, **warning** |
 
   The residual is linear in |f − 1| (TE 45.05 µm per unit of f − 1 on New foil) and the trailing-edge rail carries three
-  times the leading-edge share. Under strict acceptance a New foil takes about ±22 % per commit and the Example ±12 %.
+  times the leading-edge share. Without a warning a New foil takes about ±22 % per commit and the Example ±12 %; larger edits are accepted with the warning.
   Refinement does not cure it (`typed-chord-map/results.txt`: 80.7 → 73.4 µm from 7 to 10 points).
 
 ## 4. Persistence
@@ -449,7 +454,7 @@ public sealed record PointOutcome(string AcceptedId, double MaxDeviationMeters, 
 public DimensionOutcome ApplyChord(string operationId, DimensionCommand command);  // root-chord · tip-chord
 public sealed record DimensionOutcome(string AcceptedId, DimensionReport Report);
 public sealed record DimensionReport(string Dimension, double TypedMeters, string Rule, double FitResidualMeters,
-    double ToleranceMeters, double DeviationFromLinearMeters, double PlanformShiftMeters);
+    double ToleranceMeters, double DeviationFromLinearMeters, double PlanformShiftMeters, bool FitAboveLimit);
 public sealed class DimensionRefused(DimensionReport report, string code) : ContractError(code) { public DimensionReport Report { get; } = report; }
 // ApplyDimension(operationId, DimensionCommand) — as built, Span only; unchanged. Span keeps the old shape because it is
 // exact (no fit, nothing to report) and its callers and tests exist; chords need a report, so they get ApplyChord.
@@ -467,10 +472,10 @@ public static class LengthExpression
 
 Refusal codes (all existing): `DSL-LOCK` (fixed point, named point type, row on a non-anchor, angle kind on a rail) ·
 `DSL-CURVE` (ceiling — "Making this an anchor needs 3 more points. This rail has 14 of 16." — or a new handle closer than
-the η grid to a neighbour) · `DSL-TOLERANCE` (fit residual above 10 µm; carries the report) · `DSL-EDGES-CROSS` ·
+the η grid to a neighbour) · `DSL-EDGES-CROSS` ·
 `DSL-NOT-ASSESSED` · `DSL-TARGET` (tip closes; unknown dimension) · `DSL-UNIT` · `DSL-INVALID-NUMERIC` · `DSL-DRAFT-OWNED`
 · `DSL-CONFLICT` · `DSL-PATCH`. The `SessionEvent` for `apply` gains optional `FitMicrometres`, `DeviationMicrometres`,
-`ShiftMicrometres` for chords (the DR-12 evidence).
+`ShiftMicrometres` and `FitAboveLimit` (bool) for chords — how often and by how much typed chords exceed the limit.
 
 ### 5.2 Exposed — Desktop
 
@@ -654,7 +659,7 @@ point, with co-motion (B7; marine-CAD F4); the angle ladder (0.01 / 0.1 / 1 °) 
 | Make Anchor over the ceiling or too close | ceiling 16, grid | prevent | refused naming the reason | `apply` refused `DSL-CURVE` | `MakeAnchor_FourteenPointsNoSnap_RefusedNamesCeiling` (B1b), `MakeAnchor_HandleGapBelowGrid_Refused` (B1b) |
 | Type change leaks beyond neighbouring anchors | constructions | detect | locality measured | report | `MakeAnchor_Locality_OutsideSegmentWithinIdentity` (B1b), `MakeControl_Locality_OutsideSegmentWithinIdentity` (B1b) |
 | CAD-15 gap clause infeasible on a collinear point | spec clause | accept | fixture uses a point off the line (ADR-0005 finding) | — | `MakeControl_OffLinePoint_GapAboveIdentity` (B1b) |
-| Chord fit above 10 µm | strict A4.6 (DR-12) | prevent (refuse) | refused with both numbers | `apply` refused `DSL-TOLERANCE`, fit µm | `ApplyDimension_FitJustAboveLimit_Refused` (B1a), `ApplyDimension_FitJustBelowLimit_Accepted` (B1a) |
+| Chord fit above 10 µm | root-flat blend (DR-12 ruled accept-and-report) | detect + report | accepted; warning with the number and the limit; typed end exact | `apply` accepted with `FitAboveLimit`, fit µm | `ApplyDimension_FitJustAboveLimit_AcceptedWithWarning` (B1a), `ApplyDimension_FitJustBelowLimit_Accepted` (B1a) |
 | Quarter-chord root edit leaves LE(0) ≠ 0 | DR-2 | prevent | δ from fitted P0 bits | — | `ApplyDimension_RootChordShift_P0EqualsP1BitsZero` (B1a) |
 | Chord refit breaks a tangent row | KKT rows | prevent | rows as hard rows | — | `ChordRefit_SmoothAndSymmetricRows_HeldExactly` (B1b) |
 | Tip chord typed on a closing tip | CAD-16 | prevent | not an input; Core backstop | — | `Properties_TipCloses_TipChordIsText` (U2), `ApplyDimension_TipChordClosingTip_DslTarget` (B1a) |
@@ -680,13 +685,13 @@ names, paths, source text, point ids or positions in any event.
 
 | Event | Emitter | Fields | Answers |
 |---|---|---|---|
-| `apply` (existing `SessionEvent`) | Core | `edit_kind` ∈ gesture · point-type · tangent-kind · dimension; outcome; code; duration; generation; for chords `FitMicrometres`, `DeviationMicrometres`, `ShiftMicrometres` | how long commits take; which kinds fail; how often chords are refused and by how much (DR-12 evidence); how often the ceiling bites (`DSL-CURVE`) |
+| `apply` (existing `SessionEvent`) | Core | `edit_kind` ∈ gesture · point-type · tangent-kind · dimension; outcome; code; duration; generation; for chords `FitMicrometres`, `DeviationMicrometres`, `ShiftMicrometres` | how long commits take; which kinds fail; how often typed chords exceed the fit limit and by how much; how often the ceiling bites (`DSL-CURVE`) |
 | `gesture.end` (new `ShellEvent` name; the record gains optional `Frames`, `UpdateP95Ms`, `EstimatesP95Ms`, `RenderP95Ms`, `CommitMs`, `EditKind`, and reuses `ClampedCount`, `Trigger`, `Code`) | controller | outcome committed · refused · cancelled · no-change; trigger release · key-up · focus-lost · deactivated · save · escape · capture-lost | is the drag smooth; how often releases are refused and why |
 | `estimates.compute` (existing) | Core | basis `preview` during drags | estimate cost per frame |
 | `shell.pane.render` (existing) | Plan render failure | outcome error; exception type | a Plan that fails to draw |
 
 Every event carries the trace id and operation id. Tests (attributed in §12.4): `GestureEnd_Committed_EmitsFramesAndP95`,
-`ApplyChord_Refused_ApplyEventCarriesFitAndCode`, `Telemetry_PointEdits_NoIdsOrPositions`.
+`ApplyChord_FitAboveLimit_ApplyEventCarriesFitAndWarning`, `Telemetry_PointEdits_NoIdsOrPositions`.
 
 ## 11. UI and interaction design
 
@@ -744,8 +749,8 @@ The viewport stays graphite in the light theme (DESIGN.md; v10's light canvas is
 | Type a precise value | double-click a point → its Span field; double-click a handle → its angle field | Return on a point → Span field; Return on a handle → angle field; Escape in the field → back to the canvas target |
 | Cancel a drag or nudge run | Escape while dragging | Escape before releasing the arrow |
 | Point type / tangent | context menu (right-click, Control-click; spec B7 per-OS table) | Properties Type and Tangent controls; Edit menu; command palette |
-| Zoom | wheel, pinch; about the pointer (two-finger scroll per DR-13) | ⌘= / ⌘− about the focused point or the centre |
-| Pan | middle-drag; Shift-drag on empty canvas | ⌥+arrows (10 % of the view) |
+| Zoom | wheel, pinch; about the pointer | ⌘= / ⌘− about the focused point or the centre |
+| Pan | two-finger trackpad scroll (DR-13, Ruling 56); middle-drag; Shift-drag on empty canvas | ⌥+arrows (10 % of the view) |
 | Fit | View ▸ Fit | ⌘0 |
 | Comb | View ▸ Curvature comb | C with the Plan focused (scoped, 2.1.4) |
 | Select station | click chip | Tab to chip; Browser row |
@@ -792,7 +797,7 @@ screen reader can scan).
 | Type change | "Trailing edge point 5 is now an anchor point. The curve passes through it. Largest change 0.84 mm." |
 | Tangent change | "Tangent is now symmetric. Lined up the handle toward the tip." |
 | Chord accepted | "Root chord 152.09 mm. Fit 9.01 µm (limit 10 µm). 4.21 mm from a straight taper. Planform moved 6.34 mm so the leading edge stays at the root." |
-| Chord refused (fit) | "Root chord 190.00 mm needs a 22.53 µm fit; the limit is 10 µm. Root chord is unchanged." |
+| Chord accepted above the fit limit (warning; new COPY row proposal, F-4) | "Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a straight taper. Planform moved 15.84 mm so the leading edge stays at the root." Shown under the field and in the status line with the chrome `warning` style and a warning icon (not colour alone); announced politely like any commit report |
 | Chord refused (existing) | COPY-106, COPY-107, COPY-118 as written; COPY-108 "Tip closes — edit the tip station" |
 | Busy | "Checking the last change…" |
 | Recovered draft | "A recovered edit to Trailing edge point 4 is open." Apply · Discard |
@@ -926,12 +931,12 @@ on this document at the gate (Gate record).
 `EnsureHeader41_FirstRow_HeaderRewritten` (B0) · `EnsureHeader41_Already41_Unchanged` (B0) · `Cli_InspectJson_PointsRolesAndKinds` (B0).
 
 **B1a — Core chords, expressions, memo fingerprint.**
-`ApplyChord_NewFoilRootX12_AcceptedBothNumbers` (B1a) · `ApplyDimension_FitJustBelowLimit_Accepted` (B1a) · `ApplyDimension_FitJustAboveLimit_Refused` (B1a) ·
-`ApplyDimension_NewFoilRootX15_RefusedFitNumber` (B1a) · `ApplyDimension_RootChordShift_P0EqualsP1BitsZero` (B1a) ·
+`ApplyChord_NewFoilRootX12_AcceptedBothNumbers` (B1a) · `ApplyDimension_FitJustBelowLimit_Accepted` (B1a) · `ApplyDimension_FitJustAboveLimit_AcceptedWithWarning` (B1a) ·
+`ApplyDimension_NewFoilRootX15_AcceptedWithFitWarning` (B1a) · `ApplyDimension_RootChordShift_P0EqualsP1BitsZero` (B1a) ·
 `ApplyDimension_TipChord_NoShiftRootChordUnchanged` (B1a) · `ApplyDimension_LocksOff_LinearRuleExact` (B1a) · `ApplyDimension_OneRailLocked_ResidualReported` (B1a) ·
-`ApplyDimension_Cad17Taper_ChordRuleWithinTolerance` (B1a) · `ApplyDimension_ResidualAboveLimit_HistoryUnchanged` (B1a) ·
+`ApplyDimension_Cad17Taper_ChordRuleWithinTolerance` (B1a) · `ApplyDimension_Refused_HistoryUnchanged` (B1a) ·
 `ApplyDimension_TipChordClosingTip_DslTarget` (B1a) · `ApplyDimension_EdgesWouldCross_DslEdgesCross` (B1a) · `ChordRefit_SyntheticLinearRows_HeldExactly` (B1a) ·
-`ApplyDimension_Receipt_CarriesRuleId` (B1a) · `BlendRule_LockStateToRuleId_Pinned` (B1a) · `ApplyChord_Refused_ApplyEventCarriesFitAndCode` (B1a) ·
+`ApplyDimension_Receipt_CarriesRuleId` (B1a) · `BlendRule_LockStateToRuleId_Pinned` (B1a) · `ApplyChord_FitAboveLimit_ApplyEventCarriesFitAndWarning` (B1a) ·
 `Reopen_ChordRows_UndoRedoRoundTrip` (B1a) · `Reopen_ForgedRuleValue_DocReference` (B1a) · `Reopen_ChordRowWithoutRule_DocReference` (B1a) · `Reopen_RetrySameDimensionOperationId_ReturnsPriorId` (B1a) ·
 `LengthExpression_UnitsAndReferences_ResolvedToMetres` (B1a) · `LengthExpression_NonLength_DslUnit` (B1a) ·
 `LengthExpression_RandomText_NeverThrowsUnexpected` (B1a) · `LengthExpression_SubMicrometreInput_RoundedToMicrometre` (B1a).
@@ -998,7 +1003,7 @@ on this document at the gate (Gate record).
 `Properties_TypedSpanAftExpression_CommitsAsOneGestureEchoed` (U2) · `Properties_HandleAngleLength_TypedCommitsOneStep` (U2) ·
 `Properties_MultiplePoints_MixedReadOnly` (U2) · `Properties_TipCloses_TipChordIsText` (U2) · `WingBlock_AllCad17Rows_InOrderWithApprox` (U2) ·
 `WingBlock_DuringDrag_RenderedMacTextChangesBeforeRelease` (U2) · `WingBlock_CrossingDraft_ShowsDashAndReason` (U2) ·
-`WingRootChord_Refused_FitNumberAndUnchanged` (U2) · `WingTipChord_CentimetresAndReference_EchoedMm` (U2) ·
+`WingRootChord_FitAboveLimit_WarningShownAndCommitted` (U2) · `WingTipChord_CentimetresAndReference_EchoedMm` (U2) ·
 `Focus_RootChordCommitTab_NextField` (U2) · `Focus_TypeChange_StaysOnTypeControl` (U2) · `Focus_ReturnOnPoint_SpanFieldEscapeBack` (U2) · `Focus_TypeValueRequest_SpanFieldFocused` (U2) ·
 `StatusLine_CommitReport_PoliteLiveRegion` (U2) · `Copy_M12bOutcomes_ExactStrings` (U2) ·
 `Browser_RailGroups_SelectPointOnCanvas` (U2) · `ContextMenu_MakeAnchor_SameEffectAsProperties` (U2) ·
@@ -1013,16 +1018,17 @@ to U1b or U2, or fixes the tokens and styles it owns.
 
 | ID | Question / finding | Default designed to | If overturned |
 |---|---|---|---|
-| **DR-12 (new, operator)** | Under DR-9's root-flat blend, is a fit residual above 10 µm refused (A4.6 as written) or reported and accepted? Measured: New foil takes about ±22 % per commit, the Example ±12 % (§3.9) | **Refuse**, with the number and the limit | Accept with the number shown as a warning: one branch in the chord evaluation and one copy row |
-| **DR-13 (new, operator)** | On the Mac trackpad, does two-finger scroll zoom (spec B7 "trackpad mode") or pan (Fusion, and the KB's macOS row), with pinch zooming? | Spec B7: two-finger scroll zooms; pinch zooms | Swap the scroll binding in the canvas input map; no other change |
+| **DR-12 — ruled (Ruling 56)** | Under DR-9's root-flat blend, is a fit residual above 10 µm refused or reported and accepted? | **Accept and report** as a warning with the number and the limit; the typed end stays exact | — |
+| **DR-13 — ruled (Ruling 56)** | On the Mac trackpad, does two-finger scroll zoom or pan? | **Pan** (as Fusion 360); pinch zooms; the wheel zooms about the pointer | — |
 | F-1 | Wing block missing Mean chord, MAC, Max t/c and "≈" (CAD-17) at `10f0628` | fixed in U2 | — |
 | F-2 | `SectionCanvas` Tab never leaves the control (2.1.2) and its peers have no bounds or focus | M1.2c's design replaces the section canvas | — |
 | F-3 (spec owner) | CAD-16's "the held line (DR-2 default: the leading-edge rail's record) is unchanged" is stale after Ruling 53; read "the quarter-chord line is unchanged up to the reported rigid shift" | — | — |
 | F-4 (spec owner) | New COPY rows in §11.4 need numbers | — | — |
 | **F-5 (as-built defect, new class REPLAY-MEMO)** | Reopen rebuilds the operation memo with a different payload from commit (`AuthoringSession.cs`:674 vs :802-810), so a retried Span commit after reopen is refused | fixed in B1a with one fingerprint; register entry in `defect-classes.md` | — |
 | F-6 | `ApplySpan` repeats Core refusal rules in the Desktop (`WorkbenchController.cs`:217-219) | U1a moves Span to the same async path and removes the copies | — |
+| F-8 (spec owner) | A4.6 says a path above its acceptance disables Apply; Ruling 56 accepts typed chords above 10 µm with a warning — A4.6 needs a typed-chord exception | — | — |
 | F-7 (spec owner) | CAD-04's `role=slider` clause cannot hold for a 2D point (D-1) | amend CAD-04 | — |
-| OI-1 | A 3D view beside the Plan; Front/Side/Starboard elevations; dihedral/twist/thickness editing | not in M1.2 | the Coordinator places a slice; it needs one placement rule shared with the certificate |
+| OI-1 — placed (Ruling 56) | A 3D view beside the Plan; Front/Side/Starboard elevations; dihedral/twist/thickness editing | new slice **M1.2b2**, right after M1.2b and before M1.2c | its design pass starts with one placement rule shared with the certificate (a display copy would be a second geometry definition) |
 | OI-2 | Insert / Delete / Fair / Rebuild on rails; shape-preserving "insert anchor on the curve" | not in M1.2 | a later slice; ADR-0005 row rules already stated |
 | OI-3 | Group move and typed value for several points (F11 edge M) | Mixed read-only | a multi-vertex draft; spec-owner note that edge M's typed clause is unbuilt |
 | OI-4 | Rhino navigation preset, trackpad mode setting | Workbench preset only | a preference and a mapping table |
@@ -1054,6 +1060,7 @@ B0 → B1b → U1a → U1b → U3 ≈ 11 h of boxes; measured priors suggest ≈
 - **D-2** Rail tangent kinds are Smooth/Symmetric/Corner only; ADR-0005's grammar allows more on sections — §3.6.
 - **D-3** No CLI `dimension` command (architecture §10.2 CLI column); M1.2a did not build one for Span either.
 - **D-4** The light theme keeps the graphite viewport (v10 used a light canvas) — DESIGN.md governs.
+- **D-6** Typed chords with a fit above 10 µm are accepted with a warning, not refused (A4.6) — Ruling 56 DR-12; §3.9.
 - **D-5** Old builds report `DSL-SYNTAX` (bare 4.1 `.foil` with rows) or `DOC-UNSUPPORTED-FIELD` (project), not
   `DSL-VERSION`, for most 4.1 files — §3.8; the forward version check prevents this for future versions.
 
@@ -1092,8 +1099,8 @@ carry geometry, counts, durations, codes and µm figures only; no path, name, ac
 
 ## Flagged risks and residual unknowns
 
-- **DR-12** unanswered: under the default, typed chords beyond about ±22 % (New foil) are refused (§3.9); the number is
-  always shown. **DR-13** unanswered (trackpad).
+- Under Ruling 56 a typed chord can leave a fit residual above 10 µm (22.53 µm at ×1.5 on New foil); it is always shown
+  as a warning, and the revision still certifies (the typed end is exact).
 - Per-frame cost, commit latency and 16-point certification time are **Inferred** until readiness measures them.
 - `RenderTargetBitmap` of the whole window and the custom peers on the macOS AX bridge are **Inferred** (first U1b tests).
 - Native AX attach (CO-UI-READY, review F-ATTACH) still blocks native rows; U3 stops rather than exit on "operator-run".
@@ -1107,8 +1114,8 @@ carry geometry, counts, durations, codes and µm figures only; no path, name, ac
 | | |
 |---|---|
 | **Completed** | M1.2b detailed design (this document); ADR-0001 Amendment 1 (DR-10); quarter-chord spike; DESIGN.md token and component row; register entries UI-RENDERED-STATE and REPLAY-MEMO |
-| **Remaining** | M1.2c design (section editor, B6 restart), M1.2d design; DR-12 and DR-13 rulings; OI-1–OI-5 placement; spec-owner findings F-3, F-4, F-7 |
-| **Best next action** | Operator rules DR-12 and DR-13 (or accepts the defaults); the Coordinator lands the checker flag and dispatches B0 ∥ B1a |
+| **Remaining** | M1.2c design (section editor, B6 restart), M1.2d design; M1.2b2 design (3D view and elevations, Ruling 56); OI-2–OI-5 placement; spec-owner findings F-3, F-4, F-7, F-8 |
+| **Best next action** | The Coordinator lands the checker `--design` flag (named precondition, §12.2) and dispatches B0 ∥ B1a |
 
 ## Gate record
 
