@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T14:26:05Z",
+  "generated": "2026-09-30T14:50:19Z",
   "audit": [
     {
       "actor": null,
@@ -19259,6 +19259,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "70e6a1a05a013ce106ef43b0ab86447726e1d097",
         "short": "70e6a1a05",
+        "branch": "d3b-shell-finish",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3SCQ1HZ6CPHF09PAZKQCPSJ",
+      "shortname": "theme-flake-ring",
+      "datetime": "2026-09-30T14:50:19Z",
+      "session": "track-theme",
+      "prompt": "Coordinator repair cycle 1: root-cause the ThemeMatrix flake (Unknown group opacity on DeferredContentPresenter), prove 5 identical green run-tests, fix the selected-tab focus ring (>=3:1 vs fill) with tokens only.",
+      "summary": "Flake: Dock DeferredContentControl reveal (opacity 0.85->1, 90 ms DoubleTransition) observed at 0.964 Animation priority after ShowPane; matrix sets RevealDuration zero for itself, poll removed. Ring: Fluent inner Ink tone on Primary fill 2.39/1.48/1.07; token-only FocusAdorner with OnPrimary inner ring on Dock tabs and ListBoxItem, every state (adorner built at focus time): 6.29/10.73/19.56. 5 runs exit 0, sha b73bb5ab.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "claude",
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/d3a-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deterministic ThemeMatrix and a focus ring that separates from Primary selected fills",
+      "done_when": "Cause observed; 5 run-tests exit 0 with one PASS-set hash; ring vs fill >=3 in light/dark/HC; D3a missing only Focus_MenuTab; lint and check-docs green",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T14:29:23Z",
+      "duration_seconds": 1256.0,
+      "git": {
+        "sha": "6367f0d20a4ae4650d805a3650963526c55a705d",
+        "short": "6367f0d20",
         "branch": "d3b-shell-finish",
         "pushed": null
       }
