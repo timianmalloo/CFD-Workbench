@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T22:32:47Z",
+  "generated": "2026-09-30T22:35:44Z",
   "audit": [
     {
       "actor": null,
@@ -20369,6 +20369,33 @@ window.AUDIT_DATA = {
         "branch": "chore/defect-classes-m12b",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3T7B7Q9Q6WAP4ZNPCHT2MEM",
+      "shortname": "join-classes",
+      "datetime": "2026-09-30T22:35:44Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of chore/defect-classes-m12b into feature/ui-cad-direction",
+      "summary": "two B1b classes with test controls; unsessioned commits folded into COORD-ENV (10 occurrences) with proposed fail-closed pack patch recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "register M1.2b classes",
+      "done_when": "merged",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-09-30T22:34:54Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
