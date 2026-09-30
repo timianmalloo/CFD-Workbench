@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:19:27Z",
+  "generated": "2026-09-30T21:03:10Z",
   "audit": [
     {
       "actor": null,
@@ -19991,6 +19991,29 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T20:18:37Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M3T21H92C5BS324E9DK77R7C",
+      "shortname": "design-slice-m12b2-3d-elevations",
+      "datetime": "2026-09-30T21:03:03Z",
+      "session": "track-m12b2-design",
+      "prompt": "Run the /design-slice skill for M1.2b2: the 3D view beside the Plan, plus the front, side and starboard elevations (Ruling 56). Settle one shared placement rule for twist, dihedral and section placement used by the certificate and every display first; a display must never become a second geometry definition. Brief: scratchpad/tracks/M12B2-DESIGN.md.",
+      "summary": "docs/design/m12b2-3d-elevations.md: ADR-0010 one placement rule (FoilDSL §6 as one generic Core function over RationalInterval and Binary64; certificate bits unchanged by golden master; display bound at 1 nm, spike-measured); 3D view, Front/Side elevations with dihedral, t/c and twist lanes; channel editing on M1.2b contracts; 170 named tests over 7 tracks; gate PASS WITH CONDITIONS after 1 repair cycle (UX hard veto cleared).",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/m12b2-3d-elevations.md",
+        "docs/adr/0010-one-placement-rule.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Design M1.2b2 with one placement rule as the single geometry authority",
+      "done_when": "design doc, ADR, gate, docs gate green, committed",
+      "started_at": "2026-09-30T20:20:30Z",
+      "duration_seconds": 2553.0
     }
   ],
   "changes": [
@@ -20640,6 +20663,29 @@ window.AUDIT_DATA = {
         "before": "dc832929df1fa518d4cc40d80424d9618dd056c9",
         "after": "dc832929df1fa518d4cc40d80424d9618dd056c9",
         "branch": "design/m12b-points",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3T21QVVB2W8WASQ8T13YTFR",
+      "datetime": "2026-09-30T21:03:10Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "One placement rule: FoilDSL §6 written once in Core, instantiated by the certificate and every display (ADR-0010)",
+      "prompt": "M1.2b2 design pass: one shared placement rule for twist, dihedral and section placement, used by the certificate and every display (Ruling 56 OI-1).",
+      "summary": "PlacementRule (station selection, Rule A components/section/blend, placement) generic over RationalInterval and Binary64; certificate bits proved unchanged by golden master; displays bound to the certified enclosure at 1 nm; M1.2b2 3D view, elevations and channel editing designed on it.",
+      "rationale": "The certified PointAt costs 13.5-37.9 ms per point (spike), so displays need binary64; a display copy of §6 is a second geometry authority (v10 dropped twist). One generic site keeps one definition while two arithmetics serve proof and display.",
+      "artifacts": [
+        "docs/design/m12b2-3d-elevations.md",
+        "docs/adr/0010-one-placement-rule.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "3a37f5f",
+        "after": "3a37f5ffa802f0a1ae0787eac03c9af41606df4a",
+        "branch": "design/m12b2-3d-elevations",
         "pushed": null,
         "commits": []
       }

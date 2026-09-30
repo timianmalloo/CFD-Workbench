@@ -264,6 +264,11 @@ window.DOCS_INDEX = {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-09-30",
           "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "M1.2b2 applies tangent rows to the dihedral, twist and thickness channels with a unit-free rule (ordinate deviation from the handle line within tau_c: 1 um, 1e-6 deg, 1e-8) instead of the 0.1 deg direction tolerance, which is meaningless in a metres x degrees plane (docs/design/m12b2-3d-elevations.md 3.6)."
         }
       ],
       "summary": "Settles DR-5. A Point is a control vertex of the clamped non-rational B-spline of record. An interior vertex is an Anchor point exactly when one interior knot of multiplicity p sits at it, so point type is derived from the knot vector and never stored. Tangent kinds are editing intent in an optional FoilDSL 4.1 `tangents` block outside geometry identity. Every type change is measured and reported on the A4.5 oracle. On a section the two surfaces share one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact on Anchor creation and refitted within 10 µm, reported, on Anchor removal.",
@@ -310,7 +315,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ace96cd5e5f05c13b86baf8fb32f65088de85c57946c7d79c978b64de1a99b1d"
+      "sourceSha256": "1d9f2c0df1939f360835cc9c2295b61cb138cdcde86d2440a58d771b51df0c83"
     },
     {
       "id": "adr-0006-driving-dimensions",
@@ -518,6 +523,55 @@ window.DOCS_INDEX = {
       "sourceSha256": "ad4b3fc85b28efeeedc146c3ff95db39446ef6e05d6c82cc08e7d8d1a35a79c0"
     },
     {
+      "id": "adr-0010-one-placement-rule",
+      "path": "docs/adr/0010-one-placement-rule.md",
+      "title": "ADR-0010: one placement rule — FoilDSL §6 is written once in Core and instantiated over the certificate's interval arithmetic and the display's binary64",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2b2 (3D view and elevations, Ruling 56)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "FoilDSL §6 (Rule A section blend and the twist/dihedral placement) is written once, as a generic Core function over an arithmetic domain. The certificate instantiates it over rational intervals (its output bits unchanged, proved by a golden master); every display instantiates it over binary64 and is bound to the certificate by a measured test (at most 1 nm outside the certified enclosure). Curve evaluation stays two paths, as note-20260926 ruled; placement is one.",
+      "tags": [
+        "geometry",
+        "placement",
+        "certificate",
+        "display",
+        "evaluator",
+        "twist",
+        "dihedral",
+        "rule-a",
+        "adr",
+        "m1.2b2",
+        "oi-1"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-20260926-binary64-evaluator",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "925e6ca82771b2bacb60d563191922938f3db09b32d3ee5bf2c1c901becb7f3b"
+    },
+    {
       "id": "adr-application-project-contract",
       "path": "docs/adr/0004-application-project-contract.md",
       "title": "Native-v1 immutable receipts and bounded admission",
@@ -698,6 +752,11 @@ window.DOCS_INDEX = {
           "by": "design-application-foundation",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "Ruling 56 adds slice M1.2b2 (after M1.2b, before M1.2c): 10.6 phasing needs its row; ADR-0010 makes FoilDSL 6 one generic Core rule instantiated by the certificate and every display."
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates. §10 (proposed, spec 1.6) adds the CAD-first shell, point types, driving dimensions, Wing estimates, the section draft, catalog and My sections, with ADR-0005–0009 and slices M1.2a–e.",
@@ -775,7 +834,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "13d6b26f10bea4d794e424cd01d709079adf2a71b52c091a2b4cc89777fc5aa5"
+      "sourceSha256": "337de5e2476f612b4d2da99b8383b4c0e6a558aeb134bb4e14447ea808613413"
     },
     {
       "id": "cad-editing-views",
@@ -1967,6 +2026,11 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-30",
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "M1.2b2 design asks seams SR-1..SR-5 before B0/U1b dispatch: rename AftMeters/AftOnly to Ordinate/ValueOnly across PointView, GestureFrame, PlanSample, CombTooth, HandleTarget and UpdateGesture; CurvePointLayer extraction from PlanCanvas; one binary64 channel inversion; curve guard from one table; optional unit-free row rule for rails (F-14). Each has a fallback owned by M1.2b2."
         }
       ],
       "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
@@ -2053,7 +2117,105 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "35c047cf6246d58cf4875fc32d1dc6f88e8bf2e4ffb2a6aacafc1bfcd2f55334"
+      "sourceSha256": "6e5a7544897d4c3a60b5959a6d6caec209acd5a5d390709e813743bf06e97ee7"
+    },
+    {
+      "id": "design-m12b2-3d-elevations",
+      "path": "docs/design/m12b2-3d-elevations.md",
+      "title": "Design: M1.2b2 — one placement rule, the 3D view beside the Plan, the Front and Side elevations, and dihedral, twist and thickness editing",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2b2 (Ruling 56 OI-1; after M1.2b, before M1.2c)",
+      "reviewBy": "2027-03-29",
+      "reviewSuggested": [],
+      "summary": "Detailed design of slice M1.2b2. FoilDSL §6 (Rule A and the twist/dihedral placement) is written once in Core and instantiated over the certificate's rational intervals (bits unchanged) and over binary64 for every display, bound by a measured test (at most 1 nm outside the certified enclosure). On that rule: a shaded or wireframe 3D view beside the Plan with orbit, pan, zoom, view cube and named cameras; Front and Side elevations drawing the placed foil with dihedral, t/c and twist lanes; and those three channels edited with M1.2b's point, handle and gesture model.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "geometry",
+        "placement",
+        "certificate",
+        "3d-view",
+        "orbit",
+        "view-cube",
+        "elevations",
+        "front",
+        "side",
+        "body-plan",
+        "dihedral",
+        "twist",
+        "thickness",
+        "lanes",
+        "m1.2b2",
+        "oi-1",
+        "dr-13"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-20260926-binary64-evaluator",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-app-shell-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "401dcf29ddd871a713fe93241ad27d27c160b3fca16be22680190c6de0a693e6"
     },
     {
       "id": "design-section-editor",
@@ -2340,6 +2502,11 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-30",
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "v10 draw3d/drawSide place sections without twist (html :690-697) - recorded as defect class GEOM-AUTHORITY; M1.2b2 also departs from v10 on Front handedness (D-2) and Side nose direction (D-10)."
         }
       ],
       "summary": "v9's docked-pane CAD workspace, elevated: first-run, opening and open-failed states inside the workspace; floats move clear of any focused target in the model area; per-point Anchor / Control type; a Wing block with typed span and chords above running estimates; and, in the section editor, Replace from catalog and Save to My sections.",
@@ -2372,7 +2539,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "56ca57ee1a78566f4dcdb727d62ae9d817505248d82f96454145989c7d83817a"
+      "sourceSha256": "8572e079dbbeca764d544fe764dca466250d0d2079d1b9646410a14a7afd08ae"
     },
     {
       "id": "mockup-workbench-v2",
@@ -2973,6 +3140,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench",
           "on": "2026-09-19",
           "reason": "Full curves/stations and completed-proposal v1 contract now ready for design iteration; compare implementation and UI against this revision."
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "M1.2b2 adds token foil-shade-lit (#3f6a6c), the Shaded surface and Elevation lane rows and updates the View cube row in DESIGN.md."
         }
       ],
       "summary": "Discoverability hub for the root DESIGN.md token system and its visual preview. Tokens remain authored once in DESIGN.md; this hub does not duplicate them.",
@@ -2992,7 +3164,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "916fe9a7969b8668446e7f8d3f5dc3cd399875a01ae567f2a9e0ed86afb2d012"
+      "sourceSha256": "bc50aa8c224aad260b8953517159013c58ce9f011823e1e05c720bb3700f3faf"
     },
     {
       "id": "audit-log",
@@ -3063,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cd5908bba9ffed11a3782875669e478d63e1d1013865200479445080d2112fba"
+      "sourceSha256": "73675722a449b984e001770cc18cc93f1235fe60e903f9f077463561cd4da2a6"
     },
     {
       "id": "domain-experts",
@@ -5813,10 +5985,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12b-points",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "255f0153a621a3bd0713c5c72f40aff022ba4930fdb3809e5734bebff31e0a70"
+      "sourceSha256": "8973f192bf4f3fd93dd1a79f4dedbc48c7eff815b809252181c0cf56b584bbb8"
     },
     {
       "id": "coordination-application-c-launch",
@@ -6644,7 +6820,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "40bed83ef00399852b700cbe5850f36b14fa95e976c12b009325018ef7f8c44e"
+      "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -7650,6 +7826,11 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-30",
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        },
+        {
+          "by": "design-m12b2-3d-elevations",
+          "on": "2026-09-30",
+          "reason": "M1.2b2 (ADR-0010) builds the 3D view and Front/Side elevations: F-10 proposes a t/c nudge ladder 0.01/0.1/1 %; F-11 reads CAD-04's body plan as overlaid sections and CAD-06's F as fit-selection; deviations D-2 (Front camera, starboard on the viewer's left), D-9 (quad order), D-10 (Side nose right), D-11 (probe overlay, not a strip)."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
@@ -7838,7 +8019,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "8735956cef282d8c15216d086bdfa21dea1be41527d86b31e38d1ebd965c00f4"
+      "sourceSha256": "656e86cf624c0bed720cd359275c3b34efce463b06360207dec52388994c81a9"
     },
     {
       "id": "spec-foildsl",
@@ -7954,10 +8135,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12b-points",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ae9380e5b088cf7fc4320782ce0f5daea2f7150433a87e3f02cb83a492bd89ba"
+      "sourceSha256": "cd14639d50088abc46de5bea5930b5f67b9050680a65f3821b50ee60f2631e3a"
     }
   ],
   "surfaces": [
@@ -8105,5 +8290,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9bc5ed3426443f864d839b05bb9dc5b62b53f78e7c6e2844709bec291bf5328e"
+  "graphSha256": "447e3dbd25aac838b132faf22b0d7afb610359e3819b40f934b9f51d521cf570"
 };

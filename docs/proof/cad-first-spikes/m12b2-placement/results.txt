@@ -1,0 +1,11 @@
+# Spike M1.2b2-P (placement rule), run 2026-09-30 on Apple M4 Max, .NET 10.0.203, Release, dotnet run in the scratchpad against Core at 3a37f5f.
+# Question: is the certified PointAt usable for a 3D display, and does a binary64 evaluation of FoilDSL §6 land inside its enclosure?
+# Each case: 11 eta x 21 x x 2 sides x 2 halves = 924 points; 'separable' = channels once per station, profiles once per chord sample.
+  separable: 41x101x2 = 8282 pts (one half; mirror is a sign) in 14.8 ms warm; max outside certified enclosure 1.43E-010 m
+example (twist -2 deg, flat): 924 points; certified 13.542 ms/pt; binary64 166.3 us/pt; max outside enclosure 2.78E-017 m; max |display - enclosure midpoint| 1.85E-016 m; display grid 16564 pts in 1831.6 ms (cold, incl. JIT)
+  separable: 41x101x2 = 8282 pts (one half; mirror is a sign) in 13.1 ms warm; max outside certified enclosure 1.43E-010 m
+example + dihedral 60 mm, twist -8 deg: 924 points; certified 14.149 ms/pt; binary64 114.7 us/pt; max outside enclosure 2.78E-017 m; max |display - enclosure midpoint| 3.65E-015 m; display grid 16564 pts in 1845.8 ms (cold, incl. JIT)
+  separable: 41x101x2 = 8282 pts (one half; mirror is a sign) in 24.0 ms warm; max outside certified enclosure 1.43E-010 m
+two profiles blended + dihedral + twist: 924 points; certified 37.889 ms/pt; binary64 530.3 us/pt; max outside enclosure 2.78E-017 m; max |display - enclosure midpoint| 3.67E-015 m; display grid 16564 pts in 3280.8 ms (cold, incl. JIT)
+  separable: 41x101x2 = 8282 pts (one half; mirror is a sign) in 17.2 ms warm; max outside certified enclosure 1.07E-010 m
+New foil (NewDefault): 924 points; certified 24.040 ms/pt; binary64 119.8 us/pt; max outside enclosure 0.00E+000 m; max |display - enclosure midpoint| 3.60E-015 m; display grid 16564 pts in 1873.8 ms (cold, incl. JIT)

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>CfdWorkbench.Core.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="/Users/mallalieut/projects/CFD-Workbench-design-m12b2-3d-elevations/src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
+  </ItemGroup>
+</Project>
