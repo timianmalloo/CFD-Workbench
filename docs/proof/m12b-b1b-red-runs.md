@@ -64,7 +64,7 @@ SUBSET CFD_TEST_ONLY=UpdatePointGesture_RandomTargets_ ran=1 skipped=375
 
 ## Green run and scope
 
-After restoring the 16-point limit and replacing the recovery fixture with bytes from `10f0628`, `tools/run-tests.sh` exited **0**: Core 376 PASS in 32 s, CLI 1 PASS, Desktop 119 PASS in 44 s; wall 45 s under the 60 s budget. `check-named-tests.py B1b --design docs/design/m12b-points.md` found **43/43 PASS**. The default-design checks D3a 40/40, D1 12/12, D2 21/21, C1 14/14 and P1 23/23 each exited **0**. `check-docs.py` exited **0**, with zero graph defects.
+After restoring the 16-point limit and replacing the recovery fixture with bytes from `10f0628`, the final `tools/run-tests.sh` exited **0**: Core 376 PASS in 31 s, CLI 1 PASS, Desktop 119 PASS in 43 s; wall 46 s under the 60 s budget. `check-named-tests.py B1b --design docs/design/m12b-points.md` found **43/43 PASS**. The default-design checks D3a 40/40, D1 12/12, D2 21/21, C1 14/14 and P1 23/23 each exited **0**. `check-docs.py` exited **0**, with zero graph defects.
 
 | Claim | Oracle | Red observed | Green evidence | Confidence |
 |---|---|---|---|---|
@@ -75,6 +75,27 @@ After restoring the 16-point limit and replacing the recovery fixture with bytes
 | Old recovery bytes reopen and resolve | M1.2a saved image, Apply and Discard paths | Initial suite compiled red; missing fixture failed until generated | Both golden checks PASS | Verified |
 
 The tested scope is Core authoring and native receipts. Desktop presentation is owned by later tracks. The pack calls for an independent adversarial reviewer, but this track's brief prohibits sub-agents; the B1b checks and mutants above are the verification evidence in this seat.
+
+## Cursor operation replay red
+
+Reusing an Undo operation id for a point command raised an untyped `InvalidOperationException` before the guard. The named history check was extended; its focused red run exited **1**. The guard now returns `DOC-OPERATION-CONFLICT` for an id owned by a different operation kind.
+
+```text
+FAIL History_ReapplyOperationDifferentPayload_Refused InvalidOperationException: Sequence contains no matching element
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=History_ReapplyOperationDifferentPayload_ ran=1 skipped=375
+```
+
+## Gesture observability and overflow reds
+
+The gesture check was extended to assert the emitted frame count. It compiled red because `SessionEvent.Frames` did not exist; the event now carries frame count and measured elapsed time from gesture begin. A finite `double.MaxValue` aft target then exposed `DSL-PATCH` from arithmetic overflow. The normal target path now returns the last valid frame as clamped; the same named check directly bypasses the clamp with an invalid patched coordinate and still observes `DSL-PATCH` from the parse backstop.
+
+```text
+error CS1061: 'SessionEvent' does not contain a definition for 'Frames'
+FAIL UpdatePointGesture_BypassedClamp_DslPatch ContractError: DSL-PATCH
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=UpdatePointGesture_BypassedClamp_ ran=1 skipped=375
+```
 
 ## Golden recovery fixture
 

@@ -27,6 +27,13 @@ internal static class ReopenPointEditTests
             using var s = Open(); string op = Id(); string point = Point(s, "leading", 3).Id;
             s.ApplyPointCommand(op, new PointCommand.MakeAnchor("leading", point));
             Refuses("DOC-OPERATION-CONFLICT", () => s.ApplyPointCommand(op, new PointCommand.MakeControl("leading", point)));
+            using var dimensions = Open(); string crossKind = Id();
+            dimensions.ApplyDimension(crossKind, new("span", "1000"));
+            Refuses("DOC-OPERATION-CONFLICT", () => dimensions.ApplyPointCommand(crossKind,
+                new PointCommand.MakeAnchor("leading", Point(dimensions, "leading", 3).Id)));
+            string cursorOperation = Id(); dimensions.Undo(cursorOperation);
+            Refuses("DOC-OPERATION-CONFLICT", () => dimensions.ApplyPointCommand(cursorOperation,
+                new PointCommand.MakeAnchor("leading", Point(dimensions, "leading", 3).Id)));
         });
         Check("Reopen_RetrySamePointOperationId_ReturnsPriorId", () =>
         {

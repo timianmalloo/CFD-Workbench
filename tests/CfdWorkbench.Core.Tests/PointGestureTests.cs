@@ -143,7 +143,13 @@ internal static class PointGestureTests
         Check("UpdatePointGesture_BypassedClamp_DslPatch", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            Equal(true, s.UpdatePointGesture(d.Id, d.Generation, double.PositiveInfinity, p.AftMeters).Clamped); Order(s, "trailing");
+            var farSpan = s.UpdatePointGesture(d.Id, d.Generation, double.MaxValue, p.AftMeters);
+            Equal(true, farSpan.Clamped); Order(s, "trailing");
+            var farAft = s.UpdatePointGesture(farSpan.Draft.Id, farSpan.Draft.Generation, p.SpanMeters, double.MaxValue);
+            Equal(true, farAft.Clamped); Order(s, "trailing");
+            var parsed = FoilSource.Parse(s.Snapshot().Source);
+            Refuses("DSL-PATCH", () => AuthoringSession.PatchGesture(parsed, "trailing",
+                new Dictionary<int, (double Eta, double Aft)> { [2] = (1.1, p.AftMeters) }));
         });
         Check("Gesture_DragManyFrames_OneAcceptedRow", () =>
         {
@@ -151,12 +157,15 @@ internal static class PointGestureTests
             for (int i = 1; i <= 5; i++) { d = s.Snapshot().Draft!; s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.AftMeters + i * 0.001); }
             d = s.Snapshot().Draft!; int before = s.Envelope().Accepted.Length;
             s.Apply(Id(), s.Validate(d.Id, d.Generation)); Equal(before + 1, s.Envelope().Accepted.Length);
+            var ended = s.ReadLocalEvents().Last(e => e.Operation == "gesture.end");
+            Equal(5, ended.Frames); True(ended.DurationMilliseconds >= 0, "gesture duration measured");
         });
         Check("Gesture_ReleaseWithoutMove_NoAcceptedRow", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); int before = s.Envelope().Accepted.Length;
             var d = s.BeginPointGesture(Id(), "trailing", p.Id); s.Cancel(d.Id);
             Equal(before, s.Envelope().Accepted.Length); Equal(null, s.Snapshot().Draft);
+            Equal(0, s.ReadLocalEvents().Last(e => e.Operation == "gesture.end").Frames);
         });
     }
 }

@@ -26,7 +26,8 @@ public sealed record SessionView(string AcceptedId, string SourceHash, string Su
 public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
-    double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null);
+    double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
+    int? Frames = null);
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double AftMeters, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
@@ -134,7 +135,7 @@ public sealed class AuthoringSession : IDisposable
             trace.Value = priorTrace;
         }
     }
-    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null)
+    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null)
     {
         lock (sync)
         {
@@ -146,7 +147,7 @@ public sealed class AuthoringSession : IDisposable
             pendingFitAboveLimit = null;
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
-            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above));
+            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames));
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -323,6 +324,7 @@ public sealed class AuthoringSession : IDisposable
     }
     private string? gestureDraftId;
     private int gestureFrames;
+    private long gestureStarted;
     private SessionDraft BeginPointGestureCore(string draftId, string curve, string vertexId)
     {
         lock (sync)
@@ -341,7 +343,7 @@ public sealed class AuthoringSession : IDisposable
             RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, "cfdw-cv/2", parsed.SurfaceHash!, curve, vertexId), toleratesBudget: false);
             retiredDraftIds.Add(draftId);
             draft = new(draftId, current!, 0, curve, vertexId, CurrentBytes);
-            gestureDraftId = draftId; gestureFrames = 0;
+            gestureDraftId = draftId; gestureFrames = 0; gestureStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             return Copy(draft);
         }
     }
@@ -357,13 +359,22 @@ public sealed class AuthoringSession : IDisposable
             int grabbed = rail.Points.ToList().FindIndex(point => point.Id == draft.VertexId);
             Guard.Require(grabbed >= 0, "DSL-TARGET");
             var selected = rail.Points[grabbed];
+            GestureFrame LastFrame()
+            {
+                var currentView = Planform.View(draft.Bytes, "Draft", draft.Generation);
+                var currentPoint = (draft.Rail == "leading" ? currentView.Leading : currentView.Trailing).Points[grabbed];
+                return new(Copy(draft), currentPoint.SpanMeters, currentPoint.AftMeters, [], true);
+            }
             if (!double.IsFinite(spanMeters) || !double.IsFinite(aftMeters))
-                return new(Copy(draft), selected.SpanMeters, selected.AftMeters, [], true);
+                return LastFrame();
             if (selected.Freedom is PointFreedom.Fixed or PointFreedom.AftOnly) spanMeters = selected.SpanMeters;
             if (selected.Freedom == PointFreedom.SpanOnly) aftMeters = selected.AftMeters;
             double halfSpan = initial.HalfSpanMeters;
-            double deltaEta = Math.Round((spanMeters - selected.SpanMeters) / halfSpan, 7, MidpointRounding.ToEven);
-            double deltaAft = Math.Round((aftMeters - selected.AftMeters) * 1e6, 0, MidpointRounding.ToEven) / 1e6;
+            double rawEta = (spanMeters - selected.SpanMeters) / halfSpan;
+            double rawAft = (aftMeters - selected.AftMeters) * 1e6;
+            if (!double.IsFinite(rawEta) || !double.IsFinite(rawAft)) return LastFrame();
+            double deltaEta = Math.Round(rawEta, 7, MidpointRounding.ToEven);
+            double deltaAft = Math.Round(rawAft, 0, MidpointRounding.ToEven) / 1e6;
             var moved = new Dictionary<int, (double Eta, double Aft)>();
             void Add(int index, double eta, double aft) => moved[index] = (eta, aft);
             Add(grabbed, selected.Eta + deltaEta, selected.AftMeters + deltaAft);
@@ -452,7 +463,7 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
-    private static byte[] PatchGesture(SourceParse parsed, string curveName, IReadOnlyDictionary<int, (double Eta, double Aft)> moved)
+    internal static byte[] PatchGesture(SourceParse parsed, string curveName, IReadOnlyDictionary<int, (double Eta, double Aft)> moved)
     {
         var definition = parsed.Definition!; var curve = definition.Curves[curveName];
         string text = FoilSource.Utf8.GetString(parsed.Source);
@@ -987,7 +998,10 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(command is not null && PointModel.EditableCurves.Contains(command.Curve), "DSL-TARGET");
             bool replay = operations.ContainsKey(operationId);
             Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
-            string? parent = replay ? accepted.Single(row => row.OperationId == operationId).Parent : current;
+            var priorOperation = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId) : null;
+            if (replay && priorOperation?.Edit?.Rail is not ("point-type" or "tangent-kind"))
+                throw new ContractError("DOC-OPERATION-CONFLICT");
+            string? parent = replay ? priorOperation!.Parent : current;
             byte[] basis = replay ? BaseBytes(parent!) : CurrentBytes;
             var prior = ParseOwned(basis);
             var oldCurve = prior.Definition!.Curves[command!.Curve];
@@ -1188,11 +1202,11 @@ public sealed class AuthoringSession : IDisposable
                 assessment.Certificate.SurfaceHash == key.SurfaceHash && assessment.Key == key, "DSL-CONFLICT");
             bool gesture = gestureDraftId == draft.Id;
             string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null;
-            if (gesture) { Record("gesture.end", "OK", 0, gestureFrames, null, assessment.Key!.Generation, "cfdw-cv/2"); gestureDraftId = null; gestureFrames = 0; }
+            if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
     }
-    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", 0, gestureFrames, null, null, "cfdw-cv/2"); gestureDraftId = null; gestureFrames = 0; } } }
+    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames); gestureDraftId = null; gestureFrames = 0; } } }
     private string UndoCore(string operationId) => Move(operationId, false);
     private string RedoCore(string operationId) => Move(operationId, true);
     string Move(string op, bool forward)
