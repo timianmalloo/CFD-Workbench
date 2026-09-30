@@ -141,7 +141,9 @@ public sealed class ShellHost : Grid
         {
             InstallToolTabMenus();
             LabelToolChrome();
+            PlaceToolTabsAtTop();
             PlaceSidebarToggle();
+            ApplyDefaultLeftPaneWidth();
         };
         SetRow(DockHost, 0);
         Children.Add(DockHost);
@@ -650,6 +652,71 @@ public sealed class ShellHost : Grid
                 }
             }
         }
+    }
+
+    // Dock's ToolControl template docks its tab strip at the bottom (Dock.Avalonia.Themes.Fluent
+    // Controls/ToolControl.axaml:52, DockPanel.Dock="Bottom"). The design puts the one tab row at the top, so the
+    // strip gets a local value. Only the dock position changes: pane content and its brushes are untouched.
+    private void PlaceToolTabsAtTop()
+    {
+        foreach (var strip in DockHost.GetVisualDescendants().OfType<ToolTabStrip>())
+            if (strip.TemplatedParent is ToolControl && DockPanel.GetDock(strip) != Avalonia.Controls.Dock.Top)
+                DockPanel.SetDock(strip, Avalonia.Controls.Dock.Top);
+    }
+
+    // The left side bar opens at 260 DIP whatever the window width (docs/mockups/workbench-v10.html, SIZES.left.Default).
+    public const double DefaultLeftPaneWidth = 260;
+    private bool leftPaneWidthApplied;
+
+    // Dock sizes a ProportionalDock child by the ProportionalStackPanel.Proportion attached property on its item
+    // presenter. The first layout pass writes that property as a local value (ProportionManager.ApplyProportions →
+    // ProportionalStackPanel.SetProportion, Internal/ProportionManager.cs:118 and ProportionalStackPanel.cs:57), which
+    // shadows the style binding to the model (ProportionalDockControl.axaml:27-28). A later model Proportion change
+    // therefore never reaches the panel. So the default is written where Dock itself writes it — on the realized
+    // presenters, once the panel's width is known — and the two-way binding carries it back to the model.
+    private void ApplyDefaultLeftPaneWidth()
+    {
+        if (leftPaneWidthApplied) return;
+        var panel = DockHost.GetVisualDescendants().OfType<Dock.Controls.ProportionalStackPanel.ProportionalStackPanel>()
+            .FirstOrDefault(candidate => candidate.Children.Any(child => ReferenceEquals(child.DataContext, LayoutFactory.LeftToolDock)));
+        if (panel is null || panel.Bounds.Width <= 0) return;
+        double splitters = panel.Children.Where(child => child.DataContext is IProportionalDockSplitter).Sum(child => child.Bounds.Width);
+        double left = WorkspacePresets.ProportionFor(DefaultLeftPaneWidth, panel.Bounds.Width - splitters);
+        foreach (var child in panel.Children)
+        {
+            if (ReferenceEquals(child.DataContext, LayoutFactory.LeftToolDock))
+                Dock.Controls.ProportionalStackPanel.ProportionalStackPanel.SetProportion(child, left);
+            else if (ReferenceEquals(child.DataContext, LayoutFactory.MainDocumentDock))
+                Dock.Controls.ProportionalStackPanel.ProportionalStackPanel.SetProportion(child, 1 - left);
+        }
+        leftPaneWidthApplied = true;
+    }
+
+    // The production launch path shows the Start card with nothing focused (UX-28). Focus its first card by keyboard
+    // navigation, so the focus ring shows. The card sits in the model document's DeferredContentControl, which realizes
+    // content in a Background-priority dispatcher batch (DeferredContentControl.cs:740, :959), after any Input-priority
+    // retry. So focus waits for the card's own Loaded event rather than counting attempts.
+    public void FocusStartWhenReady()
+    {
+        var first = ModelView.StartCardView.StartNewButton;
+        void FocusFirst()
+        {
+            // Never take focus the user already placed before the card loaded.
+            var focused = TopLevel.GetTopLevel(first)?.FocusManager?.GetFocusedElement();
+            if (focused is not null && focused is not TopLevel) return;
+            if (Controller.Inspection is null && first.IsEffectivelyVisible) first.Focus(NavigationMethod.Tab);
+        }
+        if (first.IsLoaded)
+        {
+            Dispatcher.UIThread.Post(FocusFirst, DispatcherPriority.Input);
+            return;
+        }
+        void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs args)
+        {
+            first.Loaded -= OnLoaded;
+            Dispatcher.UIThread.Post(FocusFirst, DispatcherPriority.Input);
+        }
+        first.Loaded += OnLoaded;
     }
 
     private void FocusModelWhenReady(int attempts = 3)

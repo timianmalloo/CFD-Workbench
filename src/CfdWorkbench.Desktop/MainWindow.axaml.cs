@@ -210,6 +210,7 @@ public sealed partial class MainWindow : Window
                         else shellHost.ModelView.FoilViewport.Focus();
                     }, DispatcherPriority.Input);
                 }
+                else shellHost?.FocusStartWhenReady();
                 return;
             }
             if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
