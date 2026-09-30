@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="cb3e6f4176b2e58ff38e6168dac9533f4ee761451a77ebe0214dfd552fee6f5f">
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
+body{margin:0;background:Canvas;color:CanvasText}
+main{max-width:1180px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2,h3{line-height:1.2;margin:2rem 0 .7rem}h1{font-size:2rem}h2{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding-bottom:.4rem}
+a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
+code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
+header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="m12b-build.md">m12b-build.md</a> · 30 September 2026</p></header>
+<h1>Coordination plan: the M1.2b build</h1>
+<ul>
+<li><strong>Scope:</strong> slice M1.2b, CAD point editing on the Plan view (<a href="../design/m12b-points.md">design</a> §14,
+<a href="../architecture/application.md">architecture</a> §10.6 row M1.2b). The design&#39;s track table (B0 · B1a · B1b · U1a · U1b
+· U2 · U3) is the decomposition. This plan schedules and assigns it; it does not re-cut it. It adds one precondition
+track (PRE) that the design itself requires before dispatch (§12.2). PRE is the Coordinator&#39;s inline step, not a
+delegated session. It is called a track only because it has owned paths, a box and exit evidence like the others. M1.2b2 (a parallel design track), M1.2c–e and
+pushing are out of scope.</li>
+<li><strong>Inputs:</strong> design <code>design-m12b-points</code> as merged at <code>5f31233</code> (status &quot;In review … Owner acceptance pending&quot;);
+Rulings 53–56; the app-shell plan&#39;s &quot;Planned vs actual&quot; section for the priors. Base read: integration tip
+<code>3a37f5f</code> (branch <code>feature/ui-cad-direction</code>, the LEFTPANE join).</li>
+<li><strong>Seats:</strong> Leader and Coordinator = Claude Code Opus 5.5, session <code>fbfa35dc</code>. Owner = seat <code>cfd-owner-fbfa35dc</code>
+(Verified: it ruled Rulings 52–56). The Owner rules into <code>docs/notes/rulings.md</code> (class <code>register</code>). The Owner never
+authors track code or clears its own veto.</li>
+<li><strong>Author:</strong> <code>/prepare-for-coordination</code> sub-agent <code>track-m12b-plan</code>, 2026-09-30, in worktree
+<code>CFD-Workbench-plan-m12b-build</code> (branch <code>plan/m12b-build</code>). Git before: <code>3a37f5f</code>.</li>
+</ul>
+<p>Labels: <strong>Verified</strong> = observed in this run; <strong>Inferred</strong> = reasoned, not observed; <strong>Flagged</strong> = observed but suspect.</p>
+<h2>Preconditions (before any track is dispatched)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>precondition</th>
+<th>state (this run)</th>
+<th>evidence</th>
+<th>cleared by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P1</td>
+<td>SHELLFIX joined (design §1: &quot;Every Desktop track branches from <code>main</code> <strong>after</strong> SHELLFIX joins&quot;)</td>
+<td><strong>met</strong> (Verified)</td>
+<td>merge <code>63e35a5</code> (&quot;SHELLFIX — model redraws on tab return, one model tab strip …&quot;) is an ancestor of <code>3a37f5f</code>; <code>git merge-base --is-ancestor fix/m12a-shell-visuals HEAD</code> exit 0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>LEFTPANE joined (the Properties pane must be visible, design §1 (c))</td>
+<td><strong>met</strong> (Verified)</td>
+<td>merge <code>11cc130</code> and its join <code>3a37f5f</code>; <code>fix/m12a-left-pane</code> is an ancestor of HEAD</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P3</td>
+<td><code>tools/check-named-tests.py --design &lt;path&gt;</code>, so the checker reads <code>m12b-points.md</code> (design §12.2: &quot;The Coordinator lands it before dispatch and gates it on <code>--self-test</code> exit 0, with the planted-name case observed red before the flag and green after, and the extraction run on this design before any track is dispatched&quot;)</td>
+<td><strong>not met</strong> (Verified)</td>
+<td><code>check-named-tests.py</code>:30 hard-codes <code>DESIGN = … &quot;app-shell.md&quot;</code>; <code>main()</code> (:191-198) refuses any argv other than one argument, so <code>&lt;track&gt; --design …</code> exits 2 today</td>
+<td><strong>PRE</strong> track</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>the design&#39;s extraction is clean</td>
+<td><strong>met for the design text</strong> (Verified)</td>
+<td>the as-built <code>extract()</code> run on <code>m12b-points.md</code> (read-only script): <strong>187 names, 0 errors</strong>; B0 29 · B1a 24 · B1b 43 · U1a 23 · U1b 43 · U2 25 · <strong>U3 0</strong></td>
+<td>PRE re-runs it through the new flag</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>Owner acceptance of <code>design-m12b-points</code> and ADR-0001 Amendment 1 (the design&#39;s status line: &quot;Owner acceptance pending&quot;), plus this plan and its seams S1–S6</td>
+<td><strong>not met</strong></td>
+<td>design status line; no ruling after 56</td>
+<td>Owner ruling <strong>O-M12B</strong> (Order of operations step 2)</td>
+</tr>
+<tr>
+<td>P6</td>
+<td>DR-12, DR-13, OI-1 ruled</td>
+<td><strong>met</strong> (Verified)</td>
+<td>Ruling 56</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P7</td>
+<td>a live leader designation and no silently expired requests</td>
+<td><strong>not met</strong> (Verified)</td>
+<td><code>coord doctor</code>: leader epoch 42 expiring in 536 s; 4 requests <code>COORD-REQUEST-SILENT-EXPIRY</code></td>
+<td>step 1</td>
+</tr>
+<tr>
+<td>P8</td>
+<td>tracks branch from the integration branch, not <code>main</code></td>
+<td><strong>note</strong> (Verified)</td>
+<td>local <code>main</code> is <code>405e54b</code>, 156 commits behind <code>3a37f5f</code>. The design&#39;s &quot;branches from <code>main</code>&quot; means the integration branch <code>feature/ui-cad-direction</code> at or after <code>3a37f5f</code></td>
+<td>the Coordinator names the base in every brief</td>
+</tr>
+</tbody></table></div>
+<p>The native attach (review F-ATTACH, class CO-UI-READY) gates <strong>U3&#39;s exit</strong>, not dispatch (design §12.3 item 5).</p>
+<h2>Layer state</h2>
+<p>Measured in this tree on 2026-09-30 with <code>coord-core.py doctor</code> (exit 1), <code>pack-doctor.py --json</code> (20 PASS · 2 WARN ·
+0 FAIL) and <code>coord session list</code> (3 active sessions, 97 files scanned).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>registry</td>
+<td>ok - 8 pattern(s)</td>
+<td><code>.agents/artifacts.yml</code> is present and parses. Anything not listed stays <code>authored</code></td>
+</tr>
+<tr>
+<td>merge driver</td>
+<td>effective - coord-regen, coord-register declared and registered</td>
+<td>derived files regenerate and registers union-merge at every join. It was installed <strong>once, in the primary checkout</strong>; each track worktree <strong>inherits</strong> it through the shared <code>.git/config</code> and <code>.git/hooks</code>. Each tree runs <code>coord doctor</code> to read it back and never runs <code>coord install</code></td>
+</tr>
+<tr>
+<td>regeneration</td>
+<td>nothing owed</td>
+<td>no derived artifact is stale in this tree</td>
+</tr>
+<tr>
+<td>leader</td>
+<td><code>fbfa35dc</code> epoch 42, expires in 536 s</td>
+<td>live now, but the 900 s lease will lapse before the first join (Known coordination defects K2). Step 1 re-pins</td>
+</tr>
+<tr>
+<td>heartbeat</td>
+<td>11 sessions; newest beat 195985 s ago; 3 stalled, 0 live, 11 done</td>
+<td>nothing is running. Nothing is held</td>
+</tr>
+<tr>
+<td>requests</td>
+<td><strong>FAIL</strong> <code>COORD-REQUEST-SILENT-EXPIRY</code>: <code>req-01M3JGPAP1NS54N6GDMFZ6W9E0</code>, <code>req-01M3M5PGZJ4Z84EVAR1B4H5BQ0</code>, <code>req-01M3M5PQ57GS2R24NKWBYD9KX9</code>, <code>req-01M3SG5TE62HKD3T7CPYMDXVZ3</code></td>
+<td>step 1 runs <code>coord request expire</code> (the Coordinator&#39;s action, not this run&#39;s)</td>
+</tr>
+<tr>
+<td>lease overlap</td>
+<td>none (0 live leases)</td>
+<td>no contention now</td>
+</tr>
+<tr>
+<td>sessions</td>
+<td><code>track-m12b2-design</code> (M1.2b2 design, parallel), <code>fbfa35dc</code>, <code>track-m12b-plan</code> (this run); 0 claims each</td>
+<td>the M1.2b2 design track writes only docs; it holds no M1.2b path</td>
+</tr>
+<tr>
+<td>harness capability</td>
+<td>claude edit boundary &quot;enforcing&quot; (spike S5, 2026-08-24, <strong>not measured here</strong>); copilot &quot;historical&quot;</td>
+<td>see Harness qualification</td>
+</tr>
+<tr>
+<td>pack-doctor <code>doorbells</code></td>
+<td>not recorded (no <code>coord-mail.py dispatch</code> probe run)</td>
+<td>every track row carries doorbell = not recorded</td>
+</tr>
+<tr>
+<td>pack-doctor WARN</td>
+<td>copilot <code>contextTier=long_context</code>; knowledge graph has stale or flagged nodes</td>
+<td>not on this plan&#39;s path</td>
+</tr>
+<tr>
+<td>pre-commit floor</td>
+<td><code>.git/hooks/pre-commit</code> runs <code>coord-core.py precommit</code>, <strong>advisory unless <code>AGENT_SESSION</code> is set</strong></td>
+<td>K1 below. The join&#39;s ownership read (gate 5) is the real control</td>
+</tr>
+</tbody></table></div>
+<p><strong>Deliberately not run: <code>coord classify init</code> and <code>coord install</code>.</strong> The app-shell plan recorded (Flagged) that
+<code>coord classify init --force</code> run from a linked worktree wrote the <strong>primary checkout&#39;s</strong> registry and derived files. The
+registry already exists and <code>coord doctor</code> reads it back clean, so this run changed nothing in it. Rule for this plan:
+<strong>no track runs <code>coord classify</code> or <code>coord install</code></strong>; the Coordinator runs them only in the primary checkout.</p>
+<h2>Artifact classes</h2>
+<p>Classes are read from <code>.agents/artifacts.yml</code> in this tree. <code>docs-graph.py derive</code> and the audit render run at emit.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>path / pattern</th>
+<th>class</th>
+<th>mechanism</th>
+<th>coordination needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docs/docs-index.js</code></td>
+<td>derived</td>
+<td><code>python docs/ai-forward-pack/scripts/docs-graph.py derive</code> via coord-regen</td>
+<td><strong>none</strong>: a conflict here is regenerated, never hand-merged (K3)</td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-data.js</code>, <code>docs/audit/index.html</code></td>
+<td>derived</td>
+<td><code>audit-log.py --root docs --project CFD-Workbench render</code></td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-log.jsonl</code>, <code>docs/audit/change-log.jsonl</code></td>
+<td>register</td>
+<td>union merge (coord-register)</td>
+<td><strong>none</strong>: every track appends its own audit entry</td>
+</tr>
+<tr>
+<td><code>docs/notes/rulings.md</code></td>
+<td>register</td>
+<td>union merge</td>
+<td><strong>none</strong>: only the Owner appends</td>
+</tr>
+<tr>
+<td><code>.agents/log/*.jsonl</code>, <code>.agents/requests.jsonl</code></td>
+<td>register</td>
+<td>union merge</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>.tmp-tests/</code></td>
+<td>ignored</td>
+<td>per-tree test logs read by <code>check-named-tests.py</code></td>
+<td><strong>none</strong>: never committed</td>
+</tr>
+<tr>
+<td><code>docs/design/m12b-points.md</code></td>
+<td>authored, <strong>frozen for the wave</strong></td>
+<td>the single authority <code>check-named-tests.py --design</code> reads</td>
+<td>Coordinator only, after an Owner ruling, and only serially</td>
+</tr>
+<tr>
+<td><code>docs/design/app-shell.md</code></td>
+<td>authored, frozen</td>
+<td>still the authority for the M1.2a names that U1a and U2 must keep green (GO14a guards)</td>
+<td>Coordinator only, after an Owner ruling</td>
+</tr>
+<tr>
+<td><code>docs/coordination/join.json</code></td>
+<td>authored</td>
+<td>its <code>readiness</code> array is the ring <code>run-readiness.py</code> runs</td>
+<td>one owner: U3</td>
+</tr>
+<tr>
+<td><code>docs/proof/m12b/&lt;track&gt;.md</code></td>
+<td>authored</td>
+<td>each track&#39;s Proof Pack</td>
+<td>one owner each: its track</td>
+</tr>
+<tr>
+<td><code>docs/lessons/defect-classes.md</code>, this plan</td>
+<td>authored</td>
+<td>conventional conflict markers</td>
+<td>Coordinator only</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Core.Tests/Fixtures/m12b/**</code>, <code>docs/proof/m12b-old-build/</code>, the golden M1.2a recovery fixture</td>
+<td>authored</td>
+<td>golden bytes are the assertion; nothing regenerates them</td>
+<td>one owner each: B0, B0, B1b</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/packages.lock.json</code>, all <code>*.csproj</code></td>
+<td>authored</td>
+<td>no track adds a package; a change is a seam request to the Coordinator</td>
+<td>nobody during the wave</td>
+</tr>
+<tr>
+<td><code>src/**</code>, <code>tests/**</code>, <code>tools/check-named-tests.py</code>, <code>tools/run-readiness.py</code>, <code>DESIGN.md</code>, <code>docs/specs/foildsl.md</code>, <code>docs/reviews/m12b-native.md</code></td>
+<td>authored</td>
+<td>conventional conflict markers</td>
+<td><strong>one owner per file at a time</strong>. See Tracks and Seams</td>
+</tr>
+</tbody></table></div>
+<p>The only real contention is authored C#, AXAML and three shared test-runner files. Every file has exactly one owner at
+a time. Six files change hands at a merge, never concurrently (Seams S1–S6).</p>
+<h2>Tracks</h2>
+<p>Width cap: <strong>two concurrent delegated coding tracks.</strong> Every coding track&#39;s test command is the design&#39;s §14 wording:
+&quot;<code>tools/run-tests.sh</code> then <code>tools/check-named-tests.py &lt;track&gt; --design docs/design/m12b-points.md</code>&quot;. Named-check counts
+are the as-built extractor&#39;s output on the design (P4). Boxes follow Ruling 54 P1, quoted: &quot;A track&#39;s time box is 3x a
+measured prior from the same class of work. Without such a prior the box stays as written and the measured time goes in
+the audit entry.&quot; <strong>Red before green (every coding track):</strong> the track commits a Proof Pack at
+<code>docs/proof/m12b/&lt;track&gt;.md</code> (owned by that track) that records, for each of its named tests, a red run before the
+code that makes it green, or, for a test that pins as-built behaviour, the named mutant run that turns it red. A PASS
+line alone is not exit evidence: <code>check-named-tests.py</code> checks only that each name printed PASS (<code>:127-133</code>). The
+priors are the measured rows of <code>app-shell-build.md</code> &quot;Planned vs actual&quot;; the prior class per
+track is the design&#39;s §14 choice. The boxes are the design&#39;s §14 numbers; two are rounded (47 × 3 = 141 → 140, 43 × 3 = 129 → 130), and the plan does not restate them as a second figure.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owns (authored)</th>
+<th>depends on</th>
+<th>tier</th>
+<th>fan-out cap</th>
+<th>budget</th>
+<th>exit evidence</th>
+<th>harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PRE</strong> checker flag and stubs</td>
+<td><code>tools/check-named-tests.py</code> (<code>--design &lt;path&gt;</code>, default <code>docs/design/app-shell.md</code>; <code>--self-test</code> gains a planted unattributed name in a second design); empty <code>PointModelTests</code>, <code>LengthExpressionTests</code>, <code>PointGestureTests</code>, <code>PointCommandTests</code>, <code>ReopenPointEditTests</code> classes and their <code>Run()</code> lines in <code>tests/CfdWorkbench.Core.Tests/IdentityTests.cs</code> (seam S1); empty <code>tests/CfdWorkbench.Desktop.Tests/PlanCanvasTests.cs</code>, the <code>--plan-canvas</code> branch and its entry in the <code>DesktopChecks.Spawn(…)</code> line of <code>WorkbenchTests.cs</code> (seam S2); a <code>--readiness</code> switch in <code>IdentityTests.cs</code> and <code>WorkbenchTests.cs</code>, never spawned by <code>run-tests.sh</code>, that calls empty <code>RunReadiness()</code> members on <code>PointModelTests</code>, <code>ControllerShellTests</code> and <code>PlanCanvasTests</code> (B0, U1a and U1b fill them)</td>
+<td>step 2 (O-M12B)</td>
+<td>T1</td>
+<td>0</td>
+<td>inline · <strong>32 min</strong> (G0 glue 642 s × 3; G0 was Opus, same class)</td>
+<td><code>--self-test</code> exit 0, where the new case calls <code>main()</code> <strong>with <code>--design &lt;second design&gt;</code></strong> (the existing cases call <code>check()</code> on design text, so they would catch a planted name without the flag), observed <strong>red before the flag and green after</strong> (both runs recorded in the audit entry); <code>check-named-tests.py B0 --design docs/design/m12b-points.md</code> runs the extraction (187 names, 0 errors) and fails only on missing PASS lines; <code>check-named-tests.py D3a</code> (default design) still exits as before; <code>tools/run-tests.sh</code> exit 0 with the empty suites compiled and <code>--plan-canvas</code> spawned; <code>check-docs.py</code> exit 0</td>
+<td><strong>Coordinator inline</strong> (Claude Code Opus 5.5, design §12.2 &quot;Coordinator, before dispatch&quot;); not delegated</td>
+</tr>
+<tr>
+<td><strong>B0</strong> Core grammar and model</td>
+<td><code>src/CfdWorkbench.Core/FoilSource.cs</code>, <code>Geometry.cs</code>, <code>PointModel.cs</code> (new); <code>docs/specs/foildsl.md</code> (§4/§5/§8 and conformance, same change); <code>src/CfdWorkbench.Cli/Program.cs</code>; <code>tests/CfdWorkbench.Cli.Tests/</code> additions; <code>FoilSourceTests.cs</code>, <code>GeometryTests.cs</code>, <code>PointModelTests.cs</code> (body); <code>tests/CfdWorkbench.Core.Tests/Fixtures/m12b/</code>; <code>docs/proof/m12b-old-build/</code></td>
+<td>PRE</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>135 min</strong> (Grok P1 45 × 3)</td>
+<td>the test command with B0&#39;s <strong>29</strong> names PASS. The old-build characterization receipt is committed <strong>before</strong> the parser change (commit order in <code>git log</code>). The 4.1 parse ∘ print round trip runs with a fixed seed. <code>Readiness_SixteenPointThreeAnchors_AssessUnderProofBudget</code> is written, excluded from <code>run-tests.sh</code>, run once, and its measured value recorded in the audit entry. <code>PointModel.cs</code> stays Avalonia-free (<code>Architecture_DockConfinedToShell</code> green)</td>
+<td>Grok <code>grok-4.7</code></td>
+</tr>
+<tr>
+<td><strong>B1a</strong> Core chords</td>
+<td><code>src/CfdWorkbench.Core/ChordDimension.cs</code> (new), <code>LengthExpression.cs</code> (new); <code>ConstrainedFit.cs</code> if the chord fit needs a change (seam S6); in <code>AuthoringSession.cs</code> only <code>ApplyDimensionCore</code>/<code>ApplyChord</code>, the memo <code>Fingerprint</code>, and the chord <code>rule</code> receipt path (seam S3); <code>DimensionTests.cs</code>, <code>LengthExpressionTests.cs</code> (body)</td>
+<td>PRE (parallel with B0)</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>90 min</strong> (Grok C1 30 × 3)</td>
+<td>the test command with B1a&#39;s <strong>24</strong> names PASS. <code>Reopen_RetrySameDimensionOperationId_ReturnsPriorId</code> (the F-5 REPLAY-MEMO fix) is red first against the as-built memo, and the red log is recorded before the fix commit. The hand mutant &quot;limit 20 µm&quot; turns <code>ApplyDimension_FitJustAboveLimit_AcceptedWithWarning</code> (the 10.1 µm fixture) red; the 9.9 µm fixture pins the other side and stays green under it (both runs in the Proof Pack). <code>LengthExpression_RandomText_NeverThrowsUnexpected</code> runs with a fixed seed</td>
+<td>Grok <code>grok-4.7</code></td>
+</tr>
+<tr>
+<td><strong>B1b</strong> Core gestures and commands</td>
+<td>the rest of <code>AuthoringSession.cs</code> (session members, <code>NativeProject</code> receipt code, <code>EditReference</code> point arms, <code>RecoveryReference</code>); <code>PointGestureTests.cs</code>, <code>PointCommandTests.cs</code>, <code>ReopenPointEditTests.cs</code> (bodies); the golden M1.2a recovery fixture</td>
+<td>B0 and B1a merged</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>140 min</strong> (Codex D3a 47 × 3)</td>
+<td>the test command with B1b&#39;s <strong>43</strong> names PASS. The golden recovery fixture is bytes written by the M1.2a build, not synthesized (<code>Recovery_M12aGoldenRailDraft_ApplyOneRowNoCurve</code>, <code>…_DiscardClears</code>). The hand mutant &quot;ceiling 15&quot; turns <code>MakeAnchor_ThirteenPoints_SixteenAccepted</code> red; <code>MakeAnchor_FourteenPointsNoSnap_RefusedNamesCeiling</code> goes red only if it asserts the ceiling number (16) in the refusal text, so B1b writes that assertion (both runs in the Proof Pack). Random-drag property tests (ordering, Smooth collinearity, Symmetric midpoint) run with a fixed seed</td>
+<td>Codex <code>gpt-6-sol</code></td>
+</tr>
+<tr>
+<td><strong>U1a</strong> controller</td>
+<td><code>src/CfdWorkbench.Desktop/WorkbenchController.cs</code>, <code>Selection.cs</code>, <code>Shell/ShellEvents.cs</code>; <code>tests/CfdWorkbench.Desktop.Tests/ControllerShellTests.cs</code></td>
+<td>B1b merged; SHELLFIX joined (P1)</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>130 min</strong> (Codex D3b 43 × 3)</td>
+<td>the test command with U1a&#39;s <strong>23</strong> names PASS. <strong>Controller tier:</strong> the §6.2 gesture table is driven with synthetic input, one test per cell. The hand mutant &quot;threshold 0&quot; turns <code>Controller_MoveTwoPixels_NoDraft</code> red (Proof Pack). Span moves to the async path and the Desktop copies of the Core refusal rules are gone (F-6). Every app-shell name in <code>ControllerShellTests.cs</code> still PASSes (<code>check-named-tests.py D2</code>). <code>Readiness_NewFoilDrag_FrameP95Under100Ms</code> and <code>Readiness_NewFoilCommit_P95Under250Ms</code> are written, excluded from <code>run-tests.sh</code>, run once, and their measured values recorded in the audit entry</td>
+<td>Codex <code>gpt-6-sol</code></td>
+</tr>
+<tr>
+<td><strong>U1b</strong> Plan canvas</td>
+<td><code>src/CfdWorkbench.Desktop/PlanCanvas.cs</code> (new, with <code>PlanPointPeer</code>); <code>ModelArea.axaml</code>(.cs) (Plan and 3D samples tabs); <code>Styles.axaml</code> (new tokens); <code>PlanCanvasTests.cs</code> (body)</td>
+<td>U1a merged</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>140 min</strong> (Codex D3a 47 × 3)</td>
+<td>the test command with U1b&#39;s <strong>43</strong> names PASS; <code>run-tests.sh</code> three times with identical PASS sets. <strong>Rendered tier (UI-RENDERED-STATE):</strong> the whole realized window is rendered; each point&#39;s position comes from <code>TranslatePoint</code> canvas → window; pixels are read there (glyph interior, ring radius, handle ends, rail polyline against the draft&#39;s samples, orientation); the realized tree has a visible <code>PlanCanvas</code> ≥ 320 × 240 not covered at the sampled points. State-only assertions do not count, and the check is a mutant: with <code>PlanCanvas.Render</code> blanked, <strong>every</strong> rendered-tier name goes red (Proof Pack lists each). <code>PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels</code> and <code>PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke</code> run <strong>first</strong>; if either assumption is false, U1b stops and reports (no silent downgrade). <code>PlanCanvas_Brushes_AllFromThemeResources</code> PASS; <code>xaml-token-lint</code> clean. <code>Readiness_PlanRender_Under8Ms</code> written, run once, measured value recorded. <code>run-tests.sh</code> stays under its 60 s budget</td>
+<td>Codex <code>gpt-6-sol</code></td>
+</tr>
+<tr>
+<td><strong>U2</strong> panes and menus</td>
+<td><code>PropertiesView.cs</code>, <code>Panes/PropertiesPane.axaml</code>(.cs), <code>Panes/BrowserPane.axaml</code>(.cs), <code>Shell/CommandTable.cs</code>, <code>Shell/NativeMenuBuilder.cs</code>, <code>Shell/ShellHost.cs</code> (pane registration only); delete <code>Panes/RailEditorPane.*</code>; <code>ShellModelTests.cs</code>, <code>ShellWindowTests.cs</code> additions; the retirement hand-overs of seam S4</td>
+<td>U1a merged (parallel with U1b)</td>
+<td>T2</td>
+<td>0</td>
+<td>150 calls · tokens not recorded · <strong>135 min</strong> (Grok P1 45 × 3)</td>
+<td>the test command with U2&#39;s <strong>25</strong> names PASS; <code>run-tests.sh</code> three times with identical PASS sets. <strong>Dead-control tier (UI-DEAD-CONTROL):</strong> <code>UI_DEAD_CONTROL_ShellButtonsHaveActions</code> extended to the new Properties, Wing and Browser states and green; every new visible enabled control has an action test <strong>and</strong> an effect test, and with one new control&#39;s command unbound the sweep and that control&#39;s action test go red (Proof Pack). The Plan and &quot;3D samples&quot; tabs are added to the <code>Shell_AllModelTabs_ReentryRealizesContent</code> array (<code>ShellWindowTests.cs</code>:73; the UI-RENDERED-STATE re-entry control). The retirement is complete: <code>grep -rn &#39;RailEditorPane|PatchRail|UpdateDraft(|BeginEdit(&#39; src tests</code> returns nothing, and every ported test keeps its name (the app-shell checks <code>D1</code>, <code>D3a</code> still exit 0). <code>xaml-token-lint</code> clean</td>
+<td>Grok <code>grok-4.7</code></td>
+</tr>
+<tr>
+<td><strong>U3</strong> UX review and polish</td>
+<td><code>DESIGN.md</code> (if tokens move); <code>Styles.axaml</code> (after U1b merges, seam S5); <code>docs/reviews/m12b-native.md</code> (new); the <code>readiness</code> array of <code>docs/coordination/join.json</code> (the four M1.2b readiness checks, launched through the <code>--readiness</code> switch PRE adds; <code>run-readiness.py</code> reads that array)</td>
+<td>U1b and U2 merged</td>
+<td>T1</td>
+<td>2 (UX &amp; Accessibility, Marine-CAD UX; Adversary Mode, separate agents)</td>
+<td>80 calls · 300k tokens · <strong>120 min</strong> (no same-class measured prior: the app-shell U1a row has no measurement; box as written, measured time recorded)</td>
+<td>U3 has <strong>0 named tests</strong>, so <code>check-named-tests.py U3</code> would fail on an empty list; U3 is gated by this evidence and gate 3. <strong>Native tier (CO-UI-READY):</strong> rows N-B1 … N-B12 (the §0.1 steps) in <code>docs/reviews/m12b-native.md</code>, <strong>each with an agent attach receipt accepted by <code>tools/check-review-attach.mjs</code></strong> before any operator session (N-B1 with a screenshot of the Plan showing both rails and points; N-B10 with a VoiceOver trace of Tab across points and an AX dump of the point peers). <code>check-review-attach.mjs</code> proves launch identity, non-empty screenshot bytes and the review window title, not the row&#39;s content. So each N-B row also carries a <strong>content assertion</strong> (N-B1: sampled pixels at the expected rail and point positions in the screenshot; N-B10: the parsed AX dump lists every point peer with bounds and focus). A row without one is labelled &quot;attach-ready&quot;, never passed. If attach is blocked, U3 stops and reports: &quot;operator-run, not done&quot; is <strong>not</strong> an exit. The UX &amp; A11y and Marine-CAD lenses re-review and clear. <code>python3 tools/run-readiness.py</code> produces a green receipt with all four checks, and <code>run-readiness.py --check</code> exits 0 on that HEAD. <code>design-lint.py --strict DESIGN.md</code> clean if <code>DESIGN.md</code> changed</td>
+<td>Claude Code <strong>Opus 5.5</strong> (UI judgement)</td>
+</tr>
+</tbody></table></div>
+<p>Agy is not assigned. The design (§14) says &quot;Agy is not used: every track here is either Core work better suited to
+Codex/Grok or long UI work (two HARNESS-SILENT-EXITs)&quot;, and every box here exceeds the ~60 min bound under which Agy
+finished (D1 21 min, D2 35 min). PRE is the Coordinator&#39;s own inline step (§12.2), so no harness is dispatched for it.</p>
+<h3>Track detail</h3>
+<p>Every track ends at its exit evidence, or when the <strong>2-cycle repair cap</strong> fires (AGENTS.md: &quot;Repair loops are capped at
+2 cycles; at the cap, stop the track and report to the operator.&quot;). A missing Return section, or a branch without the
+claimed commit, counts as a failed cycle (HARNESS-SILENT-EXIT). <strong>At the cap the Coordinator stops the track, reports to
+the operator, and switches approach or harness; it never runs a third cycle on the same harness.</strong> Precedent: D3a&#39;s Agy
+silent exit moved to Codex; D3b&#39;s contrast work split at its cap into THEME on Claude. A continuation dispatch that
+returns with a commit is not a repair cycle, but it counts against the box: the box is the cap on continuations.
+<strong>Fallback rule:</strong> a harness fault in cycle 1 moves cycle 2 to the other code harness (Grok ↔ Codex). At the cap the
+restart goes to a harness that has <strong>not</strong> run this track (for a Grok → Codex track that is Claude Code Opus 5.5), or
+to a narrower approach ruled by the Owner. A track is never re-dispatched to a harness that already failed it.</p>
+<p>Seam requests go to the Coordinator with <code>coord request add</code>, each with a deadline and a fallback. Decision requests go
+to the Owner with <code>coord decide request --to cfd-owner-fbfa35dc</code>. Each row carries the leader epoch that
+<code>coord leader who</code> reads <strong>at that dispatch</strong> (not an assumed number; K2). Doorbell for every row: <strong>not recorded</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owner seat</th>
+<th>rules (Owner)</th>
+<th>seam requests expected</th>
+<th>deadline (wall from dispatch)</th>
+<th>fallback (never a third cycle; never back to a harness that failed the track)</th>
+<th>lane</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PRE</td>
+<td>Coordinator (inline)</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>none</td>
+<td>32 min</td>
+<td>over the box: the Coordinator records the measured time and reports; PRE is serial, so a sub-agent saves nothing</td>
+<td>Coordinator</td>
+</tr>
+<tr>
+<td>B0</td>
+<td>Grok session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>B0 ↔ B1a: the <code>Curve</code> record shape (seam S6)</td>
+<td>135 min</td>
+<td>fallback rule (Track detail); Grok rate-limit stall while B1a also runs → re-dispatch this track on Codex, never wait on both</td>
+<td>A</td>
+</tr>
+<tr>
+<td>B1a</td>
+<td>Grok session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>B1a → B0: any <code>FoilSource</code> helper (refused in-wave: write it in <code>ChordDimension.cs</code>)</td>
+<td>90 min</td>
+<td>fallback rule; a Grok rate-limit stall while B0 also runs → re-dispatch B1a on Codex</td>
+<td>B</td>
+</tr>
+<tr>
+<td>B1b</td>
+<td>Codex session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>B1b → B1a (merged): <code>Fingerprint</code> members</td>
+<td>140 min</td>
+<td>fallback rule (Track detail)</td>
+<td>A</td>
+</tr>
+<tr>
+<td>U1a</td>
+<td>Codex session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>U1a → B1b (merged): Core member gaps</td>
+<td>130 min</td>
+<td>as B1b</td>
+<td>A</td>
+</tr>
+<tr>
+<td>U1b</td>
+<td>Codex session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>U1b → U1a (merged): controller members (S5); U1b → U3: token names</td>
+<td>140 min</td>
+<td>as B1b. An assumption refuted (whole-window render, AX peers) is <strong>not</strong> a repair cycle: stop and report</td>
+<td>A</td>
+</tr>
+<tr>
+<td>U2</td>
+<td>Grok session</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>U2 → U1a (merged): controller members (S5); U2 → app-shell names (S4)</td>
+<td>135 min</td>
+<td>fallback rule (Track detail)</td>
+<td>B</td>
+</tr>
+<tr>
+<td>U3</td>
+<td>Claude Opus sub-agent + operator</td>
+<td><code>cfd-owner-fbfa35dc</code></td>
+<td>U3 → U1b/U2 (merged): string or token fixes, as a Sonnet edit on its own branch after merge</td>
+<td>120 min</td>
+<td>attach blocked → stop and report; the slice stays open</td>
+<td>Claude</td>
+</tr>
+</tbody></table></div>
+<h3>Harness qualification (from what was verified here)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>harness · model</th>
+<th>needed from the delegation mechanism</th>
+<th>edit boundary</th>
+<th>dispatch</th>
+<th>basis</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Claude Code (Opus 5.5, Sonnet)</td>
+<td>exclusive paths, a Return block, an audit entry</td>
+<td><strong>observed-only</strong> here (spike S5 records &quot;enforcing&quot;, 2026-08-24; not re-measured)</td>
+<td>observed-only</td>
+<td><code>coord doctor</code>; the commit floor is advisory without <code>AGENT_SESSION</code></td>
+</tr>
+<tr>
+<td>Grok <code>grok-4.7</code></td>
+<td>foreground run, commits on its branch, Return block</td>
+<td><strong>unsupported</strong></td>
+<td>observed-only: C1, P1, NEWFOIL returned with commits (app-shell Planned vs actual). <strong>Two concurrent Grok sessions (B0 ∥ B1a) were never exercised</strong>; every earlier lane paired Grok with Agy</td>
+<td>the commit floor (if <code>AGENT_SESSION</code> reaches it) and the Leader&#39;s branch read</td>
+</tr>
+<tr>
+<td>Codex <code>gpt-6-sol</code></td>
+<td>the same</td>
+<td><strong>unsupported</strong></td>
+<td>observed-only: D3a dispatches 2–3, D3b 1–2, U1FIX, OPENFIX returned with commits</td>
+<td>the same</td>
+</tr>
+<tr>
+<td>Agy <code>gemini-3.8-flash-high</code></td>
+<td>—</td>
+<td>unsupported</td>
+<td>not assigned (two HARNESS-SILENT-EXITs on long UI work)</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<p>Dispatch commands (from the operator&#39;s recorded usage):
+<code>grok --cwd &lt;wt&gt; -m grok-4.7 --always-approve --no-subagents --output-format plain -p &quot;$(cat brief.md)&quot;</code> and
+<code>codex exec -m gpt-6-sol -C &lt;wt&gt; -s danger-full-access &quot;$(cat brief.md)&quot;</code>.</p>
+<p><strong>Every Codex and Grok brief is hand-compiled.</strong> The prompt compiler (<code>/compile</code>, <code>prompt-compile.py</code>) has no templates
+for the Codex, Grok or Agy harnesses (app-shell Planned vs actual: &quot;The prompt compiler has no Grok/Agy templates, so
+those briefs were hand-compiled&quot;). The Coordinator writes each brief by hand with: the goal state, the base commit, the
+owned paths (and the explicit list of files it must not touch), the test command with <code>--design</code>, the exit evidence
+row, &quot;foreground only; no background processes&quot;, <code>export AGENT_SESSION=&lt;track&gt; AGENT_WI=&lt;track&gt;</code> as the first shell
+line, and the Return section. The one Claude brief (U3) goes through <code>/compile</code>. A brief never carries an unanswered <code>DR-n</code>
+line; Owner rulings are stated as settled facts with the ruling number (known pack issue: <code>prompt-compile.py</code> sets
+<code>dispatchable</code> false whenever <code>decision_requests</code> is non-empty).</p>
+<h2>Serial spine</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>item</th>
+<th>why it cannot be parallel</th>
+<th>who owns it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>O-M12B Owner ruling: accept <code>design-m12b-points</code> and ADR-0001 Amendment 1; accept this plan (track count: the Tech Lead was not convened) and seams S1–S6</td>
+<td>decision edge into every track; the design is &quot;Owner acceptance pending&quot;. Fails GO5(b)</td>
+<td>Owner <code>cfd-owner-fbfa35dc</code></td>
+</tr>
+<tr>
+<td>PRE</td>
+<td>the checker is the join gate for every coding track, and it owns the three shared runner lines (<code>IdentityTests.cs</code> <code>Run()</code> list, the <code>WorkbenchTests.cs</code> spawn line). Until it lands, B0 and B1a would both author <code>IdentityTests.cs</code>. Fails GO5(c)</td>
+<td>PRE</td>
+</tr>
+<tr>
+<td>{B0, B1a} → B1b</td>
+<td>data edge: B1b consumes B0&#39;s <code>PointModel</code>/parser and B1a&#39;s <code>Fingerprint</code> and chord path in the same <code>AuthoringSession.cs</code></td>
+<td>lane A</td>
+</tr>
+<tr>
+<td>B1b → U1a</td>
+<td>data edge: U1a calls <code>BeginPointGesture</code>, <code>UpdatePointGesture</code>, <code>ApplyPointCommand</code>, <code>ApplyChord</code></td>
+<td>lane A</td>
+</tr>
+<tr>
+<td>U1a → {U1b, U2}</td>
+<td>data edge: both read the controller&#39;s <code>Planform</code>, <code>Gesture</code>, commands and camera (§5.2). Until U1a fixes them, every Desktop track&#39;s shape changes. Fails GO5(b)</td>
+<td>lane A</td>
+</tr>
+<tr>
+<td>{U1b, U2} → U3</td>
+<td>U3 reviews the rendered and wired whole; it also takes over <code>Styles.axaml</code> from U1b (S5)</td>
+<td>U3</td>
+</tr>
+<tr>
+<td>the first join after PRE</td>
+<td>read <code>coord doctor</code> in the integration tree before two lanes rely on the merge driver</td>
+<td>Coordinator</td>
+</tr>
+<tr>
+<td>wave join → operator review → any merge to main</td>
+<td>the operator review is the standing rule after M1.2a; readiness runs before main</td>
+<td>Coordinator, operator</td>
+</tr>
+</tbody></table></div>
+<h2>Seams</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>from -&gt; to</th>
+<th>the request</th>
+<th>resolved by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S1 · PRE -&gt; B0, B1a, B1b</td>
+<td>B0 and B1a run in parallel and both need a <code>Run()</code> line in <code>IdentityTests.cs</code> (Verified: <code>:52-68</code> is one list of <code>XTests.Run();</code> calls); B1b adds three more</td>
+<td>PRE creates the five empty classes and their <code>Run()</code> lines, the G0 pattern that Ruling 52 accepted for the app-shell (&quot;G0 creates the empty Desktop test classes … so the spawn lines G0 owns compile; ownership passes at G0&#39;s merge&quot;). Each class body passes to its track at PRE&#39;s merge. <strong>O-M12B confirms.</strong> Considered and rejected: calling <code>PointModelTests.Run()</code> from <code>GeometryTests</code> and <code>LengthExpressionTests.Run()</code> from <code>DimensionTests</code>. It removes S1 but hides two suites behind others, so a deleted call drops a suite with no visible runner line</td>
+</tr>
+<tr>
+<td>S2 · PRE -&gt; U1b</td>
+<td>§14 lists &quot;the <code>--plan-canvas</code> entry point&quot; under U1b, but §12.2 puts it in the Coordinator&#39;s harness change before dispatch, and <code>WorkbenchTests.cs</code> is also edited by U2&#39;s retirement (Verified: it references the rail editor contracts) while U1b runs</td>
+<td>PRE adds the <code>--plan-canvas</code> branch and spawn entry (<code>WorkbenchTests.cs</code>:49-64, :1861 shape) and the empty <code>PlanCanvasTests</code>, per §12.2. U1b owns only <code>PlanCanvasTests.cs</code>; <code>WorkbenchTests.cs</code> passes to U2. <strong>O-M12B confirms</strong></td>
+</tr>
+<tr>
+<td>S3 · B1a -&gt; B1b</td>
+<td>B1a&#39;s named tests <code>ApplyDimension_Receipt_CarriesRuleId</code>, <code>Reopen_ChordRowWithoutRule_DocReference</code>, <code>Reopen_ForgedRuleValue_DocReference</code> (design §9, §12.4) need the receipt&#39;s <code>rule</code> member, <code>&quot;rule&quot;</code> in <code>NativeProject.Read</code>&#39;s optional list and the <code>&quot;dimension&quot;</code> arm of <code>EditReference</code> (§4), which §14 gives to B1b (&quot;<code>NativeProject</code> receipt code, <code>EditReference</code>&quot;)</td>
+<td>B1a owns those three chord-receipt members; B1b owns the <code>curve</code> member and the <code>point-type</code>/<code>tangent-kind</code> arms. B1b starts only after B1a merges, so the file never has two concurrent owners. <code>assume:</code> the design intends the chord receipt with the chord track; confirm: O-M12B; if refused, the three B1a names move to B1b by a design amendment (Coordinator, after the ruling), because a track cannot pass a name whose code it may not write</td>
+</tr>
+<tr>
+<td>S4 · U2 retirement hand-overs</td>
+<td>§8 gives U2 the contract removal (&quot;<code>RailEditorPane</code>; <code>BeginEdit(rail,id)</code>, <code>UpdateDraft(si)</code> and <code>PatchRail</code> once no caller remains, their tests ported&quot;), but the callers are in files §14 does not give U2 (Verified by grep: <code>MainWindow.axaml.cs</code>, Desktop <code>Program.cs</code>, <code>FoilSource.cs</code>, <code>AuthoringSession.cs</code>, <code>FoilSourceTests.cs</code>, <code>DimensionTests.cs</code>, <code>ProjectStoreTests.cs</code>, <code>ReopenConstructionTests.cs</code>, <code>SectionEditTests.cs</code>, <code>AuthoringSessionTests.cs</code>, <code>WingEstimatesTests.cs</code>, <code>WorkbenchTests.cs</code>, <code>ShellWindowTests.cs</code>)</td>
+<td>each of these files passes to U2 <strong>for the retirement edit only</strong>, after its M1.2b owner has merged (B0, B1a, B1b and U1a all merge before U2 starts). No other open track holds them while U2 runs (U1b owns none of them). A ported test keeps its name; a name that cannot survive needs an Owner ruling amending <code>app-shell.md</code> §12.4 <strong>before</strong> U2 merges</td>
+</tr>
+<tr>
+<td>S5 · U1b, U2 -&gt; U1a (merged); U1b -&gt; U3</td>
+<td>a controller member missing from §5.2; <code>Styles.axaml</code> changes hands from U1b to U3</td>
+<td><code>WorkbenchController.cs</code> is frozen after U1a merges. A gap is a <code>coord request add</code>; the Coordinator hands the file to the <strong>first</strong> requester for that edit only, never to both lanes at once. <code>Styles.axaml</code> passes to U3 at U1b&#39;s merge</td>
+</tr>
+<tr>
+<td>S6 · B0 &lt;-&gt; B1a</td>
+<td>B0 adds <code>Curve.Tangents</code> while B1a builds the chord fit on the <code>Curve</code> record. Recorded join lesson: &quot;B1 changed the internal <code>Curve</code> record&#39;s positional constructor under B2 (build gate caught it)&quot;</td>
+<td>B0 adds <code>Tangents</code> as a non-positional member with an empty default; B1a takes tangent rows as generic linear equality rows (design §14) and never constructs <code>Curve</code> positionally. <code>ConstrainedFit.cs</code> constructs <code>Curve</code> today (Verified by the Simplifier) and §14 gives it to nobody; B1a owns it for the wave, and B0 must not edit it. The join build gate catches a breach</td>
+</tr>
+</tbody></table></div>
+<h3>Guards over shared surfaces (GO14a)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>guard (owner)</th>
+<th>root · recursion · token set · allowlist</th>
+<th>other tracks it reads</th>
+<th>jointly satisfiable with what the owner writes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>check-named-tests.py &lt;track&gt; --design docs/design/m12b-points.md</code> (PRE)</td>
+<td><code>docs/design/m12b-points.md</code> §9 and §12.4, one file, no recursion. Tokens: backticked <code>Method_State_Outcome</code> names, attributed to the first <code>(&lt;track&gt;</code> closed by <code>)</code>, <code>,</code> or <code>;</code> on the same line; <code>*</code>, <code>&lt;&gt;</code>, <code>…</code> fail. Also <code>.tmp-tests/*.log</code> (non-recursive): <code>PASS &lt;name&gt;</code>, any <code>FAIL</code>. Allowlist: none. Readiness names sit in §12.3 and are not extracted (Verified)</td>
+<td>every coding track</td>
+<td>yes. No track edits the design; each writes tests with exactly its names. U3 has no names and is gated otherwise</td>
+</tr>
+<tr>
+<td><code>check-named-tests.py &lt;track&gt;</code> default design <code>app-shell.md</code> (G0, M1.2a)</td>
+<td><code>docs/design/app-shell.md</code> §9 and §12.4, plus the inventory&#39;s ported-name column for D3a</td>
+<td>U1a (<code>ControllerShellTests.cs</code>, D2&#39;s names), U2 (<code>ShellModelTests.cs</code> D1, <code>ShellWindowTests.cs</code> and <code>WorkbenchTests.cs</code> D3a)</td>
+<td>yes, if every ported or edited test keeps its name. Renaming or deleting one reddens at the join, which is intended (S4)</td>
+</tr>
+<tr>
+<td><code>Architecture_DockConfinedToShell</code> (D3a)</td>
+<td>root <code>src/</code>, recursive <code>**/*.cs</code> text. Tokens: <code>Dock.</code> namespaces, and <code>Avalonia</code> or <code>Dock</code> inside <code>CfdWorkbench.Core</code>. Allowlist: <code>src/CfdWorkbench.Desktop/Shell/**</code></td>
+<td>B0 (<code>PointModel.cs</code>), B1a, B1b (Core), U1b (<code>PlanCanvas.cs</code> at the Desktop root, outside the allowlist)</td>
+<td>yes. Core stays Avalonia-free by design (§12.1 T3); <code>PlanCanvas.cs</code> uses Avalonia but not Dock. AXAML is not scanned</td>
+</tr>
+<tr>
+<td><code>xaml-token-lint</code> (fast ring)</td>
+<td><code>src/CfdWorkbench.Desktop</code>, recursive, <code>.xaml</code> and <code>.axaml</code>. Tokens: raw colours, inline <code>SolidColorBrush</code> colours, raw dimension literals. Allowlist: <code>is_allowed_dimension</code></td>
+<td>U1b (<code>ModelArea.axaml</code>, <code>Styles.axaml</code>), U2 (panes), U3 (<code>Styles.axaml</code>)</td>
+<td>yes, if AXAML uses <code>Styles.axaml</code> tokens. C# brushes in <code>PlanCanvas.cs</code> are not scanned; <code>PlanCanvas_Brushes_AllFromThemeResources</code> covers them</td>
+</tr>
+<tr>
+<td><code>UI_DEAD_CONTROL_ShellButtonsHaveActions</code> (U1FIX; U2 owns <code>ShellWindowTests.cs</code> in this wave)</td>
+<td>the <code>ShellHost</code> visual tree, every <code>Button</code> that is effectively visible and enabled; token: a bound <code>Command</code> or a <code>Click</code> handler. Allowlist: names starting <code>PART_</code></td>
+<td>U2&#39;s new Properties, Wing and Browser controls; U1b&#39;s canvas draws points in <code>Render</code>, not as <code>Button</code>s</td>
+<td>yes. The sweep only covers the states it visits, so U2&#39;s exit also requires an action and an effect test per new control</td>
+</tr>
+<tr>
+<td><code>run-tests.sh</code> TEST-BUDGET (60 s wall, exit 3)</td>
+<td>the whole suite</td>
+<td>every track</td>
+<td>yes (Inferred): the last measured wall is 29 s (app-shell Planned vs actual); the design estimates +6–10 s. A track over budget reports the seconds, and the Coordinator moves rendered cases to readiness, never raising the budget</td>
+</tr>
+<tr>
+<td><code>tools/check-spiral.py</code> (via <code>check-docs.py</code>)</td>
+<td><code>main..HEAD</code> commits; fails at ≥ 12 commits, none touching <code>src/</code> or <code>tests/</code>, and ≥ 60 % bookkeeping</td>
+<td>every branch</td>
+<td>yes. Every track branch starts from the integration history, which already touches <code>src/</code> and <code>tests/</code></td>
+</tr>
+</tbody></table></div>
+<h2>Struck tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>why it was not worth its multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a separate retirement track for <code>RailEditorPane</code> and the old rail contracts</td>
+<td>§8 gives it to U2, and U2 already holds the pane registrations and menus the retirement touches. A separate track would take the same files right after U2. Kept in U2 by seam S4</td>
+</tr>
+<tr>
+<td>B0 and B1a merged into one Core session</td>
+<td>rejected: they have no data edge (§14: &quot;tangent rows enter the chord fit as generic linear equality rows&quot;) and no shared file once S1 moves the <code>Run()</code> lines to PRE; the parallel run saves one 90 min box on the path</td>
+</tr>
+<tr>
+<td>U1b and U2 serialised</td>
+<td>rejected: disjoint files after S2, S4 and S5; both only read the controller</td>
+</tr>
+<tr>
+<td>Agy for any track</td>
+<td>two HARNESS-SILENT-EXITs on long UI work; every box here is over the ~60 min Agy bound</td>
+</tr>
+<tr>
+<td>a docs-only track for the <code>review-suggested</code> flags the design raised on ADR-0001 and <code>design-language</code></td>
+<td>not required before dispatch; the Coordinator clears them at the wave join through <code>docs-graph.py</code></td>
+</tr>
+<tr>
+<td>a render or index track</td>
+<td>derived work; no coordination is needed (Artifact classes)</td>
+</tr>
+</tbody></table></div>
+<h2>Known coordination defects and mitigations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>defect (observed)</th>
+<th>mitigation in this wave</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>K1</td>
+<td>Sub-agents committed without <code>AGENT_SESSION</code>, so the pre-commit hook went advisory (&quot;advisory: AGENT_SESSION is unset, so nothing was checked&quot;). This happened <strong>four times</strong> (class COORD-ENV, <code>defect-classes.md</code>)</td>
+<td>every brief&#39;s first shell line is <code>export AGENT_SESSION=&lt;track&gt; AGENT_WI=&lt;track&gt;</code>, and the brief says to export it in <strong>every</strong> shell call, including <code>git commit</code>. Because an external harness may drop the environment (not assessed), join gate 5 reads <code>git diff --name-only &lt;base&gt;..&lt;branch&gt;</code> against the track&#39;s owned paths; a path outside them fails the join whatever the hook said</td>
+</tr>
+<tr>
+<td>K2</td>
+<td>The 900 s leader lease expires between joins (app-shell Planned vs actual: &quot;The leader lease (900 s TTL) expired between joins and was reclaimed at every join&quot;). This run observed epoch 42 with 536 s left</td>
+<td><code>coord leader pin fbfa35dc</code> at the start of every join and before every dispatch; each track row records the epoch <code>coord leader who</code> reads <strong>then</strong>. An expired lease between joins is expected, not a failure. Not yet a registered class: the Coordinator registers it with a control (a renew at each join step)</td>
+</tr>
+<tr>
+<td>K3</td>
+<td><code>docs/docs-index.js</code> conflicts at every join</td>
+<td>the file is <code>derived</code>; the coord-regen driver regenerates it. If a conflict marker still appears, the Coordinator runs <code>python3 docs/ai-forward-pack/scripts/docs-graph.py derive</code> on the integration tree and commits the result. Never hand-merge it. Tracks do not commit it except through <code>derive</code></td>
+</tr>
+<tr>
+<td>K4</td>
+<td><code>coord classify init --force</code> from a linked worktree wrote the primary checkout (app-shell plan, Flagged)</td>
+<td>no track runs <code>coord classify</code> or <code>coord install</code></td>
+</tr>
+<tr>
+<td>K5</td>
+<td>HARNESS-SILENT-EXIT: exit 0 without work</td>
+<td>gate 4: the claimed commit on the branch and the Return section, or the cycle failed</td>
+</tr>
+</tbody></table></div>
+<h2>Order of operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>action</th>
+<th>cost</th>
+<th>why now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Coordinator (primary checkout): <code>coord leader pin fbfa35dc</code>, then <code>coord leader who</code> (read the epoch back); <code>coord request expire</code> (clears the 4 silent expiries)</td>
+<td>seconds</td>
+<td>P7; every row carries the epoch (CO-L)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Owner: ruling <strong>O-M12B</strong> into <code>docs/notes/rulings.md</code> (accept the design, ADR-0001 Amendment 1, this plan, seams S1–S6, the track count)</td>
+<td>one Owner session</td>
+<td>P5; decision edge for every track</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Coordinator lands <strong>PRE</strong> inline in its own tree from <code>feature/ui-cad-direction</code> (≥ <code>3a37f5f</code>). The tree runs <code>coord doctor</code> and never <code>coord install</code></td>
+<td>32 min box</td>
+<td>P3; the join gate for every coding track</td>
+</tr>
+<tr>
+<td>4</td>
+<td>join PRE (gates 1, 3, plus its own evidence) → <code>coord doctor</code> in the integration tree</td>
+<td>10 min</td>
+<td>the first join re-reads the merge driver (Serial spine)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>hand-compile briefs → lane A <strong>B0</strong> (Grok) ∥ lane B <strong>B1a</strong> (Grok)</td>
+<td>135 min box</td>
+<td>disjoint files after S1; no data or decision edge (GO5); watch for the untested two-Grok concurrency</td>
+</tr>
+<tr>
+<td>6</td>
+<td>join B1a, then B0 → <strong>B1b</strong> (Codex)</td>
+<td>140 min box</td>
+<td>B1b needs both merged</td>
+</tr>
+<tr>
+<td>7</td>
+<td>join B1b → <strong>U1a</strong> (Codex)</td>
+<td>130 min box</td>
+<td>fixes the Desktop contract</td>
+</tr>
+<tr>
+<td>8</td>
+<td>join U1a → lane A <strong>U1b</strong> (Codex) ∥ lane B <strong>U2</strong> (Grok)</td>
+<td>140 min box</td>
+<td>disjoint files after S2, S4, S5</td>
+</tr>
+<tr>
+<td>9</td>
+<td>join U1b and U2 → <strong>U3</strong> (Claude Opus, <code>/compile</code> brief)</td>
+<td>120 min box</td>
+<td>reviews the whole; owns the native rows</td>
+</tr>
+<tr>
+<td>10</td>
+<td>wave join on the integration tree: every gate, the named check for <strong>every</strong> M1.2b track and the app-shell tracks, readiness</td>
+<td>30 min</td>
+<td>proves the slice as merged, not per track</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Operator review</strong> (below)</td>
+<td>one operator session</td>
+<td>the standing rule from the M1.2a review</td>
+</tr>
+<tr>
+<td>12</td>
+<td>merge to main only after step 11 passes and the readiness ring is green (pushing is out of this plan&#39;s scope)</td>
+<td>—</td>
+<td>readiness before any merge to main</td>
+</tr>
+</tbody></table></div>
+<p><strong>Critical path:</strong> O-M12B → PRE (32) → B0 (135) → B1b (140) → U1a (130) → U1b (140) → U3 (120) → operator review.
+Sum of boxes ≈ <strong>697 min (11.6 h)</strong>. The same chain at the measured priors (G0 11 + P1 45 + D3a 47 + D3b 43 + D3a 47,
+plus U3 unmeasured) is ≈ 3.2 h plus U3 (Inferred). B1a (90) is off the path by 45 min; U2 (135) is off it by 5 min, so
+either lane of step 8 can set it.</p>
+<p><strong>Join gates (the Coordinator runs them on the track branch, then again on the integration tree after the merge):</strong></p>
+<ol>
+<li><code>tools/run-tests.sh</code> <strong>three times with identical <code>PASS</code> sets</strong>, and every named suite&#39;s PASS set non-empty (Ruling 54
+P2, quoted: &quot;three full run-tests.sh runs with identical PASS sets, and the compared PASS set must be non-empty for
+every named suite&quot;).</li>
+<li>Coding tracks: <code>python3 tools/check-named-tests.py &lt;track&gt; --design docs/design/m12b-points.md</code> exits 0. After each
+merge, the integration tree <strong>re-runs it for every M1.2b track already merged</strong>, and re-runs the app-shell checks
+(<code>check-named-tests.py D1</code>, <code>D2</code>, <code>D3a</code> with the default design) after U1a and U2, and <code>C1</code> and <code>P1</code> after every Core
+join (B0, B1a, B1b): B1a rewrites the memo that C1&#39;s <code>ApplyDimension_SameOperationId_Memoized</code> pins, in
+<code>DimensionTests.cs</code>. PRE uses <code>--self-test</code>.</li>
+<li><code>python3 tools/check-docs.py</code> exit 0 (includes <code>tools/check-spiral.py</code>).</li>
+<li><code>git log</code> and <code>git status</code> show the claimed commit, and the final message holds the brief&#39;s Return section (K5).
+5a. Proof Pack: <code>docs/proof/m12b/&lt;track&gt;.md</code> exists on the branch and lists, for every named test of the track, a
+recorded red run or the mutant run that turns it red. A name with neither fails the join.</li>
+<li>Ownership read: <code>git diff --name-only &lt;base&gt;..&lt;branch&gt;</code> lists only the track&#39;s owned paths plus <code>derived</code> and
+<code>register</code> files (K1).</li>
+<li>U1b, U2, U3: the <code>xaml-token-lint</code> check clean (fast ring).</li>
+<li>A suspect merge is probed in a throwaway worktree at the pre-merge commit before a repair is delegated.</li>
+<li><strong>Readiness before any merge to main:</strong> <code>tools/run-readiness.py</code>, then <code>run-readiness.py --check</code> exit 0 on the
+integration HEAD, with the four M1.2b readiness checks in <code>join.json</code>, plus the app
+gates (<code>verify-application-core.py</code>, <code>verify-application-adapters.py</code>) and the recounts (Ruling 54 P5: &quot;app gates and
+recounts run at readiness before the merge to main&quot;).</li>
+<li>At the 2-cycle cap: stop the track, report to the operator, then switch approach or harness. Never a third cycle on
+the same harness.</li>
+</ol>
+<p><strong>Cost (honest):</strong> the orchestrator-worker shape costs about <strong>15×</strong> a single session (GO6). What it buys here is
+<strong>context hygiene</strong> (Core grammar, chord numerics, session gestures, controller, rendering and panes each fit one
+context; the slice does not), <strong>harness isolation</strong> (a stall in one tree cannot touch another), and real <strong>independence</strong>
+in steps 5 and 8 (disjoint files, no data or decision edge). It does not buy speed on most of the path, which is serial
+through PRE, B1b, U1a and U3. <strong>The track count is not settled.</strong> The Tech Lead was not convened (this run&#39;s fan-out cap
+was 2, used by the Test Architect and the Simplifier). The casting vote goes to the Owner in O-M12B.</p>
+<h2>Operator review (closes the wave)</h2>
+<p>Run on the packaged <code>.app</code> (macOS) after step 10, with U3&#39;s attach receipts in <code>docs/reviews/m12b-native.md</code>. The two
+lists below are restated from the design on purpose: the operator&#39;s M1.2a review made &quot;open the review with what you
+will and will not see&quot; a standing rule, and the operator reads this page, not the design. <strong>The design §0.1 and §0.2
+are the authority</strong>; if they change, this section is re-copied at the wave join, never edited on its own.</p>
+<p><strong>You will see</strong> (design §0.1):</p>
+<ol>
+<li><strong>New foil</strong> opens the Planform workspace on the <strong>Plan</strong> tab: the near-elliptic planform from the top, both halves,
+leading- and trailing-edge rails as curves over a light fill, dashed station chord lines with name chips, a centre
+line, a scale bar. On the starboard half each rail shows ten points (a diamond at each end, a filled circle per
+control point) and a dashed control polygon. Properties is on the left and ends with the complete Wing block. The
+M1.2a isometric sample plot is in its own &quot;3D samples&quot; tab.</li>
+<li><strong>Hover:</strong> the Tracing probe reads η, span, % half-span, LE, TE and chord. Hovering a trailing-edge point shows a ring
+and a tooltip (&quot;Trailing edge, point 5 of 10, control point, span 180.00 mm, aft 118.52 mm&quot;).</li>
+<li><strong>Click:</strong> the glyph fills; Properties shows &quot;Trailing edge · point 5 of 10&quot;, Type: Control point, Span and Aft in mm.</li>
+<li><strong>Drag aft:</strong> the curve, fill and mirrored half follow; the probe shows the live Δ; MAC, Area and Aspect ratio change
+<strong>during</strong> the drag (&quot;≈ preview&quot;). Shift locks to the aft axis. Release is one undo step with a status report; ⌘Z
+returns the rail exactly.</li>
+<li><strong>Nudge:</strong> ↓ 0.1 mm, ⌘↓ 0.01 mm, ⇧↓ 1 mm; a held key is one undo step on release.</li>
+<li><strong>Drag across the leading edge:</strong> a red dashed marker shows the crossing; release puts the point back with &quot;That would
+make the leading and trailing edges cross. The point is back where it was.&quot; Undo depth is unchanged.</li>
+<li><strong>Type → Anchor point:</strong> 10 → 13 points; a square on the curve with two handles, tangent Smooth; the other handle
+stays in line. Symmetric and Corner (comb break) work; each change is one undo step.</li>
+<li><strong>Save, close, reopen:</strong> types and tangent kinds survive; the Foil source tab shows <code>foildsl &quot;4.1&quot;</code> and a <code>tangents</code>
+block.</li>
+<li><strong>Wing block → Root chord <code>152.09</code>:</strong> one undo step and &quot;Root chord 152.09 mm. Fit 9.01 µm (limit 10 µm). 4.21 mm
+from a straight taper. Planform moved 6.34 mm so the leading edge stays at the root.&quot; <code>190</code> is accepted with a
+<strong>warning</strong> (fit 22.53 µm above the 10 µm limit). Tip chord works the same; <code>15 cm</code> and <code>#root_chord * 0.1</code> are
+echoed in mm.</li>
+<li><strong>Keyboard only:</strong> Tab enters the Plan and moves point to point; arrows nudge; Return jumps to Span; Escape returns;
+Tab past the last target leaves the Plan. ⌥+arrows pan, ⌘= / ⌘− zoom, ⌘0 fits.</li>
+<li><strong>Pointer navigation:</strong> the wheel zooms about the pointer; two-finger scroll pans and pinch zooms; middle-drag or
+Shift-drag on empty canvas pans; right-click (Control-click) on a point opens Make Anchor Point / Make Control Point
+/ Tangent / Fit.</li>
+<li><strong>View ▸ Curvature comb</strong> (C with the Plan focused) shows the comb on the selected rail, live during a drag.</li>
+</ol>
+<p><strong>You will not see yet</strong> (design §0.2):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Not in M1.2b</th>
+<th>Brought by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Section editor mode, section point types (B6 restart), Points and Messages panes, Precision workspace</td>
+<td>M1.2c</td>
+</tr>
+<tr>
+<td>Replace from catalog, Save to My sections</td>
+<td>M1.2d</td>
+</tr>
+<tr>
+<td>Floating panes, Maximize pane, saved layouts, the Review workspace</td>
+<td>M1.2e</td>
+</tr>
+<tr>
+<td>A 3D view beside the Plan (wireframe or shaded, with orbit)</td>
+<td>M1.2b2 (Ruling 56)</td>
+</tr>
+<tr>
+<td>Front, Side and Starboard elevations; editing dihedral, twist and thickness channels</td>
+<td>M1.2b2 (Ruling 56)</td>
+</tr>
+<tr>
+<td>Insert / Delete / Fair / Rebuild on rails; shape-preserving &quot;insert anchor&quot;</td>
+<td>no slice yet (OI-2)</td>
+</tr>
+<tr>
+<td>Moving or typing several points at once (&quot;Mixed&quot;, read-only)</td>
+<td>no slice yet (OI-3)</td>
+</tr>
+<tr>
+<td>The Rhino navigation preset and a trackpad-mode setting</td>
+<td>no slice yet (OI-4)</td>
+</tr>
+<tr>
+<td>Comb scale and density controls, monotone-piece count, curvature readout on hover</td>
+<td>no slice yet (OI-5)</td>
+</tr>
+<tr>
+<td>A history list of edit reports</td>
+<td>M1.2c (Messages pane)</td>
+</tr>
+<tr>
+<td>A CLI <code>dimension</code> command</td>
+<td>no slice yet (deviation D-3)</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>deferred (architecture §8)</td>
+</tr>
+</tbody></table></div>
+<p>M1.2b is done only when every N-B row passes in this session with its attach receipt, and the UX &amp; A11y re-review after
+it clears. It is never done because the app launched.</p>
+<h2>Gate record</h2>
+<p><code>GATE plan · 2026-09-30 · test-architect (hard), the-simplifier (soft) · verdict: PASS-WITH-CONDITIONS · vetoes → resolution: Test Architect BLOCK → cleared on re-review; Simplifier SOFT VETO → cleared on re-review (S1 and the operator-review copy kept by written rationale)</code>. Each lens ran as a separate agent in Adversary Mode. The author
+cleared no veto. Repair cycles used: <strong>1 of 2</strong>. The residual Minors and Nits from the re-reviews were applied without
+another cycle. The Tech Lead was not convened, so the track count goes to the Owner in O-M12B.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Lens</th>
+<th>Round 1</th>
+<th>Main findings</th>
+<th>Repair</th>
+<th>Final</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Test Architect (hard veto)</td>
+<td><strong>BLOCK</strong>: 1 Blocker, 4 Major, 2 Minor</td>
+<td>U1a, U1b and U2 could exit on green never shown red; C1 not re-run after the Core joins; nobody owned the readiness wiring; native rows proved launch only; the re-entry control had no owner; overstated mutant claims; PRE&#39;s self-test bypassed the flag</td>
+<td>Proof Pack rule and per-track mutants; gate 2 re-runs C1 and P1; U3 owns <code>join.json</code> readiness and gate 8 uses <code>--check</code>; per-row content assertions or &quot;attach-ready&quot;; U2 extends the re-entry array; mutants restated; PRE&#39;s case calls <code>main()</code> with <code>--design</code></td>
+<td><strong>Cleared</strong> (PASS-WITH-CONDITIONS). Residual Minors applied: gate 5a checks the Proof Pack; PRE adds the <code>--readiness</code> switch</td>
+</tr>
+<tr>
+<td>Simplifier (soft veto)</td>
+<td><strong>SOFT VETO</strong>: 2 Major, 3 Minor, 1 Nit</td>
+<td>PRE delegated although §12.2 makes it the Coordinator&#39;s step; the §0.1/§0.2 copy; fallbacks that returned to a failed harness; two numbers per box; <code>ConstrainedFit.cs</code> unowned; S1 avoidable</td>
+<td>PRE inline; the fallback rule; the design&#39;s box numbers; B1a owns <code>ConstrainedFit.cs</code>; a two-Grok stall rule. S1 and the review copy kept, with the rationale written</td>
+<td><strong>Cleared</strong>. Residual Nits applied (PRE wording, best next action)</td>
+</tr>
+</tbody></table></div>
+<p>Residual risk: the §0.1/§0.2 copy can drift from the design, and only the re-copy rule at the wave join guards it.
+U3 writes the per-row native content checks itself. Rendered and native behaviour stays <strong>Inferred</strong> until U1b&#39;s
+first tests and U3&#39;s attach receipts exist.</p>
+<h2>Status</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Completed</strong></td>
+<td>Layer state measured (<code>coord doctor</code>, <code>pack-doctor</code>, <code>coord session list</code>); preconditions checked (SHELLFIX and LEFTPANE met; the checker flag not met); the design&#39;s extraction run (187 names, 0 errors, U3 none); artifact classes; the seven tracks plus PRE scheduled with owners, boxes at 3× priors, harness and model, exit evidence per tier, seams S1–S6, GO14a guards, struck tracks, known defects, join gates and the operator review</td>
+</tr>
+<tr>
+<td><strong>Remaining</strong></td>
+<td>step 1 (leader pin, request expiry); O-M12B; every track; the operator review; registering K2 as a class with a control; clearing the design&#39;s <code>review-suggested</code> flags at the wave join</td>
+</tr>
+<tr>
+<td><strong>Best next action</strong></td>
+<td>Step 1, then the Owner&#39;s O-M12B ruling, then the Coordinator lands PRE inline</td>
+</tr>
+</tbody></table></div>
+<h2>Planned vs actual</h2>
+<p>Filled by the Coordinator at each join: dispatch start → the branch&#39;s last commit (<code>git log -1 --format=%cI</code>).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Track</th>
+<th>Harness · model</th>
+<th>Box</th>
+<th>Measured</th>
+<th>Outcome</th>
+</tr>
+</thead>
+</table></div>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>cb3e6f4176b2e58ff38e6168dac9533f4ee761451a77ebe0214dfd552fee6f5f</code>.</p></footer></main></body></html>

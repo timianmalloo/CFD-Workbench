@@ -5640,6 +5640,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "a8fe6a11d37a3e71fe06bf0d627574d5605bc612ca34692e9eb09a1b7f1efcce"
     },
     {
+      "id": "coordination-m12b-build",
+      "path": "docs/coordination/m12b-build.md",
+      "title": "Coordination plan - M1.2b build (CAD point editing on the Plan view)",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-leader-fbfa35dc",
+      "phase": "",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Schedules the M1.2b design's seven tracks (B0, B1a, B1b, U1a, U1b, U2, U3) behind one precondition track (PRE: the checker's --design flag and the test-class stubs), on Grok, Codex and Claude with at most two concurrent coding tracks, boxes at 3x measured priors, join gates, the 2-cycle cap and a closing operator review.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "desktop",
+        "core",
+        "cad",
+        "plan-view",
+        "m1.2b"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-app-shell-build",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb3e6f4176b2e58ff38e6168dac9533f4ee761451a77ebe0214dfd552fee6f5f"
+    },
+    {
       "id": "coordination-r17-companions",
       "path": "docs/coordination/contract-r17-companions.md",
       "title": "Exact companion assignment for evaluator version 2 and native store rulings",
@@ -6644,7 +6694,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "40bed83ef00399852b700cbe5850f36b14fa95e976c12b009325018ef7f8c44e"
+      "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -8025,6 +8075,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-application-build"
     },
     {
+      "id": "surface-coordination-m12b-build",
+      "path": "docs/coordination/m12b-build.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-m12b-build"
+    },
+    {
       "id": "surface-specs-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.html",
       "title": "CFD-Workbench — Product specification",
@@ -8105,5 +8163,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9bc5ed3426443f864d839b05bb9dc5b62b53f78e7c6e2844709bec291bf5328e"
+  "graphSha256": "409ce18d64ac71c731e1f502ce931b8d75a0e4e47d312a1bfea191518183e0f6"
 };

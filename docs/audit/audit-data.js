@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T20:19:27Z",
+  "generated": "2026-09-30T20:32:25Z",
   "audit": [
     {
       "actor": null,
@@ -19991,6 +19991,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T20:18:37Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M3T09DZR8XDE8Y9P9279ET8N",
+      "shortname": "coordination-m12b-build",
+      "datetime": "2026-09-30T20:32:25Z",
+      "session": "track-m12b-plan",
+      "prompt": "run the /prepare-for-coordination skill for the M1.2b build (CAD point editing on the Plan view). Produce docs/coordination/m12b-build.md plus its html render. (brief: scratchpad/tracks/M12B-PLAN.md)",
+      "summary": "Scheduled the design's B0, B1a, B1b, U1a, U1b, U2, U3 behind PRE (checker --design flag + test stubs, Coordinator inline; precondition not met, verified). SHELLFIX and LEFTPANE met. Lanes: B0||B1a (Grok), B1b, U1a (Codex), U1b (Codex)||U2 (Grok), U3 (Claude Opus). Critical path PRE-B0-B1b-U1a-U1b-U3 = 697 min of boxes. Seams S1-S6, GO14a guards, known defects K1-K5, join gates incl. Proof Pack, operator review. Struck: separate retirement track, Agy, merged B0/B1a, serial U1b/U2. Gate: Test Architect BLOCK -> cleared; Simplifier SOFT VETO -> cleared; 1 of 2 cycles.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/m12b-build.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "coordination plan for the M1.2b build scheduling the design's tracks with preconditions, ownership, boxes, harness, exit evidence, join gates and operator review",
+      "done_when": "plan md + html committed; check-docs exit 0; audit entry appended",
+      "tier": "T2",
+      "fan_out": 2,
+      "started_at": "2026-09-30T20:20:30Z",
+      "duration_seconds": 715.0
     }
   ],
   "changes": [
