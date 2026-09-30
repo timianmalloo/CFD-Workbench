@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T21:46:31Z",
+  "generated": "2026-09-30T21:47:27Z",
   "audit": [
     {
       "actor": null,
@@ -20220,12 +20220,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3T4H42A0MVZ768KKZBPCCTE",
-      "shortname": "join-b0",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-09-30T21:46:31Z",
+      "done_when": "merged",
+      "duration_seconds": 51.0,
+      "fan_out": 0,
+      "goal": "land B0",
+      "id": "al-01M3T4H42A0MVZ768KKZBPCCTE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-b0",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-30T21:45:40Z",
+      "summary": "B0 29/29 verified; old-build characterization before parser change; 4.1 round trip; identity hashes unchanged recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-30T21:40:58Z",
+      "duration_seconds": 3144.0,
+      "id": "al-01M3T46Z230VD90FHYGC07E5VW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "B1a brief",
+      "session": "track-b1a",
+      "shortname": "track-b1a",
+      "skill": "implement",
+      "started_at": "2026-09-30T20:48:34Z",
+      "summary": "B1a typed chords: quarter-chord fit, 10 µm warning, dimension fingerprint, length expressions. 24 named checks green. 20 µm mutant recorded and reverted.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M3T4JTNY94YMCMD5RH73PQES",
+      "shortname": "join-b1a",
+      "datetime": "2026-09-30T21:47:27Z",
       "session": "fbfa35dc",
       "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "B0 29/29 verified; old-build characterization before parser change; 4.1 round trip; identity hashes unchanged recount_seconds=0 (docs_only=False).",
+      "summary": "B1a 24/24 verified; DR-12 accept+warn; 20 um mutant red; REPLAY-MEMO fix red-first recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -20234,7 +20279,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "land B0",
+      "goal": "land B1a",
       "done_when": "merged",
       "tier": "T1",
       "fan_out": 0,
@@ -20243,8 +20288,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-30T21:45:40Z",
-      "duration_seconds": 51.0
+      "started_at": "2026-09-30T21:46:37Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
