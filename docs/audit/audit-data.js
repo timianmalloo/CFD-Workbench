@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T22:26:36Z",
+  "generated": "2026-09-30T22:43:20Z",
   "audit": [
     {
       "actor": null,
@@ -20335,6 +20335,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T22:25:45Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3T7S5A9R9FT5NDN6SEV9K0A",
+      "shortname": "track-u1a2",
+      "datetime": "2026-09-30T22:43:20Z",
+      "session": "track-u1a2",
+      "prompt": "U1a brief",
+      "summary": "U1a controller gesture contract, 23/23 named checks PASS; fast suite 51 s, docs green; readiness frame p95 16.105 ms and commit p95 67.862 ms (one run). Core Span upper-bound seam remains; F-6 and full gesture-table coverage remain open. Proof: docs/proof/m12b/U1a.md and docs/proof/m12b-u1a-red-runs.md.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T22:27:33Z",
+      "duration_seconds": 947.0
     }
   ],
   "changes": [
