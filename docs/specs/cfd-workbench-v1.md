@@ -55,6 +55,7 @@ review-suggested:
   - { by: adr-application-stack, on: 2026-09-23, reason: "ADR 0003 accepted under Owner Ruling 13; reconcile decision references while retaining unverified product and platform gates." }
   - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
   - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # CFD-Workbench

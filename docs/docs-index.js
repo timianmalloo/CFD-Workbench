@@ -217,7 +217,9 @@ window.DOCS_INDEX = {
         "b-spline",
         "degree",
         "control-vertex",
-        "adr"
+        "adr",
+        "dr-10",
+        "amended"
       ],
       "links": [
         {
@@ -235,10 +237,18 @@ window.DOCS_INDEX = {
         {
           "to": "kb-hydrofoil-workbench",
           "rel": "relates-to"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "812913d53b18e115062df46ffc3b64b38cdb42b1c60c5d0218d41bfc5629f613"
+      "sourceSha256": "068e7f9b1605abeea0c4d402b309d4d56bfc80052f17d5327f80826ccd1b0ddd"
     },
     {
       "id": "adr-0005-point-types",
@@ -249,7 +259,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-09-30",
+          "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
+        }
+      ],
       "summary": "Settles DR-5. A Point is a control vertex of the clamped non-rational B-spline of record. An interior vertex is an Anchor point exactly when one interior knot of multiplicity p sits at it, so point type is derived from the knot vector and never stored. Tangent kinds are editing intent in an optional FoilDSL 4.1 `tangents` block outside geometry identity. Every type change is measured and reported on the A4.5 oracle. On a section the two surfaces share one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact on Anchor creation and refitted within 10 µm, reported, on Anchor removal.",
       "tags": [
         "geometry",
@@ -294,7 +310,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f6e7eba4172def949c03a58915d6766b7c58dd4197510b3eafa262fa30a7c3f4"
+      "sourceSha256": "ace96cd5e5f05c13b86baf8fb32f65088de85c57946c7d79c978b64de1a99b1d"
     },
     {
       "id": "adr-0006-driving-dimensions",
@@ -305,7 +321,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-09-30",
+          "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
+        }
+      ],
       "summary": "Typed Span patches half_span only (exact). Typed Root or Tip chord refits the moved rail on its own knots and abscissae, ordinates only, with the typed end pinned exactly and every lock a hard row; the held line (DR-2) is one parameter and the quarter-chord option re-sets the frame. A spike shows the operator's linear chord blend cannot meet 10 µm on a rail with the default root-mirror lock (0.08–4 mm), so DR-9 asks which rule wins; until then A4.6 is strict and the residual against the operator's rule is always reported. Wing estimates are the FoilDSL metric definitions, computed by one pure Core function and never stored.",
       "tags": [
         "geometry",
@@ -344,7 +366,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3bae340874b9baf54874591074c3bd8d996c4fb465e2ec0dce4b6794bc6eb3e9"
+      "sourceSha256": "dc42a0e4077031bd41f3cb8ebd5c89fcb4309bc3cba1d332172582f1dc93c167"
     },
     {
       "id": "adr-0007-edit-transactions",
@@ -779,6 +801,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "CAD-04–06 (spec 1.2) — the four control curves are edited in the elevation that shapes them (Top · Front · Starboard), the 3D viewport is one free camera used for looking and selecting, and a station is a document tab with a full 2D section editor; every curve is a spline and the rail carries icons.",
@@ -817,7 +844,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cafce94be8cfe011cc8a2f68ce3572f4e2bcf329fc110ee1bf5796409c9d38ad"
+      "sourceSha256": "c55f81fad0c3c2f24a2e57f3b3c4f61e2c140a4c8721e018f85d7022e77db6b5"
     },
     {
       "id": "control-vertex-workspace",
@@ -843,6 +870,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Specification 1.3 — the geometry of record is a control-vertex B-spline per master curve (degree 3, seven vertices, levers at the ends; Fit points and Fair are constructions with reported residuals; locks are vertex constraints), the CAD workspace is four viewports with title menus and a nine-verb tool palette, the 3D body is a NURBS loft with a display cage (never a T-spline), and the geometry kernel is an owned evaluator plus OCCT and rhino3dm behind a spike gate.",
@@ -888,7 +920,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "723aed7a9e9875e08148b46219bc80b6e39a1471f65572c4dd11e509ba613c71"
+      "sourceSha256": "08f94bd98223f75066991797044651499425eda584e5010c59704fb03c42c333"
     },
     {
       "id": "decision-catalog-admission-classes",
@@ -1527,6 +1559,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The CFD-Workbench client is a fixed window whose regions scroll inside themselves — menu bar, one-row measured toolbar, parameter row, activity rail, docks, editor with document tabs and a tabbed bottom panel, status bar — with each area's content arranged for that vignette; page scroll and toolbar wrapping are defects the oracle fails.",
@@ -1560,7 +1597,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0672dd7af3646799565d45d0cc4eb9aed1ad7e149818f75d84199742b13434dc"
+      "sourceSha256": "da2a659e45dffc501e47f21e2a6725fec8bdd3826b3da9d73fc20796d7d8f265"
     },
     {
       "id": "design-app-shell",
@@ -1571,7 +1608,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — M1.2a shell parts and M1.2e (spec 1.6)",
       "reviewBy": "2027-03-25",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        }
+      ],
       "summary": "Detailed design of the CAD-first shell for slices M1.2a (Start/Opening/open-failed, Planform workspace, left side bar, Properties with the Wing block and typed Span, one command table feeding per-window NativeMenus, Edit-verb routing) and M1.2e (owned OS-window floats, Maximize, focus-safe floats, Review workspace, per-workspace saved layouts with clamping). Settles the layout-file schema with a version-first rollback rule, the selection model, the focus contract, the failure modes and the build tracks with exclusive file ownership and exact test names.",
       "tags": [
         "desktop",
@@ -1644,7 +1687,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "50703997fa8772e63e6148ccd7bc7591f1b4a1e1c0210dc83a138351f685fa8f"
+      "sourceSha256": "91dbbecdedda14bcb8e711f7d66de4c13f162a5c52471641e7a28bf8c9151c42"
     },
     {
       "id": "design-application-contracts",
@@ -1753,6 +1796,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Designs the first native GUI/CLI vertical slice around lossless accepted source, one owned rail draft, certified conservative geometry and append-only save/recovery. Defines compiling port vocabulary, failure/security/privacy tests and exact downstream ownership proposals without production implementation.",
@@ -1790,7 +1838,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "112e0195200f8e197bc33fdff3fd74296fe5f7125da32b307bedc4c8daed0beb"
+      "sourceSha256": "e696a409baf1ced3600e971e5dab68c598d0a629e710d66c5dc4d305883638e2"
     },
     {
       "id": "design-authoring-decisions",
@@ -1811,6 +1859,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevates the existing spatial workbench around the complete alternative-to-decision task: visible section entry, explicit shared scope and thickness intent, read-only draft inspection, and honest baseline evidence. Reuses the established design language and separates prototype proof from native/scientific obligations.",
@@ -1844,7 +1897,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c6179366b67c2049617b62f39b8c939c65135bf1ddaeb16a4c258f496206a056"
+      "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
     },
     {
       "id": "design-foildsl-authoring",
@@ -1860,6 +1913,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Keep the spatial CAD workbench and add a source document with explicit validation and shared transactions, drawing useful authoring ideas from the supplied JSX without importing its scrolling page or alternate geometry model.",
@@ -1888,7 +1946,114 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6b1564a592ecd927acfa69a53111441669b015ee6e330cfffb2c3170b9ded012"
+      "sourceSha256": "4194dc97f5d6fd7b6b4921a0e53ae92fd9dcb2e7c563c8aad18306c2d2b601bd"
+    },
+    {
+      "id": "design-m12b-points",
+      "path": "docs/design/m12b-points.md",
+      "title": "Design: M1.2b — CAD point editing on the Plan view (rail points, point types, gestures, typed chords)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2b (spec 1.6, architecture §10.6)",
+      "reviewBy": "2027-03-29",
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-09-30",
+          "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        }
+      ],
+      "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "plan-view",
+        "point-types",
+        "anchor",
+        "control-point",
+        "tangent",
+        "gesture",
+        "undo",
+        "wing-estimates",
+        "driving-dimension",
+        "foildsl-4.1",
+        "dr-2",
+        "dr-6",
+        "dr-9",
+        "dr-10",
+        "m1.2b"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0006-driving-dimensions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-workbench-v10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-app-shell-build",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a2e4e09da8711125520e0ec901b354e764686a9b36d2095e721779a61cb5b99a"
     },
     {
       "id": "design-section-editor",
@@ -2107,6 +2272,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Self-contained HTML workbench built against specification v1: Brief with the seven-point goal state computed live, Shape with a genuine constrained weighted least-squares B-spline evaluator, Sections with admission classes and a two-layout DAT detector, Analyze where every number carries its basis (tier, depth, Ncrit band, surface state, omissions, fixed strings), a Checks drawer, a gated export dialog and the assistant's honest states. A review harness switches persona, viewport, state, theme, density, capability, navigation preset, modifier scheme, trackpad mode and reduced motion. Illustrative throughout; no kernel, solver or file I/O.",
@@ -2149,7 +2319,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a2f9efd56da20d32a6dbbcf813c9f8911ff97d2ac8901cc95714a6e1bcb68b96"
+      "sourceSha256": "fdca07873d80d9bbe8ad26ea5e4b18059231f8b77a5e1186ff3bbd32f6037c02"
     },
     {
       "id": "mockup-workbench-v10",
@@ -2165,6 +2335,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "v9's docked-pane CAD workspace, elevated: first-run, opening and open-failed states inside the workspace; floats move clear of any focused target in the model area; per-point Anchor / Control type; a Wing block with typed span and chords above running estimates; and, in the section editor, Replace from catalog and Save to My sections.",
@@ -2197,7 +2372,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "644a8e0cb6cf350de5f2cc660c7012a7681f87ee887320f698e55e4154fa2457"
+      "sourceSha256": "56ca57ee1a78566f4dcdb727d62ae9d817505248d82f96454145989c7d83817a"
     },
     {
       "id": "mockup-workbench-v2",
@@ -2213,6 +2388,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Self-contained HTML workbench built against specification v1.1: an area strip in flow order — Setup · CAD · Analysis · Experiment · Run · Results · Export — with readiness chips, a prompt entry in every area whose output is that area's typed proposal, one canvas shared by CAD and Analysis, a process console for Run over a stepped fixture, and Results as sequences over admitted samples with every layer's basis. Run and Results render their full target state and carry the \"gated (SPIKE-03/04)\" chip. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -2263,7 +2443,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d4c02c1c9a9c5498f9e03c6099c48d021e2b5d1576a4ed854df7b797de220d17"
+      "sourceSha256": "52f5f5231d8d6a1a24def728d613eb5a57551d7abcbeb2ba8f8c33e1b4b887cc"
     },
     {
       "id": "mockup-workbench-v3",
@@ -2279,6 +2459,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Self-contained HTML workbench rebuilt as a thick-client shell: a fixed window that never scrolls — menu bar, one-row toolbar with measured overflow, parameter row, activity rail of the six document areas plus Export as a dialog, Navigator and Properties docks, document tabs over one viewport, a tabbed bottom panel and a status bar — with the v2 content re-homed per vignette. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -2331,7 +2516,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "daff514c8b00be90581313a6c5e2d9761dfabd220c080fd00123a11a4facae47"
+      "sourceSha256": "49df9692296702a8b534a852c6692bc6c835e03907ac798aec8da4cf7910a6cf"
     },
     {
       "id": "mockup-workbench-v4",
@@ -2347,6 +2532,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The v3 thick-client shell with the CAD editing views of specification 1.2: an icon rail, splines everywhere, one camera with named views, a view cube and free orbit, editing elevations (Top over Front, Starboard beside) where the outline rails, dihedral/anhedral, twist and thickness are explicit control curves, and a Station document that replaces the modal section editor. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -2396,7 +2586,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "16639b0da04226bcb2f0d966b718791533e8dd9c685c12c96bc9df7defa4fcaf"
+      "sourceSha256": "914ca8fcf281457956d7f62cc75bbea3da3a711651c2603d02740ed9768d97cb"
     },
     {
       "id": "mockup-workbench-v5",
@@ -2412,6 +2602,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-22",
           "reason": "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The v4 shell and camera with the CAD experience rebuilt around specification 1.3's control-vertex record: every master curve is a clamped B-spline whose vertices and levers are the editing surface (a vertex pulls the curve and never lies on it), a four-viewport lines-drawing workspace with title menus and maximise, a nine-verb tool palette with an options strip, a display cage for the 3D body, and a station document whose conversion residual is measured. Illustrative throughout; no kernel, solver, file I/O or model call.",
@@ -2462,7 +2657,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "265b80ea566c82d3618751de8f89775b5a35255eb8006fe02074a28649a3f988"
+      "sourceSha256": "84b9b6c2fa3973d64e17071db310cf60caec9373fe56e5990a72b5762670f277"
     },
     {
       "id": "mockup-workbench-v6",
@@ -2483,6 +2678,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The four-viewport workbench gains a FoilDSL source document, validation, shared transactions, file round-trip and revision freshness. A bounded language prototype, not the product evaluator or a CFD solver.",
@@ -2519,7 +2719,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6c3177c75961af68532eca6c2933397a3762fe855dd0875aca2239c471aa4e5c"
+      "sourceSha256": "d5490f06678a31eb867388ad3076f514ead42c72930e1c04ab99efa88c6c4b92"
     },
     {
       "id": "mockup-workbench-v7",
@@ -2540,6 +2740,11 @@ window.DOCS_INDEX = {
           "by": "spec-foildsl",
           "on": "2026-09-22",
           "reason": "Revision 1.5 clarifies shared and independent profile edits, explicit t/c targets, draft-safe inspection, dimensional intent and project-level decisions without changing the shape grammar; review dependent artifacts."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The spatial workbench adds persistent section editing, shared and independent profiles, draft-safe inspection, explicit chord/span intent, and page-session alternatives with baseline comparison and decision rationale. Geometry remains sampled; scientific, native persistence and full language conformance are not proven.",
@@ -2589,7 +2794,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2aecc843d0c4caca591af48e65eb8af2ed28818782762f4c65a42ed17367016e"
+      "sourceSha256": "0d51a7b7dc7f0e89262462c345b2ee7c6c09fc7a8a11164dd45f36578ff45fcf"
     },
     {
       "id": "mockup-workbench-v8",
@@ -2605,6 +2810,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "A CAD-first rethink at the Fusion 360 / Shape3D bar: open or create a foil, edit it in model-filling views, then enter the section editor as a mode. Every curve is on-curve points with tangent handles; ends are named points with typed values. Direction evidence only — not native proof.",
@@ -2643,7 +2853,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fef049ac93611c965dee8cd5e66a1a17f645119a4c85e0d13aa61fc9a81cbe9f"
+      "sourceSha256": "203241043875cece7f34a03058bc0ff6ab1ec0907137cfe7d87b9d3e58d33a3d"
     },
     {
       "id": "mockup-workbench-v9",
@@ -2659,6 +2869,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "v8's CAD surface with VS Code / Premiere Pro window management: one narrow left panel holds a selection-driven Properties pane by default; the right side bar and bottom panel are optional; panes tab, dock, float and maximize; workspaces are task presets. Direction evidence only — native floats and menus are build requirements.",
@@ -2689,7 +2904,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8aae9b4de90e8269819016fccc1b1c7e42ad25f6d8f730b1565b98e1dd822c3f"
+      "sourceSha256": "6a5d3930c06932ef21913cf5402e8d429d1d2d776f1cb5b689fe0967fbb28283"
     },
     {
       "id": "workbench-direction",
@@ -2848,7 +3063,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32ca7567d6d732098bb6617134307447347f03d7a9cb0d55128cd90a16d7de9f"
+      "sourceSha256": "5b8f812f7aab7b2cecbd8f334b9d9595dbee1fdfa952a18afe3c2e8f832f35a6"
     },
     {
       "id": "domain-experts",
@@ -3607,6 +3822,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevate-mode review of the v1 interactive mockup against specification v1. The independent UX & Accessibility lens returned BLOCK on the first pass (focus loss on nudge, handles under role=img, page-wide live region, sub-12 px chart text, NaN in the error state), PASS-WITH-CONDITIONS on the second, and PASS (veto cleared) after the conditions were applied and re-measured. Highest-leverage change: re-query the SVG handle after every rerender so keyboard editing survives — one line per editor that unblocked the keyboard-only persona entirely.",
@@ -3644,7 +3864,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a6f2efbb1dca32e3dd4e92222087dd4cd064c6f16cc9866c584dd3fd3081ebc7"
+      "sourceSha256": "a7ebc005eaaefd17e71b9a0c57616f19cafde1535f26245d659123d057931e03"
     },
     {
       "id": "review-ui-workbench-v2",
@@ -3670,6 +3890,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevate-mode review of the seven-area mockup against specification v1.1. The independent UX & Accessibility lens returned BLOCK on the first pass (layer names presentational under role=img, a bare character-key shortcut, a false inequality on the candidate card, and a Major list across state completeness, copy truth and the marine CAD idiom) and PASS-WITH-CONDITIONS with the veto cleared after the fixes were applied and re-measured. Highest-leverage change: the outer SVGs of the plan view and the Results viewport became role=group, which exposed every authored layer name to assistive technology with one attribute in two places.",
@@ -3707,7 +3932,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4bb1f4ea0d8c97ed0d85aa5637965c45303968873dad7a1fbcffb52a87e8989e"
+      "sourceSha256": "3e30dc4065bcd9216a110dcf093cb0eb6d96966d7fbdc47cf05515f0daebd63f"
     },
     {
       "id": "review-ui-workbench-v3",
@@ -3733,6 +3958,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevate-mode review of the thick-client shell rebuild. The v2 page was measured first (1,450–6,500 px tall, a wrapping area strip, a clipping toolbar); the v3 shell was built to a shell contract proven by its oracle at five window presets × six areas. The independent UX & Accessibility lens returned BLOCK on its first read (a clipped overflow menu, a 0-px bottom panel at the reflow preset, focus dropped on re-render, composite roles without keyboards, one-way dock collapse) and the Native Desktop lens PASS-WITH-CONDITIONS (sashes, maximize, real document tabs, the macOS title bar, platform key labels); both sets were built and are observed by the oracle. The veto cleared on the third read; the review artifact passes.",
@@ -3775,7 +4005,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e2ebda9c19a62860111161c536fa9396e82e35fd97287ce38fd21d1f99003e29"
+      "sourceSha256": "d6a5f3fa8ab984de0c1ce0582c58592c49f5d648e993b275685cdaa8e4a6c022"
     },
     {
       "id": "review-ui-workbench-v4",
@@ -3801,6 +4031,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevate-mode review of the CAD editing views (icon rail, splines, one free camera with named views and a view cube, editing elevations for the four control curves, the Station document) against specification 1.2. Two independent lenses: UX & Accessibility (hard veto) on the surface and UX Researcher / IA (UX-specification veto) on the 1.2 stories; both cleared their vetoes after two fix passes, with every clearing observation now an oracle assertion whose values the proof records.",
@@ -3843,7 +4078,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c23bb14ec328050a0d4f7926bdbc282c2b5557b6c8d9409b2616f5df865c6cee"
+      "sourceSha256": "cf10e04b509500687491d0bad41060b567ec4482d3bb1b35ef42071f34d29b15"
     },
     {
       "id": "review-ui-workbench-v5",
@@ -3869,6 +4104,11 @@ window.DOCS_INDEX = {
           "by": "defect-classes",
           "on": "2026-09-24",
           "reason": "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevate-mode review of the v5 CAD experience (control-vertex splines with levers, four viewports with title menus, a nine-verb tool palette and options strip, the display cage, the measured station residual) against specification 1.3. Four independent lenses: Computational Geometry and UX Researcher / IA on the spec delta, UX & Accessibility (hard veto) and Marine CAD UX on the artifact. All four returned BLOCK or PASS-WITH-CONDITIONS on first read; every Blocker, Major and condition was fixed in place and became an oracle row whose value the proof records. The accessibility veto cleared on the second pass; the marine veto on the third.",
@@ -3912,7 +4152,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "13e673ddbc8620c69622610f501beaf2fdd078c5fbb562069911811243c2eb29"
+      "sourceSha256": "bda163aa9a70b7e01905e5acaeef3cb7794aedc28249ce879e32c88607a99360"
     },
     {
       "id": "rulings",
@@ -5344,6 +5584,11 @@ window.DOCS_INDEX = {
           "by": "investigation-review-window-attach",
           "on": "2026-09-24",
           "reason": "Two fresh native launches passed bounded attachment readiness; internal CUA cause remains inferred."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "A held, exact-path candidate for the first native desktop and CLI adapter after the full core gate.",
@@ -5392,7 +5637,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d34ce4cd2c9d5782c31782185ec97ef20fd6b98fbb74d0cb7fc54c497c74e58f"
+      "sourceSha256": "a8fe6a11d37a3e71fe06bf0d627574d5605bc612ca34692e9eb09a1b7f1efcce"
     },
     {
       "id": "coordination-r17-companions",
@@ -5564,10 +5809,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-app-shell",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0680ab4bb815a4b38df056395bd2e3395e6a3c67371445bc11e017d72a729d3c"
+      "sourceSha256": "255f0153a621a3bd0713c5c72f40aff022ba4930fdb3809e5734bebff31e0a70"
     },
     {
       "id": "coordination-application-c-launch",
@@ -6482,7 +6731,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design — U1a (M1.2a)",
       "reviewBy": "2026-10-30",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        }
+      ],
       "summary": "U1a for M1.2a. COPY-125 to COPY-139 recorded; the build has fourteen copy and behaviour findings (C-1 to C-14; C-10, dead open-failed buttons, is a Blocker). No native row was attached: the supported CUA adapter is absent from this harness, and review mode turns the Dock shell off, so the supported attach cannot bind the M1.2a shell. Every native row is operator-run, not done. The accessibility veto is held. M1.2a stays open.",
       "tags": [
         "native-ui",
@@ -6519,7 +6774,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3bd6f1004200dded41ee9b080ec6547d7a94baf2a6e5dd245306e9c93b0e355b"
+      "sourceSha256": "96c3dc789c479539e55b6c4d8f50b5d0b7ffbda2fbd4eecf5c181c551845ffe8"
     },
     {
       "id": "review-application-architecture",
@@ -6872,6 +7127,11 @@ window.DOCS_INDEX = {
           "by": "architecture-application",
           "on": "2026-09-24",
           "reason": "User-approved M1 two-platform visible-timing gates and M1.1 section authoring changed the delivery architecture; review dependent milestone claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Independent source-bound CLI, controller, recovery and package observations. Named native interactions and bounded B permission repair pass independent review. Remaining native theme, performance and accessibility obligations keep C and M1 open.",
@@ -6913,7 +7173,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "10b688562c269c756a9e4e3c30b5ec2c12a7e941394325a4e2fa664f821ca884"
+      "sourceSha256": "b29caeb52160eb188658e2511b501e61d34fe2711bc46e3b5d2ef053b29fc153"
     },
     {
       "id": "review-ui-workbench",
@@ -6934,6 +7194,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench",
           "on": "2026-09-19",
           "reason": "Prototype now demonstrates weighted curve edits, water-aware loads, sample sweeps and flow replay; review dependent design and proof."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Independent review clears the HTML workbench for design iteration after correcting geometry authority, historical results, keyboard focus, narrow navigation and partial-field rendering. Four minor craft findings and unverified native, scientific and full accessibility obligations remain explicit.",
@@ -6966,7 +7231,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "590f0fef9ab4b7e53f2292b69dbec7ec92408122ae2cd99f3d2a0e030974da68"
+      "sourceSha256": "3e0b42345aa3ad84018e49ac2cbaf3548b8e2acd40a513ad0a68ede2a54bdf24"
     },
     {
       "id": "review-ui-workbench-v10",
@@ -6982,6 +7247,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Elevated v9 after measuring it: restored the first-run and loading states, one precision per quantity, Properties readable at 200 px, and floats that move clear of a focused target (option a, operator-confirmed). Folded in the operator's four requests plus the chord, MAC and typed-dimension decisions. One repair cycle; the accessibility veto cleared by the lens, the Simplifier's veto cleared, 15 of 15 oracle gates green.",
@@ -7018,7 +7288,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a778ef36defe60b44cd18442c74eb8afae4e5987515c69f998eb616108c0c0ea"
+      "sourceSha256": "8048af7c6e1e85a5a24ea09d584024c888a52fe0e13f96f51f303dd9f766dd2a"
     },
     {
       "id": "review-ui-workbench-v8",
@@ -7034,6 +7304,11 @@ window.DOCS_INDEX = {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
           "reason": "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims."
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "Measured the shipped native window (43 controls, 38 labels, three always-on panels, implementation vocabulary), set a CAD-first direction at the Fusion 360 / Shape3D bar, and built mockup v8 through two repair cycles against accessibility, simplifier and marine-CAD adversaries. Mechanical checks pass; three decisions remain the operator's.",
@@ -7065,7 +7340,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9cdb4fec7c5e22418ee277fe8061ef38d197a993ae9e123d5d483dbe1c531b4d"
+      "sourceSha256": "6520ea5d2f278b2f9676825f882ae063af040ddd954eb753bf72bdffc28eb14a"
     },
     {
       "id": "review-ui-workbench-v9",
@@ -7076,7 +7351,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-26",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        }
+      ],
       "summary": "Elevated v8 with VS Code / Premiere Pro window management and a selection-driven Properties pane, placed per the operator in one narrow left panel with optional right and bottom docks. Two repair cycles against accessibility, native-desktop and simplifier lenses; one accessibility Major (floats covering focused canvas targets) is open at the cap.",
       "tags": [
         "ui-review",
@@ -7101,7 +7382,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ae84a84568d90bdf4c4bf2afe106a077abdb59e1f302017772df00a39cb29b8a"
+      "sourceSha256": "0f044331488e666786b7d5d07bbff847013bbe525b68181eb288243ee436907c"
     },
     {
       "id": "review-visible-presentation",
@@ -7335,6 +7616,11 @@ window.DOCS_INDEX = {
           "by": "mockup-workbench-v7",
           "on": "2026-09-23",
           "reason": "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims"
+        },
+        {
+          "by": "design-language",
+          "on": "2026-09-30",
+          "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
@@ -7523,7 +7809,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "f0ebabcec290190f0e9eff4fb74ceaf6877fad914e5aff9139d16ecdcf03b21d"
+      "sourceSha256": "8735956cef282d8c15216d086bdfa21dea1be41527d86b31e38d1ebd965c00f4"
     },
     {
       "id": "spec-foildsl",
@@ -7635,10 +7921,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-app-shell",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5e10ca434e218a123100ff84f9d0db81d0cbd7018157892354c85f75a0763313"
+      "sourceSha256": "ae9380e5b088cf7fc4320782ce0f5daea2f7150433a87e3f02cb83a492bd89ba"
     }
   ],
   "surfaces": [
@@ -7786,5 +8076,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "b7f6246ea49653234d3543cea3ac00cfcb0061817f09ec22ffe8c2fe824a87f4"
+  "graphSha256": "6c75077686d994ee18a317d63b4e220f82ea3c3d1d385eaed099cf025dc07995"
 };

@@ -11,6 +11,7 @@ links:
   - {to: design-application-foundation, rel: documents}
   - {to: design-application-contracts, rel: documents}
   - {to: design-app-shell, rel: documents}
+  - {to: design-m12b-points, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Captures identifying source comments, names, local paths and retained recovery/history for the offline slice.
@@ -64,8 +65,9 @@ retains that distinction.
 | [design-application-foundation](../design/application-foundation.md) | Accepted history · N | Local facts might imply authenticated personal attribution | Mitigate: no authenticated-author claim; operation identity only | CLI/UI copy and schema omit fabricated actor |
 | [design-application-foundation](../design/application-foundation.md) | Recovery/history · U | User unaware incomplete source is retained | Mitigate: explicit recovery offer, retained-history disclosure | Reopen invalid draft labels accepted versus recovery |
 | [design-application-foundation](../design/application-foundation.md) | Local documents · N-compliance | Retention/access depends on local device policy | Transfer: OS-user filesystem ACL; explicit residual shared-device access | No egress or credential use; no application-encryption claim |
+| [design-m12b-points](../design/m12b-points.md) | gesture and apply events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 
-<!-- rolled up from 3 artifact(s) by docs-graph.py rollup on 2026-09-26 -->
+<!-- rolled up from 4 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
 
 
 ## Rights, telemetry and transfers

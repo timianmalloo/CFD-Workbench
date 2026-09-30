@@ -21,7 +21,8 @@ summary: >-
   10 µm on a rail with the default root-mirror lock (0.08–4 mm), so DR-9 asks which rule wins; until then A4.6 is
   strict and the residual against the operator's rule is always reported. Wing estimates are the FoilDSL metric
   definitions, computed by one pure Core function and never stored.
-review-suggested: []
+review-suggested:
+  - { by: adr-0001-master-curve-degree, on: 2026-09-30, reason: "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)." }
 ---
 
 # ADR-0006: driving dimensions refit the rails of record; Wing estimates are derived in Core

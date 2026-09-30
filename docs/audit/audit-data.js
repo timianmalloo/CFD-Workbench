@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:52:01Z",
+  "generated": "2026-09-30T20:06:41Z",
   "audit": [
     {
       "actor": null,
@@ -19788,6 +19788,26 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-09-27T15:08:28Z",
       "duration_seconds": 272613.0
+    },
+    {
+      "id": "al-01M3SYTARH3SSKQYT543BGGKNJ",
+      "shortname": "design-slice-m12b-points",
+      "datetime": "2026-09-30T20:06:41Z",
+      "session": "track-m12b-design",
+      "prompt": "You are the /design-slice sub-agent for CFD-Workbench M1.2b. Your seat is Sub-Agent under the Coordinator (the main session). Your full brief is this file. Read it first and follow it exactly: /private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/fbfa35dc-d25f-45a1-8c87-1500e2d960ba/scratchpad/tracks/M12B-DESIGN.md. The operator wants a CAD experience at the bar the v10 mockup set. Design for that, not for a minimal pass. Keep the rigor floors and use the lessons from M1.2a in the test plan. Your final message is only the Return block the brief specifies.",
+      "summary": "M1.2b design: real Plan view with typed point glyphs, Tracing probe, comb; gestures commit one undo step at release; point types and tangents in FoilDSL 4.1; typed root/tip chord under quarter-chord hold and root-flat blend (spike: New foil ~+-22% per commit at 10 um); ADR-0001 amended to 6-16 channel vertices under 4.1; 187 attributed tests; 7 build tracks. Gate: 7 lenses, 2 of 2 repair cycles; Test Architect hard veto and Simplifier soft veto cleared on re-review; DR-12, DR-13 raised; defect classes UI-RENDERED-STATE and REPLAY-MEMO registered. Fan-out: 7 re-reviews ran at once, one over the cap of 6 (recorded deviation).",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/m12b-points.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-09-30T19:17:19Z",
+      "duration_seconds": 2962.0
     }
   ],
   "changes": [
@@ -20415,6 +20435,28 @@ window.AUDIT_DATA = {
         "before": "6301eb9",
         "after": "6301eb9c0958d5413f8d101c2403f93f5e7e65b7",
         "branch": "feature/ui-cad-direction",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M3SYTB04C58ASQCPJR2FGA3A",
+      "datetime": "2026-09-30T20:06:41Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "M1.2b CAD point editing design; ADR-0001 amended to 6-16 channel vertices under FoilDSL 4.1",
+      "prompt": "You are the /design-slice sub-agent for CFD-Workbench M1.2b. Your seat is Sub-Agent under the Coordinator (the main session). Your full brief is this file. Read it first and follow it exactly: /private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/fbfa35dc-d25f-45a1-8c87-1500e2d960ba/scratchpad/tracks/M12B-DESIGN.md. The operator wants a CAD experience at the bar the v10 mockup set. Design for that, not for a minimal pass. Keep the rigor floors and use the lessons from M1.2a in the test plan. Your final message is only the Return block the brief specifies.",
+      "summary": "Plan view as CAD surface; gesture commit at release; FoilDSL 4.1 tangents and 11-16 channel points gated on one version; chord refit with stored blend rule id; old-build refusal codes corrected; forward version check.",
+      "rationale": "Operator rejected M1.2a (no working CAD view). Ruling 53 DR-2/6/9/10 applied; New foil ships at 10 rail points so under 6-10 no anchor was possible; spike shows strict 10 um acceptance limits chord edits, raised as DR-12.",
+      "artifacts": [
+        "docs/design/m12b-points.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "dc832929df1fa518d4cc40d80424d9618dd056c9",
+        "after": "dc832929df1fa518d4cc40d80424d9618dd056c9",
+        "branch": "design/m12b-points",
         "pushed": null,
         "commits": []
       }

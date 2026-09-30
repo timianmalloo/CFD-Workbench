@@ -27,7 +27,8 @@ summary: >-
   routing) and M1.2e (owned OS-window floats, Maximize, focus-safe floats, Review workspace, per-workspace saved
   layouts with clamping). Settles the layout-file schema with a version-first rollback rule, the selection model, the
   focus contract, the failure modes and the build tracks with exclusive file ownership and exact test names.
-review-suggested: []
+review-suggested:
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # Design: the CAD-first app shell

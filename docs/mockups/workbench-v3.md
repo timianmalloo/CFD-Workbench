@@ -23,6 +23,7 @@ summary: >-
   with the v2 content re-homed per vignette. Illustrative throughout; no kernel, solver, file I/O or model call.
 review-suggested:
   - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # Interactive workbench mockup v3 — thick-client shell

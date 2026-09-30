@@ -27,6 +27,7 @@ review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: spec-cfd-workbench-v1, on: 2026-09-22, reason: "Revision 1.5 adds explicit section scope, draft-safe inspection, design alternatives and geometry intent; reconciles full thickness, equal-x Rule A and native versus shape opening. Review affected neighbors." }
   - { by: defect-classes, on: 2026-09-24, reason: "W1 added workflow-context and leadership/identity recurrence controls; review related class assumptions." }
+  - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
 # UI review — workbench mockup v3 (thick-client shell)
