@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T18:02:42Z",
+  "generated": "2026-09-30T18:27:09Z",
   "audit": [
     {
       "actor": null,
@@ -19636,6 +19636,50 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T18:01:57Z",
       "duration_seconds": 45.0
+    },
+    {
+      "id": "al-01M3SS42Y86PMVE9PRX6G8APWK",
+      "shortname": "READYFIX: repo-root walk + STORE-SUBSET fix",
+      "datetime": "2026-09-30T18:27:09Z",
+      "session": "track-readyfix",
+      "prompt": "Track READYFIX: fix the two readiness causes (ShellWindowTests.cs FindRepoRoot() runtime repo-root walk; STORE-SUBSET excluding LayoutFileTests.cs/PreferenceStoreTests.cs from the umask-varying run) and add a control for the TEST-REPO-LAYOUT class, per scratchpad/tracks/READYFIX.md.",
+      "summary": "Both assigned causes fixed and verified green: FindRepoRoot() replaced with ScratchPath/ExamplePath (temp dir + Content-linked fixtures, AppContext.BaseDirectory) and CallerFilePath for the one genuine repo-tree scan; STORE_PREFIXES/STORE_TEST_FILES widened to cover LayoutFileTests.cs and PreferenceStoreTests.cs (58 store checks, was 32). New fast-ring control SelfLaunchTests.NoRuntimeRepoRootWalk added with red-first evidence (unfixed file + a planted offender in an unrelated tests/ file). run-tests.sh green x3 (Core 281, Cli 0, Desktop 109 PASS each run). check-docs.py exits 0. verify-application-core.py and the Desktop.Tests run inside verify-application-adapters.py's out-of-repo artifacts dir both pass clean (109 PASS/0 FAIL, SelfLaunchTests: all 5 cases passed) - direct proof both causes are fixed in the real gate context. run-readiness.py is still RED: a pre-existing, unrelated, out-of-scope defect in MainWindow.axaml.cs (native-xaml-startup-smoke: the shellMode path closes on CFDW_STARTUP_SMOKE without printing NATIVE-STARTUP smoke-opened, only window-opened) blocks full GREEN. Confirmed via git diff db1e7a2..HEAD --stat that MainWindow.axaml.cs/App.axaml.cs/verify-application-adapters.py are untouched by this track's 3 commits - not caused by this fix. Reported to the Coordinator rather than fixed, since product code and native attach are out of scope for READYFIX. No new dotnet crash reports (0 before, 0 after).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": "Claude Code",
+      "actor": null,
+      "artifacts": [
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "tests/CfdWorkbench.Desktop.Tests/SelfLaunch.cs",
+        "tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj",
+        "tools/verify-application-core.py",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "READYFIX",
+        "TEST-REPO-LAYOUT",
+        "STORE-SUBSET"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Fix the two readiness causes: ShellWindowTests.cs's FindRepoRoot() AppContext.BaseDirectory walk (11+ Desktop check failures under verify-application-adapters.py) and STORE-SUBSET excluding LayoutFileTests.cs/PreferenceStoreTests.cs from the umask-varying run; add a TEST-REPO-LAYOUT control.",
+      "done_when": "python3 tools/run-readiness.py exits 0 GREEN; run-tests.sh green x3 identical PASS sets; check-docs.py exits 0; no new crash reports; commits with Co-Authored-By; audit entry appended.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-09-30T18:06:22Z",
+      "duration_seconds": 1247.0,
+      "git": {
+        "sha": "90253f863f68317052cd917f94502c357f3f3ee4",
+        "short": "90253f863",
+        "branch": "fix/readiness-launch-shape",
+        "pushed": null
+      }
     }
   ],
   "changes": [
