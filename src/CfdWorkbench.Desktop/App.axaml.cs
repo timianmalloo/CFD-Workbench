@@ -1,6 +1,9 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop;
 
@@ -10,6 +13,10 @@ public sealed class App : Application
     {
         Console.Error.WriteLine("NATIVE-STARTUP app-initialize");
         AvaloniaXamlLoader.Load(this);
+        ShellHost.InstallTheme(this);
+        var applicationMenu = new NativeMenu();
+        applicationMenu.Add(new NativeMenuItem("About CFD Workbench"));
+        NativeMenu.SetMenu(this, applicationMenu);
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -19,7 +26,10 @@ public sealed class App : Application
         {
             try
             {
-                desktop.MainWindow = new MainWindow();
+                var preferences = new PreferenceStore(
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench"),
+                    () => new ProjectStore());
+                desktop.MainWindow = new MainWindow(shellMode: NativeReviewOptions.Current is null, preferences);
                 Console.Error.WriteLine($"NATIVE-STARTUP main-window-assigned={desktop.MainWindow is not null}");
             }
             catch (Exception error)

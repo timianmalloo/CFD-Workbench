@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-28T13:56:43Z",
+  "generated": "2026-09-30T15:32:15Z",
   "audit": [
     {
       "actor": null,
@@ -18988,6 +18988,36 @@ window.AUDIT_DATA = {
     },
     {
       "actor": null,
+      "artifacts": [
+        "docs/proof/app-shell-test-inventory.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-27T17:47:25Z",
+      "done_when": "inventory committed; check-named-tests D3a reports no inventory error; check-docs exits 0; audit entry appended",
+      "duration_seconds": 569.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "d3a-shell-host",
+        "pushed": null,
+        "sha": "d47607fd555ae7909dd9ca48b4e523dfeca19a2b",
+        "short": "d47607fd5"
+      },
+      "goal": "Commit the D3a-0 inventory for Coordinator review",
+      "id": "al-01M3HZN4ZM6Y282NB86VG1QGR6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Checkpoint D3a-0 of docs/coordination/app-shell-build.md: commit docs/proof/app-shell-test-inventory.md (design §12.5) before any source change.",
+      "session": "track-d3a",
+      "shortname": "D3a-0 test inventory",
+      "skill": "implement",
+      "started_at": "2026-09-27T17:37:56Z",
+      "summary": "Measured 212 throw-new lines in WorkbenchTests.cs (design says 213; d27dc03 changed it). 93 rows for 92 bound lines: 55 ported (7 proposed names, 1 D1 name), 22 deleted with App G clauses G-B7/G-CAD04, 16 kept-unchanged reflection-bound; 120 lines not bound. 31 reflection rows (26 live). Flags Q1 rail CV editor has no M1.2a home (Resume hazard), Q2 Section sample tab placement. Commit d47607f.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
       "artifacts": [],
       "compiled": false,
       "datetime": "2026-09-27T17:52:04Z",
@@ -19052,41 +19082,124 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M3JBAJA95RZZN7MPAB1KHKH8",
-      "shortname": "join-p1",
-      "datetime": "2026-09-27T21:11:21Z",
-      "session": "fbfa35dc",
-      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
-      "summary": "P1 23/23 named PASS verified; v2 rollback fixtures red by mutation then green; MaxDepth writer/reader split; 42 min vs 90 min box recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/p1-red-runs.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "land P1",
+      "datetime": "2026-09-27T21:11:21Z",
       "done_when": "merged; fast gates green",
-      "tier": "T1",
+      "duration_seconds": 33.0,
       "fan_out": 0,
+      "goal": "land P1",
+      "id": "al-01M3JBAJA95RZZN7MPAB1KHKH8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-p1",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-09-27T21:10:48Z",
-      "duration_seconds": 33.0
+      "summary": "P1 23/23 named PASS verified; v2 rollback fixtures red by mutation then green; MaxDepth writer/reader split; 42 min vs 90 min box recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M3M4PCBJESR1TGG1ARVQ2NVF",
-      "shortname": "track-newfoil",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-27T22:52:43Z",
+      "duration_seconds": 1184.0,
+      "id": "al-01M3JH45QCFXQ40XNQ6TYGRM7P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "D3a brief",
+      "session": "track-d3a",
+      "shortname": "track-d3a",
+      "skill": "implement",
+      "started_at": "2026-09-27T22:32:59Z",
+      "summary": "Partial D3a shell foundation: pinned Dock and CommunityToolkit with lockfile; standalone Dock ShellHost with Planform documents and panes, Start states, menu builder, edit router, focused-target events, red proof; 3 identical green test runs, D3a named 10/40, MainWindow integration and remaining names open.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-09-28T14:12:15Z",
+      "duration_seconds": 2772.0,
+      "id": "al-01M3M5QXE1S7NAPRQZ4ER0QJP0",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "D3a brief",
+      "session": "track-d3a",
+      "shortname": "track-d3a",
+      "skill": "implement",
+      "started_at": "2026-09-28T13:26:03Z",
+      "summary": "Connected Dock ShellHost to normal MainWindow launch, ported eight inventory rows, added shell focus and recent-file coverage with red receipts; 29 of 40 D3a names pass, remaining work and seams reported.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-09-28T13:53:57Z",
-      "session": "track-newfoil",
+      "duration_seconds": 1568.0,
+      "id": "al-01M3M4PCBJESR1TGG1ARVQ2NVF",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "NEWFOIL brief",
+      "session": "track-newfoil",
+      "shortname": "track-newfoil",
+      "skill": "implement",
+      "started_at": "2026-09-28T13:27:49Z",
       "summary": "New foil landed. FoilSource.NewDefault emits a certified untitled NACA 0012 wing (span 1 m, area 0.1 m2, AR 10, open tip, degree-3 rails, degree-5 section, 10 vertices). WorkbenchController.NewFoilAsync uses the Open build-aside path with no path and no Example dependency. Commits 7912d5e (red tests) and c466adc (implementation). tools/run-tests.sh, check-named-tests D2, check-named-tests C1, and check-docs.py exited 0.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/newfoil-red-runs.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-09-28T13:56:43Z",
+      "done_when": "merged; fast gates green",
+      "duration_seconds": 33.0,
+      "fan_out": 0,
+      "goal": "New foil independent of the Example (operator decision 2026-09-28)",
+      "id": "al-01M3M4VF27NBE2S9PX2E3H6JQH",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of newfoil-default into feature/ui-cad-direction",
+      "session": "fbfa35dc",
+      "shortname": "join-newfoil",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-09-28T13:56:10Z",
+      "summary": "New foil = untitled near-elliptic wing, b=1 m, AR 10 exact (S=0.1), tip chord 10% root, NACA 0012 (residual 0.19 um root), c0=0.12674 m, chord dev 63 um vs ellipse, MAC 0.10762; NewFoilAsync via build-aside path; 8 tests red-first recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M3S9W5VSENNRA4Y1KSYQ15BH",
+      "shortname": "track-d3b",
+      "datetime": "2026-09-30T14:00:42Z",
+      "session": "track-d3b",
+      "prompt": "D3b brief",
+      "summary": "Wired New foil; bound Undo and Redo menu history; redacted unhandled stderr; added F6, palette, Span Tab, Dock focus and privacy checks. D3a remains 38/40 after theme contrast repair cap; 52 inventory rows remain.",
       "kind": "skill",
       "skill": "implement",
       "tool": null,
@@ -19095,37 +19208,129 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "started_at": "2026-09-28T13:27:49Z",
-      "duration_seconds": 1568.0
+      "started_at": "2026-09-30T13:18:05Z",
+      "duration_seconds": 2557.0
     },
     {
-      "id": "al-01M3M4VF27NBE2S9PX2E3H6JQH",
-      "shortname": "join-newfoil",
-      "datetime": "2026-09-28T13:56:43Z",
-      "session": "fbfa35dc",
-      "prompt": "the join of newfoil-default into feature/ui-cad-direction",
-      "summary": "New foil = untitled near-elliptic wing, b=1 m, AR 10 exact (S=0.1), tip chord 10% root, NACA 0012 (residual 0.19 um root), c0=0.12674 m, chord dev 63 um vs ellipse, MAC 0.10762; NewFoilAsync via build-aside path; 8 tests red-first recount_seconds=0 (docs_only=False).",
+      "id": "al-01M3SBANH5T6552PSCXYF8DNXX",
+      "shortname": "theme-dock-contrast",
+      "datetime": "2026-09-30T14:26:05Z",
+      "session": "track-theme",
+      "prompt": "First command: `python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-theme --skill implement`\nExport `AGENT_SESSION=track-theme AGENT_WI=THEME` in every shell call.\nTree: /Users/mallalieut/projects/CFD-Workbench-d3b-shell-finish (branch d3b-shell-finish, HEAD 685bb1e; D3b's Codex run has ended and nobody else is in this tree). Work only there, using absolute paths. Never call EnterWorktree. Never push.\n\n## Observed defect (from D3b, 2026-09-30)\n- In the dark theme, a Dock tab renders black text on `#101a1d`, measured contrast 1.19:1. WCAG 2.2 AA (1.4.3) needs 4.5:1 for text.\n- D3b's Codex tried to fix it twice, hit the repair cap, and removed its ineffective style changes and the incomplete theme test.\n- `src/CfdWorkbench.Desktop/App.axaml` includes `<FluentTheme />`; no Dock theme include was visible on grep. That is a lead, NOT a verified cause.\n\n## Goal\n1. Find the root cause, from observation. Open the Dock 11.3.12.1 package theme resources, e.g. in `~/.nuget/packages/dock.avalonia*/11.3.12.1/`, and read which theme or style files Dock ships and which resource keys set the tab foreground and background in each variant. Check how the app includes them, how `ThemeVariant` dark is applied, and how `Styles.axaml` tokens (from `DESIGN.md`: dark-* ramps) map onto Dock's keys. State the cause with file:line evidence before changing anything.\n2. Fix it at the cause, using tokens only. `python3 docs/ai-forward-pack/scripts/xaml-token-lint.py --root . src/CfdWorkbench.Desktop` must stay clean. Tab text, the selected tab, hover, and the focus ring must all meet AA in light and dark: 4.5:1 for text, 3:1 for non-text and the focus ring.\n3. Write `ThemeMatrix_ShellControls_AppliedContrast` in `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`, following the existing theme-probe idiom and the design's row for this name. It measures applied (rendered/resolved) foreground/background contrast for the shell controls in both variants. Red first: it must fail on today's HEAD with the 1.19 value. Record that in `docs/proof/d3a-red-runs.md` (append).\n4. Port the inventory rows of `docs/proof/app-shell-test-inventory.md` whose ported name is `ThemeMatrix_ShellControls_AppliedContrast`, or which are theme-matrix probes. Each reflection-bound row gets its own red run (Ruling 54 P3). Update each row's status. Leave every non-theme row for D3b's next dispatch; do not port them.\n5. Convene `native-desktop-developer` once, in Adversary Mode, via the Agent tool, to review the fix: Dock theming on macOS, and whether the variant switch holds live. Convene `ux-accessibility` once for the contrast floor; it holds a hard veto, and the author never clears it. At most 2 repair cycles.\n\n## Owned files\n- `src/CfdWorkbench.Desktop/App.axaml`\n- `src/CfdWorkbench.Desktop/Styles.axaml`\n- The theme test and the theme rows in `tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`\n- The theme rows of the inventory\n- `docs/proof/d3a-red-runs.md` (append only)\n\nDo not edit the shell's C#, the controller, D1/D2 files, the design or DESIGN.md. If a token is missing in DESIGN.md, stop and report it as a seam request.\n\n## Done when\n- The root cause is stated with evidence.\n- `ThemeMatrix_ShellControls_AppliedContrast` PASSes, after being observed red.\n- The theme rows are ported.\n- `tools/run-tests.sh` exits 0.\n- `python3 tools/check-named-tests.py D3a` shows only `Focus_MenuTab_ClosesMenuReturns` still missing.\n- D1/D2/C1/P1 named checks exit 0.\n- `python3 tools/check-docs.py` exits 0.\n- xaml-token-lint is clean.\n- The app launches and you closed it (`pgrep -fl CfdWorkbench` empty).\n- Commits are conventional (`fix:`, `test:`), each ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.\n- The audit entry is appended.\n\nTier T2 · fan-out 2 · box 90 min · 120 tool calls · 400k tokens.\n\nAnti-spiral:\n- No timing investigations.\n- One launch per verification.\n- Progress is a src/ or tests/ diff.\n\nShell: never pipe a gate's status. A multi-line program goes in a file, then gets run.\n\n## Return (≤200 words)\n- the root cause with file:line;\n- the fix;\n- contrast before and after, per control and variant;\n- the red evidence;\n- the theme rows ported and the count left for D3b;\n- gate exits;\n- the SHAs;\n- any seam request.",
+      "summary": "Cause: Dock Accents/Fluent.axaml:12-46 brushes resolve System colors against the Application variant, frozen by StaticResource aliases; a Dark window under a Light app got black tab text (1.19). Fix: App.axaml per-variant ThemeDictionaries map 22 Dock keys to tokens; Styles.axaml selected Dock tab = Primary fill (UX veto repair 1, then CLEAR). Red runs 34-42. Seams: floated HostWindow variant; ShellHost app bar FindResource at attach.",
       "kind": "skill",
-      "skill": "execute-with-coordination",
+      "skill": "implement",
       "tool": null,
-      "actor": null,
+      "actor": "claude",
       "artifacts": [
-        "docs/proof/newfoil-red-runs.md"
+        "src/CfdWorkbench.Desktop/App.axaml",
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/d3a-red-runs.md",
+        "docs/proof/app-shell-test-inventory.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "New foil independent of the Example (operator decision 2026-09-28)",
-      "done_when": "merged; fast gates green",
-      "tier": "T1",
+      "goal": "Fix dark-theme Dock tab contrast at its root cause with a red-first ThemeMatrix_ShellControls_AppliedContrast and port its inventory rows",
+      "done_when": "Cause stated with evidence; theme test red then PASS; 39 theme rows ported with red runs; run-tests, named checks, check-docs, token lint green; app launched and closed",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T14:04:17Z",
+      "duration_seconds": 1308.0,
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 4,
+          "accepted": 3
+        },
+        {
+          "persona": "native-desktop-developer",
+          "raised": 5,
+          "accepted": 3
+        }
+      ],
+      "git": {
+        "sha": "70e6a1a05a013ce106ef43b0ab86447726e1d097",
+        "short": "70e6a1a05",
+        "branch": "d3b-shell-finish",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3SCQ1HZ6CPHF09PAZKQCPSJ",
+      "shortname": "theme-flake-ring",
+      "datetime": "2026-09-30T14:50:19Z",
+      "session": "track-theme",
+      "prompt": "Coordinator repair cycle 1: root-cause the ThemeMatrix flake (Unknown group opacity on DeferredContentPresenter), prove 5 identical green run-tests, fix the selected-tab focus ring (>=3:1 vs fill) with tokens only.",
+      "summary": "Flake: Dock DeferredContentControl reveal (opacity 0.85->1, 90 ms DoubleTransition) observed at 0.964 Animation priority after ShowPane; matrix sets RevealDuration zero for itself, poll removed. Ring: Fluent inner Ink tone on Primary fill 2.39/1.48/1.07; token-only FocusAdorner with OnPrimary inner ring on Dock tabs and ListBoxItem, every state (adorner built at focus time): 6.29/10.73/19.56. 5 runs exit 0, sha b73bb5ab.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "claude",
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/d3a-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deterministic ThemeMatrix and a focus ring that separates from Primary selected fills",
+      "done_when": "Cause observed; 5 run-tests exit 0 with one PASS-set hash; ring vs fill >=3 in light/dark/HC; D3a missing only Focus_MenuTab; lint and check-docs green",
+      "tier": "T2",
       "fan_out": 0,
       "signals": {
         "verification_path": true,
         "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-09-30T14:29:23Z",
+      "duration_seconds": 1256.0,
+      "git": {
+        "sha": "6367f0d20a4ae4650d805a3650963526c55a705d",
+        "short": "6367f0d20",
+        "branch": "d3b-shell-finish",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3SF3TXK2G9C00SVJ0RRJDTA",
+      "shortname": "track-d3b",
+      "datetime": "2026-09-30T15:32:15Z",
+      "session": "track-d3b",
+      "prompt": "D3b brief",
+      "summary": "Completed D3a shell menu focus, live app-bar theme refresh, all 60 inventory rows with red receipts, and three identical green full test runs; proof in docs/proof/d3a-red-runs.md",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Shell/ShellHost.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/app-shell-test-inventory.md",
+        "docs/proof/d3a-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Finish D3a named shell tests and every app-shell test inventory row in the assigned D3b worktree",
+      "done_when": "D3a and dependency named checks, three identical full PASS sets, docs, XAML lint, locked restore, shell launch, and 60/60 inventory rows pass",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
         "acceptance_met": true
       },
-      "started_at": "2026-09-28T13:56:10Z",
-      "duration_seconds": 33.0
+      "started_at": "2026-09-30T14:53:11Z",
+      "duration_seconds": 2344.0
     }
   ],
   "changes": [

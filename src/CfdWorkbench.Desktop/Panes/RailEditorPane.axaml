@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Panes.RailEditorPane">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="{StaticResource Space4}" Spacing="12">
+      <TextBlock Classes="heading" Text="Rail controls" />
+
+      <!-- Error State for PaneBind_Throws -->
+      <Border x:Name="ErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+              Padding="{StaticResource Space3}">
+        <StackPanel Spacing="8">
+          <TextBlock x:Name="ErrorText" Text="Rail editor couldn't be shown." Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
+          <Button x:Name="TryAgainButton" Content="Try again" />
+        </StackPanel>
+      </Border>
+
+      <!-- Empty State -->
+      <StackPanel x:Name="EmptyPanel" Spacing="8" IsVisible="True">
+        <TextBlock Classes="heading" Text="No rail controls" />
+        <TextBlock Classes="caption" Text="Open or start a foil to edit its rail controls." TextWrapping="Wrap" />
+      </StackPanel>
+
+      <!-- Content Panel -->
+      <StackPanel x:Name="ContentPanel" Spacing="8" IsVisible="False">
+        <ListBox x:Name="ControlList" Height="{StaticResource NavigatorListHeight}"
+                 AutomationProperties.Name="Authored rail control vertices; select one to edit" />
+
+        <TextBlock Classes="heading" Text="Edit rail control" Margin="{StaticResource Space2}" />
+        <TextBlock Text="Selected CV aft position" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox Grid.Column="0" x:Name="NumericInput" Watermark="Select an editable CV"
+                   AutomationProperties.Name="Selected control aft position numeric value" />
+          <TextBlock Grid.Column="1" x:Name="UnitLabel" Text="m" VerticalAlignment="Center"
+                     Margin="{StaticResource Space2}" AutomationProperties.Name="Aft position unit" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+          <Button Grid.Row="0" Grid.Column="0" Margin="{StaticResource Space2}" x:Name="PreviewButton"
+                  Content="Preview" AutomationProperties.Name="Preview current rail draft" />
+          <Button Grid.Row="0" Grid.Column="1" Margin="{StaticResource Space2}" x:Name="ApplyButton"
+                  Content="Apply" AutomationProperties.Name="Apply certified rail draft" />
+          <Button Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource Space2}" x:Name="CancelButton"
+                  Content="Cancel draft" AutomationProperties.Name="Cancel current rail draft" />
+        </Grid>
+
+        <TextBlock x:Name="DraftReadout" Classes="caption" Text="No draft." TextWrapping="Wrap" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

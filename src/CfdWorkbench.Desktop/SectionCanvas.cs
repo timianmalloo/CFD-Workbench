@@ -4,6 +4,7 @@ using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using System.Globalization;
 
@@ -78,6 +79,7 @@ public class SectionCanvas : Control
 
     public event Action<string, string>? VertexSelected;
     public event Action<string, string, double, double>? VertexMoved;
+    public event Shell.FocusedTargetChangedEventHandler? FocusedTargetChanged;
 
     public IReadOnlyList<TextBlock> SemanticControls { get; private set; } = [];
     public IReadOnlyList<ViewportSemantic> Semantics { get; private set; } = [];
@@ -109,7 +111,32 @@ public class SectionCanvas : Control
         };
     }
 
-    protected virtual void OnVertexSelected(string side, string id) => VertexSelected?.Invoke(side, id);
+    protected virtual void OnVertexSelected(string side, string id)
+    {
+        VertexSelected?.Invoke(side, id);
+        RaiseFocusedTarget(side, id);
+    }
+
+    public void FocusVertex(string side, string id)
+    {
+        if (FindVertex(side, id) is null) return;
+        SelectedVertex = (side, id);
+        OnVertexSelected(side, id);
+        InvalidateVisual();
+    }
+
+    private void RaiseFocusedTarget(string side, string id)
+    {
+        var vertex = FindVertex(side, id);
+        if (vertex is null) return;
+        var local = ModelToScreen(vertex.X, vertex.Y);
+        var top = TopLevel.GetTopLevel(this);
+        var screen = top is null
+            ? new PixelPoint((int)local.X, (int)local.Y)
+            : top.PointToScreen(this.TranslatePoint(local, top) ?? local);
+        var bounds = new Shell.PxRect(screen.X - 12, screen.Y - 12, 24, 24);
+        FocusedTargetChanged?.Invoke(this, new Shell.FocusedTargetEventArgs(bounds, $"{vertex.Side} vertex {vertex.Id}"));
+    }
     protected virtual void OnVertexMoved(string side, string id, double x, double y) => VertexMoved?.Invoke(side, id, x, y);
 
     public Point ModelToScreen(double x, double y)

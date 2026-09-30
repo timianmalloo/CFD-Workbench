@@ -1,6 +1,90 @@
-<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="CfdWorkbench.Desktop.App" Name="CFD Workbench">
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:CfdWorkbench.Desktop" x:Class="CfdWorkbench.Desktop.App" Name="CFD Workbench">
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://CfdWorkbench.Desktop/Styles.axaml" />
   </Application.Styles>
+  <!-- Dock's Fluent accents (Accents/Fluent.axaml) define its tab and chrome brushes once, outside ThemeDictionaries,
+       with Color="{DynamicResource System*Color}". That color resolves against the Application's variant, never a
+       window's RequestedThemeVariant, and Dock's aliases (StaticResource) freeze that one instance. These keys map
+       each brush Dock's templates read onto our tokens per variant. Application.Resources is searched before
+       Application.Styles, so this wins over DockFluentTheme, which ShellHost.InstallTheme adds after Styles.axaml. -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockTabSelectedForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockTabActiveForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabSelectedForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabPointerOverForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonForegroundBrush" Color="{StaticResource InkColor}" />
+          <SolidColorBrush x:Key="DockSurfaceWorkbenchBrush" Color="{StaticResource CanvasColor}" />
+          <SolidColorBrush x:Key="DockSurfacePanelBrush" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonHoverBackgroundBrush" Color="{StaticResource SurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="DockTabCloseHoverBackgroundBrush" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonDangerHoverBrush" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonPressedBackgroundBrush" Color="{StaticResource SurfaceSoftColor}" />
+          <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="DockSeparatorBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource LineColor}" />
+          <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource PrimaryColor}" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockTabSelectedForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockTabActiveForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabSelectedForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabPointerOverForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonForegroundBrush" Color="{StaticResource DarkInkColor}" />
+          <SolidColorBrush x:Key="DockSurfaceWorkbenchBrush" Color="{StaticResource DarkCanvasColor}" />
+          <SolidColorBrush x:Key="DockSurfacePanelBrush" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonHoverBackgroundBrush" Color="{StaticResource DarkSurfaceColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="DockTabCloseHoverBackgroundBrush" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonDangerHoverBrush" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonPressedBackgroundBrush" Color="{StaticResource DarkSoftColor}" />
+          <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="DockSeparatorBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource DarkLineColor}" />
+          <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource DarkPrimaryColor}" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="{x:Static local:NativeReviewThemes.HighContrast}">
+          <SolidColorBrush x:Key="DockTabForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockTabSelectedForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockTabActiveForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabSelectedForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockDocumentTabPointerOverForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonForegroundBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockSurfaceWorkbenchBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockSurfacePanelBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockTabCloseHoverBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonDangerHoverBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockChromeButtonPressedBackgroundBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+          <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockSeparatorBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockDocumentContentBorderBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="{StaticResource HighContrastInkColor}" />
+          <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="{StaticResource HighContrastAccentColor}" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
 </Application>

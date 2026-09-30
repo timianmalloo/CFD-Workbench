@@ -5719,6 +5719,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-app-shell-test-inventory",
+      "path": "docs/proof/app-shell-test-inventory.md",
+      "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d3a",
+      "phase": "implementation — D3b completion",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Every throw-new assertion in WorkbenchTests.cs (212, measured) is classified. All 60 ported rows have destination tests and recorded red evidence; 33 rows stay unchanged under Ruling 55. None are deleted.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "d3a",
+        "test-inventory",
+        "harness-migration",
+        "named-tests",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "26730784e14cf0e60bc1beae9afb3f6547cc690b1529ddbfe8d4190ced964069"
+    },
+    {
       "id": "proof-application-adapters",
       "path": "docs/proof/application-adapters.md",
       "title": "Native application adapter implementation proof",
@@ -6039,6 +6072,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5b2ecaa87814cd9d5ee6faf37838233a02fc3c1a666a10e068b10ad044fcafa4"
+    },
+    {
+      "id": "proof-d3a-red-runs",
+      "path": "docs/proof/d3a-red-runs.md",
+      "title": "D3a shell window red runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d3a",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Recorded foreground red runs across D3a, D3b and THEME. All 60 ported inventory rows have destination tests and red evidence.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "d3a",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6fc8d736919d6e164dd704d9d7ffadc013b0872f5fceeec02b7bb27922c03e0a"
     },
     {
       "id": "proof-dock-split-s8",
@@ -7589,5 +7648,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "5fc6204dc1be34d07ff2832bd220523938c277f2b22927aa0bf52bb96e549ae2"
+  "graphSha256": "056987d63475be73a4c7cc95b295d76ad7623a09b3006c5899b6e2f637c845d4"
 };
