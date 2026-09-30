@@ -2848,7 +2848,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f543bb3708389c13513ddeb8e9ec6aec79b869c3097885ef45e97e25a018e29d"
+      "sourceSha256": "32ca7567d6d732098bb6617134307447347f03d7a9cb0d55128cd90a16d7de9f"
     },
     {
       "id": "domain-experts",
@@ -6313,6 +6313,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-u1fix-red-runs",
+      "path": "docs/proof/u1fix-red-runs.md",
+      "title": "U1FIX app-shell repair proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "M1.2a U1FIX",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Red and green Desktop harness evidence for the U1FIX open-failure actions, review shell, accessible controls and copy. Native AX and VoiceOver review remain operator-run.",
+      "tags": [
+        "app-shell",
+        "accessibility",
+        "copy",
+        "tdd"
+      ],
+      "links": [
+        {
+          "to": "review-app-shell-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ef3473e02f906e97f98dceed90f7019c88f42445232d4aeec1e785c6c85c30f9"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -7696,5 +7730,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6c4cc92dc7c4e5ff0b2c656f8974208b5463fa4616cd68f5737d94e7763ea789"
+  "graphSha256": "81b194d49f81c9c2704bb04229e3f91c74275a72a936d0091522e4eb32ecc9a8"
 };

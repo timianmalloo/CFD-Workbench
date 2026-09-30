@@ -18,7 +18,6 @@
       <!-- Empty State -->
       <StackPanel x:Name="EmptyPanel" Spacing="8" IsVisible="True">
         <TextBlock Classes="heading" Text="No foil open" />
-        <TextBlock Classes="caption" Text="Open or start a foil to browse its stations." TextWrapping="Wrap" />
       </StackPanel>
 
       <!-- Content Panel -->

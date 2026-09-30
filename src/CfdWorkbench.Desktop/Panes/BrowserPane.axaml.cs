@@ -26,6 +26,12 @@ public partial class BrowserPane : UserControl
         };
     }
 
+    public void ShowRenderFailure(bool foilOpen)
+    {
+        ErrorText.Text = "Browser couldn't be shown." + (foilOpen ? " Your foil hasn't changed." : "");
+        ErrorPanel.IsVisible = true;
+    }
+
     public void Bind(WorkbenchController controller)
     {
         boundController = controller;
@@ -79,8 +85,7 @@ public partial class BrowserPane : UserControl
             StationList.ItemsSource = null;
             ContentPanel.IsVisible = false;
             EmptyPanel.IsVisible = false;
-            ErrorText.Text = "Browser couldn't be shown.";
-            ErrorPanel.IsVisible = true;
+            ShowRenderFailure(controller?.Inspection is not null);
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
             refreshing = false;
             return;

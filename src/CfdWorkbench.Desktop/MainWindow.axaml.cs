@@ -193,6 +193,20 @@ public sealed partial class MainWindow : Window
             {
                 if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")
                     Dispatcher.UIThread.Post(Close, DispatcherPriority.Background);
+                else if (review is not null)
+                {
+                    await Guarded(() => review.ApplyStateAsync(workbench));
+                    shellHost?.RefreshPanes();
+                    if (review.State == "invalid-input" && workbench.Draft is not null)
+                        shellHost?.Properties.FindControl<TextBox>("SpanInput")!.SetCurrentValue(TextBox.TextProperty, "-");
+                    ApplyReviewMotionPreference();
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (shellHost is null) return;
+                        if (workbench.Inspection is null) shellHost.ModelView.StartCardView.StartNewButton.Focus();
+                        else shellHost.ModelView.FoilViewport.Focus();
+                    }, DispatcherPriority.Input);
+                }
                 return;
             }
             if (Environment.GetEnvironmentVariable("CFDW_STARTUP_SMOKE") == "1")

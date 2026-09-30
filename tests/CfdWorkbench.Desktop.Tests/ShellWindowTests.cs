@@ -36,6 +36,80 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("App_ReviewMode_UsesDockShellAndExactTitle", () =>
+        {
+            var property = typeof(NativeReviewOptions).GetProperty("Current")!;
+            var previous = property.GetValue(null);
+            property.SetValue(null, new NativeReviewOptions("keyboard", 1280, 800, "empty", "system", false, null));
+            try
+            {
+                var window = App.CreateMainWindow();
+                try
+                {
+                    if (window.Content is not ShellHost ||
+                        window.Title != "CFD Workbench — Offline Foil · REVIEW keyboard / empty / system / motion default")
+                        throw new InvalidOperationException("Review window omitted Dock shell or exact title");
+                }
+                finally { window.Close(); }
+            }
+            finally { property.SetValue(null, previous); }
+        });
+
+        DesktopChecks.Check("UI_DEAD_CONTROL_ShellButtonsHaveActions", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var start = host.ModelView.FindControl<StartView>("StartCardView")!;
+                var failures = new HashSet<string>(StringComparer.Ordinal);
+                void CheckState()
+                {
+                    Settle(window);
+                    foreach (var button in host.GetVisualDescendants().OfType<Button>()
+                        .Where(button => button.IsEffectivelyVisible && button.IsEnabled &&
+                            button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true))
+                    {
+                        if (button.Command is not null) continue;
+                        var store = typeof(Avalonia.Interactivity.Interactive).GetField("_eventHandlers",
+                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                            .GetValue(button) as System.Collections.IDictionary;
+                        if (store?.Contains(Button.ClickEvent) != true) failures.Add(button.Name ?? button.Content?.ToString() ?? "unnamed");
+                    }
+                }
+                CheckState();
+                start.ShowOpening("sample.foil");
+                CheckState();
+                start.HideOpening();
+                foreach (OpenFailure failure in new OpenFailure[]
+                {
+                    new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"),
+                    new OpenFailure.Unreadable("DOC-IO", "sample.foil"),
+                    new OpenFailure.AccessDenied("EACCES", "sample.foil")
+                })
+                {
+                    start.ShowAlert("sample.foil", failure, fromRecent: true);
+                    CheckState();
+                }
+                start.DismissAlert();
+                host.ModelView.ShowAlertBand("Candidate IDs", showAcceptIds: true);
+                CheckState();
+                host.ModelView.ShowAlertBand("Recovery", showResumeRecovery: true);
+                CheckState();
+                host.ModelView.ShowAlertBand("Failure");
+                CheckState();
+                host.ModelView.ShowOpenFailure("sample.foil",
+                    new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"), fromRecent: true);
+                CheckState();
+                if (failures.Count != 0)
+                    throw new InvalidOperationException("Enabled shell buttons without Click or Command: " + string.Join(", ", failures));
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("NativeMenu_Application_AboutOnly", () =>
         {
             var menu = NativeMenu.GetMenu(Application.Current!);
@@ -1035,6 +1109,254 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Start_CancelWithoutOrigin_FocusesFirstCard", () =>
+        {
+            var start = new StartView();
+            var window = new Window { Content = start, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                start.ShowOpening("sample.foil");
+                start.CancelOpening();
+                if (!StartControl<Button>(start, "StartNewButton").IsFocused)
+                    throw new InvalidOperationException("Cancel without a card origin did not focus first start card");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Start_CancelFromRecent_FocusesOriginRow", () =>
+        {
+            var start = new StartView();
+            start.PopulateRecent(["/example/folder/sample.foil"]);
+            var window = new Window { Content = start, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                var row = StartControl<ListBox>(start, "RecentListBox").Items.OfType<ListBoxItem>().Single();
+                start.ShowOpening("sample.foil", row);
+                start.CancelOpening();
+                if (!row.IsFocused) throw new InvalidOperationException("Cancel did not focus the Recent origin row");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("AlertBand_AnnouncesAndFocusesFirstAction", () =>
+        {
+            var area = new ModelArea();
+            var window = new Window { Content = area, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                area.ShowAlertBand("Open failed");
+                var band = area.FindControl<Border>("AlertBand")!;
+                var dismiss = area.FindControl<Button>("DismissAlertBandButton")!;
+                if (Avalonia.Automation.AutomationProperties.GetLiveSetting(band) ==
+                    Avalonia.Automation.AutomationLiveSetting.Off || !dismiss.IsFocused)
+                    throw new InvalidOperationException("Alert band is silent or its first action lacks focus");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Span_Invalid_AnnouncedAndTabCanLeave", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var pane = new PropertiesPane();
+            var after = new Button { Content = "After Span" };
+            var window = new Window
+            {
+                Content = new StackPanel { Children = { pane, after } }, Width = 1024, Height = 700
+            };
+            try
+            {
+                window.Show();
+                pane.Bind(controller);
+                var input = pane.FindControl<TextBox>("SpanInput")!;
+                input.Text = "invalid";
+                if (pane.CommitSpan()) throw new InvalidOperationException("Invalid Span committed");
+                var error = pane.FindControl<Border>("SpanErrorPanel")!;
+                input.Focus();
+                var args = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Tab };
+                input.RaiseEvent(args);
+                Settle(window);
+                if (Avalonia.Automation.AutomationProperties.GetLiveSetting(error) ==
+                    Avalonia.Automation.AutomationLiveSetting.Off || input.IsFocused)
+                    throw new InvalidOperationException("Span error live=" +
+                        Avalonia.Automation.AutomationProperties.GetLiveSetting(error) + " tabHandled=" + args.Handled +
+                        " inputFocused=" + input.IsFocused);
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Recent_AccessibleName_FileAndFolder", () =>
+        {
+            var start = new StartView();
+            start.PopulateRecent(["/example/folder/sample.foil"]);
+            var row = StartControl<ListBox>(start, "RecentListBox").Items.OfType<ListBoxItem>().Single();
+            if (Avalonia.Automation.AutomationProperties.GetName(row) != "sample.foil, folder" ||
+                Avalonia.Automation.AutomationProperties.GetHelpText(row) != "/example/folder/sample.foil")
+                throw new InvalidOperationException("Recent row name is not file plus folder with path description");
+        });
+
+        DesktopChecks.Check("Copy_OpenFailures_MatchesDesignRows", () =>
+        {
+            var rows = File.ReadAllLines(Path.Combine(FindRepoRoot(), "DESIGN.md"))
+                .Where(line => line.StartsWith("| COPY-", StringComparison.Ordinal))
+                .Select(line => line.Split('|', 4))
+                .Where(parts => parts.Length >= 3)
+                .ToDictionary(parts => parts[1].Trim(), parts => parts[2].Trim());
+            var cases = new (string Row, OpenFailure Failure, bool FromRecent)[]
+            {
+                ("COPY-125", new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"), true),
+                ("COPY-126", new OpenFailure.AccessDenied("EACCES", "sample.foil"), false),
+                ("COPY-127", new OpenFailure.Unreadable("DOC-IO", "sample.foil"), false),
+                ("COPY-128", new OpenFailure.NotRecognised("DOC-TYPE", "sample.foil"), false),
+                ("COPY-129", new OpenFailure.TooLarge("DSL-LIMIT", "sample.foil"), false),
+                ("COPY-130", new OpenFailure.UnknownContent("DOC-UNSUPPORTED-FIELD", "sample.foil"), false),
+                ("COPY-103", new OpenFailure.Newer("DOC-VERSION", "sample.foil"), false)
+            };
+            foreach (var item in cases)
+            {
+                var start = new StartView();
+                start.ShowAlert("sample.foil", item.Failure, fromRecent: item.FromRecent);
+                var actions = ((Panel)StartControl<Button>(start, "AlertLocateButton").Parent!)
+                    .Children.OfType<Button>().Where(button => button.IsVisible && button.Name != "AlertDismissButton")
+                    .Select(button => button.Content?.ToString()).ToArray();
+                string actual = StartControl<TextBlock>(start, "AlertTitle").Text + " " +
+                    StartControl<TextBlock>(start, "AlertMessage").Text +
+                    (item.Row == "COPY-103" || actions.Length == 0 ? "" : " · " + string.Join(" · ", actions));
+                string expected = rows[item.Row].Replace("<file>", "sample.foil", StringComparison.Ordinal)
+                    .Replace("<limit>", "1 MiB", StringComparison.Ordinal);
+                if (actual != expected)
+                    throw new InvalidOperationException($"{item.Row}: expected '{expected}', built '{actual}'");
+            }
+        });
+
+        DesktopChecks.Check("Copy_CancelOpening_ShowsStatus", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            host.HandleOpenOutcome(new OpenOutcome.Cancelled(), "sample.foil");
+            var status = host.ModelView.FindControl<TextBlock>("StatusText");
+            if (status?.Text != "Opening cancelled. Nothing changed.")
+                throw new InvalidOperationException("COPY-105 was not shown after Cancel");
+        });
+
+        DesktopChecks.Check("Copy_OpenFailureWithFoil_AlertBandMatchesStart", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                host.HandleOpenOutcome(new OpenOutcome.Failed(
+                    new OpenFailure.Missing("FILE-NOT-FOUND", "/missing/sample.foil")), "/missing/sample.foil", fromRecent: true);
+                Settle(window);
+                var text = host.ModelView.FindControl<TextBlock>("AlertBandText")!.Text;
+                var locate = host.ModelView.FindControl<Button>("BandLocateButton");
+                if (text != "“sample.foil” didn't open. " + StartView.FailureMessage(
+                        new OpenFailure.Missing("FILE-NOT-FOUND", "/missing/sample.foil"), "sample.foil") ||
+                    locate?.IsVisible != true || !locate.IsFocused)
+                    throw new InvalidOperationException($"Foil-open failure band: text='{text}', locate={locate?.IsVisible}, focused={locate?.IsFocused}");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Copy_BrowserEmpty_SingleRendering", () =>
+        {
+            var browser = new BrowserPane();
+            var empty = browser.FindControl<StackPanel>("EmptyPanel")!;
+            var lines = empty.Children.OfType<TextBlock>().Select(line => line.Text).ToArray();
+            if (lines.Length != 1 || lines[0] != "No foil open")
+                throw new InvalidOperationException("Browser empty state has extra uncatalogued caption");
+        });
+
+        DesktopChecks.Check("Copy_PaneErrors_WithAndWithoutFoil", () =>
+        {
+            var properties = new PropertiesPane();
+            var browser = new BrowserPane();
+            var rail = new RailEditorPane();
+            var panes = new (string Name, Action<bool> Show, Func<string?> Text)[]
+            {
+                ("Properties", properties.ShowRenderFailure, () => properties.FindControl<TextBlock>("ErrorText")!.Text),
+                ("Browser", browser.ShowRenderFailure, () => browser.FindControl<TextBlock>("ErrorText")!.Text),
+                ("Rail editor", rail.ShowRenderFailure, () => rail.FindControl<TextBlock>("ErrorText")!.Text)
+            };
+            foreach (var pane in panes)
+                foreach (bool foilOpen in new[] { false, true })
+                {
+                    pane.Show(foilOpen);
+                    string expected = pane.Name + " couldn't be shown." +
+                        (foilOpen ? " Your foil hasn't changed." : "");
+                    if (pane.Text() != expected)
+                        throw new InvalidOperationException($"COPY-{(foilOpen ? 138 : 139)} mismatch for {pane.Name}");
+                }
+        });
+
+        DesktopChecks.Check("Copy_SpanErrors_MatchDesignRows", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            var pane = new PropertiesPane();
+            pane.Bind(controller);
+            var input = pane.FindControl<TextBox>("SpanInput")!;
+            var error = pane.FindControl<TextBlock>("SpanErrorText")!;
+            input.Text = "n/a";
+            _ = pane.CommitSpan();
+            if (error.Text != "Enter a number. Span is unchanged.")
+                throw new InvalidOperationException("COPY-118 differs from built Span error");
+            input.Text = "0";
+            _ = pane.CommitSpan();
+            if (error.Text != "Enter a length greater than 0 mm. Span is unchanged.")
+                throw new InvalidOperationException("COPY-106 differs from built Span error");
+        });
+
+        DesktopChecks.Check("OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath", () =>
+        {
+            string root = Path.Combine(FindRepoRoot(), ".tmp-tests", "u1fix-remove-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            string failed = Path.Combine(root, "missing.foil");
+            string kept = Path.Combine(root, "kept.foil");
+            var preferences = new PreferenceStore(root, () => new ProjectStore());
+            preferences.UpdateRecentAsync(new RecentOp.Add(kept), CancellationToken.None).GetAwaiter().GetResult();
+            preferences.UpdateRecentAsync(new RecentOp.Add(failed), CancellationToken.None).GetAwaiter().GetResult();
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller, preferences);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenFileAsync(failed, fromRecent: true);
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                var remove = host.ModelView.FindControl<StartView>("StartCardView")!
+                    .FindControl<Button>("AlertRemoveRecentButton")!;
+                if (!remove.IsVisible) throw new InvalidOperationException("Recent failure hid Remove from Recent");
+                bool removed = false;
+                host.RecentLoaded += entries =>
+                {
+                    removed = entries.Count == 1 && entries[0].Path == kept;
+                    if (removed) timeout.Cancel();
+                };
+                remove.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                Avalonia.Threading.Dispatcher.UIThread.MainLoop(timeout.Token);
+                var entries = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult().Entries;
+                if (!removed || entries.Count != 1 || entries[0].Path != kept)
+                    throw new InvalidOperationException("Remove from Recent did not retain only the other path");
+            }
+            finally
+            {
+                window.Close();
+                Directory.Delete(root, recursive: true);
+            }
+        });
+
         DesktopChecks.Check("Start_OpenMissing_AlertLocate", () =>
         {
             var start = new StartView();
@@ -1063,6 +1385,38 @@ public static class ShellWindowTests
                 !StartControl<Button>(start, "StartNewButton").IsVisible)
                 throw new InvalidOperationException("Dismissing open failure did not keep the Start card");
         });
+
+        foreach (string action in new[] { "AlertLocateButton", "AlertOpenAnotherButton", "AlertTryAgainButton" })
+        {
+            DesktopChecks.Check($"OpenFailure_{action}_OpensFile", () =>
+            {
+                string path = Path.Combine(FindRepoRoot(), "src", "CfdWorkbench.Desktop", "Assets", "example.foil");
+                int picks = 0;
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller, pickOpenFile: () =>
+                {
+                    picks++;
+                    return Task.FromResult<string?>(path);
+                });
+                var window = new Window { Content = host, Width = 1024, Height = 700 };
+                try
+                {
+                    window.Show();
+                    Settle(window);
+                    var start = host.ModelView.FindControl<StartView>("StartCardView")!;
+                    host.HandleOpenOutcome(new OpenOutcome.Failed(action == "AlertTryAgainButton"
+                        ? new OpenFailure.Unreadable("DOC-IO", path)
+                        : new OpenFailure.Missing("FILE-NOT-FOUND", path)), path);
+                    StartControl<Button>(start, action).RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                    while (controller.Inspection is null && !timeout.IsCancellationRequested)
+                        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    if (controller.Inspection is null || picks != (action == "AlertTryAgainButton" ? 0 : 1))
+                        throw new InvalidOperationException($"{action} did not open its selected or original file");
+                }
+                finally { window.Close(); }
+            });
+        }
 
         // The --theme-controls matrix retargeted to the shell (design §12.4; inventory rows 113–1446).
         DesktopChecks.Check("ThemeMatrix_ShellControls_AppliedContrast", () =>

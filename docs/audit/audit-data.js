@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T15:47:17Z",
+  "generated": "2026-09-30T16:57:13Z",
   "audit": [
     {
       "actor": null,
@@ -19431,6 +19431,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T15:46:31Z",
       "duration_seconds": 46.0
+    },
+    {
+      "id": "al-01M3SKZCHXCFKMH2NAV717GJQH",
+      "shortname": "implement-u1fix-shell-review",
+      "datetime": "2026-09-30T16:57:13Z",
+      "session": "track-u1fix",
+      "prompt": "U1FIX: fix M1.2a review findings C-1..C-14, A1..A7 and F-ATTACH in owned Desktop files; foreground checks, commit, Return, no push.",
+      "summary": "Wired alert actions and review shell; repaired accessibility and catalogued copy; added red-run proof. Three full test runs green; atomic Recent removal and uncatalogued copy remain residual risks.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/u1fix-red-runs.md",
+        "src/CfdWorkbench.Desktop",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Repair U1a M1.2a shell findings in the assigned worktree",
+      "done_when": "Named checks, three full test runs, docs, lint, restore and launch pass; findings fixed or reported with reasons",
+      "tier": "T1",
+      "fan_out": 1,
+      "started_at": "2026-09-30T15:48:15Z",
+      "duration_seconds": 4138.0
     }
   ],
   "changes": [

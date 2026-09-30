@@ -3,12 +3,16 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              x:Class="CfdWorkbench.Desktop.ModelArea">
-  <Grid RowDefinitions="Auto,*">
+  <Grid RowDefinitions="Auto,Auto,*">
     <!-- Alert Band -->
-    <Border Grid.Row="0" x:Name="AlertBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+    <Border Grid.Row="0" x:Name="AlertBand" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceSoftBrush}"
             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
       <StackPanel Orientation="Horizontal" Spacing="8">
         <TextBlock x:Name="AlertBandText" Text="" VerticalAlignment="Center" />
+        <Button x:Name="BandLocateButton" Content="Locate…" IsVisible="False" />
+        <Button x:Name="BandTryAgainButton" Content="Try again" IsVisible="False" />
+        <Button x:Name="BandOpenAnotherButton" Content="Open another file…" IsVisible="False" />
+        <Button x:Name="BandRemoveRecentButton" Content="Remove from Recent" IsVisible="False" />
         <Button x:Name="AcceptIdsButton" Content="Accept candidate IDs" IsVisible="False"
                 AutomationProperties.Name="Accept explicit ID insertion after comparing source" />
         <Button x:Name="ResumeRecoveryButton" Content="Resume draft" IsVisible="False"
@@ -19,8 +23,11 @@
       </StackPanel>
     </Border>
 
+    <TextBlock Grid.Row="1" x:Name="StatusText" IsVisible="False" AutomationProperties.LiveSetting="Polite"
+               Margin="{StaticResource Space2}" TextWrapping="Wrap" />
+
     <!-- Main Content Area -->
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="2">
       <!-- Start View (shown when no foil is open) -->
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
 
