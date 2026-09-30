@@ -6315,6 +6315,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "0a8fae111d27b62989f3791fec1e6cadd331aaa144aebf350b126c9b8870070a"
     },
     {
+      "id": "proof-openfix-red-runs",
+      "path": "docs/proof/openfix-red-runs.md",
+      "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-openfix",
+      "phase": "implementation — M1.2a Open-flow repair",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Red-first evidence for the ShellHost candidate-accept path, Start origin alerts, retained refused original, and nonfinite Span input; plus the three-run green set.",
+      "tags": [
+        "app-shell",
+        "desktop",
+        "open",
+        "span",
+        "red-first",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "411ed7be048a52582a06afa9f21c0cc170ba90254050bd671e7d8b689c5a5fe1"
+    },
+    {
       "id": "proof-p1-red-runs",
       "path": "docs/proof/p1-red-runs.md",
       "title": "P1 preferences red-first runs",
@@ -7758,5 +7786,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "6f47cd691ebe2b4921b1fd9fb0da7645f606a5ef7a6d78576820077f64593c2e"
+  "graphSha256": "e60a4c44f323c6ca853031a6da6884ed087a5487ccf37f2097bebec868c0bc68"
 };

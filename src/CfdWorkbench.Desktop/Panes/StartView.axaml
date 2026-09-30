@@ -14,6 +14,7 @@
             <Button x:Name="AlertLocateButton" Content="Locate…" IsVisible="False" />
             <Button x:Name="AlertTryAgainButton" Content="Try again" IsVisible="False" />
             <Button x:Name="AlertNewFoilButton" Content="New foil" IsVisible="False" />
+            <Button x:Name="AlertAcceptIdsButton" Content="Accept candidate IDs" IsVisible="False" />
             <Button x:Name="AlertOpenAnotherButton" Content="Open another file…" IsVisible="False" />
             <Button x:Name="AlertRemoveRecentButton" Content="Remove from Recent" IsVisible="False" />
             <Button x:Name="AlertDismissButton" Content="Dismiss" />

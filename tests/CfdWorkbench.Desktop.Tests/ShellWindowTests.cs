@@ -742,6 +742,124 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("Missing example alert omitted fixture name or New foil action");
         });
 
+        DesktopChecks.Check("Open_IdCandidate_AcceptThroughShell_Opens", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                var start = host.ModelView.FindControl<StartView>("StartCardView")!;
+                var accept = StartControl<Button>(start, "AlertAcceptIdsButton");
+                if (!accept.IsVisible) throw new InvalidOperationException("ID candidate has no Accept action on Start");
+                accept.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                using var acceptTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (StartControl<Border>(start, "AlertPanel").IsVisible && !acceptTimeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Settle(window);
+                if (controller.Inspection is null || !host.ModelView.FindControl<Viewport>("FoilViewport")!.IsVisible ||
+                    StartControl<Border>(start, "AlertPanel").IsVisible)
+                    throw new InvalidOperationException($"Accept through shell did not open: inspection={controller.Inspection is not null}, viewport={host.ModelView.FindControl<Viewport>("FoilViewport")!.IsVisible}, alert={StartControl<Border>(start, "AlertPanel").IsVisible}, pending={controller.PendingCandidate is not null}, status={controller.Status}");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("Open_Refused_ReturnsToOriginWithAlert", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            var parsed = FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/invalid-geometry.foil"));
+            byte[] original = FoilSource.MaterializeIds(parsed);
+            string path = Path.Combine(FindRepoRoot(), ".tmp-tests", $"openfix-refused-{Guid.NewGuid():N}.foil");
+            File.WriteAllBytes(path, original);
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenFileAsync(path);
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                var start = host.ModelView.FindControl<StartView>("StartCardView")!;
+                string expected = CopyRow(DesignCopyRows(), "COPY-141")
+                    .Replace("<file>", Path.GetFileName(path), StringComparison.Ordinal);
+                if (!start.IsVisible || !StartControl<Border>(start, "AlertPanel").IsVisible ||
+                    StartAlertLine(start) != expected ||
+                    !StartControl<Button>(start, "AlertDismissButton").IsFocused ||
+                    controller.Inspection is not null || controller.PendingOriginal is null ||
+                    !controller.PendingOriginal.AsSpan().SequenceEqual(original) || controller.PendingCandidate is not null)
+                    throw new InvalidOperationException("Refused open lost Start, alert focus, or read-only original");
+
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                host.RefreshPanes();
+                string accepted = controller.AcceptedSource;
+                open = host.OpenFileAsync(path);
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                if (start.IsVisible || !host.ModelView.FindControl<Border>("AlertBand")!.IsVisible ||
+                    BandLine(host.ModelView) != expected ||
+                    !host.ModelView.FindControl<Button>("DismissAlertBandButton")!.IsFocused ||
+                    controller.AcceptedSource != accepted || controller.PendingOriginal is null ||
+                    !controller.PendingOriginal.AsSpan().SequenceEqual(original))
+                    throw new InvalidOperationException("Refused open replaced the workspace or lost its alert and original");
+            }
+            finally { window.Close(); File.Delete(path); }
+        });
+
+        DesktopChecks.Check("Open_NeedsIds_ReturnsToOriginWithAlert", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                var open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                var start = host.ModelView.FindControl<StartView>("StartCardView")!;
+                string expected = CopyRow(DesignCopyRows(), "COPY-140")
+                    .Replace("<file>", "foil-comment.foil", StringComparison.Ordinal);
+                if (!start.IsVisible || !StartControl<Border>(start, "AlertPanel").IsVisible ||
+                    StartAlertLine(start) != expected ||
+                    !StartControl<Button>(start, "AlertAcceptIdsButton").IsFocused ||
+                    controller.Inspection is not null || controller.PendingCandidate is null)
+                    throw new InvalidOperationException("ID candidate lost Start, alert focus, or pending candidate");
+
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                host.RefreshPanes();
+                string accepted = controller.AcceptedSource;
+                open = host.OpenFileAsync("docs/examples/foildsl/foil-comment.foil");
+                while (!open.IsCompleted && !timeout.IsCancellationRequested)
+                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                open.GetAwaiter().GetResult();
+                Settle(window);
+                if (start.IsVisible || !host.ModelView.FindControl<Border>("AlertBand")!.IsVisible ||
+                    BandLine(host.ModelView) != expected ||
+                    !host.ModelView.FindControl<Button>("AcceptIdsButton")!.IsFocused ||
+                    controller.AcceptedSource != accepted || controller.PendingCandidate is null)
+                    throw new InvalidOperationException("ID candidate replaced the workspace or lost its alert");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("Focus_ClosePane_NextTab", () =>
         {
             using var controller = new WorkbenchController();
@@ -1314,6 +1432,25 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("COPY-106 differs from built Span error");
         });
 
+        DesktopChecks.Check("Span_NaNOrInfinity_InvalidNotNotAssessed", () =>
+        {
+            using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+            string source = controller.AcceptedSource;
+            var pane = new PropertiesPane();
+            pane.Bind(controller);
+            var input = pane.FindControl<TextBox>("SpanInput")!;
+            var error = pane.FindControl<TextBlock>("SpanErrorText")!;
+            foreach (string value in new[] { "NaN", "Infinity", "-Infinity", "not-a-number" })
+            {
+                input.Text = value;
+                bool committed = pane.CommitSpan();
+                if (committed || error.Text != "Enter a number. Span is unchanged." ||
+                    controller.AcceptedSource != source)
+                    throw new InvalidOperationException($"{value} showed '{error.Text}' or changed the geometry");
+            }
+        });
+
         DesktopChecks.Check("Copy_SpanNotAssessed_MatchesDesignRow", () =>
         {
             // No certified foil: ApplySpan refuses with DSL-NOT-ASSESSED (WorkbenchController.RequireCertifiedFoil).
@@ -1364,6 +1501,7 @@ public static class ShellWindowTests
         {
             var rows = DesignCopyRows();
             using var controller = new WorkbenchController();
+            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
             var host = new ShellHost(controller);
             host.HandleOpenOutcome(new OpenOutcome.NeedsIds([1], [2]), "/example/sample.foil");
             string candidate = BandLine(host.ModelView);

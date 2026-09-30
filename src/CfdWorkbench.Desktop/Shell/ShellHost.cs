@@ -209,6 +209,7 @@ public sealed class ShellHost : Grid
             if (failedPath is not null) _ = OpenFileAsync(failedPath);
         };
         ModelView.StartCardView.RemoveRecentRequested += () => _ = RemoveFailedRecentAsync();
+        ModelView.StartCardView.AcceptIdsRequested += () => _ = AcceptCandidateAsync();
         ModelView.BandLocateButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.BandOpenAnotherButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.BandTryAgainButton.Click += async (_, _) =>
@@ -217,19 +218,7 @@ public sealed class ShellHost : Grid
         };
         ModelView.BandRemoveRecentButton.Click += async (_, _) => await RemoveFailedRecentAsync();
         ModelView.StartCardView.OpenCancelButton.Click += (_, _) => opening?.Cancel();
-        ModelView.AcceptIdsButton.Click += async (_, _) =>
-        {
-            try
-            {
-                await Controller.AcceptCandidateAsync();
-                ModelView.HideAlertBand();
-                RefreshPanes();
-            }
-            catch (Exception)
-            {
-                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The file hasn't been changed.");
-            }
-        };
+        ModelView.AcceptIdsButton.Click += async (_, _) => await AcceptCandidateAsync();
         ModelView.ResumeRecoveryButton.Click += (_, _) =>
         {
             Controller.ResumeRecovery();
@@ -344,16 +333,54 @@ public sealed class ShellHost : Grid
 
             case OpenOutcome.NeedsIds:
                 ModelView.StartCardView.HideOpening();
-                ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand($"“{fileName}” has no control-point IDs. CFD Workbench can add them. The file hasn't been changed.",
-                    showAcceptIds: true);
+                if (Controller.Inspection is null)
+                {
+                    ModelView.ShowFoilOpen(false);
+                    ModelView.StartCardView.ShowImportAlert($"“{fileName}” has no control-point IDs.",
+                        "CFD Workbench can add them. The file hasn't been changed.", showAcceptIds: true);
+                }
+                else
+                {
+                    ModelView.ShowFoilOpen(true);
+                    ModelView.ShowAlertBand($"“{fileName}” has no control-point IDs. CFD Workbench can add them. The file hasn't been changed.",
+                        showAcceptIds: true);
+                }
                 break;
 
             case OpenOutcome.Refused:
                 ModelView.StartCardView.HideOpening();
-                ModelView.ShowFoilOpen(true);
-                ModelView.ShowAlertBand($"“{fileName}” couldn't be checked, so it wasn't opened for editing. The file hasn't been changed.");
+                if (Controller.Inspection is null)
+                {
+                    ModelView.ShowFoilOpen(false);
+                    ModelView.StartCardView.ShowImportAlert($"“{fileName}” couldn't be checked, so it wasn't opened for editing.",
+                        "The file hasn't been changed.", showAcceptIds: false);
+                }
+                else
+                {
+                    ModelView.ShowFoilOpen(true);
+                    ModelView.ShowAlertBand($"“{fileName}” couldn't be checked, so it wasn't opened for editing. The file hasn't been changed.");
+                }
                 break;
+        }
+    }
+
+    private async Task AcceptCandidateAsync()
+    {
+        try
+        {
+            await Controller.AcceptCandidateAsync();
+            ModelView.StartCardView.DismissAlert();
+            ModelView.HideAlertBand();
+            RefreshPanes();
+            FocusModelWhenReady();
+        }
+        catch (Exception)
+        {
+            if (Controller.Inspection is null)
+                ModelView.StartCardView.ShowImportAlert("The candidate IDs couldn't be accepted.",
+                    "The file hasn't been changed.", showAcceptIds: false);
+            else
+                ModelView.ShowAlertBand("The candidate IDs couldn't be accepted. The file hasn't been changed.");
         }
     }
 
