@@ -117,6 +117,18 @@ public sealed class WorkbenchController : IDisposable
 
     public AuthoredProjection? CurrentProjection => Inspection?.Authored ?? DraftProjection ?? PendingProjection;
 
+    // Changed is raised after each accepted edit and cursor move; menu commands requery these values.
+    public bool CanUndo => HistoryAvailability().Undo;
+    public bool CanRedo => HistoryAvailability().Redo;
+
+    private (bool Undo, bool Redo) HistoryAvailability()
+    {
+        if (Inspection is null || draft is not null) return (false, false);
+        var history = session.Envelope();
+        var (current, redo) = NativeProject.Replay(history);
+        return (history.Accepted.Single(item => item.Id == current).Parent is not null, redo.Length != 0);
+    }
+
     public void Select(Selection selection)
     {
         ArgumentNullException.ThrowIfNull(selection);

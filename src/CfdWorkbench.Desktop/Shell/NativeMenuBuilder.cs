@@ -6,6 +6,24 @@ namespace CfdWorkbench.Desktop.Shell;
 
 public static class NativeMenuBuilder
 {
+    public static void RefreshEditMenu(Window window, Func<string, bool> canExecute)
+    {
+        var edit = NativeMenu.GetMenu(window)?.Items.OfType<NativeMenuItem>()
+            .FirstOrDefault(item => Equals(item.Header, "Edit"));
+        if (edit?.Menu is null) return;
+        foreach (var item in edit.Menu.Items.OfType<NativeMenuItem>())
+        {
+            string? id = item.Header?.ToString() switch
+            {
+                "Undo" => "edit.undo",
+                "Redo" => "edit.redo",
+                _ => null
+            };
+            if (id is null) continue;
+            item.IsEnabled = canExecute(id);
+            (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
+        }
+    }
     public static KeyGesture? ParseGesture(string? gestureString)
     {
         if (string.IsNullOrWhiteSpace(gestureString)) return null;
@@ -59,7 +77,8 @@ public static class NativeMenuBuilder
         IReadOnlyList<RecentEntry>? recentEntries = null,
         Action<string>? onOpenRecent = null,
         Action? onClearRecent = null,
-        Action<string>? onSelectPane = null)
+        Action<string>? onSelectPane = null,
+        Func<string, bool>? canExecute = null)
     {
         var rootMenu = new NativeMenu();
 
@@ -95,7 +114,7 @@ public static class NativeMenuBuilder
                     {
                         onAction?.Invoke(row.Id);
                     }
-                });
+                }, row.Id is "edit.undo" or "edit.redo" ? () => canExecute?.Invoke(row.Id) ?? true : null);
 
                 menu.Add(item);
 

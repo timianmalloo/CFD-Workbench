@@ -160,6 +160,43 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Menu_UndoEnabled_FollowsFocusAndHistory", () =>
+        {
+            var window = new MainWindow(shellMode: true);
+            try
+            {
+                window.Show();
+                Settle(window);
+                var host = (ShellHost)window.Content!;
+                var edit = NativeMenu.GetMenu(window)!.Items.OfType<NativeMenuItem>()
+                    .Single(item => Equals(item.Header, "Edit"));
+                var undo = edit.Menu!.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Undo"));
+                var redo = edit.Menu.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Redo"));
+                if (undo.IsEnabled || redo.IsEnabled)
+                    throw new InvalidOperationException("Empty document enabled Undo or Redo");
+                var controller = host.Controller;
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                controller.ApplySpan("900");
+                host.RefreshPanes();
+                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                viewport.Focus();
+                Settle(window);
+                if (!controller.CanUndo || !undo.IsEnabled || redo.IsEnabled)
+                    throw new InvalidOperationException("Accepted edit did not enable document Undo alone");
+                var span = host.Properties.FindControl<TextBox>("SpanInput")!;
+                span.Focus();
+                Settle(window);
+                if (undo.IsEnabled != span.CanUndo || redo.IsEnabled != span.CanRedo)
+                    throw new InvalidOperationException("Menu did not follow focused text history");
+                viewport.Focus();
+                controller.Undo();
+                Settle(window);
+                if (undo.IsEnabled || !redo.IsEnabled || !controller.CanRedo)
+                    throw new InvalidOperationException("Undo did not flip document menu history");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("Review_Persona_FocusesShellRegion", () =>
         {
             using var controller = new WorkbenchController();

@@ -73,7 +73,10 @@ public sealed partial class MainWindow : Window
             onAction: id => _ = RunShellActionAsync(id),
             onOpenRecent: path => _ = shellHost.OpenFileAsync(path),
             onClearRecent: () => _ = shellHost.ClearRecentAsync(),
-            onSelectPane: shellHost.ShowPane);
+            onSelectPane: shellHost.ShowPane,
+            canExecute: CanExecuteShellEdit);
+        AddHandler(InputElement.GotFocusEvent, (_, _) => RefreshShellEditMenu(), RoutingStrategies.Bubble);
+        RefreshShellEditMenu();
         shellHost.RecentLoaded += entries => NativeMenuBuilder.RefreshRecentMenu(this, entries,
             path => _ = shellHost.OpenFileAsync(path), () => _ = shellHost.ClearRecentAsync());
         _ = shellHost.LoadRecentAsync();
@@ -249,8 +252,26 @@ public sealed partial class MainWindow : Window
 
     private void OnWorkbenchChanged() => Dispatcher.UIThread.Post(() =>
     {
-        if (!closed) Refresh();
+        if (!closed)
+        {
+            Refresh();
+            RefreshShellEditMenu();
+        }
     });
+
+    private void RefreshShellEditMenu()
+    {
+        if (!shellMode) return;
+        NativeMenuBuilder.RefreshEditMenu(this, CanExecuteShellEdit);
+    }
+
+    private bool CanExecuteShellEdit(string id)
+    {
+        var focused = FocusManager?.GetFocusedElement();
+        return focused is TextBox text
+            ? id == "edit.undo" ? text.CanUndo : text.CanRedo
+            : id == "edit.undo" ? workbench.CanUndo : workbench.CanRedo;
+    }
 
     private async Task OpenAsync()
     {
@@ -702,8 +723,8 @@ public sealed partial class MainWindow : Window
         sectionViewport.Frame = workbench.Frame;
         sectionViewport.Semantics = ViewportSemantics.FromSection(workbench.Frame);
         saveButton.IsEnabled = workbench.Inspection is not null && workbench.DraftInputValid;
-        undoButton.IsEnabled = workbench.Inspection is not null && workbench.Draft is null;
-        redoButton.IsEnabled = undoButton.IsEnabled;
+        undoButton.IsEnabled = workbench.CanUndo;
+        redoButton.IsEnabled = workbench.CanRedo;
         previewButton.IsEnabled = workbench.Draft is not null && workbench.DraftInputValid;
         applyButton.IsEnabled = workbench.Draft is not null && workbench.Provenance == "preview";
         cancelButton.IsEnabled = workbench.Draft is not null;

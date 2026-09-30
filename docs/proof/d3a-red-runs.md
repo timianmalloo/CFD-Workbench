@@ -23,8 +23,11 @@ All D3b commands run with `AGENT_SESSION=track-d3b AGENT_WI=D3b` in the assigned
 | Run | Pre-implementation state | Exit | Observed failure |
 |---|---|---:|---|
 | 26 | New foil tests added before the shell path existed | 1 | `ShellWindowTests.cs` CS1061: `ShellHost.OpenNewFoilAsync` absent; the test's first attempt also used an inaccessible generated `ModelArea` field and was corrected to use the named control. |
+| 27 | Menu history test added before the controller exposed `CanUndo` / `CanRedo` | 1 | CS1061 for both controller properties. |
+| 28 | Controller properties added, but native menu command still had unconditional `CanExecute` | 1 | `Menu_UndoEnabled_FollowsFocusAndHistory`: empty document enabled Undo or Redo. |
 
 After wiring the card, File menu, controller call, and Opening/Cancel outcome, the foreground `--shell-window` run exited 0 with both new Start names and `NativeMenu_MainWindow_BuiltFromTable` passing.
+After binding the menu command predicates and raising `CanExecuteChanged`, the foreground `--shell-window` run exited 0 with `Menu_UndoEnabled_FollowsFocusAndHistory` passing.
 
 Every command below ran with `AGENT_SESSION=track-d3a AGENT_WI=D3a` in this worktree.
 Each run used `dotnet run --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -c Release -- --shell-window`.
