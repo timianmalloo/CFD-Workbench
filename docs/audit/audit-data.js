@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T15:37:04Z",
+  "generated": "2026-09-30T15:45:25Z",
   "audit": [
     {
       "actor": null,
@@ -19360,6 +19360,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T15:36:21Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M3SFVYDS2T8J3AAS2G8D2FWR",
+      "shortname": "u1a-native-review",
+      "datetime": "2026-09-30T15:45:25Z",
+      "session": "track-u1a",
+      "prompt": "Track U1a of docs/coordination/app-shell-build.md: COPY rows for design app-shell §11, native review app-shell-native.md (M1.2a rows) via one bounded attach through review-attach.mjs, ux-accessibility adversarial pass.",
+      "summary": "COPY-125..139 added (design-lint clean). No attach: cua_repl adapter absent in this harness; review mode (CFDW_REVIEW_MODE=1) disables the Dock shell, so the supported attach cannot bind M1.2a (follow-on F-ATTACH). All 10 native rows operator-run, not done; app not launched; pgrep exit 1. Copy/behaviour findings C-1..C-14; C-10 Blocker: four open-failed buttons have no handler. ux-accessibility Adversary: BLOCK, veto held, 1 of 2 repair cycles (doc only). M1.2a stays open.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": "Claude Opus 5.5 (sub-agent U1a)",
+      "artifacts": [
+        "DESIGN.md",
+        "docs/reviews/app-shell-native.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "U1a UI judgement for M1.2a: COPY rows, native review, a11y verdict",
+      "done_when": "COPY rows written and design-lint clean; app-shell-native.md with every row attached or operator-run; a11y verdict recorded; check-docs exit 0; one docs: commit",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-09-30T15:37:46Z",
+      "duration_seconds": 459.0,
+      "persona_yield": [
+        {
+          "persona": "ux-accessibility",
+          "raised": 7,
+          "accepted": 7
+        }
+      ],
+      "git": {
+        "sha": "025afaebb2d2b0f73ce0ca0258becebada992bd5",
+        "short": "025afaebb",
+        "branch": "u1a-native-review",
+        "pushed": null
+      }
     }
   ],
   "changes": [

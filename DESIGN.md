@@ -409,6 +409,28 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-122 | Set these in the workspace. |
 | COPY-123 | ⚠ Upper and lower surfaces cross. Move the point back to finish. |
 | COPY-124 | Surfaces no longer cross. Finish is available. |
+| COPY-125 | “<file>” didn't open. It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed. · Locate… · Open another file… · Remove from Recent |
+| COPY-126 | “<file>” didn't open. CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file. · Open another file… |
+| COPY-127 | “<file>” didn't open. It couldn't be read from the disk. The file hasn't been changed. · Try again · Open another file… |
+| COPY-128 | “<file>” didn't open. It isn't a foil or project file that CFD Workbench can read, or it is damaged. The file hasn't been changed. · Open another file… |
+| COPY-129 | “<file>” didn't open. It is larger than CFD Workbench can open (<limit>). The file hasn't been changed. · Open another file… |
+| COPY-130 | “<file>” didn't open. It contains parts this version doesn't understand. The file hasn't been changed. A newer version of CFD Workbench may open it. · Open another file… |
+| COPY-131 | “<file>” was saved by an earlier version. CFD Workbench can open a converted copy; the original stays as it is. · Open a copy · Cancel |
+| COPY-132 | No saved sections yet. To keep one here, choose Save to My sections… from the Section menu in the section editor. |
+| COPY-133 | The catalog didn't load: <cause>. Your section hasn't changed. Choose Cancel to go back. |
+| COPY-134 | a catalog file is missing from this installation |
+| COPY-135 | a catalog file failed its check |
+| COPY-136 | No foil open |
+| COPY-137 | Open or start a foil. Whatever you select in it shows its properties here. |
+| COPY-138 | <Pane> couldn't be shown. Your foil hasn't changed. · Try again |
+| COPY-139 | <Pane> couldn't be shown. · Try again |
+
+COPY-125 to COPY-139 are quoted verbatim from `docs/design/app-shell.md` §11 (track U1a, 2026-09-30).
+COPY-125 to COPY-131 are the open failures other than COPY-103; the built start card renders the
+sentence after “<file>” didn't open. as a second text line. COPY-131 has no instance in M1.
+COPY-132 to COPY-135 belong to the catalog dialog (M1.2d; COPY-134 and COPY-135 are the two
+`<cause>` values of COPY-133) and are not in the M1.2a build. Where the M1.2a build differs from a
+row, the difference is a finding in `docs/reviews/app-shell-native.md`, not a second record.
 
 COPY-28 to COPY-97 are quoted verbatim from specification v1.1's C2 state table, its
 fixed strings (A5.1, A5.3, A5.4, A5.6, A5.9, A7) and the A5.12 entry-point names; the spec is their authority and this
