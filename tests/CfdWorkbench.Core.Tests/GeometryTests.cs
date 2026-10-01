@@ -166,6 +166,63 @@ internal static class GeometryTests
             long operations = assessment.Certificate!.QueryFeasibility!.RationalOperationsUpper;
             Equal(true, operations > 0 && operations <= 1_000_000);
         });
+        Check("Geometry_TwistDomain_LargestAssessableDegreesPinned", () =>
+        {
+            double domain = Geometry.TwistDomainDegrees;
+            Console.WriteLine("MEASURE twist_domain_degrees=" + domain.ToString("G17", System.Globalization.CultureInfo.InvariantCulture));
+            Equal(true, domain > 57 && domain < 58);
+            Equal(true, TwistAdmissible(domain) && TwistAdmissible(0 - domain));
+            Equal(false, TwistAdmissible(Math.BitIncrement(domain)));
+            Equal(false, TwistAdmissible(Math.BitDecrement(0 - domain)));
+            Equal(true, TwistAdmissible(Math.BitDecrement(domain)));
+        });
+        Check("Geometry_ThicknessDomain_OpenIntervalOnQuantumGrid", () =>
+        {
+            Equal(BitConverter.DoubleToUInt64Bits(1e-7), BitConverter.DoubleToUInt64Bits(Geometry.ThicknessDomain.Lower));
+            Equal(BitConverter.DoubleToUInt64Bits(1 - 1e-7), BitConverter.DoubleToUInt64Bits(Geometry.ThicknessDomain.Upper));
+            Equal(true, Geometry.ThicknessDomain.Lower > 0 && Geometry.ThicknessDomain.Upper < 1);
+        });
+        Check("Assess_TwistAtDomainLimit_Certified", () =>
+        {
+            Equal(GeometryStatus.Certified, Geometry.Assess(Prepared(ConstantTwist(Geometry.TwistDomainDegrees))).Status);
+            Equal(GeometryStatus.Certified, Geometry.Assess(Prepared(ConstantTwist(0 - Geometry.TwistDomainDegrees))).Status);
+        });
+        Check("Assess_TwistNextBinary64PastDomain_NotAssessed", () =>
+        {
+            var positive = Geometry.Assess(Prepared(ConstantTwist(Math.BitIncrement(Geometry.TwistDomainDegrees))));
+            var negative = Geometry.Assess(Prepared(ConstantTwist(Math.BitDecrement(0 - Geometry.TwistDomainDegrees))));
+            Equal(GeometryStatus.NotAssessed, positive.Status);
+            Equal(GeometryStatus.NotAssessed, negative.Status);
+            Equal(true, positive.Reason.Contains("Taylor", StringComparison.Ordinal));
+            Equal(true, negative.Reason.Contains("Taylor", StringComparison.Ordinal));
+        });
+        Check("Assess_ThicknessAtUpperDomainLimit_Certified", () =>
+        {
+            string spelled = Jcs.Number(Geometry.ThicknessDomain.Upper);
+            Equal(Geometry.ThicknessDomain.Upper, DecimalSi.Parse(spelled));
+            int start = Text.IndexOf("thickness cv", StringComparison.Ordinal);
+            int end = Text.IndexOf('}', start);
+            string changed = Text[..start] + Text[start..end].Replace("0.12)", spelled + ")", StringComparison.Ordinal) + Text[end..];
+            Equal(GeometryStatus.Certified, Geometry.Assess(Prepared(changed)).Status);
+        });
+        Check("Assess_SmoothRowOnTwistChannel_Certified", () =>
+            Equal(GeometryStatus.Certified, AssessText(ChannelRow("twist", "(0.5, -1)", "smooth")).Status));
+        Check("Assess_TwistSmoothRowOrdinateOffByTwoTolerances_Invalid", () =>
+        {
+            var assessment = AssessText(ChannelRow("twist", "(0.5, -0.999998)", "smooth"));
+            Equal(GeometryStatus.Invalid, assessment.Status);
+            Equal("DSL-LOCK", assessment.Code);
+            Equal("Smooth row is off the handle line.", assessment.Reason);
+        });
+        Check("Assess_SymmetricRowOnThicknessNotMidpoint_Invalid", () =>
+        {
+            var assessment = AssessText(ChannelRow("thickness", "(0.500000002, 0.12)", "symmetric"));
+            Equal(GeometryStatus.Invalid, assessment.Status);
+            Equal("DSL-LOCK", assessment.Code);
+            Equal("Symmetric row is not the handle midpoint.", assessment.Reason);
+        });
+        Check("Assess_SmoothRowOnDihedral_Certified", () =>
+            Equal(GeometryStatus.Certified, AssessText(ChannelRow("dihedral", "(0.5, 0.0005)", "smooth")).Status));
     }
 
     private static GeometryAssessment AssessFixture(string name) => AssessText(File.ReadAllText(M12bFixtures.Path(name)));
@@ -176,6 +233,39 @@ internal static class GeometryTests
         if (parsed.IsParsed && parsed.Definition!.Curves.Values.Any(curve => curve.MissingIds))
             parsed = FoilSource.Parse(FoilSource.MaterializeIds(parsed));
         return Geometry.Assess(parsed);
+    }
+
+    private static bool TwistAdmissible(double degrees)
+    {
+        var product = Rational.From(degrees) * Rational.From(0.017453292519943295);
+        var rounded = Rational.From(product.Nearest());
+        return rounded >= -1 && rounded <= 1;
+    }
+
+    private static string ConstantTwist(double degrees)
+    {
+        string spelled = Jcs.Number(degrees);
+        if (DecimalSi.Parse(spelled) != degrees) throw new InvalidOperationException("Twist spelling did not round-trip.");
+        string points = string.Join(", ", new[] { "0", "0.1", "0.3", "0.5", "0.7", "0.9", "1" }.Select(eta => "(" + eta + ", " + spelled + ")"));
+        return System.Text.RegularExpressions.Regex.Replace(Text, @"twist cv \{[^}]+\}",
+            "twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [" + points + "] }");
+    }
+
+    private static string ChannelRow(string channel, string anchor, string kind)
+    {
+        string text = File.ReadAllText(M12bFixtures.Path("foil-41-tangents.foil"));
+        string points = channel switch
+        {
+            "twist" => "[(0, 0), (0.1, 0), (0.3, -0.6), " + anchor + ", (0.7, -1.4), (0.9, -1.8), (1, -2)]",
+            "thickness" => "[(0, 0.12), (0.1, 0.12), (0.4, 0.12), " + anchor + ", (0.6, 0.12), (0.9, 0.12), (1, 0.12)]",
+            "dihedral" => "[(0, 0), (0.1, 0), (0.499, 0), " + anchor + ", (0.501, 0), (0.9, 0), (1, 0)]",
+            _ => throw new InvalidOperationException(channel),
+        };
+        string body = "degree 3 knots [0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1, 1] points " + points +
+            " ids [\"cv-0\", \"cv-1\", \"cv-2\", \"cv-3\", \"cv-4\", \"cv-5\", \"cv-6\"] tangents { \"cv-3\" " + kind + " }";
+        int at = text.IndexOf(channel + " cv {", StringComparison.Ordinal);
+        int end = text.IndexOf('\n', at);
+        return text[..at] + channel + " cv { " + body + " }" + text[end..];
     }
 
     private static string BendLeadingHandle(string name, string from, string to)

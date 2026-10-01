@@ -266,10 +266,18 @@ public static class Placement
     {
         var upper = new double[xs.Length];
         var lower = new double[xs.Length];
+        bool shared = SameAbscissa(profile.Upper, profile.Lower);
         for (int index = 0; index < xs.Length; index++)
         {
-            upper[index] = OrdinateAt(profile.Upper, xs[index]);
-            lower[index] = OrdinateAt(profile.Lower, xs[index]);
+            if (!shared)
+            {
+                upper[index] = OrdinateAt(profile.Upper, xs[index]);
+                lower[index] = OrdinateAt(profile.Lower, xs[index]);
+                continue;
+            }
+            double t = ParameterFor(profile.Upper, xs[index]);
+            upper[index] = Jet(profile.Upper, t).Y;
+            lower[index] = Jet(profile.Lower, t).Y;
         }
         return new()
         {
@@ -280,8 +288,46 @@ public static class Placement
 
     private static double DifferenceMaximum(Curve upper, Curve lower)
     {
+        if (SameAbscissa(upper, lower)) return ParameterMaximum(upper, lower);
         var knots = KnotImages(upper).Concat(KnotImages(lower)).ToArray();
         return Maximize(x => OrdinateAt(upper, x) - OrdinateAt(lower, x), x => ThicknessDerivative(upper, lower, x), knots);
+    }
+
+    // Same abscissa: the thickness maximum is the maximum of y_upper(t) - y_lower(t). A knot
+    // parameter is a candidate so a C0 peak that sits on a knot is not missed.
+    private static double ParameterMaximum(Curve upper, Curve lower)
+    {
+        int count = PlacementRule.MaximumGrid;
+        double best = double.NegativeInfinity;
+        int bestIndex = 0;
+        double Gap(double t) => Jet(upper, t).Y - Jet(lower, t).Y;
+        for (int index = 0; index < count; index++)
+        {
+            double sample = Gap(index / (double)(count - 1));
+            if (sample > best) { best = sample; bestIndex = index; }
+        }
+        foreach (double knot in upper.Knots)
+        {
+            if (knot <= 0 || knot >= 1) continue;
+            best = Math.Max(best, Gap(knot));
+        }
+        double left = Math.Max(0, (bestIndex - 1) / (double)(count - 1));
+        double right = Math.Min(1, (bestIndex + 1) / (double)(count - 1));
+        double t = bestIndex / (double)(count - 1);
+        for (int iter = 0; iter < 40 && left < right; iter++)
+        {
+            var high = Jet(upper, t);
+            var low = Jet(lower, t);
+            double d1 = high.Yt - low.Yt;
+            double d2 = high.Ytt - low.Ytt;
+            double newton = d2 == 0 || !double.IsFinite(d1) || !double.IsFinite(d2) ? double.NaN : t - d1 / d2;
+            double next = newton > left && newton < right ? newton : (left + right) / 2;
+            if (d1 > 0) left = t;
+            else if (d1 < 0) right = t;
+            if (next == t) break;
+            t = next;
+        }
+        return Math.Max(best, Gap(Math.Clamp(t, 0, 1)));
     }
 
     private static double BlendedMaximum(PreparedProfile a, PreparedProfile b, double weight)
@@ -376,10 +422,27 @@ public static class Placement
         for (int step = 0; step < 60; step++)
         {
             double mid = (lo + hi) / 2;
-            if (Jet(curve, mid).X < x) lo = mid;
+            if (AbscissaAt(curve, mid) < x) lo = mid;
             else hi = mid;
         }
         return (lo + hi) / 2;
+    }
+
+    private static double AbscissaAt(Curve curve, double t)
+    {
+        ProfileEvaluations++;
+        var basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+        double x = 0;
+        for (int index = 0; index < curve.Points.Length; index++) x += basis[index] * curve.Points[index][0];
+        return x;
+    }
+
+    private static bool SameAbscissa(Curve left, Curve right)
+    {
+        if (left.Degree != right.Degree || left.Knots.Length != right.Knots.Length || left.Points.Length != right.Points.Length) return false;
+        for (int index = 0; index < left.Knots.Length; index++) if (left.Knots[index] != right.Knots[index]) return false;
+        for (int index = 0; index < left.Points.Length; index++) if (left.Points[index][0] != right.Points[index][0]) return false;
+        return true;
     }
 
     private static IEnumerable<double> KnotImages(Curve curve)

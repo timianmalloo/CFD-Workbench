@@ -19,6 +19,7 @@ internal static class IdentityTests
         if (args.Contains("--readiness"))
         {
             PointModelTests.RunReadiness();
+            PlacementTests.RunReadiness();
             Console.WriteLine($"RESULT failures={failures}");
             return failures == 0 ? 0 : 1;
         }
