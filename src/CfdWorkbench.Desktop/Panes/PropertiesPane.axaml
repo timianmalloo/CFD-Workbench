@@ -26,12 +26,57 @@
         <!-- Blocks Container -->
         <StackPanel x:Name="BlocksPanel" Spacing="12" />
 
+        <StackPanel x:Name="RecoveryPanel" Spacing="8" IsVisible="False">
+          <TextBlock x:Name="RecoveryBanner" TextWrapping="Wrap" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button x:Name="RecoveryApplyButton" Content="Apply" />
+            <Button x:Name="RecoveryDiscardButton" Content="Discard" />
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel x:Name="PointBlock" Spacing="8" IsVisible="False">
+          <TextBlock x:Name="PointHeading" Classes="heading" TextWrapping="Wrap" />
+          <TextBlock x:Name="PointHelper" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+          <TextBlock x:Name="MixedBanner" TextWrapping="Wrap" IsVisible="False" />
+          <TextBlock x:Name="TypeReadOnly" IsVisible="False" />
+          <ComboBox x:Name="TypeControl" />
+          <TextBlock x:Name="ConstraintText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Span" VerticalAlignment="Center" />
+            <TextBox x:Name="PointSpanInput" />
+            <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Aft" VerticalAlignment="Center" />
+            <TextBox x:Name="PointAftInput" />
+            <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
+          </StackPanel>
+          <TextBlock x:Name="PointErrorText" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" IsVisible="False" />
+          <StackPanel x:Name="TangentGroup" Orientation="Horizontal" Spacing="8" IsVisible="False">
+            <Button x:Name="TangentSmoothButton" Content="Smooth" />
+            <Button x:Name="TangentSymmetricButton" Content="Symmetric" />
+            <Button x:Name="TangentCornerButton" Content="Corner" />
+          </StackPanel>
+          <StackPanel x:Name="HandleGroup" Spacing="8" IsVisible="False">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Angle" VerticalAlignment="Center" />
+              <TextBox x:Name="HandleAngleInput" />
+              <TextBlock Text="deg" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="Length" VerticalAlignment="Center" />
+              <TextBox x:Name="HandleLengthInput" />
+              <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
         <!-- Wing Block (Always Last when foil is open) -->
         <Border x:Name="WingBlock" Background="{DynamicResource SurfaceSoftBrush}"
                 BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
                 Padding="{StaticResource Space3}">
           <StackPanel Spacing="8">
-            <TextBlock Classes="heading" Text="Wing" />
+            <TextBlock x:Name="WingHeading" Classes="heading" Text="Wing" />
             <TextBlock Text="Span" />
             <Grid ColumnDefinitions="*,Auto">
               <TextBox Grid.Column="0" x:Name="SpanInput" AutomationProperties.Name="Span in millimetres" />
@@ -46,9 +91,27 @@
 
             <!-- Readouts for root and tip chord -->
             <TextBlock x:Name="RootChordLabel" Classes="caption" Text="Root chord" />
-            <TextBlock x:Name="RootChordText" Text="—" />
+            <TextBox x:Name="RootChordInput" />
+            <TextBlock x:Name="RootChordText" Text="—" IsVisible="False" />
             <TextBlock x:Name="TipChordLabel" Classes="caption" Text="Tip chord" />
-            <TextBlock x:Name="TipChordText" Text="—" />
+            <TextBox x:Name="TipChordInput" />
+            <TextBlock x:Name="TipClosedText" TextWrapping="Wrap" IsVisible="False" />
+            <TextBlock x:Name="TipChordText" Text="—" IsVisible="False" />
+            <TextBlock x:Name="ChordWarningText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+            <TextBlock Text="Mean chord" />
+            <TextBlock x:Name="MeanChordText" Text="≈ —" />
+            <TextBlock Text="MAC" />
+            <TextBlock x:Name="MacText" Text="≈ —" />
+            <TextBlock Text="Max t/c" />
+            <TextBlock x:Name="MaxTcText" Text="≈ —" />
+            <TextBlock Text="Aspect ratio" />
+            <TextBlock x:Name="AspectText" Text="≈ —" />
+            <TextBlock Text="Area" />
+            <TextBlock x:Name="AreaEstimateText" Text="≈ —" />
+            <TextBlock x:Name="WingReasonText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
+            <Button x:Name="HowMeasuredButton" Content="How these are measured" />
+            <TextBlock x:Name="HowMeasuredBody" TextWrapping="Wrap" IsVisible="False"
+                       Text="Mean chord, MAC, max t/c, aspect ratio, and area follow the planform. MAC is the mean aerodynamic chord." />
 
             <!-- Wing estimates -->
             <TextBlock Classes="caption" Text="Estimates" FontWeight="SemiBold" Margin="{StaticResource Space2}" />

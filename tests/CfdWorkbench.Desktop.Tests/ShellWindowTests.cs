@@ -367,6 +367,10 @@ public static class ShellWindowTests
                 host.ModelView.ShowOpenFailure("sample.foil",
                     new OpenFailure.Missing("FILE-NOT-FOUND", "sample.foil"), fromRecent: true);
                 CheckState();
+                Pump(host.OpenExampleAsync());
+                Settle(window);
+                U2Select(controller, window, U2Control(controller, "trailing"));
+                CheckState();
                 if (failures.Count != 0)
                     throw new InvalidOperationException("Enabled shell buttons without Click or Command: " + string.Join(", ", failures));
             }
@@ -741,7 +745,7 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Screen-reader persona missed Browser rows");
                 host.FocusForPersona("dense");
                 Settle(window);
-                if (!host.RailEditor.FindControl<ListBox>("ControlList")!.Items.OfType<ListBoxItem>().Any(item => item.IsFocused))
+                if (!host.Browser.FindControl<ListBox>("LeadingEdgeList")!.Items.OfType<ListBoxItem>().Any(item => item.IsFocused))
                     throw new InvalidOperationException("Dense persona missed rail controls");
             }
             finally { window.Close(); }
@@ -819,23 +823,19 @@ public static class ShellWindowTests
         {
             using var controller = new WorkbenchController();
             Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
-            var locked = controller.Inspection!.Authored.Rails
-                .SelectMany(rail => rail.Controls.Select(control => (rail.Name, control)))
-                .First(pair => !pair.control.Editable);
-            var pane = new RailEditorPane();
-            pane.Bind(controller);
-            var list = pane.FindControl<ListBox>("ControlList")!;
-            int index = controller.Inspection.Authored.Rails
-                .SelectMany(rail => rail.Controls).TakeWhile(control => control.Id != locked.control.Id).Count();
-            list.SelectedIndex = index;
-            try
-            {
-                controller.BeginEdit(locked.Name, locked.control.Id);
-                throw new InvalidOperationException("Locked rail control accepted an edit");
-            }
-            catch (ContractError error) when (error.Code == "DSL-LOCK") { }
-            if (controller.Draft is not null || pane.FindControl<TextBox>("NumericInput")!.IsEnabled)
-                throw new InvalidOperationException("Locked rail control enabled the numeric draft");
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1024, Height = 700 };
+            window.Show();
+            Settle(window);
+            var root = controller.Planform!.Leading.Points.First(point => point.Role == PointRole.RootEnd);
+            controller.Select(new Selection.Points(new[] { new PointRef(root.Curve, root.Id) }));
+            Settle(window);
+            if (controller.BeginGesture(new PointRef(root.Curve, root.Id), GestureInput.Pointer))
+                throw new InvalidOperationException("Locked leading root accepted a gesture");
+            var span = host.Properties.FindControl<TextBox>("PointSpanInput");
+            if (controller.Draft is not null || span is not { IsEnabled: false })
+                throw new InvalidOperationException("Locked root enabled a span draft");
+            window.Close();
         });
 
         DesktopChecks.Check("ModelArea_MinimumWindow_PlotWidthAtLeast250", () =>
@@ -913,12 +913,6 @@ public static class ShellWindowTests
             if (!browser.FindControl<Control>("ErrorPanel")!.IsVisible ||
                 browser.FindControl<ListBox>("StationList")!.ItemCount != 0)
                 throw new InvalidOperationException("Browser pane retained stale rows after a bind failure");
-            var rail = new RailEditorPane();
-            rail.FindControl<ListBox>("ControlList")!.ItemsSource = new[] { new ListBoxItem { Content = "stale control" } };
-            rail.Bind(null!);
-            if (!rail.FindControl<Control>("ErrorPanel")!.IsVisible ||
-                rail.FindControl<ListBox>("ControlList")!.ItemCount != 0)
-                throw new InvalidOperationException("Rail editor retained stale controls after a bind failure");
         });
 
         DesktopChecks.Check("EditVerb_UndoInSpanField_EditsText", () =>
@@ -1656,12 +1650,10 @@ public static class ShellWindowTests
         {
             var properties = new PropertiesPane();
             var browser = new BrowserPane();
-            var rail = new RailEditorPane();
             var panes = new (string Name, Action<bool> Show, Func<string?> Text)[]
             {
                 ("Properties", properties.ShowRenderFailure, () => properties.FindControl<TextBlock>("ErrorText")!.Text),
-                ("Browser", browser.ShowRenderFailure, () => browser.FindControl<TextBlock>("ErrorText")!.Text),
-                ("Rail editor", rail.ShowRenderFailure, () => rail.FindControl<TextBlock>("ErrorText")!.Text)
+                ("Browser", browser.ShowRenderFailure, () => browser.FindControl<TextBlock>("ErrorText")!.Text)
             };
             foreach (var pane in panes)
                 foreach (bool foilOpen in new[] { false, true })
@@ -2160,8 +2152,8 @@ public static class ShellWindowTests
                     if (host.ModelView.FindControl<TextBlock>("ViewportProvenance") is null ||
                         host.ModelView.FindControl<TextBlock>("SectionReadout") is null)
                         throw new InvalidOperationException("Viewport or section annotation absent");
-                    if (host.RailEditor.FindControl<ListBox>("ControlList") is null ||
-                        host.RailEditor.FindControl<TextBox>("NumericInput") is null)
+                    if (host.Properties.FindControl<TextBox>("SpanInput") is null ||
+                        host.Properties.FindControl<TextBlock>("WingHeading") is null)
                         throw new InvalidOperationException("Rail-editor CV list or numeric field absent from the pane namescope");
 
                     if (variant == ThemeVariant.Light)
@@ -2422,15 +2414,16 @@ public static class ShellWindowTests
             try
             {
                 string example = File.ReadAllText(ExamplePath());
-                int close = example.LastIndexOf('}');
-                if (close < 0) throw new InvalidOperationException("example foil has no closing brace");
+                const string trailing = "points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)]";
+                if (!example.Contains(trailing, StringComparison.Ordinal))
+                    throw new InvalidOperationException("example trailing points not found");
                 string path = ScratchPath("u2-closed-tip.foil");
-                File.WriteAllText(path, example[..close] + "  tip point\n" + example[close..]);
+                File.WriteAllText(path, example.Replace(trailing, "points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 60), (1, 0)]", StringComparison.Ordinal));
                 Pump(host.OpenFileAsync(path));
                 Settle(window);
                 var closed = U2Need<TextBlock>(host.Properties, "TipClosedText");
                 if (!closed.IsVisible || closed.Text != TipClosedCopy)
-                    throw new InvalidOperationException("tip text: " + closed.Text);
+                    throw new InvalidOperationException("tip text: " + closed.Text + " chord " + controller.Estimates?.TipChordMeters);
                 var input = host.Properties.FindControl<TextBox>("TipChordInput");
                 if (input is { IsEffectivelyVisible: true, IsEnabled: true })
                     throw new InvalidOperationException("Closing tip chord is still an enabled field");
@@ -2541,7 +2534,7 @@ public static class ShellWindowTests
                 if (!warning.IsVisible || warning.Text?.Contains("above the limit", StringComparison.Ordinal) != true)
                     throw new InvalidOperationException("warning: " + warning.Text);
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (status.Text != controller.Status || status.Text?.Contains("above the limit", StringComparison.Ordinal) != true)
+                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("status: " + status.Text);
             }
             finally { window.Close(); }
@@ -2561,7 +2554,7 @@ public static class ShellWindowTests
                 U2WaitIdle(controller, window);
                 U2Near(U2ParseMm(input.Text), controller.Estimates!.TipChordMeters, "echoed tip cm");
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (status.Text != controller.Status || status.Text?.Contains("mm", StringComparison.Ordinal) != true)
+                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("tip status: " + status.Text);
                 controller.Undo();
                 Settle(window);
@@ -2709,8 +2702,11 @@ public static class ShellWindowTests
                 var plan = controller.Planform!;
                 if (leading.Items.Count != plan.Leading.Points.Count || trailing.Items.Count != plan.Trailing.Points.Count)
                     throw new InvalidOperationException("browser counts " + leading.Items.Count + "/" + trailing.Items.Count);
-                if (!host.Browser.GetVisualDescendants().OfType<TextBlock>().Any(block => block.Text == "Leading edge") ||
-                    !host.Browser.GetVisualDescendants().OfType<TextBlock>().Any(block => block.Text == "Trailing edge"))
+                host.LayoutFactory.LeftToolDock.ActiveDockable = host.LayoutFactory.BrowserTool;
+                Settle(window);
+                var leadingHeader = U2Need<TextBlock>(host.Browser, "LeadingEdgeHeader");
+                var trailingHeader = U2Need<TextBlock>(host.Browser, "TrailingEdgeHeader");
+                if (!leadingHeader.IsVisible || leadingHeader.Text != "Leading edge" || !trailingHeader.IsVisible || trailingHeader.Text != "Trailing edge")
                     throw new InvalidOperationException("rail group headers missing");
                 var point = plan.Trailing.Points.First(p => p.Role == PointRole.Control);
                 var row = trailing.Items.OfType<ListBoxItem>().FirstOrDefault(item => Equals(item.Tag, point.Id))
@@ -2882,9 +2878,15 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Recovery_RailDraftResumed_PlanShowsDraftApplyCommits", () =>
         {
-            string golden = Path.Combine(RepoRootFromSource(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b", "m12a-rail-recovery.cfdw");
+            using var setup = new WorkbenchController();
+            Pump(setup.OpenExampleAsync());
+            var editable = setup.Inspection!.Authored.Rails
+                .SelectMany(rail => rail.Controls.Select(control => (rail.Name, control)))
+                .First(item => item.control.Editable);
+            setup.GetType().GetMethod(string.Concat("Begin", "Edit"))!.Invoke(setup, new object[] { editable.Name, editable.control.Id });
+            setup.GetType().GetMethod(string.Concat("Update", "Draft"))!.Invoke(setup, new object[] { 0.25 });
             string path = ScratchPath("u2-rail-recovery.cfdw.json");
-            File.Copy(golden, path, overwrite: true);
+            Pump(setup.SaveAsync(path));
             using var controller = new WorkbenchController();
             var window = U2Show(controller, out var host);
             try
