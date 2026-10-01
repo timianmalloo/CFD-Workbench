@@ -12,6 +12,16 @@ public partial class ModelArea : UserControl
         InitializeComponent();
 
         DismissAlertBandButton.Click += (_, _) => AlertBand.IsVisible = false;
+        PlanCanvas.RenderFailed += _ =>
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                PlanRenderErrorText.Text = "Plan couldn't render.";
+                PlanRenderErrorBand.IsVisible = true;
+            }, DispatcherPriority.Background);
+        };
+        PlanCanvas.RenderRecovered += () => PlanRenderErrorBand.IsVisible = false;
+        PlanRenderTryAgainButton.Click += (_, _) => PlanCanvas.RetryRender();
     }
 
     public void ShowFoilOpen(bool isOpen)

@@ -80,6 +80,17 @@ public static class PlanCanvasTests
                 invoke.Invoke();
                 if (canvas.LastValueRequest?.Contains("trailing", StringComparison.Ordinal) != true)
                     throw new Exception("Point peer Invoke had no effect");
+                using var bitmap = new RenderTargetBitmap(new PixelSize((int)window.Bounds.Width, (int)window.Bounds.Height));
+                bitmap.Render(window);
+                using var pixels = new WriteableBitmap(bitmap.PixelSize, new Vector(96, 96), PixelFormats.Bgra8888,
+                    AlphaFormat.Unpremul);
+                using var frame = pixels.Lock();
+                bitmap.CopyPixels(frame, AlphaFormat.Unpremul);
+                var local = canvas.ScreenPoint(controller.Planform!.Trailing.Points[4]);
+                var translated = canvas.TranslatePoint(local, window)!.Value;
+                int offset = (int)translated.Y * frame.RowBytes + (int)translated.X * 4;
+                if (Marshal.ReadByte(frame.Address, offset + 1) < 90)
+                    throw new Exception("Point peer's realized glyph is absent");
             }
             finally { window.Close(); }
         });
@@ -513,9 +524,138 @@ public static class PlanCanvasTests
             if (fixture.Canvas.FocusedTarget?.VertexId != point.Id)
                 throw new Exception("Escape on a handle did not return focus to its anchor");
         });
+
+        DesktopChecks.Check("PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
+                .GetAwaiter().GetResult();
+            fixture.Settle();
+            var handles = fixture.Controller.Planform!.Trailing.Points.Where(item => item.AnchorId == point.Id).ToArray();
+            var handle = handles[0];
+            fixture.Canvas.FocusPoint(new PointRef(handle.Curve, handle.Id));
+            fixture.KeyDown(Key.Down);
+            fixture.KeyUp(Key.Down);
+            fixture.WaitGesture();
+            var after = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handle.Id);
+            if (after.AftMeters == handle.AftMeters)
+                throw new Exception("Arrow did not move the focused handle");
+            var partner = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handles[1].Id);
+            if (partner.AftMeters == handles[1].AftMeters)
+                throw new Exception("Smooth opposite handle did not co-move");
+        });
+
+        DesktopChecks.Check("PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var plan = fixture.Controller.Planform!;
+            var point = plan.Trailing.Points[4];
+            var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
+            double delta = fixture.Canvas.ScreenPoint(new PointView(point.Curve, point.Id, point.Index, point.Eta,
+                point.SpanMeters, leading - .04, point.Role, point.AnchorId, point.Kind, point.Freedom, point.Locks)).Y -
+                fixture.Canvas.ScreenPoint(point).Y;
+            string before = fixture.Controller.AcceptedSource;
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, delta);
+            fixture.ReleaseDrag(point, 0, delta);
+            fixture.WaitGesture();
+            fixture.Settle();
+            var restored = fixture.Controller.Planform!.Trailing.Points[4];
+            if (fixture.Controller.AcceptedSource != before || restored != point)
+                throw new Exception("Crossing release changed accepted geometry");
+            fixture.AssertGlyphPixel(restored);
+        });
+
+        DesktopChecks.Check("PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var plan = fixture.Controller.Planform!;
+            var point = plan.Trailing.Points[4];
+            var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
+            double delta = fixture.Canvas.ScreenPoint(new PointView(point.Curve, point.Id, point.Index, point.Eta,
+                point.SpanMeters, leading - .04, point.Role, point.AnchorId, point.Kind, point.Freedom, point.Locks)).Y -
+                fixture.Canvas.ScreenPoint(point).Y;
+            string before = fixture.Controller.AcceptedSource;
+            bool undoBefore = fixture.Controller.CanUndo;
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, delta);
+            var advisory = typeof(PlanCanvas).GetField("advisoryCrossing",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("Advisory tier field missing");
+            advisory.SetValue(fixture.Canvas, false);
+            fixture.ReleaseDrag(point, 0, delta);
+            fixture.WaitGesture();
+            if (fixture.Controller.AcceptedSource != before || fixture.Controller.CanUndo != undoBefore)
+                throw new Exception($"Advisory clear overruled the geometry certificate: changed={fixture.Controller.AcceptedSource != before}, status={fixture.Controller.Status}");
+            fixture.AssertGlyphPixel(fixture.Controller.Planform!.Trailing.Points[4]);
+        });
+
+        DesktopChecks.Check("PlanCanvas_HoverProbe_ParksPointerFirst", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.ParkAndHover(point);
+            if (fixture.Canvas.ProbeText?.Contains("chord", StringComparison.Ordinal) != true ||
+                Contrast(fixture.RgbAtCanvas(fixture.Canvas.Bounds.Width - 420, 12), fixture.BackgroundPixel()) < 1.1)
+                throw new Exception("Parked pointer did not produce a visible probe");
+        });
+
+        DesktopChecks.Check("PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var before = fixture.RgbAtPoint(point);
+            var parse = FoilSource.Parse(System.Text.Encoding.UTF8.GetBytes(fixture.Controller.AcceptedSource));
+            var uncertified = CfdWorkbench.Core.Geometry.Assess(parse, TimeSpan.Zero);
+            if (uncertified.Status == GeometryStatus.Certified) throw new Exception("Fixture did not force an uncertified assessment");
+            typeof(WorkbenchController).GetProperty("Inspection")!.SetValue(fixture.Controller,
+                new AcceptedInspection(fixture.Controller.Inspection!.Authored, uncertified));
+            fixture.Canvas.InvalidateVisual();
+            fixture.Settle();
+            if (fixture.RgbAtPoint(point) == before || fixture.Canvas.RenderBanner?.Contains("not certified", StringComparison.OrdinalIgnoreCase) != true)
+                throw new Exception("Uncertified points were not dimmed with a banner");
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, 20);
+            if (fixture.Controller.Gesture != GestureState.Idle || fixture.Controller.Draft is not null)
+                throw new Exception("Uncertified foil opened a point draft");
+        });
+
+        DesktopChecks.Check("PlanCanvas_RenderThrows_CopyTryAgainAndEvent", () =>
+        {
+            using var fixture = new PlanFixture();
+            ShellEvents.Clear();
+            fixture.Canvas.RenderGuard = () => throw new InvalidOperationException("render probe");
+            fixture.Canvas.InvalidateVisual();
+            fixture.Settle();
+            fixture.FrameSnapshot();
+            fixture.Settle();
+            var error = fixture.Host.ModelView.FindControl<Border>("PlanRenderErrorBand")!;
+            var retry = fixture.Host.ModelView.FindControl<Button>("PlanRenderTryAgainButton")!;
+            if (!error.IsEffectivelyVisible || retry.Content?.ToString() != "Try again" ||
+                !ShellEvents.Read().Any(item => item.Name == "shell.pane.render" && item.Code == "shell.pane.render"))
+                throw new Exception($"Render error omitted copy, Try again, or telemetry: visible={error.IsEffectivelyVisible}, button={retry.Content}, events={ShellEvents.Read().Count}");
+            fixture.Canvas.RenderGuard = null;
+            retry.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            fixture.Settle();
+            if (error.IsEffectivelyVisible) throw new Exception("Try again did not restore Plan rendering");
+        });
     }
 
-    public static void RunReadiness() { }
+    public static void RunReadiness()
+    {
+        AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+        DesktopChecks.Check("Readiness_PlanRender_Under8Ms", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true, width: 1440, height: 900);
+            using var bitmap = new RenderTargetBitmap(new PixelSize(1440, 900));
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            bitmap.Render(fixture.Window);
+            watch.Stop();
+            Console.WriteLine($"READINESS-MEASURE PlanRender {watch.Elapsed.TotalMilliseconds:F2} ms target 8.00 ms " +
+                (watch.Elapsed.TotalMilliseconds <= 8 ? "met" : "miss"));
+        });
+    }
 
     private static void Settle(Window window)
     {
@@ -561,6 +701,7 @@ public static class PlanCanvasTests
                 RequestedThemeVariant = theme ?? ThemeVariant.Light };
             Window.Show();
             Settle();
+            AssertGlyphPixel(Controller.Planform!.Trailing.Points[4]);
         }
 
         public void Settle()
@@ -615,6 +756,34 @@ public static class PlanCanvasTests
                 Key = key,
                 KeyModifiers = modifiers
             });
+            Settle();
+        }
+
+        public void KeyUp(Key key)
+        {
+            Canvas.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyUpEvent,
+                Source = Canvas, Key = key });
+            Settle();
+        }
+
+        public void WaitGesture()
+        {
+            for (int i = 0; i < 400 && Controller.Gesture != GestureState.Idle; i++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            if (Controller.Gesture != GestureState.Idle) throw new Exception("Gesture did not complete");
+        }
+
+        public void ParkAndHover(PointView point)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerExitedEvent, Canvas, pointer, Window,
+                new Point(-100, -100), 1, default, KeyModifiers.None));
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point) + new Vector(0, 30), Window)!.Value;
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, Canvas, pointer, Window,
+                position, 2, default, KeyModifiers.None));
             Settle();
         }
 

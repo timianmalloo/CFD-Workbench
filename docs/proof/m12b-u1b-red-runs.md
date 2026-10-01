@@ -34,5 +34,52 @@ summary: >-
 | D2 | same command after drawing the tracing probe and appending drag deltas | 0 | 30 names PASS (`/tmp/u1b-drag-green.log`). |
 | F1 | same command with station chip, collision, double-click, focus, lock and handle Escape checks | 1 | Compilation failed for absent chip and focus members (`/tmp/u1b-chips-focus-red.log`). |
 | F2 | same command after chip and focus work | 0 | 37 names PASS (`/tmp/u1b-chips-focus-green.log`). |
+| G1 | same command with final six names added | 1 | Final release, advisory, probe, certification and render-error names were red before their implementation (`/tmp/u1b-final-red.log`). |
+| G2 | same command after those behaviours were implemented | 0 | All 43 names PASS (`/tmp/u1b-final-green.log`). |
+| M1 | same command with `PlanCanvas.Render` drawing blanked | 1 | All 43 names FAIL on realized pixels or the bitmap precondition (`/tmp/u1b-render-blank-mutant.log`). |
+| M2 | same command after restoring `PlanCanvas.Render` and the shared axis layer refactor | 0 | All 43 names PASS (`/tmp/u1b-plan-final.log`). |
 
-The raw `/tmp` files are local run logs; subsequent required mutant and gate receipts are added below as the track proceeds.
+The raw `/tmp` files are local run logs. M1 killed these named tests:
+- `PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels` — FAIL under blank renderer
+- `PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke` — FAIL under blank renderer
+- `Workspace_NewFoil_WindowPixelsShowRailsAtTranslatedPoints` — FAIL under blank renderer
+- `PlanCanvas_Orientation_SpanRightAftDown` — FAIL under blank renderer
+- `PlanCanvas_ExampleOpen_RendersBothRailsAndEveryPoint` — FAIL under blank renderer
+- `PlanCanvas_SelectPoint_RenderedGlyphFilledAndHandlesDrawn` — FAIL under blank renderer
+- `PlanCanvas_SelectedVsUnselected_RenderedAtLeastThreeToOne` — FAIL under blank renderer
+- `PlanCanvas_HitTest_NearestWithin14Px` — FAIL under blank renderer
+- `PlanCanvas_HoverPoint_TooltipCopyAndRing` — FAIL under blank renderer
+- `PlanCanvas_HoverRail_TracingProbeReadout` — FAIL under blank renderer
+- `PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle` — FAIL under blank renderer
+- `PlanCanvas_SpaceAndShiftSpace_SelectAndToggle` — FAIL under blank renderer
+- `PlanCanvas_TabOrder_LeadingThenTrailingThenChips` — FAIL under blank renderer
+- `PlanCanvas_TabPastLastPoint_LeavesCanvas` — FAIL under blank renderer
+- `PlanCanvas_CombToggle_RenderedTeethOnSelectedRail` — FAIL under blank renderer
+- `PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera` — FAIL under blank renderer
+- `ModelArea_MinimumWindow_PlanAtLeast320x240` — FAIL under blank renderer
+- `ModelArea_SamplesTab_IsometricMovedUnchanged` — FAIL under blank renderer
+- `PlanCanvas_FocusRing_RenderedPixelsAtLeastThreeToOne` — FAIL under blank renderer
+- `PlanCanvas_HighContrast_RenderedRingContrastPrimary` — FAIL under blank renderer
+- `PlanCanvas_AfterDockReattach_RendersSameScene` — FAIL under blank renderer
+- `PlanCanvas_Brushes_AllFromThemeResources` — FAIL under blank renderer
+- `PlanCanvas_ProbeAndDelta_NotLiveRegions` — FAIL under blank renderer
+- `PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength` — FAIL under blank renderer
+- `PlanCanvas_DragFrame_RenderedCurveThroughDraftSample` — FAIL under blank renderer
+- `PlanCanvas_DragDeltaReadout_Live` — FAIL under blank renderer
+- `PlanCanvas_ShiftDragFromPoint_OrthoLocked` — FAIL under blank renderer
+- `PlanCanvas_TabWithMultiSelection_KeepsSelection` — FAIL under blank renderer
+- `PlanCanvas_Escape_DismissTooltipThenClearSelection` — FAIL under blank renderer
+- `PlanCanvas_CKeyInTipChordField_CombNotToggled` — FAIL under blank renderer
+- `PlanCanvas_ClickStationChip_SelectsStation` — FAIL under blank renderer
+- `PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser` — FAIL under blank renderer
+- `PlanCanvas_DoubleClickPoint_RaisesTypeValueRequest` — FAIL under blank renderer
+- `PlanCanvas_FocusOffscreenPoint_PansIntoView` — FAIL under blank renderer
+- `PlanCanvas_FocusUnderProbeOrChip_PansIntoView` — FAIL under blank renderer
+- `PlanCanvas_LockedNudge_AssertiveLockCopy` — FAIL under blank renderer
+- `PlanCanvas_EscapeOnHandle_FocusBackToPoint` — FAIL under blank renderer
+- `PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion` — FAIL under blank renderer
+- `PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal` — FAIL under blank renderer
+- `PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides` — FAIL under blank renderer
+- `PlanCanvas_HoverProbe_ParksPointerFirst` — FAIL under blank renderer
+- `PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft` — FAIL under blank renderer
+- `PlanCanvas_RenderThrows_CopyTryAgainAndEvent` — FAIL under blank renderer

@@ -46,6 +46,9 @@ public sealed class PlanCanvas : Control
     private PointRef? focusedPoint;
     private PointView? hoveredPoint;
     private int keyboardIndex = -1;
+    private bool advisoryCrossing;
+    private Point advisoryPoint;
+    private bool renderFailureNotified;
 
     public WorkbenchController? Controller
     {
@@ -62,6 +65,10 @@ public sealed class PlanCanvas : Control
     public string? LastValueRequest { get; private set; }
     public string? TooltipText { get; private set; }
     public string? ProbeText { get; private set; }
+    public string? RenderBanner { get; private set; }
+    public Action? RenderGuard { get; set; }
+    public event Action<Exception>? RenderFailed;
+    public event Action? RenderRecovered;
     public PointRef? FocusedTarget => focusedPoint;
     public sealed record StationChip(int Index, Rect Bounds);
     public IReadOnlyList<StationChip> VisibleStationChips
@@ -88,10 +95,7 @@ public sealed class PlanCanvas : Control
         get
         {
             var plan = Controller?.Planform;
-            return plan is null ? [] : plan.Leading.Points.Select(point => point.Id)
-                .Concat(plan.Trailing.Points.Select(point => point.Id))
-                .Concat(Enumerable.Range(0, plan.Stations.Count).Select(index => $"station:{index}"))
-                .ToArray();
+            return plan is null ? [] : AxisPointLayer.KeyboardTargets(plan);
         }
     }
 
@@ -130,19 +134,9 @@ public sealed class PlanCanvas : Control
 
     public PointView? HitTestPoint(Point position)
     {
-        PointView? nearest = null;
-        double distance = 14 * 14;
-        foreach (var candidate in targets)
-        {
-            var centre = ScreenPoint(candidate);
-            double squared = Math.Pow(position.X - centre.X, 2) + Math.Pow(position.Y - centre.Y, 2);
-            if (squared > distance) continue;
-            if (squared == distance && Controller?.Selection is Selection.Points selected &&
-                !selected.Items.Any(item => item.Curve == candidate.Curve && item.VertexId == candidate.Id)) continue;
-            nearest = candidate;
-            distance = squared;
-        }
-        return nearest;
+        var plan = Controller?.Planform;
+        return plan is null ? null : new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera)
+            .HitTest(targets, position, Controller.Selection);
     }
 
     public void HoverAt(Point position)
@@ -312,6 +306,12 @@ public sealed class PlanCanvas : Control
             }
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
+        if (focusedPoint is { Curve: "trailing" })
+        {
+            var probe = CfdWorkbench.Core.Planform.Probe(plan, Math.Clamp(target.Span / plan.HalfSpanMeters, 0, 1));
+            advisoryCrossing = target.Ordinate <= probe.LeadingAftMeters;
+            advisoryPoint = position;
+        }
         if (focusedPoint is { } selected)
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
@@ -378,8 +378,7 @@ public sealed class PlanCanvas : Control
             e.Handled = true;
             return;
         }
-        int span = e.Key == Key.Right ? 1 : e.Key == Key.Left ? -1 : 0;
-        int aft = e.Key == Key.Down ? 1 : e.Key == Key.Up ? -1 : 0;
+        var (span, aft) = AxisPointLayer.KeyboardDirection(e.Key);
         if (span == 0 && aft == 0) return;
         if (option)
         {
@@ -440,11 +439,51 @@ public sealed class PlanCanvas : Control
     {
         base.Render(context);
         context.DrawRectangle(BackgroundBrush ?? Brushes.Transparent, null, new Rect(Bounds.Size));
+        try
+        {
+            RenderGuard?.Invoke();
+            RenderScene(context);
+        }
+        catch (Exception error)
+        {
+            RenderBanner = "Plan couldn't render. Try again.";
+            CfdWorkbench.Desktop.Shell.ShellEvents.Record("shell.pane.render", "error", 0,
+                System.Diagnostics.Activity.Current?.TraceId.ToString() ?? Guid.NewGuid().ToString("N"),
+                code: "shell.pane.render", pane: "plan", exceptionType: error.GetType().Name);
+            if (!renderFailureNotified)
+            {
+                renderFailureNotified = true;
+                RenderFailed?.Invoke(error);
+            }
+            DrawLabel(context, RenderBanner, new Point(12, 12));
+        }
+    }
+
+    public void RetryRender()
+    {
+        RenderBanner = null;
+        renderFailureNotified = false;
+        RenderRecovered?.Invoke();
+        InvalidateVisual();
+    }
+
+    private void RenderScene(DrawingContext context)
+    {
         var plan = Controller?.Planform;
         if (plan is null) return;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
-        map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
-            BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+        bool certified = Controller.Inspection?.Geometry.Status == GeometryStatus.Certified;
+        RenderBanner = certified ? null : "Foil not certified. Point editing unavailable.";
+        if (certified)
+            map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
+                BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+        else
+        {
+            using (context.PushOpacity(.35))
+                map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
+                    BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+            DrawLabel(context, RenderBanner!, new Point(12, 12));
+        }
         if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
         {
             var rail = points.Items[0].Curve == "leading" ? plan.Leading : plan.Trailing;
@@ -456,6 +495,12 @@ public sealed class PlanCanvas : Control
                     start + new Vector(tooth.NormalSpan, tooth.NormalAft) *
                     Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
             }
+        }
+        if (advisoryCrossing)
+        {
+            var marker = new Pen(DangerBrush ?? Brushes.White, 4, new DashStyle([6, 3], 0));
+            context.DrawLine(marker, advisoryPoint + new Vector(-12, -12), advisoryPoint + new Vector(12, 12));
+            DrawLabel(context, "Edges would cross", advisoryPoint + new Vector(16, 8));
         }
         var stationPen = new Pen(SelectionBrush ?? Brushes.White, 1,
             new DashStyle([3, 3], 0));
@@ -508,7 +553,9 @@ public sealed class PlanCanvas : Control
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
         protected override List<AutomationPeer>? GetChildrenCore() =>
-            owner.targets.Select(point => (AutomationPeer)new PlanPointPeer(owner, point)).ToList();
+            owner.Controller?.Planform is { } plan
+                ? new AxisPointLayer(plan, owner.Bounds.Size, owner.Controller.PlanCamera).AutomationPeers(owner, owner.targets)
+                : [];
     }
 
     private sealed class PlanPointPeer(PlanCanvas canvas, PointView point)
@@ -541,21 +588,74 @@ public sealed class PlanCanvas : Control
         public void Invoke() => canvas.RequestValue(point);
     }
 
-    // One axis map owns drawing and placement; M1.2b2 can reuse it for elevations.
-    private sealed class AxisPointLayer(PlanformView plan, Size size, PlanCamera camera)
+    // Drawing, picking, automation and key directions share one axis mapping.
+    // The elevation view can supply a different projection for these same points.
+    private sealed record AxisMapping(
+        Func<double, double, Point> Project,
+        Func<Point, (double Span, double Ordinate)> Unproject);
+
+    private sealed class AxisPointLayer
     {
-        private readonly double scale = Math.Min((size.Width - 80) / (2 * plan.HalfSpanMeters),
-            (size.Height - 80) / Math.Max(0.01, plan.Trailing.Samples.Max(item => item.AftMeters) -
-                plan.Leading.Samples.Min(item => item.AftMeters))) * camera.PixelsPerMeter / 1000;
-        private readonly double minAft = plan.Leading.Samples.Min(item => item.AftMeters);
+        private readonly PlanformView plan;
+        private readonly AxisMapping axes;
 
-        public Point ToScreen(double span, double aft) => new(
-            size.Width / 2 + span * scale + camera.PanSpanPixels,
-            40 + (aft - minAft) * scale + camera.PanAftPixels);
+        public AxisPointLayer(PlanformView plan, Size size, PlanCamera camera)
+            : this(plan, PlanAxes(plan, size, camera)) { }
 
-        public (double Span, double Ordinate) FromScreen(Point position) =>
-            ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
-                (position.Y - 40 - camera.PanAftPixels) / scale + minAft);
+        public AxisPointLayer(PlanformView plan, AxisMapping axes)
+        {
+            this.plan = plan;
+            this.axes = axes;
+        }
+
+        private static AxisMapping PlanAxes(PlanformView plan, Size size, PlanCamera camera)
+        {
+            double scale = Math.Min((size.Width - 80) / (2 * plan.HalfSpanMeters),
+                (size.Height - 80) / Math.Max(0.01, plan.Trailing.Samples.Max(item => item.AftMeters) -
+                    plan.Leading.Samples.Min(item => item.AftMeters))) * camera.PixelsPerMeter / 1000;
+            double minAft = plan.Leading.Samples.Min(item => item.AftMeters);
+            return new AxisMapping(
+                (span, aft) => new Point(size.Width / 2 + span * scale + camera.PanSpanPixels,
+                    40 + (aft - minAft) * scale + camera.PanAftPixels),
+                position => ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
+                    (position.Y - 40 - camera.PanAftPixels) / scale + minAft));
+        }
+
+        public Point ToScreen(double span, double aft) => axes.Project(span, aft);
+
+        public (double Span, double Ordinate) FromScreen(Point position) => axes.Unproject(position);
+
+        public static IReadOnlyList<string> KeyboardTargets(PlanformView view) =>
+            view.Leading.Points.Select(point => point.Id)
+                .Concat(view.Trailing.Points.Select(point => point.Id))
+                .Concat(Enumerable.Range(0, view.Stations.Count).Select(index => $"station:{index}"))
+                .ToArray();
+
+        public static (int Span, int Ordinate) KeyboardDirection(Key key) => key switch
+        {
+            Key.Right => (1, 0), Key.Left => (-1, 0),
+            Key.Down => (0, 1), Key.Up => (0, -1), _ => (0, 0)
+        };
+
+        public PointView? HitTest(IEnumerable<PointView> targets, Point position, Selection selection)
+        {
+            PointView? nearest = null;
+            double distance = 14 * 14;
+            foreach (var candidate in targets)
+            {
+                var centre = ToScreen(candidate.SpanMeters, candidate.AftMeters);
+                double squared = Math.Pow(position.X - centre.X, 2) + Math.Pow(position.Y - centre.Y, 2);
+                if (squared > distance) continue;
+                if (squared == distance && selection is Selection.Points selected &&
+                    !selected.Items.Any(item => item.Curve == candidate.Curve && item.VertexId == candidate.Id)) continue;
+                nearest = candidate;
+                distance = squared;
+            }
+            return nearest;
+        }
+
+        public List<AutomationPeer> AutomationPeers(PlanCanvas owner, IEnumerable<PointView> targets) =>
+            targets.Select(point => (AutomationPeer)new PlanPointPeer(owner, point)).ToList();
 
         public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background,
             Selection selection)
