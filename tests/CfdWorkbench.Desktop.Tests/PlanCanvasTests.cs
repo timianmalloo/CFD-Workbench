@@ -447,6 +447,36 @@ public static class PlanCanvasTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("PlanCanvas_DragEmptyCanvas_PansPlainShiftMiddle_ClickStillClears", () =>
+        {
+            // D-1 + F-2 (docs/reviews/m12b-native.md §3): a drag that starts on empty canvas pans; Escape cancels it.
+            using var fixture = new PlanFixture();
+            var empty = new Point(24, fixture.Canvas.Bounds.Height / 2);
+            if (fixture.Canvas.HitTestPoint(empty) is not null) throw new Exception("Test location is not empty canvas");
+            string accepted = fixture.Controller.AcceptedSource;
+            bool undo = fixture.Controller.CanUndo;
+            foreach (var (button, modifiers) in new[] { (MouseButton.Left, KeyModifiers.None),
+                         (MouseButton.Left, KeyModifiers.Shift), (MouseButton.Middle, KeyModifiers.None) })
+            {
+                var before = fixture.Controller.PlanCamera;
+                fixture.DragAt(empty, new Vector(30, 20), button, modifiers);
+                var after = fixture.Controller.PlanCamera;
+                if (after.PanSpanPixels - before.PanSpanPixels != 30 || after.PanAftPixels - before.PanAftPixels != 20)
+                    throw new Exception($"{modifiers} {button} drag on empty canvas did not pan: {before} -> {after}");
+            }
+            var start = fixture.Controller.PlanCamera;
+            fixture.DragAt(empty, new Vector(40, 10), MouseButton.Left, KeyModifiers.None, escapeBeforeRelease: true);
+            if (fixture.Controller.PlanCamera != start)
+                throw new Exception("Escape did not cancel the pan back to its start");
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.DragAt(empty, new Vector(1, 1), MouseButton.Left, KeyModifiers.None);
+            if (fixture.Controller.Selection is not Selection.Foil)
+                throw new Exception("A click on empty canvas did not clear the selection to the Foil");
+            if (fixture.Controller.AcceptedSource != accepted || fixture.Controller.CanUndo != undo)
+                throw new Exception("Panning changed the source or the undo history");
+        });
+
         DesktopChecks.Check("PlanCanvas_ClickStationChip_SelectsStation", () =>
         {
             using var fixture = new PlanFixture(newFoil: true);
@@ -739,6 +769,29 @@ public static class PlanCanvasTests
             Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, position, 2,
                 new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased),
                 KeyModifiers.None, MouseButton.Left));
+            Settle();
+        }
+
+        /// <summary>Press with <paramref name="button"/> at a canvas point, move by <paramref name="by"/>, then release (or Escape first).</summary>
+        public void DragAt(Point local, Vector by, MouseButton button, KeyModifiers modifiers, bool escapeBeforeRelease = false)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var (raw, kind, released) = button switch
+            {
+                MouseButton.Middle => (RawInputModifiers.MiddleMouseButton, PointerUpdateKind.MiddleButtonPressed, PointerUpdateKind.MiddleButtonReleased),
+                MouseButton.Right => (RawInputModifiers.RightMouseButton, PointerUpdateKind.RightButtonPressed, PointerUpdateKind.RightButtonReleased),
+                _ => (RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed, PointerUpdateKind.LeftButtonReleased)
+            };
+            var start = Canvas.TranslatePoint(local, Window)!.Value;
+            var end = Canvas.TranslatePoint(local + by, Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, start, 1,
+                new PointerPointProperties(raw, kind), modifiers));
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, Canvas, pointer, Window, end, 2,
+                new PointerPointProperties(raw, PointerUpdateKind.Other), modifiers));
+            Settle();
+            if (escapeBeforeRelease) KeyDown(Key.Escape);
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, end, 3,
+                new PointerPointProperties(RawInputModifiers.None, released), modifiers, button));
             Settle();
         }
 

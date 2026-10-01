@@ -49,6 +49,12 @@ public sealed class PlanCanvas : Control
     private bool advisoryCrossing;
     private Point advisoryPoint;
     private bool renderFailureNotified;
+    // A press on empty canvas (§11.3 Pan row, F-2): a drag pans the camera, a click clears the selection.
+    private PlanCamera? panOrigin;
+    private Point panPress;
+    private Point panLast;
+    private bool panning;
+    private bool panClicks;
 
     public WorkbenchController? Controller
     {
@@ -266,9 +272,16 @@ public sealed class PlanCanvas : Control
                 e.Handled = true;
                 return;
             }
-            Controller.Select(new Selection.Foil());
-            TooltipText = null;
-            InvalidateVisual();
+            var pressed = e.GetCurrentPoint(this).Properties;
+            if (pressed.IsLeftButtonPressed || pressed.IsMiddleButtonPressed)
+            {
+                panOrigin = Controller.PlanCamera;
+                panPress = panLast = position;
+                panning = false;
+                panClicks = pressed.IsLeftButtonPressed;
+                e.Pointer.Capture(this);
+                e.Handled = true;
+            }
             return;
         }
         var reference = new PointRef(hit.Curve, hit.Id);
@@ -289,6 +302,15 @@ public sealed class PlanCanvas : Control
     {
         base.OnPointerMoved(e);
         var position = e.GetPosition(this);
+        if (panOrigin is not null)
+        {
+            if (!panning && Point.Distance(position, panPress) <= 3) return;
+            panning = true;
+            PanBy(position.X - panLast.X, position.Y - panLast.Y);
+            panLast = position;
+            e.Handled = true;
+            return;
+        }
         HoverAt(position);
         if (Controller?.Gesture is not (GestureState.Pressed or GestureState.Dragging)) return;
         var plan = Controller.Planform;
@@ -326,12 +348,43 @@ public sealed class PlanCanvas : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
+        if (panOrigin is not null)
+        {
+            if (!panning && panClicks && Controller is not null)
+            {
+                Controller.Select(new Selection.Foil());
+                TooltipText = null;
+            }
+            EndPan(cancel: false);
+            e.Pointer.Capture(null);
+            e.Handled = true;
+            return;
+        }
         e.Pointer.Capture(null);
         if (Controller?.Gesture is GestureState.Pressed or GestureState.Dragging)
         {
             _ = Controller.EndGestureAsync(GestureEnd.Release);
             e.Handled = true;
         }
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        EndPan(cancel: false);
+    }
+
+    // A pan is a view change, never an undo step. Escape restores the camera the press started from.
+    private void EndPan(bool cancel)
+    {
+        if (panOrigin is { } origin && cancel && Controller is not null)
+        {
+            Controller.PlanCamera = origin;
+            UpdatePlan();
+        }
+        panOrigin = null;
+        panning = false;
+        InvalidateVisual();
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -350,6 +403,12 @@ public sealed class PlanCanvas : Control
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
         if (e.Key == Key.Tab) { e.Handled = FocusNext(shift); return; }
         if (e.Key == Key.Space) { SelectFocused(shift); e.Handled = true; return; }
+        if (e.Key == Key.Escape && panOrigin is not null)
+        {
+            EndPan(cancel: true);
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Escape)
         {
             if (TooltipText is not null) TooltipText = null;
