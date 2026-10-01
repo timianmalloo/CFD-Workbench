@@ -2,9 +2,12 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.VisualTree;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Core;
@@ -139,6 +142,208 @@ public static class PlanCanvasTests
             if (Contrast(after, fixture.BackgroundPixel()) < 3)
                 throw new Exception("Selected glyph does not contrast with the viewport by 3:1");
         });
+
+        DesktopChecks.Check("PlanCanvas_HitTest_NearestWithin14Px", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var centre = fixture.Canvas.ScreenPoint(point);
+            if (fixture.Canvas.HitTestPoint(new Point(centre.X + 13, centre.Y))?.Id != point.Id ||
+                fixture.Canvas.HitTestPoint(new Point(centre.X + 15, centre.Y))?.Id == point.Id)
+                throw new Exception("Point hit circle is not 14 px with nearest target");
+        });
+
+        DesktopChecks.Check("PlanCanvas_HoverPoint_TooltipCopyAndRing", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point));
+            fixture.Settle();
+            if (fixture.Canvas.TooltipText?.Contains("Trailing edge, point 5", StringComparison.Ordinal) != true ||
+                fixture.Canvas.TooltipText?.Contains("span", StringComparison.Ordinal) != true ||
+                Contrast(fixture.RgbNear(point, 10, 0), fixture.BackgroundPixel()) < 3)
+                throw new Exception("Hover tooltip or rendered 10 px ring missing");
+        });
+
+        DesktopChecks.Check("PlanCanvas_HoverRail_TracingProbeReadout", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point) + new Vector(0, 30));
+            if (fixture.Canvas.ProbeText?.Contains("span", StringComparison.Ordinal) != true ||
+                fixture.Canvas.ProbeText?.Contains("chord", StringComparison.Ordinal) != true)
+                throw new Exception("Tracing probe has no span and chord readout");
+        });
+
+        DesktopChecks.Check("PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle", () =>
+        {
+            using var fixture = new PlanFixture();
+            var points = fixture.Controller.Planform!.Trailing.Points;
+            fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), extend: false, toggle: false);
+            fixture.Canvas.SelectPoint(new PointRef(points[4].Curve, points[4].Id), extend: true, toggle: false);
+            if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 2)
+                throw new Exception("Shift selection did not extend");
+            fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), extend: false, toggle: true);
+            if (fixture.Controller.Selection is not Selection.Points toggled || toggled.Items.Count != 1 ||
+                toggled.Items[0].VertexId != points[4].Id)
+                throw new Exception("Command selection did not toggle");
+        });
+
+        DesktopChecks.Check("PlanCanvas_SpaceAndShiftSpace_SelectAndToggle", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Leading.Points[3];
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.Canvas.SelectFocused(toggle: false);
+            if (fixture.Controller.Selection is not Selection.Points selected || selected.Items[0].VertexId != point.Id)
+                throw new Exception("Space did not select focused point");
+            fixture.Canvas.SelectFocused(toggle: true);
+            if (fixture.Controller.Selection is Selection.Points)
+                throw new Exception("Shift+Space did not toggle focused point off");
+        });
+
+        DesktopChecks.Check("PlanCanvas_TabOrder_LeadingThenTrailingThenChips", () =>
+        {
+            using var fixture = new PlanFixture();
+            var order = fixture.Canvas.KeyboardTargets;
+            var plan = fixture.Controller.Planform!;
+            var expected = plan.Leading.Points.Select(point => point.Id)
+                .Concat(plan.Trailing.Points.Select(point => point.Id)).ToArray();
+            if (!order.Take(expected.Length).SequenceEqual(expected) ||
+                order.Count != expected.Length + plan.Stations.Count)
+                throw new Exception("Plan Tab order differs from LE, TE, station chips");
+        });
+
+        DesktopChecks.Check("PlanCanvas_TabPastLastPoint_LeavesCanvas", () =>
+        {
+            using var fixture = new PlanFixture();
+            for (int i = 0; i < fixture.Canvas.KeyboardTargets.Count; i++)
+                if (!fixture.Canvas.FocusNext()) throw new Exception("Tab left before the last target");
+            if (fixture.Canvas.FocusNext()) throw new Exception("Tab trapped focus after the last target");
+        });
+
+        DesktopChecks.Check("PlanCanvas_CombToggle_RenderedTeethOnSelectedRail", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var before = fixture.FrameSnapshot();
+            fixture.Canvas.ToggleComb();
+            fixture.Settle();
+            if (!fixture.Controller.CombVisible || before.SequenceEqual(fixture.FrameSnapshot()))
+                throw new Exception("Comb toggle did not paint teeth on selected rail");
+        });
+
+        DesktopChecks.Check("PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var before = fixture.Canvas.ScreenPoint(point);
+            fixture.Canvas.ZoomAt(1.2, before);
+            fixture.Canvas.PanBy(12, 8);
+            if (fixture.Canvas.ScreenPoint(point) == before)
+                throw new Exception("Zoom and pan did not move the point");
+            fixture.Canvas.Fit();
+            if (fixture.Controller.PlanCamera != new PlanCamera())
+                throw new Exception("Fit did not restore the camera");
+        });
+
+        DesktopChecks.Check("ModelArea_MinimumWindow_PlanAtLeast320x240", () =>
+        {
+            using var fixture = new PlanFixture(width: 1024, height: 700);
+            if (!fixture.Canvas.IsEffectivelyVisible || fixture.Canvas.Bounds.Width < 320 ||
+                fixture.Canvas.Bounds.Height < 240)
+                throw new Exception($"Plan minimum bounds are {fixture.Canvas.Bounds}");
+        });
+
+        DesktopChecks.Check("ModelArea_SamplesTab_IsometricMovedUnchanged", () =>
+        {
+            using var fixture = new PlanFixture();
+            if (!ReferenceEquals(fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable,
+                    fixture.Host.LayoutFactory.ModelDocument))
+                throw new Exception("Plan is not the initial document");
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SamplesDocument;
+            var viewport = fixture.Host.ModelView.FindControl<Viewport>("FoilViewport")!;
+            for (int i = 0; i < 5 && (!viewport.IsEffectivelyVisible || viewport.Bounds.Width < 320 ||
+                                      !ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)); i++)
+                fixture.Settle();
+            if (!viewport.IsEffectivelyVisible || !ReferenceEquals(viewport.LastRecordedFrame,
+                    fixture.Controller.Frame) || viewport.Bounds.Width < 320)
+                throw new Exception($"3D samples document lost the isometric plot: visible={viewport.IsEffectivelyVisible}, " +
+                    $"bounds={viewport.Bounds}, frame={ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)}");
+        });
+
+        DesktopChecks.Check("PlanCanvas_FocusRing_RenderedPixelsAtLeastThreeToOne", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.Settle();
+            if (Contrast(fixture.RgbNear(point, 13, 0), fixture.BackgroundPixel()) < 3)
+                throw new Exception("Focused point has no contrasting 13 px ring");
+        });
+
+        DesktopChecks.Check("PlanCanvas_HighContrast_RenderedRingContrastPrimary", () =>
+        {
+            using var fixture = new PlanFixture(theme: NativeReviewThemes.HighContrast);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.Settle();
+            var ring = fixture.RgbNear(point, 13, 0);
+            if (ring.R < 200 || ring.G < 200 || Contrast(ring, fixture.BackgroundPixel()) < 7)
+                throw new Exception($"High contrast ring is not the primary token: {ring}");
+        });
+
+        DesktopChecks.Check("PlanCanvas_AfterDockReattach_RendersSameScene", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var before = fixture.RgbAtPoint(point);
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SamplesDocument;
+            fixture.Settle();
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.ModelDocument;
+            fixture.Settle();
+            if (!fixture.Canvas.IsEffectivelyVisible || before != fixture.RgbAtPoint(point))
+                throw new Exception("Plan glyph changed or disappeared after tab re-entry");
+        });
+
+        DesktopChecks.Check("PlanCanvas_Brushes_AllFromThemeResources", () =>
+        {
+            using var fixture = new PlanFixture();
+            var canvas = fixture.Canvas;
+            foreach (var brush in new[] { canvas.BackgroundBrush, canvas.FoilBrush, canvas.SelectionBrush,
+                         canvas.FocusBrush, canvas.MuteBrush, canvas.DangerBrush, canvas.WarningBrush, canvas.SoftBrush })
+                if (brush is not ISolidColorBrush { Color.A: 255 })
+                    throw new Exception("Plan brush is missing or not opaque from the theme");
+            if (canvas.FoilBrush is not ISolidColorBrush foil || foil.Color != Color.Parse("#85c9c4"))
+                throw new Exception("Plan foil brush does not match the theme token");
+        });
+
+        DesktopChecks.Check("PlanCanvas_ProbeAndDelta_NotLiveRegions", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point));
+            if (AutomationProperties.GetLiveSetting(fixture.Canvas) != AutomationLiveSetting.Off ||
+                fixture.Canvas.GetVisualDescendants().OfType<Control>()
+                    .Any(control => AutomationProperties.GetLiveSetting(control) != AutomationLiveSetting.Off))
+                throw new Exception("Frame-by-frame probe is a live region");
+        });
+
+        DesktopChecks.Check("PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
+                .GetAwaiter().GetResult();
+            fixture.Settle();
+            var peer = ControlAutomationPeer.CreatePeerForElement(fixture.Canvas)!;
+            var handles = peer.GetChildren()!.Where(child => child.GetName().Contains("handle", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (handles.Length < 2 || handles.Any(child => !child.GetName().Contains("°", StringComparison.Ordinal) ||
+                                                      !child.GetName().Contains("mm", StringComparison.Ordinal)))
+                throw new Exception("Handle peers omitted direction, angle or length");
+        });
     }
 
     public static void RunReadiness() { }
@@ -176,12 +381,14 @@ public static class PlanCanvasTests
         private int frameWidth;
         private int frameHeight;
 
-        public PlanFixture(bool newFoil = false)
+        public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
+            ThemeVariant? theme = null)
         {
             if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
             else Task.Run(() => Controller.OpenExampleAsync()).GetAwaiter().GetResult();
             Host = new ShellHost(Controller);
-            Window = new Window { Content = Host, Width = 1280, Height = 800 };
+            Window = new Window { Content = Host, Width = width, Height = height,
+                RequestedThemeVariant = theme ?? ThemeVariant.Light };
             Window.Show();
             Settle();
         }
@@ -227,6 +434,12 @@ public static class PlanCanvasTests
             frameHeight = bitmap.PixelSize.Height;
             frameBytes = new byte[frameStride * frameHeight];
             Marshal.Copy(frame.Address, frameBytes, 0, frameBytes.Length);
+        }
+
+        public byte[] FrameSnapshot()
+        {
+            if (frameBytes is null) Capture();
+            return (byte[])frameBytes!.Clone();
         }
 
         public void AssertGlyphPixel(PointView point)

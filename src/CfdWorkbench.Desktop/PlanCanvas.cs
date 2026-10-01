@@ -3,10 +3,12 @@ using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
 
@@ -41,6 +43,9 @@ public sealed class PlanCanvas : Control
     private WorkbenchController? controller;
     private readonly List<PointView> targets = [];
     private bool attached;
+    private PointRef? focusedPoint;
+    private PointView? hoveredPoint;
+    private int keyboardIndex = -1;
 
     public WorkbenchController? Controller
     {
@@ -55,6 +60,19 @@ public sealed class PlanCanvas : Control
     }
 
     public string? LastValueRequest { get; private set; }
+    public string? TooltipText { get; private set; }
+    public string? ProbeText { get; private set; }
+    public IReadOnlyList<string> KeyboardTargets
+    {
+        get
+        {
+            var plan = Controller?.Planform;
+            return plan is null ? [] : plan.Leading.Points.Select(point => point.Id)
+                .Concat(plan.Trailing.Points.Select(point => point.Id))
+                .Concat(Enumerable.Range(0, plan.Stations.Count).Select(index => $"station:{index}"))
+                .ToArray();
+        }
+    }
 
     public PlanCanvas()
     {
@@ -87,6 +105,126 @@ public sealed class PlanCanvas : Control
         if (plan is null) return default;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
         return map.ToScreen(point.SpanMeters, point.AftMeters);
+    }
+
+    public PointView? HitTestPoint(Point position)
+    {
+        PointView? nearest = null;
+        double distance = 14 * 14;
+        foreach (var candidate in targets)
+        {
+            var centre = ScreenPoint(candidate);
+            double squared = Math.Pow(position.X - centre.X, 2) + Math.Pow(position.Y - centre.Y, 2);
+            if (squared > distance) continue;
+            if (squared == distance && Controller?.Selection is Selection.Points selected &&
+                !selected.Items.Any(item => item.Curve == candidate.Curve && item.VertexId == candidate.Id)) continue;
+            nearest = candidate;
+            distance = squared;
+        }
+        return nearest;
+    }
+
+    public void HoverAt(Point position)
+    {
+        var plan = Controller?.Planform;
+        if (plan is null) return;
+        hoveredPoint = HitTestPoint(position);
+        TooltipText = hoveredPoint is { } point
+            ? $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of " +
+              $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
+              $"{point.Role.ToString().ToLowerInvariant()} point, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm"
+            : null;
+        var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+        double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
+        var probe = CfdWorkbench.Core.Planform.Probe(plan, eta);
+        ProbeText = $"η {probe.Eta:F3} · span {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
+            $"LE {probe.LeadingAftMeters * 1000:F2} mm · TE {probe.TrailingAftMeters * 1000:F2} mm · chord {probe.ChordMeters * 1000:F2} mm";
+        InvalidateVisual();
+    }
+
+    public void SelectPoint(PointRef point, bool extend, bool toggle)
+    {
+        if (Controller is null) return;
+        var existing = Controller.Selection is Selection.Points points ? points.Items.ToList() : [];
+        int index = existing.FindIndex(item => item.Curve == point.Curve && item.VertexId == point.VertexId);
+        if (toggle)
+        {
+            if (index >= 0) existing.RemoveAt(index);
+            else existing.Add(point);
+        }
+        else if (extend)
+        {
+            if (index < 0) existing.Add(point);
+        }
+        else existing = [point];
+        Controller.Select(existing.Count == 0 ? new Selection.Foil() : new Selection.Points(existing));
+        InvalidateVisual();
+    }
+
+    public void FocusPoint(PointRef point)
+    {
+        focusedPoint = point;
+        Focus();
+        InvalidateVisual();
+    }
+
+    public void SelectFocused(bool toggle)
+    {
+        if (focusedPoint is { } point) SelectPoint(point, extend: false, toggle);
+    }
+
+    public bool FocusNext(bool reverse = false)
+    {
+        var plan = Controller?.Planform;
+        if (plan is null) return false;
+        var targets = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
+        int count = targets.Length + plan.Stations.Count;
+        int next = keyboardIndex + (reverse ? -1 : 1);
+        if (next < 0 || next >= count) return false;
+        keyboardIndex = next;
+        if (next < targets.Length) FocusPoint(new PointRef(targets[next].Curve, targets[next].Id));
+        else { focusedPoint = null; InvalidateVisual(); }
+        return true;
+    }
+
+    public void ToggleComb()
+    {
+        if (Controller is null) return;
+        Controller.CombVisible = !Controller.CombVisible;
+        InvalidateVisual();
+    }
+
+    public void ZoomAt(double factor, Point pivot)
+    {
+        if (Controller is null || factor <= 0 || !double.IsFinite(factor)) return;
+        var camera = Controller.PlanCamera;
+        double nextScale = Math.Clamp(camera.PixelsPerMeter * factor, 100, 10000);
+        double actual = nextScale / camera.PixelsPerMeter;
+        Controller.PlanCamera = camera with
+        {
+            PixelsPerMeter = nextScale,
+            PanSpanPixels = pivot.X - Bounds.Width / 2 - (pivot.X - Bounds.Width / 2 - camera.PanSpanPixels) * actual,
+            PanAftPixels = pivot.Y - 40 - (pivot.Y - 40 - camera.PanAftPixels) * actual
+        };
+        UpdatePlan();
+    }
+
+    public void PanBy(double spanPixels, double aftPixels)
+    {
+        if (Controller is null) return;
+        Controller.PlanCamera = Controller.PlanCamera with
+        {
+            PanSpanPixels = Controller.PlanCamera.PanSpanPixels + spanPixels,
+            PanAftPixels = Controller.PlanCamera.PanAftPixels + aftPixels
+        };
+        UpdatePlan();
+    }
+
+    public void Fit()
+    {
+        if (Controller is null) return;
+        Controller.PlanCamera = new PlanCamera();
+        UpdatePlan();
     }
 
     private void UpdatePlan()
@@ -125,6 +263,26 @@ public sealed class PlanCanvas : Control
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
         map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
             BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+        if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
+        {
+            var rail = points.Items[0].Curve == "leading" ? plan.Leading : plan.Trailing;
+            var combPen = new Pen(WarningBrush ?? Brushes.White, .9);
+            foreach (var tooth in CfdWorkbench.Core.Planform.Comb(rail))
+            {
+                var start = map.ToScreen(tooth.SpanMeters, tooth.AftMeters);
+                context.DrawLine(combPen, start,
+                    start + new Vector(tooth.NormalSpan, tooth.NormalAft) *
+                    Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
+            }
+        }
+        if (hoveredPoint is { } hovered)
+            context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), ScreenPoint(hovered), 10, 10);
+        if (focusedPoint is { } focus)
+        {
+            var target = targets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId);
+            if (target is not null)
+                context.DrawEllipse(null, new Pen(FocusBrush ?? Brushes.White, 3), ScreenPoint(target), 13, 13);
+        }
     }
 
     protected override AutomationPeer OnCreateAutomationPeer() => new PlanCanvasPeer(this);
@@ -140,8 +298,22 @@ public sealed class PlanCanvas : Control
         : ControlAutomationPeer(canvas), IInvokeProvider
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
-        protected override string GetNameCore() =>
-            $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of 10, {point.Role}, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
+        protected override string GetNameCore()
+        {
+            var plan = canvas.Controller?.Planform;
+            var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
+            string role = point.Role.ToString().ToLowerInvariant();
+            if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
+            {
+                double span = point.SpanMeters - anchor.SpanMeters;
+                double aft = point.AftMeters - anchor.AftMeters;
+                double angle = Math.Atan2(aft, span) * 180 / Math.PI;
+                double length = Math.Sqrt(span * span + aft * aft) * 1000;
+                role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
+            }
+            return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
+                $"{role}, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
+        }
         protected override Rect GetBoundingRectangleCore()
         {
             if (canvas.GetVisualRoot() is not Visual root) return default;
@@ -157,12 +329,16 @@ public sealed class PlanCanvas : Control
     {
         private readonly double scale = Math.Min((size.Width - 80) / (2 * plan.HalfSpanMeters),
             (size.Height - 80) / Math.Max(0.01, plan.Trailing.Samples.Max(item => item.AftMeters) -
-                plan.Leading.Samples.Min(item => item.AftMeters)));
+                plan.Leading.Samples.Min(item => item.AftMeters))) * camera.PixelsPerMeter / 1000;
         private readonly double minAft = plan.Leading.Samples.Min(item => item.AftMeters);
 
         public Point ToScreen(double span, double aft) => new(
             size.Width / 2 + span * scale + camera.PanSpanPixels,
             40 + (aft - minAft) * scale + camera.PanAftPixels);
+
+        public (double Span, double Ordinate) FromScreen(Point position) =>
+            ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
+                (position.Y - 40 - camera.PanAftPixels) / scale + minAft);
 
         public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background,
             Selection selection)
