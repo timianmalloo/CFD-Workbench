@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T22:20:26Z",
+  "generated": "2026-10-01T23:26:56Z",
   "audit": [
     {
       "actor": null,
@@ -21353,6 +21353,33 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-01T22:19:28Z",
+      "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3WWNQ8MA1MR7DJ8FE7HZBAT",
+      "shortname": "join-pgrid",
+      "datetime": "2026-10-01T23:26:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/property-grid-build into feature/ui-cad-direction",
+      "summary": "PGRID (Opus 5.5, 2 repair cycles): property-grid component per ui-property-grid §10 — row model, per-quantity formatter and unit grammar, Kind radio list, handle identity, pinned Wing with per-quantity Unavailable, From-root rename, keyboard copy, polite status announcements, three-theme state brushes; field nudge built and shipped disabled until the VoiceOver trace. 30 named tests (3 deferred to CH1/PNL). UX&A build-stage veto cleared with conditions; native checklist docs/reviews/property-grid-native.md. Follow-ups: PG-28 focus, PG-35..38. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/property-grid-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T23:25:58Z",
       "duration_seconds": 58.0
     }
   ],
