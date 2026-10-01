@@ -569,7 +569,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8a52dd2834a0f9613045b5cbf24b4f6a5bbf3f117b24209065896bd2a195771"
+      "sourceSha256": "c000bcce7d56e898c274bd2b1eac452d477fbaf4c7252b6805730ad62da8bb15"
     },
     {
       "id": "adr-application-project-contract",
@@ -2215,7 +2215,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "401dcf29ddd871a713fe93241ad27d27c160b3fca16be22680190c6de0a693e6"
+      "sourceSha256": "94fc63bee03ec0704b57530c0eb7b2cdc469a66f248e1e8ccd5d1673c3004ab6"
     },
     {
       "id": "design-section-editor",
@@ -7047,7 +7047,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-10-28",
       "reviewSuggested": [],
-      "summary": "The certificate golden master was captured at 3b396e5, before the placement refactor. Reassociating the placed-X product turned the golden test red. Reordering the blend sum did not, because those interval additions commute.",
+      "summary": "The certificate golden master was captured at 3b396e5, before the placement refactor. Reassociating the placed-X product turned the golden test red. Reordering the blend sum did not, because those interval additions commute. The golden master pins outputs and refusals, not the operation tree.",
       "tags": [
         "m1.2b2",
         "placement",
@@ -7065,7 +7065,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3b904fec07c96ffd5e2312252b91a61e38a66857142c8c0197b90d30a72256c"
+      "sourceSha256": "afa2eb389b44da436b0398fd36ab0dacea18ff046a5b266d6b83f3f5173ad3a0"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -8771,5 +8771,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "9b7f7cbe4e30ab1dca76843cbe7d978529ae66bcb651c45173824b97787c2a00"
+  "graphSha256": "f66cb469dad2755ecba4ce9bdfb08a3ecee2957ad182e9e75082edf9c72c899d"
 };

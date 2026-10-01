@@ -14,6 +14,7 @@ summary: >-
   The certificate golden master was captured at 3b396e5, before the placement
   refactor. Reassociating the placed-X product turned the golden test red.
   Reordering the blend sum did not, because those interval additions commute.
+  The golden master pins outputs and refusals, not the operation tree.
 review-suggested: []
 ---
 
@@ -53,4 +54,8 @@ The edit was reverted. `git diff` on `Geometry.cs` was empty afterwards.
 
 ## Blend-sum reorder, measured
 
-`complement * a + share * b` was reordered to `share * b + complement * a` for both the camber sum and the unit-thickness sum in `SectionExact`. The same check passed. Endpoint-wise rational interval addition commutes, so that reorder is bit-identical on this fixture set. It was reverted as well. A later change to the blend product tree is what the golden master detects; a pure swap of those two addends is not.
+`complement * a + share * b` was reordered to `share * b + complement * a` for both the camber sum and the unit-thickness sum in `SectionExact`. The same check passed. Endpoint-wise rational interval addition commutes, so that reorder is bit-identical on this fixture set. It was reverted as well.
+
+## What the golden master pins
+
+The golden master pins the outputs (outward bits, witnesses) and the refusals. It does not pin the operation tree. The PL0 review probes found four more math-preserving tree changes that kept it green, because outward rounding absorbs them. The planted mutant above was red only because it changed the mathematics. A structural trace pin is required before the first change to design §6 and before VW1: an `IPlacementScalar<Trace>` instantiation of the same rule whose operation string is goldened. It is not built yet; design §13 OI-11 tracks it.

@@ -262,12 +262,14 @@ internal readonly record struct Binary64(double Value) : IPlacementScalar<Binary
   fields (placement width, feasibility witness, witnesses) **and the refusal codes** of a refusing set (the 10 nm check,
   budget, cancel, the Taylor domain). It commits them before `Geometry.cs` changes. Fixtures carry non-zero twist,
   non-zero dihedral and a blended station. Red-first is impossible for a pure refactor, so the receipt is a planted
-  mutant: reassociating `x·cos φ + z·sin φ` (and, separately, reordering the blend sum) turns each golden test red; the
-  run is recorded in the Proof Pack (as M1.2b §3.8). The two `ChannelEvaluator` fold goldens carry the same receipt
+  mutant: reassociating `x·cos φ + z·sin φ` turns each golden test red; reordering the blend sum does not (interval
+  addition commutes), and the golden master pins outputs and refusals, not the operation tree, so a structural trace pin
+  is required before the first change to §6 (§13 OI-11). The run is recorded in the Proof Pack (as M1.2b §3.8). The two `ChannelEvaluator` fold goldens carry the same receipt
   (one planted evaluator mutant turns each red), and PL0's join checks in `git log` that the golden commit precedes the
   `Geometry.cs` change.
 - **The golden master's failure message names the other three models** — `QueryFeasibility.Prove` (`:640-655`),
-  `PlacementWidth`, `BlendPlacementWidth` — so any change to the rule's tree forces their review. The Taylor depth and
+  `PlacementWidth`, `BlendPlacementWidth` — so a change to the rule's outputs forces their review (a math-preserving tree
+  change can stay green; the trace pin of §13 OI-11 covers it). The Taylor depth and
   the angle grid become `PlacementRule` constants read by all of them. **`simplify:`** the three bound models stay
   hand-kept; ceiling: a hand review on each rule change; upgrade trigger: the first real change to §6 (then instantiate
   `QueryFeasibility` over a bit-size domain and version its witness paths).
@@ -480,8 +482,8 @@ public readonly record struct ViewCamera(Point3 Target, double AzimuthDegrees, d
 | **Parallel Change** (expand–migrate–contract) | SR-1 fallback rename | Old names kept as aliases only until CH1's exit; CH1 owns the contract step |
 
 Rejected: a display implementation of §6 with a differential test (two definitions — ADR-0010); a separate recording
-scalar pinning the operation trace (a third implementation; the golden master already fails on any tree change and
-names the bound models — Simplifier); a 3D engine or GPU pipeline (OpenGL control, Silk.NET, a scene graph) — one body of
+scalar pinning the operation trace now (a third implementation; deferred, not cut: the golden master pins outputs, not the
+tree, so the trace pin of §13 OI-11 is required before the first change to §6 and before VW1 — Simplifier); a 3D engine or GPU pipeline (OpenGL control, Silk.NET, a scene graph) — one body of
 ≤ 33k triangles does not need one, and a new dependency fails the ladder's rung 5; a view-model per channel point; a
 separate "elevation point" contract (a fork of M1.2b's); a mesh cache keyed by generation; an animated camera
 transition (HardCut archetype); an architecture test that the Desktop never calls the channel evaluator (the compiler
@@ -910,6 +912,7 @@ and claimed commit (HARNESS-SILENT-EXIT); two repair cycles, then stop (COORD-SP
 | OI-8 | η-plot view; 3D surface probe | not in M1.2b2 | a later slice |
 | OI-9 | Perspective / orthographic toggle | axis presets orthographic, Iso and orbit perspective | one `Projection` flag already in `ViewCamera` |
 | OI-10 | Front and Side linked in vertical scale and z datum | each elevation fits itself | a shared vertical scale in the controller |
+| **OI-11 (PL0 review F2)** | The PL0 golden master pins outputs and refusals, not the operation tree (four math-preserving tree changes stayed green) | **REQUIRED before the first change to §6 and before VW1:** an `IPlacementScalar<Trace>` instantiation of the same rule whose operation string is goldened; not built in PL0 | the first §6 change or VW1 lands without it |
 
 ## 14. Build tracks (exclusive file ownership)
 

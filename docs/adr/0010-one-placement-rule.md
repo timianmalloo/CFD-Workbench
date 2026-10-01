@@ -96,9 +96,11 @@ pointwise binary64 path agrees with the enclosure midpoints to 3.7 × 10⁻¹⁵
   proof path must stay independent of the fast path.
 - **Instantiate `QueryFeasibility` over a bit-size domain** — it would remove the last structural copy, but the witness
   path strings are certificate output and would change. Bounded instead: shared constants and the golden master's
-  failure message. A separate pinned operation trace was considered and cut (a third implementation; the golden master
-  already fails on any tree change). `simplify:` ceiling: a rule change needs a hand review of the three bound models;
-  upgrade trigger: the first real change to §6.
+  failure message. The golden master pins outputs and refusals, not the operation tree: four math-preserving tree changes
+  kept it green, because outward rounding absorbs them. A structural trace pin is therefore REQUIRED before the first
+  change to §6 and before VW1: an `IPlacementScalar<Trace>` instantiation of the same rule whose operation string is
+  goldened. It is not built yet (open item OI-11 in the design §13). `simplify:` ceiling: a rule change needs a hand
+  review of the three bound models, and the trace pin before it; upgrade trigger: the first real change to §6.
 
 ## Consequences
 
