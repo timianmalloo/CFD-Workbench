@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "a44f951e279ebf2c3277bdf9b48dd11252f6c40d",
+  "sourceApp": "/private/tmp/cfd-u3a-a44f951-0500/package/CFD Workbench.app",
+  "sourceBundleId": "com.cfdworkbench.desktop",
+  "reviewApp": "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app",
+  "reviewBundleId": "com.cfdworkbench.desktop.u3aa44f9510500",
+  "pid": 13689,
+  "pidIdentity": {
+    "pid": 13689,
+    "start": "Wed Sep 30 22:05:43 2026",
+    "command": "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app/Contents/MacOS/CfdWorkbench.Desktop"
+  },
+  "argv": [
+    "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app/Contents/MacOS/CfdWorkbench.Desktop"
+  ],
+  "binarySha256": "cc700004034184f372fdcd146550462aabae7e179d1ff33f1d46098bc3e121b4",
+  "environment": {
+    "CFDW_REVIEW_MODE": "1",
+    "CFDW_REVIEW_PERSONA": "keyboard",
+    "CFDW_REVIEW_STATE": "example",
+    "CFDW_REVIEW_THEME": "system"
+  },
+  "exitCodeAfterFiveSeconds": null,
+  "launchRecordedUtc": "2026-10-01T05:06:08.911478+00:00",
+  "prelaunchProcessInventory": {
+    "blocked": [],
+    "matched": [],
+    "retained": [],
+    "unknown": []
+  }
+}

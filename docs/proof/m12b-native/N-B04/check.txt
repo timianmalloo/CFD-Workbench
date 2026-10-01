@@ -1,0 +1,2 @@
+exit: 1
+Error: NATIVE_REVIEW_BLOCKED: exact launch-bound AX/screenshot readiness is absent
