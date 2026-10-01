@@ -2644,8 +2644,8 @@ public static class ShellWindowTests
                 foreach (var name in new[] { "MeanChordText", "MacText", "MaxTcText", "AspectText", "AreaEstimateText" })
                 {
                     string text = U2Text(host.Properties, name);
-                    if (!text.StartsWith("≈", StringComparison.Ordinal))
-                        throw new InvalidOperationException(name + " is not marked approximate: " + text);
+                    if (!text.StartsWith("≈", StringComparison.Ordinal) || text.Contains('—'))
+                        throw new InvalidOperationException(name + " is not an approximate value: " + text);
                 }
                 string heading = U2Text(host.Properties, "WingHeading");
                 if (!heading.Contains("Wing", StringComparison.Ordinal))
@@ -2688,6 +2688,32 @@ public static class ShellWindowTests
                 Pump(controller.EndGestureAsync(GestureEnd.Escape));
             }
             finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("WingBlock_AfterTangentChange_DerivedRowsNotDashed", () =>
+        {
+            // D-4 (docs/reviews/m12b-native.md §3.1): after Make Anchor + Symmetric every derived row read "≈ —".
+            using var controller = new WorkbenchController();
+            var window = U2Show(controller, out var host);
+            try
+            {
+                Pump(host.OpenNewFoilAsync());
+                Settle(window);
+                var point = controller.Planform!.Trailing.Points[3];
+                if (Run(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id))) is not CommitOutcome.Committed)
+                    throw new InvalidOperationException("Make Anchor was not committed");
+                var anchor = controller.Planform!.Trailing.Points.Single(p => p.Role == PointRole.Anchor);
+                if (Run(controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, TangentKind.Symmetric, null))) is not CommitOutcome.Committed)
+                    throw new InvalidOperationException("Symmetric was not committed");
+                Settle(window);
+                var dashed = new[] { "MeanChordText", "MacText", "MaxTcText", "AspectText", "AreaEstimateText" }
+                    .Where(name => U2Text(host.Properties, name).Contains('—')).ToList();
+                if (dashed.Count > 0)
+                    throw new InvalidOperationException("dashed after a tangent change: " + string.Join(", ", dashed));
+            }
+            finally { window.Close(); }
+
+            static CommitOutcome Run(Task<CommitOutcome> task) { Pump(task); return task.Result; }
         });
 
         DesktopChecks.Check("WingBlock_CrossingDraft_ShowsDashAndReason", () =>

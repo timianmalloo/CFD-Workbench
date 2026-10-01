@@ -214,14 +214,21 @@ public partial class PropertiesPane : UserControl
         var plan = controller.Planform;
         bool preview = plan?.Basis == "preview" || estimates?.Basis == "preview";
         WingHeading.Text = preview ? "Wing · ≈ preview" : "Wing";
-        bool dash = estimates is null || !estimates.Converged || !double.IsFinite(estimates.MacMeters);
-        MeanChordText.Text = dash || estimates is null ? "≈ —" : "≈ " + Mm(estimates.MeanChordMeters);
-        MacText.Text = dash || estimates is null ? "≈ —" : "≈ " + Mm(estimates.MacMeters);
-        MaxTcText.Text = dash || estimates is null ? "≈ —" : "≈ " + estimates.MaxThicknessRatio.ToString("0.00", CultureInfo.InvariantCulture);
-        AspectText.Text = dash || estimates is null ? "≈ —" : "≈ " + estimates.AspectRatio.ToString("0.00", CultureInfo.InvariantCulture);
-        AreaEstimateText.Text = dash || estimates is null ? "≈ —" : "≈ " + (estimates.AreaSquareMeters * 10000).ToString("0", CultureInfo.InvariantCulture) + " cm²";
-        WingReasonText.IsVisible = dash && estimates is not null;
-        WingReasonText.Text = estimates?.Compute.Outcome ?? "";
+        // A row dashes only when its own value is unavailable; all five dash only when the wing has no positive
+        // area (an edge-crossing draft). Only MAC also needs the squared-chord integral to converge (D-4).
+        bool noArea = estimates is null || !double.IsFinite(estimates.AreaSquareMeters) || estimates.AreaSquareMeters <= 0;
+        MeanChordText.Text = Approx(noArea ? double.NaN : estimates!.MeanChordMeters, Mm);
+        MacText.Text = Approx(noArea ? double.NaN : estimates!.MacMeters, Mm);
+        MaxTcText.Text = Approx(noArea ? double.NaN : estimates!.MaxThicknessRatio, Ratio);
+        AspectText.Text = Approx(noArea ? double.NaN : estimates!.AspectRatio, Ratio);
+        AreaEstimateText.Text = Approx(noArea ? double.NaN : estimates!.AreaSquareMeters,
+            area => (area * 10000).ToString("0", CultureInfo.InvariantCulture) + " cm²");
+        string reason = estimates is null ? ""
+            : noArea ? "Estimates not available: the leading and trailing edges cross."
+            : !double.IsFinite(estimates.MacMeters) ? "MAC not available: the integral did not converge for this shape."
+            : "";
+        WingReasonText.IsVisible = reason.Length > 0;
+        WingReasonText.Text = reason;
         bool tipClosed = estimates is not null && estimates.TipChordMeters <= 1e-9;
         if (tipClosed && TipChordText.Text is { Length: > 0 } projected && projected != "—")
             TipClosedText.Text = projected;
@@ -486,6 +493,11 @@ public partial class PropertiesPane : UserControl
     }
 
     private static string Mm(double meters) => (meters * 1000).ToString("0.00", CultureInfo.InvariantCulture);
+
+    private static string Ratio(double value) => value.ToString("0.00", CultureInfo.InvariantCulture);
+
+    private static string Approx(double value, Func<double, string> format) =>
+        double.IsFinite(value) ? "≈ " + format(value) : "≈ —";
 
     private static string RoleText(PointRole role) => role switch
     {
