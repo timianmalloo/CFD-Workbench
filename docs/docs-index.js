@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "73675722a449b984e001770cc18cc93f1235fe60e903f9f077463561cd4da2a6"
+      "sourceSha256": "c505ffda04952d4666d8dc9202957e7e56d3060853374f7682ffc3ff81861811"
     },
     {
       "id": "domain-experts",
@@ -6915,7 +6915,32 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c4f8279350a7a3fd8da3b66d657b842f01db2c9420c0b10eb35e98ae50d66672"
+      "sourceSha256": "fa086ae8209f957432b575d24320010de8599f398c61f31f27bbc0357d65d7ed"
+    },
+    {
+      "id": "proof-m12b-u1b-red-runs",
+      "path": "docs/proof/m12b-u1b-red-runs.md",
+      "title": "U1b Plan canvas red and mutant runs",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "track-u1b",
+      "phase": "m1.2b",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records the observed red runs and mutation controls for the U1b Plan canvas, including whole-window rendered pixels and point automation peers.",
+      "tags": [
+        "plan-canvas",
+        "tdd",
+        "rendered-state"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "472dcb401c2327c95b35c249c5af76d2fe2dd1b6cc919bd2201a2d68229cf957"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -7563,7 +7588,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c8ed4b17d3043c57c460ffab2f56dff140f609ba580fee0b1284f0556df03775"
+      "sourceSha256": "b756a61cfbd25e28654cb0a9798d26f047599530c7d5459d960e8b60a02eaf78"
     },
     {
       "id": "review-ui-application-native",
@@ -8550,5 +8575,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "262c341f92443d19e919883c01cab3ef69bc02bf94d9dd97bd5d57238604cd27"
+  "graphSha256": "2759853444bde62237d40d1160c335c46cca17bce56743cac3d709646c5f56e6"
 };
