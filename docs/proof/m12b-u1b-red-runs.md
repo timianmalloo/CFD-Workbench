@@ -2,12 +2,12 @@
 id: proof-m12b-u1b-red-runs
 title: U1b Plan canvas red and mutant runs
 type: proof-pack
-status: in-progress
+status: complete
 owner: track-u1b
 phase: m1.2b
 tags: [plan-canvas, tdd, rendered-state]
 links:
-  - { to: design-m12b-points, rel: verifies }
+  - { to: design-m12b-points, rel: depends-on }
 review-by: "2026-10-30"
 summary: >-
   Records the observed red runs and mutation controls for the U1b Plan canvas, including
@@ -38,6 +38,8 @@ summary: >-
 | G2 | same command after those behaviours were implemented | 0 | All 43 names PASS (`/tmp/u1b-final-green.log`). |
 | M1 | same command with `PlanCanvas.Render` drawing blanked | 1 | All 43 names FAIL on realized pixels or the bitmap precondition (`/tmp/u1b-render-blank-mutant.log`). |
 | M2 | same command after restoring `PlanCanvas.Render` and the shared axis layer refactor | 0 | All 43 names PASS (`/tmp/u1b-plan-final.log`). |
+| V1 | same command with a rendered fill assertion | 1 | `Workspace_NewFoil_WindowPixelsShowRailsAtTranslatedPoints` detected absent planform fill (`/tmp/u1b-fill-red.log`). |
+| V2 | same command after fill, centre line, polygon and scale bar; background oracle moved off the centre line | 0 | All 43 names PASS (`/tmp/u1b-fill-green2.log`). |
 
 The raw `/tmp` files are local run logs. M1 killed these named tests:
 - `PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels` — FAIL under blank renderer
@@ -83,3 +85,19 @@ The raw `/tmp` files are local run logs. M1 killed these named tests:
 - `PlanCanvas_HoverProbe_ParksPointerFirst` — FAIL under blank renderer
 - `PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft` — FAIL under blank renderer
 - `PlanCanvas_RenderThrows_CopyTryAgainAndEvent` — FAIL under blank renderer
+
+## Exit receipts
+
+| Check | Exit | Observed result | Local log |
+|---|---:|---|---|
+| Final full run 1 | 0 | wall 39 s; Core 377, CLI 1, Desktop 256 PASS | `/tmp/u1b-full-final1.log` |
+| Final full run 2 | 0 | wall 37 s; identical PASS sets | `/tmp/u1b-full-final2.log` |
+| Final full run 3 | 0 | wall 37 s; identical PASS sets | `/tmp/u1b-full-final3.log` |
+| U1b named check | 0 | 43/43 | `/tmp/u1b-named-U1b.log` |
+| B0, B1a, B1b, U1a, D3a, D1, D2, C1, P1 named checks | 0 each | All named sets PASS | `/tmp/u1b-named-<track>.log` |
+| XAML token lint | 0 | clean | `/tmp/u1b-xaml-lint.log` |
+| Documentation checks | 0 | Documentation checks passed | `/tmp/u1b-check-docs-final.log` |
+| Plan render readiness, one run | 0 | 7.97 ms against 8.00 ms; met; timing recorded only | `/tmp/u1b-readiness.log` |
+| Native launch | 130 after foreground Ctrl-C | `main-window-assigned=True`, `window-opened`; final `pgrep -fl CfdWorkbench` found no process (exit 1) | `/tmp/u1b-native-final.log` |
+
+The final three Core and Desktop PASS lists were compared byte for byte (`cmp` exit 0 for each pair). The CLI PASS name was the same in each full-run log. The native application was terminated after its window-open receipt; no launched application remains.

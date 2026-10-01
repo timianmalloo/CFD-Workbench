@@ -476,12 +476,12 @@ public sealed class PlanCanvas : Control
         RenderBanner = certified ? null : "Foil not certified. Point editing unavailable.";
         if (certified)
             map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
-                BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+                BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White, Controller.Selection);
         else
         {
             using (context.PushOpacity(.35))
                 map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
-                    BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
+                    BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White, Controller.Selection);
             DrawLabel(context, RenderBanner!, new Point(12, 12));
         }
         if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
@@ -512,6 +512,16 @@ public sealed class PlanCanvas : Control
                 map.ToScreen(station.SpanMeters, stationReading.TrailingAftMeters));
             context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds);
             DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(5, 3));
+        }
+        double barLength = map.ToScreen(.05, 0).X - map.ToScreen(0, 0).X;
+        if (barLength > 0 && barLength < Bounds.Width - 32)
+        {
+            double y = Bounds.Height - 28;
+            var barPen = new Pen(FoilBrush ?? Brushes.White, 1);
+            context.DrawLine(barPen, new Point(16, y), new Point(16 + barLength, y));
+            context.DrawLine(barPen, new Point(16, y - 4), new Point(16, y + 4));
+            context.DrawLine(barPen, new Point(16 + barLength, y - 4), new Point(16 + barLength, y + 4));
+            DrawLabel(context, "50 mm · Plan · top", new Point(16, y - 20));
         }
         if (hoveredPoint is { } hovered)
             context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), ScreenPoint(hovered), 10, 10);
@@ -558,36 +568,6 @@ public sealed class PlanCanvas : Control
                 : [];
     }
 
-    private sealed class PlanPointPeer(PlanCanvas canvas, PointView point)
-        : ControlAutomationPeer(canvas), IInvokeProvider
-    {
-        protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
-        protected override string GetNameCore()
-        {
-            var plan = canvas.Controller?.Planform;
-            var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
-            string role = point.Role.ToString().ToLowerInvariant();
-            if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
-            {
-                double span = point.SpanMeters - anchor.SpanMeters;
-                double aft = point.AftMeters - anchor.AftMeters;
-                double angle = Math.Atan2(aft, span) * 180 / Math.PI;
-                double length = Math.Sqrt(span * span + aft * aft) * 1000;
-                role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
-            }
-            return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
-                $"{role}, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
-        }
-        protected override Rect GetBoundingRectangleCore()
-        {
-            if (canvas.GetVisualRoot() is not Visual root) return default;
-            var screen = canvas.ScreenPoint(point);
-            var topLeft = canvas.TranslatePoint(new Point(screen.X - 14, screen.Y - 14), root);
-            return topLeft is { } translated ? new Rect(translated, new Size(28, 28)) : default;
-        }
-        public void Invoke() => canvas.RequestValue(point);
-    }
-
     // Drawing, picking, automation and key directions share one axis mapping.
     // The elevation view can supply a different projection for these same points.
     private sealed record AxisMapping(
@@ -598,14 +578,16 @@ public sealed class PlanCanvas : Control
     {
         private readonly PlanformView plan;
         private readonly AxisMapping axes;
+        private readonly Size size;
 
         public AxisPointLayer(PlanformView plan, Size size, PlanCamera camera)
-            : this(plan, PlanAxes(plan, size, camera)) { }
+            : this(plan, PlanAxes(plan, size, camera), size) { }
 
-        public AxisPointLayer(PlanformView plan, AxisMapping axes)
+        public AxisPointLayer(PlanformView plan, AxisMapping axes, Size size)
         {
             this.plan = plan;
             this.axes = axes;
+            this.size = size;
         }
 
         private static AxisMapping PlanAxes(PlanformView plan, Size size, PlanCamera camera)
@@ -657,10 +639,57 @@ public sealed class PlanCanvas : Control
         public List<AutomationPeer> AutomationPeers(PlanCanvas owner, IEnumerable<PointView> targets) =>
             targets.Select(point => (AutomationPeer)new PlanPointPeer(owner, point)).ToList();
 
-        public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background,
+        private sealed class PlanPointPeer(PlanCanvas canvas, PointView point)
+            : ControlAutomationPeer(canvas), IInvokeProvider
+        {
+            protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
+            protected override string GetNameCore()
+            {
+                var plan = canvas.Controller?.Planform;
+                var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
+                string role = point.Role.ToString().ToLowerInvariant();
+                if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
+                {
+                    double span = point.SpanMeters - anchor.SpanMeters;
+                    double aft = point.AftMeters - anchor.AftMeters;
+                    double angle = Math.Atan2(aft, span) * 180 / Math.PI;
+                    double length = Math.Sqrt(span * span + aft * aft) * 1000;
+                    role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
+                }
+                return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
+                    $"{role}, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
+            }
+            protected override Rect GetBoundingRectangleCore()
+            {
+                if (canvas.GetVisualRoot() is not Visual root) return default;
+                var screen = canvas.ScreenPoint(point);
+                var topLeft = canvas.TranslatePoint(new Point(screen.X - 14, screen.Y - 14), root);
+                return topLeft is { } translated ? new Rect(translated, new Size(28, 28)) : default;
+            }
+            public void Invoke() => canvas.RequestValue(point);
+        }
+
+        public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background, IBrush mute,
             Selection selection)
         {
             var railPen = new Pen(foil, 2);
+            double centreX = ToScreen(0, plan.Leading.Samples[0].AftMeters).X;
+            context.DrawLine(new Pen(mute, 1), new Point(centreX, 0), new Point(centreX, size.Height));
+            foreach (double side in new[] { -1d, 1d })
+            {
+                var fill = new StreamGeometry();
+                using (var path = fill.Open())
+                {
+                    var first = plan.Leading.Samples[0];
+                    path.BeginFigure(ToScreen(first.SpanMeters * side, first.AftMeters), true);
+                    foreach (var sample in plan.Leading.Samples.Skip(1))
+                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.AftMeters));
+                    foreach (var sample in plan.Trailing.Samples.Reverse())
+                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.AftMeters));
+                    path.EndFigure(true);
+                }
+                using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
+            }
             foreach (var rail in new[] { plan.Leading, plan.Trailing })
             {
                 foreach (double side in new[] { -1d, 1d })
@@ -672,6 +701,14 @@ public sealed class PlanCanvas : Control
                         context.DrawLine(railPen, ToScreen(before.SpanMeters * side, before.AftMeters),
                             ToScreen(after.SpanMeters * side, after.AftMeters));
                     }
+                }
+                var polygon = new Pen(mute, 1, new DashStyle([3, 3], 0));
+                for (int index = 1; index < rail.Points.Count; index++)
+                {
+                    var before = rail.Points[index - 1];
+                    var after = rail.Points[index];
+                    context.DrawLine(polygon, ToScreen(before.SpanMeters, before.AftMeters),
+                        ToScreen(after.SpanMeters, after.AftMeters));
                 }
                 foreach (var point in rail.Points)
                 {

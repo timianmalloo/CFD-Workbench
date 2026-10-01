@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T00:35:29Z",
+  "generated": "2026-10-01T02:40:40Z",
   "audit": [
     {
       "actor": null,
@@ -20582,6 +20582,41 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "934cf7f5eaa41497b82329414df381cdd554ff52",
         "short": "934cf7f5e",
+        "branch": "m12b-u1b-plan-canvas",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3TNBQFANXDFDDQRA2XMVEJD",
+      "shortname": "m12b-u1b-plan-canvas",
+      "datetime": "2026-10-01T02:40:40Z",
+      "session": "track-u1b",
+      "prompt": "Build M1.2b track U1b Plan canvas per docs/coordination/m12b-build.md, including dispatch 2 Plan and 3D samples tabs, dispatch 3 ShellWindowTests retargets, SR-2 shared axis layer, 43 named tests, rendered mutant, three identical full runs, readiness observation, native launch, and closing evidence; do not push.",
+      "summary": "Implemented Plan canvas and document split; 43 U1b names PASS; blank-render mutant killed all 43; three final full runs PASS in 39, 37, and 37 seconds with identical sets; named predecessor checks, docs and XAML lint PASS; readiness 7.97 ms recorded; native window launched and process closed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Codex",
+      "artifacts": [
+        "docs/proof/m12b-u1b-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete U1b Plan canvas and prove its rendered interaction contract.",
+      "done_when": "All 43 names, predecessor checks, three identical full runs under 60 seconds, docs and XAML lint, native launch and closure, readiness receipt, and audit entry are present.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T00:36:55Z",
+      "duration_seconds": 7425.0,
+      "git": {
+        "sha": "3e4d9286143ecbc84e4344e96ad6ae428be02b7f",
+        "short": "3e4d92861",
         "branch": "m12b-u1b-plan-canvas",
         "pushed": null
       }

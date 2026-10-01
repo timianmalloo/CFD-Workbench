@@ -102,6 +102,11 @@ public static class PlanCanvasTests
             foreach (var rail in new[] { plan.Leading, plan.Trailing })
                 foreach (var point in rail.Points)
                     fixture.AssertGlyphPixel(point);
+            var leading = fixture.Canvas.ScreenPoint(plan.Leading.Points[4]);
+            var trailing = fixture.Canvas.ScreenPoint(plan.Trailing.Points[4]);
+            var interior = fixture.RgbAtCanvas((leading.X + trailing.X) / 2, (leading.Y + trailing.Y) / 2);
+            if (interior == fixture.BackgroundPixel())
+                throw new Exception("The planform fill is absent from the rendered window");
         });
 
         DesktopChecks.Check("PlanCanvas_Orientation_SpanRightAftDown", () =>
@@ -817,7 +822,7 @@ public static class PlanCanvasTests
 
         public (byte R, byte G, byte B) RgbAtPoint(PointView point) => RgbNear(point, 0, 0);
 
-        public (byte R, byte G, byte B) BackgroundPixel() => RgbAtCanvas(Canvas.Bounds.Width / 2,
+        public (byte R, byte G, byte B) BackgroundPixel() => RgbAtCanvas(Canvas.Bounds.Width / 2 + 40,
             Canvas.Bounds.Height - 30);
 
         public (byte R, byte G, byte B) RgbNear(PointView point, int dx, int dy)
