@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c505ffda04952d4666d8dc9202957e7e56d3060853374f7682ffc3ff81861811"
+      "sourceSha256": "5141055f575aac7cefeb30d5b1834a3a9651937f01f36b8f5c5fc781dd8d3bcc"
     },
     {
       "id": "domain-experts",
@@ -6716,6 +6716,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-legacy-gate-retarget",
+      "path": "docs/proof/legacy-gate-retarget.md",
+      "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-legacy",
+      "phase": "implementation — LEGACY repair cycle 1",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "The pre-shell window retired, so the adapters gate now reads the shell matrix ThemeMatrix_ShellControls_AppliedContrast: 286 frozen rows over 4 theme variants, with every ratio re-derived. Repair cycle 1 restores the pressed and returned states, the TextBox states and the point Span field that the Test Architect's veto named. A mutant made the new rows fail before they passed.",
+      "tags": [
+        "legacy",
+        "app-shell",
+        "desktop",
+        "theme",
+        "contrast",
+        "gate",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-app-shell-test-inventory",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-application-adapters",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1c5fb18d7b7b0f9f2acb5b22e6a7a413d1d133b98929c270c8fb333b53dd7bae"
+    },
+    {
       "id": "proof-m12b-b0-red-runs",
       "path": "docs/proof/m12b-b0-red-runs.md",
       "title": "M1.2b B0 red run of the named checks",
@@ -8606,5 +8643,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d6adad6ac5288942202a35bbbdb4bad837078c8102f26136d8739343930768d0"
+  "graphSha256": "a53c3bf817fd427a2d4858180dbb1e73824734eca6c341a581038d5279977fb3"
 };
