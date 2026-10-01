@@ -7038,6 +7038,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "aa10c715e67af0d14891756276142c698d1c698b31df88fa0e2022c8e605084c"
     },
     {
+      "id": "proof-m12b2-golden",
+      "path": "docs/proof/m12b2-golden/receipt.md",
+      "title": "PL0 golden master — planted mutant receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-pl0",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "The certificate golden master was captured at 3b396e5, before the placement refactor. Reassociating the placed-X product turned the golden test red. Reordering the blend sum did not, because those interval additions commute.",
+      "tags": [
+        "m1.2b2",
+        "placement",
+        "golden-master",
+        "pl0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e3b904fec07c96ffd5e2312252b91a61e38a66857142c8c0197b90d30a72256c"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8741,5 +8771,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "ea3466d5e9dd4212dd5a808fc0004680125adeafca41c79e545fb40c886f973c"
+  "graphSha256": "9b7f7cbe4e30ab1dca76843cbe7d978529ae66bcb651c45173824b97787c2a00"
 };
