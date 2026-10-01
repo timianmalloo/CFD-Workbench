@@ -608,7 +608,6 @@ public sealed class WorkbenchController : IDisposable
     public string Provenance { get; private set; } = "empty";
     public DisplayFrame? Frame { get; private set; }
     public IReadOnlyList<DisplayPoint> Points => Frame?.Points ?? [];
-    public SectionEnclosure? CenterSection => Frame?.CenterSection;
     public SessionDraft? Draft => draft;
     public AuthoredProjection? DraftProjection
     {
@@ -643,8 +642,6 @@ public sealed class WorkbenchController : IDisposable
     public bool SaveUncertain => uncertainImage is not null;
     public string? UncertainPath => uncertainPath;
     public string AcceptedSource => Inspection is null ? "" : Encoding.UTF8.GetString(session.Snapshot().Source);
-    public string CandidateSource => PendingCandidate is null ? "" : Encoding.UTF8.GetString(PendingCandidate);
-    public string OriginalSource => PendingOriginal is null ? "" : Encoding.UTF8.GetString(PendingOriginal);
     public string RecoverySource
     {
         get

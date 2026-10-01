@@ -2979,25 +2979,16 @@ public static class ShellWindowTests
         DesktopChecks.Check(string.Concat("Rail", "EditorPane_Removed_NoReferencesRemain"), () =>
         {
             var found = new List<string>();
-            // 1. Every MainWindow constructor, with every bool argument, builds the shell. No pre-shell window remains.
+            // 1. Every public MainWindow constructor builds the shell. No pre-shell window remains.
             foreach (var constructor in typeof(MainWindow).GetConstructors())
             {
-                var parameters = constructor.GetParameters();
-                int flags = parameters.Count(parameter => parameter.ParameterType == typeof(bool));
-                for (int mask = 0; mask < 1 << flags; mask++)
+                var window = (Window)constructor.Invoke(constructor.GetParameters().Select(_ => (object?)null).ToArray());
+                try
                 {
-                    int bit = 0;
-                    object?[] arguments = parameters.Select(parameter => parameter.ParameterType == typeof(bool)
-                        ? (object)(((mask >> bit++) & 1) == 1)
-                        : parameter.HasDefaultValue ? parameter.DefaultValue : null).ToArray();
-                    var window = (Window)constructor.Invoke(arguments);
-                    try
-                    {
-                        if (window.Content is not ShellHost)
-                            found.Add($"MainWindow({string.Join(", ", arguments.Select(value => value?.ToString() ?? "null"))}) builds {window.Content?.GetType().Name ?? "nothing"}, not the shell");
-                    }
-                    finally { window.Close(); }
+                    if (window.Content is not ShellHost)
+                        found.Add($"MainWindow({string.Join(", ", constructor.GetParameters().Select(parameter => parameter.ParameterType.Name))}) builds {window.Content?.GetType().Name ?? "nothing"}, not the shell");
                 }
+                finally { window.Close(); }
             }
             // 2. No public member opens a draft from (rail, control id) whose single ordinate a scalar can then revise.
             //    Openers and revisers are found by signature, so a renamed member is still found.

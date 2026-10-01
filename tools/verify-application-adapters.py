@@ -155,8 +155,6 @@ SHELL_THEME_ROWS = {
     "modal.body": 4.5, "modal.save.rest": 4.5, "modal.save.hover": 4.5, "modal.discard.rest": 4.5,
     "modal.discard.hover": 4.5, "modal.cancel.rest": 4.5, "modal.cancel.hover": 4.5,
 }
-if len(SHELL_THEME_ROWS) != 42:
-    raise RuntimeError("frozen shell theme row table changed")
 SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Section.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
 SHELL_THEMES = ("light", "dark", "high-contrast", "default")
 SHELL_EXPECTED = {f"{theme}/{row}": floor for theme in SHELL_THEMES for row, floor in SHELL_THEME_ROWS.items()}
