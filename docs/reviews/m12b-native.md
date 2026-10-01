@@ -14,8 +14,8 @@ links:
 review-by: 2026-10-30
 summary: >-
   Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten
-  pass and two pass with a defect. Five defects (D-1 to D-5), five design findings (F-1 to F-5), six observations and
-  one open question. D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid)
+  pass and two pass with a defect. Six defects (D-1 to D-6), five design findings (F-1 to F-5), seven observations and
+  one question (ruled). D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid)
   are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.
 review-suggested: []
 ---
@@ -28,7 +28,7 @@ and §11.3 (interaction map). The automated attach record is
 [`docs/proof/m12b-native/index.md`](../proof/m12b-native/index.md): all twelve attaches were blocked
 (`cgWindowNotFound`), so this record is the operator's own run, with the Coordinator taking screen captures.
 
-**Disposition: M1.2b is OPEN.** Every demo step was performed by the operator in the packaged app. Ten steps pass.
+**Disposition: M1.2b is OPEN.** (D-4's evidence was corrected after its root cause; D-6 was added by that probe.) Every demo step was performed by the operator in the packaged app. Ten steps pass.
 Steps 6 and 11 pass in part. D-4 also leaves step 4's "MAC changes during the drag" unproven. M1.2b closes when D-1 to
 D-4 are fixed, each with a test that fails first, and steps 4, 6 and 11 are re-run.
 
@@ -66,11 +66,12 @@ D-4 are fixed, each with a test that fails first, and steps 4, 6 and 11 are re-r
 
 | ID | Finding | Design reference | Evidence | Severity |
 |---|---|---|---|---|
-| **D-4** | MAC and Mean chord show `≈ —` after the first accepted edit and never come back: not after undo, not on a fresh New foil once a chord is typed, not on reopen of an edited file. Before any edit they read ≈ 99.60 and ≈ 107.11 | §0.1 step 4 ("MAC, Area and Aspect ratio change during the drag"); §11.4 Wing block | Operator confirmed twice; plan-select.png (numbers before edits) vs anchor-handle.png (`≈ —`) | **High**: MAC is the quantity the slice's demo reads |
+| **D-4** | MAC and Mean chord (and Max t/c, Aspect ratio, Area) show `≈ —` after an edit that leaves a very short handle beside an anchor (Make Anchor + any tangent change, some handle drags). Root cause (Verified, reproduced in Core and in a real window at `fa40f88`): the MAC integral's fixed Gauss ladder (`WingEstimates.cs`:119–130) never subdivides, so it reports not-converged; `From` (:38–43) gates MAC and Aspect ratio on that one flag; the pane (`PropertiesPane.axaml.cs`:217–224) blanks all five rows on it and prints the raw code | §0.1 step 4; §11.4 Wing block | Operator confirmed twice; root-cause probe. **Corrected 2026-10-01:** a full undo does restore the values, and a typed chord on a fresh New foil does not blank them; the operator's blank states carried a short handle (Inferred). plan-select.png is not a fresh New foil (a fresh one reads Mean chord exactly 100.00) | **High**: MAC is the quantity the slice's demo reads |
 | D-1 | Shift-drag on empty canvas does not pan | §0.1 step 11; §11.3 Pan row | Operator | Medium |
 | D-2 | The red edge-crossing marker appears after the snap-back instead of during the drag | §0.1 step 6 | Operator ("the red marker is after the snap back"). Whether it also lingers is unconfirmed | Medium |
 | D-3 | Control-click on a point opens no context menu; it switches Properties between the Wing and the point | §0.1 step 11; §11.3 Point type row | Operator. Source: no canvas `ContextMenu` in `src/CfdWorkbench.Desktop` (only dock tabs, `ShellHost.cs`:702, and Browser rows, `BrowserPane.axaml.cs`:159) | Medium |
 | D-5 | Anchor → Control → Anchor is not a round trip. `MakeAnchor` inserts a fresh knot to multiplicity 3 (+3 vertices); `MakeControl` (`AuthoringSession.cs`:1119) removes two vertices and two knot copies without refitting. Each cycle leaves one extra vertex (10 → 13 → 11 → 14) and moves the curve | §1 A4.15, CAD-15; ADR-0005 | **Inferred** from source. The operator saw 14 points but may also have made more than one anchor, so the observation does not prove it. Needs a reproducing test | Medium |
+| D-6 | After Make Anchor + Symmetric tangent, a typed Root chord is refused `DSL-NOT-ASSESSED` (`ChordDimension.cs`:69–74: `Geometry.Assess` does not certify the short-handle geometry) | §0.1 step 9 | Found by the D-4 root-cause probe (Verified); cause of the non-certification Inferred (proof budget). Routed to the Computational Geometry lens | Medium |
 
 ### 3.2 Design findings (the build matches the design; the design is wrong or short)
 
@@ -99,7 +100,8 @@ D-4 are fixed, each with a test that fails first, and steps 4, 6 and 11 are re-r
 **Q-1. Handles on every point?** The operator asked whether control points should have handles too. The design
 (A4.15, CAD-15, ADR-0005) follows Rhino and Alias: a control point is an off-curve vertex with no handles, and only an
 on-curve anchor has handles. Handles on every point is a different curve model (Bézier path, as in Illustrator).
-Decision for the operator; recorded, not changed.
+**Ruled (Ruling 58, 2026-10-01): keep anchors only.** The curve model does not change; F-5 and OI-2 carry the
+"adds a point" confusion.
 
 ## 4. Saved file read back (step 8)
 
@@ -121,5 +123,5 @@ Verified by decoding the file; the reopened Foil source tab was not captured.
    fails first. Write a reproducing test for D-5 before deciding on its fix.
 2. `/ui-design` on the property grid (F-1), referencing VS Code settings and Premiere Pro Effect Controls, before
    M1.2b2 starts.
-3. Operator decisions: Q-1, and the ADR-0010 ruling that unblocks M1.2b2.
+3. Operator decisions: done. Ruling 58 keeps anchors-only handles (Q-1) and accepts ADR-0010, which opens M1.2b2.
 4. Re-run steps 4, 6 and 11 on the fix build, and close M1.2b.

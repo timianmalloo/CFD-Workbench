@@ -720,3 +720,19 @@ EVIDENCE: the Coordinator's request (req-01M3T0CXJYS0G3P079MHVXC4XR) records the
 NEXT: the Coordinator lands PRE inline (the checker --design flag, red before green, both runs in the audit entry), then dispatches B0 and B1a in parallel. No M1.2b track dispatches before PRE's exit evidence.
 
 - request: req-01M3T0CXJYS0G3P079MHVXC4XR · ruled by: cfd-owner-fbfa35dc · at: 2026-09-30T20:36:08Z
+
+### Ruling 58 — Q-1 keep anchors-only handles; accept ADR-0010; start M1.2b2
+
+DECISION: the operator ruled both items on 2026-10-01 (AskUserQuestion answers in Coordinator session f19a2b12, recorded under the operator's identity).
+
+Q-1 = Keep: anchors only (Recommended). Control points stay off-curve vertices with no handles; only on-curve anchors carry tangent handles (A4.15, CAD-15, ADR-0005 unchanged). The operator's 'Make Anchor reads as add a point' confusion is handled by F-5 (status-line copy) and OI-2 (a real Insert point verb), not by changing the curve model.
+
+ADR-0010 = Accept as proposed (Recommended). docs/adr/0010-one-placement-rule.md moves from proposed to accepted: FoilDSL §6 placement is written once in Core (Placement.cs) over IPlacementScalar, instantiated over RationalInterval for the certificate (bit-identical, golden master) and Binary64 for displays (bound at 1 nm by test). This opens M1.2b2 track PL0.
+
+EVIDENCE: docs/reviews/m12b-native.md §3.4 (Q-1); ADR-0010 and spike docs/proof/cad-first-spikes/m12b2-placement/. Confidence: the operator's answers are Verified (observed in session f19a2b12); the ADR's technical claims are as recorded in the ADR, not re-verified here.
+
+SEQUENCING: M1.2b2 PL0 owns WingEstimates.cs; the D-4 fix may touch it, so PL0 dispatches only after the D-4 root cause names the fix's files and they do not overlap, or after the fix joins.
+
+NEXT: the Coordinator dispatches the M1.2b fix track (D-1..D-4, F-2..F-4), the property-grid ui-design track (F-1), then PL0.
+
+- request: req-01M3WK66H5M7ZHRV25CGSFP1BW · ruled by: operator-timianmalloo · at: 2026-10-01T20:41:29Z

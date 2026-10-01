@@ -527,7 +527,7 @@ window.DOCS_INDEX = {
       "path": "docs/adr/0010-one-placement-rule.md",
       "title": "ADR-0010: one placement rule — FoilDSL §6 is written once in Core and instantiated over the certificate's interval arithmetic and the display's binary64",
       "type": "adr",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "design — M1.2b2 (3D view and elevations, Ruling 56)",
       "reviewBy": "none while accepted",
@@ -569,7 +569,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "925e6ca82771b2bacb60d563191922938f3db09b32d3ee5bf2c1c901becb7f3b"
+      "sourceSha256": "d8a52dd2834a0f9613045b5cbf24b4f6a5bbf3f117b24209065896bd2a195771"
     },
     {
       "id": "adr-application-project-contract",
@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9d22d9b6782b4303f00df8029dcc04e18399bf18ec321543ff12436f477bf3d0"
+      "sourceSha256": "31c353b6561beb1c5b14258d8a43b09b1dd3dd9f087469184df405b64a25a3dc"
     },
     {
       "id": "domain-experts",
@@ -4350,7 +4350,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83cff29f3a9f9825bb7c6ef1a8872a97ab24938b3d156cac90748232a58de210"
+      "sourceSha256": "341c68ae648268670c3d6de92961c4a4037f37da4a64f0f9ce85981bdbca35c3"
     },
     {
       "id": "kb-hw-glossary",
@@ -7610,7 +7610,7 @@ window.DOCS_INDEX = {
       "phase": "implementation — U3 (M1.2b)",
       "reviewBy": "2026-10-30",
       "reviewSuggested": [],
-      "summary": "Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten pass and two pass with a defect. Five defects (D-1 to D-5), five design findings (F-1 to F-5), six observations and one open question. D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid) are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.",
+      "summary": "Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten pass and two pass with a defect. Six defects (D-1 to D-6), five design findings (F-1 to F-5), seven observations and one question (ruled). D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid) are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.",
       "tags": [
         "native-ui",
         "m1.2b",
@@ -7638,7 +7638,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5241795645a3bf27090ffe082ed520e9355f6ba9cb1134e1bc2358f6072e6b9a"
+      "sourceSha256": "849b6fdc0b019dc03c971adfc96f1f1fde6889b4c43a783dd21e46103fe6bb1d"
     },
     {
       "id": "review-spec-v02-critique",
@@ -8741,5 +8741,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "dcbddadc258d49272d69bfd474e791a6949c551541cd9e612005d1aa6687ae75"
+  "graphSha256": "bca81a1f2c225eb44f40188fe410e9c1954ee8e23c3f9b6d5f856b9254a41c57"
 };

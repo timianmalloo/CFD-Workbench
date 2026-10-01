@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""pre-push: refuse a push to main without a green readiness receipt for the pushed commit (class MAIN-PUSH-UNGATED).
+
+AGENTS.md: "a merge to main needs `python3 tools/run-readiness.py --check` green for that HEAD". The receipt lives in
+the worktree where the ring ran (`.tmp-tests/readiness.json`), so this hook looks in every worktree of the repository
+for a receipt that names the pushed commit and is green. Install: `cp tools/hooks/pre-push "$(git rev-parse
+--git-common-dir)/hooks/pre-push"` (the hooks directory is shared by every worktree).
+"""
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+def worktrees():
+    out = subprocess.run(["git", "worktree", "list", "--porcelain"], capture_output=True, text=True,
+                         encoding="utf-8", check=True).stdout
+    return [Path(line[len("worktree "):]) for line in out.splitlines() if line.startswith("worktree ")]
+
+
+def green_receipt_for(sha):
+    for tree in worktrees():
+        receipt = tree / ".tmp-tests" / "readiness.json"
+        try:
+            data = json.loads(receipt.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if data.get("head") == sha and data.get("green") is True:
+            return receipt
+    return None
+
+
+def main():
+    refused = False
+    for line in sys.stdin.read().splitlines():
+        parts = line.split()
+        if len(parts) != 4 or parts[2] != "refs/heads/main" or set(parts[1]) == {"0"}:
+            continue
+        receipt = green_receipt_for(parts[1])
+        if receipt is None:
+            print("pre-push MAIN-PUSH-UNGATED: no green readiness receipt for {0} in any worktree".format(parts[1][:9]),
+                  file=sys.stderr)
+            print("  remedy: run `python3 tools/run-readiness.py` on a clean tree at that commit, then push again",
+                  file=sys.stderr)
+            refused = True
+        else:
+            print("pre-push: green readiness receipt for {0} ({1})".format(parts[1][:9], receipt), file=sys.stderr)
+    return 1 if refused else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -2,7 +2,7 @@
 id: adr-0010-one-placement-rule
 title: "ADR-0010: one placement rule — FoilDSL §6 is written once in Core and instantiated over the certificate's interval arithmetic and the display's binary64"
 type: adr
-status: proposed
+status: accepted
 owner: "@timianmalloo"
 phase: design — M1.2b2 (3D view and elevations, Ruling 56)
 tags: [geometry, placement, certificate, display, evaluator, twist, dihedral, rule-a, adr, m1.2b2, oi-1]
@@ -23,7 +23,7 @@ review-suggested: []
 
 # ADR-0010: one placement rule
 
-- **Status:** Proposed (M1.2b2 `/design-slice`, 2026-09-30; gate record in `docs/design/m12b2-3d-elevations.md`)
+- **Status:** Accepted (Ruling 58, operator, 2026-10-01). Proposed 2026-09-30 by M1.2b2 `/design-slice`; gate record in `docs/design/m12b2-3d-elevations.md`
 - **Date:** 2026-09-30
 - **Deciders:** the operator (Ruling 56 OI-1 made this the first decision of M1.2b2); Computational Geometry lens (hard
   veto, narrow); Patterns Expert and Simplifier.
