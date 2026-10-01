@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "73675722a449b984e001770cc18cc93f1235fe60e903f9f077463561cd4da2a6"
+      "sourceSha256": "c505ffda04952d4666d8dc9202957e7e56d3060853374f7682ffc3ff81861811"
     },
     {
       "id": "domain-experts",
@@ -6915,7 +6915,38 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c4f8279350a7a3fd8da3b66d657b842f01db2c9420c0b10eb35e98ae50d66672"
+      "sourceSha256": "fa086ae8209f957432b575d24320010de8599f398c61f31f27bbc0357d65d7ed"
+    },
+    {
+      "id": "proof-m12b-u2-red-runs",
+      "path": "docs/proof/m12b-u2-red-runs.md",
+      "title": "M1.2b U2 red runs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-u2",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records the foreground red run of all 25 named U2 pane checks before the Properties, Browser, command, and retirement implementation, and the dead-control mutant that turned the sweep red.",
+      "tags": [
+        "m12b",
+        "u2",
+        "desktop",
+        "panes",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aa10c715e67af0d14891756276142c698d1c698b31df88fa0e2022c8e605084c"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -8550,5 +8581,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "262c341f92443d19e919883c01cab3ef69bc02bf94d9dd97bd5d57238604cd27"
+  "graphSha256": "ef7dd1ddc436202a57a90b096bc7c5f5cab1431d4fbc9fd5bf75a24d5e38e33b"
 };

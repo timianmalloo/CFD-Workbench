@@ -12,7 +12,7 @@ links:
 review-by: "2026-10-30"
 summary: >-
   Records the foreground red run of all 25 named U2 pane checks before the Properties, Browser,
-  command, and retirement implementation. The dead-control mutant run is appended when it is executed.
+  command, and retirement implementation, and the dead-control mutant that turned the sweep red.
 ---
 
 # U2 red-run receipt
@@ -57,4 +57,32 @@ The same log also printed five recent-store failures (`Recent_StoredRows_StartAn
 
 ## Dead-control mutant
 
-Not run yet. The exit evidence requires one Properties button handler removed, the dead-control check red, then the handler restored. That run is appended here before the track closes.
+The `HowMeasuredButton` click handler in `PropertiesPane.axaml.cs` was removed. The button stayed enabled. Command (repo root, `AGENT_SESSION=track-u2 AGENT_WI=U2`, `TMPDIR` set to the repo `.tmp-tests` directory):
+
+`dotnet run -c Release --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --shell-window`
+
+Log: `/tmp/u2-mutant-how-measured.log`. Exit: **1**. The sweep and the control's action test went red:
+
+```
+FAIL UI_DEAD_CONTROL_ShellButtonsHaveActions InvalidOperationException: Enabled shell buttons without Click or Command: HowMeasuredButton
+FAIL WingBlock_AllCad17Rows_InOrderWithApprox InvalidOperationException: HowMeasuredButton has no action
+FAIL UI_DEAD_CONTROL_PointAndWingControlsHaveActions InvalidOperationException: HowMeasuredButton is enabled without an action
+```
+
+The handler was restored after this run: `HowMeasuredButton.Click` toggles `HowMeasuredBody.IsVisible`.
+
+## Closed tip, recovery, and retirement (still red after the panes)
+
+Log: `/tmp/u2-shell-window.log`. Exit: **1**. `TMPDIR` was the repo `.tmp-tests` directory. Twenty-two of the twenty-five names passed. These three stayed red:
+
+```
+FAIL Properties_TipCloses_TipChordIsText InvalidOperationException: tip text: Tip closes — edit the tip station chord 
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits ContractError: DSL-NOT-ASSESSED
+FAIL RailEditorPane_Removed_NoReferencesRemain InvalidOperationException: src/CfdWorkbench.Desktop/MainWindow.axaml.cs; src/CfdWorkbench.Desktop/WorkbenchController.cs; src/CfdWorkbench.Desktop/Program.cs; src/CfdWorkbench.Core/FoilSource.cs; src/CfdWorkbench.Core/AuthoringSession.cs; tests/CfdWorkbench.Core.Tests/FoilSourceTests.cs; tests/CfdWorkbench.Core.Tests/DimensionTests.cs; tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs; tests/CfdWorkbench.Core.Tests/AuthoringSessionTests.cs; tests/CfdWorkbench.Core.Tests/SectionEditTests.cs; tests/CfdWorkbench.Core.Tests/ReopenConstructionTests.cs; tests/CfdWorkbench.Core.Tests/WingEstimatesTests.cs
+```
+
+The tip line prints an empty chord because `Estimates` is null. The scratch foil set the trailing tip point to `(1, 0)`, the same ordinate as the leading tip. `UpdateEstimates` runs only after the open is adopted, so that foil was refused before a wing block could show a closed tip. Appending `tip point` (the B1a closing-tip fixture) leaves `TipChordMeters` at 0.12 m. The pane shows COPY-108 only when `TipChordMeters` is at most 1e-9. That gap is a seam, not a second geometry rule on the Desktop.
+
+Recovery reaches `HasRecovery` and a preview basis, then `WorkbenchController.Apply()` throws `DSL-NOT-ASSESSED`. The controller is frozen (seam S5).
+
+Retirement still matches `BeginEdit(`, `UpdateDraft(`, and `PatchRail` in the frozen controller and in the core methods and tests that controller still calls. Those files are the S4 hand-over, and deleting the methods while the controller calls them breaks the build.
