@@ -31,24 +31,6 @@ internal static class FoilSourceTests
         Check("Ruling15_BoundMeters_OverflowLexically", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m"), "DSL-LEX", "Lexical", "1e309"));
         Check("Ruling15_MalformedToken_PrecedesBlockingSyntax", () => DiagnosticCase(Text.Replace("450 mm", "1e309") + "@", "DSL-LEX", "Lexical", "@"));
         Check("Ruling15_UnknownEvaluator_PreventsGuessedConversion", () => DiagnosticCase(Text.Replace("450 mm", "1e309 m").Replace("cfdw-cv", "unknown"), "DSL-VERSION", "Version", "\"unknown\""));
-        Check("Patch_LeadingRail_ExactSiAndOnlyOwnedToken", () =>
-        {
-            var source = FoilSource.MaterializeIds(FoilSource.Parse(Example));
-            var parsed = FoilSource.Parse(source);
-            var patched = FoilSource.RewriteControlOrdinate(parsed, "leading", "cv-2", 0.014049);
-            Equal(true, FoilSource.Parse(patched).IsParsed);
-            Equal(true, source.AsSpan().SequenceEqual(parsed.Source));
-            var originalText = Encoding.UTF8.GetString(source);
-            var resultText = Encoding.UTF8.GetString(patched);
-            int end = originalText.IndexOf("trailing", StringComparison.Ordinal);
-            Equal(originalText[end..], resultText[resultText.IndexOf("trailing", StringComparison.Ordinal)..]);
-            var twice = FoilSource.RewriteControlOrdinate(FoilSource.Parse(patched), "leading", "cv-2", 0.014049);
-            Equal(true, patched.AsSpan().SequenceEqual(twice));
-            Equal(false, source.AsSpan().SequenceEqual(patched));
-        });
-        Check("Patch_MissingIds_RefusesImplicitIdentityInsertion", () => Refuses("DSL-PATCH", () => FoilSource.RewriteControlOrdinate(FoilSource.Parse(Example), "leading", "cv-2", 1)));
-        Check("Patch_NonRailTarget_Refuses", () => Refuses("DSL-PATCH", () => FoilSource.RewriteControlOrdinate(FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(Example))), "twist", "cv-2", 1)));
-        Check("Patch_Nonfinite_Refuses", () => Refuses("DSL-PATCH", () => FoilSource.RewriteControlOrdinate(FoilSource.Parse(FoilSource.MaterializeIds(FoilSource.Parse(Example))), "leading", "cv-2", double.NaN)));
         Check("Parse_FoilGrammar_RecognizesAllChannels", () => Equal(true, FoilSource.Parse(Example).IsParsed));
         Check("Parse_StandaloneSection_RecognizesWholeGrammar", () => Equal(true, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/section-basic.foil")).IsParsed));
         Check("Parse_Assertions_RecognizesWholeGrammar", () => Equal(true, FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/foil-assertions.foil")).IsParsed));

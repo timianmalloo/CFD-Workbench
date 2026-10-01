@@ -272,7 +272,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Shell_F5_Start_FirstCardFocusedWithRing", () =>
         {
-            var window = new MainWindow(shellMode: true) { Width = 1280, Height = 800 };
+            var window = new MainWindow() { Width = 1280, Height = 800 };
             try
             {
                 window.Show();
@@ -291,7 +291,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 window.Show();
@@ -402,7 +402,7 @@ public static class ShellWindowTests
             var loaded = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
             if (loaded.Entries.Count != 1)
                 throw new InvalidOperationException($"Recent fixture was not stored: {save.Outcome}/{save.Code}/{loaded.Outcome} root={root}");
-            var window = new MainWindow(shellMode: true, preferences);
+            var window = new MainWindow(preferences);
             try
             {
                 window.Show();
@@ -499,7 +499,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("KeyBindings_MenuGesture_NotBound", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture))
@@ -515,7 +515,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Menu_UndoEnabled_FollowsFocusAndHistory", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 window.Show();
@@ -669,7 +669,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("DockTabFocus_FreshBatch_ReadyAndTwoRing", () =>
         {
-            var window = new MainWindow(shellMode: true) { Width = 1024, Height = 700 };
+            var window = new MainWindow() { Width = 1024, Height = 700 };
             try
             {
                 window.Show();
@@ -1928,17 +1928,27 @@ public static class ShellWindowTests
             });
         }
 
-        // The --theme-controls matrix retargeted to the shell (design §12.4; inventory rows 113–1446).
+        // The applied-contrast matrix on the real shell window (design §12.4; inventory rows 113–1446). It is the gate's
+        // theme evidence: tools/verify-application-adapters.py freezes its row set and re-derives every ratio.
         DesktopChecks.Check("ThemeMatrix_ShellControls_AppliedContrast", () =>
         {
             var rowFailures = new List<string>();
             var reflection = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             var pseudoProperty = typeof(StyledElement).GetProperty("PseudoClasses", reflection)
                 ?? throw new InvalidOperationException("Installed protected PseudoClasses unavailable");
+            // Each row is one measured contrast on the real shell window; tools/verify-application-adapters.py re-derives
+            // every ratio from the emitted ARGB and refuses a missing, duplicate or unknown row.
+            var emittedRows = new List<(string Theme, string Row)>();
+            if (PressScaleAccepted(Matrix.CreateScale(0.9, 0.9)) || PressScaleAccepted(Matrix.CreateScale(1.02, 1.02)) ||
+                PressScaleAccepted(Matrix.CreateScale(0.98, 0.99)) || !PressScaleAccepted(Matrix.CreateScale(0.98, 0.98)) ||
+                !PressScaleAccepted(Matrix.Identity))
+                rowFailures.Add("pressed-scale bound: 0.9, 1.02 and non-uniform must be refused; 0.98 and 1 accepted");
             void Measure(string theme, string row, Color foreground, Color background, double floor)
             {
                 double ratio = Contrast(foreground, background);
-                Console.WriteLine($"THEME-ROW {theme}/{row} fg={foreground} bg={background} ratio={ratio:F2} floor={floor}");
+                emittedRows.Add((theme, row));
+                Console.WriteLine(FormattableString.Invariant(
+                    $"THEME-ROW {theme}/{row} fg=#{foreground.ToUInt32():X8} bg=#{background.ToUInt32():X8} ratio={ratio:F4} floor={floor}"));
                 if (ratio < floor) rowFailures.Add($"{theme}/{row} {foreground} on {background} = {ratio:F2} < {floor}");
             }
             void Probe(string theme, string row, Action probe)
@@ -2007,6 +2017,109 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("PointerEntered/Exited did not set :pointerover");
             }
 
+            (Color Ink, Color Back) TextPaint(Control target)
+            {
+                var text = TextVisual(target);
+                return (Solid(PropertyBrush(text, "Foreground"), "ink"), Backing(text));
+            }
+            // A Button takes a framework press, released outside it so no click fires. A list row or a Dock tab takes the
+            // :pressed style state instead, because a real press would select it (the retired matrix's "styled" route).
+            void Press(Control target, Window window, bool press)
+            {
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                var origin = target.TranslatePoint(new Point(4, 4), window)
+                    ?? throw new InvalidOperationException("Press target position unresolvable");
+                if (target is Button)
+                {
+                    if (press)
+                        target.RaiseEvent(new PointerPressedEventArgs(target, pointer, window, origin, 2,
+                            new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+                    else
+                        target.RaiseEvent(new PointerReleasedEventArgs(target, pointer, window, new Point(-100, -100), 3,
+                            new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+                }
+                else if (press) Pseudo(target).Add(":pressed");
+                else Pseudo(target).Remove(":pressed");
+                Settle(window);
+                if (Pseudo(target).Contains(":pressed") != press)
+                    throw new InvalidOperationException($":pressed did not {(press ? "set" : "clear")}");
+            }
+            // Pressed, then returned: hover and press, measure; release outside and leave, measure. Returned must paint as rest.
+            void PressRows(string theme, string prefix, Control target, Window window)
+            {
+                var rest = TextPaint(target);
+                Probe(theme, prefix + ".pressed", () =>
+                {
+                    Hover(target, window, true);
+                    Press(target, window, true);
+                    TextRow(theme, prefix + ".pressed", target);
+                });
+                Probe(theme, prefix + ".returned", () =>
+                {
+                    if (Pseudo(target).Contains(":pressed")) Press(target, window, false);
+                    if (target.IsPointerOver) Hover(target, window, false);
+                    TextRow(theme, prefix + ".returned", target);
+                    if (TextPaint(target) != rest)
+                        throw new InvalidOperationException($"returned paint {TextPaint(target)} differs from rest {rest}");
+                });
+            }
+            void HoverRow(string theme, string row, Control target, Window window)
+            {
+                Probe(theme, row, () =>
+                {
+                    Hover(target, window, true);
+                    TextRow(theme, row, target);
+                    Hover(target, window, false);
+                });
+            }
+            // TextBox states (Styles.axaml TextBox rules): hover, focused text and caret, focus-hover, selection, returned.
+            void TextBoxStates(string theme, string prefix, TextBox box, Window window, Control focusAway, bool editable)
+            {
+                var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
+                var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                (Color, Color) Paint() => (Solid(presenter.Foreground, prefix + " ink"), Solid(border.Background, prefix + " backdrop"));
+                var rest = Paint();
+                if (editable)
+                    Probe(theme, prefix + ".hover", () =>
+                    {
+                        Hover(box, window, true);
+                        TextBoxRow(theme, prefix + ".hover", box);
+                        Hover(box, window, false);
+                    });
+                if (!box.Focus(NavigationMethod.Tab)) throw new InvalidOperationException(prefix + " refused keyboard focus");
+                Settle(window);
+                Probe(theme, prefix + ".focus.text", () => TextBoxRow(theme, prefix + ".focus.text", box));
+                if (editable)
+                {
+                    Probe(theme, prefix + ".focus.caret", () =>
+                        Measure(theme, prefix + ".focus.caret", Solid(presenter.CaretBrush, prefix + " caret"), Solid(border.Background, prefix + " backdrop"), 3));
+                    Probe(theme, prefix + ".focus-hover", () =>
+                    {
+                        Hover(box, window, true);
+                        TextBoxRow(theme, prefix + ".focus-hover", box);
+                        Hover(box, window, false);
+                    });
+                }
+                Probe(theme, prefix + ".selection", () =>
+                {
+                    box.SelectAll();
+                    Settle(window);
+                    if (box.SelectionStart == box.SelectionEnd) throw new InvalidOperationException(prefix + " selected nothing");
+                    Measure(theme, prefix + ".selection", Solid(presenter.SelectionForegroundBrush, prefix + " selected ink"),
+                        Solid(presenter.SelectionBrush, prefix + " selection"), 4.5);
+                    box.ClearSelection();
+                });
+                if (editable)
+                    Probe(theme, prefix + ".returned", () =>
+                    {
+                        if (!focusAway.Focus(NavigationMethod.Tab) || box.IsFocused)
+                            throw new InvalidOperationException(prefix + " kept focus");
+                        Settle(window);
+                        TextBoxRow(theme, prefix + ".returned", box);
+                        if (Paint() != rest) throw new InvalidOperationException($"{prefix} returned paint {Paint()} differs from rest {rest}");
+                    });
+            }
+
             // Dock's deferred presenter fades a pane in when its content changes (DeferredContentControl.cs: opacity
             // 0.85 → 1 over a 90 ms DoubleTransition), so a probe after ShowPane could land mid-fade (observed:
             // opacity 0.964 at Animation priority). The matrix measures settled paint, so the fade is off for it;
@@ -2016,9 +2129,9 @@ public static class ShellWindowTests
             try
             {
             foreach (var (theme, variant) in new[] { ("light", ThemeVariant.Light), ("dark", ThemeVariant.Dark),
-                         ("high-contrast", NativeReviewThemes.HighContrast) })
+                         ("high-contrast", NativeReviewThemes.HighContrast), ("default", ThemeVariant.Default) })
             {
-                var window = new MainWindow(shellMode: true) { RequestedThemeVariant = variant, Width = 1024, Height = 700 };
+                var window = new MainWindow() { RequestedThemeVariant = variant, Width = 1024, Height = 700 };
                 var controller = typeof(MainWindow).GetField("workbench", reflection)?.GetValue(window) as WorkbenchController
                     ?? throw new InvalidOperationException("Controller field unreadable");
                 try
@@ -2073,6 +2186,7 @@ public static class ShellWindowTests
                         TextRow(theme, "tab.Foil source.unselected.hover", sourceTab);
                         Hover(sourceTab, window, false);
                     });
+                    PressRows(theme, "tab.Foil source.unselected", sourceTab, window);
                     // Focus first, then select: the focus ring must follow the selected state it now surrounds.
                     if (!sourceTab.Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Foil source tab refused keyboard focus");
@@ -2090,6 +2204,7 @@ public static class ShellWindowTests
                         TextRow(theme, "tab.Foil source.selected.hover", sourceTab);
                         Hover(sourceTab, window, false);
                     });
+                    PressRows(theme, "tab.Foil source.selected", sourceTab, window);
 
                     var toolTabs = host.DockHost.GetVisualDescendants().OfType<Control>()
                         .Where(control => control.GetType().Name == "ToolTabStripItem" && control.IsEffectivelyVisible).ToArray();
@@ -2110,7 +2225,10 @@ public static class ShellWindowTests
 
                     var sidebar = host.LeftSidebarToggle;
                     Probe(theme, "appbar.sidebar.rest", () => TextRow(theme, "appbar.sidebar.rest", sidebar));
-                    if (!sidebar.Focus(NavigationMethod.Tab))
+                    HoverRow(theme, "appbar.sidebar.hover", sidebar, window);
+                    PressRows(theme, "appbar.sidebar", sidebar, window);
+                    // The press probes give the button pointer focus; move focus off it so the Tab focus is a real change.
+                    if (!modelTab.Focus(NavigationMethod.Tab) || !sidebar.Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("App-bar button refused keyboard focus");
                     Probe(theme, "focus.appbar", () => RingRow(theme, "focus.appbar", sidebar, window));
 
@@ -2125,6 +2243,11 @@ public static class ShellWindowTests
                     if (!rowItems[0].IsSelected) throw new InvalidOperationException("Example Browser row did not select");
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
+                    foreach (var (item, state) in new[] { (rowItems[0], "selected"), (rowItems[1], "unselected") })
+                    {
+                        HoverRow(theme, $"browser.{state}.hover", item, window);
+                        PressRows(theme, $"browser.{state}", item, window);
+                    }
                     if (!rowItems[1].Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Browser row refused keyboard focus");
                     Probe(theme, "focus.browser", () => RingRow(theme, "focus.browser", rowItems[1], window));
@@ -2146,6 +2269,7 @@ public static class ShellWindowTests
                         presenter.ClearValue(Avalonia.Controls.Documents.TextElement.ForegroundProperty);
                         if (ratio >= 4.5) throw new InvalidOperationException("Painter oracle accepted a low-contrast mutation");
                     });
+                    TextBoxStates(theme, "span", span, window, sidebar, editable: true);
                     if (!span.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Span field refused keyboard focus");
                     span.SelectAll();
                     span.RaiseEvent(new TextInputEventArgs { RoutedEvent = InputElement.TextInputEvent, Text = "1234" });
@@ -2159,9 +2283,61 @@ public static class ShellWindowTests
                     if (!source.IsReadOnly || source.Text != controller.AcceptedSource)
                         throw new InvalidOperationException("Foil source tab lost its read-only accepted text");
                     Probe(theme, "source.text", () => TextBoxRow(theme, "source.text", source));
-                    if (host.ModelView.FindControl<TextBlock>("ViewportProvenance") is null ||
-                        host.ModelView.FindControl<TextBlock>("SectionReadout") is null)
-                        throw new InvalidOperationException("Viewport or section annotation absent");
+                    TextBoxStates(theme, "source", source, window, sidebar, editable: false);
+                    // The point fields replace the retired per-control numeric field: a selected free point enables Span.
+                    var freePoint = controller.Planform!.Trailing.Points.First(point => point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly);
+                    controller.Select(new Selection.Points(new[] { new PointRef(freePoint.Curve, freePoint.Id) }));
+                    host.RefreshPanes();
+                    Settle(window);
+                    var pointSpan = host.Properties.FindControl<TextBox>("PointSpanInput") ?? throw new InvalidOperationException("Point Span field absent");
+                    if (!pointSpan.IsEffectivelyVisible || !pointSpan.IsEnabled)
+                        throw new InvalidOperationException("Point Span field not editable with a free point selected");
+                    Probe(theme, "point-span.text", () => TextBoxRow(theme, "point-span.text", pointSpan));
+                    if (!pointSpan.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Point Span field refused keyboard focus");
+                    Probe(theme, "focus.point-span", () => RingRow(theme, "focus.point-span", pointSpan, window));
+                    if (!sidebar.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Focus could not leave the point Span field");
+                    // Annotations and the unsaved-changes modal: rows the retired pre-shell matrix measured on surfaces
+                    // the shell still ships.
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                    Settle(window);
+                    Probe(theme, "viewport.annotation", () => TextRow(theme, "viewport.annotation",
+                        host.ModelView.FindControl<TextBlock>("ViewportProvenance") ?? throw new InvalidOperationException("Viewport annotation absent")));
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
+                    Settle(window);
+                    Probe(theme, "section.annotation", () => TextRow(theme, "section.annotation",
+                        host.ModelView.FindControl<TextBlock>("SectionReadout") ?? throw new InvalidOperationException("Section annotation absent")));
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
+                    Settle(window);
+                    var pending = (Task<string>)(typeof(MainWindow).GetMethod("UnsavedDialogAsync", reflection)?.Invoke(window, null)
+                        ?? throw new InvalidOperationException("Unsaved dialog unavailable"));
+                    var modal = window.OwnedWindows.SingleOrDefault() ?? throw new InvalidOperationException("Unsaved modal is not owned by the window");
+                    Settle(modal);
+                    if (modal.ActualThemeVariant != window.ActualThemeVariant)
+                        rowFailures.Add($"{theme}/modal: the unsaved modal did not inherit its owner's theme");
+                    var modalBody = modal.GetVisualDescendants().OfType<TextBlock>()
+                        .FirstOrDefault(text => text.Text?.StartsWith("Save this foil", StringComparison.Ordinal) == true)
+                        ?? throw new InvalidOperationException("Unsaved modal body unavailable");
+                    Probe(theme, "modal.body", () => TextRow(theme, "modal.body", modalBody));
+                    var modalButtons = modal.GetVisualDescendants().OfType<Button>()
+                        .Where(button => button.Content is string).ToDictionary(button => (string)button.Content!);
+                    foreach (var choice in new[] { "Save", "Discard", "Cancel" })
+                    {
+                        string row = "modal." + choice.ToLowerInvariant();
+                        Probe(theme, row + ".rest", () => TextRow(theme, row + ".rest", modalButtons[choice]));
+                        Probe(theme, row + ".hover", () =>
+                        {
+                            Hover(modalButtons[choice], modal, true);
+                            TextRow(theme, row + ".hover", modalButtons[choice]);
+                            Hover(modalButtons[choice], modal, false);
+                        });
+                        PressRows(theme, row, modalButtons[choice], modal);
+                    }
+                    if (!modalButtons["Cancel"].IsDefault || !modalButtons["Cancel"].IsCancel || !modalButtons["Cancel"].IsFocused)
+                        rowFailures.Add($"{theme}/modal: Cancel is not the focused safe default");
+                    modal.Close();
+                    Settle(window);
+                    if (!pending.IsCompletedSuccessfully || pending.Result != "Cancel")
+                        rowFailures.Add($"{theme}/modal: closing the modal did not answer Cancel");
                     if (host.Properties.FindControl<TextBox>("SpanInput") is null ||
                         host.Properties.FindControl<TextBlock>("WingHeading") is null)
                         throw new InvalidOperationException("Rail-editor CV list or numeric field absent from the pane namescope");
@@ -2172,7 +2348,7 @@ public static class ShellWindowTests
                         window.RequestedThemeVariant = ThemeVariant.Dark;
                         Settle(window);
                         Probe(theme, "live-flip.dark.tab.Section.unselected",
-                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[3]));
+                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[4]));
                         Probe(theme, "live-flip.dark.select.tab.Foil source",
                             () => SelectedRow(theme, "live-flip.dark.select.tab.Foil source", sourceTab));
                     }
@@ -2185,6 +2361,15 @@ public static class ShellWindowTests
             }
             }
             finally { Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = reveal; }
+            // Every variant measures the same rows (the light-only live flip aside), so a skipped probe cannot hide.
+            var perTheme = emittedRows.Where(item => !item.Row.StartsWith("live-flip.", StringComparison.Ordinal))
+                .GroupBy(item => item.Theme).ToDictionary(group => group.Key, group => group.Select(item => item.Row).ToHashSet());
+            var reference = perTheme.GetValueOrDefault("light") ?? [];
+            foreach (var (theme, rows) in perTheme)
+                if (!rows.SetEquals(reference))
+                    rowFailures.Add($"{theme}: row set differs from light ({string.Join(", ", rows.Except(reference).Concat(reference.Except(rows)))})");
+            if (perTheme.Count != 4) rowFailures.Add($"{perTheme.Count} variants measured, not 4");
+            Console.WriteLine($"THEME-SHELL-CHECK rows={emittedRows.Count} variants={perTheme.Count} source=shell-MainWindow");
             if (rowFailures.Count > 0)
                 throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
         });
@@ -2922,34 +3107,99 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        // CONTROL-GAMED-BY-RENAME: the retirement is checked by capability, not by member names. A rename cannot pass it.
         DesktopChecks.Check(string.Concat("Rail", "EditorPane_Removed_NoReferencesRemain"), () =>
         {
-            string root = RepoRootFromSource();
-            string[] tokens =
-            [
-                string.Concat("Rail", "EditorPane"),
-                string.Concat("Patch", "Rail"),
-                string.Concat("Update", "Draft("),
-                string.Concat("Begin", "Edit(")
-            ];
-            var hits = new List<string>();
-            foreach (var dir in new[] { "src", "tests" })
+            var found = new List<string>();
+            // 1. Every public MainWindow constructor builds the shell. No pre-shell window remains.
+            foreach (var constructor in typeof(MainWindow).GetConstructors())
             {
-                foreach (var file in Directory.EnumerateFiles(Path.Combine(root, dir), "*", SearchOption.AllDirectories))
+                var window = (Window)constructor.Invoke(constructor.GetParameters().Select(_ => (object?)null).ToArray());
+                try
                 {
-                    if (file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
-                        file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-                        continue;
-                    string text;
-                    try { text = File.ReadAllText(file); }
-                    catch (IOException) { continue; }
-                    foreach (var token in tokens)
-                        if (text.Contains(token, StringComparison.Ordinal))
-                            hits.Add(Path.GetRelativePath(root, file));
+                    if (window.Content is not ShellHost)
+                        found.Add($"MainWindow({string.Join(", ", constructor.GetParameters().Select(parameter => parameter.ParameterType.Name))}) builds {window.Content?.GetType().Name ?? "nothing"}, not the shell");
+                }
+                finally { window.Close(); }
+            }
+            // 2. No public member opens a draft from (rail, control id) whose single ordinate a scalar can then revise.
+            //    Openers and revisers are found by signature, so a renamed member is still found.
+            static bool Signature(System.Reflection.MethodInfo method, params Type[] types) =>
+                !method.IsSpecialName && method.GetParameters().Select(parameter => parameter.ParameterType).SequenceEqual(types);
+            static object? Call(System.Reflection.MethodInfo method, object target, params object?[] arguments)
+            {
+                try
+                {
+                    object? result = method.Invoke(target, arguments);
+                    if (result is Task task) Pump(task);
+                    return result;
+                }
+                catch (Exception error) when (error is System.Reflection.TargetInvocationException or ContractError or InvalidOperationException or ArgumentException) { return null; }
+            }
+            var publicInstance = System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
+            var sessionOpeners = typeof(AuthoringSession).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(string), typeof(string))).ToArray();
+            var sessionRevisers = typeof(AuthoringSession).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(long), typeof(double))).ToArray();
+            var controllerOpeners = typeof(WorkbenchController).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(string))).ToArray();
+            var controllerRevisers = typeof(WorkbenchController).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(double))).ToArray();
+            using (var session = new AuthoringSession())
+            {
+                session.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+                var leading = session.Snapshot().Source;
+                var editable = Planform.View(leading, "Accepted", 0).Leading.Points.First(point => point.Freedom != PointFreedom.Fixed);
+                foreach (var opener in sessionOpeners)
+                {
+                    Call(opener, session, Guid.NewGuid().ToString("D"), "leading", editable.Id);
+                    if (session.Snapshot().Draft is not { } opened) continue;
+                    foreach (var reviser in sessionRevisers)
+                    {
+                        var before = session.Snapshot().Draft!;
+                        Call(reviser, session, before.Id, before.Generation, 0.01);
+                        if (session.Snapshot().Draft is { } after && after.Generation != before.Generation)
+                            found.Add($"AuthoringSession.{opener.Name} then {reviser.Name} revises one control ordinate");
+                    }
+                    session.Cancel(opened.Id);
                 }
             }
-            if (hits.Count > 0)
-                throw new InvalidOperationException(string.Join("; ", hits.Distinct().Take(12)));
+            string golden = Path.Combine(RepoRootFromSource(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b", "m12a-rail-recovery.cfdw");
+            using (var controller = new WorkbenchController())
+            {
+                Pump(controller.OpenExampleAsync());
+                var control = controller.Inspection!.Authored.Rails.Single(rail => rail.Name == "leading").Controls.First(item => item.Editable);
+                foreach (var opener in controllerOpeners)
+                {
+                    Call(opener, controller, "leading", control.Id);
+                    if (controller.Draft is null) continue;
+                    foreach (var reviser in controllerRevisers)
+                    {
+                        long before = controller.Draft!.Generation;
+                        Call(reviser, controller, control.OrdinateSi + .005);
+                        if (controller.Draft is { } after && after.Generation != before)
+                            found.Add($"WorkbenchController.{opener.Name} then {reviser.Name} revises one control ordinate");
+                    }
+                    controller.Cancel();
+                }
+                // 3. The one kept member: a resumed M1.2a rail recovery draft can be applied or discarded, never revised.
+                string path = ScratchPath("capability-rail-recovery.cfdw.json");
+                File.WriteAllBytes(path, File.ReadAllBytes(golden));
+                Pump(controller.OpenPathAsync(path));
+                if (!controller.HasRecovery) found.Add("golden M1.2a rail recovery did not open as a recovery");
+                else
+                {
+                    controller.ResumeRecovery();
+                    foreach (var reviser in controllerRevisers)
+                    {
+                        long before = controller.Draft?.Generation ?? -1;
+                        Call(reviser, controller, 0.01);
+                        if (controller.Draft is { } after && after.Generation != before)
+                            found.Add($"WorkbenchController.{reviser.Name} revises a resumed rail recovery draft");
+                    }
+                }
+            }
+            if (found.Count > 0) throw new InvalidOperationException(string.Join("; ", found));
         });
     }
 
@@ -3155,8 +3405,7 @@ public static class ShellWindowTests
         }
     }
 
-    // simplify: the applied-paint oracle of WorkbenchTests.cs:125-176 and :219-227, whose top-level local functions no
-    // other class can call; upgrade trigger: the legacy --theme-controls mode retires (D3b), then this is the only copy.
+    // The applied-paint oracle. Its pre-shell copy retired with the `--theme-controls` mode, so this is the only one.
     private static Color Solid(IBrush? brush, string label) =>
         brush is ISolidColorBrush { Color.A: 255 } solid && Math.Abs(brush.Opacity - 1) < 0.000001
             ? solid.Color
@@ -3175,6 +3424,12 @@ public static class ShellWindowTests
             ?? throw new InvalidOperationException($"Rendered text presenter absent for {target.Name ?? target.GetType().Name}");
     }
 
+    // Fluent's pressed Button shrinks to scale(0.98), so text may sit under a uniform scale in [0.97, 1].
+    // Any other scale, rotation or skew is refused.
+    private static bool PressScaleAccepted(Matrix matrix) =>
+        matrix.M12 == 0 && matrix.M21 == 0 && Math.Abs(matrix.M11 - matrix.M22) <= 0.000001 &&
+        matrix.M11 >= 0.97 && matrix.M11 <= 1 + 0.000001;
+
     private static Color Backing(Visual text)
     {
         var visibleBounds = new Rect(text.Bounds.Size);
@@ -3190,11 +3445,10 @@ public static class ShellWindowTests
             if (solid.Color.A != 255)
                 throw new InvalidOperationException($"Partial alpha {solid.Color} on {layer.GetType().Name}");
             var transform = text.TransformToVisual(layer);
-            var origin = text.TranslatePoint(visibleBounds.Position, layer);
-            if (transform is null || Math.Abs(transform.Value.M11 - 1) > 0.000001 || Math.Abs(transform.Value.M22 - 1) > 0.000001 ||
-                origin is null || origin.Value.X < 0 || origin.Value.Y < 0 ||
-                origin.Value.X + visibleBounds.Width > layer.Bounds.Width + .01 ||
-                origin.Value.Y + visibleBounds.Height > layer.Bounds.Height + .01)
+            if (transform is not { } matrix || !PressScaleAccepted(matrix))
+                throw new InvalidOperationException($"Text transform to {layer.GetType().Name} is outside the pressed-scale range");
+            var area = visibleBounds.TransformToAABB(matrix);
+            if (area.X < -.01 || area.Y < -.01 || area.Right > layer.Bounds.Width + .01 || area.Bottom > layer.Bounds.Height + .01)
                 throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}");
             backing = solid.Color;
         }

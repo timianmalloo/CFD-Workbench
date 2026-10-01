@@ -2,18 +2,15 @@ using Avalonia;
 using Avalonia.Styling;
 using CfdWorkbench.Core;
 using System.Globalization;
-using System.Diagnostics;
 using System.Text;
 
 namespace CfdWorkbench.Desktop;
 
 internal static class Program
 {
-    internal static long ManagedStartTicks { get; private set; }
     [STAThread]
     private static void Main(string[] args)
     {
-        ManagedStartTicks = Stopwatch.GetTimestamp();
         StartupFailure.Install();
         NativeReviewOptions.Current = NativeReviewOptions.Parse(Environment.GetEnvironmentVariable);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
@@ -63,7 +60,7 @@ public sealed record NativeReviewOptions(string Persona, int Width, int Height, 
             width is < 1024 or > 2560 || height is < 700 or > 1600)
             throw new ArgumentException("Review window must be within 1024x700 and 2560x1600");
         var state = read("CFDW_REVIEW_STATE") ?? "example";
-        if (state is not ("empty" or "example" or "draft" or "invalid-input" or "refused-open" or
+        if (state is not ("empty" or "example" or "invalid-input" or "refused-open" or
             "file" or "import" or "recovery" or "not-assessed" or "invalid-geometry"))
             throw new ArgumentException("Unknown review state");
         var theme = read("CFDW_REVIEW_THEME") ?? "system";
@@ -118,12 +115,5 @@ public sealed record NativeReviewOptions(string Persona, int Width, int Height, 
                 throw new InvalidOperationException("Refused-open state did not retain the accepted example");
             return;
         }
-        if (State is not ("draft" or "invalid-input")) return;
-        var target = workbench.Inspection!.Authored.Rails.SelectMany(rail => rail.Controls
-            .Where(control => control.Editable).Select(control => (rail.Name, control.Id))).First();
-        workbench.OpenControlDraft(target.Name, target.Id);
-        if (State == "invalid-input") workbench.InvalidateDraftInput();
-        if (workbench.Draft is null || State == "invalid-input" && workbench.DraftInputValid)
-            throw new InvalidOperationException("Review draft state did not materialize");
     }
 }

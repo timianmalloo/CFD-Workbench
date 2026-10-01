@@ -213,7 +213,7 @@ internal static class SectionEditTests
         Check("Session_RecoveryEnvelope_WithoutProfileFields_StillResumesRailDraft", () =>
         {
             using var session = Opened(); string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, 0.01);
+            session.BeginGestureDraft(draft, "leading", "cv-2"); session.GestureToAft(draft, 0, 0.01);
             session.CaptureRecovery(); byte[] saved = session.SaveImage();
             string json = Encoding.UTF8.GetString(saved);
             Equal(false, json.Contains("\"profile\"", StringComparison.Ordinal));

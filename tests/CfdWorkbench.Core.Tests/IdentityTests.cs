@@ -117,4 +117,21 @@ internal static class IdentityTests
         catch (ContractError failure) { Equal(code, failure.Code); return; }
         throw new InvalidOperationException("Expected refusal " + code);
     }
+
+    /// <summary>Opens a one-point draft through the shipped point-gesture path (the rail-ordinate draft API is retired).</summary>
+    internal static SessionDraft BeginGestureDraft(this AuthoringSession session, string draftId, string curve, string vertexId) =>
+        session.BeginPointGesture(draftId, curve, vertexId);
+
+    /// <summary>Moves the gesture's point to <paramref name="aftSi"/> metres aft at its current span, as a drag along the aft axis.</summary>
+    internal static SessionDraft GestureToAft(this AuthoringSession session, string draftId, long generation, double aftSi)
+    {
+        double span = 0;
+        if (session.Snapshot().Draft is { } owned && owned.Id == draftId)
+        {
+            var view = Planform.View(owned.Bytes, "Draft", owned.Generation);
+            var curve = owned.Rail == "leading" ? view.Leading : view.Trailing;
+            span = curve.Points.Single(point => point.Id == owned.VertexId).SpanMeters;
+        }
+        return session.UpdatePointGesture(draftId, generation, span, aftSi).Draft;
+    }
 }

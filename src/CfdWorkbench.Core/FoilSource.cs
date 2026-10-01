@@ -311,23 +311,6 @@ public static class FoilSource
         return candidate;
     }
 
-    public static byte[] RewriteControlOrdinate(SourceParse parsed, string rail, string vertexId, double ordinateSi)
-    {
-        var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
-        Guard.Require(rail is "leading" or "trailing" && double.IsFinite(ordinateSi), "DSL-PATCH");
-        Guard.Require(definition.Curves.TryGetValue(rail, out var curve) && !curve.MissingIds, "DSL-PATCH");
-        int index = Array.IndexOf(curve!.Ids, vertexId);
-        Guard.Require(index >= 0, "DSL-PATCH");
-        string digits = ExactDecimal(ordinateSi, definition.UnitScale);
-        var token = curve.Ordinates[index];
-        string source = Utf8.GetString(parsed.Source);
-        byte[] candidate = Utf8.GetBytes(source[..token.Start] + digits + source[token.End..]);
-        var result = Parse(candidate);
-        Guard.Require(result.IsParsed && result.Definition is not null &&
-            SameBits(result.Definition.Curves[rail].Points[index][1], ordinateSi), "DSL-PATCH");
-        return candidate;
-    }
-
     internal static byte[] PatchChannelOrdinates(byte[] source, double[] ordinates)
     {
         ArgumentNullException.ThrowIfNull(source);

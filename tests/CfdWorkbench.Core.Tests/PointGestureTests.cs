@@ -46,6 +46,33 @@ internal static class PointGestureTests
             Refuses("DSL-LOCK", () => s.BeginPointGesture(Id(), "leading", Point(s, "leading", 0).Id));
             Equal(null, s.Snapshot().Draft);
         });
+        // Ported from the retired rail-ordinate rewriter's Patch_* checks: the gesture path is the one shipped rewriter.
+        Check("BeginPointGesture_NonRailCurve_DslTarget", () =>
+        {
+            using var s = Open();
+            Refuses("DSL-TARGET", () => s.BeginPointGesture(Id(), "twist", Point(s, "leading", 2).Id));
+            Equal(null, s.Snapshot().Draft);
+        });
+        Check("UpdatePointGesture_NonfiniteTarget_DraftUnchanged", () =>
+        {
+            using var s = Open(); var point = Point(s, "leading", 2); var d = s.BeginPointGesture(Id(), "leading", point.Id);
+            foreach (double bad in new[] { double.NaN, double.PositiveInfinity })
+            {
+                var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, bad);
+                True(frame.Clamped, "non-finite target reported as clamped");
+                Equal(d.Generation, s.Snapshot().Draft!.Generation);
+                True(d.Bytes.AsSpan().SequenceEqual(s.Snapshot().Draft!.Bytes), "non-finite target left the draft bytes");
+            }
+        });
+        Check("UpdatePointGesture_LeadingPoint_OnlyLeadingTextChanges", () =>
+        {
+            using var s = Open(); var point = Point(s, "leading", 2); var d = s.BeginPointGesture(Id(), "leading", point.Id);
+            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.AftMeters + 0.003);
+            string before = Encoding.UTF8.GetString(d.Bytes), after = Encoding.UTF8.GetString(frame.Draft.Bytes);
+            True(before != after, "the gesture changed the source");
+            Equal(before[before.IndexOf("trailing", StringComparison.Ordinal)..], after[after.IndexOf("trailing", StringComparison.Ordinal)..]);
+            True(FoilSource.Parse(frame.Draft.Bytes).IsParsed, "rewritten source parses");
+        });
         Check("UpdatePointGesture_ControlPoint_QuantizedDeltaExactPosition", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);

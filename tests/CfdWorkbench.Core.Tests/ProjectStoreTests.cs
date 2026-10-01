@@ -352,8 +352,8 @@ internal static class ProjectStoreTests
         {
             if (overwrite)
             {
-                string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
-                session.ReviseOrdinate(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
+                string draft = Id(); session.BeginGestureDraft(draft, "leading", "cv-2");
+                session.GestureToAft(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
                 image = session.SaveImage();
             }
             string operation = Id(); var observations = new List<string>();

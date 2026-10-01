@@ -117,8 +117,8 @@ internal static class DimensionTests
         {
             using var session = OpenedExample();
             string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2");
-            session.ReviseOrdinate(draft, 0, 0.01);
+            session.BeginGestureDraft(draft, "leading", "cv-2");
+            session.GestureToAft(draft, 0, 0.01);
             session.Apply(Id(), session.Validate(draft, 1));
             byte[] applied = session.Snapshot().Source.ToArray();
             var envelope = session.Envelope();
@@ -141,8 +141,8 @@ internal static class DimensionTests
         {
             using var session = OpenedExample();
             string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2");
-            session.ReviseOrdinate(draft, 0, 0.01);
+            session.BeginGestureDraft(draft, "leading", "cv-2");
+            session.GestureToAft(draft, 0, 0.01);
             var recovery = session.CaptureRecovery();
             byte[] before = session.Snapshot().Source.ToArray();
             var bad = session.Envelope() with { Recovery = recovery with { Rail = "dimension", VertexId = "span" } };

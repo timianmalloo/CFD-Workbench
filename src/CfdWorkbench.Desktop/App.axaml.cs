@@ -42,5 +42,5 @@ public sealed class App : Application
     }
 
     public static MainWindow CreateMainWindow(PreferenceStore? preferences = null) =>
-        new(shellMode: true, preferences);
+        new(preferences);
 }

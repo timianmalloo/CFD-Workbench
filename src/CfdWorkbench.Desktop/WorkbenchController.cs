@@ -608,7 +608,6 @@ public sealed class WorkbenchController : IDisposable
     public string Provenance { get; private set; } = "empty";
     public DisplayFrame? Frame { get; private set; }
     public IReadOnlyList<DisplayPoint> Points => Frame?.Points ?? [];
-    public SectionEnclosure? CenterSection => Frame?.CenterSection;
     public SessionDraft? Draft => draft;
     public AuthoredProjection? DraftProjection
     {
@@ -643,8 +642,6 @@ public sealed class WorkbenchController : IDisposable
     public bool SaveUncertain => uncertainImage is not null;
     public string? UncertainPath => uncertainPath;
     public string AcceptedSource => Inspection is null ? "" : Encoding.UTF8.GetString(session.Snapshot().Source);
-    public string CandidateSource => PendingCandidate is null ? "" : Encoding.UTF8.GetString(PendingCandidate);
-    public string OriginalSource => PendingOriginal is null ? "" : Encoding.UTF8.GetString(PendingOriginal);
     public string RecoverySource
     {
         get
@@ -921,38 +918,6 @@ public sealed class WorkbenchController : IDisposable
         catch { next.Dispose(); throw; }
         Adopt(next);
         await RefreshAcceptedAsync(cancellation);
-    }
-
-    public void OpenControlDraft(string rail, string vertexId)
-    {
-        if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
-        var control = Inspection.Authored.Rails.Single(r => r.Name == rail).Controls.Single(c => c.Id == vertexId);
-        if (!control.Editable) throw new ContractError("DSL-LOCK");
-        CancelSampling();
-        draft = session.BeginRailEdit(Guid.NewGuid().ToString("D"), rail, vertexId);
-        draftInputValid = true;
-        interiorEta = control.Eta;
-        Frame = acceptedFrame = null;
-        currentAssessment = null;
-        SectionReport = null;
-        Status = $"Draft owns {rail} control {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
-        Provenance = "draft — accepted sampling";
-        Notify();
-        _ = RefreshAcceptedAsync();
-    }
-
-    public void ReviseOrdinate(double ordinateSi)
-    {
-        if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
-        CancelSampling();
-        draft = session.ReviseOrdinate(draft.Id, draft.Generation, ordinateSi);
-        draftInputValid = true;
-        currentAssessment = null;
-        SectionReport = null;
-        Frame = acceptedFrame;
-        Provenance = "draft — accepted geometry shown";
-        Status = $"Draft generation {draft.Generation} changed. Preview to assess geometry.";
-        Notify();
     }
 
     public ScopeImpact DescribeScope(int assignmentIndex, SectionScope scope)
