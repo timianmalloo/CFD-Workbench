@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T03:30:38Z",
+  "generated": "2026-10-01T04:03:58Z",
   "audit": [
     {
       "actor": null,
@@ -20822,6 +20822,39 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "2e1c569ce0c5ae4c67bde1cc0ab12dc45289d9fe",
         "short": "2e1c569ce",
+        "branch": "chore/legacy-window-retirement",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3TT48SZDD8WZX0ZZKKZRPDV",
+      "shortname": "legacy-window-retirement",
+      "datetime": "2026-10-01T04:03:58Z",
+      "session": "track-legacy",
+      "prompt": "Track LEGACY contract + Coordinator seam grant (tools/verify-application-adapters.py)",
+      "summary": "Removed MainWindow pre-shell path (XAML, handlers, native metrics, review draft state), controller OpenControlDraft/ReviseOrdinate, Core BeginRailEdit/ReviseOrdinate, FoilSource.RewriteControlOrdinate, dead CenterSection/CandidateSource/OriginalSource. Capability control RailEditorPane_Removed_NoReferencesRemain red on 2e1c569, green now. Gate theme step now parses the shell matrix (170 frozen rows, 4 variants, 11 negatives). run-tests 3x identical (Core 376, Cli 1, Desktop 281); named checks D1/D3a/D2/B0/B1a/B1b/U1a/U1b/U2 exit 0; check-docs 0; xaml lint clean; app launched and closed. run-readiness RED on b376168: verify-application-adapters stops at contrast_checks (Styles.axaml 23 brushes per theme vs frozen 16; Styles last changed 0314e62, untouched here) and verify-application-core has 38 DirectoryNotFound fixture-path failures in tests this track did not change. Retargeted theme step passes on the gate's own Desktop stdout.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Retire the pre-shell window path and the per-control draft API; retarget the adapters gate's theme step to the shell matrix",
+      "done_when": "run-tests 3x identical; named checks; check-docs; xaml-token-lint; shell launch; run-readiness GREEN",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-01T03:31:09Z",
+      "duration_seconds": 1969.0,
+      "git": {
+        "sha": "b37616871a95566705a1683da1e64a6622167368",
+        "short": "b37616871",
         "branch": "chore/legacy-window-retirement",
         "pushed": null
       }
