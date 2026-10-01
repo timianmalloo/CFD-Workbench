@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
 
@@ -68,7 +69,26 @@ internal static class PlacementTests
             .ToArray();
         Equal(1, hits.Length);
         Equal("Placement.cs", hits[0]);
+        // The same constant spelled as an expression is the same second site. Degrees to radians is the
+        // placement rule's constant and lives in Placement.cs only. Radians to degrees is the inverse; its one
+        // use is the smooth-row angle tolerance in Geometry.cs, which is not a placement.
+        Equal(Bits(Math.PI / 180), Bits(PlacementRule.RadiansPerDegree));
+        var toRadians = new Regex(@"(Math\.PI|double\.Pi)\s*/\s*180(\.0*)?(?![\d.])");
+        var toDegrees = new Regex(@"(?<![\d.])180(\.0*)?\s*/\s*(Math\.PI|double\.Pi)");
+        var spellings = new List<string>();
+        foreach (string path in Directory.EnumerateFiles(Path.Combine(RepoRoot(), "src", "CfdWorkbench.Core"), "*.cs", SearchOption.AllDirectories)
+                     .Where(path => !path.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar, StringComparison.Ordinal)))
+        {
+            string file = Path.GetFileName(path)!;
+            if (file == "Placement.cs") continue;
+            string text = File.ReadAllText(path);
+            foreach (Match match in toRadians.Matches(text)) spellings.Add(file + ": " + match.Value);
+            foreach (Match match in toDegrees.Matches(text)) spellings.Add(file + ": " + match.Value);
+        }
+        Equal("Geometry.cs: 180 / Math.PI", string.Join("; ", spellings));
     }
+
+    private static ulong Bits(double value) => BitConverter.DoubleToUInt64Bits(value);
 
     private static void ConstantsShared()
     {
