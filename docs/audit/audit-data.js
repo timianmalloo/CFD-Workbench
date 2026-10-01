@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:22:38Z",
+  "generated": "2026-10-01T04:54:41Z",
   "audit": [
     {
       "actor": null,
@@ -20951,6 +20951,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T04:21:58Z",
       "duration_seconds": 40.0
+    },
+    {
+      "id": "al-01M3TX13ZWSRM4MXREHXYGP79M",
+      "shortname": "READYFIX2: Core fixture cwd paths + adapters Plan-brush key set",
+      "datetime": "2026-10-01T04:54:41Z",
+      "session": "track-readyfix2",
+      "prompt": "Fix tools/run-readiness.py RED on the integration branch: verify-application-core.py RESULT failures=38 (Core.Tests m12b fixtures read via cwd-relative tests/ literals), and verify-application-adapters.py's theme gate (16 expected brush keys vs 23 after U1b's Plan-canvas brushes). Close the TEST-REPO-LAYOUT scan gap. Never weaken a check to make it pass.",
+      "summary": "Fixed 7 cwd-relative fixture-path literals across 6 Core.Tests files via new M12bFixtures.Path (AppContext.BaseDirectory + csproj Content copy); extended SelfLaunchTests with NoCwdRelativeFixturePath (red on the old literals, green after); extended verify-application-adapters.py's theme declared-key set from 16 to 23 for U1b's 7 Plan-canvas brushes, all traced to existing DESIGN.md tokens, proved with a dropped-key mutant (red end-to-end and in isolation, green restored). A first M12bFixtures draft tripped verify-application-core.py's STORE-SUBSET guard (File.Exists outside the exempt store files); fixed by dropping the probe. run-readiness GREEN at 5d3d1a6; run-tests.sh green x3 identical PASS sets (376/1/281); all named checks and check-docs.py exit 0. Proof: docs/proof/readyfix2.md. Recurrence note under TEST-REPO-LAYOUT in docs/lessons/defect-classes.md.",
+      "kind": "script",
+      "skill": "implement",
+      "tool": "run-readiness",
+      "actor": "Claude Sonnet 5 (Sub-Agent, READYFIX2)",
+      "artifacts": [
+        "docs/proof/readyfix2.md",
+        "tools/verify-application-adapters.py",
+        "tests/CfdWorkbench.Desktop.Tests/SelfLaunch.cs",
+        "tests/CfdWorkbench.Core.Tests/M12bFixtures.cs"
+      ],
+      "tags": [
+        "readiness",
+        "test-repo-layout",
+        "theme",
+        "m12b"
+      ],
+      "outcome": "success",
+      "goal": "Fix the two causes LEGACY left readiness RED on, and close the TEST-REPO-LAYOUT scan gap that let the fixture-path shape through.",
+      "done_when": "tools/run-readiness.py prints GREEN for HEAD with the crash-report count unchanged; run-tests.sh exits 0 three times with identical PASS sets; B0, B1a, B1b, U1a, U1b, U2 (--design m12b-points.md), D3a, D1, D2, C1, P1 and check-docs.py all exit 0.",
+      "tier": "T1",
+      "started_at": "2026-10-01T04:22:57Z",
+      "duration_seconds": 1904.0,
+      "git": {
+        "sha": "5d3d1a614e3a733f84ec1439143a223b56f5e767",
+        "short": "5d3d1a614",
+        "branch": "fix/readiness-m12b",
+        "pushed": null
+      }
     }
   ],
   "changes": [
