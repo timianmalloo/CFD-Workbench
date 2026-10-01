@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T23:26:56Z",
+  "generated": "2026-10-01T23:29:18Z",
   "audit": [
     {
       "actor": null,
@@ -21380,6 +21380,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-01T23:25:58Z",
+      "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3WWT1JZ4354AFTG38FJ9HXM",
+      "shortname": "join-event-subscribers",
+      "datetime": "2026-10-01T23:29:18Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/check-event-subscribers into feature/ui-cad-direction",
+      "summary": "New fast-ring check: every event declared in src/ has a src/ subscriber; named allow-list (ICommand; SectionCanvas events unwired until M1.2c). Red at b052fe9, clean at 7048fa1. Register entry TEST-UNWIRED-EVENT. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T23:28:20Z",
       "duration_seconds": 58.0
     }
   ],
