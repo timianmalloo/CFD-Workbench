@@ -299,6 +299,40 @@ public static class PlanCanvasTests
                 throw new Exception("Comb toggle did not paint teeth on selected rail");
         });
 
+        DesktopChecks.Check("PlanCanvas_FitAndDefaultView_PlanformClearOfProbeAndScaleBar", () =>
+        {
+            // F-3, O-1, O-3 (docs/reviews/m12b-native.md §3): the default view and Fit keep both halves, every point glyph and
+            // every station chip inside the canvas and clear of the Tracing probe box and the scale bar.
+            using var fixture = new PlanFixture();
+            void AssertClear(string view)
+            {
+                var canvas = fixture.Canvas;
+                double width = canvas.Bounds.Width, height = canvas.Bounds.Height;
+                var inside = new Rect(0, 0, width, height);
+                var probe = new Rect(Math.Max(8, width - 428), 8, 420, 48);
+                var scaleBar = new Rect(8, height - 50, 160, 34);
+                var plan = fixture.Controller.Planform!;
+                foreach (var point in plan.Leading.Points.Concat(plan.Trailing.Points))
+                foreach (double side in new[] { -1d, 1d })
+                {
+                    var centre = canvas.ScreenPoint(point with { SpanMeters = point.SpanMeters * side });
+                    var glyph = new Rect(centre.X - 8, centre.Y - 8, 16, 16);
+                    if (!inside.Contains(glyph) || glyph.Intersects(probe) || glyph.Intersects(scaleBar))
+                        throw new Exception($"{view}: {point.Curve} point {point.Index + 1} (side {side}) at {centre} is clipped or obscured");
+                }
+                var chips = canvas.VisibleStationChips;
+                if (chips.Count == 0) throw new Exception(view + ": no station chip shown");
+                foreach (var chip in chips)
+                    if (!inside.Contains(chip.Bounds) || chip.Bounds.Intersects(probe) || chip.Bounds.Intersects(scaleBar))
+                        throw new Exception($"{view}: station chip {chip.Index} at {chip.Bounds} is clipped or obscured");
+            }
+            AssertClear("default view");
+            fixture.Canvas.PanBy(240, -120);
+            fixture.Canvas.Fit();
+            fixture.Settle();
+            AssertClear("Fit");
+        });
+
         DesktopChecks.Check("PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera", () =>
         {
             using var fixture = new PlanFixture();

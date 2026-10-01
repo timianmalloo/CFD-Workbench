@@ -234,7 +234,7 @@ public sealed class PlanCanvas : Control
         {
             PixelsPerMeter = nextScale,
             PanSpanPixels = pivot.X - Bounds.Width / 2 - (pivot.X - Bounds.Width / 2 - camera.PanSpanPixels) * actual,
-            PanAftPixels = pivot.Y - 40 - (pivot.Y - 40 - camera.PanAftPixels) * actual
+            PanAftPixels = pivot.Y - AxisPointLayer.FitTop - (pivot.Y - AxisPointLayer.FitTop - camera.PanAftPixels) * actual
         };
         UpdatePlan();
     }
@@ -695,17 +695,29 @@ public sealed class PlanCanvas : Control
             this.size = size;
         }
 
+        // F-3: the fitted view keeps the planform, both halves, every point glyph and every station chip clear of the
+        // Tracing probe box (top band, 8 + 48 px) and the scale bar (bottom band, 50 px), with a margin.
+        private const double GlyphMargin = 8;
+        private const double ChipHalfWidth = 48;
+        private const double ChipDrop = 34;
+        private const double ScaleBarBand = 50;
+        public const double FitTop = 8 + 48 + 12 + GlyphMargin;
+
         private static AxisMapping PlanAxes(PlanformView plan, Size size, PlanCamera camera)
         {
-            double scale = Math.Min((size.Width - 80) / (2 * plan.HalfSpanMeters),
-                (size.Height - 80) / Math.Max(0.01, plan.Trailing.Samples.Max(item => item.AftMeters) -
-                    plan.Leading.Samples.Min(item => item.AftMeters))) * camera.PixelsPerMeter / 1000;
-            double minAft = plan.Leading.Samples.Min(item => item.AftMeters);
+            var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
+            double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
+            double minAft = Math.Min(plan.Leading.Samples.Min(item => item.AftMeters), points.Min(item => item.AftMeters));
+            double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.AftMeters), points.Max(item => item.AftMeters));
+            double usableWidth = size.Width - 2 * (ChipHalfWidth + GlyphMargin);
+            double usableHeight = size.Height - FitTop - ChipDrop - ScaleBarBand - GlyphMargin;
+            double scale = Math.Max(1, Math.Min(usableWidth / (2 * halfWidth), usableHeight / Math.Max(0.01, maxAft - minAft)))
+                * camera.PixelsPerMeter / 1000;
             return new AxisMapping(
                 (span, aft) => new Point(size.Width / 2 + span * scale + camera.PanSpanPixels,
-                    40 + (aft - minAft) * scale + camera.PanAftPixels),
+                    FitTop + (aft - minAft) * scale + camera.PanAftPixels),
                 position => ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
-                    (position.Y - 40 - camera.PanAftPixels) / scale + minAft));
+                    (position.Y - FitTop - camera.PanAftPixels) / scale + minAft));
         }
 
         public Point ToScreen(double span, double aft) => axes.Project(span, aft);
