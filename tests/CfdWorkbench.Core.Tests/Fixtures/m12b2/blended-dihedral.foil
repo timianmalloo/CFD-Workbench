@@ -1,0 +1,26 @@
+foildsl "4.0"
+# Language conformance fixture: a manufactured section, not a catalog NACA foil.
+foil "Basic foil" {
+  units mm
+  half_span 450 mm
+  evaluator "cfdw-cv" "2"
+  symmetry mirror_y
+  planform {
+    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }
+    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }
+  }
+  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }
+  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }
+  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }
+  profiles {
+    profile "section-a" {
+      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.0625),(.375,.125),(.625,.125),(.875,.0625),(1,0)] }
+      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.0625),(.375,-.125),(.625,-.125),(.875,-.0625),(1,0)] }
+    }
+    profile "section-b" {
+      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.078125),(.375,.15625),(.625,.15625),(.875,.078125),(1,0)] }
+      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.046875),(.375,-.09375),(.625,-.09375),(.875,-.046875),(1,0)] }
+    }
+  }
+    sections { at root profile "section-a" at tip profile "section-b" }
+}

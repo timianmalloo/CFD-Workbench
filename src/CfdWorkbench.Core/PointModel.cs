@@ -86,7 +86,7 @@ public static class Planform
         var rail = curve == "leading" ? view.Leading : view.Trailing;
         var handle = rail.Points.Single(point => point.Id == handleId);
         var anchor = rail.Points.Single(point => point.Id == handle.AnchorId);
-        double radians = angleDegrees * (Math.PI / 180);
+        double radians = angleDegrees * PlacementRule.RadiansPerDegree;
         double span = Math.Cos(radians) * lengthMeters;
         double aft = Math.Sin(radians) * lengthMeters;
         if (handle.Index < anchor.Index) { span = -span; aft = -aft; }

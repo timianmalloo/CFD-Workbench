@@ -569,7 +569,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8a52dd2834a0f9613045b5cbf24b4f6a5bbf3f117b24209065896bd2a195771"
+      "sourceSha256": "c000bcce7d56e898c274bd2b1eac452d477fbaf4c7252b6805730ad62da8bb15"
     },
     {
       "id": "adr-application-project-contract",
@@ -2275,7 +2275,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "501e64253d4d9216f38866c57e468b69db697caa0d5c73958addde12a06b8bd9"
+      "sourceSha256": "b06047368e5a9dd734eb1f00867632fd002885870e7790b53177278c789ef78c"
     },
     {
       "id": "design-section-editor",
@@ -7209,6 +7209,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "aa10c715e67af0d14891756276142c698d1c698b31df88fa0e2022c8e605084c"
     },
     {
+      "id": "proof-m12b2-golden",
+      "path": "docs/proof/m12b2-golden/receipt.md",
+      "title": "PL0 golden master — planted mutant receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-pl0",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "The certificate golden master was captured at 3b396e5, before the placement refactor. Reassociating the placed-X product turned the golden test red. Reordering the blend sum did not, because those interval additions commute. The golden master pins outputs and refusals, not the operation tree.",
+      "tags": [
+        "m1.2b2",
+        "placement",
+        "golden-master",
+        "pl0"
+      ],
+      "links": [
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "afa2eb389b44da436b0398fd36ab0dacea18ff046a5b266d6b83f3f5173ad3a0"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8930,5 +8960,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "8ea679f88511b9d9ab702ded9113063817eb42052ae17accb8aed611a7cc154f"
+  "graphSha256": "1317e0cc03129b2f949f41552e7638005f9a40749c1fe1dce4d4bc5a6b9eaf07"
 };
