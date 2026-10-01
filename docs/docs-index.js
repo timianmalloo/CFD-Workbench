@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9d22d9b6782b4303f00df8029dcc04e18399bf18ec321543ff12436f477bf3d0"
+      "sourceSha256": "31c353b6561beb1c5b14258d8a43b09b1dd3dd9f087469184df405b64a25a3dc"
     },
     {
       "id": "domain-experts",
@@ -7610,7 +7610,7 @@ window.DOCS_INDEX = {
       "phase": "implementation — U3 (M1.2b)",
       "reviewBy": "2026-10-30",
       "reviewSuggested": [],
-      "summary": "Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten pass and two pass with a defect. Five defects (D-1 to D-5), five design findings (F-1 to F-5), six observations and one open question. D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid) are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.",
+      "summary": "Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten pass and two pass with a defect. Six defects (D-1 to D-6), five design findings (F-1 to F-5), seven observations and one question (ruled). D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid) are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.",
       "tags": [
         "native-ui",
         "m1.2b",
@@ -7638,7 +7638,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "28a7e5fa53fbbf44d0539192d8d003d59a25c2b330f0512ac6abdbe2a6d63c80"
+      "sourceSha256": "849b6fdc0b019dc03c971adfc96f1f1fde6889b4c43a783dd21e46103fe6bb1d"
     },
     {
       "id": "review-spec-v02-critique",
@@ -8741,5 +8741,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "ea3466d5e9dd4212dd5a808fc0004680125adeafca41c79e545fb40c886f973c"
+  "graphSha256": "bca81a1f2c225eb44f40188fe410e9c1954ee8e23c3f9b6d5f856b9254a41c57"
 };
