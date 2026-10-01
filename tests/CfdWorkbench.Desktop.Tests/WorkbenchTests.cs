@@ -351,7 +351,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             var accepted = secondController.Inspection.Authored.Binding.AcceptedId;
             var editable = secondController.Inspection.Authored.Rails.Single(r => r.Name == "leading")
                 .Controls.First(c => c.Editable && c.Eta > 0 && c.Eta < 1);
-            secondController.BeginEdit("leading", editable.Id);
+            secondController.OpenControlDraft("leading", editable.Id);
             Drain();
             second.Close();
             var modal = second.OwnedWindows.SingleOrDefault()
@@ -361,7 +361,7 @@ if (args.Contains("--theme-controls", StringComparer.Ordinal) ||
             if (stack is not null || !second.IsVisible || secondController.Draft is null ||
                 secondController.Inspection.Authored.Binding.AcceptedId != accepted)
                 throw new Exception("Unsaved close Cancel did not retain live accepted/draft state");
-            secondController.UpdateDraft(editable.OrdinateSi + .005);
+            secondController.ReviseOrdinate(editable.OrdinateSi + .005);
             Drain();
             if (stack is not null || secondController.Draft is null)
                 throw new Exception("Cancelled-close window did not accept a later draft update");
@@ -1578,8 +1578,8 @@ try
 finally { File.Delete(invalidNativePath); }
 var rail = workbench.Inspection.Authored.Rails.Single(r => r.Name == "leading");
 var control = rail.Controls.First(c => c.Editable && c.Eta > 0 && c.Eta < 1);
-workbench.BeginEdit("leading", control.Id);
-workbench.UpdateDraft(control.OrdinateSi + .005);
+workbench.OpenControlDraft("leading", control.Id);
+workbench.ReviseOrdinate(control.OrdinateSi + .005);
 await workbench.PreviewAsync();
 if (workbench.Provenance != "preview") throw new Exception("Preview was not shown");
 if (workbench.Points.Count != 15) throw new Exception("Preview did not sample bounded geometry");
@@ -1587,8 +1587,8 @@ workbench.Cancel();
 if (workbench.AcceptedSource != source) throw new Exception("Cancel changed accepted source");
 for (int attempt = 0; attempt < 100 && workbench.Provenance != "accepted"; attempt++) await Task.Delay(10);
 if (workbench.Provenance != "accepted") throw new Exception("Cancel did not restore accepted view");
-workbench.BeginEdit("leading", control.Id);
-workbench.UpdateDraft(control.OrdinateSi + .005);
+workbench.OpenControlDraft("leading", control.Id);
+workbench.ReviseOrdinate(control.OrdinateSi + .005);
 await workbench.PreviewAsync();
 workbench.Apply();
 if (workbench.AcceptedSource == source) throw new Exception("Apply did not change source");
@@ -1653,8 +1653,8 @@ try
     string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
     var recoveryTarget = savingDraft.Inspection.Authored.Rails.Single(r => r.Name == "leading").Controls
         .First(c => c.Editable && c.Eta > 0 && c.Eta < 1);
-    savingDraft.BeginEdit("leading", recoveryTarget.Id);
-    savingDraft.UpdateDraft(recoveryTarget.OrdinateSi + .005);
+    savingDraft.OpenControlDraft("leading", recoveryTarget.Id);
+    savingDraft.ReviseOrdinate(recoveryTarget.OrdinateSi + .005);
     byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
     var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
     if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
@@ -1712,11 +1712,11 @@ foreach (string railName in new[] { "leading", "trailing" })
     double normalizedX = railName == "leading" ? 0 : 1;
     var baseline = Geometry.PointAt(targeted.Inspection.Geometry.Certificate!, controlAtTip.Eta, normalizedX, upper);
     double baselineX = (baseline.X.Lower + baseline.X.Upper) / 2;
-    targeted.BeginEdit(railName, controlAtTip.Id);
+    targeted.OpenControlDraft(railName, controlAtTip.Id);
     for (int attempt = 0; attempt < 100 && targeted.Frame?.InteriorEta != controlAtTip.Eta; attempt++) await Task.Delay(10);
     if (targeted.Frame?.InteriorEta != controlAtTip.Eta)
         throw new Exception("Selected target did not retarget the accepted section slice");
-    targeted.UpdateDraft(controlAtTip.OrdinateSi + .005);
+    targeted.ReviseOrdinate(controlAtTip.OrdinateSi + .005);
     await targeted.PreviewAsync();
     var displayed = targeted.Points.Single(p => p.Eta == controlAtTip.Eta && p.NormalizedX == normalizedX && p.Upper);
     if (Math.Abs(displayed.X - baselineX) < 1e-6)
@@ -1731,8 +1731,8 @@ using (var invalidInput = new WorkbenchController())
     await invalidInput.OpenExampleAsync();
     var editable = invalidInput.Inspection!.Authored.Rails.Single(r => r.Name == "leading").Controls
         .First(c => c.Editable && c.Eta > 0 && c.Eta < 1);
-    invalidInput.BeginEdit("leading", editable.Id);
-    invalidInput.UpdateDraft(editable.OrdinateSi + .005);
+    invalidInput.OpenControlDraft("leading", editable.Id);
+    invalidInput.ReviseOrdinate(editable.OrdinateSi + .005);
     invalidInput.InvalidateDraftInput();
     if (invalidInput.DraftInputValid) throw new Exception("Invalid visible numeric input still permits preview");
     try { await invalidInput.PreviewAsync(); throw new Exception("Preview accepted invalid visible numeric input"); }
@@ -1743,7 +1743,7 @@ using (var invalidInput = new WorkbenchController())
         throw new Exception("Save persisted an earlier draft value while visible input was invalid");
     }
     catch (ContractError error) when (error.Code == "DSL-INVALID-NUMERIC") { }
-    invalidInput.UpdateDraft(editable.OrdinateSi + .006);
+    invalidInput.ReviseOrdinate(editable.OrdinateSi + .006);
     await invalidInput.PreviewAsync();
     if (invalidInput.Provenance != "preview") throw new Exception("Corrected numeric input did not restore Preview");
 }
@@ -1799,15 +1799,15 @@ using (var repeatedSelection = new WorkbenchController())
     await repeatedSelection.OpenExampleAsync();
     var acceptedCv = repeatedSelection.Inspection!.Authored.Rails.Single(rail => rail.Name == "leading")
         .Controls.Single(vertex => vertex.Id == "cv-2");
-    repeatedSelection.BeginEdit("leading", acceptedCv.Id);
-    repeatedSelection.UpdateDraft(.005);
+    repeatedSelection.OpenControlDraft("leading", acceptedCv.Id);
+    repeatedSelection.ReviseOrdinate(.005);
     await repeatedSelection.PreviewAsync();
     repeatedSelection.Cancel();
     var acceptedField = MainWindow.AcceptedControlField(acceptedCv, "mm");
     if (acceptedField.Text != "0" || acceptedField.Unit != "mm" ||
         !MainWindow.CanRestartSelectedEdit(repeatedSelection.Draft, selectedItemMatches: true, editable: acceptedCv.Editable))
         throw new Exception("Cancel left stale numeric text or blocked same-selected CV re-edit");
-    repeatedSelection.BeginEdit("leading", acceptedCv.Id);
+    repeatedSelection.OpenControlDraft("leading", acceptedCv.Id);
     if (repeatedSelection.Draft is null) throw new Exception("Repeated edit did not create an owned draft");
 }
 Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");

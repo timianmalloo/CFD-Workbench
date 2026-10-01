@@ -20,6 +20,10 @@
 
       <!-- Content Panel -->
       <StackPanel x:Name="ContentPanel" Spacing="8" IsVisible="False">
+        <TextBlock x:Name="LeadingEdgeHeader" Classes="caption" Text="Leading edge" />
+        <ListBox x:Name="LeadingEdgeList" />
+        <TextBlock x:Name="TrailingEdgeHeader" Classes="caption" Text="Trailing edge" />
+        <ListBox x:Name="TrailingEdgeList" />
         <TextBlock Classes="caption" Text="Accepted stations · normalized span η" />
         <ListBox x:Name="StationList" MaxHeight="{StaticResource NavigatorListHeight}"
                  AutomationProperties.Name="Accepted station assignments and profile identities" />

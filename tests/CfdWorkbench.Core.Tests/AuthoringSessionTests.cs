@@ -49,7 +49,7 @@ internal static class AuthoringSessionTests
             Equal("Custom profile", old.Authored.Assignments[1].ProfileName); Equal(.45, old.Authored.Assignments[1].SpanMeters);
             Equal(old.Authored.Binding.SourceHash, old.Geometry.Certificate!.SourceHash);
             _ = Geometry.PointAt(old.Geometry.Certificate, .4, .5, true);
-            string draft = Id(); session.BeginRailEdit(draft, leading.Name, selected.Id); session.UpdateDraft(draft, 0, .001);
+            string draft = Id(); session.BeginRailEdit(draft, leading.Name, selected.Id); session.ReviseOrdinate(draft, 0, .001);
             var view = session.InspectDraft(); Equal(draft, view.Binding.DraftId); Equal(1L, view.Binding.Generation); Equal("Draft", view.Binding.State);
             Equal(.001, view.Rails.Single(r => r.Name == "leading").Controls.Single(c => c.Id == selected.Id).OrdinateSi);
             _ = session.InspectAccepted(); Equal(draft, session.Snapshot().Draft!.Id);
@@ -84,7 +84,7 @@ internal static class AuthoringSessionTests
         Check("Ruling16_OldAcceptedProjection_RemainsBoundAfterApply", () =>
         {
             using var session = Opened(); var old = session.InspectAccepted(); string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .001); session.Apply(Id(), session.Validate(draft, 1));
             var current = session.InspectAccepted(); Equal(false, old.Authored.Binding.AcceptedId == current.Authored.Binding.AcceptedId);
             Equal(false, old.Authored.Binding.SourceHash == current.Authored.Binding.SourceHash);
             Equal(0d, old.Authored.Rails[0].Controls[2].OrdinateSi); Equal(.001, current.Authored.Rails[0].Controls[2].OrdinateSi);
@@ -174,13 +174,13 @@ internal static class AuthoringSessionTests
         {
             var session = Opened(); string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
             int successes = 0, conflicts = 0;
-            Parallel.For(0, 2, i => { try { session.UpdateDraft(draft, 0, .01 + i * .01); Interlocked.Increment(ref successes); }
+            Parallel.For(0, 2, i => { try { session.ReviseOrdinate(draft, 0, .01 + i * .01); Interlocked.Increment(ref successes); }
                 catch (ContractError error) when (error.Code == "DSL-CONFLICT") { Interlocked.Increment(ref conflicts); } });
             Equal(1, successes); Equal(1, conflicts); Equal(1L, session.Snapshot().Draft!.Generation);
         });
         Check("Session_RecoveryRoundtrip_OfferedBeforeResume", () =>
         {
-            var session = Opened(); string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .01);
+            var session = Opened(); string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .01);
             session.CaptureRecovery(); var reopened = new AuthoringSession(); reopened.Reopen(session.SaveImage());
             Equal(true, reopened.Snapshot().Draft is null); Equal(draft, reopened.Snapshot().Recovery!.DraftId);
             reopened.ResumeRecovery(); Equal(1L, reopened.Snapshot().Draft!.Generation); reopened.Cancel(draft);
@@ -189,14 +189,14 @@ internal static class AuthoringSessionTests
         Check("Session_LateSaveAcknowledgement_RemainsDirty", () =>
         {
             var session = Opened(); byte[] saved = session.SaveImage(); string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .01); session.Apply(Id(), session.Validate(draft, 1));
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .01); session.Apply(Id(), session.Validate(draft, 1));
             session.AcknowledgeSaved(saved); Equal(true, session.Snapshot().Dirty);
         });
         Check("Session_HistoryGrowthRefusal_IsAtomic", () =>
         {
             var baseline = Opened().SaveImage().Length; var session = new AuthoringSession(baseline + 200);
             session.Open(FoilSourceTests.Example, Id(), true); string before = session.Snapshot().AcceptedId, draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .01);
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .01);
             Refuses("DOC-SIZE", () => session.Apply(Id(), session.Validate(draft, 1)));
             Equal(before, session.Snapshot().AcceptedId); Equal(1L, session.Snapshot().Draft!.Generation);
         });
@@ -228,14 +228,14 @@ internal static class AuthoringSessionTests
         {
             var session = Opened(); var original = session.SaveImage();
             string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
-            session.UpdateDraft(draft, 0, .01); session.Cancel(draft);
+            session.ReviseOrdinate(draft, 0, .01); session.Cancel(draft);
             Equal(true, original.AsSpan().SequenceEqual(session.SaveImage()));
         });
         Check("Session_StaleGeneration_LeavesDraftUnchanged", () =>
         {
             var session = Opened(); string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
-            session.UpdateDraft(draft, 0, .01);
-            Refuses("DSL-CONFLICT", () => session.UpdateDraft(draft, 0, .02));
+            session.ReviseOrdinate(draft, 0, .01);
+            Refuses("DSL-CONFLICT", () => session.ReviseOrdinate(draft, 0, .02));
             Equal(1L, session.Snapshot().Draft!.Generation);
         });
         Check("Session_OutwardDraftMutation_CannotRetargetOrRewrite", () =>
@@ -248,7 +248,7 @@ internal static class AuthoringSessionTests
         Check("Session_ApplyRetryAfterUndoAndReopen_DoesNotMoveCursor", () =>
         {
             var session = Opened(); string root = session.Snapshot().AcceptedId; string draft = Id(), operation = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.UpdateDraft(draft, 0, .01);
+            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .01);
             var assessment = session.Validate(draft, 1); string applied = session.Apply(operation, assessment);
             session.Undo(Id()); var reopened = new AuthoringSession(); reopened.Reopen(session.SaveImage());
             Equal(applied, reopened.Apply(operation, assessment)); Equal(root, reopened.Snapshot().AcceptedId);
@@ -257,8 +257,8 @@ internal static class AuthoringSessionTests
         Check("Session_OldAssessment_AfterDraftUpdateCannotApply", () =>
         {
             var session = Opened(); string draft = Id(); session.BeginRailEdit(draft, "leading", "cv-2");
-            session.UpdateDraft(draft, 0, .01); var assessment = session.Validate(draft, 1);
-            session.UpdateDraft(draft, 1, .02);
+            session.ReviseOrdinate(draft, 0, .01); var assessment = session.Validate(draft, 1);
+            session.ReviseOrdinate(draft, 1, .02);
             Refuses("DSL-CONFLICT", () => session.Apply(Id(), assessment));
         });
         Check("Session_CancelledValidation_CannotApply", () =>
@@ -270,7 +270,7 @@ internal static class AuthoringSessionTests
         Check("Session_InvalidGeometry_LeavesAcceptedState", () =>
         {
             var session = Opened(); string root = session.Snapshot().AcceptedId, draft = Id();
-            session.BeginRailEdit(draft, "trailing", "cv-2"); session.UpdateDraft(draft, 0, -100);
+            session.BeginRailEdit(draft, "trailing", "cv-2"); session.ReviseOrdinate(draft, 0, -100);
             var assessment = session.Validate(draft, 1);
             Refuses("DSL-NOT-ASSESSED", () => session.Apply(Id(), assessment));
             Equal(root, session.Snapshot().AcceptedId);

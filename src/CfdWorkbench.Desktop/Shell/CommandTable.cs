@@ -60,6 +60,14 @@ public static class CommandTable
         new("view.toggle-right", "Right side bar", "View", "⌥⌘B", false, NoOp),
         new("view.palette", "Command palette", "View", "⌘K", false, NoOp),
         new("view.fit", "Fit", "View", "⌘0", false, NoOp),
+        new("view.comb", "Curvature comb", "View", "C", false, NoOp),
+        new("view.zoom-in", "Zoom in", "View", "⌘=", false, NoOp),
+        new("view.zoom-out", "Zoom out", "View", "⌘−", false, NoOp),
+        new("point.make-anchor", "Make anchor", "Edit", null, false, NoOp),
+        new("point.make-control", "Make control", "Edit", null, false, NoOp),
+        new("point.tangent-smooth", "Smooth tangent", "Edit", null, false, NoOp),
+        new("point.tangent-symmetric", "Symmetric tangent", "Edit", null, false, NoOp),
+        new("point.tangent-corner", "Corner tangent", "Edit", null, false, NoOp),
 
         // Window
         new("window.minimize", "Minimize", "Window", "⌘M", false, NoOp),

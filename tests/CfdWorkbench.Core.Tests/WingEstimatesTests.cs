@@ -52,7 +52,7 @@ internal static class WingEstimatesTests
             var accepted = WingEstimates.From(session.Snapshot().Source, "accepted", 0);
             string draft = Id();
             session.BeginRailEdit(draft, "trailing", "cv-4");
-            var updated = session.UpdateDraft(draft, 0, 0.30);
+            var updated = session.ReviseOrdinate(draft, 0, 0.30);
             var preview = WingEstimates.From(session.Snapshot().Draft!.Bytes, "preview", updated.Generation);
             Equal("preview", preview.Basis);
             Equal(updated.Generation, preview.Generation);

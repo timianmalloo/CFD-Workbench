@@ -316,7 +316,11 @@ public static class ShellModelTests
                 if (!paletteIds.Contains(row.Id))
                     throw new Exception($"Row {row.Id} missing from PaletteEntries");
 
-                if (string.IsNullOrWhiteSpace(row.Gesture))
+                // Point commands have no default gesture (m12b-points.md §5.2). Every other row keeps a key route.
+                bool pointCommand = row.Id.StartsWith("point.", StringComparison.Ordinal);
+                if (pointCommand && !string.IsNullOrWhiteSpace(row.Gesture))
+                    throw new Exception($"Row {row.Id} has a default gesture");
+                if (!pointCommand && string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has no Gesture/key route");
             }
 

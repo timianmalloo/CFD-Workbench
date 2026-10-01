@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Shell;
@@ -62,11 +63,24 @@ public static class NativeMenuBuilder
             "M" => Key.M,
             "F" => Key.F,
             "R" => Key.R,
+            "=" => Key.OemPlus,
+            "-" => Key.OemMinus,
+            "−" => Key.OemMinus,
             _ => Key.None
         };
 
         if (key == Key.None) return null;
+        if (modifiers == KeyModifiers.None && key == Key.C) return null;
         return new KeyGesture(key, modifiers);
+    }
+
+    private static bool IsPaneCommand(string id) =>
+        id.StartsWith("point.", StringComparison.Ordinal) || id is "view.comb" or "view.zoom-in" or "view.zoom-out" or "view.fit";
+
+    private static ShellHost? FindHost(Window window)
+    {
+        if (window.Content is ShellHost direct) return direct;
+        return window.Content is Control root ? root.GetVisualDescendants().OfType<ShellHost>().FirstOrDefault() : null;
     }
 
     public static NativeMenu BuildForWindow(Window window) => BuildMenu(window);
@@ -110,11 +124,20 @@ public static class NativeMenuBuilder
                         var focus = TopLevel.GetTopLevel(window)?.FocusManager?.GetFocusedElement();
                         EditVerbRouter.Execute(row.Id.Replace("edit.", ""), focus, () => onAction?.Invoke(row.Id));
                     }
+                    else if (IsPaneCommand(row.Id) && FindHost(window) is { } host)
+                    {
+                        _ = host.RunCommand(row.Id);
+                    }
                     else
                     {
                         onAction?.Invoke(row.Id);
                     }
-                }, row.Id is "edit.undo" or "edit.redo" ? () => canExecute?.Invoke(row.Id) ?? true : null);
+                }, () =>
+                {
+                    if (row.Id is "edit.undo" or "edit.redo") return canExecute?.Invoke(row.Id) ?? true;
+                    if (IsPaneCommand(row.Id) && FindHost(window) is { } host) return host.CanRun(row.Id);
+                    return true;
+                });
 
                 menu.Add(item);
 

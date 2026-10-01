@@ -6943,6 +6943,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "472dcb401c2327c95b35c249c5af76d2fe2dd1b6cc919bd2201a2d68229cf957"
     },
     {
+      "id": "proof-m12b-u2-red-runs",
+      "path": "docs/proof/m12b-u2-red-runs.md",
+      "title": "M1.2b U2 red runs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-u2",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records the foreground red run of all 25 named U2 pane checks before the Properties, Browser, command, and retirement implementation, and the dead-control mutant that turned the sweep red.",
+      "tags": [
+        "m12b",
+        "u2",
+        "desktop",
+        "panes",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aa10c715e67af0d14891756276142c698d1c698b31df88fa0e2022c8e605084c"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -8575,5 +8606,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "2759853444bde62237d40d1160c335c46cca17bce56743cac3d709646c5f56e6"
+  "graphSha256": "d6adad6ac5288942202a35bbbdb4bad837078c8102f26136d8739343930768d0"
 };

@@ -923,7 +923,7 @@ public sealed class WorkbenchController : IDisposable
         await RefreshAcceptedAsync(cancellation);
     }
 
-    public void BeginEdit(string rail, string vertexId)
+    public void OpenControlDraft(string rail, string vertexId)
     {
         if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
         var control = Inspection.Authored.Rails.Single(r => r.Name == rail).Controls.Single(c => c.Id == vertexId);
@@ -941,11 +941,11 @@ public sealed class WorkbenchController : IDisposable
         _ = RefreshAcceptedAsync();
     }
 
-    public void UpdateDraft(double ordinateSi)
+    public void ReviseOrdinate(double ordinateSi)
     {
         if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
-        draft = session.UpdateDraft(draft.Id, draft.Generation, ordinateSi);
+        draft = session.ReviseOrdinate(draft.Id, draft.Generation, ordinateSi);
         draftInputValid = true;
         currentAssessment = null;
         SectionReport = null;
@@ -1094,6 +1094,12 @@ public sealed class WorkbenchController : IDisposable
 
     public void Apply()
     {
+        // A resumed rail recovery has a draft but no latched preview: ResumeRecovery samples the
+        // accepted frame, and that refresh can finish the version check inside PreviewAsync before
+        // Remember runs. Certify the open draft here, then commit it.
+        if (draft is not null && draftInputValid &&
+            (currentAssessment is null || currentAssessment.Status != GeometryStatus.Certified || Frame?.Provenance != "preview"))
+            AssessDraftNow();
         if (draft is null || !draftInputValid || currentAssessment is null || currentAssessment.Status != GeometryStatus.Certified || Frame?.Provenance != "preview")
             throw new ContractError("DSL-NOT-ASSESSED");
         CancelSampling();

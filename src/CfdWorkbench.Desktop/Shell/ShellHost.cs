@@ -38,7 +38,6 @@ public sealed class ShellHost : Grid
 
     public PropertiesPane Properties { get; }
     public BrowserPane Browser { get; }
-    public RailEditorPane RailEditor { get; }
     public ModelArea ModelView { get; }
 
     public Button LeftSidebarToggle { get; }
@@ -111,14 +110,14 @@ public sealed class ShellHost : Grid
 
         Properties = new PropertiesPane();
         Browser = new BrowserPane();
-        RailEditor = new RailEditorPane();
         ModelView = new ModelArea();
         ModelView.PlanCanvas.Controller = controller;
+        AddHandler(InputElement.KeyDownEvent, OnShellKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
 
         // Assign views to layout tools / documents
         LayoutFactory.PropertiesTool.Context = Properties;
         LayoutFactory.BrowserTool.Context = Browser;
-        LayoutFactory.RailControlsTool.Context = RailEditor;
+        LayoutFactory.RailControlsTool.Context = null;
 
         // A view has one logical parent. Dock owns the only document tab strip.
         var sectionSample = ModelView.SectionSampleBody;
@@ -449,8 +448,9 @@ public sealed class ShellHost : Grid
     {
         Properties.Bind(Controller);
         Browser.Bind(Controller);
-        RailEditor.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
+        if (!string.IsNullOrWhiteSpace(Controller.Status))
+            ModelView.ShowStatus(Controller.Status);
 
         bool foilOpen = Controller.Inspection is not null;
         ModelView.ShowFoilOpen(foilOpen);
@@ -471,7 +471,7 @@ public sealed class ShellHost : Grid
             bool wasVisible = LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(dock) ?? false;
             if (wasVisible)
             {
-                if (dock.IsActive || Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin || RailEditor.IsKeyboardFocusWithin)
+                if (dock.IsActive || Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin)
                 {
                     LeftSidebarToggle.Focus();
                 }
@@ -524,13 +524,95 @@ public sealed class ShellHost : Grid
                     .OfType<ListBoxItem>().FirstOrDefault());
                 break;
             case "dense":
-                LayoutFactory.LeftToolDock.ActiveDockable = LayoutFactory.RailControlsTool;
-                FocusControlWhenReady(() => RailEditor.FindControl<ListBox>("ControlList")?.Items
+                LayoutFactory.LeftToolDock.ActiveDockable = LayoutFactory.BrowserTool;
+                FocusControlWhenReady(() => Browser.FindControl<ListBox>("LeadingEdgeList")?.Items
                     .OfType<ListBoxItem>().FirstOrDefault());
                 break;
             default:
                 throw new ArgumentException("Unknown review persona", nameof(persona));
         }
+    }
+
+    public bool CanRun(string id)
+    {
+        if (id is "view.zoom-in" or "view.zoom-out" or "view.comb" or "view.fit")
+            return Controller.Inspection is not null;
+        if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
+        var point = SelectedPoint();
+        if (point is null) return false;
+        return id switch
+        {
+            "point.make-anchor" => point.Role == PointRole.Control,
+            "point.make-control" => point.Role == PointRole.Anchor,
+            "point.tangent-smooth" or "point.tangent-symmetric" or "point.tangent-corner" =>
+                point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd,
+            _ => false
+        };
+    }
+
+    public async Task RunCommand(string id)
+    {
+        if (id.StartsWith("point.", StringComparison.Ordinal) && !CanRun(id)) return;
+        switch (id)
+        {
+            case "view.zoom-in":
+                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Controller.PlanCamera.PixelsPerMeter * 1.25 };
+                ModelView.ShowStatus("Zoomed in.");
+                return;
+            case "view.zoom-out":
+                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Math.Max(50, Controller.PlanCamera.PixelsPerMeter / 1.25) };
+                ModelView.ShowStatus("Zoomed out.");
+                return;
+            case "view.comb":
+                Controller.CombVisible = !Controller.CombVisible;
+                ModelView.ShowStatus(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off.");
+                return;
+            case "view.fit":
+                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = 1000, PanSpanPixels = 0, PanAftPixels = 0 };
+                ModelView.ShowStatus("Fit.");
+                return;
+            case "point.make-anchor":
+                await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));
+                return;
+            case "point.make-control":
+                await RunPoint(point => new PointCommand.MakeControl(point.Curve, point.Id));
+                return;
+            case "point.tangent-smooth":
+                await RunPoint(point => new PointCommand.SetTangent(point.Curve, point.Id, TangentKind.Smooth, null));
+                return;
+            case "point.tangent-symmetric":
+                await RunPoint(point => new PointCommand.SetTangent(point.Curve, point.Id, TangentKind.Symmetric, null));
+                return;
+            case "point.tangent-corner":
+                await RunPoint(point => new PointCommand.SetTangent(point.Curve, point.Id, TangentKind.Corner, null));
+                return;
+        }
+    }
+
+    private async Task RunPoint(Func<PointView, PointCommand> command)
+    {
+        if (SelectedPoint() is not { } point) return;
+        await Controller.ApplyPointCommandAsync(command(point));
+        RefreshPanes();
+    }
+
+    private PointView? SelectedPoint()
+    {
+        if (Controller.Selection is not Selection.Points { Items.Count: 1 } points || Controller.Planform is not { } plan)
+            return null;
+        var item = points.Items[0];
+        var rail = item.Curve == "leading" ? plan.Leading : plan.Trailing;
+        return rail.Points.FirstOrDefault(point => point.Id == item.VertexId);
+    }
+
+    private void OnShellKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
+    {
+        if (e.Handled || e.Key != Avalonia.Input.Key.Return) return;
+        if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox) return;
+        if (SelectedPoint() is null) return;
+        if (Properties.FindControl<TextBox>("PointSpanInput") is not { IsEnabled: true } span) return;
+        span.Focus();
+        e.Handled = true;
     }
 
     public void ClosePane(string id)

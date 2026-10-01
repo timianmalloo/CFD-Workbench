@@ -168,7 +168,7 @@ public sealed class AuthoringSession : IDisposable
     }
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
     public SessionDraft BeginRailEdit(string draftId, string rail, string vertexId) => Run("begin", () => BeginRailEditCore(draftId, rail, vertexId));
-    public SessionDraft UpdateDraft(string draftId, long generation, double si) => Run("update", () => UpdateDraftCore(draftId, generation, si), sizeof(double), generation);
+    public SessionDraft ReviseOrdinate(string draftId, long generation, double si) => Run("update", () => UpdateDraftCore(draftId, generation, si), sizeof(double), generation);
     public SessionDraft BeginPointGesture(string draftId, string curve, string vertexId) =>
         Run("begin", () => BeginPointGestureCore(draftId, curve, vertexId));
     public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double aftMeters) =>
@@ -782,7 +782,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == expectedGeneration && expectedGeneration < 9007199254740991, "DSL-CONFLICT");
-            draft = draft! with { Generation = expectedGeneration + 1, Bytes = FoilSource.PatchRail(ParseOwned(draft.Bytes), draft.Rail, draft.VertexId, si) }; return Copy(draft);
+            draft = draft! with { Generation = expectedGeneration + 1, Bytes = FoilSource.RewriteControlOrdinate(ParseOwned(draft.Bytes), draft.Rail, draft.VertexId, si) }; return Copy(draft);
         }
     }
     private static Diagnostic ThicknessDiagnostic(SessionDraft capture, string fault) => new(fault, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, "thickness",

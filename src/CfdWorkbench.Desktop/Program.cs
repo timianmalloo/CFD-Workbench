@@ -121,7 +121,7 @@ public sealed record NativeReviewOptions(string Persona, int Width, int Height, 
         if (State is not ("draft" or "invalid-input")) return;
         var target = workbench.Inspection!.Authored.Rails.SelectMany(rail => rail.Controls
             .Where(control => control.Editable).Select(control => (rail.Name, control.Id))).First();
-        workbench.BeginEdit(target.Name, target.Id);
+        workbench.OpenControlDraft(target.Name, target.Id);
         if (State == "invalid-input") workbench.InvalidateDraftInput();
         if (workbench.Draft is null || State == "invalid-input" && workbench.DraftInputValid)
             throw new InvalidOperationException("Review draft state did not materialize");
