@@ -52,10 +52,13 @@
             <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
           </StackPanel>
           <TextBlock x:Name="PointErrorText" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" IsVisible="False" />
-          <StackPanel x:Name="TangentGroup" Orientation="Horizontal" Spacing="8" IsVisible="False">
-            <Button x:Name="TangentSmoothButton" Content="Smooth" />
-            <Button x:Name="TangentSymmetricButton" Content="Symmetric" />
-            <Button x:Name="TangentCornerButton" Content="Corner" />
+          <StackPanel x:Name="TangentGroup" Spacing="4" IsVisible="False" AutomationProperties.Name="Tangent">
+            <TextBlock x:Name="TangentLabel" Text="Tangent" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <RadioButton x:Name="TangentSmoothButton" GroupName="Tangent" Content="Smooth" />
+              <RadioButton x:Name="TangentSymmetricButton" GroupName="Tangent" Content="Symmetric" />
+              <RadioButton x:Name="TangentCornerButton" GroupName="Tangent" Content="Corner" />
+            </StackPanel>
           </StackPanel>
           <StackPanel x:Name="HandleGroup" Spacing="8" IsVisible="False">
             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -91,10 +94,16 @@
 
             <!-- Readouts for root and tip chord -->
             <TextBlock x:Name="RootChordLabel" Classes="caption" Text="Root chord" />
-            <TextBox x:Name="RootChordInput" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0" x:Name="RootChordInput" />
+              <TextBlock Grid.Column="1" x:Name="RootChordUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+            </Grid>
             <TextBlock x:Name="RootChordText" Text="—" IsVisible="False" />
             <TextBlock x:Name="TipChordLabel" Classes="caption" Text="Tip chord" />
-            <TextBox x:Name="TipChordInput" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Grid.Column="0" x:Name="TipChordInput" />
+              <TextBlock Grid.Column="1" x:Name="TipChordUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+            </Grid>
             <TextBlock x:Name="TipClosedText" TextWrapping="Wrap" IsVisible="False" />
             <TextBlock x:Name="TipChordText" Text="—" IsVisible="False" />
             <TextBlock x:Name="ChordWarningText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />

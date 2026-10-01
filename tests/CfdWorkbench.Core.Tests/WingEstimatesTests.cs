@@ -60,6 +60,21 @@ internal static class WingEstimatesTests
             Equal(true, preview.AreaSquareMeters != accepted.AreaSquareMeters);
             Equal(true, preview.MacMeters != accepted.MacMeters);
         });
+        Check("WingEstimates_AnchorSymmetricTangent_MacConverges", () =>
+        {
+            // D-4 (docs/reviews/m12b-native.md §3.1): a short handle beside the anchor makes chord²(η) near-singular
+            // at a piece end; the fixed Gauss ladder never agreed, so MAC and AR went NaN after the first edit.
+            using var session = PointGestureTests.Open(FoilSource.NewDefault());
+            session.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("trailing", PointGestureTests.Point(session, "trailing", 3).Id));
+            session.ApplyPointCommand(Id(), new PointCommand.SetTangent("trailing",
+                Planform.View(session.Snapshot().Source, "Accepted", 0).Trailing.Points.Single(p => p.Role == PointRole.Anchor).Id, TangentKind.Symmetric, null));
+            var estimate = WingEstimates.From(session.Snapshot().Source.ToArray(), "accepted", 0);
+            Console.WriteLine($"  conv={estimate.Converged} outcome={estimate.Compute.Outcome} mac={estimate.MacMeters} ar={estimate.AspectRatio} iterations={estimate.Compute.Iterations} ms={estimate.Compute.DurationMilliseconds:F2}");
+            Equal(true, estimate.Converged);
+            Equal("ok", estimate.Compute.Outcome);
+            Equal(true, double.IsFinite(estimate.MacMeters) && double.IsFinite(estimate.AspectRatio));
+            Equal(true, estimate.MeanChordMeters <= estimate.MacMeters && estimate.MacMeters <= estimate.RootChordMeters);
+        });
         Check("WingEstimates_Save_NoEstimateInFile", () =>
         {
             using var session = new AuthoringSession();

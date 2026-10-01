@@ -12,6 +12,7 @@ public partial class PropertiesPane : UserControl
 {
     private const string ControlHelper = "A control point pulls the curve toward it. The curve does not pass through it.";
     private const string AnchorHelper = "An anchor point is on the curve. Its handles set the curve's direction on each side.";
+    private const string HandleHelper = "A handle sets the curve's direction at its anchor point. The tangent kind belongs to the anchor.";
     private const string TipClosedCopy = "Tip closes — edit the tip station";
 
     private WorkbenchController? boundController;
@@ -19,6 +20,7 @@ public partial class PropertiesPane : UserControl
     private bool suppress;
     private bool resumingRecovery;
     private PointView? selectedPoint;
+    private PointView? tangentOwner;
 
     public PropertiesPane()
     {
@@ -214,14 +216,21 @@ public partial class PropertiesPane : UserControl
         var plan = controller.Planform;
         bool preview = plan?.Basis == "preview" || estimates?.Basis == "preview";
         WingHeading.Text = preview ? "Wing · ≈ preview" : "Wing";
-        bool dash = estimates is null || !estimates.Converged || !double.IsFinite(estimates.MacMeters);
-        MeanChordText.Text = dash || estimates is null ? "≈ —" : "≈ " + Mm(estimates.MeanChordMeters);
-        MacText.Text = dash || estimates is null ? "≈ —" : "≈ " + Mm(estimates.MacMeters);
-        MaxTcText.Text = dash || estimates is null ? "≈ —" : "≈ " + estimates.MaxThicknessRatio.ToString("0.00", CultureInfo.InvariantCulture);
-        AspectText.Text = dash || estimates is null ? "≈ —" : "≈ " + estimates.AspectRatio.ToString("0.00", CultureInfo.InvariantCulture);
-        AreaEstimateText.Text = dash || estimates is null ? "≈ —" : "≈ " + (estimates.AreaSquareMeters * 10000).ToString("0", CultureInfo.InvariantCulture) + " cm²";
-        WingReasonText.IsVisible = dash && estimates is not null;
-        WingReasonText.Text = estimates?.Compute.Outcome ?? "";
+        // A row dashes only when its own value is unavailable; all five dash only when the wing has no positive
+        // area (an edge-crossing draft). Only MAC also needs the squared-chord integral to converge (D-4).
+        bool noArea = estimates is null || !double.IsFinite(estimates.AreaSquareMeters) || estimates.AreaSquareMeters <= 0;
+        MeanChordText.Text = Approx(noArea ? double.NaN : estimates!.MeanChordMeters, Mm);
+        MacText.Text = Approx(noArea ? double.NaN : estimates!.MacMeters, Mm);
+        MaxTcText.Text = Approx(noArea ? double.NaN : estimates!.MaxThicknessRatio, Ratio);
+        AspectText.Text = Approx(noArea ? double.NaN : estimates!.AspectRatio, Ratio);
+        AreaEstimateText.Text = Approx(noArea ? double.NaN : estimates!.AreaSquareMeters,
+            area => (area * 10000).ToString("0", CultureInfo.InvariantCulture) + " cm²");
+        string reason = estimates is null ? ""
+            : noArea ? "Estimates not available: the leading and trailing edges cross."
+            : !double.IsFinite(estimates.MacMeters) ? "MAC not available: the integral did not converge for this shape."
+            : "";
+        WingReasonText.IsVisible = reason.Length > 0;
+        WingReasonText.Text = reason;
         bool tipClosed = estimates is not null && estimates.TipChordMeters <= 1e-9;
         if (tipClosed && TipChordText.Text is { Length: > 0 } projected && projected != "—")
             TipClosedText.Text = projected;
@@ -229,6 +238,7 @@ public partial class PropertiesPane : UserControl
             TipClosedText.Text = TipClosedCopy;
         TipClosedText.IsVisible = tipClosed;
         TipChordInput.IsVisible = !tipClosed;
+        TipChordUnit.IsVisible = !tipClosed;
         if (estimates is not null && !RootChordInput.IsKeyboardFocusWithin)
             RootChordInput.Text = Mm(estimates.RootChordMeters);
         if (estimates is not null && !tipClosed && !TipChordInput.IsKeyboardFocusWithin)
@@ -246,6 +256,7 @@ public partial class PropertiesPane : UserControl
         if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
 
         selectedPoint = null;
+        tangentOwner = null;
         if (plan is null || controller.Selection is not Selection.Points points || points.Items.Count == 0)
         {
             PointBlock.IsVisible = false;
@@ -264,7 +275,7 @@ public partial class PropertiesPane : UserControl
             ConstraintText.Text = "";
             PointSpanInput.IsEnabled = false;
             PointAftInput.IsEnabled = false;
-            TangentGroup.IsVisible = false;
+            ShowTangent(null);
             HandleGroup.IsVisible = false;
             return;
         }
@@ -279,7 +290,11 @@ public partial class PropertiesPane : UserControl
         }
         selectedPoint = point;
         string curveName = point.Curve == "leading" ? "Leading edge" : "Trailing edge";
-        PointHeading.Text = curveName + " · point " + (point.Index + 1) + " of " + rail.Points.Count;
+        bool handle = point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
+        var owner = handle && point.AnchorId is { } ownerId ? rail.Points.FirstOrDefault(item => item.Id == ownerId) : null;
+        PointHeading.Text = owner is not null
+            ? curveName + " · handle of point " + (owner.Index + 1)
+            : curveName + " · point " + (point.Index + 1) + " of " + rail.Points.Count;
         bool named = point.Role is not (PointRole.Control or PointRole.Anchor);
         TypeControl.IsVisible = !named;
         TypeControl.IsEnabled = !named;
@@ -300,16 +315,15 @@ public partial class PropertiesPane : UserControl
                 PointFreedom.AftOnly => "Moves in chord only.",
                 _ => ""
             };
-        PointHelper.Text = point.Role == PointRole.Control ? ControlHelper : AnchorHelper;
+        PointHelper.Text = handle ? HandleHelper : point.Role == PointRole.Control ? ControlHelper : AnchorHelper;
         bool spanOn = point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
         bool aftOn = point.Freedom is PointFreedom.Free or PointFreedom.AftOnly;
         PointSpanInput.IsEnabled = spanOn;
         PointAftInput.IsEnabled = aftOn;
         if (!PointSpanInput.IsKeyboardFocusWithin) PointSpanInput.Text = Mm(point.SpanMeters);
         if (!PointAftInput.IsKeyboardFocusWithin) PointAftInput.Text = Mm(point.AftMeters);
-        bool tangent = point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd;
-        TangentGroup.IsVisible = tangent;
-        bool handle = point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
+        // F-4: a selected handle shows, and edits, its parent anchor's tangent kind.
+        ShowTangent(point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd ? point : owner);
         HandleGroup.IsVisible = handle;
         if (handle && point.AnchorId is not null)
         {
@@ -411,8 +425,19 @@ public partial class PropertiesPane : UserControl
 
     private void CommitTangent(TangentKind kind)
     {
-        if (boundController is null || selectedPoint is not { } point) return;
-        PumpUi(boundController.ApplyPointCommandAsync(new PointCommand.SetTangent(point.Curve, point.Id, kind, null)));
+        if (boundController is null || tangentOwner is not { } owner || owner.Kind == kind) return;
+        PumpUi(boundController.ApplyPointCommandAsync(new PointCommand.SetTangent(owner.Curve, owner.Id, kind, null)));
+        var rail = owner.Curve == "leading" ? boundController.Planform?.Leading : boundController.Planform?.Trailing;
+        ShowTangent(rail?.Points.FirstOrDefault(item => item.Id == owner.Id));
+    }
+
+    private void ShowTangent(PointView? owner)
+    {
+        tangentOwner = owner;
+        TangentGroup.IsVisible = owner is not null;
+        TangentSmoothButton.IsChecked = owner?.Kind == TangentKind.Smooth;
+        TangentSymmetricButton.IsChecked = owner?.Kind == TangentKind.Symmetric;
+        TangentCornerButton.IsChecked = owner?.Kind == TangentKind.Corner;
     }
 
     private bool CommitChord(string dimension, TextBox box)
@@ -486,6 +511,11 @@ public partial class PropertiesPane : UserControl
     }
 
     private static string Mm(double meters) => (meters * 1000).ToString("0.00", CultureInfo.InvariantCulture);
+
+    private static string Ratio(double value) => value.ToString("0.00", CultureInfo.InvariantCulture);
+
+    private static string Approx(double value, Func<double, string> format) =>
+        double.IsFinite(value) ? "≈ " + format(value) : "≈ —";
 
     private static string RoleText(PointRole role) => role switch
     {

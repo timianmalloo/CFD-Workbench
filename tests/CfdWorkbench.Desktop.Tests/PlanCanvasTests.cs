@@ -206,6 +206,53 @@ public static class PlanCanvasTests
                 throw new Exception("Command selection did not toggle");
         });
 
+        DesktopChecks.Check("PlanCanvas_SecondaryClickPoint_SelectsAndOpensPointMenu", () =>
+        {
+            // D-3 (docs/reviews/m12b-native.md §3.1, design §11.3 Point type row): Control-click is a secondary click on
+            // macOS; it and right-click select the point and open its menu. Shift+F10 and the menu key do the same.
+            using var fixture = new PlanFixture();
+            var controls = fixture.Controller.Planform!.Trailing.Points.Where(p => p.Role == PointRole.Control).ToArray();
+            var point = controls[0];
+            var other = controls[^1];
+            ContextMenu Open(string how)
+            {
+                if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 1 ||
+                    selected.Items[0].VertexId != point.Id)
+                    throw new Exception(how + " did not select the point alone");
+                if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
+                var items = menu.Items.OfType<MenuItem>().ToArray();
+                string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
+                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Fit:True")
+                    throw new Exception(how + " menu rows: " + rows);
+                string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
+                if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);
+                return menu;
+            }
+            void Close(ContextMenu menu) { menu.Close(); fixture.Settle(); }
+            fixture.Press(other);
+            fixture.Press(point, KeyModifiers.Control);
+            if (OperatingSystem.IsMacOS()) Close(Open("Control-click"));
+            else if (fixture.Controller.Selection is not Selection.Points { Items.Count: 2 })
+                throw new Exception("Ctrl-click no longer toggles on Windows");
+            fixture.Press(other);
+            fixture.DragAt(fixture.Canvas.ScreenPoint(point), default, MouseButton.Right, KeyModifiers.None);
+            Close(Open("Right-click"));
+            fixture.Press(other);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.KeyDown(Key.F10, KeyModifiers.Shift);
+            Close(Open("Shift+F10"));
+            fixture.KeyDown(Key.Apps);
+            var bound = Open("Context-menu key");
+            bound.Items.OfType<MenuItem>().First().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+            for (int i = 0; i < 400 && fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor; i++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            if (fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor)
+                throw new Exception("Make Anchor Point did not run point.make-anchor");
+        });
+
         DesktopChecks.Check("PlanCanvas_SpaceAndShiftSpace_SelectAndToggle", () =>
         {
             using var fixture = new PlanFixture();
@@ -250,6 +297,40 @@ public static class PlanCanvasTests
             fixture.Settle();
             if (!fixture.Controller.CombVisible || before.SequenceEqual(fixture.FrameSnapshot()))
                 throw new Exception("Comb toggle did not paint teeth on selected rail");
+        });
+
+        DesktopChecks.Check("PlanCanvas_FitAndDefaultView_PlanformClearOfProbeAndScaleBar", () =>
+        {
+            // F-3, O-1, O-3 (docs/reviews/m12b-native.md §3): the default view and Fit keep both halves, every point glyph and
+            // every station chip inside the canvas and clear of the Tracing probe box and the scale bar.
+            using var fixture = new PlanFixture();
+            void AssertClear(string view)
+            {
+                var canvas = fixture.Canvas;
+                double width = canvas.Bounds.Width, height = canvas.Bounds.Height;
+                var inside = new Rect(0, 0, width, height);
+                var probe = new Rect(Math.Max(8, width - 428), 8, 420, 48);
+                var scaleBar = new Rect(8, height - 50, 160, 34);
+                var plan = fixture.Controller.Planform!;
+                foreach (var point in plan.Leading.Points.Concat(plan.Trailing.Points))
+                foreach (double side in new[] { -1d, 1d })
+                {
+                    var centre = canvas.ScreenPoint(point with { SpanMeters = point.SpanMeters * side });
+                    var glyph = new Rect(centre.X - 8, centre.Y - 8, 16, 16);
+                    if (!inside.Contains(glyph) || glyph.Intersects(probe) || glyph.Intersects(scaleBar))
+                        throw new Exception($"{view}: {point.Curve} point {point.Index + 1} (side {side}) at {centre} is clipped or obscured");
+                }
+                var chips = canvas.VisibleStationChips;
+                if (chips.Count == 0) throw new Exception(view + ": no station chip shown");
+                foreach (var chip in chips)
+                    if (!inside.Contains(chip.Bounds) || chip.Bounds.Intersects(probe) || chip.Bounds.Intersects(scaleBar))
+                        throw new Exception($"{view}: station chip {chip.Index} at {chip.Bounds} is clipped or obscured");
+            }
+            AssertClear("default view");
+            fixture.Canvas.PanBy(240, -120);
+            fixture.Canvas.Fit();
+            fixture.Settle();
+            AssertClear("Fit");
         });
 
         DesktopChecks.Check("PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera", () =>
@@ -447,6 +528,36 @@ public static class PlanCanvasTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("PlanCanvas_DragEmptyCanvas_PansPlainShiftMiddle_ClickStillClears", () =>
+        {
+            // D-1 + F-2 (docs/reviews/m12b-native.md §3): a drag that starts on empty canvas pans; Escape cancels it.
+            using var fixture = new PlanFixture();
+            var empty = new Point(24, fixture.Canvas.Bounds.Height / 2);
+            if (fixture.Canvas.HitTestPoint(empty) is not null) throw new Exception("Test location is not empty canvas");
+            string accepted = fixture.Controller.AcceptedSource;
+            bool undo = fixture.Controller.CanUndo;
+            foreach (var (button, modifiers) in new[] { (MouseButton.Left, KeyModifiers.None),
+                         (MouseButton.Left, KeyModifiers.Shift), (MouseButton.Middle, KeyModifiers.None) })
+            {
+                var before = fixture.Controller.PlanCamera;
+                fixture.DragAt(empty, new Vector(30, 20), button, modifiers);
+                var after = fixture.Controller.PlanCamera;
+                if (after.PanSpanPixels - before.PanSpanPixels != 30 || after.PanAftPixels - before.PanAftPixels != 20)
+                    throw new Exception($"{modifiers} {button} drag on empty canvas did not pan: {before} -> {after}");
+            }
+            var start = fixture.Controller.PlanCamera;
+            fixture.DragAt(empty, new Vector(40, 10), MouseButton.Left, KeyModifiers.None, escapeBeforeRelease: true);
+            if (fixture.Controller.PlanCamera != start)
+                throw new Exception("Escape did not cancel the pan back to its start");
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.DragAt(empty, new Vector(1, 1), MouseButton.Left, KeyModifiers.None);
+            if (fixture.Controller.Selection is not Selection.Foil)
+                throw new Exception("A click on empty canvas did not clear the selection to the Foil");
+            if (fixture.Controller.AcceptedSource != accepted || fixture.Controller.CanUndo != undo)
+                throw new Exception("Panning changed the source or the undo history");
+        });
+
         DesktopChecks.Check("PlanCanvas_ClickStationChip_SelectsStation", () =>
         {
             using var fixture = new PlanFixture(newFoil: true);
@@ -596,6 +707,56 @@ public static class PlanCanvasTests
             fixture.AssertGlyphPixel(fixture.Controller.Planform!.Trailing.Points[4]);
         });
 
+        DesktopChecks.Check("PlanCanvas_CrossingMarker_OnlyWhileReleaseWouldBeRefused", () =>
+        {
+            // D-2 (docs/reviews/m12b-native.md §3.1, design §0.1 step 6): the marker shows during the drag, never after.
+            using var fixture = new PlanFixture(newFoil: true);
+            var plan = fixture.Controller.Planform!;
+            var point = plan.Trailing.Points[4];
+            var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
+            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            var field = typeof(PlanCanvas).GetField("advisoryCrossing",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("Advisory marker field missing");
+            bool Marker() => (bool)field.GetValue(fixture.Canvas)!;
+            string before = fixture.Controller.AcceptedSource;
+            // Bisect the drag distance down to the pixel where the release starts to be refused. At every probe, the marker
+            // during the drag must equal the release outcome, and no release leaves it behind.
+            bool Probe(double dy)
+            {
+                fixture.BeginDrag(point);
+                fixture.MoveDrag(point, 0, dy);
+                bool shown = Marker();
+                fixture.ReleaseDrag(point, 0, dy);
+                fixture.WaitGesture();
+                fixture.Settle();
+                bool refused = fixture.Controller.AcceptedSource == before;
+                if (shown != refused)
+                    throw new Exception($"dy={dy}: marker during the drag={shown}, release refused={refused}");
+                if (Marker()) throw new Exception($"dy={dy}: the marker stayed after the release");
+                if (!refused) { fixture.Controller.Undo(); fixture.Settle(); }
+                return refused;
+            }
+            double valid = -8, refusedAt = Math.Round(cross);
+            if (Probe(valid) || !Probe(refusedAt)) throw new Exception("the bracket does not straddle the refusal");
+            while (valid - refusedAt > 1)
+            {
+                double mid = Math.Round((valid + refusedAt) / 2);
+                if (Probe(mid)) refusedAt = mid; else valid = mid;
+            }
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, cross);
+            if (!Marker()) throw new Exception("no marker on a crossing drag");
+            fixture.MoveDrag(point, 0, -8);
+            if (Marker()) throw new Exception("the marker stayed after the drag moved back to a valid position");
+            fixture.MoveDrag(point, 0, cross);
+            fixture.KeyDown(Key.Escape);
+            fixture.WaitGesture();
+            fixture.Settle();
+            if (Marker()) throw new Exception("the marker stayed after Escape");
+            fixture.ReleaseDrag(point, 0, cross);
+        });
+
         DesktopChecks.Check("PlanCanvas_HoverProbe_ParksPointerFirst", () =>
         {
             using var fixture = new PlanFixture();
@@ -739,6 +900,29 @@ public static class PlanCanvasTests
             Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, position, 2,
                 new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased),
                 KeyModifiers.None, MouseButton.Left));
+            Settle();
+        }
+
+        /// <summary>Press with <paramref name="button"/> at a canvas point, move by <paramref name="by"/>, then release (or Escape first).</summary>
+        public void DragAt(Point local, Vector by, MouseButton button, KeyModifiers modifiers, bool escapeBeforeRelease = false)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var (raw, kind, released) = button switch
+            {
+                MouseButton.Middle => (RawInputModifiers.MiddleMouseButton, PointerUpdateKind.MiddleButtonPressed, PointerUpdateKind.MiddleButtonReleased),
+                MouseButton.Right => (RawInputModifiers.RightMouseButton, PointerUpdateKind.RightButtonPressed, PointerUpdateKind.RightButtonReleased),
+                _ => (RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed, PointerUpdateKind.LeftButtonReleased)
+            };
+            var start = Canvas.TranslatePoint(local, Window)!.Value;
+            var end = Canvas.TranslatePoint(local + by, Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, start, 1,
+                new PointerPointProperties(raw, kind), modifiers));
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, Canvas, pointer, Window, end, 2,
+                new PointerPointProperties(raw, PointerUpdateKind.Other), modifiers));
+            Settle();
+            if (escapeBeforeRelease) KeyDown(Key.Escape);
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, end, 3,
+                new PointerPointProperties(RawInputModifiers.None, released), modifiers, button));
             Settle();
         }
 

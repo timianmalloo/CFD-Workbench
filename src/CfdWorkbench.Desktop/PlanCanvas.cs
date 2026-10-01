@@ -49,6 +49,12 @@ public sealed class PlanCanvas : Control
     private bool advisoryCrossing;
     private Point advisoryPoint;
     private bool renderFailureNotified;
+    // A press on empty canvas (§11.3 Pan row, F-2): a drag pans the camera, a click clears the selection.
+    private PlanCamera? panOrigin;
+    private Point panPress;
+    private Point panLast;
+    private bool panning;
+    private bool panClicks;
 
     public WorkbenchController? Controller
     {
@@ -228,7 +234,7 @@ public sealed class PlanCanvas : Control
         {
             PixelsPerMeter = nextScale,
             PanSpanPixels = pivot.X - Bounds.Width / 2 - (pivot.X - Bounds.Width / 2 - camera.PanSpanPixels) * actual,
-            PanAftPixels = pivot.Y - 40 - (pivot.Y - 40 - camera.PanAftPixels) * actual
+            PanAftPixels = pivot.Y - AxisPointLayer.FitTop - (pivot.Y - AxisPointLayer.FitTop - camera.PanAftPixels) * actual
         };
         UpdatePlan();
     }
@@ -266,14 +272,30 @@ public sealed class PlanCanvas : Control
                 e.Handled = true;
                 return;
             }
-            Controller.Select(new Selection.Foil());
-            TooltipText = null;
-            InvalidateVisual();
+            var pressed = e.GetCurrentPoint(this).Properties;
+            if (pressed.IsLeftButtonPressed || pressed.IsMiddleButtonPressed)
+            {
+                panOrigin = Controller.PlanCamera;
+                panPress = panLast = position;
+                panning = false;
+                panClicks = pressed.IsLeftButtonPressed;
+                e.Pointer.Capture(this);
+                e.Handled = true;
+            }
             return;
         }
         var reference = new PointRef(hit.Curve, hit.Id);
+        var buttons = e.GetCurrentPoint(this).Properties;
+        // §11.3 / spec B7: on macOS Control-click is a secondary click and ⌘-click toggles; on Windows Ctrl-click toggles.
+        bool control = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        if (buttons.IsRightButtonPressed || OperatingSystem.IsMacOS() && control && buttons.IsLeftButtonPressed)
+        {
+            OpenPointMenu(reference);
+            e.Handled = true;
+            return;
+        }
         bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-        bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
         SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
         if (e.ClickCount >= 2) RequestValue(hit);
@@ -289,6 +311,15 @@ public sealed class PlanCanvas : Control
     {
         base.OnPointerMoved(e);
         var position = e.GetPosition(this);
+        if (panOrigin is not null)
+        {
+            if (!panning && Point.Distance(position, panPress) <= 3) return;
+            panning = true;
+            PanBy(position.X - panLast.X, position.Y - panLast.Y);
+            panLast = position;
+            e.Handled = true;
+            return;
+        }
         HoverAt(position);
         if (Controller?.Gesture is not (GestureState.Pressed or GestureState.Dragging)) return;
         var plan = Controller.Planform;
@@ -306,12 +337,6 @@ public sealed class PlanCanvas : Control
             }
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
-        if (focusedPoint is { Curve: "trailing" })
-        {
-            var probe = CfdWorkbench.Core.Planform.Probe(plan, Math.Clamp(target.Span / plan.HalfSpanMeters, 0, 1));
-            advisoryCrossing = target.Ordinate <= probe.LeadingAftMeters;
-            advisoryPoint = position;
-        }
         if (focusedPoint is { } selected)
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
@@ -323,15 +348,79 @@ public sealed class PlanCanvas : Control
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Selects <paramref name="reference"/> and opens the point menu (D-3). Each row runs the shell command of the same
+    /// name, with the shell's enablement (<see cref="Shell.ShellHost.CanRun"/>).
+    /// </summary>
+    public void OpenPointMenu(PointRef reference)
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
+        SelectPoint(reference, extend: false, toggle: false);
+        FocusPoint(reference);
+        MenuItem Row(string header, string id)
+        {
+            var item = new MenuItem { Header = header, IsEnabled = host.CanRun(id) };
+            item.Click += (_, _) => _ = host.RunCommand(id);
+            return item;
+        }
+        MenuItem[] tangents = [Row("Smooth", "point.tangent-smooth"), Row("Symmetric", "point.tangent-symmetric"), Row("Corner", "point.tangent-corner")];
+        var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
+        var menu = new ContextMenu
+        {
+            ItemsSource = new Control[]
+            {
+                Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Fit", "view.fit")
+            }
+        };
+        // Attached only while shown, so a right-click on empty canvas never opens a stale point menu.
+        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
+        ContextMenu = menu;
+        menu.Open(this);
+    }
+
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        // The point menu is opened on press; keep Avalonia's right-release context request from opening it twice.
+        if (e.InitialPressMouseButton == MouseButton.Right) e.Handled = true;
         base.OnPointerReleased(e);
+        if (panOrigin is not null)
+        {
+            if (!panning && panClicks && Controller is not null)
+            {
+                Controller.Select(new Selection.Foil());
+                TooltipText = null;
+            }
+            EndPan(cancel: false);
+            e.Pointer.Capture(null);
+            e.Handled = true;
+            return;
+        }
         e.Pointer.Capture(null);
         if (Controller?.Gesture is GestureState.Pressed or GestureState.Dragging)
         {
             _ = Controller.EndGestureAsync(GestureEnd.Release);
             e.Handled = true;
         }
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+        EndPan(cancel: false);
+    }
+
+    // A pan is a view change, never an undo step. Escape restores the camera the press started from.
+    private void EndPan(bool cancel)
+    {
+        if (panOrigin is { } origin && cancel && Controller is not null)
+        {
+            Controller.PlanCamera = origin;
+            UpdatePlan();
+        }
+        panOrigin = null;
+        panning = false;
+        InvalidateVisual();
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -350,6 +439,18 @@ public sealed class PlanCanvas : Control
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
         if (e.Key == Key.Tab) { e.Handled = FocusNext(shift); return; }
         if (e.Key == Key.Space) { SelectFocused(shift); e.Handled = true; return; }
+        if ((e.Key == Key.Apps || e.Key == Key.F10 && shift) && focusedPoint is { } menuTarget)
+        {
+            OpenPointMenu(menuTarget);
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.Escape && panOrigin is not null)
+        {
+            EndPan(cancel: true);
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Escape)
         {
             if (TooltipText is not null) TooltipText = null;
@@ -420,6 +521,7 @@ public sealed class PlanCanvas : Control
         if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0)
         {
             targets.Clear();
+            advisoryCrossing = false;
             InvalidateVisual();
             return;
         }
@@ -430,6 +532,9 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
+        // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
+        advisoryCrossing = Controller.GestureCrossing is not null;
+        if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.AftMeters);
         InvalidateVisual();
     }
 
@@ -590,17 +695,29 @@ public sealed class PlanCanvas : Control
             this.size = size;
         }
 
+        // F-3: the fitted view keeps the planform, both halves, every point glyph and every station chip clear of the
+        // Tracing probe box (top band, 8 + 48 px) and the scale bar (bottom band, 50 px), with a margin.
+        private const double GlyphMargin = 8;
+        private const double ChipHalfWidth = 48;
+        private const double ChipDrop = 34;
+        private const double ScaleBarBand = 50;
+        public const double FitTop = 8 + 48 + 12 + GlyphMargin;
+
         private static AxisMapping PlanAxes(PlanformView plan, Size size, PlanCamera camera)
         {
-            double scale = Math.Min((size.Width - 80) / (2 * plan.HalfSpanMeters),
-                (size.Height - 80) / Math.Max(0.01, plan.Trailing.Samples.Max(item => item.AftMeters) -
-                    plan.Leading.Samples.Min(item => item.AftMeters))) * camera.PixelsPerMeter / 1000;
-            double minAft = plan.Leading.Samples.Min(item => item.AftMeters);
+            var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
+            double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
+            double minAft = Math.Min(plan.Leading.Samples.Min(item => item.AftMeters), points.Min(item => item.AftMeters));
+            double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.AftMeters), points.Max(item => item.AftMeters));
+            double usableWidth = size.Width - 2 * (ChipHalfWidth + GlyphMargin);
+            double usableHeight = size.Height - FitTop - ChipDrop - ScaleBarBand - GlyphMargin;
+            double scale = Math.Max(1, Math.Min(usableWidth / (2 * halfWidth), usableHeight / Math.Max(0.01, maxAft - minAft)))
+                * camera.PixelsPerMeter / 1000;
             return new AxisMapping(
                 (span, aft) => new Point(size.Width / 2 + span * scale + camera.PanSpanPixels,
-                    40 + (aft - minAft) * scale + camera.PanAftPixels),
+                    FitTop + (aft - minAft) * scale + camera.PanAftPixels),
                 position => ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
-                    (position.Y - 40 - camera.PanAftPixels) / scale + minAft));
+                    (position.Y - FitTop - camera.PanAftPixels) / scale + minAft));
         }
 
         public Point ToScreen(double span, double aft) => axes.Project(span, aft);

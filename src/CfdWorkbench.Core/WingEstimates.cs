@@ -33,16 +33,18 @@ public sealed record WingEstimates(
         double chordIntegral = IntegrateOrdinate(trailing) - IntegrateOrdinate(leading);
         double span = 2 * definition.HalfSpan;
         double area = span * chordIntegral;
-        double mean = span == 0 ? double.NaN : area / span;
         var squared = IntegrateSquare(leading, trailing);
-        bool finite = squared.Converged && double.IsFinite(area) && area > 0 && double.IsFinite(span);
-        double mac = finite ? span * squared.Integral / area : double.NaN;
-        double aspect = finite ? span * span / area : double.NaN;
+        // Validity is per quantity: mean chord and aspect ratio need only a finite positive area (a crossing
+        // draft has none); only MAC also needs the squared-chord integral to converge.
+        bool hasArea = double.IsFinite(area) && area > 0 && double.IsFinite(span) && span > 0;
+        double mean = hasArea ? area / span : double.NaN;
+        double aspect = hasArea ? span * span / area : double.NaN;
+        double mac = hasArea && squared.Converged ? span * squared.Integral / area : double.NaN;
         double tipEta = definition.Assignments.Length == 0 ? 1 : definition.Assignments[^1].Eta;
         timer.Stop();
-        string outcome = finite ? "ok" : "not-converged";
+        string outcome = hasArea && squared.Converged ? "ok" : "not-converged";
         return new(span, Chord(definition, 0), Chord(definition, tipEta), mean, mac, MaxOrdinate(definition.Curves["thickness"]),
-            aspect, area, basis, generation, finite, new("estimates.compute", timer.Elapsed.TotalMilliseconds, intervals, squared.Iterations, outcome));
+            aspect, area, basis, generation, squared.Converged, new("estimates.compute", timer.Elapsed.TotalMilliseconds, intervals, squared.Iterations, outcome));
     }
 
     public static double ChordMeters(byte[] source, double eta) => Chord(RequireFoil(source), eta);
@@ -116,18 +118,32 @@ public sealed record WingEstimates(
         return (total, iterations, converged);
     }
 
-    private static (double Value, int Iterations, bool Converged) Adaptive(double start, double end, Func<double, double> f)
+    // A short handle beside an anchor makes dη/du ≈ 0 at a piece end, so chord²(η) is near-singular there and the
+    // Gauss ladder alone does not agree (D-4). Bisect such a piece; each half gets half the absolute tolerance.
+    // Iterations reports the deepest level reached plus the ladder steps at that leaf. The fixed depth cap bounds
+    // the worst case at 2^MaxBisectionDepth leaves per piece; the measured per-frame cost is estimatesP95Ms.
+    private const int MaxBisectionDepth = 8;
+
+    private static (double Value, int Iterations, bool Converged) Adaptive(double start, double end, Func<double, double> f) =>
+        Adaptive(start, end, f, tolerance: double.NaN, depth: 0);
+
+    private static (double Value, int Iterations, bool Converged) Adaptive(double start, double end, Func<double, double> f, double tolerance, int depth)
     {
         int[] orders = [4, 8, 12, 16];
         double previous = Quadrature(orders[0], start, end, f);
         for (int step = 1; step < orders.Length; step++)
         {
             double next = Quadrature(orders[step], start, end, f);
-            double scale = Math.Max(Math.Abs(previous), Math.Abs(next));
-            if (Math.Abs(next - previous) <= 1e-9 * Math.Max(scale, 1e-30)) return (next, step + 1, true);
+            double limit = double.IsNaN(tolerance) ? 1e-9 * Math.Max(Math.Max(Math.Abs(previous), Math.Abs(next)), 1e-30) : tolerance;
+            if (Math.Abs(next - previous) <= limit) return (next, depth + step + 1, true);
             previous = next;
         }
-        return (previous, orders.Length, false);
+        if (depth == MaxBisectionDepth) return (previous, depth + orders.Length, false);
+        double childTolerance = 0.5 * (double.IsNaN(tolerance) ? 1e-9 * Math.Max(Math.Abs(previous), 1e-30) : tolerance);
+        double mid = 0.5 * (start + end);
+        var left = Adaptive(start, mid, f, childTolerance, depth + 1);
+        var right = Adaptive(mid, end, f, childTolerance, depth + 1);
+        return (left.Value + right.Value, Math.Max(left.Iterations, right.Iterations), left.Converged && right.Converged);
     }
 
     private static int SpanCount(Curve curve)
