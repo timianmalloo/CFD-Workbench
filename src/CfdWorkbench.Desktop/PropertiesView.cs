@@ -603,8 +603,8 @@ public static class PropertiesView
         var rootRef = new PointRef(root.Curve, root.Id);
         var tipRef = new PointRef(tip.Curve, tip.Id);
         // assume: under Smooth and Symmetric, Core keeps the other handle in line (Symmetric: equal) when one handle
-        // moves (m12b-points §3 tangent rules). Confirm: PropertiesPane_AnchorAngle_MovesBothHandles reads both handles
-        // after a commit. If false, "Angle, both handles" moves one handle only.
+        // moves (m12b-points §3 tangent rules). Not yet confirmed by a check: commit an Angle on a Smooth anchor and read
+        // both handles (B2.1 in docs/reviews/property-grid-native.md). If false, "Angle, both handles" moves one handle only.
         switch (kind)
         {
             case TangentKind.Smooth:
