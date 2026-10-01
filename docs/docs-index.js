@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5141055f575aac7cefeb30d5b1834a3a9651937f01f36b8f5c5fc781dd8d3bcc"
+      "sourceSha256": "9d22d9b6782b4303f00df8029dcc04e18399bf18ec321543ff12436f477bf3d0"
     },
     {
       "id": "domain-experts",
@@ -7139,6 +7139,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-readyfix2",
+      "path": "docs/proof/readyfix2.md",
+      "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-readyfix2",
+      "phase": "readiness",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Fixes the two causes LEGACY left readiness RED on: Core.Tests fixture reads resolved against the process cwd rather than the repo, and the adapters theme gate's declared-brush-key set did not account for U1b's seven Plan-canvas aliases. Extends the TEST-REPO-LAYOUT scan to catch the cwd-relative-literal shape, and proves the theme gate's declared-key check with a mutant.",
+      "tags": [
+        "readiness",
+        "test-repo-layout",
+        "theme",
+        "m12b",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -8643,5 +8674,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a53c3bf817fd427a2d4858180dbb1e73824734eca6c341a581038d5279977fb3"
+  "graphSha256": "11c43fcfbf53e301d4046507f66219be5fe60a28178a628a96f90cb53351bab1"
 };

@@ -161,43 +161,43 @@ internal static class FoilSourceTests
         M12bChecks();
     }
 
-    private const string Fx = "tests/CfdWorkbench.Core.Tests/Fixtures/m12b/";
+    private static string Fx(string name) => M12bFixtures.Path(name);
 
     private static void M12bChecks()
     {
         Check("Parse_Foil41WithTangents_RowsParsed", () =>
         {
-            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx + "foil-41-tangents.foil"));
+            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx("foil-41-tangents.foil")));
             Equal(true, parsed.IsParsed);
             var row = parsed.Definition!.Curves["leading"].Tangents.Single();
             Equal("cv-3", row.Id);
             Equal("smooth", row.Kind);
             Equal(true, row.Angle is null);
         });
-        Check("Parse_TangentsUnder40_DslSyntax", () => CodeOf(Fx + "foil-40-tangents.foil", "DSL-SYNTAX"));
-        Check("Parse_TangentRowOnControlPoint_DslLock", () => CodeOf(Fx + "foil-41-row-on-control.foil", "DSL-LOCK"));
-        Check("Parse_AngleKindOnChannel_DslLock", () => CodeOf(Fx + "foil-41-angle-on-channel.foil", "DSL-LOCK"));
-        Check("Parse_ElevenChannelPointsUnder40_DslCurve", () => CodeOf(Fx + "foil-40-eleven-points.foil", "DSL-CURVE"));
+        Check("Parse_TangentsUnder40_DslSyntax", () => CodeOf(Fx("foil-40-tangents.foil"), "DSL-SYNTAX"));
+        Check("Parse_TangentRowOnControlPoint_DslLock", () => CodeOf(Fx("foil-41-row-on-control.foil"), "DSL-LOCK"));
+        Check("Parse_AngleKindOnChannel_DslLock", () => CodeOf(Fx("foil-41-angle-on-channel.foil"), "DSL-LOCK"));
+        Check("Parse_ElevenChannelPointsUnder40_DslCurve", () => CodeOf(Fx("foil-40-eleven-points.foil"), "DSL-CURVE"));
         Check("Parse_SixteenChannelPointsUnder41_Parsed", () =>
         {
-            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx + "foil-41-sixteen-three-anchors.foil"));
+            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx("foil-41-sixteen-three-anchors.foil")));
             Equal(true, parsed.IsParsed);
             var leading = parsed.Definition!.Curves["leading"];
             Equal(16, leading.Points.Length);
             Equal(3, leading.Tangents.Length);
             Equal(true, leading.Tangents.All(row => row.Kind == "smooth"));
         });
-        Check("Parse_SeventeenChannelPointsUnder41_DslCurve", () => CodeOf(Fx + "foil-41-seventeen-points.foil", "DSL-CURVE"));
+        Check("Parse_SeventeenChannelPointsUnder41_DslCurve", () => CodeOf(Fx("foil-41-seventeen-points.foil"), "DSL-CURVE"));
         Check("Parse_Foil42UnknownBlock_DslVersion", () =>
         {
-            byte[] source = File.ReadAllBytes(Fx + "foil-42-unknown-block.foil");
+            byte[] source = File.ReadAllBytes(Fx("foil-42-unknown-block.foil"));
             var parsed = FoilSource.Parse(source);
             Equal("DSL-VERSION", parsed.Diagnostics[0].Code);
             Equal(true, source.AsSpan().SequenceEqual(parsed.Source));
         });
         Check("Parse_Foil41RoundTrip_RandomRowsStable", () =>
         {
-            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx + "foil-41-tangents.foil"));
+            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx("foil-41-tangents.foil")));
             Equal(true, parsed.IsParsed);
             var rng = new Random(12041);
             var curves = new Dictionary<string, Curve>(StringComparer.Ordinal);
@@ -222,7 +222,7 @@ internal static class FoilSourceTests
         });
         Check("Identity_TangentsRows_DefinitionHashUnchanged", () =>
         {
-            byte[] withRows = File.ReadAllBytes(Fx + "foil-41-tangents.foil");
+            byte[] withRows = File.ReadAllBytes(Fx("foil-41-tangents.foil"));
             byte[] stripped = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(withRows).Replace(" tangents { \"cv-3\" smooth }", ""));
             var left = FoilSource.Parse(withRows);
             var right = FoilSource.Parse(stripped);
@@ -245,7 +245,7 @@ internal static class FoilSourceTests
         });
         Check("EnsureHeader41_FirstRow_HeaderRewritten", () =>
         {
-            string labeled40 = File.ReadAllText(Fx + "foil-41-tangents.foil").Replace("foildsl \"4.1\"", "foildsl \"4.0\"", StringComparison.Ordinal);
+            string labeled40 = File.ReadAllText(Fx("foil-41-tangents.foil")).Replace("foildsl \"4.1\"", "foildsl \"4.0\"", StringComparison.Ordinal);
             byte[] rewritten = FoilSource.EnsureHeader41(Encoding.UTF8.GetBytes(labeled40));
             Equal(true, Encoding.UTF8.GetString(rewritten).Contains("foildsl \"4.1\"", StringComparison.Ordinal));
             var parsed = FoilSource.Parse(rewritten);
@@ -254,7 +254,7 @@ internal static class FoilSourceTests
         });
         Check("EnsureHeader41_Already41_Unchanged", () =>
         {
-            byte[] source = File.ReadAllBytes(Fx + "foil-41-tangents.foil");
+            byte[] source = File.ReadAllBytes(Fx("foil-41-tangents.foil"));
             byte[] again = FoilSource.EnsureHeader41(source);
             Equal(true, ReferenceEquals(source, again));
         });

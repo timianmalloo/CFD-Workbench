@@ -1210,6 +1210,33 @@ synthetic validator test on macOS.
 
 **Class → sweep → derive → prevent:** signature: a test resolving the checked-out repository tree at runtime from `AppContext.BaseDirectory`, rather than at compile time from `[CallerFilePath]` (the pattern `SelfLaunch.cs` already used correctly) or from a linked fixture. Sweep: every `FindRepoRoot()`/`.tmp-tests` call site in `ShellWindowTests.cs`. A scratch directory now resolves under `Path.GetTempPath()` (the harness's TMPDIR, same alias-fix as `LayoutFileTests.Root()`), never a repo-relative path. A repo file a test reads — `DESIGN.md`'s COPY rows, the `example.foil` fixture — is linked into the test output by `CfdWorkbench.Desktop.Tests.csproj` `Content` items and read from `AppContext.BaseDirectory`. The one check that genuinely needs the whole checked-out tree, `Architecture_DockConfinedToShell` (a scan of every `.cs` file under `src/CfdWorkbench.Desktop`), resolves the root from `[CallerFilePath]` instead, exactly like `SelfLaunch.cs`'s own scan — left unchanged, since it already used the safe pattern. Controls: `verify-application-core.py`'s `STORE_PREFIXES`/`STORE_TEST_FILES` now cover `LayoutFileTests.cs` and `PreferenceStoreTests.cs` too, so their checks run under every umask variant and are exempt from the STORE-SUBSET sensitive-code sweep as a declared subset, not a leak. `SelfLaunchTests.NoRuntimeRepoRootWalk` (fast ring, next to the existing `Environment.ProcessPath` scan) fails on any file under `tests/` that references `CFDWorkbench.slnx` without also using `CallerFilePath` — the signature of a runtime walk rather than a compile-time one. Red-first: the unfixed `ShellWindowTests.cs` fails this new check (`SelfLaunchTests` throws `APP-UNHANDLED` naming the file); a planted `.tmp-tests`/`AppContext.BaseDirectory` walk in an unrelated `tests/` file fails it the same way.
 
+**Recurrence (2026-09-30, READYFIX2):** `SelfLaunchTests.NoRuntimeRepoRootWalk` only scanned for the
+`CFDWorkbench.slnx`-walk shape and missed the cwd-relative-literal variant: `FoilSourceTests.cs`,
+`GeometryTests.cs`, `PointGestureTests.cs`, `PointModelTests.cs`, `PointCommandTests.cs` and
+`ReopenPointEditTests.cs` read M1.2b fixtures through `"tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name`
+— a string built against the process's current directory, not the repo. `tools/verify-application-core.py`
+runs the *published* `CfdWorkbench.Core.Tests.dll` with `cwd=published` (a task-local artifacts directory, not
+the repo root) to prove the shipped binary behaves the same as the one `run-tests.sh` built in place; that
+run saw 38 failures (`RESULT failures=38`) because every fixture path resolved against the wrong directory.
+`tools/run-tests.sh` never catches this, because its cwd is always the repo root. Fix: each fixture is now read
+through `M12bFixtures.Path(name)` (`tests/CfdWorkbench.Core.Tests/M12bFixtures.cs`), which resolves
+`AppContext.BaseDirectory` first (where the csproj's new `Content Include="Fixtures\m12b\**\*"` item copies
+the files) and falls back to the `[CallerFilePath]`-relative source tree — the same shape `LayoutFileTests.Fixture`
+already used for the layout fixtures. Control: a sibling scan, `SelfLaunchTests.NoCwdRelativeFixturePath`, fails
+on any string literal under `tests/CfdWorkbench.Core.Tests` matching `"(tests|src)/...")` — the literal-prefix
+shape `NoRuntimeRepoRootWalk`'s narrower pattern missed. Scope note: the scan is deliberately bounded to
+`CfdWorkbench.Core.Tests`, the one project a gate relocates (verified by reading every `cwd=` call site in
+`tools/*.py`: `verify-application-core.py` is the only script that runs a test DLL from a directory other than
+`ROOT`). `CfdWorkbench.Desktop.Tests` and `CfdWorkbench.Cli.Tests` carry the same cwd-relative-literal shape
+today (`WorkbenchTests.cs`, `ControllerShellTests.cs` read `"src/CfdWorkbench.Desktop/Assets/example.foil"`)
+but are not yet failing, because `verify-application-adapters.py` always launches them with `cwd=ROOT`; they
+are a residual watch item, not a current violation, and the scan must widen to cover a project the moment any
+gate starts relocating its cwd. The fix itself first tripped the STORE-SUBSET control
+(`verify-application-core.py:59-66`): a `File.Exists`-probed fallback in the new `M12bFixtures.Path` read as
+umask-sensitive code outside the declared store-test files. Resolved by dropping the probe — the csproj's new
+`Content` item guarantees the fixture sits at `AppContext.BaseDirectory` under every build shape, so one
+`Path.Combine` is enough, and that control stayed exactly as strict as it was.
+
 **UI-RENDERED-STATE · A control exists while its realized output is absent.** The M1.2a shell passed 390 tests before the operator saw an empty Plan + 3D view after tab re-entry, duplicate tab rows, and an unbound Section canvas. The prior checks inspected control existence and view-model state but never forced a draw after leaving and returning to a Dock document. Sweep: each model document's realized control, visual root, nonzero bounds, and document-specific render input; the selected and no-station Section states.
 
 **Class → sweep → derive → prevent:** the fast-ring controls are `Shell_F7_ModelTabReentry_RendersAcceptedFoil`, which forces a frame invalidation after return and requires a new draw of the accepted frame, and `Shell_AllModelTabs_ReentryRealizesContent`, which re-enters each Dock model tab and asserts attached, nonzero content and its render input. `Shell_F9_SectionSelectedStation_DrawsProfile` and `Shell_F9_SectionNoStation_ShowsEmptyCopy` cover both Section states. The F7 red run was `LastRecordedRevision = 0` after `FrameRevision = 1` despite a visible, nonzero viewport; Dock reveal duration zero made it green. Future model tabs join the re-entry array before their code is accepted. Evidence: [shellfix red runs](../proof/shellfix-red-runs.md).

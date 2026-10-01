@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Fixtures\layout\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Fixtures\m12b\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

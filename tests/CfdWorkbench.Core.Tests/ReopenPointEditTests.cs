@@ -7,7 +7,7 @@ namespace CfdWorkbench.Core.Tests;
 
 internal static class ReopenPointEditTests
 {
-    private static string Golden => "tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw";
+    private static string Golden => M12bFixtures.Path("m12a-rail-recovery.cfdw");
     private static AuthoringSession Reopen(AuthoringSession source)
     {
         var next = new AuthoringSession(); next.Reopen(source.SaveImage()); return next;
