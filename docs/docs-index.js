@@ -6918,6 +6918,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "fa086ae8209f957432b575d24320010de8599f398c61f31f27bbc0357d65d7ed"
     },
     {
+      "id": "proof-m12b-u1b-red-runs",
+      "path": "docs/proof/m12b-u1b-red-runs.md",
+      "title": "U1b Plan canvas red and mutant runs",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "track-u1b",
+      "phase": "m1.2b",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Records the observed red runs and mutation controls for the U1b Plan canvas, including whole-window rendered pixels and point automation peers.",
+      "tags": [
+        "plan-canvas",
+        "tdd",
+        "rendered-state"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "472dcb401c2327c95b35c249c5af76d2fe2dd1b6cc919bd2201a2d68229cf957"
+    },
+    {
       "id": "proof-m12b-u2-red-runs",
       "path": "docs/proof/m12b-u2-red-runs.md",
       "title": "M1.2b U2 red runs",
@@ -7594,7 +7619,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c8ed4b17d3043c57c460ffab2f56dff140f609ba580fee0b1284f0556df03775"
+      "sourceSha256": "b756a61cfbd25e28654cb0a9798d26f047599530c7d5459d960e8b60a02eaf78"
     },
     {
       "id": "review-ui-application-native",
@@ -8581,5 +8606,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "ef7dd1ddc436202a57a90b096bc7c5f5cab1431d4fbc9fd5bf75a24d5e38e33b"
+  "graphSha256": "d6adad6ac5288942202a35bbbdb4bad837078c8102f26136d8739343930768d0"
 };

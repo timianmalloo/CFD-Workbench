@@ -1872,9 +1872,8 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-flow");
-CfdWorkbench.Desktop.Tests.SelfLaunch.RunChild("--section-tools");
-Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-model", "--controller-shell", "--shell-window", "--plan-canvas"));
+Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
+    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas"));
 
 sealed class UncertainStore : IProjectStore
 {
@@ -1954,20 +1953,51 @@ namespace CfdWorkbench.Desktop.Tests
             catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
         }
 
-        /// <summary>Runs every suite mode as a child process and returns the first nonzero child exit code, else 0.</summary>
+        /// <summary>
+        /// Runs every suite mode as a child process, at most half the processors (capped at 4) at a time, and returns the
+        /// first nonzero child exit code in mode order, else 0. Each child's output is buffered and printed in mode order
+        /// once it finishes, so the log reads as a sequential run would. The children share no files, ports or state:
+        /// every scratch path is a GUID name under the temp directory (docs/reviews/test-ci-waste.md, Desktop suite profile).
+        /// </summary>
         public static int Spawn(params string[] modes)
         {
-            int exitCode = 0;
-            foreach (string mode in modes)
+            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount / 2, 1, 4));
+            var runs = new Task<(List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)>[modes.Length];
+            for (int index = 0; index < modes.Length; index++)
             {
-                using var child = System.Diagnostics.Process.Start(SelfLaunch.StartInfo(mode))!;
-                child.WaitForExit();
-                Console.WriteLine($"SUITE {mode} exit {child.ExitCode}");
-                if (child.ExitCode == 0) continue;
-                Console.WriteLine($"FAIL {mode} exited {child.ExitCode}");
-                if (exitCode == 0) exitCode = child.ExitCode;
+                string mode = modes[index];
+                slots.Wait(); // start strictly in mode order; the thread pool alone would not keep that order
+                runs[index] = Task.Run(() => { try { return RunBuffered(mode); } finally { slots.Release(); } });
+            }
+            int exitCode = 0;
+            for (int index = 0; index < modes.Length; index++)
+            {
+                var (lines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
+                foreach (var (error, text) in lines) (error ? Console.Error : Console.Out).WriteLine(text);
+                Console.WriteLine($"SUITE {modes[index]} exit {childExit}");
+                Console.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));
+                if (childExit == 0) continue;
+                Console.WriteLine($"FAIL {modes[index]} exited {childExit}");
+                if (exitCode == 0) exitCode = childExit;
             }
             return exitCode;
+        }
+
+        private static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode)
+        {
+            var info = SelfLaunch.StartInfo(mode);
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+            var lines = new List<(bool Error, string Text)>();
+            using var child = new System.Diagnostics.Process { StartInfo = info };
+            child.OutputDataReceived += (_, line) => { if (line.Data is not null) lock (lines) lines.Add((false, line.Data)); };
+            child.ErrorDataReceived += (_, line) => { if (line.Data is not null) lock (lines) lines.Add((true, line.Data)); };
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            child.Start();
+            child.BeginOutputReadLine();
+            child.BeginErrorReadLine();
+            child.WaitForExit(); // with no timeout this also waits until both redirected streams reach end of file
+            return (lines, child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }
     }
 }
