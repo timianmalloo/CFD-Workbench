@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T05:23:06Z",
+  "generated": "2026-10-01T20:34:02Z",
   "audit": [
     {
       "actor": null,
@@ -21071,6 +21071,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T05:22:25Z",
       "duration_seconds": 41.0
+    },
+    {
+      "id": "al-01M3WJS3SWZT0SC92G8TNV799A",
+      "shortname": "m12b-native-operator-review",
+      "datetime": "2026-10-01T20:34:02Z",
+      "session": "f19a2b12",
+      "prompt": "open the app and walk me through the review session; then: write the review record and commit it",
+      "summary": "Operator-run native review of M1.2b on c43711a: 12 demo steps, 10 pass, 2 partial. D-1..D-5, F-1..F-5, O-1..O-7, Q-1 recorded in docs/reviews/m12b-native.md with three cropped captures. M1.2b stays open on D-1..D-4.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/m12b-native.md",
+        "docs/proof/m12b-native/operator/"
+      ],
+      "tags": [
+        "m12b",
+        "native-review"
+      ],
+      "outcome": "success",
+      "goal": "Record the operator's M1.2b native review session as a committed review record",
+      "done_when": "docs/reviews/m12b-native.md committed with captures, index derived, check-docs green",
+      "tier": "T1"
     }
   ],
   "changes": [

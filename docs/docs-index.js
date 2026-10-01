@@ -7601,6 +7601,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ebbb7f2e0ba6243c97ee41db8e4416787407715c381bef63c99106087b77f31"
     },
     {
+      "id": "review-m12b-native",
+      "path": "docs/reviews/m12b-native.md",
+      "title": "Native review — M1.2b CAD point editing on the Plan view",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation — U3 (M1.2b)",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Operator-run native session on build c43711a, 1 October 2026. The operator walked the twelve §0.1 demo steps; ten pass and two pass with a defect. Five defects (D-1 to D-5), five design findings (F-1 to F-5), six observations and one open question. D-4 (MAC and Mean chord go blank after the first edit) and F-1 (Properties is not a property grid) are the two that matter most. M1.2b stays open until D-1 to D-4 are fixed under test.",
+      "tags": [
+        "native-ui",
+        "m1.2b",
+        "plan-view",
+        "points",
+        "operator-run",
+        "review"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-m12b-native",
+          "rel": "refines"
+        },
+        {
+          "to": "review-app-shell-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5241795645a3bf27090ffe082ed520e9355f6ba9cb1134e1bc2358f6072e6b9a"
+    },
+    {
       "id": "review-spec-v02-critique",
       "path": "docs/reviews/spec-v02-critique.md",
       "title": "Critique of specification revision 0.2 against the knowledge base",
@@ -8701,5 +8741,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "0d3cefe5b96e1f1e284044cfaee90121febd6f416f5d2a29ca9681ffe5db0026"
+  "graphSha256": "dcbddadc258d49272d69bfd474e791a6949c551541cd9e612005d1aa6687ae75"
 };
