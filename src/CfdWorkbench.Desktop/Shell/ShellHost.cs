@@ -608,6 +608,9 @@ public sealed class ShellHost : Grid
     private void OnShellKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
     {
         if (e.Handled || e.Key != Avalonia.Input.Key.Return) return;
+        // Inside Properties, Return belongs to the focused control: it commits a pending Type or Kind, or toggles a
+        // group header (docs/reviews/ui-property-grid.md §10.4).
+        if (Properties.IsKeyboardFocusWithin) return;
         if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox) return;
         if (SelectedPoint() is null) return;
         if (Properties.FindControl<TextBox>("PointSpanInput") is not { IsEnabled: true } span) return;

@@ -360,9 +360,10 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("the blur commit was not exactly one undo row");
         });
 
-        Lone("PropertiesPane_KindArrows_MoveCheckOnly_OneUndoRowPerIntent", (controller, pane, window) =>
+        Pane("PropertiesPane_KindArrows_MoveCheckOnly_OneUndoRowPerIntent", (controller, host, window) =>
         {
             // PG-06 = MC-1 (ruled deviation): arrows move the check only, no wrap; Return commits one undo row.
+            var pane = host.Properties;   // the full shell: ShellHost must leave Return to the pane
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
             string source = controller.AcceptedSource;
@@ -383,9 +384,10 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("the kind intent was not exactly one undo row");
         });
 
-        Lone("Tangent_KindChange_KeepsFocusOnChecked", (controller, pane, window) =>
+        Pane("Tangent_KindChange_KeepsFocusOnChecked", (controller, host, window) =>
         {
             // N1: after a kind commit, focus stays on the (new) checked option.
+            var pane = host.Properties;   // the full shell: ShellHost must leave Return to the pane
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
             var radios = Need<StackPanel>(pane, "TangentGroup").Children.OfType<RadioButton>().ToList();
@@ -398,6 +400,61 @@ public static class PropertiesViewTests
             var focused = window.FocusManager!.GetFocusedElement() as RadioButton;
             if (focused is null || focused.IsChecked != true || focused.Content?.ToString() != Reload(controller, anchor).Kind.ToString())
                 throw new InvalidOperationException($"focus on {focused?.Content ?? "none"} after the commit");
+        });
+
+        Pane("Shell_ReturnInProperties_ReachesTheFocusedControl", (controller, host, window) =>
+        {
+            // §10.4 in the full shell: with a point selected, Return on the Type box, the Kind group and a group header
+            // belongs to that control — the shell's "Return types a value" applies only outside Properties.
+            var point = Control(controller, "trailing");
+            Select(controller, window, point);
+            var header = Need<Expander>(host.Properties, "Group_pos").GetVisualDescendants().OfType<ToggleButton>().First();
+            header.Focus();
+            Key(header, Avalonia.Input.Key.Enter);
+            Settle(window);
+            if (Need<Expander>(host.Properties, "Group_pos").IsExpanded || !header.IsFocused)
+                throw new InvalidOperationException($"Return on the header: expanded {Need<Expander>(host.Properties, "Group_pos").IsExpanded}, focus on header {header.IsFocused}");
+            Key(header, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var type = Need<ComboBox>(host.Properties, "TypeControl");
+            type.Focus();
+            Key(type, Avalonia.Input.Key.Down);
+            Key(type, Avalonia.Input.Key.Enter);
+            WaitIdle(controller, window);
+            var anchor = Reload(controller, point);
+            if (anchor.Role != PointRole.Anchor || !type.IsFocused)
+                throw new InvalidOperationException($"Return on a pending Type: role {anchor.Role}, focus on Type {type.IsFocused}");
+            var radios = Need<StackPanel>(host.Properties, "TangentGroup").Children.OfType<RadioButton>().ToList();
+            var start = radios.First(radio => radio.IsChecked == true);
+            start.Focus();
+            Key(start, Avalonia.Input.Key.Down);
+            var pending = window.FocusManager!.GetFocusedElement() as RadioButton ?? throw new InvalidOperationException("focus left the Kind group");
+            Key(pending, Avalonia.Input.Key.Enter);
+            WaitIdle(controller, window);
+            if (Reload(controller, anchor).Kind.ToString() != pending.Content?.ToString() || !pending.IsFocused)
+                throw new InvalidOperationException($"Return on a pending Kind: kind {Reload(controller, anchor).Kind}, focus on it {pending.IsFocused}");
+        });
+
+        Pane("PropertiesPane_KindLeave_CommitsPendingOnce", (controller, host, window) =>
+        {
+            // PG-06 = MC-1 as ruled: leaving the Kind group with a pending kind commits it, as one undo row.
+            var anchor = MakeAnchor(controller);
+            Select(controller, window, anchor);
+            string source = controller.AcceptedSource;
+            var radios = Need<StackPanel>(host.Properties, "TangentGroup").Children.OfType<RadioButton>().ToList();
+            var start = radios.First(radio => radio.IsChecked == true);
+            start.Focus();
+            Key(start, Avalonia.Input.Key.Down);
+            var pending = (window.FocusManager!.GetFocusedElement() as RadioButton)?.Content?.ToString();
+            if (controller.AcceptedSource != source) throw new InvalidOperationException("the arrow committed");
+            Need<TextBox>(host.Properties, "PointAftInput").Focus();
+            WaitIdle(controller, window);
+            if (Reload(controller, anchor).Kind.ToString() != pending)
+                throw new InvalidOperationException($"leaving did not commit {pending}: kind {Reload(controller, anchor).Kind}");
+            controller.Undo();
+            Settle(window);
+            if (controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind)
+                throw new InvalidOperationException("leaving the group was not exactly one undo row");
         });
 
         Pane("TypeCombo_PendingThenLeave_DoesNotCommit", (controller, host, window) =>
@@ -418,9 +475,10 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("leaving the box committed the pending type");
         });
 
-        Lone("TypeCombo_ArrowWhileClosed_DoesNotCommit", (controller, pane, window) =>
+        Pane("TypeCombo_ArrowWhileClosed_DoesNotCommit", (controller, host, window) =>
         {
             // N1 / PG-07: an arrow on the closed box is pending; Return commits it as one undo row.
+            var pane = host.Properties;   // the full shell: ShellHost must leave Return to the pane
             var point = Control(controller, "trailing");
             Select(controller, window, point);
             string source = controller.AcceptedSource;
@@ -692,35 +750,6 @@ public static class PropertiesViewTests
             body(controller, host, window);
         }
         finally { window.Close(); }
-    });
-
-    /// <summary>
-    /// The pane alone in a window, bound the way the shell binds it. Return on the Type box and the Kind group is tested
-    /// here because ShellHost's tunnel handler (ShellHost.cs OnShellKeyDown) takes Return from every non-text focus while
-    /// a point is selected — a shell defect outside this track, reported with the build.
-    /// </summary>
-    private static void Lone(string name, Action<WorkbenchController, PropertiesPane, Window> body) => DesktopChecks.Check(name, () =>
-    {
-        using var controller = new WorkbenchController();
-        var pane = new PropertiesPane();
-        var window = new Window { Content = pane, Width = 300, Height = 800 };
-        void Refresh() => pane.Bind(controller);
-        controller.Changed += Refresh;
-        controller.SelectionChanged += Refresh;
-        try
-        {
-            window.Show();
-            Pump(controller.OpenExampleAsync());
-            controller.Select(new Selection.Foil());
-            Settle(window);
-            body(controller, pane, window);
-        }
-        finally
-        {
-            controller.Changed -= Refresh;
-            controller.SelectionChanged -= Refresh;
-            window.Close();
-        }
     });
 
     private static void Nudge(string name, Action<WorkbenchController, ShellHost, Window> body) => Pane(name, (controller, host, window) =>
