@@ -1,134 +1,99 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane" AutomationProperties.Name="Properties">
-  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="{StaticResource Space4}" Spacing="12">
-      <!-- Error State for PaneBind_Throws -->
-      <Border x:Name="ErrorPanel" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
-              BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-              Padding="{StaticResource Space3}">
-        <StackPanel Spacing="8">
+  <!-- The property grid (docs/reviews/ui-property-grid.md §10). PropertiesView.Build supplies the rows; this markup holds
+       only the frame and the persistent editors, which the pane places into rows so focus survives a re-render (UI-C). -->
+  <Panel>
+    <StackPanel x:Name="FieldPool" IsVisible="False">
+      <TextBox x:Name="SpanInput" Classes="prop-input" />
+      <TextBox x:Name="RootChordInput" Classes="prop-input" />
+      <TextBox x:Name="TipChordInput" Classes="prop-input" />
+      <TextBox x:Name="PointSpanInput" Classes="prop-input" />
+      <TextBox x:Name="PointAftInput" Classes="prop-input" />
+      <TextBox x:Name="HandleAngleInput" Classes="prop-input" />
+      <TextBox x:Name="HandleLengthInput" Classes="prop-input" />
+      <ComboBox x:Name="TypeControl" Classes="prop-choice" />
+      <StackPanel x:Name="TangentGroup" Spacing="{StaticResource StackGap1}" KeyboardNavigation.TabNavigation="Once">
+        <RadioButton x:Name="TangentSmoothButton" Classes="prop-kind" GroupName="Tangent" Content="Smooth" />
+        <RadioButton x:Name="TangentSymmetricButton" Classes="prop-kind" GroupName="Tangent" Content="Symmetric" />
+        <RadioButton x:Name="TangentCornerButton" Classes="prop-kind" GroupName="Tangent" Content="Corner" />
+      </StackPanel>
+      <Border x:Name="SpanErrorPanel">
+        <TextBlock x:Name="SpanErrorText" Classes="prop-message" />
+      </Border>
+    </StackPanel>
+
+    <DockPanel>
+      <Border x:Name="ErrorPanel" DockPanel.Dock="Top" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+              BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{StaticResource HairlineThickness}"
+              Padding="{StaticResource Space3}" Margin="{StaticResource Space4}">
+        <StackPanel Spacing="{StaticResource StackGap2}">
           <TextBlock x:Name="ErrorText" Text="Properties couldn't be shown." Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" />
           <Button x:Name="TryAgainButton" Content="Try again" />
         </StackPanel>
       </Border>
 
-      <!-- Empty State -->
-      <StackPanel x:Name="EmptyPanel" Spacing="8" IsVisible="True">
-        <TextBlock Classes="heading" Text="No foil open" />
+      <StackPanel x:Name="EmptyPanel" DockPanel.Dock="Top" Spacing="{StaticResource StackGap2}" Margin="{StaticResource Space4}">
+        <TextBlock Classes="heading" Text="No foil open" TextWrapping="Wrap" />
         <TextBlock Classes="caption" Text="Open or start a foil. Whatever you select in it shows its properties here." TextWrapping="Wrap" />
       </StackPanel>
 
-      <!-- Content Panel -->
-      <StackPanel x:Name="ContentPanel" Spacing="12" IsVisible="False">
-        <TextBlock x:Name="SelectionHeading" Classes="heading" Text="Selected Properties" />
-
-        <!-- Blocks Container -->
-        <StackPanel x:Name="BlocksPanel" Spacing="12" />
-
-        <StackPanel x:Name="RecoveryPanel" Spacing="8" IsVisible="False">
-          <TextBlock x:Name="RecoveryBanner" TextWrapping="Wrap" />
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <Button x:Name="RecoveryApplyButton" Content="Apply" />
-            <Button x:Name="RecoveryDiscardButton" Content="Discard" />
-          </StackPanel>
-        </StackPanel>
-
-        <StackPanel x:Name="PointBlock" Spacing="8" IsVisible="False">
-          <TextBlock x:Name="PointHeading" Classes="heading" TextWrapping="Wrap" />
-          <TextBlock x:Name="PointHelper" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
-          <TextBlock x:Name="MixedBanner" TextWrapping="Wrap" IsVisible="False" />
-          <TextBlock x:Name="TypeReadOnly" IsVisible="False" />
-          <ComboBox x:Name="TypeControl" />
-          <TextBlock x:Name="ConstraintText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="Span" VerticalAlignment="Center" />
-            <TextBox x:Name="PointSpanInput" />
-            <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="Aft" VerticalAlignment="Center" />
-            <TextBox x:Name="PointAftInput" />
-            <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
-          </StackPanel>
-          <TextBlock x:Name="PointErrorText" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}" IsVisible="False" />
-          <StackPanel x:Name="TangentGroup" Spacing="4" IsVisible="False" AutomationProperties.Name="Tangent">
-            <TextBlock x:Name="TangentLabel" Text="Tangent" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <RadioButton x:Name="TangentSmoothButton" GroupName="Tangent" Content="Smooth" />
-              <RadioButton x:Name="TangentSymmetricButton" GroupName="Tangent" Content="Symmetric" />
-              <RadioButton x:Name="TangentCornerButton" GroupName="Tangent" Content="Corner" />
+      <DockPanel x:Name="ContentPanel" IsVisible="False">
+        <!-- DR-UID-5: the Wing is pinned at the foot and always fully visible; the selection above it scrolls. -->
+        <Border x:Name="WingBlock" DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineTop}">
+          <ScrollViewer x:Name="WingScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="WingPanel" Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space3}">
+              <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource PropHeadHeight}">
+                <TextBlock x:Name="WingHeading" Classes="prop-group-title" Text="Wing" />
+                <Border x:Name="WingChip" Grid.Column="1" Classes="prop-chip" IsVisible="False">
+                  <TextBlock x:Name="WingChipText" Classes="caption" />
+                </Border>
+              </Grid>
+              <StackPanel x:Name="WingDimensions" Spacing="{StaticResource StackGap1}" />
+              <Border Height="{StaticResource HairlineHeight}" Background="{DynamicResource LineBrush}" />
+              <Button x:Name="HowMeasuredButton" Content="How these are measured" />
+              <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False"
+                         Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
+              <StackPanel x:Name="WingEstimates" Spacing="{StaticResource StackGap1}" />
+              <StackPanel x:Name="WingNotes" Spacing="{StaticResource StackGap1}" />
             </StackPanel>
-          </StackPanel>
-          <StackPanel x:Name="HandleGroup" Spacing="8" IsVisible="False">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="Angle" VerticalAlignment="Center" />
-              <TextBox x:Name="HandleAngleInput" />
-              <TextBlock Text="deg" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="Length" VerticalAlignment="Center" />
-              <TextBox x:Name="HandleLengthInput" />
-              <TextBlock Text="mm" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}" />
-            </StackPanel>
-          </StackPanel>
-        </StackPanel>
+          </ScrollViewer>
+        </Border>
 
-        <!-- Wing Block (Always Last when foil is open) -->
-        <Border x:Name="WingBlock" Background="{DynamicResource SurfaceSoftBrush}"
-                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
-                Padding="{StaticResource Space3}">
-          <StackPanel Spacing="8">
-            <TextBlock x:Name="WingHeading" Classes="heading" Text="Wing" />
-            <TextBlock Text="Span" />
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBox Grid.Column="0" x:Name="SpanInput" AutomationProperties.Name="Span in millimetres" />
-              <TextBlock Grid.Column="1" x:Name="SpanUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
+        <ScrollViewer x:Name="SelectionScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Spacing="{StaticResource StackGap2}" Margin="{StaticResource Space3}">
+            <Grid x:Name="IdentityPanel" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+              <Path x:Name="IdentityGlyphPath" Width="{StaticResource PropGlyphSize}" Height="{StaticResource PropGlyphSize}"
+                    Stretch="Uniform" Stroke="{DynamicResource InkBrush}" StrokeThickness="{StaticResource GlyphStroke}"
+                    VerticalAlignment="Center" Margin="{StaticResource GlyphGap}" />
+              <TextBlock x:Name="IdentityTitle" Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" />
+              <HyperlinkButton x:Name="IdentityCrumbLink" Grid.Row="1" Grid.Column="1" IsVisible="False" />
+              <TextBlock x:Name="IdentityCrumb" Grid.Row="1" Grid.Column="1" Classes="caption" TextWrapping="Wrap" IsVisible="False" />
             </Grid>
-            <!-- Span error alert -->
-            <Border x:Name="SpanErrorPanel" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceBrush}"
-                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                    Padding="{StaticResource Space2}">
-              <TextBlock x:Name="SpanErrorText" Foreground="{DynamicResource DangerBrush}" Classes="caption" TextWrapping="Wrap" />
+
+            <Border x:Name="AlertBanner" IsVisible="False" BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource Space2}"
+                    Background="{DynamicResource SurfaceSoftBrush}" AutomationProperties.LiveSetting="Assertive">
+              <TextBlock x:Name="AlertBannerText" TextWrapping="Wrap" />
             </Border>
 
-            <!-- Readouts for root and tip chord -->
-            <TextBlock x:Name="RootChordLabel" Classes="caption" Text="Root chord" />
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBox Grid.Column="0" x:Name="RootChordInput" />
-              <TextBlock Grid.Column="1" x:Name="RootChordUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
-            </Grid>
-            <TextBlock x:Name="RootChordText" Text="—" IsVisible="False" />
-            <TextBlock x:Name="TipChordLabel" Classes="caption" Text="Tip chord" />
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBox Grid.Column="0" x:Name="TipChordInput" />
-              <TextBlock Grid.Column="1" x:Name="TipChordUnit" Text="mm" VerticalAlignment="Center" Margin="{StaticResource Space2}" />
-            </Grid>
-            <TextBlock x:Name="TipClosedText" TextWrapping="Wrap" IsVisible="False" />
-            <TextBlock x:Name="TipChordText" Text="—" IsVisible="False" />
-            <TextBlock x:Name="ChordWarningText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
-            <TextBlock Text="Mean chord" />
-            <TextBlock x:Name="MeanChordText" Text="≈ —" />
-            <TextBlock Text="MAC" />
-            <TextBlock x:Name="MacText" Text="≈ —" />
-            <TextBlock Text="Max t/c" />
-            <TextBlock x:Name="MaxTcText" Text="≈ —" />
-            <TextBlock Text="Aspect ratio" />
-            <TextBlock x:Name="AspectText" Text="≈ —" />
-            <TextBlock Text="Area" />
-            <TextBlock x:Name="AreaEstimateText" Text="≈ —" />
-            <TextBlock x:Name="WingReasonText" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" IsVisible="False" />
-            <Button x:Name="HowMeasuredButton" Content="How these are measured" />
-            <TextBlock x:Name="HowMeasuredBody" TextWrapping="Wrap" IsVisible="False"
-                       Text="Mean chord, MAC, max t/c, aspect ratio, and area follow the planform. MAC is the mean aerodynamic chord." />
+            <Border x:Name="RecoveryPanel" IsVisible="False" BorderBrush="{DynamicResource PrimaryBrush}"
+                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource Space2}"
+                    Background="{DynamicResource SurfaceSoftBrush}" AutomationProperties.LiveSetting="Assertive">
+              <StackPanel Spacing="{StaticResource StackGap2}">
+                <TextBlock x:Name="RecoveryBanner" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+                  <Button x:Name="RecoveryApplyButton" Content="Apply" />
+                  <Button x:Name="RecoveryDiscardButton" Content="Discard" Foreground="{DynamicResource MutedBrush}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
 
-            <!-- Wing estimates -->
-            <TextBlock Classes="caption" Text="Estimates" FontWeight="SemiBold" Margin="{StaticResource Space2}" />
-            <TextBlock x:Name="EstimatesAreaText" Classes="caption" Text="Area: —" />
-            <TextBlock x:Name="EstimatesAspectRatioText" Classes="caption" Text="Aspect ratio: —" />
+            <StackPanel x:Name="BlocksPanel" Spacing="{StaticResource StackGap2}" Grid.IsSharedSizeScope="True" />
           </StackPanel>
-        </Border>
-      </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+        </ScrollViewer>
+      </DockPanel>
+    </DockPanel>
+  </Panel>
 </UserControl>

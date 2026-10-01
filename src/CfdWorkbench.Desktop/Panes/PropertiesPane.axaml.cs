@@ -1,52 +1,112 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
+using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Automation;
+using Avalonia.Automation.Peers;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
-using System.Globalization;
 
 namespace CfdWorkbench.Desktop.Panes;
 
+/// <summary>
+/// The field nudge (DR-UID-2) ships disabled until its VoiceOver trace passes and the macOS caret chords are ruled (B7).
+/// It stays off on Windows until a Narrator/UIA pass exists (B8), whatever <see cref="Enabled"/> says.
+/// </summary>
+public static class PropertiesFieldNudge
+{
+    public static bool Enabled { get; set; }
+    public static bool OnWindows { get; set; } = OperatingSystem.IsWindows();
+    public static bool Active => Enabled && !OnWindows;
+}
+
+/// <summary>
+/// The Properties pane as a property grid (docs/reviews/ui-property-grid.md §10). It renders <see cref="PropertiesModel"/>
+/// generically: a selection identity, collapsible groups and label | value | unit rows on one shared column, with the Wing
+/// pinned at the foot (DR-UID-5). Editors persist per row key so a re-render never moves focus (UI-C).
+/// </summary>
 public partial class PropertiesPane : UserControl
 {
-    private const string ControlHelper = "A control point pulls the curve toward it. The curve does not pass through it.";
-    private const string AnchorHelper = "An anchor point is on the curve. Its handles set the curve's direction on each side.";
-    private const string HandleHelper = "A handle sets the curve's direction at its anchor point. The tangent kind belongs to the anchor.";
-    private const string TipClosedCopy = "Tip closes — edit the tip station";
+    private const double WingShare = 0.55;   // DR-UID-5: the Wing keeps at most 55 % of the pane's height
+
+    private readonly Dictionary<string, TextBox> pooledInputs;
+    private readonly Dictionary<string, RowView> rows = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, TextBlock> subheads = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, GroupView> groupViews = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<TextBlock>> noteViews = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, bool> collapsed = new(StringComparer.Ordinal) { ["rail"] = true };
+    private readonly Dictionary<TextBox, RowView> inputOwners = [];
+    private readonly Dictionary<TextBox, string> shown = [];
+    private readonly Dictionary<string, RowMessage> messages = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
+    private readonly RadioButton[] kindButtons;
 
     private WorkbenchController? boundController;
-    private string lastCommittedSpan = "";
-    private bool suppress;
+    private string selectionKey = "";
+    private int holds;
+    private bool bindPending;
+    private bool rendering;
+    private bool narrow;
+    private bool syncingChoice;
     private bool resumingRecovery;
-    private PointView? selectedPoint;
-    private PointView? tangentOwner;
+    private string? pendingType;
+    private TangentKind? pendingKind;
+    private NudgeRun? run;
+    private string? copyTarget;
 
     public PropertiesPane()
     {
         InitializeComponent();
+        pooledInputs = new Dictionary<string, TextBox>(StringComparer.Ordinal)
+        {
+            ["w:span"] = SpanInput,
+            ["w:root"] = RootChordInput,
+            ["w:tip"] = TipChordInput,
+            ["p:from"] = PointSpanInput,
+            ["p:aft"] = PointAftInput,
+            ["h:angle"] = HandleAngleInput,
+            ["h:length"] = HandleLengthInput
+        };
+        kindButtons = [TangentSmoothButton, TangentSymmetricButton, TangentCornerButton];
+        foreach (var box in pooledInputs.Values) box.IsEnabled = false;
 
-        SpanInput.KeyDown += OnSpanKeyDown;
         TryAgainButton.Click += (_, _) =>
         {
             ErrorPanel.IsVisible = false;
             if (boundController != null) Bind(boundController);
         };
-        TypeControl.ItemsSource = new[] { "Anchor point", "Control point" };
-        TypeControl.SelectionChanged += OnTypeChanged;
-        PointSpanInput.KeyDown += OnPointKeyDown;
-        PointAftInput.KeyDown += OnPointKeyDown;
-        HandleAngleInput.KeyDown += OnHandleKeyDown;
-        HandleLengthInput.KeyDown += OnHandleKeyDown;
-        RootChordInput.KeyDown += (_, e) => OnChordKeyDown(e, "root-chord", RootChordInput, TipChordInput);
-        TipChordInput.KeyDown += (_, e) => OnChordKeyDown(e, "tip-chord", TipChordInput, null);
         HowMeasuredButton.Click += (_, _) => HowMeasuredBody.IsVisible = !HowMeasuredBody.IsVisible;
-        TangentSmoothButton.Click += (_, _) => CommitTangent(TangentKind.Smooth);
-        TangentSymmetricButton.Click += (_, _) => CommitTangent(TangentKind.Symmetric);
-        TangentCornerButton.Click += (_, _) => CommitTangent(TangentKind.Corner);
         RecoveryApplyButton.Click += (_, _) => ApplyRecovery();
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
+        IdentityCrumbLink.Click += (_, _) => GoToCrumb();
+
+        TypeControl.SelectionChanged += OnTypeSelectionChanged;
+        TypeControl.DropDownClosed += (_, _) => OnTypeDropDownClosed();
+        TypeControl.AddHandler(KeyDownEvent, OnTypeKeyDown, RoutingStrategies.Tunnel);
+        TypeControl.LostFocus += (_, _) => DropPendingType();
+
+        foreach (var button in kindButtons)
+            button.Click += (_, _) => CommitKind(KindOf(button));
+        TangentGroup.AddHandler(KeyDownEvent, OnKindKeyDown, RoutingStrategies.Tunnel);
+        TangentGroup.LostFocus += (_, _) => Dispatcher.UIThread.Post(CommitKindOnLeave, DispatcherPriority.Input);
+
+        AddHandler(KeyDownEvent, OnPaneKeyDown, RoutingStrategies.Bubble);
+        SizeChanged += (_, _) => FitToPane();
     }
+
+    /// <summary>Every announcement the pane makes: an error (assertive) once per failed commit, a report (polite).</summary>
+    public event Action<string, AutomationLiveSetting>? Announced;
+
+    /// <summary>Where the Copy command writes; null writes to the window's clipboard.</summary>
+    public Func<string, Task>? ClipboardWriter { get; set; }
 
     public void FocusTypeValue() => PointSpanInput.Focus();
 
@@ -59,6 +119,11 @@ public partial class PropertiesPane : UserControl
     public void Bind(WorkbenchController controller, WingEstimates? projectedEstimates = null)
     {
         boundController = controller;
+        if (holds > 0)
+        {
+            bindPending = true;
+            return;
+        }
         try
         {
             ErrorPanel.IsVisible = false;
@@ -67,83 +132,30 @@ public partial class PropertiesPane : UserControl
             {
                 EmptyPanel.IsVisible = true;
                 ContentPanel.IsVisible = false;
+                foreach (var box in pooledInputs.Values) box.IsEnabled = false;
                 return;
             }
-
-            var shownEstimates = projectedEstimates ?? controller.Estimates;
-            var model = PropertiesView.Build(controller.Selection, authored, shownEstimates, ShellMode.Workspace);
+            ResumeRecoveryIfNeeded(controller);
+            var estimates = projectedEstimates ?? controller.Estimates;
+            var plan = controller.Planform;
+            var context = new PropertiesContext(
+                plan,
+                Preview: plan?.Basis == "preview" || estimates?.Basis == "preview",
+                Checking: controller.Gesture == GestureState.Busy,
+                NotChecked: controller.Inspection is { } inspection && inspection.Geometry.Status != GeometryStatus.Certified);
+            string key = SelectionKey(controller.Selection);
+            if (key != selectionKey)
+            {
+                selectionKey = key;
+                messages.Clear();
+                errors.Clear();
+                pendingType = null;
+                pendingKind = null;
+            }
+            var model = PropertiesView.Build(controller.Selection, authored, estimates, ShellMode.Workspace, context);
             EmptyPanel.IsVisible = false;
             ContentPanel.IsVisible = true;
-
-            SelectionHeading.Text = model.Heading;
-            BlocksPanel.Children.Clear();
-
-            foreach (var block in model.Blocks)
-            {
-                // Skip the Wing block because WingBlock is rendered as the permanent last block in AXAML
-                if (block.Title == "Wing") continue;
-
-                var blockBorder = new Border
-                {
-                    Background = this.FindResource("SurfaceSoftBrush") as Avalonia.Media.IBrush,
-                    BorderBrush = this.FindResource("LineBrush") as Avalonia.Media.IBrush,
-                    BorderThickness = new Avalonia.Thickness(1)
-                };
-                if (this.FindResource("Space3") is Avalonia.Thickness padding)
-                    blockBorder.Padding = padding;
-                var sp = new StackPanel { Spacing = 4 };
-                sp.Children.Add(new TextBlock { Text = block.Title, FontWeight = Avalonia.Media.FontWeight.SemiBold });
-                foreach (var row in block.Rows)
-                {
-                    var rowGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
-                    var label = new TextBlock
-                    {
-                        Text = row.Label,
-                        Width = 100,
-                        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-                    };
-                    label.Classes.Add("caption");
-                    var val = new TextBlock
-                    {
-                        Text = row.Value,
-                        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
-                    };
-                    Grid.SetColumn(label, 0);
-                    Grid.SetColumn(val, 1);
-                    rowGrid.Children.Add(label);
-                    rowGrid.Children.Add(val);
-                    sp.Children.Add(rowGrid);
-                }
-                blockBorder.Child = sp;
-                BlocksPanel.Children.Add(blockBorder);
-            }
-
-            // Populate Wing block
-            var wingBlockModel = model.Blocks.FirstOrDefault(b => b.Title == "Wing");
-            if (wingBlockModel != null)
-            {
-                var spanRow = wingBlockModel.Rows.FirstOrDefault(r => r.Label == "Span");
-                if (spanRow != null && !SpanInput.IsKeyboardFocusWithin)
-                {
-                    var parts = spanRow.Value.Split(' ');
-                    SpanInput.Text = parts[0];
-                    lastCommittedSpan = parts[0];
-                    if (parts.Length > 1) SpanUnit.Text = parts[1];
-                }
-
-                var rootRow = wingBlockModel.Rows.FirstOrDefault(r => r.Label == "Root chord");
-                if (rootRow != null) RootChordText.Text = rootRow.Value;
-
-                var tipRow = wingBlockModel.Rows.FirstOrDefault(r => r.Label == "Tip chord");
-                if (tipRow != null) TipChordText.Text = tipRow.Value;
-            }
-
-            if (controller.Estimates is { } est)
-            {
-                EstimatesAreaText.Text = $"Area: {(est.AreaSquareMeters * 10000).ToString("F0", CultureInfo.InvariantCulture)} cm²";
-                EstimatesAspectRatioText.Text = $"Aspect ratio: {est.AspectRatio.ToString("F2", CultureInfo.InvariantCulture)}";
-            }
-            BindPointAndWing(controller, shownEstimates);
+            Render(model, controller);
         }
         catch (Exception ex)
         {
@@ -152,316 +164,984 @@ public partial class PropertiesPane : UserControl
             EmptyPanel.IsVisible = false;
             ShowRenderFailure(controller?.Inspection is not null);
             ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
-            return;
         }
     }
 
-    private void OnSpanKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Escape)
-        {
-            e.Handled = true;
-            SpanInput.Text = lastCommittedSpan;
-            SpanErrorPanel.IsVisible = false;
-        }
-        else if (e.Key == Key.Enter || e.Key == Key.Tab)
-        {
-            bool ok = CommitSpan();
-            if (!ok)
-            {
-                e.Handled = true;
-                if (e.Key == Key.Tab)
-                    (TopLevel.GetTopLevel(this) as IInputRoot)?.KeyboardNavigationHandler?.Move(SpanInput,
-                        e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? NavigationDirection.Previous : NavigationDirection.Next,
-                        e.KeyModifiers);
-            }
-            else if (e.Key == Key.Tab)
-            {
-                e.Handled = true;
-                this.FindAncestorOfType<ShellHost>()?.MoveFocus(false);
-            }
-        }
-    }
-
+    /// <summary>Commits the Wing's Span field (COPY-106 / COPY-118 on refusal). Kept for the shell's edit routing.</summary>
     public bool CommitSpan()
     {
-        if (boundController == null) return false;
-        var text = SpanInput.Text?.Trim() ?? "";
-
-        if (string.IsNullOrEmpty(text)) return false;
-        var task = boundController.ApplySpanAsync(text);
-        PumpUi(task);
-        if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Committed)
-        {
-            lastCommittedSpan = text;
-            SpanErrorPanel.IsVisible = false;
-            Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, "");
-            return true;
-        }
-        string code = task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused ? refused.Code : "DSL-NOT-ASSESSED";
-        SpanErrorText.Text = code switch
-        {
-            "DSL-UNIT" => "Enter a length greater than 0 mm. Span is unchanged.",
-            "DSL-EDGES-CROSS" => "That would make the leading and trailing edges cross. Enter a different value.",
-            "DSL-NOT-ASSESSED" => "The new span couldn't be checked. Span is unchanged. Try again or enter a different value.",
-            _ => "Enter a number. Span is unchanged."
-        };
-        SpanErrorPanel.IsVisible = true;
-        Avalonia.Automation.AutomationProperties.SetHelpText(SpanInput, SpanErrorText.Text);
-        return false;
+        if (boundController is null) return false;
+        // With no foil open the field still answers: the controller refuses, and the refusal is shown (COPY-145).
+        string typed = SpanInput.Text ?? "";
+        var view = rows.GetValueOrDefault("w:span|Input") ?? RenderRow(PropertiesView.SpanField(double.NaN), []);
+        SpanInput.Text = typed;
+        return CommitWing(view, SpanInput);
     }
 
-    private void BindPointAndWing(WorkbenchController controller, WingEstimates? estimates)
+    /// <summary>The text the Copy command puts on the clipboard for a fact or estimate row (PG-20 / D2).</summary>
+    public static string CopyText(PropertyRow row, bool withUnit) =>
+        withUnit && row.Unit is { } unit && row.State is not (RowState.Mixed or RowState.Unavailable)
+            ? (unit == "°" ? row.Value + "°" : row.Value + " " + unit)
+            : row.Value;
+
+    // ---------------- rendering ----------------
+
+    private void Render(PropertiesModel model, WorkbenchController controller)
     {
-        var plan = controller.Planform;
-        bool preview = plan?.Basis == "preview" || estimates?.Basis == "preview";
-        WingHeading.Text = preview ? "Wing · ≈ preview" : "Wing";
-        // A row dashes only when its own value is unavailable; all five dash only when the wing has no positive
-        // area (an edge-crossing draft). Only MAC also needs the squared-chord integral to converge (D-4).
-        bool noArea = estimates is null || !double.IsFinite(estimates.AreaSquareMeters) || estimates.AreaSquareMeters <= 0;
-        MeanChordText.Text = Approx(noArea ? double.NaN : estimates!.MeanChordMeters, Mm);
-        MacText.Text = Approx(noArea ? double.NaN : estimates!.MacMeters, Mm);
-        MaxTcText.Text = Approx(noArea ? double.NaN : estimates!.MaxThicknessRatio, Ratio);
-        AspectText.Text = Approx(noArea ? double.NaN : estimates!.AspectRatio, Ratio);
-        AreaEstimateText.Text = Approx(noArea ? double.NaN : estimates!.AreaSquareMeters,
-            area => (area * 10000).ToString("0", CultureInfo.InvariantCulture) + " cm²");
-        string reason = estimates is null ? ""
-            : noArea ? "Estimates not available: the leading and trailing edges cross."
-            : !double.IsFinite(estimates.MacMeters) ? "MAC not available: the integral did not converge for this shape."
-            : "";
-        WingReasonText.IsVisible = reason.Length > 0;
-        WingReasonText.Text = reason;
-        bool tipClosed = estimates is not null && estimates.TipChordMeters <= 1e-9;
-        if (tipClosed && TipChordText.Text is { Length: > 0 } projected && projected != "—")
-            TipClosedText.Text = projected;
-        else if (tipClosed)
-            TipClosedText.Text = TipClosedCopy;
-        TipClosedText.IsVisible = tipClosed;
-        TipChordInput.IsVisible = !tipClosed;
-        TipChordUnit.IsVisible = !tipClosed;
-        if (estimates is not null && !RootChordInput.IsKeyboardFocusWithin)
-            RootChordInput.Text = Mm(estimates.RootChordMeters);
-        if (estimates is not null && !tipClosed && !TipChordInput.IsKeyboardFocusWithin)
-            TipChordInput.Text = Mm(estimates.TipChordMeters);
-
-        if (controller.HasRecovery && controller.Draft is null && !resumingRecovery)
-        {
-            resumingRecovery = true;
-            try { controller.ResumeRecovery(); }
-            finally { resumingRecovery = false; }
-        }
-        bool recovery = controller.HasRecovery;
-        RecoveryPanel.IsVisible = recovery;
-        RecoveryBanner.IsVisible = recovery;
-        if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
-
-        selectedPoint = null;
-        tangentOwner = null;
-        if (plan is null || controller.Selection is not Selection.Points points || points.Items.Count == 0)
-        {
-            PointBlock.IsVisible = false;
-            return;
-        }
-        PointBlock.IsVisible = true;
-        if (points.Items.Count != 1)
-        {
-            PointHeading.Text = points.Items.Count + " points";
-            MixedBanner.IsVisible = true;
-            MixedBanner.Text = "Select one point to change it.";
-            TypeControl.IsVisible = false;
-            TypeReadOnly.IsVisible = true;
-            TypeReadOnly.Text = "Mixed";
-            PointHelper.Text = "";
-            ConstraintText.Text = "";
-            PointSpanInput.IsEnabled = false;
-            PointAftInput.IsEnabled = false;
-            ShowTangent(null);
-            HandleGroup.IsVisible = false;
-            return;
-        }
-        MixedBanner.IsVisible = false;
-        var reference = points.Items[0];
-        var rail = reference.Curve == "leading" ? plan.Leading : plan.Trailing;
-        var point = rail.Points.FirstOrDefault(item => item.Id == reference.VertexId);
-        if (point is null)
-        {
-            PointBlock.IsVisible = false;
-            return;
-        }
-        selectedPoint = point;
-        string curveName = point.Curve == "leading" ? "Leading edge" : "Trailing edge";
-        bool handle = point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
-        var owner = handle && point.AnchorId is { } ownerId ? rail.Points.FirstOrDefault(item => item.Id == ownerId) : null;
-        PointHeading.Text = owner is not null
-            ? curveName + " · handle of point " + (owner.Index + 1)
-            : curveName + " · point " + (point.Index + 1) + " of " + rail.Points.Count;
-        bool named = point.Role is not (PointRole.Control or PointRole.Anchor);
-        TypeControl.IsVisible = !named;
-        TypeControl.IsEnabled = !named;
-        TypeReadOnly.IsVisible = named;
-        TypeReadOnly.Text = named ? RoleText(point.Role) : "";
-        if (!named)
-        {
-            suppress = true;
-            TypeControl.SelectedItem = point.Role == PointRole.Anchor ? "Anchor point" : "Control point";
-            suppress = false;
-        }
-        ConstraintText.Text = point.Role == PointRole.RootEnd && point.Curve == "leading"
-            ? "Fixed: the leading edge starts at the root."
-            : point.Freedom switch
-            {
-                PointFreedom.Fixed => "Fixed.",
-                PointFreedom.SpanOnly => "Moves in span only.",
-                PointFreedom.AftOnly => "Moves in chord only.",
-                _ => ""
-            };
-        PointHelper.Text = handle ? HandleHelper : point.Role == PointRole.Control ? ControlHelper : AnchorHelper;
-        bool spanOn = point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
-        bool aftOn = point.Freedom is PointFreedom.Free or PointFreedom.AftOnly;
-        PointSpanInput.IsEnabled = spanOn;
-        PointAftInput.IsEnabled = aftOn;
-        if (!PointSpanInput.IsKeyboardFocusWithin) PointSpanInput.Text = Mm(point.SpanMeters);
-        if (!PointAftInput.IsKeyboardFocusWithin) PointAftInput.Text = Mm(point.AftMeters);
-        // F-4: a selected handle shows, and edits, its parent anchor's tangent kind.
-        ShowTangent(point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd ? point : owner);
-        HandleGroup.IsVisible = handle;
-        if (handle && point.AnchorId is not null)
-        {
-            var anchor = rail.Points.First(item => item.Id == point.AnchorId);
-            double spanDelta = point.SpanMeters - anchor.SpanMeters;
-            double aftDelta = point.AftMeters - anchor.AftMeters;
-            if (point.Index < anchor.Index) { spanDelta = -spanDelta; aftDelta = -aftDelta; }
-            if (!HandleAngleInput.IsKeyboardFocusWithin)
-                HandleAngleInput.Text = (Math.Atan2(aftDelta, spanDelta) * 180 / Math.PI).ToString("0.00", CultureInfo.InvariantCulture);
-            if (!HandleLengthInput.IsKeyboardFocusWithin)
-                HandleLengthInput.Text = (Math.Sqrt(spanDelta * spanDelta + aftDelta * aftDelta) * 1000).ToString("0.00", CultureInfo.InvariantCulture);
-            HandleLengthInput.IsEnabled = true;
-            HandleAngleInput.IsEnabled = point.Freedom != PointFreedom.SpanOnly;
-        }
-    }
-
-    private void OnTypeChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (suppress || boundController is null || selectedPoint is not { } point) return;
-        string choice = TypeControl.SelectedItem?.ToString() ?? "";
-        PointCommand? command = choice switch
-        {
-            "Anchor point" when point.Role != PointRole.Anchor => new PointCommand.MakeAnchor(point.Curve, point.Id),
-            "Control point" when point.Role != PointRole.Control => new PointCommand.MakeControl(point.Curve, point.Id),
-            _ => null
-        };
-        if (command is null) return;
-        PumpUi(boundController.ApplyPointCommandAsync(command));
-    }
-
-    private void OnPointKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Escape)
-        {
-            e.Handled = true;
-            this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.Focus();
-            return;
-        }
-        if (e.Key is not (Key.Enter or Key.Return)) return;
-        e.Handled = true;
-        CommitPointFields();
-    }
-
-    private void OnHandleKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key is not (Key.Enter or Key.Return)) return;
-        e.Handled = true;
-        CommitHandle();
-    }
-
-    private void OnChordKeyDown(KeyEventArgs e, string dimension, TextBox box, TextBox? next)
-    {
-        if (e.Key is not (Key.Enter or Key.Return or Key.Tab)) return;
-        e.Handled = true;
-        if (CommitChord(dimension, box) && e.Key == Key.Tab)
-            next?.Focus();
-    }
-
-    private void CommitPointFields()
-    {
-        if (boundController is null || selectedPoint is not { } point) return;
-        var dimensions = Dimensions();
-        double span;
-        double aft;
+        rendering = true;
         try
         {
-            span = LengthExpression.ParseMeters(PointSpanInput.Text ?? "", dimensions);
-            aft = LengthExpression.ParseMeters(PointAftInput.Text ?? "", dimensions);
+            RenderIdentity(model.Identity);
+            AlertBanner.IsVisible = model.Banner is not null;
+            AlertBannerText.Text = model.Banner?.Text ?? "";
+            bool recovery = controller.HasRecovery;
+            RecoveryPanel.IsVisible = recovery;
+            RecoveryBanner.IsVisible = recovery;
+            if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
+
+            var used = new HashSet<Control>();
+            var groupControls = new List<Control>();
+            foreach (var group in model.Groups)
+                groupControls.Add(RenderGroup(group, used));
+            Sync(BlocksPanel, groupControls);
+            if (model.Wing is { } wing) RenderWing(wing, used);
+            // A pooled editor this selection does not show is neither enabled nor visible, wherever it was last placed.
+            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(TangentGroup).Where(control => !used.Contains(control)))
+            {
+                control.IsEnabled = false;
+                control.IsVisible = false;
+            }
+            FitToPane();
         }
-        catch (ContractError)
+        finally { rendering = false; }
+    }
+
+    private void RenderIdentity(SelectionIdentity? identity)
+    {
+        IdentityPanel.IsVisible = identity is not null;
+        if (identity is null) return;
+        IdentityTitle.Text = identity.Title;
+        IdentityGlyphPath.Data = Avalonia.Media.Geometry.Parse(GlyphPath(identity.Glyph));
+        IdentityGlyphPath.Classes.Set("filled", identity.Glyph is IdentityGlyph.Control or IdentityGlyph.Several);
+        IdentityGlyphPath.StrokeDashArray = identity.Glyph == IdentityGlyph.Station ? [2, 2] : null;
+        AutomationProperties.SetAccessibilityView(IdentityGlyphPath, AccessibilityView.Raw);
+        bool link = identity.CrumbTarget is not null && identity.Crumb is not null;
+        IdentityCrumbLink.IsVisible = link;
+        IdentityCrumbLink.Content = link ? $"of {identity.Crumb} · Esc" : null;
+        IdentityCrumbLink.Tag = identity.CrumbTarget;
+        IdentityCrumb.IsVisible = !link && identity.Crumb is not null;
+        IdentityCrumb.Text = link ? "" : identity.Crumb ?? "";
+    }
+
+    private Control RenderGroup(PropertyGroup group, HashSet<Control> used)
+    {
+        if (!groupViews.TryGetValue(group.Id, out var view))
+            groupViews[group.Id] = view = CreateGroup(group.Id);
+        view.Title.Text = group.Title;
+        view.Summary.Text = group.Summary;
+        bool expanded = !collapsed.GetValueOrDefault(group.Id);
+        if (view.Expander.IsExpanded != expanded) view.Expander.IsExpanded = expanded;
+        view.Summary.IsVisible = !expanded && group.Summary.Length > 0;
+        AutomationProperties.SetName(view.Expander, group.Title);
+        AutomationProperties.SetHelpText(view.Expander, group.Summary);
+        if (view.Header is { } header)
         {
-            ShowPointError("Enter a number. Span is unchanged.");
+            AutomationProperties.SetName(header, group.Title);
+            AutomationProperties.SetHelpText(header, group.Summary);
+        }
+        Sync(view.Body, BodyControls(group, used));
+        return view.Expander;
+    }
+
+    private List<Control> BodyControls(PropertyGroup group, HashSet<Control> used)
+    {
+        var body = new List<Control>();
+        var notes = Notes(group.Id, group.Lead is null ? group.Notes : [group.Lead, .. group.Notes]);
+        if (group.Lead is not null) body.Add(notes[0]);
+        foreach (var row in group.Rows)
+        {
+            if (row.Subhead is { } subhead)
+            {
+                if (!subheads.TryGetValue(row.Key, out var title))
+                {
+                    subheads[row.Key] = title = new TextBlock { Name = Part("Subhead", row.Key) };
+                    title.Classes.Add("prop-subhead");
+                }
+                title.Text = subhead;
+                body.Add(title);
+            }
+            body.Add(RenderRow(row, used).Root);
+        }
+        body.AddRange(group.Lead is null ? notes : notes.Skip(1));
+        return body;
+    }
+
+    private void RenderWing(PropertyGroup wing, HashSet<Control> used)
+    {
+        WingHeading.Text = wing.Title;
+        WingChip.IsVisible = wing.Chip is not null;
+        WingChipText.Text = wing.Chip switch
+        {
+            GroupChip.Preview => "≈ preview",
+            GroupChip.Checking => "Checking…",
+            GroupChip.Unavailable => "Unavailable",
+            _ => ""
+        };
+        Sync(WingDimensions, wing.Rows.Where(row => row.Key.StartsWith("w:", StringComparison.Ordinal))
+            .Select(row => (Control)RenderRow(row, used).Root).ToList());
+        Sync(WingEstimates, wing.Rows.Where(row => !row.Key.StartsWith("w:", StringComparison.Ordinal))
+            .Select(row => (Control)RenderRow(row, used).Root).ToList());
+        var notes = Notes("wing", wing.Notes);
+        foreach (var note in notes) AutomationProperties.SetLiveSetting(note, AutomationLiveSetting.Polite);
+        Sync(WingNotes, [.. notes]);
+    }
+
+    private List<TextBlock> Notes(string groupId, IReadOnlyList<RowMessage> notes)
+    {
+        if (!noteViews.TryGetValue(groupId, out var views)) noteViews[groupId] = views = [];
+        while (views.Count < notes.Count)
+        {
+            var block = new TextBlock { Name = $"Note_{groupId}_{views.Count}" };
+            block.Classes.Add("prop-note");
+            views.Add(block);
+        }
+        for (int index = 0; index < notes.Count; index++)
+        {
+            if (views[index].Text != notes[index].Text) views[index].Text = notes[index].Text;
+            views[index].Classes.Set("warning", notes[index].Kind == MessageKind.Warning);
+        }
+        return views.Take(notes.Count).ToList();
+    }
+
+    private RowView RenderRow(PropertyRow row, HashSet<Control> used)
+    {
+        string cacheKey = row.Key + "|" + row.Kind;
+        if (!rows.TryGetValue(cacheKey, out var view)) rows[cacheKey] = view = CreateRow(row);
+        view.Row = row;
+        view.Label.Text = row.Label;
+        SetColumns(view.Grid);
+        bool hasError = errors.TryGetValue(row.Key, out var error);
+        var message = hasError ? new RowMessage(error.Error, MessageKind.Error)
+            : messages.GetValueOrDefault(row.Key) ?? row.Message;
+        var state = hasError ? RowState.Error
+            : message?.Kind == MessageKind.Warning && row.State == RowState.Normal ? RowState.Warning
+            : row.State;
+        view.Root.Classes.Set("warning", state == RowState.Warning);
+        view.Root.Classes.Set("error", state == RowState.Error);
+        view.Root.Classes.Set("unavailable", state == RowState.Unavailable);
+        view.Description.IsVisible = row.Description is not null;
+        view.Description.Text = row.Description ?? "";
+        ShowMessage(view, message);
+        bool showUnit = row.State is not (RowState.Mixed or RowState.Unavailable);
+        view.Unit.Text = showUnit ? row.Unit ?? "" : "";
+
+        switch (row.Kind)
+        {
+            case RowKind.Input:
+                RenderInput(view, row, hasError ? error.Text : null, used);
+                break;
+            case RowKind.Choice:
+                used.Add(TypeControl);
+                TypeControl.IsVisible = true;
+                RenderChoice(view, row);
+                break;
+            case RowKind.KindList:
+                used.Add(TangentGroup);
+                TangentGroup.IsVisible = true;
+                TangentGroup.IsEnabled = true;
+                RenderKinds(view, row);
+                break;
+            default:
+                string text = row.Kind == RowKind.Estimate && row.State == RowState.Normal ? "≈ " + row.Value : row.Value;
+                if (view.Value!.Text != text) view.Value.Text = text;
+                AutomationProperties.SetName(view.Root, row.SpokenText);
+                AutomationProperties.SetHelpText(view.Root, row.HelperText);
+                break;
+        }
+        return view;
+    }
+
+    private void RenderInput(RowView view, PropertyRow row, string? invalidText, HashSet<Control> used)
+    {
+        var box = view.Input!;
+        used.Add(box);
+        inputOwners[box] = view;
+        box.IsEnabled = true;
+        box.IsVisible = true;
+        box.Classes.Set("error", invalidText is not null);
+        AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
+        AutomationProperties.SetHelpText(box, HelpText(view));
+        string modelText = Quantity.ForField(row.Value);
+        if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
+        if (run?.Box == box) return;            // a field run owns its text
+        if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
+    }
+
+    private void RenderChoice(RowView view, PropertyRow row)
+    {
+        var options = row.Options ?? [];
+        if (TypeControl.ItemCount != options.Count)
+            TypeControl.ItemsSource = options.Select(option => new ComboBoxItem { Content = option.Text, Tag = option.Value }).ToList();
+        string shownValue = pendingType ?? row.Value;
+        int index = options.ToList().FindIndex(option => option.Value == shownValue);
+        if (TypeControl.SelectedIndex != index)
+        {
+            syncingChoice = true;
+            try { TypeControl.SelectedIndex = index; }
+            finally { syncingChoice = false; }
+        }
+        TypeControl.IsEnabled = true;
+        AutomationProperties.SetName(TypeControl, row.AutomationName ?? row.Label);
+        string committedText = options.FirstOrDefault(option => option.Value == row.Value)?.Text ?? row.Value;
+        AutomationProperties.SetHelpText(TypeControl, pendingType is not null
+            ? $"Return applies; Esc keeps {committedText.ToLowerInvariant()}" : row.Description);
+        if (pendingType is not null) ShowMessage(view, new RowMessage(PropertyCopy.PendingType, MessageKind.Info));
+    }
+
+    private void RenderKinds(RowView view, PropertyRow row)
+    {
+        var committed = Enum.Parse<TangentKind>(row.Value);
+        var shownKind = pendingKind ?? committed;
+        AutomationProperties.SetName(TangentGroup, row.AutomationName);
+        AutomationProperties.SetControlTypeOverride(TangentGroup, AutomationControlType.Group);
+        AutomationProperties.SetHelpText(TangentGroup, PropertyCopy.KindDescription(shownKind));
+        for (int index = 0; index < kindButtons.Length; index++)
+        {
+            var button = kindButtons[index];
+            bool isChecked = KindOf(button) == shownKind;
+            if (button.IsChecked != isChecked) button.IsChecked = isChecked;
+            button.IsTabStop = isChecked;   // Tab lands on the checked option (§10.4)
+            AutomationProperties.SetPositionInSet(button, index + 1);
+            AutomationProperties.SetSizeOfSet(button, kindButtons.Length);
+            AutomationProperties.SetHelpText(button, pendingKind is not null
+                ? $"Return applies; Esc keeps {committed.ToString().ToLowerInvariant()}" : PropertyCopy.KindDescription(KindOf(button)));
+        }
+        view.Description.Text = PropertyCopy.KindDescription(shownKind);
+        if (pendingKind is { } pending && pending != committed)
+            ShowMessage(view, new RowMessage(PropertyCopy.PendingKind(pending.ToString().ToLowerInvariant(),
+                committed.ToString().ToLowerInvariant()), MessageKind.Info));
+    }
+
+    private static void ShowMessage(RowView view, RowMessage? message)
+    {
+        view.MessageBox.IsVisible = message is not null;
+        string text = message?.Text ?? "";
+        if (view.Message.Text != text) view.Message.Text = text;
+        view.Message.Classes.Set("error", message?.Kind == MessageKind.Error);
+        view.Message.Classes.Set("warning", message?.Kind == MessageKind.Warning);
+        var live = message?.Kind == MessageKind.Error ? AutomationLiveSetting.Assertive : AutomationLiveSetting.Polite;
+        AutomationProperties.SetLiveSetting(view.MessageBox, live);
+        AutomationProperties.SetLiveSetting(view.Message, live);
+    }
+
+    private string HelpText(RowView view)
+    {
+        var row = view.Row;
+        var parts = new List<string>();
+        if (row.Nudge && PropertiesFieldNudge.Active && row.Unit is { } unit) parts.Add(PropertyCopy.NudgeHelp(unit));
+        if (row.Description is { } description) parts.Add(description);
+        if (errors.TryGetValue(row.Key, out var error)) parts.Add(error.Error);
+        else if ((messages.GetValueOrDefault(row.Key) ?? row.Message) is { } message) parts.Add(message.Text);
+        return string.Join(" ", parts);
+    }
+
+    private RowView CreateRow(PropertyRow row)
+    {
+        var grid = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,Auto") };
+        var label = new TextBlock { Name = Part("Label", row.Key) };
+        label.Classes.Add("prop-label");
+        var unit = new TextBlock { Name = UnitName(row.Key) };
+        unit.Classes.Add("prop-unit");
+        Grid.SetColumn(unit, 2);
+        var description = new TextBlock { Name = Part("Description", row.Key), IsVisible = false };
+        description.Classes.Add("prop-note");
+        Grid.SetRow(description, 1);
+        Grid.SetColumnSpan(description, 3);
+        TextBlock messageText;
+        Border messageBox;
+        if (row.Key == "w:span")
+        {
+            messageBox = Detach(SpanErrorPanel);
+            messageText = SpanErrorText;
+        }
+        else
+        {
+            messageText = new TextBlock { Name = MessageName(row.Key) };
+            messageText.Classes.Add("prop-message");
+            messageBox = new Border { Child = messageText, IsVisible = false };
+        }
+        Grid.SetRow(messageBox, 2);
+        Grid.SetColumnSpan(messageBox, 3);
+        var root = new Border { Child = grid, Name = Part("Row", row.Key) };
+        root.Classes.Add("prop-row");
+        var view = new RowView(root, grid, label, unit, description, messageBox, messageText) { Row = row };
+
+        Control value;
+        switch (row.Kind)
+        {
+            case RowKind.Input:
+                var box = pooledInputs.TryGetValue(row.Key, out var pooled) ? Detach(pooled) : new TextBox { Name = Part("Input", row.Key) };
+                box.Classes.Add("prop-input");
+                WireInput(box);
+                view.Input = box;
+                value = box;
+                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
+                AutomationProperties.SetAccessibilityView(unit, AccessibilityView.Raw);   // the name carries the unit (PG-01)
+                break;
+            case RowKind.Choice:
+                value = Detach(TypeControl);
+                Grid.SetColumnSpan(value, 2);
+                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
+                description.Name = row.Key == "p:type" ? "PointHelper" : description.Name;
+                break;
+            case RowKind.KindList:
+                value = Detach(TangentGroup);
+                Grid.SetColumnSpan(value, 2);
+                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
+                label.Name = "TangentLabel";
+                break;
+            default:
+                var text = new TextBlock { Name = ValueName(row.Key) };
+                text.Classes.Add("prop-value");
+                view.Value = text;
+                value = text;
+                // PG-20 / D2: a fact is not a Tab stop; its container speaks one line and its parts are Raw (B9).
+                foreach (var part in new Control[] { label, text, unit, description })
+                    AutomationProperties.SetAccessibilityView(part, AccessibilityView.Raw);
+                AutomationProperties.SetAccessibilityView(root, AccessibilityView.Content);
+                AutomationProperties.SetControlTypeOverride(root, AutomationControlType.Text);
+                root.ContextMenu = CopyMenu(row.Key);
+                root.PointerPressed += (_, _) => copyTarget = row.Key + "|" + row.Kind;
+                break;
+        }
+        Grid.SetColumn(value, 1);
+        grid.Children.AddRange([label, value, unit, description, messageBox]);
+        return view;
+    }
+
+    private ContextMenu CopyMenu(string key)
+    {
+        var menu = new ContextMenu { Name = Part("CopyMenu", key) };
+        foreach (var (header, withUnit) in new[] { ("Copy value", false), ("Copy value with unit", true) })
+        {
+            var item = new MenuItem { Header = header };
+            item.Click += (_, _) => CopyRow(key, withUnit);
+            menu.Items.Add(item);
+        }
+        return menu;
+    }
+
+    private void CopyRow(string key, bool withUnit)
+    {
+        var view = rows.Values.FirstOrDefault(item => item.Row.Key == key && item.Value is not null);
+        if (view is null) return;
+        string text = CopyText(view.Row, withUnit);
+        var write = ClipboardWriter ?? (value => TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(value) ?? Task.CompletedTask);
+        _ = write(text);
+    }
+
+    private GroupView CreateGroup(string id)
+    {
+        var title = new TextBlock { Name = Part("GroupTitle", id) };
+        title.Classes.Add("prop-group-title");
+        var summary = new TextBlock { Name = Part("GroupSummary", id) };
+        summary.Classes.Add("prop-summary");
+        var header = new StackPanel { Orientation = Orientation.Horizontal, Children = { title, summary } };
+        AutomationProperties.SetAccessibilityView(title, AccessibilityView.Raw);
+        AutomationProperties.SetAccessibilityView(summary, AccessibilityView.Raw);
+        var body = new StackPanel();
+        body.Classes.Add("prop-body");
+        var expander = new Expander
+        {
+            Name = Part("Group", id),
+            Header = header,
+            Content = body,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            ContentTransition = null   // PG-16 / B6: no native motion
+        };
+        expander.Classes.Add("prop-group");
+        var view = new GroupView(expander, title, summary, body);
+        expander.TemplateApplied += (_, args) =>
+        {
+            view.Header = args.NameScope.Find<ToggleButton>("ExpanderHeader")
+                ?? expander.GetVisualDescendants().OfType<ToggleButton>().FirstOrDefault();
+            if (view.Header is { } toggle)
+            {
+                AutomationProperties.SetName(toggle, title.Text);
+                AutomationProperties.SetHelpText(toggle, summary.Text);
+                toggle.TemplateApplied += (_, _) => StripMotion(toggle);
+            }
+            StripMotion(expander);
+        };
+        expander.Expanded += (_, _) => Toggled(id, view, expanded: true);
+        expander.Collapsed += (_, _) => Toggled(id, view, expanded: false);
+        return view;
+    }
+
+    private void Toggled(string id, GroupView view, bool expanded)
+    {
+        if (rendering) return;
+        collapsed[id] = !expanded;
+        view.Summary.IsVisible = !expanded && view.Summary.Text?.Length > 0;
+    }
+
+    /// <summary>B6: no transition anywhere in a group's template (the Fluent chevron and content motion).</summary>
+    private static void StripMotion(Control root)
+    {
+        root.Transitions = null;
+        foreach (var visual in root.GetVisualDescendants().OfType<Animatable>())
+            visual.Transitions = null;
+    }
+
+    private void FitToPane()
+    {
+        if (Bounds.Height > 0) WingBlock.MaxHeight = Bounds.Height * WingShare;
+        bool now = Bounds.Width > 0 && Bounds.Width < Token("PropNarrowPaneWidth");
+        if (now == narrow) return;
+        narrow = now;
+        foreach (var view in rows.Values) SetColumns(view.Grid);
+    }
+
+    private void SetColumns(Grid grid)
+    {
+        double label = Token(narrow ? "PropLabelNarrowWidth" : "PropLabelWidth");
+        double unit = Token(narrow ? "PropUnitNarrowWidth" : "PropUnitWidth");
+        if (grid.ColumnDefinitions.Count == 3 && grid.ColumnDefinitions[0].Width.Value == label &&
+            grid.ColumnDefinitions[2].Width.Value == unit) return;
+        grid.ColumnDefinitions = new ColumnDefinitions
+        {
+            new(label, GridUnitType.Pixel),
+            new(1, GridUnitType.Star),
+            new(unit, GridUnitType.Pixel)
+        };
+    }
+
+    // A pane bound before it is attached reads the application's tokens; it re-reads them on its first render attached.
+    private double Token(string key) =>
+        (this.TryFindResource(key, out var value) || Application.Current?.TryFindResource(key, out value) == true) && value is double number
+            ? number : 0;
+
+    // ---------------- inputs: commit, refuse, escape, nudge ----------------
+
+    private void WireInput(TextBox box)
+    {
+        // Tunnel: the field sees Return, Tab, Esc and the run arrows before TextBox moves the caret with them.
+        box.AddHandler(KeyDownEvent, OnInputKeyDown, RoutingStrategies.Tunnel);
+        box.AddHandler(KeyUpEvent, OnInputKeyUp, RoutingStrategies.Tunnel);
+        box.LostFocus += OnInputLostFocus;
+    }
+
+    private void OnInputKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox box || !inputOwners.TryGetValue(box, out var view)) return;
+        switch (e.Key)
+        {
+            case Key.Enter:
+                e.Handled = true;
+                Commit(view, box);
+                break;
+            case Key.Tab:
+                e.Handled = true;
+                if (Dirty(box) && !RefusedAlready(view, box)) Commit(view, box);
+                var direction = e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? NavigationDirection.Previous : NavigationDirection.Next;
+                (TopLevel.GetTopLevel(this) as IInputRoot)?.KeyboardNavigationHandler?.Move(box, direction, e.KeyModifiers);
+                break;
+            case Key.Escape:
+                e.Handled = true;
+                Escape(view, box);
+                break;
+            case Key.Up or Key.Down when view.Row.Nudge && PropertiesFieldNudge.Active && !Dirty(box) && !errors.ContainsKey(view.Row.Key):
+                e.Handled = true;
+                NudgeStep(view, box, e.Key == Key.Up ? 1 : -1, e.KeyModifiers);
+                break;
+        }
+    }
+
+    private void OnInputKeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key is not (Key.Up or Key.Down) || run is not { } active || !ReferenceEquals(active.Box, sender)) return;
+        e.Handled = true;
+        EndRun(GestureEnd.KeyUp);
+    }
+
+    private void OnInputLostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (rendering || sender is not TextBox box || !inputOwners.TryGetValue(box, out var view)) return;
+        if (run?.Box == box)
+        {
+            EndRun(GestureEnd.KeyUp);
             return;
         }
-        if (!boundController.BeginGesture(new PointRef(point.Curve, point.Id), GestureInput.Pointer))
+        // UI-39: leaving a field commits it; focus goes where it was sent.
+        if (Dirty(box) && !RefusedAlready(view, box)) Commit(view, box);
+    }
+
+    private bool RefusedAlready(RowView view, TextBox box) =>
+        errors.TryGetValue(view.Row.Key, out var error) && error.Text == (box.Text ?? "");
+
+    private void Escape(RowView view, TextBox box)
+    {
+        if (run?.Box == box)
         {
-            ShowPointError(boundController.Status);
+            EndRun(GestureEnd.Escape);
             return;
         }
-        boundController.UpdateGesture(span, aft);
-        boundController.FlushGestureFrame();
-        PumpUi(boundController.EndGestureAsync(GestureEnd.Release));
-        PointErrorText.IsVisible = false;
-        EchoPoint(point.Curve, point.Id);
-    }
-
-    private void CommitHandle()
-    {
-        if (boundController?.Planform is not { } plan || selectedPoint is not { } point) return;
-        if (!double.TryParse(HandleAngleInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double angle)) return;
-        if (!double.TryParse(HandleLengthInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double lengthMm)) return;
-        var target = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id, angle, lengthMm / 1000d);
-        if (!boundController.BeginGesture(new PointRef(point.Curve, point.Id), GestureInput.Pointer)) return;
-        boundController.UpdateGesture(target.SpanMeters, target.AftMeters);
-        boundController.FlushGestureFrame();
-        PumpUi(boundController.EndGestureAsync(GestureEnd.Release));
-        EchoPoint(point.Curve, point.Id);
-    }
-
-    private void CommitTangent(TangentKind kind)
-    {
-        if (boundController is null || tangentOwner is not { } owner || owner.Kind == kind) return;
-        PumpUi(boundController.ApplyPointCommandAsync(new PointCommand.SetTangent(owner.Curve, owner.Id, kind, null)));
-        var rail = owner.Curve == "leading" ? boundController.Planform?.Leading : boundController.Planform?.Trailing;
-        ShowTangent(rail?.Points.FirstOrDefault(item => item.Id == owner.Id));
-    }
-
-    private void ShowTangent(PointView? owner)
-    {
-        tangentOwner = owner;
-        TangentGroup.IsVisible = owner is not null;
-        TangentSmoothButton.IsChecked = owner?.Kind == TangentKind.Smooth;
-        TangentSymmetricButton.IsChecked = owner?.Kind == TangentKind.Symmetric;
-        TangentCornerButton.IsChecked = owner?.Kind == TangentKind.Corner;
-    }
-
-    private bool CommitChord(string dimension, TextBox box)
-    {
-        if (boundController is null) return false;
-        var task = boundController.ApplyChordAsync(dimension, box.Text ?? "");
-        PumpUi(task);
-        if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Committed committed)
+        if (Dirty(box) || errors.ContainsKey(view.Row.Key))
         {
-            bool warning = committed.Report.Contains("above the limit", StringComparison.Ordinal);
-            ChordWarningText.IsVisible = warning;
-            ChordWarningText.Text = warning ? committed.Report : "";
-            var estimates = boundController.Estimates;
-            if (estimates is not null)
-                box.Text = Mm(dimension == "root-chord" ? estimates.RootChordMeters : estimates.TipChordMeters);
+            errors.Remove(view.Row.Key);
+            box.Text = shown.GetValueOrDefault(box, Quantity.ForField(view.Row.Value));
+            if (boundController is { } controller) Bind(controller);
+            return;
+        }
+        // A second Escape returns focus to the canvas target (§10.4).
+        if (view.Row.Target is not null)
+            this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.Focus();
+    }
+
+    private void Commit(RowView view, TextBox box)
+    {
+        if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) CommitWing(view, box);
+        else CommitPoint(view, box);
+    }
+
+    private bool CommitWing(RowView view, TextBox box)
+    {
+        if (boundController is not { } controller) return false;
+        var row = view.Row;
+        string text = (box.Text ?? "").Trim();
+        if (text.Length == 0) return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
+        bool parsed = UnitEntry.TryParse(text, UnitFamily.Length, Dimensions(), out var entry);
+        Task<CommitOutcome> task = row.Key == "w:span"
+            ? controller.ApplySpanAsync(text)
+            : controller.ApplyChordAsync(row.Key == "w:root" ? "root-chord" : "tip-chord", text);
+        using (Hold()) PumpUi(task);
+        var outcome = task.IsCompletedSuccessfully ? task.Result : new CommitOutcome.Refused("DSL-NOT-ASSESSED", "");
+        if (outcome is CommitOutcome.Committed committed)
+        {
+            errors.Remove(row.Key);
+            bool aboveLimit = committed.Report.Contains("above the limit", StringComparison.Ordinal);
+            string? echo = parsed ? UnitEntry.Echo(text, entry with { Value = CommittedWingValue(row.Key, entry.Value) }, "mm") : null;
+            if (aboveLimit) messages[row.Key] = new RowMessage(committed.Report, MessageKind.Warning);
+            else if (echo is not null) messages[row.Key] = new RowMessage(echo, MessageKind.Echo);
+            else messages.Remove(row.Key);
+            shown[box] = box.Text ?? "";
+            Bind(controller);
             return true;
         }
-        if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused { Code: "DSL-TARGET" })
+        string code = ((CommitOutcome.Refused)outcome).Code;
+        if (code == "DSL-TARGET" && row.Key == "w:tip")
         {
-            TipClosedText.IsVisible = true;
-            TipClosedText.Text = TipClosedCopy;
-            TipChordInput.IsVisible = false;
+            messages[row.Key] = new RowMessage(PropertyCopy.TipCloses, MessageKind.Reason);
+            return Refuse(view, box, PropertyCopy.TipCloses);
         }
+        return Refuse(view, box, code switch
+        {
+            "DSL-UNIT" => PropertyCopy.NotPositive(row.Label),
+            "DSL-EDGES-CROSS" => "That would make the leading and trailing edges cross. Enter a different value.",
+            "DSL-NOT-ASSESSED" => $"The new {row.Label.ToLowerInvariant()} couldn't be checked. {row.Label} is unchanged. Try again or enter a different value.",
+            _ => PropertyCopy.NotANumber(row.Label)
+        });
+    }
+
+    private double CommittedWingValue(string key, double typed)
+    {
+        var estimates = boundController?.Estimates;
+        double? meters = key switch
+        {
+            "w:span" => estimates?.SpanMeters,
+            "w:root" => estimates?.RootChordMeters,
+            "w:tip" => estimates?.TipChordMeters,
+            _ => null
+        };
+        return meters is double value ? value * 1000 : typed;
+    }
+
+    private bool CommitPoint(RowView view, TextBox box)
+    {
+        if (boundController is not { } controller || controller.Planform is not { } plan || view.Row.Target is not { } target) return false;
+        if (PropertiesView.Find(plan, target) is not { } point) return false;
+        var dims = Dimensions();
+        var echoes = new Dictionary<string, string>(StringComparer.Ordinal);
+        (double Span, double Aft) destination;
+        if (view.Row.Key is "p:from" or "p:aft")
+        {
+            // One intent, one undo row: a dirty From root and Aft commit together.
+            double span = point.SpanMeters, aft = point.AftMeters;
+            foreach (var other in new[] { "p:from", "p:aft" })
+            {
+                if (!rows.TryGetValue(other + "|Input", out var field) || field.Input is not { } input) continue;
+                bool include = field == view || input.IsEnabled && Dirty(input);
+                if (!include) continue;
+                if (!Parse(field, input, dims, out double value)) return false;
+                if (other == "p:from") span = value / 1000; else aft = value / 1000;
+                if (UnitEntry.TryParse(input.Text, UnitFamily.Length, dims, out var entry) && UnitEntry.Echo(input.Text!, entry, "mm") is { } echo)
+                    echoes[other] = echo;
+            }
+            destination = (span, aft);
+        }
+        else
+        {
+            if (!Parse(view, box, dims, out double value)) return false;
+            var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
+            var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
+            bool isAngle = view.Row.Family == UnitFamily.Angle;
+            destination = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id,
+                isAngle ? value : angle, isAngle ? length : value / 1000);
+            if (UnitEntry.TryParse(box.Text, view.Row.Family, dims, out var entry) &&
+                UnitEntry.Echo(box.Text!, entry, view.Row.Unit ?? "") is { } echo)
+                echoes[view.Row.Key] = echo;
+        }
+        var outcome = RunTypedGesture(controller, target, destination);
+        switch (outcome)
+        {
+            case GestureOutcome.Committed:
+                foreach (var key in new[] { view.Row.Key, "p:from", "p:aft" }) { errors.Remove(key); messages.Remove(key); }
+                foreach (var (key, echo) in echoes) messages[key] = new RowMessage(echo, MessageKind.Echo);
+                MarkShown(view.Row.Key is "p:from" or "p:aft" ? ["p:from", "p:aft"] : [view.Row.Key]);
+                Bind(controller);
+                return true;
+            case GestureOutcome.Refused refused:
+                return Refuse(view, box, refused.Copy);
+            case null:
+                return Refuse(view, box, controller.Status);
+            default:
+                MarkShown([view.Row.Key]);
+                Bind(controller);
+                return true;
+        }
+    }
+
+    private bool Parse(RowView view, TextBox box, IReadOnlyDictionary<string, double> dims, out double value)
+    {
+        var row = view.Row;
+        value = double.NaN;
+        if (!UnitEntry.TryParse(box.Text, row.Family, dims, out var entry))
+            return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
+        if (row.MustBePositive && entry.Value <= 0)
+            return Refuse(view, box, PropertyCopy.NotPositive(row.Label));
+        if (row.AngleBounded && Math.Abs(entry.Value) >= 90)
+            return Refuse(view, box, PropertyCopy.AngleOutOfRange(row.Label));
+        value = entry.Value;
+        return true;
+    }
+
+    /// <summary>PG-22 / B10: an error is announced once per failed commit, never on a re-render.</summary>
+    private bool Refuse(RowView view, TextBox box, string message)
+    {
+        errors[view.Row.Key] = (box.Text ?? "", message);
+        messages.Remove(view.Row.Key);
+        RenderRow(view.Row, []);
+        view.Message.Text = "";
+        view.Message.Text = message;
+        box.Classes.Set("error", true);
+        AutomationProperties.SetHelpText(box, HelpText(view));
+        Announced?.Invoke(message, AutomationLiveSetting.Assertive);
         return false;
+    }
+
+    /// <summary>A typed edit is one gesture and one undo row; a handle edited from its anchor keeps the anchor selected.</summary>
+    private GestureOutcome? RunTypedGesture(WorkbenchController controller, PointRef target, (double Span, double Aft) destination)
+    {
+        using (Hold())
+        {
+            var selection = controller.Selection;
+            if (!controller.BeginGesture(target, GestureInput.Typed)) return null;
+            controller.Select(selection);
+            controller.UpdateGesture(destination.Span, destination.Aft);
+            controller.FlushGestureFrame();
+            var task = controller.EndGestureAsync(GestureEnd.Release);
+            PumpUi(task);
+            return task.IsCompletedSuccessfully ? task.Result : new GestureOutcome.Refused("DSL-NOT-ASSESSED",
+                "This change couldn't be checked, so it wasn't applied. Nothing changed.");
+        }
+    }
+
+    private void NudgeStep(RowView view, TextBox box, int direction, KeyModifiers modifiers)
+    {
+        if (boundController is not { } controller || view.Row.Target is not { } target) return;
+        if (run is null)
+        {
+            if (controller.Planform is not { } plan || ReadValue(view.Row, plan) is not { } origin) return;
+            using (Hold())
+            {
+                var selection = controller.Selection;
+                if (!controller.BeginGesture(target, GestureInput.Typed)) return;
+                controller.Select(selection);
+            }
+            var start = PropertiesView.Find(plan, target)!;
+            run = new NudgeRun(view, box, target, plan, origin, origin, (start.SpanMeters, start.AftMeters));
+        }
+        var active = run;
+        // COPY-163: ⌘ (Ctrl on Windows) 0.01, Shift 1, plain 0.1 — in the field's unit (mm, °, %).
+        double step = modifiers.HasFlag(KeyModifiers.Meta) || modifiers.HasFlag(KeyModifiers.Control) ? 0.01
+            : modifiers.HasFlag(KeyModifiers.Shift) ? 1 : 0.1;
+        double next = Math.Round(active.Value + direction * step, 6);
+        if (view.Row.AngleBounded && Math.Abs(next) >= 90)
+        {
+            StopsHere(view);
+            return;
+        }
+        var destination = RunTarget(active, next);
+        controller.UpdateGesture(destination.Span, destination.Aft);
+        controller.FlushGestureFrame();
+        double reached = controller.Planform is { } now && ReadValue(view.Row, now) is { } value ? value : next;
+        if (view.Row.AngleBounded && Math.Abs(reached - active.Value) < step / 4)
+        {
+            // MC-23: Core's ordering clamp holds a handle short of ±90°. The run stops at its last position, so a run
+            // that never got past the bound changes nothing and makes no undo row.
+            controller.UpdateGesture(active.Accepted.Span, active.Accepted.Aft);
+            controller.FlushGestureFrame();
+            StopsHere(view);
+            return;
+        }
+        run = active with { Value = reached, Accepted = destination };
+        SetShown(box, Quantity.ForField(Quantity.Typed(reached)));
+    }
+
+    /// <summary>MC-23: a run held at the angle bound stops there and says so (COPY-170).</summary>
+    private void StopsHere(RowView view)
+    {
+        messages[view.Row.Key] = new RowMessage(PropertyCopy.AngleRunStops, MessageKind.Warning);
+        ShowMessage(view, messages[view.Row.Key]);
+    }
+
+    private (double Span, double Aft) RunTarget(NudgeRun active, double value)
+    {
+        var point = PropertiesView.Find(active.Plan, active.Target)!;
+        switch (active.View.Row.Key)
+        {
+            case "p:from": return (value / 1000, point.AftMeters);
+            case "p:aft": return (point.SpanMeters, value / 1000);
+        }
+        var anchor = PropertiesView.Rail(active.Plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
+        var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
+        bool isAngle = active.View.Row.Family == UnitFamily.Angle;
+        return CfdWorkbench.Core.Planform.HandleTarget(active.Plan, point.Curve, point.Id,
+            isAngle ? value : angle, isAngle ? length : value / 1000);
+    }
+
+    private static double? ReadValue(PropertyRow row, PlanformView plan)
+    {
+        if (row.Target is not { } target || PropertiesView.Find(plan, target) is not { } point) return null;
+        switch (row.Key)
+        {
+            case "p:from": return point.SpanMeters * 1000;
+            case "p:aft": return point.AftMeters * 1000;
+        }
+        if (point.AnchorId is null) return null;
+        var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
+        var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
+        return row.Family == UnitFamily.Angle ? angle : length * 1000;
+    }
+
+    private void EndRun(GestureEnd reason)
+    {
+        if (run is not { } active || boundController is not { } controller) return;
+        run = null;
+        Task<GestureOutcome> task;
+        using (Hold())
+        {
+            task = controller.EndGestureAsync(reason);
+            PumpUi(task);
+        }
+        var row = active.View.Row;
+        if (task.IsCompletedSuccessfully && task.Result is GestureOutcome.Committed)
+        {
+            // PG-08: the new value is announced once, politely, on release.
+            string value = Quantity.Typed(controller.Planform is { } plan && ReadValue(row, plan) is { } now ? now : active.Value);
+            string report = $"{row.Label} {(row.Unit == "°" ? value + "°" : value + " " + row.Unit)}.";
+            messages[row.Key] = new RowMessage(report, MessageKind.Report);
+            Announced?.Invoke(report, AutomationLiveSetting.Polite);
+        }
+        else if (reason == GestureEnd.Escape)
+            messages.Remove(row.Key);
+        shown.Remove(active.Box);
+        Bind(controller);
+    }
+
+    private sealed record NudgeRun(RowView View, TextBox Box, PointRef Target, PlanformView Plan, double Origin, double Value,
+        (double Span, double Aft) Accepted);
+
+    // ---------------- Type (PG-07, PG-19) ----------------
+
+    private void OnTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (syncingChoice || rendering || TypeRowView() is not { } view) return;
+        string? value = (TypeControl.SelectedItem as ComboBoxItem)?.Tag as string;
+        if (value is null) return;
+        if (TypeControl.IsDropDownOpen) return;   // a pointer pick commits when the list closes
+        // Arrows on the closed box are pending; Return commits, Esc keeps, leaving drops it.
+        pendingType = value == view.Row.Value ? null : value;
+        RenderChoice(view, view.Row);
+        if (pendingType is null) ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+    }
+
+    private void OnTypeDropDownClosed()
+    {
+        if (TypeRowView() is not { } view) return;
+        string? value = (TypeControl.SelectedItem as ComboBoxItem)?.Tag as string;
+        if (value is not null && value != view.Row.Value) CommitType(view, value);
+    }
+
+    private void OnTypeKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (TypeRowView() is not { } view) return;
+        if (e.Key == Key.Enter && !TypeControl.IsDropDownOpen)
+        {
+            e.Handled = true;
+            if (pendingType is { } pending) CommitType(view, pending);
+        }
+        else if (e.Key == Key.Escape && pendingType is not null && !TypeControl.IsDropDownOpen)
+        {
+            e.Handled = true;
+            pendingType = null;
+            RenderChoice(view, view.Row);
+            ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+        }
+    }
+
+    private void DropPendingType()
+    {
+        if (pendingType is null || TypeControl.IsDropDownOpen || TypeRowView() is not { } view) return;
+        pendingType = null;   // D1 / PG-19: leaving the box with a pending type does not commit
+        RenderChoice(view, view.Row);
+        ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+    }
+
+    private RowView? TypeRowView() =>
+        rows.TryGetValue("p:type|Choice", out var view) && view.Root.IsAttachedToVisualTree() ? view : null;
+
+    private void CommitType(RowView view, string value)
+    {
+        pendingType = null;
+        if (boundController is not { } controller || controller.Planform is not { } plan || view.Row.Target is not { } target) return;
+        var rail = PropertiesView.Rail(plan, target.Curve);
+        var point = rail?.Points.FirstOrDefault(item => item.Id == target.VertexId);
+        if (rail is null || point is null) return;
+        PointCommand command = value == "anchor" ? new PointCommand.MakeAnchor(point.Curve, point.Id) : new PointCommand.MakeControl(point.Curve, point.Id);
+        var task = controller.ApplyPointCommandAsync(command);
+        using (Hold()) PumpUi(task);
+        if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Committed committed)
+        {
+            int before = rail.Points.Count;
+            int after = controller.Planform is { } now ? PropertiesView.Rail(now, target.Curve)!.Points.Count : before;
+            string curve = PropertiesView.Curves[target.Curve].Name;
+            // The deviation is the operation's own number (COPY-154 / COPY-165), read from its report.
+            string largest = Deviation().Match(committed.Report) is { Success: true } match
+                ? $" Largest change {match.Groups[1].Value} mm." : "";
+            string report = value == "anchor"
+                ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The rail gained {after - before} points ({before} → {after}).{largest}"
+                : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the rail has {after} points (was {before}).{largest}";
+            messages["p:type"] = new RowMessage(report, MessageKind.Report);
+            Announced?.Invoke(report, AutomationLiveSetting.Polite);
+        }
+        else if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
+            messages["p:type"] = new RowMessage(refused.Copy, MessageKind.Error);
+        Bind(controller);
+    }
+
+    [GeneratedRegex(@"Max deviation ([0-9.]+) mm")]
+    private static partial Regex Deviation();
+
+    // ---------------- Kind (PG-06 = MC-1, the ruled APG deviation) ----------------
+
+    private void OnKindKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (!rows.TryGetValue("t:kind|KindList", out var view)) return;
+        var committed = Enum.Parse<TangentKind>(view.Row.Value);
+        int current = Array.FindIndex(kindButtons, button => KindOf(button) == (pendingKind ?? committed));
+        int next = e.Key switch
+        {
+            Key.Up or Key.Left => Math.Max(0, current - 1),     // no wrap
+            Key.Down or Key.Right => Math.Min(kindButtons.Length - 1, current + 1),
+            Key.Home => 0,
+            Key.End => kindButtons.Length - 1,
+            _ => -1
+        };
+        if (next >= 0)
+        {
+            e.Handled = true;
+            var kind = KindOf(kindButtons[next]);
+            pendingKind = kind == committed ? null : kind;   // arrows move the check only
+            RenderKinds(view, view.Row);
+            if (pendingKind is null) ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+            kindButtons[next].Focus(NavigationMethod.Directional);
+        }
+        else if (e.Key == Key.Escape && pendingKind is not null)
+        {
+            e.Handled = true;
+            pendingKind = null;
+            RenderKinds(view, view.Row);
+            ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+            kindButtons.First(button => KindOf(button) == committed).Focus(NavigationMethod.Directional);
+        }
+    }
+
+    private void CommitKindOnLeave()
+    {
+        if (pendingKind is { } kind && !TangentGroup.IsKeyboardFocusWithin) CommitKind(kind);
+    }
+
+    private void CommitKind(TangentKind kind)
+    {
+        pendingKind = null;
+        if (rendering || boundController is not { } controller || controller.Planform is not { } plan ||
+            !rows.TryGetValue("t:kind|KindList", out var view) || view.Row.Target is not { } target ||
+            PropertiesView.Find(plan, target) is not { } anchor)
+            return;
+        bool hadFocus = TangentGroup.IsKeyboardFocusWithin;
+        if (anchor.Kind != kind)
+        {
+            // On a handle the kind keeps the selected handle and moves the other one (COPY-162).
+            string? keep = controller.Selection is Selection.Points { Items.Count: 1 } points &&
+                           PropertiesView.Find(plan, points.Items[0]) is { AnchorId: { } owner } handle && owner == anchor.Id
+                ? handle.Id : null;
+            var task = controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, kind, keep));
+            using (Hold()) PumpUi(task);
+            if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
+                messages["t:kind"] = new RowMessage(refused.Copy, MessageKind.Error);
+            else messages.Remove("t:kind");
+        }
+        Bind(controller);
+        // Tangent_KindChange_KeepsFocusOnChecked: focus stays on the checked option after the commit.
+        if (hadFocus) kindButtons.FirstOrDefault(button => button.IsChecked == true)?.Focus(NavigationMethod.Directional);
+    }
+
+    private static TangentKind KindOf(RadioButton button) => Enum.Parse<TangentKind>(button.Content?.ToString() ?? "Corner");
+
+    // ---------------- pane keys, crumb, recovery ----------------
+
+    private void OnPaneKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Handled || boundController is not { } controller) return;
+        var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+        if (focused is TextBox) return;
+        if (e.Key == Key.Escape && IdentityCrumbLink.Tag is PointRef parent)
+        {
+            // PG-12: Esc on a handle selection selects its anchor or end.
+            e.Handled = true;
+            controller.Select(new Selection.Points([parent]));
+        }
+        else if (e.Key == Key.C && (e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control)) &&
+                 copyTarget is { } key && rows.TryGetValue(key, out var view))
+        {
+            e.Handled = true;
+            CopyRow(view.Row.Key, withUnit: true);
+        }
+    }
+
+    private void GoToCrumb()
+    {
+        if (IdentityCrumbLink.Tag is PointRef parent) boundController?.Select(new Selection.Points([parent]));
+    }
+
+    private void ResumeRecoveryIfNeeded(WorkbenchController controller)
+    {
+        if (!controller.HasRecovery || controller.Draft is not null || resumingRecovery) return;
+        resumingRecovery = true;
+        try { controller.ResumeRecovery(); }
+        finally { resumingRecovery = false; }
     }
 
     private void ApplyRecovery()
@@ -473,24 +1153,7 @@ public partial class PropertiesPane : UserControl
         boundController.Apply();
     }
 
-    private void EchoPoint(string curve, string id)
-    {
-        if (boundController?.Planform is not { } plan) return;
-        var rail = curve == "leading" ? plan.Leading : plan.Trailing;
-        var point = rail.Points.FirstOrDefault(item => item.Id == id);
-        if (point is null) return;
-        selectedPoint = point;
-        PointSpanInput.Text = Mm(point.SpanMeters);
-        PointAftInput.Text = Mm(point.AftMeters);
-        if (point.AnchorId is not null && rail.Points.FirstOrDefault(item => item.Id == point.AnchorId) is { } anchor)
-        {
-            double spanDelta = point.SpanMeters - anchor.SpanMeters;
-            double aftDelta = point.AftMeters - anchor.AftMeters;
-            if (point.Index < anchor.Index) { spanDelta = -spanDelta; aftDelta = -aftDelta; }
-            HandleAngleInput.Text = (Math.Atan2(aftDelta, spanDelta) * 180 / Math.PI).ToString("0.00", CultureInfo.InvariantCulture);
-            HandleLengthInput.Text = (Math.Sqrt(spanDelta * spanDelta + aftDelta * aftDelta) * 1000).ToString("0.00", CultureInfo.InvariantCulture);
-        }
-    }
+    // ---------------- helpers ----------------
 
     private Dictionary<string, double> Dimensions()
     {
@@ -504,35 +1167,147 @@ public partial class PropertiesPane : UserControl
         };
     }
 
-    private void ShowPointError(string text)
+    private bool Dirty(TextBox box) => shown.TryGetValue(box, out var text) && (box.Text ?? "") != text;
+
+    private void SetShown(TextBox box, string text)
     {
-        PointErrorText.Text = text;
-        PointErrorText.IsVisible = true;
+        shown[box] = text;
+        if (box.Text != text) box.Text = text;
     }
 
-    private static string Mm(double meters) => (meters * 1000).ToString("0.00", CultureInfo.InvariantCulture);
-
-    private static string Ratio(double value) => value.ToString("0.00", CultureInfo.InvariantCulture);
-
-    private static string Approx(double value, Func<double, string> format) =>
-        double.IsFinite(value) ? "≈ " + format(value) : "≈ —";
-
-    private static string RoleText(PointRole role) => role switch
+    private void MarkShown(IEnumerable<string> keys)
     {
-        PointRole.RootEnd => "Root end",
-        PointRole.TipEnd => "Tip end",
-        PointRole.RootHandle => "Root handle",
-        PointRole.TipHandle => "Tip handle",
-        PointRole.AnchorHandle => "Anchor handle",
-        PointRole.Anchor => "Anchor point",
-        _ => "Control point"
+        foreach (var key in keys)
+            if (rows.TryGetValue(key + "|Input", out var view) && view.Input is { } input)
+                shown[input] = input.Text ?? "";
+    }
+
+    private static string SelectionKey(Selection selection) => selection switch
+    {
+        Selection.Points points => "points:" + string.Join(",", points.Items.Select(item => item.Curve + "/" + item.VertexId)),
+        Selection.Station station => "station:" + station.Index.ToString(CultureInfo.InvariantCulture),
+        _ => selection.GetType().Name
     };
+
+    private static T Detach<T>(T control) where T : Control
+    {
+        switch (control.Parent)
+        {
+            case Panel panel: panel.Children.Remove(control); break;
+            case Decorator decorator when ReferenceEquals(decorator.Child, control): decorator.Child = null; break;
+        }
+        return control;
+    }
+
+    /// <summary>Brings a panel's children to the desired list without detaching the ones already in place (focus stays).</summary>
+    private static void Sync(Panel panel, IReadOnlyList<Control> desired)
+    {
+        var children = panel.Children;
+        if (children.SequenceEqual(desired)) return;
+        var keep = new HashSet<Control>(desired);
+        for (int index = children.Count - 1; index >= 0; index--)
+            if (!keep.Contains(children[index])) children.RemoveAt(index);
+        for (int index = 0; index < desired.Count; index++)
+        {
+            var control = desired[index];
+            if (index < children.Count && ReferenceEquals(children[index], control)) continue;
+            int at = children.IndexOf(control);
+            if (at >= 0) children.RemoveAt(at);
+            else Detach(control);
+            children.Insert(index, control);
+        }
+    }
+
+    private static string Part(string prefix, string key) => prefix + "_" + key.Replace(':', '_').Replace('-', '_');
+
+    private static string UnitName(string key) => key switch
+    {
+        "w:span" => "SpanUnit",
+        "w:root" => "RootChordUnit",
+        "w:tip" => "TipChordUnit",
+        _ => Part("Unit", key)
+    };
+
+    private static string ValueName(string key) => key switch
+    {
+        "e:mean" => "MeanChordText",
+        "e:mac" => "MacText",
+        "e:maxtc" => "MaxTcText",
+        "e:ar" => "AspectText",
+        "e:area" => "AreaEstimateText",
+        "w:tip" => "TipClosedText",
+        "p:type" => "TypeReadOnly",
+        _ => Part("Value", key)
+    };
+
+    private static string MessageName(string key) => key switch
+    {
+        "w:root" => "ChordWarningText",
+        _ => Part("Message", key)
+    };
+
+    private static string GlyphPath(IdentityGlyph glyph) => glyph switch
+    {
+        IdentityGlyph.Foil => "M1,9 Q8,2 15,8 Q8,12 1,9 Z",
+        IdentityGlyph.Control => "M8,3 A5,5 0 1 1 7.99,3 Z",
+        IdentityGlyph.Anchor => "M3,3 L13,3 L13,13 L3,13 Z",
+        IdentityGlyph.End => "M8,1 L15,8 L8,15 L1,8 Z",
+        IdentityGlyph.Handle => "M8,5 A3,3 0 1 1 7.99,5 Z",
+        IdentityGlyph.Several => "M3,6.5 A1.5,1.5 0 1 1 2.99,6.5 Z M8,6.5 A1.5,1.5 0 1 1 7.99,6.5 Z M13,6.5 A1.5,1.5 0 1 1 12.99,6.5 Z",
+        _ => "M8,1 L8,15"
+    };
+
+    private IDisposable Hold() => new RenderHold(this);
+
+    private sealed class RenderHold : IDisposable
+    {
+        private PropertiesPane? pane;
+
+        public RenderHold(PropertiesPane pane)
+        {
+            this.pane = pane;
+            pane.holds++;
+        }
+
+        public void Dispose()
+        {
+            if (pane is not { } owner) return;
+            pane = null;
+            if (--owner.holds > 0 || !owner.bindPending) return;
+            owner.bindPending = false;
+            if (owner.boundController is { } controller) owner.Bind(controller);
+        }
+    }
 
     private static void PumpUi(Task task)
     {
         if (task.IsCompleted) return;
         var start = DateTime.UtcNow;
         while (!task.IsCompleted && DateTime.UtcNow - start < TimeSpan.FromSeconds(8))
-            Avalonia.Threading.Dispatcher.UIThread.RunJobs(Avalonia.Threading.DispatcherPriority.Background);
+            Dispatcher.UIThread.RunJobs(DispatcherPriority.Background);
+    }
+
+    private sealed class RowView(Border root, Grid grid, TextBlock label, TextBlock unit, TextBlock description, Border messageBox,
+        TextBlock message)
+    {
+        public Border Root { get; } = root;
+        public Grid Grid { get; } = grid;
+        public TextBlock Label { get; } = label;
+        public TextBlock Unit { get; } = unit;
+        public TextBlock Description { get; } = description;
+        public Border MessageBox { get; } = messageBox;
+        public TextBlock Message { get; } = message;
+        public TextBlock? Value { get; set; }
+        public TextBox? Input { get; set; }
+        public required PropertyRow Row { get; set; }
+    }
+
+    private sealed class GroupView(Expander expander, TextBlock title, TextBlock summary, StackPanel body)
+    {
+        public Expander Expander { get; } = expander;
+        public TextBlock Title { get; } = title;
+        public TextBlock Summary { get; } = summary;
+        public StackPanel Body { get; } = body;
+        public ToggleButton? Header { get; set; }
     }
 }
