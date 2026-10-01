@@ -1595,6 +1595,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "93ac732f86f2792b257f31e00ef12869535e32a64fa0c3659ebe99de30c29b19"
     },
     {
+      "id": "property-grid-rulings",
+      "path": "docs/notes/property-grid-rulings.md",
+      "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
+      "type": "decision-note",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-03-30",
+      "reviewSuggested": [],
+      "summary": "Operator rulings of 2026-10-01 on the property-grid review. Precision follows the quantity, not the row. The field nudge is adopted for point and handle fields only, as the canvas Nudging gesture. Drag-to-scrub is rejected. A dedicated track builds the component between the M1.2b fix track and PNL. Both root-chord fields stay editable and are labelled. Expressions are set once and say so. A point's spanwise coordinate is \"From root\", with η beside it.",
+      "tags": [
+        "ui",
+        "properties",
+        "property-grid",
+        "precision",
+        "keyboard",
+        "rulings"
+      ],
+      "links": [
+        {
+          "to": "review-ui-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e096f7fd340eac1dc87f388218778d3f3f62300fc1c99f5da22fb73ff7d3a262"
+    },
+    {
       "id": "thick-client-shell",
       "path": "docs/notes/thick-client-shell.md",
       "title": "The window is the unit — a thick-client shell, not a scrolling page",
@@ -2036,6 +2080,11 @@ window.DOCS_INDEX = {
           "by": "mockup-property-grid",
           "on": "2026-10-01",
           "reason": "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1."
+        },
+        {
+          "by": "property-grid-rulings",
+          "on": "2026-10-01",
+          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
         }
       ],
       "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
@@ -2122,7 +2171,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "417566c1ee26f2ab65dc4bd7aad0e7bbf6e3855a45d6c0ac5e372fa256b57981"
+      "sourceSha256": "17a458bd420e83c321c09ed642c694ff871866c4140c9cc00b1c6af6c3460968"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2427,10 +2476,14 @@ window.DOCS_INDEX = {
         {
           "to": "review-ui-property-grid",
           "rel": "tested-by"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0c7a2627a5d35c46af46a3bea7c46091c205065fc2760aed361b3b7c8a83ab0a"
+      "sourceSha256": "40b3fc471334ad21f6cbd0dd2890b54be2778cba9b696a060c1e5cdaae438efc"
     },
     {
       "id": "mockup-workbench",
@@ -4079,10 +4132,14 @@ window.DOCS_INDEX = {
         {
           "to": "defect-classes",
           "rel": "relates-to"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f6ae3b700b439598a3f139ff784612b599bf2d22c227cdd251405f3de154e369"
+      "sourceSha256": "397839698143bcbc6f061d0bcd15ccccbfd5a2a4b20734eba4bbb7831d75baa5"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -8393,6 +8450,11 @@ window.DOCS_INDEX = {
           "by": "mockup-property-grid",
           "on": "2026-10-01",
           "reason": "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1."
+        },
+        {
+          "by": "property-grid-rulings",
+          "on": "2026-10-01",
+          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
@@ -8581,7 +8643,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "ef77da5b327288449b3c2bc7ced1454121434fb15841aea6f435c1b416b86e6f"
+      "sourceSha256": "bbf8f8cd362870957dd19620eea1418680c022c49303e97930c3296dc78dd63a"
     },
     {
       "id": "spec-foildsl",
@@ -8868,5 +8930,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "583899d4d1c89d501c323333ad5f73ac86bba0ad1bd5ee19e00165d9d7951746"
+  "graphSha256": "185588986ecf2513bdebe0ab3f5f796443eb8e409b9f45dd5766dd54bb3084ad"
 };

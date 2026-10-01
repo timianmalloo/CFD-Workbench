@@ -229,7 +229,7 @@ Coordinates, scales, and chart axes never rely on a tooltip for their unit.
 | Station document | editor-group tab with a full 2D section view; palette on the toolbar; section Properties | catalog original · draft open (tab dot) · modified · infeasible | Return applies as a Modified Profile revision; Escape or × closes and returns focus to Edit section |
 | Selection identity (property grid, 2026-10-01; F-1, O-6) | the first block of Properties: the Plan view's glyph for the selection (square anchor, filled circle control, diamond end, small circle handle, three dots for several, dashed line for a station) at 16 px in {colors.ink}, the object's name in {typography.body} 600 ("Trailing edge · point 7 of 14", "Handle toward the tip", "3 points"), and a crumb in {typography.caption} {colors.ink-mute} only when it adds something the rows do not say (a handle's parent anchor as a link; never the Type value again) | one per selection, never two; a handle never reuses its anchor's name or helper | empty: COPY-136 + COPY-137, no identity · opening: the file name and skeleton rows · pane error: COPY-138 + Try again | the name wraps; it is never truncated |
 | Property group (property grid) | a header band {spacing.prop-head} high on {colors.surface-soft}: a disclosure chevron, the group name in {typography.label} 600, and — while collapsed — a one-line summary of its values in {typography.numeric} {colors.ink-mute}; then its rows; groups are separated by a {colors.hairline} rule | collapsed state is remembered per group across selections (Premiere's twirl-down memory); the header is a Button with `aria-expanded`; the Wing group is never collapsible (UI-36) and its header carries a state chip: "≈ preview" during a gesture, "Checking…" while a commit is checked, "Unavailable" when the estimates are | no rows → the group is not drawn | the summary truncates with an ellipsis; the name never does |
-| Property row (property grid) | one grid per row with a shared label column: label {spacing.prop-label} ({spacing.prop-label-narrow} when the pane is narrower than 230 px) in {typography.label} {colors.ink-mute} · value 1fr, right-aligned {typography.numeric} with tabular figures · unit {spacing.prop-unit} ({spacing.prop-unit-narrow} narrow) in {typography.caption}; a 3 px state rail on the left; an optional description and one message line beneath, full row width | **kinds:** input (bordered, {colors.control-line} boundary, {rounded.sm}, row ≥ {spacing.target-dense}) · read-only fact (plain text, no border, row {spacing.prop-row-ro}; a lock glyph and a reason when it is locked) · estimate ("≈ " prefix, plain text) · select · segmented (a radio group with fill **and** weight **and** a check mark on the chosen option) · action; **states:** focus (the rail turns {colors.focus-ring}; no row fill, which would drop the input boundary under 3:1) · warning (rail + icon + text in {colors.warning}) · error (rail + 2 px {colors.danger} input border + COPY-118 / COPY-106 as an alert tied by `aria-describedby`) · unavailable ("Unavailable", never "≈ —", with the reason in the group) · mixed ("Mixed", read-only, OI-3) | Return or leaving the field commits (one undo step) and keeps focus where it was sent; Escape restores the shown value; a typed expression is echoed under the field ("15 cm = 150.00 mm."); every number field's accessible name contains its visible label and its unit ("Span position in millimetres") | values wrap, never clip, at the 200 px dock; every quantity has a unit or is declared dimensionless |
+| Property row (property grid) | one grid per row with a shared label column: label {spacing.prop-label} ({spacing.prop-label-narrow} when the pane is narrower than 230 px) in {typography.label} {colors.ink-mute} · value 1fr, right-aligned {typography.numeric} with tabular figures · unit {spacing.prop-unit} ({spacing.prop-unit-narrow} narrow) in {typography.caption}; a 3 px state rail on the left; an optional description and one message line beneath, full row width | **kinds:** input (bordered, {colors.control-line} boundary, {rounded.sm}, row ≥ {spacing.target-dense}) · read-only fact (plain text, no border, row {spacing.prop-row-ro}; a lock glyph and a reason when it is locked) · estimate ("≈ " prefix, plain text); facts and estimates speak one line "<label>, <value> <unit>[, locked]" · select (Type: arrows on the closed box are pending, Return or a pointer pick commits) · Kind list (a vertical radio list, one option per line, never truncated; checked = filled dot **and** weight; arrows move the check only, Return/Space or leaving commits) · action; **states:** focus (the rail turns {colors.focus-ring}; no row fill, which would drop the input boundary under 3:1) · warning (rail + icon + text in {colors.warning}) · error (rail + 2 px {colors.danger} input border + COPY-118 / COPY-106 as an alert tied by `aria-describedby`) · unavailable ("Unavailable", never "≈ —", with the reason in the group) · mixed ("Mixed", read-only, no unit shown, OI-3) | Return or leaving the field commits (one undo step) and keeps focus where it was sent; Escape restores the shown value; a typed expression is echoed in the field's unit ("15 cm = 150.00 mm.", "0.35 rad = 20.05°."), and one with a reference says it is set once; point and handle fields nudge with ↑/↓ as the canvas gesture; every number field's accessible name contains its visible label and its unit ("From root, position along the span in millimetres") | values and labels wrap, never clip or ellipsize, at the 200 px dock; every quantity has a unit or is declared dimensionless |
 
 All controls use {rounded.sm}; panels are square joins; floating dialogs use
 {rounded.md}. Primary actions are at least {spacing.target}; dense scientific
@@ -294,6 +294,7 @@ window chrome, assistive technology, DPI, signing, and distribution remain unpro
 | Moment | Purpose | Timing | Reduced motion |
 |---|---|---|---|
 | Hover/focus color | Confirm interaction | {motion.fast}, {motion.easing} | Instant |
+| Property group chevron | Show a group opening or closing | {motion.fast}, {motion.easing} (mockup); none natively (HardCut, PG-16) | Instant |
 | Status appearance | Explain completed local change | Instant, reserved status area | Instant |
 | Camera manipulation | Maintain spatial orientation | Direct response, no inertia | Direct response |
 | Task/state switch | Change work context | Hard cut | Hard cut |
@@ -463,12 +464,22 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-149 | An anchor point is on the curve. Its handles set the curve's direction on each side. |
 | COPY-150 | Handles stay in line. Their lengths can differ. |
 | COPY-151 | Handles stay in line and equal in length. |
-| COPY-152 | Each handle moves on its own. The curve has a corner here. |
-| COPY-153 | Anchor point — adds 2 handles |
-| COPY-154 | <Curve> point <i> is now an anchor point with 2 handles. The rail has <n> points (was <m>). Largest change <d> mm. |
+| COPY-152 | Each handle moves on its own. The curve can turn a corner here. |
+| COPY-153 | Anchor point — adds handles (rail gains up to 3 points) |
+| COPY-154 | <Curve> point <i> is now an anchor point with 2 handles. The rail gained <k> points (<m> → <n>). Largest change <d> mm. |
 | COPY-155 | Unavailable — <reason>. Undo, or edit again, to recompute. |
 | COPY-156 | Square to the centre line (root mirror). Only its length can change. |
-| COPY-157 | <typed> = <value> mm. |
+| COPY-157 | <typed> = <value> <unit>. |
+| COPY-158 | Enter an angle between −90° and 90°, from the span axis, + aft. <Field> is unchanged. |
+| COPY-159 | This is the root chord. Typing here moves only this point; Root chord under Wing rescales the planform. |
+| COPY-160 | <What> unavailable — <reason>. |
+| COPY-161 | <typed> = <value> <unit> (set once; doesn’t follow <reference>) |
+| COPY-162 | Keeps this handle; the other one moves. |
+| COPY-163 | Up and Down arrows step 0.1 <unit>; with Command (Ctrl on Windows) 0.01; with Shift 1. Release to apply; Esc cancels. |
+| COPY-164 | Angles are measured from the span axis, + aft. |
+| COPY-165 | <Curve> point <i> is now a control point. Its handles are removed; the rail has <n> points (was <m>). Largest change <d> mm. |
+| COPY-166 | Press Return to change the type, or Esc to keep it. |
+| COPY-167 | Press Return or Space to make it <kind>, or Esc to keep <kind>. |
 
 COPY-125 to COPY-139 are quoted verbatim from `docs/design/app-shell.md` §11 (track U1a, 2026-09-30).
 COPY-125 to COPY-131 are the open failures other than COPY-103; the built start card renders the
@@ -547,36 +558,64 @@ Windows/macOS are **Flagged** future implementation obligations.
 
 ## 12. Prototype interaction boundary and verification
 
-### 12.0f Property grid (2026-10-01) — `docs/mockups/property-grid.html`
+### 12.0f Property grid (2026-10-01; repair cycle 1) — `docs/mockups/property-grid.html`
 
-The Properties pane becomes a **property grid** (F-1 of the M1.2b native review): one reusable component — selection
-identity, property groups, property rows — that M1.2b's fix track and M1.2b2's PNL track build from. New tokens:
-{spacing.prop-label}, {spacing.prop-label-narrow}, {spacing.prop-unit}, {spacing.prop-unit-narrow},
-{spacing.prop-head}, {spacing.prop-row-ro}; no new colour. Rules added to the language:
+The Properties pane becomes a **property grid** (F-1 of the M1.2b native review). It is one reusable component —
+selection identity, property groups, property rows — built by a dedicated track after the M1.2b fix track and before
+M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). New tokens: {spacing.prop-label},
+{spacing.prop-label-narrow}, {spacing.prop-unit}, {spacing.prop-unit-narrow}, {spacing.prop-head},
+{spacing.prop-row-ro}. No new colour. Rules added to the language:
 
 - **A grid, not a column of text.** Every row in a pane shares one label column and one right value edge; units have
   their own column. The browser check asserts one label x and one value edge per state.
-- **Editable looks editable; a fact looks like a fact.** Inputs carry a border; read-only values are plain text (a lock
-  glyph and the reason when locked) — never a disabled input. Estimates are plain text with "≈ ".
-- **Units everywhere, one spelling.** Lengths "mm", angles "°" (never "deg"), t/c "%", area "cm²"; aspect ratio and η
-  are declared dimensionless. A field's accessible name carries the unit.
-- **Precision (completes UI-40).** Typed or placed lengths 0.01 mm (Span included: "1000.00"); derived lengths 0.1 mm
-  (Mean chord, MAC); angles typed 0.01°, shown 0.01° in the field; ratios 0.1 % (Max t/c "12.0 %", not "0.12");
-  aspect ratio two decimals; area 1 cm².
-- **An estimate is never blank.** When the estimates cannot be computed every row reads "Unavailable", the Wing header
-  says so, and the group states the reason with COPY-155. "≈ —" is retired (it was defect D-4's only visible symptom).
-- **One identity per selection.** A handle is named as a handle with its parent anchor as a link; the Type value is not
-  repeated in the identity; helper text lives under the row it explains (COPY-117, COPY-149 under Type; COPY-150 to
-  COPY-152 under Tangent).
-- **Tangent is a labelled group** on an anchor and on a handle (where it is the parent anchor's kind, editable); the
-  Type option for an anchor names its consequence (COPY-153) and its report counts the handles and points (COPY-154).
-- **Wing at the foot.** The Wing block is pinned below the selection and keeps at most 55 % of the pane; at 1280 × 800
-  with the 260 px dock, every selection state and the Wing fit without scrolling (measured; the overflow fixture and
-  three states at the 200 px dock scroll inside the selection area).
+- **Labels wrap, never truncate.** A label or a Kind option is never ellipsized; at the narrow dock a label wraps
+  (PG-02, PG-03).
+- **Editable looks editable; a fact looks like a fact.** Inputs carry a border. Read-only values are plain text (a lock
+  glyph and the reason when locked), never a disabled input. Estimates are plain text with "≈ ".
+- **Units everywhere, one spelling, spoken too.** Lengths "mm", angles "°" (never "deg"), t/c "%", area "cm²". AR
+  carries its convention "b²/S" in the unit column; η is dimensionless. An input's name carries the unit. A fact or
+  estimate row speaks one line, "<label>, <value> <unit>[, locked]" (PG-01).
+- **Entry by unit family.** Lengths accept mm · cm · m and `#span`, `#root_chord`, `#tip_chord`. Angles accept ° · deg ·
+  rad. t/c accepts %. The echo is in the field's unit (COPY-157). An expression with a reference is set once and says
+  so (COPY-161).
+- **Precision follows the quantity, not the row (DR-UID-1).**
+  - Typed or placed lengths: 0.01 mm. This includes Span ("1000.00") and a station chord at the root or tip, which is
+    the typed dimension.
+  - Derived lengths: 0.1 mm with "≈" (Mean chord, MAC).
+  - Angles: placed or typed 0.01°, derived 0.1°.
+  - t/c: placed 0.01 %; Max t/c 0.1 % ("12.0 %", not "0.12").
+  - AR: two decimals. Area: 1 cm². Δ and "largest change": 0.01 mm.
+  - The status line reads "MAC 101.3 mm".
+- **"From root", not "Span", for a point (MC-6).** A point's spanwise coordinate is "From root", with η as a read-only
+  fact. "Span" means only the wing span b. The rename is cross-surface (brief §10.9).
+- **An estimate is never blank, and availability is per quantity.** An estimate that cannot be computed reads
+  "Unavailable", and the group states which one and why (COPY-155). When all of them fail, the Wing header chip says
+  "Unavailable". The status line announces the change (COPY-160). "≈ —" is retired; it was defect D-4's only visible
+  symptom.
+- **One identity per selection.** A handle is named as a handle, with its parent anchor or end as a link. The Type value
+  is not repeated in the identity. Helper text lives under the row it explains (COPY-117 and COPY-149 under Type;
+  COPY-150 to COPY-152 under Kind).
+- **Tangent is a labelled group with a vertical Kind list.**
+  - It appears on an anchor and on a handle; on a handle it is the parent anchor's kind, editable, with COPY-162.
+  - Arrow keys move the check only and do not wrap. Return or Space, or leaving the group, commits one undo row. This
+    is a recorded APG deviation (PG-06 = MC-1).
+  - The Type option for an anchor names its consequence (COPY-153), and its report counts the rail from the result
+    (COPY-154, COPY-165).
+  - Arrows on the closed Type box are pending (COPY-166); Return commits.
+- **Field nudge (DR-UID-2).** Point and handle fields only. The field run is the canvas Nudging gesture: the ≈ preview
+  chip during the run, one undo row on release, Esc cancels, ignored while the text is dirty, ⌘ on macOS and Ctrl on
+  Windows. COPY-163 is its help text.
+- **Root-chord authority (MC-2).** The TE root end's Aft and the Wing's Root chord are both editable. COPY-159 under
+  Aft says which operation each one is.
+- **Wing at the foot.** The Wing block is pinned below the selection, takes at most 55 % of the pane, and is fully
+  visible in every state at 1280 × 800 on the 260 and 300 px docks (gated). With the reviewers' row set, the selection
+  area scrolls in six states at 260 px. Amending UI-36 to allow that is decision DR-UID-5.
 - **Motion.** One moment: the chevron turns in {motion.fast} with {motion.easing}; under reduced motion it is instant.
+  Natively there is no chevron or Expander transition (PG-16).
 
-Copy added: COPY-149 to COPY-157 (proposed for the spec owner; COPY-149 quotes `PropertiesPane.axaml.cs` and
-`docs/design/m12b-points.md` §11.4). Evidence: `docs/reviews/ui-property-grid.md`.
+Copy: COPY-149 to COPY-167, proposed for the spec owner. COPY-149 quotes `PropertiesPane.axaml.cs` and
+`docs/design/m12b-points.md` §11.4. Cycle 1 supersedes the cycle-0 text of COPY-152, 153, 154 and 157. Evidence:
+`docs/reviews/ui-property-grid.md` and `docs/proof/property-grid-browser-check.json`.
 
 ### 12.0e Mockup v10 (2026-09-26) — `docs/mockups/workbench-v10.html`
 

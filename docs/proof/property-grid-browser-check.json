@@ -1,81 +1,108 @@
 {
  "file": "docs/mockups/property-grid.html",
- "date": "2026-10-01T20:59:19.302Z",
- "cells": 396,
+ "date": "2026-10-01T21:28:25.411Z",
+ "cells": 540,
  "errors": [],
  "fails": {},
- "fitAt1280x800": {
-  "empty@200": "fits",
-  "opening@200": "fits",
-  "pane-error@200": "fits",
-  "foil@200": "fits",
-  "control@200": "fits",
-  "anchor@200": "selection 432/398 px, Wing 277/277 px",
-  "handle@200": "fits",
-  "root-le@200": "fits",
-  "root-te@200": "fits",
-  "multi@200": "fits",
-  "station@200": "fits",
-  "drag@200": "fits",
-  "busy@200": "fits",
-  "chord-warning@200": "selection 305/305 px, Wing 392/371 px",
-  "field-error@200": "fits",
-  "unavailable@200": "selection 346/305 px, Wing 429/371 px",
-  "tip-closes@200": "fits",
-  "section@200": "fits",
-  "not-certified@200": "fits",
-  "recovery@200": "fits",
-  "overflow@200": "selection 491/398 px, Wing 277/277 px",
-  "twist@200": "fits",
-  "empty@260": "fits",
-  "opening@260": "fits",
-  "pane-error@260": "fits",
-  "foil@260": "fits",
-  "control@260": "fits",
-  "anchor@260": "fits",
-  "handle@260": "fits",
-  "root-le@260": "fits",
-  "root-te@260": "fits",
-  "multi@260": "fits",
-  "station@260": "fits",
-  "drag@260": "fits",
-  "busy@260": "fits",
-  "chord-warning@260": "fits",
-  "field-error@260": "fits",
-  "unavailable@260": "fits",
-  "tip-closes@260": "fits",
-  "section@260": "fits",
-  "not-certified@260": "fits",
-  "recovery@260": "fits",
-  "overflow@260": "selection 424/401 px, Wing 277/277 px",
-  "twist@260": "fits",
-  "empty@300": "fits",
-  "opening@300": "fits",
-  "pane-error@300": "fits",
-  "foil@300": "fits",
-  "control@300": "fits",
-  "anchor@300": "fits",
-  "handle@300": "fits",
-  "root-le@300": "fits",
-  "root-te@300": "fits",
-  "multi@300": "fits",
-  "station@300": "fits",
-  "drag@300": "fits",
-  "busy@300": "fits",
-  "chord-warning@300": "fits",
-  "field-error@300": "fits",
-  "unavailable@300": "fits",
-  "tip-closes@300": "fits",
-  "section@300": "fits",
-  "not-certified@300": "fits",
-  "recovery@300": "fits",
-  "overflow@300": "selection 407/401 px, Wing 277/277 px",
-  "twist@300": "fits"
+ "selectionFitAt1280x800": {
+  "empty@200": "selection 677/677 px — fits",
+  "opening@200": "selection 677/677 px — fits",
+  "pane-error@200": "selection 677/677 px — fits",
+  "foil@200": "selection 389/389 px — fits",
+  "control@200": "selection 389/389 px — fits",
+  "anchor@200": "selection 581/389 px — scrolls",
+  "handle@200": "selection 417/389 px — scrolls",
+  "root-le@200": "selection 452/389 px — scrolls",
+  "root-te@200": "selection 542/389 px — scrolls",
+  "root-handle@200": "selection 389/389 px — fits",
+  "tip-end@200": "selection 402/389 px — scrolls",
+  "tip-handle@200": "selection 389/389 px — fits",
+  "multi@200": "selection 389/389 px — fits",
+  "station@200": "selection 389/389 px — fits",
+  "drag@200": "selection 389/389 px — fits",
+  "busy@200": "selection 389/389 px — fits",
+  "chord-warning@200 Wing": "Wing 406/371 px",
+  "chord-warning@200": "selection 305/305 px — fits",
+  "field-error@200": "selection 389/389 px — fits",
+  "unavailable@200 Wing": "Wing 430/371 px",
+  "unavailable@200": "selection 417/305 px — scrolls",
+  "partial-unavailable@200 Wing": "Wing 389/371 px",
+  "partial-unavailable@200": "selection 305/305 px — fits",
+  "tip-closes@200": "selection 351/351 px — fits",
+  "section@200 Wing": "Wing 375/371 px",
+  "section@200": "selection 305/305 px — fits",
+  "not-certified@200": "selection 389/389 px — fits",
+  "recovery@200": "selection 393/389 px — scrolls",
+  "overflow@200": "selection 640/389 px — scrolls",
+  "twist@200": "selection 389/389 px — fits",
+  "twist-anchor@200": "selection 665/389 px — scrolls",
+  "twist-handle@200": "selection 389/389 px — fits",
+  "twist-clamped@200": "selection 389/389 px — fits",
+  "tc-point@200": "selection 389/389 px — fits",
+  "empty@260": "selection 680/680 px — fits",
+  "opening@260": "selection 680/680 px — fits",
+  "pane-error@260": "selection 680/680 px — fits",
+  "foil@260": "selection 401/401 px — fits",
+  "control@260": "selection 401/401 px — fits",
+  "anchor@260": "selection 534/401 px — scrolls",
+  "handle@260": "selection 407/401 px — scrolls",
+  "root-le@260": "selection 401/401 px — fits",
+  "root-te@260": "selection 434/401 px — scrolls",
+  "root-handle@260": "selection 401/401 px — fits",
+  "tip-end@260": "selection 401/401 px — fits",
+  "tip-handle@260": "selection 401/401 px — fits",
+  "multi@260": "selection 401/401 px — fits",
+  "station@260": "selection 401/401 px — fits",
+  "drag@260": "selection 401/401 px — fits",
+  "busy@260": "selection 401/401 px — fits",
+  "chord-warning@260": "selection 318/318 px — fits",
+  "field-error@260": "selection 401/401 px — fits",
+  "unavailable@260": "selection 407/345 px — scrolls",
+  "partial-unavailable@260": "selection 328/328 px — fits",
+  "tip-closes@260": "selection 393/393 px — fits",
+  "section@260": "selection 354/354 px — fits",
+  "not-certified@260": "selection 401/401 px — fits",
+  "recovery@260": "selection 401/401 px — fits",
+  "overflow@260": "selection 560/401 px — scrolls",
+  "twist@260": "selection 401/401 px — fits",
+  "twist-anchor@260": "selection 630/401 px — scrolls",
+  "twist-handle@260": "selection 401/401 px — fits",
+  "twist-clamped@260": "selection 401/401 px — fits",
+  "tc-point@260": "selection 401/401 px — fits",
+  "empty@300": "selection 680/680 px — fits",
+  "opening@300": "selection 680/680 px — fits",
+  "pane-error@300": "selection 680/680 px — fits",
+  "foil@300": "selection 401/401 px — fits",
+  "control@300": "selection 401/401 px — fits",
+  "anchor@300": "selection 501/401 px — scrolls",
+  "handle@300": "selection 401/401 px — fits",
+  "root-le@300": "selection 401/401 px — fits",
+  "root-te@300": "selection 434/401 px — scrolls",
+  "root-handle@300": "selection 401/401 px — fits",
+  "tip-end@300": "selection 401/401 px — fits",
+  "tip-handle@300": "selection 401/401 px — fits",
+  "multi@300": "selection 401/401 px — fits",
+  "station@300": "selection 401/401 px — fits",
+  "drag@300": "selection 401/401 px — fits",
+  "busy@300": "selection 401/401 px — fits",
+  "chord-warning@300": "selection 334/334 px — fits",
+  "field-error@300": "selection 401/401 px — fits",
+  "unavailable@300": "selection 345/345 px — fits",
+  "partial-unavailable@300": "selection 345/345 px — fits",
+  "tip-closes@300": "selection 393/393 px — fits",
+  "section@300": "selection 354/354 px — fits",
+  "not-certified@300": "selection 401/401 px — fits",
+  "recovery@300": "selection 401/401 px — fits",
+  "overflow@300": "selection 544/401 px — scrolls",
+  "twist@300": "selection 401/401 px — fits",
+  "twist-anchor@300": "selection 598/401 px — scrolls",
+  "twist-handle@300": "selection 401/401 px — fits",
+  "twist-clamped@300": "selection 401/401 px — fits",
+  "tc-point@300": "selection 401/401 px — fits"
  },
- "fitGate": [],
  "interactions": [
   {
-   "name": "a typed expression is echoed in mm (COPY-157)",
+   "name": "an expression is set once and says so (MC-3, COPY-157)",
    "pass": true
   },
   {
@@ -95,15 +122,67 @@
    "pass": true
   },
   {
-   "name": "arrow on Tangent selects Symmetric and keeps focus",
+   "name": "arrows do not nudge a Wing driving dimension (DR-UID-2 scope)",
    "pass": true
   },
   {
-   "name": "Shift+Up in a length field steps 1 mm and keeps focus",
+   "name": "an angle field takes a degree unit (MC-4)",
    "pass": true
   },
   {
-   "name": "a handle shows its parent anchor tangent, labelled (F-4)",
+   "name": "radians are converted and echoed in degrees (MC-4, COPY-157)",
+   "pass": true
+  },
+  {
+   "name": "an angle outside (−90°, 90°) is refused with COPY-158 (MC-13)",
+   "pass": true
+  },
+  {
+   "name": "an arrow on Kind moves the check without committing",
+   "pass": true
+  },
+  {
+   "name": "the Kind list does not wrap",
+   "pass": true
+  },
+  {
+   "name": "Return commits the moved check as one undo row",
+   "pass": true
+  },
+  {
+   "name": "leaving the Kind group commits once",
+   "pass": true
+  },
+  {
+   "name": "an arrow on the closed Type box does not commit",
+   "pass": true
+  },
+  {
+   "name": "Return commits the type; the report counts the rail (F-5, MC-9, COPY-154)",
+   "pass": true
+  },
+  {
+   "name": "a pointer choice of Type commits at once (DropDownClosed)",
+   "pass": true
+  },
+  {
+   "name": "a held nudge previews, and Esc cancels with no undo row (MC-10)",
+   "pass": true
+  },
+  {
+   "name": "a released nudge is one undo row and announces the value (PG-08)",
+   "pass": true
+  },
+  {
+   "name": "arrows are ignored while the field text is dirty (MC-10)",
+   "pass": true
+  },
+  {
+   "name": "the nudge steps are in the field description, both OS chords (PG-08, MC-18)",
+   "pass": true
+  },
+  {
+   "name": "a handle shows its parent anchor kind, labelled (F-4)",
    "pass": true
   },
   {
@@ -111,7 +190,7 @@
    "pass": true
   },
   {
-   "name": "Escape on a handle selects its anchor",
+   "name": "Escape on a handle selects its anchor and says so (PG-12)",
    "pass": true
   },
   {
@@ -119,11 +198,27 @@
    "pass": true
   },
   {
-   "name": "a type change reports handles, not \"a point\" (F-5, COPY-154)",
+   "name": "unavailable estimates say so and are announced (D-4, PG-04)",
    "pass": true
   },
   {
-   "name": "unavailable estimates say so, never \"≈ —\" (D-4)",
+   "name": "one unavailable estimate leaves the others shown (BLANK-ESTIMATE)",
+   "pass": true
+  },
+  {
+   "name": "the TE root Aft row names the root-chord authority (MC-2, COPY-159)",
+   "pass": true
+  },
+  {
+   "name": "a point uses From root and η; Span means only b (MC-6)",
+   "pass": true
+  },
+  {
+   "name": "a fact or estimate speaks its unit (PG-01)",
+   "pass": true
+  },
+  {
+   "name": "AR carries its convention in the unit column (MC-8)",
    "pass": true
   }
  ],

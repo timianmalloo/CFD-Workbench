@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T21:06:23Z",
+  "generated": "2026-10-01T21:34:08Z",
   "audit": [
     {
       "actor": null,
@@ -21143,6 +21143,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "3b396e59c249726f64a4cfac52ef5951f2cb8ded",
         "short": "3b396e59c",
+        "branch": "design/property-grid",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3WP75M6GFKVS03C4D2ZYNSA",
+      "shortname": "ui-design-property-grid-repair1",
+      "datetime": "2026-10-01T21:34:08Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Repair cycle 1 of 2 on the property-grid design (track UID, design/property-grid). Two adversarial reviews ran on 2c014a6: UX & Accessibility (veto held; PG-01 and PG-02 Blockers, PG-03..PG-18, conditions N1-N7) and Marine-CAD (pass with conditions C1-C4: MC-1..MC-18). Operator rulings 2026-10-01: DR-UID-1 precision follows the quantity (UI-40 with Marine-CAD amendments; flag spec UI-40 angle text and m12b §11.4 for spec-owner amendment); DR-UID-2 field nudge adopted for point and handle fields only under MC-10, MC-18, PG-08; DR-UID-3 scrub rejected; DR-UID-4 a dedicated track builds the component after the M1.2b fix track joins, before PNL; MC-2 both root-chord fields editable with the authority line; MC-3 expressions set once and say so, keep #; MC-6 \"From root\" with η, \"Span\" only for b, cross-surface list in the brief. Design-stage fixes only (mockup, brief §10, DESIGN.md, oracle); no src/ or tests/.",
+      "summary": "Repair cycle 1: PG-01 (spoken unit on facts/estimates) and PG-02 (vertical Kind radio list) closed with oracle checks; planted regressions of both turn the oracle red. PG-03/04/06/07/12/13/14/17/18 done in the mockup; PG-05/08 done in the mockup with native residue; PG-09/10/11/15/16 and N1-N7 folded into brief §10.3/§10.10. MC-1..MC-18 done except MC-9 vertex roles (Computational Geometry lens). Rulings recorded (docs/notes/property-grid-rulings.md). Oracle: 540 cells, 30/30 interactions, 0 failing checks. Craft gate 4 Minor chrome-only. New DR-UID-5: selection area scrolls in 6 states at 260 px; recommend amending UI-36 to 'Wing always fully visible'.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/reviews/ui-property-grid.md",
+        "docs/notes/property-grid-rulings.md",
+        "DESIGN.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Close the UX&A design-stage veto items and Marine-CAD C1-C4 in the design artifacts",
+      "done_when": "PG-01/PG-02 fixed with oracle checks and planted failures red; rulings recorded; brief, DESIGN.md, oracle updated; check-docs green; committed",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-01T21:19:10Z",
+      "duration_seconds": 898.0,
+      "git": {
+        "sha": "2c014a60e1679e7d0454f9501b8aa610ce1768c3",
+        "short": "2c014a60e",
         "branch": "design/property-grid",
         "pushed": null
       }
