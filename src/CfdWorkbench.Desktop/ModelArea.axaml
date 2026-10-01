@@ -35,7 +35,15 @@
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
 
       <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource ViewportBrush}">
-        <local:PlanCanvas x:Name="PlanCanvas" Focusable="True" />
+        <local:PlanCanvas x:Name="PlanCanvas" Focusable="True"
+                          BackgroundBrush="{DynamicResource ViewportBrush}"
+                          FoilBrush="{DynamicResource PlanFoilBrush}"
+                          SelectionBrush="{DynamicResource PlanSelectionBrush}"
+                          FocusBrush="{DynamicResource PlanFocusBrush}"
+                          MuteBrush="{DynamicResource PlanMuteBrush}"
+                          DangerBrush="{DynamicResource PlanDangerBrush}"
+                          WarningBrush="{DynamicResource PlanWarningBrush}"
+                          SoftBrush="{DynamicResource PlanSoftBrush}" />
       </Border>
 
       <Border x:Name="Plan3DContent" IsVisible="False" Background="{DynamicResource ViewportBrush}" Padding="{StaticResource Space3}">

@@ -31,6 +31,13 @@
         <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
         <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
         <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="PlanFoilBrush" Color="{StaticResource FoilColor}" />
+        <SolidColorBrush x:Key="PlanSelectionBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="PlanFocusBrush" Color="{StaticResource FocusRingViewportColor}" />
+        <SolidColorBrush x:Key="PlanMuteBrush" Color="{StaticResource ViewportMuteColor}" />
+        <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource DangerViewportColor}" />
+        <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource WarningViewportColor}" />
+        <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource ViewportSoftColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource PrimaryColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource InkColor}" />
       </ResourceDictionary>
@@ -49,6 +56,13 @@
         <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource ViewportInkColor}" />
         <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource FoilColor}" />
         <SolidColorBrush x:Key="StationBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="PlanFoilBrush" Color="{StaticResource FoilColor}" />
+        <SolidColorBrush x:Key="PlanSelectionBrush" Color="{StaticResource StationColor}" />
+        <SolidColorBrush x:Key="PlanFocusBrush" Color="{StaticResource FocusRingViewportColor}" />
+        <SolidColorBrush x:Key="PlanMuteBrush" Color="{StaticResource ViewportMuteColor}" />
+        <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource DangerViewportColor}" />
+        <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource WarningViewportColor}" />
+        <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource ViewportSoftColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource DarkPrimaryColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource DarkInkColor}" />
       </ResourceDictionary>
@@ -67,6 +81,13 @@
         <SolidColorBrush x:Key="ViewportInkBrush" Color="{StaticResource HighContrastInkColor}" />
         <SolidColorBrush x:Key="FoilBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="StationBrush" Color="{StaticResource HighContrastStationColor}" />
+        <SolidColorBrush x:Key="PlanFoilBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="PlanSelectionBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="PlanFocusBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="PlanMuteBrush" Color="{StaticResource HighContrastInkColor}" />
+        <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource HighContrastBackgroundColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource HighContrastInkColor}" />
       </ResourceDictionary>
@@ -85,6 +106,11 @@
     <Color x:Key="ViewportInkColor">#edf4f2</Color>
     <Color x:Key="FoilColor">#85c9c4</Color>
     <Color x:Key="StationColor">#66ddc8</Color>
+    <Color x:Key="FocusRingViewportColor">#66ddc8</Color>
+    <Color x:Key="ViewportMuteColor">#afc6c7</Color>
+    <Color x:Key="DangerViewportColor">#ffaeb5</Color>
+    <Color x:Key="WarningViewportColor">#efc576</Color>
+    <Color x:Key="ViewportSoftColor">#243a40</Color>
     <Thickness x:Key="Space2">8</Thickness>
     <Thickness x:Key="Space3">12</Thickness>
     <Thickness x:Key="Space4">16</Thickness>

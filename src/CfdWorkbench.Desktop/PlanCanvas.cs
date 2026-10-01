@@ -12,20 +12,44 @@ namespace CfdWorkbench.Desktop;
 
 public sealed class PlanCanvas : Control
 {
+    public static readonly StyledProperty<IBrush?> BackgroundBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(BackgroundBrush));
+    public static readonly StyledProperty<IBrush?> FoilBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(FoilBrush));
+    public static readonly StyledProperty<IBrush?> SelectionBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(SelectionBrush));
+    public static readonly StyledProperty<IBrush?> FocusBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(FocusBrush));
+    public static readonly StyledProperty<IBrush?> MuteBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(MuteBrush));
+    public static readonly StyledProperty<IBrush?> DangerBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(DangerBrush));
+    public static readonly StyledProperty<IBrush?> WarningBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(WarningBrush));
+    public static readonly StyledProperty<IBrush?> SoftBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(SoftBrush));
+
+    public IBrush? BackgroundBrush { get => GetValue(BackgroundBrushProperty); set => SetValue(BackgroundBrushProperty, value); }
+    public IBrush? FoilBrush { get => GetValue(FoilBrushProperty); set => SetValue(FoilBrushProperty, value); }
+    public IBrush? SelectionBrush { get => GetValue(SelectionBrushProperty); set => SetValue(SelectionBrushProperty, value); }
+    public IBrush? FocusBrush { get => GetValue(FocusBrushProperty); set => SetValue(FocusBrushProperty, value); }
+    public IBrush? MuteBrush { get => GetValue(MuteBrushProperty); set => SetValue(MuteBrushProperty, value); }
+    public IBrush? DangerBrush { get => GetValue(DangerBrushProperty); set => SetValue(DangerBrushProperty, value); }
+    public IBrush? WarningBrush { get => GetValue(WarningBrushProperty); set => SetValue(WarningBrushProperty, value); }
+    public IBrush? SoftBrush { get => GetValue(SoftBrushProperty); set => SetValue(SoftBrushProperty, value); }
+
     private WorkbenchController? controller;
     private readonly List<PointView> targets = [];
-    private IBrush? background;
-    private IBrush? foil;
-    private IBrush? station;
+    private bool attached;
 
     public WorkbenchController? Controller
     {
         get => controller;
         set
         {
-            if (controller is not null) controller.Changed -= UpdatePlan;
+            if (attached && controller is not null) controller.Changed -= UpdatePlan;
             controller = value;
-            if (controller is not null) controller.Changed += UpdatePlan;
+            if (attached && controller is not null) controller.Changed += UpdatePlan;
             UpdatePlan();
         }
     }
@@ -37,12 +61,24 @@ public sealed class PlanCanvas : Control
         Focusable = true;
         AttachedToVisualTree += (_, _) =>
         {
-            background = ResolveBrush("ViewportBrush");
-            foil = ResolveBrush("FoilBrush");
-            station = ResolveBrush("StationBrush");
+            attached = true;
+            if (controller is not null) controller.Changed += UpdatePlan;
             UpdatePlan();
         };
+        DetachedFromVisualTree += (_, _) =>
+        {
+            attached = false;
+            if (controller is not null) controller.Changed -= UpdatePlan;
+        };
         SizeChanged += (_, _) => UpdatePlan();
+        PropertyChanged += (_, args) =>
+        {
+            if (args.Property == BackgroundBrushProperty || args.Property == FoilBrushProperty ||
+                args.Property == SelectionBrushProperty || args.Property == FocusBrushProperty ||
+                args.Property == MuteBrushProperty || args.Property == DangerBrushProperty ||
+                args.Property == WarningBrushProperty || args.Property == SoftBrushProperty)
+                InvalidateVisual();
+        };
     }
 
     public Point ScreenPoint(PointView point)
@@ -55,6 +91,7 @@ public sealed class PlanCanvas : Control
 
     private void UpdatePlan()
     {
+        if (!attached) return;
         if (!Dispatcher.UIThread.CheckAccess())
         {
             Dispatcher.UIThread.Post(UpdatePlan);
@@ -79,22 +116,15 @@ public sealed class PlanCanvas : Control
 
     private void RequestValue(PointView point) => LastValueRequest = $"{point.Curve}:{point.Id}";
 
-    private IBrush? ResolveBrush(string key)
-    {
-        if (this.TryFindResource(key, out var resource) && resource is IBrush brush) return brush;
-        if (Application.Current is not null && Application.Current.TryFindResource(key, out var appResource) &&
-            appResource is IBrush applicationBrush) return applicationBrush;
-        return null;
-    }
-
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.DrawRectangle(background ?? Brushes.Transparent, null, new Rect(Bounds.Size));
+        context.DrawRectangle(BackgroundBrush ?? Brushes.Transparent, null, new Rect(Bounds.Size));
         var plan = Controller?.Planform;
         if (plan is null) return;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
-        map.Draw(context, foil ?? Brushes.White, station ?? Brushes.White);
+        map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
+            BackgroundBrush ?? Brushes.Transparent, Controller.Selection);
     }
 
     protected override AutomationPeer OnCreateAutomationPeer() => new PlanCanvasPeer(this);
@@ -134,7 +164,8 @@ public sealed class PlanCanvas : Control
             size.Width / 2 + span * scale + camera.PanSpanPixels,
             40 + (aft - minAft) * scale + camera.PanAftPixels);
 
-        public void Draw(DrawingContext context, IBrush foil, IBrush station)
+        public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background,
+            Selection selection)
         {
             var railPen = new Pen(foil, 2);
             foreach (var rail in new[] { plan.Leading, plan.Trailing })
@@ -152,8 +183,33 @@ public sealed class PlanCanvas : Control
                 foreach (var point in rail.Points)
                 {
                     var centre = ToScreen(point.SpanMeters, point.AftMeters);
-                    context.DrawEllipse(foil, null, centre, point.Role == PointRole.Control ? 5.5 : 7,
-                        point.Role == PointRole.Control ? 5.5 : 7);
+                    bool selected = selection is Selection.Points picked &&
+                        picked.Items.Any(item => item.Curve == point.Curve && item.VertexId == point.Id);
+                    if (point.Role == PointRole.Control)
+                    {
+                        context.DrawEllipse(selected ? background : foil, selected ? new Pen(station, 2) : null,
+                            centre, 5.5, 5.5);
+                        if (selected) context.DrawEllipse(station, null, centre, 2, 2);
+                    }
+                    else if (point.Role is PointRole.RootEnd or PointRole.TipEnd)
+                    {
+                        var diamond = new StreamGeometry();
+                        using (var path = diamond.Open())
+                        {
+                            path.BeginFigure(new Point(centre.X, centre.Y - 7), selected);
+                            path.LineTo(new Point(centre.X + 7, centre.Y));
+                            path.LineTo(new Point(centre.X, centre.Y + 7));
+                            path.LineTo(new Point(centre.X - 7, centre.Y));
+                            path.EndFigure(true);
+                        }
+                        context.DrawGeometry(selected ? station : null, new Pen(selected ? station : foil, 1.5), diamond);
+                    }
+                    else if (point.Role == PointRole.Anchor)
+                        context.DrawRectangle(selected ? station : background, new Pen(selected ? station : foil, 1.5),
+                            new Rect(centre.X - 6, centre.Y - 6, 12, 12));
+                    else
+                        context.DrawEllipse(selected ? station : background, new Pen(selected ? station : foil, 1),
+                            centre, 4.5, 4.5);
                 }
             }
         }

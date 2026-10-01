@@ -727,7 +727,7 @@ public sealed class ShellHost : Grid
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (ModelView.FoilViewport.Focus()) return;
+            if (ModelView.PlanCanvas.Focus()) return;
             if (attempts > 1) FocusModelWhenReady(attempts - 1);
             else LeftSidebarToggle.Focus();
         }, DispatcherPriority.Background);

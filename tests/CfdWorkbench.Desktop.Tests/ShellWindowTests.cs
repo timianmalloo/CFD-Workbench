@@ -526,7 +526,7 @@ public static class ShellWindowTests
                 Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
                 controller.ApplySpan("900");
                 host.RefreshPanes();
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                var viewport = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
                 viewport.Focus();
                 Settle(window);
                 if (!controller.CanUndo || !undo.IsEnabled || redo.IsEnabled)
@@ -675,7 +675,7 @@ public static class ShellWindowTests
                 var host = window.Content as ShellHost
                     ?? throw new InvalidOperationException("Shell host did not load");
                 var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
-                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.ModelDocument))
+                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SamplesDocument))
                     ?? throw new InvalidOperationException("Model Dock tab did not render");
                 var visual = ElementComposition.GetElementVisual(tab)
                     ?? throw new InvalidOperationException("Dock tab lacks composition visual");
@@ -698,8 +698,6 @@ public static class ShellWindowTests
                 if (rings.Length < 2)
                     throw new InvalidOperationException("Dock tab lacks the two focus rings");
                 var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
-                Settle(window);
                 if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
                     throw new InvalidOperationException("Accepted frame not bound before Dock focus barrier");
                 var fresh = visual.Compositor.RequestCompositionBatchCommitAsync();
@@ -737,11 +735,9 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Keyboard persona missed Start Open");
                 Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
                 Settle(window);
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
-                Settle(window);
                 host.FocusForPersona("designer");
                 Settle(window);
-                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                if (!host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsFocused)
                     throw new InvalidOperationException("Designer persona missed the viewport");
                 host.FocusForPersona("screen-reader");
                 Settle(window);
@@ -862,6 +858,8 @@ public static class ShellWindowTests
                     window.UpdateLayout();
                 }
                 var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                Settle(window);
                 double width = Viewport.PlotWidth(viewport.Bounds.Width, 178);
                 if (width < 250 || viewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
                     throw new InvalidOperationException($"Minimum-window plot is too narrow: {width}");
@@ -975,7 +973,7 @@ public static class ShellWindowTests
                 Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
                 host.HandleOpenOutcome(new OpenOutcome.Opened("example.foil"), "example.foil");
                 Settle(window);
-                if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                if (!host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsFocused)
                     throw new InvalidOperationException("Opened foil did not focus the model area");
             }
             finally { window.Close(); }
@@ -999,7 +997,7 @@ public static class ShellWindowTests
                 task.GetAwaiter().GetResult();
                 Settle(window);
                 if (controller.Inspection is null || controller.OpenedPath is not null ||
-                    !host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
+                    !host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsFocused)
                     throw new InvalidOperationException("New foil did not open an unsaved foil and focus the model area");
             }
             finally { window.Close(); }
@@ -1037,9 +1035,9 @@ public static class ShellWindowTests
                 while (StartControl<Border>(start, "AlertPanel").IsVisible && !acceptTimeout.IsCancellationRequested)
                     Avalonia.Threading.Dispatcher.UIThread.RunJobs();
                 Settle(window);
-                if (controller.Inspection is null || !host.ModelView.FindControl<Viewport>("FoilViewport")!.IsVisible ||
+                if (controller.Inspection is null || !host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsVisible ||
                     StartControl<Border>(start, "AlertPanel").IsVisible)
-                    throw new InvalidOperationException($"Accept through shell did not open: inspection={controller.Inspection is not null}, viewport={host.ModelView.FindControl<Viewport>("FoilViewport")!.IsVisible}, alert={StartControl<Border>(start, "AlertPanel").IsVisible}, pending={controller.PendingCandidate is not null}, status={controller.Status}");
+                    throw new InvalidOperationException($"Accept through shell did not open: inspection={controller.Inspection is not null}, plan={host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.IsVisible}, alert={StartControl<Border>(start, "AlertPanel").IsVisible}, pending={controller.PendingCandidate is not null}, status={controller.Status}");
             }
             finally { window.Close(); }
         });
@@ -1415,7 +1413,7 @@ public static class ShellWindowTests
             {
                 window.Show();
                 Settle(window);
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                var viewport = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
                 if (!viewport.Focus()) throw new InvalidOperationException("Viewport cannot take focus");
                 if (!host.RouteEditVerb("undo", viewport) || !viewport.IsFocused ||
                     controller.AcceptedSource != before)
@@ -2208,6 +2206,7 @@ public static class ShellWindowTests
     {
         string temp = Path.GetTempPath();
         if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
+        if (temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
         return Path.Combine(temp, name);
     }
 
