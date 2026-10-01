@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T23:29:18Z",
+  "generated": "2026-10-01T23:39:46Z",
   "audit": [
     {
       "actor": null,
@@ -21406,6 +21406,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T23:28:20Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3WXD6W6MGMRKXVNP88SH9ZF",
+      "shortname": "join-adapters-grid-keys",
+      "datetime": "2026-10-01T23:39:46Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/adapters-grid-brush-keys into feature/ui-cad-direction",
+      "summary": "Adapters brush-key check: count derived from named sets incl. the 5 grid brushes; planted stray key caught. Register READINESS-LATE. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T23:38:47Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
