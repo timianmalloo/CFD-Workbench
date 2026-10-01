@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:15:21Z",
+  "generated": "2026-10-01T04:19:29Z",
   "audit": [
     {
       "actor": null,
@@ -20887,6 +20887,38 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "8022e75b6a1633ccddf8f67bc08d9243568897ee",
         "short": "8022e75b6",
+        "branch": "chore/legacy-window-retirement",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3TV0NCPBDH6W8SCZ8GBMAV6",
+      "shortname": "legacy-scale-bound",
+      "datetime": "2026-10-01T04:19:29Z",
+      "session": "track-legacy",
+      "prompt": "Coordinator: Test Architect Minor after veto lift",
+      "summary": "PressScaleAccepted bounds uniform scale to [0.97,1]; matrix asserts 0.9, 1.02 and non-uniform refused, 0.98 and 1 accepted. Unbounded rule turned the matrix red; restored bound green. run-tests x3 identical; check-docs 0.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Bound Backing's pressed-scale tolerance to [0.97, 1]",
+      "done_when": "0.9 refused; run-tests x3 identical; check-docs",
+      "tier": "T0",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T04:16:33Z",
+      "duration_seconds": 176.0,
+      "git": {
+        "sha": "dcd49661a4aa618d6d3deb2d9d94c2102d84d4d7",
+        "short": "dcd49661a",
         "branch": "chore/legacy-window-retirement",
         "pushed": null
       }
