@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:54:41Z",
+  "generated": "2026-10-01T04:59:32Z",
   "audit": [
     {
       "actor": null,
@@ -20987,6 +20987,35 @@ window.AUDIT_DATA = {
         "branch": "fix/readiness-m12b",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3TX9ZW8CD13MAVWPXM3MYZK",
+      "shortname": "join-readyfix2",
+      "datetime": "2026-10-01T04:59:32Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of fix/readiness-m12b into feature/ui-cad-direction",
+      "summary": "7 cwd-relative fixture literals -> M12bFixtures.Path (AppContext.BaseDirectory), Content copy; NoCwdRelativeFixturePath scan red-first; 7 Plan brush keys mapped to DESIGN.md tokens, expected set 16->23, mutant red; readiness GREEN for 59eda63; residual: Desktop tests use the same literal shape (gate runs them cwd=ROOT) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/readyfix2.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "green readiness for M1.2b",
+      "done_when": "merged; readiness re-run on integration",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T04:58:52Z",
+      "duration_seconds": 40.0
     }
   ],
   "changes": [
