@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T21:19:54Z",
+  "generated": "2026-10-01T21:20:48Z",
   "audit": [
     {
       "actor": null,
@@ -21135,6 +21135,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T21:19:16Z",
       "duration_seconds": 38.0
+    },
+    {
+      "id": "al-01M3WNER5WCG1ZBVH0SZ6F8X35",
+      "shortname": "join-m12b-fix",
+      "datetime": "2026-10-01T21:20:48Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/m12b-native-review into feature/ui-cad-direction",
+      "summary": "D-4 MAC converges (bisection, per-quantity validity, readable copy); D-1/F-2 drag pans; D-2 crossing marker previews the release check; D-3 point context menu; F-3 fit clear of probe; F-4 labelled tangent choice, handle shows its anchor, O-4 units, O-6 handle identity. 7 red-first tests. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/m12b-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T21:20:06Z",
+      "duration_seconds": 42.0
     }
   ],
   "changes": [
