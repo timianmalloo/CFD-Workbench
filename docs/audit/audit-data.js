@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:19:29Z",
+  "generated": "2026-10-01T04:22:38Z",
   "audit": [
     {
       "actor": null,
@@ -20922,6 +20922,35 @@ window.AUDIT_DATA = {
         "branch": "chore/legacy-window-retirement",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3TV6E4TZ2QM0TW28K67Q0YZ",
+      "shortname": "join-legacy",
+      "datetime": "2026-10-01T04:22:38Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of chore/legacy-window-retirement into feature/ui-cad-direction",
+      "summary": "pre-shell MainWindow path, OpenControlDraft/ReviseOrdinate/RewriteControlOrdinate/BeginRailEdit removed (recovery kept); 49 tests ported, deletions named; capability control red-first; CONTROL-GAMED-BY-RENAME class; gate retargeted 396x4 -> 286 rows after Test Architect veto + repair (pressed/returned/text-box/point-span restored; scale bounded 0.97-1); TA PASS recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/legacy-gate-retarget.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "finish the M1.2b retirement",
+      "done_when": "merged; fast gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T04:21:58Z",
+      "duration_seconds": 40.0
     }
   ],
   "changes": [
