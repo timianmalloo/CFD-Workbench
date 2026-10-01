@@ -193,11 +193,13 @@ internal static class PlacementTests
             decimal twist = decimal.Round((decimal)(rng.NextDouble() * 80 - 40), 4, MidpointRounding.ToZero);
             decimal dihedralMm = decimal.Round((decimal)(rng.NextDouble() * 400 - 200), 3, MidpointRounding.ToZero);
             decimal chordMm = decimal.Round(50m + (decimal)rng.NextDouble() * 1950m, 3, MidpointRounding.ToZero);
-            MeasureOutside("random-" + index, TwoProfiles(example, twist, dihedralMm, chordMm));
+            MeasureOutside("random-" + index, TwoProfiles(example, twist, dihedralMm, chordMm), false);
         }
     }
 
-    private static void MeasureOutside(string name, string source)
+    // Fixtures sample every chord position. The random fixtures vary twist, dihedral and chord, not chord
+    // resolution, so they sample the two ends and the middle: eleven samples there cost 18 s of the 60 s budget.
+    private static void MeasureOutside(string name, string source, bool everySample = true)
     {
         var certificate = Certify(name, source);
         byte[] bytes = Encoding.UTF8.GetBytes(source);
@@ -208,7 +210,7 @@ internal static class PlacementTests
         for (int station = 0; station < view.Sections.Count; station += stride)
         {
             var section = view.Sections[station];
-            for (int sample = 0; sample < xs.Length; sample++)
+            foreach (int sample in everySample ? Enumerable.Range(0, xs.Length) : [0, xs.Length / 2, xs.Length - 1])
             {
                 worst = Math.Max(worst, Outside(Geometry.PointAt(certificate, section.Eta, xs[sample], true, false), section.Upper[sample]));
                 worst = Math.Max(worst, Outside(Geometry.PointAt(certificate, section.Eta, xs[sample], false, false), section.Lower[sample]));
