@@ -29,7 +29,8 @@ summary: >-
   a measured test (at most 1 nm outside the certified enclosure). On that rule: a shaded or wireframe 3D view beside the
   Plan with orbit, pan, zoom, view cube and named cameras; Front and Side elevations drawing the placed foil with
   dihedral, t/c and twist lanes; and those three channels edited with M1.2b's point, handle and gesture model.
-review-suggested: []
+review-suggested:
+  - { by: mockup-property-grid, on: 2026-10-01, reason: "PNL should fill the property-grid component (docs/reviews/ui-property-grid.md §10) from PropertiesView.Build by data; channel rows Height (mm), Twist (°), t/c (%) render in the same row kinds; the M1.2b fix track is recommended to build the component first (DR-UID-4)." }
 ---
 
 # Design: M1.2b2 — one placement rule, the 3D view and the elevations

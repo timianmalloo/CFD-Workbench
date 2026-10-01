@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD Workbench — Properties property grid</title>
+<!--
+  Direction mockup — the Properties pane as a property grid (F-1 of docs/reviews/m12b-native.md).
+  Self-contained, dependency-free, opens over file://. Every colour, size and radius is a DESIGN.md token.
+  <header class="harness"> and <section class="audit"> are review chrome and never ship.
+  Review record: docs/reviews/ui-property-grid.md · hub: docs/mockups/property-grid.md
+  Every number is Illustrative: the New-foil fixture from the operator captures (build c43711a). Estimates are
+  re-derived from their operands (S, b) on every render; the chord report strings for 152.09 and 190 mm are quoted
+  from docs/design/m12b-points.md §0.1 step 9 and are not computed here.
+-->
+<style>
+:root{
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --r-sm:4px; --r-md:8px;
+  --target-dense:32px; --prop-row-ro:24px; --prop-label:88px; --prop-label-narrow:56px; --prop-unit:32px; --prop-unit-narrow:28px; --prop-head:24px;
+  --fast:120ms; --easing:cubic-bezier(0.2,0,0,1);
+}
+/* product tokens (DESIGN.md colors), scoped to the frame so the harness never inherits them */
+.frame[data-theme="light"]{ --bg:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --sel:#d8eeea; --accent:#006c67; --on-accent:#ffffff; --focus:#006c67; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+.frame[data-theme="dark"]{ --bg:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --sel:#274c47; --accent:#88d8c6; --on-accent:#172326; --focus:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+.frame[data-theme="contrast"]{ --bg:#000000; --surface:#000000; --soft:#000000; --ink:#ffffff; --mute:#ffffff; --line:#ffffff; --control:#ffffff; --sel:#000000; --accent:#ffee58; --on-accent:#000000; --focus:#ffee58; --warn:#ffee58; --danger:#ffee58; --ok:#ffee58; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:#172326; color:#ebf3f0; font:13px/1.4 var(--font); }
+button,input,select{ font:inherit; color:inherit; }
+.sr{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+/* ---------------- harness (review chrome; DESIGN.md dark tokens) ---------------- */
+.harness{ position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:8px 16px; background:#000000; border-bottom:1px solid #49605b; font-size:12px; }
+.harness label{ display:flex; gap:6px; align-items:center; color:#b2c4bf; }
+.harness select{ background:#1e2d31; color:#ebf3f0; border:1px solid #79928c; border-radius:var(--r-sm); min-height:24px; padding:0 4px; }
+.harness .ttl{ font-weight:600; color:#ebf3f0; margin-right:8px; }
+.harness .verdict{ font-family:var(--mono); padding:2px 8px; border-radius:var(--r-sm); margin-left:auto; }
+.verdict.pass{ background:#24653f; color:#ffffff; } .verdict.fail{ background:#a92e37; color:#ffffff; }
+.stage{ display:flex; gap:24px; align-items:flex-start; padding:16px; flex-wrap:wrap; }
+.side{ width:320px; color:#b2c4bf; font-size:12px; } .side h2{ font-size:13px; color:#ebf3f0; margin:0 0 6px; } .side table{ border-collapse:collapse; width:100%; } .side td{ padding:2px 4px; border-bottom:1px solid #2a3d40; vertical-align:top; } .side code{ color:#ebf3f0; }
+.side .a11y li{ margin:2px 0; } .side kbd{ font-family:var(--mono); color:#ebf3f0; }
+.cap{ font-size:12px; color:#b2c4bf; margin:0 0 6px; }
+
+/* ---------------- the frame: a slice of the app window (title bar, dock, status bar) ---------------- */
+.frame{ display:flex; flex-direction:column; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:var(--r-md); overflow:hidden; }
+.titlebar{ flex:0 0 28px; display:flex; align-items:center; padding:0 10px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.tabs{ flex:0 0 34px; display:flex; align-items:stretch; background:var(--surface); border-bottom:1px solid var(--line); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-size:12px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span[aria-current]{ color:var(--ink); border-bottom-color:var(--accent); }
+.statusbar{ flex:0 0 24px; display:flex; align-items:center; padding:0 10px; background:var(--surface); border-top:1px solid var(--line); font-size:12px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ---------------- the pane ---------------- */
+.pane{ flex:1; min-height:0; display:flex; flex-direction:column; background:var(--surface); container-type:inline-size; container-name:pane; }
+.sel{ flex:1; min-height:0; overflow:auto; }
+.wing{ flex:none; max-height:55%; overflow:auto; border-top:2px solid var(--control); background:var(--surface); }
+
+/* identity: one per selection (O-6) */
+.ident{ display:grid; grid-template-columns:16px minmax(0,1fr); gap:2px 8px; align-items:center; padding:8px 12px 6px; border-bottom:1px solid var(--line); }
+.ident svg{ width:16px; height:16px; } .ident h2{ margin:0; font-size:14px; font-weight:600; line-height:1.3; overflow-wrap:anywhere; }
+.ident .crumb{ grid-column:2; color:var(--mute); font-size:12px; overflow-wrap:anywhere; }
+.ident .crumb button{ background:none; border:0; padding:0; color:var(--accent); text-decoration:underline; cursor:pointer; min-height:24px; }
+
+/* banners (recovery, not certified) */
+.banner{ display:grid; grid-template-columns:16px minmax(0,1fr); gap:6px; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--soft); font-size:12px; }
+.banner svg{ width:16px; height:16px; margin-top:1px; } .banner .acts{ grid-column:2; display:flex; gap:8px; margin-top:6px; }
+
+/* group: header band + rows (Premiere twirl-down; VS Code settings section) */
+.grp + .grp{ border-top:1px solid var(--line); }
+.grp-h{ margin:0; }
+.grp-h button, .grp-h .static{ width:100%; display:flex; align-items:center; gap:6px; min-height:var(--prop-head); padding:0 12px; background:var(--soft); border:0; text-align:left; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; }
+.grp-h .static{ cursor:default; }
+.grp-h .chev{ width:10px; height:10px; flex:none; transition:transform var(--fast) var(--easing); }
+.grp-h button[aria-expanded="false"] .chev{ transform:rotate(-90deg); }
+.grp-h .sum{ margin-left:auto; font-weight:400; font-size:12px; color:var(--mute); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:55%; }
+.chip{ margin-left:auto; font-size:12px; font-weight:600; padding:0 6px; border:1px solid currentColor; border-radius:var(--r-sm); white-space:nowrap; }
+.chip.preview{ color:var(--accent); } .chip.unavail{ color:var(--warn); } .chip.busy{ color:var(--mute); }
+.grp-b{ padding:0 0 4px; } .grp-b[hidden]{ display:none; }
+.sub{ padding:6px 12px 0 15px; font-size:12px; font-weight:600; color:var(--mute); }
+.note{ padding:4px 12px 2px 15px; font-size:12px; color:var(--mute); display:flex; gap:6px; }
+.note svg{ width:12px; height:12px; flex:none; margin-top:2px; }
+.rule{ height:0; border-top:1px solid var(--line); margin:6px 12px 0 15px; }
+
+/* the row: label | value | unit, with a 3 px state rail (VS Code's modified bar, used here for state) */
+.row{ display:grid; grid-template-columns:var(--prop-label) minmax(0,1fr) var(--prop-unit); column-gap:6px; align-items:center; min-height:var(--prop-row-ro); padding:0 12px 0 12px; border-left:3px solid transparent; }
+.row.edit{ min-height:var(--target-dense); }
+@container pane (max-width: 230px){ .row{ grid-template-columns:var(--prop-label-narrow) minmax(0,1fr) var(--prop-unit-narrow); column-gap:4px; } .val input{ padding:0 4px; } }
+.row:focus-within:not([data-state]){ border-left-color:var(--focus); }   /* focused row: the rail, not a fill (a fill drops the input boundary under 3:1) */
+.row[data-state="warning"]{ border-left-color:var(--warn); } .row[data-state="error"]{ border-left-color:var(--danger); }
+.row[data-state="unavailable"]{ border-left-color:var(--warn); }
+.lbl{ font-size:13px; color:var(--mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:default; }
+.row.edit .lbl{ cursor:pointer; }
+.val{ min-width:0; text-align:right; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums; color:var(--ink); overflow-wrap:anywhere; }
+.val.txt{ font-family:var(--font); text-align:left; }
+.val .lock{ width:11px; height:11px; vertical-align:-1px; margin-right:4px; }
+.unit{ font-size:12px; color:var(--mute); white-space:nowrap; }
+.val input{ width:100%; min-width:0; height:28px; padding:0 6px; text-align:right; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums; background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:var(--r-sm); }
+.val input:hover{ background:var(--soft); }
+.val input[aria-invalid="true"]{ border-color:var(--danger); border-width:2px; }
+.val select{ width:100%; height:28px; padding:0 4px; font-family:var(--font); background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:var(--r-sm); }
+.val select:disabled{ border-style:dashed; }
+input:focus-visible, select:focus-visible, button:focus-visible, .seg button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+.msg{ grid-column:1 / -1; display:flex; gap:6px; padding:2px 0 4px; font-size:12px; line-height:1.35; color:var(--mute); text-align:left; font-family:var(--font); }
+.msg svg{ width:12px; height:12px; flex:none; margin-top:2px; }
+.msg.warn{ color:var(--warn); } .msg.error{ color:var(--danger); } .msg.report, .msg.echo{ color:var(--ink); }
+.desc{ grid-column:1 / -1; font-size:12px; color:var(--mute); padding:0 0 4px; line-height:1.35; }
+
+/* segmented (Tangent): a radiogroup; the checked option carries fill AND weight AND a check mark */
+.seg{ display:flex; width:100%; border:1px solid var(--control); border-radius:var(--r-sm); overflow:hidden; }
+.seg button{ flex:1; min-width:0; min-height:28px; padding:0 4px; border:0; background:var(--surface); color:var(--ink); font-size:12px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.seg button + button{ border-left:1px solid var(--control); }
+.seg button[aria-checked="true"]{ background:var(--accent); color:var(--on-accent); font-weight:600; }
+.seg button[aria-checked="true"]::before{ content:"✓ "; }
+.seg[aria-disabled="true"] button{ cursor:not-allowed; }
+.row.span3 .val{ grid-column:2 / 4; }
+
+.btn{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:var(--r-sm); background:var(--soft); color:var(--ink); cursor:pointer; }
+.btn.primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+.linkbtn{ background:none; border:0; padding:0; min-height:24px; color:var(--accent); text-decoration:underline; cursor:pointer; font-size:12px; }
+
+details.defs{ padding:2px 12px 0 15px; } details.defs > summary{ min-height:24px; display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:600; color:var(--ink); list-style:none; }
+details.defs > summary::-webkit-details-marker{ display:none; } details.defs > summary::before{ content:"▸"; color:var(--mute); } details.defs[open] > summary::before{ content:"▾"; }
+details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-size:12px; }
+
+.empty{ padding:16px 12px; } .empty h2{ margin:0 0 6px; font-size:14px; } .empty p{ margin:0; color:var(--mute); font-size:12px; }
+.skel{ height:12px; margin:10px 12px; border-radius:var(--r-sm); background:var(--soft); }
+
+/* reviewer persona: column guides */
+.frame[data-persona="reviewer"] .row{ background-image:linear-gradient(var(--line),var(--line)); background-size:1px 100%; background-repeat:no-repeat; background-position:calc(12px + var(--prop-label) + 3px) 0; outline:1px dashed var(--line); outline-offset:-1px; }
+
+/* as-built replica (compare) */
+.asbuilt{ font-size:14px; } .asbuilt .pad{ padding:16px; display:flex; flex-direction:column; gap:12px; overflow:hidden; }
+.asbuilt h3{ margin:0; font-size:18px; } .asbuilt .cap2{ font-size:12px; color:var(--mute); }
+.asbuilt .hz{ display:flex; gap:8px; align-items:center; } .asbuilt .box{ border:1px solid var(--line); border-radius:var(--r-sm); padding:4px 8px; background:var(--surface); }
+.asbuilt .wingb{ border:1px solid var(--line); background:var(--soft); padding:12px; display:flex; flex-direction:column; gap:8px; }
+
+:root[data-motion="reduce"] *{ transition:none !important; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+
+.audit{ margin:0 16px 24px; padding:12px; border:1px solid #49605b; border-radius:var(--r-md); background:#1e2d31; color:#ebf3f0; font-size:12px; }
+.audit h2{ margin:0 0 8px; font-size:13px; } .audit table{ border-collapse:collapse; width:100%; } .audit td, .audit th{ text-align:left; padding:3px 6px; border-bottom:1px solid #2a3d40; vertical-align:top; } .audit th{ color:#b2c4bf; }
+.audit .p{ color:#92d1a5; } .audit .f{ color:#ffaeb5; } .audit .n{ color:#b2c4bf; }
+</style>
+</head>
+<body>
+<header class="harness" aria-label="Review harness">
+  <span class="ttl">Property grid · review harness</span>
+  <label>Persona <select id="h-persona"><option value="designer">Designer (pointer)</option><option value="keyboard">Keyboard only</option><option value="sr">Screen reader (names)</option><option value="reviewer">Reviewer (column guides)</option></select></label>
+  <label>Pane width <select id="h-width"><option value="200">200 px (narrowest dock)</option><option value="260" selected>260 px (dock-left)</option><option value="300">300 px (dock-right)</option></select></label>
+  <label>Window <select id="h-height"><option value="800" selected>1280 × 800</option><option value="900">1440 × 900</option></select></label>
+  <label>State <select id="h-state"></select></label>
+  <label>Theme <select id="h-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
+  <label><input type="checkbox" id="h-motion"> Reduced motion</label>
+  <label><input type="checkbox" id="h-compare"> As built beside</label>
+  <span class="verdict" id="verdict" role="status">…</span>
+</header>
+
+<main class="stage">
+  <div>
+    <p class="cap" id="cap-after">Proposed — property grid</p>
+    <div class="frame" id="frame" data-theme="light" data-persona="designer">
+      <div class="titlebar" aria-hidden="true">CFD Workbench — Untitled.foil</div>
+      <div class="tabs" aria-hidden="true"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
+      <section class="pane" id="pane" aria-label="Properties"></section>
+      <div class="statusbar" id="status" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <div id="compare-wrap" hidden>
+    <p class="cap">As built (c43711a, reconstructed from PropertiesPane.axaml and anchor-handle.png)</p>
+    <div class="frame asbuilt" id="frame-before" data-theme="light" aria-label="As-built Properties pane, for comparison" role="img">
+      <div class="titlebar">CFD Workbench — Untitled.foil</div>
+      <div class="tabs"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
+      <div class="pane"><div class="pad">
+        <h3>Untitled</h3>
+        <div><b>Foil</b><div class="hz"><span class="cap2" style="width:100px">Name</span>Untitled</div><div class="hz"><span class="cap2" style="width:100px">Stations</span>2</div></div>
+        <h3>Trailing edge · point 7 of 14</h3>
+        <div class="cap2">An anchor point is on the curve. Its handles set the curve's direction on each side.</div>
+        <div>Anchor handle</div>
+        <div class="hz">Span <span class="box">341.06</span> <span class="cap2">mm</span></div>
+        <div class="hz">Aft <span class="box">151.18</span> <span class="cap2">mm</span></div>
+        <div class="hz">Angle <span class="box">-21.08</span> <span class="cap2">deg</span></div>
+        <div class="hz">Length <span class="box">20.80</span> <span class="cap2">mm</span></div>
+        <div class="wingb"><h3>Wing</h3>Span<div class="hz"><span class="box" style="flex:1">1000.0</span> mm</div><span class="cap2">Root chord</span><span class="box">126.74</span><span class="cap2">Tip chord</span><span class="box">12.67</span>Mean chord<span>≈ —</span>MAC<span>≈ —</span></div>
+      </div></div>
+      <div class="statusbar">Point change applied as one accepted source revision.</div>
+    </div>
+  </div>
+  <aside class="side" id="side" aria-label="Persona panel"></aside>
+</main>
+
+<section class="audit" aria-labelledby="audit-h">
+  <h2 id="audit-h">In-artifact checks (this state, this theme, this width) — each names what it protects</h2>
+  <table><thead><tr><th>Check</th><th>Protects</th><th>Result</th><th>Detail</th></tr></thead><tbody id="audit-body"></tbody></table>
+</section>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s), root = document.documentElement, frame = $('#frame'), pane = $('#pane'), statusEl = $('#status');
+const MINUS = '−';
+const sgn = s => s.replace(/^-/, MINUS);
+const f2 = v => sgn(v.toFixed(2)), f1 = v => sgn(v.toFixed(1));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+
+/* ---------------- fixture: the New foil of the operator captures (Illustrative) ---------------- */
+const BASE = { name:'Untitled', stations:2, spanMm:1000, rootMm:126.74, tipMm:12.67, areaMm2:99600, macMm:107.11, maxTc:0.120 };
+let D = { ...BASE };
+const est = d => ({ mean: d.areaMm2 / d.spanMm, mac: d.macMm, tc: d.maxTc * 100, ar: d.spanMm * d.spanMm / d.areaMm2, cm2: d.areaMm2 / 100 });
+
+/* ---------------- icons (inline, aria-hidden) ---------------- */
+const IC = {
+  chev:'<svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  warn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.5 11H.5Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 4.5v3M6 9v.8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  err:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 4l4 4M8 4 4 8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  ok:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 5.5v3.5M6 3v.8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  lock:'<svg class="lock" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+  // selection glyphs: the same shapes as the Plan view (DESIGN.md Point row) so the pane and the canvas read as one object
+  anchor:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  control:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="currentColor"/></svg>',
+  end:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  handle:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 13 9 6" stroke="currentColor"/><circle cx="11" cy="5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  multi:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="11" r="2.5" fill="currentColor"/><circle cx="8" cy="7" r="2.5" fill="currentColor"/><circle cx="12" cy="4" r="2.5" fill="currentColor"/></svg>',
+  station:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v14" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/></svg>',
+  foil:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 9Q8 2 15 8Q8 12 1 9Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+};
+
+/* ---------------- expression parser: numbers with mm / cm / m, #span #root_chord #tip_chord, + − × ÷ ( ) ---------------- */
+// simplify: lengths are carried as plain millimetre scalars (no dimension algebra); ceiling: a typed length × length is
+// accepted as a number; upgrade trigger: the product's LengthExpression contract, which this mockup only illustrates.
+function parseLength(text){
+  const src = text.replace(/−/g, '-').trim(); let i = 0;
+  const refs = { span: D.spanMm, root_chord: D.rootMm, tip_chord: D.tipMm };
+  const ws = () => { while (src[i] === ' ') i++; };
+  const num = () => { ws(); if (src[i] === '#'){ const m = /^#([a-z_]+)/.exec(src.slice(i)); if (!m || !(m[1] in refs)) throw 0; i += m[0].length; return refs[m[1]]; }
+    if (src[i] === '('){ i++; const v = sum(); ws(); if (src[i] !== ')') throw 0; i++; return v; }
+    if (src[i] === '-'){ i++; return -num(); }
+    const m = /^\d+(\.\d+)?|^\.\d+/.exec(src.slice(i)); if (!m) throw 0; i += m[0].length; ws();
+    const u = /^(mm|cm|m)(?![a-z])/.exec(src.slice(i)); let v = Number(m[0]); if (u){ i += u[0].length; v *= { mm:1, cm:10, m:1000 }[u[1]]; } return v; };
+  const prod = () => { let v = num(); for (;;){ ws(); const c = src[i]; if (c === '*' || c === '×'){ i++; v *= num(); } else if (c === '/' || c === '÷'){ i++; v /= num(); } else return v; } };
+  const sum = () => { let v = prod(); for (;;){ ws(); const c = src[i]; if (c === '+'){ i++; v += prod(); } else if (c === '-'){ i++; v -= prod(); } else return v; } };
+  if (!src) throw 0; const v = sum(); ws(); if (i !== src.length || !Number.isFinite(v)) throw 0; return v;
+}
+const isPlain = t => /^\s*[-−]?\d+(\.\d+)?\s*$/.test(t);
+
+/* ---------------- state ---------------- */
+const S = { pv:{}, state:'anchor', kind:'smooth', type:null, collapsed:{}, msgs:{}, invalid:{}, report:null };
+const STATES = [
+  ['empty', 'Empty — no foil open'], ['opening', 'Loading — opening a file'], ['pane-error', 'Error — pane could not render'],
+  ['foil', 'Foil — nothing selected'], ['control', 'Control point'], ['anchor', 'Anchor point (Tangent)'], ['handle', 'Handle (parent tangent shown, F-4)'],
+  ['root-le', 'Named point — LE root end (fixed)'], ['root-te', 'Named point — TE root end (aft only)'], ['multi', 'Multi-selection — Mixed (OI-3)'],
+  ['station', 'Station'], ['drag', 'During a drag — ≈ preview'], ['busy', 'Checking the last change'], ['chord-warning', 'Typed chord above the fit limit (warning)'],
+  ['field-error', 'Field validation error'], ['unavailable', 'Estimates unavailable (D-4 honest state)'], ['tip-closes', 'Tip closes'],
+  ['section', 'Section editor — Wing read-only'], ['not-certified', 'Foil not checked — read-only'], ['recovery', 'Recovered edit'],
+  ['overflow', 'Overflow — long name, extreme values'], ['twist', 'M1.2b2 reuse — Twist channel point']
+];
+$('#h-state').innerHTML = STATES.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('');
+$('#h-state').value = S.state;
+
+/* ---------------- row and group builders (the component API the brief maps to Avalonia) ---------------- */
+let uid = 0;
+const nid = p => p + '-' + (++uid);
+function msgHtml(m, id){ if (!m) return ''; const ic = { warn:IC.warn, error:IC.err, report:IC.ok, echo:IC.info, reason:IC.lock, info:IC.info }[m.kind] || '';
+  const role = m.kind === 'error' ? ' role="alert"' : ''; return `<div class="msg ${m.kind}" id="${id}"${role}>${ic}<span>${esc(m.text)}</span></div>`; }
+// kinds: input · text (read-only fact) · derived (≈ estimate) · select · seg · action
+function row(r){
+  const id = nid('f'), mid = id + '-m', did = id + '-d', st = r.state || (S.invalid[r.fk] ? 'error' : '');
+  const m = S.msgs[r.fk] || r.msg, describedby = [r.desc ? did : '', m ? mid : ''].filter(Boolean).join(' ');
+  const unit = r.unit ? `<span class="unit" aria-hidden="true">${esc(r.unit)}</span>` : '<span class="unit"></span>';
+  const quant = r.q ? ` data-q="${esc(r.label)}" data-unit="${esc(r.unit || '')}"${r.dimless ? ' data-dimless="1"' : ''}` : '';
+  let val;
+  if (r.kind === 'input'){
+    const shown = S.invalid[r.fk] ?? r.value;
+    val = `<input id="${id}" data-fk="${r.fk}" value="${esc(shown)}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${S.invalid[r.fk] != null ? ' aria-invalid="true"' : ''} autocomplete="off" spellcheck="false" inputmode="decimal">`;
+  } else if (r.kind === 'select'){
+    val = `<select id="${id}" data-fk="${r.fk}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' disabled' : ''}>${r.options.map(([v, t]) => `<option value="${v}"${v === r.value ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+  } else if (r.kind === 'seg'){
+    val = `<div class="seg" role="radiogroup" id="${id}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' aria-disabled="true"' : ''}>${r.options.map(([v, t]) => `<button type="button" role="radio" data-fk="${r.fk}:${v}" data-v="${v}" aria-checked="${v === r.value}" tabindex="${v === r.value ? 0 : -1}"${r.disabled ? ' aria-disabled="true"' : ''}>${esc(t)}</button>`).join('')}</div>`;
+  } else if (r.kind === 'action'){
+    val = `<button type="button" class="btn" data-fk="${r.fk}" id="${id}">${esc(r.value)}</button>`;
+  } else {
+    const lock = r.locked ? IC.lock : '', pre = r.kind === 'derived' && r.value !== 'Unavailable' ? '≈ ' : '';
+    val = `<span id="${id}" class="${r.txt ? 'txt' : ''}"${describedby ? ` aria-describedby="${describedby}"` : ''}>${lock}${pre}${esc(r.value)}</span>`;
+  }
+  const lbl = (r.kind === 'input' || r.kind === 'select') ? `<label class="lbl" for="${id}" title="${esc(r.label)}">${esc(r.label)}</label>` : `<span class="lbl" title="${esc(r.label)}">${esc(r.label)}</span>`;
+  const edit = ['input', 'select', 'seg', 'action'].includes(r.kind) ? ' edit' : '';
+  const span3 = r.kind === 'seg' || r.kind === 'select' || r.kind === 'action' ? ' span3' : '';
+  return `<div class="row${edit}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${lbl}<div class="val${r.txt ? ' txt' : ''}">${val}</div>${span3 ? '' : unit}${r.desc ? `<div class="desc" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid)}</div>`;
+}
+function group(g){
+  const hid = nid('g'), bid = hid + '-b', open = g.static || !S.collapsed[g.id];
+  const head = g.static ? `<div class="static" id="${hid}">${esc(g.title)}${g.chip ? `<span class="chip ${g.chip[0]}">${esc(g.chip[1])}</span>` : ''}</div>`
+    : `<button type="button" id="${hid}" data-fk="grp:${g.id}" aria-expanded="${open}" aria-controls="${bid}">${IC.chev}${esc(g.title)}${!open && g.sum ? `<span class="sum">${esc(g.sum)}</span>` : ''}${g.chip ? `<span class="chip ${g.chip[0]}">${esc(g.chip[1])}</span>` : ''}</button>`;
+  return `<section class="grp" aria-labelledby="${hid}"><h3 class="grp-h">${head}</h3><div class="grp-b" id="${bid}" role="group" aria-labelledby="${hid}"${open ? '' : ' hidden'}>${g.body.join('')}</div></section>`;
+}
+const note = (text, icon = IC.info) => `<div class="note">${icon}<span>${esc(text)}</span></div>`;
+const sub = t => `<div class="sub">${esc(t)}</div>`;
+function ident(glyph, title, crumb){ return `<div class="ident">${IC[glyph]}<h2>${esc(title)}</h2>${crumb ? `<div class="crumb">${crumb}</div>` : ""}</div>`; }   // no crumb that repeats the Type row (Simplifier)
+
+/* ---------------- copy (quoted; source in docs/reviews/ui-property-grid.md §9) ---------------- */
+const COPY = {
+  c117:'A control point pulls the curve toward it. The curve does not pass through it.',
+  anchorHelp:"An anchor point is on the curve. Its handles set the curve's direction on each side.",
+  smooth:'Handles stay in line. Their lengths can differ.', symmetric:'Handles stay in line and equal in length.', corner:'Each handle moves on its own. The curve has a corner here.',
+  c118:f => `Enter a number. ${f} is unchanged.`, c106:f => `Enter a length greater than 0 mm. ${f} is unchanged.`,
+  c108:'Tip closes — edit the tip station', c122:'Set these in the workspace.', c136:'No foil open', c137:'Open or start a foil. Whatever you select in it shows its properties here.',
+  c138:'Properties couldn’t be shown. Your foil hasn’t changed.',
+  root152:'Root chord 152.09 mm. Fit 9.01 µm (limit 10 µm). 4.21 mm from a straight taper. Planform moved 6.34 mm so the leading edge stays at the root.',
+  root190:'Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a straight taper. Planform moved 15.84 mm so the leading edge stays at the root.',
+  notChecked:'Points can’t be moved because this foil couldn’t be checked. Nothing changed.',
+  recovered:'A recovered edit to Trailing edge point 4 is open.', busy:'Checking the last change…',
+  unavailable:'Unavailable — the estimates did not converge for this shape. Undo, or edit again, to recompute.',
+  selectOne:'Select one point to change it.', leFixed:'Fixed: the leading edge starts at the root.', teRoot:'On the centre line; its tangent is square to it (root mirror).',
+  rootHandle:'Square to the centre line (root mirror). Only its length can change.',
+  typeToAnchor:'Trailing edge point 3 is now an anchor point with 2 handles. The rail has 13 points (was 10). Largest change 0.84 mm.',
+  typeToControl:'Trailing edge point 7 is now a control point. Its handles are removed.'
+};
+
+/* ---------------- the Wing block (always last while a foil is open; never collapsible: UI-36) ---------------- */
+function wing(opts = {}){
+  const d = opts.d || D, e = est(d), ro = opts.readonly, unav = opts.unavailable;
+  const chip = opts.preview ? ['preview', '≈ preview'] : unav ? ['unavail', 'Unavailable'] : opts.busy ? ['busy', 'Checking…'] : null;
+  const dims = ro ? [
+      row({ kind:'text', label:'Span', value:f2(d.spanMm), unit:'mm', q:1, locked:true }),
+      row({ kind:'text', label:'Root chord', value:f2(d.rootMm), unit:'mm', q:1, locked:true }),
+      row({ kind:'text', label:'Tip chord', value:f2(d.tipMm), unit:'mm', q:1, locked:true }), note(COPY.c122, IC.lock)]
+    : [
+      row({ kind:'input', fk:'w:span', label:'Span', value:f2(d.spanMm), unit:'mm', q:1, name:'Span in millimetres' }),
+      row({ kind:'input', fk:'w:root', label:'Root chord', value:f2(d.rootMm), unit:'mm', q:1, name:'Root chord in millimetres', state:opts.rootState, msg:opts.rootMsg }),
+      opts.tipCloses ? row({ kind:'text', label:'Tip chord', value:f2(0), unit:'mm', q:1, locked:true, msg:{ kind:'reason', text:COPY.c108 } })
+        : row({ kind:'input', fk:'w:tip', label:'Tip chord', value:f2(d.tipMm), unit:'mm', q:1, name:'Tip chord in millimetres' })];
+  const U = 'Unavailable', st = unav ? 'unavailable' : '';
+  const estRows = [
+    row({ kind:'derived', label:'Mean chord', value:unav ? U : f1(e.mean), unit:'mm', q:1, state:st }),
+    row({ kind:'derived', label:'MAC', value:unav ? U : f1(e.mac), unit:'mm', q:1, state:st }),
+    row({ kind:'derived', label:'Max t/c', value:unav ? U : f1(e.tc), unit:'%', q:1, state:st }),
+    row({ kind:'derived', label:'Aspect ratio', value:unav ? U : e.ar.toFixed(2), unit:'', q:1, dimless:1, state:st }),
+    row({ kind:'derived', label:'Area', value:unav ? U : Math.round(e.cm2).toString(), unit:'cm²', q:1, state:st })];
+  if (opts.station) estRows.push(row({ kind:'derived', label:'Tip chord here', value:f1(d.tipMm), unit:'mm', q:1 }), row({ kind:'derived', label:'Tip t/c', value:'12.0', unit:'%', q:1 }));
+  const defs = `<details class="defs" data-fk="defs"${S.defs ? ' open' : ''}><summary>Estimates <span style="font-weight:400;color:var(--mute)">· definitions</span></summary><ul>
+    <li>Span b: projected, tip to tip</li><li>Root and tip chord: at the centre line and the outermost station</li><li>Mean chord: S / b, area-weighted</li>
+    <li>MAC: (2/S)∫₀^{b/2} c(y)² dy — not the same as S / b</li><li>Max t/c: largest thickness over chord at any station</li><li>Aspect ratio: b² / S, projected (dimensionless)</li><li>Area: projected planform area S, both halves</li></ul></details>`;
+  const body = [...dims, '<div class="rule"></div>', defs, ...estRows];
+  if (unav) body.push(note(COPY.unavailable, IC.warn));
+  return `<div class="wing" id="wing">${group({ id:'wing', title:'Wing', static:true, chip, body })}</div>`;
+}
+
+/* ---------------- selection models per state ---------------- */
+function typeRow(value, opts = {}){
+  return row({ kind:'select', fk:'type', label:'Type', value, name:'Type', disabled:opts.disabled,
+    options:[['control', 'Control point'], ['anchor', 'Anchor point — adds 2 handles']], desc:value === 'control' ? COPY.c117 : COPY.anchorHelp, msg:opts.msg });
+}
+function tangentRow(fk, value, name, opts = {}){
+  return row({ kind:'seg', fk, label:'Tangent', value, name, options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY[value], msg:opts.msg, disabled:opts.disabled });
+}
+function tangentRows(){
+  const k = S.kind, m = S.msgs.tangent;
+  const rows = [tangentRow('tangent', k, 'Tangent', { msg:m })];
+  if (k === 'smooth') rows.push(row({ kind:'input', fk:'h:ang', label:'Angle', value:f2(pv('h:ang', -21.08)), unit:'°', q:1, name:'Angle, both handles, in degrees' }),
+    row({ kind:'input', fk:'h:lr', label:'To root', value:f2(pv('h:lr', 18.20)), unit:'mm', q:1, name:'To root, handle length in millimetres' }),
+    row({ kind:'input', fk:'h:lt', label:'To tip', value:f2(pv('h:lt', 20.80)), unit:'mm', q:1, name:'To tip, handle length in millimetres' }));
+  else if (k === 'symmetric') rows.push(row({ kind:'input', fk:'h:ang', label:'Angle', value:f2(pv('h:ang', -21.08)), unit:'°', q:1, name:'Angle, both handles, in degrees' }),
+    row({ kind:'input', fk:'h:len', label:'Length', value:f2(pv('h:len', 18.20)), unit:'mm', q:1, name:'Length, both handles, in millimetres' }));
+  else rows.push(sub('Handle toward the root'), row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -21.08)), unit:'°', q:1, name:'Angle of the handle toward the root, in degrees' }),
+    row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 18.20)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres' }),
+    sub('Handle toward the tip'), row({ kind:'input', fk:'h:at', label:'Angle', value:f2(pv('h:at', -21.08)), unit:'°', q:1, name:'Angle of the handle toward the tip, in degrees' }),
+    row({ kind:'input', fk:'h:lt', label:'Length', value:f2(pv('h:lt', 20.80)), unit:'mm', q:1, name:'Length of the handle toward the tip, in millimetres' }));
+  return rows;
+}
+const sumKind = () => S.kind[0].toUpperCase() + S.kind.slice(1);
+function controlSel(v = {}){
+  const span = v.span ?? pv('p:span', 178.26), aft = v.aft ?? pv('p:aft', 120.40), ro = v.readonly;
+  const pos = ro ? [row({ kind:'text', label:'Type', value:'Control point', txt:1, locked:true }),
+      row({ kind:'text', label:'Span', value:f2(span), unit:'mm', q:1, locked:v.lockedRows }), row({ kind:'text', label:'Aft', value:f2(aft), unit:'mm', q:1, locked:v.lockedRows, msg:v.aftMsg })]
+    : [typeRow('control', { msg:S.msgs.type }), row({ kind:'input', fk:'p:span', label:'Span', value:f2(span), unit:'mm', q:1, name:'Span position in millimetres' }),
+      row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(aft), unit:'mm', q:1, name:'Aft position in millimetres', msg:v.aftMsg })];
+  return ident('control', 'Trailing edge · point 3 of 10', '') + group({ id:'pos', title:'Position', sum:`${f2(span)}, ${f2(aft)} mm`, body:pos });
+}
+function anchorSel(){
+  return ident('anchor', 'Trailing edge · point 7 of 14', '') +
+    group({ id:'pos', title:'Position', sum:`${f2(pv("p:span", 321.65))}, ${f2(pv("p:aft", 158.66))} mm`, body:[typeRow('anchor', { msg:S.msgs.type }),
+      row({ kind:'input', fk:'p:span', label:'Span', value:f2(pv('p:span', 321.65)), unit:'mm', q:1, name:'Span position in millimetres' }),
+      row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', 158.66)), unit:'mm', q:1, name:'Aft position in millimetres' })] }) +
+    group({ id:'tan', title:'Tangent', sum:sumKind(), body:tangentRows() });
+}
+function handleSel(){
+  return ident('handle', 'Handle toward the tip', 'of <button type="button" data-fk="goto-anchor">Trailing edge · anchor point 7 of 14</button> · Esc') +
+    group({ id:'hdl', title:'Handle', sum:`${f2(-21.08)}°, ${f2(20.80)} mm`, body:[
+      row({ kind:'input', fk:'h:at', label:'Angle', value:f2(pv('h:at', -21.08)), unit:'°', q:1, name:'Angle in degrees, from the span axis, positive aft' }),
+      row({ kind:'input', fk:'h:lt', label:'Length', value:f2(pv('h:lt', 20.80)), unit:'mm', q:1, name:'Length in millimetres' })] }) +
+    group({ id:'atan', title:'Anchor point 7', sum:sumKind(), body:[tangentRow('tangent', S.kind, 'Tangent of anchor point 7', { msg:S.msgs.tangent }),
+      note(S.kind === 'smooth' ? 'Moving this handle turns the other one to stay in line.' : S.kind === 'symmetric' ? 'Moving this handle moves the other one by the same amount, mirrored.' : 'The other handle does not move.')] });
+}
+
+function model(){
+  const st = S.state;
+  if (st === 'empty') return { body:`<div class="empty"><h2>${esc(COPY.c136)}</h2><p>${esc(COPY.c137)}</p></div>`, wing:'' , status:'' };
+  if (st === 'opening') return { body:`<div class="ident">${IC.foil}<h2>Opening…</h2><div class="crumb">kite-wing-850.foil</div></div><div aria-hidden="true">${[70, 90, 55, 80].map(w => `<div class="skel" style="width:${w}%"></div>`).join('')}</div>`, wing:'', status:'Opening kite-wing-850.foil…' };
+  if (st === 'pane-error') return { body:`<div class="empty" role="alert"><h2>${esc(COPY.c138)}</h2><p><button type="button" class="btn" data-fk="retry">Try again</button></p></div>`, wing:'', status:'' };
+  const foilSel = (name = D.name) => ident('foil', name, 'Foil · nothing selected') + group({ id:'foil', title:'Foil', sum:`${D.stations} stations`, body:[
+      row({ kind:'text', label:'Name', value:name, txt:1 }), row({ kind:'text', label:'Stations', value:String(D.stations), q:1, dimless:1 })] }) +
+    note('Select a point or a station to see its properties here. Set span and chords under Wing.');
+  switch (st){
+    case 'foil': return { body:foilSel(), wing:wing() };
+    case 'control': return { body:controlSel(), wing:wing() };
+    case 'anchor': return { body:anchorSel(), wing:wing() };
+    case 'handle': return { body:handleSel(), wing:wing() };
+    case 'root-le': return { body:ident('end', 'Leading edge · root end', 'Anchor · root end') +
+      group({ id:'pos', title:'Position', sum:'fixed', body:[row({ kind:'text', label:'Type', value:'Root end', txt:1, locked:true }),
+        row({ kind:'text', label:'Span', value:f2(0), unit:'mm', q:1, locked:true }), row({ kind:'text', label:'Aft', value:f2(0), unit:'mm', q:1, locked:true }), note(COPY.leFixed, IC.lock)] }) +
+      group({ id:'tan', title:'Tangent', sum:'root mirror', body:[row({ kind:'text', label:'Tangent', value:'Square to the centre line', txt:1, locked:true }),
+        row({ kind:'input', fk:'h:lt', label:'Handle', value:f2(pv('h:lt', 15.40)), unit:'mm', q:1, name:'Handle length in millimetres' }), note(COPY.rootHandle, IC.lock)] }), wing:wing() };
+    case 'root-te': return { body:ident('end', 'Trailing edge · root end', 'Anchor · root end') +
+      group({ id:'pos', title:'Position', sum:`${f2(0)}, ${f2(D.rootMm)} mm`, body:[row({ kind:'text', label:'Type', value:'Root end', txt:1, locked:true }),
+        row({ kind:'text', label:'Span', value:f2(0), unit:'mm', q:1, locked:true }), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(D.rootMm), unit:'mm', q:1, name:'Aft position in millimetres' }), note(COPY.teRoot, IC.lock)] }), wing:wing() };
+    case 'multi': return { body:ident('multi', '3 points', 'Trailing edge · points 3, 4 and 5') +
+      group({ id:'pos', title:'Position', sum:'Mixed', body:[row({ kind:'text', label:'Type', value:'Control point', txt:1 }),
+        row({ kind:'text', label:'Span', value:'Mixed', unit:'mm', q:1 }), row({ kind:'text', label:'Aft', value:'Mixed', unit:'mm', q:1 }), note(COPY.selectOne, IC.lock)] }), wing:wing() };
+    case 'station': return { body:ident('station', 'Tip station', 'Station 2 of 2') +
+      group({ id:'stn', title:'Station', sum:'naca-0012', body:[row({ kind:'text', label:'η', value:'1.000', q:1, dimless:1 }), row({ kind:'text', label:'Span', value:f2(500), unit:'mm', q:1 }),
+        row({ kind:'text', label:'Chord', value:f1(D.tipMm), unit:'mm', q:1 }), row({ kind:'text', label:'Section', value:'naca-0012', txt:1 })] }), wing:wing() };
+    case 'drag': { const dd = { ...D, areaMm2:100380, macMm:107.62 };
+      return { body:controlSel({ readonly:true, aft:122.54, aftMsg:{ kind:'echo', text:'Δ aft +2.14 mm' } }), wing:wing({ preview:true, d:dd }), status:'Dragging trailing edge point 3 · Δ aft +2.14 mm' }; }
+    case 'busy': return { body:foilSel(), wing:wing({ busy:true }), status:COPY.busy };
+    case 'chord-warning': return { body:foilSel(), wing:wing({ d:{ ...D, rootMm:190, areaMm2:137800, macMm:150.36 }, rootState:'warning', rootMsg:{ kind:'warn', text:COPY.root190 } }), status:COPY.root190 };
+    case 'field-error': return { body:controlSel(), wing:wing() };
+    case 'unavailable': return { body:handleSel(), wing:wing({ unavailable:true }) };
+    case 'tip-closes': return { body:foilSel(), wing:wing({ tipCloses:true, d:{ ...D, tipMm:0 } }) };
+    case 'section': return { body:ident('station', 'Tip station · section', 'Section editor') + group({ id:'shape', title:'Shape', sum:'30 % chord', body:[
+        row({ kind:'text', label:'Max t at', value:'30', unit:'% c', q:1 }), row({ kind:'text', label:'LE radius', value:'0.2', unit:'mm', q:1 })] }) +
+        note('Select a point or handle on the section to see its properties here.'), wing:wing({ readonly:true, station:true }) };
+    case 'not-certified': return { body:`<div class="banner" role="alert">${IC.warn}<span>${esc(COPY.notChecked)}</span></div>` + controlSel({ readonly:true, lockedRows:true }), wing:wing({ readonly:false }) };
+    case 'recovery': return { body:`<div class="banner">${IC.info}<span>${esc(COPY.recovered)}</span><div class="acts"><button type="button" class="btn primary" data-fk="rec-apply">Apply</button><button type="button" class="btn" data-fk="rec-discard">Discard</button></div></div>` + controlSel(), wing:wing() };
+    case 'overflow': { const name = 'prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27';
+      return { body:ident('anchor', 'Trailing edge · point 13 of 16', name) +
+        group({ id:'pos', title:'Position', sum:`${f2(1234.56)}, ${f2(-175.60)} mm`, body:[typeRow('anchor'),
+          row({ kind:'input', fk:'p:span', label:'Span', value:f2(pv('p:span', 1234.56)), unit:'mm', q:1, name:'Span position in millimetres' }),
+          row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', -175.60)), unit:'mm', q:1, name:'Aft position in millimetres' })] }) +
+        group({ id:'tan', title:'Tangent', sum:'Corner', body:[tangentRow('tangent', 'corner', 'Tangent'), sub('Handle toward the root'),
+          row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -175.60)), unit:'°', q:1, name:'Angle of the handle toward the root, in degrees' }),
+          row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres' })] }),
+        wing:wing({ d:{ ...D, spanMm:2900, rootMm:212.4, tipMm:38.15, areaMm2:3_812_500, macMm:141.73 } }) }; }
+    case 'twist': return { body:ident('control', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
+      group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-0.84)}°`, body:[typeRow('control'),
+        row({ kind:'input', fk:'p:span', label:'Span', value:f2(pv('p:span', 180)), unit:'mm', q:1, name:'Span position in millimetres' }),
+        row({ kind:'input', fk:'p:twist', label:'Twist', value:f2(pv('p:twist', -0.84)), unit:'°', q:1, name:'Twist in degrees' })] }), wing:wing() };
+  }
+  return { body:'', wing:'' };
+}
+
+/* ---------------- render, keeping focus across re-renders (class UI-C) ---------------- */
+let rendering = false;
+function render(nextFk){
+  const a = document.activeElement, fk = nextFk || (a && pane.contains(a) ? a.dataset.fk : null);
+  uid = 0; const m = model();
+  rendering = true; pane.innerHTML = `<div class="sel" id="sel">${m.body}</div>${m.wing}`; rendering = false;
+  const s = S.report || m.status || ''; if (statusEl.textContent !== s) statusEl.textContent = s;   // one polite region; no re-announce of an unchanged line
+  if (fk){ const t = pane.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if (t) t.focus(); }
+  side(); requestAnimationFrame(runAudit);
+}
+
+/* ---------------- interaction ---------------- */
+const FIELD = { 'w:span':'Span', 'w:root':'Root chord', 'w:tip':'Tip chord', 'p:span':'Span', 'p:aft':'Aft', 'p:twist':'Twist', 'h:ang':'Angle', 'h:ar':'Angle', 'h:at':'Angle', 'h:lr':'Length', 'h:lt':'Length', 'h:len':'Length' };
+const isLength = fk => !/^h:a|p:twist/.test(fk);
+function commit(inp, nextFk){
+  const fk = inp.dataset.fk, name = FIELD[fk] || 'Value', text = inp.value; let v;
+  try { v = isLength(fk) ? parseLength(text) : Number(text.replace(/−/g, '-')); if (!Number.isFinite(v) || text.trim() === '') throw 0; }
+  catch { S.invalid[fk] = text; S.msgs[fk] = { kind:'error', text:COPY.c118(name) }; S.report = null; render(nextFk); return false; }
+  if (isLength(fk) && (fk.startsWith('w:') || fk.startsWith('h:l')) && v <= 0){ S.invalid[fk] = text; S.msgs[fk] = { kind:'error', text:COPY.c106(name) }; render(nextFk); return false; }
+  delete S.invalid[fk]; delete S.msgs[fk];
+  const echo = !isPlain(text) ? `${text.trim()} = ${f2(v)} mm.` : null;
+  if (fk === 'w:root'){ const k = (v + D.tipMm) / (D.rootMm + D.tipMm); D = { ...D, rootMm:v, areaMm2:D.areaMm2 * k, macMm:D.macMm * k };
+    const rep = Math.abs(v - 152.09) < 1e-9 ? COPY.root152 : Math.abs(v - 190) < 1e-9 ? COPY.root190 : `Root chord ${f2(v)} mm. (Fit report not computed in this mockup.)`;
+    S.msgs[fk] = { kind:/above the limit/.test(rep) ? 'warn' : 'report', text:(echo ? echo + ' ' : '') + rep }; S.report = rep; }
+  else if (fk === 'w:tip'){ const k = (D.rootMm + v) / (D.rootMm + D.tipMm); D = { ...D, tipMm:v, areaMm2:D.areaMm2 * k, macMm:D.macMm * k };
+    const rep = `Tip chord ${f2(v)} mm. (Fit report not computed in this mockup.)`; S.msgs[fk] = { kind:'report', text:(echo ? echo + ' ' : '') + rep }; S.report = rep; }
+  else if (fk === 'w:span'){ const k = v / D.spanMm; D = { ...D, spanMm:v, areaMm2:D.areaMm2 * k }; S.report = `Span ${f2(v)} mm. Estimates updated.`; if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
+  else { S.pv[fk] = v; S.report = `Set ${name.toLowerCase()} to ${f2(v)}${isLength(fk) ? ' mm' : '°'}. MAC ${f1(est(D).mac)} mm.`; if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
+  render(nextFk); return true;
+}
+pane.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t.matches('input[data-fk]')){
+    if (e.key === 'Enter'){ e.preventDefault(); commit(t); }
+    else if (e.key === 'Escape'){ e.preventDefault(); delete S.invalid[t.dataset.fk]; delete S.msgs[t.dataset.fk]; render(); statusEl.textContent = `${FIELD[t.dataset.fk] || 'Value'} restored.`; }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown'){ // proposal DR-UID-2: the canvas nudge ladder in the field
+      const cur = Number(t.value.replace(/−/g, '-')); if (!Number.isFinite(cur)) return; e.preventDefault();
+      const step = (e.metaKey || e.ctrlKey) ? 0.01 : e.shiftKey ? 1 : 0.1; t.value = (cur + (e.key === 'ArrowUp' ? step : -step)).toFixed(2); commit(t); }
+  }
+  if (t.matches('.seg [role="radio"]') && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)){
+    e.preventDefault(); if (t.getAttribute('aria-disabled') === 'true') return;
+    const opts = [...t.parentElement.children], i = opts.indexOf(t), n = opts.length;
+    const j = e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : (i + ((e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1) + n) % n;
+    setKind(opts[j].dataset.v, opts[j].dataset.fk);
+  }
+  if (e.key === 'Escape' && S.state === 'handle' && !t.matches('input')){ e.preventDefault(); goState('anchor'); }
+});
+// UI-39: commit on Return or on leaving the field; leaving keeps focus where the user sent it (class UI-C)
+pane.addEventListener('focusout', e => { const t = e.target; if (rendering || !t.matches('input[data-fk]') || t.value === t.defaultValue) return;
+  const next = e.relatedTarget && pane.contains(e.relatedTarget) ? e.relatedTarget.dataset.fk : null; commit(t, next); });
+function setKind(k, fk){ if (S.kind === k) return; S.kind = k;
+  const rep = k === 'symmetric' ? 'Tangent is now symmetric. Lined up the handle toward the tip.' : k === 'smooth' ? 'Tangent is now smooth.' : 'Tangent is now a corner. The comb shows a break here.';
+  S.msgs.tangent = { kind:'report', text:rep }; S.report = rep; render(); const b = pane.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if (b) b.focus(); }
+pane.addEventListener('click', e => {
+  const b = e.target.closest('button[data-fk]'); if (!b) return; const fk = b.dataset.fk;
+  if (fk.startsWith('grp:')){ const id = fk.slice(4); S.collapsed[id] = !S.collapsed[id]; render(); return; }
+  if (fk.startsWith('tangent:')){ if (b.getAttribute('aria-disabled') !== 'true') setKind(b.dataset.v, fk); return; }
+  if (fk === 'goto-anchor'){ goState('anchor'); return; }
+  if (fk === 'retry'){ goState('foil'); return; }
+  if (fk === 'rec-apply' || fk === 'rec-discard'){ S.report = fk === 'rec-apply' ? 'Recovered edit applied.' : 'Recovered edit discarded. Nothing changed.'; goState('control', true); }
+});
+pane.addEventListener('change', e => { const t = e.target;
+  if (t.matches('select[data-fk="type"]')){ const toAnchor = t.value === 'anchor'; S.msgs = {}; S.msgs.type = { kind:'report', text:toAnchor ? COPY.typeToAnchor : COPY.typeToControl };
+    S.report = S.msgs.type.text; S.state = toAnchor ? 'anchor' : 'control'; $('#h-state').value = S.state; render(); const s = pane.querySelector('select[data-fk="type"]'); if (s) s.focus(); } });
+pane.addEventListener('toggle', e => { if (e.target.matches('details.defs')) S.defs = e.target.open; }, true);
+const pv = (fk, def) => S.pv[fk] ?? def;
+function goState(st, keepReport){ S.state = st; S.msgs = {}; S.invalid = {}; S.pv = {}; if (!keepReport) S.report = null; D = { ...BASE };
+  if (st === 'field-error'){ S.invalid['p:aft'] = '12abc'; S.msgs['p:aft'] = { kind:'error', text:COPY.c118('Aft') }; } $('#h-state').value = st; render(); const f = pane.querySelector('input, select, button'); if (f && document.activeElement === document.body) f.focus(); }
+
+/* ---------------- harness wiring ---------------- */
+function applyHarness(){
+  const w = $('#h-width').value, h = Number($('#h-height').value), th = $('#h-theme').value;
+  frame.style.width = w + 'px'; frame.style.height = (h - 32) + 'px';   // the dock column: the window height less the 32 px strip above the pane tabs seen in the operator captures (title bar, tabs and status bar are drawn inside the frame)
+  frame.dataset.theme = th; $('#frame-before').dataset.theme = th; $('#frame-before').style.width = w + 'px'; $('#frame-before').style.height = (h - 32) + 'px';
+  frame.dataset.persona = $('#h-persona').value; root.dataset.motion = $('#h-motion').checked ? 'reduce' : 'full';
+  $('#compare-wrap').hidden = !$('#h-compare').checked; render();
+}
+['#h-width', '#h-height', '#h-theme', '#h-persona', '#h-motion', '#h-compare'].forEach(s => $(s).addEventListener('change', applyHarness));
+$('#h-state').addEventListener('change', e => goState(e.target.value));
+
+/* ---------------- persona side panel ---------------- */
+function side(){
+  const p = $('#h-persona').value, el = $('#side');
+  if (p === 'keyboard') el.innerHTML = `<h2>Keyboard map (pane)</h2><table>
+    <tr><td><kbd>Tab</kbd> / <kbd>⇧Tab</kbd></td><td>next / previous field; group headers are stops</td></tr>
+    <tr><td><kbd>Return</kbd></td><td>commit the field (one undo step)</td></tr><tr><td><kbd>Esc</kbd> in a field</td><td>restore the shown value</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd> in a number</td><td>step 0.1 · <kbd>⌘</kbd> 0.01 · <kbd>⇧</kbd> 1 (proposal DR-UID-2)</td></tr>
+    <tr><td><kbd>←</kbd> <kbd>→</kbd> on Tangent</td><td>change the kind (radio group, one stop)</td></tr>
+    <tr><td><kbd>Space</kbd> / <kbd>Return</kbd> on a header</td><td>collapse / expand the group</td></tr>
+    <tr><td><kbd>Esc</kbd> on a handle</td><td>select its anchor point</td></tr><tr><td><kbd>F6</kbd></td><td>next region (Plan ↔ Properties)</td></tr></table>`;
+  else if (p === 'sr') { const items = [...pane.querySelectorAll('input, select, [role="radiogroup"], button, [role="group"]')].map(n => {
+      const role = n.getAttribute('role') || ({ INPUT:'text field', SELECT:'pop-up button', BUTTON:'button' }[n.tagName] || n.tagName.toLowerCase());
+      const name = n.getAttribute('aria-label') || (n.getAttribute('aria-labelledby') ? $('#' + n.getAttribute('aria-labelledby'))?.textContent : '') || n.textContent;
+      const desc = (n.getAttribute('aria-describedby') || '').split(' ').filter(Boolean).map(i => document.getElementById(i)?.textContent).join(' ');
+      const val = n.tagName === 'INPUT' ? ` — value “${n.value}”` : n.tagName === 'SELECT' ? ` — ${n.selectedOptions[0]?.text}` : n.getAttribute('aria-expanded') ? ` — ${n.getAttribute('aria-expanded') === 'true' ? 'expanded' : 'collapsed'}` : '';
+      return `<li><b>${esc(role)}</b> “${esc((name || '').trim())}”${esc(val)}${n.getAttribute('aria-invalid') ? ' — invalid' : ''}${desc ? `<br><span>${esc(desc)}</span>` : ''}</li>`; });
+    el.innerHTML = `<h2>Accessible names (computed from the markup)</h2><ul class="a11y">${items.join('')}</ul><p>The status bar is the one polite live region; field errors are alerts tied by aria-describedby.</p>`; }
+  else if (p === 'reviewer') el.innerHTML = `<h2>Row anatomy</h2><p>Every row is one grid: <code>label ${'{prop-label}'}</code> | <code>value 1fr</code> | <code>unit ${'{prop-unit}'}</code>, a 3 px state rail on the left, an optional description and one message line under the value. The dashed guides show the shared label column (Avalonia: <code>SharedSizeGroup</code>).</p><p>Editable rows: input border + 32 px row. Read-only facts: plain text, 24 px row, lock glyph when locked. Estimates: “≈” prefix, plain text.</p>`;
+  else el.innerHTML = `<h2>What changed from the build</h2><p>Labels left, values right-aligned in one column, units in their own column; groups with twirl-down headers; one identity per selection with the canvas glyph; Tangent is a labelled group; a handle shows its anchor’s tangent; Wing pinned at the foot with every estimate unit-bearing and an Unavailable state with its reason.</p><p>Turn on <b>As built beside</b> to compare.</p>`;
+}
+
+/* ---------------- in-artifact audit ---------------- */
+const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const PAIRS = [['--ink', '--surface', 'text', 'value on pane'], ['--mute', '--surface', 'text', 'label / unit on pane'], ['--mute', '--soft', 'text', 'summary on header band'], ['--ink', '--soft', 'text', 'header on band'],
+  ['--warn', '--surface', 'text', 'warning text'], ['--danger', '--surface', 'text', 'error text'],
+  ['--on-accent', '--accent', 'text', 'checked tangent'], ['--accent', '--surface', 'text', 'link / chip'],
+  ['--control', '--surface', 'ui', 'input boundary'], ['--focus', '--surface', 'ui', 'focus ring'], ['--warn', '--soft', 'text', 'Unavailable chip on header band'], ['--accent', '--soft', 'text', 'preview chip on header band'], ['--focus', '--soft', 'ui', 'focus ring on header band']];
+function audit(){
+  const out = [], push = (check, protects, pass, detail) => out.push({ check, protects, pass, detail });
+  const box = frame.getBoundingClientRect();
+  push('page rendered', 'every later number (DC-200)', box.width > 0 && box.height > 0, `${Math.round(box.width)} × ${Math.round(box.height)} px`);
+  if (!(box.width > 0)) return out;
+  const text = pane.innerText;
+  push('no bare “≈ —”', 'D-4: an estimate never blank without its reason', !/≈\s*—/.test(text), /≈\s*—/.test(text) ? 'found' : 'none');
+  push('no unfilled placeholder', 'copy truth (UI-I): no "<reason>", NaN or undefined', !/<[a-z]+>|NaN|undefined/.test(text), '');
+  const q = [...pane.querySelectorAll('[data-q]')], unitless = q.filter(r => !r.dataset.unit && !r.dataset.dimless);
+  push('every quantity carries its unit', 'O-4 / TQ7', unitless.length === 0, `${q.length} quantities, ${unitless.length} without unit${unitless.length ? ': ' + unitless.map(r => r.dataset.q).join(', ') : ''}`);
+  const clipped = [...pane.querySelectorAll('.val input, .val > span')].filter(n => n.scrollWidth > n.clientWidth + 1);
+  push('no value clipped at this width', 'UI-36: no value clipped at the 200 px dock', clipped.length === 0, clipped.length ? clipped.map(n => n.value || n.textContent).join(', ') : `${pane.querySelectorAll('.val').length} values`);
+  const ids = pane.querySelectorAll('.ident').length, open = !['empty', 'pane-error'].includes(S.state);
+  push('one identity per selection', 'O-6: a handle does not reuse its anchor’s header', !open || ids === 1, `${ids} identity header(s)`);
+  const sel = $('#sel'), wg = $('#wing');
+  const fits = sel.scrollHeight <= sel.clientHeight + 1 && (!wg || wg.scrollHeight <= wg.clientHeight + 1);
+  push('selection + Wing fit without scrolling', 'UI-36 at 1280 × 800', $('#h-height').value !== '800' ? null : fits, `selection ${sel.scrollHeight}/${sel.clientHeight} px${wg ? `, Wing ${wg.scrollHeight}/${wg.clientHeight} px` : ''}${$('#h-height').value !== '800' ? ' (not asserted at 900)' : ''}`);
+  const labels = [...pane.querySelectorAll('.row .lbl')].map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val')].map(v => Math.round(v.getBoundingClientRect().right));
+  push('one label column, one value edge', 'F-1: a grid, not a column of text', new Set(labels).size <= 1 && new Set(vals).size <= 1, `${new Set(labels).size} label x, ${new Set(vals).size} value right edges`);
+  const tgt = [...pane.querySelectorAll('input, select, button')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect()).filter(r => r.width < 24 || r.height < 24);
+  push('targets ≥ 24 × 24', 'SC 2.5.8', tgt.length === 0, `${pane.querySelectorAll('input, select, button').length} targets, ${tgt.length} under`);
+  const named = [...pane.querySelectorAll('input')].filter(n => !/millimetres|degrees/.test(n.getAttribute('aria-label') || ''));
+  push('every number field names its unit', 'screen-reader units (O-4)', named.length === 0, named.length ? named.map(n => n.dataset.fk).join(', ') : `${pane.querySelectorAll('input').length} fields`);
+  const lab = [...pane.querySelectorAll('.row')].filter(r => r.querySelector('input,select')).filter(r => !(r.querySelector('input,select').getAttribute('aria-label') || '').toLowerCase().includes(r.querySelector('.lbl').textContent.toLowerCase()));
+  push('visible label inside the name', 'SC 2.5.3 Label in Name', lab.length === 0, lab.length ? lab.map(r => r.querySelector('.lbl').textContent).join(', ') : '');
+  const cs = getComputedStyle(frame);
+  PAIRS.forEach(([fg, bg, kind, what]) => { const a = cs.getPropertyValue(fg).trim(), b = cs.getPropertyValue(bg).trim(); if (a === b && kind === 'ui' && frame.dataset.theme === 'contrast') return;
+    const r = ratio(a, b), need = kind === 'text' ? 4.5 : 3; push(`contrast ${what}`, kind === 'text' ? 'SC 1.4.3' : 'SC 1.4.11', r >= need, `${fg} ${a} on ${bg} ${b}: ${r.toFixed(2)}:1 (need ${need})`); });
+  return out;
+}
+function runAudit(){
+  const res = audit(), fails = res.filter(r => r.pass === false).length;
+  $('#audit-body').innerHTML = res.map(r => `<tr><td>${esc(r.check)}</td><td>${esc(r.protects)}</td><td class="${r.pass === null ? 'n' : r.pass ? 'p' : 'f'}">${r.pass === null ? 'n/a' : r.pass ? 'pass' : 'FAIL'}</td><td>${esc(r.detail)}</td></tr>`).join('');
+  const v = $('#verdict'); v.textContent = fails ? `${fails} check(s) fail` : `${res.length} checks pass`; v.className = 'verdict ' + (fails ? 'fail' : 'pass');
+}
+window.__pg = { audit, goState, setHarness:(o) => { for (const [k, v] of Object.entries(o)){ const el = $('#h-' + k); if (el.type === 'checkbox') el.checked = v; else el.value = v; } applyHarness(); }, states:STATES.map(s => s[0]) };
+applyHarness();
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T20:41:57Z",
+  "generated": "2026-10-01T21:06:23Z",
   "audit": [
     {
       "actor": null,
@@ -21110,6 +21110,42 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M3WMKZ224A6RMMMV1KSK5ZMY",
+      "shortname": "ui-design-property-grid",
+      "datetime": "2026-10-01T21:06:10Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Author track UID for the /ui-design run on the Properties pane (mode elevate). F-1 from the native review docs/reviews/m12b-native.md: the Properties pane \"doesn't look like a properties sheet but just a bunch of text: take inspiration from coding tools and editor tools and CAD tools property sheets, specifically property sheets in VS Code and Adobe Premiere\". Scope: every selection state (no foil; foil; control point; anchor point with Type, Span, Aft, Tangent Smooth/Symmetric/Corner; handle with Angle, Length; named/fixed point; multi-selection Mixed; the Wing block with typed Span/Root/Tip chord, derived estimates, the ≈ preview header and the typed-chord report and warning) and the hard states (empty, field error, warning, Not assessed/unavailable never \"≈ —\", read-only with reason, focus, keyboard). Must carry F-4, O-4, O-6, F-5, and be reusable by M1.2b2's PNL track. Produce the mockup with harness, the hub node, DESIGN.md rows, the review with measurements, findings, ranked plan and an implementation brief; run the craft gate; no app code; a11y veto not the author's to clear.",
+      "summary": "Elevate review of the M1.2b Properties pane: measured as built (3 equal headings, 4 value x-positions, 4/12 quantities without units, 9/9 dark tokens drifted, 1.49:1 input boundary, current tangent kind not shown) -> BLOCK. Proposal: one reusable property grid (selection identity, collapsible groups, label|value|unit rows with kinds and states) in a 22-state mockup with harness; DESIGN.md §12.0f, 6 spacing tokens, 3 component rows, COPY-149..157; browser oracle 396 cells + 13 interactions green (mutant red); craft gate 4 Minor chrome-only, 0 off-token; implementation brief for the M1.2b fix track and PNL; 2 defect classes. A11y veto pending independent review.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/mockups/property-grid.md",
+        "docs/reviews/ui-property-grid.md",
+        "DESIGN.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "An elevated, reusable Properties property-grid design committed on design/property-grid",
+      "done_when": "mockup + hub + DESIGN.md rows + review/brief committed; craft gate run; docs-graph derive and check-docs green; audit entry",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "git": {
+        "sha": "3b396e59c249726f64a4cfac52ef5951f2cb8ded",
+        "short": "3b396e59c",
+        "branch": "design/property-grid",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -21785,6 +21821,31 @@ window.AUDIT_DATA = {
         "pushed": null,
         "commits": []
       }
+    },
+    {
+      "id": "cl-01M3WMMB9BAEPCM63D0J2JD281",
+      "datetime": "2026-10-01T21:06:23Z",
+      "session": "f19a2b12-uid",
+      "kind": "design",
+      "skill": "ui-design",
+      "title": "Properties becomes one reusable property grid",
+      "prompt": "Author track UID for the /ui-design run on the Properties pane (mode elevate). F-1 from the native review docs/reviews/m12b-native.md: the Properties pane \"doesn't look like a properties sheet but just a bunch of text: take inspiration from coding tools and editor tools and CAD tools property sheets, specifically property sheets in VS Code and Adobe Premiere\". Scope: every selection state (no foil; foil; control point; anchor point with Type, Span, Aft, Tangent Smooth/Symmetric/Corner; handle with Angle, Length; named/fixed point; multi-selection Mixed; the Wing block with typed Span/Root/Tip chord, derived estimates, the ≈ preview header and the typed-chord report and warning) and the hard states (empty, field error, warning, Not assessed/unavailable never \"≈ —\", read-only with reason, focus, keyboard). Must carry F-4, O-4, O-6, F-5, and be reusable by M1.2b2's PNL track. Produce the mockup with harness, the hub node, DESIGN.md rows, the review with measurements, findings, ranked plan and an implementation brief; run the craft gate; no app code; a11y veto not the author's to clear.",
+      "summary": "Properties is specified as a property grid: selection identity (one per selection), collapsible groups with remembered state and collapsed summaries, rows of label | value | unit on one shared column with kinds (input, fact, estimate, choice, segmented, action) and states (focus rail, warning, error, unavailable, mixed, locked); Wing pinned at the foot; estimates Unavailable with a reason, never ≈ —.",
+      "rationale": "Operator F-1; VS Code settings rows and state bar, DAP readOnly rows, Premiere twirl-down groups and aligned label column, Fusion expression entry adopted; drag-to-scrub, reset-to-default and boxed groups rejected (review §2).",
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/reviews/ui-property-grid.md",
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "3b396e5",
+        "after": "3b396e59c249726f64a4cfac52ef5951f2cb8ded",
+        "branch": "design/property-grid",
+        "pushed": null,
+        "commits": []
+      },
+      "audit_ref": "al-01M3WMKZ224A6RMMMV1KSK5ZMY"
     }
   ],
   "messages": []

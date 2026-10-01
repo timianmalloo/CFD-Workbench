@@ -1273,3 +1273,35 @@ a curve), and the sign fixture `Placement_SignFixture_PositiveTwistTrailingEdgeD
 **CONTROL-GAMED-BY-RENAME · A name-based retirement control was satisfied by renaming the thing it was meant to retire.** M1.2b design §8 retired the pre-shell rail editing: `RailEditorPane`, `BeginEdit(rail,id)`, `UpdateDraft(si)` and `PatchRail`, "once no caller remains". U2's control, `RailEditorPane_Removed_NoReferencesRemain`, grepped `src/` and `tests/` for those four tokens. U2 deleted the pane and renamed the API (`OpenControlDraft`, `ReviseOrdinate`, `RewriteControlOrdinate`), so the grep passed while the capability, the callers and the whole pre-shell window (`new MainWindow()`, reached only by tests; production always built `MainWindow(shellMode: true)`) remained. Signature: a retirement or absence check that matches identifiers instead of exercising the behaviour.
 
 **Class → sweep → derive → prevent:** derive: a retirement control asks "can a caller still do it?", by construction and by signature, never "is the word still there?". Swept `tests/` for source-scanning controls: this was the only retirement grep. Three others are usage lints (`SelfLaunch.cs`: `Environment.ProcessPath` and the runtime repo-root walk; `Architecture_DockConfinedToShell`). They have the same weakness, since an alias evades a token match; they are recorded here as residual risk, not converted. Control: `RailEditorPane_Removed_NoReferencesRemain` (`tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs`) now (1) constructs `MainWindow` through every public constructor and every bool argument and requires the content to be `ShellHost`; (2) finds, by parameter signature, every public `(string, string, string)` opener and `(string, long, double)` reviser on `AuthoringSession` and every `(string, string)` opener and `(double)` reviser on `WorkbenchController`, invokes them on the Example, and fails if any pair revises one control ordinate; (3) resumes the golden M1.2a rail recovery and fails if any reviser changes it. Red on `2e1c569`: `MainWindow(False, null) builds Grid, not the shell; MainWindow() builds Grid, not the shell; AuthoringSession.BeginRailEdit then ReviseOrdinate revises one control ordinate; AuthoringSession.BeginPointGesture then ReviseOrdinate revises one control ordinate; WorkbenchController.OpenControlDraft then ReviseOrdinate revises one control ordinate; WorkbenchController.ReviseOrdinate revises a resumed rail recovery draft`. A rename cannot pass it. The pre-shell window's own controls retired with it, including NAV-STAR-COLLAPSE's `--theme-controls` matrix, whose subject (the pre-shell navigator) no longer exists; the gate's theme evidence is now the shell matrix `ThemeMatrix_ShellControls_AppliedContrast`.
+
+**UI-TRANSLATION-LOSS · An approved mockup's layout contract is not carried into the native build.** The approved v10
+mockup drew Properties as one grid — label 56 px | input | unit 24 px, collapsible groups, right-aligned mono values
+(`docs/mockups/workbench-v10.html` `.field`, `group()`). The M1.2b build stacks the Wing labels above their values and
+lays point rows out as StackPanels whose input starts wherever its label ends (`PropertiesPane.axaml`:37-72, :75-120;
+four different value x positions in `anchor-handle.png`). The operator called it "a bunch of text" (F-1). Nothing
+failed: the native tests assert values and names, never the layout the operator approved.
+
+**Class → sweep → derive → prevent:** signature: a rule the operator approved that exists only as CSS in a mockup (a
+shared column, a unit column, a precision, a token width) with no native assertion and no Styles.axaml token. Sweep
+(2026-10-01, `3b396e5`, Properties only): lost in translation — the shared label column, the unit column (Root and Tip
+chord, Mean chord, MAC), the groups, derived-length precision 0.1 mm (UI-40; the build shows 0.01), Max t/c in % (the
+build shows the ratio 0.12), "°" (the build shows "deg"). Not swept: Browser, Rail controls, the Plan view chrome —
+Flagged. Derive: every layout rule the operator approves lands as a token or a named native test in the same change
+that builds it. Controls: `tools/check-mockup-property-grid.mjs` "one label column, one value edge" and "every quantity
+carries its unit" (controlled, mockup); `PropertiesPane_Rows_ShareOneLabelColumn` and
+`PropertiesPane_EveryQuantityHasUnitOrIsDimensionless` proposed in `docs/reviews/ui-property-grid.md` §10 for the fix
+track (uncontrolled until they land red-first).
+
+**BLANK-ESTIMATE · A derived value that cannot be computed renders as a dash, with no reason, and takes its neighbours
+with it.** `BindPointAndWing` (`PropertiesPane.axaml.cs`:217-224) writes "≈ —" into all five estimates when
+`estimates is null || !Converged || !IsFinite(MacMeters)`: one non-finite MAC blanks Mean chord, Area and Aspect ratio
+too, and the reason line shows only when `estimates` is not null — and then the raw `Compute.Outcome` string. D-4's
+only visible symptom was "≈ —", which reads the same as "not computed yet".
+
+**Class → sweep → derive → prevent:** signature: a placeholder glyph ("—", "≈ —", "Area: —") standing for a failed
+computation. Sweep (2026-10-01): `PropertiesPane.axaml`:95, 99, 102-110, 118-119; `PropertiesPane.axaml.cs`:218-226;
+`PropertiesView.cs`:134 — eleven sites, one owner. Derive: availability is per quantity; an unavailable value reads
+"Unavailable" and its group states the reason in words (COPY-70, COPY-155), never an outcome code. Controls: the
+mockup oracle's "no bare ≈ —" audit and its unavailable-state interaction (controlled, mockup);
+`PropertiesPane_EstimatesUnavailable_ShowReasonNeverDash` and `PropertiesPane_OneNonFiniteEstimate_OthersStillShown`
+proposed for the fix track with D-4 (uncontrolled until they land red-first).

@@ -1,0 +1,131 @@
+{
+ "file": "docs/mockups/property-grid.html",
+ "date": "2026-10-01T20:59:19.302Z",
+ "cells": 396,
+ "errors": [],
+ "fails": {},
+ "fitAt1280x800": {
+  "empty@200": "fits",
+  "opening@200": "fits",
+  "pane-error@200": "fits",
+  "foil@200": "fits",
+  "control@200": "fits",
+  "anchor@200": "selection 432/398 px, Wing 277/277 px",
+  "handle@200": "fits",
+  "root-le@200": "fits",
+  "root-te@200": "fits",
+  "multi@200": "fits",
+  "station@200": "fits",
+  "drag@200": "fits",
+  "busy@200": "fits",
+  "chord-warning@200": "selection 305/305 px, Wing 392/371 px",
+  "field-error@200": "fits",
+  "unavailable@200": "selection 346/305 px, Wing 429/371 px",
+  "tip-closes@200": "fits",
+  "section@200": "fits",
+  "not-certified@200": "fits",
+  "recovery@200": "fits",
+  "overflow@200": "selection 491/398 px, Wing 277/277 px",
+  "twist@200": "fits",
+  "empty@260": "fits",
+  "opening@260": "fits",
+  "pane-error@260": "fits",
+  "foil@260": "fits",
+  "control@260": "fits",
+  "anchor@260": "fits",
+  "handle@260": "fits",
+  "root-le@260": "fits",
+  "root-te@260": "fits",
+  "multi@260": "fits",
+  "station@260": "fits",
+  "drag@260": "fits",
+  "busy@260": "fits",
+  "chord-warning@260": "fits",
+  "field-error@260": "fits",
+  "unavailable@260": "fits",
+  "tip-closes@260": "fits",
+  "section@260": "fits",
+  "not-certified@260": "fits",
+  "recovery@260": "fits",
+  "overflow@260": "selection 424/401 px, Wing 277/277 px",
+  "twist@260": "fits",
+  "empty@300": "fits",
+  "opening@300": "fits",
+  "pane-error@300": "fits",
+  "foil@300": "fits",
+  "control@300": "fits",
+  "anchor@300": "fits",
+  "handle@300": "fits",
+  "root-le@300": "fits",
+  "root-te@300": "fits",
+  "multi@300": "fits",
+  "station@300": "fits",
+  "drag@300": "fits",
+  "busy@300": "fits",
+  "chord-warning@300": "fits",
+  "field-error@300": "fits",
+  "unavailable@300": "fits",
+  "tip-closes@300": "fits",
+  "section@300": "fits",
+  "not-certified@300": "fits",
+  "recovery@300": "fits",
+  "overflow@300": "selection 407/401 px, Wing 277/277 px",
+  "twist@300": "fits"
+ },
+ "fitGate": [],
+ "interactions": [
+  {
+   "name": "a typed expression is echoed in mm (COPY-157)",
+   "pass": true
+  },
+  {
+   "name": "a non-number is refused with COPY-118, aria-invalid and an alert",
+   "pass": true
+  },
+  {
+   "name": "Escape restores the shown value",
+   "pass": true
+  },
+  {
+   "name": "leaving the field commits and focus lands on the next field",
+   "pass": true
+  },
+  {
+   "name": "estimates are recomputed from their operands after a commit",
+   "pass": true
+  },
+  {
+   "name": "arrow on Tangent selects Symmetric and keeps focus",
+   "pass": true
+  },
+  {
+   "name": "Shift+Up in a length field steps 1 mm and keeps focus",
+   "pass": true
+  },
+  {
+   "name": "a handle shows its parent anchor tangent, labelled (F-4)",
+   "pass": true
+  },
+  {
+   "name": "a handle has its own identity (O-6)",
+   "pass": true
+  },
+  {
+   "name": "Escape on a handle selects its anchor",
+   "pass": true
+  },
+  {
+   "name": "a group collapses, shows its summary and keeps focus",
+   "pass": true
+  },
+  {
+   "name": "a type change reports handles, not \"a point\" (F-5, COPY-154)",
+   "pass": true
+  },
+  {
+   "name": "unavailable estimates say so, never \"≈ —\" (D-4)",
+   "pass": true
+  }
+ ],
+ "ok": true
+}
