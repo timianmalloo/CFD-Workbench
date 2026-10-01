@@ -1335,3 +1335,18 @@ three tests this way). Control: `tools/check-event-subscribers.py` fails on any 
 subscriber in `src/`, except a named allow-list with reasons, and fails when an allow-list entry goes stale. Red-first:
 it reports `Announced` at `b052fe9`; clean at `7048fa1`. Ring: every join (`docs/coordination/join.json` checks);
 cost 0.5 s.
+
+**READINESS-LATE · A track's change trips a readiness-ring gate that only runs after the join.** Twice on
+2026-10-01 a track joined green and readiness then went red on the integration head: PL0's read-only source scans
+(`Directory.EnumerateFiles`) tripped `verify-application-core.py` STORE-SUBSET (`b21d91c`), and PGRID's five new grid
+brushes tripped `verify-application-adapters.py`'s fixed 23-key count (`9f23c68`). Both gates are skipped in the join's
+fast ring by design (TEST-RING), so no track saw them; `main` held correctly, but each cost a fix branch and another
+3.5-minute readiness run after the fact.
+
+**Class → sweep → derive → prevent:** signature: a readiness gate that pins a count, a list or a pattern over files a
+track owns. Sweep: `run-verify-gates.py`'s readiness-only gates are `verify-application-core.py` (STORE-SUBSET partition
+and pattern) and `verify-application-adapters.py` (brush keys, contrast pairs, publish); both fired today. Derive: a
+track whose diff touches `src/` or `tests/` runs `python3 tools/run-readiness.py` in its own worktree before its Return
+and reports the receipt; the Coordinator's briefs carry that line. Control (partial): the adapters gate now derives its
+key count from the named key sets, so a new brush is one set entry, not a magic number. Uncontrolled until a join
+refuses a src/ branch without a green branch-tip receipt — recorded as the upgrade trigger: a third occurrence.
