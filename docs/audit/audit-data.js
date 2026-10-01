@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T05:20:45Z",
+  "generated": "2026-10-01T05:23:06Z",
   "audit": [
     {
       "actor": null,
@@ -21044,6 +21044,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T05:00:16Z",
       "duration_seconds": 1229.0
+    },
+    {
+      "id": "al-01M3TYN4QY3E8767AVHSDWZTB3",
+      "shortname": "join-u3a",
+      "datetime": "2026-10-01T05:23:06Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of m12b-u3-attach into feature/ui-cad-direction",
+      "summary": "12 rows, one bounded attach each, all cgWindowNotFound; NATIVE_REVIEW_BLOCKED; no investigation per operator decision; Codex ended on model capacity recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "record native attach evidence",
+      "done_when": "merged",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T05:22:25Z",
+      "duration_seconds": 41.0
     }
   ],
   "changes": [
