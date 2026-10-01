@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T02:40:40Z",
+  "generated": "2026-10-01T02:49:29Z",
   "audit": [
     {
       "actor": null,
@@ -20620,6 +20620,35 @@ window.AUDIT_DATA = {
         "branch": "m12b-u1b-plan-canvas",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3TNVW06RAJBP3K7YW3VQ71R",
+      "shortname": "join-u1b",
+      "datetime": "2026-10-01T02:49:29Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of m12b-u1b-plan-canvas into feature/ui-cad-direction",
+      "summary": "U1b 43/43 verified; blank-render mutant 43/43 red; 3 identical runs 36-40 s; Plan document + 3D samples document; shell assertions retargeted (1 removed, 1 added, listed); seam grants recorded recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/m12b-u1b-red-runs.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land the Plan canvas",
+      "done_when": "merged; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T02:48:47Z",
+      "duration_seconds": 42.0
     }
   ],
   "changes": [
