@@ -1231,7 +1231,11 @@ shape `NoRuntimeRepoRootWalk`'s narrower pattern missed. Scope note: the scan is
 today (`WorkbenchTests.cs`, `ControllerShellTests.cs` read `"src/CfdWorkbench.Desktop/Assets/example.foil"`)
 but are not yet failing, because `verify-application-adapters.py` always launches them with `cwd=ROOT`; they
 are a residual watch item, not a current violation, and the scan must widen to cover a project the moment any
-gate starts relocating its cwd.
+gate starts relocating its cwd. The fix itself first tripped the STORE-SUBSET control
+(`verify-application-core.py:59-66`): a `File.Exists`-probed fallback in the new `M12bFixtures.Path` read as
+umask-sensitive code outside the declared store-test files. Resolved by dropping the probe — the csproj's new
+`Content` item guarantees the fixture sits at `AppContext.BaseDirectory` under every build shape, so one
+`Path.Combine` is enough, and that control stayed exactly as strict as it was.
 
 **UI-RENDERED-STATE · A control exists while its realized output is absent.** The M1.2a shell passed 390 tests before the operator saw an empty Plan + 3D view after tab re-entry, duplicate tab rows, and an unbound Section canvas. The prior checks inspected control existence and view-model state but never forced a draw after leaving and returning to a Dock document. Sweep: each model document's realized control, visual root, nonzero bounds, and document-specific render input; the selected and no-station Section states.
 

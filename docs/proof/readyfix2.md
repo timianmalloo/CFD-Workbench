@@ -41,11 +41,26 @@ cwd-relative literal, so every fixture read resolved against the wrong directory
 | `PointCommandTests.cs` | `:67` | inline literal → `M12bFixtures.Path(...)` |
 | `ReopenPointEditTests.cs` | `:10` (`Golden`) | inline literal → `M12bFixtures.Path(...)` |
 
-New: `tests/CfdWorkbench.Core.Tests/M12bFixtures.cs` — resolves `AppContext.BaseDirectory` first,
-falling back to the `[CallerFilePath]`-relative source tree, the same shape
-`LayoutFileTests.Fixture` already uses for the layout fixtures. `CfdWorkbench.Core.Tests.csproj`
-gained `<Content Include="Fixtures\m12b\**\*" CopyToOutputDirectory="PreserveNewest" />` so the
-published DLL carries its own fixtures.
+New: `tests/CfdWorkbench.Core.Tests/M12bFixtures.cs` — resolves the fixture path against
+`AppContext.BaseDirectory`. `CfdWorkbench.Core.Tests.csproj` gained
+`<Content Include="Fixtures\m12b\**\*" CopyToOutputDirectory="PreserveNewest" />` so the published
+DLL carries its own fixtures under every build shape (build, run, publish) the readiness gate
+uses, which is what makes a single `BaseDirectory`-relative path sufficient — no existence probe
+needed.
+
+**A second, caught-by-the-existing-control defect:** the first version of `M12bFixtures.Path`
+mirrored `LayoutFileTests.Fixture`'s two-candidate, `File.Exists`-probed resolution. That tripped
+`verify-application-core.py`'s own STORE-SUBSET guard (`tools/verify-application-core.py:59-66`),
+which treats any `File.`/`Directory.` call outside `ProjectStoreTests.cs`/`LayoutFileTests.cs`/
+`PreferenceStoreTests.cs` as umask-sensitive code that must run under every mask —
+`LayoutFileTests.cs` is itself in that exempt set, which is why its own `File.Exists` call was
+never a problem. Fixed by dropping the existence probe: `M12bFixtures.Path` now does one
+`Path.Combine`, which the guard's `SENSITIVE` regex does not match. Red run:
+`STORE-SUBSET: umask/native-sensitive code outside (...) would run at one umask only; move it
+into the store checks or widen the subset: ['CfdWorkbench.Core.Tests/M12bFixtures.cs:16']`
+(and, after a first reword that still said "File." inside a comment, `:8`/`:9` — the regex has no
+comment exemption). Green: `python3 tools/verify-application-core.py` exit 0, including the
+`published`/`owner-stripping`/`missing`/`unloadable` cwd variants.
 
 Confirmed no `"tests/` or `"src/` literal remains in `tests/CfdWorkbench.Core.Tests/*.cs`
 (repo-wide grep, post-fix, zero hits).
