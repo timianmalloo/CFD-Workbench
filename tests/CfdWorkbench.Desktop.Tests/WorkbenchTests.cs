@@ -72,6 +72,13 @@ if (args.Contains("--plan-canvas", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+if (args.Contains("--properties-view", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.PropertiesViewTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
 // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
 if (args.Contains("--readiness", StringComparer.Ordinal))
@@ -352,19 +359,19 @@ var loadedStyles = (Styles)AvaloniaXamlLoader.Load(
     new Uri("avares://CfdWorkbench.Desktop/Styles.axaml"), null);
 var expectedThemeBrushes = new (string Key, string Light, string Dark, string HighContrast)[]
 {
-    ("CanvasBrush", "#f0f2f1", "#101a1d", "#000000"),
-    ("SurfaceBrush", "#fbfcfb", "#17272c", "#000000"),
-    ("SurfaceSoftBrush", "#e8edeb", "#21353a", "#000000"),
-    ("InkBrush", "#1b2929", "#edf4f2", "#ffffff"),
-    ("MutedBrush", "#526362", "#b2c6c2", "#ffffff"),
-    ("LineBrush", "#c9d3cf", "#4e696b", "#ffffff"),
-    ("PrimaryBrush", "#006c67", "#66ddc8", "#ffff00"),
-    ("OnPrimaryBrush", "#ffffff", "#101a1d", "#000000"),
-    ("DangerBrush", "#a92e37", "#ff98a1", "#ffff00"),
+    ("CanvasBrush", "#f0f2f1", "#172326", "#000000"),
+    ("SurfaceBrush", "#fbfcfb", "#1e2d31", "#000000"),
+    ("SurfaceSoftBrush", "#e8edeb", "#2a3d40", "#000000"),
+    ("InkBrush", "#1b2929", "#ebf3f0", "#ffffff"),
+    ("MutedBrush", "#526362", "#b2c4bf", "#ffffff"),
+    ("LineBrush", "#c9d3cf", "#49605b", "#ffffff"),
+    ("PrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
+    ("OnPrimaryBrush", "#ffffff", "#172326", "#000000"),
+    ("DangerBrush", "#a92e37", "#ffaeb5", "#ffee58"),
     ("ViewportBrush", "#17272c", "#17272c", "#000000"),
     ("ViewportGridBrush", "#344b50", "#344b50", "#ffffff"),
     ("ViewportInkBrush", "#edf4f2", "#edf4f2", "#ffffff"),
-    ("FoilBrush", "#85c9c4", "#85c9c4", "#ffff00"),
+    ("FoilBrush", "#85c9c4", "#85c9c4", "#ffee58"),
     ("StationBrush", "#66ddc8", "#66ddc8", "#00ffff")
 };
 void AssertThemeBrushes(bool emit)
@@ -384,8 +391,8 @@ void AssertThemeBrushes(bool emit)
 }
 AssertThemeBrushes(emit: true);
 foreach (var (key, light, dark, highContrast) in new[] {
-    ("SystemControlFocusVisualPrimaryBrush", "#006c67", "#66ddc8", "#ffff00"),
-    ("SystemControlFocusVisualSecondaryBrush", "#1b2929", "#edf4f2", "#ffffff") })
+    ("SystemControlFocusVisualPrimaryBrush", "#006c67", "#88d8c6", "#ffee58"),
+    ("SystemControlFocusVisualSecondaryBrush", "#1b2929", "#ebf3f0", "#ffffff") })
     foreach (var (variant, expected) in new[] {
         (ThemeVariant.Light, light), (ThemeVariant.Dark, dark),
         (NativeReviewThemes.HighContrast, highContrast) })
@@ -408,7 +415,8 @@ AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas"));
+    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas",
+    "--properties-view"));
 
 sealed class UncertainStore : IProjectStore
 {

@@ -153,12 +153,12 @@ public sealed class PlanCanvas : Control
         TooltipText = hoveredPoint is { } point
             ? $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of " +
               $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
-              $"{point.Role.ToString().ToLowerInvariant()} point, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm"
+              $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm"
             : null;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
         double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
         var probe = CfdWorkbench.Core.Planform.Probe(plan, eta);
-        ProbeText = $"η {probe.Eta:F3} · span {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
+        ProbeText = $"η {probe.Eta:F3} · from root {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
             $"LE {probe.LeadingAftMeters * 1000:F2} mm · TE {probe.TrailingAftMeters * 1000:F2} mm · chord {probe.ChordMeters * 1000:F2} mm";
         InvalidateVisual();
     }
@@ -341,7 +341,7 @@ public sealed class PlanCanvas : Control
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
             if (origin is not null)
-                ProbeText += $" · Δ span {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
+                ProbeText += $" · Δ from root {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
                     $" · Δ aft {(target.Ordinate - origin.AftMeters) * 1000:+0.00;-0.00;0.00} mm";
         }
         InvalidateVisual();
@@ -774,7 +774,7 @@ public sealed class PlanCanvas : Control
                     role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
                 }
                 return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
-                    $"{role}, span {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
+                    $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
             }
             protected override Rect GetBoundingRectangleCore()
             {

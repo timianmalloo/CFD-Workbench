@@ -339,7 +339,8 @@ public static class ShellWindowTests
                     Settle(window);
                     foreach (var button in host.GetVisualDescendants().OfType<Button>()
                         .Where(button => button.IsEffectivelyVisible && button.IsEnabled &&
-                            button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true))
+                            button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true &&
+                            button is not ToggleButton { TemplatedParent: Expander }))   // a group header's action is expand/collapse
                     {
                         if (button.Command is not null) continue;
                         var store = typeof(Avalonia.Interactivity.Interactive).GetField("_eventHandlers",
@@ -2285,7 +2286,7 @@ public static class ShellWindowTests
                     Probe(theme, "source.text", () => TextBoxRow(theme, "source.text", source));
                     TextBoxStates(theme, "source", source, window, sidebar, editable: false);
                     // The point fields replace the retired per-control numeric field: a selected free point enables Span.
-                    var freePoint = controller.Planform!.Trailing.Points.First(point => point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly);
+                    var freePoint = controller.Planform!.Trailing.Points.First(point => point.Role == PointRole.Control && point.Freedom == PointFreedom.Free);   // a handle shows angle + length
                     controller.Select(new Selection.Points(new[] { new PointRef(freePoint.Curve, freePoint.Id) }));
                     host.RefreshPanes();
                     Settle(window);
@@ -2394,15 +2395,15 @@ public static class ShellWindowTests
                 var point = U2Control(controller, "trailing");
                 U2Select(controller, window, point);
                 var props = host.Properties;
-                var block = U2Need<Control>(props, "PointBlock");
-                if (!block.IsVisible) throw new InvalidOperationException("Point block is hidden");
-                string heading = U2Text(props, "PointHeading");
+                var block = U2Need<Control>(props, "Group_pos");
+                if (!block.IsVisible) throw new InvalidOperationException("Position group is hidden");
+                string heading = U2Text(props, "IdentityTitle");
                 if (!heading.Contains("Trailing", StringComparison.Ordinal) || !heading.Contains("point", StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("heading: " + heading);
                 var type = U2Need<ComboBox>(props, "TypeControl");
                 if (!type.IsEnabled) throw new InvalidOperationException("Type is not editable on a control point");
                 var choices = U2ComboTexts(type);
-                if (!choices.Contains("Anchor point") || !choices.Contains("Control point"))
+                if (!choices.Contains(TypeAnchorOption) || !choices.Contains("Control point"))
                     throw new InvalidOperationException("Type choices: " + string.Join(", ", choices));
                 if (U2SelectedText(type) != "Control point")
                     throw new InvalidOperationException("Type shows " + U2SelectedText(type));
@@ -2432,8 +2433,8 @@ public static class ShellWindowTests
                 string shown = U2Text(props, "TypeReadOnly");
                 if (!shown.Contains("root", StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("type text: " + shown);
-                if (U2Text(props, "ConstraintText") != "Fixed: the leading edge starts at the root.")
-                    throw new InvalidOperationException("constraint: " + U2Text(props, "ConstraintText"));
+                if (U2Text(props, "Note_pos_0") != "Fixed: the leading edge starts at the root.")
+                    throw new InvalidOperationException("constraint: " + U2Text(props, "Note_pos_0"));
                 if (U2Need<TextBox>(props, "PointSpanInput").IsEnabled)
                     throw new InvalidOperationException("Fixed root span is editable");
             }
@@ -2451,7 +2452,7 @@ public static class ShellWindowTests
                 U2Select(controller, window, point);
                 var type = U2Need<ComboBox>(host.Properties, "TypeControl");
                 type.Focus();
-                U2SelectCombo(type, "Anchor point");
+                U2CommitType(type, TypeAnchorOption);
                 U2WaitIdle(controller, window);
                 var now = U2Reload(controller, point.Curve, point.Id);
                 if (now.Role != PointRole.Anchor)
@@ -2463,7 +2464,7 @@ public static class ShellWindowTests
                 if (gap > 0.002)
                     throw new InvalidOperationException("curve misses the anchor by " + gap.ToString("G4", inv) + " m");
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                if (!status.IsVisible || status.Text != U2Text(host.Properties, "Message_p_type")   /* PG-26: the type report from the operation */ || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("status '" + status.Text + "' controller '" + controller.Status + "'");
                 controller.Undo();
                 Settle(window);
@@ -2493,7 +2494,7 @@ public static class ShellWindowTests
                 if (now.Kind != TangentKind.Symmetric)
                     throw new InvalidOperationException("kind: " + now.Kind);
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                if (status.Text != U2Text(host.Properties, "Message_t_kind")   /* PG-33: the kind report */ || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("tangent status not on the status line");
                 controller.Undo();
                 Settle(window);
@@ -2526,18 +2527,23 @@ public static class ShellWindowTests
                     return string.Join(",", choices.Where(choice => choice.IsChecked == true).Select(choice => choice.Content));
                 }
                 U2Select(controller, window, anchor);
-                if (U2Text(props, "TangentLabel") != "Tangent" || !U2Need<TextBlock>(props, "TangentLabel").IsEffectivelyVisible)
+                // The grid labels the group "Tangent" and the choice "Kind" (DESIGN.md §12.0f).
+                if (U2Text(props, "GroupTitle_tan") != "Tangent" || U2Text(props, "TangentLabel") != "Kind" ||
+                    !U2Need<TextBlock>(props, "TangentLabel").IsEffectivelyVisible)
                     throw new InvalidOperationException("the tangent group has no visible label");
                 if (Checked() != anchor.Kind.ToString()) throw new InvalidOperationException($"anchor kind {anchor.Kind} shown as '{Checked()}'");
                 var handle = controller.Planform!.Trailing.Points.First(p => p.AnchorId == anchor.Id);
                 U2Select(controller, window, handle);
                 if (!U2Need<Control>(props, "TangentGroup").IsEffectivelyVisible || Checked() != anchor.Kind.ToString())
                     throw new InvalidOperationException($"a selected handle does not show its anchor's kind: '{Checked()}'");
-                string heading = U2Text(props, "PointHeading");
-                if (heading != $"Trailing edge · handle of point {anchor.Index + 1}")
-                    throw new InvalidOperationException("handle heading: " + heading);
-                if (U2Text(props, "PointHelper") == AnchorHelper || !U2Text(props, "PointHelper").Contains("handle", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("handle helper: " + U2Text(props, "PointHelper"));
+                // O-6: one identity per selection — the handle by its own name, its anchor as the crumb link.
+                string heading = U2Text(props, "IdentityTitle");
+                string crumb = U2Need<HyperlinkButton>(props, "IdentityCrumbLink").Content?.ToString() ?? "";
+                if (heading is not ("Handle toward the tip" or "Handle toward the root") ||
+                    !crumb.Contains($"Trailing edge · anchor point {anchor.Index + 1}", StringComparison.Ordinal))
+                    throw new InvalidOperationException($"handle identity: {heading} / {crumb}");
+                if (Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(props).OfType<TextBlock>().Any(block => block.IsEffectivelyVisible && block.Text == AnchorHelper))
+                    throw new InvalidOperationException("a handle reuses its anchor's helper");
                 U2Click(U2Need<Button>(props, "TangentSymmetricButton"));
                 U2WaitIdle(controller, window);
                 if (U2Reload(controller, anchor.Curve, anchor.Id).Kind != TangentKind.Symmetric || Checked() != "Symmetric")
@@ -2588,8 +2594,9 @@ public static class ShellWindowTests
             {
                 U2Open(host, window);
                 var plan = controller.Planform!;
-                var handle = plan.Trailing.Points.FirstOrDefault(p => p.Role is PointRole.TipHandle or PointRole.RootHandle)
-                    ?? plan.Leading.Points.First(p => p.Role is PointRole.TipHandle or PointRole.RootHandle);
+                // A tip handle: a root-mirror handle's angle is a locked fact, not a field (COPY-156).
+                var handle = plan.Trailing.Points.FirstOrDefault(p => p.Role is PointRole.TipHandle)
+                    ?? plan.Leading.Points.First(p => p.Role is PointRole.TipHandle);
                 U2Select(controller, window, handle);
                 var angleBox = U2Need<TextBox>(host.Properties, "HandleAngleInput");
                 var lengthBox = U2Need<TextBox>(host.Properties, "HandleLengthInput");
@@ -2630,16 +2637,16 @@ public static class ShellWindowTests
                 var second = plan.Leading.Points.First(p => p.Role == PointRole.Control);
                 controller.Select(new Selection.Points(new[] { new PointRef(first.Curve, first.Id), new PointRef(second.Curve, second.Id) }));
                 Settle(window);
-                if (U2Text(host.Properties, "PointHeading") != "2 points")
-                    throw new InvalidOperationException("heading: " + U2Text(host.Properties, "PointHeading"));
-                var banner = U2Need<TextBlock>(host.Properties, "MixedBanner");
+                if (U2Text(host.Properties, "IdentityTitle") != "2 points")
+                    throw new InvalidOperationException("heading: " + U2Text(host.Properties, "IdentityTitle"));
+                var banner = U2Need<TextBlock>(host.Properties, "Note_pos_0");
                 if (!banner.IsVisible || banner.Text != MixedCopy)
                     throw new InvalidOperationException("mixed banner: " + banner.Text);
                 var type = host.Properties.FindControl<ComboBox>("TypeControl");
                 if (type is { IsEnabled: true, IsEffectivelyVisible: true })
                     throw new InvalidOperationException("Mixed type is editable");
-                if (!U2Text(host.Properties, "TypeReadOnly").Contains("Mixed", StringComparison.Ordinal))
-                    throw new InvalidOperationException("type: " + U2Text(host.Properties, "TypeReadOnly"));
+                if (U2Text(host.Properties, "TypeReadOnly") != "Control point" || U2Text(host.Properties, "Value_p_from") != "Mixed" || U2Text(host.Properties, "Value_p_aft") != "Mixed")   // OI-3: the common type; Mixed values
+                    throw new InvalidOperationException("type/mixed: " + U2Text(host.Properties, "TypeReadOnly") + " / " + U2Text(host.Properties, "Value_p_from"));
                 if (U2Need<TextBox>(host.Properties, "PointSpanInput").IsEnabled)
                     throw new InvalidOperationException("Mixed span is editable");
             }
@@ -2681,7 +2688,7 @@ public static class ShellWindowTests
             {
                 U2Open(host, window);
                 var wing = U2Need<Control>(host.Properties, "WingBlock");
-                string[] labels = ["Span", "Root chord", "Tip chord", "Mean chord", "MAC", "Max t/c", "Aspect ratio", "Area"];
+                string[] labels = ["Span", "Root chord", "Tip chord", "Mean chord", "MAC", "Max t/c", "AR", "Area"];
                 var seen = wing.GetVisualDescendants().OfType<TextBlock>().Select(block => block.Text ?? "").Where(text => labels.Contains(text)).ToList();
                 if (!seen.SequenceEqual(labels))
                     throw new InvalidOperationException("wing order: " + string.Join(" | ", seen));
@@ -2702,6 +2709,8 @@ public static class ShellWindowTests
                 var body = U2Need<TextBlock>(host.Properties, "HowMeasuredBody");
                 if (!body.IsVisible || string.IsNullOrWhiteSpace(body.Text) || !body.Text.Contains("MAC", StringComparison.Ordinal))
                     throw new InvalidOperationException("how-measured body: " + body.Text);
+                // PG-31: the disclosure exposes its expanded state.
+                if (how is not ToggleButton { IsChecked: true }) throw new InvalidOperationException("How these are measured does not expose expanded");
             }
             finally { window.Close(); }
         });
@@ -2727,8 +2736,8 @@ public static class ShellWindowTests
                 string during = U2Text(host.Properties, "MacText");
                 if (during == before || !during.StartsWith("≈", StringComparison.Ordinal))
                     throw new InvalidOperationException("MAC stayed '" + before + "' during the drag");
-                if (!U2Text(host.Properties, "WingHeading").Contains("preview", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("heading: " + U2Text(host.Properties, "WingHeading"));
+                if (!U2Text(host.Properties, "WingChipText").Contains("preview", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("wing chip: " + U2Text(host.Properties, "WingChipText"));
                 Pump(controller.EndGestureAsync(GestureEnd.Escape));
             }
             finally { window.Close(); }
@@ -2773,11 +2782,12 @@ public static class ShellWindowTests
                 controller.UpdateGesture(point.SpanMeters, -1);
                 controller.FlushGestureFrame();
                 Settle(window);
+                // D-4 retired "≈ —": a crossing draft reads Unavailable and the Wing says why (COPY-155).
                 string mac = U2Text(host.Properties, "MacText");
-                if (!mac.Contains('—'))
+                if (mac != "Unavailable")
                     throw new InvalidOperationException("MAC on a crossing draft: " + mac);
-                string reason = U2Text(host.Properties, "WingReasonText");
-                if (!U2Need<TextBlock>(host.Properties, "WingReasonText").IsVisible || string.IsNullOrWhiteSpace(reason))
+                string reason = U2Text(host.Properties, "Note_wing_0");
+                if (!U2Need<TextBlock>(host.Properties, "Note_wing_0").IsEffectivelyVisible || !reason.StartsWith("Unavailable — ", StringComparison.Ordinal))
                     throw new InvalidOperationException("crossing reason is blank");
                 Pump(controller.EndGestureAsync(GestureEnd.Escape));
             }
@@ -2864,7 +2874,7 @@ public static class ShellWindowTests
                 U2Select(controller, window, U2Control(controller, "trailing"));
                 var type = U2Need<ComboBox>(host.Properties, "TypeControl");
                 type.Focus();
-                U2SelectCombo(type, "Anchor point");
+                U2CommitType(type, TypeAnchorOption);
                 Settle(window);
                 if (!type.IsFocused) throw new InvalidOperationException("Type change moved focus");
                 U2WaitIdle(controller, window);
@@ -2943,17 +2953,23 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("control helper");
                 var root = controller.Planform!.Leading.Points.First(p => p.Role == PointRole.RootEnd);
                 U2Select(controller, window, root);
-                if (U2Text(host.Properties, "ConstraintText") != "Fixed: the leading edge starts at the root.")
+                if (U2Text(host.Properties, "Note_pos_0") != "Fixed: the leading edge starts at the root.")
                     throw new InvalidOperationException("root constraint");
                 var tip = controller.Planform.Trailing.Points.FirstOrDefault(p => p.Role == PointRole.TipEnd) ?? controller.Planform.Leading.Points.First(p => p.Role == PointRole.TipEnd);
                 U2Select(controller, window, tip);
+                // A named point states its Type as a locked fact; COPY-149 belongs under an editable anchor's Type.
+                if (U2Text(host.Properties, "TypeReadOnly") != "Tip end")
+                    throw new InvalidOperationException("tip end type: " + U2Text(host.Properties, "TypeReadOnly"));
+                var anchorPoint = controller.Planform.Trailing.Points.First(p => p.Role == PointRole.Control);
+                Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(anchorPoint.Curve, anchorPoint.Id)));
+                U2Select(controller, window, U2Reload(controller, anchorPoint.Curve, anchorPoint.Id));
                 if (U2Text(host.Properties, "PointHelper") != AnchorHelper)
                     throw new InvalidOperationException("anchor helper: " + U2Text(host.Properties, "PointHelper"));
                 var a = controller.Planform.Trailing.Points.First(p => p.Role == PointRole.Control);
                 var b = controller.Planform.Leading.Points.First(p => p.Role == PointRole.Control);
                 controller.Select(new Selection.Points(new[] { new PointRef(a.Curve, a.Id), new PointRef(b.Curve, b.Id) }));
                 Settle(window);
-                if (U2Text(host.Properties, "MixedBanner") != MixedCopy)
+                if (U2Text(host.Properties, "Note_pos_0") != MixedCopy)
                     throw new InvalidOperationException("mixed copy");
             }
             finally { window.Close(); }
@@ -3002,7 +3018,7 @@ public static class ShellWindowTests
                 U2Open(host, window);
                 var trailingPoint = U2Control(controller, "trailing");
                 U2Select(controller, window, trailingPoint);
-                U2SelectCombo(U2Need<ComboBox>(host.Properties, "TypeControl"), "Anchor point");
+                U2CommitType(U2Need<ComboBox>(host.Properties, "TypeControl"), TypeAnchorOption);
                 U2WaitIdle(controller, window);
                 string propertiesStatus = controller.Status;
                 if (U2Reload(controller, trailingPoint.Curve, trailingPoint.Id).Role != PointRole.Anchor)
@@ -3135,7 +3151,8 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("tangent click did not set symmetric");
                 var failures = new List<string>();
                 foreach (var button in host.Properties.GetVisualDescendants().OfType<Button>().Concat(host.Browser.GetVisualDescendants().OfType<Button>())
-                    .Where(button => button.IsEffectivelyVisible && button.IsEnabled && button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true))
+                    .Where(button => button.IsEffectivelyVisible && button.IsEnabled && button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true &&
+                        button is not ToggleButton { TemplatedParent: Expander }))   // a group header expands and collapses
                 {
                     if (!U2HasClick(button)) failures.Add(button.Name ?? button.Content?.ToString() ?? "unnamed");
                 }
@@ -3163,8 +3180,8 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("recovery banner: " + banner.Text);
                 if (controller.Draft is null || controller.Planform?.Basis != "preview")
                     throw new InvalidOperationException("plan is not showing the recovery draft");
-                if (!U2Text(host.Properties, "WingHeading").Contains("preview", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("wing heading does not show the draft: " + U2Text(host.Properties, "WingHeading"));
+                if (!U2Text(host.Properties, "WingChipText").Contains("preview", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("wing chip does not show the draft: " + U2Text(host.Properties, "WingChipText"));
                 string before = controller.AcceptedSource;
                 U2Click(U2Need<Button>(host.Properties, "RecoveryApplyButton"));
                 U2WaitIdle(controller, window);
@@ -3309,8 +3326,22 @@ public static class ShellWindowTests
         Settle(window);
     }
 
+    // The property grid names the parts it builds from the model (rows, notes, values) without registering them in the
+    // pane's name scope, so a part is found by name in the logical tree when the name scope does not hold it.
     private static T U2Need<T>(Control root, string name) where T : Control =>
-        root.FindControl<T>(name) ?? throw new InvalidOperationException("missing " + name);
+        root.FindControl<T>(name)
+        ?? Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(root).OfType<T>().FirstOrDefault(item => item.Name == name)
+        ?? throw new InvalidOperationException("missing " + name);
+
+    private const string TypeAnchorOption = "Anchor point — adds handles (rail gains up to 3 points)";
+
+    // PG-07: a type changes on a pick from the open list (an arrow on the closed box is only pending).
+    private static void U2CommitType(ComboBox type, string text)
+    {
+        type.IsDropDownOpen = true;
+        U2SelectCombo(type, text);
+        type.IsDropDownOpen = false;
+    }
 
     private static string U2Text(Control root, string name) => U2Need<TextBlock>(root, name).Text ?? "";
 

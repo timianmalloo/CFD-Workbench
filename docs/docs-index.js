@@ -4050,6 +4050,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "09bc219f3ec625d9029e88ced4f4253d3a6930b26739c8ef436214a076d3e6e2"
     },
     {
+      "id": "review-property-grid-native",
+      "path": "docs/reviews/property-grid-native.md",
+      "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "The acceptance rows of the property-grid build that only a native session can prove: the VoiceOver trace and AX dump (B2), rendered contrast in three themes at 100 % and 200 % (B4), the field-nudge close gates (B7, B8), and the shell's Return conflict found and fixed by the build. Each row says what to do, what to hear or see, and what passes. The headless build tests cover B1, B3, B5, B6, B9 and B10.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "native-ui",
+        "accessibility",
+        "voiceover",
+        "narrator",
+        "contrast",
+        "m1.2b"
+      ],
+      "links": [
+        {
+          "to": "review-ui-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "12036aff00a5003138a5c82f1019de0f6f12612c27aadc33cc5a2a85cf05fbc7"
+    },
+    {
       "id": "review-proposal-gap-reconciliation",
       "path": "docs/reviews/proposal-gap-reconciliation.md",
       "title": "Final proposal gaps — requirement reconciliation",
@@ -8960,5 +8999,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "1317e0cc03129b2f949f41552e7638005f9a40749c1fe1dce4d4bc5a6b9eaf07"
+  "graphSha256": "c4fd91e838fe5ec9529bf74b9e14a1512a4f93b48884136353b1982e9f039faf"
 };

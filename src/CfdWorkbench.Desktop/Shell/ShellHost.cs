@@ -111,6 +111,12 @@ public sealed class ShellHost : Grid
         Properties = new PropertiesPane();
         Browser = new BrowserPane();
         ModelView = new ModelArea();
+        // PG-26: the pane's polite announcements (reports, availability, "Selected …") go to the always-attached polite
+        // status line; a field error stays on the field's own assertive message.
+        Properties.Announced += (text, live) =>
+        {
+            if (live == Avalonia.Automation.AutomationLiveSetting.Polite) ModelView.ShowStatus(text);
+        };
         ModelView.PlanCanvas.Controller = controller;
         AddHandler(InputElement.KeyDownEvent, OnShellKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
 
@@ -608,6 +614,9 @@ public sealed class ShellHost : Grid
     private void OnShellKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
     {
         if (e.Handled || e.Key != Avalonia.Input.Key.Return) return;
+        // Inside Properties, Return belongs to the focused control: it commits a pending Type or Kind, or toggles a
+        // group header (docs/reviews/ui-property-grid.md §10.4).
+        if (Properties.IsKeyboardFocusWithin) return;
         if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox) return;
         if (SelectedPoint() is null) return;
         if (Properties.FindControl<TextBox>("PointSpanInput") is not { IsEnabled: true } span) return;

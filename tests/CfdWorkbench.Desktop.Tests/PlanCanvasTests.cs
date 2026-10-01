@@ -75,6 +75,9 @@ public static class PlanCanvasTests
                     ?? throw new Exception("Point peer missing");
                 if (point.GetBoundingRectangle().Width < 24 || point.GetBoundingRectangle().Height < 24)
                     throw new Exception("Point peer has no target bounds");
+                // MC-6 (§10.9): a point's spanwise coordinate is "from root"; "span" means only the wing span b.
+                if (!point.GetName().Contains(", from root ", StringComparison.Ordinal) || point.GetName().Contains(", span ", StringComparison.Ordinal))
+                    throw new Exception("Point peer name: " + point.GetName());
                 if (point is not IInvokeProvider invoke)
                     throw new Exception("Point peer cannot invoke the value request");
                 invoke.Invoke();
@@ -177,7 +180,8 @@ public static class PlanCanvasTests
             fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point));
             fixture.Settle();
             if (fixture.Canvas.TooltipText?.Contains("Trailing edge, point 5", StringComparison.Ordinal) != true ||
-                fixture.Canvas.TooltipText?.Contains("span", StringComparison.Ordinal) != true ||
+                fixture.Canvas.TooltipText?.Contains(", from root ", StringComparison.Ordinal) != true ||
+                fixture.Canvas.TooltipText?.Contains(", span ", StringComparison.Ordinal) == true ||
                 Contrast(fixture.RgbNear(point, 10, 0), fixture.BackgroundPixel()) < 3)
                 throw new Exception("Hover tooltip or rendered 10 px ring missing");
         });
@@ -187,9 +191,11 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point) + new Vector(0, 30));
-            if (fixture.Canvas.ProbeText?.Contains("span", StringComparison.Ordinal) != true ||
+            // MC-6 (§10.9): "from root 206.00 mm" with η beside it; the probe never calls a position "span".
+            if (fixture.Canvas.ProbeText?.Contains(" · from root ", StringComparison.Ordinal) != true ||
+                fixture.Canvas.ProbeText?.Contains("· span ", StringComparison.Ordinal) == true ||
                 fixture.Canvas.ProbeText?.Contains("chord", StringComparison.Ordinal) != true)
-                throw new Exception("Tracing probe has no span and chord readout");
+                throw new Exception("Tracing probe has no from-root and chord readout: " + fixture.Canvas.ProbeText);
         });
 
         DesktopChecks.Check("PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle", () =>
