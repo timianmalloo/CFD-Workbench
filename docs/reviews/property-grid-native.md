@@ -14,7 +14,7 @@ review-by: 2026-12-30
 summary: >-
   The acceptance rows of the property-grid build that only a native session can prove: the VoiceOver trace and AX
   dump (B2), rendered contrast in three themes at 100 % and 200 % (B4), the field-nudge close gates (B7, B8), and the
-  shell's Return conflict found by the build. Each row says what to do, what to hear or see, and what passes. The
+  shell's Return conflict found and fixed by the build. Each row says what to do, what to hear or see, and what passes. The
   headless build tests cover B1, B3, B5, B6, B9 and B10.
 review-suggested: []
 ---
@@ -87,14 +87,18 @@ The nudge ships **off** behind `PropertiesFieldNudge.Enabled` (`src/CfdWorkbench
 | B8.1 | On Windows, with the switch on, press ↑ in Aft | Nothing nudges (`PropertiesFieldNudge.OnWindows`); the headless check `FieldNudge_OffOnWindows_UntilNarratorPass` covers it | |
 | B8.2 | A Narrator/UIA pass of B2.1–B2.12 | Recorded before the nudge is turned on for Windows | |
 
-## Found by the build — the shell takes Return
+## Found and fixed by the build — the shell took Return
 
-`ShellHost.OnShellKeyDown` (a tunnel handler) moves focus to the From root field on Return whenever a point is
-selected and focus is not in a text box. That takes Return from the Type box, the Kind group and the group headers,
-so in the shell Return cannot commit a pending Type or Kind (§10.4). The pane's own behaviour is tested headless on
-a standalone pane (`PropertiesViewTests.Lone`). **Fix (outside the property-grid track):** return early in
-`OnShellKeyDown` when `Properties.IsKeyboardFocusWithin`. Then re-run B2.9, B2.10 and the §10.4 walk (B3) in the shell.
+`ShellHost.OnShellKeyDown` (a tunnel handler) moved focus to the From root field on Return whenever a point was
+selected and focus was not in a text box. That took Return from the Type box, the Kind group and the group headers
+(§10.4). **Fixed (repair cycle 1):** the handler returns early when `Properties.IsKeyboardFocusWithin`, so Return
+belongs to the focused control inside Properties. Return on the canvas with a point selected still focuses From root.
+
+Headless evidence, all in the full shell: `Shell_ReturnInProperties_ReachesTheFocusedControl` (Type, Kind and a
+group header), `TypeCombo_ArrowWhileClosed_DoesNotCommit`, `Tangent_KindChange_KeepsFocusOnChecked`,
+`PropertiesPane_KindArrows_MoveCheckOnly_OneUndoRowPerIntent`, `PropertiesPane_KindLeave_CommitsPendingOnce`; the
+canvas path is `Focus_ReturnOnPoint_SpanFieldEscapeBack`.
 
 | # | Do | Pass when | Result |
 |---|---|---|---|
-| R.1 | After the ShellHost fix: B2.9 and B2.10 in the shell | Return commits the pending Type and Kind; focus stays on the control | |
+| R.1 | On the native build: B2.9 and B2.10 in the shell, then Return on the canvas with a point selected | Return commits the pending Type and Kind and focus stays on the control; Return on the canvas still focuses From root | |

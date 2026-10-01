@@ -4059,7 +4059,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-30",
       "reviewSuggested": [],
-      "summary": "The acceptance rows of the property-grid build that only a native session can prove: the VoiceOver trace and AX dump (B2), rendered contrast in three themes at 100 % and 200 % (B4), the field-nudge close gates (B7, B8), and the shell's Return conflict found by the build. Each row says what to do, what to hear or see, and what passes. The headless build tests cover B1, B3, B5, B6, B9 and B10.",
+      "summary": "The acceptance rows of the property-grid build that only a native session can prove: the VoiceOver trace and AX dump (B2), rendered contrast in three themes at 100 % and 200 % (B4), the field-nudge close gates (B7, B8), and the shell's Return conflict found and fixed by the build. Each row says what to do, what to hear or see, and what passes. The headless build tests cover B1, B3, B5, B6, B9 and B10.",
       "tags": [
         "ui-review",
         "properties",
@@ -4086,7 +4086,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "69338dfa0f862d7d13b42c00d7e650160c62058988b31a1bcd033d0a3830c0fd"
+      "sourceSha256": "50d1aa166172421a9451716885e17cd0d2ab263fa2cd907683977f6ad1eaafc6"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -8999,5 +8999,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d79fe59f813366a0e45c2ed5b3f5cc643dfcd0026e0fb8b210d05afab21c2413"
+  "graphSha256": "420fc852aab2fac23906251e5f69d93f4eec0c702e58745eb98f9bb6f6cd0755"
 };
