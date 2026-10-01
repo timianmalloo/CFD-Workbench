@@ -1,0 +1,46 @@
+---
+id: proof-m12b2-golden
+title: "PL0 golden master — planted mutant receipt"
+type: proof-pack
+status: in-review
+owner: "@track-pl0"
+phase: implementation
+tags: [m1.2b2, placement, golden-master, pl0]
+links:
+  - { to: design-m12b2-3d-elevations, rel: depends-on }
+  - { to: adr-0010-one-placement-rule, rel: depends-on }
+review-by: 2026-10-28
+summary: >-
+  The certificate golden master was captured at 3b396e5, before the placement
+  refactor. Reassociating the placed-X product turned the golden test red.
+  Reordering the blend sum did not, because those interval additions commute.
+review-suggested: []
+---
+
+# PL0 golden master receipt
+
+Captured at base `3b396e59c249726f64a4cfac52ef5951f2cb8ded`, before any edit to `Geometry.cs`. The bytes are `docs/proof/m12b2-golden/certificate-bits.json`. The check is `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged`.
+
+The fixture set is the example foil, a two-profile blend with dihedral, a 2 m chord, and a degree-5 profile whose interior knot has multiplicity 5 (a C⁰ thickness peak). Each one certified. The refusing set is the proof budget, cancellation, the Taylor domain (−90°), and the whole-domain 10 nm budget (`1e20` mm trailing edge).
+
+## Planted mutant that turned the check red
+
+In `Geometry.PointAt`, the placed-X product
+
+`abscissa * cos + z * sin`
+
+was reassociated to
+
+`abscissa * (cos + z * sin)`.
+
+`CFD_TEST_ONLY=PlacementRule_CertificateGoldenMaster`, Release, exit 1:
+
+```text
+FAIL PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged InvalidOperationException: example eta 0.25 x 0.5 upper True port False X lower changed. Certificate bits changed. Review the hand-kept models QueryFeasibility, PlacementWidth and BlendPlacementWidth.
+```
+
+The edit was reverted. `git diff` on `Geometry.cs` was empty afterwards.
+
+## Blend-sum reorder, measured
+
+`complement * a + share * b` was reordered to `share * b + complement * a` for both the camber sum and the unit-thickness sum in `SectionExact`. The same check passed. Endpoint-wise rational interval addition commutes, so that reorder is bit-identical on this fixture set. It was reverted as well. A later change to the blend product tree is what the golden master detects; a pure swap of those two addends is not.
