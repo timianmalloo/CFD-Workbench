@@ -154,6 +154,16 @@ SHELL_THEME_ROWS = {
     "viewport.annotation": 4.5, "section.annotation": 4.5,
     "modal.body": 4.5, "modal.save.rest": 4.5, "modal.save.hover": 4.5, "modal.discard.rest": 4.5,
     "modal.discard.hover": 4.5, "modal.cancel.rest": 4.5, "modal.cancel.hover": 4.5,
+    # Pressed and returned (Styles.axaml Button:pressed, ListBoxItem :pressed / :selected:pressed); returned paints as rest.
+    "appbar.sidebar.hover": 4.5, "appbar.sidebar.pressed": 4.5, "appbar.sidebar.returned": 4.5,
+    **{f"modal.{choice}.{state}": 4.5 for choice in ("save", "discard", "cancel") for state in ("pressed", "returned")},
+    **{f"browser.{kind}.{state}": 4.5 for kind in ("selected", "unselected") for state in ("hover", "pressed", "returned")},
+    **{f"tab.Foil source.{kind}.{state}": 4.5 for kind in ("selected", "unselected") for state in ("pressed", "returned")},
+    # TextBox states (Styles.axaml TextBox rules): 4.5 for text, 3 for the caret.
+    "span.hover": 4.5, "span.focus.text": 4.5, "span.focus.caret": 3, "span.focus-hover": 4.5,
+    "span.selection": 4.5, "span.returned": 4.5, "source.focus.text": 4.5, "source.selection": 4.5,
+    # The point fields that replace the retired per-control numeric field.
+    "point-span.text": 4.5, "focus.point-span": 3,
 }
 SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Section.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
 SHELL_THEMES = ("light", "dark", "high-contrast", "default")

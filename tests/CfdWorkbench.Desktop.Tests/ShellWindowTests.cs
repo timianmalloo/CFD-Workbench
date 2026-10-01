@@ -2013,6 +2013,109 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("PointerEntered/Exited did not set :pointerover");
             }
 
+            (Color Ink, Color Back) TextPaint(Control target)
+            {
+                var text = TextVisual(target);
+                return (Solid(PropertyBrush(text, "Foreground"), "ink"), Backing(text));
+            }
+            // A Button takes a framework press, released outside it so no click fires. A list row or a Dock tab takes the
+            // :pressed style state instead, because a real press would select it (the retired matrix's "styled" route).
+            void Press(Control target, Window window, bool press)
+            {
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                var origin = target.TranslatePoint(new Point(4, 4), window)
+                    ?? throw new InvalidOperationException("Press target position unresolvable");
+                if (target is Button)
+                {
+                    if (press)
+                        target.RaiseEvent(new PointerPressedEventArgs(target, pointer, window, origin, 2,
+                            new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+                    else
+                        target.RaiseEvent(new PointerReleasedEventArgs(target, pointer, window, new Point(-100, -100), 3,
+                            new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+                }
+                else if (press) Pseudo(target).Add(":pressed");
+                else Pseudo(target).Remove(":pressed");
+                Settle(window);
+                if (Pseudo(target).Contains(":pressed") != press)
+                    throw new InvalidOperationException($":pressed did not {(press ? "set" : "clear")}");
+            }
+            // Pressed, then returned: hover and press, measure; release outside and leave, measure. Returned must paint as rest.
+            void PressRows(string theme, string prefix, Control target, Window window)
+            {
+                var rest = TextPaint(target);
+                Probe(theme, prefix + ".pressed", () =>
+                {
+                    Hover(target, window, true);
+                    Press(target, window, true);
+                    TextRow(theme, prefix + ".pressed", target);
+                });
+                Probe(theme, prefix + ".returned", () =>
+                {
+                    if (Pseudo(target).Contains(":pressed")) Press(target, window, false);
+                    if (target.IsPointerOver) Hover(target, window, false);
+                    TextRow(theme, prefix + ".returned", target);
+                    if (TextPaint(target) != rest)
+                        throw new InvalidOperationException($"returned paint {TextPaint(target)} differs from rest {rest}");
+                });
+            }
+            void HoverRow(string theme, string row, Control target, Window window)
+            {
+                Probe(theme, row, () =>
+                {
+                    Hover(target, window, true);
+                    TextRow(theme, row, target);
+                    Hover(target, window, false);
+                });
+            }
+            // TextBox states (Styles.axaml TextBox rules): hover, focused text and caret, focus-hover, selection, returned.
+            void TextBoxStates(string theme, string prefix, TextBox box, Window window, Control focusAway, bool editable)
+            {
+                var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
+                var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
+                (Color, Color) Paint() => (Solid(presenter.Foreground, prefix + " ink"), Solid(border.Background, prefix + " backdrop"));
+                var rest = Paint();
+                if (editable)
+                    Probe(theme, prefix + ".hover", () =>
+                    {
+                        Hover(box, window, true);
+                        TextBoxRow(theme, prefix + ".hover", box);
+                        Hover(box, window, false);
+                    });
+                if (!box.Focus(NavigationMethod.Tab)) throw new InvalidOperationException(prefix + " refused keyboard focus");
+                Settle(window);
+                Probe(theme, prefix + ".focus.text", () => TextBoxRow(theme, prefix + ".focus.text", box));
+                if (editable)
+                {
+                    Probe(theme, prefix + ".focus.caret", () =>
+                        Measure(theme, prefix + ".focus.caret", Solid(presenter.CaretBrush, prefix + " caret"), Solid(border.Background, prefix + " backdrop"), 3));
+                    Probe(theme, prefix + ".focus-hover", () =>
+                    {
+                        Hover(box, window, true);
+                        TextBoxRow(theme, prefix + ".focus-hover", box);
+                        Hover(box, window, false);
+                    });
+                }
+                Probe(theme, prefix + ".selection", () =>
+                {
+                    box.SelectAll();
+                    Settle(window);
+                    if (box.SelectionStart == box.SelectionEnd) throw new InvalidOperationException(prefix + " selected nothing");
+                    Measure(theme, prefix + ".selection", Solid(presenter.SelectionForegroundBrush, prefix + " selected ink"),
+                        Solid(presenter.SelectionBrush, prefix + " selection"), 4.5);
+                    box.ClearSelection();
+                });
+                if (editable)
+                    Probe(theme, prefix + ".returned", () =>
+                    {
+                        if (!focusAway.Focus(NavigationMethod.Tab) || box.IsFocused)
+                            throw new InvalidOperationException(prefix + " kept focus");
+                        Settle(window);
+                        TextBoxRow(theme, prefix + ".returned", box);
+                        if (Paint() != rest) throw new InvalidOperationException($"{prefix} returned paint {Paint()} differs from rest {rest}");
+                    });
+            }
+
             // Dock's deferred presenter fades a pane in when its content changes (DeferredContentControl.cs: opacity
             // 0.85 → 1 over a 90 ms DoubleTransition), so a probe after ShowPane could land mid-fade (observed:
             // opacity 0.964 at Animation priority). The matrix measures settled paint, so the fade is off for it;
@@ -2079,6 +2182,7 @@ public static class ShellWindowTests
                         TextRow(theme, "tab.Foil source.unselected.hover", sourceTab);
                         Hover(sourceTab, window, false);
                     });
+                    PressRows(theme, "tab.Foil source.unselected", sourceTab, window);
                     // Focus first, then select: the focus ring must follow the selected state it now surrounds.
                     if (!sourceTab.Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Foil source tab refused keyboard focus");
@@ -2096,6 +2200,7 @@ public static class ShellWindowTests
                         TextRow(theme, "tab.Foil source.selected.hover", sourceTab);
                         Hover(sourceTab, window, false);
                     });
+                    PressRows(theme, "tab.Foil source.selected", sourceTab, window);
 
                     var toolTabs = host.DockHost.GetVisualDescendants().OfType<Control>()
                         .Where(control => control.GetType().Name == "ToolTabStripItem" && control.IsEffectivelyVisible).ToArray();
@@ -2116,7 +2221,10 @@ public static class ShellWindowTests
 
                     var sidebar = host.LeftSidebarToggle;
                     Probe(theme, "appbar.sidebar.rest", () => TextRow(theme, "appbar.sidebar.rest", sidebar));
-                    if (!sidebar.Focus(NavigationMethod.Tab))
+                    HoverRow(theme, "appbar.sidebar.hover", sidebar, window);
+                    PressRows(theme, "appbar.sidebar", sidebar, window);
+                    // The press probes give the button pointer focus; move focus off it so the Tab focus is a real change.
+                    if (!modelTab.Focus(NavigationMethod.Tab) || !sidebar.Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("App-bar button refused keyboard focus");
                     Probe(theme, "focus.appbar", () => RingRow(theme, "focus.appbar", sidebar, window));
 
@@ -2131,6 +2239,11 @@ public static class ShellWindowTests
                     if (!rowItems[0].IsSelected) throw new InvalidOperationException("Example Browser row did not select");
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
+                    foreach (var (item, state) in new[] { (rowItems[0], "selected"), (rowItems[1], "unselected") })
+                    {
+                        HoverRow(theme, $"browser.{state}.hover", item, window);
+                        PressRows(theme, $"browser.{state}", item, window);
+                    }
                     if (!rowItems[1].Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Browser row refused keyboard focus");
                     Probe(theme, "focus.browser", () => RingRow(theme, "focus.browser", rowItems[1], window));
@@ -2152,6 +2265,7 @@ public static class ShellWindowTests
                         presenter.ClearValue(Avalonia.Controls.Documents.TextElement.ForegroundProperty);
                         if (ratio >= 4.5) throw new InvalidOperationException("Painter oracle accepted a low-contrast mutation");
                     });
+                    TextBoxStates(theme, "span", span, window, sidebar, editable: true);
                     if (!span.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Span field refused keyboard focus");
                     span.SelectAll();
                     span.RaiseEvent(new TextInputEventArgs { RoutedEvent = InputElement.TextInputEvent, Text = "1234" });
@@ -2165,6 +2279,19 @@ public static class ShellWindowTests
                     if (!source.IsReadOnly || source.Text != controller.AcceptedSource)
                         throw new InvalidOperationException("Foil source tab lost its read-only accepted text");
                     Probe(theme, "source.text", () => TextBoxRow(theme, "source.text", source));
+                    TextBoxStates(theme, "source", source, window, sidebar, editable: false);
+                    // The point fields replace the retired per-control numeric field: a selected free point enables Span.
+                    var freePoint = controller.Planform!.Trailing.Points.First(point => point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly);
+                    controller.Select(new Selection.Points(new[] { new PointRef(freePoint.Curve, freePoint.Id) }));
+                    host.RefreshPanes();
+                    Settle(window);
+                    var pointSpan = host.Properties.FindControl<TextBox>("PointSpanInput") ?? throw new InvalidOperationException("Point Span field absent");
+                    if (!pointSpan.IsEffectivelyVisible || !pointSpan.IsEnabled)
+                        throw new InvalidOperationException("Point Span field not editable with a free point selected");
+                    Probe(theme, "point-span.text", () => TextBoxRow(theme, "point-span.text", pointSpan));
+                    if (!pointSpan.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Point Span field refused keyboard focus");
+                    Probe(theme, "focus.point-span", () => RingRow(theme, "focus.point-span", pointSpan, window));
+                    if (!sidebar.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Focus could not leave the point Span field");
                     // Annotations and the unsaved-changes modal: rows the retired pre-shell matrix measured on surfaces
                     // the shell still ships.
                     host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
@@ -2199,6 +2326,7 @@ public static class ShellWindowTests
                             TextRow(theme, row + ".hover", modalButtons[choice]);
                             Hover(modalButtons[choice], modal, false);
                         });
+                        PressRows(theme, row, modalButtons[choice], modal);
                     }
                     if (!modalButtons["Cancel"].IsDefault || !modalButtons["Cancel"].IsCancel || !modalButtons["Cancel"].IsFocused)
                         rowFailures.Add($"{theme}/modal: Cancel is not the focused safe default");
@@ -2216,7 +2344,7 @@ public static class ShellWindowTests
                         window.RequestedThemeVariant = ThemeVariant.Dark;
                         Settle(window);
                         Probe(theme, "live-flip.dark.tab.Section.unselected",
-                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[3]));
+                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[4]));
                         Probe(theme, "live-flip.dark.select.tab.Foil source",
                             () => SelectedRow(theme, "live-flip.dark.select.tab.Foil source", sourceTab));
                     }
@@ -3306,12 +3434,13 @@ public static class ShellWindowTests
             if (solid.Color.A == 0) continue;
             if (solid.Color.A != 255)
                 throw new InvalidOperationException($"Partial alpha {solid.Color} on {layer.GetType().Name}");
+            // A uniform positive scale (Fluent's pressed Button shrinks to 0.98) keeps enclosure; rotation or skew is refused.
             var transform = text.TransformToVisual(layer);
-            var origin = text.TranslatePoint(visibleBounds.Position, layer);
-            if (transform is null || Math.Abs(transform.Value.M11 - 1) > 0.000001 || Math.Abs(transform.Value.M22 - 1) > 0.000001 ||
-                origin is null || origin.Value.X < 0 || origin.Value.Y < 0 ||
-                origin.Value.X + visibleBounds.Width > layer.Bounds.Width + .01 ||
-                origin.Value.Y + visibleBounds.Height > layer.Bounds.Height + .01)
+            if (transform is not { } matrix || matrix.M12 != 0 || matrix.M21 != 0 || matrix.M11 <= 0 ||
+                Math.Abs(matrix.M11 - matrix.M22) > 0.000001)
+                throw new InvalidOperationException($"Text transform to {layer.GetType().Name} is not a uniform scale");
+            var area = visibleBounds.TransformToAABB(matrix);
+            if (area.X < -.01 || area.Y < -.01 || area.Right > layer.Bounds.Width + .01 || area.Bottom > layer.Bounds.Height + .01)
                 throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}");
             backing = solid.Color;
         }
