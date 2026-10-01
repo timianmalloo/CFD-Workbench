@@ -285,8 +285,17 @@ public sealed class PlanCanvas : Control
             return;
         }
         var reference = new PointRef(hit.Curve, hit.Id);
+        var buttons = e.GetCurrentPoint(this).Properties;
+        // §11.3 / spec B7: on macOS Control-click is a secondary click and ⌘-click toggles; on Windows Ctrl-click toggles.
+        bool control = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        if (buttons.IsRightButtonPressed || OperatingSystem.IsMacOS() && control && buttons.IsLeftButtonPressed)
+        {
+            OpenPointMenu(reference);
+            e.Handled = true;
+            return;
+        }
         bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
-        bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
         SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
         if (e.ClickCount >= 2) RequestValue(hit);
@@ -339,8 +348,41 @@ public sealed class PlanCanvas : Control
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Selects <paramref name="reference"/> and opens the point menu (D-3). Each row runs the shell command of the same
+    /// name, with the shell's enablement (<see cref="Shell.ShellHost.CanRun"/>).
+    /// </summary>
+    public void OpenPointMenu(PointRef reference)
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
+        SelectPoint(reference, extend: false, toggle: false);
+        FocusPoint(reference);
+        MenuItem Row(string header, string id)
+        {
+            var item = new MenuItem { Header = header, IsEnabled = host.CanRun(id) };
+            item.Click += (_, _) => _ = host.RunCommand(id);
+            return item;
+        }
+        MenuItem[] tangents = [Row("Smooth", "point.tangent-smooth"), Row("Symmetric", "point.tangent-symmetric"), Row("Corner", "point.tangent-corner")];
+        var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
+        var menu = new ContextMenu
+        {
+            ItemsSource = new Control[]
+            {
+                Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Fit", "view.fit")
+            }
+        };
+        // Attached only while shown, so a right-click on empty canvas never opens a stale point menu.
+        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
+        ContextMenu = menu;
+        menu.Open(this);
+    }
+
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        // The point menu is opened on press; keep Avalonia's right-release context request from opening it twice.
+        if (e.InitialPressMouseButton == MouseButton.Right) e.Handled = true;
         base.OnPointerReleased(e);
         if (panOrigin is not null)
         {
@@ -397,6 +439,12 @@ public sealed class PlanCanvas : Control
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
         if (e.Key == Key.Tab) { e.Handled = FocusNext(shift); return; }
         if (e.Key == Key.Space) { SelectFocused(shift); e.Handled = true; return; }
+        if ((e.Key == Key.Apps || e.Key == Key.F10 && shift) && focusedPoint is { } menuTarget)
+        {
+            OpenPointMenu(menuTarget);
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.Escape && panOrigin is not null)
         {
             EndPan(cancel: true);

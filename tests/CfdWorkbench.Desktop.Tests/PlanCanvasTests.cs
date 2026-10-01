@@ -206,6 +206,53 @@ public static class PlanCanvasTests
                 throw new Exception("Command selection did not toggle");
         });
 
+        DesktopChecks.Check("PlanCanvas_SecondaryClickPoint_SelectsAndOpensPointMenu", () =>
+        {
+            // D-3 (docs/reviews/m12b-native.md §3.1, design §11.3 Point type row): Control-click is a secondary click on
+            // macOS; it and right-click select the point and open its menu. Shift+F10 and the menu key do the same.
+            using var fixture = new PlanFixture();
+            var controls = fixture.Controller.Planform!.Trailing.Points.Where(p => p.Role == PointRole.Control).ToArray();
+            var point = controls[0];
+            var other = controls[^1];
+            ContextMenu Open(string how)
+            {
+                if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 1 ||
+                    selected.Items[0].VertexId != point.Id)
+                    throw new Exception(how + " did not select the point alone");
+                if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
+                var items = menu.Items.OfType<MenuItem>().ToArray();
+                string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
+                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Fit:True")
+                    throw new Exception(how + " menu rows: " + rows);
+                string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
+                if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);
+                return menu;
+            }
+            void Close(ContextMenu menu) { menu.Close(); fixture.Settle(); }
+            fixture.Press(other);
+            fixture.Press(point, KeyModifiers.Control);
+            if (OperatingSystem.IsMacOS()) Close(Open("Control-click"));
+            else if (fixture.Controller.Selection is not Selection.Points { Items.Count: 2 })
+                throw new Exception("Ctrl-click no longer toggles on Windows");
+            fixture.Press(other);
+            fixture.DragAt(fixture.Canvas.ScreenPoint(point), default, MouseButton.Right, KeyModifiers.None);
+            Close(Open("Right-click"));
+            fixture.Press(other);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.KeyDown(Key.F10, KeyModifiers.Shift);
+            Close(Open("Shift+F10"));
+            fixture.KeyDown(Key.Apps);
+            var bound = Open("Context-menu key");
+            bound.Items.OfType<MenuItem>().First().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+            for (int i = 0; i < 400 && fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor; i++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            if (fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor)
+                throw new Exception("Make Anchor Point did not run point.make-anchor");
+        });
+
         DesktopChecks.Check("PlanCanvas_SpaceAndShiftSpace_SelectAndToggle", () =>
         {
             using var fixture = new PlanFixture();
