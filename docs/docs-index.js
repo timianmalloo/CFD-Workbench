@@ -1595,6 +1595,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "93ac732f86f2792b257f31e00ef12869535e32a64fa0c3659ebe99de30c29b19"
     },
     {
+      "id": "property-grid-rulings",
+      "path": "docs/notes/property-grid-rulings.md",
+      "title": "Property grid — operator rulings on precision, field nudge, scrubbing, build order and labels",
+      "type": "decision-note",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-03-30",
+      "reviewSuggested": [],
+      "summary": "Operator rulings of 2026-10-01 on the property-grid review. Precision follows the quantity, not the row. The field nudge is adopted for point and handle fields only, as the canvas Nudging gesture. Drag-to-scrub is rejected. A dedicated track builds the component between the M1.2b fix track and PNL. Both root-chord fields stay editable and are labelled. Expressions are set once and say so. A point's spanwise coordinate is \"From root\", with η beside it.",
+      "tags": [
+        "ui",
+        "properties",
+        "property-grid",
+        "precision",
+        "keyboard",
+        "rulings"
+      ],
+      "links": [
+        {
+          "to": "review-ui-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "32912b4696be2f0df2d250e324632ef33a32c549eb1ec99cfac8343e23d47f63"
+    },
+    {
       "id": "thick-client-shell",
       "path": "docs/notes/thick-client-shell.md",
       "title": "The window is the unit — a thick-client shell, not a scrolling page",
@@ -2031,6 +2075,16 @@ window.DOCS_INDEX = {
           "by": "design-m12b2-3d-elevations",
           "on": "2026-09-30",
           "reason": "M1.2b2 design asks seams SR-1..SR-5 before B0/U1b dispatch: rename AftMeters/AftOnly to Ordinate/ValueOnly across PointView, GestureFrame, PlanSample, CombTooth, HandleTarget and UpdateGesture; CurvePointLayer extraction from PlanCanvas; one binary64 channel inversion; curve guard from one table; optional unit-free row rule for rails (F-14). Each has a fallback owned by M1.2b2."
+        },
+        {
+          "by": "mockup-property-grid",
+          "on": "2026-10-01",
+          "reason": "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1."
+        },
+        {
+          "by": "property-grid-rulings",
+          "on": "2026-10-01",
+          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
         }
       ],
       "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
@@ -2117,7 +2171,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6e5a7544897d4c3a60b5959a6d6caec209acd5a5d390709e813743bf06e97ee7"
+      "sourceSha256": "17a458bd420e83c321c09ed642c694ff871866c4140c9cc00b1c6af6c3460968"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2128,7 +2182,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — M1.2b2 (Ruling 56 OI-1; after M1.2b, before M1.2c)",
       "reviewBy": "2027-03-29",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "mockup-property-grid",
+          "on": "2026-10-01",
+          "reason": "PNL should fill the property-grid component (docs/reviews/ui-property-grid.md §10) from PropertiesView.Build by data; channel rows Height (mm), Twist (°), t/c (%) render in the same row kinds; the M1.2b fix track is recommended to build the component first (DR-UID-4)."
+        }
+      ],
       "summary": "Detailed design of slice M1.2b2. FoilDSL §6 (Rule A and the twist/dihedral placement) is written once in Core and instantiated over the certificate's rational intervals (bits unchanged) and over binary64 for every display, bound by a measured test (at most 1 nm outside the certified enclosure). On that rule: a shaded or wireframe 3D view beside the Plan with orbit, pan, zoom, view cube and named cameras; Front and Side elevations drawing the placed foil with dihedral, t/c and twist lanes; and those three channels edited with M1.2b's point, handle and gesture model.",
       "tags": [
         "desktop",
@@ -2215,7 +2275,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "401dcf29ddd871a713fe93241ad27d27c160b3fca16be22680190c6de0a693e6"
+      "sourceSha256": "501e64253d4d9216f38866c57e468b69db697caa0d5c73958addde12a06b8bd9"
     },
     {
       "id": "design-section-editor",
@@ -2370,6 +2430,60 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-property-grid",
+      "path": "docs/mockups/property-grid.md",
+      "title": "CFD-Workbench — the Properties pane as a property grid",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "F-1 from the M1.2b native review, elevated: Properties becomes one reusable property grid — a selection identity, collapsible groups and label | value | unit rows on a shared column — in every selection state (foil, control, anchor with a labelled Tangent group, handle with its anchor's tangent, named points, several points, station) and every hard state, with the Wing block pinned at the foot and an honest Unavailable state in place of \"≈ —\".",
+      "tags": [
+        "mockup",
+        "properties",
+        "property-grid",
+        "native-ui",
+        "m1.2b",
+        "m1.2b2",
+        "wing",
+        "tangent"
+      ],
+      "links": [
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-m12b-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-property-grid",
+          "rel": "tested-by"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "40b3fc471334ad21f6cbd0dd2890b54be2778cba9b696a060c1e5cdaae438efc"
     },
     {
       "id": "mockup-workbench",
@@ -3235,7 +3349,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "31c353b6561beb1c5b14258d8a43b09b1dd3dd9f087469184df405b64a25a3dc"
+      "sourceSha256": "4c4c9adb0d5071a7e9f687077102d441226132d47c2905788dc21e050ace2674"
     },
     {
       "id": "domain-experts",
@@ -3969,6 +4083,63 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2b8da62f2a38a7cd01584a657c60babad502999f9e1db69f28d96fa11a297c23"
+    },
+    {
+      "id": "review-ui-property-grid",
+      "path": "docs/reviews/ui-property-grid.md",
+      "title": "UI review — the Properties pane as a property grid (F-1)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "Elevate-mode review of the M1.2b Properties pane (build c43711a). Measured first: three equal headings, four value x-positions in one block, four of twelve quantities without a unit, nine of nine dark tokens drifted from DESIGN.md, input boundaries at 1.49:1 and no visible current tangent kind. Verdict BLOCK on the as-built pane. The fix is one reusable property grid (identity, groups, label | value | unit rows); building it is the highest-leverage change, and the implementation brief in section 10 maps it to Avalonia for the M1.2b fix track and M1.2b2's PNL track.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "native-ui",
+        "accessibility",
+        "m1.2b",
+        "m1.2b2"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "documents"
+        },
+        {
+          "to": "review-m12b-native",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -8274,6 +8445,16 @@ window.DOCS_INDEX = {
           "by": "design-m12b2-3d-elevations",
           "on": "2026-09-30",
           "reason": "M1.2b2 (ADR-0010) builds the 3D view and Front/Side elevations: F-10 proposes a t/c nudge ladder 0.01/0.1/1 %; F-11 reads CAD-04's body plan as overlaid sections and CAD-06's F as fit-selection; deviations D-2 (Front camera, starboard on the viewer's left), D-9 (quad order), D-10 (Side nose right), D-11 (probe overlay, not a strip)."
+        },
+        {
+          "by": "mockup-property-grid",
+          "on": "2026-10-01",
+          "reason": "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1."
+        },
+        {
+          "by": "property-grid-rulings",
+          "on": "2026-10-01",
+          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..171 proposed; DR-UID-5 amends UI-36 to \\\"the Wing block is pinned and always fully visible; the selection section may scroll; groups stay collapsible and remember state\\\"; a typed twist or t/c past the domain is clamped in Core with a warning echo, as m12b2 says (MC-19)."
         }
       ],
       "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
@@ -8462,7 +8643,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "656e86cf624c0bed720cd359275c3b34efce463b06360207dec52388994c81a9"
+      "sourceSha256": "9a90b984d2667b3ebcfd329747e9d03d931c0fc2c1b5514d8a5d060f0c2812e2"
     },
     {
       "id": "spec-foildsl",
@@ -8622,6 +8803,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v9"
     },
     {
+      "id": "surface-mockups-property-grid",
+      "path": "docs/mockups/property-grid.html",
+      "title": "CFD Workbench — Properties property grid",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-property-grid"
+    },
+    {
       "id": "surface-mockups-design-language",
       "path": "docs/mockups/design-language.html",
       "title": "CFD-Workbench · Design language",
@@ -8741,5 +8930,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "bca81a1f2c225eb44f40188fe410e9c1954ee8e23c3f9b6d5f856b9254a41c57"
+  "graphSha256": "8ea679f88511b9d9ab702ded9113063817eb42052ae17accb8aed611a7cc154f"
 };

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-motion="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD Workbench — Properties property grid</title>
+<!--
+  Direction mockup — the Properties pane as a property grid (F-1 of docs/reviews/m12b-native.md).
+  Self-contained, dependency-free, opens over file://. Every colour, size and radius is a DESIGN.md token.
+  <header class="harness"> and <section class="audit"> are review chrome and never ship.
+  Review record: docs/reviews/ui-property-grid.md · hub: docs/mockups/property-grid.md
+  Every number is Illustrative: the New-foil fixture from the operator captures (build c43711a). Estimates are
+  re-derived from their operands (S, b) on every render; the chord report strings for 152.09 and 190 mm are quoted
+  from docs/design/m12b-points.md §0.1 step 9 and are not computed here.
+-->
+<style>
+:root{
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --r-sm:4px; --r-md:8px;
+  --target-dense:32px; --prop-row-ro:24px; --prop-label:88px; --prop-label-narrow:56px; --prop-unit:32px; --prop-unit-narrow:28px; --prop-head:24px;
+  --fast:120ms; --easing:cubic-bezier(0.2,0,0,1);
+}
+/* product tokens (DESIGN.md colors), scoped to the frame so the harness never inherits them */
+.frame[data-theme="light"]{ --bg:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --sel:#d8eeea; --accent:#006c67; --on-accent:#ffffff; --focus:#006c67; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+.frame[data-theme="dark"]{ --bg:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --sel:#274c47; --accent:#88d8c6; --on-accent:#172326; --focus:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+.frame[data-theme="contrast"]{ --bg:#000000; --surface:#000000; --soft:#000000; --ink:#ffffff; --mute:#ffffff; --line:#ffffff; --control:#ffffff; --sel:#000000; --accent:#ffee58; --on-accent:#000000; --focus:#ffee58; --warn:#ffee58; --danger:#ffee58; --ok:#ffee58; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:#172326; color:#ebf3f0; font:13px/1.4 var(--font); }
+button,input,select{ font:inherit; color:inherit; }
+.sr{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+/* ---------------- harness (review chrome; DESIGN.md dark tokens) ---------------- */
+.harness{ position:sticky; top:0; z-index:10; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:8px 16px; background:#000000; border-bottom:1px solid #49605b; font-size:12px; }
+.harness label{ display:flex; gap:6px; align-items:center; color:#b2c4bf; }
+.harness select{ background:#1e2d31; color:#ebf3f0; border:1px solid #79928c; border-radius:var(--r-sm); min-height:24px; padding:0 4px; }
+.harness .ttl{ font-weight:600; color:#ebf3f0; margin-right:8px; }
+.harness .verdict{ font-family:var(--mono); padding:2px 8px; border-radius:var(--r-sm); margin-left:auto; }
+.verdict.pass{ background:#24653f; color:#ffffff; } .verdict.fail{ background:#a92e37; color:#ffffff; }
+.stage{ display:flex; gap:24px; align-items:flex-start; padding:16px; flex-wrap:wrap; }
+.side{ width:320px; color:#b2c4bf; font-size:12px; } .side h2{ font-size:13px; color:#ebf3f0; margin:0 0 6px; } .side table{ border-collapse:collapse; width:100%; } .side td{ padding:2px 4px; border-bottom:1px solid #2a3d40; vertical-align:top; } .side code{ color:#ebf3f0; }
+.side .a11y li{ margin:2px 0; } .side kbd{ font-family:var(--mono); color:#ebf3f0; }
+.cap{ font-size:12px; color:#b2c4bf; margin:0 0 6px; }
+
+/* ---------------- the frame: a slice of the app window (title bar, dock, status bar) ---------------- */
+.frame{ display:flex; flex-direction:column; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:var(--r-md); overflow:hidden; }
+.titlebar{ flex:0 0 28px; display:flex; align-items:center; padding:0 10px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.tabs{ flex:0 0 34px; display:flex; align-items:stretch; background:var(--surface); border-bottom:1px solid var(--line); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-size:12px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span[aria-current]{ color:var(--ink); border-bottom-color:var(--accent); }
+.statusbar{ flex:0 0 24px; display:flex; align-items:center; padding:0 10px; background:var(--surface); border-top:1px solid var(--line); font-size:12px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ---------------- the pane ---------------- */
+.pane{ flex:1; min-height:0; display:flex; flex-direction:column; background:var(--surface); container-type:inline-size; container-name:pane; }
+.sel{ flex:1; min-height:0; overflow:auto; }
+.wing{ flex:none; max-height:55%; overflow:auto; border-top:2px solid var(--control); background:var(--surface); }
+
+/* identity: one per selection (O-6) */
+.ident{ display:grid; grid-template-columns:16px minmax(0,1fr); gap:2px 8px; align-items:center; padding:8px 12px 6px; border-bottom:1px solid var(--line); }
+.ident svg{ width:16px; height:16px; } .ident h2{ margin:0; font-size:14px; font-weight:600; line-height:1.3; overflow-wrap:anywhere; }
+.ident .crumb{ grid-column:2; color:var(--mute); font-size:12px; overflow-wrap:anywhere; }
+.ident .crumb button{ background:none; border:0; padding:0; color:var(--accent); text-decoration:underline; cursor:pointer; min-height:24px; }
+
+/* banners (recovery, not certified) */
+.banner{ display:grid; grid-template-columns:16px minmax(0,1fr); gap:6px; padding:8px 12px; border-bottom:1px solid var(--line); background:var(--soft); font-size:12px; }
+.banner svg{ width:16px; height:16px; margin-top:1px; } .banner .acts{ grid-column:2; display:flex; gap:8px; margin-top:6px; }
+
+/* group: header band + rows (Premiere twirl-down; VS Code settings section) */
+.grp + .grp{ border-top:1px solid var(--line); }
+.grp-h{ margin:0; }
+.grp-h button, .grp-h .static{ width:100%; display:flex; align-items:center; gap:6px; min-height:var(--prop-head); padding:0 12px; background:var(--soft); border:0; text-align:left; font-size:13px; font-weight:600; color:var(--ink); cursor:pointer; }
+.grp-h .static{ cursor:default; }
+.grp-h .chev{ width:10px; height:10px; flex:none; transition:transform var(--fast) var(--easing); }
+.grp-h button[aria-expanded="false"] .chev{ transform:rotate(-90deg); }
+.grp-h .sum{ margin-left:auto; font-weight:400; font-size:12px; color:var(--mute); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:55%; }
+.chip{ margin-left:auto; font-size:12px; font-weight:600; padding:0 6px; border:1px solid currentColor; border-radius:var(--r-sm); white-space:nowrap; }
+.chip.preview{ color:var(--accent); } .chip.unavail{ color:var(--warn); } .chip.busy{ color:var(--mute); }
+.grp-b{ padding:0 0 4px; } .grp-b[hidden]{ display:none; }
+.sub{ padding:6px 12px 0 15px; font-size:12px; font-weight:600; color:var(--mute); }
+.note{ padding:4px 12px 2px 15px; font-size:12px; color:var(--mute); display:flex; gap:6px; }
+.note svg{ width:12px; height:12px; flex:none; margin-top:2px; }
+.rule{ height:0; border-top:1px solid var(--line); margin:6px 12px 0 15px; }
+
+/* the row: label | value | unit, with a 3 px state rail (VS Code's modified bar, used here for state) */
+.row{ display:grid; grid-template-columns:var(--prop-label) minmax(0,1fr) var(--prop-unit); column-gap:6px; align-items:center; min-height:var(--prop-row-ro); padding:0 12px 0 12px; border-left:3px solid transparent; }
+.row.edit{ min-height:var(--target-dense); }
+@container pane (max-width: 230px){ .row{ grid-template-columns:var(--prop-label-narrow) minmax(0,1fr) var(--prop-unit-narrow); column-gap:4px; } .val input{ padding:0 4px; } }
+.row:focus-within:not([data-state]){ border-left-color:var(--focus); }   /* focused row: the rail, not a fill (a fill drops the input boundary under 3:1) */
+.row[data-state="warning"]{ border-left-color:var(--warn); } .row[data-state="error"]{ border-left-color:var(--danger); }
+.row[data-state="unavailable"]{ border-left-color:var(--warn); }
+.lbl{ font-size:13px; color:var(--mute); white-space:normal; overflow-wrap:break-word; line-height:1.25; cursor:default; }   /* PG-03: a label wraps, it is never ellipsized */
+.row.edit .lbl{ cursor:pointer; }
+.val{ min-width:0; text-align:right; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums; color:var(--ink); overflow-wrap:anywhere; }
+.val.txt{ font-family:var(--font); text-align:left; }
+.val .lock{ width:11px; height:11px; vertical-align:-1px; margin-right:4px; }
+.unit{ font-size:12px; color:var(--mute); white-space:nowrap; }
+.val input{ width:100%; min-width:0; height:28px; padding:0 6px; text-align:right; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums; background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:var(--r-sm); }
+.val input:hover{ background:var(--soft); }
+.val input[aria-invalid="true"]{ border-color:var(--danger); border-width:2px; }
+.val select{ width:100%; height:28px; padding:0 4px; font-family:var(--font); background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:var(--r-sm); }
+.val select:disabled{ border-style:dashed; }
+input:focus-visible, select:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
+.radios button:focus-visible{ outline-offset:-2px; }   /* PG-05: inset, so no parent clip can hide it */
+.msg{ grid-column:1 / -1; display:flex; gap:6px; padding:2px 0 4px; font-size:12px; line-height:1.35; color:var(--mute); text-align:left; font-family:var(--font); }
+.msg svg{ width:12px; height:12px; flex:none; margin-top:2px; }
+.msg.warn{ color:var(--warn); } .msg.error{ color:var(--danger); } .msg.report, .msg.echo{ color:var(--ink); }
+.desc{ grid-column:1 / -1; font-size:12px; color:var(--mute); padding:0 0 4px; line-height:1.35; }
+
+/* Tangent kind (PG-02): a vertical radio list, one option per line, never truncated; checked = filled dot (shape) + weight */
+.radios{ display:flex; flex-direction:column; gap:0; }
+.radios button{ display:flex; align-items:center; gap:8px; min-height:26px; padding:0 4px; border:0; background:none; color:var(--ink); font-size:13px; text-align:left; cursor:pointer; white-space:normal; }
+.radios .dot{ flex:none; width:14px; height:14px; border-radius:50%; border:1.5px solid var(--control); display:grid; place-items:center; }
+.radios button[aria-checked="true"]{ font-weight:600; }
+.radios button[aria-checked="true"] .dot{ border-color:var(--accent); }
+.radios button[aria-checked="true"] .dot::after{ content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); }
+.radios[aria-disabled="true"] button{ cursor:not-allowed; }
+.row.span3 .val{ grid-column:2 / 4; text-align:left; font-family:var(--font); }
+
+.btn{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:var(--r-sm); background:var(--soft); color:var(--ink); cursor:pointer; }
+.btn.primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+.banner .btn:not(.primary){ border-color:var(--mute); background:var(--surface); }   /* PG-13: 5.34:1 boundary on the band */
+.linkbtn{ background:none; border:0; padding:0; min-height:24px; color:var(--accent); text-decoration:underline; cursor:pointer; font-size:12px; }
+
+details.defs{ padding:2px 12px 0 15px; } details.defs > summary{ min-height:24px; display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:600; color:var(--ink); list-style:none; }
+details.defs > summary::-webkit-details-marker{ display:none; } details.defs > summary::before{ content:"▸"; color:var(--mute); } details.defs[open] > summary::before{ content:"▾"; }
+details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-size:12px; }
+
+.empty{ padding:16px 12px; } .empty h2{ margin:0 0 6px; font-size:14px; } .empty p{ margin:0; color:var(--mute); font-size:12px; }
+.skel{ height:12px; margin:10px 12px; border-radius:var(--r-sm); background:var(--soft); }
+
+/* reviewer persona: column guides */
+.frame[data-persona="reviewer"] .row{ background-image:linear-gradient(var(--line),var(--line)); background-size:1px 100%; background-repeat:no-repeat; background-position:calc(12px + var(--prop-label) + 3px) 0; outline:1px dashed var(--line); outline-offset:-1px; }
+
+/* as-built replica (compare) */
+.asbuilt{ font-size:14px; } .asbuilt .pad{ padding:16px; display:flex; flex-direction:column; gap:12px; overflow:hidden; }
+.asbuilt h3{ margin:0; font-size:18px; } .asbuilt .cap2{ font-size:12px; color:var(--mute); }
+.asbuilt .hz{ display:flex; gap:8px; align-items:center; } .asbuilt .box{ border:1px solid var(--line); border-radius:var(--r-sm); padding:4px 8px; background:var(--surface); }
+.asbuilt .wingb{ border:1px solid var(--line); background:var(--soft); padding:12px; display:flex; flex-direction:column; gap:8px; }
+
+:root[data-motion="reduce"] *{ transition:none !important; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+
+.audit{ margin:0 16px 24px; padding:12px; border:1px solid #49605b; border-radius:var(--r-md); background:#1e2d31; color:#ebf3f0; font-size:12px; }
+.audit h2{ margin:0 0 8px; font-size:13px; } .audit table{ border-collapse:collapse; width:100%; } .audit td, .audit th{ text-align:left; padding:3px 6px; border-bottom:1px solid #2a3d40; vertical-align:top; } .audit th{ color:#b2c4bf; }
+.audit .p{ color:#92d1a5; } .audit .f{ color:#ffaeb5; } .audit .n{ color:#b2c4bf; }
+</style>
+</head>
+<body>
+<header class="harness" aria-label="Review harness">
+  <span class="ttl">Property grid · review harness</span>
+  <label>Persona <select id="h-persona"><option value="designer">Designer (pointer)</option><option value="keyboard">Keyboard only</option><option value="sr">Screen reader (names)</option><option value="reviewer">Reviewer (column guides)</option></select></label>
+  <label>Pane width <select id="h-width"><option value="200">200 px (narrowest dock)</option><option value="260" selected>260 px (dock-left)</option><option value="300">300 px (dock-right)</option></select></label>
+  <label>Window <select id="h-height"><option value="800" selected>1280 × 800</option><option value="900">1440 × 900</option></select></label>
+  <label>State <select id="h-state"></select></label>
+  <label>Theme <select id="h-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
+  <label><input type="checkbox" id="h-motion"> Reduced motion</label>
+  <label><input type="checkbox" id="h-compare"> As built beside</label>
+  <span class="verdict" id="verdict" role="status">…</span>
+</header>
+
+<main class="stage">
+  <div>
+    <p class="cap" id="cap-after">Proposed — property grid</p>
+    <div class="frame" id="frame" data-theme="light" data-persona="designer">
+      <div class="titlebar" aria-hidden="true">CFD Workbench — Untitled.foil</div>
+      <div class="tabs" aria-hidden="true"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
+      <section class="pane" id="pane" aria-label="Properties"></section>
+      <div class="statusbar" id="status" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <div id="compare-wrap" hidden>
+    <p class="cap">As built (c43711a, reconstructed from PropertiesPane.axaml and anchor-handle.png)</p>
+    <div class="frame asbuilt" id="frame-before" data-theme="light" aria-label="As-built Properties pane, for comparison" role="img">
+      <div class="titlebar">CFD Workbench — Untitled.foil</div>
+      <div class="tabs"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
+      <div class="pane"><div class="pad">
+        <h3>Untitled</h3>
+        <div><b>Foil</b><div class="hz"><span class="cap2" style="width:100px">Name</span>Untitled</div><div class="hz"><span class="cap2" style="width:100px">Stations</span>2</div></div>
+        <h3>Trailing edge · point 7 of 14</h3>
+        <div class="cap2">An anchor point is on the curve. Its handles set the curve's direction on each side.</div>
+        <div>Anchor handle</div>
+        <div class="hz">Span <span class="box">341.06</span> <span class="cap2">mm</span></div>
+        <div class="hz">Aft <span class="box">151.18</span> <span class="cap2">mm</span></div>
+        <div class="hz">Angle <span class="box">-21.08</span> <span class="cap2">deg</span></div>
+        <div class="hz">Length <span class="box">20.80</span> <span class="cap2">mm</span></div>
+        <div class="wingb"><h3>Wing</h3>Span<div class="hz"><span class="box" style="flex:1">1000.0</span> mm</div><span class="cap2">Root chord</span><span class="box">126.74</span><span class="cap2">Tip chord</span><span class="box">12.67</span>Mean chord<span>≈ —</span>MAC<span>≈ —</span></div>
+      </div></div>
+      <div class="statusbar">Point change applied as one accepted source revision.</div>
+    </div>
+  </div>
+  <aside class="side" id="side" aria-label="Persona panel"></aside>
+</main>
+
+<section class="audit" aria-labelledby="audit-h">
+  <h2 id="audit-h">In-artifact checks (this state, this theme, this width) — each names what it protects</h2>
+  <table><thead><tr><th>Check</th><th>Protects</th><th>Result</th><th>Detail</th></tr></thead><tbody id="audit-body"></tbody></table>
+</section>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s), root = document.documentElement, frame = $('#frame'), pane = $('#pane'), statusEl = $('#status');
+const MINUS = '−';
+const sgn = s => s.replace(/^-/, MINUS);
+const f2 = v => sgn(v.toFixed(2)), f1 = v => sgn(v.toFixed(1)), f3 = v => sgn(v.toFixed(3));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const HALF = 500;   // half-span of the fixture, mm (η = from root / half-span)
+// Stand-in for Core (review chrome): the pane never holds a domain constant; it asks Core to clamp and echoes Core's
+// number (MC-19). 57.30 is the value m12b2 §11.4 quotes for Geometry.TwistDomainDegrees — Illustrative here.
+const CORE = { twistDomainDegrees:57.30, clampTwist(v){ const d = this.twistDomainDegrees; return Math.abs(v) > d ? { v:Math.sign(v) * d, clamped:true } : { v, clamped:false }; },
+  // assume: Geometry.ThicknessDomain is an open interval inside (0 %, 100 %) whose value is not yet published (m12b2 §3.4);
+  // the stub bounds below are one display step inside it — Illustrative; the build reads the bounds from Core.
+  tcDomainPct:[0.01, 99.99], clampTc(v){ const [lo, hi] = this.tcDomainPct; return v > hi ? { v:hi, clamped:true, side:'largest' } : v < lo ? { v:lo, clamped:true, side:'smallest' } : { v, clamped:false }; } };
+// PG-24: spoken forms of abbreviations, so a screen reader does not say "ar" or "t slash c"
+const SPOKEN_LABEL = { 'AR':'AR, aspect ratio', 'Max t/c':'Max t over c', 't/c here':'t over c here', 't/c':'t over c' };
+
+/* ---------------- fixture: the New foil of the operator captures (Illustrative) ---------------- */
+const BASE = { name:'Untitled', stations:2, spanMm:1000, rootMm:126.74, tipMm:12.67, areaMm2:99600, macMm:107.11, maxTc:0.120 };
+let D = { ...BASE };
+const est = d => ({ mean: d.areaMm2 / d.spanMm, mac: d.macMm, tc: d.maxTc * 100, ar: d.spanMm * d.spanMm / d.areaMm2, cm2: d.areaMm2 / 100 });
+
+/* ---------------- units: one table — display, spoken, unit family (§10.2) ---------------- */
+const UNIT = { 'mm':{ spoken:'millimetres' }, '°':{ spoken:'degrees' }, '%':{ spoken:'percent' }, 'cm²':{ spoken:'square centimetres' }, 'b²/S':{ spoken:'b squared over S' }, '% c':{ spoken:'percent of chord' } };
+
+/* ---------------- icons (inline, aria-hidden) ---------------- */
+const IC = {
+  chev:'<svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  warn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.5 11H.5Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 4.5v3M6 9v.8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  err:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 4l4 4M8 4 4 8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  ok:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 5.5v3.5M6 3v.8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  lock:'<svg class="lock" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+  // selection glyphs: the same shapes as the Plan view (DESIGN.md Point row) so the pane and the canvas read as one object
+  anchor:'<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  control:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="currentColor"/></svg>',
+  end:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  handle:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 13 9 6" stroke="currentColor"/><circle cx="11" cy="5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  multi:'<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="11" r="2.5" fill="currentColor"/><circle cx="8" cy="7" r="2.5" fill="currentColor"/><circle cx="12" cy="4" r="2.5" fill="currentColor"/></svg>',
+  station:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v14" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/></svg>',
+  foil:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 9Q8 2 15 8Q8 12 1 9Z" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+};
+
+/* ---------------- unit-aware entry (MC-4): one grammar, a unit column per family ---------------- */
+// families: len (mm · cm · m; # references) · ang (° · deg · rad) · pct (%); a bare number is in the field's unit.
+// simplify: values are carried as plain scalars in the field unit (no dimension algebra); ceiling: length × length is
+// accepted as a number; upgrade trigger: the product's LengthExpression / unit-family contract this mockup illustrates.
+const FAMILY = { len:{ unit:'mm', units:{ mm:1, cm:10, m:1000 } }, ang:{ unit:'°', units:{ '°':1, deg:1, rad:180 / Math.PI } }, pct:{ unit:'%', units:{ '%':1 } } };
+const REFS = { span:['Span', () => D.spanMm], root_chord:['Root chord', () => D.rootMm], tip_chord:['Tip chord', () => D.tipMm] };
+function parseQty(text, fam){
+  const src = text.replace(/−/g, '-').trim(), F = FAMILY[fam], used = []; let i = 0;
+  const ws = () => { while (src[i] === ' ') i++; };
+  const num = () => { ws();
+    if (src[i] === '#'){ const m = /^#([a-z_]+)/.exec(src.slice(i)); if (fam !== 'len' || !m || !(m[1] in REFS)) throw 0; i += m[0].length; used.push(REFS[m[1]][0]); return REFS[m[1]][1](); }
+    if (src[i] === '('){ i++; const v = sum(); ws(); if (src[i] !== ')') throw 0; i++; return v; }
+    if (src[i] === '-'){ i++; return -num(); }
+    const m = /^\d+(\.\d+)?|^\.\d+/.exec(src.slice(i)); if (!m) throw 0; i += m[0].length; ws();
+    let v = Number(m[0]); const u = /^(mm|cm|m|deg|rad|°|%)(?![a-z])/.exec(src.slice(i));
+    if (u){ if (!(u[1] in F.units)) throw 0; i += u[0].length; v *= F.units[u[1]]; } return v; };
+  const prod = () => { let v = num(); for (;;){ ws(); const c = src[i]; if (c === '*' || c === '×'){ i++; v *= num(); } else if (c === '/' || c === '÷'){ i++; v /= num(); } else return v; } };
+  const sum = () => { let v = prod(); for (;;){ ws(); const c = src[i]; if (c === '+'){ i++; v += prod(); } else if (c === '-'){ i++; v -= prod(); } else return v; } };
+  if (!src) throw 0; const v = sum(); ws(); if (i !== src.length || !Number.isFinite(v)) throw 0; return { v, used };
+}
+const isPlain = t => /^\s*[-−]?\d+(\.\d+)?\s*$/.test(t);
+
+/* ---------------- state ---------------- */
+const S = { pv:{}, state:'anchor', kind:'smooth', pendingKind:null, pendingType:null, collapsed:{ rail:true }, msgs:{}, invalid:{}, report:null, undo:0, run:null, alerted:new Set() };
+const pv = (fk, def) => S.pv[fk] ?? def;
+const STATES = [
+  ['empty', 'Empty — no foil open'], ['opening', 'Loading — opening a file'], ['pane-error', 'Error — pane could not render'],
+  ['foil', 'Foil — nothing selected'], ['control', 'Control point'], ['anchor', 'Anchor point (Tangent)'], ['handle', 'Handle (parent tangent shown, F-4)'],
+  ['root-le', 'Named point — LE root end (fixed)'], ['root-te', 'Named point — TE root end (= root chord, MC-2)'], ['root-handle', 'Root-mirror handle (span only)'],
+  ['tip-end', 'Named point — TE tip end (aft only)'], ['tip-handle', 'Tip handle'], ['multi', 'Multi-selection — Mixed (OI-3)'],
+  ['station', 'Station'], ['drag', 'During a drag — ≈ preview'], ['busy', 'Checking the last change'], ['chord-warning', 'Typed chord above the fit limit (warning)'],
+  ['field-error', 'Field validation error'], ['unavailable', 'Estimates unavailable (D-4 honest state)'], ['partial-unavailable', 'One estimate unavailable (MAC)'], ['tip-closes', 'Tip closes'],
+  ['section', 'Section editor — Wing read-only'], ['not-certified', 'Foil not checked — read-only'], ['recovery', 'Recovered edit'],
+  ['overflow', 'Overflow — long name, extreme values'], ['twist', 'M1.2b2 — Twist control point'], ['twist-anchor', 'M1.2b2 — Twist anchor point'],
+  ['twist-handle', 'M1.2b2 — Twist handle'], ['twist-clamped', 'M1.2b2 — Twist clamped during a drag'], ['tc-point', 'M1.2b2 — Thickness t/c point']
+];
+$('#h-state').innerHTML = STATES.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('');
+$('#h-state').value = S.state;
+
+/* ---------------- copy (DESIGN.md §7 rows; source in docs/reviews/ui-property-grid.md §9) ---------------- */
+const COPY = {
+  c117:'A control point pulls the curve toward it. The curve does not pass through it.',
+  c149:"An anchor point is on the curve. Its handles set the curve's direction on each side.",
+  smooth:'Handles stay in line. Their lengths can differ.', symmetric:'Handles stay in line and equal in length.', corner:'Each handle moves on its own. The curve can turn a corner here.',
+  c153:'Anchor point — adds handles (rail gains up to 3 points)',
+  c118:f => `Enter a number. ${f} is unchanged.`, c106:f => `Enter a length greater than 0 mm. ${f} is unchanged.`,
+  c158:f => `Enter an angle between −90° and 90°, from the span axis, + aft. ${f} is unchanged.`,
+  c168:(typed, v, side) => `${typed} typed; set to ${v}, the ${side} that can be checked.`,
+  c169:v => `${v} — for 12 %, type 12 or 0.12 × 100.`,
+  c170:'Stops here: the angle stays between −90° and 90° from the span axis.',
+  c171:"Changing one handle's twist moves the other onto the line.",
+  twistClamp:'Twist is limited to ±57.30° — larger angles can’t be checked yet.', tcRange:'t/c must stay above 0 % and below 100 %.',
+  c108:'Tip closes — edit the tip station', c122:'Set these in the workspace.', c136:'No foil open', c137:'Open or start a foil. Whatever you select in it shows its properties here.',
+  c138:'Properties couldn’t be shown. Your foil hasn’t changed.',
+  root152:'Root chord 152.09 mm. Fit 9.01 µm (limit 10 µm). 4.21 mm from a straight taper. Planform moved 6.34 mm so the leading edge stays at the root.',
+  root190:'Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a straight taper. Planform moved 15.84 mm so the leading edge stays at the root.',
+  notChecked:'Points can’t be moved because this foil couldn’t be checked. Nothing changed.',
+  recovered:'A recovered edit to Trailing edge point 4 is open.', busy:'Checking the last change…',
+  c155:r => `Unavailable — ${r}. Undo, or edit again, to recompute.`, c160:(what, r) => `${what} unavailable — ${r}.`,
+  selectOne:'Select one point to change it.', leFixed:'Fixed: the leading edge starts at the root.', teRoot:'On the centre line; its tangent is square to it (root mirror).',
+  tipEnd:'At the tip; moves fore and aft only.', rootHandleMoves:'Moves along the span only (root mirror).',
+  c156:'Square to the centre line (root mirror). Only its length can change.',
+  c159:'This is the root chord. Typing here moves only this point; Root chord under Wing rescales the planform.',
+  c162:'Keeps this handle; the other one moves.', angleRef:'Angles are measured from the span axis, + aft.',
+  c154:(curve, i, m, n, d) => `${curve} point ${i} is now an anchor point with 2 handles. The rail gained ${n - m} points (${m} → ${n}). Largest change ${f2(d)} mm.`,
+  toControl:(curve, i, m, n, d) => `${curve} point ${i} is now a control point. Its handles are removed; the rail has ${n} points (was ${m}). Largest change ${f2(d)} mm.`,
+  nudgeHelp:u => `Up and Down arrows step 0.1 ${u}; with Command (Ctrl on Windows) 0.01; with Shift 1. Release to apply; Esc cancels.`
+};
+
+/* ---------------- row and group builders (the component API the brief maps to Avalonia) ---------------- */
+let uid = 0;
+const nid = p => p + '-' + (++uid);
+function msgHtml(m, id, key){ if (!m) return ''; const ic = { warn:IC.warn, error:IC.err, report:IC.ok, echo:IC.info, reason:IC.lock, info:IC.info }[m.kind] || '';
+  // PG-18: an error is an alert once; a later re-render keeps the text without re-announcing it
+  const fresh = m.kind === 'error' && !S.alerted.has(key + '|' + m.text); if (fresh) S.alerted.add(key + '|' + m.text);
+  return `<div class="msg ${m.kind}" id="${id}"${fresh ? ' role="alert"' : ''}>${ic}<span>${esc(m.text)}</span></div>`; }
+// kinds: input · fact (read-only) · estimate (≈) · select · radios · action
+function row(r){
+  const id = nid('f'), mid = id + '-m', did = id + '-d', st = r.state || (S.invalid[r.fk] != null ? 'error' : S.msgs[r.fk]?.kind === 'warn' ? 'warning' : '');
+  const m = (r.fk && S.msgs[r.fk]) || r.msg, describedby = [r.desc ? did : '', m ? mid : '', r.help ? 'nudge-help-' + r.help : ''].filter(Boolean).join(' ');
+  const mixed = r.value === 'Mixed', unav = r.value === 'Unavailable', showUnit = r.unit && !mixed;
+  const quant = r.q ? ` data-q="${esc(r.label)}" data-unit="${esc(r.unit || '')}" data-spoken="${esc(r.unit ? UNIT[r.unit].spoken : '')}"${r.dimless ? ' data-dimless="1"' : ''}${mixed ? ' data-mixed="1"' : ''}${unav ? ' data-unav="1"' : ''}` : '';
+  const editable = ['input', 'select', 'radios', 'action'].includes(r.kind);
+  let val, spoken = '';
+  if (r.kind === 'input'){
+    const shown = S.invalid[r.fk] ?? r.value;
+    val = `<input id="${id}" data-fk="${r.fk}" value="${esc(shown)}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${S.invalid[r.fk] != null ? ' aria-invalid="true"' : ''} autocomplete="off" spellcheck="false" inputmode="decimal">`;
+  } else if (r.kind === 'select'){
+    val = `<select id="${id}" data-fk="${r.fk}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' disabled' : ''}>${r.options.map(([v, t]) => `<option value="${v}"${v === r.value ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+  } else if (r.kind === 'radios'){
+    const shown = r.pending ?? r.value;
+    val = `<div class="radios" role="radiogroup" id="${id}" data-group="${r.fk}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' aria-disabled="true"' : ''}>${r.options.map(([v, t]) =>
+      `<button type="button" role="radio" data-fk="${r.fk}:${v}" data-v="${v}" aria-checked="${v === shown}" tabindex="${v === shown ? 0 : -1}"${r.disabled ? ' aria-disabled="true"' : ''}><span class="dot" aria-hidden="true"></span><span class="rl">${esc(t)}</span></button>`).join('')}</div>`;
+  } else if (r.kind === 'action'){
+    val = `<button type="button" class="btn" data-fk="${r.fk}" id="${id}">${esc(r.value)}</button>`;
+  } else {
+    // PG-01: a read-only fact or estimate is one spoken line — "<label>, <value> <unit>[, locked]"; its parts are hidden
+    const lock = r.locked ? IC.lock : '', approx = r.kind === 'estimate' && !unav, pre = approx ? '≈ ' : '';
+    val = `<span${r.txt ? ' class="txt"' : ''}>${lock}${pre}${esc(r.value)}</span>`;
+    spoken = `${SPOKEN_LABEL[r.label] || r.label}, ${approx ? 'approximately ' : ''}${mixed ? 'mixed' : unav ? 'unavailable' : r.value.replace(MINUS, 'minus ')}${showUnit && !unav ? ' ' + UNIT[r.unit].spoken : ''}${r.locked ? ', locked' : ''}`;
+  }
+  const lbl = (r.kind === 'input' || r.kind === 'select') ? `<label class="lbl" for="${id}">${esc(r.label)}</label>`
+    : r.kind === 'radios' ? `<span class="lbl" aria-hidden="true">${esc(r.label)}</span>` : `<span class="lbl"${editable ? '' : ' aria-hidden="true"'}>${esc(r.label)}</span>`;
+  const span3 = r.kind === 'radios' || r.kind === 'select' || r.kind === 'action' ? ' span3' : '';
+  const hideVal = editable ? '' : ' aria-hidden="true"';
+  const unit = span3 ? '' : `<span class="unit" aria-hidden="true">${showUnit ? esc(r.unit) : ''}</span>`;
+  return `<div class="row${editable ? ' edit' : ''}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${spoken ? `<span class="sr">${esc(spoken)}</span>` : ''}${lbl}<div class="val${r.txt ? ' txt' : ''}"${hideVal}>${val}</div>${unit}${r.desc ? `<div class="desc" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid, r.fk || r.label)}</div>`;
+}
+function group(g){
+  const hid = nid('g'), bid = hid + '-b', open = g.static || !S.collapsed[g.id];
+  const chip = g.chip ? `<span class="chip ${g.chip[0]}">${esc(g.chip[1])}</span>` : '';
+  const head = g.static ? `<div class="static" id="${hid}">${esc(g.title)}${chip}</div>`
+    : `<button type="button" id="${hid}" data-fk="grp:${g.id}" aria-expanded="${open}" aria-controls="${bid}">${IC.chev}${esc(g.title)}${!open && g.sum ? `<span class="sum">${esc(g.sum)}</span>` : ''}${chip}</button>`;
+  // PG-17: a div, not a <section> — five region landmarks per pane is noise
+  return `<div class="grp"><h3 class="grp-h">${head}</h3><div class="grp-b" id="${bid}" role="group" aria-labelledby="${hid}"${open ? '' : ' hidden'}>${g.body.join('')}</div></div>`;
+}
+const note = (text, icon = IC.info) => `<div class="note">${icon}<span>${esc(text)}</span></div>`;
+const sub = t => `<div class="sub">${esc(t)}</div>`;
+function ident(glyph, title, crumb){ return `<div class="ident">${IC[glyph]}<h2>${esc(title)}</h2>${crumb ? `<div class="crumb">${crumb}</div>` : ''}</div>`; }   // no crumb that repeats the Type row
+const sumKind = k => k[0].toUpperCase() + k.slice(1);
+
+/* ---------------- the Wing block (always last while a foil is open; never collapsible: UI-36) ---------------- */
+function wing(opts = {}){
+  const d = opts.d || D, e = est(d), ro = opts.readonly, unav = opts.unavailable, macUnav = unav || opts.macUnavailable;
+  const chip = opts.preview || S.run ? ['preview', '≈ preview'] : unav ? ['unavail', 'Unavailable'] : opts.busy ? ['busy', 'Checking…'] : null;
+  const dims = ro ? [
+      row({ kind:'fact', label:'Span', value:f2(d.spanMm), unit:'mm', q:1, locked:true }),
+      row({ kind:'fact', label:'Root chord', value:f2(d.rootMm), unit:'mm', q:1, locked:true }),
+      row({ kind:'fact', label:'Tip chord', value:f2(d.tipMm), unit:'mm', q:1, locked:true }), note(COPY.c122, IC.lock)]
+    : [
+      row({ kind:'input', fk:'w:span', label:'Span', value:f2(d.spanMm), unit:'mm', q:1, name:'Span in millimetres' }),
+      row({ kind:'input', fk:'w:root', label:'Root chord', value:f2(d.rootMm), unit:'mm', q:1, name:'Root chord in millimetres', state:opts.rootState, msg:opts.rootMsg }),
+      opts.tipCloses ? row({ kind:'fact', label:'Tip chord', value:f2(0), unit:'mm', q:1, locked:true, msg:{ kind:'reason', text:COPY.c108 } })
+        : row({ kind:'input', fk:'w:tip', label:'Tip chord', value:f2(d.tipMm), unit:'mm', q:1, name:'Tip chord in millimetres' })];
+  const U = 'Unavailable', st = unav ? 'unavailable' : '';
+  const estRows = [
+    row({ kind:'estimate', label:'Mean chord', value:unav ? U : f1(e.mean), unit:'mm', q:1, state:st }),
+    row({ kind:'estimate', label:'MAC', value:macUnav ? U : f1(e.mac), unit:'mm', q:1, state:macUnav ? 'unavailable' : '' }),
+    row({ kind:'estimate', label:'Max t/c', value:unav ? U : f1(e.tc), unit:'%', q:1, state:st }),
+    row({ kind:'estimate', label:'AR', value:unav ? U : e.ar.toFixed(2), unit:'b²/S', q:1, dimless:1, state:st }),
+    row({ kind:'estimate', label:'Area', value:unav ? U : Math.round(e.cm2).toString(), unit:'cm²', q:1, state:st })];
+  // precision follows the quantity (DR-UID-1): the tip station's chord IS the typed Tip chord, so 0.01 mm
+  if (opts.station) estRows.push(row({ kind:'fact', label:'Chord here', value:f2(d.tipMm), unit:'mm', q:1 }), row({ kind:'estimate', label:'t/c here', value:'12.0', unit:'%', q:1 }));
+  const defs = `<details class="defs" data-fk="defs"${S.defs ? ' open' : ''}><summary>Estimates <span style="font-weight:400;color:var(--mute)">· definitions</span></summary><ul>
+    <li>Span b: projected, tip to tip</li><li>Root and tip chord: at the centre line and the outermost station</li><li>Mean chord (geometric): S / b</li>
+    <li>MAC: (2/S)∫₀^{b/2} c(y)² dy — the area-weighted mean; not the same as S / b</li><li>Max t/c: largest thickness over chord at any station</li><li>AR (projected, b²/S): dimensionless</li><li>Area: projected planform area S, both halves</li></ul></details>`;
+  const body = [...dims, '<div class="rule"></div>', defs, ...estRows];
+  if (unav) body.push(note(COPY.c155('the estimates did not converge for this shape'), IC.warn));
+  else if (opts.macUnavailable) body.push(note(COPY.c155('MAC did not converge for this shape; the other estimates are current'), IC.warn));
+  return `<div class="wing" id="wing">${group({ id:'wing', title:'Wing', static:true, chip, body })}</div>`;
+}
+
+/* ---------------- selection models ---------------- */
+function typeRow(value, opts = {}){
+  const shown = S.pendingType ?? value;
+  return row({ kind:'select', fk:'type', label:'Type', value:shown, name:'Type', disabled:opts.disabled,
+    options:[['control', 'Control point'], ['anchor', COPY.c153]], desc:shown === 'control' ? COPY.c117 : COPY.c149,
+    msg:S.pendingType ? { kind:'info', text:'Press Return to change the type, or Esc to keep it.' } : S.msgs.type });
+}
+function kindRow(name, opts = {}){
+  const m = S.pendingKind && S.pendingKind !== S.kind ? { kind:'info', text:`Press Return or Space to make it ${S.pendingKind}, or Esc to keep ${S.kind}.` } : S.msgs.tangent;
+  return row({ kind:'radios', fk:'tangent', label:'Kind', value:S.kind, pending:S.pendingKind, name, options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY[S.pendingKind ?? S.kind], msg:m, disabled:opts.disabled });
+}
+// the handle-row set is per curve (MC-17): rails type a handle by angle + length; twist and thickness by From root + value
+function railHandleRows(){
+  const k = S.kind, len = (fk, label, def, nm) => row({ kind:'input', fk, label, value:f2(pv(fk, def)), unit:'mm', q:1, name:nm, help:'len' }),
+    ang = (fk, label, def, nm) => row({ kind:'input', fk, label, value:f2(pv(fk, def)), unit:'°', q:1, name:nm, help:'ang' });
+  if (k === 'smooth') return [ang('h:ang', 'Angle', -21.08, 'Angle, both handles, in degrees'), len('h:lr', 'To root', 18.20, 'To root, handle length in millimetres'), len('h:lt', 'To tip', 20.80, 'To tip, handle length in millimetres')];
+  if (k === 'symmetric') return [ang('h:ang', 'Angle', -21.08, 'Angle, both handles, in degrees'), len('h:len', 'Length', pv('h:lt', 20.80), 'Length, both handles, in millimetres')];
+  return [sub('Handle toward the root'), ang('h:ar', 'Angle', -21.08, 'Angle of the handle toward the root, in degrees'), len('h:lr', 'Length', 18.20, 'Length of the handle toward the root, in millimetres'),
+    sub('Handle toward the tip'), ang('h:at', 'Angle', -21.08, 'Angle of the handle toward the tip, in degrees'), len('h:lt', 'Length', 20.80, 'Length of the handle toward the tip, in millimetres')];
+}
+const fromRoot = (fk, def, opts = {}) => opts.locked
+  ? row({ kind:'fact', label:'From root', value:f2(def), unit:'mm', q:1, locked:true })
+  : row({ kind:'input', fk, label:'From root', value:f2(pv(fk, def)), unit:'mm', q:1, name:'From root, position along the span in millimetres', help:'len' });
+const etaRow = mm => row({ kind:'fact', label:'η', value:f3(mm / HALF), q:1, dimless:1 });
+const railGroup = (curve, n) => group({ id:'rail', title:curve, sum:`cubic · ${n} points (16 max)`, body:[
+  row({ kind:'fact', label:'Degree', value:'3 (cubic)', q:1, dimless:1 }), row({ kind:'fact', label:'Points', value:`${n} of 16 max`, q:1, dimless:1 })] });
+
+function controlSel(v = {}){
+  const from = v.from ?? pv('p:from', 178.26), aft = v.aft ?? pv('p:aft', 120.40), ro = v.readonly;
+  const pos = ro ? [row({ kind:'fact', label:'Type', value:'Control point', txt:1, locked:true }),
+      row({ kind:'fact', label:'From root', value:f2(from), unit:'mm', q:1, locked:v.lockedRows }), etaRow(from),
+      row({ kind:'fact', label:'Aft', value:f2(aft), unit:'mm', q:1, locked:v.lockedRows, msg:v.aftMsg })]
+    : [typeRow('control'), fromRoot('p:from', 178.26), etaRow(from),
+      row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(aft), unit:'mm', q:1, name:'Aft position in millimetres', msg:v.aftMsg, help:'len' })];
+  return ident('control', 'Trailing edge · point 3 of 10', '') + group({ id:'pos', title:'Position', sum:`${f2(from)}, ${f2(aft)} mm`, body:pos }) + railGroup('Trailing edge', 10);
+}
+function anchorSel(){
+  const from = pv('p:from', 321.65), aft = pv('p:aft', 158.66);
+  return ident('anchor', 'Trailing edge · point 7 of 14', '') +
+    group({ id:'pos', title:'Position', sum:`${f2(from)}, ${f2(aft)} mm`, body:[typeRow('anchor'), fromRoot('p:from', 321.65), etaRow(from),
+      row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(aft), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
+    group({ id:'tan', title:'Tangent', sum:sumKind(S.kind), body:[note(COPY.angleRef), kindRow('Tangent kind'), ...railHandleRows()] }) + railGroup('Trailing edge', 14);
+}
+function handleSel(o = {}){
+  const title = o.title || 'Handle toward the tip', crumb = o.crumb || 'Trailing edge · anchor point 7 of 14', target = o.target || 'anchor';
+  const rows = o.rows || [row({ kind:'input', fk:'h:at', label:'Angle', value:f2(pv('h:at', -21.08)), unit:'°', q:1, name:'Angle in degrees, from the span axis, positive aft', help:'ang' }),
+    row({ kind:'input', fk:'h:lt', label:'Length', value:f2(pv('h:lt', 20.80)), unit:'mm', q:1, name:'Length in millimetres', help:'len' })];
+  const parent = o.noParent ? '' : group({ id:'atan', title:o.parentTitle || 'Anchor point 7', sum:sumKind(S.kind), body:[kindRow(o.kindName || 'Tangent kind of anchor point 7'),
+    note(S.kind === 'corner' ? 'The other handle does not move.' : COPY.c162)] });
+  return ident('handle', title, `of <button type="button" data-fk="goto:${target}">${esc(crumb)}</button> · Esc`) +
+    group({ id:'hdl', title:'Handle', sum:o.sum || `${f2(-21.08)}°, ${f2(20.80)} mm`, body:[...(o.noRef ? [] : [note(COPY.angleRef)]), ...rows, ...(o.notes || [])] }) + parent;
+}
+function twistAnchorSel(){
+  const tw = (fk, label, def, nm) => row({ kind:'input', fk, label, value:f2(pv(fk, def)), unit:'°', q:1, name:nm, help:'ang' });
+  const smoothNote = S.kind === 'smooth' ? [note(COPY.c171)] : [];   // MC-22
+  const handleRows = S.kind === 'symmetric'
+    ? [sub('Handles (symmetric)'), fromRoot('h:rfrom', 160), tw('h:rtw', 'Twist', -0.62, 'Twist of the handle toward the root, in degrees'), note('The handle toward the tip mirrors it through the anchor.')]
+    : [sub('Handle toward the root'), fromRoot('h:rfrom', 160), tw('h:rtw', 'Twist', -0.62, 'Twist of the handle toward the root, in degrees'),
+       sub('Handle toward the tip'), fromRoot('h:tfrom', 200), tw('h:ttw', 'Twist', -1.02, 'Twist of the handle toward the tip, in degrees'), ...smoothNote];
+  return ident('anchor', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
+    group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-0.84)}°`, body:[typeRow('anchor'), fromRoot('p:from', 180), etaRow(180), tw('p:twist', 'Twist', -0.84, 'Twist in degrees')] }) +
+    group({ id:'tan', title:'Tangent', sum:sumKind(S.kind), body:[note('On a twist curve a handle is set by its position and its twist.'), kindRow('Tangent kind'), ...handleRows] }) + railGroup('Twist', 7);
+}
+
+function model(){
+  const st = S.state;
+  if (st === 'empty') return { body:`<div class="empty"><h2>${esc(COPY.c136)}</h2><p>${esc(COPY.c137)}</p></div>`, wing:'', status:'' };
+  if (st === 'opening') return { body:`<div class="ident">${IC.foil}<h2>Opening…</h2><div class="crumb">kite-wing-850.foil</div></div><div aria-hidden="true">${[70, 90, 55, 80].map(w => `<div class="skel" style="width:${w}%"></div>`).join('')}</div>`, wing:'', status:'Opening kite-wing-850.foil…' };
+  if (st === 'pane-error') return { body:`<div class="empty" role="alert"><h2>${esc(COPY.c138)}</h2><p><button type="button" class="btn" data-fk="retry">Try again</button></p></div>`, wing:'', status:'' };
+  const foilSel = (name = D.name) => ident('foil', name, 'Foil · nothing selected') + group({ id:'foil', title:'Foil', sum:`${D.stations} stations`, body:[
+      row({ kind:'fact', label:'Name', value:name, txt:1 }), row({ kind:'fact', label:'Stations', value:String(D.stations), q:1, dimless:1 })] }) +
+    note('Select a point or a station to see its properties here. Set span and chords under Wing.');
+  const twistRow = (def, extra = {}) => row({ kind:'input', fk:'p:twist', label:'Twist', value:f2(pv('p:twist', def)), unit:'°', q:1, name:'Twist in degrees', help:'ang', ...extra });
+  switch (st){
+    case 'foil': return { body:foilSel(), wing:wing() };
+    case 'control': return { body:controlSel(), wing:wing() };
+    case 'anchor': return { body:anchorSel(), wing:wing() };
+    case 'handle': return { body:handleSel(), wing:wing() };
+    case 'root-le': return { body:ident('end', 'Leading edge · root end', 'Anchor · root end') +
+      group({ id:'pos', title:'Position', sum:'fixed', body:[row({ kind:'fact', label:'Type', value:'Root end', txt:1, locked:true }),
+        fromRoot('', 0, { locked:true }), etaRow(0), row({ kind:'fact', label:'Aft', value:f2(0), unit:'mm', q:1, locked:true }), note(COPY.leFixed, IC.lock)] }) +
+      group({ id:'tan', title:'Tangent', sum:'root mirror', body:[row({ kind:'fact', label:'Kind', value:'Square to the centre line', txt:1, locked:true }),
+        row({ kind:'input', fk:'h:lt', label:'Handle length', value:f2(pv('h:lt', 15.40)), unit:'mm', q:1, name:'Handle length in millimetres', help:'len' }), note(COPY.c156, IC.lock)] }) + railGroup('Leading edge', 10), wing:wing() };
+    case 'root-te': return { body:ident('end', 'Trailing edge · root end', 'Anchor · root end') +
+      group({ id:'pos', title:'Position', sum:`${f2(0)}, ${f2(D.rootMm)} mm`, body:[row({ kind:'fact', label:'Type', value:'Root end', txt:1, locked:true }),
+        fromRoot('', 0, { locked:true }), etaRow(0), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', D.rootMm)), unit:'mm', q:1, name:'Aft position in millimetres', desc:COPY.c159, help:'len' }), note(COPY.teRoot, IC.lock)] }) +
+      group({ id:'tan', title:'Tangent', sum:'root mirror', body:[row({ kind:'fact', label:'Kind', value:'Square to the centre line', txt:1, locked:true }),
+        row({ kind:'input', fk:'h:lt', label:'Handle length', value:f2(pv('h:lt', 17.10)), unit:'mm', q:1, name:'Handle length in millimetres', help:'len' }), note(COPY.c156, IC.lock)] }) + railGroup('Trailing edge', 10), wing:wing() };
+    case 'root-handle': return { body:handleSel({ title:'Root handle', crumb:'Trailing edge · root end', target:'root-te', noParent:true, sum:`${f2(17.10)} mm`,
+        rows:[row({ kind:'fact', label:'Angle', value:f2(0), unit:'°', q:1, locked:true }), row({ kind:'input', fk:'h:lt', label:'Length', value:f2(pv('h:lt', 17.10)), unit:'mm', q:1, name:'Length in millimetres', help:'len' })],
+        notes:[note(COPY.rootHandleMoves, IC.lock), note(COPY.c156, IC.lock)] }), wing:wing() };
+    case 'tip-end': return { body:ident('end', 'Trailing edge · tip end', 'Anchor · tip end') +
+      group({ id:'pos', title:'Position', sum:`${f2(500)}, ${f2(pv('p:aft', 108.79))} mm`, body:[row({ kind:'fact', label:'Type', value:'Tip end', txt:1, locked:true }),
+        fromRoot('', 500, { locked:true }), etaRow(500), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', 108.79)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' }), note(COPY.tipEnd, IC.lock)] }) +
+      group({ id:'tan', title:'Tip handle', sum:`${f2(-8.40)}°, ${f2(14.10)} mm`, body:[note(COPY.angleRef),
+        row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -8.40)), unit:'°', q:1, name:'Angle of the tip handle, in degrees', help:'ang' }),
+        row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 14.10)), unit:'mm', q:1, name:'Length of the tip handle, in millimetres', help:'len' })] }) + railGroup('Trailing edge', 10), wing:wing() };
+    case 'tip-handle': return { body:handleSel({ title:'Tip handle', crumb:'Trailing edge · tip end', target:'tip-end', noParent:true, sum:`${f2(-8.40)}°, ${f2(14.10)} mm`,
+        rows:[row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -8.40)), unit:'°', q:1, name:'Angle in degrees, from the span axis, positive aft', help:'ang' }),
+              row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 14.10)), unit:'mm', q:1, name:'Length in millimetres', help:'len' })] }), wing:wing() };
+    case 'multi': return { body:ident('multi', '3 points', 'Trailing edge · points 3, 4 and 5') +
+      group({ id:'pos', title:'Position', sum:'Mixed', body:[row({ kind:'fact', label:'Type', value:'Control point', txt:1 }),
+        row({ kind:'fact', label:'From root', value:'Mixed', unit:'mm', q:1 }), row({ kind:'fact', label:'Aft', value:'Mixed', unit:'mm', q:1 }), note(COPY.selectOne, IC.lock)] }), wing:wing() };
+    case 'station': return { body:ident('station', 'Tip station', 'Station 2 of 2') +
+      group({ id:'stn', title:'Station', sum:'naca-0012', body:[fromRoot('', 500, { locked:true }), etaRow(500),
+        row({ kind:'fact', label:'Chord', value:f2(D.tipMm), unit:'mm', q:1 }), row({ kind:'fact', label:'Section', value:'naca-0012', txt:1 })] }), wing:wing() };
+    case 'drag': { const dd = { ...D, areaMm2:100380, macMm:107.62 };
+      return { body:controlSel({ readonly:true, aft:122.54, aftMsg:{ kind:'echo', text:'Δ aft +2.14 mm' } }), wing:wing({ preview:true, d:dd }), status:'Dragging trailing edge point 3 · Δ aft +2.14 mm' }; }
+    case 'busy': return { body:foilSel(), wing:wing({ busy:true }), status:COPY.busy };
+    case 'chord-warning': return { body:foilSel(), wing:wing({ d:{ ...D, rootMm:190, areaMm2:137800, macMm:150.36 }, rootState:'warning', rootMsg:{ kind:'warn', text:COPY.root190 } }), status:COPY.root190 };
+    case 'field-error': return { body:controlSel(), wing:wing() };
+    case 'unavailable': return { body:handleSel(), wing:wing({ unavailable:true }), status:'Moved trailing edge handle toward the tip by 0.40 mm. ' + COPY.c160('Estimates', 'did not converge') };
+    case 'partial-unavailable': return { body:controlSel(), wing:wing({ macUnavailable:true }), status:'Moved trailing edge point 3 by 1.00 mm. ' + COPY.c160('MAC', 'did not converge') };
+    case 'tip-closes': return { body:foilSel(), wing:wing({ tipCloses:true, d:{ ...D, tipMm:0 } }) };
+    case 'section': return { body:ident('station', 'Tip station · section', 'Section editor') + group({ id:'shape', title:'Shape', sum:'30 % chord', body:[
+        row({ kind:'fact', label:'Max t at', value:'30', unit:'% c', q:1 }), row({ kind:'fact', label:'LE radius', value:'0.2', unit:'mm', q:1 })] }) +
+        note('Select a point or handle on the section to see its properties here.'), wing:wing({ readonly:true, station:true }) };
+    case 'not-certified': return { body:`<div class="banner" role="alert">${IC.warn}<span>${esc(COPY.notChecked)}</span></div>` + controlSel({ readonly:true, lockedRows:true }), wing:wing() };
+    case 'recovery': return { body:`<div class="banner" role="alert">${IC.info}<span>${esc(COPY.recovered)}</span><div class="acts"><button type="button" class="btn primary" data-fk="rec-apply">Apply</button><button type="button" class="btn" data-fk="rec-discard">Discard</button></div></div>` + controlSel(), wing:wing() };
+    case 'overflow': { const name = 'prototype-high-aspect-downwind-front-wing-1450-reflexed-tip-rev-27';
+      return { body:ident('anchor', 'Trailing edge · point 13 of 16', name) +
+        group({ id:'pos', title:'Position', sum:`${f2(1234.56)}, ${f2(-175.60)} mm`, body:[typeRow('anchor'),
+          row({ kind:'input', fk:'p:from', label:'From root', value:f2(pv('p:from', 1234.56)), unit:'mm', q:1, name:'From root, position along the span in millimetres', help:'len' }),
+          row({ kind:'fact', label:'η', value:f3(1234.56 / 1450), q:1, dimless:1 }),
+          row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', -175.60)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
+        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef), row({ kind:'radios', fk:'tangent', label:'Kind', value:'corner', name:'Tangent kind', options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY.corner }),
+          sub('Handle toward the root'),
+          row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -84.95)), unit:'°', q:1, name:'Angle of the handle toward the root, in degrees', help:'ang' }),
+          row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres', help:'len' })] }) + railGroup('Trailing edge', 16),
+        wing:wing({ d:{ ...D, spanMm:2900, rootMm:212.4, tipMm:38.15, areaMm2:3_812_500, macMm:141.73 } }) }; }
+    case 'twist': return { body:ident('control', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
+      group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-0.84)}°`, body:[typeRow('control'), fromRoot('p:from', 180), etaRow(180), twistRow(-0.84)] }) + railGroup('Twist', 7), wing:wing() };
+    case 'twist-anchor': return { body:twistAnchorSel(), wing:wing() };
+    case 'twist-handle': return { body:handleSel({ title:'Handle toward the tip', crumb:'Twist · anchor point 4 of 7', target:'twist-anchor', parentTitle:'Anchor point 4', kindName:'Tangent kind of anchor point 4', noRef:true,
+        sum:`${f2(200)} mm, ${f2(-1.02)}°`, rows:[fromRoot('h:tfrom', 200), row({ kind:'input', fk:'h:ttw', label:'Twist', value:f2(pv('h:ttw', -1.02)), unit:'°', q:1, name:'Twist in degrees', help:'ang' })] }), wing:wing() };
+    case 'twist-clamped': return { body:ident('control', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
+      group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-57.30)}°`, body:[row({ kind:'fact', label:'Type', value:'Control point', txt:1 }), row({ kind:'fact', label:'From root', value:f2(180), unit:'mm', q:1 }), etaRow(180),
+        row({ kind:'fact', label:'Twist', value:f2(-57.30), unit:'°', q:1, state:'warning', msg:{ kind:'warn', text:COPY.twistClamp } })] }) + railGroup('Twist', 7),
+      wing:wing({ preview:true }), status:'Dragging twist point 4 · clamped at −57.30°' };
+    case 'tc-point': return { body:ident('control', 'Thickness · point 2 of 7', 'Channel preview (M1.2b2)') +
+      group({ id:'pos', title:'Position', sum:`${f2(125)} mm, ${f2(12.35)} %`, body:[typeRow('control'), fromRoot('p:from', 125), etaRow(125),
+        row({ kind:'input', fk:'p:tc', label:'t/c', value:f2(pv('p:tc', 12.35)), unit:'%', q:1, name:'t/c, t over c, in percent of chord', help:'pct' })] }) + railGroup('Thickness', 7), wing:wing() };
+  }
+  return { body:'', wing:'' };
+}
+
+/* ---------------- render, keeping focus across re-renders (class UI-C) ---------------- */
+let rendering = false;
+function render(nextFk){
+  const a = document.activeElement, fk = nextFk || (a && pane.contains(a) ? a.dataset.fk : null);
+  uid = 0; const m = model();
+  const help = ['len:mm', 'ang:°', 'pct:%'].map(x => { const [k, u] = x.split(':'); return `<span class="sr" id="nudge-help-${k}">${esc(COPY.nudgeHelp(u))}</span>`; }).join('');
+  rendering = true; pane.innerHTML = `${help}<div class="sel" id="sel">${m.body}</div>${m.wing}`; rendering = false;
+  const s = S.report || m.status || ''; if (statusEl.textContent !== s) statusEl.textContent = s;   // one polite region; no re-announce of an unchanged line
+  if (fk){ const t = pane.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if (t) t.focus(); }
+  side(); requestAnimationFrame(runAudit);
+}
+
+/* ---------------- interaction ---------------- */
+const FIELD = { 'w:span':'Span', 'w:root':'Root chord', 'w:tip':'Tip chord', 'p:from':'From root', 'p:aft':'Aft', 'p:twist':'Twist', 'p:tc':'t/c',
+  'h:ang':'Angle', 'h:ar':'Angle', 'h:at':'Angle', 'h:lr':'Length', 'h:lt':'Length', 'h:len':'Length', 'h:rfrom':'From root', 'h:tfrom':'From root', 'h:rtw':'Twist', 'h:ttw':'Twist' };
+const famOf = fk => /^h:a/.test(fk) || /tw$|twist/.test(fk) ? 'ang' : fk === 'p:tc' ? 'pct' : 'len';
+const isRailAngle = fk => /^h:a/.test(fk);
+const unitOf = fk => FAMILY[famOf(fk)].unit;
+const fmtU = (v, u) => u === '°' ? `${f2(v)}°` : `${f2(v)} ${u}`;
+function refuse(fk, text, nextFk){ S.invalid[fk] = text.input; S.msgs[fk] = { kind:'error', text:text.msg }; S.report = null; render(nextFk); return false; }
+function commit(inp, nextFk){
+  const fk = inp.dataset.fk, name = FIELD[fk] || 'Value', text = inp.value, fam = famOf(fk), u = unitOf(fk); let r;
+  for (const k of [...S.alerted]) if (k.startsWith(fk + '|')) S.alerted.delete(k);   // PG-22: an error is announced once per failed commit
+  try { r = parseQty(text, fam); } catch { return refuse(fk, { input:text, msg:COPY.c118(name) }, nextFk); }
+  let v = r.v, warn = null;
+  if ((fk.startsWith('w:') || /^h:l/.test(fk)) && v <= 0) return refuse(fk, { input:text, msg:COPY.c106(name) }, nextFk);
+  if (isRailAngle(fk) && !(v > -90 && v < 90)) return refuse(fk, { input:text, msg:COPY.c158(name) }, nextFk);
+  // MC-19: a twist past the certificate domain is not refused here — Core clamps it and the field echoes the result
+  // with Core's number (no domain constant in the pane)
+  if (/tw$|twist/.test(fk)){ const c = CORE.clampTwist(v); if (c.clamped){ warn = COPY.c168(text.trim(), fmtU(c.v, u), 'largest'); v = c.v; } }
+  // MC-20: a t/c under 1 % is committed, with a warning that says how to type a fraction
+  if (fk === 'p:tc'){ const c = CORE.clampTc(v); if (c.clamped){ warn = COPY.c168(text.trim(), fmtU(c.v, u), c.side); v = c.v; } else if (v < 1) warn = COPY.c169(fmtU(v, u)); }
+  delete S.invalid[fk]; delete S.msgs[fk];
+  // COPY-157 and the set-once rule (MC-3): an expression is evaluated once and says so
+  const shownTyped = text.trim().replace(/\*/g, '×');
+  const echo = !isPlain(text) ? `${shownTyped} = ${fmtU(v, u)}${r.used.length ? ` (set once; doesn’t follow ${[...new Set(r.used)].join(' or ')})` : '.'}` : null;
+  S.undo++;
+  if (fk === 'w:root'){ const k = (v + D.tipMm) / (D.rootMm + D.tipMm); D = { ...D, rootMm:v, areaMm2:D.areaMm2 * k, macMm:D.macMm * k };
+    const rep = Math.abs(v - 152.09) < 1e-9 ? COPY.root152 : Math.abs(v - 190) < 1e-9 ? COPY.root190 : `Root chord ${f2(v)} mm. (Fit report not computed in this mockup.)`;
+    S.msgs[fk] = { kind:/above the limit/.test(rep) ? 'warn' : 'report', text:(echo ? echo + ' ' : '') + rep }; S.report = rep; }
+  else if (fk === 'w:tip'){ const k = (D.rootMm + v) / (D.rootMm + D.tipMm); D = { ...D, tipMm:v, areaMm2:D.areaMm2 * k, macMm:D.macMm * k };
+    const rep = `Tip chord ${f2(v)} mm. (Fit report not computed in this mockup.)`; S.msgs[fk] = { kind:'report', text:(echo ? echo + ' ' : '') + rep }; S.report = rep; }
+  else if (fk === 'w:span'){ const k = v / D.spanMm; D = { ...D, spanMm:v, areaMm2:D.areaMm2 * k }; S.report = `Span ${f2(v)} mm. Estimates updated.`; if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
+  else { S.pv[fk] = v; if (fk === 'h:len'){ S.pv['h:lr'] = v; S.pv['h:lt'] = v; }
+    S.report = warn || `Set ${name.toLowerCase()} to ${fmtU(v, u)}. MAC ${f1(est(D).mac)} mm.`;
+    if (warn) S.msgs[fk] = { kind:'warn', text:warn }; else if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
+  render(nextFk); return true;
+}
+
+/* field nudge (DR-UID-2 with MC-10): the run IS the canvas Nudging gesture — begin on keydown, Δ on the model value from
+   the per-curve ladder, preview during the run, one undo row on KeyUp, Esc cancels with no row, ignored while text is dirty */
+const nudgeable = fk => /^[ph]:/.test(fk);
+function nudgeStep(e){ return (e.metaKey || e.ctrlKey) ? 0.01 : e.shiftKey ? 1 : 0.1; }
+function modelValue(fk, inp){ return S.pv[fk] ?? Number(inp.defaultValue.replace(MINUS, '-')); }
+pane.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t.matches('input[data-fk]')){
+    const fk = t.dataset.fk;
+    if (e.key === 'Enter'){ e.preventDefault(); if (!S.run) commit(t); }
+    else if (e.key === 'Escape'){ e.preventDefault();
+      if (S.run){ S.pv[fk] = S.run.start; const back = fmtU(S.run.start, unitOf(fk)); S.run = null; S.report = `Nudge cancelled. ${FIELD[fk]} is back to ${back}.`; render(); return; }
+      delete S.invalid[fk]; delete S.msgs[fk]; render(); statusEl.textContent = `${FIELD[fk] || 'Value'} restored.`; }
+    else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && nudgeable(fk)){
+      e.preventDefault();
+      if (!S.run && t.value !== t.defaultValue) return;            // dirty text: arrows do nothing (MC-10)
+      if (!S.run) S.run = { fk, start:modelValue(fk, t) };
+      const d = (e.key === 'ArrowUp' ? 1 : -1) * nudgeStep(e);
+      // MC-23: each Update applies the same bounds as the canvas gesture — the rail angle bound (−90°, 90°) and Core's
+      // twist clamp (the From root ordering clamp needs the neighbours; it is Core's, named in brief §10.4)
+      let next = modelValue(fk, t) + d, stop = null;
+      if (isRailAngle(fk) && !(next > -90 && next < 90)){ next = modelValue(fk, t); stop = COPY.c170; }
+      if (/tw$|twist/.test(fk)){ const c = CORE.clampTwist(next); if (c.clamped){ next = c.v; stop = COPY.twistClamp; } }
+      if (fk === 'p:tc'){ const c = CORE.clampTc(next); if (c.clamped){ next = c.v; stop = COPY.tcRange; } }
+      S.pv[fk] = next;                                               // Δ on the model value, not on the displayed text
+      if (stop) S.msgs[fk] = { kind:'warn', text:stop }; else if (S.msgs[fk]?.kind === 'warn') delete S.msgs[fk];
+      render(); }
+  }
+  if (t.matches('.radios [role="radio"]')){
+    const opts = [...t.parentElement.children], i = opts.indexOf(t);
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)){
+      e.preventDefault(); if (t.getAttribute('aria-disabled') === 'true') return;
+      // PG-06 / MC-1 (ruled APG deviation): arrows move the check only — no commit, no wrap
+      const j = e.key === 'Home' ? 0 : e.key === 'End' ? opts.length - 1 : Math.max(0, Math.min(opts.length - 1, i + ((e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1)));
+      S.pendingKind = opts[j].dataset.v === S.kind ? null : opts[j].dataset.v; render(opts[j].dataset.fk); return; }
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); commitKind(t.dataset.v, t.dataset.fk); return; }
+    if (e.key === 'Escape' && S.pendingKind){ e.preventDefault(); const k = S.kind; S.pendingKind = null; render(`tangent:${k}`); return; }
+  }
+  if (t.matches('select[data-fk="type"]')){
+    if (e.key === 'Enter' && S.pendingType){ e.preventDefault(); commitType(S.pendingType); return; }
+    if (e.key === 'Escape' && S.pendingType){ e.preventDefault(); S.pendingType = null; render('type'); return; }
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) S.typeArrow = true;
+  }
+  if (e.key === 'Escape' && !t.matches('input, select') && !(t.matches('.radios [role="radio"]') && S.pendingKind)){
+    const back = { handle:'anchor', 'root-handle':'root-te', 'tip-handle':'tip-end', 'twist-handle':'twist-anchor' }[S.state];
+    if (back){ e.preventDefault(); selectState(back); }
+  }
+});
+pane.addEventListener('keyup', e => {
+  if (!S.run || !(e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
+  const fk = S.run.fk, v = S.pv[fk], d = v - S.run.start, u = unitOf(fk); S.run = null;
+  if (Math.abs(d) < 1e-12){ render(); return; }                      // a run held at a bound changed nothing: no undo row
+  S.undo++;
+  // PG-08: the new value is announced once, at release
+  S.report = `${FIELD[fk]} ${fmtU(v, u)} (Δ ${d >= 0 ? '+' : MINUS}${u === '°' ? f2(Math.abs(d)) + '°' : f2(Math.abs(d)) + ' ' + u}).`; render();
+});
+// UI-39: commit on Return or on leaving the field; leaving keeps focus where the user sent it (class UI-C)
+pane.addEventListener('focusout', e => { const t = e.target; if (rendering) return;
+  const next = e.relatedTarget && pane.contains(e.relatedTarget) ? e.relatedTarget.dataset.fk : null;
+  if (t.matches('input[data-fk]') && !S.run && t.value !== t.defaultValue) commit(t, next);
+  // PG-06: leaving the Kind group commits the moved check (one row per intent)
+  if (t.matches('.radios [role="radio"]') && S.pendingKind && !(e.relatedTarget && t.parentElement.contains(e.relatedTarget))) commitKind(S.pendingKind, next);
+  // PG-19 (D1): leaving the Type box with a pending type DROPS it — only Return or a pointer pick converts a point
+  if (t.matches('select[data-fk="type"]') && S.pendingType){ S.pendingType = null; render(next); }
+});
+function commitKind(k, focusFk){ S.pendingKind = null; if (S.kind === k){ render(focusFk); return; }
+  const was = S.kind; S.kind = k; S.undo++;
+  const handle = /handle/.test(S.state);
+  // MC-11: copy from the result — on a handle selection the selected handle is the one kept
+  const rep = k === 'symmetric' ? (handle ? 'Tangent is now symmetric. Kept this handle; the handle toward the root moved.' : 'Tangent is now symmetric. Lined up the handle toward the tip.')
+    : k === 'smooth' ? (handle ? 'Tangent is now smooth. Kept this handle; the handle toward the root turned into line.' : 'Tangent is now smooth.')
+    : `Tangent is now a corner (was ${was}). The handles move independently.`;
+  S.msgs.tangent = { kind:'report', text:rep }; S.report = rep; render(focusFk || `tangent:${k}`); }
+function commitType(v, focusFk){ S.pendingType = null; const toAnchor = v === 'anchor'; S.undo++; S.msgs = {};
+  const txt = toAnchor ? COPY.c154('Trailing edge', 3, 10, 13, 0.84) : COPY.toControl('Trailing edge', 7, 14, 12, 0.62);
+  S.state = toAnchor ? 'anchor' : 'control'; S.msgs.type = { kind:'report', text:txt }; S.report = txt; $('#h-state').value = S.state; render(focusFk || 'type'); }
+pane.addEventListener('change', e => { const t = e.target;
+  if (!t.matches('select[data-fk="type"]')) return;
+  const current = S.state === 'anchor' || S.state === 'overflow' || S.state === 'twist-anchor' ? 'anchor' : 'control';
+  // PG-07: a selection change made with arrows on the closed box is pending; pointer choice (DropDownClosed) or Return commits
+  if (S.typeArrow){ S.typeArrow = false; S.pendingType = t.value === current ? null : t.value; render('type'); return; }
+  if (t.value !== current) commitType(t.value); });
+pane.addEventListener('pointerdown', e => { if (e.target.matches('select[data-fk="type"]')) S.typeArrow = false; });   // a pointer pick of Type is DropDownClosed: it commits
+pane.addEventListener('click', e => {
+  const b = e.target.closest('button[data-fk]'); if (!b) return; const fk = b.dataset.fk;
+  if (fk.startsWith('grp:')){ const id = fk.slice(4); S.collapsed[id] = !S.collapsed[id]; render(); return; }
+  if (fk.startsWith('tangent:')){ if (b.getAttribute('aria-disabled') !== 'true') commitKind(b.dataset.v, fk); return; }
+  if (fk.startsWith('goto:')){ selectState(fk.slice(5)); return; }
+  if (fk === 'retry'){ goState('foil'); return; }
+  if (fk === 'rec-apply' || fk === 'rec-discard'){ S.report = fk === 'rec-apply' ? 'Recovered edit applied.' : 'Recovered edit discarded. Nothing changed.'; goState('control', true); }
+});
+pane.addEventListener('toggle', e => { if (e.target.matches('details.defs')) S.defs = e.target.open; }, true);
+// PG-12: a selection change made from the pane is announced
+const TITLES = { anchor:'Trailing edge · anchor point 7 of 14', 'root-te':'Trailing edge · root end', 'tip-end':'Trailing edge · tip end', 'twist-anchor':'Twist · anchor point 4 of 7' };
+function selectState(st){ S.report = `Selected ${TITLES[st] || st}.`; goState(st, true); const h = pane.querySelector('.grp-h button'); if (h) h.focus(); }
+function goState(st, keepReport){ S.state = st; S.msgs = {}; S.invalid = {}; S.pv = {}; S.run = null; S.pendingKind = null; S.pendingType = null; S.alerted.clear();
+  if (!keepReport) S.report = null; D = { ...BASE };
+  if (st === 'field-error'){ S.invalid['p:aft'] = '12abc'; S.msgs['p:aft'] = { kind:'error', text:COPY.c118('Aft') }; }
+  $('#h-state').value = st; render();
+  if (st === 'recovery'){ const a = pane.querySelector('[data-fk="rec-apply"]'); if (a) a.focus(); }   // PG-14: the AlertBand pattern focuses its first action
+  const f = pane.querySelector('input, select, button'); if (f && document.activeElement === document.body) f.focus(); }
+
+/* ---------------- harness wiring ---------------- */
+function applyHarness(){
+  const w = $('#h-width').value, h = Number($('#h-height').value), th = $('#h-theme').value;
+  frame.style.width = w + 'px'; frame.style.height = (h - 32) + 'px';   // the dock column: the window height less the 32 px strip above the pane tabs seen in the operator captures (title bar, tabs and status bar are drawn inside the frame)
+  frame.dataset.theme = th; $('#frame-before').dataset.theme = th; $('#frame-before').style.width = w + 'px'; $('#frame-before').style.height = (h - 32) + 'px';
+  frame.dataset.persona = $('#h-persona').value; root.dataset.motion = $('#h-motion').checked ? 'reduce' : 'full';
+  $('#compare-wrap').hidden = !$('#h-compare').checked; render();
+}
+['#h-width', '#h-height', '#h-theme', '#h-persona', '#h-motion', '#h-compare'].forEach(s => $(s).addEventListener('change', applyHarness));
+$('#h-state').addEventListener('change', e => goState(e.target.value));
+
+/* ---------------- accessible text of a row: what a screen reader gets (text outside aria-hidden + control names) ---------------- */
+function accText(el){
+  let out = '';
+  const walk = n => { if (n.nodeType === 3){ out += n.textContent + ' '; return; } if (n.nodeType !== 1 || n.getAttribute('aria-hidden') === 'true') return;
+    if (n.matches('input, select, [role="radiogroup"]')){ out += (n.getAttribute('aria-label') || '') + ' '; if (n.tagName === 'SELECT') return; if (n.tagName === 'INPUT') return; }
+    n.childNodes.forEach(walk); };
+  walk(el); return out.replace(/\s+/g, ' ').trim();
+}
+
+/* ---------------- persona side panel ---------------- */
+function side(){
+  const p = $('#h-persona').value, el = $('#side');
+  if (p === 'keyboard') el.innerHTML = `<h2>Keyboard map (pane)</h2><table>
+    <tr><td><kbd>Tab</kbd> / <kbd>⇧Tab</kbd></td><td>next / previous field; group headers are stops; the Kind group is one stop</td></tr>
+    <tr><td><kbd>Return</kbd></td><td>commit the field (one undo step)</td></tr><tr><td><kbd>Esc</kbd> in a field</td><td>restore the shown value</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd> in a point or handle number</td><td>nudge 0.1 · <kbd>⌘</kbd> (macOS) / <kbd>Ctrl</kbd> (Windows) 0.01 · <kbd>⇧</kbd> 1; release applies one undo step; <kbd>Esc</kbd> while held cancels; ignored while the text is edited. Not on Wing fields</td></tr>
+    <tr><td>Arrows on Kind</td><td>move the check only (no wrap); <kbd>Return</kbd> / <kbd>Space</kbd> or leaving the group applies; <kbd>Esc</kbd> keeps the old kind</td></tr>
+    <tr><td>Arrows on a closed Type box</td><td>pending only; <kbd>Return</kbd> applies, <kbd>Esc</kbd> keeps</td></tr>
+    <tr><td><kbd>Space</kbd> / <kbd>Return</kbd> on a header</td><td>collapse / expand the group</td></tr>
+    <tr><td><kbd>Esc</kbd> on a handle</td><td>select its anchor or end point</td></tr><tr><td><kbd>F6</kbd></td><td>next region (Plan ↔ Properties)</td></tr></table>`;
+  else if (p === 'sr') { const items = [...pane.querySelectorAll('.row, .grp-h button')].map(n => `<li>${esc(n.matches('button') ? `button “${n.textContent.trim()}” — ${n.getAttribute('aria-expanded') === 'true' ? 'expanded' : 'collapsed'}` : accText(n))}</li>`);
+    el.innerHTML = `<h2>What a screen reader gets, row by row</h2><ul class="a11y">${items.join('')}</ul><p>The status bar is the one polite live region; a field error is an alert once, tied by aria-describedby.</p>`; }
+  else if (p === 'reviewer') el.innerHTML = `<h2>Row anatomy</h2><p>Every row is one grid: <code>label {prop-label}</code> | <code>value 1fr</code> | <code>unit {prop-unit}</code>, a 3 px state rail, an optional description and one message line. Labels wrap; they are never cut.</p><p>Editable rows: input border + 32 px row. Facts: plain text, 24 px row, one spoken line “label, value unit[, locked]”. Estimates: “≈” prefix.</p>`;
+  else el.innerHTML = `<h2>What changed from the build</h2><p>Labels left, values right-aligned in one column, units in their own column; groups with twirl-down headers; one identity per selection with the canvas glyph; a labelled Tangent group with a vertical Kind list; a handle shows its anchor’s kind; Wing pinned at the foot with every estimate unit-bearing and an Unavailable state with its reason.</p><p>Turn on <b>As built beside</b> to compare.</p>`;
+}
+
+/* ---------------- in-artifact audit ---------------- */
+const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const PAIRS = [['--ink', '--surface', 'text', 'value on pane'], ['--mute', '--surface', 'text', 'label / unit on pane'], ['--mute', '--soft', 'text', 'summary on header band'], ['--ink', '--soft', 'text', 'header on band'],
+  ['--warn', '--surface', 'text', 'warning text'], ['--danger', '--surface', 'text', 'error text'], ['--accent', '--surface', 'text', 'link / chip'],
+  ['--control', '--surface', 'ui', 'input and radio boundary'], ['--accent', '--surface', 'ui', 'checked radio dot'], ['--focus', '--surface', 'ui', 'focus ring'],
+  ['--warn', '--soft', 'text', 'Unavailable chip on header band'], ['--accent', '--soft', 'text', 'preview chip on header band'], ['--focus', '--soft', 'ui', 'focus ring on header band'],
+  ['--mute', '--soft', 'ui', 'Discard boundary on the banner (PG-13)']];
+function audit(){
+  const out = [], push = (check, protects, pass, detail) => out.push({ check, protects, pass, detail });
+  const box = frame.getBoundingClientRect();
+  push('page rendered', 'every later number (DC-200)', box.width > 0 && box.height > 0, `${Math.round(box.width)} × ${Math.round(box.height)} px`);
+  if (!(box.width > 0)) return out;
+  const text = pane.innerText;
+  push('no bare “≈ —”', 'D-4: an estimate never blank without its reason', !/≈\s*—/.test(text), /≈\s*—/.test(text) ? 'found' : 'none');
+  push('no unfilled placeholder', 'copy truth (UI-I): no "<reason>", NaN or undefined', !/<[a-z]+>|NaN|undefined/.test(text), '');
+  const q = [...pane.querySelectorAll('[data-q]')], unitless = q.filter(r => !r.dataset.unit && !r.dataset.dimless);
+  push('every quantity carries its unit', 'O-4 / TQ7', unitless.length === 0, `${q.length} quantities, ${unitless.length} without unit${unitless.length ? ': ' + unitless.map(r => r.dataset.q).join(', ') : ''}`);
+  const unspoken = q.filter(r => r.dataset.spoken && !r.dataset.mixed && !r.dataset.unav && !accText(r).includes(r.dataset.spoken));
+  push('every quantity’s accessible text carries its unit', 'PG-01: units reach the screen reader on facts and estimates too', unspoken.length === 0, unspoken.length ? unspoken.map(r => r.dataset.q).join(', ') : `${q.length} rows`);
+  const clipped = [...pane.querySelectorAll('.val input, .val > span, .lbl, .radios [role="radio"], .radios .rl')].filter(n => n.offsetParent && n.scrollWidth > n.clientWidth + 1);
+  push('nothing clipped at this width (values, labels, Kind options)', 'UI-36, PG-02, PG-03', clipped.length === 0, clipped.length ? clipped.map(n => n.value || n.textContent).join(', ') : 'none');
+  const ellipsized = [...pane.querySelectorAll('.lbl, .radios [role="radio"], .radios .rl')].filter(n => getComputedStyle(n).textOverflow === 'ellipsis');
+  push('no label or option is ellipsized', 'PG-02, PG-03', ellipsized.length === 0, ellipsized.length ? ellipsized.length + ' ellipsized' : 'none');
+  const ids = pane.querySelectorAll('.ident').length, open = !['empty', 'pane-error'].includes(S.state);
+  push('one identity per selection', 'O-6: a handle does not reuse its anchor’s header', !open || ids === 1, `${ids} identity header(s)`);
+  const sel = $('#sel'), wg = $('#wing');
+  push('Wing block fully visible', 'UI-36 / operator: the estimates are always in view', !wg || wg.scrollHeight <= wg.clientHeight + 1, wg ? `Wing ${wg.scrollHeight}/${wg.clientHeight} px` : 'no Wing');
+  const fits = sel.scrollHeight <= sel.clientHeight + 1;
+  push('selection fits without scrolling', 'UI-36 at 1280 × 800 (recorded; see DR-UID-5)', null, `selection ${sel.scrollHeight}/${sel.clientHeight} px — ${fits ? 'fits' : 'scrolls'}`);
+  const labels = [...pane.querySelectorAll('.row .lbl')].filter(l => l.offsetParent).map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val')].filter(v => v.offsetParent).map(v => Math.round(v.getBoundingClientRect().right));
+  push('one label column, one value edge', 'F-1: a grid, not a column of text', new Set(labels).size <= 1 && new Set(vals).size <= 1, `${new Set(labels).size} label x, ${new Set(vals).size} value right edges`);
+  const tgt = [...pane.querySelectorAll('input, select, button')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect()).filter(r => r.width < 24 || r.height < 24);
+  push('targets ≥ 24 × 24', 'SC 2.5.8', tgt.length === 0, `${pane.querySelectorAll('input, select, button').length} targets, ${tgt.length} under`);
+  const named = [...pane.querySelectorAll('input')].filter(n => !/millimetres|degrees|percent/.test(n.getAttribute('aria-label') || ''));
+  push('every number field names its unit', 'screen-reader units (O-4)', named.length === 0, named.length ? named.map(n => n.dataset.fk).join(', ') : `${pane.querySelectorAll('input').length} fields`);
+  const lab = [...pane.querySelectorAll('.row')].filter(r => r.querySelector('input,select')).filter(r => !(r.querySelector('input,select').getAttribute('aria-label') || '').toLowerCase().includes(r.querySelector('.lbl').textContent.toLowerCase()));
+  push('visible label inside the name', 'SC 2.5.3 Label in Name', lab.length === 0, lab.length ? lab.map(r => r.querySelector('.lbl').textContent).join(', ') : '');
+  const cs = getComputedStyle(frame);
+  PAIRS.forEach(([fg, bg, kind, what]) => { const a = cs.getPropertyValue(fg).trim(), b = cs.getPropertyValue(bg).trim(); if (a === b && frame.dataset.theme === 'contrast') return;
+    const r = ratio(a, b), need = kind === 'text' ? 4.5 : 3; push(`contrast ${what}`, kind === 'text' ? 'SC 1.4.3' : 'SC 1.4.11', r >= need, `${fg} ${a} on ${bg} ${b}: ${r.toFixed(2)}:1 (need ${need})`); });
+  return out;
+}
+function runAudit(){
+  const res = audit(), fails = res.filter(r => r.pass === false).length;
+  $('#audit-body').innerHTML = res.map(r => `<tr><td>${esc(r.check)}</td><td>${esc(r.protects)}</td><td class="${r.pass === null ? 'n' : r.pass ? 'p' : 'f'}">${r.pass === null ? 'recorded' : r.pass ? 'pass' : 'FAIL'}</td><td>${esc(r.detail)}</td></tr>`).join('');
+  const v = $('#verdict'); v.textContent = fails ? `${fails} check(s) fail` : `${res.length} checks pass`; v.className = 'verdict ' + (fails ? 'fail' : 'pass');
+}
+window.__pg = { audit, goState, undo:() => S.undo, accText, setHarness:(o) => { for (const [k, v] of Object.entries(o)){ const el = $('#h-' + k); if (el.type === 'checkbox') el.checked = v; else el.value = v; } applyHarness(); }, states:STATES.map(s => s[0]) };
+applyHarness();
+</script>
+</body>
+</html>
