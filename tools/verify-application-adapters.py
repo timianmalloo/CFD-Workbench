@@ -111,12 +111,17 @@ def contrast_checks(test_step: dict) -> dict[str, object]:
     # {colors.warning-viewport}/{colors.viewport-soft} (DESIGN.md L144-156, L215-218).
     plan_keys = {"PlanFoilBrush", "PlanSelectionBrush", "PlanFocusBrush", "PlanMuteBrush",
         "PlanDangerBrush", "PlanWarningBrush", "PlanSoftBrush"}
+    # The property grid's brushes (PGRID, docs/reviews/ui-property-grid.md §10.6): {colors.control-line},
+    # {colors.focus-ring}, {colors.selection} and its ink, {colors.warning}; their DESIGN.md values in all three
+    # themes are pinned by PropertiesPane_GridBrushes_InAllThreeThemes.
+    grid_keys = {"ControlLineBrush", "FocusRingBrush", "SelectionBrush", "OnSelectionBrush", "WarningBrush"}
     brush_pattern = r'<SolidColorBrush x:Key="([A-Za-z]+Brush)"'
-    if (expected_keys | focus_keys | plan_keys).intersection(re.findall(brush_pattern, without_themes)):
+    if (expected_keys | focus_keys | plan_keys | grid_keys).intersection(re.findall(brush_pattern, without_themes)):
         raise RuntimeError("root resource shadows theme brush")
     for variant, block in blocks.items():
         declared = re.findall(brush_pattern, block)
-        if len(declared) != 23 or set(declared) != expected_keys | focus_keys | plan_keys:
+        all_keys = expected_keys | focus_keys | plan_keys | grid_keys
+        if len(declared) != len(all_keys) or set(declared) != all_keys:
             raise RuntimeError(f"{variant} theme brush keys are missing or duplicated")
     def luminance(color: str) -> float:
         values = [int(color[index:index + 2], 16) / 255 for index in (3, 5, 7)]
