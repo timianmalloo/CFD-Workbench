@@ -1318,3 +1318,20 @@ computation. Sweep (2026-10-01): `PropertiesPane.axaml`:95, 99, 102-110, 118-119
 mockup oracle's "no bare ≈ —" audit and its unavailable-state interaction (controlled, mockup);
 `PropertiesPane_EstimatesUnavailable_ShowReasonNeverDash` and `PropertiesPane_OneNonFiniteEstimate_OthersStillShown`
 proposed for the fix track with D-4 (uncontrolled until they land red-first).
+
+**TEST-UNWIRED-EVENT · A test proves behaviour by counting an event that no production code listens to.** PGRID's
+first build (`b052fe9`) raised the Properties pane's `Announced` event for COPY-160, the nudge value and errors, and
+three tests (`PropertiesPane_Error_AnnouncedOncePerFailedCommit`, `FieldNudge_KeyUp_AnnouncesValueOnceInStatus`,
+`Unavailable_AnnouncedInStatus`) asserted it was raised once. Nothing in `src/` subscribed, so no announcement reached
+VoiceOver. The UX & Accessibility build review caught it (PG-26); the tests were green.
+
+**Class → sweep → derive → prevent:** signature: an event declared in `src/` whose only `+=` subscribers are in
+`tests/`. Sweep (2026-10-01, `7048fa1`): 17 events; besides `Announced`, `SectionCanvas.VertexSelected`, `VertexMoved`
+and `FocusedTargetChanged` (also on `Viewport`) have test-only subscribers — the Section tab's editable canvas raises
+edits nobody applies, which matches the operator's 30 Sep "Section tab doesn't seem functional"; wiring belongs to
+M1.2c. `CanExecuteChanged` is an `ICommand` member the framework subscribes to. Derive: a test of an announcement
+asserts the text change of an already-attached live-region element, never an event count (PGRID cycle 2 ported the
+three tests this way). Control: `tools/check-event-subscribers.py` fails on any event declared in `src/` with no
+subscriber in `src/`, except a named allow-list with reasons, and fails when an allow-list entry goes stale. Red-first:
+it reports `Announced` at `b052fe9`; clean at `7048fa1`. Ring: every join (`docs/coordination/join.json` checks);
+cost 0.5 s.
