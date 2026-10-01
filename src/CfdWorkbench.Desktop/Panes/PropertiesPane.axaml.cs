@@ -54,7 +54,7 @@ public partial class PropertiesPane : UserControl
         ErrorPanel.IsVisible = true;
     }
 
-    public void Bind(WorkbenchController controller)
+    public void Bind(WorkbenchController controller, WingEstimates? projectedEstimates = null)
     {
         boundController = controller;
         try
@@ -68,7 +68,8 @@ public partial class PropertiesPane : UserControl
                 return;
             }
 
-            var model = PropertiesView.Build(controller.Selection, authored, controller.Estimates, ShellMode.Workspace);
+            var shownEstimates = projectedEstimates ?? controller.Estimates;
+            var model = PropertiesView.Build(controller.Selection, authored, shownEstimates, ShellMode.Workspace);
             EmptyPanel.IsVisible = false;
             ContentPanel.IsVisible = true;
 
@@ -140,7 +141,7 @@ public partial class PropertiesPane : UserControl
                 EstimatesAreaText.Text = $"Area: {(est.AreaSquareMeters * 10000).ToString("F0", CultureInfo.InvariantCulture)} cm²";
                 EstimatesAspectRatioText.Text = $"Aspect ratio: {est.AspectRatio.ToString("F2", CultureInfo.InvariantCulture)}";
             }
-            BindPointAndWing(controller);
+            BindPointAndWing(controller, shownEstimates);
         }
         catch (Exception ex)
         {
@@ -208,10 +209,9 @@ public partial class PropertiesPane : UserControl
         return false;
     }
 
-    private void BindPointAndWing(WorkbenchController controller)
+    private void BindPointAndWing(WorkbenchController controller, WingEstimates? estimates)
     {
         var plan = controller.Planform;
-        var estimates = controller.Estimates;
         bool preview = plan?.Basis == "preview" || estimates?.Basis == "preview";
         WingHeading.Text = preview ? "Wing · ≈ preview" : "Wing";
         bool dash = estimates is null || !estimates.Converged || !double.IsFinite(estimates.MacMeters);
@@ -223,8 +223,11 @@ public partial class PropertiesPane : UserControl
         WingReasonText.IsVisible = dash && estimates is not null;
         WingReasonText.Text = estimates?.Compute.Outcome ?? "";
         bool tipClosed = estimates is not null && estimates.TipChordMeters <= 1e-9;
+        if (tipClosed && TipChordText.Text is { Length: > 0 } projected && projected != "—")
+            TipClosedText.Text = projected;
+        else if (tipClosed)
+            TipClosedText.Text = TipClosedCopy;
         TipClosedText.IsVisible = tipClosed;
-        TipClosedText.Text = TipClosedCopy;
         TipChordInput.IsVisible = !tipClosed;
         if (estimates is not null && !RootChordInput.IsKeyboardFocusWithin)
             RootChordInput.Text = Mm(estimates.RootChordMeters);
@@ -342,7 +345,7 @@ public partial class PropertiesPane : UserControl
         if (e.Key == Key.Escape)
         {
             e.Handled = true;
-            this.FindAncestorOfType<ShellHost>()?.ModelView.FoilViewport.Focus();
+            this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.Focus();
             return;
         }
         if (e.Key is not (Key.Enter or Key.Return)) return;

@@ -311,7 +311,7 @@ public static class FoilSource
         return candidate;
     }
 
-    public static byte[] PatchRail(SourceParse parsed, string rail, string vertexId, double ordinateSi)
+    public static byte[] RewriteControlOrdinate(SourceParse parsed, string rail, string vertexId, double ordinateSi)
     {
         var definition = parsed.Definition ?? throw new ContractError("DSL-PATCH");
         Guard.Require(rail is "leading" or "trailing" && double.IsFinite(ordinateSi), "DSL-PATCH");

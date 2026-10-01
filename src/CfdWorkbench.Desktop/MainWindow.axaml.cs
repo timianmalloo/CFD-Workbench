@@ -336,7 +336,7 @@ public sealed partial class MainWindow : Window
         SetNumericText(field.Text);
         refreshing = false;
         if (selected.Control.Editable)
-            try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
+            try { workbench.OpenControlDraft(selected.Rail, selected.Control.Id); }
             catch (ContractError error) { stateBanner.Text = $"{error.Code}: control is read-only."; }
         Refresh();
     }
@@ -360,7 +360,7 @@ public sealed partial class MainWindow : Window
             controlList.SelectedIndex < 0 || controlList.SelectedIndex >= targets.Count) return false;
         var selected = targets[controlList.SelectedIndex];
         if (!CanRestartSelectedEdit(workbench.Draft, selectedItemMatches: true, editable: selected.Control.Editable)) return false;
-        try { workbench.BeginEdit(selected.Rail, selected.Control.Id); }
+        try { workbench.OpenControlDraft(selected.Rail, selected.Control.Id); }
         catch (ContractError error) { adapterError = $"{error.Code}: control is read-only."; }
         Refresh();
         return workbench.Draft is not null;
@@ -391,7 +391,7 @@ public sealed partial class MainWindow : Window
         }
         double scale = selected.Unit switch { "mm" => 1000, "cm" => 100, _ => 1 };
         var editMetric = BeginNativeMetric("edit");
-        try { workbench.UpdateDraft(display / scale); CaptureNativeMetric(editMetric); }
+        try { workbench.ReviseOrdinate(display / scale); CaptureNativeMetric(editMetric); }
         catch (ContractError error) { workbench.InvalidateDraftInput(); stateBanner.Text = $"{error.Code}: draft update refused."; }
         Refresh();
     }

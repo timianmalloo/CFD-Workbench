@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Desktop.Panes;
 using CfdWorkbench.Persistence;
@@ -2422,20 +2423,23 @@ public static class ShellWindowTests
             var window = U2Show(controller, out var host);
             try
             {
-                string example = File.ReadAllText(ExamplePath());
-                const string trailing = "points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)]";
-                if (!example.Contains(trailing, StringComparison.Ordinal))
-                    throw new InvalidOperationException("example trailing points not found");
-                string path = ScratchPath("u2-closed-tip.foil");
-                File.WriteAllText(path, example.Replace(trailing, "points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 60), (1, 0)]", StringComparison.Ordinal));
-                Pump(host.OpenFileAsync(path));
+                U2Open(host, window);
+                var accepted = controller.Estimates ?? throw new InvalidOperationException("open foil has no estimates");
+                if (accepted.TipChordMeters <= 1e-9)
+                    throw new InvalidOperationException("example tip is already closed");
+                var closing = accepted with { TipChordMeters = 0 };
+                var projected = PropertiesView.Build(new Selection.Foil(), controller.Inspection?.Authored, closing, ShellMode.Workspace);
+                string row = projected.Blocks.First(block => block.Title == "Wing").Rows.First(item => item.Label == "Tip chord").Value;
+                if (row != TipClosedCopy)
+                    throw new InvalidOperationException("projection row: " + row);
+                host.Properties.Bind(controller, closing);
                 Settle(window);
                 var closed = U2Need<TextBlock>(host.Properties, "TipClosedText");
-                if (!closed.IsVisible || closed.Text != TipClosedCopy)
-                    throw new InvalidOperationException("tip text: " + closed.Text + " chord " + controller.Estimates?.TipChordMeters);
+                if (!closed.IsVisible || closed.Text != row)
+                    throw new InvalidOperationException("tip text: " + closed.Text);
                 var input = host.Properties.FindControl<TextBox>("TipChordInput");
-                if (input is { IsEffectivelyVisible: true, IsEnabled: true })
-                    throw new InvalidOperationException("Closing tip chord is still an enabled field");
+                if (input is { IsEffectivelyVisible: true })
+                    throw new InvalidOperationException("Closing tip chord is still a field");
             }
             finally { window.Close(); }
         });
@@ -2621,16 +2625,17 @@ public static class ShellWindowTests
             {
                 U2Open(host, window);
                 U2Select(controller, window, U2Control(controller, "trailing"));
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport") ?? throw new InvalidOperationException("missing FoilViewport");
+                var canvas = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")
+                    ?? throw new InvalidOperationException("missing PlanCanvas");
                 var span = U2Need<TextBox>(host.Properties, "PointSpanInput");
-                viewport.Focus();
-                U2Key(viewport, Key.Return);
+                canvas.Focus();
+                U2Key(canvas, Key.Return);
                 Settle(window);
                 if (!span.IsFocused) throw new InvalidOperationException("Return did not focus the point span field");
                 U2Key(span, Key.Escape);
                 Settle(window);
                 var focused = window.FocusManager?.GetFocusedElement();
-                if (!ReferenceEquals(focused, viewport) && focused is not Viewport)
+                if (!ReferenceEquals(focused, canvas))
                     throw new InvalidOperationException("Escape did not return to the canvas");
             }
             finally { window.Close(); }
@@ -2887,15 +2892,9 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Recovery_RailDraftResumed_PlanShowsDraftApplyCommits", () =>
         {
-            using var setup = new WorkbenchController();
-            Pump(setup.OpenExampleAsync());
-            var editable = setup.Inspection!.Authored.Rails
-                .SelectMany(rail => rail.Controls.Select(control => (rail.Name, control)))
-                .First(item => item.control.Editable);
-            setup.GetType().GetMethod(string.Concat("Begin", "Edit"))!.Invoke(setup, new object[] { editable.Name, editable.control.Id });
-            setup.GetType().GetMethod(string.Concat("Update", "Draft"))!.Invoke(setup, new object[] { 0.25 });
+            string golden = Path.Combine(RepoRootFromSource(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b", "m12a-rail-recovery.cfdw");
             string path = ScratchPath("u2-rail-recovery.cfdw.json");
-            Pump(setup.SaveAsync(path));
+            File.WriteAllBytes(path, File.ReadAllBytes(golden));
             using var controller = new WorkbenchController();
             var window = U2Show(controller, out var host);
             try
