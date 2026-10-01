@@ -17,6 +17,7 @@ internal static class PlacementTests
         Check("PlacementRule_RadiansConstant_SingleSiteInSource", RadiansSingleSite);
         Check("PlacementRule_TaylorAndGridConstants_SharedByAllModels", ConstantsShared);
         Check("PlacementRule_SelectBlend_SameStationsAsCertificate", SelectMatchesGolden);
+        Check("PlacementRule_FoilFixtures_MatchGoldenSources", FoilFixturesMatchGolden);
         Check("Placement_DisplayWithinCertifiedEnclosure_Fixtures", () => DisplayWithin(false));
         Check("Placement_RandomFixtures_WithinCertifiedEnclosure", () => DisplayWithin(true));
         Check("Placement_DisplayMaximum_WithinCertifiedMaximum", DisplayMaximum);
@@ -90,6 +91,20 @@ internal static class PlacementTests
         foreach (string token in required)
             if (!slice.Contains(token, StringComparison.Ordinal))
                 throw new InvalidOperationException(start + " does not read " + token);
+    }
+
+    private static void FoilFixturesMatchGolden()
+    {
+        string folder = Path.Combine(RepoRoot(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2");
+        using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
+        string[] names = document.RootElement.GetProperty("fixtures").EnumerateArray().Select(item => item.GetProperty("name").GetString()!).Order(StringComparer.Ordinal).ToArray();
+        string[] files = Directory.EnumerateFiles(folder, "*.foil").Select(path => Path.GetFileNameWithoutExtension(path)!).Order(StringComparer.Ordinal).ToArray();
+        Equal(string.Join(",", names), string.Join(",", files));
+        foreach (var fixture in document.RootElement.GetProperty("fixtures").EnumerateArray())
+        {
+            string name = fixture.GetProperty("name").GetString()!;
+            Equal(fixture.GetProperty("source").GetString()!, File.ReadAllText(Path.Combine(folder, name + ".foil")).Replace("\r\n", "\n", StringComparison.Ordinal));
+        }
     }
 
     private static void SelectMatchesGolden()

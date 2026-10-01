@@ -14,7 +14,7 @@
   "fixtures": [
     {
       "name": "example",
-      "source": "foildsl \u00224.0\u0022\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \u0022Basic foil\u0022 {\n  units mm\n  half_span 450 mm\n  evaluator \u0022cfdw-cv\u0022 \u00222\u0022\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \u0022section-a\u0022 {\n      upper cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, 0.025), (0.15, 0.055), (0.35, 0.065), (0.55, 0.05), (0.75, 0.03), (0.9, 0.01), (1, 0)] }\n      lower cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, -0.025), (0.15, -0.055), (0.35, -0.065), (0.55, -0.05), (0.75, -0.03), (0.9, -0.01), (1, 0)] }\n    }\n  }\n  sections { at root profile \u0022section-a\u0022 at tip profile \u0022section-a\u0022 }\n}\n",
+      "source": "foildsl \"4.0\"\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \"Basic foil\" {\n  units mm\n  half_span 450 mm\n  evaluator \"cfdw-cv\" \"2\"\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \"section-a\" {\n      upper cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, 0.025), (0.15, 0.055), (0.35, 0.065), (0.55, 0.05), (0.75, 0.03), (0.9, 0.01), (1, 0)] }\n      lower cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, -0.025), (0.15, -0.055), (0.35, -0.065), (0.55, -0.05), (0.75, -0.03), (0.9, -0.01), (1, 0)] }\n    }\n  }\n  sections { at root profile \"section-a\" at tip profile \"section-a\" }\n}\n",
       "status": "Certified",
       "code": "GEOMETRY-CERTIFIED",
       "reason": "Continuous conservative subset certified.",
@@ -2668,7 +2668,7 @@
     },
     {
       "name": "blended-dihedral",
-      "source": "foildsl \u00224.0\u0022\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \u0022Basic foil\u0022 {\n  units mm\n  half_span 450 mm\n  evaluator \u0022cfdw-cv\u0022 \u00222\u0022\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \u0022section-a\u0022 {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.0625),(.375,.125),(.625,.125),(.875,.0625),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.0625),(.375,-.125),(.625,-.125),(.875,-.0625),(1,0)] }\n    }\n    profile \u0022section-b\u0022 {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.078125),(.375,.15625),(.625,.15625),(.875,.078125),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.046875),(.375,-.09375),(.625,-.09375),(.875,-.046875),(1,0)] }\n    }\n  }\n    sections { at root profile \u0022section-a\u0022 at tip profile \u0022section-b\u0022 }\n}\n",
+      "source": "foildsl \"4.0\"\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \"Basic foil\" {\n  units mm\n  half_span 450 mm\n  evaluator \"cfdw-cv\" \"2\"\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \"section-a\" {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.0625),(.375,.125),(.625,.125),(.875,.0625),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.0625),(.375,-.125),(.625,-.125),(.875,-.0625),(1,0)] }\n    }\n    profile \"section-b\" {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.078125),(.375,.15625),(.625,.15625),(.875,.078125),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.046875),(.375,-.09375),(.625,-.09375),(.875,-.046875),(1,0)] }\n    }\n  }\n    sections { at root profile \"section-a\" at tip profile \"section-b\" }\n}\n",
       "status": "Certified",
       "code": "GEOMETRY-CERTIFIED",
       "reason": "Continuous conservative subset certified.",
@@ -5224,25 +5224,25 @@
       ]
     },
     {
-      "name": "chord-2m",
-      "source": "foildsl \u00224.0\u0022\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \u0022Basic foil\u0022 {\n  units mm\n  half_span 450 mm\n  evaluator \u0022cfdw-cv\u0022 \u00222\u0022\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \u0022section-a\u0022 {\n      upper cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, 0.025), (0.15, 0.055), (0.35, 0.065), (0.55, 0.05), (0.75, 0.03), (0.9, 0.01), (1, 0)] }\n      lower cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, -0.025), (0.15, -0.055), (0.35, -0.065), (0.55, -0.05), (0.75, -0.03), (0.9, -0.01), (1, 0)] }\n    }\n  }\n  sections { at root profile \u0022section-a\u0022 at tip profile \u0022section-a\u0022 }\n}\n",
+      "name": "blended-peaks",
+      "source": "foildsl \"4.0\"\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \"Basic foil\" {\n  units mm\n  half_span 450 mm\n  evaluator \"cfdw-cv\" \"2\"\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \"section-a\" {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.0625),(.375,.14),(.625,.14),(.875,.0625),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.0625),(.375,-.14),(.625,-.14),(.875,-.0625),(1,0)] }\n    }\n    profile \"section-b\" {\n      upper cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,.1),(.375,.15),(.625,.07),(.875,.03),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,1,1,1,1,1,1] points [(0,0),(.125,-.04),(.375,-.06),(.625,-.03),(.875,-.01),(1,0)] }\n    }\n  }\n    sections { at root profile \"section-a\" at tip profile \"section-b\" }\n}\n",
       "status": "Certified",
       "code": "GEOMETRY-CERTIFIED",
       "reason": "Continuous conservative subset certified.",
-      "placementWidthUpper": "3d2ea0e91da5a7ba",
+      "placementWidthUpper": "3d88bb4666009b74",
       "exactPlacementWidth": {
-        "n": "10937130438960795988826315285219911691659816646308211605305305492707521731456037227867757785281221619905401189386148981589117829289084316813953727028342498758389750550293359717234552173855951361963103508007236326313916237345553607741256667979198302202981663692582168621981023161504353413589424793803843306249390556327830194577464594631888146461139342074906443625509400763104208974858823251799399570828907102154132274108721253456358765115349838794516555429879614688284528543698843492443777360503596602636340732955760113766649733446272817099506251981090950869898664197803483594731929",
-        "d": "201023412827386705607802482161779546148544749775499910185973214954074983238073461220864472799637757946824920082323692438262393691269817932010066660580743069675137802866859671670274435403464501505188524841356555959812271269242698610566282052104510825356916298619707092866456510875755355228011034231141391856394381793979552101714155230973589563137934148201308807173642416818200253335838227009741202685678625629736375917046792859843372701384775771524895738619859808574186434068393675246441844987625925799100355989733508810202018192815605688489489842322963990416802981854010388090195562987520000000"
+        "n": "237213066391084808021267419811830972072223828361630691715230600858493170026390631219339286424542024514712860483687269427600748636702898637856910296341318648548065951078271293413660865610173347107324833998819181299273321842231252764369887628554373052761814305476892880220022856178483434709517140259810682963468411527869462767335660509030878244402459406221900497090479976609217385090734723490619507193312252404592399589630393683014987972046296087",
+        "d": "84367894178508794811684107714187113178862300582073377308833316821621726337497144711619613958486044656052381532077480892295633218117989102602328630448923332613805282145179706758135369890785385042463806053713608221992570968986541801043622760037604780492433368069744164278754681489690065553029646619488909319621202820089038671142347823400579570075820516688252318742064460407155714207710640538935131334601459457428039833194291949647422535908720640000000000000"
       },
       "thicknessMaximum": {
-        "lower": "3fbcd49edeb0cf47",
-        "upper": "3fbcd49edeb0d4ce"
+        "lower": "3fcb666666666667",
+        "upper": "3fcb666666666667"
       },
       "feasibility": {
         "Algorithm": "common-denominator-dyadic-128/taylor-grid-64/v1",
         "RationalBitLimit": 32768,
-        "MaximumIntermediateBits": 24945,
-        "RationalOperationsUpper": 321504,
+        "MaximumIntermediateBits": 21028,
+        "RationalOperationsUpper": 859600,
         "InverseDepth": 128,
         "AngleGridBits": 64,
         "MaximumBitPath": "placed-Z/round-shift-divrem",
@@ -5309,6 +5309,2563 @@
             "Degree": 3,
             "CommonDenominatorBits": 57,
             "RefinedNumeratorBits": 441,
+            "RefinedDenominatorBits": 441
+          },
+          {
+            "Curve": "dihedral",
+            "Span": 0,
+            "Degree": 3,
+            "CommonDenominatorBits": 63,
+            "RefinedNumeratorBits": 445,
+            "RefinedDenominatorBits": 447
+          },
+          {
+            "Curve": "dihedral",
+            "Span": 1,
+            "Degree": 3,
+            "CommonDenominatorBits": 63,
+            "RefinedNumeratorBits": 446,
+            "RefinedDenominatorBits": 447
+          },
+          {
+            "Curve": "dihedral",
+            "Span": 2,
+            "Degree": 3,
+            "CommonDenominatorBits": 62,
+            "RefinedNumeratorBits": 446,
+            "RefinedDenominatorBits": 446
+          },
+          {
+            "Curve": "dihedral",
+            "Span": 3,
+            "Degree": 3,
+            "CommonDenominatorBits": 62,
+            "RefinedNumeratorBits": 446,
+            "RefinedDenominatorBits": 446
+          },
+          {
+            "Curve": "twist",
+            "Span": 0,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "twist",
+            "Span": 1,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 443,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "twist",
+            "Span": 2,
+            "Degree": 3,
+            "CommonDenominatorBits": 58,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 442
+          },
+          {
+            "Curve": "twist",
+            "Span": 3,
+            "Degree": 3,
+            "CommonDenominatorBits": 58,
+            "RefinedNumeratorBits": 443,
+            "RefinedDenominatorBits": 442
+          },
+          {
+            "Curve": "thickness",
+            "Span": 0,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "thickness",
+            "Span": 1,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 443,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "thickness",
+            "Span": 2,
+            "Degree": 3,
+            "CommonDenominatorBits": 58,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 442
+          },
+          {
+            "Curve": "thickness",
+            "Span": 3,
+            "Degree": 3,
+            "CommonDenominatorBits": 57,
+            "RefinedNumeratorBits": 441,
+            "RefinedDenominatorBits": 441
+          },
+          {
+            "Curve": "profile:0:upper",
+            "Span": 0,
+            "Degree": 5,
+            "CommonDenominatorBits": 55,
+            "RefinedNumeratorBits": 695,
+            "RefinedDenominatorBits": 695
+          },
+          {
+            "Curve": "profile:0:lower",
+            "Span": 0,
+            "Degree": 5,
+            "CommonDenominatorBits": 55,
+            "RefinedNumeratorBits": 695,
+            "RefinedDenominatorBits": 695
+          },
+          {
+            "Curve": "profile:1:upper",
+            "Span": 0,
+            "Degree": 5,
+            "CommonDenominatorBits": 57,
+            "RefinedNumeratorBits": 697,
+            "RefinedDenominatorBits": 697
+          },
+          {
+            "Curve": "profile:1:lower",
+            "Span": 0,
+            "Degree": 5,
+            "CommonDenominatorBits": 61,
+            "RefinedNumeratorBits": 701,
+            "RefinedDenominatorBits": 701
+          }
+        ]
+      },
+      "witnesses": [
+        {
+          "Curve": "leading",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "abscissaUpper": {
+            "n": "3602879701896397",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "leading",
+          "domainStart": {
+            "n": "1",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "2"
+          },
+          "abscissaLower": {
+            "n": "7205759403792793",
+            "d": "108086391056891904"
+          },
+          "abscissaUpper": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "leading",
+          "domainStart": {
+            "n": "1",
+            "d": "2"
+          },
+          "domainEnd": {
+            "n": "3",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "300239975158033",
+            "d": "4503599627370496"
+          },
+          "abscissaUpper": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "leading",
+          "domainStart": {
+            "n": "3",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "abscissaUpper": {
+            "n": "1801439850948199",
+            "d": "18014398509481984"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "trailing",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "abscissaUpper": {
+            "n": "3602879701896397",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "trailing",
+          "domainStart": {
+            "n": "1",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "2"
+          },
+          "abscissaLower": {
+            "n": "7205759403792793",
+            "d": "108086391056891904"
+          },
+          "abscissaUpper": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "trailing",
+          "domainStart": {
+            "n": "1",
+            "d": "2"
+          },
+          "domainEnd": {
+            "n": "3",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "300239975158033",
+            "d": "4503599627370496"
+          },
+          "abscissaUpper": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "trailing",
+          "domainStart": {
+            "n": "3",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "abscissaUpper": {
+            "n": "1801439850948199",
+            "d": "18014398509481984"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "dihedral",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "abscissaUpper": {
+            "n": "3602879701896397",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "12682136550675317",
+            "d": "1152921504606846976"
+          }
+        },
+        {
+          "Curve": "dihedral",
+          "domainStart": {
+            "n": "1",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "2"
+          },
+          "abscissaLower": {
+            "n": "7205759403792793",
+            "d": "108086391056891904"
+          },
+          "abscissaUpper": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "ordinateLower": {
+            "n": "12682136550675317",
+            "d": "1152921504606846976"
+          },
+          "ordinateUpper": {
+            "n": "41505174165846491",
+            "d": "1729382256910270464"
+          }
+        },
+        {
+          "Curve": "dihedral",
+          "domainStart": {
+            "n": "1",
+            "d": "2"
+          },
+          "domainEnd": {
+            "n": "3",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "300239975158033",
+            "d": "4503599627370496"
+          },
+          "abscissaUpper": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "41505174165846491",
+            "d": "1729382256910270464"
+          },
+          "ordinateUpper": {
+            "n": "63987143505680005",
+            "d": "1729382256910270464"
+          }
+        },
+        {
+          "Curve": "dihedral",
+          "domainStart": {
+            "n": "3",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "abscissaUpper": {
+            "n": "1801439850948199",
+            "d": "18014398509481984"
+          },
+          "ordinateLower": {
+            "n": "63987143505680005",
+            "d": "1729382256910270464"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "18014398509481984"
+          }
+        },
+        {
+          "Curve": "twist",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "abscissaUpper": {
+            "n": "3602879701896397",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "-11",
+            "d": "48"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "twist",
+          "domainStart": {
+            "n": "1",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "2"
+          },
+          "abscissaLower": {
+            "n": "7205759403792793",
+            "d": "108086391056891904"
+          },
+          "abscissaUpper": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "ordinateLower": {
+            "n": "-13",
+            "d": "24"
+          },
+          "ordinateUpper": {
+            "n": "-11",
+            "d": "48"
+          }
+        },
+        {
+          "Curve": "twist",
+          "domainStart": {
+            "n": "1",
+            "d": "2"
+          },
+          "domainEnd": {
+            "n": "3",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "300239975158033",
+            "d": "4503599627370496"
+          },
+          "abscissaUpper": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "-25",
+            "d": "24"
+          },
+          "ordinateUpper": {
+            "n": "-13",
+            "d": "24"
+          }
+        },
+        {
+          "Curve": "twist",
+          "domainStart": {
+            "n": "3",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "abscissaUpper": {
+            "n": "1801439850948199",
+            "d": "18014398509481984"
+          },
+          "ordinateLower": {
+            "n": "-2",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "-25",
+            "d": "24"
+          }
+        },
+        {
+          "Curve": "thickness",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "abscissaUpper": {
+            "n": "3602879701896397",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "thickness",
+          "domainStart": {
+            "n": "1",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "2"
+          },
+          "abscissaLower": {
+            "n": "7205759403792793",
+            "d": "108086391056891904"
+          },
+          "abscissaUpper": {
+            "n": "36028797018963967",
+            "d": "432345564227567616"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "thickness",
+          "domainStart": {
+            "n": "1",
+            "d": "2"
+          },
+          "domainEnd": {
+            "n": "3",
+            "d": "4"
+          },
+          "abscissaLower": {
+            "n": "300239975158033",
+            "d": "4503599627370496"
+          },
+          "abscissaUpper": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "thickness",
+          "domainStart": {
+            "n": "3",
+            "d": "4"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "3002399751580331",
+            "d": "36028797018963968"
+          },
+          "abscissaUpper": {
+            "n": "1801439850948199",
+            "d": "18014398509481984"
+          },
+          "ordinateLower": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "1080863910568919",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "profile:0:upper",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "1261007895663739",
+            "d": "9007199254740992"
+          }
+        },
+        {
+          "Curve": "profile:0:lower",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "-1261007895663739",
+            "d": "9007199254740992"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "profile:1:upper",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "5404319552844595",
+            "d": "36028797018963968"
+          }
+        },
+        {
+          "Curve": "profile:1:lower",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "-1080863910568919",
+            "d": "18014398509481984"
+          },
+          "ordinateUpper": {
+            "n": "0",
+            "d": "1"
+          }
+        },
+        {
+          "Curve": "profile-separation",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "1261007895663739",
+            "d": "4503599627370496"
+          }
+        },
+        {
+          "Curve": "profile-separation",
+          "domainStart": {
+            "n": "0",
+            "d": "1"
+          },
+          "domainEnd": {
+            "n": "1",
+            "d": "1"
+          },
+          "abscissaLower": {
+            "n": "1",
+            "d": "8"
+          },
+          "abscissaUpper": {
+            "n": "1",
+            "d": "4"
+          },
+          "ordinateLower": {
+            "n": "0",
+            "d": "1"
+          },
+          "ordinateUpper": {
+            "n": "7566047373982433",
+            "d": "36028797018963968"
+          }
+        }
+      ],
+      "probes": [
+        {
+          "eta": 0,
+          "x": 0,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0.5,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faeb851eb851eb7",
+              "3faeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "3f7d7dbf487fcb91",
+              "3f7d7dbf487fcb92"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ],
+            "lower": [
+              "bfaeb851eb851eb8",
+              "bfaeb851eb851eb8"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0.5,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faeb851eb851eb7",
+              "3faeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "3f7d7dbf487fcb91",
+              "3f7d7dbf487fcb92"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ],
+            "lower": [
+              "bfaeb851eb851eb8",
+              "bfaeb851eb851eb8"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0.5,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faeb851eb851eb7",
+              "3faeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "bf7d7dbf487fcb92",
+              "bf7d7dbf487fcb91"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ],
+            "lower": [
+              "bfaeb851eb851eb8",
+              "bfaeb851eb851eb8"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 0.5,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faeb851eb851eb7",
+              "3faeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "bf7d7dbf487fcb92",
+              "bf7d7dbf487fcb91"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ],
+            "lower": [
+              "bfaeb851eb851eb8",
+              "bfaeb851eb851eb8"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 1,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb851eb851eb7",
+              "3fbeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "b86365e9302cc2f2",
+              "386365e9302cc2f2"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 1,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb851eb851eb7",
+              "3fbeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "b86365e9302cc2f2",
+              "386365e9302cc2f2"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 1,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb851eb851eb7",
+              "3fbeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "b86365e9302cc2f2",
+              "386365e9302cc2f2"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0,
+          "x": 1,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb851eb851eb7",
+              "3fbeb851eb851eb9"
+            ],
+            "y": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "z": [
+              "b86365e9302cc2f2",
+              "386365e9302cc2f2"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f827584b2dceae0",
+              "3f827584b2dcfaad"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f827584b2dceae0",
+              "3f827584b2dcfaad"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f827584b2dceae0",
+              "3f827584b2dcfaad"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f827584b2dceae0",
+              "3f827584b2dcfaad"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0.5,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faeb4db6e8b161f",
+              "3faeb4db6e8b1624"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f9195c20d5deb0e",
+              "3f9195c20d5df9cc"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb0fce1752a515d",
+              "3fb0fce1752a5f99"
+            ],
+            "lower": [
+              "bfab2cf61d87f264",
+              "bfab2cf61d87d5ed"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0.5,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faeb4db6e8b161f",
+              "3faeb4db6e8b1624"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f9195c20d5deb0e",
+              "3f9195c20d5df9cc"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb0fce1752a515d",
+              "3fb0fce1752a5f99"
+            ],
+            "lower": [
+              "bfab2cf61d87f264",
+              "bfab2cf61d87d5ed"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0.5,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faebb038604c60f",
+              "3faebb038604c614"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f67452866be4e6e",
+              "3f67452866bec45a"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb0fce1752a515d",
+              "3fb0fce1752a5f99"
+            ],
+            "lower": [
+              "bfab2cf61d87f264",
+              "bfab2cf61d87d5ed"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 0.5,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faebb038604c60f",
+              "3faebb038604c614"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f67452866be4e6e",
+              "3f67452866bec45a"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb0fce1752a515d",
+              "3fb0fce1752a5f99"
+            ],
+            "lower": [
+              "bfab2cf61d87f264",
+              "bfab2cf61d87d5ed"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 1,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb8471bac534a",
+              "3fbeb8471bac534c"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f8343b5269dd6db",
+              "3f8343b5269de6b3"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 1,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb8471bac534a",
+              "3fbeb8471bac534c"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f8343b5269dd6db",
+              "3f8343b5269de6b3"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 1,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb8471bac534a",
+              "3fbeb8471bac534c"
+            ],
+            "y": [
+              "3fbccccccccccccd",
+              "3fbccccccccccccd"
+            ],
+            "z": [
+              "3f8343b5269dd6db",
+              "3f8343b5269de6b3"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.25,
+          "x": 1,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb8471bac534a",
+              "3fbeb8471bac534c"
+            ],
+            "y": [
+              "bfbccccccccccccd",
+              "bfbccccccccccccd"
+            ],
+            "z": [
+              "3f8343b5269dd6db",
+              "3f8343b5269de6b3"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3f989374bc6a7ef9",
+              "3f989374bc6a851f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3f989374bc6a7ef9",
+              "3f989374bc6a851f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3f989374bc6a7ef9",
+              "3f989374bc6a851f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3f989374bc6a7ef9",
+              "3f989374bc6a851f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0.5,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faead3eb0c2d697",
+              "3faead3eb0c2d6a0"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3fa1025ba6e7cb1a",
+              "3fa1025ba6e7d114"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb27663d18c86f0",
+              "3fb27663d18c9304"
+            ],
+            "lower": [
+              "bfa7532e097f8c6d",
+              "bfa7532e097f7446"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0.5,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faead3eb0c2d697",
+              "3faead3eb0c2d6a0"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3fa1025ba6e7cb1a",
+              "3fa1025ba6e7d114"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb27663d18c86f0",
+              "3fb27663d18c9304"
+            ],
+            "lower": [
+              "bfa7532e097f8c6d",
+              "bfa7532e097f7446"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0.5,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faebebe17d5ee22",
+              "3faebebe17d5ee2b"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3f938f2191f41cb1",
+              "3f938f2191f428a4"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb27663d18c86f0",
+              "3fb27663d18c9304"
+            ],
+            "lower": [
+              "bfa7532e097f8c6d",
+              "bfa7532e097f7446"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 0.5,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3faebebe17d5ee22",
+              "3faebebe17d5ee2b"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3f938f2191f41cb1",
+              "3f938f2191f428a4"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb27663d18c86f0",
+              "3fb27663d18c9304"
+            ],
+            "lower": [
+              "bfa7532e097f8c6d",
+              "bfa7532e097f7446"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 1,
+          "upper": true,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb7f7f3c689a2",
+              "3fbeb7f7f3c689a4"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3f99bcd8317287e5",
+              "3f99bcd831728e0e"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 1,
+          "upper": true,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb7f7f3c689a2",
+              "3fbeb7f7f3c689a4"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3f99bcd8317287e5",
+              "3f99bcd831728e0e"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 1,
+          "upper": false,
+          "port": false,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb7f7f3c689a2",
+              "3fbeb7f7f3c689a4"
+            ],
+            "y": [
+              "3fcccccccccccccd",
+              "3fcccccccccccccd"
+            ],
+            "z": [
+              "3f99bcd8317287e5",
+              "3f99bcd831728e0e"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 0.5,
+          "x": 1,
+          "upper": false,
+          "port": true,
+          "select": [
+            0,
+            1
+          ],
+          "point": {
+            "x": [
+              "3fbeb7f7f3c689a2",
+              "3fbeb7f7f3c689a4"
+            ],
+            "y": [
+              "bfcccccccccccccd",
+              "bfcccccccccccccd"
+            ],
+            "z": [
+              "3f99bcd8317287e5",
+              "3f99bcd831728e0e"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0,
+          "upper": true,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0,
+          "upper": true,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0,
+          "upper": false,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0,
+          "upper": false,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3faeb851eb851eb8",
+              "3faeb851eb851eb8"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0.5,
+          "upper": true,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fae8682ad3e1da9",
+              "3fae8682ad3e1dc2"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3fb269f9b83bf5c4",
+              "3fb269f9b83bf715"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb4fed0fe4cd0ec",
+              "3fb4fed0fe4cdbe1"
+            ],
+            "lower": [
+              "bf9d94dd92cd091b",
+              "bf9d94dd92ccdd4a"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0.5,
+          "upper": true,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fae8682ad3e1da9",
+              "3fae8682ad3e1dc2"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3fb269f9b83bf5c4",
+              "3fb269f9b83bf715"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb4fed0fe4cd0ec",
+              "3fb4fed0fe4cdbe1"
+            ],
+            "lower": [
+              "bf9d94dd92cd091b",
+              "bf9d94dd92ccdd4a"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0.5,
+          "upper": false,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faec362f98ef7d9",
+              "3faec362f98ef7f1"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3fae04af880d43d8",
+              "3fae04af880d467a"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb4fed0fe4cd0ec",
+              "3fb4fed0fe4cdbe1"
+            ],
+            "lower": [
+              "bf9d94dd92cd091b",
+              "bf9d94dd92ccdd4a"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 0.5,
+          "upper": false,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3faec362f98ef7d9",
+              "3faec362f98ef7f1"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3fae04af880d43d8",
+              "3fae04af880d467a"
+            ]
+          },
+          "section": {
+            "upper": [
+              "3fb4fed0fe4cd0ec",
+              "3fb4fed0fe4cdbe1"
+            ],
+            "lower": [
+              "bf9d94dd92cd091b",
+              "bf9d94dd92ccdd4a"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 1,
+          "upper": true,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb3877e28052f",
+              "3fbeb3877e280530"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3fb06e9eed65e95e",
+              "3fb06e9eed65e95f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 1,
+          "upper": true,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb3877e28052f",
+              "3fbeb3877e280530"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3fb06e9eed65e95e",
+              "3fb06e9eed65e95f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 1,
+          "upper": false,
+          "port": false,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb3877e28052f",
+              "3fbeb3877e280530"
+            ],
+            "y": [
+              "3fdccccccccccccd",
+              "3fdccccccccccccd"
+            ],
+            "z": [
+              "3fb06e9eed65e95e",
+              "3fb06e9eed65e95f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        {
+          "eta": 1,
+          "x": 1,
+          "upper": false,
+          "port": true,
+          "select": [
+            1,
+            -1
+          ],
+          "point": {
+            "x": [
+              "3fbeb3877e28052f",
+              "3fbeb3877e280530"
+            ],
+            "y": [
+              "bfdccccccccccccd",
+              "bfdccccccccccccd"
+            ],
+            "z": [
+              "3fb06e9eed65e95e",
+              "3fb06e9eed65e95f"
+            ]
+          },
+          "section": {
+            "upper": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "lower": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "chord-2m",
+      "source": "foildsl \"4.0\"\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \"Basic foil\" {\n  units mm\n  half_span 450 mm\n  evaluator \"cfdw-cv\" \"2\"\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 2000), (0.1, 2000), (0.3, 2000), (0.5, 2000), (0.7, 2000), (0.9, 2000), (1, 2000)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -0.25), (0.5, -0.5), (0.7, -1), (0.9, -1.5), (1, -2)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \"section-a\" {\n      upper cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, 0.025), (0.15, 0.055), (0.35, 0.065), (0.55, 0.05), (0.75, 0.03), (0.9, 0.01), (1, 0)] }\n      lower cv { degree 5 knots [0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1] points [(0, 0), (0, -0.025), (0.15, -0.055), (0.35, -0.065), (0.55, -0.05), (0.75, -0.03), (0.9, -0.01), (1, 0)] }\n    }\n  }\n  sections { at root profile \"section-a\" at tip profile \"section-a\" }\n}\n",
+      "status": "Certified",
+      "code": "GEOMETRY-CERTIFIED",
+      "reason": "Continuous conservative subset certified.",
+      "placementWidthUpper": "3d51b4ead1b1b0bb",
+      "exactPlacementWidth": {
+        "n": "790359529652406587196522196343853826159305789284601462081819120820310885313146584478850574222568825605090247210215229212374698968135791189679057134543708580956126021178567056475286465765036387151837290092109523340558336759222310365620311173844168024671094233698971224086880451447976621268901502144668778919330582631396427152805764949204488514056495150605710526889655833647759193143260139137800729777084560733570129308610067621880559690150949270476399497637164110476965552912563454266490030442631928327411407260231710986860529232997386179618264736906134155953131233984181299039701",
+        "d": "3140990825427917275121913783777805408571011715242186096655831483657421613094897831576007387494339967919139376286307694347849901426090905187657291571574110463674028169794682369848038053179132836018570700646196186872066738581917165790098157064132981646201817165932923326038382982433677425437672409861584247756162215530930501589283675483962336924030221065645450112088162762784378958372472297027206291963728525464630873703856138435052698459137121430076495915935309508971663032318651175725653827931655090610943062339586075159406534262743838882648278786296312350262546591468912313909305671680000000"
+      },
+      "thicknessMaximum": {
+        "lower": "3fbcd49edeb0cf47",
+        "upper": "3fbcd49edeb0d4ce"
+      },
+      "feasibility": {
+        "Algorithm": "common-denominator-dyadic-128/taylor-grid-64/v1",
+        "RationalBitLimit": 32768,
+        "MaximumIntermediateBits": 24947,
+        "RationalOperationsUpper": 321504,
+        "InverseDepth": 128,
+        "AngleGridBits": 64,
+        "MaximumBitPath": "placed-Z/round-shift-divrem",
+        "spans": [
+          {
+            "Curve": "leading",
+            "Span": 0,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "leading",
+            "Span": 1,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 443,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "leading",
+            "Span": 2,
+            "Degree": 3,
+            "CommonDenominatorBits": 58,
+            "RefinedNumeratorBits": 442,
+            "RefinedDenominatorBits": 442
+          },
+          {
+            "Curve": "leading",
+            "Span": 3,
+            "Degree": 3,
+            "CommonDenominatorBits": 57,
+            "RefinedNumeratorBits": 441,
+            "RefinedDenominatorBits": 441
+          },
+          {
+            "Curve": "trailing",
+            "Span": 0,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 445,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "trailing",
+            "Span": 1,
+            "Degree": 3,
+            "CommonDenominatorBits": 60,
+            "RefinedNumeratorBits": 445,
+            "RefinedDenominatorBits": 444
+          },
+          {
+            "Curve": "trailing",
+            "Span": 2,
+            "Degree": 3,
+            "CommonDenominatorBits": 58,
+            "RefinedNumeratorBits": 443,
+            "RefinedDenominatorBits": 442
+          },
+          {
+            "Curve": "trailing",
+            "Span": 3,
+            "Degree": 3,
+            "CommonDenominatorBits": 57,
+            "RefinedNumeratorBits": 442,
             "RefinedDenominatorBits": 441
           },
           {
@@ -5585,12 +8142,12 @@
             "d": "36028797018963968"
           },
           "ordinateLower": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           },
           "ordinateUpper": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           }
         },
         {
@@ -5612,12 +8169,12 @@
             "d": "432345564227567616"
           },
           "ordinateLower": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           },
           "ordinateUpper": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           }
         },
         {
@@ -5639,12 +8196,12 @@
             "d": "36028797018963968"
           },
           "ordinateLower": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           },
           "ordinateUpper": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           }
         },
         {
@@ -5666,12 +8223,12 @@
             "d": "18014398509481984"
           },
           "ordinateLower": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           },
           "ordinateUpper": {
-            "n": "1080863910568919",
-            "d": "9007199254740992"
+            "n": "2",
+            "d": "1"
           }
         },
         {
@@ -6390,16 +8947,16 @@
           ],
           "point": {
             "x": [
-              "3faeb851eb851eb7",
-              "3faeb851eb851eb9"
+              "3fefffffffffffff",
+              "3ff0000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "3f7a79cd486c0f2a",
-              "3f7a79cd486c14e6"
+              "3fbb9435d61b3a76",
+              "3fbb9435d61b4070"
             ]
           },
           "section": {
@@ -6424,16 +8981,16 @@
           ],
           "point": {
             "x": [
-              "3faeb851eb851eb7",
-              "3faeb851eb851eb9"
+              "3fefffffffffffff",
+              "3ff0000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "3f7a79cd486c0f2a",
-              "3f7a79cd486c14e6"
+              "3fbb9435d61b3a76",
+              "3fbb9435d61b4070"
             ]
           },
           "section": {
@@ -6458,16 +9015,16 @@
           ],
           "point": {
             "x": [
-              "3faeb851eb851eb7",
-              "3faeb851eb851eb9"
+              "3fefffffffffffff",
+              "3ff0000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "bf7a79cd486c14e6",
-              "bf7a79cd486c0f2a"
+              "bfbb9435d61b4070",
+              "bfbb9435d61b3a76"
             ]
           },
           "section": {
@@ -6492,16 +9049,16 @@
           ],
           "point": {
             "x": [
-              "3faeb851eb851eb7",
-              "3faeb851eb851eb9"
+              "3fefffffffffffff",
+              "3ff0000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "bf7a79cd486c14e6",
-              "bf7a79cd486c0f2a"
+              "bfbb9435d61b4070",
+              "bfbb9435d61b3a76"
             ]
           },
           "section": {
@@ -6526,16 +9083,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb851eb851eb7",
-              "3fbeb851eb851eb9"
+              "3fffffffffffffff",
+              "4000000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "b86365e9302cc2f2",
-              "386365e9302cc2f2"
+              "b8a434d2e783f5bd",
+              "38a434d2e783f5bd"
             ]
           },
           "section": {
@@ -6560,16 +9117,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb851eb851eb7",
-              "3fbeb851eb851eb9"
+              "3fffffffffffffff",
+              "4000000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "b86365e9302cc2f2",
-              "386365e9302cc2f2"
+              "b8a434d2e783f5bd",
+              "38a434d2e783f5bd"
             ]
           },
           "section": {
@@ -6594,16 +9151,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb851eb851eb7",
-              "3fbeb851eb851eb9"
+              "3fffffffffffffff",
+              "4000000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "b86365e9302cc2f2",
-              "386365e9302cc2f2"
+              "b8a434d2e783f5bd",
+              "38a434d2e783f5bd"
             ]
           },
           "section": {
@@ -6628,16 +9185,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb851eb851eb7",
-              "3fbeb851eb851eb9"
+              "3fffffffffffffff",
+              "4000000000000001"
             ],
             "y": [
               "0000000000000000",
               "0000000000000000"
             ],
             "z": [
-              "b86365e9302cc2f2",
-              "386365e9302cc2f2"
+              "b8a434d2e783f5bd",
+              "38a434d2e783f5bd"
             ]
           },
           "section": {
@@ -6798,16 +9355,16 @@
           ],
           "point": {
             "x": [
-              "3faeb5804c39bb6f",
-              "3faeb5804c39bb72"
+              "3feffd104f66cde9",
+              "3feffd104f66cdec"
             ],
             "y": [
               "3fbccccccccccccd",
               "3fbccccccccccccd"
             ],
             "z": [
-              "3f900cbf741d1a7f",
-              "3f900cbf741d23d8"
+              "3fbeb9a48588a271",
+              "3fbeb9a48588aa71"
             ]
           },
           "section": {
@@ -6832,16 +9389,16 @@
           ],
           "point": {
             "x": [
-              "3faeb5804c39bb6f",
-              "3faeb5804c39bb72"
+              "3feffd104f66cde9",
+              "3feffd104f66cdec"
             ],
             "y": [
               "bfbccccccccccccd",
               "bfbccccccccccccd"
             ],
             "z": [
-              "3f900cbf741d1a7f",
-              "3f900cbf741d23d8"
+              "3fbeb9a48588a271",
+              "3fbeb9a48588aa71"
             ]
           },
           "section": {
@@ -6866,16 +9423,16 @@
           ],
           "point": {
             "x": [
-              "3faebb0deb1eeb24",
-              "3faebb0deb1eeb27"
+              "3ff0016c95201a78",
+              "3ff0016c95201a7a"
             ],
             "y": [
               "3fbccccccccccccd",
               "3fbccccccccccccd"
             ],
             "z": [
-              "3f667eebc502277a",
-              "3f667eebc5027238"
+              "bfb86eb3bcff8213",
+              "bfb86eb3bcff7a14"
             ]
           },
           "section": {
@@ -6900,16 +9457,16 @@
           ],
           "point": {
             "x": [
-              "3faebb0deb1eeb24",
-              "3faebb0deb1eeb27"
+              "3ff0016c95201a78",
+              "3ff0016c95201a7a"
             ],
             "y": [
               "bfbccccccccccccd",
               "bfbccccccccccccd"
             ],
             "z": [
-              "3f667eebc502277a",
-              "3f667eebc5027238"
+              "bfb86eb3bcff8213",
+              "bfb86eb3bcff7a14"
             ]
           },
           "section": {
@@ -6934,16 +9491,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb8471bac534a",
-              "3fbeb8471bac534c"
+              "3ffffff4bcd3816d",
+              "3ffffff4bcd3816f"
             ],
             "y": [
               "3fbccccccccccccd",
               "3fbccccccccccccd"
             ],
             "z": [
-              "3f8343b5269dd6db",
-              "3f8343b5269de6b3"
+              "3f8fe201916c47e4",
+              "3f8fe201916c5868"
             ]
           },
           "section": {
@@ -6968,16 +9525,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb8471bac534a",
-              "3fbeb8471bac534c"
+              "3ffffff4bcd3816d",
+              "3ffffff4bcd3816f"
             ],
             "y": [
               "bfbccccccccccccd",
               "bfbccccccccccccd"
             ],
             "z": [
-              "3f8343b5269dd6db",
-              "3f8343b5269de6b3"
+              "3f8fe201916c47e4",
+              "3f8fe201916c5868"
             ]
           },
           "section": {
@@ -7002,16 +9559,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb8471bac534a",
-              "3fbeb8471bac534c"
+              "3ffffff4bcd3816d",
+              "3ffffff4bcd3816f"
             ],
             "y": [
               "3fbccccccccccccd",
               "3fbccccccccccccd"
             ],
             "z": [
-              "3f8343b5269dd6db",
-              "3f8343b5269de6b3"
+              "3f8fe201916c47e4",
+              "3f8fe201916c5868"
             ]
           },
           "section": {
@@ -7036,16 +9593,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb8471bac534a",
-              "3fbeb8471bac534c"
+              "3ffffff4bcd3816d",
+              "3ffffff4bcd3816f"
             ],
             "y": [
               "bfbccccccccccccd",
               "bfbccccccccccccd"
             ],
             "z": [
-              "3f8343b5269dd6db",
-              "3f8343b5269de6b3"
+              "3f8fe201916c47e4",
+              "3f8fe201916c5868"
             ]
           },
           "section": {
@@ -7206,16 +9763,16 @@
           ],
           "point": {
             "x": [
-              "3faeaff5896e153b",
-              "3faeaff5896e153f"
+              "3feff74a6f2800c9",
+              "3feff74a6f2800cc"
             ],
             "y": [
               "3fcccccccccccccd",
               "3fcccccccccccccd"
             ],
             "z": [
-              "3f9fc686669b0859",
-              "3f9fc686669b0fef"
+              "3fc21228ba1d18bb",
+              "3fc21228ba1d1c81"
             ]
           },
           "section": {
@@ -7240,16 +9797,16 @@
           ],
           "point": {
             "x": [
-              "3faeaff5896e153b",
-              "3faeaff5896e153f"
+              "3feff74a6f2800c9",
+              "3feff74a6f2800cc"
             ],
             "y": [
               "bfcccccccccccccd",
               "bfcccccccccccccd"
             ],
             "z": [
-              "3f9fc686669b0859",
-              "3f9fc686669b0fef"
+              "3fc21228ba1d18bb",
+              "3fc21228ba1d1c81"
             ]
           },
           "section": {
@@ -7274,16 +9831,16 @@
           ],
           "point": {
             "x": [
-              "3faebffa5e1efe08",
-              "3faebffa5e1efe0b"
+              "3ff003fd110579a4",
+              "3ff003fd110579a6"
             ],
             "y": [
               "3fcccccccccccccd",
               "3fcccccccccccccd"
             ],
             "z": [
-              "3f9289c68741fd17",
-              "3f9289c6874204ad"
+              "bfb30378ae637d72",
+              "bfb30378ae6375e8"
             ]
           },
           "section": {
@@ -7308,16 +9865,16 @@
           ],
           "point": {
             "x": [
-              "3faebffa5e1efe08",
-              "3faebffa5e1efe0b"
+              "3ff003fd110579a4",
+              "3ff003fd110579a6"
             ],
             "y": [
               "bfcccccccccccccd",
               "bfcccccccccccccd"
             ],
             "z": [
-              "3f9289c68741fd17",
-              "3f9289c6874204ad"
+              "bfb30378ae637d72",
+              "bfb30378ae6375e8"
             ]
           },
           "section": {
@@ -7342,16 +9899,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb7f7f3c689a2",
-              "3fbeb7f7f3c689a4"
+              "3fffffa248997a0a",
+              "3fffffa248997a0b"
             ],
             "y": [
               "3fcccccccccccccd",
               "3fcccccccccccccd"
             ],
             "z": [
-              "3f99bcd8317287e5",
-              "3f99bcd831728e0e"
+              "3fa5f7f72d783481",
+              "3fa5f7f72d7837af"
             ]
           },
           "section": {
@@ -7376,16 +9933,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb7f7f3c689a2",
-              "3fbeb7f7f3c689a4"
+              "3fffffa248997a0a",
+              "3fffffa248997a0b"
             ],
             "y": [
               "bfcccccccccccccd",
               "bfcccccccccccccd"
             ],
             "z": [
-              "3f99bcd8317287e5",
-              "3f99bcd831728e0e"
+              "3fa5f7f72d783481",
+              "3fa5f7f72d7837af"
             ]
           },
           "section": {
@@ -7410,16 +9967,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb7f7f3c689a2",
-              "3fbeb7f7f3c689a4"
+              "3fffffa248997a0a",
+              "3fffffa248997a0b"
             ],
             "y": [
               "3fcccccccccccccd",
               "3fcccccccccccccd"
             ],
             "z": [
-              "3f99bcd8317287e5",
-              "3f99bcd831728e0e"
+              "3fa5f7f72d783481",
+              "3fa5f7f72d7837af"
             ]
           },
           "section": {
@@ -7444,16 +10001,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb7f7f3c689a2",
-              "3fbeb7f7f3c689a4"
+              "3fffffa248997a0a",
+              "3fffffa248997a0b"
             ],
             "y": [
               "bfcccccccccccccd",
               "bfcccccccccccccd"
             ],
             "z": [
-              "3f99bcd8317287e5",
-              "3f99bcd831728e0e"
+              "3fa5f7f72d783481",
+              "3fa5f7f72d7837af"
             ]
           },
           "section": {
@@ -7614,16 +10171,16 @@
           ],
           "point": {
             "x": [
-              "3fae95f6271ea827",
-              "3fae95f6271ea82e"
+              "3fefdc35be15447e",
+              "3fefdc35be154486"
             ],
             "y": [
               "3fdccccccccccccd",
               "3fdccccccccccccd"
             ],
             "z": [
-              "3fb18cbeb652025e",
-              "3fb18cbeb65202bb"
+              "3fc9ed9f14e20619",
+              "3fc9ed9f14e20916"
             ]
           },
           "section": {
@@ -7648,16 +10205,16 @@
           ],
           "point": {
             "x": [
-              "3fae95f6271ea827",
-              "3fae95f6271ea82e"
+              "3fefdc35be15447e",
+              "3fefdc35be154486"
             ],
             "y": [
               "bfdccccccccccccd",
               "bfdccccccccccccd"
             ],
             "z": [
-              "3fb18cbeb652025e",
-              "3fb18cbeb65202bb"
+              "3fc9ed9f14e20619",
+              "3fc9ed9f14e20916"
             ]
           },
           "section": {
@@ -7682,16 +10239,16 @@
           ],
           "point": {
             "x": [
-              "3faed118d5316230",
-              "3faed118d5316237"
+              "3ff00ce799b46323",
+              "3ff00ce799b46328"
             ],
             "y": [
               "3fdccccccccccccd",
               "3fdccccccccccccd"
             ],
             "z": [
-              "3fac7c1259acec00",
-              "3fac7c1259acecb8"
+              "bf8a249ba238ba5a",
+              "bf8a249ba2388a9d"
             ]
           },
           "section": {
@@ -7716,16 +10273,16 @@
           ],
           "point": {
             "x": [
-              "3faed118d5316230",
-              "3faed118d5316237"
+              "3ff00ce799b46323",
+              "3ff00ce799b46328"
             ],
             "y": [
               "bfdccccccccccccd",
               "bfdccccccccccccd"
             ],
             "z": [
-              "3fac7c1259acec00",
-              "3fac7c1259acecb8"
+              "bf8a249ba238ba5a",
+              "bf8a249ba2388a9d"
             ]
           },
           "section": {
@@ -7750,16 +10307,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb3877e28052f",
-              "3fbeb3877e280530"
+              "3ffffb0278bf0566",
+              "3ffffb0278bf0567"
             ],
             "y": [
               "3fdccccccccccccd",
               "3fdccccccccccccd"
             ],
             "z": [
-              "3fb06e9eed65e95e",
-              "3fb06e9eed65e95f"
+              "3fc09d40dfdd35c1",
+              "3fc09d40dfdd35c2"
             ]
           },
           "section": {
@@ -7784,16 +10341,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb3877e28052f",
-              "3fbeb3877e280530"
+              "3ffffb0278bf0566",
+              "3ffffb0278bf0567"
             ],
             "y": [
               "bfdccccccccccccd",
               "bfdccccccccccccd"
             ],
             "z": [
-              "3fb06e9eed65e95e",
-              "3fb06e9eed65e95f"
+              "3fc09d40dfdd35c1",
+              "3fc09d40dfdd35c2"
             ]
           },
           "section": {
@@ -7818,16 +10375,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb3877e28052f",
-              "3fbeb3877e280530"
+              "3ffffb0278bf0566",
+              "3ffffb0278bf0567"
             ],
             "y": [
               "3fdccccccccccccd",
               "3fdccccccccccccd"
             ],
             "z": [
-              "3fb06e9eed65e95e",
-              "3fb06e9eed65e95f"
+              "3fc09d40dfdd35c1",
+              "3fc09d40dfdd35c2"
             ]
           },
           "section": {
@@ -7852,16 +10409,16 @@
           ],
           "point": {
             "x": [
-              "3fbeb3877e28052f",
-              "3fbeb3877e280530"
+              "3ffffb0278bf0566",
+              "3ffffb0278bf0567"
             ],
             "y": [
               "bfdccccccccccccd",
               "bfdccccccccccccd"
             ],
             "z": [
-              "3fb06e9eed65e95e",
-              "3fb06e9eed65e95f"
+              "3fc09d40dfdd35c1",
+              "3fc09d40dfdd35c2"
             ]
           },
           "section": {
@@ -7879,7 +10436,7 @@
     },
     {
       "name": "c0-peak",
-      "source": "foildsl \u00224.0\u0022\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \u0022Basic foil\u0022 {\n  units mm\n  half_span 450 mm\n  evaluator \u0022cfdw-cv\u0022 \u00222\u0022\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -1), (0.5, -2), (0.7, -4), (0.9, -6), (1, -8)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \u0022section-a\u0022 {\n      upper cv { degree 5 knots [0,0,0,0,0,0,0.4,0.4,0.4,0.4,0.4,1,1,1,1,1,1] points [(0,0),(0.08,0.02),(0.16,0.03),(0.24,0.04),(0.32,0.05),(0.4,0.14),(0.5,0.05),(0.62,0.04),(0.74,0.03),(0.86,0.02),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,0.4,0.4,0.4,0.4,0.4,1,1,1,1,1,1] points [(0,0),(0.08,-0.02),(0.16,-0.03),(0.24,-0.04),(0.32,-0.05),(0.4,-0.14),(0.5,-0.05),(0.62,-0.04),(0.74,-0.03),(0.86,-0.02),(1,0)] }\n    }\n  }\n    sections { at root profile \u0022section-a\u0022 at tip profile \u0022section-a\u0022 }\n}\n",
+      "source": "foildsl \"4.0\"\n# Language conformance fixture: a manufactured section, not a catalog NACA foil.\nfoil \"Basic foil\" {\n  units mm\n  half_span 450 mm\n  evaluator \"cfdw-cv\" \"2\"\n  symmetry mirror_y\n  planform {\n    leading cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 0), (0.5, 0), (0.7, 0), (0.9, 0), (1, 0)] }\n    trailing cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 120), (0.1, 120), (0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)] }\n  }\n  dihedral cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, 12), (0.5, 24), (0.7, 36), (0.9, 48), (1, 60)] }\n  twist cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0), (0.1, 0), (0.3, -1), (0.5, -2), (0.7, -4), (0.9, -6), (1, -8)] }\n  thickness cv { degree 3 knots [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1] points [(0, 0.12), (0.1, 0.12), (0.3, 0.12), (0.5, 0.12), (0.7, 0.12), (0.9, 0.12), (1, 0.12)] }\n  profiles {\n    profile \"section-a\" {\n      upper cv { degree 5 knots [0,0,0,0,0,0,0.4,0.4,0.4,0.4,0.4,1,1,1,1,1,1] points [(0,0),(0.08,0.02),(0.16,0.03),(0.24,0.04),(0.32,0.05),(0.4,0.14),(0.5,0.05),(0.62,0.04),(0.74,0.03),(0.86,0.02),(1,0)] }\n      lower cv { degree 5 knots [0,0,0,0,0,0,0.4,0.4,0.4,0.4,0.4,1,1,1,1,1,1] points [(0,0),(0.08,-0.02),(0.16,-0.03),(0.24,-0.04),(0.32,-0.05),(0.4,-0.14),(0.5,-0.05),(0.62,-0.04),(0.74,-0.03),(0.86,-0.02),(1,0)] }\n    }\n  }\n    sections { at root profile \"section-a\" at tip profile \"section-a\" }\n}\n",
       "status": "Certified",
       "code": "GEOMETRY-CERTIFIED",
       "reason": "Continuous conservative subset certified.",

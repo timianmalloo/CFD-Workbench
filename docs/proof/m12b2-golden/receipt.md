@@ -21,7 +21,17 @@ review-suggested: []
 
 Captured at base `3b396e59c249726f64a4cfac52ef5951f2cb8ded`, before any edit to `Geometry.cs`. The bytes are `docs/proof/m12b2-golden/certificate-bits.json`. The check is `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged`.
 
-The fixture set is the example foil, a two-profile blend with dihedral, a 2 m chord, and a degree-5 profile whose interior knot has multiplicity 5 (a C⁰ thickness peak). Each one certified. The refusing set is the proof budget, cancellation, the Taylor domain (−90°), and the whole-domain 10 nm budget (`1e20` mm trailing edge).
+The fixture set is five foils, each one certified:
+
+- `example`: the 120 mm chord example foil.
+- `blended-dihedral`: a two-profile blend whose profiles have the same unit-thickness shape, with dihedral.
+- `blended-peaks`: a two-profile blend whose thickness peaks differ. Profile A peaks at 0.214 at x = 0.5. Profile B peaks at 0.135 at x = 0.38.
+- `chord-2m`: a 2000 mm root and tip chord (`trailing` ordinate 2000 mm), with dihedral and twist.
+- `c0-peak`: a degree-5 profile whose interior knot has multiplicity 5, a C⁰ thickness peak.
+
+The `.foil` files in `tests/CfdWorkbench.Core.Tests/Fixtures/m12b2/` are the capture inputs. `PlacementRule_FoilFixtures_MatchGoldenSources` pins each file to the source text stored in the JSON. The refusing set is the proof budget, cancellation, the Taylor domain (−90°), and the whole-domain 10 nm budget (`1e20` mm trailing edge).
+
+Repair cycle 1 replaced the `chord-2m` entry (its chord was 120 mm) and added `blended-peaks`. A throwaway worktree at `3b396e5` (`git rev-parse HEAD` printed that hash, `git diff -- src` empty) ran a capture harness added to its test project. The same harness reproduced the stored `example`, `blended-dihedral` and `c0-peak` entries exactly, which is the check that it matches the first capture. The harness and worktree were deleted after the run.
 
 ## Planted mutant that turned the check red
 
