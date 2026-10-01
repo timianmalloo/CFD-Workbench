@@ -99,7 +99,8 @@ D-4 are fixed, each with a test that fails first, and steps 4, 6 and 11 are re-r
 **Q-1. Handles on every point?** The operator asked whether control points should have handles too. The design
 (A4.15, CAD-15, ADR-0005) follows Rhino and Alias: a control point is an off-curve vertex with no handles, and only an
 on-curve anchor has handles. Handles on every point is a different curve model (Bézier path, as in Illustrator).
-Decision for the operator; recorded, not changed.
+**Ruled (Ruling 58, 2026-10-01): keep anchors only.** The curve model does not change; F-5 and OI-2 carry the
+"adds a point" confusion.
 
 ## 4. Saved file read back (step 8)
 
@@ -121,5 +122,5 @@ Verified by decoding the file; the reopened Foil source tab was not captured.
    fails first. Write a reproducing test for D-5 before deciding on its fix.
 2. `/ui-design` on the property grid (F-1), referencing VS Code settings and Premiere Pro Effect Controls, before
    M1.2b2 starts.
-3. Operator decisions: Q-1, and the ADR-0010 ruling that unblocks M1.2b2.
+3. Operator decisions: done. Ruling 58 keeps anchors-only handles (Q-1) and accepts ADR-0010, which opens M1.2b2.
 4. Re-run steps 4, 6 and 11 on the fix build, and close M1.2b.

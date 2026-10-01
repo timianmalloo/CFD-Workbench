@@ -527,7 +527,7 @@ window.DOCS_INDEX = {
       "path": "docs/adr/0010-one-placement-rule.md",
       "title": "ADR-0010: one placement rule — FoilDSL §6 is written once in Core and instantiated over the certificate's interval arithmetic and the display's binary64",
       "type": "adr",
-      "status": "proposed",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "design — M1.2b2 (3D view and elevations, Ruling 56)",
       "reviewBy": "none while accepted",
@@ -569,7 +569,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "925e6ca82771b2bacb60d563191922938f3db09b32d3ee5bf2c1c901becb7f3b"
+      "sourceSha256": "d8a52dd2834a0f9613045b5cbf24b4f6a5bbf3f117b24209065896bd2a195771"
     },
     {
       "id": "adr-application-project-contract",
@@ -4350,7 +4350,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83cff29f3a9f9825bb7c6ef1a8872a97ab24938b3d156cac90748232a58de210"
+      "sourceSha256": "341c68ae648268670c3d6de92961c4a4037f37da4a64f0f9ce85981bdbca35c3"
     },
     {
       "id": "kb-hw-glossary",
@@ -7638,7 +7638,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5241795645a3bf27090ffe082ed520e9355f6ba9cb1134e1bc2358f6072e6b9a"
+      "sourceSha256": "28a7e5fa53fbbf44d0539192d8d003d59a25c2b330f0512ac6abdbe2a6d63c80"
     },
     {
       "id": "review-spec-v02-critique",
@@ -8741,5 +8741,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "dcbddadc258d49272d69bfd474e791a6949c551541cd9e612005d1aa6687ae75"
+  "graphSha256": "ea3466d5e9dd4212dd5a808fc0004680125adeafca41c79e545fb40c886f973c"
 };

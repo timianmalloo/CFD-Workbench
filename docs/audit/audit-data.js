@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T20:34:02Z",
+  "generated": "2026-10-01T20:41:57Z",
   "audit": [
     {
       "actor": null,
@@ -21095,6 +21095,21 @@ window.AUDIT_DATA = {
       "goal": "Record the operator's M1.2b native review session as a committed review record",
       "done_when": "docs/reviews/m12b-native.md committed with captures, index derived, check-docs green",
       "tier": "T1"
+    },
+    {
+      "id": "al-01M3WK7KZX0HHAZPPJD33FATX9",
+      "shortname": "merge all make sure origin and the local checkout are both up to date; t…",
+      "datetime": "2026-10-01T20:41:57Z",
+      "session": "prompt-log",
+      "prompt": "merge all make sure origin and the local checkout are both up to date; then: 2. root-cause D-4, bounded fix track for D-1..D-4 and F-2..F-4 red-first; 3. /ui-design the property grid (F-1) before M1.2b2; 4. decide Q-1 and rule on ADR-0010, then start M1.2b2",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
