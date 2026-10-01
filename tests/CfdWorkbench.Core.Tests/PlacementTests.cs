@@ -188,7 +188,7 @@ internal static class PlacementTests
         for (int station = 0; station < view.Sections.Count; station += stride)
         {
             var section = view.Sections[station];
-            foreach (int sample in new[] { 0, xs.Length / 2, xs.Length - 1 })
+            for (int sample = 0; sample < xs.Length; sample++)
             {
                 worst = Math.Max(worst, Outside(Geometry.PointAt(certificate, section.Eta, xs[sample], true, false), section.Upper[sample]));
                 worst = Math.Max(worst, Outside(Geometry.PointAt(certificate, section.Eta, xs[sample], false, false), section.Lower[sample]));
