@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T03:27:19Z",
+  "generated": "2026-10-01T03:30:38Z",
   "audit": [
     {
       "actor": null,
@@ -20792,6 +20792,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T03:26:35Z",
       "duration_seconds": 44.0
+    },
+    {
+      "id": "al-01M3TR77HMZ9JM0JF5M9KNSS6M",
+      "shortname": "legacy-window-retirement",
+      "datetime": "2026-10-01T03:30:38Z",
+      "session": "track-legacy",
+      "prompt": "Track LEGACY contract (scratchpad tracks/LEGACY.md)",
+      "summary": "Stopped before any src/tests edit. The readiness ring (join.json: run-verify-gates.py without skips) runs tools/verify-application-adapters.py, which runs the Desktop test DLL with --theme-controls against the legacy new MainWindow() and requires 'THEME-APPLIED-CHECK rows=396 variants=4 source=actual-MainWindow' including row numeric.enabled.owned-draft (opened via legacy ControlList -> OpenControlDraft; WorkbenchTests.cs:1295-1372; verifier lines 139, 313-340). Removing the legacy window or the control-draft API turns readiness RED unless that unowned verifier is retargeted to the shell matrix (ThemeMatrix_ShellControls_AppliedContrast). Seam request to Coordinator.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Remove the pre-shell window path and the per-control draft API where no shipped behaviour reaches them",
+      "done_when": "run-tests 3x identical; named checks; check-docs; xaml-token-lint; shell launch; run-readiness GREEN",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": false,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-01T03:28:02Z",
+      "duration_seconds": 156.0,
+      "git": {
+        "sha": "2e1c569ce0c5ae4c67bde1cc0ab12dc45289d9fe",
+        "short": "2e1c569ce",
+        "branch": "chore/legacy-window-retirement",
+        "pushed": null
+      }
     }
   ],
   "changes": [
