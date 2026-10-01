@@ -62,6 +62,27 @@ public sealed class PlanCanvas : Control
     public string? LastValueRequest { get; private set; }
     public string? TooltipText { get; private set; }
     public string? ProbeText { get; private set; }
+    public PointRef? FocusedTarget => focusedPoint;
+    public sealed record StationChip(int Index, Rect Bounds);
+    public IReadOnlyList<StationChip> VisibleStationChips
+    {
+        get
+        {
+            var plan = Controller?.Planform;
+            if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0) return [];
+            var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+            var result = new List<StationChip>();
+            foreach (var (station, index) in plan.Stations.Select((station, index) => (station, index)))
+            {
+                var probe = CfdWorkbench.Core.Planform.Probe(plan, station.Eta);
+                var at = map.ToScreen(station.SpanMeters, probe.TrailingAftMeters);
+                var rect = new Rect(at.X - 48, Math.Min(Bounds.Height - 28, at.Y + 12), 96, 22);
+                if (result.Any(chip => chip.Bounds.Intersects(rect))) continue;
+                result.Add(new StationChip(index, rect));
+            }
+            return result;
+        }
+    }
     public IReadOnlyList<string> KeyboardTargets
     {
         get
@@ -164,6 +185,15 @@ public sealed class PlanCanvas : Control
     public void FocusPoint(PointRef point)
     {
         focusedPoint = point;
+        var view = targets.FirstOrDefault(item => item.Curve == point.Curve && item.Id == point.VertexId);
+        if (view is not null)
+        {
+            var position = ScreenPoint(view);
+            double desiredX = Math.Clamp(position.X, 24, Math.Max(24, Bounds.Width - 24));
+            double desiredY = Math.Clamp(position.Y, 70, Math.Max(70, Bounds.Height - 48));
+            if (desiredX != position.X || desiredY != position.Y)
+                PanBy(desiredX - position.X, desiredY - position.Y);
+        }
         Focus();
         InvalidateVisual();
     }
@@ -227,6 +257,158 @@ public sealed class PlanCanvas : Control
         UpdatePlan();
     }
 
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if (Controller?.Planform is null) return;
+        var position = e.GetPosition(this);
+        var hit = HitTestPoint(position);
+        if (hit is null)
+        {
+            var chip = VisibleStationChips.FirstOrDefault(item => item.Bounds.Contains(position));
+            if (chip is not null)
+            {
+                Controller.Select(new Selection.Station(chip.Index, Controller.Planform.Stations[chip.Index].Eta));
+                e.Handled = true;
+                return;
+            }
+            Controller.Select(new Selection.Foil());
+            TooltipText = null;
+            InvalidateVisual();
+            return;
+        }
+        var reference = new PointRef(hit.Curve, hit.Id);
+        bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        SelectPoint(reference, extend, toggle);
+        FocusPoint(reference);
+        if (e.ClickCount >= 2) RequestValue(hit);
+        else if (!extend && !toggle && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            Controller.BeginGesture(reference, GestureInput.Pointer);
+            e.Pointer.Capture(this);
+        }
+        e.Handled = true;
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        var position = e.GetPosition(this);
+        HoverAt(position);
+        if (Controller?.Gesture is not (GestureState.Pressed or GestureState.Dragging)) return;
+        var plan = Controller.Planform;
+        if (plan is null) return;
+        var map = new AxisPointLayer(plan, Bounds.Size, Controller.PlanCamera);
+        var target = map.FromScreen(position);
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && focusedPoint is { } reference)
+        {
+            var origin = targets.FirstOrDefault(item => item.Curve == reference.Curve && item.Id == reference.VertexId);
+            if (origin is not null)
+            {
+                if (Math.Abs(target.Span - origin.SpanMeters) > Math.Abs(target.Ordinate - origin.AftMeters))
+                    target.Ordinate = origin.AftMeters;
+                else target.Span = origin.SpanMeters;
+            }
+        }
+        Controller.UpdateGesture(target.Span, target.Ordinate);
+        if (focusedPoint is { } selected)
+        {
+            var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
+            if (origin is not null)
+                ProbeText += $" · Δ span {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
+                    $" · Δ aft {(target.Ordinate - origin.AftMeters) * 1000:+0.00;-0.00;0.00} mm";
+        }
+        InvalidateVisual();
+        e.Handled = true;
+    }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        e.Pointer.Capture(null);
+        if (Controller?.Gesture is GestureState.Pressed or GestureState.Dragging)
+        {
+            _ = Controller.EndGestureAsync(GestureEnd.Release);
+            e.Handled = true;
+        }
+    }
+
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    {
+        base.OnPointerWheelChanged(e);
+        ZoomAt(Math.Pow(1.1, e.Delta.Y), e.GetPosition(this));
+        e.Handled = true;
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (Controller?.Planform is null) return;
+        bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        if (e.Key == Key.Tab) { e.Handled = FocusNext(shift); return; }
+        if (e.Key == Key.Space) { SelectFocused(shift); e.Handled = true; return; }
+        if (e.Key == Key.Escape)
+        {
+            if (TooltipText is not null) TooltipText = null;
+            else if (Controller.Gesture != GestureState.Idle) _ = Controller.EndGestureAsync(GestureEnd.Escape);
+            else if (focusedPoint is { } handleRef &&
+                     targets.FirstOrDefault(item => item.Curve == handleRef.Curve && item.Id == handleRef.VertexId)
+                         is { AnchorId: { } anchorId })
+                FocusPoint(new PointRef(handleRef.Curve, anchorId));
+            else Controller.Select(new Selection.Foil());
+            InvalidateVisual();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.Return && focusedPoint is { } reference)
+        {
+            var point = targets.FirstOrDefault(item => item.Curve == reference.Curve && item.Id == reference.VertexId);
+            if (point is not null) RequestValue(point);
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.C && !command && !option) { ToggleComb(); e.Handled = true; return; }
+        if (command && e.Key == Key.D0) { Fit(); e.Handled = true; return; }
+        if (command && e.Key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract)
+        {
+            ZoomAt(e.Key is Key.OemPlus or Key.Add ? 1.2 : 1 / 1.2, new Point(Bounds.Width / 2, Bounds.Height / 2));
+            e.Handled = true;
+            return;
+        }
+        int span = e.Key == Key.Right ? 1 : e.Key == Key.Left ? -1 : 0;
+        int aft = e.Key == Key.Down ? 1 : e.Key == Key.Up ? -1 : 0;
+        if (span == 0 && aft == 0) return;
+        if (option)
+        {
+            PanBy(span * Bounds.Width * .1, aft * Bounds.Height * .1);
+            e.Handled = true;
+            return;
+        }
+        if (focusedPoint is not { } focus) return;
+        if (Controller.Gesture == GestureState.Idle && !Controller.BeginGesture(focus, GestureInput.Keyboard))
+        {
+            AutomationProperties.SetLiveSetting(this, AutomationLiveSetting.Assertive);
+            e.Handled = true;
+            return;
+        }
+        AutomationProperties.SetLiveSetting(this, AutomationLiveSetting.Off);
+        Controller.Nudge(span, aft, command ? NudgeModifier.Command : shift ? NudgeModifier.Shift : NudgeModifier.Plain);
+        e.Handled = true;
+    }
+
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        base.OnKeyUp(e);
+        if (Controller?.Gesture == GestureState.Nudging && e.Key is Key.Left or Key.Right or Key.Up or Key.Down)
+        {
+            _ = Controller.EndGestureAsync(GestureEnd.KeyUp);
+            e.Handled = true;
+        }
+    }
+
     private void UpdatePlan()
     {
         if (!attached) return;
@@ -275,6 +457,17 @@ public sealed class PlanCanvas : Control
                     Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
             }
         }
+        var stationPen = new Pen(SelectionBrush ?? Brushes.White, 1,
+            new DashStyle([3, 3], 0));
+        foreach (var chip in VisibleStationChips)
+        {
+            var station = plan.Stations[chip.Index];
+            var stationReading = CfdWorkbench.Core.Planform.Probe(plan, station.Eta);
+            context.DrawLine(stationPen, map.ToScreen(station.SpanMeters, stationReading.LeadingAftMeters),
+                map.ToScreen(station.SpanMeters, stationReading.TrailingAftMeters));
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds);
+            DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(5, 3));
+        }
         if (hoveredPoint is { } hovered)
             context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), ScreenPoint(hovered), 10, 10);
         if (focusedPoint is { } focus)
@@ -283,6 +476,30 @@ public sealed class PlanCanvas : Control
             if (target is not null)
                 context.DrawEllipse(null, new Pen(FocusBrush ?? Brushes.White, 3), ScreenPoint(target), 13, 13);
         }
+        if (ProbeText is { } probe)
+        {
+            double left = Math.Max(8, Bounds.Width - 428);
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 48));
+            var pieces = probe.Split(" · ");
+            DrawLabel(context, string.Join(" · ", pieces.Take(3)), new Point(left + 8, 12));
+            DrawLabel(context, string.Join(" · ", pieces.Skip(3)), new Point(left + 8, 30));
+        }
+        if (TooltipText is { } tooltip && hoveredPoint is { } hoveredTarget)
+        {
+            var centre = ScreenPoint(hoveredTarget);
+            double left = Math.Clamp(centre.X + 14, 4, Math.Max(4, Bounds.Width - 320));
+            double top = Math.Clamp(centre.Y + 12, 60, Math.Max(60, Bounds.Height - 30));
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, top, 312, 24));
+            DrawLabel(context, tooltip, new Point(left + 5, top + 3));
+        }
+    }
+
+    private void DrawLabel(DrawingContext context, string copy, Point position)
+    {
+        var formatted = new FormattedText(copy, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+            new Typeface("Inter"), 11, MuteBrush ?? FoilBrush ?? Brushes.White)
+        { MaxTextWidth = 408, MaxTextHeight = 20, Trimming = TextTrimming.CharacterEllipsis };
+        context.DrawText(formatted, position);
     }
 
     protected override AutomationPeer OnCreateAutomationPeer() => new PlanCanvasPeer(this);

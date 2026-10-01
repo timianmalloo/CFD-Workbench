@@ -4,6 +4,7 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Automation;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Media;
@@ -179,11 +180,11 @@ public static class PlanCanvasTests
         {
             using var fixture = new PlanFixture();
             var points = fixture.Controller.Planform!.Trailing.Points;
-            fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), extend: false, toggle: false);
-            fixture.Canvas.SelectPoint(new PointRef(points[4].Curve, points[4].Id), extend: true, toggle: false);
+            fixture.Press(points[3]);
+            fixture.Press(points[4], KeyModifiers.Shift);
             if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 2)
                 throw new Exception("Shift selection did not extend");
-            fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), extend: false, toggle: true);
+            fixture.Press(points[3], KeyModifiers.Meta);
             if (fixture.Controller.Selection is not Selection.Points toggled || toggled.Items.Count != 1 ||
                 toggled.Items[0].VertexId != points[4].Id)
                 throw new Exception("Command selection did not toggle");
@@ -194,10 +195,10 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Leading.Points[3];
             fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
-            fixture.Canvas.SelectFocused(toggle: false);
+            fixture.KeyDown(Key.Space);
             if (fixture.Controller.Selection is not Selection.Points selected || selected.Items[0].VertexId != point.Id)
                 throw new Exception("Space did not select focused point");
-            fixture.Canvas.SelectFocused(toggle: true);
+            fixture.KeyDown(Key.Space, KeyModifiers.Shift);
             if (fixture.Controller.Selection is Selection.Points)
                 throw new Exception("Shift+Space did not toggle focused point off");
         });
@@ -344,6 +345,174 @@ public static class PlanCanvasTests
                                                       !child.GetName().Contains("mm", StringComparison.Ordinal)))
                 throw new Exception("Handle peers omitted direction, angle or length");
         });
+
+        DesktopChecks.Check("PlanCanvas_DragFrame_RenderedCurveThroughDraftSample", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var before = fixture.RgbAtPoint(point);
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, 24);
+            if (fixture.Controller.Gesture != GestureState.Dragging || fixture.Controller.Planform?.Basis != "preview")
+                throw new Exception("Drag did not produce a preview generation");
+            var draftPoint = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Settle();
+            if (before == fixture.RgbAtPoint(draftPoint) ||
+                Contrast(fixture.RgbAtPoint(draftPoint), fixture.BackgroundPixel()) < 3)
+                throw new Exception("Draft control point did not move in the realized pixels");
+            fixture.ReleaseDrag(point, 0, 24);
+        });
+
+        DesktopChecks.Check("PlanCanvas_DragDeltaReadout_Live", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, 20);
+            if (fixture.Canvas.ProbeText?.Contains("Δ aft", StringComparison.Ordinal) != true)
+                throw new Exception("Live drag probe omitted aft delta");
+            fixture.ReleaseDrag(point, 0, 20);
+        });
+
+        DesktopChecks.Check("PlanCanvas_ShiftDragFromPoint_OrthoLocked", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 32, 3, KeyModifiers.Shift);
+            var moved = fixture.Controller.Planform!.Trailing.Points[4];
+            if (moved.AftMeters != point.AftMeters || moved.SpanMeters == point.SpanMeters)
+                throw new Exception("Shift-drag did not lock the small aft component");
+            fixture.ReleaseDrag(point, 32, 3);
+        });
+
+        DesktopChecks.Check("PlanCanvas_TabWithMultiSelection_KeepsSelection", () =>
+        {
+            using var fixture = new PlanFixture();
+            var points = fixture.Controller.Planform!.Leading.Points;
+            fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), false, false);
+            fixture.Canvas.SelectPoint(new PointRef(points[4].Curve, points[4].Id), true, false);
+            fixture.Canvas.FocusNext();
+            if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 2)
+                throw new Exception("Tab collapsed multiple selection");
+        });
+
+        DesktopChecks.Check("PlanCanvas_Escape_DismissTooltipThenClearSelection", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Canvas.HoverAt(fixture.Canvas.ScreenPoint(point));
+            fixture.KeyDown(Key.Escape);
+            if (fixture.Canvas.TooltipText is not null || fixture.Controller.Selection is not Selection.Points)
+                throw new Exception("First Escape did not dismiss tooltip while keeping selection");
+            fixture.KeyDown(Key.Escape);
+            if (fixture.Controller.Selection is Selection.Points)
+                throw new Exception("Second Escape did not clear selection");
+        });
+
+        DesktopChecks.Check("PlanCanvas_CKeyInTipChordField_CombNotToggled", () =>
+        {
+            using var fixture = new PlanFixture();
+            var tipChord = new TextBox { Name = "TipChordInput", Text = "12.0" };
+            var window = new Window { Content = tipChord, Width = 400, Height = 200 };
+            try
+            {
+                window.Show();
+                Settle(window);
+                tipChord.Focus();
+                tipChord.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent,
+                    Source = tipChord, Key = Key.C });
+                if (fixture.Controller.CombVisible) throw new Exception("C in a text field toggled Plan comb");
+                fixture.Canvas.Focus();
+                fixture.KeyDown(Key.C);
+                if (!fixture.Controller.CombVisible) throw new Exception("C on focused Plan did not toggle comb");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("PlanCanvas_ClickStationChip_SelectsStation", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var chip = fixture.Canvas.VisibleStationChips.First();
+            fixture.ClickAt(chip.Bounds.Center);
+            if (fixture.Controller.Selection is not Selection.Station station || station.Index != chip.Index)
+                throw new Exception("Clicking the rendered station chip did not select its station");
+        });
+
+        DesktopChecks.Check("PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            fixture.Canvas.ZoomAt(.1, new Point(fixture.Canvas.Bounds.Width / 2, 100));
+            fixture.Settle();
+            int all = fixture.Controller.Planform!.Stations.Count;
+            int shown = fixture.Canvas.VisibleStationChips.Count;
+            int browser = fixture.Host.Browser.FindControl<ListBox>("StationList")!.ItemCount;
+            if (all < 2 || shown >= all || browser != all)
+                throw new Exception($"Overlapping chips were not alternated while Browser kept rows: {shown}/{all}/{browser}");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickPoint_RaisesTypeValueRequest", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.DoubleClick(point);
+            if (fixture.Canvas.LastValueRequest != $"{point.Curve}:{point.Id}")
+                throw new Exception("Double-click did not request the point's typed value");
+        });
+
+        DesktopChecks.Check("PlanCanvas_FocusOffscreenPoint_PansIntoView", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.PanBy(2000, 0);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.Settle();
+            var position = fixture.Canvas.ScreenPoint(point);
+            if (position.X < 16 || position.X > fixture.Canvas.Bounds.Width - 16)
+                throw new Exception("Focused offscreen point was not panned into view");
+            fixture.AssertGlyphPixel(point);
+        });
+
+        DesktopChecks.Check("PlanCanvas_FocusUnderProbeOrChip_PansIntoView", () =>
+        {
+            using var fixture = new PlanFixture();
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            var before = fixture.Canvas.ScreenPoint(point);
+            fixture.Canvas.PanBy(fixture.Canvas.Bounds.Width - 100 - before.X, 20 - before.Y);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.Settle();
+            var position = fixture.Canvas.ScreenPoint(point);
+            if (position.X > fixture.Canvas.Bounds.Width - 428 && position.Y < 60)
+                throw new Exception("Focused point remains under the probe");
+            fixture.AssertGlyphPixel(point);
+        });
+
+        DesktopChecks.Check("PlanCanvas_LockedNudge_AssertiveLockCopy", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Leading.Points[0];
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.KeyDown(Key.Down);
+            if (fixture.Controller.Gesture != GestureState.Idle ||
+                !fixture.Controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase) ||
+                AutomationProperties.GetLiveSetting(fixture.Canvas) != AutomationLiveSetting.Assertive)
+                throw new Exception("Locked point nudge did not announce its lock assertively");
+        });
+
+        DesktopChecks.Check("PlanCanvas_EscapeOnHandle_FocusBackToPoint", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
+                .GetAwaiter().GetResult();
+            fixture.Settle();
+            var handle = fixture.Controller.Planform!.Trailing.Points.First(item => item.AnchorId == point.Id);
+            fixture.Canvas.FocusPoint(new PointRef(handle.Curve, handle.Id));
+            fixture.KeyDown(Key.Escape);
+            if (fixture.Canvas.FocusedTarget?.VertexId != point.Id)
+                throw new Exception("Escape on a handle did not return focus to its anchor");
+        });
     }
 
     public static void RunReadiness() { }
@@ -380,6 +549,7 @@ public static class PlanCanvasTests
         private int frameStride;
         private int frameWidth;
         private int frameHeight;
+        private Pointer? dragPointer;
 
         public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
             ThemeVariant? theme = null)
@@ -397,6 +567,83 @@ public static class PlanCanvasTests
         {
             PlanCanvasTests.Settle(Window);
             frameBytes = null;
+        }
+
+        public void Press(PointView point, KeyModifiers modifiers = KeyModifiers.None)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point), Window)
+                ?? throw new Exception("Point has no window coordinate");
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                modifiers));
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, position, 2,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased),
+                modifiers, MouseButton.Left));
+            Settle();
+        }
+
+        public void ClickAt(Point local)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(local, Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                KeyModifiers.None));
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, position, 2,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased),
+                KeyModifiers.None, MouseButton.Left));
+            Settle();
+        }
+
+        public void DoubleClick(PointView point)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point), Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                KeyModifiers.None, 2));
+            Settle();
+        }
+
+        public void KeyDown(Key key, KeyModifiers modifiers = KeyModifiers.None)
+        {
+            Canvas.RaiseEvent(new KeyEventArgs
+            {
+                RoutedEvent = InputElement.KeyDownEvent,
+                Source = Canvas,
+                Key = key,
+                KeyModifiers = modifiers
+            });
+            Settle();
+        }
+
+        public void BeginDrag(PointView point)
+        {
+            dragPointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point), Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, dragPointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                KeyModifiers.None));
+        }
+
+        public void MoveDrag(PointView origin, double dx, double dy, KeyModifiers modifiers = KeyModifiers.None)
+        {
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(origin) + new Vector(dx, dy), Window)!.Value;
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, Canvas, dragPointer!, Window,
+                position, 2, default, modifiers));
+            Settle();
+        }
+
+        public void ReleaseDrag(PointView origin, double dx, double dy)
+        {
+            var position = Canvas.TranslatePoint(Canvas.ScreenPoint(origin) + new Vector(dx, dy), Window)!.Value;
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, dragPointer!, Window, position, 3,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased),
+                KeyModifiers.None, MouseButton.Left));
+            dragPointer!.Dispose();
+            dragPointer = null;
+            Settle();
         }
 
         public (byte R, byte G, byte B) RgbAtPoint(PointView point) => RgbNear(point, 0, 0);

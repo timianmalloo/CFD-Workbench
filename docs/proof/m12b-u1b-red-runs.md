@@ -28,5 +28,11 @@ summary: >-
 | I3 | same command after whole-window frame comparison replaced the one-pixel comb oracle | 1 | The moved samples tab had not settled when sampled; its readiness loop was extended (`/tmp/u1b-interaction-batch-green.log`). |
 | A4 | same command with focus, high-contrast, re-entry, brush, live-region and handle-peer checks | 1 | `PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength` FAIL; 23 other names PASS (`/tmp/u1b-access-batch-red.log`). |
 | A5 | same command after the peer name carried angle and length | 0 | 24 names PASS (`/tmp/u1b-access-batch-green.log`). |
+| E1 | same command with routed pointer and key events in place of direct helper calls | 1 | Shift/Command click and Space/Shift+Space selection failed before the event handlers (`/tmp/u1b-events-red.log`). |
+| E2 | same command after routed pointer and key handlers | 0 | 24 names PASS (`/tmp/u1b-events-green.log`). |
+| D1 | same command with drag frame, live delta, orthogonal drag, Tab, Escape and focused C checks | 1 | `PlanCanvas_DragDeltaReadout_Live` failed while the other five passed (`/tmp/u1b-drag-red.log`). |
+| D2 | same command after drawing the tracing probe and appending drag deltas | 0 | 30 names PASS (`/tmp/u1b-drag-green.log`). |
+| F1 | same command with station chip, collision, double-click, focus, lock and handle Escape checks | 1 | Compilation failed for absent chip and focus members (`/tmp/u1b-chips-focus-red.log`). |
+| F2 | same command after chip and focus work | 0 | 37 names PASS (`/tmp/u1b-chips-focus-green.log`). |
 
 The raw `/tmp` files are local run logs; subsequent required mutant and gate receipts are added below as the track proceeds.
