@@ -6855,6 +6855,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ac6bc7cbab13cb0aaa11074e791c0e38db67c6c1784d9c293c13c7980b0dc86"
     },
     {
+      "id": "proof-m12b-native",
+      "path": "docs/proof/m12b-native/index.md",
+      "title": "M1.2b native attach evidence",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@track-u3a",
+      "phase": "implementation",
+      "reviewBy": "2026-10-30",
+      "reviewSuggested": [],
+      "summary": "Twelve bounded CUA attach attempts against two foreground macOS review launches returned cgWindowNotFound. Every launch-bound attach check exited 1 with NATIVE_REVIEW_BLOCKED; no screenshot, AX dump, interaction, or content assertion was available.",
+      "tags": [
+        "m12b",
+        "native",
+        "review",
+        "attach",
+        "accessibility"
+      ],
+      "links": [
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "973ef78347a6a6fa76a839f375ea3cda8d2e3e374f01dc5645eb1f9a087f33e1"
+    },
+    {
       "id": "proof-m12b-old-build",
       "path": "docs/proof/m12b-old-build/README.md",
       "title": "M1.2b old-build characterization of FoilDSL 4.1",
@@ -8674,5 +8701,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "11c43fcfbf53e301d4046507f66219be5fe60a28178a628a96f90cb53351bab1"
+  "graphSha256": "0d3cefe5b96e1f1e284044cfaee90121febd6f416f5d2a29ca9681ffe5db0026"
 };

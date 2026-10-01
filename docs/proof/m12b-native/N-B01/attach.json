@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "appPath": "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app",
+  "bundleId": "com.cfdworkbench.desktop.u3aa44f9510500",
+  "expectedTitle": "CFD Workbench · REVIEW keyboard / empty / system / motion default",
+  "launchReceiptSha256": "feaee5ae1609b8666c2e4b39c79e4f05a54d81dbdfb68862119e0dabf6a857b1",
+  "startedUtc": "2026-10-01T05:04:55.946Z",
+  "status": "blocked",
+  "attempts": [
+    {
+      "number": 1,
+      "target": "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app",
+      "status": "failed",
+      "error": "Error: Computer Use server error -10005: cgWindowNotFound"
+    },
+    {
+      "number": 2,
+      "target": "com.cfdworkbench.desktop.u3aa44f9510500",
+      "status": "failed",
+      "error": "Error: Computer Use server error -10005: cgWindowNotFound"
+    },
+    {
+      "number": 3,
+      "target": "/private/tmp/cfd-u3a-a44f951-0500/review/CFD Workbench U3A.app",
+      "status": "failed",
+      "error": "Error: Computer Use server error -10005: cgWindowNotFound"
+    }
+  ],
+  "humanAction": false,
+  "sessionReset": true,
+  "deadlineMs": 30000,
+  "maxAttempts": 3,
+  "elapsedMs": 156,
+  "pendingOperation": false,
+  "next": "block-native-review-only; retain-error; schedule-independent-work; no-foreground-request"
+}

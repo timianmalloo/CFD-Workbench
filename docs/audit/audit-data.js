@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:59:32Z",
+  "generated": "2026-10-01T05:20:45Z",
   "audit": [
     {
       "actor": null,
@@ -21016,6 +21016,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T04:58:52Z",
       "duration_seconds": 40.0
+    },
+    {
+      "id": "al-01M3TYGV5DXZC93GKFC6M0FS17",
+      "shortname": "m12b-u3a-native-attach",
+      "datetime": "2026-10-01T05:20:45Z",
+      "session": "track-u3a",
+      "prompt": "You are track U3-attach of the CFD-Workbench M1.2b build. You run on Codex, model gpt-6-sol, and you use your `cua_repl` runtime. Your job is to capture native evidence and make NO judgements. The Claude U3-review track does the judging.\n\nRules for this run:\n- Run everything in the foreground.\n- Terminate every app you launch. When you finish, `pgrep -fl CfdWorkbench` must show nothing.\n- When the work is committed, write your Return and stop.\n\nFirst command, from the repo root: `AGENT_SESSION=track-u3a python3 docs/ai-forward-pack/scripts/audit-log.py start --session track-u3a --skill implement`\nExport `AGENT_SESSION=track-u3a AGENT_WI=U3A` for EVERY shell command, including `git commit`.\nWorktree: /Users/mallalieut/projects/CFD-Workbench-m12b-u3-attach (branch m12b-u3-attach). Use only this tree and absolute paths. Never push.\n\n## HARD BOUNDARY\nThe operator removed on-screen timing as a gate after an earlier session spiralled on native-window work. So:\n- Each attach is exactly `attachReview` from `docs/coordination/review-attach.mjs` (≤ 3 attempts / 30 s), followed by `node tools/check-review-attach.mjs <receipt> <launch>`.\n- On `NATIVE_REVIEW_BLOCKED`, record the error in that row and go to the next row.\n- Do not investigate the failure. Do not relaunch in a loop. No timing work.\n\n## What to capture\nRows N-B1 … N-B12 are the demo steps in `docs/design/m12b-points.md` §0.1. The row contract is the U3 row of `docs/coordination/m12b-build.md` (rows, content assertions, CO-UI-READY). The operator steps for build, package, launch guard and launch receipt are in `docs/reviews/app-shell-native.md` §4, steps 1–5. Follow them exactly.\n\n1. Publish and package the app at HEAD. Use a unique copy and bundle ID.\n2. Run `python3 docs/coordination/review-launch-guard.py`. It must be clean.\n3. For each row:\n   - Launch in review mode with the persona and state the row needs (New foil for most rows).\n   - Attach once.\n   - Drive the step with cua actions: hover, click, drag, keys.\n   - Save the receipt JSON, a screenshot, and the AX tree dump beside each other in `docs/proof/m12b-native/N-Bxx/`.\n   - Write the row's CONTENT ASSERTION result as a fact, not a judgement. For example:\n     - N-B1: pixels sampled at the expected rail and point positions differ from the background.\n     - N-B10: the parsed AX dump lists every point peer with its bounds, and one peer has focus.\n   - A row without a content assertion is labelled \"attach-ready\", never \"passed\".\n4. Group rows that share a launch state into one launch, so the app is launched as few times as possible. Quit the app after each group.\n\nWrite `docs/proof/m12b-native/index.md` (frontmatter type: proof-pack, links to design-m12b-points). It has one table row per N-B row: the receipt path, `check-review-attach` exit, screenshot path, AX path, the content-assertion result, and blocked/attach-ready/evidence.\n\n## Done when\n- Every N-B row has evidence, or is recorded as blocked with its error.\n- `python3 tools/check-docs.py` exits 0.\n- Conventional commits, each ending with `Co-Authored-By: GPT-6 <noreply@openai.com>`.\n- The audit entry is appended.\n- Screenshots can be large: downscale PNGs to ≤ 1600 px wide before committing.\n\n## Not in scope\n- Judging the UI.\n- Code changes of any kind.\n- DESIGN.md.\n- Readiness, which U3-review runs.\n\nBox 90 min. Never pipe a gate's status.\n\n## Return\nYour final message MUST contain a section headed exactly `## Return`, with:\n- a per-row table: row · status · content assertion;\n- the path to the index;\n- the SHAs.",
+      "summary": "Published and packaged a44f951 for osx-arm64; empty and example review launches used one unique copied bundle. Twelve fresh-session attachReview calls returned cgWindowNotFound on all bounded attempts; each launch-bound check exited 1 NATIVE_REVIEW_BLOCKED. Recorded per-row receipts and blocked content results, no screenshots or AX dumps; check-docs exited 0 and both app processes were terminated.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/m12b-native/index.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Capture native evidence or bounded attach errors for N-B01 through N-B12 without UI judgement or code changes",
+      "done_when": "Each row has native evidence or a recorded attach error, docs check exits 0, app processes are gone, and the proof pack is committed",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-01T05:00:16Z",
+      "duration_seconds": 1229.0
     }
   ],
   "changes": [
