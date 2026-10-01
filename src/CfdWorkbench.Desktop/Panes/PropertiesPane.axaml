@@ -52,7 +52,7 @@
               </Grid>
               <StackPanel x:Name="WingDimensions" Spacing="{StaticResource StackGap1}" />
               <Border Height="{StaticResource HairlineHeight}" Background="{DynamicResource LineBrush}" />
-              <Button x:Name="HowMeasuredButton" Content="How these are measured" />
+              <ToggleButton x:Name="HowMeasuredButton" Content="How these are measured" />
               <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False"
                          Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
               <StackPanel x:Name="WingEstimates" Spacing="{StaticResource StackGap1}" />
@@ -84,8 +84,8 @@
               <StackPanel Spacing="{StaticResource StackGap2}">
                 <TextBlock x:Name="RecoveryBanner" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
-                  <Button x:Name="RecoveryApplyButton" Content="Apply" />
-                  <Button x:Name="RecoveryDiscardButton" Content="Discard" Foreground="{DynamicResource MutedBrush}" />
+                  <Button x:Name="RecoveryApplyButton" Content="Apply" BorderBrush="{DynamicResource MutedBrush}" BorderThickness="{StaticResource HairlineThickness}" />
+                  <Button x:Name="RecoveryDiscardButton" Content="Discard" Foreground="{DynamicResource MutedBrush}" BorderBrush="{DynamicResource MutedBrush}" BorderThickness="{StaticResource HairlineThickness}" />
                 </StackPanel>
               </StackPanel>
             </Border>

@@ -47,6 +47,7 @@
         <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
         <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource SelectionColor}" />
         <SolidColorBrush x:Key="FocusRingBrush" Color="{StaticResource PrimaryColor}" />
+        <SolidColorBrush x:Key="OnSelectionBrush" Color="{StaticResource InkColor}" />
       </ResourceDictionary>
       <ResourceDictionary x:Key="Dark">
         <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource DarkCanvasColor}" />
@@ -76,6 +77,7 @@
         <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource DarkWarningColor}" />
         <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource DarkSelectionColor}" />
         <SolidColorBrush x:Key="FocusRingBrush" Color="{StaticResource DarkPrimaryColor}" />
+        <SolidColorBrush x:Key="OnSelectionBrush" Color="{StaticResource DarkInkColor}" />
       </ResourceDictionary>
       <ResourceDictionary x:Key="{x:Static local:NativeReviewThemes.HighContrast}">
         <SolidColorBrush x:Key="CanvasBrush" Color="{StaticResource HighContrastBackgroundColor}" />
@@ -105,6 +107,7 @@
         <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="SelectionBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="FocusRingBrush" Color="{StaticResource HighContrastAccentColor}" />
+        <SolidColorBrush x:Key="OnSelectionBrush" Color="{StaticResource HighContrastBackgroundColor}" />
       </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
     <Color x:Key="CanvasColor">#f0f2f1</Color>
@@ -231,6 +234,7 @@
        and High contrast, so each pseudo-class below resolves in all three variants (PG-11). Focus is an inset ring (PG-05). -->
   <Style Selector="Border.prop-row"><Setter Property="BorderThickness" Value="{StaticResource PropRailThickness}" /><Setter Property="Padding" Value="{StaticResource PropRowPadding}" /></Style>
   <Style Selector="Border.prop-row.warning"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.prop-row.unavailable"><Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}" /></Style>
   <Style Selector="Border.prop-row.error"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /></Style>
   <Style Selector="Border.prop-row:focus-within"><Setter Property="BorderBrush" Value="{DynamicResource FocusRingBrush}" /></Style>
   <Style Selector="TextBlock.prop-label"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
@@ -252,8 +256,11 @@
   <Style Selector="TextBox.prop-input:focus /template/ Border#PART_BorderElement"><Setter Property="BorderBrush" Value="{DynamicResource FocusRingBrush}" /><Setter Property="BorderThickness" Value="{StaticResource FocusRingThickness}" /></Style>
   <Style Selector="TextBox.prop-input.error /template/ Border#PART_BorderElement"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /><Setter Property="BorderThickness" Value="{StaticResource FocusRingThickness}" /></Style>
   <Style Selector="ComboBox.prop-choice"><Setter Property="MinHeight" Value="{StaticResource ControlHeightDense}" /><Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice /template/ Border#Background"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /></Style>
   <Style Selector="ComboBox.prop-choice:pointerover /template/ Border#Background"><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice:pressed /template/ Border#Background"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /></Style>
   <Style Selector="ComboBox.prop-choice:focus /template/ Border#Background"><Setter Property="BorderBrush" Value="{DynamicResource FocusRingBrush}" /><Setter Property="BorderThickness" Value="{StaticResource FocusRingThickness}" /></Style>
+  <Style Selector="ComboBox.prop-choice:dropdownopen /template/ Border#Background"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource FocusRingBrush}" /></Style>
   <Style Selector="RadioButton.prop-kind"><Setter Property="MinHeight" Value="{StaticResource KindOptionHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
   <Style Selector="RadioButton.prop-kind:checked"><Setter Property="FontWeight" Value="SemiBold" /></Style>
   <Style Selector="RadioButton.prop-kind /template/ Ellipse#OuterEllipse"><Setter Property="Stroke" Value="{DynamicResource ControlLineBrush}" /><Setter Property="Fill" Value="{DynamicResource SurfaceBrush}" /></Style>
@@ -264,7 +271,23 @@
   <Style Selector="Expander.prop-group"><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="BorderThickness" Value="{StaticResource NoInset}" /><Setter Property="MinHeight" Value="{StaticResource PropHeadHeight}" /></Style>
   <Style Selector="Expander.prop-group /template/ Border#ExpanderContent"><Setter Property="BorderThickness" Value="{StaticResource NoInset}" /><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
   <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="MinHeight" Value="{StaticResource PropHeadHeight}" /></Style>
+  <!-- PG-29: every header, radio and Type-box state names a theme token, so High contrast never shows Fluent Light. -->
+  <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader /template/ Border#ToggleButtonBackground"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /></Style>
+  <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader:checked /template/ Border#ToggleButtonBackground"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /></Style>
   <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader:pressed /template/ Border#ToggleButtonBackground"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Expander.prop-group /template/ ToggleButton#ExpanderHeader /template/ Path#ExpandCollapseChevron"><Setter Property="Stroke" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="RadioButton.prop-kind:pressed /template/ Ellipse#OuterEllipse"><Setter Property="Stroke" Value="{DynamicResource InkBrush}" /><Setter Property="Fill" Value="{DynamicResource SurfaceSoftBrush}" /></Style>
+  <Style Selector="RadioButton.prop-kind:checked:pointerover /template/ Ellipse#CheckOuterEllipse, RadioButton.prop-kind:checked:pressed /template/ Ellipse#CheckOuterEllipse"><Setter Property="Stroke" Value="{DynamicResource InkBrush}" /><Setter Property="Fill" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="RadioButton.prop-kind:checked:pressed /template/ Ellipse#CheckGlyph"><Setter Property="Fill" Value="{DynamicResource InkBrush}" /><Setter Property="Stroke" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="RadioButton.prop-kind /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice /template/ ContentControl#ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice /template/ PathIcon#DropDownGlyph"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice /template/ Border#PopupBorder"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice ComboBoxItem /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter, ComboBox.prop-choice ComboBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ComboBox.prop-choice ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ComboBox.prop-choice ComboBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter, ComboBox.prop-choice ComboBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SelectionBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnSelectionBrush}" /></Style>
   <Style Selector="TextBox.prop-input, ComboBox.prop-choice, RadioButton.prop-kind, Expander.prop-group ToggleButton">
     <Setter Property="FocusAdorner">
       <FocusAdornerTemplate>

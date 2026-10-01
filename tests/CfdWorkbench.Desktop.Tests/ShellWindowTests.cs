@@ -2464,7 +2464,7 @@ public static class ShellWindowTests
                 if (gap > 0.002)
                     throw new InvalidOperationException("curve misses the anchor by " + gap.ToString("G4", inv) + " m");
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                if (!status.IsVisible || status.Text != U2Text(host.Properties, "Message_p_type")   /* PG-26: the type report from the operation */ || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("status '" + status.Text + "' controller '" + controller.Status + "'");
                 controller.Undo();
                 Settle(window);
@@ -2494,7 +2494,7 @@ public static class ShellWindowTests
                 if (now.Kind != TangentKind.Symmetric)
                     throw new InvalidOperationException("kind: " + now.Kind);
                 var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                if (status.Text != U2Text(host.Properties, "Message_t_kind")   /* PG-33: the kind report */ || string.IsNullOrWhiteSpace(status.Text))
                     throw new InvalidOperationException("tangent status not on the status line");
                 controller.Undo();
                 Settle(window);
@@ -2709,6 +2709,8 @@ public static class ShellWindowTests
                 var body = U2Need<TextBlock>(host.Properties, "HowMeasuredBody");
                 if (!body.IsVisible || string.IsNullOrWhiteSpace(body.Text) || !body.Text.Contains("MAC", StringComparison.Ordinal))
                     throw new InvalidOperationException("how-measured body: " + body.Text);
+                // PG-31: the disclosure exposes its expanded state.
+                if (how is not ToggleButton { IsChecked: true }) throw new InvalidOperationException("How these are measured does not expose expanded");
             }
             finally { window.Close(); }
         });

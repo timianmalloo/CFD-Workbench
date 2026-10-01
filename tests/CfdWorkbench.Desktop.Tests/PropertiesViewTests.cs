@@ -7,6 +7,8 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.VisualTree;
@@ -237,13 +239,20 @@ public static class PropertiesViewTests
 
         Pane("Unavailable_AnnouncedInStatus", (controller, host, window) =>
         {
-            // N1 / PG-04: the change to Unavailable is announced politely. The pane's polite region is the Wing note (the
-            // shell's status line is the controller's; COPY-160 there is outside this track).
+            // N1 / PG-04 / PG-26: the change to Unavailable is a text change of the shell's attached polite status line
+            // (COPY-160), once; PG-27: the Wing note is already attached (hidden while empty) and only its text changes.
+            var status = Status(host);
+            var note = Need<TextBlock>(host.Properties, "Note_wing_0");
+            if (!status.IsAttachedToVisualTree() || AutomationProperties.GetLiveSetting(status) != AutomationLiveSetting.Polite || !note.IsAttachedToVisualTree() || note.IsVisible)
+                throw new InvalidOperationException($"before: status attached {status.IsAttachedToVisualTree()}, note attached {note.IsAttachedToVisualTree()} visible {note.IsVisible}");
+            var seen = Changes(status);
             host.Properties.Bind(controller, controller.Estimates! with { MacMeters = double.NaN });
             Settle(window);
-            var note = Need<TextBlock>(host.Properties, "Note_wing_0");
-            if (AutomationProperties.GetLiveSetting(note) != AutomationLiveSetting.Polite || note.Text?.Contains("MAC", StringComparison.Ordinal) != true)
-                throw new InvalidOperationException($"live {AutomationProperties.GetLiveSetting(note)} '{note.Text}'");
+            host.Properties.Bind(controller, controller.Estimates! with { MacMeters = double.NaN });
+            Settle(window);
+            const string want = "MAC unavailable — did not converge for this shape.";
+            if (seen.Count(text => text == want) != 1 || !ReferenceEquals(note, Need<TextBlock>(host.Properties, "Note_wing_0")) || !note.IsVisible)
+                throw new InvalidOperationException("status changes: " + string.Join(" | ", seen));
         });
 
         Pane("PropertiesPane_Rows_ShareOneLabelColumn", (controller, host, window) =>
@@ -457,6 +466,128 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("leaving the group was not exactly one undo row");
         });
 
+        Pane("PropertiesPane_KeyboardCopy_SelectionAndGroupHeader", (controller, host, window) =>
+        {
+            // PG-25 (C1): facts stay out of the Tab order (D2), so copying is a keyboard command. ⌘⇧C / Ctrl+Shift+C copies the
+            // selection's rows as "label value unit" lines; a group header's context menu (Shift+F10) copies its group;
+            // ⌘C / Ctrl+C never copies a row the pointer chose before focus moved. No pointer event drives a copy here.
+            var point = Control(controller, "trailing");
+            Select(controller, window, point);
+            var copied = new List<string>();
+            host.Properties.ClipboardWriter = text => { copied.Add(text); return Task.CompletedTask; };
+            var command = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+            var aft = Need<TextBox>(host.Properties, "PointAftInput");
+            aft.Focus(NavigationMethod.Tab);
+            Key(aft, Avalonia.Input.Key.C, command | KeyModifiers.Shift);
+            var lines = copied.SingleOrDefault()?.Split('\n') ?? [];
+            foreach (var want in new[] { "Type Control point", $"From root {Quantity.TypedLength(point.SpanMeters)} mm", $"η {Quantity.Eta(point.Eta)}", $"Aft {Quantity.TypedLength(point.AftMeters)} mm" })
+                if (!lines.Contains(want)) throw new InvalidOperationException($"selection copy lacks '{want}': {string.Join(" / ", lines)}");
+            copied.Clear();
+            var rail = Need<Expander>(host.Properties, "Group_rail");
+            var header = rail.GetVisualDescendants().OfType<ToggleButton>().First();
+            header.Focus(NavigationMethod.Tab);
+            Key(header, Avalonia.Input.Key.F10, KeyModifiers.Shift);
+            var menu = rail.ContextMenu ?? throw new InvalidOperationException("the header has no context menu");
+            if (!menu.IsOpen) throw new InvalidOperationException("Shift+F10 on a focused header did not open its menu");
+            menu.Items.OfType<MenuItem>().First().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+            menu.Close();
+            var group = copied.SingleOrDefault()?.Split('\n') ?? [];
+            if (group.Length != 2 || !group[0].StartsWith("Degree ", StringComparison.Ordinal) || !group[1].StartsWith("Points ", StringComparison.Ordinal))
+                throw new InvalidOperationException("group copy: " + string.Join(" / ", group));
+            copied.Clear();
+            var mac = Need<Border>(host.Properties, "Row_e_mac");
+            mac.RaiseEvent(new PointerPressedEventArgs(mac, new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true), window, new Point(1, 1), 0,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+            aft.Focus(NavigationMethod.Tab);
+            header.Focus(NavigationMethod.Tab);
+            Key(header, Avalonia.Input.Key.C, command);
+            if (copied.Count != 0) throw new InvalidOperationException("a stale pointer row was copied: " + copied[0]);
+        });
+
+        Pane("PropertiesPane_StatusLine_SelectedAndKindReport", (controller, host, window) =>
+        {
+            // PG-28: Esc on a handle selects its anchor and says so; PG-33 / MC-11: a kind commit reports from its result —
+            // both as text changes of the shell's polite status line.
+            var anchor = MakeAnchor(controller);
+            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id && point.Index > anchor.Index);
+            Select(controller, window, handle);
+            var seen = Changes(Status(host));
+            var header = Need<Expander>(host.Properties, "Group_hdl").GetVisualDescendants().OfType<ToggleButton>().First();
+            header.Focus(NavigationMethod.Tab);
+            Key(header, Avalonia.Input.Key.Escape);
+            Settle(window);
+            string selected = $"Selected Trailing edge · point {anchor.Index + 1} of {controller.Planform!.Trailing.Points.Count}.";
+            if (!seen.Contains(selected) || controller.Selection is not Selection.Points { Items: [var chosen] } || chosen.VertexId != anchor.Id)
+                throw new InvalidOperationException("Esc: " + string.Join(" | ", seen));
+            Need<RadioButton>(host.Properties, "TangentSymmetricButton").RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            WaitIdle(controller, window);
+            if (!seen.Any(text => text.StartsWith($"Trailing edge point {anchor.Index + 1} is now Symmetric.", StringComparison.Ordinal)))
+                throw new InvalidOperationException("kind report: " + string.Join(" | ", seen));
+        });
+
+        Pane("PropertiesPane_StateBrushes_InAllThreeThemes", (controller, host, window) =>
+        {
+            // PG-29 (C3): the chevron, the group header, the Kind radios, the Type box and its popup resolve to DESIGN.md
+            // tokens in each state and in Light, Dark and High contrast (which would otherwise inherit Fluent Light).
+            Select(controller, window, MakeAnchor(controller));
+            var themes = new (Avalonia.Styling.ThemeVariant Variant, string Ink, string Surface, string Soft, string Selection, string OnSelection, string Focus)[]
+            {
+                (Avalonia.Styling.ThemeVariant.Light, "#1b2929", "#fbfcfb", "#e8edeb", "#d8eeea", "#1b2929", "#006c67"),
+                (Avalonia.Styling.ThemeVariant.Dark, "#ebf3f0", "#1e2d31", "#2a3d40", "#274c47", "#ebf3f0", "#88d8c6"),
+                (NativeReviewThemes.HighContrast, "#ffffff", "#000000", "#000000", "#ffee58", "#000000", "#ffee58")
+            };
+            var failures = new List<string>();
+            foreach (var theme in themes)
+            {
+                window.RequestedThemeVariant = theme.Variant;
+                Settle(window);
+                void Expect(string what, IBrush? brush, string want)
+                {
+                    if (brush is not ISolidColorBrush solid || solid.Color != Color.Parse(want))
+                        failures.Add($"{theme.Variant.Key}/{what} {(brush as ISolidColorBrush)?.Color.ToString() ?? "none"}≠{want}");
+                }
+                var header = Need<Expander>(host.Properties, "Group_pos").GetVisualDescendants().OfType<ToggleButton>().First();
+                Expect("chevron", Part<Avalonia.Controls.Shapes.Path>(header, "ExpandCollapseChevron").Stroke, theme.Ink);
+                foreach (var (state, want) in new[] { (":checked", theme.Soft), (":pressed", theme.Surface) })
+                {
+                    Pseudo(header, state, true);
+                    Settle(window);
+                    Expect("header" + state, Part<Border>(header, "ToggleButtonBackground").Background, want);
+                    Pseudo(header, state, false);
+                }
+                var corner = Need<RadioButton>(host.Properties, "TangentCornerButton");
+                Pseudo(corner, ":pressed", true);
+                Settle(window);
+                Expect("radio:pressed ring", Part<Ellipse>(corner, "OuterEllipse").Stroke, theme.Ink);
+                Pseudo(corner, ":pressed", false);
+                var smooth = Need<RadioButton>(host.Properties, "TangentSmoothButton");
+                Pseudo(smooth, ":pointerover", true);
+                Settle(window);
+                Expect("radio:checked:pointerover ring", Part<Ellipse>(smooth, "CheckOuterEllipse").Stroke, theme.Ink);
+                Expect("radio:checked:pointerover dot", Part<Ellipse>(smooth, "CheckGlyph").Fill, theme.Ink);
+                Pseudo(smooth, ":pointerover", false);
+                var type = Need<ComboBox>(host.Properties, "TypeControl");
+                Pseudo(type, ":pressed", true);
+                Settle(window);
+                Expect("type:pressed", Part<Border>(type, "Background").Background, theme.Soft);
+                Pseudo(type, ":pressed", false);
+                type.IsDropDownOpen = true;
+                Settle(window);
+                Expect("type:dropdownopen border", Part<Border>(type, "Background").BorderBrush, theme.Focus);
+                var popup = type.GetVisualDescendants().OfType<Popup>().First().Child as Border;
+                Expect("popup", popup?.Background, theme.Surface);
+                foreach (var item in popup?.GetVisualDescendants().OfType<ComboBoxItem>() ?? [])
+                {
+                    var presenter = Part<ContentPresenter>(item, "PART_ContentPresenter");
+                    Expect($"item{(item.IsSelected ? ":selected" : "")} text", presenter.Foreground, item.IsSelected ? theme.OnSelection : theme.Ink);
+                    if (item.IsSelected) Expect("item:selected fill", presenter.Background, theme.Selection);
+                }
+                type.IsDropDownOpen = false;
+                Settle(window);
+            }
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+
         Pane("TypeCombo_PendingThenLeave_DoesNotCommit", (controller, host, window) =>
         {
             // PG-19 (D1): a pending type is dropped when focus leaves the box.
@@ -537,10 +668,13 @@ public static class PropertiesViewTests
 
         Pane("PropertiesPane_Error_AnnouncedOncePerFailedCommit", (controller, host, window) =>
         {
-            // PG-22, B10: once per failed commit — not on a re-render, and again on the next failed commit.
+            // PG-22, B10, PG-26: once per failed commit — not on a re-render, and again on the next failed commit — as a
+            // text change of the field's attached assertive message line.
             Select(controller, window, Control(controller, "trailing"));
-            var announced = new List<string>();
-            host.Properties.Announced += (text, live) => { if (live == AutomationLiveSetting.Assertive) announced.Add(text); };
+            var line = Need<TextBlock>(host.Properties, "Message_p_aft");
+            if (!line.IsAttachedToVisualTree() || AutomationProperties.GetLiveSetting(line) is not AutomationLiveSetting.Assertive and not AutomationLiveSetting.Polite)
+                throw new InvalidOperationException("the message line is not an attached live region");
+            var announced = Changes(line);
             var aft = Need<TextBox>(host.Properties, "PointAftInput");
             aft.Focus();
             aft.Text = "abc";
@@ -550,7 +684,7 @@ public static class PropertiesViewTests
             Settle(window);
             Key(aft, Avalonia.Input.Key.Enter);
             Settle(window);
-            if (!announced.SequenceEqual(["Enter a number. Aft is unchanged.", "Enter a number. Aft is unchanged."]))
+            if (announced.Count(text => text == "Enter a number. Aft is unchanged.") != 2 || AutomationProperties.GetLiveSetting(line) != AutomationLiveSetting.Assertive)
                 throw new InvalidOperationException("announced: " + string.Join(" | ", announced));
             if (Text(host.Properties, "Message_p_aft") != "Enter a number. Aft is unchanged." || aft.Text != "abc")
                 throw new InvalidOperationException("error line: " + Text(host.Properties, "Message_p_aft"));
@@ -573,9 +707,8 @@ public static class PropertiesViewTests
             var provider = ControlAutomationPeer.CreatePeerForElement(expander).GetProvider<IExpandCollapseProvider>()
                 ?? throw new InvalidOperationException("no expand/collapse pattern");
             if (provider.ExpandCollapseState != ExpandCollapseState.Expanded) throw new InvalidOperationException("not expanded");
+            Key(header, Avalonia.Input.Key.Space);
             Key(header, Avalonia.Input.Key.Space, up: true);
-            Settle(window);
-            if (provider.ExpandCollapseState != ExpandCollapseState.Collapsed) header.IsChecked = false;   // Space toggles on key up in Fluent
             Settle(window);
             if (provider.ExpandCollapseState != ExpandCollapseState.Collapsed || !Need<TextBlock>(host.Properties, "GroupSummary_pos").IsEffectivelyVisible)
                 throw new InvalidOperationException("collapse did not show the summary");
@@ -682,8 +815,10 @@ public static class PropertiesViewTests
             // PG-21 (D3), PG-08: the new value is announced once, politely, on release — not on later re-renders.
             var point = Control(controller, "trailing");
             Select(controller, window, point);
-            var polite = new List<string>();
-            host.Properties.Announced += (text, live) => { if (live == AutomationLiveSetting.Polite) polite.Add(text); };
+            // PG-26: the announcement is a text change of the shell's attached polite status line.
+            var status = Status(host);
+            if (!status.IsAttachedToVisualTree()) throw new InvalidOperationException("status line not attached");
+            var polite = Changes(status);
             var aft = Need<TextBox>(host.Properties, "PointAftInput");
             aft.Focus();
             Key(aft, Avalonia.Input.Key.Up, KeyModifiers.Shift);
@@ -692,7 +827,7 @@ public static class PropertiesViewTests
             host.RefreshPanes();
             Settle(window);
             string want = $"Aft {Quantity.TypedLength(point.AftMeters + 0.001)} mm.";
-            if (!polite.SequenceEqual([want])) throw new InvalidOperationException("announced: " + string.Join(" | ", polite) + " want " + want);
+            if (polite.Count(text => text == want) != 1) throw new InvalidOperationException("status changes: " + string.Join(" | ", polite) + " want " + want);
         });
 
         Nudge("FieldNudge_AngleRun_StopsAtDomainBound", (controller, host, window) =>
@@ -810,6 +945,22 @@ public static class PropertiesViewTests
     {
         controller.Select(new Selection.Points([Ref(point)]));
         Settle(window);
+    }
+
+    private static T Part<T>(Control templated, string name) where T : Control =>
+        templated.GetVisualDescendants().OfType<T>().FirstOrDefault(item => item.Name == name)
+        ?? throw new InvalidOperationException($"{templated.GetType().Name} has no {typeof(T).Name}#{name}");
+
+    private static void Pseudo(Control control, string state, bool on) => ((IPseudoClasses)control.Classes).Set(state, on);
+
+    private static TextBlock Status(ShellHost host) => host.ModelView.FindControl<TextBlock>("StatusText")!;
+
+    /// <summary>Every new text a live region takes from here on: what a screen reader would be told.</summary>
+    private static List<string> Changes(TextBlock block)
+    {
+        var seen = new List<string>();
+        block.PropertyChanged += (_, change) => { if (change.Property == TextBlock.TextProperty) seen.Add(change.NewValue as string ?? ""); };
+        return seen;
     }
 
     private static int Decimals(string value) => value.Contains('.') ? value.Length - value.IndexOf('.') - 1 : 0;

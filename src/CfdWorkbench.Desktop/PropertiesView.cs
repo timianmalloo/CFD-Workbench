@@ -78,7 +78,8 @@ public sealed record PropertiesModel(
     IReadOnlyList<PropertyGroup> Groups,
     PropertyGroup? Wing,
     RowMessage? Banner = null,
-    EmptyState? Empty = null)
+    EmptyState? Empty = null,
+    string? AvailabilityStatus = null)   // COPY-160 for the status line while an estimate is unavailable
 {
     /// <summary>The groups in display order: the selection's groups, then the Wing, always last (CAD-17, UI-36).</summary>
     public IReadOnlyList<PropertyGroup> Blocks => Wing is null ? Groups : [.. Groups, Wing];
@@ -125,6 +126,7 @@ public static class PropertyCopy
     public static string NotPositive(string field) => $"Enter a length greater than 0 mm. {field} is unchanged.";                 // COPY-106
     public static string AngleOutOfRange(string field) =>
         $"Enter an angle between −90° and 90°, from the span axis, + aft. {field} is unchanged.";                                 // COPY-158
+    public static string UnavailableStatus(string what, string reason) => $"{what} unavailable — {reason}.";               // COPY-160
     public static string Unavailable(string reason) => $"Unavailable — {reason}. Undo, or edit again, to recompute.";             // COPY-155
     public static string PendingKind(string kind, string kept) =>
         $"Press Return or Space to make it {kind}, or Esc to keep {kept}.";                                                        // COPY-167
@@ -404,7 +406,8 @@ public static class PropertiesView
         };
         var banner = context.NotChecked && selection is Selection.Points
             ? new RowMessage(PropertyCopy.NotChecked, MessageKind.Warning) : null;
-        return new PropertiesModel(identity, groups, Wing(projection, estimates, mode, context), banner);
+        var (wing, availability) = Wing(projection, estimates, mode, context);
+        return new PropertiesModel(identity, groups, wing, banner, AvailabilityStatus: availability);
     }
 
     public static PropertiesModel Build(
@@ -691,7 +694,8 @@ public static class PropertiesView
 
     // ---------------- the Wing (always last; never collapsible) ----------------
 
-    private static PropertyGroup Wing(AuthoredProjection projection, WingEstimates? estimates, ShellMode mode, PropertiesContext context)
+    private static (PropertyGroup Group, string? Status) Wing(AuthoredProjection projection, WingEstimates? estimates, ShellMode mode,
+        PropertiesContext context)
     {
         double spanMeters = estimates?.SpanMeters ?? (projection.HalfSpanMeters ?? 0) * 2;
         var rows = new List<PropertyRow>();
@@ -733,19 +737,25 @@ public static class PropertiesView
         rows.AddRange(estimateRows);
         var unavailable = estimateRows.Where(row => row.State == RowState.Unavailable).ToArray();
         bool allUnavailable = unavailable.Length == estimateRows.Length;
+        string? status = null;
         if (allUnavailable)
-            notes.Add(new RowMessage(PropertyCopy.Unavailable(estimates is null
-                ? "the estimates could not be computed for this shape"
-                : "the leading and trailing edges cross"), MessageKind.Warning));
+        {
+            string reason = estimates is null ? "the estimates could not be computed for this shape" : "the leading and trailing edges cross";
+            notes.Add(new RowMessage(PropertyCopy.Unavailable(reason), MessageKind.Warning));
+            status = PropertyCopy.UnavailableStatus("Estimates", reason);
+        }
         else if (unavailable.Length > 0)
+        {
+            string what = Join(unavailable.Select(row => row.Label));
             notes.Add(new RowMessage(PropertyCopy.Unavailable(
-                $"{Join(unavailable.Select(row => row.Label))} did not converge for this shape; the other estimates are current"),
-                MessageKind.Warning));
+                $"{what} did not converge for this shape; the other estimates are current"), MessageKind.Warning));
+            status = PropertyCopy.UnavailableStatus(what, "did not converge for this shape");
+        }
         GroupChip? chip = context.Preview ? GroupChip.Preview
             : context.Checking ? GroupChip.Checking
             : allUnavailable ? GroupChip.Unavailable
             : null;
-        return new PropertyGroup("wing", "Wing", "", false, rows, notes, chip);
+        return (new PropertyGroup("wing", "Wing", "", false, rows, notes, chip), status);
     }
 
     // ---------------- row builders ----------------

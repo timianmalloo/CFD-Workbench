@@ -61,6 +61,8 @@ public partial class PropertiesPane : UserControl
     private TangentKind? pendingKind;
     private NudgeRun? run;
     private string? copyTarget;
+    private PropertiesModel? shownModel;
+    private string? lastAvailability;
 
     public PropertiesPane()
     {
@@ -83,7 +85,12 @@ public partial class PropertiesPane : UserControl
             ErrorPanel.IsVisible = false;
             if (boundController != null) Bind(boundController);
         };
-        HowMeasuredButton.Click += (_, _) => HowMeasuredBody.IsVisible = !HowMeasuredBody.IsVisible;
+        HowMeasuredButton.Click += (_, _) =>
+        {
+            // PG-31: a disclosure whose checked state is its expanded state.
+            HowMeasuredBody.IsVisible = !HowMeasuredBody.IsVisible;
+            HowMeasuredButton.IsChecked = HowMeasuredBody.IsVisible;
+        };
         RecoveryApplyButton.Click += (_, _) => ApplyRecovery();
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
         IdentityCrumbLink.Click += (_, _) => GoToCrumb();
@@ -99,6 +106,8 @@ public partial class PropertiesPane : UserControl
         TangentGroup.LostFocus += (_, _) => Dispatcher.UIThread.Post(CommitKindOnLeave, DispatcherPriority.Input);
 
         AddHandler(KeyDownEvent, OnPaneKeyDown, RoutingStrategies.Bubble);
+        // PG-25: a row the pointer chose is the Copy target only until focus moves.
+        AddHandler(GotFocusEvent, (_, _) => copyTarget = null, RoutingStrategies.Bubble, handledEventsToo: true);
         SizeChanged += (_, _) => FitToPane();
     }
 
@@ -147,6 +156,7 @@ public partial class PropertiesPane : UserControl
             if (key != selectionKey)
             {
                 selectionKey = key;
+                copyTarget = null;
                 messages.Clear();
                 errors.Clear();
                 pendingType = null;
@@ -198,6 +208,11 @@ public partial class PropertiesPane : UserControl
             RecoveryPanel.IsVisible = recovery;
             RecoveryBanner.IsVisible = recovery;
             if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
+            shownModel = model;
+            // COPY-160: a change in availability is announced once on the status line, never on a re-render.
+            if (model.AvailabilityStatus != lastAvailability && model.AvailabilityStatus is { } availability)
+                Announced?.Invoke(availability, AutomationLiveSetting.Polite);
+            lastAvailability = model.AvailabilityStatus;
 
             var used = new HashSet<Control>();
             var groupControls = new List<Control>();
@@ -291,8 +306,13 @@ public partial class PropertiesPane : UserControl
             .Select(row => (Control)RenderRow(row, used).Root).ToList());
         Sync(WingEstimates, wing.Rows.Where(row => !row.Key.StartsWith("w:", StringComparison.Ordinal))
             .Select(row => (Control)RenderRow(row, used).Root).ToList());
-        var notes = Notes("wing", wing.Notes);
-        foreach (var note in notes) AutomationProperties.SetLiveSetting(note, AutomationLiveSetting.Polite);
+        // PG-27: the first Wing note stays attached (hidden while empty) so a change is only a text change.
+        var notes = Notes("wing", wing.Notes.Count > 0 ? wing.Notes : [new RowMessage("", MessageKind.Info)]);
+        foreach (var note in notes)
+        {
+            AutomationProperties.SetLiveSetting(note, AutomationLiveSetting.Polite);
+            note.IsVisible = note.Text?.Length > 0;
+        }
         Sync(WingNotes, [.. notes]);
     }
 
@@ -561,6 +581,10 @@ public partial class PropertiesPane : UserControl
             ContentTransition = null   // PG-16 / B6: no native motion
         };
         expander.Classes.Add("prop-group");
+        // PG-25: a header's menu (Shift+F10 or the menu key on a focused header) copies its group as text.
+        var copy = new MenuItem { Header = "Copy values" };
+        copy.Click += (_, _) => CopyGroup(id);
+        expander.ContextMenu = new ContextMenu { Name = Part("GroupMenu", id), Items = { copy } };
         var view = new GroupView(expander, title, summary, body);
         expander.TemplateApplied += (_, args) =>
         {
@@ -829,11 +853,16 @@ public partial class PropertiesPane : UserControl
     /// <summary>PG-22 / B10: an error is announced once per failed commit, never on a re-render.</summary>
     private bool Refuse(RowView view, TextBox box, string message)
     {
+        string before = view.Message.Text ?? "";
         errors[view.Row.Key] = (box.Text ?? "", message);
         messages.Remove(view.Row.Key);
         RenderRow(view.Row, []);
-        view.Message.Text = "";
-        view.Message.Text = message;
+        if (before == message)
+        {
+            // The same error again: clear and set, so the live region speaks this failed commit too.
+            view.Message.Text = "";
+            view.Message.Text = message;
+        }
         box.Classes.Set("error", true);
         AutomationProperties.SetHelpText(box, HelpText(view));
         Announced?.Invoke(message, AutomationLiveSetting.Assertive);
@@ -1101,7 +1130,16 @@ public partial class PropertiesPane : UserControl
             using (Hold()) PumpUi(task);
             if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
                 messages["t:kind"] = new RowMessage(refused.Copy, MessageKind.Error);
-            else messages.Remove("t:kind");
+            else if (task.IsCompletedSuccessfully)
+            {
+                // MC-11 / PG-33: the report comes from the operation — the kind, and on a handle which handle it kept.
+                string kept = keep is null ? ""
+                    : PropertiesView.Find(plan, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
+                        ? " Kept the handle toward the tip; the other one moved." : " Kept the handle toward the root; the other one moved.";
+                string report = $"{PropertiesView.Curves[anchor.Curve].Name} point {anchor.Index + 1} is now {kind}.{kept}";
+                messages["t:kind"] = new RowMessage(report, MessageKind.Report);
+                Announced?.Invoke(report, AutomationLiveSetting.Polite);
+            }
         }
         Bind(controller);
         // Tangent_KindChange_KeepsFocusOnChecked: focus stays on the checked option after the commit.
@@ -1115,13 +1153,28 @@ public partial class PropertiesPane : UserControl
     private void OnPaneKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Handled || boundController is not { } controller) return;
+        bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        if (e.Key == Key.C && command && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            // PG-25: ⌘⇧C (Ctrl+Shift+C) copies the selection's rows from anywhere in the pane, keyboard only.
+            e.Handled = true;
+            CopyLines(shownModel?.Groups ?? []);
+            return;
+        }
         var focused = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
         if (focused is TextBox) return;
-        if (e.Key == Key.Escape && IdentityCrumbLink.Tag is PointRef parent)
+        if ((e.Key == Key.F10 && e.KeyModifiers.HasFlag(KeyModifiers.Shift) || e.Key == Key.Apps) &&
+            focused is ToggleButton { TemplatedParent: Expander { ContextMenu: { } menu } group })
         {
-            // PG-12: Esc on a handle selection selects its anchor or end.
+            e.Handled = true;
+            menu.Open(group);
+        }
+        else if (e.Key == Key.Escape && IdentityCrumbLink.Tag is PointRef parent)
+        {
+            // PG-12 / PG-28: Esc on a handle selection selects its anchor or end, and says so.
             e.Handled = true;
             controller.Select(new Selection.Points([parent]));
+            Announced?.Invoke($"Selected {IdentityTitle.Text}.", AutomationLiveSetting.Polite);
         }
         else if (e.Key == Key.C && (e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control)) &&
                  copyTarget is { } key && rows.TryGetValue(key, out var view))
@@ -1129,6 +1182,24 @@ public partial class PropertiesPane : UserControl
             e.Handled = true;
             CopyRow(view.Row.Key, withUnit: true);
         }
+    }
+
+    private void CopyGroup(string id) =>
+        CopyLines(shownModel?.Groups.Where(group => group.Id == id).ToList() ?? [], shownModel?.Wing is { } wing && wing.Id == id ? wing : null);
+
+    /// <summary>The rows as "label value unit" lines, one per row (PG-25).</summary>
+    private void CopyLines(IReadOnlyList<PropertyGroup> groups, PropertyGroup? wing = null)
+    {
+        var lines = groups.Append(wing).OfType<PropertyGroup>().SelectMany(group => group.Rows).Select(row =>
+        {
+            string value = row.Kind == RowKind.Choice
+                ? row.Options?.FirstOrDefault(option => option.Value == row.Value)?.Text ?? row.Value
+                : CopyText(row, withUnit: true);
+            return $"{row.Label} {value}";
+        }).ToList();
+        if (lines.Count == 0) return;
+        var write = ClipboardWriter ?? (text => TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(text) ?? Task.CompletedTask);
+        _ = write(string.Join("\n", lines));
     }
 
     private void GoToCrumb()
