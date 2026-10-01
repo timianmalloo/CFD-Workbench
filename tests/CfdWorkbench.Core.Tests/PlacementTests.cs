@@ -107,6 +107,34 @@ internal static class PlacementTests
         }
     }
 
+    // Degree 5, 8 points, two thickness humps of 0.0904 whose heights cross at a second-hump ordinate
+    // of 0.06303158... ; the values below sit a few grid steps short of the crossover on the low side.
+    private static string TwoHumpFoil(params string[] secondHumps)
+    {
+        const string abscissae = "0, 0, 0.1, 0.3, 0.5, 0.7, 0.9, 1";
+        const string knots = "[0, 0, 0, 0, 0, 0, 0.3333333333333333, 0.6666666666666666, 1, 1, 1, 1, 1, 1]";
+        string[] x = abscissae.Split(", ");
+        var profiles = new StringBuilder();
+        for (int index = 0; index < secondHumps.Length; index++)
+        {
+            string[] y = ["0", "0.03", "0.07", "0.01", "0.01", secondHumps[index], "0.04", "0"];
+            string upper = string.Join(", ", y.Select((value, at) => "(" + x[at] + ", " + value + ")"));
+            string lower = string.Join(", ", y.Select((value, at) => "(" + x[at] + ", " + (value == "0" ? "0" : "-" + value) + ")"));
+            profiles.Append("    profile \"section-" + (char)('a' + index) + "\" {\n      upper cv { degree 5 knots " + knots + " points [" + upper + "] }\n      lower cv { degree 5 knots " + knots + " points [" + lower + "] }\n    }\n");
+        }
+        string text = ReplaceCurve(Example(), "trailing", Ordinates(2000));
+        int at0 = text.IndexOf("    profile \"section-a\"", StringComparison.Ordinal);
+        int end = text.IndexOf("  }\n  sections", at0, StringComparison.Ordinal);
+        text = text[..at0] + profiles + text[end..];
+        return text.Replace("at tip profile \"section-a\"", "at tip profile \"section-" + (char)('a' + secondHumps.Length - 1) + "\"", StringComparison.Ordinal);
+    }
+
+    private static IEnumerable<(string Name, string Source)> TwoHumpFixtures()
+    {
+        yield return ("two-hump-2m", TwoHumpFoil("0.06303158896"));
+        yield return ("two-hump-blend-2m", TwoHumpFoil("0.06303158896", "0.0630318"));
+    }
+
     private static void SelectMatchesGolden()
     {
         using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
@@ -134,6 +162,8 @@ internal static class PlacementTests
             using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
             foreach (var fixture in document.RootElement.GetProperty("fixtures").EnumerateArray())
                 MeasureOutside(fixture.GetProperty("name").GetString()!, fixture.GetProperty("source").GetString()!);
+            foreach (var (name, source) in TwoHumpFixtures())
+                MeasureOutside(name, source);
             return;
         }
         string example = Example();
@@ -171,10 +201,11 @@ internal static class PlacementTests
     private static void DisplayMaximum()
     {
         using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
-        foreach (var fixture in document.RootElement.GetProperty("fixtures").EnumerateArray())
+        var fixtures = document.RootElement.GetProperty("fixtures").EnumerateArray()
+            .Select(fixture => (Name: fixture.GetProperty("name").GetString()!, Source: fixture.GetProperty("source").GetString()!))
+            .Concat(TwoHumpFixtures());
+        foreach (var (name, source) in fixtures)
         {
-            string name = fixture.GetProperty("name").GetString()!;
-            string source = fixture.GetProperty("source").GetString()!;
             var certificate = Certify(name, source);
             var profiles = Prepare(source).Definition!.Profiles;
             double worst = 0;

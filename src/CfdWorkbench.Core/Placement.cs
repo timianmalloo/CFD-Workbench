@@ -295,40 +295,15 @@ public static class Placement
 
     // Same abscissa: the thickness maximum is the maximum of y_upper(t) - y_lower(t). A knot
     // parameter is a candidate so a C0 peak that sits on a knot is not missed.
-    private static double ParameterMaximum(Curve upper, Curve lower)
-    {
-        int count = PlacementRule.MaximumGrid;
-        double best = double.NegativeInfinity;
-        int bestIndex = 0;
-        double Gap(double t) => Jet(upper, t).Y - Jet(lower, t).Y;
-        for (int index = 0; index < count; index++)
-        {
-            double sample = Gap(index / (double)(count - 1));
-            if (sample > best) { best = sample; bestIndex = index; }
-        }
-        foreach (double knot in upper.Knots)
-        {
-            if (knot <= 0 || knot >= 1) continue;
-            best = Math.Max(best, Gap(knot));
-        }
-        double left = Math.Max(0, (bestIndex - 1) / (double)(count - 1));
-        double right = Math.Min(1, (bestIndex + 1) / (double)(count - 1));
-        double t = bestIndex / (double)(count - 1);
-        for (int iter = 0; iter < 40 && left < right; iter++)
+    private static double ParameterMaximum(Curve upper, Curve lower) => Maximize(
+        t => Jet(upper, t).Y - Jet(lower, t).Y,
+        t =>
         {
             var high = Jet(upper, t);
             var low = Jet(lower, t);
-            double d1 = high.Yt - low.Yt;
-            double d2 = high.Ytt - low.Ytt;
-            double newton = d2 == 0 || !double.IsFinite(d1) || !double.IsFinite(d2) ? double.NaN : t - d1 / d2;
-            double next = newton > left && newton < right ? newton : (left + right) / 2;
-            if (d1 > 0) left = t;
-            else if (d1 < 0) right = t;
-            if (next == t) break;
-            t = next;
-        }
-        return Math.Max(best, Gap(Math.Clamp(t, 0, 1)));
-    }
+            return (high.Yt - low.Yt, high.Ytt - low.Ytt);
+        },
+        upper.Knots);
 
     private static double BlendedMaximum(PreparedProfile a, PreparedProfile b, double weight)
     {
@@ -346,24 +321,46 @@ public static class Placement
             }, knots);
     }
 
+    // Every grid local maximum and every grid interval where the slope turns from positive to negative
+    // is polished, and the best result wins. Two humps within one grid step of each other then cannot
+    // leave the maximum on the lower one.
     private static double Maximize(Func<double, double> value, Func<double, (double D1, double D2)> derivative, IReadOnlyList<double> knots)
     {
         int count = PlacementRule.MaximumGrid;
+        double step = count - 1;
+        var samples = new double[count];
+        var slopes = new double[count];
         double best = double.NegativeInfinity;
-        int bestIndex = 0;
         for (int index = 0; index < count; index++)
         {
-            double sample = value(index / (double)(count - 1));
-            if (sample > best) { best = sample; bestIndex = index; }
+            double x = index / step;
+            samples[index] = value(x);
+            slopes[index] = derivative(x).D1;
+            best = Math.Max(best, samples[index]);
         }
         foreach (double knot in knots)
         {
             if (knot < 0 || knot > 1 || double.IsNaN(knot)) continue;
             best = Math.Max(best, value(knot));
         }
-        double left = Math.Max(0, (bestIndex - 1) / (double)(count - 1));
-        double right = Math.Min(1, (bestIndex + 1) / (double)(count - 1));
-        double x = bestIndex / (double)(count - 1);
+        for (int index = 0; index < count; index++)
+        {
+            bool rises = index == 0 || samples[index] > samples[index - 1];
+            bool holds = index == count - 1 || samples[index] >= samples[index + 1];
+            if (rises && holds || index == 0 && holds)
+                best = Math.Max(best, Polish(value, derivative, Math.Max(0, (index - 1) / step), Math.Min(1, (index + 1) / step), index / step));
+            if (index + 1 < count && slopes[index] > 0 && slopes[index + 1] < 0)
+                best = Math.Max(best, Polish(value, derivative, index / step, (index + 1) / step, (index + 0.5) / step));
+        }
+        return best;
+    }
+
+    // Safeguarded Newton on the slope inside a bracket: a Newton step that leaves the bracket is replaced by
+    // bisection, and the sign of the slope shrinks the bracket on every iteration.
+    private static double Polish(Func<double, double> value, Func<double, (double D1, double D2)> derivative, double left, double right, double start)
+    {
+        double x = start;
+        double best = value(x);
         for (int iter = 0; iter < 40 && left < right; iter++)
         {
             var (d1, d2) = derivative(x);
