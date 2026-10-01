@@ -272,7 +272,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Shell_F5_Start_FirstCardFocusedWithRing", () =>
         {
-            var window = new MainWindow(shellMode: true) { Width = 1280, Height = 800 };
+            var window = new MainWindow() { Width = 1280, Height = 800 };
             try
             {
                 window.Show();
@@ -291,7 +291,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("MainWindow_ShellMode_ContainsDockHostAndNativeMenu", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 window.Show();
@@ -402,7 +402,7 @@ public static class ShellWindowTests
             var loaded = preferences.LoadRecentAsync(CancellationToken.None).GetAwaiter().GetResult();
             if (loaded.Entries.Count != 1)
                 throw new InvalidOperationException($"Recent fixture was not stored: {save.Outcome}/{save.Code}/{loaded.Outcome} root={root}");
-            var window = new MainWindow(shellMode: true, preferences);
+            var window = new MainWindow(preferences);
             try
             {
                 window.Show();
@@ -499,7 +499,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("KeyBindings_MenuGesture_NotBound", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture))
@@ -515,7 +515,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("Menu_UndoEnabled_FollowsFocusAndHistory", () =>
         {
-            var window = new MainWindow(shellMode: true);
+            var window = new MainWindow();
             try
             {
                 window.Show();
@@ -669,7 +669,7 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("DockTabFocus_FreshBatch_ReadyAndTwoRing", () =>
         {
-            var window = new MainWindow(shellMode: true) { Width = 1024, Height = 700 };
+            var window = new MainWindow() { Width = 1024, Height = 700 };
             try
             {
                 window.Show();
@@ -1928,17 +1928,23 @@ public static class ShellWindowTests
             });
         }
 
-        // The --theme-controls matrix retargeted to the shell (design §12.4; inventory rows 113–1446).
+        // The applied-contrast matrix on the real shell window (design §12.4; inventory rows 113–1446). It is the gate's
+        // theme evidence: tools/verify-application-adapters.py freezes its row set and re-derives every ratio.
         DesktopChecks.Check("ThemeMatrix_ShellControls_AppliedContrast", () =>
         {
             var rowFailures = new List<string>();
             var reflection = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
             var pseudoProperty = typeof(StyledElement).GetProperty("PseudoClasses", reflection)
                 ?? throw new InvalidOperationException("Installed protected PseudoClasses unavailable");
+            // Each row is one measured contrast on the real shell window; tools/verify-application-adapters.py re-derives
+            // every ratio from the emitted ARGB and refuses a missing, duplicate or unknown row.
+            var emittedRows = new List<(string Theme, string Row)>();
             void Measure(string theme, string row, Color foreground, Color background, double floor)
             {
                 double ratio = Contrast(foreground, background);
-                Console.WriteLine($"THEME-ROW {theme}/{row} fg={foreground} bg={background} ratio={ratio:F2} floor={floor}");
+                emittedRows.Add((theme, row));
+                Console.WriteLine(FormattableString.Invariant(
+                    $"THEME-ROW {theme}/{row} fg=#{foreground.ToUInt32():X8} bg=#{background.ToUInt32():X8} ratio={ratio:F4} floor={floor}"));
                 if (ratio < floor) rowFailures.Add($"{theme}/{row} {foreground} on {background} = {ratio:F2} < {floor}");
             }
             void Probe(string theme, string row, Action probe)
@@ -2016,9 +2022,9 @@ public static class ShellWindowTests
             try
             {
             foreach (var (theme, variant) in new[] { ("light", ThemeVariant.Light), ("dark", ThemeVariant.Dark),
-                         ("high-contrast", NativeReviewThemes.HighContrast) })
+                         ("high-contrast", NativeReviewThemes.HighContrast), ("default", ThemeVariant.Default) })
             {
-                var window = new MainWindow(shellMode: true) { RequestedThemeVariant = variant, Width = 1024, Height = 700 };
+                var window = new MainWindow() { RequestedThemeVariant = variant, Width = 1024, Height = 700 };
                 var controller = typeof(MainWindow).GetField("workbench", reflection)?.GetValue(window) as WorkbenchController
                     ?? throw new InvalidOperationException("Controller field unreadable");
                 try
@@ -2159,9 +2165,47 @@ public static class ShellWindowTests
                     if (!source.IsReadOnly || source.Text != controller.AcceptedSource)
                         throw new InvalidOperationException("Foil source tab lost its read-only accepted text");
                     Probe(theme, "source.text", () => TextBoxRow(theme, "source.text", source));
-                    if (host.ModelView.FindControl<TextBlock>("ViewportProvenance") is null ||
-                        host.ModelView.FindControl<TextBlock>("SectionReadout") is null)
-                        throw new InvalidOperationException("Viewport or section annotation absent");
+                    // Annotations and the unsaved-changes modal: rows the retired pre-shell matrix measured on surfaces
+                    // the shell still ships.
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                    Settle(window);
+                    Probe(theme, "viewport.annotation", () => TextRow(theme, "viewport.annotation",
+                        host.ModelView.FindControl<TextBlock>("ViewportProvenance") ?? throw new InvalidOperationException("Viewport annotation absent")));
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
+                    Settle(window);
+                    Probe(theme, "section.annotation", () => TextRow(theme, "section.annotation",
+                        host.ModelView.FindControl<TextBlock>("SectionReadout") ?? throw new InvalidOperationException("Section annotation absent")));
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
+                    Settle(window);
+                    var pending = (Task<string>)(typeof(MainWindow).GetMethod("UnsavedDialogAsync", reflection)?.Invoke(window, null)
+                        ?? throw new InvalidOperationException("Unsaved dialog unavailable"));
+                    var modal = window.OwnedWindows.SingleOrDefault() ?? throw new InvalidOperationException("Unsaved modal is not owned by the window");
+                    Settle(modal);
+                    if (modal.ActualThemeVariant != window.ActualThemeVariant)
+                        rowFailures.Add($"{theme}/modal: the unsaved modal did not inherit its owner's theme");
+                    var modalBody = modal.GetVisualDescendants().OfType<TextBlock>()
+                        .FirstOrDefault(text => text.Text?.StartsWith("Save this foil", StringComparison.Ordinal) == true)
+                        ?? throw new InvalidOperationException("Unsaved modal body unavailable");
+                    Probe(theme, "modal.body", () => TextRow(theme, "modal.body", modalBody));
+                    var modalButtons = modal.GetVisualDescendants().OfType<Button>()
+                        .Where(button => button.Content is string).ToDictionary(button => (string)button.Content!);
+                    foreach (var choice in new[] { "Save", "Discard", "Cancel" })
+                    {
+                        string row = "modal." + choice.ToLowerInvariant();
+                        Probe(theme, row + ".rest", () => TextRow(theme, row + ".rest", modalButtons[choice]));
+                        Probe(theme, row + ".hover", () =>
+                        {
+                            Hover(modalButtons[choice], modal, true);
+                            TextRow(theme, row + ".hover", modalButtons[choice]);
+                            Hover(modalButtons[choice], modal, false);
+                        });
+                    }
+                    if (!modalButtons["Cancel"].IsDefault || !modalButtons["Cancel"].IsCancel || !modalButtons["Cancel"].IsFocused)
+                        rowFailures.Add($"{theme}/modal: Cancel is not the focused safe default");
+                    modal.Close();
+                    Settle(window);
+                    if (!pending.IsCompletedSuccessfully || pending.Result != "Cancel")
+                        rowFailures.Add($"{theme}/modal: closing the modal did not answer Cancel");
                     if (host.Properties.FindControl<TextBox>("SpanInput") is null ||
                         host.Properties.FindControl<TextBlock>("WingHeading") is null)
                         throw new InvalidOperationException("Rail-editor CV list or numeric field absent from the pane namescope");
@@ -2185,6 +2229,15 @@ public static class ShellWindowTests
             }
             }
             finally { Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = reveal; }
+            // Every variant measures the same rows (the light-only live flip aside), so a skipped probe cannot hide.
+            var perTheme = emittedRows.Where(item => !item.Row.StartsWith("live-flip.", StringComparison.Ordinal))
+                .GroupBy(item => item.Theme).ToDictionary(group => group.Key, group => group.Select(item => item.Row).ToHashSet());
+            var reference = perTheme.GetValueOrDefault("light") ?? [];
+            foreach (var (theme, rows) in perTheme)
+                if (!rows.SetEquals(reference))
+                    rowFailures.Add($"{theme}: row set differs from light ({string.Join(", ", rows.Except(reference).Concat(reference.Except(rows)))})");
+            if (perTheme.Count != 4) rowFailures.Add($"{perTheme.Count} variants measured, not 4");
+            Console.WriteLine($"THEME-SHELL-CHECK rows={emittedRows.Count} variants={perTheme.Count} source=shell-MainWindow");
             if (rowFailures.Count > 0)
                 throw new InvalidOperationException($"{rowFailures.Count} theme rows failed: " + string.Join(" | ", rowFailures));
         });
@@ -2922,34 +2975,108 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        // CONTROL-GAMED-BY-RENAME: the retirement is checked by capability, not by member names. A rename cannot pass it.
         DesktopChecks.Check(string.Concat("Rail", "EditorPane_Removed_NoReferencesRemain"), () =>
         {
-            string root = RepoRootFromSource();
-            string[] tokens =
-            [
-                string.Concat("Rail", "EditorPane"),
-                string.Concat("Patch", "Rail"),
-                string.Concat("Update", "Draft("),
-                string.Concat("Begin", "Edit(")
-            ];
-            var hits = new List<string>();
-            foreach (var dir in new[] { "src", "tests" })
+            var found = new List<string>();
+            // 1. Every MainWindow constructor, with every bool argument, builds the shell. No pre-shell window remains.
+            foreach (var constructor in typeof(MainWindow).GetConstructors())
             {
-                foreach (var file in Directory.EnumerateFiles(Path.Combine(root, dir), "*", SearchOption.AllDirectories))
+                var parameters = constructor.GetParameters();
+                int flags = parameters.Count(parameter => parameter.ParameterType == typeof(bool));
+                for (int mask = 0; mask < 1 << flags; mask++)
                 {
-                    if (file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
-                        file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-                        continue;
-                    string text;
-                    try { text = File.ReadAllText(file); }
-                    catch (IOException) { continue; }
-                    foreach (var token in tokens)
-                        if (text.Contains(token, StringComparison.Ordinal))
-                            hits.Add(Path.GetRelativePath(root, file));
+                    int bit = 0;
+                    object?[] arguments = parameters.Select(parameter => parameter.ParameterType == typeof(bool)
+                        ? (object)(((mask >> bit++) & 1) == 1)
+                        : parameter.HasDefaultValue ? parameter.DefaultValue : null).ToArray();
+                    var window = (Window)constructor.Invoke(arguments);
+                    try
+                    {
+                        if (window.Content is not ShellHost)
+                            found.Add($"MainWindow({string.Join(", ", arguments.Select(value => value?.ToString() ?? "null"))}) builds {window.Content?.GetType().Name ?? "nothing"}, not the shell");
+                    }
+                    finally { window.Close(); }
                 }
             }
-            if (hits.Count > 0)
-                throw new InvalidOperationException(string.Join("; ", hits.Distinct().Take(12)));
+            // 2. No public member opens a draft from (rail, control id) whose single ordinate a scalar can then revise.
+            //    Openers and revisers are found by signature, so a renamed member is still found.
+            static bool Signature(System.Reflection.MethodInfo method, params Type[] types) =>
+                !method.IsSpecialName && method.GetParameters().Select(parameter => parameter.ParameterType).SequenceEqual(types);
+            static object? Call(System.Reflection.MethodInfo method, object target, params object?[] arguments)
+            {
+                try
+                {
+                    object? result = method.Invoke(target, arguments);
+                    if (result is Task task) Pump(task);
+                    return result;
+                }
+                catch (Exception error) when (error is System.Reflection.TargetInvocationException or ContractError or InvalidOperationException or ArgumentException) { return null; }
+            }
+            var publicInstance = System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
+            var sessionOpeners = typeof(AuthoringSession).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(string), typeof(string))).ToArray();
+            var sessionRevisers = typeof(AuthoringSession).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(long), typeof(double))).ToArray();
+            var controllerOpeners = typeof(WorkbenchController).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(string), typeof(string))).ToArray();
+            var controllerRevisers = typeof(WorkbenchController).GetMethods(publicInstance)
+                .Where(method => Signature(method, typeof(double))).ToArray();
+            using (var session = new AuthoringSession())
+            {
+                session.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+                var leading = session.Snapshot().Source;
+                var editable = Planform.View(leading, "Accepted", 0).Leading.Points.First(point => point.Freedom != PointFreedom.Fixed);
+                foreach (var opener in sessionOpeners)
+                {
+                    Call(opener, session, Guid.NewGuid().ToString("D"), "leading", editable.Id);
+                    if (session.Snapshot().Draft is not { } opened) continue;
+                    foreach (var reviser in sessionRevisers)
+                    {
+                        var before = session.Snapshot().Draft!;
+                        Call(reviser, session, before.Id, before.Generation, 0.01);
+                        if (session.Snapshot().Draft is { } after && after.Generation != before.Generation)
+                            found.Add($"AuthoringSession.{opener.Name} then {reviser.Name} revises one control ordinate");
+                    }
+                    session.Cancel(opened.Id);
+                }
+            }
+            string golden = Path.Combine(RepoRootFromSource(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b", "m12a-rail-recovery.cfdw");
+            using (var controller = new WorkbenchController())
+            {
+                Pump(controller.OpenExampleAsync());
+                var control = controller.Inspection!.Authored.Rails.Single(rail => rail.Name == "leading").Controls.First(item => item.Editable);
+                foreach (var opener in controllerOpeners)
+                {
+                    Call(opener, controller, "leading", control.Id);
+                    if (controller.Draft is null) continue;
+                    foreach (var reviser in controllerRevisers)
+                    {
+                        long before = controller.Draft!.Generation;
+                        Call(reviser, controller, control.OrdinateSi + .005);
+                        if (controller.Draft is { } after && after.Generation != before)
+                            found.Add($"WorkbenchController.{opener.Name} then {reviser.Name} revises one control ordinate");
+                    }
+                    controller.Cancel();
+                }
+                // 3. The one kept member: a resumed M1.2a rail recovery draft can be applied or discarded, never revised.
+                string path = ScratchPath("capability-rail-recovery.cfdw.json");
+                File.WriteAllBytes(path, File.ReadAllBytes(golden));
+                Pump(controller.OpenPathAsync(path));
+                if (!controller.HasRecovery) found.Add("golden M1.2a rail recovery did not open as a recovery");
+                else
+                {
+                    controller.ResumeRecovery();
+                    foreach (var reviser in controllerRevisers)
+                    {
+                        long before = controller.Draft?.Generation ?? -1;
+                        Call(reviser, controller, 0.01);
+                        if (controller.Draft is { } after && after.Generation != before)
+                            found.Add($"WorkbenchController.{reviser.Name} revises a resumed rail recovery draft");
+                    }
+                }
+            }
+            if (found.Count > 0) throw new InvalidOperationException(string.Join("; ", found));
         });
     }
 
@@ -3155,8 +3282,7 @@ public static class ShellWindowTests
         }
     }
 
-    // simplify: the applied-paint oracle of WorkbenchTests.cs:125-176 and :219-227, whose top-level local functions no
-    // other class can call; upgrade trigger: the legacy --theme-controls mode retires (D3b), then this is the only copy.
+    // The applied-paint oracle. Its pre-shell copy retired with the `--theme-controls` mode, so this is the only one.
     private static Color Solid(IBrush? brush, string label) =>
         brush is ISolidColorBrush { Color.A: 255 } solid && Math.Abs(brush.Opacity - 1) < 0.000001
             ? solid.Color

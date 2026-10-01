@@ -167,8 +167,6 @@ public sealed class AuthoringSession : IDisposable
         return result;
     }
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
-    public SessionDraft BeginRailEdit(string draftId, string rail, string vertexId) => Run("begin", () => BeginRailEditCore(draftId, rail, vertexId));
-    public SessionDraft ReviseOrdinate(string draftId, long generation, double si) => Run("update", () => UpdateDraftCore(draftId, generation, si), sizeof(double), generation);
     public SessionDraft BeginPointGesture(string draftId, string curve, string vertexId) =>
         Run("begin", () => BeginPointGestureCore(draftId, curve, vertexId));
     public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double aftMeters) =>
@@ -310,17 +308,6 @@ public sealed class AuthoringSession : IDisposable
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
         accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); return id;
-    }
-    private SessionDraft BeginRailEditCore(string draftId, string rail, string vertexId)
-    {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
-            NativeProject.Uuid(draftId); Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
-            Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
-            var p = ParseOwned(CurrentBytes); Guard.Require(rail is "leading" or "trailing" && p.Definition!.Curves[rail].Ids.Contains(vertexId), "DSL-TARGET");
-            retiredDraftIds.Add(draftId);
-            activeImportReport = null; importBasisFallback = null;
-            draft = new(draftId, current!, 0, rail, vertexId, CurrentBytes); return Copy(draft);
-        }
     }
     private string? gestureDraftId;
     private int gestureFrames;
@@ -777,13 +764,6 @@ public sealed class AuthoringSession : IDisposable
         retiredDraftIds.Add(draftId);
         draft = new(draftId, current!, 0, kind, vertexId, bytes, profile, assignmentIndex);
         return Copy(draft);
-    }
-    private SessionDraft UpdateDraftCore(string draftId, long expectedGeneration, double si)
-    {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
-            Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == expectedGeneration && expectedGeneration < 9007199254740991, "DSL-CONFLICT");
-            draft = draft! with { Generation = expectedGeneration + 1, Bytes = FoilSource.RewriteControlOrdinate(ParseOwned(draft.Bytes), draft.Rail, draft.VertexId, si) }; return Copy(draft);
-        }
     }
     private static Diagnostic ThicknessDiagnostic(SessionDraft capture, string fault) => new(fault, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, "thickness",
         fault == "DSL-LOCK" ? "A thickness lock contradicts the source-thickness target." : "The thickness fit is singular or its residual exceeds 1e-9.",

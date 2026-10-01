@@ -55,7 +55,7 @@ internal static class ReopenConstructionTests
         Check("Reopen_BogusEditRail_StillRefusesDocReference", () =>
         {
             using var session = Opened(); string draft = Id();
-            session.BeginRailEdit(draft, "leading", "cv-2"); session.ReviseOrdinate(draft, 0, .01);
+            session.BeginGestureDraft(draft, "leading", "cv-2"); session.GestureToAft(draft, 0, .01);
             session.Apply(Id(), session.Validate(draft, 1));
             var envelope = session.Envelope();
             var bogus = envelope.Accepted[1] with { Edit = envelope.Accepted[1].Edit! with { Rail = "bogus" } };

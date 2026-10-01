@@ -1,12 +1,9 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop;
@@ -23,8 +20,7 @@ public static class SectionToolsTests
         TestFairAtNegativeToleranceDisablesApply();
         TestImportDatReportsResidualAndProvenance();
         TestUseSourceThicknessReportsTargets();
-        TestToolButtonsDisabledWhileDraftOpen();
-        Console.WriteLine("SectionToolsTests: all 6 scenarios passed.");
+        Console.WriteLine("SectionToolsTests: all 5 scenarios passed.");
     }
 
     private static void Wait(Task task)
@@ -64,51 +60,41 @@ public static class SectionToolsTests
         SameShape(original, restored, "Undo did not restore the original SectionView");
     }
 
+    // Ported from the pre-shell window: the controller is driven directly; "Apply ready" is a certified report on a preview.
+    private static WorkbenchController OpenExample()
+    {
+        var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        return controller;
+    }
+
     private static void TestFairAtDefaultToleranceEnablesApply()
     {
         Console.WriteLine("section-tools fair");
-        var window = OpenExampleWindow();
-        ShowSection(window);
-        var tolerance = Require<TextBox>(window, "SectionFairToleranceInput");
-        var fair = Require<Button>(window, "SectionFairButton");
-        var apply = Require<Button>(window, "SectionApplyButton");
-        if (tolerance.Text != "1e-4") throw new Exception($"Fair tolerance default is '{tolerance.Text}', expected 1e-4");
-        if (Require<ComboBox>(window, "SectionPreserveEnds").SelectedIndex != 0)
-            throw new Exception("Preserve ends default is not Position");
-        fair.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        using var controller = OpenExample();
+        controller.BeginSectionFair(0, SectionScope.Shared, 1e-4, PreserveEnds.Position);
         Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
-        var report = RequireReport(Controller(window), "construction");
-        string shown = ShownReport(Require<ItemsControl>(window, "SectionReportList"));
-        if (!report.Certified) throw new Exception($"Fair at 1e-4 is not certified:\n{shown}");
-        if (Line(report, "Tolerance") != "1e-4" || !shown.Contains("1e-4", StringComparison.Ordinal))
-            throw new Exception($"Report did not show tolerance 1e-4:\n{shown}");
+        var report = RequireReport(controller, "construction");
+        if (!report.Certified) throw new Exception($"Fair at 1e-4 is not certified: {Lines(report)}");
+        if (Line(report, "Tolerance") != "1e-4") throw new Exception($"Report did not show tolerance 1e-4: {Lines(report)}");
         double deviation = Parse(Line(report, "Max deviation"));
         Console.WriteLine($"section-tools fair deviation={deviation.ToString("G6", CultureInfo.InvariantCulture)}");
         if (deviation > 1e-4) throw new Exception($"Fair deviation {deviation} exceeds 1e-4");
-        if (!shown.Contains(Line(report, "Max deviation"), StringComparison.Ordinal))
-            throw new Exception($"Report panel omitted the deviation:\n{shown}");
-        if (!apply.IsEnabled) throw new Exception("Apply is disabled after a certified fair");
-        Close(window);
+        if (controller.Draft is null || controller.Provenance != "preview")
+            throw new Exception($"Apply is not ready after a certified fair: provenance={controller.Provenance}");
     }
 
     private static void TestFairAtNegativeToleranceDisablesApply()
     {
         Console.WriteLine("section-tools fair-refused");
-        var window = OpenExampleWindow();
-        ShowSection(window);
-        Require<TextBox>(window, "SectionFairToleranceInput").Text = "-1";
-        Require<Button>(window, "SectionFairButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        using var controller = OpenExample();
+        controller.BeginSectionFair(0, SectionScope.Shared, -1, PreserveEnds.Position);
         Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
-        var report = RequireReport(Controller(window), "construction");
-        string shown = ShownReport(Require<ItemsControl>(window, "SectionReportList"));
+        var report = RequireReport(controller, "construction");
         if (report.Certified) throw new Exception("Negative tolerance was certified");
-        if (!shown.Contains("Fair result exceeds tolerance", StringComparison.Ordinal))
-            throw new Exception($"Report did not state the refusal:\n{shown}");
-        if (Require<Button>(window, "SectionApplyButton").IsEnabled)
-            throw new Exception("Apply stayed enabled after the fair refusal");
-        Close(window);
+        if (!Lines(report).Contains("Fair result exceeds tolerance", StringComparison.Ordinal))
+            throw new Exception($"Report did not state the refusal: {Lines(report)}");
+        if (controller.Provenance == "preview") throw new Exception("Apply stayed ready after the fair refusal");
     }
 
     private static void TestImportDatReportsResidualAndProvenance()
@@ -121,37 +107,27 @@ public static class SectionToolsTests
         var hostFit = DatImport.Fit(DatImport.Parse(dat), "base-section");
         if (!hostFit.Accepted) throw new Exception("NACA host fit was not accepted");
         byte[] host = FoilSource.MaterializeIds(FoilSource.Parse(Encoding.UTF8.GetBytes(WrapFoil(hostFit.ProfileBlock, "base-section"))));
-        var window = OpenExampleWindow();
-        ShowSection(window);
-        var controller = Controller(window);
+        using var controller = OpenExample();
         Wait(controller.OpenFoilAsync(host, "Import host"));
         controller.BeginSectionImport(0, dat);
         Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
         var report = RequireReport(controller, "import");
-        string shown = ShownReport(Require<ItemsControl>(window, "SectionReportList"));
         double residual = Parse(Line(report, "Max residual"));
         string provenance = Line(report, "Provenance");
         Console.WriteLine($"section-tools import residual={residual.ToString("G6", CultureInfo.InvariantCulture)} vertices={Line(report, "Vertex count")}");
         if (residual > 1e-5) throw new Exception($"Import residual {residual} exceeds 1e-5");
-        if (provenance.Length == 0 || !shown.Contains(provenance, StringComparison.Ordinal))
-            throw new Exception($"Report did not show provenance:\n{shown}");
-        var apply = Require<Button>(window, "SectionApplyButton");
-        if (!report.Certified || controller.Provenance != "preview" || !apply.IsEnabled)
-            throw new Exception($"Apply not ready. certified={report.Certified} provenance={controller.Provenance} apply={apply.IsEnabled} status={controller.Status}");
-        Close(window);
+        if (provenance.Length == 0) throw new Exception($"Report did not show provenance: {Lines(report)}");
+        if (!report.Certified || controller.Provenance != "preview")
+            throw new Exception($"Apply not ready. certified={report.Certified} provenance={controller.Provenance} status={controller.Status}");
     }
 
     private static void TestUseSourceThicknessReportsTargets()
     {
         Console.WriteLine("section-tools thickness");
-        var window = OpenExampleWindow();
-        ShowSection(window);
-        var source = Require<RadioButton>(window, "ThicknessSourceRadio");
-        if (!source.IsEnabled) throw new Exception("Use source thickness is disabled");
-        source.IsChecked = true;
-        SelectEditable(window, "cv-3");
-        var controller = Controller(window);
+        using var controller = OpenExample();
+        var target = controller.SectionView(0).Upper.Concat(controller.SectionView(0).Lower)
+            .First(item => !item.Fixed && item.Id == "cv-3");
+        controller.BeginSectionEdit(0, SectionScope.Shared, target.Side, target.Id, ThicknessIntent.UseSource);
         var draft = controller.Draft ?? throw new Exception("Shared edit did not open a draft");
         if (draft.Intent != ThicknessIntent.UseSource)
             throw new Exception($"BeginProfileEdit received {draft.Intent}");
@@ -160,9 +136,7 @@ public static class SectionToolsTests
         controller.UpdateSectionDraft(vertex.X, vertex.Y + 0.02);
         Wait(controller.PreviewAsync());
         Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
         var report = RequireReport(controller, "thickness");
-        string shown = ShownReport(Require<ItemsControl>(window, "SectionReportList"));
         var etas = Split(Line(report, "Target η"));
         var targets = Split(Line(report, "Target t/c"));
         var residuals = Split(Line(report, "Residuals"));
@@ -170,48 +144,7 @@ public static class SectionToolsTests
             throw new Exception($"Thickness rows do not line up: η={etas.Length} t/c={targets.Length} residuals={residuals.Length}");
         if (string.IsNullOrWhiteSpace(Line(report, "Affected η")))
             throw new Exception("Affected η span is missing");
-        if (!shown.Contains("Target η", StringComparison.Ordinal) || !shown.Contains("Residuals", StringComparison.Ordinal))
-            throw new Exception($"Report panel omitted the thickness proposal:\n{shown}");
         Console.WriteLine($"section-tools thickness targets={targets.Length} span={Line(report, "Affected η")}");
-        Close(window);
-    }
-
-    private static void TestToolButtonsDisabledWhileDraftOpen()
-    {
-        Console.WriteLine("section-tools draft-lock");
-        var window = OpenExampleWindow();
-        ShowSection(window);
-        var buttons = new[] { "SectionInsertButton", "SectionDeleteButton", "SectionFairButton", "SectionRebuildButton", "SectionImportButton" }
-            .Select(name => Require<Button>(window, name)).ToArray();
-        if (buttons.Any(button => !button.IsEnabled))
-            throw new Exception("A section tool is disabled before a draft is open");
-        SelectEditable(window, null);
-        var controller = Controller(window);
-        var draft = controller.Draft ?? throw new Exception("Selecting a vertex did not open a draft");
-        Dispatcher.UIThread.RunJobs();
-        window.UpdateLayout();
-        if (buttons.Any(button => button.IsEnabled))
-            throw new Exception("A section tool stayed enabled while a draft is open");
-        var banner = Require<TextBlock>(window, "StateBanner").Text ?? "";
-        if (!banner.Contains(draft.Id, StringComparison.Ordinal) || !banner.Contains("station 0", StringComparison.Ordinal))
-            throw new Exception($"Status banner did not name the draft: '{banner}'");
-        Close(window);
-    }
-
-    private static void SelectEditable(MainWindow window, string? id)
-    {
-        var list = Require<ListBox>(window, "SectionVertexList");
-        var items = list.Items.OfType<ListBoxItem>().ToArray();
-        int index = -1;
-        for (int i = 0; i < items.Length; i++)
-        {
-            if (items[i].Content is not string text || !text.Contains("editable", StringComparison.Ordinal)) continue;
-            if (id is null || text.Contains(id, StringComparison.Ordinal)) { index = i; break; }
-        }
-        if (index < 0) throw new Exception(id is null ? "No editable vertex" : $"Editable vertex {id} is missing");
-        list.SelectedIndex = index;
-        window.UpdateLayout();
-        Dispatcher.UIThread.RunJobs();
     }
 
     private static SectionReport RequireReport(WorkbenchController controller, string kind)
@@ -230,19 +163,8 @@ public static class SectionToolsTests
         return line.Value;
     }
 
-    private static string ShownReport(ItemsControl list)
-    {
-        if (!list.IsVisible) throw new Exception("Section report rows are hidden");
-        var texts = new System.Collections.Generic.List<string>();
-        foreach (var item in list.Items)
-        {
-            if (item is not Panel panel) continue;
-            foreach (var child in panel.Children.OfType<TextBlock>())
-                if (!string.IsNullOrEmpty(child.Text)) texts.Add(child.Text);
-        }
-        if (texts.Count == 0) throw new Exception($"Section report list has {list.ItemCount} items and no text");
-        return string.Join("\n", texts);
-    }
+    private static string Lines(SectionReport report) =>
+        string.Join("; ", report.Lines.Select(item => item.Label + "=" + item.Value));
 
     private static double Parse(string text) =>
         double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -260,44 +182,6 @@ public static class SectionToolsTests
         for (int i = 0; i < expected.Lower.Count; i++)
             if (Math.Abs(actual.Lower[i].X - expected.Lower[i].X) > 1e-9 || Math.Abs(actual.Lower[i].Y - expected.Lower[i].Y) > 1e-9)
                 throw new Exception(message);
-    }
-
-    private static T Require<T>(MainWindow window, string name) where T : Control =>
-        window.FindControl<T>(name) ?? throw new Exception($"{name} missing");
-
-    private static MainWindow OpenExampleWindow()
-    {
-        var window = new MainWindow();
-        window.Show();
-        window.UpdateLayout();
-        var deadline = DateTime.UtcNow.AddSeconds(120);
-        while (Controller(window).Inspection is null ||
-               window.FindControl<ListBox>("SectionVertexList") is not { ItemCount: > 0 })
-        {
-            if (DateTime.UtcNow > deadline) throw new TimeoutException("Example window did not publish a section");
-            Dispatcher.UIThread.RunJobs();
-            Thread.Sleep(1);
-        }
-        return window;
-    }
-
-    private static void ShowSection(MainWindow window)
-    {
-        var tabs = Require<TabControl>(window, "DocumentTabs");
-        tabs.SelectedItem = Require<TabItem>(window, "SectionTab");
-        window.UpdateLayout();
-        Dispatcher.UIThread.RunJobs();
-    }
-
-    private static WorkbenchController Controller(MainWindow window) =>
-        (WorkbenchController)typeof(MainWindow).GetField("workbench", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(window)!;
-
-    private static void Close(MainWindow window)
-    {
-        typeof(MainWindow).GetField("closeApproved", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, true);
-        window.Close();
-        Dispatcher.UIThread.RunJobs();
     }
 
     private static string WrapFoil(string profileBlock, string profileName) =>
