@@ -103,12 +103,20 @@ def contrast_checks(test_step: dict) -> dict[str, object]:
         raise RuntimeError("theme dictionary is missing")
     without_themes = re.sub(r'<ResourceDictionary x:Key="[^"]+">.*?</ResourceDictionary>',
                             '', source, flags=re.S)
+    # U1b: the Plan canvas (Plan view) aliases existing DESIGN.md viewport tokens under
+    # their own brush keys, per variant, rather than reusing the 3D-viewport brush names —
+    # PlanFoilBrush/PlanSelectionBrush/PlanFocusBrush/PlanMuteBrush/PlanDangerBrush/
+    # PlanWarningBrush/PlanSoftBrush map to {colors.foil}/{colors.station}/
+    # {colors.focus-ring-viewport}/{colors.viewport-mute}/{colors.danger-viewport}/
+    # {colors.warning-viewport}/{colors.viewport-soft} (DESIGN.md L144-156, L215-218).
+    plan_keys = {"PlanFoilBrush", "PlanSelectionBrush", "PlanFocusBrush", "PlanMuteBrush",
+        "PlanDangerBrush", "PlanWarningBrush", "PlanSoftBrush"}
     brush_pattern = r'<SolidColorBrush x:Key="([A-Za-z]+Brush)"'
-    if (expected_keys | focus_keys).intersection(re.findall(brush_pattern, without_themes)):
+    if (expected_keys | focus_keys | plan_keys).intersection(re.findall(brush_pattern, without_themes)):
         raise RuntimeError("root resource shadows theme brush")
     for variant, block in blocks.items():
         declared = re.findall(brush_pattern, block)
-        if len(declared) != 16 or set(declared) != expected_keys | focus_keys:
+        if len(declared) != 23 or set(declared) != expected_keys | focus_keys | plan_keys:
             raise RuntimeError(f"{variant} theme brush keys are missing or duplicated")
     def luminance(color: str) -> float:
         values = [int(color[index:index + 2], 16) / 255 for index in (3, 5, 7)]

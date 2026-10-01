@@ -64,7 +64,7 @@ internal static class PointCommandTests
         });
         Check("MakeAnchor_FourteenPointsNoSnap_RefusedNamesCeiling", () =>
         {
-            using var s = Open(File.ReadAllBytes("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/foil-41-sixteen-three-anchors.foil"));
+            using var s = Open(File.ReadAllBytes(M12bFixtures.Path("foil-41-sixteen-three-anchors.foil")));
             s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", Point(s, "leading", 7).Id));
             Equal(14, Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.Count);
             string message = "";

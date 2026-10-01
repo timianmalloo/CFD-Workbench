@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -33,8 +34,9 @@ public static class SelfLaunchTests
         Check(failures, "apphost launch passes the mode only", AppHostLaunchPassesModeOnly);
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
+        Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 5 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 6 cases passed.");
     }
 
     private static void Check(List<string> failures, string name, Action test)
@@ -127,5 +129,31 @@ public static class SelfLaunchTests
             .Select(file => Path.GetRelativePath(root, file)).ToList();
         if (offenders.Count > 0)
             throw new Exception("runtime repo-root walk toward CFDWorkbench.slnx outside CallerFilePath in " + string.Join(", ", offenders));
+    }
+
+    // TEST-REPO-LAYOUT recurrence (docs/lessons/defect-classes.md): NoRuntimeRepoRootWalk only scanned
+    // for the CFDWorkbench.slnx walk pattern and missed the cwd-relative-literal variant (FoilSourceTests,
+    // GeometryTests, PointGestureTests, PointModelTests, PointCommandTests, ReopenPointEditTests all read
+    // fixtures through `"tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name`, which resolves against the
+    // process's current directory rather than the repo). That breaks only where a gate runs the built test
+    // DLL from a directory other than the repo root — verified (read, not inferred) in
+    // tools/verify-application-core.py: `store_masks(published / "...Core.Tests.dll", "published", published)`
+    // runs the published Core.Tests DLL with cwd=published. tools/verify-application-adapters.py has no such
+    // branch for CfdWorkbench.Desktop.Tests/Cli.Tests — every subprocess there launches with cwd=ROOT — so
+    // this scan is scoped to CfdWorkbench.Core.Tests, the one project a gate relocates. A test project that
+    // gains a relocated-cwd run must gain this scan's coverage in the same change.
+    private static void NoCwdRelativeFixturePath([CallerFilePath] string self = "")
+    {
+        var root = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", ".."));
+        var scope = Path.Combine(root, "tests", "CfdWorkbench.Core.Tests");
+        var literal = new Regex("\"(tests|src)/[^\"]*\"", RegexOptions.None, TimeSpan.FromSeconds(5));
+        var offenders = Directory.EnumerateFiles(scope, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           literal.IsMatch(File.ReadAllText(file)))
+            .Select(file => Path.GetRelativePath(root, file)).ToList();
+        if (offenders.Count > 0)
+            throw new Exception("cwd-relative tests/ or src/ path literal (breaks when the gate runs the published dll elsewhere) in " +
+                                 string.Join(", ", offenders));
     }
 }

@@ -8,7 +8,7 @@ namespace CfdWorkbench.Core.Tests;
 
 internal static class PointModelTests
 {
-    private const string Fx = "tests/CfdWorkbench.Core.Tests/Fixtures/m12b/";
+    private static string Fx(string name) => M12bFixtures.Path(name);
     private const string Example = "docs/examples/foildsl/foil-basic.foil";
 
     internal static void Run()
@@ -36,7 +36,7 @@ internal static class PointModelTests
         });
         Check("PointModel_AnchorAtMultiplicityThree_HandlesAssigned", () =>
         {
-            var view = Planform.View(File.ReadAllBytes(Fx + "foil-41-tangents.foil"), "spline", 1);
+            var view = Planform.View(File.ReadAllBytes(Fx("foil-41-tangents.foil")), "spline", 1);
             var points = view.Leading.Points;
             Equal("4.1", view.Version);
             Equal(16, view.Leading.Ceiling);
@@ -59,7 +59,7 @@ internal static class PointModelTests
         });
         Check("PointModel_MultiplicityTwoKnot_ControlPointsAndC1Marker", () =>
         {
-            byte[] source = File.ReadAllBytes(Fx + "foil-41-multiplicity-two.foil");
+            byte[] source = File.ReadAllBytes(Fx("foil-41-multiplicity-two.foil"));
             var view = Planform.View(source, "spline", 1);
             Equal(PointRole.Control, view.Leading.Points[3].Role);
             Equal(true, view.Leading.Points[3].Kind is null);
@@ -78,7 +78,7 @@ internal static class PointModelTests
         });
         Check("PlanformView_SplineBasisVsBernstein_Within1e12", () =>
         {
-            byte[] source = File.ReadAllBytes(Fx + "foil-41-multiplicity-two.foil");
+            byte[] source = File.ReadAllBytes(Fx("foil-41-multiplicity-two.foil"));
             var parsed = FoilSource.Parse(source);
             var curve = parsed.Definition!.Curves["leading"];
             var view = Planform.View(source, "spline", 1);
@@ -109,7 +109,7 @@ internal static class PointModelTests
         });
         Check("Planform_HandleTarget_AngleFromSpanAxis", () =>
         {
-            var view = Planform.View(File.ReadAllBytes(Fx + "foil-41-tangents.foil"), "spline", 1);
+            var view = Planform.View(File.ReadAllBytes(Fx("foil-41-tangents.foil")), "spline", 1);
             var right = Planform.HandleTarget(view, "leading", "cv-4", 0, 0.05);
             var left = Planform.HandleTarget(view, "leading", "cv-2", 0, 0.05);
             Near(0.275, right.SpanMeters, 1e-12);
@@ -119,7 +119,7 @@ internal static class PointModelTests
         });
         Check("Comb_Anchor_TwoOneSidedTeeth", () =>
         {
-            var view = Planform.View(File.ReadAllBytes(Fx + "foil-41-tangents.foil"), "spline", 1);
+            var view = Planform.View(File.ReadAllBytes(Fx("foil-41-tangents.foil")), "spline", 1);
             var anchor = view.Leading.Points[3];
             var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.AftMeters)) < 1e-6)
                 .OrderBy(tooth => tooth.SpanMeters).ToArray();
@@ -129,7 +129,7 @@ internal static class PointModelTests
         });
         Check("Comb_CornerAnchor_BreakReported", () =>
         {
-            string text = File.ReadAllText(Fx + "foil-41-tangents.foil").Replace(" tangents { \"cv-3\" smooth }", "", StringComparison.Ordinal);
+            string text = File.ReadAllText(Fx("foil-41-tangents.foil")).Replace(" tangents { \"cv-3\" smooth }", "", StringComparison.Ordinal);
             var view = Planform.View(Encoding.UTF8.GetBytes(text), "spline", 1);
             Equal(TangentKind.Corner, view.Leading.Points[3].Kind);
             var anchor = view.Leading.Points[3];
@@ -141,7 +141,7 @@ internal static class PointModelTests
         });
         Check("Comb_SixteenPointRail_FairnessFixture", () =>
         {
-            var view = Planform.View(File.ReadAllBytes(Fx + "foil-41-sixteen-three-anchors.foil"), "spline", 1);
+            var view = Planform.View(File.ReadAllBytes(Fx("foil-41-sixteen-three-anchors.foil")), "spline", 1);
             var comb = Planform.Comb(view.Leading);
             Equal(true, comb.All(tooth => Math.Abs(tooth.Curvature) < 1e-6));
             int nonempty = 0;
@@ -157,7 +157,7 @@ internal static class PointModelTests
     {
         Check("Readiness_SixteenPointThreeAnchors_AssessUnderProofBudget", () =>
         {
-            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx + "foil-41-sixteen-three-anchors.foil"));
+            var parsed = FoilSource.Parse(File.ReadAllBytes(Fx("foil-41-sixteen-three-anchors.foil")));
             if (parsed.IsParsed && parsed.Definition!.Curves.Values.Any(curve => curve.MissingIds))
                 parsed = FoilSource.Parse(FoilSource.MaterializeIds(parsed));
             var watch = Stopwatch.StartNew();

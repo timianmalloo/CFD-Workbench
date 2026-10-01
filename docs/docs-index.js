@@ -3235,7 +3235,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5141055f575aac7cefeb30d5b1834a3a9651937f01f36b8f5c5fc781dd8d3bcc"
+      "sourceSha256": "56031c216496b89d3d51f2df7055157d2fb8b40202473854e9cb7e9263b2687a"
     },
     {
       "id": "domain-experts",
@@ -7139,6 +7139,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-readyfix2",
+      "path": "docs/proof/readyfix2.md",
+      "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-readyfix2",
+      "phase": "readiness",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Fixes the two causes LEGACY left readiness RED on: Core.Tests fixture reads resolved against the process cwd rather than the repo, and the adapters theme gate's declared-brush-key set did not account for U1b's seven Plan-canvas aliases. Extends the TEST-REPO-LAYOUT scan to catch the cwd-relative-literal shape, and proves the theme gate's declared-key check with a mutant.",
+      "tags": [
+        "readiness",
+        "test-repo-layout",
+        "theme",
+        "m12b",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2b4a3dfa8d370bc8deee07e167bd1a1b1c801aa1250ef1fe273f83e756a76998"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -8643,5 +8674,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "a53c3bf817fd427a2d4858180dbb1e73824734eca6c341a581038d5279977fb3"
+  "graphSha256": "a81541e52243596520f34bea05d9c77f9cf64f951156c1de80d06a542d40e057"
 };

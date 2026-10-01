@@ -14,7 +14,7 @@ internal static class PointGestureTests
         return session;
     }
     internal static byte[] Row(string kind = "smooth") => Encoding.UTF8.GetBytes(
-        File.ReadAllText("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/foil-41-tangents.foil")
+        File.ReadAllText(M12bFixtures.Path("foil-41-tangents.foil"))
             .Replace("\"cv-3\" smooth", "\"cv-3\" " + kind, StringComparison.Ordinal));
     internal static PointView Point(AuthoringSession s, string curve, int index)
     {

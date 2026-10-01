@@ -168,7 +168,7 @@ internal static class GeometryTests
         });
     }
 
-    private static GeometryAssessment AssessFixture(string name) => AssessText(File.ReadAllText("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name));
+    private static GeometryAssessment AssessFixture(string name) => AssessText(File.ReadAllText(M12bFixtures.Path(name)));
 
     private static GeometryAssessment AssessText(string text)
     {
@@ -180,7 +180,7 @@ internal static class GeometryTests
 
     private static string BendLeadingHandle(string name, string from, string to)
     {
-        string text = File.ReadAllText("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/" + name);
+        string text = File.ReadAllText(M12bFixtures.Path(name));
         int at = text.IndexOf("leading cv", StringComparison.Ordinal);
         int next = text.IndexOf("trailing cv", at, StringComparison.Ordinal);
         string leading = text[at..next].Replace(from, to, StringComparison.Ordinal);
