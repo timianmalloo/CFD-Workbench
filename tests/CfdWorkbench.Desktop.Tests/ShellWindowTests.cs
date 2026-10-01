@@ -1939,6 +1939,10 @@ public static class ShellWindowTests
             // Each row is one measured contrast on the real shell window; tools/verify-application-adapters.py re-derives
             // every ratio from the emitted ARGB and refuses a missing, duplicate or unknown row.
             var emittedRows = new List<(string Theme, string Row)>();
+            if (PressScaleAccepted(Matrix.CreateScale(0.9, 0.9)) || PressScaleAccepted(Matrix.CreateScale(1.02, 1.02)) ||
+                PressScaleAccepted(Matrix.CreateScale(0.98, 0.99)) || !PressScaleAccepted(Matrix.CreateScale(0.98, 0.98)) ||
+                !PressScaleAccepted(Matrix.Identity))
+                rowFailures.Add("pressed-scale bound: 0.9, 1.02 and non-uniform must be refused; 0.98 and 1 accepted");
             void Measure(string theme, string row, Color foreground, Color background, double floor)
             {
                 double ratio = Contrast(foreground, background);
@@ -3420,6 +3424,12 @@ public static class ShellWindowTests
             ?? throw new InvalidOperationException($"Rendered text presenter absent for {target.Name ?? target.GetType().Name}");
     }
 
+    // Fluent's pressed Button shrinks to scale(0.98), so text may sit under a uniform scale in [0.97, 1].
+    // Any other scale, rotation or skew is refused.
+    private static bool PressScaleAccepted(Matrix matrix) =>
+        matrix.M12 == 0 && matrix.M21 == 0 && Math.Abs(matrix.M11 - matrix.M22) <= 0.000001 &&
+        matrix.M11 >= 0.97 && matrix.M11 <= 1 + 0.000001;
+
     private static Color Backing(Visual text)
     {
         var visibleBounds = new Rect(text.Bounds.Size);
@@ -3434,11 +3444,9 @@ public static class ShellWindowTests
             if (solid.Color.A == 0) continue;
             if (solid.Color.A != 255)
                 throw new InvalidOperationException($"Partial alpha {solid.Color} on {layer.GetType().Name}");
-            // A uniform positive scale (Fluent's pressed Button shrinks to 0.98) keeps enclosure; rotation or skew is refused.
             var transform = text.TransformToVisual(layer);
-            if (transform is not { } matrix || matrix.M12 != 0 || matrix.M21 != 0 || matrix.M11 <= 0 ||
-                Math.Abs(matrix.M11 - matrix.M22) > 0.000001)
-                throw new InvalidOperationException($"Text transform to {layer.GetType().Name} is not a uniform scale");
+            if (transform is not { } matrix || !PressScaleAccepted(matrix))
+                throw new InvalidOperationException($"Text transform to {layer.GetType().Name} is outside the pressed-scale range");
             var area = visibleBounds.TransformToAABB(matrix);
             if (area.X < -.01 || area.Y < -.01 || area.Right > layer.Bounds.Width + .01 || area.Bottom > layer.Bounds.Height + .01)
                 throw new InvalidOperationException($"Painted background does not enclose text on {layer.GetType().Name}");
