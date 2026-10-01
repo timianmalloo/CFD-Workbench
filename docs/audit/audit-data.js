@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T21:47:18Z",
+  "generated": "2026-10-01T22:13:40Z",
   "audit": [
     {
       "actor": null,
@@ -21302,6 +21302,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-01T21:46:35Z",
       "duration_seconds": 42.0
+    },
+    {
+      "id": "al-01M3WRFHQWMBKQMY4KNX9BVYWH",
+      "shortname": "join-m12b2-pl0",
+      "datetime": "2026-10-01T22:13:40Z",
+      "session": "f19a2b12",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "summary": "PL0 (Grok 4.7, repair cycle 1 Sonnet 5.5): PlacementRule over IPlacementScalar, RationalInterval + Binary64; golden master captured at base (5 fixtures incl. real 2 m chord and different-peak blend), certificate bits unchanged; display within 4.4e-16 m of the certified enclosure; Surface 41x101 12.5 ms; robust multi-hump maximum. Computational Geometry veto cleared. Deferred: PL0b evaluator fold, OI-11 trace pin before VW1, F5/F6/F9/F10. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/m12b2-golden/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T22:12:41Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
