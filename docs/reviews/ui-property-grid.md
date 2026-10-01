@@ -247,10 +247,14 @@ net: -7 elements possible.
 | Angle reference | COPY-164 | Angles are measured from the span axis, + aft. |
 | Pending Type | COPY-166 | Press Return to change the type, or Esc to keep it. |
 | Pending Kind | COPY-167 | Press Return or Space to make it <kind>, or Esc to keep <kind>. |
+| Twist or t/c clamped by Core (MC-19) | COPY-168 | <typed> typed; set to <value>, the <largest or smallest> that can be checked. |
+| t/c under 1 % (MC-20) | COPY-169 | <value> % — for 12 %, type 12 or 0.12 × 100. |
+| Field run at an angle bound (MC-23) | COPY-170 | Stops here: the angle stays between −90° and 90° from the span axis. |
+| Smooth twist anchor (MC-22) | COPY-171 | Changing one handle's twist moves the other onto the line. |
 | Field errors, tip closes, section editor, empty, pane error | COPY-106, 118, 108, 122, 136, 137, 138 | as written in DESIGN.md §7 |
 | Chord report / warning, not checked, recovered, busy, tangent change, locks, twist clamp, t/c range | `docs/design/m12b-points.md` §11.4, `m12b2-3d-elevations.md` §11.4 | quoted there; the mockup uses the 152.09 and 190 mm strings verbatim |
 
-COPY-149 to COPY-167 are proposals for the spec owner (the spec's C3 table is the authority). Counts, deltas and
+COPY-149 to COPY-171 are proposals for the spec owner (the spec's C3 table is the authority). Counts, deltas and
 reasons are substituted from the operation's own result, never typed as constants. Cycle 1 changed COPY-152, 153,
 154 and 157 (MC-15, MC-9, MC-4); the cycle-0 strings are superseded.
 
@@ -280,9 +284,9 @@ of them fail.
 | Curve | Position rows | Value row (unit, family) | Handle rows on an anchor | Handle selection rows | Clamp / range |
 |---|---|---|---|---|---|
 | Leading / Trailing edge | From root (mm) · η (fact) | Aft (mm, Length) | Kind; Smooth: Angle + To root + To tip; Symmetric: Angle + Length; Corner: per handle Angle + Length | Angle (°) + Length (mm); the parent anchor's Kind | angle in (−90°, 90°) from the span axis, + aft (COPY-158) |
-| Dihedral | From root · η | Height (mm, Length) | as the rails, the angle labelled **"Dihedral angle"** | Dihedral angle + Length | — |
-| Twist | From root · η | Twist (°, Angle) | per handle From root + Twist | From root + Twist | ±57.30° (`Geometry.TwistDomainDegrees`, probe formatter): state **Clamped** = warning rail + the m12b2 copy |
-| Thickness | From root · η | t/c (%, Percent, shown 0.01 %) | per handle From root + t/c | From root + t/c | 0 % < t/c < 100 % |
+| Dihedral | From root · η | Height (mm, Length) | as the rails, the angle labelled **"Dihedral angle"** | Dihedral angle + Length | Dihedral angle in (−90°, 90°) from the span axis, + up — the ordering rule (span strictly increasing, m12b2 §3.6) bounds it as on the rails (MC-21); refusal copy COPY-158 with "+ up" for "+ aft" |
+| Twist | From root · η | Twist (°, Angle) | per handle From root + Twist; under Smooth the note COPY-171 (MC-22) | From root + Twist | **clamped in Core, never refused** (MC-19): ±`Geometry.TwistDomainDegrees`; a typed value past it is set to the bound and echoed with COPY-168 on a warning rail; during a gesture, state **Clamped** = warning rail + the m12b2 probe copy |
+| Thickness | From root · η | t/c (%, Percent, shown 0.01 %) | per handle From root + t/c | From root + t/c | **clamped in Core, never refused** (MC-19): `Geometry.ThicknessDomain` (published by Core; the mockup's 0.01 / 99.99 % stub is Illustrative); a typed t/c under 1 % commits with the fraction hint COPY-169 (MC-20) |
 | Named points | Type fact + lock; root/tip ends: From root locked | per curve | root-mirror handle: Angle locked 0.00°, Length only (COPY-156); tip handle free | — | — |
 
 Every curve also gets a collapsed group titled with the curve name ("Trailing edge"). Its summary reads
@@ -297,11 +301,21 @@ field's own unit. The parse column depends on the unit family:
 |---|---|---|---|---|
 | Length | From root, Aft, Height, chords, Span, lengths | `mm` · `cm` · `m` | `#span`, `#root_chord`, `#tip_chord` (the `#` sigil stays, MC-3) | "15 cm = 150.00 mm." · with a reference: "#root_chord × 0.1 = 12.67 mm (set once; doesn't follow Root chord)" (COPY-161) |
 | Angle | handle angle, Dihedral angle, Twist | `°` · `deg` · `rad` | none | "0.35 rad = 20.05°." |
-| Percent | t/c | `%` | none | "0.12 × 100 = 12.00 %." — a chord fraction is entered as an expression; a bare 0.12 is 0.12 %, never silently reinterpreted (class UI-R) |
+| Percent | t/c | `%` | none | "0.12 × 100 = 12.00 %." — a chord fraction is entered as an expression; a bare 0.12 is 0.12 %, never silently reinterpreted (class UI-R), and under 1 % the field warns "0.12 % — for 12 %, type 12 or 0.12 × 100." (COPY-169, MC-20) |
 
-Refusals: a non-number → COPY-118. A length ≤ 0 where a length must be positive → COPY-106. An angle outside its
-domain → COPY-158 (rails) or the twist clamp copy. t/c outside (0, 100) % → the m12b2 copy. The geometry stays
-unchanged, Escape restores the shown value, and the error is an alert once (PG-18).
+**Refusals** (the geometry stays unchanged, Escape restores the shown value, and the error is announced once per failed
+commit, PG-22):
+- A non-number → COPY-118.
+- A length ≤ 0 where a length must be positive → COPY-106.
+- A rail or dihedral angle outside (−90°, 90°) → COPY-158. The bound comes from the ordering rule, not from Core's
+  domain.
+
+**Clamps** (MC-19, aligned with m12b2 "clamped in Core … nothing is refused"):
+- A typed **twist or t/c past the certificate domain** is passed to Core, which clamps it.
+- The field shows the clamped value on a warning rail with COPY-168, for example "−70 typed; set to −57.30°, the
+  largest that can be checked". The number is Core's, formatted by the probe's formatter. The pane holds no domain
+  constant.
+- One undo row; the warning goes to the polite status.
 
 **Display (precision follows the quantity, DR-UID-1):**
 
@@ -335,11 +349,11 @@ The UX & Accessibility lens confirmed the peer types `ExpanderAutomationPeer`, `
 | Wing group | `HeaderedContentControl` (not collapsible) with the chip in the header | — |
 | Row | `Grid ColumnDefinitions="{PropLabelWidth},*,{PropUnitWidth}"`, fixed token widths switched to the narrow pair by a `narrow` class under 230 px | the label `TextBlock` has `TextWrapping=Wrap` and **no** `TextTrimming` (PG-03); `Border BorderThickness="3,0,0,0"` = the state rail, brush by state class |
 | Input | `TextBox`, `TextAlignment=Right`, mono font, height 28 in a 32 px row, border `ControlLineBrush` | not `NumericUpDown`: its spinners cost width at 200 px and it cannot take expressions |
-| Fact / Estimate | a row container (`Grid`) **named** with `AutomationProperties.Name` = the spoken line of §10.5; its child TextBlocks `AutomationProperties.AccessibilityView=Raw` (PG-01). The value is a `SelectableTextBlock` that is Tab-reachable when the row is a fact, so ⌘C/Ctrl+C copies it (PG-15) | never a disabled `TextBox` |
-| Choice (Type) | `ComboBox` that commits only on `DropDownClosed` with a changed value, or on Return; arrow keys while it is closed set a *pending* value with the info line "Press Return to change the type, or Esc to keep it." (PG-07) | — |
-| Kind (Tangent) | a **vertical** list of three native `RadioButton`s, one per line, 26 px, no trimming (PG-02); the container is `ControlTypeOverride=Group` with Name "Tangent kind" (on a handle: "Tangent kind of anchor point 7") and each option carries `PositionInSet`/`SizeOfSet` (PG-10) | **Ruled APG deviation (PG-06 = MC-1):** arrows move the check only and do not wrap; Return or Space, or leaving the group, commits one undo row; Esc restores the committed kind. Tab lands on the checked option (implement and test; not built into Avalonia, Inferred) |
+| Fact / Estimate (rewritten, D2 / PG-20) | Facts and estimates are **not in the Tab order**. The row container (`Grid`) carries the spoken Name of §10.5 as `AutomationProperties.Name`; its child TextBlocks are `AutomationProperties.AccessibilityView=Raw`. They are plain `TextBlock`s, not `SelectableTextBlock`s, so no focusable element exists without a name (B9). **Copying a value is a Copy command:** a context menu on the row ("Copy value", "Copy value with unit") and ⌘C / Ctrl+C when the row is the current item of the pane's reading cursor (VoiceOver VO-arrows) or when the pointer selection is on it | never a disabled `TextBox`; never a focusable child without a name |
+| Choice (Type) | `ComboBox` that commits only on `DropDownClosed` with a changed value, or on Return. Arrow keys while it is closed set a *pending* value with the info line COPY-166 and the HelpText "Return applies; Esc keeps <type>" (PG-07, PG-23). **Leaving the box with a pending value drops it**: no commit, the shown type returns (D1 / PG-19) | — |
+| Kind (Tangent) | a **vertical** list of three native `RadioButton`s, one per line, 26 px, no trimming (PG-02); the container is `ControlTypeOverride=Group` with Name "Tangent kind" (on a handle: "Tangent kind of anchor point 7") and each option carries `PositionInSet`/`SizeOfSet` (PG-10). While a kind is pending, each option's HelpText is "Return applies; Esc keeps <kind>" (PG-23) | **Ruled APG deviation (PG-06 = MC-1):** arrows move the check only and do not wrap; Return or Space, or leaving the group, commits one undo row; Esc restores the committed kind. Tab lands on the checked option (implement and test; not built into Avalonia, Inferred) |
 | Action | `Button` / `HyperlinkButton` | — |
-| Message | `TextBlock` with icon, full row width. An error sets `AutomationProperties.HelpText` on the field **and** is announced once through `LiveSetting=Assertive`; reports and availability changes go to the polite status line | **PG-09:** if VoiceOver does not speak `AXLiveRegion` in the native app (unproven; the attach is blocked), fall back to moving focus to the message or to native announcement interop. PG-18: announce a given error once, not on every re-render |
+| Message | `TextBlock` with icon, full row width. An error sets `AutomationProperties.HelpText` on the field **and** is announced once through `LiveSetting=Assertive`; reports and availability changes go to the polite status line | **PG-09:** if VoiceOver does not speak `AXLiveRegion` in the native app (unproven; the attach is blocked), fall back to moving focus to the message or to native announcement interop. PG-18 / PG-22: announce an error **once per failed commit** — not on every re-render, and again when the same error recurs on the next failed commit |
 | Banner | the product's AlertBand pattern for the recovered edit and not-checked banners: role alert, focus to the first action (PG-14); the Discard boundary uses `MutedBrush` on the band (5.34:1, PG-13) | — |
 | Focus visual | inset focus ring (PG-05) on TextBox, RadioButton, ComboBox and the Expander header, specified in the pseudo-class selectors of all three theme variants (PG-11) | the high-contrast variant inherits Light today (`Program.cs`:40); every Fluent pseudo-class brush (`:focus`, `:pointerover`, `:checked`) is overridden explicitly |
 
@@ -351,9 +365,9 @@ The UX & Accessibility lens confirmed the peer types `ExpanderAutomationPeer`, `
 | Return | Enter | input | commit (one undo row); focus stays |
 | leaving the field | leaving the field | input | commit; focus goes where it was sent (UI-39) |
 | Esc | Esc | input | restore the shown value; a second Esc returns focus to the canvas target |
-| ↑ / ↓ · ⌘ ↑/↓ 0.01 · plain 0.1 · ⇧ 1 | ↑ / ↓ · Ctrl ↑/↓ 0.01 · plain 0.1 · Shift 1 | **point and handle** fields only (never Wing) | the field run IS the canvas Nudging gesture (MC-10): begin on keydown, Δ on the model value from the per-curve ladder (mm / ° / %), "≈ preview" chip, one undo row and the new value announced on KeyUp (PG-08), Esc while held cancels with no row, ignored while the field text is dirty. Its HelpText (COPY-163) names the steps. **Caret conflict, for the Native Desktop lens:** ⌘↑/⌘↓ move the caret to the start/end and ⇧↑/⇧↓ extend a selection in a macOS single-line field; Ctrl+↑/↓ is free on Windows. An AT pass is required before close (PG-08) |
+| ↑ / ↓ · ⌘ ↑/↓ 0.01 · plain 0.1 · ⇧ 1 | ↑ / ↓ · Ctrl ↑/↓ 0.01 · plain 0.1 · Shift 1 | **point and handle** fields only (never Wing) | the field run IS the canvas Nudging gesture (MC-10): begin on keydown, Δ on the model value from the per-curve ladder (mm / ° / %), "≈ preview" chip, one undo row and the new value announced on KeyUp (PG-08), Esc while held cancels with no row, ignored while the field text is dirty. **Each Update applies the same bounds as the canvas gesture (MC-23):** the From root ordering clamp (min(1 mm, the gap at Begin), Core), the rail and dihedral angle bound (−90°, 90°) and Core's twist and t/c clamps. A run held at a bound stops there, shows COPY-170 (angle) or the clamp copy, and if nothing changed makes no undo row. Its HelpText (COPY-163) names the steps. **Caret conflict, for the Native Desktop lens:** ⌘↑/⌘↓ move the caret to the start/end and ⇧↑/⇧↓ extend a selection in a macOS single-line field; Ctrl+↑/↓ is free on Windows. **Close gates (D3):** the nudge ships only after its VoiceOver trace (B2) passes and the caret chords are ruled (B7); it stays **off on Windows** until a Narrator/UIA pass exists (B8) |
 | ↑ ↓ ← → Home End | the same | Kind group | move the check only, no wrap (ruled deviation); Return/Space or leaving commits; Esc keeps the committed kind |
-| ↑ ↓ on the closed box | the same | Type | pending only; Return commits; Esc keeps (PG-07) |
+| ↑ ↓ on the closed box | the same | Type | pending only; Return commits; Esc keeps; leaving the box drops the pending value (PG-07, PG-19) |
 | Space / Return | Space / Enter | group header | collapse / expand |
 | Esc | Esc | a handle selection, outside a field | select its anchor or end point; the status says "Selected …" (PG-12) |
 | F6 | F6 | anywhere | next region (Plan ↔ Properties), existing |
@@ -373,10 +387,10 @@ on input rows (PG-01).
 | To root / To tip | To root, handle length in millimetres · To tip, handle length in millimetres | COPY-163 |
 | Corner handle rows | Angle of the handle toward the root, in degrees · Length of the handle toward the root, in millimetres (and toward the tip) | COPY-163 |
 | Handle selection | Angle in degrees, from the span axis, positive aft · Length in millimetres | COPY-163 |
-| Twist / t/c / Height | Twist in degrees · t/c in percent of chord · Height in millimetres | COPY-163 |
+| Twist / t/c / Height | Twist in degrees · t/c, t over c, in percent of chord · Height in millimetres | COPY-163 |
 | Wing | Span in millimetres · Root chord in millimetres · Tip chord in millimetres | the chord report or error |
 | **Fact row (new, PG-01)** | the container is named "<label>, <value> <unit spoken>[, locked]": "η, 0.643" · "From root, 0.00 millimetres, locked" · "Chord, 12.67 millimetres" · "From root, mixed" | the group's reason note |
-| **Estimate row** | "<label>, approximately <value> <unit spoken>": "MAC, approximately 107.1 millimetres" · "AR, approximately 10.04 b squared over S" · "MAC, unavailable" | the group's reason |
+| **Estimate row** | "<label>, approximately <value> <unit spoken>": "MAC, approximately 107.1 millimetres" · "AR, aspect ratio, approximately 10.04 b squared over S" · "Max t over c, approximately 12.0 percent" · "MAC, unavailable" (PG-24: abbreviations spoken in full) | the group's reason |
 | Group header | the title; collapsed/expanded from the pattern | the summary when collapsed |
 
 ### 10.6 Tokens (`Styles.axaml`, owned by UXR)
@@ -400,7 +414,7 @@ high-contrast accent to DESIGN.md (finding #15). Replace the 17 literals (findin
 | `PropertiesView_OneNonFiniteEstimate_OthersStillShown` | BLANK-ESTIMATE |
 | `PropertiesPane_EstimatesUnavailable_ShowReasonNeverDash` | D-4 symptom |
 | `PropertiesPane_Rows_ShareOneLabelColumn` | F-1, UI-TRANSLATION-LOSS |
-| `PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800` (260 px dock) | UI-36 (see DR-UID-5) |
+| `PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800` (260 and 300 px docks) | UI-36 as amended by DR-UID-5 |
 | `PropertiesPane_NumberFields_AutomationNameHasLabelAndUnit` | finding #11 |
 | `PropertiesPane_Tangent_CheckedKindExposed` | finding #12 |
 | `PropertiesPane_FieldBlur_CommitsAndKeepsFocusTarget` | UI-39, UI-C |
@@ -408,10 +422,20 @@ high-contrast accent to DESIGN.md (finding #15). Replace the 17 literals (findin
 | `PropertiesPane_FieldNudge_EscCancelsNoRow_KeyUpOneRow` | MC-10 |
 | `PropertiesPane_FieldNudge_IgnoredWhileTextDirty` | MC-10 |
 | `PropertiesPane_TeRootAft_DescribesRootChordAuthority` | MC-2 |
+| `TypeCombo_PendingThenLeave_DoesNotCommit` | PG-19 (D1) |
+| `FieldNudge_HelpTextNamesSteps_PerFamily` | PG-21 (D3), PG-08 |
+| `FieldNudge_KeyUp_AnnouncesValueOnceInStatus` | PG-21 (D3), PG-08 |
+| `FieldNudge_AngleRun_StopsAtDomainBound` | MC-23 |
+| `PropertiesView_TypedTwistBeyondDomain_ClampedEchoWarns` | MC-19 |
+| `PropertiesView_TypedTcBelowOnePercent_WarnsFractionHint` | MC-20 |
+| `PropertiesPane_FactRow_NotFocusable_NamedContainer_CopyCommand` | PG-20 (D2), B9 |
+| `PropertiesPane_Error_AnnouncedOncePerFailedCommit` | PG-22, B10 |
 
 **UX & Accessibility N1, verbatim:** `Fact_And_Estimate_NameHasUnit`, `TypeCombo_ArrowWhileClosed_DoesNotCommit`,
 `Tangent_KindChange_KeepsFocusOnChecked`, `Unavailable_AnnouncedInStatus`,
 `Expander_FocusedHeader_ExposesNameAndExpandedState`. Each must be red first.
+
+**Count:** 25 named tests in the table plus the 5 N1 tests = **30**. Each must be red first.
 
 ### 10.8 Who builds what (DR-UID-4, ruled)
 
@@ -435,15 +459,39 @@ that names that coordinate. "Span" stays only for the wing span b. The build tra
 | Browser rail rows | span in the row label, if shown | from root |
 | Copy rows and the spec | m12b §11.4 hover strings, m12b2 §11.4 strings, spec CAD-15/UI-37 point names | spec owner amends; DESIGN.md row text follows |
 
-### 10.10 Native acceptance list (UX & Accessibility N1–N7; not provable in the mockup)
+### 10.10 Build track acceptance (UX & Accessibility B1–B10, verbatim; supersedes N1–N7)
 
-- **N1** Land §10.7, including the five N1 tests verbatim; each red first.
-- **N2** A VoiceOver trace and an AX dump (macOS) of: anchor, handle, unavailable, field error, chord warning, type change and a collapsed group. Each reads as §10.5. Every announcement is spoken; if AXLiveRegion is silent, apply the PG-09 fallback.
-- **N3** Walk §10.4 on the build with no trap: Tab into Kind lands on the checked radio; arrows behave as ruled; a second Escape reaches the canvas; F6 cycles regions.
-- **N4** Measure the render in light, dark and high contrast: the input boundary (only 0.43 above 3:1 in light), the focus visual on TextBox, RadioButton, ComboBox and the Expander header, and the checked Kind. Include the Fluent pseudo-class states (PG-11). Re-check at 100 % and 200 % scale.
-- **N5** No truncated label or Kind option at the 200 px dock on the native build.
-- **N6** No native motion, or motion gated on the OS setting (PG-16).
-- **N7** Windows/Narrator stays an open row; this clearing covers macOS only until a Narrator/UIA pass exists.
+The UX & Accessibility lens cleared the design-stage veto with conditions at `1b763de`. The author does not clear
+these; each needs native evidence.
+
+- **B1** All of §10.7 lands red first: the five N1 tests verbatim, plus `TypeCombo_PendingThenLeave_DoesNotCommit`,
+  `FieldNudge_HelpTextNamesSteps_PerFamily` and `FieldNudge_KeyUp_AnnouncesValueOnceInStatus`.
+- **B2** A VoiceOver trace and an AX dump on macOS of: anchor, handle, unavailable, partial-unavailable, field error
+  (including a repeated identical error), chord warning, type change and pending Type, pending Kind, a collapsed group,
+  a focused fact value, and a nudge run. Each reads as §10.5. Every announcement must actually be spoken; if
+  AXLiveRegion is silent, apply the PG-09 fallback. *(D3: the nudge-run trace is a hold, a release, and an Esc-cancel,
+  on a length field (Aft) and on an angle field (handle Angle).)*
+- **B3** The §10.4 keyboard walk on the build, with no trap. Tab lands on the checked Kind. Arrows move the check only.
+  Leaving the Kind group commits; leaving a pending Type does not (D1). A second Esc reaches the canvas. F6 cycles
+  regions.
+- **B4** The rendered contrast is measured in light, dark and high contrast. This covers the input boundary (light is
+  only 0.43 above 3:1), the radio ring and checked dot, the focus visuals on TextBox, RadioButton, ComboBox and the
+  Expander header, and every Fluent pseudo-class state (`:focus`, `:pointerover`, `:checked`). The high-contrast
+  variant inherits Light (`Program.cs`:40). Repeat at 100 % and 200 % scale.
+- **B5** No label or Kind option is truncated at the 200 px dock on the native build.
+- **B6** No native motion: Expander `ContentTransition` null and no chevron animation, or motion gated on the OS
+  setting.
+- **B7** The field nudge ships only after its B2 trace passes. The ⌘↑/⌘↓ and ⇧↑/⇧↓ caret conflicts on macOS are ruled
+  by the Native Desktop lens before the nudge is turned on.
+- **B8** Windows/Narrator is an open row; this clearing covers macOS only. The nudge stays off on Windows until a
+  Narrator/UIA pass exists.
+- **B9** A Fact or Estimate row never exposes a focusable element without a name (D2).
+- **B10** An error is announced once per failed commit (PG-22).
+
+**Close gates for the field nudge (D3, explicit).** (1) It ships only after the B2 nudge-run trace passes on macOS.
+(2) It is off on Windows until a Narrator/UIA pass exists. (3) The caret chords are ruled first (B7). The Marine-CAD
+harness checks also apply to the build: the keyboard-only GEO-05 run, Esc → no undo row and KeyUp → one row, and one
+undo row per Kind intent.
 
 ## 11. Native proof pack (UI-T4) — all rows pending
 
@@ -518,14 +566,21 @@ Recorded in [`docs/notes/property-grid-rulings.md`](../notes/property-grid-rulin
 | MC-6 | "From root" with η; "Span" means only b; cross-surface list §10.9 |
 | PG-06 = MC-1 | Recorded APG deviation: Kind arrows move the check only; Return/Space or leaving commits; no wrap |
 
-**Still open — DR-UID-5 (new, for the operator).** With the reviewers' row set in place, the selection area no longer
-fits beside the Wing at 1280 × 800 on the 260 px dock in six states. The additions are the η fact, the angle-reference
-line, the vertical Kind list and the curve group. Measured selection heights against the room available: anchor
-534/401 px, handle 407/401, TE root end 434/401, unavailable 407/345, overflow 560/401, twist anchor 630/401.
-Spec UI-36 asks for both to fit without scrolling. **Recommendation:** amend UI-36 to "the Wing block is always fully
-visible; the selection area may scroll". The operator's ask was a running estimate that is *always shown*, and the
-oracle now gates exactly that: the Wing is fully visible in every state at the 260 and 300 px docks. The alternative
-is to cut rows the reviewers required. Until this is ruled, the oracle records the selection fit and does not gate it.
+**DR-UID-5 — ruled 2026-10-01: "Wing always visible".**
+- **The ruling.** UI-36 is amended: the Wing block is pinned and always fully visible; the selection section may
+  scroll; groups stay collapsible and remember their state. The spec body is not edited here; spec-cfd-workbench-v1 is
+  flagged for its owner.
+- **Why it was needed.** With the reviewers' row set, the selection section scrolls at 1280 × 800 on the 260 px dock
+  in six states. Measured selection height against room available: anchor 534/401 px, handle 407/401, TE root end
+  434/401, unavailable 407/345, overflow 560/401, twist anchor 670/401.
+- **The control.** The oracle gates "Wing block fully visible" in every state at the 260 and 300 px docks, in all three
+  themes and both windows. It records the selection fit and does not gate it.
+- **At the 200 px dock** the Wing stays pinned at the foot of the pane and keeps at most 55 % of its height, but it is
+  **not fully visible** in four known states, where its own content scrolls inside it: chord warning 406/371 px,
+  unavailable 430/371, MAC unavailable 389/371, section editor 375/371. In each one a long note or warning line
+  outgrows the cap. The estimate rows stay inside the Wing's scroll, never behind the selection. The oracle records
+  these four and does not gate them. A build that wants the Wing fully visible at 200 px too would need the cap raised
+  for those states; that is not ruled.
 
 ## 15. Residual risk and what this review did not cover
 
@@ -537,8 +592,10 @@ is to cut rows the reviewers required. Until this is ruled, the oracle records t
 - The type-change report counts the rail (10 → 13) from the operation's result. Naming each added vertex's role
   (MC-9) waits on the Computational Geometry lens, so the copy does not name them yet.
 - Selection fit at 1280 × 800 (`docs/proof/property-grid-browser-check.json`, `selectionFitAt1280x800`): six states
-  scroll at 260 px (DR-UID-5). At 200 px the Wing itself scrolls in the chord-warning, unavailable,
-  partial-unavailable and section-editor states.
+  scroll at 260 px, allowed by DR-UID-5. At 200 px the Wing stays pinned but is not fully visible in the chord-warning,
+  unavailable, partial-unavailable and section-editor states (recorded, not gated).
+- The t/c clamp bounds in the mockup are an Illustrative stub; `Geometry.ThicknessDomain`'s published value is not yet
+  known (m12b2 §3.4). The build reads both domains from Core.
 - Not reviewed: Browser, Rail controls, and the section editor's own point rows (the UI-TRANSLATION-LOSS sweep covers
   Properties only). The Dihedral row set is specified in §10.1 but not mocked.
 - The native-client knowledge pack named by UI-T4 is absent from this repo (Flagged).
@@ -605,10 +662,37 @@ The detector cannot judge archetype fit, IA, state existence or copy truth.
 | N-1 Mixed without a unit · N-2 "Handle length" · N-3 "Kind" | **Done** | mockup |
 | UI-36 fit with the new rows | **Open — DR-UID-5** (operator) | §14 |
 
+## 19. Repair cycle 2 ledger (the last; after both reviewers cleared the design-stage vetoes with conditions at `1b763de`)
+
+| Item | Disposition | Where |
+|---|---|---|
+| DR-UID-5 ruling ("Wing always visible") | **Recorded.** UI-36 is amended (spec flagged, body not edited). The Wing gate at 260/300 px is the control. At 200 px the Wing stays pinned but is not fully visible in four known states, which are recorded | §14, rulings note, DESIGN §12.0f |
+| D1 / PG-19 leaving a pending Type | **Done.** Leaving drops the pending type (mockup focusout). Oracle path added; planted regression (commit on leave) turns it red; build test `TypeCombo_PendingThenLeave_DoesNotCommit` | mockup, oracle, §10.3, §10.4, §10.7 |
+| D2 / PG-20 Fact row focus | **Done (brief).** Facts are out of the Tab order; the container carries the spoken Name; children are Raw plain TextBlocks; copying is a Copy command (context menu + ⌘C/Ctrl+C on the reading cursor or pointer selection); test `PropertiesPane_FactRow_NotFocusable_NamedContainer_CopyCommand`. The mockup's fact rows were already non-focusable | §10.3, §10.7 |
+| D3 / PG-21 nudge gates | **Done (brief).** Two tests added; the nudge-run VoiceOver trace (hold, release, Esc-cancel on Aft and on a handle Angle) is in B2; close gates are explicit: ship only after that trace, off on Windows until Narrator/UIA | §10.4, §10.7, §10.10 |
+| PG-22 error once per failed commit | **Done** in the mockup (the alert record for a field is cleared on each commit attempt) with an oracle path; §10.3; test `PropertiesPane_Error_AnnouncedOncePerFailedCommit` | mockup, oracle, §10.3 |
+| PG-23 pending Kind/Type HelpText | **Done (brief)** — "Return applies; Esc keeps <kind/type>" while pending | §10.3 |
+| PG-24 spoken abbreviations | **Done** — "AR, aspect ratio", "Max t over c", "t/c, t over c"; oracle path | mockup, oracle, §10.5 |
+| B1–B10 | **Folded verbatim** as the build track's acceptance section | §10.10 |
+| MC-19 typed twist/t/c past the domain | **Done.** Not refused: a Core stand-in clamps it, and the field echoes COPY-168 on a warning rail with Core's number, plus one undo row. The pane holds no domain constant (the mockup's `CORE` object stands in for Core, and its t/c bounds are an Illustrative stub marked `assume:`). Oracle paths for twist −70 and t/c 120; test `PropertiesView_TypedTwistBeyondDomain_ClampedEchoWarns` | mockup, oracle, §10.1, §10.2 |
+| MC-20 t/c under 1 % | **Done** — committed with COPY-169; oracle path; test | mockup, §10.2 |
+| MC-21 dihedral range | **Done (brief)** — (−90°, 90°) from the ordering rule, COPY-158 worded "+ up" | §10.1 |
+| MC-22 Smooth twist anchor note | **Done** — COPY-171; oracle path | mockup |
+| MC-23 field-run bounds | **Done.** The §10.4 sentence covers the ordering clamp, the angle bound and the twist/t/c clamps. In the mockup a run stops at the rail angle bound (COPY-170) and makes no undo row if nothing changed; oracle path; test `FieldNudge_AngleRun_StopsAtDomainBound`. The From root ordering clamp needs neighbour data the mockup does not hold, so it is specified only | mockup, oracle, §10.4 |
+| N-4 Make control fixture | **Done** — 14 → 12; oracle path | mockup |
+| MC-9 vertex roles | **Not closed (cap reached)** — waits on the Computational Geometry lens; the copy counts the rail only | — |
+
+**Cycle 2 evidence.**
+- Oracle: 540 cells, 0 failing checks, 39/39 interaction paths, 0 page errors.
+- Planted D1 regression (commit on leave): exit 1, failing "leaving the Type box with a pending type does not commit
+  (PG-19)".
+- Craft gate: 4 Minor (chrome `cramped-padding`), 0 Major, 0 Blocker, 0 off-token values.
+- §10.7 now lists 25 named tests plus the 5 N1 tests: **30**.
+
 ## Status
 
 | | |
 |---|---|
-| **Completed** | Elevate-mode review of the Properties pane; repair cycle 1 against both adversarial reviews: mockup (30 states), oracle (540 cells, 30 interactions, two planted failures red), DESIGN.md §12.0f and copy rows, brief §10, rulings note |
-| **Remaining** | UX & Accessibility re-review for clearing the design-stage veto; MC-9 vertex roles (Computational Geometry); DR-UID-5 (operator); spec-owner amendments (UI-40 angle text, m12b §11.4 sentence, A4.8 expression semantics, COPY-149..163, "From root" in CAD-15/UI-37); the native build and §10.10 |
-| **Best next action** | Re-convene the UX & Accessibility lens on cycle 1 to clear the design-stage veto, rule DR-UID-5, then dispatch the dedicated property-grid track with §10 as its brief |
+| **Completed** | Elevate-mode review of the Properties pane and two repair cycles. Both lenses cleared their design-stage vetoes with conditions at `1b763de`, and cycle 2 closed D1–D3 and MC-19–MC-23. Mockup: 30 states. Oracle: 540 cells, 39 interactions, three planted failures red. Also: DESIGN.md §12.0f and copy rows, brief §10 with B1–B10, rulings note with DR-UID-5 |
+| **Remaining** | MC-9 vertex roles (Computational Geometry). Spec-owner amendments: UI-36 (DR-UID-5), the UI-40 angle text, the m12b §11.4 sentence, m12b2 and §10.2 agreeing on clamps, A4.8 expression semantics, COPY-149..171, "From root" in CAD-15/UI-37. The native build and B1–B10 |
+| **Best next action** | Join the branch, then dispatch the dedicated property-grid track (after the M1.2b fix track) with §10 as its brief and B1–B10 as its acceptance |

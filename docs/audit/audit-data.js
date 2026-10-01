@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T21:34:08Z",
+  "generated": "2026-10-01T21:45:05Z",
   "audit": [
     {
       "actor": null,
@@ -21181,6 +21181,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "2c014a60e1679e7d0454f9501b8aa610ce1768c3",
         "short": "2c014a60e",
+        "branch": "design/property-grid",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3WPV7J7WTQW4DPTC5WXTX37",
+      "shortname": "ui-design-property-grid-repair2",
+      "datetime": "2026-10-01T21:45:05Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Repair cycle 2 of 2 (the last) on the property-grid design (track UID). Both reviewers cleared their design-stage vetoes with conditions at 1b763de. Close only: operator ruling DR-UID-5 \"Wing always visible\" (amend UI-36 via a spec flag; Wing pinned and always fully visible; selection may scroll; groups collapsible and remembered; record the four 200 px Wing-scroll states and whether the Wing still pins); UX&A D1/PG-19 (leaving a pending Type drops it; oracle path; TypeCombo_PendingThenLeave_DoesNotCommit), D2/PG-20 (facts out of the Tab order, named container, Raw children, Copy command; no unnamed focusable), D3/PG-21 (two nudge tests, VoiceOver nudge trace in B2, explicit close gates), PG-22, PG-23, PG-24, and B1-B10 verbatim; Marine-CAD MC-19 (typed twist/t/c past the domain clamped by Core with a warning echo, not refused), MC-20, MC-21, MC-22, MC-23, N-4.",
+      "summary": "Repair cycle 2: DR-UID-5 recorded (UI-36 amended via spec flag; Wing gate at 260/300 px; at 200 px the Wing pins but is not fully visible in 4 recorded states). D1/PG-19 fixed in the mockup with an oracle path; planted commit-on-leave turns the oracle red. D2, D3, PG-22..24 and B1-B10 folded into brief §10. MC-19 (Core clamps twist/t/c with a warning echo; pane holds no domain constant), MC-20..23 and N-4 done. MC-9 vertex roles not closed (Computational Geometry). Oracle 540 cells, 39/39 interactions; craft gate 4 Minor chrome-only; §10.7 = 30 tests.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/reviews/ui-property-grid.md",
+        "docs/notes/property-grid-rulings.md",
+        "DESIGN.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close DR-UID-5, D1-D3, PG-22..24, B1-B10 and MC-19..23, N-4 in the design artifacts",
+      "done_when": "mockup, oracle, brief, DESIGN.md, rulings updated; D1 plant red; check-docs green; committed",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-01T21:38:03Z",
+      "duration_seconds": 422.0,
+      "git": {
+        "sha": "1b763dec8db17d326538c48ac124df07e4d0a196",
+        "short": "1b763dec8",
         "branch": "design/property-grid",
         "pushed": null
       }

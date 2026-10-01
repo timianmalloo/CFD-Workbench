@@ -205,6 +205,14 @@ const sgn = s => s.replace(/^-/, MINUS);
 const f2 = v => sgn(v.toFixed(2)), f1 = v => sgn(v.toFixed(1)), f3 = v => sgn(v.toFixed(3));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 const HALF = 500;   // half-span of the fixture, mm (η = from root / half-span)
+// Stand-in for Core (review chrome): the pane never holds a domain constant; it asks Core to clamp and echoes Core's
+// number (MC-19). 57.30 is the value m12b2 §11.4 quotes for Geometry.TwistDomainDegrees — Illustrative here.
+const CORE = { twistDomainDegrees:57.30, clampTwist(v){ const d = this.twistDomainDegrees; return Math.abs(v) > d ? { v:Math.sign(v) * d, clamped:true } : { v, clamped:false }; },
+  // assume: Geometry.ThicknessDomain is an open interval inside (0 %, 100 %) whose value is not yet published (m12b2 §3.4);
+  // the stub bounds below are one display step inside it — Illustrative; the build reads the bounds from Core.
+  tcDomainPct:[0.01, 99.99], clampTc(v){ const [lo, hi] = this.tcDomainPct; return v > hi ? { v:hi, clamped:true, side:'largest' } : v < lo ? { v:lo, clamped:true, side:'smallest' } : { v, clamped:false }; } };
+// PG-24: spoken forms of abbreviations, so a screen reader does not say "ar" or "t slash c"
+const SPOKEN_LABEL = { 'AR':'AR, aspect ratio', 'Max t/c':'Max t over c', 't/c here':'t over c here', 't/c':'t over c' };
 
 /* ---------------- fixture: the New foil of the operator captures (Illustrative) ---------------- */
 const BASE = { name:'Untitled', stations:2, spanMm:1000, rootMm:126.74, tipMm:12.67, areaMm2:99600, macMm:107.11, maxTc:0.120 };
@@ -279,6 +287,10 @@ const COPY = {
   c153:'Anchor point — adds handles (rail gains up to 3 points)',
   c118:f => `Enter a number. ${f} is unchanged.`, c106:f => `Enter a length greater than 0 mm. ${f} is unchanged.`,
   c158:f => `Enter an angle between −90° and 90°, from the span axis, + aft. ${f} is unchanged.`,
+  c168:(typed, v, side) => `${typed} typed; set to ${v}, the ${side} that can be checked.`,
+  c169:v => `${v} — for 12 %, type 12 or 0.12 × 100.`,
+  c170:'Stops here: the angle stays between −90° and 90° from the span axis.',
+  c171:"Changing one handle's twist moves the other onto the line.",
   twistClamp:'Twist is limited to ±57.30° — larger angles can’t be checked yet.', tcRange:'t/c must stay above 0 % and below 100 %.',
   c108:'Tip closes — edit the tip station', c122:'Set these in the workspace.', c136:'No foil open', c137:'Open or start a foil. Whatever you select in it shows its properties here.',
   c138:'Properties couldn’t be shown. Your foil hasn’t changed.',
@@ -306,7 +318,7 @@ function msgHtml(m, id, key){ if (!m) return ''; const ic = { warn:IC.warn, erro
   return `<div class="msg ${m.kind}" id="${id}"${fresh ? ' role="alert"' : ''}>${ic}<span>${esc(m.text)}</span></div>`; }
 // kinds: input · fact (read-only) · estimate (≈) · select · radios · action
 function row(r){
-  const id = nid('f'), mid = id + '-m', did = id + '-d', st = r.state || (S.invalid[r.fk] != null ? 'error' : '');
+  const id = nid('f'), mid = id + '-m', did = id + '-d', st = r.state || (S.invalid[r.fk] != null ? 'error' : S.msgs[r.fk]?.kind === 'warn' ? 'warning' : '');
   const m = (r.fk && S.msgs[r.fk]) || r.msg, describedby = [r.desc ? did : '', m ? mid : '', r.help ? 'nudge-help-' + r.help : ''].filter(Boolean).join(' ');
   const mixed = r.value === 'Mixed', unav = r.value === 'Unavailable', showUnit = r.unit && !mixed;
   const quant = r.q ? ` data-q="${esc(r.label)}" data-unit="${esc(r.unit || '')}" data-spoken="${esc(r.unit ? UNIT[r.unit].spoken : '')}"${r.dimless ? ' data-dimless="1"' : ''}${mixed ? ' data-mixed="1"' : ''}${unav ? ' data-unav="1"' : ''}` : '';
@@ -327,7 +339,7 @@ function row(r){
     // PG-01: a read-only fact or estimate is one spoken line — "<label>, <value> <unit>[, locked]"; its parts are hidden
     const lock = r.locked ? IC.lock : '', approx = r.kind === 'estimate' && !unav, pre = approx ? '≈ ' : '';
     val = `<span${r.txt ? ' class="txt"' : ''}>${lock}${pre}${esc(r.value)}</span>`;
-    spoken = `${r.label}, ${approx ? 'approximately ' : ''}${mixed ? 'mixed' : unav ? 'unavailable' : r.value.replace(MINUS, 'minus ')}${showUnit && !unav ? ' ' + UNIT[r.unit].spoken : ''}${r.locked ? ', locked' : ''}`;
+    spoken = `${SPOKEN_LABEL[r.label] || r.label}, ${approx ? 'approximately ' : ''}${mixed ? 'mixed' : unav ? 'unavailable' : r.value.replace(MINUS, 'minus ')}${showUnit && !unav ? ' ' + UNIT[r.unit].spoken : ''}${r.locked ? ', locked' : ''}`;
   }
   const lbl = (r.kind === 'input' || r.kind === 'select') ? `<label class="lbl" for="${id}">${esc(r.label)}</label>`
     : r.kind === 'radios' ? `<span class="lbl" aria-hidden="true">${esc(r.label)}</span>` : `<span class="lbl"${editable ? '' : ' aria-hidden="true"'}>${esc(r.label)}</span>`;
@@ -434,10 +446,11 @@ function handleSel(o = {}){
 }
 function twistAnchorSel(){
   const tw = (fk, label, def, nm) => row({ kind:'input', fk, label, value:f2(pv(fk, def)), unit:'°', q:1, name:nm, help:'ang' });
+  const smoothNote = S.kind === 'smooth' ? [note(COPY.c171)] : [];   // MC-22
   const handleRows = S.kind === 'symmetric'
     ? [sub('Handles (symmetric)'), fromRoot('h:rfrom', 160), tw('h:rtw', 'Twist', -0.62, 'Twist of the handle toward the root, in degrees'), note('The handle toward the tip mirrors it through the anchor.')]
     : [sub('Handle toward the root'), fromRoot('h:rfrom', 160), tw('h:rtw', 'Twist', -0.62, 'Twist of the handle toward the root, in degrees'),
-       sub('Handle toward the tip'), fromRoot('h:tfrom', 200), tw('h:ttw', 'Twist', -1.02, 'Twist of the handle toward the tip, in degrees')];
+       sub('Handle toward the tip'), fromRoot('h:tfrom', 200), tw('h:ttw', 'Twist', -1.02, 'Twist of the handle toward the tip, in degrees'), ...smoothNote];
   return ident('anchor', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
     group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-0.84)}°`, body:[typeRow('anchor'), fromRoot('p:from', 180), etaRow(180), tw('p:twist', 'Twist', -0.84, 'Twist in degrees')] }) +
     group({ id:'tan', title:'Tangent', sum:sumKind(S.kind), body:[note('On a twist curve a handle is set by its position and its twist.'), kindRow('Tangent kind'), ...handleRows] }) + railGroup('Twist', 7);
@@ -520,7 +533,7 @@ function model(){
       wing:wing({ preview:true }), status:'Dragging twist point 4 · clamped at −57.30°' };
     case 'tc-point': return { body:ident('control', 'Thickness · point 2 of 7', 'Channel preview (M1.2b2)') +
       group({ id:'pos', title:'Position', sum:`${f2(125)} mm, ${f2(12.35)} %`, body:[typeRow('control'), fromRoot('p:from', 125), etaRow(125),
-        row({ kind:'input', fk:'p:tc', label:'t/c', value:f2(pv('p:tc', 12.35)), unit:'%', q:1, name:'t/c in percent of chord', help:'pct' })] }) + railGroup('Thickness', 7), wing:wing() };
+        row({ kind:'input', fk:'p:tc', label:'t/c', value:f2(pv('p:tc', 12.35)), unit:'%', q:1, name:'t/c, t over c, in percent of chord', help:'pct' })] }) + railGroup('Thickness', 7), wing:wing() };
   }
   return { body:'', wing:'' };
 }
@@ -547,12 +560,16 @@ const fmtU = (v, u) => u === '°' ? `${f2(v)}°` : `${f2(v)} ${u}`;
 function refuse(fk, text, nextFk){ S.invalid[fk] = text.input; S.msgs[fk] = { kind:'error', text:text.msg }; S.report = null; render(nextFk); return false; }
 function commit(inp, nextFk){
   const fk = inp.dataset.fk, name = FIELD[fk] || 'Value', text = inp.value, fam = famOf(fk), u = unitOf(fk); let r;
+  for (const k of [...S.alerted]) if (k.startsWith(fk + '|')) S.alerted.delete(k);   // PG-22: an error is announced once per failed commit
   try { r = parseQty(text, fam); } catch { return refuse(fk, { input:text, msg:COPY.c118(name) }, nextFk); }
-  const v = r.v;
+  let v = r.v, warn = null;
   if ((fk.startsWith('w:') || /^h:l/.test(fk)) && v <= 0) return refuse(fk, { input:text, msg:COPY.c106(name) }, nextFk);
   if (isRailAngle(fk) && !(v > -90 && v < 90)) return refuse(fk, { input:text, msg:COPY.c158(name) }, nextFk);
-  if (/tw$|twist/.test(fk) && Math.abs(v) > 57.30) return refuse(fk, { input:text, msg:COPY.twistClamp + ` ${name} is unchanged.` }, nextFk);
-  if (fk === 'p:tc' && !(v > 0 && v < 100)) return refuse(fk, { input:text, msg:COPY.tcRange + ` ${name} is unchanged.` }, nextFk);
+  // MC-19: a twist past the certificate domain is not refused here — Core clamps it and the field echoes the result
+  // with Core's number (no domain constant in the pane)
+  if (/tw$|twist/.test(fk)){ const c = CORE.clampTwist(v); if (c.clamped){ warn = COPY.c168(text.trim(), fmtU(c.v, u), 'largest'); v = c.v; } }
+  // MC-20: a t/c under 1 % is committed, with a warning that says how to type a fraction
+  if (fk === 'p:tc'){ const c = CORE.clampTc(v); if (c.clamped){ warn = COPY.c168(text.trim(), fmtU(c.v, u), c.side); v = c.v; } else if (v < 1) warn = COPY.c169(fmtU(v, u)); }
   delete S.invalid[fk]; delete S.msgs[fk];
   // COPY-157 and the set-once rule (MC-3): an expression is evaluated once and says so
   const shownTyped = text.trim().replace(/\*/g, '×');
@@ -565,7 +582,8 @@ function commit(inp, nextFk){
     const rep = `Tip chord ${f2(v)} mm. (Fit report not computed in this mockup.)`; S.msgs[fk] = { kind:'report', text:(echo ? echo + ' ' : '') + rep }; S.report = rep; }
   else if (fk === 'w:span'){ const k = v / D.spanMm; D = { ...D, spanMm:v, areaMm2:D.areaMm2 * k }; S.report = `Span ${f2(v)} mm. Estimates updated.`; if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
   else { S.pv[fk] = v; if (fk === 'h:len'){ S.pv['h:lr'] = v; S.pv['h:lt'] = v; }
-    S.report = `Set ${name.toLowerCase()} to ${fmtU(v, u)}. MAC ${f1(est(D).mac)} mm.`; if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
+    S.report = warn || `Set ${name.toLowerCase()} to ${fmtU(v, u)}. MAC ${f1(est(D).mac)} mm.`;
+    if (warn) S.msgs[fk] = { kind:'warn', text:warn }; else if (echo) S.msgs[fk] = { kind:'echo', text:echo }; }
   render(nextFk); return true;
 }
 
@@ -587,7 +605,14 @@ pane.addEventListener('keydown', e => {
       if (!S.run && t.value !== t.defaultValue) return;            // dirty text: arrows do nothing (MC-10)
       if (!S.run) S.run = { fk, start:modelValue(fk, t) };
       const d = (e.key === 'ArrowUp' ? 1 : -1) * nudgeStep(e);
-      S.pv[fk] = modelValue(fk, t) + d;                              // Δ on the model value, not on the displayed text
+      // MC-23: each Update applies the same bounds as the canvas gesture — the rail angle bound (−90°, 90°) and Core's
+      // twist clamp (the From root ordering clamp needs the neighbours; it is Core's, named in brief §10.4)
+      let next = modelValue(fk, t) + d, stop = null;
+      if (isRailAngle(fk) && !(next > -90 && next < 90)){ next = modelValue(fk, t); stop = COPY.c170; }
+      if (/tw$|twist/.test(fk)){ const c = CORE.clampTwist(next); if (c.clamped){ next = c.v; stop = COPY.twistClamp; } }
+      if (fk === 'p:tc'){ const c = CORE.clampTc(next); if (c.clamped){ next = c.v; stop = COPY.tcRange; } }
+      S.pv[fk] = next;                                               // Δ on the model value, not on the displayed text
+      if (stop) S.msgs[fk] = { kind:'warn', text:stop }; else if (S.msgs[fk]?.kind === 'warn') delete S.msgs[fk];
       render(); }
   }
   if (t.matches('.radios [role="radio"]')){
@@ -612,7 +637,9 @@ pane.addEventListener('keydown', e => {
 });
 pane.addEventListener('keyup', e => {
   if (!S.run || !(e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
-  const fk = S.run.fk, v = S.pv[fk], d = v - S.run.start, u = unitOf(fk); S.run = null; S.undo++;
+  const fk = S.run.fk, v = S.pv[fk], d = v - S.run.start, u = unitOf(fk); S.run = null;
+  if (Math.abs(d) < 1e-12){ render(); return; }                      // a run held at a bound changed nothing: no undo row
+  S.undo++;
   // PG-08: the new value is announced once, at release
   S.report = `${FIELD[fk]} ${fmtU(v, u)} (Δ ${d >= 0 ? '+' : MINUS}${u === '°' ? f2(Math.abs(d)) + '°' : f2(Math.abs(d)) + ' ' + u}).`; render();
 });
@@ -622,7 +649,8 @@ pane.addEventListener('focusout', e => { const t = e.target; if (rendering) retu
   if (t.matches('input[data-fk]') && !S.run && t.value !== t.defaultValue) commit(t, next);
   // PG-06: leaving the Kind group commits the moved check (one row per intent)
   if (t.matches('.radios [role="radio"]') && S.pendingKind && !(e.relatedTarget && t.parentElement.contains(e.relatedTarget))) commitKind(S.pendingKind, next);
-  if (t.matches('select[data-fk="type"]') && S.pendingType) commitType(S.pendingType, next);
+  // PG-19 (D1): leaving the Type box with a pending type DROPS it — only Return or a pointer pick converts a point
+  if (t.matches('select[data-fk="type"]') && S.pendingType){ S.pendingType = null; render(next); }
 });
 function commitKind(k, focusFk){ S.pendingKind = null; if (S.kind === k){ render(focusFk); return; }
   const was = S.kind; S.kind = k; S.undo++;
@@ -633,7 +661,7 @@ function commitKind(k, focusFk){ S.pendingKind = null; if (S.kind === k){ render
     : `Tangent is now a corner (was ${was}). The handles move independently.`;
   S.msgs.tangent = { kind:'report', text:rep }; S.report = rep; render(focusFk || `tangent:${k}`); }
 function commitType(v, focusFk){ S.pendingType = null; const toAnchor = v === 'anchor'; S.undo++; S.msgs = {};
-  const txt = toAnchor ? COPY.c154('Trailing edge', 3, 10, 13, 0.84) : COPY.toControl('Trailing edge', 7, 14, 11, 0.62);
+  const txt = toAnchor ? COPY.c154('Trailing edge', 3, 10, 13, 0.84) : COPY.toControl('Trailing edge', 7, 14, 12, 0.62);
   S.state = toAnchor ? 'anchor' : 'control'; S.msgs.type = { kind:'report', text:txt }; S.report = txt; $('#h-state').value = S.state; render(focusFk || 'type'); }
 pane.addEventListener('change', e => { const t = e.target;
   if (!t.matches('select[data-fk="type"]')) return;

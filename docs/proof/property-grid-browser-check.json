@@ -1,6 +1,6 @@
 {
  "file": "docs/mockups/property-grid.html",
- "date": "2026-10-01T21:28:25.411Z",
+ "date": "2026-10-01T21:44:47.078Z",
  "cells": 540,
  "errors": [],
  "fails": {},
@@ -35,7 +35,7 @@
   "recovery@200": "selection 393/389 px — scrolls",
   "overflow@200": "selection 640/389 px — scrolls",
   "twist@200": "selection 389/389 px — fits",
-  "twist-anchor@200": "selection 665/389 px — scrolls",
+  "twist-anchor@200": "selection 721/389 px — scrolls",
   "twist-handle@200": "selection 389/389 px — fits",
   "twist-clamped@200": "selection 389/389 px — fits",
   "tc-point@200": "selection 389/389 px — fits",
@@ -65,7 +65,7 @@
   "recovery@260": "selection 401/401 px — fits",
   "overflow@260": "selection 560/401 px — scrolls",
   "twist@260": "selection 401/401 px — fits",
-  "twist-anchor@260": "selection 630/401 px — scrolls",
+  "twist-anchor@260": "selection 670/401 px — scrolls",
   "twist-handle@260": "selection 401/401 px — fits",
   "twist-clamped@260": "selection 401/401 px — fits",
   "tc-point@260": "selection 401/401 px — fits",
@@ -95,7 +95,7 @@
   "recovery@300": "selection 401/401 px — fits",
   "overflow@300": "selection 544/401 px — scrolls",
   "twist@300": "selection 401/401 px — fits",
-  "twist-anchor@300": "selection 598/401 px — scrolls",
+  "twist-anchor@300": "selection 637/401 px — scrolls",
   "twist-handle@300": "selection 401/401 px — fits",
   "twist-clamped@300": "selection 401/401 px — fits",
   "tc-point@300": "selection 401/401 px — fits"
@@ -166,6 +166,14 @@
    "pass": true
   },
   {
+   "name": "Make control point reports the rail from the result, 14 → 12 (N-4, COPY-165)",
+   "pass": true
+  },
+  {
+   "name": "leaving the Type box with a pending type does not commit (PG-19)",
+   "pass": true
+  },
+  {
    "name": "a held nudge previews, and Esc cancels with no undo row (MC-10)",
    "pass": true
   },
@@ -179,6 +187,30 @@
   },
   {
    "name": "the nudge steps are in the field description, both OS chords (PG-08, MC-18)",
+   "pass": true
+  },
+  {
+   "name": "an identical error is announced again on the next failed commit (PG-22)",
+   "pass": true
+  },
+  {
+   "name": "an angle run stops at the domain bound (MC-23)",
+   "pass": true
+  },
+  {
+   "name": "a typed twist past the domain is clamped, echoed and warned (MC-19)",
+   "pass": true
+  },
+  {
+   "name": "a typed t/c past the domain is clamped by Core and warned, not refused (MC-19)",
+   "pass": true
+  },
+  {
+   "name": "a t/c under 1 % is committed with a fraction hint (MC-20)",
+   "pass": true
+  },
+  {
+   "name": "a Smooth twist anchor says how the other handle moves (MC-22)",
    "pass": true
   },
   {
@@ -215,6 +247,10 @@
   },
   {
    "name": "a fact or estimate speaks its unit (PG-01)",
+   "pass": true
+  },
+  {
+   "name": "abbreviations are spoken in full (PG-24)",
    "pass": true
   },
   {

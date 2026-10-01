@@ -81,6 +81,14 @@ await page.keyboard.press('Enter');
 check('Return commits the type; the report counts the rail (F-5, MC-9, COPY-154)', await undo() === u + 1 && /now an anchor point with 2 handles\. The rail gained 3 points \(10 → 13\)\. Largest change 0\.84 mm\./.test(await status()));
 await at('control'); await expand('pos'); await page.selectOption('select[data-fk="type"]', 'anchor');
 check('a pointer choice of Type commits at once (DropDownClosed)', /now an anchor point/.test(await status()));
+await at('anchor'); await expand('pos'); await page.selectOption('select[data-fk="type"]', 'control');
+check('Make control point reports the rail from the result, 14 → 12 (N-4, COPY-165)', /the rail has 12 points \(was 14\)\. Largest change 0\.62 mm\./.test(await status()));
+// PG-19 / D1: leaving the Type box with a pending type drops it
+await at('control'); await expand('pos'); u = await undo();
+await page.evaluate(() => { const s = document.querySelector('select[data-fk="type"]'); s.focus(); s.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); s.value = 'anchor'; s.dispatchEvent(new Event('change', { bubbles: true })); });
+await page.keyboard.press('Tab');
+check('leaving the Type box with a pending type does not commit (PG-19)', await undo() === u && await page.locator('select[data-fk="type"]').inputValue() === 'control'
+  && !/Press Return to change the type/.test(await page.locator('#sel').innerText()) && await page.evaluate(() => document.querySelector('.ident h2').textContent) === 'Trailing edge · point 3 of 10');
 
 // --- field nudge (DR-UID-2 under MC-10, MC-18, PG-08)
 await at('anchor');
@@ -95,6 +103,32 @@ await page.fill('input[data-fk="p:aft"]', '160.5'); await page.keyboard.press('A
 check('arrows are ignored while the field text is dirty (MC-10)', await page.locator('input[data-fk="p:aft"]').inputValue() === '160.5' && await undo() === u + 1);
 const help = await page.evaluate(() => { const i = document.querySelector('input[data-fk="p:aft"]'); return (i.getAttribute('aria-describedby') || '').split(' ').map(id => document.getElementById(id)?.textContent || '').join(' '); });
 check('the nudge steps are in the field description, both OS chords (PG-08, MC-18)', /Up and Down arrows step 0\.1 mm; with Command \(Ctrl on Windows\) 0\.01; with Shift 1\./.test(help));
+
+// --- PG-22: the same error is announced again on the next failed commit
+await at('anchor');
+await page.fill('input[data-fk="p:aft"]', 'abc'); await page.press('input[data-fk="p:aft"]', 'Enter');
+await page.fill('input[data-fk="p:aft"]', 'abc'); await page.press('input[data-fk="p:aft"]', 'Enter');
+check('an identical error is announced again on the next failed commit (PG-22)', await page.locator('#sel [role="alert"]').count() === 1);
+// --- MC-23: a field run stops at the rail angle bound and makes no row if nothing changed
+await at('anchor');
+await page.fill('input[data-fk="h:ang"]', '89.95'); await page.press('input[data-fk="h:ang"]', 'Enter');
+u = await undo(); await page.focus('input[data-fk="h:ang"]');
+await page.keyboard.down('Shift'); await page.keyboard.down('ArrowUp'); await page.keyboard.up('ArrowUp'); await page.keyboard.up('Shift');
+check('an angle run stops at the domain bound (MC-23)', await page.locator('input[data-fk="h:ang"]').inputValue() === '89.95' && await undo() === u
+  && /Stops here: the angle stays between −90° and 90° from the span axis\./.test(await page.locator('#sel').innerText()));
+// --- MC-19: a typed twist past the domain is clamped by Core and echoed with a warning; MC-20: t/c under 1 % warns
+await at('twist');
+u = await undo(); await page.fill('input[data-fk="p:twist"]', '-70'); await page.press('input[data-fk="p:twist"]', 'Enter');
+check('a typed twist past the domain is clamped, echoed and warned (MC-19)', await page.locator('input[data-fk="p:twist"]').inputValue() === '−57.30' && await undo() === u + 1
+  && /-70 typed; set to −57\.30°, the largest that can be checked\./.test(await page.locator('#sel').innerText())
+  && await page.evaluate(() => document.querySelector('input[data-fk="p:twist"]').closest('.row').dataset.state) === 'warning');
+await at('tc-point');
+await page.fill('input[data-fk="p:tc"]', '120'); await page.press('input[data-fk="p:tc"]', 'Enter');
+check('a typed t/c past the domain is clamped by Core and warned, not refused (MC-19)', await page.locator('input[data-fk="p:tc"]').inputValue() === '99.99' && /120 typed; set to 99\.99 %, the largest that can be checked\./.test(await page.locator('#sel').innerText()));
+await page.fill('input[data-fk="p:tc"]', '0.12'); await page.press('input[data-fk="p:tc"]', 'Enter');
+check('a t/c under 1 % is committed with a fraction hint (MC-20)', await page.locator('input[data-fk="p:tc"]').inputValue() === '0.12' && /0\.12 % — for 12 %, type 12 or 0\.12 × 100\./.test(await page.locator('#sel').innerText()));
+await at('twist-anchor');
+check('a Smooth twist anchor says how the other handle moves (MC-22)', /Changing one handle's twist moves the other onto the line\./.test(await page.locator('#sel').innerText()));
 
 // --- identity, selection, availability, authority, labels
 await at('handle');
@@ -113,6 +147,7 @@ check('the TE root Aft row names the root-chord authority (MC-2, COPY-159)', /Th
 await at('control');
 check('a point uses From root and η; Span means only b (MC-6)', await page.evaluate(() => { const l = [...document.querySelectorAll('#sel .lbl')].map(x => x.textContent); return l.includes('From root') && l.includes('η') && !l.includes('Span'); }));
 check('a fact or estimate speaks its unit (PG-01)', await page.evaluate(() => window.__pg.accText([...document.querySelectorAll('#wing .row')].find(r => r.dataset.q === 'Mean chord')).includes('millimetres')));
+check('abbreviations are spoken in full (PG-24)', await page.evaluate(() => { const r = l => window.__pg.accText([...document.querySelectorAll('#wing .row')].find(x => x.dataset.q === l)); return r('AR').includes('aspect ratio') && r('Max t/c').includes('t over c'); }));
 check('AR carries its convention in the unit column (MC-8)', await page.evaluate(() => [...document.querySelectorAll('#wing .row')].find(r => r.dataset.q === 'AR')?.querySelector('.unit').textContent === 'b²/S'));
 await browser.close();
 const ok = !errors.length && !Object.keys(fails).length && interactions.every(i => i.pass);

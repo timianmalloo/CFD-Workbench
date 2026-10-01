@@ -480,6 +480,10 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-165 | <Curve> point <i> is now a control point. Its handles are removed; the rail has <n> points (was <m>). Largest change <d> mm. |
 | COPY-166 | Press Return to change the type, or Esc to keep it. |
 | COPY-167 | Press Return or Space to make it <kind>, or Esc to keep <kind>. |
+| COPY-168 | <typed> typed; set to <value>, the <largest or smallest> that can be checked. |
+| COPY-169 | <value> % — for 12 %, type 12 or 0.12 × 100. |
+| COPY-170 | Stops here: the angle stays between −90° and 90° from the span axis. |
+| COPY-171 | Changing one handle's twist moves the other onto the line. |
 
 COPY-125 to COPY-139 are quoted verbatim from `docs/design/app-shell.md` §11 (track U1a, 2026-09-30).
 COPY-125 to COPY-131 are the open failures other than COPY-103; the built start card renders the
@@ -607,13 +611,22 @@ M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). New
   Windows. COPY-163 is its help text.
 - **Root-chord authority (MC-2).** The TE root end's Aft and the Wing's Root chord are both editable. COPY-159 under
   Aft says which operation each one is.
-- **Wing at the foot.** The Wing block is pinned below the selection, takes at most 55 % of the pane, and is fully
-  visible in every state at 1280 × 800 on the 260 and 300 px docks (gated). With the reviewers' row set, the selection
-  area scrolls in six states at 260 px. Amending UI-36 to allow that is decision DR-UID-5.
+- **Wing always visible (DR-UID-5, ruled; amends UI-36).** The Wing block is pinned below the selection and takes at
+  most 55 % of the pane.
+  - It is fully visible in every state at 1280 × 800 on the 260 and 300 px docks (gated).
+  - The selection section may scroll; groups stay collapsible and remember their state.
+  - At the 200 px dock the Wing stays pinned but is not fully visible in four recorded states: chord warning,
+    unavailable, MAC unavailable, section editor. Its own note lines scroll inside it.
+- **Typed values past the certificate domain are clamped, not refused (MC-19).** Twist and t/c go to Core. The field
+  shows Core's clamped value on a warning rail with COPY-168. A typed t/c under 1 % commits with COPY-169. A field run
+  stops at a bound (COPY-170) and makes no undo row when nothing changed (MC-23).
+- **Facts are not Tab stops (D2).** A fact or estimate row is announced through its named container; copying a value
+  is a Copy command. Leaving the Type box drops a pending type (D1). An error is announced once per failed commit
+  (PG-22). Abbreviations are spoken in full: "aspect ratio", "t over c" (PG-24).
 - **Motion.** One moment: the chevron turns in {motion.fast} with {motion.easing}; under reduced motion it is instant.
   Natively there is no chevron or Expander transition (PG-16).
 
-Copy: COPY-149 to COPY-167, proposed for the spec owner. COPY-149 quotes `PropertiesPane.axaml.cs` and
+Copy: COPY-149 to COPY-171, proposed for the spec owner (COPY-168 to COPY-171 added in cycle 2). COPY-149 quotes `PropertiesPane.axaml.cs` and
 `docs/design/m12b-points.md` §11.4. Cycle 1 supersedes the cycle-0 text of COPY-152, 153, 154 and 157. Evidence:
 `docs/reviews/ui-property-grid.md` and `docs/proof/property-grid-browser-check.json`.
 
