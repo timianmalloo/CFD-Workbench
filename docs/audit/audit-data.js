@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-09-30T23:11:56Z",
+  "generated": "2026-10-01T00:31:00Z",
   "audit": [
     {
       "actor": null,
@@ -20459,6 +20459,64 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-09-30T23:10:58Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M3T9JFRJRKVY1R7Y2XATCG89",
+      "shortname": "Track U2 M1.2b: implement panes per Tracks-table row U2, including U1a C…",
+      "datetime": "2026-09-30T23:14:38Z",
+      "session": "prompt-log",
+      "prompt": "Track U2 M1.2b: implement panes per Tracks-table row U2, including U1a CommitSpan ApplySpanAsync seam. Red-first tests, exit evidence, commits, closing audit.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M3TDY9Z9HNMHNKFYGKPHN0G7",
+      "shortname": "implement-u2",
+      "datetime": "2026-10-01T00:31:00Z",
+      "session": "track-u2",
+      "prompt": "Track U2 of the CFD-Workbench M1.2b build. Implement the Tracks-table row U2 in docs/coordination/m12b-build.md: Properties pane point rows, CAD-17 wing rows, browser rail groups, menus and commands, focus and keyboard map, status line, copy, dead-control, rail-draft recovery, and RailEditorPane retirement. Port PropertiesPane.CommitSpan to WorkbenchController.ApplySpanAsync. Tests red first. Named checks, run-tests.sh three times within 60 s, check-docs, xaml-token-lint, app launch and close. Do not edit files the row does not own. WorkbenchController.cs stays frozen.",
+      "summary": "Properties, browser, and command surfaces are committed. Span commits through ApplySpanAsync. Twenty-two of the twenty-five U2 names pass in .tmp-tests/Desktop.log. Properties_TipCloses_TipChordIsText, Recovery_RailDraftResumed_PlanShowsDraftApplyCommits, and RailEditorPane_Removed_NoReferencesRemain stay red. A geometric tip of (1, 0) is not adopted, so Estimates stays null. Recovery apply throws DSL-NOT-ASSESSED. Retirement tokens remain in the frozen controller and the methods it still calls. The HowMeasuredButton mutant turned the dead-control sweep red and was restored. run-tests.sh exited 1 at wall 61 s (budget 60 s; exit 3 did not fire because the suite was red), so the three identical green runs were not started. Named checks exit 1 because those FAIL lines are in the shared log; every other track's own names have PASS lines. check-docs and xaml-token-lint exit 0. The app launched from this tree and was closed. pgrep -fl CfdWorkbench is empty.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "Grok 4.7",
+      "artifacts": [
+        "src/CfdWorkbench.Desktop/Panes/PropertiesPane.axaml.cs",
+        "src/CfdWorkbench.Desktop/Panes/BrowserPane.axaml.cs",
+        "src/CfdWorkbench.Desktop/Shell/ShellHost.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ShellWindowTests.cs",
+        "docs/proof/m12b-u2-red-runs.md"
+      ],
+      "tags": [
+        "m12b",
+        "u2"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Implement the U2 panes, menus, and the granted span seam so the row's exit evidence is present.",
+      "done_when": "run-tests.sh exits 0 three times with identical PASS sets inside 60 s; the U2 named check and the sibling named checks exit 0; check-docs and xaml-token-lint exit 0; the app launches and is closed; the 25 names and the special exit evidence are recorded; commits and the closing audit entry exist.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-09-30T23:14:38Z",
+      "duration_seconds": 4582.0,
+      "git": {
+        "sha": "9403f356bd51462a48477f1a5b3392a22af02c07",
+        "short": "9403f356b",
+        "branch": "m12b-u2-panes",
+        "pushed": null
+      }
     }
   ],
   "changes": [
