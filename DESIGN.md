@@ -93,6 +93,9 @@ typography:
   label: { fontFamily: "system-ui, sans-serif", fontSize: 13px, fontWeight: 500, lineHeight: 1.4 }
   caption: { fontFamily: "system-ui, sans-serif", fontSize: 12px, fontWeight: 400, lineHeight: 1.4 }
   numeric: { fontFamily: "ui-monospace, monospace", fontSize: 13px, fontWeight: 400, lineHeight: 1.4 }
+  prop: { fontFamily: "system-ui, sans-serif", fontSize: 12px, fontWeight: 400, lineHeight: 16px, fontFeature: "tnum lnum" }
+  prop-title: { fontFamily: "system-ui, sans-serif", fontSize: 13px, fontWeight: 600, lineHeight: 18px }
+  prop-note: { fontFamily: "system-ui, sans-serif", fontSize: 11px, fontWeight: 400, lineHeight: 14px }
 rounded: { none: 0px, sm: 4px, md: 8px, pill: 9999px }
 spacing:
   scale: [2, 4, 8, 12, 16, 24, 32, 48, 64]
@@ -118,12 +121,19 @@ spacing:
   w-num-sm: 64px
   w-num-md: 80px
   w-num-lg: 160px
-  prop-label: 88px
-  prop-label-narrow: 56px
-  prop-unit: 32px
-  prop-unit-narrow: 28px
+  prop-label: 84px
+  prop-label-narrow: 68px
+  prop-value: 76px
+  prop-value-narrow: 64px
+  prop-unit: 28px
+  prop-unit-narrow: 24px
   prop-head: 24px
-  prop-row-ro: 24px
+  prop-row-ro: 20px
+  prop-row-input: 24px
+  prop-field-drawn: 20px
+  prop-kind: 24px
+  prop-inset: 8px
+  prop-row-pad: 4px
 elevation: { flat: "none", popover: "0 8px 24px rgba(0,0,0,0.16)" }
 motion: { fast: 120ms, base: 200ms, easing: "cubic-bezier(0.2,0,0,1)" }
 review-suggested:
@@ -227,16 +237,17 @@ Coordinates, scales, and chart axes never rely on a tooltip for their unit.
 | Tool palette (v5) | vertical strip {spacing.palette} wide beside the workspace; nine verbs, each an icon with its visible name and its key in the accessible name; separators group edit · construct · display; at the 640 × 400 reflow preset a horizontal row above the viewports (names visually hidden, 44 px targets) | `aria-pressed` on the toggle tools only; disabled with the reason while a station document owns the verb; single keys act only with the workspace focused; Enter on a tool keeps focus on it | Escape cancels the draft and returns to Select; the options strip shows the tool's parameters and every pointer verb's keyboard equivalent (Insert at η · Add station at η · Measure between two η); a construction (Fair · Rebuild · Fit points · Insert · Delete) opens the one draft |
 | Viewport title bar (v5) | {spacing.viewport-title} row: the view name as a button (double-click or Return maximises), a `details` menu (`summary` with `aria-haspopup=menu`; View · Display · Body · Maximise) whose closed items are not rendered | current view checked in the menu; opening focuses the first item; arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave; maximised state restores with the same gesture | one viewport below 480 × 240 px; every viewport renders at its own pixel size (a scaled drawing is a defect, class UI-L) |
 | Station document | editor-group tab with a full 2D section view; palette on the toolbar; section Properties | catalog original · draft open (tab dot) · modified · infeasible | Return applies as a Modified Profile revision; Escape or × closes and returns focus to Edit section |
-| Selection identity (property grid, 2026-10-01; F-1, O-6) | the first block of Properties: the Plan view's glyph for the selection (square anchor, filled circle control, diamond end, small circle handle, three dots for several, dashed line for a station) at 16 px in {colors.ink}, the object's name in {typography.body} 600 ("Trailing edge · point 7 of 14", "Handle toward the tip", "3 points"), and a crumb in {typography.caption} {colors.ink-mute} only when it adds something the rows do not say (a handle's parent anchor as a link; never the Type value again) | one per selection, never two; a handle never reuses its anchor's name or helper | empty: COPY-136 + COPY-137, no identity · opening: the file name and skeleton rows · pane error: COPY-138 + Try again | the name wraps; it is never truncated |
-| Property group (property grid) | a header band {spacing.prop-head} high on {colors.surface-soft}: a disclosure chevron, the group name in {typography.label} 600, and — while collapsed — a one-line summary of its values in {typography.numeric} {colors.ink-mute}; then its rows; groups are separated by a {colors.hairline} rule | collapsed state is remembered per group across selections (Premiere's twirl-down memory); the header is a Button with `aria-expanded`; the Wing group is never collapsible (UI-36) and its header carries a state chip: "≈ preview" during a gesture, "Checking…" while a commit is checked, "Unavailable" when the estimates are | no rows → the group is not drawn | the summary truncates with an ellipsis; the name never does |
-| Property row (property grid) | one grid per row with a shared label column: label {spacing.prop-label} ({spacing.prop-label-narrow} when the pane is narrower than 230 px) in {typography.label} {colors.ink-mute} · value 1fr, right-aligned {typography.numeric} with tabular figures · unit {spacing.prop-unit} ({spacing.prop-unit-narrow} narrow) in {typography.caption}; a 3 px state rail on the left; an optional description and one message line beneath, full row width | **kinds:** input (bordered, {colors.control-line} boundary, {rounded.sm}, row ≥ {spacing.target-dense}) · read-only fact (plain text, no border, row {spacing.prop-row-ro}; a lock glyph and a reason when it is locked) · estimate ("≈ " prefix, plain text); facts and estimates speak one line "<label>, <value> <unit>[, locked]" · select (Type: arrows on the closed box are pending, Return or a pointer pick commits) · Kind list (a vertical radio list, one option per line, never truncated; checked = filled dot **and** weight; arrows move the check only, Return/Space or leaving commits) · action; **states:** focus (the rail turns {colors.focus-ring}; no row fill, which would drop the input boundary under 3:1) · warning (rail + icon + text in {colors.warning}) · error (rail + 2 px {colors.danger} input border + COPY-118 / COPY-106 as an alert tied by `aria-describedby`) · unavailable ("Unavailable", never "≈ —", with the reason in the group) · mixed ("Mixed", read-only, no unit shown, OI-3) | Return or leaving the field commits (one undo step) and keeps focus where it was sent; Escape restores the shown value; a typed expression is echoed in the field's unit ("15 cm = 150.00 mm.", "0.35 rad = 20.05°."), and one with a reference says it is set once; point and handle fields nudge with ↑/↓ as the canvas gesture; every number field's accessible name contains its visible label and its unit ("From root, position along the span in millimetres") | values and labels wrap, never clip or ellipsize, at the 200 px dock; every quantity has a unit or is declared dimensionless |
+| Selection identity (property grid, 2026-10-01; F-1, O-6) | the first block of Properties: the Plan view's glyph for the selection (square anchor, filled circle control, diamond end, small circle handle, three dots for several, dashed line for a station) at 12 px in {colors.ink}, the object's name in {typography.prop-title} ("Trailing edge · point 7 of 14", "Handle toward the tip", "3 points"), and a crumb in {typography.caption} {colors.ink-mute} only when it adds something the rows do not say (a handle's parent anchor as a link; never the Type value again) | one per selection, never two; a handle never reuses its anchor's name or helper | empty: COPY-136 + COPY-137, no identity · opening: the file name and skeleton rows · pane error: COPY-138 + Try again | the name wraps; it is never truncated |
+| Property group (property grid) | a header band {spacing.prop-head} high on {colors.surface-soft}: a 10 px disclosure chevron at the left (no 32 px chevron button), the group name in {typography.prop} 600, and — while collapsed — a one-line summary of its values in {typography.numeric} {colors.ink-mute}; then its rows; groups are separated by a {colors.hairline} rule | collapsed state is remembered per group across selections (Premiere's twirl-down memory); the header is a Button with `aria-expanded`; the Wing group is never collapsible (UI-36) and its header carries a state chip: "≈ preview" during a gesture, "Checking…" while a commit is checked, "Unavailable" when the estimates are | no rows → the group is not drawn | the summary truncates with an ellipsis; the name never does |
+| Property row (property grid) | one grid per row, density pass 2026-10-01: label {spacing.prop-label} ({spacing.prop-label-narrow} under 230 px) · value {spacing.prop-value} ({spacing.prop-value-narrow}), right-aligned · unit {spacing.prop-unit} ({spacing.prop-unit-narrow}) · free space last, so the value sits next to its label; label, value and unit all in {typography.prop} (one size; values with tabular lining figures; units on the value baseline), the label in {colors.ink-mute}; rows inset {spacing.prop-inset} from the pane with {spacing.prop-row-pad} inside the rail; at large text (≥ 150 %) the row reflows to label above value and unit (SC 1.4.4); a 3 px state rail on the left; an optional description and one message line beneath, full row width | **kinds:** input (a {spacing.prop-row-input} target whose drawn box is {spacing.prop-field-drawn}, {colors.control-line} boundary, {rounded.sm}; SC 2.5.8 met by the target, not the spacing exception) · read-only fact (plain text, no border, row {spacing.prop-row-ro}; a lock glyph and a reason when it is locked) · estimate ("≈ " prefix, plain text); facts and estimates speak one line "<label>, <value> <unit>[, locked]" · select (Type: arrows on the closed box are pending, Return or a pointer pick commits) · Kind list (a vertical radio list, one option per line, never truncated; checked = filled dot **and** weight; arrows move the check only, Return/Space or leaving commits) · action; **states:** focus (the rail turns {colors.focus-ring}; no row fill, which would drop the input boundary under 3:1) · warning (rail + icon + text in {colors.warning}) · error (rail + 2 px {colors.danger} input border + COPY-118 / COPY-106 as an alert tied by `aria-describedby`) · unavailable ("Unavailable", never "≈ —", with the reason in the group) · mixed ("Mixed", read-only, no unit shown, OI-3) | Return or leaving the field commits (one undo step) and keeps focus where it was sent; Escape restores the shown value; a typed expression is echoed in the field's unit ("15 cm = 150.00 mm.", "0.35 rad = 20.05°."), and one with a reference says it is set once; point and handle fields nudge with ↑/↓ as the canvas gesture; every number field's accessible name contains its visible label and its unit ("From root, position along the span in millimetres") | values and labels wrap, never clip or ellipsize, at the 200 px dock; every quantity has a unit or is declared dimensionless |
 
 All controls use {rounded.sm}; panels are square joins; floating dialogs use
 {rounded.md}. Primary actions are at least {spacing.target}; dense scientific
 controls (nudge steps, table row actions, chart toggles) are at least
 {spacing.target-dense} with {spacing.dense-gap} separation (WCAG 2.2 SC 2.5.8 with
 the spacing exception); compact density reduces padding around controls, not their
-target size. Keyboard focus uses an outside ring
+target size. The property grid is the one exception: its field, header and Kind targets are {spacing.prop-row-input}
+(24 px, SC 2.5.8 met by size) — density pass 2026-10-01, operator decision DR-DEN-1. Keyboard focus uses an outside ring
 with a gap so both adjacent surface and the control remain identifiable.
 
 ## 5. Layout and modes
@@ -623,6 +634,30 @@ M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). New
 - **Facts are not Tab stops (D2).** A fact or estimate row is announced through its named container; copying a value
   is a Copy command. Leaving the Type box drops a pending type (D1). An error is announced once per failed commit
   (PG-22). Abbreviations are spoken in full: "aspect ratio", "t over c" (PG-24).
+- **Density (pass of 2026-10-01, after the operator saw the build: "the font sizing, spacing and structure is too
+  'large'").** The grid is a CAD inspector, not a settings page. Numbers are measured in
+  `docs/reviews/ui-property-grid-density.md` and pinned by the browser check.
+  - **One type size.** Label, value and unit are all in {typography.prop} (12/16, tabular lining figures). The build
+    drew values at 14 beside 12 px labels.
+  - **Units on the value baseline.** Same size, same line height, and baseline alignment in the row.
+  - **Rows.** Facts and estimates use {spacing.prop-row-ro} (20). Inputs use {spacing.prop-row-input} (24): the target
+    is 24 and the drawn box {spacing.prop-field-drawn} (20). The build had 28 / 32.
+  - **Headers and Kind.** Group headers are {spacing.prop-head} (24) with a 10 px chevron; the build's Fluent chevron
+    button made them 33. Each Kind option is {spacing.prop-kind} (24); the Fluent RadioButton template made it 32.
+  - **Columns.** Label {spacing.prop-label}, value {spacing.prop-value}, unit {spacing.prop-unit}, with free space last.
+    The value sits next to its label instead of at the far edge.
+  - **Insets and gaps.** The pane inset is {spacing.prop-inset} (the build had 12); groups are separated by a rule, not
+    an 8 px gap.
+  - **Identity.** The title is {typography.prop-title}; notes and messages are {typography.prop-note}.
+  - **"How these are measured"** becomes the link-style disclosure "Estimates · definitions" (24 px target), not a
+    filled button.
+- **Density never trades a floor.**
+  - Every target stays ≥ 24 × 24 (SC 2.5.8): fields, headers, Kind options and the definitions link.
+  - Read-only rows are 20, but they are not targets. Their only pointer verb, the context menu Copy, has an equivalent
+    on the group header (the "equivalent" exception) and on the keyboard.
+  - At 150 % text and above, rows reflow to label above value (SC 1.4.4); the browser check gates 200 % with nothing
+    clipped.
+  - Contrast, focus visibility (an inset ring, so nothing clips it) and every cleared behaviour are unchanged.
 - **Motion.** One moment: the chevron turns in {motion.fast} with {motion.easing}; under reduced motion it is instant.
   Natively there is no chevron or Expander transition (PG-16).
 

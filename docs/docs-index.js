@@ -2480,10 +2480,14 @@ window.DOCS_INDEX = {
         {
           "to": "property-grid-rulings",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "tested-by"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "40b3fc471334ad21f6cbd0dd2890b54be2778cba9b696a060c1e5cdaae438efc"
+      "sourceSha256": "7fbdd18a01915ccee9322f92cda3d0674939785406a6050821fbdcb29de0ba4a"
     },
     {
       "id": "mockup-workbench",
@@ -3349,7 +3353,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4c4c9adb0d5071a7e9f687077102d441226132d47c2905788dc21e050ace2674"
+      "sourceSha256": "021727106fad3bc16d0484bc49a075a4bf5f0831e6b6499385fbc6aaa5116b43"
     },
     {
       "id": "domain-experts",
@@ -4179,6 +4183,47 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
+    },
+    {
+      "id": "review-ui-property-grid-density",
+      "path": "docs/reviews/ui-property-grid-density.md",
+      "title": "UI review — property grid density pass (after the native build)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "Elevate-mode density pass on the built property grid (dade554). The operator found the sheet \"too large\". The cause is measured in source: values at 14 px beside 12 px labels, rows at 28/32 px, 33 px group headers and 32 px Kind options from Avalonia Fluent defaults, 12 px insets, a value column far from its label. The proposal is one 12/16 type size, 20/24 px rows with a 24 px target around a 20 px field, 24 px headers, and the value next to its label. On the anchor state, selection content falls from 625 to 423 px and the Wing from 339 to 231 px, with every WCAG floor kept.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "density",
+        "native-ui",
+        "accessibility",
+        "typography"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "documents"
+        },
+        {
+          "to": "review-ui-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0594d8191eb5e69694bae88d250ad01ca3797eadc72744c8a348e25804378b1c"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -8999,5 +9044,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c4fd91e838fe5ec9529bf74b9e14a1512a4f93b48884136353b1982e9f039faf"
+  "graphSha256": "d162fbaa0a27708f1e9e6403d518212ef34934c0d450ec4cc0e585705297124e"
 };

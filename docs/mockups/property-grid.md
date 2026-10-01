@@ -14,6 +14,7 @@ links:
   - {to: review-m12b-native, rel: relates-to}
   - {to: review-ui-property-grid, rel: tested-by}
   - {to: property-grid-rulings, rel: relates-to}
+  - {to: review-ui-property-grid-density, rel: tested-by}
 review-by: 2026-12-30
 summary: >-
   F-1 from the M1.2b native review, elevated: Properties becomes one reusable property grid — a selection identity,
@@ -79,6 +80,13 @@ fill it from `PropertiesView.Build` without new layout:
 - Precision follows the quantity.
 
 The rulings are in [`docs/notes/property-grid-rulings.md`](../notes/property-grid-rulings.md).
+
+**Density pass (2026-10-01, after the native build).**
+- The harness has **Density: Dense (proposal) / As built (native, dade554)** and **Text: 100 % / 200 %**, and a live
+  before/after table under the pane.
+- Dense: one 12/16 type size for label, value and unit; 20 px read-only rows; 24 px input rows with a 20 px drawn field
+  inside the 24 px target; 24 px headers and Kind options; the value next to its label.
+- Review and build brief: [`docs/reviews/ui-property-grid-density.md`](../reviews/ui-property-grid-density.md).
 
 **Evidence.**
 - `tools/check-mockup-property-grid.mjs` sweeps 540 state × theme × width × window cells and 30 interaction paths. The

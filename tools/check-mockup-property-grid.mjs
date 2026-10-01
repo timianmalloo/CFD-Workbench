@@ -19,8 +19,10 @@ page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(pathToFileURL(file).href);
 const states = await page.evaluate(() => window.__pg.states);
 const fails = {}, fit = {}; let cells = 0;
+// Density pass (2026-10-01): the sweep runs the Dense proposal at 100 % text, where the page audit also pins the density
+// (one type size, units on the value baseline, row pitch 20/24, field target 24 drawn 20, header and Kind 24).
 for (const height of ['800', '900']) for (const theme of ['light', 'dark', 'contrast']) for (const width of ['200', '260', '300']) for (const state of states) {
-  const res = await page.evaluate(([h, t, w, s]) => { window.__pg.setHarness({ height: h, theme: t, width: w }); window.__pg.goState(s); return window.__pg.audit(); }, [height, theme, width, state]);
+  const res = await page.evaluate(([h, t, w, s]) => { window.__pg.setHarness({ height: h, theme: t, width: w, density: 'dense', text: '100' }); window.__pg.goState(s); return window.__pg.audit(); }, [height, theme, width, state]);
   cells++;
   for (const r of res) {
     if (r.check === 'selection fits without scrolling') { if (height === '800' && theme === 'light') fit[`${state}@${width}`] = r.detail; continue; }
@@ -29,6 +31,22 @@ for (const height of ['800', '900']) for (const theme of ['light', 'dark', 'cont
     if (r.pass === false) (fails[r.check] ??= []).push(`${state}/${theme}/${width}/${height}: ${r.detail}`);
   }
 }
+// SC 1.4.4 floor for the dense layout: at 200 % text every state at the default dock still renders with nothing clipped
+// or ellipsized and every target ≥ 24 px; fit and Wing visibility are recorded, not gated, at 200 %.
+const textScale = {};
+for (const theme of ['light', 'dark', 'contrast']) for (const state of states) {
+  const res = await page.evaluate(([t, s]) => { window.__pg.setHarness({ height: '800', theme: t, width: '260', density: 'dense', text: '200' }); window.__pg.goState(s); return window.__pg.audit(); }, [theme, state]);
+  cells++;
+  for (const r of res) {
+    const gated = /page rendered|clipped|ellipsized|targets|unfilled|accessible text carries/.test(r.check);
+    if (gated && r.pass === false) (fails[`200 % text: ${r.check}`] ??= []).push(`${state}/${theme}/260/800: ${r.detail}`);
+    if (!gated && r.pass === false && theme === 'light') (textScale[state] ??= []).push(`${r.check}: ${r.detail}`);
+  }
+}
+// before/after density table (light, 260 px dock, 1280 x 800) for the review
+const density = {};
+for (const state of ['foil', 'control', 'anchor', 'handle', 'root-te', 'twist-anchor']) density[state] = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense', text: '100' }); window.__pg.goState(s); return window.__pg.densityBoth(); }, state);
+await page.evaluate(() => window.__pg.setHarness({ density: 'dense', text: '100' }));
 const interactions = [];
 const check = (name, ok) => interactions.push({ name, pass: !!ok });
 const at = s => page.evaluate(st => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260' }); window.__pg.goState(st); }, s);
@@ -151,7 +169,7 @@ check('abbreviations are spoken in full (PG-24)', await page.evaluate(() => { co
 check('AR carries its convention in the unit column (MC-8)', await page.evaluate(() => [...document.querySelectorAll('#wing .row')].find(r => r.dataset.q === 'AR')?.querySelector('.unit').textContent === 'b²/S'));
 await browser.close();
 const ok = !errors.length && !Object.keys(fails).length && interactions.every(i => i.pass);
-const evidence = { file: path.relative(repo, file), date: new Date().toISOString(), cells, errors, fails, selectionFitAt1280x800: fit, interactions, ok };
+const evidence = { file: path.relative(repo, file), date: new Date().toISOString(), cells, errors, fails, selectionFitAt1280x800: fit, textAt200Recorded: textScale, densityBeforeAfter: density, interactions, ok };
 if (file === committed) await fs.writeFile(path.join(repo, 'docs/proof/property-grid-browser-check.json'), JSON.stringify(evidence, null, 1) + '\n');
 console.log(`${cells} cells, ${Object.keys(fails).length} failing checks${Object.keys(fails).length ? ' (' + Object.keys(fails).join('; ') + ')' : ''}, ${interactions.filter(i => !i.pass).length}/${interactions.length} interaction failures${interactions.some(i => !i.pass) ? ': ' + interactions.filter(i => !i.pass).map(i => i.name).join(' | ') : ''}, ${errors.length} page errors${errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''}`);
 process.exit(ok ? 0 : 1);
