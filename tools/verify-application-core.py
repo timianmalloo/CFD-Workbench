@@ -37,9 +37,10 @@ STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
 VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_MissingOrUnloadableHelper_FailsClosed"}
 # Anything that could make a check depend on the umask, the environment or the native helper.
-# Reading the example files is umask-independent and allowed. The harness entry point reads
+# Reading the example files, and listing a directory to read it, are umask-independent and allowed
+# (a umask only shapes the modes of files a process creates). The harness entry point reads
 # CFD_TEST_ONLY and names every suite, so it is exempt.
-SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.|\bFileStream\b|\bFileInfo\b|GetTempPath"
+SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.(?!(?:EnumerateFiles|GetFiles)\b)|\bFileStream\b|\bFileInfo\b|GetTempPath"
                        r"|GetEnvironmentVariable|DllImport|LibraryImport|\bProjectStore\b"
                        r'|(?<!InternalsVisibleTo\(")CfdWorkbench\.Persistence')
 PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs"}
