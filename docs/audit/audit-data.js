@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T04:03:58Z",
+  "generated": "2026-10-01T04:15:21Z",
   "audit": [
     {
       "actor": null,
@@ -20855,6 +20855,38 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "b37616871a95566705a1683da1e64a6622167368",
         "short": "b37616871",
+        "branch": "chore/legacy-window-retirement",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3TTS3A85EE2VFJG4F3XZPB9",
+      "shortname": "legacy-gate-repair-1",
+      "datetime": "2026-10-01T04:15:21Z",
+      "session": "track-legacy",
+      "prompt": "Coordinator repair cycle 1 of 2 (Test Architect veto on gate retarget)",
+      "summary": "Added 29 rows per variant (286 total) to ThemeMatrix_ShellControls_AppliedContrast and SHELL_THEME_ROWS; live-flip row measures docTabs[4]; Backing accepts uniform scale. Mutant ListBoxItem:selected:pressed ink-on-ink failed 4 rows and the gate parser refused it; reverted; green. run-tests x3 identical; named checks 0; check-docs 0; lint clean. Proof pack docs/proof/legacy-gate-retarget.md.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Restore the shell theme matrix rows the Test Architect veto named",
+      "done_when": "mutant red then green; run-tests x3; named checks; check-docs; lint",
+      "tier": "T2",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T04:06:49Z",
+      "duration_seconds": 512.0,
+      "git": {
+        "sha": "8022e75b6a1633ccddf8f67bc08d9243568897ee",
+        "short": "8022e75b6",
         "branch": "chore/legacy-window-retirement",
         "pushed": null
       }
