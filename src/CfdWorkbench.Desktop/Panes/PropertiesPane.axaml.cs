@@ -12,6 +12,7 @@ public partial class PropertiesPane : UserControl
 {
     private const string ControlHelper = "A control point pulls the curve toward it. The curve does not pass through it.";
     private const string AnchorHelper = "An anchor point is on the curve. Its handles set the curve's direction on each side.";
+    private const string HandleHelper = "A handle sets the curve's direction at its anchor point. The tangent kind belongs to the anchor.";
     private const string TipClosedCopy = "Tip closes — edit the tip station";
 
     private WorkbenchController? boundController;
@@ -19,6 +20,7 @@ public partial class PropertiesPane : UserControl
     private bool suppress;
     private bool resumingRecovery;
     private PointView? selectedPoint;
+    private PointView? tangentOwner;
 
     public PropertiesPane()
     {
@@ -236,6 +238,7 @@ public partial class PropertiesPane : UserControl
             TipClosedText.Text = TipClosedCopy;
         TipClosedText.IsVisible = tipClosed;
         TipChordInput.IsVisible = !tipClosed;
+        TipChordUnit.IsVisible = !tipClosed;
         if (estimates is not null && !RootChordInput.IsKeyboardFocusWithin)
             RootChordInput.Text = Mm(estimates.RootChordMeters);
         if (estimates is not null && !tipClosed && !TipChordInput.IsKeyboardFocusWithin)
@@ -253,6 +256,7 @@ public partial class PropertiesPane : UserControl
         if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
 
         selectedPoint = null;
+        tangentOwner = null;
         if (plan is null || controller.Selection is not Selection.Points points || points.Items.Count == 0)
         {
             PointBlock.IsVisible = false;
@@ -271,7 +275,7 @@ public partial class PropertiesPane : UserControl
             ConstraintText.Text = "";
             PointSpanInput.IsEnabled = false;
             PointAftInput.IsEnabled = false;
-            TangentGroup.IsVisible = false;
+            ShowTangent(null);
             HandleGroup.IsVisible = false;
             return;
         }
@@ -286,7 +290,11 @@ public partial class PropertiesPane : UserControl
         }
         selectedPoint = point;
         string curveName = point.Curve == "leading" ? "Leading edge" : "Trailing edge";
-        PointHeading.Text = curveName + " · point " + (point.Index + 1) + " of " + rail.Points.Count;
+        bool handle = point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
+        var owner = handle && point.AnchorId is { } ownerId ? rail.Points.FirstOrDefault(item => item.Id == ownerId) : null;
+        PointHeading.Text = owner is not null
+            ? curveName + " · handle of point " + (owner.Index + 1)
+            : curveName + " · point " + (point.Index + 1) + " of " + rail.Points.Count;
         bool named = point.Role is not (PointRole.Control or PointRole.Anchor);
         TypeControl.IsVisible = !named;
         TypeControl.IsEnabled = !named;
@@ -307,16 +315,15 @@ public partial class PropertiesPane : UserControl
                 PointFreedom.AftOnly => "Moves in chord only.",
                 _ => ""
             };
-        PointHelper.Text = point.Role == PointRole.Control ? ControlHelper : AnchorHelper;
+        PointHelper.Text = handle ? HandleHelper : point.Role == PointRole.Control ? ControlHelper : AnchorHelper;
         bool spanOn = point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
         bool aftOn = point.Freedom is PointFreedom.Free or PointFreedom.AftOnly;
         PointSpanInput.IsEnabled = spanOn;
         PointAftInput.IsEnabled = aftOn;
         if (!PointSpanInput.IsKeyboardFocusWithin) PointSpanInput.Text = Mm(point.SpanMeters);
         if (!PointAftInput.IsKeyboardFocusWithin) PointAftInput.Text = Mm(point.AftMeters);
-        bool tangent = point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd;
-        TangentGroup.IsVisible = tangent;
-        bool handle = point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
+        // F-4: a selected handle shows, and edits, its parent anchor's tangent kind.
+        ShowTangent(point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd ? point : owner);
         HandleGroup.IsVisible = handle;
         if (handle && point.AnchorId is not null)
         {
@@ -418,8 +425,19 @@ public partial class PropertiesPane : UserControl
 
     private void CommitTangent(TangentKind kind)
     {
-        if (boundController is null || selectedPoint is not { } point) return;
-        PumpUi(boundController.ApplyPointCommandAsync(new PointCommand.SetTangent(point.Curve, point.Id, kind, null)));
+        if (boundController is null || tangentOwner is not { } owner || owner.Kind == kind) return;
+        PumpUi(boundController.ApplyPointCommandAsync(new PointCommand.SetTangent(owner.Curve, owner.Id, kind, null)));
+        var rail = owner.Curve == "leading" ? boundController.Planform?.Leading : boundController.Planform?.Trailing;
+        ShowTangent(rail?.Points.FirstOrDefault(item => item.Id == owner.Id));
+    }
+
+    private void ShowTangent(PointView? owner)
+    {
+        tangentOwner = owner;
+        TangentGroup.IsVisible = owner is not null;
+        TangentSmoothButton.IsChecked = owner?.Kind == TangentKind.Smooth;
+        TangentSymmetricButton.IsChecked = owner?.Kind == TangentKind.Symmetric;
+        TangentCornerButton.IsChecked = owner?.Kind == TangentKind.Corner;
     }
 
     private bool CommitChord(string dimension, TextBox box)

@@ -2505,6 +2505,50 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
+        DesktopChecks.Check("Properties_TangentGroup_LabelledChoiceAndHandleShowsItsAnchor", () =>
+        {
+            // F-4, O-4, O-6 (docs/reviews/m12b-native.md §3): a labelled tangent choice showing the current kind, also on
+            // a handle (where it edits the parent anchor); the handle is named as a handle; chord fields carry "mm".
+            using var controller = new WorkbenchController();
+            var window = U2Show(controller, out var host);
+            try
+            {
+                U2Open(host, window);
+                var props = host.Properties;
+                var point = U2Control(controller, "trailing");
+                Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)));
+                var anchor = U2Reload(controller, point.Curve, point.Id);
+                string Checked()
+                {
+                    var choices = new[] { "TangentSmoothButton", "TangentSymmetricButton", "TangentCornerButton" }
+                        .Select(name => props.FindControl<Control>(name) as RadioButton
+                            ?? throw new InvalidOperationException(name + " is not a segmented choice")).ToArray();
+                    return string.Join(",", choices.Where(choice => choice.IsChecked == true).Select(choice => choice.Content));
+                }
+                U2Select(controller, window, anchor);
+                if (U2Text(props, "TangentLabel") != "Tangent" || !U2Need<TextBlock>(props, "TangentLabel").IsEffectivelyVisible)
+                    throw new InvalidOperationException("the tangent group has no visible label");
+                if (Checked() != anchor.Kind.ToString()) throw new InvalidOperationException($"anchor kind {anchor.Kind} shown as '{Checked()}'");
+                var handle = controller.Planform!.Trailing.Points.First(p => p.AnchorId == anchor.Id);
+                U2Select(controller, window, handle);
+                if (!U2Need<Control>(props, "TangentGroup").IsEffectivelyVisible || Checked() != anchor.Kind.ToString())
+                    throw new InvalidOperationException($"a selected handle does not show its anchor's kind: '{Checked()}'");
+                string heading = U2Text(props, "PointHeading");
+                if (heading != $"Trailing edge · handle of point {anchor.Index + 1}")
+                    throw new InvalidOperationException("handle heading: " + heading);
+                if (U2Text(props, "PointHelper") == AnchorHelper || !U2Text(props, "PointHelper").Contains("handle", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("handle helper: " + U2Text(props, "PointHelper"));
+                U2Click(U2Need<Button>(props, "TangentSymmetricButton"));
+                U2WaitIdle(controller, window);
+                if (U2Reload(controller, anchor.Curve, anchor.Id).Kind != TangentKind.Symmetric || Checked() != "Symmetric")
+                    throw new InvalidOperationException("Symmetric on a handle did not set its anchor: " + U2Reload(controller, anchor.Curve, anchor.Id).Kind);
+                foreach (var unit in new[] { "RootChordUnit", "TipChordUnit" })
+                    if (U2Text(props, unit) != "mm" || !U2Need<TextBlock>(props, unit).IsEffectivelyVisible)
+                        throw new InvalidOperationException(unit + " does not show mm");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("Properties_TypedSpanAftExpression_CommitsAsOneGestureEchoed", () =>
         {
             using var controller = new WorkbenchController();
