@@ -82,6 +82,41 @@ public sealed class GeometryAssessment
 
 public static class Geometry
 {
+    public static double TwistDomainDegrees { get; } = LargestAdmissibleTwist();
+    // Certificate hull stays the open interval (0, 1). This quantum grid is what the gesture clamp reads.
+    // Geometry_ThicknessImmediatelyBelowOne_Admitted pins a value above the quantum upper end.
+    public static (double Lower, double Upper) ThicknessDomain { get; } = (1e-7, 1 - 1e-7);
+
+    private static double LargestAdmissibleTwist()
+    {
+        long low = BitConverter.DoubleToInt64Bits(0);
+        long high = BitConverter.DoubleToInt64Bits(60);
+        long best = low;
+        while (low <= high)
+        {
+            long mid = low + ((high - low) >> 1);
+            double value = BitConverter.Int64BitsToDouble(mid);
+            if (TwistAdmissible(value) && TwistAdmissible(-value)) { best = mid; low = mid + 1; }
+            else high = mid - 1;
+        }
+        return BitConverter.Int64BitsToDouble(best);
+    }
+
+    private static bool TwistAdmissible(double degrees)
+    {
+        var product = Rational.From(degrees) * Rational.From(PlacementRule.RadiansPerDegree);
+        var rounded = Rational.From(product.Nearest());
+        return rounded >= -1 && rounded <= 1;
+    }
+
+    private static void RequireTwistDomain(Dictionary<string, PolynomialSpan[]> spans)
+    {
+        var twists = spans["twist"].SelectMany(span => span.Y).ToArray();
+        var limit = Rational.From(TwistDomainDegrees);
+        Require(twists.Min() >= 0 - limit && twists.Max() <= limit,
+            "Whole-domain angle hull is outside the certified Taylor domain.");
+    }
+
     public static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port = false,
         TimeSpan? timeBudget = null, CancellationToken cancellationToken = default)
     {
@@ -97,17 +132,8 @@ public static class Geometry
             var trailing = Bernstein.EncloseAt(certificate.Spans["trailing"], station, watch);
             var elevation = Bernstein.EncloseAt(certificate.Spans["dihedral"], station, watch);
             var degrees = Bernstein.EncloseAt(certificate.Spans["twist"], station, watch);
-            var angular = degrees * RationalInterval.Point(Rational.From(0.017453292519943295));
-            // Monotone nearest/ties-even conversion encloses the specified once-rounded angle.
-            angular = new(Rational.From(angular.Lower.Nearest()), Rational.From(angular.Upper.Nearest()));
-            // Enclose, never replace, the once-rounded evaluator angle. This fixed
-            // outward grid bounds Taylor arithmetic even for subnormal angles.
-            angular = new(angular.Lower.DyadicDown(64), angular.Upper.DyadicUp(64));
-            var (sin, cos) = Trigonometry(angular);
-            var chord = trailing - leading;
-            var abscissa = RationalInterval.Point(Rational.From(x));
-            var placedX = leading + chord * (abscissa * cos + z * sin);
-            var placedZ = elevation + chord * (z * cos - abscissa * sin);
+            var (sin, cos) = RationalInterval.SinCos(RationalInterval.Radians(degrees));
+            var (placedX, placedZ) = PlacementRule.Place(leading, trailing, elevation, (sin, cos), RationalInterval.Point(x), z);
             var y = certificate.HalfSpan * station * (port ? -1 : 1);
             var result = new PlacedPointEnclosure(placedX.Outward(), RationalInterval.Point(y).Outward(), placedZ.Outward());
             Require(new[] { result.X, result.Y, result.Z }.All(value => double.IsFinite(value.Lower) && double.IsFinite(value.Upper) &&
@@ -139,35 +165,25 @@ public static class Geometry
 
     private static (RationalInterval Upper, RationalInterval Lower) SectionExact(GeometryCertificate certificate, double eta, double x, ProofBudget watch)
     {
-        var (left, right, weight) = SelectBlend(certificate, eta);
+        double[] etas = new double[certificate.Stations.Length];
+        int[] profiles = new int[etas.Length];
+        for (int index = 0; index < etas.Length; index++)
+        {
+            etas[index] = certificate.Stations[index].Eta.Nearest();
+            profiles[index] = certificate.Stations[index].Profile;
+        }
+        var (left, right) = PlacementRule.Select(etas, profiles, eta, (a, b) => SameGeometry(certificate, a, b));
         if (right < 0) return ProfileSection(certificate, left, eta, x, watch);
         var a = ProfileComponents(certificate, left, x, watch);
         var b = ProfileComponents(certificate, right, x, watch);
-        var share = RationalInterval.Point(weight);
-        var complement = RationalInterval.Point(1 - weight);
-        var camber = complement * a.Camber + share * b.Camber;
-        var unnormalized = complement * a.UnitThickness + share * b.UnitThickness;
+        int bracket = PlacementRule.Bracket(etas, eta);
+        var weight = RationalInterval.BlendWeight(eta, etas[bracket], etas[bracket + 1]);
         // Scales share one uncertain maximum per profile, so the unit-shape
         // family is the segment between the reciprocal endpoints, not a box.
-        var maximum = EncloseMaximumT0(certificate, left, right, weight, watch);
+        var maximum = EncloseMaximumT0(certificate, left, right, weight.Lower, watch);
         Geometry.Require(maximum.Lower > (Rational)1 / 4 && maximum.Upper >= maximum.Lower, "Blend maximum enclosure is not certified.");
         var thickness = Bernstein.EncloseAt(certificate.Spans["thickness"], Rational.From(eta), watch);
-        var half = RationalInterval.Point((Rational)1 / 2);
-        var normalizedHalfThickness = unnormalized * maximum.Reciprocal() * thickness * half;
-        return (camber + normalizedHalfThickness, camber - normalizedHalfThickness);
-    }
-
-    private static (int Left, int Right, Rational Weight) SelectBlend(GeometryCertificate certificate, double eta)
-    {
-        var station = Rational.From(eta);
-        var stations = certificate.Stations;
-        int index = 0;
-        while (index + 1 < stations.Length && stations[index + 1].Eta.CompareTo(station) < 0) index++;
-        var left = stations[index];
-        var right = stations[index + 1];
-        if (station.CompareTo(left.Eta) == 0 || SameGeometry(certificate, left.Profile, right.Profile)) return (left.Profile, -1, 0);
-        if (station.CompareTo(right.Eta) == 0) return (right.Profile, -1, 0);
-        return (left.Profile, right.Profile, (station - left.Eta) / (right.Eta - left.Eta));
+        return PlacementRule.Blend((a.Camber, a.Unit), (b.Camber, b.Unit), weight, maximum.Reciprocal(), thickness);
     }
 
     private static (RationalInterval Upper, RationalInterval Lower) ProfileSection(GeometryCertificate certificate, int index, double eta, double x, ProofBudget watch)
@@ -177,21 +193,17 @@ public static class Geometry
         var upper = Bernstein.EncloseAt(certificate.Spans[profile.UpperPath], Rational.From(x), watch, profileTolerance);
         var lower = Bernstein.EncloseAt(certificate.Spans[profile.LowerPath], Rational.From(x), watch, profileTolerance);
         var thickness = Bernstein.EncloseAt(certificate.Spans["thickness"], Rational.From(eta), watch);
-        var half = RationalInterval.Point((Rational)1 / 2);
-        var camber = (upper + lower) * half;
         // Every exact maximum in the authority-produced enclosure is propagated.
-        var normalizedHalfThickness = (upper - lower) * profile.Maximum.Reciprocal() * thickness * half;
-        return (camber + normalizedHalfThickness, camber - normalizedHalfThickness);
+        return PlacementRule.Section(upper, lower, profile.Maximum.Reciprocal(), thickness);
     }
 
-    private static (RationalInterval Camber, RationalInterval UnitThickness) ProfileComponents(GeometryCertificate certificate, int index, double x, ProofBudget watch)
+    private static (RationalInterval Camber, RationalInterval Unit) ProfileComponents(GeometryCertificate certificate, int index, double x, ProofBudget watch)
     {
         var profile = certificate.Profiles[index];
         var profileTolerance = ProfileTolerance(profile.Maximum.Lower);
         var upper = Bernstein.EncloseAt(certificate.Spans[profile.UpperPath], Rational.From(x), watch, profileTolerance);
         var lower = Bernstein.EncloseAt(certificate.Spans[profile.LowerPath], Rational.From(x), watch, profileTolerance);
-        var half = RationalInterval.Point((Rational)1 / 2);
-        return ((upper + lower) * half, (upper - lower) * profile.Maximum.Reciprocal());
+        return PlacementRule.Components(upper, lower, profile.Maximum.Reciprocal());
     }
 
     private static RationalInterval EncloseMaximumT0(GeometryCertificate certificate, int left, int right, Rational weight, ProofBudget watch)
@@ -256,21 +268,21 @@ public static class Geometry
         return true;
     }
 
-    private static (RationalInterval Sin, RationalInterval Cos) Trigonometry(RationalInterval angle)
+    internal static (RationalInterval Sin, RationalInterval Cos) Trigonometry(RationalInterval angle)
     {
         Require(angle.Lower >= -1 && angle.Upper <= 1, "Angles beyond the current certified Taylor domain are not assessed.");
         Rational center = (angle.Lower + angle.Upper) / 2;
         Rational radius = (angle.Upper - angle.Lower) / 2;
         Rational sine = center, cosine = 1, sinTerm = center, cosTerm = 1;
         Rational square = center * center;
-        for (int i = 1; i <= 16; i++)
+        for (int i = 1; i <= PlacementRule.TaylorTerms; i++)
         {
             cosTerm = cosTerm * (0 - square) / ((2 * i - 1) * 2 * i);
             sinTerm = sinTerm * (0 - square) / (2 * i * (2 * i + 1));
             cosine += cosTerm; sine += sinTerm;
         }
         Rational factorial = 1;
-        for (int i = 2; i <= 32; i++) factorial *= i;
+        for (int i = 2; i <= 2 * PlacementRule.TaylorTerms; i++) factorial *= i;
         // On [-1,1], 1/32! bounds either omitted Taylor tail. Both derivatives
         // have magnitude <=1, so the input interval adds at most its radius.
         Rational error = (Rational)1 / factorial + radius;
@@ -401,26 +413,51 @@ public static class Geometry
                 int index = Array.IndexOf(curve.Ids, row.Id);
                 Require(index > 0 && index < curve.Points.Length - 1, "A tangent row names an interior anchor.", GeometryStatus.Invalid, "DSL-LOCK");
                 double[] anchor = curve.Points[index], left = curve.Points[index - 1], right = curve.Points[index + 1];
-                double span = definition.HalfSpan;
-                double leftSpan = (anchor[0] - left[0]) * span, leftAft = anchor[1] - left[1];
-                double rightSpan = (right[0] - anchor[0]) * span, rightAft = right[1] - anchor[1];
-                double leftLength = Math.Sqrt(leftSpan * leftSpan + leftAft * leftAft);
-                double rightLength = Math.Sqrt(rightSpan * rightSpan + rightAft * rightAft);
-                if (row.Kind == "smooth")
-                {
-                    Require(leftLength > 0 && rightLength > 0, "A smooth row has a zero-length handle.", GeometryStatus.Invalid, "DSL-LOCK");
-                    double dot = Math.Clamp((leftSpan * rightSpan + leftAft * rightAft) / (leftLength * rightLength), -1, 1);
-                    double degrees = Math.Acos(dot) * (180 / Math.PI);
-                    Require(degrees <= 0.1, "Smooth row is off by more than 0.1 degrees.", GeometryStatus.Invalid, "DSL-LOCK");
-                }
-                else if (row.Kind == "symmetric")
-                {
-                    double midSpan = (left[0] + right[0]) / 2, midAft = (left[1] + right[1]) / 2;
-                    double distance = Math.Sqrt(Math.Pow((anchor[0] - midSpan) * span, 2) + Math.Pow(anchor[1] - midAft, 2));
-                    double handle = Math.Sqrt(Math.Pow((right[0] - left[0]) * span, 2) + Math.Pow(right[1] - left[1], 2)) / 2;
-                    Require(handle > 0 && distance <= 1e-6 * handle, "Symmetric row is not the handle midpoint.", GeometryStatus.Invalid, "DSL-LOCK");
-                }
+                if (curve.Path is "dihedral" or "twist" or "thickness")
+                    CheckChannelRow(curve.Path, row.Kind, anchor, left, right);
+                else
+                    CheckRailRow(definition.HalfSpan, row.Kind, anchor, left, right);
             }
+        }
+    }
+
+    private static void CheckChannelRow(string path, string kind, double[] anchor, double[] left, double[] right)
+    {
+        double tau = path switch { "dihedral" => 1e-6, "twist" => 1e-6, "thickness" => 1e-8, _ => 0 };
+        Require(right[0] > left[0], "A smooth row has a zero-length handle.", GeometryStatus.Invalid, "DSL-LOCK");
+        if (kind == "smooth")
+        {
+            double t = (anchor[0] - left[0]) / (right[0] - left[0]);
+            double line = left[1] + t * (right[1] - left[1]);
+            Require(Math.Abs(anchor[1] - line) <= tau, "Smooth row is off the handle line.", GeometryStatus.Invalid, "DSL-LOCK");
+        }
+        else if (kind == "symmetric")
+        {
+            double midEta = (left[0] + right[0]) / 2, midValue = (left[1] + right[1]) / 2;
+            Require(Math.Abs(anchor[0] - midEta) <= 1e-9 && Math.Abs(anchor[1] - midValue) <= tau,
+                "Symmetric row is not the handle midpoint.", GeometryStatus.Invalid, "DSL-LOCK");
+        }
+    }
+
+    private static void CheckRailRow(double halfSpan, string kind, double[] anchor, double[] left, double[] right)
+    {
+        double leftSpan = (anchor[0] - left[0]) * halfSpan, leftAft = anchor[1] - left[1];
+        double rightSpan = (right[0] - anchor[0]) * halfSpan, rightAft = right[1] - anchor[1];
+        double leftLength = Math.Sqrt(leftSpan * leftSpan + leftAft * leftAft);
+        double rightLength = Math.Sqrt(rightSpan * rightSpan + rightAft * rightAft);
+        if (kind == "smooth")
+        {
+            Require(leftLength > 0 && rightLength > 0, "A smooth row has a zero-length handle.", GeometryStatus.Invalid, "DSL-LOCK");
+            double dot = Math.Clamp((leftSpan * rightSpan + leftAft * rightAft) / (leftLength * rightLength), -1, 1);
+            double degrees = Math.Acos(dot) * (180 / Math.PI);
+            Require(degrees <= 0.1, "Smooth row is off by more than 0.1 degrees.", GeometryStatus.Invalid, "DSL-LOCK");
+        }
+        else if (kind == "symmetric")
+        {
+            double midSpan = (left[0] + right[0]) / 2, midAft = (left[1] + right[1]) / 2;
+            double distance = Math.Sqrt(Math.Pow((anchor[0] - midSpan) * halfSpan, 2) + Math.Pow(anchor[1] - midAft, 2));
+            double handle = Math.Sqrt(Math.Pow((right[0] - left[0]) * halfSpan, 2) + Math.Pow(right[1] - left[1], 2)) / 2;
+            Require(handle > 0 && distance <= 1e-6 * handle, "Symmetric row is not the handle midpoint.", GeometryStatus.Invalid, "DSL-LOCK");
         }
     }
 
@@ -443,10 +480,8 @@ public static class Geometry
         Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch)
     {
         Rational delta = Rational.From(1e-14), profileDelta = ProfileTolerance(maximumLower);
-        var factor = Rational.From(0.017453292519943295);
-        var twists = spans["twist"].SelectMany(span => span.Y).ToArray();
-        Require(Rational.From((twists.Min() * factor).Nearest()) >= -1 && Rational.From((twists.Max() * factor).Nearest()) <= 1,
-            "Whole-domain angle hull is outside the certified Taylor domain.");
+        var factor = Rational.From(PlacementRule.RadiansPerDegree);
+        RequireTwistDomain(spans);
         foreach (var pair in spans)
         {
             Rational tolerance = pair.Key == profile.Upper.Path || pair.Key == profile.Lower.Path ? profileDelta : delta;
@@ -468,8 +503,8 @@ public static class Geometry
         var profileValues = spans[profile.Upper.Path].Concat(spans[profile.Lower.Path]).SelectMany(span => span.Y);
         Rational zMagnitude = profileValues.Select(Abs).Max() + profileDelta + (1 + normalizedWidth) * (1 + delta) / 2;
         Rational factorial = 1;
-        for (int i = 2; i <= 32; i++) factorial *= i;
-        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << 64) + (Rational)2 / factorial;
+        for (int i = 2; i <= 2 * PlacementRule.TaylorTerms; i++) factorial *= i;
+        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << PlacementRule.AngleGridBits) + (Rational)2 / factorial;
         Rational componentWidth = trigWidth + zWidth * (1 + trigWidth) + zMagnitude * trigWidth;
         Rational componentMagnitude = (1 + zMagnitude) * (1 + trigWidth);
         Rational chordMagnitude = spans["trailing"].SelectMany(span => span.Y).Max() - spans["leading"].SelectMany(span => span.Y).Min();
@@ -507,10 +542,8 @@ public static class Geometry
         Rational maxLower = (Rational)1 / 4;
         Require(maxWidth < maxLower, "Blend maximum enclosure consumes the certified floor.");
         Rational normalizedWidthBound = worstNormalized / maxLower + (1 + worstNormalized) * maxWidth / (maxLower * maxLower);
-        var factor = Rational.From(0.017453292519943295);
-        var twists = spans["twist"].SelectMany(span => span.Y).ToArray();
-        Require(Rational.From((twists.Min() * factor).Nearest()) >= -1 && Rational.From((twists.Max() * factor).Nearest()) <= 1,
-            "Whole-domain angle hull is outside the certified Taylor domain.");
+        var factor = Rational.From(PlacementRule.RadiansPerDegree);
+        RequireTwistDomain(spans);
         foreach (var pair in spans)
         {
             Rational tolerance = paths.Contains(pair.Key) ? worstProfileDelta : delta;
@@ -525,8 +558,8 @@ public static class Geometry
         var profileValues = profiles.SelectMany(profile => spans[profile.UpperPath].Concat(spans[profile.LowerPath]).SelectMany(span => span.Y));
         Rational zMagnitude = profileValues.Select(Abs).Max() + worstProfileDelta + (1 + normalizedWidthBound) * (1 + delta) / 2;
         Rational factorial = 1;
-        for (int i = 2; i <= 32; i++) factorial *= i;
-        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << 64) + (Rational)2 / factorial;
+        for (int i = 2; i <= 2 * PlacementRule.TaylorTerms; i++) factorial *= i;
+        Rational trigWidth = delta * factor + new Rational(1, BigInteger.One << 51) + new Rational(2, BigInteger.One << PlacementRule.AngleGridBits) + (Rational)2 / factorial;
         Rational componentWidth = trigWidth + zWidth * (1 + trigWidth) + zMagnitude * trigWidth;
         Rational componentMagnitude = (1 + zMagnitude) * (1 + trigWidth);
         Rational chordMagnitude = spans["trailing"].SelectMany(span => span.Y).Max() - spans["leading"].SelectMany(span => span.Y).Min();
@@ -670,7 +703,9 @@ internal sealed class QueryFeasibility
         var largestProfile = ordinates.Select(value => value < 0 ? 0 - value : value).Max();
         Geometry.Require(largestProfile + 2 < Rational.From(double.MaxValue), "Normalized section outward range is not finite.",
             GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
-        var angular = proof.Multiply(bounds["twist"], proof.Actual(Rational.From(0.017453292519943295), "degree-factor"), "angular-product");
+        Geometry.Require(2 * PlacementRule.TaylorTerms + 1 == 33 && PlacementRule.AngleGridBits == 64,
+            "Taylor and grid constants drifted from the certified bound models.");
+        var angular = proof.Multiply(bounds["twist"], proof.Actual(Rational.From(PlacementRule.RadiansPerDegree), "degree-factor"), "angular-product");
         proof.Conversion(angular, "once-rounded-angle");
         proof.Observe(1141, "angle-grid-shift-divrem");
         // Grid endpoints have denominator 2^64 and |angle|<=1; center/radius
@@ -687,7 +722,7 @@ internal sealed class QueryFeasibility
         proof.Conversion(proof.Add(bounds["dihedral"], scaled, "placed-Z"), "placed-Z");
         proof.Conversion(proof.Multiply(proof.Multiply(proof.Actual(Rational.From(halfSpan), "half-span"), query, "placed-Y"), new(2, 1), "port-sign"), "placed-Y");
         watch.Check();
-        return new("common-denominator-dyadic-128/taylor-grid-64/v1", 32768, proof.maximum, operations, 128, 64,
+        return new("common-denominator-dyadic-128/taylor-grid-64/v1", 32768, proof.maximum, operations, 128, PlacementRule.AngleGridBits,
             Array.AsReadOnly(witnesses.ToArray()), proof.maximumPath);
     }
 }
@@ -776,9 +811,23 @@ internal readonly struct Rational : IComparable<Rational>
 
 internal sealed record PolynomialSpan(Rational Start, Rational End, Rational[] X, Rational[] Y);
 
-internal readonly record struct RationalInterval(Rational Lower, Rational Upper)
+internal readonly record struct RationalInterval(Rational Lower, Rational Upper) : IPlacementScalar<RationalInterval>
 {
+    public static RationalInterval Half => Point((Rational)1 / 2);
     internal static RationalInterval Point(Rational value) => new(value, value);
+    public static RationalInterval Point(double value) => Point(Rational.From(value));
+    public static RationalInterval BlendWeight(double eta, double left, double right)
+    {
+        Rational weight = (Rational.From(eta) - Rational.From(left)) / (Rational.From(right) - Rational.From(left));
+        return Point(weight);
+    }
+    public static RationalInterval Radians(RationalInterval degrees)
+    {
+        var product = degrees * Point(Rational.From(PlacementRule.RadiansPerDegree));
+        return new(Rational.From(product.Lower.Nearest()).DyadicDown(PlacementRule.AngleGridBits),
+            Rational.From(product.Upper.Nearest()).DyadicUp(PlacementRule.AngleGridBits));
+    }
+    public static (RationalInterval Sin, RationalInterval Cos) SinCos(RationalInterval radians) => Geometry.Trigonometry(radians);
     public static RationalInterval operator +(RationalInterval a, RationalInterval b) => new(a.Lower + b.Lower, a.Upper + b.Upper);
     public static RationalInterval operator -(RationalInterval a, RationalInterval b) => new(a.Lower - b.Upper, a.Upper - b.Lower);
     public static RationalInterval operator *(RationalInterval a, RationalInterval b)
