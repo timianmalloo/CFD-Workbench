@@ -38,6 +38,8 @@ public static class ShellWindowTests
                 open.GetAwaiter().GetResult();
                 Settle(window);
                 var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                Settle(window);
                 void AssertDrawn(string step)
                 {
                     if (!ReferenceEquals(viewport.GetVisualRoot(), window) || !viewport.IsEffectivelyVisible ||
@@ -53,7 +55,7 @@ public static class ShellWindowTests
                 AssertDrawn("initial");
                 var tabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                 var sourceTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.FoilSourceDocument));
-                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.ModelDocument));
+                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.SamplesDocument));
                 sourceTab.IsSelected = true;
                 Settle(window);
                 if (!sourceTab.IsSelected)
@@ -84,7 +86,9 @@ public static class ShellWindowTests
                 Settle(window);
                 var documents = new (Dock.Model.Controls.IDocument Document, Control Surface, Func<bool> Ready)[]
                 {
-                    (host.LayoutFactory.ModelDocument, host.ModelView.FindControl<Viewport>("FoilViewport")!,
+                    (host.LayoutFactory.ModelDocument, host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!,
+                        () => controller.Planform is not null),
+                    (host.LayoutFactory.SamplesDocument, host.ModelView.FindControl<Viewport>("FoilViewport")!,
                         () => ReferenceEquals(host.ModelView.FindControl<Viewport>("FoilViewport")!.LastRecordedFrame, controller.Frame)),
                     (host.LayoutFactory.SectionSampleDocument, host.ModelView.FindControl<Viewport>("SectionViewport")!,
                         () => ReferenceEquals(host.ModelView.FindControl<Viewport>("SectionViewport")!.LastRecordedFrame, controller.Frame)),
@@ -125,7 +129,7 @@ public static class ShellWindowTests
                     .Count(tab => tab.IsEffectivelyVisible);
                 int dockTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
                     .Count(tab => tab.IsEffectivelyVisible);
-                if (innerRows != 0 || dockTabs != 4)
+                if (innerRows != 0 || dockTabs != 5)
                     throw new InvalidOperationException($"Model area has {innerRows} inner tab rows and {dockTabs} Dock document tabs");
             }
             finally { window.Close(); }
@@ -694,6 +698,8 @@ public static class ShellWindowTests
                 if (rings.Length < 2)
                     throw new InvalidOperationException("Dock tab lacks the two focus rings");
                 var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                Settle(window);
                 if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
                     throw new InvalidOperationException("Accepted frame not bound before Dock focus barrier");
                 var fresh = visual.Compositor.RequestCompositionBatchCommitAsync();
@@ -731,6 +737,8 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Keyboard persona missed Start Open");
                 Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
                 Settle(window);
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                Settle(window);
                 host.FocusForPersona("designer");
                 Settle(window);
                 if (!host.ModelView.FindControl<Viewport>("FoilViewport")!.IsFocused)
@@ -754,7 +762,7 @@ public static class ShellWindowTests
             try { host = new ShellHost(controller); }
             catch (Exception error) { throw new InvalidOperationException(error.ToString(), error); }
             var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
-            if (!ids.Contains("model") || !ids.Contains("section-sample") || !ids.Contains("foil-source"))
+            if (!ids.Contains("model") || !ids.Contains("3d-samples") || !ids.Contains("section-sample") || !ids.Contains("foil-source"))
                 throw new InvalidOperationException("Model area document tabs are absent");
             var paneIds = host.LayoutFactory.LeftToolDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
             if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("rail-controls"))
@@ -773,6 +781,7 @@ public static class ShellWindowTests
                     host.LayoutFactory.SectionSampleDocument,
                     host.LayoutFactory.FoilSourceDocument,
                     host.LayoutFactory.SectionDocument,
+                    host.LayoutFactory.SamplesDocument,
                     host.LayoutFactory.ModelDocument
                 })
                 {
@@ -793,7 +802,7 @@ public static class ShellWindowTests
             {
                 window.Show();
                 window.UpdateLayout();
-                if (!host.ModelView.FindControl<Control>("Plan3DContent")!.IsVisible ||
+                if (!host.ModelView.FindControl<Control>("PlanContent")!.IsVisible ||
                     host.Browser.FindControl<ListBox>("StationList")!.ItemCount == 0 ||
                     !host.Properties.FindControl<Control>("ContentPanel")!.IsVisible ||
                     !host.Properties.FindControl<Control>("WingBlock")!.IsVisible)
@@ -2035,10 +2044,12 @@ public static class ShellWindowTests
 
                     var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                     string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
-                    if (!titles.SequenceEqual(["Plan + 3D", "Section sample", "Foil source", "Section"]))
+                    if (!titles.SequenceEqual(["Plan", "3D samples", "Section sample", "Foil source", "Section"]))
                         throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
-                    var modelTab = docTabs[0];
-                    var sourceTab = docTabs[2];
+                    var modelTab = docTabs[1];
+                    var sourceTab = docTabs[3];
+                    modelTab.IsSelected = true;
+                    Settle(window);
 
                     // Theme barrier: a fresh composition batch renders the focused tab after the Example is bound.
                     var composition = ElementComposition.GetElementVisual(modelTab)

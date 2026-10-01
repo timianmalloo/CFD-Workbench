@@ -113,6 +113,7 @@ public sealed class ShellHost : Grid
         Browser = new BrowserPane();
         RailEditor = new RailEditorPane();
         ModelView = new ModelArea();
+        ModelView.PlanCanvas.Controller = controller;
 
         // Assign views to layout tools / documents
         LayoutFactory.PropertiesTool.Context = Properties;
@@ -123,10 +124,13 @@ public sealed class ShellHost : Grid
         var sectionSample = ModelView.SectionSampleBody;
         var foilSource = ModelView.FoilSourceBody;
         var sectionEditor = ModelView.SectionEditor;
+        var samples = ModelView.Plan3DContent;
+        ModelView.ModelRoot.Children.Remove(samples);
         ModelView.DetachedDocumentBodies.Children.Remove(sectionSample);
         ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
         ModelView.DetachedDocumentBodies.Children.Remove(sectionEditor);
         LayoutFactory.ModelDocument.Context = ModelView;
+        LayoutFactory.SamplesDocument.Context = samples;
         LayoutFactory.SectionSampleDocument.Context = sectionSample;
         LayoutFactory.FoilSourceDocument.Context = foilSource;
         LayoutFactory.SectionDocument.Context = sectionEditor;

@@ -17,6 +17,7 @@ public partial class ModelArea : UserControl
     public void ShowFoilOpen(bool isOpen)
     {
         StartCardView.IsVisible = !isOpen;
+        PlanContent.IsVisible = isOpen;
         Plan3DContent.IsVisible = isOpen;
     }
 

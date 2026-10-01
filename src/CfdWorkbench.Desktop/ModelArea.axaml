@@ -30,9 +30,13 @@
     </StackPanel>
 
     <!-- Main Content Area -->
-    <Grid Grid.Row="2">
+    <Grid Grid.Row="2" x:Name="ModelRoot">
       <!-- Start View (shown when no foil is open) -->
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
+
+      <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource ViewportBrush}">
+        <local:PlanCanvas x:Name="PlanCanvas" Focusable="True" />
+      </Border>
 
       <Border x:Name="Plan3DContent" IsVisible="False" Background="{DynamicResource ViewportBrush}" Padding="{StaticResource Space3}">
             <Grid RowDefinitions="Auto,*,Auto">
