@@ -328,12 +328,6 @@ public sealed class PlanCanvas : Control
             }
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
-        if (focusedPoint is { Curve: "trailing" })
-        {
-            var probe = CfdWorkbench.Core.Planform.Probe(plan, Math.Clamp(target.Span / plan.HalfSpanMeters, 0, 1));
-            advisoryCrossing = target.Ordinate <= probe.LeadingAftMeters;
-            advisoryPoint = position;
-        }
         if (focusedPoint is { } selected)
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
@@ -479,6 +473,7 @@ public sealed class PlanCanvas : Control
         if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0)
         {
             targets.Clear();
+            advisoryCrossing = false;
             InvalidateVisual();
             return;
         }
@@ -489,6 +484,9 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
+        // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
+        advisoryCrossing = Controller.GestureCrossing is not null;
+        if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.AftMeters);
         InvalidateVisual();
     }
 

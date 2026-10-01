@@ -153,7 +153,24 @@ public sealed class WorkbenchController : IDisposable
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
-    public GestureState Gesture { get; private set; }
+    public GestureState Gesture
+    {
+        get;
+        private set
+        {
+            field = value;
+            // The preview belongs to a live drag: release, Escape, a refusal or a new gesture clear it.
+            if (value != GestureState.Dragging) GestureCrossing = null;
+        }
+    }
+
+    /// <summary>
+    /// The advisory edge-crossing preview for the drag in progress (§0.1 step 6): where the release would be refused
+    /// because the rails' Bernstein hulls overlap, or null. Binary64 mirror of the certificate's
+    /// <c>trailingLower &gt; leadingUpper</c> rule in <c>Geometry.Assess</c>; advisory only — the certificate decides.
+    /// </summary>
+    public (double SpanMeters, double AftMeters)? GestureCrossing { get; private set; }
+
     public PlanCamera PlanCamera { get; set; } = new();
     public bool CombVisible { get; set; }
     public int LastGestureFrames { get; private set; }
@@ -381,7 +398,54 @@ public sealed class WorkbenchController : IDisposable
         try { Estimates = WingEstimates.From(draft.Bytes, "preview", draft.Generation); }
         catch { Estimates = null; }
         gestureEstimateTimes.Add(timer.Elapsed.TotalMilliseconds);
+        GestureCrossing = Gesture == GestureState.Dragging && Planform is { } plan && gesturePoint is { } dragged
+            ? EdgeHullCrossing(plan, dragged.Curve) : null;
         Notify();
+    }
+
+    /// <summary>
+    /// Null when every trailing-rail Bernstein ordinate is strictly aft of every leading-rail one (the certificate's
+    /// positive-chord rule); otherwise the dragged rail's offending Bernstein coefficient, in plan metres.
+    /// </summary>
+    public static (double SpanMeters, double AftMeters)? EdgeHullCrossing(PlanformView plan, string draggedCurve)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        var leading = BernsteinCoefficients(plan.Leading);
+        var trailing = BernsteinCoefficients(plan.Trailing);
+        if (trailing.Min(item => item.Aft) > leading.Max(item => item.Aft)) return null;
+        var at = draggedCurve == "leading" ? leading.MaxBy(item => item.Aft) : trailing.MinBy(item => item.Aft);
+        return (at.Eta * plan.HalfSpanMeters, at.Aft);
+    }
+
+    // Boehm knot insertion to multiplicity p at every interior knot: the control points become the Bernstein
+    // coefficients of every span (the same hull Geometry.Assess builds by exact interpolation).
+    private static List<(double Eta, double Aft)> BernsteinCoefficients(CurveView curve)
+    {
+        var knots = curve.Knots.ToList();
+        var points = curve.Points.Select(point => (point.Eta, Aft: point.AftMeters)).ToList();
+        int degree = knots.Count - points.Count - 1;
+        foreach (double knot in curve.Knots.Where(value => value > knots[0] && value < knots[^1]).Distinct().ToArray())
+        {
+            while (knots.Count(value => value == knot) < degree)
+            {
+                int span = knots.FindLastIndex(value => value <= knot);
+                var refined = new List<(double Eta, double Aft)>(points.Count + 1);
+                for (int index = 0; index <= points.Count; index++)
+                {
+                    if (index <= span - degree) refined.Add(points[index]);
+                    else if (index > span) refined.Add(points[index - 1]);
+                    else
+                    {
+                        double alpha = (knot - knots[index]) / (knots[index + degree] - knots[index]);
+                        refined.Add(((1 - alpha) * points[index - 1].Eta + alpha * points[index].Eta,
+                            (1 - alpha) * points[index - 1].Aft + alpha * points[index].Aft));
+                    }
+                }
+                points = refined;
+                knots.Insert(span + 1, knot);
+            }
+        }
+        return points;
     }
 
     public Task<GestureOutcome> EndGestureAsync(GestureEnd reason, CancellationToken cancellation = default)

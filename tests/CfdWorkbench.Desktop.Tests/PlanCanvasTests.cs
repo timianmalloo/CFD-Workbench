@@ -626,6 +626,56 @@ public static class PlanCanvasTests
             fixture.AssertGlyphPixel(fixture.Controller.Planform!.Trailing.Points[4]);
         });
 
+        DesktopChecks.Check("PlanCanvas_CrossingMarker_OnlyWhileReleaseWouldBeRefused", () =>
+        {
+            // D-2 (docs/reviews/m12b-native.md §3.1, design §0.1 step 6): the marker shows during the drag, never after.
+            using var fixture = new PlanFixture(newFoil: true);
+            var plan = fixture.Controller.Planform!;
+            var point = plan.Trailing.Points[4];
+            var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
+            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            var field = typeof(PlanCanvas).GetField("advisoryCrossing",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("Advisory marker field missing");
+            bool Marker() => (bool)field.GetValue(fixture.Canvas)!;
+            string before = fixture.Controller.AcceptedSource;
+            // Bisect the drag distance down to the pixel where the release starts to be refused. At every probe, the marker
+            // during the drag must equal the release outcome, and no release leaves it behind.
+            bool Probe(double dy)
+            {
+                fixture.BeginDrag(point);
+                fixture.MoveDrag(point, 0, dy);
+                bool shown = Marker();
+                fixture.ReleaseDrag(point, 0, dy);
+                fixture.WaitGesture();
+                fixture.Settle();
+                bool refused = fixture.Controller.AcceptedSource == before;
+                if (shown != refused)
+                    throw new Exception($"dy={dy}: marker during the drag={shown}, release refused={refused}");
+                if (Marker()) throw new Exception($"dy={dy}: the marker stayed after the release");
+                if (!refused) { fixture.Controller.Undo(); fixture.Settle(); }
+                return refused;
+            }
+            double valid = -8, refusedAt = Math.Round(cross);
+            if (Probe(valid) || !Probe(refusedAt)) throw new Exception("the bracket does not straddle the refusal");
+            while (valid - refusedAt > 1)
+            {
+                double mid = Math.Round((valid + refusedAt) / 2);
+                if (Probe(mid)) refusedAt = mid; else valid = mid;
+            }
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, cross);
+            if (!Marker()) throw new Exception("no marker on a crossing drag");
+            fixture.MoveDrag(point, 0, -8);
+            if (Marker()) throw new Exception("the marker stayed after the drag moved back to a valid position");
+            fixture.MoveDrag(point, 0, cross);
+            fixture.KeyDown(Key.Escape);
+            fixture.WaitGesture();
+            fixture.Settle();
+            if (Marker()) throw new Exception("the marker stayed after Escape");
+            fixture.ReleaseDrag(point, 0, cross);
+        });
+
         DesktopChecks.Check("PlanCanvas_HoverProbe_ParksPointerFirst", () =>
         {
             using var fixture = new PlanFixture();
