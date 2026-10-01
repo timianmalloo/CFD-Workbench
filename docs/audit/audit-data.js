@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T03:21:45Z",
+  "generated": "2026-10-01T03:27:19Z",
   "audit": [
     {
       "actor": null,
@@ -20765,6 +20765,33 @@ window.AUDIT_DATA = {
         "branch": "m12b-u2-panes",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3TR14XSD9QP9PVK8MABJ2DH",
+      "shortname": "join-u2",
+      "datetime": "2026-10-01T03:27:19Z",
+      "session": "fbfa35dc",
+      "prompt": "the join of m12b-u2-panes into feature/ui-cad-direction",
+      "summary": "U2 25/25 verified (3 identical runs); dead-control mutant red; recovery Apply fixed; RailEditorPane files deleted BUT the draft API was renamed (OpenControlDraft/ReviseOrdinate/RewriteControlOrdinate) not removed — retirement exit item NOT met; follow-up track LEGACY must remove the pre-shell window path before M1.2b closes recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "land U2 panes",
+      "done_when": "merged; gates green; retirement recorded open",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-01T03:26:35Z",
+      "duration_seconds": 44.0
     }
   ],
   "changes": [
