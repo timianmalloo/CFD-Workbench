@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T20:39:51Z",
+  "generated": "2026-10-02T22:45:19Z",
   "audit": [
     {
       "actor": null,
@@ -21974,6 +21974,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T20:38:59Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M3ZCP7AB8J4P44XPYNQWXP5P",
+      "shortname": "join-status-bar-build",
+      "datetime": "2026-10-02T22:45:19Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/status-bar-build into feature/ui-cad-direction",
+      "summary": "STATUS (Opus 5.5): bottom status strip + warning toast per DR-STATUS-1..4; reports moved out of the property sheet; field errors stay; one locked status slot (20,000-round race check, red without the lock); STATUS-CLOBBER held across threads; Shift+Tab ownership moved into PropertiesPane (DR-NAV-1 seam). 17 named checks red-first. Operator approved the running build. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T22:44:26Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
