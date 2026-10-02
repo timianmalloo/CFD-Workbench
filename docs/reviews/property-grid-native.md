@@ -35,8 +35,8 @@ Use VO-arrows to read and Tab to move. Capture an AX dump (Accessibility Inspect
 
 | # | Do | Hear or see | Pass when | Result |
 |---|---|---|---|---|
-| B2.1 | Select a trailing-edge control point, then make it an anchor. Tab into Properties | "Position, expanded"; "Type, Anchor point — adds handles…, combo box"; "From root, position along the span in millimetres, …"; "η, 0.643"; "Aft position in millimetres" | Every name contains its visible label and unit (§10.5). The Type help is COPY-149 | |
-| B2.2 | On the anchor, Tab to the Kind group | "Tangent kind, group"; the checked option "Smooth, selected, 1 of 3" | One Tab stop; it lands on the checked option | |
+| B2.1 | Select a trailing-edge control point, then make it an anchor. Tab into Properties | "Point, expanded"; "Type, Anchor point — adds handles…, pop-up button"; "From root, position along the span in millimetres, …"; "η, 0.643"; "Aft position in millimetres" | Every name contains its visible label and unit (§10.5). The Type help is COPY-149 | |
+| B2.2 | On the anchor, Tab to the Kind value (structure B: a pop-up button, `ComboBox.prop-b`, not a radio group; the old radio rows are retired) | "Tangent kind, Smooth, pop-up button" | One Tab stop; the 1 px focus box shows around the value and the ▾ | |
 | B2.3 | Select the anchor's handle toward the tip | "Handle toward the tip"; the link "of Trailing edge · anchor point N of M · Esc"; "Tangent kind of anchor point N" | The handle has its own name; its anchor is a link | |
 | B2.3a | On the handle, Tab to a group header (not a field) and press Esc | The status line speaks "Selected Trailing edge · point N of M."; the anchor is selected | Spoken once from the polite status line (PG-28) | |
 | B2.4 | VO-arrow onto a fact row (η) and an estimate row (MAC, AR, Max t/c) | "η, 0.643"; "MAC, approximately 107.1 millimetres"; "AR, aspect ratio, approximately 10.04 b squared over S"; "Max t over c, approximately 12.0 percent" | One line per row; abbreviations spoken in full (PG-24); no focusable unnamed element (B9) | |
@@ -45,9 +45,9 @@ Use VO-arrows to read and Tab to move. Capture an AX dump (Accessibility Inspect
 | B2.7 | In Aft type `abc`, press Return. Press Return again with the same text | "Enter a number. Aft is unchanged." spoken twice — once per failed commit — and not on any re-render | B10 / PG-22 | |
 | B2.8 | Type 10.1 × the root chord in Wing › Root chord, Return | The warning line "… above the limit …" on a warning rail | Announced once, politely | |
 | B2.9 | Focus Type on a control point, press ↓ (closed box), then Return | "Press Return to change the type, or Esc to keep it."; then the report "Trailing edge point i is now an anchor point with 2 handles. The rail gained k points (m → n). Largest change d mm." | ↓ does not commit; Return does | |
-| B2.10 | In the Kind group press ↓ twice, then Return | "Press Return or Space to make it corner, or Esc to keep smooth." | Arrows move the check only; Return commits one undo step | |
-| B2.10a | After the Return in B2.10 | The new kind is spoken from the checked option, then the status line speaks the report "Trailing edge point N is now Corner." (on a handle also "Kept the handle toward the tip; the other one moved.") | The report comes from the operation (MC-11, PG-33) and is spoken once | |
-| B2.11 | Collapse the Position group with Space on its header | "Position, collapsed"; the help text is the summary ("178.26, 120.40 mm") | Name and state exposed (PG-10) | |
+| B2.10 | On the focused Kind pop-up button press ↓ twice (closed box), then Return. Repeat: press ↓, then Esc. Repeat: press ↓, then Tab away | After ↓: "Return applies; Esc keeps smooth" (the help text) and the pending line "Press Return to make it corner, or Esc to keep smooth." Return applies; Esc keeps and nothing changes; leaving drops the staged kind with the announcement "Tangent kind unchanged: Smooth." (DR-CELL-2) | Arrows stage a pending kind and never commit; Return commits one undo step; Esc and leaving commit nothing and add no undo step. *Replaces the radio-list row ("arrows move the check", "Return or Space"), retired (structure B)* | |
+| B2.10a | After the Return in B2.10 | The Kind button now reads the new kind, then the status line speaks the report "Trailing edge point N is now Corner." (on a handle also "Kept the handle toward the tip; the other one moved.") | The report comes from the operation (MC-11, PG-33) and is spoken once; the pending line is cleared. *Retargeted from the radio list (structure B)* | |
+| B2.11 | Collapse the Point group with Space on its header | "Point, collapsed"; the help text is the summary ("178.26, 120.40 mm") | Name and state exposed (PG-10). *The group is "Point" in structure B (was "Position")* | |
 | B2.12 | Nudge run (with the switch on, see B7): on Aft hold ↑, release; hold ↑ again and press Esc. Repeat on a handle's Angle | While held: the Wing chip "≈ preview". On release: "Aft 121.40 mm." spoken once. After Esc: nothing committed, no undo step | D3 trace: hold, release and Esc-cancel on a length and an angle field | |
 | B2.13 | Keyboard only (no pointer): with a point selected press ⌘⇧C; then Tab to a group header, press Shift+F10 (or the menu key) and choose "Copy values"; paste each into TextEdit | The first paste is every selection row as "label value unit" lines ("Aft 120.40 mm", "η 0.643"); the second is that group's rows only. Facts are still not Tab stops | Copying needs no pointer (PG-25, WCAG 2.1.1); ⌘C after focus moves never copies a row clicked earlier | Also: click the MAC row, then ⌘C pastes MAC's value (PG-38) |
 | B2.14 | Open a project with a recovered edit | The band "A recovered edit is open." is announced, and focus lands on Apply | Announced once; focus on Apply (PG-14, PG-28). **Expected to fail today:** focus-on-Apply is not built — the shell's open flow moves focus to the model area after the pane renders, a ShellHost change outside the property-grid track | |
@@ -61,14 +61,19 @@ a screenshot at 100 % (an external display) and at 200 % (Retina).
 
 | # | Element and state | Pass when | Result |
 |---|---|---|---|
-| B4.1 | Input boundary (`ControlLineBrush`) against the row surface, unfocused and `:pointerover` | ≥ 3:1 in all three themes (light was 0.43 above 3:1 by arithmetic) | |
-| B4.2 | Input focus ring (`FocusRingBrush`, 2 px inset) | ≥ 3:1 against the surface and the field fill | |
-| B4.3 | Kind radio ring and checked dot, unchecked, `:pointerover`, `:checked` | ≥ 3:1; the checked state also differs by weight | |
+| B4.1 | **Retired (structure B)** — the input boundary at rest does not exist in B; the at-rest cue is the dotted underline (B4.9) | Not run | |
+| B4.2 | **Retired (structure B)** — the 2 px inset focus ring is now the 1 px focus box (B4.10) | Not run | |
+| B4.3 | **Retired (structure B)** — the Kind radio ring and dot no longer exist; the Kind is a pop-up button (B4.12, B4.13) | Not run | |
 | B4.4 | Type box border, `:focus`, `:pointerover` | ≥ 3:1 | |
 | B4.5 | Group header (`Expander` toggle) fill in `:checked` (expanded), collapsed, `:pointerover` and `:pressed`; the chevron stroke; its focus ring — in light, dark and high contrast | Text and chevron ≥ 4.5:1 (chevron ≥ 3:1 minimum); ring ≥ 3:1; no Fluent light-grey fill in high contrast | |
 | B4.6 | Warning rail and text (`WarningBrush`), error rail and text (`DangerBrush`) | Text ≥ 4.5:1; rail ≥ 3:1 | |
 | B4.7 | High contrast inherits Light (`Program.cs` `NativeReviewThemes.HighContrast`) | No Fluent light-grey surface shows through any grid part | |
-| B4.8 | Kind RadioButton `:pressed` and `:checked:pointerover` (ring and dot); Type box `:pressed`, `:dropdownopen`, its popup and its items (normal, `:pointerover`, `:selected`) — in light, dark and high contrast | Ring and dot ≥ 3:1; item text ≥ 4.5:1 on its fill, including the selected item in high contrast (black on yellow) | |
+| B4.8 | **Retired (structure B)** — the Kind RadioButton parts no longer exist; the Type and Kind popup and items are B4.13 | Not run | |
+| B4.9 | Dotted underline of an editable value at rest (the pane draws it, B3.1), `:pointerover`, in light, dark and high contrast | ≥ 3:1 against the row surface on pixels; absent on a fact; a link keeps a solid underline (DR-CELL-5) | |
+| B4.10 | Focus box of a value (TextBox and ComboBox: 1 px `PrimaryBrush` boundary on a `SurfaceBrush` fill, inside the 24 px band), focused and focused `:pointerover` — in light, dark and high contrast | ≥ 3:1 against the surface; text turns from accent to ink; in high contrast the box is #ffee58 on black | |
+| B4.11 | Focused error: the accent focus box with the danger box 1 px outside it (`Border.prop-error-ring`, `DangerBrush`) — in light, dark and high contrast | Two distinct boxes; each ≥ 3:1 against its neighbour and the surface; in high contrast both are #ffee58, told apart by the line count and the error rail | |
+| B4.12 | The ▾ glyph (`DropDownGlyph`, `MutedBrush`, 5 × 3 px) on the Type and Kind values, at rest, focused and `:dropdownopen` | ≥ 3:1 against the surface in all three themes | |
+| B4.13 | Enum popup (`PopupBorder` in `ControlLineBrush`, items on `SurfaceBrush`; `:pointerover` on `SurfaceSoftBrush`, `:selected` on `SelectionBrush`) for Type and Kind — in light, dark and high contrast | Popup border ≥ 3:1; item text ≥ 4.5:1 on its fill, including the selected item in high contrast (black on yellow) | |
 
 ## B5 — No truncation at the 200 px dock (native confirmation)
 
@@ -103,6 +108,7 @@ The nudge ships **off** behind `PropertiesFieldNudge.Enabled` (`src/CfdWorkbench
 |---|---|---|---|
 | B8.1 | On Windows, with the switch on, press ↑ in Aft | Nothing nudges (`PropertiesFieldNudge.OnWindows`); the headless check `FieldNudge_OffOnWindows_UntilNarratorPass` covers it | |
 | B8.2 | A Narrator/UIA pass of B2.1–B2.12 | Recorded before the nudge is turned on for Windows | |
+| B8.3 | On Windows, try to change Text size from the keyboard (Ctrl+= / Ctrl+−) | Text size has no keyboard path on Windows (no native menu; Ctrl+= / Ctrl+− reach nothing). **Expected to fail** until window-level KeyBindings or a command-palette entry land (owner: N7) | |
 
 ## Found and fixed by the build — the shell took Return
 
@@ -187,7 +193,7 @@ size; the platform menu cannot tell a click from the key. Row B3.7 asks the oper
 |---|---|---|---|
 | B3.1 | Underline ≥ 3:1 on pixels: screenshot Aft at rest in light, dark and high contrast, on a Retina display and on a Windows-class 100 % display; pick a dash pixel and the surface beside it | Each ≥ 3:1. The headless figures are 6.11, 8.60 and 17.62 at 1× and 2× | |
 | B3.2 | Captures of the anchor, handle, field-error and Unavailable states in light, dark and high contrast, compared with `docs/proof/property-grid-cells/b-*.png`, **including a Windows-class 100 % display** (DR-DEN-3: 11 px legibility) | Same structure and states as the approved captures; 11 px legible at 100 % | |
-| B3.3 | Every value a Tab stop; focused ≠ unfocused, including in error: keyboard walk of the anchor (Smooth and Corner), the handle and a control point, plus an AX dump | Every editable value and enum is reached; each focused stop shows its box; a focused error shows both boxes. Headless: `EveryEditableValueIsTabStop`, `FocusedErrorFieldDistinctFromUnfocused` | |
+| B3.3 | Every value a Tab stop; focused ≠ unfocused, including in error, in light, dark **and high contrast**: keyboard walk of the anchor (Smooth and Corner), the handle and a control point, plus an AX dump; check focused normal, focused error and unfocused error in each theme | Every editable value and enum is reached; each focused stop shows its box; a focused error shows both boxes. In high contrast focus and error share #ffee58, so they are told apart by the line count (one box vs two) and the error rail, not by colour. Headless: `EveryEditableValueIsTabStop`, `FocusedErrorFieldDistinctFromUnfocused` | |
 | B3.4 | A row press focuses its value: click the label "Aft", the label "Type" and the gap between them, with a pointer trace | Focus lands on the value; a read-only row takes no focus. Headless: `RowPressFocusesValue` | |
 | B3.5 | VoiceOver on the anchor and Wing rows, at rest and focused | Each editable value is a text field read as "<label> … millimetres" (name and unit); each enum is a pop-up button with its value; a fact reads "<label>, <value> <unit>" | |
 | B3.6 | DC-2 worst case: type −1234.56 into Aft and 12000.00 into Span, Return, at 100 % on Retina **and** on a Windows-class display | Neither number is clipped in the 62 px editor; check the face (Helvetica Neue / Segoe UI) reads as the approved look | |
