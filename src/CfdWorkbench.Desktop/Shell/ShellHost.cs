@@ -432,8 +432,7 @@ public sealed class ShellHost : Grid
 
     private void Report(StatusReport report, bool offerTryAgain)
     {
-        Controller.SupersedeStatus();
-        shownStatusVersion = Controller.StatusVersion;
+        shownStatusVersion = Controller.SupersedeStatus();
         StatusStrip.Show(report, offerTryAgain);
         if (report.Toast) ModelView.ShowToast(report.Text);
     }
@@ -442,10 +441,11 @@ public sealed class ShellHost : Grid
     // refresh never re-shows an older controller status over a newer report.
     private void ReportControllerStatus()
     {
-        if (Controller.StatusVersion == shownStatusVersion) return;
-        shownStatusVersion = Controller.StatusVersion;
-        if (!string.IsNullOrWhiteSpace(Controller.Status))
-            StatusStrip.Show(new StatusReport(Controller.Status, Controller.StatusKind));
+        // One read of text, kind and version: a write on another thread cannot pair a newer version with older text.
+        var (text, kind, version) = Controller.StatusSnapshot();
+        if (version <= shownStatusVersion) return;
+        shownStatusVersion = version;
+        if (!string.IsNullOrWhiteSpace(text)) StatusStrip.Show(new StatusReport(text, kind));
     }
 
     public async Task RemoveFailedRecentAsync()
