@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:35:46Z",
+  "generated": "2026-10-02T14:39:07Z",
   "audit": [
     {
       "actor": null,
@@ -21768,6 +21768,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:34:50Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M3YGVYZY14EEMZ0YW5X85R22",
+      "shortname": "join-textsize-persistence",
+      "datetime": "2026-10-02T14:39:07Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/textsize-persistence into feature/ui-cad-direction",
+      "summary": "TSP (Opus 5.5): display/display.json cfdw-display v1 (separate doc: layout codec rejects unknown members), allowed set one definition, never-write on unreadable/newer, store-enforced create-only, FS exceptions -> failed/DOC-IO, load holds the store gate, display.load/display.save telemetry + one-time status notice when not kept. Data & Persistence veto cleared (separate reviewer); repair cycle 1 closed its Minors. Readiness green at 4532f31. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/app-shell.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T14:38:13Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
