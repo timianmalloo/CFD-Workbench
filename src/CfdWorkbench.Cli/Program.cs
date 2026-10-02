@@ -122,9 +122,18 @@ public static class Cli
                     role = point.Role.ToString(),
                     kind = point.Kind?.ToString(),
                     locks = point.Locks,
-                    freedom = point.Freedom.ToString()
+                    freedom = point.Freedom.ToString(),
+                    ordinate = point.Ordinate,
+                    aftMeters = point.AftMeters
                 }).ToArray();
-                pointModel = new { leading = Rail(plan.Leading), trailing = Rail(plan.Trailing) };
+                pointModel = new
+                {
+                    leading = Rail(plan.Leading),
+                    trailing = Rail(plan.Trailing),
+                    dihedral = Rail(Channels.View(source, "dihedral", "accepted", 0)),
+                    twist = Rail(Channels.View(source, "twist", "accepted", 0)),
+                    thickness = Rail(Channels.View(source, "thickness", "accepted", 0))
+                };
             }
             await WriteAsync(output, new
             {

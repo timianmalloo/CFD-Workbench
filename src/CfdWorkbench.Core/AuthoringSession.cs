@@ -27,9 +27,12 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
     double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
-    int? Frames = null);
+    int? Frames = null, string? CurveFamily = null);
 public sealed record DimensionCommand(string Name, string Text);
-public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double AftMeters, IReadOnlyList<string> MovedIds, bool Clamped);
+public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped)
+{
+    public double AftMeters { get => Ordinate; init => Ordinate = value; }
+}
 public abstract record PointCommand(string Curve, string VertexId)
 {
     public sealed record MakeAnchor(string Curve, string VertexId) : PointCommand(Curve, VertexId);
@@ -135,7 +138,8 @@ public sealed class AuthoringSession : IDisposable
             trace.Value = priorTrace;
         }
     }
-    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null)
+    private string? pendingCurveFamily;
+    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null, string? curveFamily = null)
     {
         lock (sync)
         {
@@ -143,11 +147,13 @@ public sealed class AuthoringSession : IDisposable
             double? deviation = pendingDeviationUm;
             double? shift = pendingShiftUm;
             bool? above = pendingFitAboveLimit;
+            string? family = curveFamily ?? pendingCurveFamily;
+            if (curveFamily is null) pendingCurveFamily = null;
             pendingFitUm = pendingDeviationUm = pendingShiftUm = null;
             pendingFitAboveLimit = null;
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
-            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames));
+            events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames, family));
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -169,8 +175,8 @@ public sealed class AuthoringSession : IDisposable
     public byte[] Open(byte[] source, string operationId, bool acceptIdInsertion) => Run("open", () => OpenCore(source, operationId, acceptIdInsertion), source.Length);
     public SessionDraft BeginPointGesture(string draftId, string curve, string vertexId) =>
         Run("begin", () => BeginPointGestureCore(draftId, curve, vertexId));
-    public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double aftMeters) =>
-        Run("update", () => UpdatePointGestureCore(draftId, generation, spanMeters, aftMeters), 2 * sizeof(double), generation);
+    public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double ordinate) =>
+        Run("update", () => UpdatePointGestureCore(draftId, generation, spanMeters, ordinate), 2 * sizeof(double), generation);
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: command is PointCommand.SetTangent ? "tangent-kind" : "point-type");
     public ProfileView ProfileAt(int assignmentIndex) => Run("profile", () => ProfileAtCore(assignmentIndex));
@@ -325,7 +331,7 @@ public sealed class AuthoringSession : IDisposable
             var rail = parsed.Definition!.Curves[curve];
             int index = Array.IndexOf(rail.Ids, vertexId);
             Guard.Require(index >= 0, "DSL-TARGET");
-            var point = (curve == "leading" ? Planform.View(CurrentBytes, "Accepted", 0).Leading : Planform.View(CurrentBytes, "Accepted", 0).Trailing).Points[index];
+            var point = Channels.View(CurrentBytes, curve, "Accepted", 0).Points[index];
             Guard.Require(point.Freedom != PointFreedom.Fixed, "DSL-LOCK");
             RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, "cfdw-cv/2", parsed.SurfaceHash!, curve, vertexId), toleratesBudget: false);
             retiredDraftIds.Add(draftId);
@@ -335,54 +341,54 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
-    private GestureFrame UpdatePointGestureCore(string draftId, long generation, double spanMeters, double aftMeters)
+    private GestureFrame UpdatePointGestureCore(string draftId, long generation, double spanMeters, double ordinate)
     {
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft?.Id == draftId && draft.Generation == generation && gestureDraftId == draftId, "DSL-CONFLICT");
-            var initial = Planform.View(BaseBytes(draft!.Base), "Accepted", 0);
-            var rail = draft.Rail == "leading" ? initial.Leading : initial.Trailing;
+            var rail = Channels.View(BaseBytes(draft!.Base), draft.Rail, "Accepted", 0);
             int grabbed = rail.Points.ToList().FindIndex(point => point.Id == draft.VertexId);
             Guard.Require(grabbed >= 0, "DSL-TARGET");
             var selected = rail.Points[grabbed];
             GestureFrame LastFrame()
             {
-                var currentView = Planform.View(draft.Bytes, "Draft", draft.Generation);
-                var currentPoint = (draft.Rail == "leading" ? currentView.Leading : currentView.Trailing).Points[grabbed];
-                return new(Copy(draft), currentPoint.SpanMeters, currentPoint.AftMeters, [], true);
+                var currentPoint = Channels.View(draft.Bytes, draft.Rail, "Draft", draft.Generation).Points[grabbed];
+                return new(Copy(draft), currentPoint.SpanMeters, currentPoint.Ordinate, [], true);
             }
-            if (!double.IsFinite(spanMeters) || !double.IsFinite(aftMeters))
+            if (!double.IsFinite(spanMeters) || !double.IsFinite(ordinate))
                 return LastFrame();
-            if (selected.Freedom is PointFreedom.Fixed or PointFreedom.AftOnly) spanMeters = selected.SpanMeters;
-            if (selected.Freedom == PointFreedom.SpanOnly) aftMeters = selected.AftMeters;
-            double halfSpan = initial.HalfSpanMeters;
+            if (selected.Freedom == PointFreedom.Fixed) { spanMeters = selected.SpanMeters; ordinate = selected.Ordinate; }
+            else if (selected.Freedom == PointFreedom.ValueOnly) spanMeters = selected.SpanMeters;
+            else if (selected.Freedom == PointFreedom.SpanOnly) ordinate = selected.Ordinate;
+            double halfSpan = rail.Points[^1].SpanMeters / rail.Points[^1].Eta;
             double rawEta = (spanMeters - selected.SpanMeters) / halfSpan;
-            double rawAft = (aftMeters - selected.AftMeters) * 1e6;
-            if (!double.IsFinite(rawEta) || !double.IsFinite(rawAft)) return LastFrame();
+            double rawOrdinate = ordinate - selected.Ordinate;
             double deltaEta = Math.Round(rawEta, 7, MidpointRounding.ToEven);
-            double deltaAft = Math.Round(rawAft, 0, MidpointRounding.ToEven) / 1e6;
+            double deltaOrdinate = QuantizedOrdinate(draft.Rail, rawOrdinate);
+            // Scale overflow (double.MaxValue × the quantum) is the same refusal as a non-finite request.
+            if (!double.IsFinite(deltaEta) || !double.IsFinite(deltaOrdinate)) return LastFrame();
             var moved = new Dictionary<int, (double Eta, double Aft)>();
             void Add(int index, double eta, double aft) => moved[index] = (eta, aft);
-            Add(grabbed, selected.Eta + deltaEta, selected.AftMeters + deltaAft);
+            Add(grabbed, selected.Eta + deltaEta, selected.Ordinate + deltaOrdinate);
             if (selected.Role == PointRole.Anchor)
             {
                 foreach (int index in new[] { grabbed - 1, grabbed + 1 })
-                    Add(index, rail.Points[index].Eta + deltaEta, rail.Points[index].AftMeters + deltaAft);
+                    Add(index, rail.Points[index].Eta + deltaEta, rail.Points[index].Ordinate + deltaOrdinate);
             }
-            else if (selected.Role == PointRole.RootEnd && draft.Rail == "trailing" && selected.Locks.Contains("root_mirror"))
-                Add(1, rail.Points[1].Eta, rail.Points[1].AftMeters + deltaAft);
+            else if (selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
+                Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + deltaOrdinate);
             else if (selected.Role == PointRole.AnchorHandle)
             {
                 int anchor = rail.Points.ToList().FindIndex(point => point.Id == selected.AnchorId);
                 int opposite = 2 * anchor - grabbed;
                 var a = rail.Points[anchor]; var h = moved[grabbed]; var old = rail.Points[opposite];
                 if (a.Kind == TangentKind.Symmetric)
-                    Add(opposite, 2 * a.Eta - h.Eta, 2 * a.AftMeters - h.Aft);
+                    Add(opposite, 2 * a.Eta - h.Eta, 2 * a.Ordinate - h.Aft);
                 else if (a.Kind == TangentKind.Smooth)
                 {
                     double ratio = (old.Eta - a.Eta) / (h.Eta - a.Eta);
-                    Add(opposite, old.Eta, a.AftMeters + ratio * (h.Aft - a.AftMeters));
+                    Add(opposite, old.Eta, a.Ordinate + ratio * (h.Aft - a.Ordinate));
                 }
             }
             bool clamped = false;
@@ -407,17 +413,17 @@ public sealed class AuthoringSession : IDisposable
                         Math.Min(bounds.Max, 2 * a.Eta - other.Min));
                 }
                 if (bounds.Min > bounds.Max)
-                    return new(Copy(draft), selected.SpanMeters, selected.AftMeters, [], true);
+                    return new(Copy(draft), selected.SpanMeters, selected.Ordinate, [], true);
                 double eta = Math.Clamp(moved[grabbed].Eta, bounds.Min, bounds.Max);
                 clamped = eta != moved[grabbed].Eta;
                 moved[grabbed] = (eta, moved[grabbed].Aft);
                 if (a.Kind == TangentKind.Symmetric)
-                    moved[opposite] = (2 * a.Eta - eta, 2 * a.AftMeters - moved[grabbed].Aft);
+                    moved[opposite] = (2 * a.Eta - eta, 2 * a.Ordinate - moved[grabbed].Aft);
                 else if (a.Kind == TangentKind.Smooth)
                 {
-                    double slope = (moved[grabbed].Aft - a.AftMeters) / (eta - a.Eta);
+                    double slope = (moved[grabbed].Aft - a.Ordinate) / (eta - a.Eta);
                     moved[opposite] = (rail.Points[opposite].Eta,
-                        a.AftMeters + slope * (rail.Points[opposite].Eta - a.Eta));
+                        a.Ordinate + slope * (rail.Points[opposite].Eta - a.Eta));
                 }
             }
             else
@@ -436,10 +442,20 @@ public sealed class AuthoringSession : IDisposable
                         shiftMax = Math.Min(shiftMax, rail.Points[index + 1].Eta - gap - target.Eta);
                     }
                 }
-                if (shiftMin > shiftMax) return new(Copy(draft), selected.SpanMeters, selected.AftMeters, [], true);
+                if (shiftMin > shiftMax) return new(Copy(draft), selected.SpanMeters, selected.Ordinate, [], true);
                 double shift = Math.Clamp(0, shiftMin, shiftMax);
                 if (shift != 0) clamped = true;
                 foreach (int index in moved.Keys.ToArray()) moved[index] = (moved[index].Eta + shift, moved[index].Aft);
+            }
+            var unit = Channels.Unit(draft.Rail);
+            if (unit.DomainLower is double lower && unit.DomainUpper is double upper)
+            {
+                foreach (int index in moved.Keys.ToArray())
+                {
+                    double next = ClampGrowing(rail.Points[index].Ordinate, moved[index].Aft, lower, upper);
+                    if (next != moved[index].Aft) clamped = true;
+                    moved[index] = (moved[index].Eta, next);
+                }
             }
             var baseParsed = ParseOwned(BaseBytes(draft.Base));
             byte[] patched = PatchGesture(baseParsed, draft.Rail, moved);
@@ -450,6 +466,21 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
+    private static double QuantizedOrdinate(string curve, double delta)
+    {
+        double scale = curve == "twist" ? 1e5 : curve == "thickness" ? 1e7 : 1e6;
+        return Math.Round(delta * scale, 0, MidpointRounding.ToEven) / scale;
+    }
+
+    private static double ClampGrowing(double original, double proposed, double lower, double upper)
+    {
+        if (proposed >= lower && proposed <= upper) return proposed;
+        if (original >= lower && original <= upper) return proposed > upper ? upper : lower;
+        if (original > upper) return proposed > original ? original : proposed;
+        if (original < lower) return proposed < original ? original : proposed;
+        return proposed;
+    }
+
     internal static byte[] PatchGesture(SourceParse parsed, string curveName, IReadOnlyDictionary<int, (double Eta, double Aft)> moved)
     {
         var definition = parsed.Definition!; var curve = definition.Curves[curveName];
@@ -458,7 +489,8 @@ public sealed class AuthoringSession : IDisposable
         foreach (var (index, value) in moved)
         {
             edits.Add((curve.Abscissae[index].Start, curve.Abscissae[index].End, FoilSource.ExactDecimal(value.Eta)));
-            edits.Add((curve.Ordinates[index].Start, curve.Ordinates[index].End, FoilSource.ExactDecimal(value.Aft, definition.UnitScale)));
+            int scale = curveName is "twist" or "thickness" ? 0 : definition.UnitScale;
+            edits.Add((curve.Ordinates[index].Start, curve.Ordinates[index].End, FoilSource.ExactDecimal(value.Aft, scale)));
         }
         foreach (var edit in edits.OrderByDescending(edit => edit.Start)) text = text[..edit.Start] + edit.Value + text[edit.End..];
         byte[] result = FoilSource.Utf8.GetBytes(text);
@@ -977,6 +1009,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(!closed, "DOC-CLOSED");
             NativeProject.Uuid(operationId);
             Guard.Require(command is not null && PointModel.EditableCurves.Contains(command.Curve), "DSL-TARGET");
+            pendingCurveFamily = Channels.Family(command!.Curve);
             bool replay = operations.ContainsKey(operationId);
             Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
             var priorOperation = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId) : null;
@@ -1017,25 +1050,44 @@ public sealed class AuthoringSession : IDisposable
 
     private static double MaxPointDelta(byte[] before, byte[] after, string curve)
     {
-        var first = Planform.View(before, "Accepted", 0);
-        var second = Planform.View(after, "Accepted", 0);
+        if (curve is "dihedral" or "twist" or "thickness")
+        {
+            var first = Channels.View(before, curve, "Accepted", 0);
+            var second = Channels.View(after, curve, "Accepted", 0);
+            double channel = 0;
+            for (int step = 0; step <= 200; step++)
+            {
+                double eta = step / 200d;
+                channel = Math.Max(channel, Math.Abs(SampleOrdinate(second, eta) - SampleOrdinate(first, eta)));
+            }
+            return channel;
+        }
+        var leading = Planform.View(before, "Accepted", 0);
+        var trailing = Planform.View(after, "Accepted", 0);
         double max = 0;
         for (int step = 0; step <= 200; step++)
         {
             double eta = step / 200d;
-            var a = Planform.Probe(first, eta);
-            var b = Planform.Probe(second, eta);
+            var a = Planform.Probe(leading, eta);
+            var b = Planform.Probe(trailing, eta);
             max = Math.Max(max, Math.Abs(curve == "leading" ? b.LeadingAftMeters - a.LeadingAftMeters : b.TrailingAftMeters - a.TrailingAftMeters));
         }
         return max;
+    }
+
+    private static double SampleOrdinate(CurveView curve, double eta)
+    {
+        var points = new double[curve.Points.Count][];
+        for (int index = 0; index < points.Length; index++)
+            points[index] = [curve.Points[index].Eta, curve.Points[index].Ordinate];
+        return ChannelEvaluator.Value(curve.Knots as double[] ?? curve.Knots.ToArray(), 3, points, eta);
     }
 
     private static byte[] EvaluatePointCommand(SourceParse parsed, PointCommand command, int index)
     {
         var definition = parsed.Definition!;
         var original = definition.Curves[command.Curve];
-        var view = Planform.View(parsed.Source, "Accepted", 0);
-        var point = (command.Curve == "leading" ? view.Leading : view.Trailing).Points[index];
+        var point = Channels.View(parsed.Source, command.Curve, "Accepted", 0).Points[index];
         Curve changed = command switch
         {
             PointCommand.MakeAnchor => MakeAnchor(original, index, point),
@@ -1108,7 +1160,7 @@ public sealed class AuthoringSession : IDisposable
         var sample = SplineBasis.Evaluate(knots, 3, knot);
         double aft = 0;
         for (int i = 0; i < points.Length; i++) aft += sample.N[i] * points[i][1];
-        double shift = point.AftMeters - aft;
+        double shift = point.Ordinate - aft;
         for (int i = anchor - 1; i <= anchor + 1; i++) points[i][1] += shift;
         for (int i = 1; i < points.Length; i++)
             Guard.Require((points[i][0] - points[i - 1][0]) * 1 >= 1e-7 - 1e-12, "DSL-CURVE");
@@ -1182,12 +1234,14 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(assessment.Owner == authorityId && assessment.Certificate!.SourceHash == key.SourceHash &&
                 assessment.Certificate.SurfaceHash == key.SurfaceHash && assessment.Key == key, "DSL-CONFLICT");
             bool gesture = gestureDraftId == draft.Id;
+            string? family = Channels.Family(draft.Curve ?? draft.Rail);
+            pendingCurveFamily = family;
             string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null;
-            if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames); gestureDraftId = null; gestureFrames = 0; }
+            if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
     }
-    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames); gestureDraftId = null; gestureFrames = 0; } } }
+    private void CancelCore(string draftId) { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT"); string? family = gestureDraftId == draftId ? Channels.Family(draft!.Rail) : null; draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; } } }
     private string UndoCore(string operationId) => Move(operationId, false);
     private string RedoCore(string operationId) => Move(operationId, true);
     string Move(string op, bool forward)
@@ -1397,7 +1451,7 @@ public static class NativeProject
     }
     static bool EditTarget(Definition definition, string channel, string vertexId) => channel switch
     {
-        "leading" or "trailing" => definition.Curves[channel].Ids.Contains(vertexId),
+        "leading" or "trailing" or "dihedral" or "twist" or "thickness" => definition.Curves[channel].Ids.Contains(vertexId),
         "upper" or "lower" => definition.Profiles.Any(profile => (channel == "upper" ? profile.Upper : profile.Lower).Ids.Contains(vertexId)),
         _ => false
     };
@@ -1410,7 +1464,7 @@ public static class NativeProject
     // only the parent is guaranteed to hold it. Fair renumbers neither, so both must.
     static bool EditReference(Definition child, Definition parent, EditReceipt edit) => edit.Rail switch
     {
-        "leading" or "trailing" or "upper" or "lower" => edit.Curve is null && edit.Rule is null && EditTarget(child, edit.Rail, edit.VertexId) && EditTarget(parent, edit.Rail, edit.VertexId),
+        "leading" or "trailing" or "dihedral" or "twist" or "thickness" or "upper" or "lower" => edit.Curve is null && edit.Rule is null && EditTarget(child, edit.Rail, edit.VertexId) && EditTarget(parent, edit.Rail, edit.VertexId),
         "insert" => edit.Curve is null && edit.Rule is null && ProfileHas(child, edit.VertexId),
         "delete" or "rebuild" => edit.Curve is null && edit.Rule is null && ProfileHas(parent, edit.VertexId),
         "fair" => edit.Curve is null && edit.Rule is null && ProfileHas(child, edit.VertexId) && ProfileHas(parent, edit.VertexId),
