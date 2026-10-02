@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T20:18:29Z",
+  "generated": "2026-10-02T20:22:06Z",
   "audit": [
     {
       "actor": null,
@@ -21869,6 +21869,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-02T20:17:38Z",
+      "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3Z4G05N2379Y11PFVNG3EWW",
+      "shortname": "join-m12b2-vw1",
+      "datetime": "2026-10-02T20:22:06Z",
+      "session": "f19a2b12",
+      "prompt": "the join of the resolved merge into feature/ui-cad-direction",
+      "summary": "VW1 (Opus 5.5): ViewCamera, mesh channel with monotonic ticket, Skia renderer, Plan+3D and four-view layouts, --views; 40/41 (samples-tab retirement deferred); shading tokens; honest render checks; Desktop --readiness tier wired with a check-docs control. Operator approved natively. Join fix: NS-1 Tab check ignores model-area view labels. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T20:21:15Z",
       "duration_seconds": 51.0
     }
   ],
