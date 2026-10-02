@@ -27,7 +27,7 @@
       <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
   </UserControl.Styles>
-  <Grid RowDefinitions="Auto,Auto,*">
+  <Grid RowDefinitions="Auto,*">
     <!-- Alert Band -->
     <Border Grid.Row="0" x:Name="AlertBand" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceSoftBrush}"
             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
@@ -47,14 +47,8 @@
       </StackPanel>
     </Border>
 
-    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="{StaticResource Space2}">
-      <TextBlock x:Name="StatusText" IsVisible="False" AutomationProperties.LiveSetting="Polite"
-                 TextWrapping="Wrap" VerticalAlignment="Center" />
-      <Button x:Name="StatusTryAgainButton" Content="Try again" IsVisible="False" />
-    </StackPanel>
-
-    <!-- Main Content Area -->
-    <Grid Grid.Row="2" x:Name="ModelRoot">
+    <!-- Main Content Area. Reports go to the shell's status strip (DR-STATUS-1); the model area has no status line. -->
+    <Grid Grid.Row="1" x:Name="ModelRoot">
       <!-- Start View (shown when no foil is open) -->
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
 
@@ -190,6 +184,20 @@
 
           <local:SectionEditorView x:Name="SectionEditor" />
       </Grid>
+
+      <!-- The warning toast (DESIGN.md §4 Toast): last child, so it draws over the views at the model area's bottom-right
+           and never over the Properties dock or the strip. Not a live region: the strip speaks its text. -->
+      <Border x:Name="WarningToast" Classes="toast" IsVisible="False" AutomationProperties.Name="Warning">
+        <Grid ColumnDefinitions="Auto,*">
+          <Border Grid.Column="0" Classes="toast-rail" Width="{StaticResource RailWidth}" />
+          <Grid Grid.Column="1" ColumnDefinitions="Auto,*,Auto" Margin="{StaticResource ToastPadding}">
+            <Path x:Name="ToastIcon" Grid.Column="0" Classes="status-icon warning toast-icon" AutomationProperties.AccessibilityView="Raw" />
+            <TextBlock x:Name="ToastText" Grid.Column="1" Margin="{StaticResource ToastTextGap}" />
+            <Button x:Name="ToastDismissButton" Grid.Column="2" Classes="toast-dismiss" Content="×"
+                    AutomationProperties.Name="Dismiss" ToolTip.Tip="Dismiss" />
+          </Grid>
+        </Grid>
+      </Border>
     </Grid>
   </Grid>
 </UserControl>

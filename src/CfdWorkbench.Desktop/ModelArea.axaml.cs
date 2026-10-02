@@ -23,6 +23,7 @@ public partial class ModelArea : UserControl
         InitializeComponent();
 
         DismissAlertBandButton.Click += (_, _) => AlertBand.IsVisible = false;
+        WireToast();
         PlanCanvas.RenderFailed += _ =>
         {
             Dispatcher.UIThread.Post(() =>
@@ -250,11 +251,99 @@ public partial class ModelArea : UserControl
         }, DispatcherPriority.Input);
     }
 
-    public void ShowStatus(string message)
+    // ---------------- warning toast (DR-STATUS-1; DESIGN.md §4 Toast; docs/reviews/ui-status-bar.md §2.4) ----------------
+    // simplify: one toast slot owned by the model area; upgrade to a shell-level toast host only if a second document type
+    // needs warnings.
+
+    private readonly DispatcherTimer toastHold = new();
+    private bool toastHovered;
+
+    /// <summary>How long a toast stays (motion.toast-hold, 8000 ms); a check sets it short.</summary>
+    public TimeSpan ToastHold
     {
-        StatusText.Text = message;
-        StatusText.IsVisible = true;
+        get => toastHold.Interval;
+        set => toastHold.Interval = value;
     }
+
+    public bool ToastOpen => WarningToast.IsVisible;
+
+    /// <summary>Where Esc inside the toast returns focus: the element that had focus before focus entered the toast.</summary>
+    public IInputElement? ToastReturnFocus { get; set; }
+
+    private void WireToast()
+    {
+        ToastHold = TimeSpan.FromMilliseconds(Token("ToastHoldMilliseconds", 8000));
+        ToastIcon.Data = Avalonia.Media.Geometry.Parse(Shell.StatusStrip.IconWarning);
+        toastHold.Tick += (_, _) => CloseToast();
+        ToastDismissButton.Click += (_, _) => CloseToast();
+        WarningToast.PointerEntered += (_, _) => { toastHovered = true; UpdateToastHold(); };
+        WarningToast.PointerExited += (_, _) => { toastHovered = false; UpdateToastHold(); };
+        WarningToast.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == IsKeyboardFocusWithinProperty) UpdateToastHold();
+        };
+        WarningToast.AddHandler(KeyDownEvent, (_, args) =>
+        {
+            if (args.Key != Key.Escape) return;
+            args.Handled = true;
+            CloseToast();
+        });
+        ModelRoot.SizeChanged += (_, _) => FitToast();
+    }
+
+    /// <summary>
+    /// Opens the toast, or replaces its text and restarts the hold when one is open (one at a time). It takes no focus:
+    /// focus stays in the field or view that made the change.
+    /// </summary>
+    public void ShowToast(string text)
+    {
+        if (!WarningToast.IsVisible)
+            ToastReturnFocus = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
+        ToastText.Text = text;
+        FitToast();
+        WarningToast.IsVisible = true;
+        toastHold.Stop();
+        UpdateToastHold();
+    }
+
+    /// <summary>Closes the toast; with focus inside it, focus returns where it came from.</summary>
+    public void CloseToast()
+    {
+        if (!WarningToast.IsVisible) return;
+        bool focusInside = WarningToast.IsKeyboardFocusWithin;
+        toastHold.Stop();
+        toastHovered = false;
+        WarningToast.IsVisible = false;
+        if (!focusInside) return;
+        if (ToastReturnFocus is Control { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } origin && origin.Focus()) return;
+        PlanCanvas.Focus();
+    }
+
+    // The hold runs only while the pointer is off the toast and focus is outside it; leaving restarts it in full.
+    private void UpdateToastHold()
+    {
+        bool paused = toastHovered || WarningToast.IsKeyboardFocusWithin;
+        if (!WarningToast.IsVisible || paused) toastHold.Stop();
+        else if (!toastHold.IsEnabled) toastHold.Start();
+    }
+
+    // Width {spacing.toast-w} or the model area less 2 × {spacing.toast-inset}, whichever is smaller.
+    private void FitToast()
+    {
+        double room = ModelRoot.Bounds.Width > 0
+            ? ModelRoot.Bounds.Width - WarningToast.Margin.Left - WarningToast.Margin.Right : double.PositiveInfinity;
+        WarningToast.Width = Math.Max(0, Math.Min(Token("ToastWidth", 420), room));
+    }
+
+    /// <summary>DN-5: the toast's prop type scales with Text size, as the strip's does.</summary>
+    public void ApplyTextScale(double scale)
+    {
+        foreach (var key in new[] { "PropFontSize", "PropLineHeight" })
+            WarningToast.Resources[key] = Token(key, 0) * scale;
+    }
+
+    private static double Token(string key, double fallback) =>
+        Application.Current?.TryFindResource(key, out var value) == true && value is double number ? number : fallback;
 
     public void HideAlertBand()
     {

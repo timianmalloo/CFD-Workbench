@@ -8,6 +8,27 @@ public static class ControllerShellTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport", () =>
+        {
+            // STATUS-CLOBBER at the strip (docs/reviews/ui-status-bar.md §2.3): a report the strip shows from outside the
+            // controller while sampling runs (a Properties report) supersedes the sampling placeholder, so the completion does
+            // not replace it. The shell's sink does exactly this for every such report.
+            using var controller = new WorkbenchController();
+            controller.OpenExampleAsync().GetAwaiter().GetResult();
+            var point = controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
+            controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)).GetAwaiter().GetResult();
+            Require(controller.Status.StartsWith("Sampling accepted geometry", StringComparison.Ordinal),
+                "setup: sampling finished before the report: " + controller.Status);
+            dynamic strip = controller;   // by name, so the check ran red before the API existed
+            strip.SupersedeStatus();
+            long shown = (long)strip.StatusVersion;
+            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+            while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
+            Require(controller.Provenance == "accepted", "sampling did not finish: " + controller.Provenance);
+            Require((long)strip.StatusVersion == shown && !controller.Status.StartsWith("Accepted η", StringComparison.Ordinal),
+                $"the sampling completion replaced the newer report: '{controller.Status}'");
+        });
+
         DesktopChecks.Check("ApplySpan_EdgesCross_Refused", () =>
         {
             using var controller = new WorkbenchController();

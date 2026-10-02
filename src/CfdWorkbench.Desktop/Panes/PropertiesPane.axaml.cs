@@ -134,13 +134,18 @@ public partial class PropertiesPane : UserControl
         }
 
         AddHandler(KeyDownEvent, OnPaneKeyDown, RoutingStrategies.Bubble);
+        AddHandler(KeyDownEvent, OnShiftTabFromFirstValue, RoutingStrategies.Tunnel);
         // PG-25: a row the pointer chose is the Copy target only until focus moves.
         AddHandler(GotFocusEvent, (_, _) => copyTarget = null, RoutingStrategies.Bubble, handledEventsToo: true);
         SizeChanged += (_, _) => FitToPane();
     }
 
-    /// <summary>Every announcement the pane makes: an error (assertive) once per failed commit, a report (polite).</summary>
-    public event Action<string, AutomationLiveSetting>? Announced;
+    /// <summary>
+    /// Every report the pane makes for the status strip (DR-STATUS-1): type, kind, nudge value, echoes, the chord fit
+    /// warning, the angle-run stop, a dropped pending value, "Selected …" and estimate availability. A field error is not
+    /// reported: it stays under its field, where its assertive message line speaks it.
+    /// </summary>
+    public event Action<StatusReport>? Reported;
 
     /// <summary>Where the Copy command writes; null writes to the window's clipboard.</summary>
     public Func<string, Task>? ClipboardWriter { get; set; }
@@ -149,6 +154,23 @@ public partial class PropertiesPane : UserControl
     public double TextScale => textScale;
 
     public void FocusTypeValue() => PointSpanInput.Focus();
+
+    // DR-NAV-1: the pane's first value is where Tab from a selected Plan point lands (Type for a point), and the one value
+    // Shift+Tab leaves to go back to that point.
+    private Control? FirstValue() => this.GetVisualDescendants().OfType<InputElement>()
+        .FirstOrDefault(item => item is TextBox or ComboBox && item.Focusable && item.IsEffectivelyVisible && item.IsEffectivelyEnabled) as Control;
+
+    /// <summary>DR-NAV-1: focuses the pane's first value, as Tab from a selected Plan point does.</summary>
+    public bool FocusFirstValue() => FirstValue() is { } value && value.Focus(NavigationMethod.Tab);
+
+    // The pane sees Shift+Tab before its first value does, and asks the Plan to focus the selected point again.
+    private void OnShiftTabFromFirstValue(object? sender, KeyEventArgs e)
+    {
+        if (e.Handled || e.Key != Key.Tab || !e.KeyModifiers.HasFlag(KeyModifiers.Shift)) return;
+        if (boundController?.Selection is not Selection.Points) return;
+        if (!ReferenceEquals(TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement(), FirstValue())) return;
+        if (this.FindAncestorOfType<ShellHost>()?.ModelView.PlanCanvas.FocusSelectedPoint() == true) e.Handled = true;
+    }
 
     public void ShowRenderFailure(bool foilOpen)
     {
@@ -268,9 +290,9 @@ public partial class PropertiesPane : UserControl
             RecoveryBanner.IsVisible = recovery;
             if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
             shownModel = model;
-            // COPY-160: a change in availability is announced once on the status line, never on a re-render.
+            // COPY-160: a change in availability is reported once in the status strip, never on a re-render.
             if (model.AvailabilityStatus != lastAvailability && model.AvailabilityStatus is { } availability)
-                Announced?.Invoke(availability, AutomationLiveSetting.Polite);
+                Reported?.Invoke(new StatusReport(availability));
             lastAvailability = model.AvailabilityStatus;
 
             var used = new HashSet<Control>();
@@ -474,8 +496,8 @@ public partial class PropertiesPane : UserControl
         view.Row = row;
         view.Label.Text = row.Label;
         bool hasError = errors.TryGetValue(row.Key, out var error);
-        var message = hasError ? new RowMessage(error.Error, MessageKind.Error)
-            : messages.GetValueOrDefault(row.Key) ?? row.Message;
+        var held = messages.GetValueOrDefault(row.Key);
+        var message = hasError ? new RowMessage(error.Error, MessageKind.Error) : held ?? row.Message;
         var state = hasError ? RowState.Error
             : message?.Kind == MessageKind.Warning && row.State == RowState.Normal ? RowState.Warning
             : row.State;
@@ -483,7 +505,11 @@ public partial class PropertiesPane : UserControl
         view.Root.Classes.Set("error", state == RowState.Error);
         view.Root.Classes.Set("unavailable", state == RowState.Unavailable);
         view.Description.Text = row.Description ?? "";
-        ShowMessage(view, message);
+        // DR-STATUS-1: a commit warning's report is in the status strip; the row keeps its warning state only — the rail
+        // and an icon whose tooltip (and the field's help text) carry the report.
+        bool stateOnly = !hasError && held?.Kind == MessageKind.Warning;
+        ShowMessage(view, stateOnly ? null : message);
+        ShowStateIcon(view, stateOnly ? held!.Text : null);
         bool showUnit = row.State is not (RowState.Mixed or RowState.Unavailable);
         view.Unit.Text = showUnit ? row.Unit ?? "" : "";
 
@@ -527,6 +553,28 @@ public partial class PropertiesPane : UserControl
         if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
         if (run?.Box == box) return;            // a field run owns its text
         if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
+    }
+
+    /// <summary>The inline warning icon beside the value (the mockup's state-only row); null hides it.</summary>
+    private static void ShowStateIcon(RowView view, string? report)
+    {
+        if (report is null && view.StateIcon is null) return;
+        if (view.StateIcon is null)
+        {
+            var icon = new Path { Name = Part("StateIcon", view.Row.Key), Data = Avalonia.Media.Geometry.Parse(IconWarning),
+                HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+            icon.Classes.Add("prop-icon");
+            icon.Classes.Add("warning");
+            // Decoration for assistive technology: the field's help text carries the report.
+            AutomationProperties.SetAccessibilityView(icon, AccessibilityView.Raw);
+            view.Grid.Children.Add(icon);
+            view.StateIcon = icon;
+        }
+        var stateIcon = view.StateIcon;
+        stateIcon.IsVisible = report is not null;
+        ToolTip.SetTip(stateIcon, report);
+        Grid.SetRow(stateIcon, Grid.GetRow(view.Cell));
+        Grid.SetColumn(stateIcon, 0);
     }
 
     private static void ShowMessage(RowView view, RowMessage? message)
@@ -1074,11 +1122,14 @@ public partial class PropertiesPane : UserControl
             errors.Remove(row.Key);
             bool aboveLimit = committed.Report.Contains("above the limit", StringComparison.Ordinal);
             string? echo = parsed ? UnitEntry.Echo(text, entry with { Value = CommittedWingValue(row.Key, entry.Value) }, "mm") : null;
+            // DR-STATUS-1 / DR-STATUS-3: the fit warning goes to the strip and the toast, the row keeps its state; an echo
+            // goes to the strip.
             if (aboveLimit) messages[row.Key] = new RowMessage(committed.Report, MessageKind.Warning);
-            else if (echo is not null) messages[row.Key] = new RowMessage(echo, MessageKind.Echo);
             else messages.Remove(row.Key);
             shown[box] = box.Text ?? "";
             Bind(controller);
+            if (aboveLimit) Reported?.Invoke(new StatusReport(committed.Report, ReportKind.Warning, Toast: true));
+            else if (echo is not null) Reported?.Invoke(new StatusReport(echo));
             return true;
         }
         string code = ((CommitOutcome.Refused)outcome).Code;
@@ -1149,9 +1200,10 @@ public partial class PropertiesPane : UserControl
         {
             case GestureOutcome.Committed:
                 foreach (var key in new[] { view.Row.Key, "p:from", "p:aft" }) { errors.Remove(key); messages.Remove(key); }
-                foreach (var (key, echo) in echoes) messages[key] = new RowMessage(echo, MessageKind.Echo);
                 MarkShown(view.Row.Key is "p:from" or "p:aft" ? ["p:from", "p:aft"] : [view.Row.Key]);
                 Bind(controller);
+                // DR-STATUS-3: unit and expression echoes go to the strip, not under the field.
+                if (echoes.Count > 0) Reported?.Invoke(new StatusReport(string.Join(" ", echoes.Values)));
                 return true;
             case GestureOutcome.Refused refused:
                 return Refuse(view, box, refused.Copy);
@@ -1194,7 +1246,6 @@ public partial class PropertiesPane : UserControl
         SetError(box, true);
         UpdateDirty(box);
         AutomationProperties.SetHelpText(box, HelpText(view));
-        Announced?.Invoke(message, AutomationLiveSetting.Assertive);
         return false;
     }
 
@@ -1237,7 +1288,7 @@ public partial class PropertiesPane : UserControl
         double next = Math.Round(active.Value + direction * step, 6);
         if (view.Row.AngleBounded && Math.Abs(next) >= 90)
         {
-            StopsHere(view);
+            StopsHere();
             return;
         }
         var destination = RunTarget(active, next);
@@ -1250,19 +1301,15 @@ public partial class PropertiesPane : UserControl
             // that never got past the bound changes nothing and makes no undo row.
             controller.UpdateGesture(active.Accepted.Span, active.Accepted.Aft);
             controller.FlushGestureFrame();
-            StopsHere(view);
+            StopsHere();
             return;
         }
         run = active with { Value = reached, Accepted = destination };
         SetShown(box, Quantity.ForField(Quantity.Typed(reached)));
     }
 
-    /// <summary>MC-23: a run held at the angle bound stops there and says so (COPY-170).</summary>
-    private void StopsHere(RowView view)
-    {
-        messages[view.Row.Key] = new RowMessage(PropertyCopy.AngleRunStops, MessageKind.Warning);
-        ShowMessage(view, messages[view.Row.Key]);
-    }
+    /// <summary>MC-23: a run held at the angle bound stops there and says so (COPY-170) in the strip; a gesture warning never toasts.</summary>
+    private void StopsHere() => Reported?.Invoke(new StatusReport(PropertyCopy.AngleRunStops, ReportKind.Warning));
 
     private (double Span, double Aft) RunTarget(NudgeRun active, double value)
     {
@@ -1304,18 +1351,19 @@ public partial class PropertiesPane : UserControl
             PumpUi(task);
         }
         var row = active.View.Row;
+        string? report = null;
         if (task.IsCompletedSuccessfully && task.Result is GestureOutcome.Committed)
         {
-            // PG-08: the new value is announced once, politely, on release.
+            // PG-08: the new value is reported once, in the strip, on release.
             string value = Quantity.Typed(controller.Planform is { } plan && ReadValue(row, plan) is { } now ? now : active.Value);
-            string report = $"{row.Label} {(row.Unit == "°" ? value + "°" : value + " " + row.Unit)}.";
-            messages[row.Key] = new RowMessage(report, MessageKind.Report);
-            Announced?.Invoke(report, AutomationLiveSetting.Polite);
+            report = $"{row.Label} {(row.Unit == "°" ? value + "°" : value + " " + row.Unit)}.";
+            messages.Remove(row.Key);
         }
         else if (reason == GestureEnd.Escape)
             messages.Remove(row.Key);
         shown.Remove(active.Box);
         Bind(controller);
+        if (report is not null) Reported?.Invoke(new StatusReport(report));
     }
 
     private sealed record NudgeRun(RowView View, TextBox Box, PointRef Target, PlanformView Plan, double Origin, double Value,
@@ -1408,8 +1456,8 @@ public partial class PropertiesPane : UserControl
         field.Pending = null;   // D1 / PG-19 / DR-CELL-2: leaving the box with a staged value does not apply it
         RenderEnum(field, view, view.Row);
         ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
-        // CL-2: the drop is announced politely, so leaving is never a silent loss.
-        Announced?.Invoke($"{field.Noun} unchanged: {OptionText(view.Row, view.Row.Value)}.", AutomationLiveSetting.Polite);
+        // CL-2: the drop is reported in the strip, so leaving is never a silent loss.
+        Reported?.Invoke(new StatusReport($"{field.Noun} unchanged: {OptionText(view.Row, view.Row.Value)}."));
     }
 
     private void CommitEnum(EnumField field, RowView view, string value)
@@ -1439,8 +1487,8 @@ public partial class PropertiesPane : UserControl
             string report = value == "anchor"
                 ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The rail gained {after - before} points ({before} → {after}).{largest}"
                 : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the rail has {after} points (was {before}).{largest}";
-            messages["p:type"] = new RowMessage(report, MessageKind.Report);
-            Announced?.Invoke(report, AutomationLiveSetting.Polite);
+            messages.Remove("p:type");
+            Reported?.Invoke(new StatusReport(report));
         }
         else if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Refused refused)
             messages["p:type"] = new RowMessage(refused.Copy, MessageKind.Error);
@@ -1473,8 +1521,8 @@ public partial class PropertiesPane : UserControl
                     : PropertiesView.Find(plan, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
                         ? " Kept the handle toward the tip; the other one moved." : " Kept the handle toward the root; the other one moved.";
                 string report = $"{PropertiesView.Curves[anchor.Curve].Name} point {anchor.Index + 1} is now {kind}.{kept}";
-                messages["t:kind"] = new RowMessage(report, MessageKind.Report);
-                Announced?.Invoke(report, AutomationLiveSetting.Polite);
+                messages.Remove("t:kind");
+                Reported?.Invoke(new StatusReport(report));
             }
         }
         // Tangent_KindChange_KeepsFocusOnKindBox: the box is persistent, so a re-render leaves focus on it.
@@ -1507,7 +1555,7 @@ public partial class PropertiesPane : UserControl
             // PG-12 / PG-28: Esc on a handle selection selects its anchor or end, and says so.
             e.Handled = true;
             controller.Select(new Selection.Points([parent]));
-            Announced?.Invoke($"Selected {IdentityTitle.Text}.", AutomationLiveSetting.Polite);
+            Reported?.Invoke(new StatusReport($"Selected {IdentityTitle.Text}."));
         }
         else if (e.Key == Key.C && (e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control)) &&
                  copyTarget is { } key && rows.TryGetValue(key, out var view))
@@ -1696,6 +1744,7 @@ public partial class PropertiesPane : UserControl
         public TextBlock? Value { get; set; }
         public Path? Lock { get; set; }
         public Path? MessageIcon { get; init; }
+        public Path? StateIcon { get; set; }           // the inline warning icon of a state-only commit warning
         public required Border Rule { get; init; }     // the half-strength rule above the row, shown after another row
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }

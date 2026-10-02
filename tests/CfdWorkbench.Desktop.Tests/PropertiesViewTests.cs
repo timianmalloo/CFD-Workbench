@@ -604,8 +604,8 @@ public static class PropertiesViewTests
             Key(type, Avalonia.Input.Key.Enter);
             WaitIdle(controller, window);
             if (Reload(controller, point).Role != PointRole.Anchor) throw new InvalidOperationException("Return did not commit the type");
-            if (!Text(pane, "Message_p_type").Contains("is now an anchor point with 2 handles. The rail gained", StringComparison.Ordinal))
-                throw new InvalidOperationException("report: " + Text(pane, "Message_p_type"));
+            if (!(StatusStripTests.Text(host).Text ?? "").Contains("is now an anchor point with 2 handles. The rail gained", StringComparison.Ordinal))
+                throw new InvalidOperationException("report: " + StatusStripTests.Text(host).Text);
             controller.Undo();
             Settle(window);
             if (controller.AcceptedSource != source) throw new InvalidOperationException("the type change was not one undo row");
@@ -815,15 +815,15 @@ public static class PropertiesViewTests
             WaitIdle(controller, window);
             if (!controller.CanUndo) throw new InvalidOperationException("the typed angle was refused: " + controller.Status);
             // Hold Shift+Down until the run stops (the angle bound, or Core's ordering clamp short of it), then release.
-            for (int press = 0; press < 12 && Text(host.Properties, "Message_h_angle") != PropertyCopy.AngleRunStops; press++)
+            for (int press = 0; press < 12 && StatusStripTests.Text(host).Text != PropertyCopy.AngleRunStops; press++)
                 Key(angle, Avalonia.Input.Key.Down, KeyModifiers.Shift);
             Key(angle, Avalonia.Input.Key.Down, KeyModifiers.Shift, up: true);
             WaitIdle(controller, window);
             string source = controller.AcceptedSource;
             // A second run held at the bound shows COPY-170 and, with nothing changed, makes no undo row.
             Key(angle, Avalonia.Input.Key.Down, KeyModifiers.Shift);
-            if (Text(host.Properties, "Message_h_angle") != PropertyCopy.AngleRunStops)
-                throw new InvalidOperationException("bound line: " + Text(host.Properties, "Message_h_angle"));
+            if (StatusStripTests.Text(host).Text != PropertyCopy.AngleRunStops || StatusStripTests.Kind(host) != "warning")
+                throw new InvalidOperationException("bound report: " + StatusStripTests.Text(host).Text);
             Key(angle, Avalonia.Input.Key.Down, KeyModifiers.Shift, up: true);
             WaitIdle(controller, window);
             if (controller.AcceptedSource != source) throw new InvalidOperationException("a run held at the bound made a row");
@@ -839,6 +839,91 @@ public static class PropertiesViewTests
             Key(aft, Avalonia.Input.Key.Up);
             Settle(window);
             if (controller.Gesture != GestureState.Idle) throw new InvalidOperationException("Windows nudged");
+        });
+
+        // ---------------- the status strip (DR-STATUS-1; docs/reviews/ui-status-bar.md §2.5) ----------------
+
+        Pane("StatusStrip_TypeChange_ReportInStrip_NotInRow", (controller, host, window) =>
+        {
+            // The operator's case: the type report is in the strip and the Type row shows no message.
+            var point = Control(controller, "trailing");
+            Select(controller, window, point);
+            var type = Need<ComboBox>(host.Properties, "TypeControl");
+            type.Focus();
+            Key(type, Avalonia.Input.Key.Down);
+            Settle(window);
+            if (type.IsDropDownOpen) Key(type, Avalonia.Input.Key.Escape);
+            Key(type, Avalonia.Input.Key.Enter);
+            WaitIdle(controller, window);
+            string strip = StatusStripTests.Text(host).Text ?? "";
+            if (!strip.Contains("is now an anchor point with 2 handles. The rail gained", StringComparison.Ordinal) ||
+                Need<TextBlock>(host.Properties, "Message_p_type").IsEffectivelyVisible)
+                throw new InvalidOperationException($"strip '{strip}', row '{Text(host.Properties, "Message_p_type")}'");
+        });
+
+        Pane("StatusStrip_KindChange_ReportInStrip_NotInRow", (controller, host, window) =>
+        {
+            var anchor = MakeAnchor(controller);
+            Select(controller, window, anchor);
+            var kind = Need<ComboBox>(host.Properties, "KindControl");
+            kind.IsDropDownOpen = true;
+            kind.SelectedIndex = 1;   // a pointer pick of Symmetric in the open list
+            kind.IsDropDownOpen = false;
+            WaitIdle(controller, window);
+            string strip = StatusStripTests.Text(host).Text ?? "";
+            if (!strip.StartsWith($"Trailing edge point {anchor.Index + 1} is now Symmetric.", StringComparison.Ordinal) ||
+                Need<TextBlock>(host.Properties, "Message_t_kind").IsEffectivelyVisible)
+                throw new InvalidOperationException($"strip '{strip}', row '{Text(host.Properties, "Message_t_kind")}'");
+        });
+
+        Nudge("StatusStrip_NudgeRelease_ValueInStrip_NotInRow", (controller, host, window) =>
+        {
+            var point = Control(controller, "trailing");
+            Select(controller, window, point);
+            var aft = Need<TextBox>(host.Properties, "PointAftInput");
+            aft.Focus();
+            Key(aft, Avalonia.Input.Key.Up, KeyModifiers.Shift);
+            Key(aft, Avalonia.Input.Key.Up, KeyModifiers.Shift, up: true);
+            WaitIdle(controller, window);
+            string want = $"Aft {Quantity.TypedLength(point.AftMeters + 0.001)} mm.";
+            string strip = StatusStripTests.Text(host).Text ?? "";
+            if (strip != want || Need<TextBlock>(host.Properties, "Message_p_aft").IsEffectivelyVisible)
+                throw new InvalidOperationException($"strip '{strip}' want '{want}', row '{Text(host.Properties, "Message_p_aft")}'");
+        });
+
+        Pane("StatusStrip_FieldError_StaysAtField_StripUnchanged", (controller, host, window) =>
+        {
+            // A field error speaks assertively at its field and is not repeated in the strip.
+            Select(controller, window, Control(controller, "trailing"));
+            var seen = Changes(StatusStripTests.Text(host));
+            var aft = Need<TextBox>(host.Properties, "PointAftInput");
+            aft.Focus();
+            aft.Text = "abc";
+            Key(aft, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var line = Need<TextBlock>(host.Properties, "Message_p_aft");
+            if (line.Text != "Enter a number. Aft is unchanged." || !line.IsEffectivelyVisible ||
+                AutomationProperties.GetLiveSetting(line) != AutomationLiveSetting.Assertive)
+                throw new InvalidOperationException($"field line '{line.Text}' visible {line.IsEffectivelyVisible}");
+            if (seen.Count > 0) throw new InvalidOperationException("the strip changed: " + string.Join(" | ", seen));
+        });
+
+        Pane("StatusStrip_Refresh_DoesNotReshowOlderControllerStatus", (controller, host, window) =>
+        {
+            // §2.3 (Inferred hazard): a refresh after a pane report must not put an older controller status back over it.
+            var anchor = MakeAnchor(controller);
+            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id && point.Index > anchor.Index);
+            Select(controller, window, handle);
+            var header = Need<Expander>(host.Properties, "Group_hdl").GetVisualDescendants().OfType<ToggleButton>().First();
+            header.Focus(NavigationMethod.Tab);
+            Key(header, Avalonia.Input.Key.Escape);
+            Settle(window);
+            string selected = $"Selected Trailing edge · point {anchor.Index + 1} of {controller.Planform!.Trailing.Points.Count}.";
+            host.RefreshPanes();
+            host.RefreshPanes();
+            Settle(window);
+            string strip = StatusStripTests.Text(host).Text ?? "";
+            if (strip != selected) throw new InvalidOperationException($"strip '{strip}' (controller '{controller.Status}'), want '{selected}'");
         });
     }
 
@@ -963,7 +1048,8 @@ public static class PropertiesViewTests
 
     internal static void Pseudo(Control control, string state, bool on) => ((IPseudoClasses)control.Classes).Set(state, on);
 
-    internal static TextBlock Status(ShellHost host) => host.ModelView.FindControl<TextBlock>("StatusText")!;
+    /// <summary>The window's polite status line: the status strip's (DR-STATUS-1).</summary>
+    internal static TextBlock Status(ShellHost host) => StatusStripTests.Text(host);
 
     /// <summary>Every new text a live region takes from here on: what a screen reader would be told.</summary>
     internal static List<string> Changes(TextBlock block)
