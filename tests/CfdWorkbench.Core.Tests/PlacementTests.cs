@@ -76,22 +76,32 @@ internal static class PlacementTests
         Equal(1, hits.Length);
         Equal("Placement.cs", hits[0]);
         // The same constant spelled as an expression is the same second site. Degrees to radians is the
-        // placement rule's constant and lives in Placement.cs only. Radians to degrees is the inverse; its one
-        // use is the smooth-row angle tolerance in Geometry.cs, which is not a placement.
+        // placement rule's constant and lives in Placement.cs only, in every project of src/ (a Desktop drawing
+        // that converted a twist would be a third, unguarded composition — M1.2b2 VW1 step 0).
         Equal(Bits(Math.PI / 180), Bits(PlacementRule.RadiansPerDegree));
-        var toRadians = new Regex(@"(Math\.PI|double\.Pi)\s*/\s*180(\.0*)?(?![\d.])");
-        var toDegrees = new Regex(@"(?<![\d.])180(\.0*)?\s*/\s*(Math\.PI|double\.Pi)");
+        var toRadians = new Regex(@"(Math\.PI|double\.Pi)\s*/\s*180(\.0*)?(?![\d.])|DegreesToRadians");
+        var toDegrees = new Regex(@"(?<![\d.])180(\.0*)?\s*/\s*(Math\.PI|double\.Pi)|RadiansToDegrees");
+        string source = Path.Combine(RepoRoot(), "src");
+        string obj = Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar;
         var spellings = new List<string>();
-        foreach (string path in Directory.EnumerateFiles(Path.Combine(RepoRoot(), "src", "CfdWorkbench.Core"), "*.cs", SearchOption.AllDirectories)
-                     .Where(path => !path.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar, StringComparison.Ordinal)))
+        foreach (string path in Directory.EnumerateFiles(source, "*.cs", SearchOption.AllDirectories)
+                     .Where(path => !path.Contains(obj, StringComparison.Ordinal)))
         {
-            string file = Path.GetFileName(path)!;
-            if (file == "Placement.cs") continue;
+            string file = Path.GetRelativePath(source, path).Replace(Path.DirectorySeparatorChar, '/');
+            if (file == "CfdWorkbench.Core/Placement.cs") continue;
             string text = File.ReadAllText(path);
             foreach (Match match in toRadians.Matches(text)) spellings.Add(file + ": " + match.Value);
             foreach (Match match in toDegrees.Matches(text)) spellings.Add(file + ": " + match.Value);
         }
-        Equal("Geometry.cs: 180 / Math.PI", string.Join("; ", spellings));
+        // Radians to degrees is the inverse and places nothing. The named exceptions: the smooth-row angle tolerance
+        // (Geometry.cs), the Plan's handle-angle readout (PlanCanvas.cs), and the Properties handle-angle readout and
+        // its typed "rad" unit (PropertiesView.cs). No to-radians spelling exists outside Placement.cs.
+        Equal(string.Join("; ",
+                "CfdWorkbench.Core/Geometry.cs: 180 / Math.PI",
+                "CfdWorkbench.Desktop/PlanCanvas.cs: 180 / Math.PI",
+                "CfdWorkbench.Desktop/PropertiesView.cs: 180 / Math.PI",
+                "CfdWorkbench.Desktop/PropertiesView.cs: 180 / Math.PI"),
+            string.Join("; ", spellings.Order(StringComparer.Ordinal)));
     }
 
     private static ulong Bits(double value) => BitConverter.DoubleToUInt64Bits(value);
