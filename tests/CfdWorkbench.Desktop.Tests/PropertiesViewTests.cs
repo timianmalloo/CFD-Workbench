@@ -330,23 +330,22 @@ public static class PropertiesViewTests
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
-        Pane("PropertiesPane_Tangent_CheckedKindExposed", (controller, host, window) =>
+        Pane("PropertiesPane_Tangent_SelectedKindExposed", (controller, host, window) =>
         {
-            // Finding #12: the Kind group is a named group whose checked option is exposed, with position in set.
+            // Finding #12, retargeted to the enum (DR-CELL-2): the Tangent kind box is named and exposes its selected kind.
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
-            var group = Need<StackPanel>(host.Properties, "TangentGroup");
-            if (AutomationProperties.GetName(group) != "Tangent kind" || AutomationProperties.GetControlTypeOverride(group) != AutomationControlType.Group)
-                throw new InvalidOperationException($"group '{AutomationProperties.GetName(group)}' {AutomationProperties.GetControlTypeOverride(group)}");
-            var radios = group.Children.OfType<RadioButton>().ToList();
-            var checkedOnes = radios.Where(radio => radio.IsChecked == true).ToList();
-            if (checkedOnes.Count != 1 || checkedOnes[0].Content?.ToString() != anchor.Kind.ToString())
-                throw new InvalidOperationException("checked: " + string.Join(",", checkedOnes.Select(radio => radio.Content)));
-            var peer = ControlAutomationPeer.CreatePeerForElement(checkedOnes[0]);
-            if (peer.GetName() != anchor.Kind.ToString()) throw new InvalidOperationException("peer name " + peer.GetName());
-            for (int index = 0; index < radios.Count; index++)
-                if (AutomationProperties.GetPositionInSet(radios[index]) != index + 1 || AutomationProperties.GetSizeOfSet(radios[index]) != 3)
-                    throw new InvalidOperationException("position in set on " + radios[index].Content);
+            var kind = Need<ComboBox>(host.Properties, "KindControl");
+            if (AutomationProperties.GetName(kind) != "Tangent kind" || !kind.IsEffectivelyVisible || !kind.IsEnabled)
+                throw new InvalidOperationException($"kind box '{AutomationProperties.GetName(kind)}' visible {kind.IsEffectivelyVisible}");
+            if ((kind.SelectedItem as ComboBoxItem)?.Content?.ToString() != anchor.Kind.ToString())
+                throw new InvalidOperationException("selected: " + (kind.SelectedItem as ComboBoxItem)?.Content);
+            var selection = ControlAutomationPeer.CreatePeerForElement(kind).GetProvider<ISelectionProvider>()
+                ?? throw new InvalidOperationException("the kind box exposes no selection");
+            var chosen = selection.GetSelection().SingleOrDefault();
+            if (chosen?.GetName() != anchor.Kind.ToString()) throw new InvalidOperationException("exposed selection " + chosen?.GetName());
+            if (host.Properties.GetVisualDescendants().OfType<RadioButton>().Any())
+                throw new InvalidOperationException("a Kind radio list is still drawn");
         });
 
         Pane("PropertiesPane_FieldBlur_CommitsAndKeepsFocusTarget", (controller, host, window) =>
@@ -369,22 +368,25 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("the blur commit was not exactly one undo row");
         });
 
-        Pane("PropertiesPane_KindArrows_MoveCheckOnly_OneUndoRowPerIntent", (controller, host, window) =>
+        Pane("PropertiesPane_KindBox_ArrowWhileClosed_IsPending_OneUndoRowPerIntent", (controller, host, window) =>
         {
-            // PG-06 = MC-1 (ruled deviation): arrows move the check only, no wrap; Return commits one undo row.
+            // PG-06 as amended by DR-CELL-2: arrows on the closed box stage a kind (no wrap) and commit nothing; Return
+            // commits it as one undo row.
             var pane = host.Properties;   // the full shell: ShellHost must leave Return to the pane
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
             string source = controller.AcceptedSource;
-            var radios = Need<StackPanel>(pane, "TangentGroup").Children.OfType<RadioButton>().ToList();
-            var start = radios.First(radio => radio.IsChecked == true);
-            start.Focus();
-            foreach (var _ in Enumerable.Range(0, 4)) Key(window.FocusManager!.GetFocusedElement() as Control ?? start, Avalonia.Input.Key.Down);
+            var kind = Need<ComboBox>(pane, "KindControl");
+            kind.Focus();
+            foreach (var _ in Enumerable.Range(0, 4)) Key(kind, Avalonia.Input.Key.Down);
             Settle(window);
             if (controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind)
                 throw new InvalidOperationException("an arrow committed the kind");
-            if (radios[^1].IsChecked != true || !radios[^1].IsFocused) throw new InvalidOperationException("arrows did not stop at the last option (no wrap)");
-            Key(radios[^1], Avalonia.Input.Key.Enter);
+            if ((kind.SelectedItem as ComboBoxItem)?.Content?.ToString() != "Corner" || kind.IsDropDownOpen)
+                throw new InvalidOperationException("arrows did not stop at the last kind (no wrap)");
+            if (Text(pane, "Message_t_kind") != PropertyCopy.PendingKind("corner", anchor.Kind!.Value.ToString().ToLowerInvariant()))
+                throw new InvalidOperationException("pending line: " + Text(pane, "Message_t_kind"));
+            Key(kind, Avalonia.Input.Key.Enter);
             WaitIdle(controller, window);
             if (Reload(controller, anchor).Kind != TangentKind.Corner) throw new InvalidOperationException("Return did not commit Corner");
             controller.Undo();
@@ -393,22 +395,21 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("the kind intent was not exactly one undo row");
         });
 
-        Pane("Tangent_KindChange_KeepsFocusOnChecked", (controller, host, window) =>
+        Pane("Tangent_KindChange_KeepsFocusOnKindBox", (controller, host, window) =>
         {
-            // N1: after a kind commit, focus stays on the (new) checked option.
+            // N1, retargeted to the enum: after a kind commit, focus stays on the Tangent kind box, which shows the new kind.
             var pane = host.Properties;   // the full shell: ShellHost must leave Return to the pane
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
-            var radios = Need<StackPanel>(pane, "TangentGroup").Children.OfType<RadioButton>().ToList();
-            var start = radios.First(radio => radio.IsChecked == true);
-            start.Focus();
-            Key(start, Avalonia.Input.Key.Down);
-            var target = window.FocusManager!.GetFocusedElement() as RadioButton ?? throw new InvalidOperationException("focus left the group");
-            Key(target, Avalonia.Input.Key.Enter);
+            var kind = Need<ComboBox>(pane, "KindControl");
+            kind.Focus();
+            Key(kind, Avalonia.Input.Key.Down);
+            Key(kind, Avalonia.Input.Key.Enter);
             WaitIdle(controller, window);
-            var focused = window.FocusManager!.GetFocusedElement() as RadioButton;
-            if (focused is null || focused.IsChecked != true || focused.Content?.ToString() != Reload(controller, anchor).Kind.ToString())
-                throw new InvalidOperationException($"focus on {focused?.Content ?? "none"} after the commit");
+            var focused = window.FocusManager!.GetFocusedElement();
+            if (!ReferenceEquals(focused, kind) || (kind.SelectedItem as ComboBoxItem)?.Content?.ToString() != Reload(controller, anchor).Kind.ToString())
+                throw new InvalidOperationException($"focus on {focused?.GetType().Name ?? "none"} after the commit");
+            if (Reload(controller, anchor).Kind == anchor.Kind) throw new InvalidOperationException("Return did not commit the staged kind");
         });
 
         Pane("Shell_ReturnInProperties_ReachesTheFocusedControl", (controller, host, window) =>
@@ -433,37 +434,14 @@ public static class PropertiesViewTests
             var anchor = Reload(controller, point);
             if (anchor.Role != PointRole.Anchor || !type.IsFocused)
                 throw new InvalidOperationException($"Return on a pending Type: role {anchor.Role}, focus on Type {type.IsFocused}");
-            var radios = Need<StackPanel>(host.Properties, "TangentGroup").Children.OfType<RadioButton>().ToList();
-            var start = radios.First(radio => radio.IsChecked == true);
-            start.Focus();
-            Key(start, Avalonia.Input.Key.Down);
-            var pending = window.FocusManager!.GetFocusedElement() as RadioButton ?? throw new InvalidOperationException("focus left the Kind group");
-            Key(pending, Avalonia.Input.Key.Enter);
+            var kind = Need<ComboBox>(host.Properties, "KindControl");
+            kind.Focus();
+            Key(kind, Avalonia.Input.Key.Down);
+            string? pending = (kind.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            Key(kind, Avalonia.Input.Key.Enter);
             WaitIdle(controller, window);
-            if (Reload(controller, anchor).Kind.ToString() != pending.Content?.ToString() || !pending.IsFocused)
-                throw new InvalidOperationException($"Return on a pending Kind: kind {Reload(controller, anchor).Kind}, focus on it {pending.IsFocused}");
-        });
-
-        Pane("PropertiesPane_KindLeave_CommitsPendingOnce", (controller, host, window) =>
-        {
-            // PG-06 = MC-1 as ruled: leaving the Kind group with a pending kind commits it, as one undo row.
-            var anchor = MakeAnchor(controller);
-            Select(controller, window, anchor);
-            string source = controller.AcceptedSource;
-            var radios = Need<StackPanel>(host.Properties, "TangentGroup").Children.OfType<RadioButton>().ToList();
-            var start = radios.First(radio => radio.IsChecked == true);
-            start.Focus();
-            Key(start, Avalonia.Input.Key.Down);
-            var pending = (window.FocusManager!.GetFocusedElement() as RadioButton)?.Content?.ToString();
-            if (controller.AcceptedSource != source) throw new InvalidOperationException("the arrow committed");
-            Need<TextBox>(host.Properties, "PointAftInput").Focus();
-            WaitIdle(controller, window);
-            if (Reload(controller, anchor).Kind.ToString() != pending)
-                throw new InvalidOperationException($"leaving did not commit {pending}: kind {Reload(controller, anchor).Kind}");
-            controller.Undo();
-            Settle(window);
-            if (controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind)
-                throw new InvalidOperationException("leaving the group was not exactly one undo row");
+            if (Reload(controller, anchor).Kind.ToString() != pending || !kind.IsFocused)
+                throw new InvalidOperationException($"Return on a pending Kind: kind {Reload(controller, anchor).Kind}, focus on it {kind.IsFocused}");
         });
 
         Pane("PropertiesPane_KeyboardCopy_SelectionAndGroupHeader", (controller, host, window) =>
@@ -519,7 +497,10 @@ public static class PropertiesViewTests
             string selected = $"Selected Trailing edge · point {anchor.Index + 1} of {controller.Planform!.Trailing.Points.Count}.";
             if (!seen.Contains(selected) || controller.Selection is not Selection.Points { Items: [var chosen] } || chosen.VertexId != anchor.Id)
                 throw new InvalidOperationException("Esc: " + string.Join(" | ", seen));
-            Need<RadioButton>(host.Properties, "TangentSymmetricButton").RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            var kind = Need<ComboBox>(host.Properties, "KindControl");
+            kind.IsDropDownOpen = true;
+            kind.SelectedIndex = 1;   // a pointer pick of Symmetric in the open list
+            kind.IsDropDownOpen = false;
             WaitIdle(controller, window);
             if (!seen.Any(text => text.StartsWith($"Trailing edge point {anchor.Index + 1} is now Symmetric.", StringComparison.Ordinal)))
                 throw new InvalidOperationException("kind report: " + string.Join(" | ", seen));
@@ -527,14 +508,14 @@ public static class PropertiesViewTests
 
         Pane("PropertiesPane_StateBrushes_InAllThreeThemes", (controller, host, window) =>
         {
-            // PG-29 (C3): the chevron, the group header, the Kind radios, the Type box and its popup resolve to DESIGN.md
-            // tokens in each state and in Light, Dark and High contrast (which would otherwise inherit Fluent Light).
+            // PG-29 (C3), in B: the twirl chevron, the band-less group header, the enum boxes and their popup resolve to
+            // DESIGN.md tokens in each state and in Light, Dark and High contrast (which would otherwise inherit Fluent Light).
             Select(controller, window, MakeAnchor(controller));
-            var themes = new (Avalonia.Styling.ThemeVariant Variant, string Ink, string Surface, string Soft, string Selection, string OnSelection, string Focus)[]
+            var themes = new (Avalonia.Styling.ThemeVariant Variant, string Ink, string Muted, string Surface, string Selection, string OnSelection, string Focus)[]
             {
-                (Avalonia.Styling.ThemeVariant.Light, "#1b2929", "#fbfcfb", "#e8edeb", "#d8eeea", "#1b2929", "#006c67"),
-                (Avalonia.Styling.ThemeVariant.Dark, "#ebf3f0", "#1e2d31", "#2a3d40", "#274c47", "#ebf3f0", "#88d8c6"),
-                (NativeReviewThemes.HighContrast, "#ffffff", "#000000", "#000000", "#ffee58", "#000000", "#ffee58")
+                (Avalonia.Styling.ThemeVariant.Light, "#1b2929", "#526362", "#fbfcfb", "#d8eeea", "#1b2929", "#006c67"),
+                (Avalonia.Styling.ThemeVariant.Dark, "#ebf3f0", "#b2c4bf", "#1e2d31", "#274c47", "#ebf3f0", "#88d8c6"),
+                (NativeReviewThemes.HighContrast, "#ffffff", "#ffffff", "#000000", "#ffee58", "#000000", "#ffee58")
             };
             var failures = new List<string>();
             foreach (var theme in themes)
@@ -546,31 +527,31 @@ public static class PropertiesViewTests
                     if (brush is not ISolidColorBrush solid || solid.Color != Color.Parse(want))
                         failures.Add($"{theme.Variant.Key}/{what} {(brush as ISolidColorBrush)?.Color.ToString() ?? "none"}≠{want}");
                 }
-                var header = Need<Expander>(host.Properties, "Group_pos").GetVisualDescendants().OfType<ToggleButton>().First();
-                Expect("chevron", Part<Avalonia.Controls.Shapes.Path>(header, "ExpandCollapseChevron").Stroke, theme.Ink);
-                foreach (var (state, want) in new[] { (":checked", theme.Soft), (":pressed", theme.Surface) })
+                void Clear(string what, IBrush? brush)
+                {
+                    if (brush is not null && brush is not ISolidColorBrush { Color.A: 0 })
+                        failures.Add($"{theme.Variant.Key}/{what} is not transparent");
+                }
+                var group = Need<Expander>(host.Properties, "Group_pos");
+                var header = group.GetVisualDescendants().OfType<ToggleButton>().First();
+                Expect("chevron", Need<Avalonia.Controls.Shapes.Path>(host.Properties, "GroupChevron_pos").Stroke, theme.Muted);
+                foreach (var state in new[] { ":checked", ":pressed", ":pointerover" })
                 {
                     Pseudo(header, state, true);
                     Settle(window);
-                    Expect("header" + state, Part<Border>(header, "ToggleButtonBackground").Background, want);
+                    Clear("header" + state, Part<Border>(header, "ToggleButtonBackground").Background);
                     Pseudo(header, state, false);
                 }
-                var corner = Need<RadioButton>(host.Properties, "TangentCornerButton");
-                Pseudo(corner, ":pressed", true);
-                Settle(window);
-                Expect("radio:pressed ring", Part<Ellipse>(corner, "OuterEllipse").Stroke, theme.Ink);
-                Pseudo(corner, ":pressed", false);
-                var smooth = Need<RadioButton>(host.Properties, "TangentSmoothButton");
-                Pseudo(smooth, ":pointerover", true);
-                Settle(window);
-                Expect("radio:checked:pointerover ring", Part<Ellipse>(smooth, "CheckOuterEllipse").Stroke, theme.Ink);
-                Expect("radio:checked:pointerover dot", Part<Ellipse>(smooth, "CheckGlyph").Fill, theme.Ink);
-                Pseudo(smooth, ":pointerover", false);
+                foreach (var name in new[] { "TypeControl", "KindControl" })
+                {
+                    var box = Need<ComboBox>(host.Properties, name);
+                    Pseudo(box, ":pressed", true);
+                    Settle(window);
+                    Clear(name + ":pressed", Part<Border>(box, "Background").Background);
+                    Pseudo(box, ":pressed", false);
+                    Expect(name + " glyph", Part<PathIcon>(box, "DropDownGlyph").Foreground, theme.Muted);
+                }
                 var type = Need<ComboBox>(host.Properties, "TypeControl");
-                Pseudo(type, ":pressed", true);
-                Settle(window);
-                Expect("type:pressed", Part<Border>(type, "Background").Background, theme.Soft);
-                Pseudo(type, ":pressed", false);
                 type.IsDropDownOpen = true;
                 Settle(window);
                 Expect("type:dropdownopen border", Part<Border>(type, "Background").BorderBrush, theme.Focus);
@@ -644,11 +625,13 @@ public static class PropertiesViewTests
 
         Pane("PropertiesPane_FactRow_NotFocusable_NamedContainer_CopyCommand", (controller, host, window) =>
         {
-            // PG-20 (D2), B9: a fact is never a focusable element without a name; its container speaks; Copy copies.
+            // PG-20 (D2), B9: a fact is never a focusable element without a name; its container speaks; Copy copies — from
+            // the header's menu, since B has no row context menus (DN-3).
             Select(controller, window, Control(controller, "trailing"));
             var failures = new List<string>();
             var facts = host.Properties.GetVisualDescendants().OfType<Border>()
-                .Where(border => border.Classes.Contains("prop-row") && border.IsEffectivelyVisible && border.ContextMenu is not null).ToList();
+                .Where(border => border.Classes.Contains("prop-row") && border.IsEffectivelyVisible &&
+                                 AutomationProperties.GetControlTypeOverride(border) == AutomationControlType.Text).ToList();
             if (facts.Count < 6) failures.Add("only " + facts.Count + " fact rows");
             foreach (var fact in facts)
             {
@@ -658,8 +641,8 @@ public static class PropertiesViewTests
             }
             var copied = new List<string>();
             host.Properties.ClipboardWriter = text => { copied.Add(text); return Task.CompletedTask; };
-            var mac = facts.First(fact => fact.Name == "Row_e_mac");
-            foreach (var item in mac.ContextMenu!.Items.OfType<MenuItem>())
+            var menu = Need<Grid>(host.Properties, "WingHeader").ContextMenu ?? throw new InvalidOperationException("the Wing header has no menu");
+            foreach (var item in menu.Items.OfType<MenuItem>().Where(item => item.Header as string is "Copy MAC" or "Copy MAC with unit"))
                 item.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
             var value = Build(controller, controller.Selection).Wing!.Rows.First(row => row.Key == "e:mac").Value;
             if (!copied.SequenceEqual([value, value + " mm"])) failures.Add("copied: " + string.Join(" | ", copied));
@@ -702,7 +685,7 @@ public static class PropertiesViewTests
             var expander = Need<Expander>(host.Properties, "Group_pos");
             var header = expander.GetVisualDescendants().OfType<ToggleButton>().First();
             header.Focus();
-            if (AutomationProperties.GetName(header) != "Position" || AutomationProperties.GetName(expander) != "Position")
+            if (AutomationProperties.GetName(header) != "Point" || AutomationProperties.GetName(expander) != "Point")   // B: one "Point" group
                 throw new InvalidOperationException($"header name '{AutomationProperties.GetName(header)}'");
             var provider = ControlAutomationPeer.CreatePeerForElement(expander).GetProvider<IExpandCollapseProvider>()
                 ?? throw new InvalidOperationException("no expand/collapse pattern");
@@ -721,7 +704,7 @@ public static class PropertiesViewTests
             // B6 / PG-16: no Expander content transition and no chevron animation (the header and everything in it).
             Select(controller, window, MakeAnchor(controller));
             var expanders = host.Properties.GetVisualDescendants().OfType<Expander>().ToList();
-            if (expanders.Count < 3) throw new InvalidOperationException("only " + expanders.Count + " groups");
+            if (expanders.Count < 2) throw new InvalidOperationException("only " + expanders.Count + " groups");   // B: Point and the rail
             var moving = expanders.SelectMany(expander => expander.GetVisualDescendants().OfType<ToggleButton>().Take(1)
                     .SelectMany(header => header.GetVisualDescendants().OfType<Animatable>().Prepend(header)).Prepend(expander))
                 .Where(item => item.Transitions is { Count: > 0 }).Select(item => item.GetType().Name).ToList();
@@ -730,26 +713,16 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException("motion on " + string.Join(", ", moving) + $"; content transitions {transitions}");
         });
 
-        Pane("PropertiesPane_KeyboardWalk_NoTrapTabLandsOnCheckedKind", (controller, host, window) =>
+        Pane("PropertiesPane_KeyboardWalk_NoTrap_KindBoxOneStop", (controller, host, window) =>
         {
-            // B3: the §10.4 Tab walk through an anchor selection has no trap, and the Kind group is one stop on the checked option.
+            // B3: the §10.4 Tab walk through an anchor selection has no trap, and the Tangent kind is one stop (DR-CELL-2).
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
-            var navigation = (window as IInputRoot).KeyboardNavigationHandler!;
-            var first = host.Properties.GetVisualDescendants().OfType<InputElement>().First(item => item.Focusable && item.IsTabStop && item.IsEffectivelyVisible && item.IsEffectivelyEnabled);
-            first.Focus(NavigationMethod.Tab);
-            var stops = new List<IInputElement>();
-            for (int step = 0; step < 60; step++)
-            {
-                var focused = window.FocusManager!.GetFocusedElement();
-                if (focused is not Visual visual || !host.Properties.IsVisualAncestorOf(visual)) break;
-                if (stops.Contains(focused)) throw new InvalidOperationException("Tab revisited " + focused.GetType().Name + " inside the pane (trap)");
-                stops.Add(focused);
-                navigation.Move(focused, NavigationDirection.Next);
-            }
-            var radios = stops.OfType<RadioButton>().ToList();
-            if (radios.Count != 1 || radios[0].IsChecked != true) throw new InvalidOperationException($"Kind stops: {radios.Count}");
-            if (!stops.OfType<ComboBox>().Any() || stops.OfType<TextBox>().Count() < 5 || !stops.OfType<ToggleButton>().Any(button => button is not RadioButton))
+            var stops = TabWalk(host.Properties, window);
+            if (stops.OfType<ComboBox>().Count(box => box.Name == "KindControl") != 1 || stops.OfType<RadioButton>().Any())
+                throw new InvalidOperationException("Kind stops: " + stops.OfType<ComboBox>().Count(box => box.Name == "KindControl"));
+            if (!stops.OfType<ComboBox>().Any(box => box.Name == "TypeControl") || stops.OfType<TextBox>().Count() < 5 ||
+                !stops.OfType<ToggleButton>().Any(button => button.TemplatedParent is Expander))
                 throw new InvalidOperationException("walk: " + string.Join(", ", stops.Select(item => item.GetType().Name)));
         });
 
@@ -871,7 +844,25 @@ public static class PropertiesViewTests
 
     // ---------------- fixtures ----------------
 
-    private static void Pane(string name, Action<WorkbenchController, ShellHost, Window> body) => DesktopChecks.Check(name, () =>
+    /// <summary>Tabs from the pane's first stop until focus leaves it; a revisit inside the pane is a trap.</summary>
+    internal static List<IInputElement> TabWalk(Control pane, Window window)
+    {
+        var navigation = (window as IInputRoot).KeyboardNavigationHandler!;
+        var first = pane.GetVisualDescendants().OfType<InputElement>().First(item => item.Focusable && item.IsTabStop && item.IsEffectivelyVisible && item.IsEffectivelyEnabled);
+        first.Focus(NavigationMethod.Tab);
+        var stops = new List<IInputElement>();
+        for (int step = 0; step < 80; step++)
+        {
+            var focused = window.FocusManager!.GetFocusedElement();
+            if (focused is not Visual visual || !pane.IsVisualAncestorOf(visual)) break;
+            if (stops.Contains(focused)) throw new InvalidOperationException("Tab revisited " + focused.GetType().Name + " inside the pane (trap)");
+            stops.Add(focused);
+            navigation.Move(focused, NavigationDirection.Next);
+        }
+        return stops;
+    }
+
+    internal static void Pane(string name, Action<WorkbenchController, ShellHost, Window> body) => DesktopChecks.Check(name, () =>
     {
         using var controller = new WorkbenchController();
         var host = new ShellHost(controller);
@@ -887,7 +878,7 @@ public static class PropertiesViewTests
         finally { window.Close(); }
     });
 
-    private static void Nudge(string name, Action<WorkbenchController, ShellHost, Window> body) => Pane(name, (controller, host, window) =>
+    internal static void Nudge(string name, Action<WorkbenchController, ShellHost, Window> body) => Pane(name, (controller, host, window) =>
     {
         bool enabled = PropertiesFieldNudge.Enabled, windows = PropertiesFieldNudge.OnWindows;
         PropertiesFieldNudge.Enabled = true;
@@ -900,14 +891,14 @@ public static class PropertiesViewTests
         }
     });
 
-    private static WorkbenchController Opened()
+    internal static WorkbenchController Opened()
     {
         var controller = new WorkbenchController();
         Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
         return controller;
     }
 
-    private static PropertiesModel Build(WorkbenchController controller, Selection selection) =>
+    internal static PropertiesModel Build(WorkbenchController controller, Selection selection) =>
         PropertiesView.Build(selection, controller.CurrentProjection, controller.Estimates, ShellMode.Workspace,
             new PropertiesContext(controller.Planform));
 
@@ -926,37 +917,37 @@ public static class PropertiesViewTests
         yield return ("section", PropertiesView.Build(new Selection.Foil(), controller.CurrentProjection, controller.Estimates, ShellMode.SectionEditor));
     }
 
-    private static PointView MakeAnchor(WorkbenchController controller)
+    internal static PointView MakeAnchor(WorkbenchController controller)
     {
         var point = Control(controller, "trailing");
         Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)));
         return Reload(controller, point);
     }
 
-    private static PointView Control(WorkbenchController controller, string curve) =>
+    internal static PointView Control(WorkbenchController controller, string curve) =>
         (curve == "leading" ? controller.Planform!.Leading : controller.Planform!.Trailing).Points.First(point => point.Role == PointRole.Control);
 
-    private static PointView Reload(WorkbenchController controller, PointView point) =>
+    internal static PointView Reload(WorkbenchController controller, PointView point) =>
         PropertiesView.Find(controller.Planform!, Ref(point)) ?? throw new InvalidOperationException("point gone: " + point.Id);
 
-    private static PointRef Ref(PointView point) => new(point.Curve, point.Id);
+    internal static PointRef Ref(PointView point) => new(point.Curve, point.Id);
 
-    private static void Select(WorkbenchController controller, Window window, PointView point)
+    internal static void Select(WorkbenchController controller, Window window, PointView point)
     {
         controller.Select(new Selection.Points([Ref(point)]));
         Settle(window);
     }
 
-    private static T Part<T>(Control templated, string name) where T : Control =>
+    internal static T Part<T>(Control templated, string name) where T : Control =>
         templated.GetVisualDescendants().OfType<T>().FirstOrDefault(item => item.Name == name)
         ?? throw new InvalidOperationException($"{templated.GetType().Name} has no {typeof(T).Name}#{name}");
 
-    private static void Pseudo(Control control, string state, bool on) => ((IPseudoClasses)control.Classes).Set(state, on);
+    internal static void Pseudo(Control control, string state, bool on) => ((IPseudoClasses)control.Classes).Set(state, on);
 
-    private static TextBlock Status(ShellHost host) => host.ModelView.FindControl<TextBlock>("StatusText")!;
+    internal static TextBlock Status(ShellHost host) => host.ModelView.FindControl<TextBlock>("StatusText")!;
 
     /// <summary>Every new text a live region takes from here on: what a screen reader would be told.</summary>
-    private static List<string> Changes(TextBlock block)
+    internal static List<string> Changes(TextBlock block)
     {
         var seen = new List<string>();
         block.PropertyChanged += (_, change) => { if (change.Property == TextBlock.TextProperty) seen.Add(change.NewValue as string ?? ""); };
@@ -965,17 +956,17 @@ public static class PropertiesViewTests
 
     private static int Decimals(string value) => value.Contains('.') ? value.Length - value.IndexOf('.') - 1 : 0;
 
-    private static T Need<T>(Control root, string name) where T : Control =>
+    internal static T Need<T>(Control root, string name) where T : Control =>
         root.FindControl<T>(name) ?? root.GetLogicalDescendants().OfType<T>().FirstOrDefault(item => item.Name == name)
         ?? root.GetVisualDescendants().OfType<T>().FirstOrDefault(item => item.Name == name)
         ?? throw new InvalidOperationException("missing " + name);
 
-    private static string Text(Control root, string name) => Need<TextBlock>(root, name).Text ?? "";
+    internal static string Text(Control root, string name) => Need<TextBlock>(root, name).Text ?? "";
 
-    private static void Key(Control control, Key key, KeyModifiers modifiers = KeyModifiers.None, bool up = false) =>
+    internal static void Key(Control control, Key key, KeyModifiers modifiers = KeyModifiers.None, bool up = false) =>
         control.RaiseEvent(new KeyEventArgs { RoutedEvent = up ? InputElement.KeyUpEvent : InputElement.KeyDownEvent, Source = control, Key = key, KeyModifiers = modifiers });
 
-    private static void Settle(Window window)
+    internal static void Settle(Window window)
     {
         for (int attempt = 0; attempt < 10; attempt++)
         {
@@ -984,7 +975,7 @@ public static class PropertiesViewTests
         }
     }
 
-    private static void WaitIdle(WorkbenchController controller, Window window)
+    internal static void WaitIdle(WorkbenchController controller, Window window)
     {
         var start = DateTime.UtcNow;
         while (controller.Gesture != GestureState.Idle && DateTime.UtcNow - start < TimeSpan.FromSeconds(8))
@@ -992,7 +983,7 @@ public static class PropertiesViewTests
         Settle(window);
     }
 
-    private static void Pump(Task task)
+    internal static void Pump(Task task)
     {
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
         while (!task.IsCompleted && !timeout.IsCancellationRequested)

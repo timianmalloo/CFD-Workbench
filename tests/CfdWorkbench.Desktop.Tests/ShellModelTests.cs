@@ -320,7 +320,13 @@ public static class ShellModelTests
                 bool pointCommand = row.Id.StartsWith("point.", StringComparison.Ordinal);
                 if (pointCommand && !string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has a default gesture");
-                if (!pointCommand && string.IsNullOrWhiteSpace(row.Gesture))
+                // DR-DEN-4: the Text size key route is ⌘= / ⌘− (the zoom rows), routed by focus; a second binding of the
+                // same keys on Bigger / Smaller would make two menu items claim one gesture.
+                bool textSize = row.Menu == CommandTable.TextSizeMenu;
+                if (textSize && (!string.IsNullOrWhiteSpace(row.Gesture) ||
+                                 rows.Single(r => r.Id == "view.zoom-in").Gesture != "⌘=" || rows.Single(r => r.Id == "view.zoom-out").Gesture != "⌘−"))
+                    throw new Exception($"Row {row.Id} does not reach its key route through ⌘= / ⌘−");
+                if (!pointCommand && !textSize && string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has no Gesture/key route");
             }
 

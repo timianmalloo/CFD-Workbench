@@ -1,23 +1,20 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane" AutomationProperties.Name="Properties">
-  <!-- The property grid (docs/reviews/ui-property-grid.md §10). PropertiesView.Build supplies the rows; this markup holds
-       only the frame and the persistent editors, which the pane places into rows so focus survives a re-render (UI-C). -->
+  <!-- The property sheet in structure B (docs/reviews/ui-property-grid-cells.md §5). PropertiesView.Build supplies the rows;
+       this markup holds only the frame and the persistent editors, which the pane places into rows so focus survives a
+       re-render (UI-C). -->
   <Panel>
     <StackPanel x:Name="FieldPool" IsVisible="False">
-      <TextBox x:Name="SpanInput" Classes="prop-input" />
-      <TextBox x:Name="RootChordInput" Classes="prop-input" />
-      <TextBox x:Name="TipChordInput" Classes="prop-input" />
-      <TextBox x:Name="PointSpanInput" Classes="prop-input" />
-      <TextBox x:Name="PointAftInput" Classes="prop-input" />
-      <TextBox x:Name="HandleAngleInput" Classes="prop-input" />
-      <TextBox x:Name="HandleLengthInput" Classes="prop-input" />
-      <ComboBox x:Name="TypeControl" Classes="prop-choice" />
-      <StackPanel x:Name="TangentGroup" Spacing="{StaticResource StackGap1}" KeyboardNavigation.TabNavigation="Once">
-        <RadioButton x:Name="TangentSmoothButton" Classes="prop-kind" GroupName="Tangent" Content="Smooth" />
-        <RadioButton x:Name="TangentSymmetricButton" Classes="prop-kind" GroupName="Tangent" Content="Symmetric" />
-        <RadioButton x:Name="TangentCornerButton" Classes="prop-kind" GroupName="Tangent" Content="Corner" />
-      </StackPanel>
+      <TextBox x:Name="SpanInput" Classes="prop-b" />
+      <TextBox x:Name="RootChordInput" Classes="prop-b" />
+      <TextBox x:Name="TipChordInput" Classes="prop-b" />
+      <TextBox x:Name="PointSpanInput" Classes="prop-b" />
+      <TextBox x:Name="PointAftInput" Classes="prop-b" />
+      <TextBox x:Name="HandleAngleInput" Classes="prop-b" />
+      <TextBox x:Name="HandleLengthInput" Classes="prop-b" />
+      <ComboBox x:Name="TypeControl" Classes="prop-b" />
+      <ComboBox x:Name="KindControl" Classes="prop-b" />
       <Border x:Name="SpanErrorPanel">
         <TextBlock x:Name="SpanErrorText" Classes="prop-message" />
       </Border>
@@ -41,48 +38,62 @@
       <DockPanel x:Name="ContentPanel" IsVisible="False">
         <!-- DR-UID-5: the Wing is pinned at the foot and always fully visible; the selection above it scrolls. -->
         <Border x:Name="WingBlock" DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}"
-                BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineTop}">
+                BorderBrush="{DynamicResource ControlLineBrush}" BorderThickness="{StaticResource HairlineTop}">
           <ScrollViewer x:Name="WingScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel x:Name="WingPanel" Spacing="{StaticResource StackGap1}" Margin="{StaticResource Space3}">
-              <Grid ColumnDefinitions="*,Auto" MinHeight="{StaticResource PropHeadHeight}">
-                <TextBlock x:Name="WingHeading" Classes="prop-group-title" Text="Wing" />
-                <Border x:Name="WingChip" Grid.Column="1" Classes="prop-chip" IsVisible="False">
-                  <TextBlock x:Name="WingChipText" Classes="caption" />
-                </Border>
-              </Grid>
-              <StackPanel x:Name="WingDimensions" Spacing="{StaticResource StackGap1}" />
-              <Border Height="{StaticResource HairlineHeight}" Background="{DynamicResource LineBrush}" />
-              <ToggleButton x:Name="HowMeasuredButton" Content="How these are measured" />
-              <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False"
-                         Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
-              <StackPanel x:Name="WingEstimates" Spacing="{StaticResource StackGap1}" />
-              <StackPanel x:Name="WingNotes" Spacing="{StaticResource StackGap1}" />
-            </StackPanel>
+            <Border Classes="prop-group-rule" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleBottom}">
+              <StackPanel x:Name="WingPanel">
+                <!-- The Wing never collapses (UI-36), so its header carries no chevron (DR-CELL-2, change 1). -->
+                <Grid x:Name="WingHeader" ColumnDefinitions="*,Auto" MinHeight="{DynamicResource PropHeadHeight}"
+                      Margin="{StaticResource PropHeadPadding}">
+                  <TextBlock x:Name="WingHeading" Classes="prop-group-title" Text="Wing" />
+                  <Border x:Name="WingChip" Grid.Column="1" Classes="prop-chip" IsVisible="False">
+                    <TextBlock x:Name="WingChipText" />
+                  </Border>
+                </Grid>
+                <StackPanel x:Name="WingDimensions" />
+                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleTop}" Margin="{StaticResource PropWingRuleMargin}" />
+                <ToggleButton x:Name="HowMeasuredButton" Classes="prop-link">
+                  <StackPanel Orientation="Horizontal" Spacing="{StaticResource PropChevronGap}">
+                    <Path x:Name="HowMeasuredChevron" Classes="prop-disclosure" AutomationProperties.AccessibilityView="Raw" Data="M0,0 L3,2.5 L0,5 Z" />
+                    <TextBlock Text="Estimates · definitions" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False" Padding="{StaticResource PropNotePadding}"
+                           Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
+                <StackPanel x:Name="WingEstimates" />
+                <StackPanel x:Name="WingNotes" />
+              </StackPanel>
+            </Border>
           </ScrollViewer>
         </Border>
 
         <ScrollViewer x:Name="SelectionScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Spacing="{StaticResource StackGap2}" Margin="{StaticResource Space3}">
-            <Grid x:Name="IdentityPanel" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+          <StackPanel x:Name="SelectionPanel">
+            <Border x:Name="IdentityBlock" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleBottom}">
+            <Grid x:Name="IdentityPanel" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="{StaticResource PropIdentityPadding}">
               <Path x:Name="IdentityGlyphPath" Width="{StaticResource PropGlyphSize}" Height="{StaticResource PropGlyphSize}"
                     Stretch="Uniform" Stroke="{DynamicResource InkBrush}" StrokeThickness="{StaticResource GlyphStroke}"
-                    VerticalAlignment="Center" Margin="{StaticResource GlyphGap}" />
-              <TextBlock x:Name="IdentityTitle" Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" />
-              <HyperlinkButton x:Name="IdentityCrumbLink" Grid.Row="1" Grid.Column="1" IsVisible="False" />
-              <TextBlock x:Name="IdentityCrumb" Grid.Row="1" Grid.Column="1" Classes="caption" TextWrapping="Wrap" IsVisible="False" />
+                    VerticalAlignment="Center" />
+              <TextBlock x:Name="IdentityTitle" Grid.Column="1" Classes="prop-title" TextWrapping="Wrap" VerticalAlignment="Center"
+                         Margin="{StaticResource PropTitleGap}" />
+              <HyperlinkButton x:Name="IdentityCrumbLink" Grid.Row="1" Grid.Column="1" Classes="prop-crumb" IsVisible="False"
+                               Margin="{StaticResource PropTitleGap}" />
+              <TextBlock x:Name="IdentityCrumb" Grid.Row="1" Grid.Column="1" Classes="prop-crumb" TextWrapping="Wrap" IsVisible="False"
+                         Margin="{StaticResource PropTitleGap}" />
             </Grid>
+            </Border>
 
             <Border x:Name="AlertBanner" IsVisible="False" BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource Space2}"
+                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource PropIdentityPadding}"
                     Background="{DynamicResource SurfaceSoftBrush}" AutomationProperties.LiveSetting="Assertive">
-              <TextBlock x:Name="AlertBannerText" TextWrapping="Wrap" />
+              <TextBlock x:Name="AlertBannerText" Classes="prop-message" />
             </Border>
 
             <Border x:Name="RecoveryPanel" IsVisible="False" BorderBrush="{DynamicResource PrimaryBrush}"
-                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource Space2}"
+                    BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource PropIdentityPadding}"
                     Background="{DynamicResource SurfaceSoftBrush}" AutomationProperties.LiveSetting="Assertive">
               <StackPanel Spacing="{StaticResource StackGap2}">
-                <TextBlock x:Name="RecoveryBanner" TextWrapping="Wrap" />
+                <TextBlock x:Name="RecoveryBanner" Classes="prop-message" />
                 <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
                   <Button x:Name="RecoveryApplyButton" Content="Apply" BorderBrush="{DynamicResource MutedBrush}" BorderThickness="{StaticResource HairlineThickness}" />
                   <Button x:Name="RecoveryDiscardButton" Content="Discard" Foreground="{DynamicResource MutedBrush}" BorderBrush="{DynamicResource MutedBrush}" BorderThickness="{StaticResource HairlineThickness}" />
@@ -90,7 +101,7 @@
               </StackPanel>
             </Border>
 
-            <StackPanel x:Name="BlocksPanel" Spacing="{StaticResource StackGap2}" Grid.IsSharedSizeScope="True" />
+            <StackPanel x:Name="BlocksPanel" />
           </StackPanel>
         </ScrollViewer>
       </DockPanel>

@@ -119,3 +119,32 @@ canvas path is `Focus_ReturnOnPoint_SpanFieldEscapeBack`.
 | # | Do | Pass when | Result |
 |---|---|---|---|
 | R.1 | On the native build: B2.9 and B2.10 in the shell, then Return on the canvas with a point selected | Return commits the pending Type and Kind and focus stays on the control; Return on the canvas still focuses From root | |
+
+## Structure B — the cells build (docs/reviews/ui-property-grid-cells.md §5)
+
+The property sheet is now structure B (DR-CELL-1). Headless evidence: `tools/run-tests.sh`, suites `--properties-cells`
+(the 34 named tests of the cells review §5.3) and `--properties-view` (the B-5 set). The rows below need a person at the
+native app; the author clears none.
+
+### Step 0 — the dotted-underline spike (CL-3): option A holds
+
+Avalonia 11.3.14's `TextBox` has no text decoration, so the build draws the cue as a part inside the editable value's
+template: `PropertiesPane.EditCue`, added beside `PART_BorderElement` when the template applies. It reads the
+presenter's `TextLayout` (the text's own extent after right alignment and scrolling, clamped to the scroll viewport),
+draws one 1 px line with a 1,1 dash 2 px below the baseline, and snaps both ends and the line's top to whole DIPs. A whole
+DIP is a pixel boundary at 1× and at 2×, so the line covers whole device pixels at both. It hides on focus and in error,
+where the box takes over. The `TextBox` stays the only focusable, named element; the overlay fallback was not needed and
+no control is swapped.
+
+Measured on pixels by `PropertiesPane_B_EditableValueHasDottedUnderline` (a headless `RenderTargetBitmap` of the shell at
+1280 × 800; a trailing-edge control point's Aft value; the reference colour is the surface 3 px left of the line):
+
+| Theme | 1× (96 dpi) | 2× (192 dpi) |
+|---|---|---|
+| Light | 17 dash px of 34, 17 gap px, **6.11:1** | 34 of 68, 34 gaps, **6.11:1** |
+| Dark | 17 of 34, 17 gaps, **8.60:1** | 34 of 68, 34 gaps, **8.60:1** |
+| High contrast | 17 of 34, 17 gaps, **17.62:1** | 34 of 68, 34 gaps, **17.62:1** |
+
+Every dash pixel is the exact accent (`PrimaryBrush`), so the measured ratios equal the token arithmetic in the cells
+review §3(a). Verified headless on macOS (a Retina host; the test renders at both densities). Native confirmation is row
+B3.1 below.
