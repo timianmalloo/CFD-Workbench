@@ -563,28 +563,60 @@ public sealed class ShellHost : Grid
         if (Math.Abs(step - Properties.TextScale) < 1e-9)
         {
             // Chosen while the startup read is pending: the read will not apply, so this choice must reach the file.
-            if (Preferences is not null && !TextSizeLoaded.IsCompleted)
-                TextSizeSaved = Preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
+            if (Preferences is not null && !TextSizeLoaded.IsCompleted) TextSizeSaved = SaveTextSizeAsync(Preferences, step);
             return;
         }
         Properties.ApplyTextScale(step);
         ModelView.ShowStatus(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Text size {step * 100:0} %."));
         TextScaleChanged?.Invoke(step);
-        if (Preferences is not null) TextSizeSaved = Preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
+        if (Preferences is not null) TextSizeSaved = SaveTextSizeAsync(Preferences, step);
     }
 
     private bool textSizeChosen;
+    private bool textSizeNoticeShown;
 
-    /// <summary>Applies the persisted Text size at startup: no announcement and no write back.</summary>
+    /// <summary>Applies the persisted Text size at startup: no announcement and no write back. Recorded as <c>display.load</c>.</summary>
     private async Task LoadTextSizeAsync(PreferenceStore preferences)
     {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         var load = await preferences.LoadTextSizeAsync(CancellationToken.None);
-        if (!Dispatcher.UIThread.CheckAccess())
+        ShellEvents.Record("display.load", load.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+            Guid.NewGuid().ToString("N"), code: load.Codes.Count == 0 ? null : string.Join(",", load.Codes));
+        await OnUiThread(() => ApplyLoadedTextSize(load.Percent));
+    }
+
+    /// <summary>
+    /// Writes the Text size, records <c>display.save</c>, and tells the user once per session, politely, when the
+    /// setting cannot be kept.
+    /// </summary>
+    private async Task SaveTextSizeAsync(PreferenceStore preferences, double step)
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var save = await preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
+        ShellEvents.Record("display.save", save.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+            Guid.NewGuid().ToString("N"), code: save.Code, publicationKnown: save.PublicationKnown,
+            durabilityConfirmed: save.DurabilityConfirmed, retried: save.Retried);
+        if (save.Outcome is "saved" or "cancelled") return;
+        await OnUiThread(() =>
         {
-            await Dispatcher.UIThread.InvokeAsync(() => ApplyLoadedTextSize(load.Percent));
-            return;
-        }
-        ApplyLoadedTextSize(load.Percent);
+            if (textSizeNoticeShown) return;
+            textSizeNoticeShown = true;
+            ModelView.ShowStatus("Text size will apply this session only: " + NotKeptReason(save.Outcome) + ".");
+        });
+    }
+
+    private static string NotKeptReason(string outcome) => outcome switch
+    {
+        "session-only" => "the preference folder is linked or cannot be saved to",
+        "never-write" => "the saved preferences file could not be read",
+        "claim-held" => "another copy of CFD Workbench is saving preferences",
+        _ => "the preferences could not be saved"
+    };
+
+    private static async Task OnUiThread(Action action)
+    {
+        if (Dispatcher.UIThread.CheckAccess()) action();
+        else await Dispatcher.UIThread.InvokeAsync(action);
     }
 
     private void ApplyLoadedTextSize(int percent)

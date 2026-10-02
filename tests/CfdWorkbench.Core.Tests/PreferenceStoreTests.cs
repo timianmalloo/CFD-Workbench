@@ -34,6 +34,9 @@ internal static class PreferenceStoreTests
         Check("Rollback_TextSizeV2_BytesUnchanged", TextSizeFuture);
         Check("PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched", TextSizePriorRoot);
         Check("PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites", TextSizeSessionOnly);
+        Check("PrefStore_TextSize_FileSystemException_FailedNotThrown", TextSizeFileSystemException);
+        Check("PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash", TextSizeLoadSerialized);
+        Check("PrefStore_TextSize_SerializeOutOfSet_Throws", TextSizeSerializeOutOfSet);
     }
 
     private static void Absent()
@@ -578,6 +581,13 @@ internal static class PreferenceStoreTests
             Equal(outcome, Wait(denied.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
             Equal(0, fake.Saves);
         }
+        // No file yet and a store without persistence (Windows today): the first save makes the session session-only.
+        var unsupported = new CodeStore("DOC-UNSUPPORTED-PERSISTENCE");
+        var fresh = new PreferenceStore(LayoutFileTests.Root(), () => unsupported);
+        Equal("absent", Wait(fresh.LoadTextSizeAsync(CancellationToken.None)).Outcome);
+        Equal("session-only", Wait(fresh.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+        Equal("session-only", Wait(fresh.SaveTextSizeAsync(200, CancellationToken.None)).Outcome);
+        Equal(1, unsupported.Saves);
     }
 
     private static UnixFileMode Mode(string path)
@@ -643,6 +653,82 @@ internal static class PreferenceStoreTests
             var result = await store.SaveAsync(path, request, cancellation);
             if (result.Code == "OK") lock (script) script.Published.Add(request.Image.ToArray());
             return result;
+        }
+    }
+
+    private static void TextSizeFileSystemException()
+    {
+        // A file-system exception below the store (not a ContractError) is a failed/DOC-IO outcome, never a throw.
+        string root = LayoutFileTests.Root();
+        DisplayFile(root, Encoding.UTF8.GetBytes("""{"format":"cfdw-display","version":1,"textSize":150}"""));
+        var load = Wait(new PreferenceStore(root, () => new ThrowStore()).LoadTextSizeAsync(CancellationToken.None));
+        Equal(100, load.Percent);
+        Equal("failed", load.Outcome);
+        Has(load.Codes, "DOC-IO");
+        Equal(true, load.NeverWrite);
+        var save = Wait(new PreferenceStore(LayoutFileTests.Root(), () => new ThrowStore()).SaveTextSizeAsync(150, CancellationToken.None));
+        Equal("failed", save.Outcome);
+        Equal("DOC-IO", save.Code);
+    }
+
+    private static void TextSizeLoadSerialized()
+    {
+        // A save issued while the startup read is in flight waits for it, so the read cannot leave a stale hash behind.
+        string root = LayoutFileTests.Root();
+        Equal("saved", Wait(Prefs(root).SaveTextSizeAsync(125, CancellationToken.None)).Outcome);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var held = new HeldReadStore(release);
+        var store = new PreferenceStore(root, () => held);
+        var load = store.LoadTextSizeAsync(CancellationToken.None);
+        var save = store.SaveTextSizeAsync(150, CancellationToken.None);
+        save.Wait(TimeSpan.FromMilliseconds(100));
+        release.SetResult();
+        Equal(125, Wait(load).Percent);
+        var first = Wait(save);
+        Equal("saved", first.Outcome);
+        Equal(false, first.Retried);
+        var second = Wait(store.SaveTextSizeAsync(200, CancellationToken.None));
+        Equal("saved", second.Outcome);
+        Equal(false, second.Retried);
+        Equal(200, Wait(Prefs(root).LoadTextSizeAsync(CancellationToken.None)).Percent);
+    }
+
+    private static void TextSizeSerializeOutOfSet()
+    {
+        // One rule for the set: the writer refuses an out-of-set value rather than writing a different one.
+        bool threw = false;
+        try { DisplayPreferences.Serialize(175); }
+        catch (ArgumentOutOfRangeException) { threw = true; }
+        Equal(true, threw);
+        Equal(150, DisplayPreferences.Parse(DisplayPreferences.Serialize(150)).TextSize);
+    }
+
+    /// <summary>Every read and save throws an <see cref="IOException"/>, as a failing file system would.</summary>
+    private sealed class ThrowStore : IProjectStore
+    {
+        public void Dispose() { }
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default) =>
+            Task.FromException<SaveResult>(new IOException("disk"));
+        public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) =>
+            Task.FromException<ReadResult>(new IOException("disk"));
+    }
+
+    /// <summary>Reads and saves through a real store; the first read returns only after <paramref name="release"/>.</summary>
+    private sealed class HeldReadStore(TaskCompletionSource release) : IProjectStore
+    {
+        private int reads;
+        public void Dispose() { }
+        public async Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default)
+        {
+            using var inner = new ProjectStore();
+            var read = await inner.ReadAsync(path, cancellation).ConfigureAwait(false);
+            if (Interlocked.Increment(ref reads) == 1) await release.Task.ConfigureAwait(false);
+            return read;
+        }
+        public async Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default)
+        {
+            using var inner = new ProjectStore();
+            return await inner.SaveAsync(path, request, cancellation).ConfigureAwait(false);
         }
     }
 

@@ -17,7 +17,7 @@ public sealed record TextSizeLoad(int Percent, string Outcome, IReadOnlyList<str
 /// <summary>
 /// <c>cfdw-display</c> version 1 (DN-5): the Text size of one installation user, a whole percent in <see cref="TextSizes"/>.
 /// Absent means 100. Any other content is unreadable: the reader returns 100 and the store never rewrites that file.
-/// Never throws.
+/// <see cref="Parse"/> never throws; <see cref="Serialize"/> throws on an out-of-set value (one rule for the set).
 /// </summary>
 public static class DisplayPreferences
 {
@@ -54,15 +54,17 @@ public static class DisplayPreferences
         }
     }
 
+    /// <summary>The document for <paramref name="textSize"/>; an out-of-set value is a caller defect and throws.</summary>
     public static byte[] Serialize(int textSize)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(TextSizes.Contains(textSize), true, nameof(textSize));
         var buffer = new ArrayBufferWriter<byte>();
         using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true }))
         {
             writer.WriteStartObject();
             writer.WriteString("format", FormatName);
             writer.WriteNumber("version", CurrentVersion);
-            writer.WriteNumber("textSize", TextSizes.Contains(textSize) ? textSize : DefaultTextSize);
+            writer.WriteNumber("textSize", textSize);
             writer.WriteEndObject();
         }
         return buffer.WrittenSpan.ToArray();
@@ -425,7 +427,24 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         }
     }
 
+    /// <summary>
+    /// Reads the Text size. Holds the store gate, so a save issued meanwhile waits and never races the hash. A file-system
+    /// exception is a <c>failed</c>/<c>DOC-IO</c> outcome at 100 % and the file is not rewritten this session.
+    /// </summary>
     public async Task<TextSizeLoad> LoadTextSizeAsync(CancellationToken ct)
+    {
+        await gate.WaitAsync(ct).ConfigureAwait(false);
+        try { return await LoadTextSizeCore(ct).ConfigureAwait(false); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            displayNeverWrite = true;
+            displayBlock = "DOC-IO";
+            return new TextSizeLoad(DisplayPreferences.DefaultTextSize, "failed", ["DOC-IO"], true, true, null);
+        }
+        finally { gate.Release(); }
+    }
+
+    private async Task<TextSizeLoad> LoadTextSizeCore(CancellationToken ct)
     {
         const int fallback = DisplayPreferences.DefaultTextSize;
         if (Linked(root) || Linked(DisplayDir))
@@ -463,7 +482,9 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     /// <summary>
     /// Writes the Text size. Saves queued behind one another write the latest requested value, so a slow earlier save
-    /// cannot overwrite a later choice. One value, whole document: on a conflict the latest choice here wins.
+    /// cannot overwrite a later choice. One value, whole document: on a conflict the latest choice here wins after one
+    /// re-read and retry. If another writer still holds the claim, the outcome is <c>claim-held</c> and every later save
+    /// in this session is <c>claim-held</c> too (session-only). A file-system exception is <c>failed</c>/<c>DOC-IO</c>.
     /// </summary>
     public async Task<PrefSave> SaveTextSizeAsync(int percent, CancellationToken ct)
     {
@@ -477,11 +498,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             if (displayHeld) return new PrefSave("claim-held", "DOC-CONFLICT", false, false, false, Claim(DisplayDir));
             int want;
             lock (sync) want = textSizeWanted;
-            try { EnsureDir(DisplayDir); }
-            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
-            {
-                return new PrefSave("failed", "DOC-IO", false, false, false, null);
-            }
+            EnsureDir(DisplayDir);
             var image = DisplayPreferences.Serialize(want);
             var first = await Write(DisplayPath, image, displayHash, ct).ConfigureAwait(false);
             if (first.Code == "OK")
@@ -489,8 +506,17 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
                 displayHash = first.PublishedSha256;
                 return Saved(first, false);
             }
+            if (first.Code == "DOC-UNSUPPORTED-PERSISTENCE")
+            {
+                displaySession = true;
+                return Session();
+            }
             if (first.Code != "DOC-CONFLICT") return Failed(first);
             return await ResolveTextSize(image, ct).ConfigureAwait(false);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return new PrefSave("failed", "DOC-IO", false, false, false, null);
         }
         finally { gate.Release(); }
     }

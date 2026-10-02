@@ -766,16 +766,11 @@ public static class PropertiesCellsTests
         DesktopChecks.Check("TextSize_PersistsPerUser", () =>
         {
             // DN-5: the Text size is persisted per user. Set 150 %, restart the shell on the same preference root, read 150 %
-            // in the setting and in the drawn Prop tokens. The View ladder and the stored set are one set (no drift).
-            var ladder = CommandTable.TextSizes.Select(size => (int)Math.Round(size * 100)).ToArray();
-            if (!ladder.SequenceEqual(DisplayPreferences.TextSizes))
-                throw new InvalidOperationException($"ladder {string.Join(",", ladder)} vs stored {string.Join(",", DisplayPreferences.TextSizes)}");
-            string temp = Path.GetTempPath();
-            if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-            string root = Path.Combine(temp, "tsp-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(root);
+            // in the setting and in the drawn Prop tokens. The read and the write are measured on the normal path.
+            string root = TempRoot();
             string key = PropertiesPane.ScaledTokens[0];
             double baseToken = Application.Current!.TryFindResource(key, out var value) && value is double number ? number : double.NaN;
+            ShellEvents.Clear();
             (double Scale, double Token) Restart(Action<ShellHost>? act)
             {
                 using var controller = new WorkbenchController();
@@ -797,12 +792,59 @@ public static class PropertiesCellsTests
             var restarted = Restart(null);
             if (set.Scale != 1.5 || restarted.Scale != 1.5 || Math.Abs(restarted.Token - 1.5) > 1e-9)
                 throw new InvalidOperationException($"set {set.Scale}; after restart {restarted.Scale}, {key} at {restarted.Token}x");
+            var events = ShellEvents.Read().Where(item => item.Name.StartsWith("display.", StringComparison.Ordinal)).ToList();
+            string got = string.Join(", ", events.Select(item => $"{item.Name}:{item.Outcome}"));
+            if (got != "display.load:absent, display.save:saved, display.load:restored" ||
+                events.Any(item => item.TraceId.Length != 32 || !(item.DurationMilliseconds >= 0)))
+                throw new InvalidOperationException("events " + got);
+        });
+
+        DesktopChecks.Check("TextSize_SaveNotKept_RecordedAndAnnouncedOnce", () =>
+        {
+            // A Text size the store cannot keep (here a linked preference root: session-only) is recorded on every save
+            // and told to the user once, politely, with the reason.
+            string real = TempRoot();
+            string link = Path.Combine(TempRoot(), "prefs");
+            Directory.CreateSymbolicLink(link, real);
+            ShellEvents.Clear();
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller, new PreferenceStore(link, () => new ProjectStore()));
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
+            try
+            {
+                window.Show();
+                Pump(host.TextSizeLoaded);
+                Settle(window);
+                var seen = Changes(Status(host));
+                foreach (double scale in new[] { 1.5, 2 })
+                {
+                    host.SetTextScale(scale);
+                    Pump(host.TextSizeSaved);
+                    Settle(window);
+                }
+                var told = seen.Where(text => text.StartsWith("Text size will apply this session only: ", StringComparison.Ordinal)).ToList();
+                var events = ShellEvents.Read().Where(item => item.Name.StartsWith("display.", StringComparison.Ordinal)).ToList();
+                string got = string.Join(", ", events.Select(item => $"{item.Name}:{item.Outcome}:{item.Code}"));
+                if (told.Count != 1 || got != "display.load:session-only:LAYOUT-SESSION-ONLY, display.save:session-only:LAYOUT-SESSION-ONLY, display.save:session-only:LAYOUT-SESSION-ONLY")
+                    throw new InvalidOperationException($"told {told.Count} ({string.Join(" | ", seen)}); events {got}");
+            }
+            finally { window.Close(); }
         });
 
         Capture();
     }
 
     // ---------------- helpers ----------------
+
+    /// <summary>A fresh preference root under the run TMPDIR, with the macOS /tmp link resolved (the store refuses links).</summary>
+    private static string TempRoot()
+    {
+        string temp = Path.GetTempPath();
+        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
+        string root = Path.Combine(temp, "tsp-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        return root;
+    }
 
     /// <summary>A theme brush's colour as the window resolves it now.</summary>
     private static Color Resolved(Window window, string key) =>
