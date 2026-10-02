@@ -46,8 +46,7 @@ internal static class PointModelTests
                 .ToArray();
             Equal(0, members.Length);
             Equal(false, Enum.GetNames<PointFreedom>().Contains("AftOnly"));
-            string root = AppContext.BaseDirectory;
-            while (!File.Exists(System.IO.Path.Combine(root, "CFDWorkbench.slnx"))) root = System.IO.Path.GetDirectoryName(root) ?? throw new InvalidOperationException("repo root not found");
+            string root = PlacementTests.RepoRoot();
             var alias = new System.Text.RegularExpressions.Regex(@"\b(AftMeters|AftOnly)\b");
             var hits = Directory.EnumerateFiles(System.IO.Path.Combine(root, "src"), "*.cs", SearchOption.AllDirectories)
                 .Where(file => !file.Contains(System.IO.Path.DirectorySeparatorChar + "obj" + System.IO.Path.DirectorySeparatorChar))

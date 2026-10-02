@@ -14,6 +14,7 @@ internal static class LayoutFileTests
         Check("LayoutParse_BadWorkspace_OthersRestored", BadWorkspace);
         Check("LayoutParse_UnknownPane_DroppedOthersKept", UnknownPane);
         Check("LayoutParse_MissingPane_PlacedByPreset", MissingPane);
+        Check("LayoutParse_RetiredSamplesPane_DroppedOthersKept", RetiredSamplesPane);
         Check("LayoutParse_OutOfRange_Clamped", OutOfRange);
         Check("RecentParse_RelativePath_Dropped", RelativeRecent);
         Check("LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9", Deepest);
@@ -115,6 +116,29 @@ internal static class LayoutFileTests
         Has(integer.Codes, "LAYOUT-WORKSPACE");
         Equal(1, integer.Document.Workspaces.Count);
         Equal(280d, Left(integer.Document.Workspaces[0]));
+    }
+
+    // A layout saved while the "3D samples" document existed names it as a pane, as the active pane and as closed: it drops, nothing throws.
+    private static void RetiredSamplesPane()
+    {
+        const string saved = """
+        {"format":"cfdw-layout","version":1,"active":"planform","workspaces":[{"id":"planform",
+         "views":{"arrangement":"plan-3d","single":"plan"},
+         "regions":[
+          {"id":"right","open":false,"size":260,"groups":[{"panes":["properties"],"active":"properties","share":1}]},
+          {"id":"left","open":true,"size":260,"groups":[{"panes":["3d-samples","browser"],"active":"3d-samples","share":1}]},
+          {"id":"bottom","open":false,"size":190,"groups":[{"panes":["points","messages"],"active":"points","share":1}]}],
+         "floats":[],"closed":["3d-samples"]}]}
+        """;
+        var parsed = LayoutCodec.Parse(Encoding.UTF8.GetBytes(saved), Panes());
+        Has(parsed.Codes, "LAYOUT-PANE");
+        Equal(true, parsed.DroppedPanes >= 1);
+        var workspace = parsed.Document.Workspaces.Single();
+        Equal(0, Count(workspace, "3d-samples"));
+        Equal(1, Count(workspace, "browser"));
+        Equal(1, Count(workspace, "properties"));
+        Equal(1, Count(workspace, "points"));
+        Equal(1, Count(workspace, "messages"));
     }
 
     private static void UnknownPane()

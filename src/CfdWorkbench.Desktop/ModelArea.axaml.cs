@@ -92,7 +92,6 @@ public partial class ModelArea : UserControl
     {
         StartCardView.IsVisible = !isOpen;
         PlanContent.IsVisible = isOpen;
-        Plan3DContent.IsVisible = isOpen;
         foilOpen = isOpen;
         Bind();
         Refresh();

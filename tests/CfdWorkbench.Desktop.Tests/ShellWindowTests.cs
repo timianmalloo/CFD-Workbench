@@ -38,8 +38,8 @@ public static class ShellWindowTests
                     Avalonia.Threading.Dispatcher.UIThread.RunJobs();
                 open.GetAwaiter().GetResult();
                 Settle(window);
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
                 Settle(window);
                 void AssertDrawn(string step)
                 {
@@ -56,7 +56,7 @@ public static class ShellWindowTests
                 AssertDrawn("initial");
                 var tabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                 var sourceTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.FoilSourceDocument));
-                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.SamplesDocument));
+                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.SectionSampleDocument));
                 sourceTab.IsSelected = true;
                 Settle(window);
                 if (!sourceTab.IsSelected)
@@ -89,8 +89,6 @@ public static class ShellWindowTests
                 {
                     (host.LayoutFactory.ModelDocument, host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!,
                         () => controller.Planform is not null),
-                    (host.LayoutFactory.SamplesDocument, host.ModelView.FindControl<Viewport>("FoilViewport")!,
-                        () => ReferenceEquals(host.ModelView.FindControl<Viewport>("FoilViewport")!.LastRecordedFrame, controller.Frame)),
                     (host.LayoutFactory.SectionSampleDocument, host.ModelView.FindControl<Viewport>("SectionViewport")!,
                         () => ReferenceEquals(host.ModelView.FindControl<Viewport>("SectionViewport")!.LastRecordedFrame, controller.Frame)),
                     (host.LayoutFactory.FoilSourceDocument, host.ModelView.FindControl<TextBox>("SourceText")!,
@@ -130,7 +128,7 @@ public static class ShellWindowTests
                     .Count(tab => tab.IsEffectivelyVisible);
                 int dockTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
                     .Count(tab => tab.IsEffectivelyVisible);
-                if (innerRows != 0 || dockTabs != 5)
+                if (innerRows != 0 || dockTabs != 4)
                     throw new InvalidOperationException($"Model area has {innerRows} inner tab rows and {dockTabs} Dock document tabs");
             }
             finally { window.Close(); }
@@ -683,7 +681,7 @@ public static class ShellWindowTests
                 var host = window.Content as ShellHost
                     ?? throw new InvalidOperationException("Shell host did not load");
                 var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
-                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SamplesDocument))
+                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SectionSampleDocument))
                     ?? throw new InvalidOperationException("Model Dock tab did not render");
                 var visual = ElementComposition.GetElementVisual(tab)
                     ?? throw new InvalidOperationException("Dock tab lacks composition visual");
@@ -705,7 +703,7 @@ public static class ShellWindowTests
                     .Prepend(adorner as Border).Where(border => border?.BorderBrush is not null).ToArray();
                 if (rings.Length < 2)
                     throw new InvalidOperationException("Dock tab lacks the two focus rings");
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
+                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
                 if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
                     throw new InvalidOperationException("Accepted frame not bound before Dock focus barrier");
                 var fresh = visual.Compositor.RequestCompositionBatchCommitAsync();
@@ -766,7 +764,7 @@ public static class ShellWindowTests
             try { host = new ShellHost(controller); }
             catch (Exception error) { throw new InvalidOperationException(error.ToString(), error); }
             var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
-            if (!ids.Contains("model") || !ids.Contains("3d-samples") || !ids.Contains("section-sample") || !ids.Contains("foil-source"))
+            if (!ids.SequenceEqual(["model", "section-sample", "foil-source", "section"]))
                 throw new InvalidOperationException("Model area document tabs are absent");
             var paneIds = host.LayoutFactory.LeftToolDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
             if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("rail-controls"))
@@ -785,7 +783,6 @@ public static class ShellWindowTests
                     host.LayoutFactory.SectionSampleDocument,
                     host.LayoutFactory.FoilSourceDocument,
                     host.LayoutFactory.SectionDocument,
-                    host.LayoutFactory.SamplesDocument,
                     host.LayoutFactory.ModelDocument
                 })
                 {
@@ -794,6 +791,27 @@ public static class ShellWindowTests
                 }
             }
             finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("ModelArea_SamplesTabRetired_NoReferencesRemain", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
+            if (ids.Contains("3d-samples") || host.LayoutFactory.FindDockable("3d-samples") is not null)
+                throw new InvalidOperationException("The 3D samples document still exists: " + string.Join(", ", ids));
+            if (host.ModelView.FindControl<Control>("Plan3DContent") is not null || host.ModelView.FindControl<Control>("FoilViewport") is not null)
+                throw new InvalidOperationException("The 3D samples body is still in the model area");
+            // The retired names must not reappear in the Desktop source: the document, its body, its viewport, its provenance line,
+            // the Viewport 3D mode and the inspection semantics only that mode used.
+            string root = RepoRootFromSource();
+            var retired = new System.Text.RegularExpressions.Regex(
+                @"SamplesDocument|Plan3DContent|FoilViewport|ViewportProvenance|3d-samples|3D samples|SectionMode|FromInspection");
+            var hits = Directory.EnumerateFiles(Path.Combine(root, "src", "CfdWorkbench.Desktop"), "*.*", SearchOption.AllDirectories)
+                .Where(file => file.EndsWith(".cs", StringComparison.Ordinal) || file.EndsWith(".axaml", StringComparison.Ordinal))
+                .Where(file => !file.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar))
+                .Where(file => retired.IsMatch(File.ReadAllText(file))).Select(Path.GetFileName).ToArray();
+            if (hits.Length > 0) throw new InvalidOperationException("Retired 3D samples names remain in: " + string.Join(", ", hits));
         });
 
         DesktopChecks.Check("ShellHost_AcceptedExample_BindsPanes", () =>
@@ -861,8 +879,8 @@ public static class ShellWindowTests
                     Avalonia.Threading.Dispatcher.UIThread.RunJobs();
                     window.UpdateLayout();
                 }
-                var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")!;
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
+                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
                 Settle(window);
                 double width = Viewport.PlotWidth(viewport.Bounds.Width, 178);
                 if (width < 250 || viewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
@@ -2151,18 +2169,18 @@ public static class ShellWindowTests
 
                     var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                     string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
-                    if (!titles.SequenceEqual(["Plan", "3D samples", "Section sample", "Foil source", "Section"]))
+                    if (!titles.SequenceEqual(["Plan", "Section sample", "Foil source", "Section"]))
                         throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
                     var modelTab = docTabs[1];
-                    var sourceTab = docTabs[3];
+                    var sourceTab = docTabs[2];
                     modelTab.IsSelected = true;
                     Settle(window);
 
                     // Theme barrier: a fresh composition batch renders the focused tab after the Example is bound.
                     var composition = ElementComposition.GetElementVisual(modelTab)
                         ?? throw new InvalidOperationException("Barrier tab lacks a compositor");
-                    var viewport = host.ModelView.FindControl<Viewport>("FoilViewport")
-                        ?? throw new InvalidOperationException("Barrier did not find FoilViewport");
+                    var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")
+                        ?? throw new InvalidOperationException("Barrier did not find SectionViewport");
                     if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
                         throw new InvalidOperationException("Opened Example not bound before the theme barrier");
                     if (!modelTab.Focus(NavigationMethod.Tab))
@@ -2307,10 +2325,6 @@ public static class ShellWindowTests
                     if (!sidebar.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Focus could not leave the point Span field");
                     // Annotations and the unsaved-changes modal: rows the retired pre-shell matrix measured on surfaces
                     // the shell still ships.
-                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SamplesDocument;
-                    Settle(window);
-                    Probe(theme, "viewport.annotation", () => TextRow(theme, "viewport.annotation",
-                        host.ModelView.FindControl<TextBlock>("ViewportProvenance") ?? throw new InvalidOperationException("Viewport annotation absent")));
                     host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
                     Settle(window);
                     Probe(theme, "section.annotation", () => TextRow(theme, "section.annotation",
@@ -2357,7 +2371,7 @@ public static class ShellWindowTests
                         window.RequestedThemeVariant = ThemeVariant.Dark;
                         Settle(window);
                         Probe(theme, "live-flip.dark.tab.Section.unselected",
-                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[4]));
+                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[3]));
                         Probe(theme, "live-flip.dark.select.tab.Foil source",
                             () => SelectedRow(theme, "live-flip.dark.select.tab.Foil source", sourceTab));
                     }

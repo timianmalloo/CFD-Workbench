@@ -11,7 +11,6 @@ public sealed class ShellLayoutFactory : Factory
     public ITool BrowserTool { get; private set; } = null!;
     public ITool RailControlsTool { get; private set; } = null!;
     public IDocument ModelDocument { get; private set; } = null!;
-    public IDocument SamplesDocument { get; private set; } = null!;
     public IDocument SectionSampleDocument { get; private set; } = null!;
     public IDocument FoilSourceDocument { get; private set; } = null!;
     public IDocument SectionDocument { get; private set; } = null!;
@@ -57,14 +56,6 @@ public sealed class ShellLayoutFactory : Factory
             CanFloat = false
         };
 
-        SamplesDocument = new Document
-        {
-            Id = "3d-samples",
-            Title = "3D samples",
-            CanClose = false,
-            CanFloat = false
-        };
-
         SectionSampleDocument = new Document
         {
             Id = "section-sample",
@@ -104,7 +95,7 @@ public sealed class ShellLayoutFactory : Factory
             Id = "Docs",
             Title = "Model area",
             ActiveDockable = ModelDocument,
-            VisibleDockables = CreateList<IDockable>(ModelDocument, SamplesDocument, SectionSampleDocument, FoilSourceDocument, SectionDocument),
+            VisibleDockables = CreateList<IDockable>(ModelDocument, SectionSampleDocument, FoilSourceDocument, SectionDocument),
             CanCreateDocument = false
         };
 
@@ -132,7 +123,6 @@ public sealed class ShellLayoutFactory : Factory
         "browser" => BrowserTool,
         "rail-controls" => RailControlsTool,
         "model" => ModelDocument,
-        "3d-samples" => SamplesDocument,
         "section-sample" => SectionSampleDocument,
         "foil-source" => FoilSourceDocument,
         "section" => SectionDocument,
