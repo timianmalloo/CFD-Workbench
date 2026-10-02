@@ -68,7 +68,12 @@ public partial class ModelArea : UserControl
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
         foreach (var renderer in new[] { ThreeDRenderer, SideRenderer, FrontRenderer })
             renderer.SizeChanged += (_, _) => Refresh();
-        AttachedToVisualTree += (_, _) => Bind();
+        // Re-entering a document tab re-attaches the same controller: refresh so the views ask for a mesh again.
+        AttachedToVisualTree += (_, _) =>
+        {
+            Bind();
+            Refresh();
+        };
         DetachedFromVisualTree += (_, _) =>
         {
             if (controller is not null) controller.SurfaceWanted = false;

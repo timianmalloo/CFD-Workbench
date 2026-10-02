@@ -488,9 +488,17 @@ public static class ControllerViewTests
                     Settle(window);
                 }
                 AssertViewsDrawn(window, host.ModelView, controller, "after the layout round trip");
+                // Leave the Plan tab, change the foil while away, come back: the views draw the new shape.
                 host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
                 Settle(window);
+                var applied = controller.ApplySpanAsync("1350");
+                Await(applied);
+                if (applied.Result is not CommitOutcome.Committed) throw new Exception("Span change was refused");
+                Settle(window);
                 host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.ModelDocument;
+                Settle(window);
+                Pump(() => controller.Surface?.SourceHash == controller.Inspection!.Authored.Binding.SourceHash && !controller.SurfaceUpdating,
+                    "the changed shape's mesh after tab re-entry", seconds: 5);
                 Settle(window);
                 AssertViewsDrawn(window, host.ModelView, controller, "after tab re-entry");
             }
@@ -815,7 +823,9 @@ public static class ControllerViewTests
         foreach (var renderer in new[] { area.ThreeDRenderer, area.SideRenderer, area.FrontRenderer })
         {
             if (!renderer.IsEffectivelyVisible || renderer.Camera is null) throw new Exception($"{label}: {renderer.Pane} is not shown");
-            var at = renderer.TranslatePoint(renderer.Camera.Value.Project(surface.Sections[^1].Upper[0], renderer.Bounds.Size), window)
+            // An inboard leading-edge point: on the outline in every view, and inside a camera kept across an edit that
+            // lengthened the span (the views keep the user's framing; they never refit on a change).
+            var at = renderer.TranslatePoint(renderer.Camera.Value.Project(surface.Sections[10].Upper[0], renderer.Bounds.Size), window)
                 ?? throw new Exception("No window point");
             var nearest = shot.Nearest(at, foil, 3);
             if (Contrast(nearest, background) < 3) throw new Exception($"{label}: {renderer.Pane} shows no foil pixels near {at}");
