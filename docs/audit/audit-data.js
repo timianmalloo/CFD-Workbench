@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T22:45:19Z",
+  "generated": "2026-10-02T23:03:21Z",
   "audit": [
     {
       "actor": null,
@@ -21999,6 +21999,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T22:44:26Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M3ZDQ80KV0A6RVHPADTPF8W7",
+      "shortname": "join-view-gutter",
+      "datetime": "2026-10-02T23:03:21Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/view-gutter-frames into feature/ui-cad-direction",
+      "summary": "NS-4 (Sonnet 5.5): views separated by a 4 px canvas gutter and a 1 px line frame in every arrangement (One view: frame only); token view-gutter; pixel test at render scaling, red on the old layout (Coordinator re-ran it against e888d5a's ModelArea). VW1 layout checks adjusted (min window 648x488 = 2x(320+2)+4). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T23:02:29Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
