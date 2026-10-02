@@ -148,3 +148,53 @@ Measured on pixels by `PropertiesPane_B_EditableValueHasDottedUnderline` (a head
 Every dash pixel is the exact accent (`PrimaryBrush`), so the measured ratios equal the token arithmetic in the cells
 review §3(a). Verified headless on macOS (a Retina host; the test renders at both densities). Native confirmation is row
 B3.1 below.
+
+### What the headless build measured (macOS host, 1280 × 800, 260 px dock, light)
+
+`--properties-cells` prints these `MEASURE` lines on every run:
+
+| Quantity | Brief (cells §1) | Built |
+|---|---|---|
+| Label / value / unit font | 11 / 11 / 11 | 11 / 11 / 11 (`OneFontSizeForLabelValueUnit`); nothing below 11 in the anchor, handle and unavailable states |
+| Read-only / editable row | 20 / 24 | 20 / 24 (`RowPitch20_24`; η, MAC 20; From root, Aft, Type, Span 24) |
+| Group header | 24, no band | 24 for Point and the rail group, transparent, 10 px muted chevron at the left |
+| Focus box | 20 px, 1 px accent | 58 × 20 inside the 62 × 24 band, by Tab and by pointer |
+| Focused error | accent box, danger box 1 px outside | yes (`FocusedErrorFieldDistinctFromUnfocused`); unfocused: the danger box only |
+| Identity block | 45 | 31. The approved capture `b-anchor.png` also measures 31 (62 px at 2×), so the brief's 45 is Flagged |
+| Wing block | 230 | 235 (the approved capture measures 234) |
+| Baselines | unit on the value's baseline | label, value and unit at the same y to 0.01 px, on an input row and on a fact row |
+| DC-2 worst case at 200 px | not clipped in the 62 px editor | "−1234.56" 47 px and "12000.00" 46 px of the 52 px text room; "≈ 38125" one line |
+
+**Face.** Tabular figures need a face that has them. The default face (Helvetica) has proportional digits and
+ignores `tnum`. The macOS system face honours `tnum` but renders heavy at 11 px through Skia, and a fallback list does
+not resolve it. So the pane uses Helvetica Neue on macOS (tabular digits) and Segoe UI elsewhere (honours `tnum`):
+`PropFontFamily` in `Styles.axaml`. Row **B3.6** checks the look on both platforms.
+
+### Text size (DN-5) — persistence is not built
+
+View ▸ Text size (Bigger, Smaller, 100 / 125 / 150 / 200 %) and the DR-DEN-4 routing are built and tested. ⌘= / ⌘−
+zoom a focused Plan, 3D or Section view and step the Text size anywhere else. **Persisting the setting is not built.**
+`PreferenceStore` has only the frozen `cfdw-layout` v1 document and the Recent list; storing a Text size needs a
+Persistence change, which this track may not make. `TextSize_PersistsPerUser` is deferred to a track that owns
+`src/CfdWorkbench.Persistence/`. Until then the setting lasts for the session.
+
+A clicked View ▸ Zoom in item takes the same route as its shortcut. With focus in a pane, that click steps the Text
+size; the platform menu cannot tell a click from the key. Row B3.7 asks the operator to accept this.
+
+### B2-2 / B3 — native rows (the author clears none)
+
+| # | Do | Pass when | Result |
+|---|---|---|---|
+| B3.1 | Underline ≥ 3:1 on pixels: screenshot Aft at rest in light, dark and high contrast, on a Retina display and on a Windows-class 100 % display; pick a dash pixel and the surface beside it | Each ≥ 3:1. The headless figures are 6.11, 8.60 and 17.62 at 1× and 2× | |
+| B3.2 | Captures of the anchor, handle, field-error and Unavailable states in light, dark and high contrast, compared with `docs/proof/property-grid-cells/b-*.png`, **including a Windows-class 100 % display** (DR-DEN-3: 11 px legibility) | Same structure and states as the approved captures; 11 px legible at 100 % | |
+| B3.3 | Every value a Tab stop; focused ≠ unfocused, including in error: keyboard walk of the anchor (Smooth and Corner), the handle and a control point, plus an AX dump | Every editable value and enum is reached; each focused stop shows its box; a focused error shows both boxes. Headless: `EveryEditableValueIsTabStop`, `FocusedErrorFieldDistinctFromUnfocused` | |
+| B3.4 | A row press focuses its value: click the label "Aft", the label "Type" and the gap between them, with a pointer trace | Focus lands on the value; a read-only row takes no focus. Headless: `RowPressFocusesValue` | |
+| B3.5 | VoiceOver on the anchor and Wing rows, at rest and focused | Each editable value is a text field read as "<label> … millimetres" (name and unit); each enum is a pop-up button with its value; a fact reads "<label>, <value> <unit>" | |
+| B3.6 | DC-2 worst case: type −1234.56 into Aft and 12000.00 into Span, Return, at 100 % on Retina **and** on a Windows-class display | Neither number is clipped in the 62 px editor; check the face (Helvetica Neue / Segoe UI) reads as the approved look | |
+| B3.7 | Text size: each step from the View menu, ⌘= / ⌘− in Properties and in the Plan view | Properties: the size steps and "Text size 150 %." is spoken; Plan: the view zooms. Operator accepts that a menu click on Zoom in also follows focus | |
+| B3.8 | Wing focus at 200 %: set Text size 200 %, Tab to Tip chord, type abc, Return | The field and its message are in view inside the Wing; the Wing scrolls inside itself (DR-DEN-2). Headless: `FocusedWingFieldInViewAtLargeText` | |
+| B3.9 | Stacked rows at 150 % and 200 % on the anchor and the 200 px dock | Each value sits under its label, right-aligned; nothing clipped | |
+
+Rows B2.2, B2.10 and B2.10a above describe the retired Kind radio list. On the B build, read them for the Tangent
+kind ▾: ↓ stages ("Press Return to make it corner, or Esc to keep smooth."), Return applies, and leaving says
+"Tangent kind unchanged: Smooth.".

@@ -267,6 +267,7 @@ public static class PropertiesCellsTests
             // B: read-only rows are 20 px, editable rows 24 px (plus the half-strength rule between rows).
             Select(controller, window, PropertiesViewTests.Control(controller, "trailing"));
             var failures = new List<string>();
+            Console.WriteLine(FormattableString.Invariant($"MEASURE identity block {Need<Border>(host.Properties, "IdentityBlock").Bounds.Height:0.#} px, Wing block {Need<Border>(host.Properties, "WingBlock").Bounds.Height:0.#} px"));
             foreach (var (name, want) in new[] { ("Row_p_eta", 20d), ("Row_p_from", 24d), ("Row_p_aft", 24d), ("Row_p_type", 24d), ("Row_e_mac", 20d), ("Row_w_span", 24d) })
             {
                 double height = Need<Border>(host.Properties, name).Bounds.Height;
