@@ -39,8 +39,12 @@ public static class CommandTable
     /// <summary>The View submenu that holds the Text size items.</summary>
     public const string TextSizeMenu = "Text size";
 
-    /// <summary>The Text size ladder (DN-5): 100 %, 125 %, 150 %, 200 %; never below or above.</summary>
-    public static readonly IReadOnlyList<double> TextSizes = [1, 1.25, 1.5, 2];
+    /// <summary>
+    /// The Text size ladder (DN-5): 100 %, 125 %, 150 %, 200 %; never below or above. Derived from the stored set
+    /// (<see cref="CfdWorkbench.Persistence.DisplayPreferences.TextSizes"/>), so there is one definition.
+    /// </summary>
+    public static readonly IReadOnlyList<double> TextSizes =
+        CfdWorkbench.Persistence.DisplayPreferences.TextSizes.Select(percent => percent / 100.0).ToArray();
 
     /// <summary>The ladder step a "view.text-NNN" command sets, or null for any other command.</summary>
     public static double? TextSizeOf(string id) =>
