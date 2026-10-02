@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e2d74893c66cfbb36921495f32978e5fb12a187a372bc4f302e4cf97b031503c"
+      "sourceSha256": "8dc92b678c44029ce9c73cff43d6dd2d5e81528adf5bb17b6b46bace5b698467"
     },
     {
       "id": "thick-client-shell",
@@ -2189,7 +2189,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8d1e9249525442dc0f62e7262de83b294aa319ed72fc3b6a49349aae6b9d6882"
+      "sourceSha256": "170dbed20336c3310e2279de6976217d437f41bd146035a3744d8ff03e58553b"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -4191,7 +4191,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a17eced5377a110194b772dc791ea80eb934b972f213028d98fadbb6a734cb18"
+      "sourceSha256": "5a1da2dee58da5d9eae870c008061a9c946032063adbd4c430b85537149a3022"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -9255,5 +9255,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "1670419589067cb58605d43dfa57caab3ceb9661b257da7136f270833862fd7d"
+  "graphSha256": "cdb405b0e01c040ac568d92b96ab3ce0caa3fc24a6de1a7fe05fe1d733749606"
 };
