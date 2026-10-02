@@ -204,7 +204,10 @@ public static class PropertiesCellsTests
                 for (int step = 0; step < 80 && !InPane(); step++)
                 {
                     PressTab(window);
-                    if (window.FocusManager!.GetFocusedElement() is Control { } stop && stop is not PlanCanvas && !InPane())
+                    // The model area's own view labels (VW1: a view label opens on Return) belong to the model region;
+                    // only stops outside it count against "one stop between the Plan and Properties".
+                    if (window.FocusManager!.GetFocusedElement() is Control { } stop && stop is not PlanCanvas && !InPane()
+                        && stop.FindAncestorOfType<ModelArea>() is null)
                         between.Add(stop.GetType().Name + ":" + (stop.DataContext as Dock.Model.Core.IDockable)?.Id);
                 }
                 if (between.Count != 1) failures.Add("stops between the Plan and Properties: " + string.Join(", ", between));
