@@ -19,8 +19,8 @@ internal static class PlacementTests
         Check("PlacementRule_TaylorAndGridConstants_SharedByAllModels", ConstantsShared);
         Check("PlacementRule_SelectBlend_SameStationsAsCertificate", SelectMatchesGolden);
         Check("PlacementRule_FoilFixtures_MatchGoldenSources", FoilFixturesMatchGolden);
-        Check("Placement_DisplayWithinCertifiedEnclosure_Fixtures", () => DisplayWithin(false));
-        Check("Placement_RandomFixtures_WithinCertifiedEnclosure", () => DisplayWithin(true));
+        Check("Placement_DisplayWithinCertifiedEnclosure_Fixtures", () => DisplayWithin(false, full: false));
+        Check("Placement_RandomFixtures_WithinCertifiedEnclosure", () => DisplayWithin(true, full: false));
         Check("Placement_DisplayMaximum_WithinCertifiedMaximum", DisplayMaximum);
         Check("Placement_FrameLeadingEdge_EqualsCertifiedPointAtXZero", FrameLeadingEdge);
         Check("Placement_SignFixture_PositiveTwistTrailingEdgeDown", PositiveTwistDown);
@@ -36,7 +36,7 @@ internal static class PlacementTests
         // Characterization of today's bits. The call-site fold into WingEstimates and Planform.View is PL0b.
         Check("ChannelEvaluator_WingEstimatesFold_BitsUnchanged", WingGolden);
         Check("ChannelEvaluator_PlanformViewFold_SamplesUnchanged", PlanformGolden);
-        Check("Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures", ProbeEqualsEstimates);
+        Check("Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures", () => ProbeEqualsEstimates(10));
     }
 
     internal static void RunReadiness()
@@ -53,6 +53,11 @@ internal static class PlacementTests
             Equal(101, view.Sections[0].Upper.Count);
             Equal(true, watch.Elapsed < TimeSpan.FromMilliseconds(25));
         });
+        // The full binding sweeps (TEST-RING). The fast ring runs a subset of each under the same name without
+        // the Readiness_ prefix. Measured 2026-10-02 (Release, loaded machine): 13.6 s, 4.8 s and 3.5 s in the fast ring.
+        Check("Readiness_Placement_DisplayWithinCertifiedEnclosure_AllSamples", () => DisplayWithin(false, full: true));
+        Check("Readiness_Placement_RandomFixtures_AllFour", () => DisplayWithin(true, full: true));
+        Check("Readiness_Placement_ProbeChord_1001Samples", () => ProbeEqualsEstimates(1));
     }
 
     private static void CertificatePointBits() => CertificateGolden(false);
@@ -176,20 +181,23 @@ internal static class PlacementTests
         }
     }
 
-    private static void DisplayWithin(bool random)
+    // Ring split (TEST-RING). Fast: the golden fixtures at the chord ends and middle, the two-hump fixtures
+    // (F3, humps crossing between grid samples) at every sample, and the first random fixture. Readiness
+    // (`full`): every sample on every fixture and all four random fixtures.
+    private static void DisplayWithin(bool random, bool full)
     {
         if (!random)
         {
             using var document = JsonDocument.Parse(File.ReadAllText(GoldenPath()));
             foreach (var fixture in document.RootElement.GetProperty("fixtures").EnumerateArray())
-                MeasureOutside(fixture.GetProperty("name").GetString()!, fixture.GetProperty("source").GetString()!);
+                MeasureOutside(fixture.GetProperty("name").GetString()!, fixture.GetProperty("source").GetString()!, full);
             foreach (var (name, source) in TwoHumpFixtures())
                 MeasureOutside(name, source);
             return;
         }
         string example = Example();
         var rng = new Random(20261001);
-        for (int index = 0; index < 4; index++)
+        for (int index = 0; index < (full ? 4 : 1); index++)
         {
             decimal twist = decimal.Round((decimal)(rng.NextDouble() * 80 - 40), 4, MidpointRounding.ToZero);
             decimal dihedralMm = decimal.Round((decimal)(rng.NextDouble() * 400 - 200), 3, MidpointRounding.ToZero);
@@ -523,7 +531,9 @@ internal static class PlacementTests
             SameRefusal(refusal, example);
     }
 
-    private static void ProbeEqualsEstimates()
+    // η = sample / 1000 for every `stride`-th sample: the fast ring's 101 samples are bit-identical to a
+    // subset of readiness's 1001.
+    private static void ProbeEqualsEstimates(int stride)
     {
         string folder = Path.Combine(RepoRoot(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2");
         string[] files = Directory.EnumerateFiles(folder, "*.foil").Order(StringComparer.Ordinal).ToArray();
@@ -534,7 +544,7 @@ internal static class PlacementTests
             var parsed = FoilSource.Parse(source);
             if (parsed.Definition!.Curves.Values.Any(curve => curve.MissingIds))
                 source = FoilSource.MaterializeIds(parsed);
-            for (int sample = 0; sample <= 1000; sample++)
+            for (int sample = 0; sample <= 1000; sample += stride)
             {
                 double eta = sample / 1000d;
                 double frame = Placement.Frame(source, eta).ChordMeters;
