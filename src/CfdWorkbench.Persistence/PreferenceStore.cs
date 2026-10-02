@@ -1,3 +1,5 @@
+using System.Buffers;
+using System.Text.Json;
 using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Persistence;
@@ -10,7 +12,66 @@ public sealed record RecentLoad(IReadOnlyList<RecentEntry> Entries, string Outco
 
 public sealed record PrefSave(string Outcome, string? Code, bool PublicationKnown, bool DurabilityConfirmed, bool Retried, string? ClaimPath);
 
-/// <summary>Installation preferences under <paramref name="root"/>/<c>layout</c> and <c>recent</c> (§4).</summary>
+public sealed record TextSizeLoad(int Percent, string Outcome, IReadOnlyList<string> Codes, bool NeverWrite, bool SessionOnly, string? DiskSha256);
+
+/// <summary>
+/// <c>cfdw-display</c> version 1 (DN-5): the Text size of one installation user, a whole percent in <see cref="TextSizes"/>.
+/// Absent means 100. Any other content is unreadable: the reader returns 100 and the store never rewrites that file.
+/// Never throws.
+/// </summary>
+public static class DisplayPreferences
+{
+    public const string FormatName = "cfdw-display";
+    public const int CurrentVersion = 1;
+    public const int MaxBytes = 4 * 1024;
+    public const int DefaultTextSize = 100;
+    public static readonly IReadOnlyList<int> TextSizes = [100, 125, 150, 200];
+
+    public sealed record DisplayParse(int TextSize, IReadOnlyList<string> Codes, bool NeverWrite);
+
+    public static DisplayParse Parse(ReadOnlySpan<byte> bytes)
+    {
+        try
+        {
+            bool bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            var peek = LayoutCodec.Peek(bom ? bytes[3..] : bytes);
+            if (!peek.Failed && peek.Format == FormatName && peek.Version is > CurrentVersion)
+                return new DisplayParse(DefaultTextSize, ["LAYOUT-VERSION"], true);
+            if (bom || bytes.Length > MaxBytes || peek.Failed || peek.Format != FormatName || peek.Version != CurrentVersion)
+                return Unreadable();
+            using var doc = JsonDocument.Parse(bytes.ToArray(), new JsonDocumentOptions { MaxDepth = 2 });
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in doc.RootElement.EnumerateObject())
+                if (property.Name is not ("format" or "version" or "textSize") || !names.Add(property.Name)) return Unreadable();
+            if (!doc.RootElement.TryGetProperty("textSize", out var value) || value.ValueKind != JsonValueKind.Number
+                || !value.TryGetInt32(out int size) || !TextSizes.Contains(size))
+                return Unreadable();
+            return new DisplayParse(size, [], false);
+        }
+        catch (Exception)
+        {
+            return Unreadable();
+        }
+    }
+
+    public static byte[] Serialize(int textSize)
+    {
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WriteString("format", FormatName);
+            writer.WriteNumber("version", CurrentVersion);
+            writer.WriteNumber("textSize", TextSizes.Contains(textSize) ? textSize : DefaultTextSize);
+            writer.WriteEndObject();
+        }
+        return buffer.WrittenSpan.ToArray();
+    }
+
+    private static DisplayParse Unreadable() => new(DefaultTextSize, ["DISPLAY-SCHEMA"], true);
+}
+
+/// <summary>Installation preferences under <paramref name="root"/>/<c>layout</c>, <c>recent</c> (§4) and <c>display</c> (DN-5).</summary>
 public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactory)
 {
     private readonly SemaphoreSlim gate = new(1, 1);
@@ -28,11 +89,19 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private bool recentHeld;
     private string? layoutBlock;
     private string? recentBlock;
+    private string? displayHash;
+    private bool displayNeverWrite;
+    private bool displaySession;
+    private bool displayHeld;
+    private string? displayBlock;
+    private int textSizeWanted = DisplayPreferences.DefaultTextSize;
 
     private string LayoutDir => Path.Combine(root, "layout");
     private string RecentDir => Path.Combine(root, "recent");
     private string LayoutPath => Path.Combine(LayoutDir, "layout.json");
     private string RecentPath => Path.Combine(RecentDir, "recent.json");
+    private string DisplayDir => Path.Combine(root, "display");
+    private string DisplayPath => Path.Combine(DisplayDir, "display.json");
     private static string Claim(string directory) => Path.Combine(directory, ".cfd-writer.claim");
 
     public async Task<LayoutLoad> LoadLayoutAsync(IReadOnlySet<string> registeredPanes, CancellationToken ct)
@@ -354,6 +423,103 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         {
             if (store is IDisposable disposable) disposable.Dispose();
         }
+    }
+
+    public async Task<TextSizeLoad> LoadTextSizeAsync(CancellationToken ct)
+    {
+        const int fallback = DisplayPreferences.DefaultTextSize;
+        if (Linked(root) || Linked(DisplayDir))
+        {
+            displaySession = true;
+            return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY"], true, true, null);
+        }
+        if (!File.Exists(DisplayPath))
+        {
+            displayHash = null;
+            return new TextSizeLoad(fallback, "absent", [], false, false, null);
+        }
+        var (read, error) = await Read(DisplayPath, ct).ConfigureAwait(false);
+        if (error == "DOC-UNSUPPORTED-PERSISTENCE")
+        {
+            displaySession = true;
+            return new TextSizeLoad(fallback, "session-only", ["LAYOUT-SESSION-ONLY", error], true, true, null);
+        }
+        if (error is not null)
+        {
+            displayNeverWrite = true;
+            displayBlock = error;
+            return new TextSizeLoad(fallback, "never-write", ["DISPLAY-SCHEMA", error], true, true, null);
+        }
+        var parsed = DisplayPreferences.Parse(read!.Image);
+        if (parsed.NeverWrite)
+        {
+            displayNeverWrite = true;
+            displayBlock = parsed.Codes[0];
+            return new TextSizeLoad(fallback, "never-write", parsed.Codes, true, true, read.DiskSha256);
+        }
+        displayHash = read.DiskSha256;
+        return new TextSizeLoad(parsed.TextSize, "restored", [], false, false, read.DiskSha256);
+    }
+
+    /// <summary>
+    /// Writes the Text size. Saves queued behind one another write the latest requested value, so a slow earlier save
+    /// cannot overwrite a later choice. One value, whole document: on a conflict the latest choice here wins.
+    /// </summary>
+    public async Task<PrefSave> SaveTextSizeAsync(int percent, CancellationToken ct)
+    {
+        if (!DisplayPreferences.TextSizes.Contains(percent)) return new PrefSave("rejected", "DISPLAY-SCHEMA", false, false, false, null);
+        lock (sync) textSizeWanted = percent;
+        await gate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            if (Linked(root) || Linked(DisplayDir) || displaySession) return Session();
+            if (displayNeverWrite) return new PrefSave("never-write", displayBlock ?? "DISPLAY-SCHEMA", false, false, false, null);
+            if (displayHeld) return new PrefSave("claim-held", "DOC-CONFLICT", false, false, false, Claim(DisplayDir));
+            int want;
+            lock (sync) want = textSizeWanted;
+            try { EnsureDir(DisplayDir); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            {
+                return new PrefSave("failed", "DOC-IO", false, false, false, null);
+            }
+            var image = DisplayPreferences.Serialize(want);
+            var first = await Write(DisplayPath, image, displayHash, ct).ConfigureAwait(false);
+            if (first.Code == "OK")
+            {
+                displayHash = first.PublishedSha256;
+                return Saved(first, false);
+            }
+            if (first.Code != "DOC-CONFLICT") return Failed(first);
+            return await ResolveTextSize(image, ct).ConfigureAwait(false);
+        }
+        finally { gate.Release(); }
+    }
+
+    private async Task<PrefSave> ResolveTextSize(byte[] image, CancellationToken ct)
+    {
+        var (read, error) = await Read(DisplayPath, ct).ConfigureAwait(false);
+        if (error is not null || read is null)
+        {
+            displayNeverWrite = true;
+            displayBlock = error ?? "DOC-IO";
+            return new PrefSave("never-write", displayBlock, false, false, true, null);
+        }
+        var parsed = DisplayPreferences.Parse(read.Image);
+        if (parsed.NeverWrite)
+        {
+            displayNeverWrite = true;
+            displayBlock = parsed.Codes[0];
+            return new PrefSave("never-write", displayBlock, false, false, true, null);
+        }
+        var retry = await Write(DisplayPath, image, read.DiskSha256, ct).ConfigureAwait(false);
+        if (retry.Code == "OK")
+        {
+            displayHash = retry.PublishedSha256;
+            return Saved(retry, true);
+        }
+        if (retry.Code != "DOC-CONFLICT") return Failed(retry);
+        displayHeld = true;
+        return new PrefSave("claim-held", "DOC-CONFLICT", false, false, true, Claim(DisplayDir));
     }
 
     private static void EnsureDir(string path)

@@ -232,6 +232,7 @@ public sealed class ShellHost : Grid
 
         // Initial Bind
         RefreshPanes();
+        if (Preferences is not null) TextSizeLoaded = LoadTextSizeAsync(Preferences);
     }
 
     public async Task OpenExampleAsync()
@@ -542,19 +543,56 @@ public sealed class ShellHost : Grid
     /// <summary>The Text size multiplier the panes are drawn at (DN-5).</summary>
     public double TextScale => Properties.TextScale;
 
+    /// <summary>The startup read of the persisted Text size (DN-5); completes once the value is applied.</summary>
+    public Task TextSizeLoaded { get; private set; } = Task.CompletedTask;
+
+    /// <summary>The latest Text size write; completed when there is none.</summary>
+    public Task TextSizeSaved { get; private set; } = Task.CompletedTask;
+
     /// <summary>Raised after the Text size changes, so the View ▸ Text size radio items can follow.</summary>
     public event Action<double>? TextScaleChanged;
 
     /// <summary>
-    /// DN-5: sets the Text size to a step of the ladder and announces it politely ("Text size 150 %."). The setting is
-    /// not persisted yet: the preference store has no slot for it (docs/reviews/property-grid-native.md, Text size).
+    /// DN-5: sets the Text size to a step of the ladder, announces it politely ("Text size 150 %.") and persists it per
+    /// user (<c>cfdw-display</c> in the preference root). A choice made before the startup read finishes wins over it.
     /// </summary>
     public void SetTextScale(double scale)
     {
+        textSizeChosen = true;
         double step = CommandTable.TextSizes.MinBy(size => Math.Abs(size - scale));
-        if (Math.Abs(step - Properties.TextScale) < 1e-9) return;
+        if (Math.Abs(step - Properties.TextScale) < 1e-9)
+        {
+            // Chosen while the startup read is pending: the read will not apply, so this choice must reach the file.
+            if (Preferences is not null && !TextSizeLoaded.IsCompleted)
+                TextSizeSaved = Preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
+            return;
+        }
         Properties.ApplyTextScale(step);
         ModelView.ShowStatus(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Text size {step * 100:0} %."));
+        TextScaleChanged?.Invoke(step);
+        if (Preferences is not null) TextSizeSaved = Preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
+    }
+
+    private bool textSizeChosen;
+
+    /// <summary>Applies the persisted Text size at startup: no announcement and no write back.</summary>
+    private async Task LoadTextSizeAsync(PreferenceStore preferences)
+    {
+        var load = await preferences.LoadTextSizeAsync(CancellationToken.None);
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            await Dispatcher.UIThread.InvokeAsync(() => ApplyLoadedTextSize(load.Percent));
+            return;
+        }
+        ApplyLoadedTextSize(load.Percent);
+    }
+
+    private void ApplyLoadedTextSize(int percent)
+    {
+        if (textSizeChosen) return;
+        double step = CommandTable.TextSizes.MinBy(size => Math.Abs(size - percent / 100.0));
+        if (Math.Abs(step - Properties.TextScale) < 1e-9) return;
+        Properties.ApplyTextScale(step);
         TextScaleChanged?.Invoke(step);
     }
 

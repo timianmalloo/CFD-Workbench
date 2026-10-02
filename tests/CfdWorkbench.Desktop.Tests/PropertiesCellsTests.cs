@@ -16,6 +16,7 @@ using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Panes;
 using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 using static CfdWorkbench.Desktop.Tests.PropertiesViewTests;
 
 namespace CfdWorkbench.Desktop.Tests;
@@ -760,6 +761,42 @@ public static class PropertiesCellsTests
                 throw new InvalidOperationException($"in Properties: zoom {controller.PlanCamera.PixelsPerMeter}, text {host.TextScale}");
             host.RunCommand("view.zoom-out").GetAwaiter().GetResult();
             if (host.TextScale != 1) throw new InvalidOperationException("⌘− in Properties did not step back: " + host.TextScale);
+        });
+
+        DesktopChecks.Check("TextSize_PersistsPerUser", () =>
+        {
+            // DN-5: the Text size is persisted per user. Set 150 %, restart the shell on the same preference root, read 150 %
+            // in the setting and in the drawn Prop tokens. The View ladder and the stored set are one set (no drift).
+            var ladder = CommandTable.TextSizes.Select(size => (int)Math.Round(size * 100)).ToArray();
+            if (!ladder.SequenceEqual(DisplayPreferences.TextSizes))
+                throw new InvalidOperationException($"ladder {string.Join(",", ladder)} vs stored {string.Join(",", DisplayPreferences.TextSizes)}");
+            string temp = Path.GetTempPath();
+            if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
+            string root = Path.Combine(temp, "tsp-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            string key = PropertiesPane.ScaledTokens[0];
+            double baseToken = Application.Current!.TryFindResource(key, out var value) && value is double number ? number : double.NaN;
+            (double Scale, double Token) Restart(Action<ShellHost>? act)
+            {
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller, new PreferenceStore(root, () => new ProjectStore()));
+                var window = new Window { Content = host, Width = 1280, Height = 800 };
+                try
+                {
+                    window.Show();
+                    Pump(host.TextSizeLoaded);
+                    Settle(window);
+                    act?.Invoke(host);
+                    Pump(host.TextSizeSaved);
+                    double token = host.Properties.TryFindResource(key, out var scaled) && scaled is double got ? got : double.NaN;
+                    return (host.TextScale, token / baseToken);
+                }
+                finally { window.Close(); }
+            }
+            var set = Restart(host => host.SetTextScale(1.5));
+            var restarted = Restart(null);
+            if (set.Scale != 1.5 || restarted.Scale != 1.5 || Math.Abs(restarted.Token - 1.5) > 1e-9)
+                throw new InvalidOperationException($"set {set.Scale}; after restart {restarted.Scale}, {key} at {restarted.Token}x");
         });
 
         Capture();

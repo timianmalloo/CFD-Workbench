@@ -28,6 +28,12 @@ internal static class PreferenceStoreTests
         Check("Recent_Remove_KeepsEveryOtherEntry", RemoveKeepsOthers);
         Check("Recent_RemoveWriteFails_ListUnchanged", RemoveFails);
         Check("StoreContract_CancelBeforePublish_DocCancelled", CancelContract);
+        Check("PrefStore_TextSize_Absent_Is100", TextSizeAbsent);
+        Check("PrefStore_TextSize_RoundTrip", TextSizeRoundTrip);
+        Check("PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged", TextSizeUnreadable);
+        Check("Rollback_TextSizeV2_BytesUnchanged", TextSizeFuture);
+        Check("PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched", TextSizePriorRoot);
+        Check("PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites", TextSizeSessionOnly);
     }
 
     private static void Absent()
@@ -410,6 +416,169 @@ internal static class PreferenceStoreTests
 
     private static double Left(LayoutDocument document, WorkspaceId id) =>
         document.Workspaces.Single(workspace => workspace.Id == id).Regions.Single(region => region.Id == RegionId.Left).Size;
+
+    // ---------------- the Text size (DN-5): cfdw-display v1, one value per installation user ----------------
+
+    private static PreferenceStore Prefs(string root) => new(root, () => new ProjectStore());
+
+    private static string DisplayFile(string root, byte[] image)
+    {
+        string directory = Path.Combine(root, "display");
+        Directory.CreateDirectory(directory);
+        string path = Path.Combine(directory, "display.json");
+        File.WriteAllBytes(path, image);
+        return path;
+    }
+
+    private static void TextSizeAbsent()
+    {
+        string root = LayoutFileTests.Root();
+        var load = Wait(Prefs(root).LoadTextSizeAsync(CancellationToken.None));
+        Equal(100, load.Percent);
+        Equal("absent", load.Outcome);
+        Equal(0, load.Codes.Count);
+        Equal(false, load.NeverWrite);
+        Equal(false, Directory.Exists(Path.Combine(root, "display")));
+    }
+
+    private static void TextSizeRoundTrip()
+    {
+        string root = LayoutFileTests.Root();
+        foreach (int size in new[] { 150, 200, 125, 100 })
+        {
+            var store = Prefs(root);
+            Wait(store.LoadTextSizeAsync(CancellationToken.None));
+            var save = Wait(store.SaveTextSizeAsync(size, CancellationToken.None));
+            Equal("saved", save.Outcome);
+            Equal(true, save.DurabilityConfirmed);
+            var again = Wait(Prefs(root).LoadTextSizeAsync(CancellationToken.None));
+            Equal("restored", again.Outcome);
+            Equal(size, again.Percent);
+            Equal(0, again.Codes.Count);
+        }
+        string directory = Path.Combine(root, "display");
+        Equal(Mode(directory), UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        Equal(Mode(Path.Combine(directory, "display.json")), UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        // Two instances on one root: the later choice wins after one conflict retry.
+        var first = Prefs(root);
+        var second = Prefs(root);
+        Wait(first.LoadTextSizeAsync(CancellationToken.None));
+        Wait(second.LoadTextSizeAsync(CancellationToken.None));
+        Equal("saved", Wait(first.SaveTextSizeAsync(125, CancellationToken.None)).Outcome);
+        var late = Wait(second.SaveTextSizeAsync(150, CancellationToken.None));
+        Equal("saved", late.Outcome);
+        Equal(true, late.Retried);
+        Equal(150, Wait(Prefs(root).LoadTextSizeAsync(CancellationToken.None)).Percent);
+        var rejected = Wait(first.SaveTextSizeAsync(175, CancellationToken.None));
+        Equal("rejected", rejected.Outcome);
+        Equal("DISPLAY-SCHEMA", rejected.Code);
+    }
+
+    private static void TextSizeUnreadable()
+    {
+        string[] images =
+        [
+            """{"format":"cfdw-display","version":1,"textSize":175}""",
+            """{"format":"cfdw-display","version":1,"textSize":0}""",
+            """{"format":"cfdw-display","version":1,"textSize":150.0}""",
+            """{"format":"cfdw-display","version":1,"textSize":"150"}""",
+            """{"format":"cfdw-display","version":1}""",
+            """{"format":"cfdw-display","version":1,"textSize":150,"textSize":200}""",
+            """{"format":"cfdw-display","version":1,"textSize":150,"theme":"dark"}""",
+            """{"format":"cfdw-layout","version":1,"textSize":150}""",
+            """{"format":"cfdw-display","version":0,"textSize":150}""",
+            "﻿{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150}",
+            """{"format":"cfdw-display","version":1,"textSize":15""",
+            "\u0001\u0002 not json"
+        ];
+        foreach (var text in images)
+        {
+            try
+            {
+                var original = Encoding.UTF8.GetBytes(text);
+                string root = LayoutFileTests.Root();
+                string path = DisplayFile(root, original);
+                var store = Prefs(root);
+                var load = Wait(store.LoadTextSizeAsync(CancellationToken.None));
+                Equal(100, load.Percent);
+                Equal(true, load.NeverWrite);
+                Has(load.Codes, "DISPLAY-SCHEMA");
+                Equal("never-write", Wait(store.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+                Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(original));
+            }
+            catch (Exception error)
+            {
+                throw new InvalidOperationException(text + ": " + error.Message, error);
+            }
+        }
+    }
+
+    private static void TextSizeFuture()
+    {
+        string root = LayoutFileTests.Root();
+        var original = Encoding.UTF8.GetBytes("""{"format":"cfdw-display","version":2,"textSize":175,"theme":"dark"}""");
+        string path = DisplayFile(root, original);
+        var store = Prefs(root);
+        var load = Wait(store.LoadTextSizeAsync(CancellationToken.None));
+        Equal(100, load.Percent);
+        Equal(true, load.NeverWrite);
+        Has(load.Codes, "LAYOUT-VERSION");
+        Equal("never-write", Wait(store.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+        Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(original));
+    }
+
+    private static void TextSizePriorRoot()
+    {
+        // A root written before the display document existed: layout and Recent load as before and keep their bytes
+        // when the Text size is saved beside them (expand-only; nothing migrates or rewrites them).
+        string root = LayoutFileTests.Root();
+        string layoutPath = Path.Combine(root, "layout", "layout.json");
+        string recentPath = Path.Combine(root, "recent", "recent.json");
+        Directory.CreateDirectory(Path.Combine(root, "layout"));
+        File.WriteAllBytes(layoutPath, File.ReadAllBytes(LayoutFileTests.Fixture("example-v1.json")));
+        var seed = Prefs(root);
+        Wait(seed.LoadRecentAsync(CancellationToken.None));
+        Equal("saved", Wait(seed.UpdateRecentAsync(new RecentOp.Add("/abs/prior.foil"), CancellationToken.None)).Outcome);
+        var layoutBytes = File.ReadAllBytes(layoutPath);
+        var recentBytes = File.ReadAllBytes(recentPath);
+        var store = Prefs(root);
+        Equal("restored", Wait(store.LoadLayoutAsync(LayoutFileTests.Panes(), CancellationToken.None)).Outcome);
+        Equal(1, Wait(store.LoadRecentAsync(CancellationToken.None)).Entries.Count);
+        Equal(100, Wait(store.LoadTextSizeAsync(CancellationToken.None)).Percent);
+        Equal("saved", Wait(store.SaveTextSizeAsync(200, CancellationToken.None)).Outcome);
+        Equal(true, File.ReadAllBytes(layoutPath).AsSpan().SequenceEqual(layoutBytes));
+        Equal(true, File.ReadAllBytes(recentPath).AsSpan().SequenceEqual(recentBytes));
+        var reopened = Prefs(root);
+        Equal("restored", Wait(reopened.LoadLayoutAsync(LayoutFileTests.Panes(), CancellationToken.None)).Outcome);
+        Equal(200, Wait(reopened.LoadTextSizeAsync(CancellationToken.None)).Percent);
+    }
+
+    private static void TextSizeSessionOnly()
+    {
+        string real = LayoutFileTests.Root();
+        string link = Path.Combine(LayoutFileTests.Root(), "prefs");
+        Directory.CreateSymbolicLink(link, real);
+        var store = Prefs(link);
+        var load = Wait(store.LoadTextSizeAsync(CancellationToken.None));
+        Equal(100, load.Percent);
+        Equal(true, load.SessionOnly);
+        Has(load.Codes, "LAYOUT-SESSION-ONLY");
+        Equal("session-only", Wait(store.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+        Equal(false, Directory.Exists(Path.Combine(real, "display")));
+        // A store that cannot persist (session-only) or cannot read the file (never-write) writes nothing.
+        string root = LayoutFileTests.Root();
+        DisplayFile(root, [9]);
+        foreach (var (code, outcome) in new[] { ("DOC-UNSUPPORTED-PERSISTENCE", "session-only"), ("DOC-IO", "never-write") })
+        {
+            var fake = new CodeStore(code);
+            var denied = new PreferenceStore(root, () => fake);
+            var refused = Wait(denied.LoadTextSizeAsync(CancellationToken.None));
+            Equal(100, refused.Percent);
+            Equal(outcome, refused.Outcome);
+            Equal(outcome, Wait(denied.SaveTextSizeAsync(150, CancellationToken.None)).Outcome);
+            Equal(0, fake.Saves);
+        }
+    }
 
     private static UnixFileMode Mode(string path)
     {
