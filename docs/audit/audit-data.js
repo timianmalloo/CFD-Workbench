@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:39:07Z",
+  "generated": "2026-10-02T14:58:30Z",
   "audit": [
     {
       "actor": null,
@@ -21795,6 +21795,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:38:13Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M3YHZEPYAPZ7015ZQPMY6TWB",
+      "shortname": "join-status-clobber",
+      "datetime": "2026-10-02T14:58:30Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flake-locked-nudge into feature/ui-cad-direction",
+      "summary": "Flake PlanCanvas_LockedNudge_AssertiveLockCopy root-caused as a product defect: RefreshAcceptedAsync (fire-and-forget sampling) overwrote a later lock message. Status writes versioned; late report skipped. Loaded loop 16/20 fail -> 0/52 twice. Red-first LockedNudge_DuringSampling_LockCopySurvivesCompletion; UI check asserts the rendered status line. Desktop CFD_TEST_ONLY selector added. Register STATUS-CLOBBER. Side effect: after Open/New the status keeps the command's report instead of the accepted-slice report. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T14:57:39Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
