@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T13:59:38Z",
+  "generated": "2026-10-02T14:15:28Z",
   "audit": [
     {
       "actor": null,
@@ -21689,6 +21689,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T13:58:39Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M3YFGNCEXSQY100FKCC9HAVA",
+      "shortname": "join-cells-c1c4",
+      "datetime": "2026-10-02T14:15:28Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/cells-checklist-c1-c4 into feature/ui-cad-direction",
+      "summary": "C1 checklist rows retargeted/retired for structure B (B2.1/2.2/2.10/2.10a/2.11, B4.1-3/8 retired, B4.9-13 new); C2 Windows text-size row B8.3; C3 HC focus/error in B3.3; C4 two in-view tests now red without BringIntoView. Flake observed: PlanCanvas_LockedNudge_AssertiveLockCopy 2/8 runs. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/property-grid-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T14:14:25Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
