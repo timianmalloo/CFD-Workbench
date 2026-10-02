@@ -223,6 +223,41 @@ subhead at the 200 px dock with `#tip_chord × 0.1` (CB-1).
 - `TextSize_PersistsPerUser`
 - `TextSize_ModelViewKeepsZoomShortcut`
 
+**How the Text size is persisted (track TSP, DN-5 "persisted per user").** A small third preference document,
+`<preference root>/display/display.json`, format `cfdw-display` version 1: `{"format","version","textSize"}`. It is
+written by `PreferenceStore.SaveTextSizeAsync` and read by `PreferenceStore.LoadTextSizeAsync`, which use the same claim,
+durability, session-only and linked-directory machinery as the layout and the Recent list.
+
+- **Why not a field on the layout document.** `cfdw-layout` v1 is frozen. `LayoutCodec.ParseDocument` rejects any
+  unknown top-level member as `LAYOUT-SCHEMA`. The shipped build would then fall back to presets and overwrite the
+  saved layout on its next save. So an added field is not expand-only. A version 2 would make every older build
+  never-write. The layout also merges per workspace on a conflict, while the Text size is one value for the user.
+- **Grain.** One document per preference root, so one value per installation user. It holds the current value only.
+  This is a deliberate Type-1 choice: no past record depends on the Text size, so there is no history to keep.
+- **Domain and default.** A whole percent in {100, 125, 150, 200}, stored as an integer (no float comparison).
+  `DisplayPreferences.TextSizes` is the one definition of the set; the View ladder `CommandTable.TextSizes` is derived
+  from it (percent / 100). If the file is absent, the value is 100 %.
+- **Failure handling.** An out-of-set value, a non-integer, a missing or duplicate member, an unknown member, a BOM,
+  a wrong format or garbled bytes all read as 100 % with `DISPLAY-SCHEMA`. A version above 1 reads as 100 % with
+  `LAYOUT-VERSION`. A read error also reads as 100 %. In each case the store never rewrites that file this session.
+  A linked root, a linked `display` directory or unsupported persistence (on the read or on the first save) is
+  session-only. A file-system exception during a load or a save is a `failed`/`DOC-IO` outcome, not a throw;
+  after a failed load the file is not rewritten. Only `DisplayPreferences.Serialize` throws, on an out-of-set value,
+  and the store never calls it with one.
+- **Concurrency.** The load holds the store gate, so a save issued during the startup read waits for it. Queued saves
+  write the latest requested value. On a conflict the latest choice wins after one re-read and retry. If another
+  writer still holds the claim, the outcome is `claim-held`, and every later save in this session is `claim-held`:
+  the setting is session-only from then on.
+- **Measured and told.** `display.load` and `display.save` go to the `ShellEvents` ring with outcome, codes and
+  duration (the save adds publication, durability and retried). When a save is not kept, the polite status line says
+  once per session "Text size will apply this session only: <reason>."
+- **Expand-only.** No existing file is read differently or rewritten. A root written before this change still loads
+  its layout and Recent list byte-for-byte (`PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched`). An older build
+  never opens `display/`, so a rollback ignores it.
+- **Shell.** `ShellHost` starts the read when it is constructed (`TextSizeLoaded`). It applies the value without an
+  announcement or a write. Each change writes the latest choice (`TextSizeSaved`). A choice made before the read
+  finishes wins over the read.
+
 **Dropped from the density brief:**
 
 | Test | Replaced by |

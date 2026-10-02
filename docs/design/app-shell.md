@@ -318,6 +318,8 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     public Task<PrefSave>   SaveLayoutAsync(Func<LayoutDocument> snapshot, IReadOnlySet<string> changedWorkspaces, CancellationToken ct);
     public Task<RecentLoad> LoadRecentAsync(CancellationToken ct);
     public Task<PrefSave>   UpdateRecentAsync(RecentOp op, CancellationToken ct);   // Add(path) | Clear
+    public Task<TextSizeLoad> LoadTextSizeAsync(CancellationToken ct);              // §4.6
+    public Task<PrefSave>   SaveTextSizeAsync(int percent, CancellationToken ct);   // §4.6
 }
 public sealed record LayoutLoad(LayoutDocument Layout, string Outcome, IReadOnlyList<string> Codes,
     int DroppedPanes, int Clamped, bool NeverWrite, bool SessionOnly, string? DiskSha256);
@@ -385,6 +387,28 @@ deletes claims itself (architecture §6). Detection: `PrefSave.ClaimPath` set an
 must not, and a corrupt list must not reset layouts ([decision note](../notes/recent-files-preference.md)). Directories
 are created 0700 on macOS; an existing directory with a wider mode is tightened and the result reported
 (`Directory.CreateDirectory(path, UnixFileMode)` is not used on Windows).
+
+### 4.6 Display preferences (Text size, DN-5)
+
+`<ApplicationData>/CFD-Workbench/display/display.json` (`{"format":"cfdw-display","version":1,"textSize":150}`), written
+by `SaveTextSizeAsync` and read by `LoadTextSizeAsync` (`DisplayPreferences` codec, `TextSizeLoad` record). Same claim,
+durability, 0700/0600 modes, session-only and linked-directory rules as the layout and Recent documents.
+
+- **Members:** exactly `format`, `version`, `textSize`; `textSize` is a whole percent in {100, 125, 150, 200}
+  (`DisplayPreferences.TextSizes`, the one definition; `CommandTable.TextSizes` is derived from it).
+- **Grain:** one document per preference root, so one value per installation user. Current value only (Type-1 by
+  decision: no past record depends on it).
+- **Default:** 100 % when the file is absent.
+- **Never-write rule:** any other content (out-of-set or non-integer value, missing, duplicate or unknown member, BOM,
+  wrong format, garbled bytes, a read error) reads as 100 % with `DISPLAY-SCHEMA`, and the file is not rewritten this
+  session. A version above 1 reads as 100 % with `LAYOUT-VERSION`, same rule. Unsupported persistence (on the read or
+  the first save) and a linked root or `display` directory are session-only. A file-system exception is
+  `failed`/`DOC-IO`.
+- **Concurrency:** the load holds the store gate; queued saves write the latest value; a conflict re-reads and retries
+  once (latest wins), and a claim still held makes this and every later save in the session `claim-held`.
+- **Why a separate document:** `cfdw-layout` v1 refuses an unknown top-level member (`LAYOUT-SCHEMA`), so a field there
+  would reset an older build's layout; the layout merges per workspace, the Text size is one value.
+- **Expand-only:** no existing file is read differently or rewritten; older builds never open `display/`.
 
 ## 5. Contracts
 
@@ -671,6 +695,8 @@ from `PrefSave` instead of sharing a trace. A missing measurement reads "Not rec
 | `layout.load` | outcome (`restored` · `preset-first-run` · `preset-fallback` · `session-only` · `never-write`), codes[], dropped_n, clamped_n, bytes, duration_ms | did restore fail, and how |
 | `layout.save` | trigger (`switch` · `reset` · `close`), outcome (incl. `claim-held`, `timeout`), code, bytes, duration_ms, publication_known, durability_confirmed, retried | is the layout kept |
 | `recent.save` | op (`add` · `clear`), outcome, code, retried | is the rights path working |
+| `display.load` | outcome (`absent` · `restored` · `session-only` · `never-write` · `failed`), codes (comma-joined), duration_ms | did the Text size restore |
+| `display.save` | outcome (`saved` · `session-only` · `never-write` · `claim-held` · `failed` · `cancelled`), code, duration_ms, publication_known, durability_confirmed, retried | is the Text size kept |
 | `shell.workspace.switch` | from, to, duration_ms | workspace use; switch cost |
 | `shell.pane.move` | pane, from, to (`left` · `right` · `bottom` · `float` · `closed`) | pane moves |
 | `float.relocate` | outcome (`moved` · `docked-back`), pane, corner, duration_ms | how often option (a) fires |
@@ -678,7 +704,9 @@ from `PrefSave` instead of sharing a trace. A missing measurement reads "Not rec
 
 Existing events stay (apply event with `edit_kind = dimension`; `estimates.compute`; store events). **Stable codes
 added:** `LAYOUT-SCHEMA`, `LAYOUT-VERSION`, `LAYOUT-WORKSPACE`, `LAYOUT-PANE`, `LAYOUT-CLAMPED`, `LAYOUT-SESSION-ONLY`,
-`LAYOUT-CONFLICT`, `RECENT-SCHEMA`, `SHELL-PANE-RENDER`, `APP-UNHANDLED`. No HTTP surface (no RFC 9457).
+`LAYOUT-CONFLICT`, `RECENT-SCHEMA`, `DISPLAY-SCHEMA` (§4.6), `SHELL-PANE-RENDER`, `APP-UNHANDLED`.
+`LAYOUT-VERSION` and `LAYOUT-SESSION-ONLY` are preference-root-wide: the layout, Recent and display documents all use
+them. No HTTP surface (no RFC 9457).
 **No-content test** (`Telemetry_MarkerInjection_AbsentEverywhere`, D3a): open a file whose path holds a unique marker
 (and a Windows-style `\` variant), float a pane on a screen, save; assert the marker is absent from the shell ring, the
 preference store's ring, the session ring and captured stderr.

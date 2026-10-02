@@ -668,7 +668,10 @@ public sealed class WorkbenchController : IDisposable
     public byte[]? PendingCandidate { get; private set; }
     public string? NativePath { get; private set; }
     public string? OpenedPath { get; private set; }
-    public string Status { get; private set; } = "Open Example or a .foil / .cfdw.json file.";
+    // STATUS-CLOBBER: every write counts, so a background report replaces only the placeholder it wrote, never a newer message.
+    public string Status { get => status; private set { status = value; statusWrites++; } }
+    private string status = "Open Example or a .foil / .cfdw.json file.";
+    private long statusWrites;
     public string Provenance { get; private set; } = "empty";
     public DisplayFrame? Frame { get; private set; }
     public IReadOnlyList<DisplayPoint> Points => Frame?.Points ?? [];
@@ -1321,6 +1324,7 @@ public sealed class WorkbenchController : IDisposable
         activeSampling = linked;
         Provenance = draft is null ? "accepted — sampling" : "draft — accepted sampling";
         Status = $"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…";
+        long placeholder = statusWrites;
         Notify();
         try
         {
@@ -1336,7 +1340,9 @@ public sealed class WorkbenchController : IDisposable
             if (version != stateVersion || Inspection?.Authored.Binding.SourceHash != frame.SourceHash || interiorEta != frame.InteriorEta) return;
             Frame = acceptedFrame = frame;
             Provenance = draft is null ? "accepted" : "draft — accepted geometry shown";
-            Status = $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
+            // A message written since the placeholder (a lock refusal, an open's recovery notice) is newer than this report.
+            if (statusWrites == placeholder)
+                Status = $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
             Notify();
         }
         catch (OperationCanceledException) { }
