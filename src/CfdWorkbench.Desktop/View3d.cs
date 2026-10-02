@@ -156,7 +156,18 @@ public sealed class View3d : Panel
         }
     }
 
-    private ViewCamera? Camera => controller?.Camera3d;
+    private ViewCamera? Camera => CurrentCamera;
+
+    /// <summary>
+    /// The camera the view shows: during a pointer orbit or pan, the live camera of the drag (committed to the
+    /// controller once, at release); otherwise the controller's <see cref="WorkbenchController.Camera3d"/>. A drag frame
+    /// therefore redraws only the 3D view: every controller change also refreshes the shell's panes (≈ 25 ms measured,
+    /// <c>Readiness_OrbitFrameP95Under33Ms</c>), which a 33 ms orbit frame cannot afford.
+    /// </summary>
+    public ViewCamera? CurrentCamera => gesture?.Live ?? controller?.Camera3d;
+
+    /// <summary>Raised on each drag frame with a new <see cref="CurrentCamera"/>; the model area redraws and retitles the view.</summary>
+    public event Action? LiveCameraChanged;
     private SurfaceView? Surface => controller?.Surface;
 
     public bool CubeVisible => Camera is not null && Bounds.Width >= MinimumCubeWidth;
@@ -428,6 +439,7 @@ public sealed class View3d : Panel
         public Point Last { get; set; } = start;
         public IPointer Pointer { get; } = pointer;
         public bool Moved { get; set; }
+        public ViewCamera? Live { get; set; }
         public long Started { get; } = System.Diagnostics.Stopwatch.GetTimestamp();
         public List<double> Frames { get; } = [];
     }
@@ -463,7 +475,13 @@ public sealed class View3d : Panel
             GestureKind.Pan => camera.Pan(delta.X, delta.Y, Bounds.Size),
             _ => camera
         };
-        if (next != camera) controller!.Camera3d = next;
+        if (next != camera)
+        {
+            gesture.Live = next;
+            UpdateCube();
+            overlay.InvalidateVisual();
+            LiveCameraChanged?.Invoke();
+        }
         e.Handled = true;
     }
 
@@ -474,6 +492,7 @@ public sealed class View3d : Panel
         gesture = null;
         e.Pointer.Capture(null);
         e.Handled = true;
+        if (ended.Live is { } live && controller is not null) controller.Camera3d = live;
         if (ended.Kind == GestureKind.Click)
         {
             if (!ended.Moved) Pick(e.GetPosition(this));
@@ -485,8 +504,9 @@ public sealed class View3d : Panel
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
     {
         base.OnPointerCaptureLost(e);
-        if (gesture is null || !ReferenceEquals(e.Pointer, gesture.Pointer)) return;
+        if (gesture is not { } lost || !ReferenceEquals(e.Pointer, lost.Pointer)) return;
         gesture = null;
+        if (lost.Live is { } live && controller is not null) controller.Camera3d = live;
         Refresh();
     }
 

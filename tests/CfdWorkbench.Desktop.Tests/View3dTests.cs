@@ -26,18 +26,22 @@ public static class View3dTests
 {
     public static void Run()
     {
-        RenderedChecks();
-        NavigationChecks();
-        CubeChecks();
-        SelectionChecks();
-        AccessibilityChecks();
+        try
+        {
+            RenderedChecks();
+            NavigationChecks();
+            CubeChecks();
+            SelectionChecks();
+            AccessibilityChecks();
+        }
+        finally { Fixture.DisposeShared(); }
     }
 
     private static void RenderedChecks()
     {
         DesktopChecks.Check("View3d_DefaultIso_RenderedSurfaceCubeAndTriad", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             Equal(NamedCamera.Iso, fixture.Camera.Name, "default camera");
             Equal("3D · Iso", fixture.Area.ThreeDLabel.Content as string, "title");
             fixture.Shoot();
@@ -76,7 +80,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_DisplayWireframeShaded_RenderedPerMode", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var surface = fixture.Controller.Surface!;
             var (grazing, lit) = (fixture.Brush("PlanSoftBrush"), fixture.Brush("FoilShadeLitBrush"));
             var background = fixture.Brush("ViewportBrush");
@@ -96,7 +100,7 @@ public static class View3dTests
         {
             // FoilDSL §6: the Example's tip twist is −2°, nose-down negative, so its trailing edge rises. From the Side
             // preset (orthographic, from starboard, z up) the tip TE is drawn above the tip LE and the root TE.
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             fixture.View.ApplyPreset(NamedCamera.Side);
             fixture.Shoot();
             var surface = fixture.Controller.Surface!;
@@ -118,7 +122,7 @@ public static class View3dTests
     {
         DesktopChecks.Check("View3d_AltDrag_OrbitsTitleShowsAzimuthElevation", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             var centre = fixture.Centre;
             fixture.Drag(centre, new Vector(40, -20), MouseButton.Left, KeyModifiers.Alt);
@@ -130,7 +134,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_PointerBindings_TrackpadPansPinchAndWheelZoomMiddleAndShiftDragPan", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var size = fixture.View.Bounds.Size;
             var at = new Point(size.Width * 0.3, size.Height * 0.6);
             var start = fixture.Camera;
@@ -155,7 +159,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_KeyboardOrbit_Alt15ShiftAlt90Brackets5", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             foreach (var (key, modifiers, azimuth) in new (Key, KeyModifiers, double)[]
             {
@@ -172,7 +176,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_KeyboardTilt_Alt15ShiftAlt45", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             foreach (var (key, modifiers, elevation) in new (Key, KeyModifiers, double)[]
             {
@@ -188,7 +192,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_ShiftArrows_Pan", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             var size = fixture.View.Bounds.Size;
             double dx = View3d.PanFraction * size.Width, dy = View3d.PanFraction * size.Height;
@@ -202,7 +206,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_PlainArrows_DoNothing", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             foreach (var key in new[] { Key.Left, Key.Right, Key.Up, Key.Down })
             {
@@ -213,7 +217,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_ZoomKeys_CommandPlusMinusAndZ_AboutCentre", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             var size = fixture.View.Bounds.Size;
             var centre = new Point(size.Width / 2, size.Height / 2);
@@ -231,7 +235,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_HomeIsoCommandZeroFitFFitSelection", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var size = fixture.View.Bounds.Size;
             var surface = fixture.Controller.Surface!;
             var (minimum, maximum) = View3d.FullBounds(surface);
@@ -258,7 +262,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_SingleKeys_InertInTextFieldAndBrowser", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             var keys = new (Key, KeyModifiers)[]
             {
@@ -288,7 +292,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_NavigateEnd_EmitsFramesAndP95", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             ShellEvents.Clear();
             fixture.DragWithFrames(fixture.Centre, [new Vector(10, 0), new Vector(20, 4), new Vector(30, 8)], KeyModifiers.Alt);
             var end = ShellEvents.Read().Where(item => item.Name == "view.navigate.end").ToArray();
@@ -310,7 +314,7 @@ public static class View3dTests
     {
         DesktopChecks.Check("View3d_CubeFaceClick_PresetOrthographicAndAnnounced", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var size = fixture.View.Bounds.Size;
             var (minimum, maximum) = View3d.FullBounds(fixture.Controller.Surface!);
             var side = fixture.View.Faces.Single(face => face.Camera == NamedCamera.Side);
@@ -329,7 +333,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_CubeChevron_Orbits90", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var start = fixture.Camera;
             var chevrons = fixture.View.Chevrons;
             Equal(4, chevrons.Count, "four chevrons");
@@ -348,7 +352,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_CubeFaces_TargetOnlyWhen24PxCircleFits", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             Equal("K,S,T", string.Join(",", view.Faces.Select(face => face.Letter).Order()), "Iso faces with area (aft, starboard, above)");
             foreach (var face in view.Faces)
@@ -375,7 +379,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_FocusedCubeFaceLosesArea_FocusToCurrentFace", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             var side = view.FaceButton(NamedCamera.Side) ?? throw new Exception("No S button at Iso");
             side.Focus(NavigationMethod.Tab);
@@ -391,7 +395,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_CubeHiddenBelow240_FocusToViewMenuReachesPresets", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             view.Width = View3d.MinimumCubeWidth;
             fixture.Settle();
@@ -414,7 +418,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_CubeFocusRing_GapOnCurrentFaceThreeToOne", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             view.ApplyPreset(NamedCamera.Front);
             fixture.Settle();
@@ -447,7 +451,7 @@ public static class View3dTests
     {
         DesktopChecks.Check("View3d_ClickStationSection_SelectsStationEverywhere", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var surface = fixture.Controller.Surface!;
             var tip = surface.Sections[^1];
             var plan = fixture.Controller.Planform!;
@@ -463,7 +467,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_SelectedStation_RenderedWidthAndChip", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var surface = fixture.Controller.Surface!;
             var tip = surface.Sections[^1];
             fixture.Controller.Select(new Selection.Station(tip.Assignment!.Value, tip.Eta));
@@ -489,14 +493,16 @@ public static class View3dTests
     {
         DesktopChecks.Check("View3d_AutomationName_CameraOnlyUpdatedPerStep", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             Equal("3D view, camera Iso", AutomationProperties.GetName(view), "Iso name");
             var start = fixture.Camera;
             fixture.BeginDrag(fixture.Centre, KeyModifiers.Alt);
             fixture.MoveDrag(fixture.Centre + new Vector(20, 0), KeyModifiers.Alt);
             fixture.MoveDrag(fixture.Centre + new Vector(40, 10), KeyModifiers.Alt);
-            if (fixture.Camera == start) throw new Exception("The drag did not orbit");
+            if (view.CurrentCamera == start) throw new Exception("The drag did not orbit");
+            Equal("3D · Free · az 155° · el 35°", fixture.Area.ThreeDLabel.Content as string, "the title follows the drag");
+            Equal(start, fixture.Camera, "the controller takes the camera at release, not per frame");
             Equal("3D view, camera Iso", AutomationProperties.GetName(view), "name during the drag");
             fixture.EndDrag(fixture.Centre + new Vector(40, 10));
             Equal("3D view, camera Free, azimuth 155°, elevation 35°", AutomationProperties.GetName(view), "name at the end of the drag");
@@ -509,7 +515,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_AutomationPeers_CubeButtonsAndHelpText", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var peer = ControlAutomationPeer.CreatePeerForElement(fixture.View);
             Equal(AutomationControlType.Group, peer.GetAutomationControlType(), "view peer type");
             Equal("3D view, camera Iso", peer.GetName(), "view peer name");
@@ -530,15 +536,20 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_PresetChange_NoAnimationFrames", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var size = fixture.View.Bounds.Size;
             var (minimum, maximum) = View3d.FullBounds(fixture.Controller.Surface!);
             var cameras = new List<ViewCamera?>();
-            fixture.Controller.Changed += () => cameras.Add(fixture.Controller.Camera3d);
+            void Record() => cameras.Add(fixture.Controller.Camera3d);
+            fixture.Controller.Changed += Record;
             var target = ViewCamera.Named(NamedCamera.Back, minimum, maximum, size);
-            fixture.View.FaceButton(NamedCamera.Back)!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            Equal(target, fixture.Controller.Camera3d, "the preset camera, before any frame");
-            for (int frame = 0; frame < 20; frame++) fixture.Settle();
+            try
+            {
+                fixture.View.FaceButton(NamedCamera.Back)!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                Equal(target, fixture.Controller.Camera3d, "the preset camera, before any frame");
+                for (int frame = 0; frame < 20; frame++) fixture.Settle();
+            }
+            finally { fixture.Controller.Changed -= Record; }
             var distinct = cameras.Distinct().ToArray();
             if (distinct.Length != 1 || distinct[0] != target)
                 throw new Exception($"The camera passed through {distinct.Length} values: {string.Join(" | ", distinct.Select(item => item?.Title))}");
@@ -546,7 +557,7 @@ public static class View3dTests
 
         DesktopChecks.Check("View3d_TabPastCube_LeavesView", () =>
         {
-            using var fixture = new Fixture();
+            var fixture = Fixture.Shared();
             var view = fixture.View;
             var label = fixture.Area.ThreeDLabel;
             var order = new List<IInputElement>();
@@ -574,30 +585,68 @@ public static class View3dTests
 
     internal static void RunReadiness()
     {
-        // Wall-clock (TEST-RING): one orbit frame at 1440 × 900 in Plan + 3D — the camera step, the controller's change,
-        // the model area's refresh and layout, and the 3D view's draw (mesh to screen, painter's sort, one Skia draw).
+        if (Environment.GetEnvironmentVariable("CFD_PROOF_DIR") is { Length: > 0 } proof) CaptureProof(proof);
+        // Wall-clock (TEST-RING): one ⌥-drag orbit frame at 1440 × 900 in Plan + 3D — the pointer move, the view's live
+        // camera, the cube and title, layout, and the 3D view's draw (mesh to screen, painter's sort, one Skia draw).
         DesktopChecks.Check("Readiness_OrbitFrameP95Under33Ms", () =>
         {
             using var fixture = new Fixture(width: 1440, height: 900);
             var renderer = fixture.Area.ThreeDRenderer;
             var size = new PixelSize((int)renderer.Bounds.Width, (int)renderer.Bounds.Height);
             var times = new List<double>();
-            for (int frame = 0; frame < 48; frame++)
+            fixture.BeginDrag(fixture.Centre, KeyModifiers.Alt);
+            for (int frame = 1; frame <= 48; frame++)
             {
                 using var bitmap = new RenderTargetBitmap(size);
+                Dispatcher.UIThread.RunJobs();   // the window's own pass for the previous frame, outside the timing
                 long started = System.Diagnostics.Stopwatch.GetTimestamp();
-                fixture.KeyNoSettle(Key.OemCloseBrackets, KeyModifiers.None);
-                Dispatcher.UIThread.RunJobs();
+                fixture.MoveDragNoSettle(fixture.Centre + new Vector(frame * 4, frame), KeyModifiers.Alt);
                 fixture.Window.UpdateLayout();
                 bitmap.Render(renderer);
                 times.Add(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             }
+            fixture.EndDrag(fixture.Centre + new Vector(48 * 4, 48));
+            var end = ShellEvents.Read().Last(item => item.Name == "view.navigate.end");
+            Console.WriteLine(FormattableString.Invariant($"MEASURE view_navigate_end frames={end.Frames} render_p95_ms={end.RenderP95Ms:F1}"));
             var warm = times.Skip(8).Order().ToArray();
             double p95 = warm[(int)Math.Ceiling(0.95 * warm.Length) - 1];
             Console.WriteLine(FormattableString.Invariant(
                 $"READINESS Readiness_OrbitFrameP95Under33Ms value_ms={p95:F3} target_ms=33 samples={warm.Length} median_ms={warm[warm.Length / 2]:F3} size={size.Width}x{size.Height}"));
             if (p95 > 33) throw new Exception(FormattableString.Invariant($"orbit frame p95 {p95:F1} ms is over 33 ms"));
         });
+    }
+
+    /// <summary>
+    /// The operator's captures at the mockup's 1280 × 800 (docs/mockups/m12b2-views.html screens 1 and 3a), at the
+    /// window's render scaling: Plan + 3D with the tip station selected, and One view 3D in Wireframe.
+    /// </summary>
+    private static void CaptureProof(string directory)
+    {
+        Directory.CreateDirectory(directory);
+        using var fixture = new Fixture(width: 1280, height: 800);
+        var surface = fixture.Controller.Surface!;
+        var plan = fixture.Controller.Planform!;
+        int tip = Enumerable.Range(0, plan.Stations.Count).Single(i => plan.Stations[i].Eta == 1);
+        fixture.Controller.Select(new Selection.Station(tip, 1));
+        fixture.Settle();
+        Save(fixture, Path.Combine(directory, "plan-3d.png"));
+        fixture.Controller.Layout = ViewLayout.One(SingleView.ThreeD);
+        fixture.Controller.SetDisplay(SingleView.ThreeD, DisplayMode.Wireframe);
+        fixture.Settle();
+        var (minimum, maximum) = View3d.FullBounds(surface);
+        fixture.Reset(ViewCamera.Named(NamedCamera.Iso, minimum, maximum, fixture.View.Bounds.Size));
+        Save(fixture, Path.Combine(directory, "one-view-wireframe.png"));
+
+        static void Save(Fixture fixture, string file)
+        {
+            fixture.Settle();
+            double scale = fixture.Window.RenderScaling;
+            using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(fixture.Window.Bounds.Width * scale),
+                (int)Math.Round(fixture.Window.Bounds.Height * scale)), new Vector(96 * scale, 96 * scale));
+            bitmap.Render(fixture.Window);
+            bitmap.Save(file);
+            Console.WriteLine($"PROOF {file} {bitmap.PixelSize.Width}x{bitmap.PixelSize.Height}");
+        }
     }
 
     // ---- fixture --------------------------------------------------------------------------------------------------
@@ -610,6 +659,35 @@ public static class View3dTests
         public ShellHost Host { get; }
         public ModelArea Area { get; }
         public Window Window { get; }
+        private static Fixture? shared;
+
+        /// <summary>
+        /// The suite's one window (a window costs about half a second to realize and mesh), returned to the state every
+        /// check starts from: Iso fitted to the view, Shaded, no station selected, the view at its slot width and focused.
+        /// </summary>
+        public static Fixture Shared()
+        {
+            shared ??= new Fixture();
+            shared.Restore();
+            return shared;
+        }
+
+        public static void DisposeShared()
+        {
+            shared?.Dispose();
+            shared = null;
+        }
+
+        private void Restore()
+        {
+            View.Width = double.NaN;
+            Controller.SetDisplay(SingleView.ThreeD, DisplayMode.Shaded);
+            Controller.Select(new Selection.Foil());
+            Settle();
+            var (minimum, maximum) = View3d.FullBounds(Controller.Surface!);
+            Reset(ViewCamera.Named(NamedCamera.Iso, minimum, maximum, View.Bounds.Size));
+        }
+
         public View3d View => Area.FindControl<View3d>("ThreeDView") ?? throw new InvalidOperationException("ModelArea has no ThreeDView");
 
         public Fixture(int width = 1200, int height = 700)
@@ -666,8 +744,9 @@ public static class View3dTests
             return args.Handled;
         }
 
-        public void KeyNoSettle(Key key, KeyModifiers modifiers) =>
-            View.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = View, Key = key, KeyModifiers = modifiers });
+        public void MoveDragNoSettle(Point local, KeyModifiers modifiers) =>
+            View.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, View, dragPointer!, Window, ToWindow(local), 2,
+                new PointerPointProperties(Buttons(lastButton).Raw, PointerUpdateKind.Other), modifiers));
 
         private Pointer? dragPointer;
 
