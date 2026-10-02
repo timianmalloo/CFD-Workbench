@@ -913,7 +913,7 @@ and claimed commit (HARNESS-SILENT-EXIT); two repair cycles, then stop (COORD-SP
 | OI-8 | η-plot view; 3D surface probe | not in M1.2b2 | a later slice |
 | OI-9 | Perspective / orthographic toggle | axis presets orthographic, Iso and orbit perspective | one `Projection` flag already in `ViewCamera` |
 | OI-10 | Front and Side linked in vertical scale and z datum | each elevation fits itself | a shared vertical scale in the controller |
-| **OI-11 (PL0 review F2)** | The PL0 golden master pins outputs and refusals, not the operation tree (four math-preserving tree changes stayed green) | **REQUIRED before the first change to §6 and before VW1:** an `IPlacementScalar<Trace>` instantiation of the same rule whose operation string is goldened; not built in PL0 | the first §6 change or VW1 lands without it |
+| **OI-11 (PL0 review F2)** | The PL0 golden master pins outputs and refusals, not the operation tree (four math-preserving tree changes stayed green) | **CLOSED (TRACEPIN):** `Trace : IPlacementScalar<Trace>` (`tests/CfdWorkbench.Core.Tests/PlacementTrace.cs`) runs the one `PlacementRule` and `PlacementRule_OperationTree_TraceGolden` pins its operation strings (`Fixtures/m12b2/placement-operation-trace.golden.txt`; golden commit 798c926, test commit follows it). Its failure message names `QueryFeasibility`, `PlacementWidth` and `BlendPlacementWidth`. Four planted tree mutants (distributed chord, lerp-form blend, `unit*(t*½)`, reordered blend sum) each turn it red while the certificate golden stays green | a deliberate §6 change updates the trace golden only after the three bound models are hand-reviewed |
 
 ## 14. Build tracks (exclusive file ownership)
 
