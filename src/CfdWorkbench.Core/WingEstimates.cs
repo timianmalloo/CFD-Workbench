@@ -191,21 +191,8 @@ public sealed record WingEstimates(
         return (low + high) / 2;
     }
 
-    private static double OrdinateAt(Curve curve, double eta) => Ordinate(curve, ParameterAt(curve, eta));
-
-    private static double ParameterAt(Curve curve, double eta)
-    {
-        if (eta <= 0) return 0;
-        if (eta >= 1) return 1;
-        double low = 0, high = 1;
-        for (int step = 0; step < 60; step++)
-        {
-            double mid = (low + high) / 2;
-            if (Abscissa(curve, mid) < eta) low = mid;
-            else high = mid;
-        }
-        return (low + high) / 2;
-    }
+    private static double OrdinateAt(Curve curve, double eta) =>
+        ChannelEvaluator.Value(curve.Knots, curve.Degree, curve.Points, eta);
 
     private static double Abscissa(Curve curve, double parameter) => Dot(curve, parameter, 0, false);
     private static double Ordinate(Curve curve, double parameter) => Dot(curve, parameter, 1, false);

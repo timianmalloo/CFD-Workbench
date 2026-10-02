@@ -323,3 +323,67 @@ still printed their `SUITE … exit 0` lines in mode order. The plant was remove
   If `--shell-window` passes about 30 s, the cheapest next cut is to split it into two modes.
   `SUITE-TIME` shows when that happens.
 - The next critical path is Core at 33 s, not Desktop.
+
+## 11. Core suite back under budget (2026-10-02, track TESTCOST)
+
+On `b222a72`, `tools/run-tests.sh` was green but over budget: Core took 59 s and the wall 62 s, so it
+exited 3. Two causes were reported. Only one was real.
+
+### The 5.00 s store checks were a measurement artifact (Verified)
+
+The Coordinator's per-check timer ran the Core harness without `run-tests.sh`'s TMPDIR. Under the
+inherited macOS TMPDIR (`/var/folders/…`, a symlink), the store refuses the path in
+`ParentPath.Open` (`DOC-UNSUPPORTED-PERSISTENCE`). That happens before the `ClaimCreated` or
+`Published` hook stage, so the hook never signals. The test thread's `claimed.Wait(5 s)` or
+`reached.Wait(5 s)` then expires (`ProjectStoreTests.cs:126`, `:242`, `:264`), and the check **fails**
+after 5.0 s. In that run, 21 store checks failed. The timer records PASS and FAIL lines alike, but
+prints only the names. Under `run-tests.sh` these three checks take about 1 ms each. This was
+measured alone, in a full sequential run, beside Cli and Desktop, with `DOTNET_PROCESSOR_COUNT=1`,
+and in 24 concurrent runs (worst 0.76 s, which is the first selected check paying process start).
+There is no store defect and no test defect. Every timed wait in the Core tests already asserts its
+result. No change was made.
+
+### Ring moves (TEST-RING)
+
+| Check | Ring | Content | Before | After |
+|---|---|---|---|---|
+| `Placement_DisplayWithinCertifiedEnclosure_Fixtures` | fast | golden fixtures at chord samples 0, 5, 10; both two-hump (F3) fixtures at all 11 | 13.6 s | 7.7 s |
+| `Placement_RandomFixtures_WithinCertifiedEnclosure` | fast | random fixture 0 (same seed and values) | 4.8 s | 1.2 s |
+| `Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures` | fast | every 10th η (101 values, bit-identical to a subset of the 1001) | 3.5 s | 0.34 s |
+| `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged` | fast | unchanged | 2.0 s | 1.8 s |
+| `Readiness_Placement_DisplayWithinCertifiedEnclosure_AllSamples` | readiness | the old fast sweep: every sample on every fixture | — | 13.9 s |
+| `Readiness_Placement_RandomFixtures_AllFour` | readiness | the old fast sweep: all four random fixtures | — | 5.0 s |
+| `Readiness_Placement_ProbeChord_1001Samples` | readiness | the old fast sweep: 1001 η | — | 3.6 s |
+
+The readiness sweeps print the same `max_outside_m` values as the old fast checks. No check was
+deleted, and no assertion was weakened.
+
+**Mutants against the new fast ring (both killed).** M1-F3: `Maximize` polishes only the best grid
+sample (the pre-`0bd8de3` behaviour). It turns `…DisplayWithin…_Fixtures` and `…DisplayMaximum…`
+red. M2: an interior chord sample (index 4 of 11, outside the golden fixtures' 0, 5, 10) drifts
+10 nm on every station. It turns `…DisplayWithin…_Fixtures` red through the two-hump all-sample
+sweep. Both plants were restored, and neither is in any commit.
+
+**Readiness wiring.** Nothing passed `--readiness` before this change, so
+`Readiness_Surface41x101_Under25Ms` and `Readiness_SixteenPointThreeAnchors_AssessUnderProofBudget`
+had never run in a ring. The `readiness` array of `docs/coordination/join.json` now runs
+`dotnet run -c Release --project tests/CfdWorkbench.Core.Tests/… -- --readiness`. `check-docs.py`'s
+TEST-RING rule now fails a `join.json` whose readiness ring lacks that command; it was red first on the
+unwired file.
+
+| Measure (Release, same session, load average 8–14) | Before | After |
+|---|---|---|
+| Core harness alone, sequential | 57.5 s | 44.1 s |
+| `run-tests.sh` Core / wall | 59 s / 62 s (exit 3, Coordinator) | 49 s / 51 s (exit 0) |
+| Core PASS count | 437 | 437 |
+
+### Residual risk
+
+- A drift that occurs only at an interior chord sample, and only on a golden fixture other than the
+  two-hump ones, passes the fast ring. Readiness catches it.
+- A chord mismatch between `Placement.Frame` and `WingEstimates` that occurs only off the 0.01 η grid
+  passes the fast ring. Readiness catches it.
+- The two-hump fixtures cost about 6 s of the fast ring, and they are the next Core cut if the
+  budget tightens again.
+- Running the Core harness without `run-tests.sh`'s TMPDIR fails 21 store checks. Any ad hoc timer
+  must set that TMPDIR, and it must report each check's status beside its time.

@@ -2,20 +2,34 @@ namespace CfdWorkbench.Core;
 
 public enum PointRole { RootEnd, RootHandle, Control, AnchorHandle, Anchor, TipHandle, TipEnd }
 public enum TangentKind { Corner, Smooth, Symmetric }
-public enum PointFreedom { Fixed, SpanOnly, AftOnly, Free }
+public enum PointFreedom { Fixed, SpanOnly, ValueOnly, Free, AftOnly = ValueOnly }
 
 public static class PointModel
 {
-    // One source of truth for the rails on which point editing is defined.
-    public static IReadOnlySet<string> EditableCurves { get; } = new HashSet<string>(StringComparer.Ordinal)
-    { "leading", "trailing" };
+    // The five editable channels. Desktop still compiles against the AftMeters and AftOnly aliases.
+    public static IReadOnlySet<string> EditableCurves { get; } = new HashSet<string>(Channels.Names, StringComparer.Ordinal);
 }
 
-public sealed record PointView(string Curve, string Id, int Index, double Eta, double SpanMeters, double AftMeters,
-    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks);
-public sealed record PlanSample(double SpanMeters, double AftMeters);
-public sealed record CombTooth(double SpanMeters, double AftMeters, double NormalSpan, double NormalAft,
-    double Curvature, bool BreakBefore);
+public sealed record PointView(string Curve, string Id, int Index, double Eta, double SpanMeters, double Ordinate,
+    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks)
+{
+    public double AftMeters { get => Ordinate; init => Ordinate = value; }
+}
+public sealed record PlanSample(double SpanMeters, double Ordinate)
+{
+    public double AftMeters { get => Ordinate; init => Ordinate = value; }
+}
+public sealed record CombTooth(double SpanMeters, double Ordinate, double NormalSpan, double NormalAft,
+    double Curvature, bool BreakBefore)
+{
+    public double AftMeters { get => Ordinate; init => Ordinate = value; }
+}
+
+public readonly record struct HandleTargetPoint(double SpanMeters, double Ordinate)
+{
+    public double AftMeters => Ordinate;
+    public static implicit operator (double Span, double Aft)(HandleTargetPoint point) => (point.SpanMeters, point.Ordinate);
+}
 public sealed record CurveView(string Curve, int Ceiling, IReadOnlyList<double> Knots,
     IReadOnlyList<PointView> Points, IReadOnlyList<PlanSample> Samples);
 public sealed record PlanformView(string SourceHash, string Basis, long Generation, string Version,
@@ -80,7 +94,7 @@ public static class Planform
         return new(eta, eta * view.HalfSpanMeters, leading, trailing, trailing - leading);
     }
 
-    public static (double SpanMeters, double AftMeters) HandleTarget(PlanformView view, string curve, string handleId, double angleDegrees, double lengthMeters)
+    public static HandleTargetPoint HandleTarget(PlanformView view, string curve, string handleId, double angleDegrees, double lengthMeters)
     {
         ArgumentNullException.ThrowIfNull(view);
         var rail = curve == "leading" ? view.Leading : view.Trailing;
@@ -90,10 +104,10 @@ public static class Planform
         double span = Math.Cos(radians) * lengthMeters;
         double aft = Math.Sin(radians) * lengthMeters;
         if (handle.Index < anchor.Index) { span = -span; aft = -aft; }
-        return (anchor.SpanMeters + span, anchor.AftMeters + aft);
+        return new(anchor.SpanMeters + span, anchor.Ordinate + aft);
     }
 
-    private static CurveView Project(Definition definition, string name, int ceiling)
+    internal static CurveView Project(Definition definition, string name, int ceiling)
     {
         var curve = definition.Curves[name];
         bool mirror = definition.Locks.Any(item => item.Kind == "root_mirror" && item.Channel.Text == name);
@@ -156,10 +170,9 @@ public static class Planform
 
     private static PointFreedom Freedom(string curve, int index, int count, bool mirror)
     {
-        if (index == 0 && curve == "leading") return PointFreedom.Fixed;
-        if (index == 0 && curve == "trailing" && mirror) return PointFreedom.AftOnly;
+        if (index == 0 && curve is "leading" or "dihedral") return PointFreedom.Fixed;
+        if (index == count - 1 || index == 0) return PointFreedom.ValueOnly;
         if (index == 1 && mirror) return PointFreedom.SpanOnly;
-        if (index == count - 1) return PointFreedom.AftOnly;
         return PointFreedom.Free;
     }
 
@@ -194,7 +207,7 @@ public static class Planform
         double span = 0, aft = 0, dSpan = 0, dAft = 0, ddSpan = 0, ddAft = 0;
         for (int index = 0; index < curve.Points.Count; index++)
         {
-            double eta = curve.Points[index].Eta, ordinate = curve.Points[index].AftMeters;
+            double eta = curve.Points[index].Eta, ordinate = curve.Points[index].Ordinate;
             span += jet.N[index] * eta * halfSpan;
             aft += jet.N[index] * ordinate;
             dSpan += jet.D1[index] * eta * halfSpan;
@@ -209,7 +222,7 @@ public static class Planform
     }
 
     private static (double Span, double Aft) Evaluate(CurveView curve, double t, double halfSpan) =>
-        Evaluate(Knots(curve), curve.Points.Select(point => new[] { point.Eta, point.AftMeters }).ToArray(), 3, t, halfSpan);
+        Evaluate(Knots(curve), curve.Points.Select(point => new[] { point.Eta, point.Ordinate }).ToArray(), 3, t, halfSpan);
 
     private static (double Span, double Aft) Evaluate(double[] knots, double[][] points, int degree, double t, double halfSpan)
     {
@@ -227,13 +240,57 @@ public static class Planform
 
     private static double AftAt(CurveView curve, double eta, double halfSpan)
     {
-        double low = 0, high = 1;
-        for (int step = 0; step < 60; step++)
-        {
-            double mid = (low + high) / 2;
-            if (Evaluate(curve, mid, halfSpan).Span < eta * halfSpan) low = mid;
-            else high = mid;
-        }
-        return Evaluate(curve, (low + high) / 2, halfSpan).Aft;
+        // Span scaling is not part of the inversion. The shared evaluator inverts η directly.
+        _ = halfSpan;
+        var points = new double[curve.Points.Count][];
+        for (int index = 0; index < points.Length; index++)
+            points[index] = [curve.Points[index].Eta, curve.Points[index].Ordinate];
+        return ChannelEvaluator.Value(Knots(curve), 3, points, eta);
     }
+}
+
+public sealed record ChannelUnit(string Curve, string SiUnit, string DisplayUnit, double Quantum,
+    double NudgeFine, double NudgePlain, double NudgeCoarse, double? RowTolerance,
+    double? DomainLower, double? DomainUpper, string HandleTyping);
+
+public static class Channels
+{
+    public static readonly string[] Names = ["leading", "trailing", "dihedral", "twist", "thickness"];
+    public const string AngleAndLength = "AngleAndLength";
+    public const string SpanAndValue = "SpanAndValue";
+
+    public static string Family(string curve) => curve is "leading" or "trailing" ? "rail" : curve;
+
+    public static CurveView View(byte[] source, string curve, string basis, long generation)
+    {
+        _ = basis;
+        _ = generation;
+        ArgumentNullException.ThrowIfNull(source);
+        var (definition, ceiling) = Open(source);
+        if (!definition.Curves.ContainsKey(curve)) throw new ContractError("DSL-TARGET");
+        return Planform.Project(definition, curve, ceiling);
+    }
+
+    public static ChannelUnit Unit(string curve) => curve switch
+    {
+        "leading" or "trailing" => Length(curve, null, null, null),
+        "dihedral" => Length(curve, 1e-6, null, null),
+        "twist" => new("twist", "deg", "°", 1e-5, 0.01, 0.1, 1, 1e-6,
+            -Geometry.TwistDomainDegrees, Geometry.TwistDomainDegrees, SpanAndValue),
+        "thickness" => new("thickness", "1", "%", 1e-7, 1e-4, 1e-3, 1e-2, 1e-8,
+            Geometry.ThicknessDomain.Lower, Geometry.ThicknessDomain.Upper, SpanAndValue),
+        _ => throw new ContractError("DSL-TARGET")
+    };
+
+    internal static (Definition Definition, int Ceiling) Open(byte[] source)
+    {
+        var parsed = FoilSource.Parse(source);
+        if (!parsed.IsParsed || parsed.Definition is not { Kind: "foil" } definition)
+            throw new ContractError(parsed.Diagnostics.FirstOrDefault()?.Code ?? "DSL-PATCH");
+        return (definition, definition.Version == "4.1" ? 16 : 10);
+    }
+
+    private static ChannelUnit Length(string curve, double? rowTolerance, double? lower, double? upper) =>
+        new(curve, "m", "mm", 1e-6, 1e-5, 1e-4, 1e-3, rowTolerance, lower, upper,
+            curve is "twist" or "thickness" ? SpanAndValue : AngleAndLength);
 }

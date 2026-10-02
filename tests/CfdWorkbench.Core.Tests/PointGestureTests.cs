@@ -50,7 +50,7 @@ internal static class PointGestureTests
         Check("BeginPointGesture_NonRailCurve_DslTarget", () =>
         {
             using var s = Open();
-            Refuses("DSL-TARGET", () => s.BeginPointGesture(Id(), "twist", Point(s, "leading", 2).Id));
+            Refuses("DSL-TARGET", () => s.BeginPointGesture(Id(), "upper", Point(s, "leading", 2).Id));
             Equal(null, s.Snapshot().Draft);
         });
         Check("UpdatePointGesture_NonfiniteTarget_DraftUnchanged", () =>

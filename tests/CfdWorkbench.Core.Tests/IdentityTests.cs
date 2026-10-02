@@ -81,6 +81,8 @@ internal static class IdentityTests
         PointGestureTests.Run();
         PointCommandTests.Run();
         ReopenPointEditTests.Run();
+        ChannelEditTests.Run();
+        ReopenChannelEditTests.Run();
         Console.WriteLine($"RESULT failures={failures}");
         return SelectionMatched() && failures == 0 ? 0 : 1;
     }

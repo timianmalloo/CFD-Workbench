@@ -62,13 +62,35 @@ try
     if (leading[1].GetProperty("role").GetString() != "RootHandle" || leading[1].GetProperty("freedom").GetString() != "SpanOnly") throw new Exception("Root handle");
     if (leading[2].GetProperty("role").GetString() != "Control" || leading[2].GetProperty("freedom").GetString() != "Free") throw new Exception("Control point");
     if (leading[5].GetProperty("role").GetString() != "TipHandle") throw new Exception("Tip handle");
-    if (leading[6].GetProperty("role").GetString() != "TipEnd" || leading[6].GetProperty("freedom").GetString() != "AftOnly") throw new Exception("Tip end");
-    if (trailing[0].GetProperty("role").GetString() != "RootEnd" || trailing[0].GetProperty("freedom").GetString() != "AftOnly") throw new Exception("Trailing root");
+    if (leading[6].GetProperty("role").GetString() != "TipEnd" || leading[6].GetProperty("freedom").GetString() != "ValueOnly") throw new Exception("Tip end");
+    if (leading[6].GetProperty("ordinate").GetDouble() != leading[6].GetProperty("aftMeters").GetDouble()) throw new Exception("Ordinate alias");
+    if (trailing[0].GetProperty("role").GetString() != "RootEnd" || trailing[0].GetProperty("freedom").GetString() != "ValueOnly") throw new Exception("Trailing root");
     if (leading[0].GetProperty("id").GetString() != "cv-0") throw new Exception("Point id");
     Console.WriteLine("PASS Cli_InspectJson_PointsRolesAndKinds");
 }
 catch (Exception error)
 {
     Console.WriteLine("FAIL Cli_InspectJson_PointsRolesAndKinds");
+    throw new InvalidOperationException(error.Message);
+}
+try
+{
+    var model = pointsRoot.GetProperty("points");
+    foreach (string name in new[] { "leading", "trailing", "dihedral", "twist", "thickness" })
+    {
+        var channel = model.GetProperty(name);
+        if (channel.GetArrayLength() < 2) throw new Exception(name);
+        if (channel[0].GetProperty("role").GetString() != "RootEnd") throw new Exception(name + " root");
+        if (channel[channel.GetArrayLength() - 1].GetProperty("role").GetString() != "TipEnd") throw new Exception(name + " tip");
+    }
+    if (model.GetProperty("dihedral")[0].GetProperty("freedom").GetString() != "Fixed") throw new Exception("Dihedral root");
+    if (model.GetProperty("twist")[0].GetProperty("freedom").GetString() != "ValueOnly") throw new Exception("Twist root");
+    if (model.GetProperty("thickness")[0].GetProperty("freedom").GetString() != "ValueOnly") throw new Exception("Thickness root");
+    if (model.GetProperty("twist")[1].GetProperty("freedom").GetString() != "SpanOnly") throw new Exception("Twist handle");
+    Console.WriteLine("PASS Cli_InspectJson_ChannelPointsRolesAndKinds");
+}
+catch (Exception error)
+{
+    Console.WriteLine("FAIL Cli_InspectJson_ChannelPointsRolesAndKinds");
     throw new InvalidOperationException(error.Message);
 }

@@ -87,6 +87,10 @@ def join_ring_problems(contract):
     for recount in RECOUNTS:
         if not any(recount in line for line in readiness):
             problems.append("readiness does not run " + recount)
+    # The Core harness's readiness tier holds the full binding sweeps the fast ring samples; it ran
+    # nowhere until 2026-10-02 because nothing passed the switch.
+    if not any("CfdWorkbench.Core.Tests" in line and "--readiness" in line for line in readiness):
+        problems.append("readiness does not run the Core harness with --readiness")
     return problems
 
 
