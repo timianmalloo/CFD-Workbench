@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:24:32Z",
+  "generated": "2026-10-02T14:35:46Z",
   "audit": [
     {
       "actor": null,
@@ -21743,6 +21743,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:23:41Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3YGNTP99ZAWEW11PV15CGTV",
+      "shortname": "join-oi11",
+      "datetime": "2026-10-02T14:35:46Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12b2-oi11-trace-pin into feature/ui-cad-direction",
+      "summary": "OI-11 (Sonnet 5.5): Trace : IPlacementScalar<Trace> runs the one PlacementRule; operation strings goldened (committed first); four math-preserving tree mutants turn it red while the certificate golden stays green; failure names QueryFeasibility, PlacementWidth, BlendPlacementWidth. Design §13 OI-11 closed; ADR-0010 simplify note updated. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T14:34:50Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
