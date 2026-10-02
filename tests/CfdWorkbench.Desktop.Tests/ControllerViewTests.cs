@@ -303,6 +303,34 @@ public static class ControllerViewTests
 
     private static void RenderedChecks()
     {
+        DesktopChecks.Check("SurfaceRenderer_RenderTargetBitmap_CapturesShadedPixels", () =>
+        {
+            using var fixture = new AreaFixture();
+            fixture.Shoot();
+            var renderer = fixture.Area.ThreeDRenderer;
+            var surface = fixture.Controller.Surface!;
+            var face = fixture.RgbAt(renderer, UpperFace(surface, 20, 40));
+            var (grazing, lit) = fixture.Ramp();
+            if (!Between(face, grazing, lit))
+                throw new Exception($"Upper face pixel {face} is not on the shading ramp {grazing} → {lit}");
+            if (face == fixture.Background()) throw new Exception("The shaded face is background");
+        });
+
+        DesktopChecks.Check("SurfaceRenderer_ShadedPainterOrder_TopShowsUpperSurface", () =>
+        {
+            using var fixture = new AreaFixture();
+            fixture.SetCamera3d(NamedCamera.Top);
+            fixture.Shoot();
+            var surface = fixture.Controller.Surface!;
+            var (_, lit) = fixture.Ramp();
+            // From Top the upper surface faces the headlight: its faces reach the lit end of the ramp.
+            foreach (int row in new[] { 8, 20, 32 })
+            {
+                var pixel = fixture.RgbAt(fixture.Area.ThreeDRenderer, UpperFace(surface, row, 40));
+                if (Distance(pixel, lit) > 12) throw new Exception($"Top at row {row} shows {pixel}, not the upper surface {lit}");
+            }
+        });
+
         DesktopChecks.Check("SurfaceRenderer_Silhouette_RenderedFoilStrokeThreeToOne", () =>
         {
             using var fixture = new AreaFixture();
@@ -317,6 +345,49 @@ public static class ControllerViewTests
                 if (Distance(edge, foil) > 30) throw new Exception($"Leading edge at row {row} is {edge}, not foil {foil}");
                 if (Contrast(edge, face) < 3) throw new Exception($"Leading edge {edge} on face {face}: {Contrast(edge, face):F2}:1");
             }
+        });
+
+        DesktopChecks.Check("SurfaceRenderer_ShadingRamp_NeverBrighterThanFoilShadeLit", () =>
+        {
+            using var fixture = new AreaFixture();
+            var (_, lit) = fixture.Ramp();
+            // Cameras that see the upper surface with area (the Front and Side bands are a few pixels of outline).
+            foreach (var camera in new[] { "Iso", "Top", "Free" })
+            {
+                fixture.SetCamera3d(camera == "Top" ? NamedCamera.Top : NamedCamera.Iso);
+                if (camera == "Free") fixture.Controller.Camera3d = fixture.Controller.Camera3d!.Value.Orbit(-70, 25);
+                fixture.Shoot();
+                var surface = fixture.Controller.Surface!;
+                int brightest = 0;
+                for (int row = 2; row < 39; row += 3)
+                    for (int sample = 20; sample < 90; sample += 10)
+                    {
+                        var pixel = fixture.RgbAt(fixture.Area.ThreeDRenderer, UpperFace(surface, row, sample));
+                        if (pixel == fixture.Background()) continue;
+                        if (pixel.R > lit.R + 1 || pixel.G > lit.G + 1 || pixel.B > lit.B + 1)
+                            throw new Exception($"{camera}: face pixel {pixel} is brighter than foil-shade-lit {lit}");
+                        brightest = Math.Max(brightest, pixel.G);
+                    }
+                if (camera == "Top" && brightest < lit.G - 2) throw new Exception("Top never reaches the lit end of the ramp");
+            }
+        });
+
+        DesktopChecks.Check("SurfaceRenderer_PortHalf_LitSameAsStarboard", () =>
+        {
+            using var fixture = new AreaFixture();
+            fixture.SetCamera3d(NamedCamera.Top);
+            fixture.Shoot();
+            var surface = fixture.Controller.Surface!;
+            var renderer = fixture.Area.ThreeDRenderer;
+            foreach (int row in new[] { 6, 18, 30 })
+                foreach (int sample in new[] { 25, 50, 75 })
+                {
+                    var point = UpperFace(surface, row, sample);
+                    var starboard = fixture.RgbAt(renderer, point);
+                    var port = fixture.RgbAt(renderer, point.Port());
+                    if (Distance(starboard, port) > 3 || port == fixture.Background())
+                        throw new Exception($"Row {row} sample {sample}: port {port} vs starboard {starboard}");
+                }
         });
 
         DesktopChecks.Check("SurfaceRenderer_Wireframe_InteriorViewportColourTenThinRows", () =>
@@ -344,6 +415,32 @@ public static class ControllerViewTests
                 inRow = muted;
             }
             Equal(9, rows, "thin intermediate rows between the authored root and tip");
+        });
+
+        DesktopChecks.Check("SurfaceRenderer_Brushes_AllFromThemeResources", () =>
+        {
+            foreach (var theme in new[] { Avalonia.Styling.ThemeVariant.Dark, NativeReviewThemes.HighContrast })
+            {
+                using var fixture = new AreaFixture(theme: theme);
+                fixture.Shoot();
+                var renderer = fixture.Area.ThreeDRenderer;
+                var surface = fixture.Controller.Surface!;
+                foreach (var (property, key) in new (AvaloniaProperty<IBrush?>, string)[]
+                {
+                    (SurfaceRenderer.BackgroundBrushProperty, "ViewportBrush"), (SurfaceRenderer.ShadeGrazingBrushProperty, "PlanSoftBrush"),
+                    (SurfaceRenderer.ShadeLitBrushProperty, "FoilShadeLitBrush"), (SurfaceRenderer.FoilBrushProperty, "PlanFoilBrush"),
+                    (SurfaceRenderer.FoilEdgeBrushProperty, "FoilEdgeBrush"), (SurfaceRenderer.StationBrushProperty, "PlanSelectionBrush"),
+                    (SurfaceRenderer.MuteBrushProperty, "PlanMuteBrush")
+                })
+                    if (renderer.GetValue(property) is not ISolidColorBrush brush || brush.Color != fixture.ResourceColor(key))
+                        throw new Exception($"{theme}: {property.Name} is not the {key} resource");
+                Equal(fixture.Brush("ViewportBrush"), fixture.RgbAt(renderer, new Point3(0.06, 0, 0.5)), theme + " background pixel");
+                var edge = fixture.NearestTo(renderer, surface.Sections[20].Upper[0], fixture.Brush("PlanFoilBrush"), 1);
+                if (Distance(edge, fixture.Brush("PlanFoilBrush")) > 30) throw new Exception($"{theme}: outline pixel {edge}");
+                var (grazing, lit) = fixture.Ramp();
+                if (!Between(fixture.RgbAt(renderer, UpperFace(surface, 20, 40)), grazing, lit))
+                    throw new Exception(theme + ": face pixel is off the token ramp");
+            }
         });
 
         DesktopChecks.Check("Workspace_NewFoil_WindowPixelsShow3dSurface", () =>
@@ -701,6 +798,7 @@ public static class ControllerViewTests
                 ? brush.Color : throw new Exception("Theme resource " + key + " is missing (Styles.axaml)");
         public (byte R, byte G, byte B) Brush(string key) { var color = ResourceColor(key); return (color.R, color.G, color.B); }
         public (byte R, byte G, byte B) Background() => Brush("ViewportBrush");
+        public ((byte R, byte G, byte B) Grazing, (byte R, byte G, byte B) Lit) Ramp() => (Brush("PlanSoftBrush"), Brush("FoilShadeLitBrush"));
 
         public void Dispose()
         {
@@ -876,6 +974,12 @@ public static class ControllerViewTests
     {
         Pump(() => task.IsCompleted, "a task");
         task.GetAwaiter().GetResult();
+    }
+
+    private static bool Between((byte R, byte G, byte B) pixel, (byte R, byte G, byte B) low, (byte R, byte G, byte B) high)
+    {
+        static bool Within(byte value, byte a, byte b) => value >= Math.Min(a, b) - 1 && value <= Math.Max(a, b) + 1;
+        return Within(pixel.R, low.R, high.R) && Within(pixel.G, low.G, high.G) && Within(pixel.B, low.B, high.B);
     }
 
     private static int Distance((byte R, byte G, byte B) a, (byte R, byte G, byte B) b) =>

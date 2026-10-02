@@ -115,12 +115,16 @@ def contrast_checks(test_step: dict) -> dict[str, object]:
     # {colors.focus-ring}, {colors.selection} and its ink, {colors.warning}; their DESIGN.md values in all three
     # themes are pinned by PropertiesPane_GridBrushes_InAllThreeThemes.
     grid_keys = {"ControlLineBrush", "FocusRingBrush", "SelectionBrush", "OnSelectionBrush", "WarningBrush"}
+    # The shaded surface (VW1, docs/design/m12b2-3d-elevations.md §11.2): {colors.foil-shade-lit} tops the shading
+    # ramp and {colors.foil-edge} strokes authored sections (contrast-ink in high contrast); their rendered use in
+    # all three themes is pinned by SurfaceRenderer_Brushes_AllFromThemeResources.
+    surface_keys = {"FoilShadeLitBrush", "FoilEdgeBrush"}
     brush_pattern = r'<SolidColorBrush x:Key="([A-Za-z]+Brush)"'
-    if (expected_keys | focus_keys | plan_keys | grid_keys).intersection(re.findall(brush_pattern, without_themes)):
+    if (expected_keys | focus_keys | plan_keys | grid_keys | surface_keys).intersection(re.findall(brush_pattern, without_themes)):
         raise RuntimeError("root resource shadows theme brush")
     for variant, block in blocks.items():
         declared = re.findall(brush_pattern, block)
-        all_keys = expected_keys | focus_keys | plan_keys | grid_keys
+        all_keys = expected_keys | focus_keys | plan_keys | grid_keys | surface_keys
         if len(declared) != len(all_keys) or set(declared) != all_keys:
             raise RuntimeError(f"{variant} theme brush keys are missing or duplicated")
     def luminance(color: str) -> float:

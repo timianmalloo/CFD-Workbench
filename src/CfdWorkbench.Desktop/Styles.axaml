@@ -41,6 +41,8 @@
         <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource DangerViewportColor}" />
         <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource WarningViewportColor}" />
         <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource ViewportSoftColor}" />
+        <SolidColorBrush x:Key="FoilShadeLitBrush" Color="{StaticResource FoilShadeLitColor}" />
+        <SolidColorBrush x:Key="FoilEdgeBrush" Color="{StaticResource FoilEdgeColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource PrimaryColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource InkColor}" />
         <SolidColorBrush x:Key="ControlLineBrush" Color="{StaticResource ControlLineColor}" />
@@ -71,6 +73,8 @@
         <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource DangerViewportColor}" />
         <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource WarningViewportColor}" />
         <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource ViewportSoftColor}" />
+        <SolidColorBrush x:Key="FoilShadeLitBrush" Color="{StaticResource FoilShadeLitColor}" />
+        <SolidColorBrush x:Key="FoilEdgeBrush" Color="{StaticResource FoilEdgeColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource DarkPrimaryColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource DarkInkColor}" />
         <SolidColorBrush x:Key="ControlLineBrush" Color="{StaticResource DarkControlLineColor}" />
@@ -101,6 +105,8 @@
         <SolidColorBrush x:Key="PlanDangerBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="PlanWarningBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="PlanSoftBrush" Color="{StaticResource HighContrastBackgroundColor}" />
+        <SolidColorBrush x:Key="FoilShadeLitBrush" Color="{StaticResource FoilShadeLitColor}" />
+        <SolidColorBrush x:Key="FoilEdgeBrush" Color="{StaticResource HighContrastInkColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="{StaticResource HighContrastAccentColor}" />
         <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="{StaticResource HighContrastInkColor}" />
         <SolidColorBrush x:Key="ControlLineBrush" Color="{StaticResource HighContrastInkColor}" />
@@ -132,6 +138,10 @@
     <Color x:Key="DangerViewportColor">#ffaeb5</Color>
     <Color x:Key="WarningViewportColor">#efc576</Color>
     <Color x:Key="ViewportSoftColor">#243a40</Color>
+    <!-- DESIGN.md colors.foil-shade-lit: the lit end of the shaded-surface ramp from viewport-soft, capped so overlays keep 3:1. -->
+    <Color x:Key="FoilShadeLitColor">#3f6a6c</Color>
+    <!-- DESIGN.md colors.foil-edge: authored sections on the shaded surface; high contrast uses contrast-ink (HighContrastInkColor). -->
+    <Color x:Key="FoilEdgeColor">#c4e7df</Color>
     <Thickness x:Key="Space2">8</Thickness>
     <Thickness x:Key="Space3">12</Thickness>
     <Thickness x:Key="Space4">16</Thickness>
