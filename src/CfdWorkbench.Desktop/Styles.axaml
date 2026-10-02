@@ -236,6 +236,9 @@
   <Style Selector="dock|ToolChromeControl /template/ TextBlock#PART_Title"><Setter Property="IsVisible" Value="False" /></Style>
   <!-- Dock tabs are TabStripItems, not TabItems. Dock styles them in ControlThemes, which any Style outranks, but its
        selected, hover and active states share brush keys, so the selected fill is set here per control type. -->
+  <!-- NS-1: a tab row is one Tab stop and the arrow keys move along it (a tab list), so Tab from the Plan reaches the pane
+       below the row instead of walking every tab first. -->
+  <Style Selector="dock|DocumentTabStrip, dock|ToolTabStrip"><Setter Property="KeyboardNavigation.TabNavigation" Value="Once" /></Style>
   <Style Selector="dock|DocumentTabStripItem:selected, dock|ToolTabStripItem:selected"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
   <!-- A Primary selected fill hides Fluent's inner focus tone (Ink), so these selectable items use OnPrimary inside the
        Primary ring. Set for every state: Avalonia builds the adorner at focus time, and selection can follow focus. -->
