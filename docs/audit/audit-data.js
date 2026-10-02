@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T01:28:08Z",
+  "generated": "2026-10-02T12:46:59Z",
   "audit": [
     {
       "actor": null,
@@ -21593,6 +21593,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "b942e74b3df73114a2c4a860a36214298213384e",
         "short": "b942e74b3",
+        "branch": "design/property-grid-cells",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3YAEMRR59ZTR3F8YCZ8Q1J0",
+      "shortname": "ui-design-property-grid-b-repair1",
+      "datetime": "2026-10-02T12:46:59Z",
+      "session": "f19a2b12-uid",
+      "prompt": "B repair cycle 1 of 2: Marine-CAD passes B with conditions; UX&A holds its veto on CL-1 only. Record operator rulings DR-CELL-2 (OK to all three visible changes; amends PG-06/MC-1), DR-CELL-3 (focused error: accent focus box with the danger box just outside; unfocused error: danger box only), DR-CELL-4 (angle reference stays focus-only), DR-CELL-5 (links take a solid underline). Close CL-1 (mockup, brief, oracle check focused differs from unfocused for every Tab stop incl. error, native test), CB-1 (DC-1 brief text matches the mockup; subhead Length row at 200 px), CL-2/CB-4 (announce a dropped pending Kind/Type; pending HelpText), CB-3 (two drop-down tests), CL-3 (pixel-snapped template Line with a pixel test; fallback is an overlay, a swap is forbidden), CL-5 (keep the focused row in view as help toggles), B2-3 native rows, CB-6 (delete radio-list leftovers), and mark DR-DEN-4 as ruled.",
+      "summary": "B repair cycle 1: DR-CELL-2..5 recorded (rulings note, review, DESIGN.md), DR-DEN-4 marked ruled. CL-1 fixed (focused error = accent box with danger outside) with an oracle check across every Tab stop and a native test; CB-1 brief corrected to the mockup's dirty layout and checked on a subhead Length row at 200 px; CL-2 drop announcements; CB-3/CB-4 tests; CL-3 pixel-test + overlay fallback (swap forbidden); CL-5 help keeps the row in view; B2-3 native rows; radio-list leftovers deleted (CB-6). Oracle 682 cells, 65/65 paths; CL-1 plant red. Named tests: 34 plus the B-5 set.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/reviews/ui-property-grid-cells.md",
+        "docs/notes/property-grid-rulings.md",
+        "DESIGN.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close the B review conditions and record DR-CELL-2..5",
+      "done_when": "rulings recorded; CL-1 and the other conditions closed in mockup/brief/oracle; CL-1 plant red; committed",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-02T12:43:13Z",
+      "duration_seconds": 226.0,
+      "git": {
+        "sha": "fa5d83358acf359397f2edc2ce87fdc89b167d09",
+        "short": "fa5d83358",
         "branch": "design/property-grid-cells",
         "pushed": null
       }

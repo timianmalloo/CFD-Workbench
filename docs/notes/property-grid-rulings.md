@@ -54,7 +54,7 @@ Both lenses cleared the density design with conditions at `4bc94e6`
 | **DR-DEN-2** Wing at large text | At 200 % text the Wing stays pinned and scrolls inside itself; **a focused field is always brought into view**, with its message line | Mockup and oracle (DN-6); build test `PropertiesPane_Density_FocusedWingFieldInViewAtLargeText` |
 | **DR-DEN-3** type size | **11 px, nothing below 11.** Labels, values, units, messages (errors, warnings, reasons), notes, descriptions, summaries and the crumb are all 11 px. No 10 px anywhere | `typography.prop` and `typography.prop-note` are 11/14. The reviewers recommended 12 px; their reasons are kept as residual risk: Windows' 100 % default UI text is about 12 px, and 11 px is harder to read on non-Retina displays. So the native B-2 capture includes a Windows-class 100 % (non-Retina) display check |
 | **DN-5** text resize | **Build an app Text size setting:** View ▸ Text size 100 / 125 / 150 / 200 %, ⌘+ / ⌘− (Ctrl on Windows), persisted per user. One multiplier scales every Prop type and row token; ≥ 150 % switches to stacked rows | Owner: the density build track. In the mockup the setting is the real control in the title bar |
-| **DR-DEN-4** shortcut scope (raised by this pass) | ⌘= / ⌘− already zoom the Plan and 3D views (M1.2b §0.1 step 10; M1.2b2 command table). Recommendation, pending the operator: in a model view they keep zooming the view; with focus anywhere else they step the Text size; the View menu items always work | Brief §8.5; flagged for the operator **Ruled (operator, 2026-10-01): context — with a model view focused ⌘= / ⌘− zoom the view; anywhere else they change text size; the View ▸ Text size menu items always change text size.** |
+| **DR-DEN-4** shortcut scope (raised by this pass; **ruled**: ⌘= / ⌘− zoom a focused model view, else Text size) | ⌘= / ⌘− already zoom the Plan and 3D views (M1.2b §0.1 step 10; M1.2b2 command table). Recommendation, pending the operator: in a model view they keep zooming the view; with focus anywhere else they step the Text size; the View menu items always work | Brief §8.5; flagged for the operator **Ruled (operator, 2026-10-01): context — with a model view focused ⌘= / ⌘− zoom the view; anywhere else they change text size; the View ▸ Text size menu items always change text size.** |
 
 ## Structure ruling (2026-10-01)
 
@@ -62,3 +62,14 @@ Both lenses cleared the density design with conditions at `4bc94e6`
 |---|---|
 | **DR-CELL-1** structure | The operator saw three cell layouts side by side (docs/mockups/property-grid-cells.html, bd7dbc5: A Visual Studio Properties window, B Premiere Pro Effect Controls, C VS Code compact table) and ruled, verbatim: "All look good... I like B as is". **B is the property sheet's structure**: twirl groups with indented rows, labels left in muted ink, values right-aligned in the accent colour with a dotted underline marking editable, no input box until the value is clicked, light rules between rows. The approved look is fixed; a reviewer condition that changes it visibly goes back to the operator before any build. Supersedes the row-with-boxes layout of the PGRID build and the density pass's field band (DN-2), where they conflict. |
 
+## Structure B rulings (2026-10-02, after the B reviews)
+
+| ID | Ruling | Consequence |
+|---|---|---|
+| **DR-CELL-2** B's visible changes (2026-10-02) | **OK to all three:** the Wing header has no ▾; labels wrap at the 200 px dock; Tangent kind is a ▾ dropdown with Type's commit rules (arrows stage, Return or a pick applies, Esc keeps, leaving drops) | **Amends PG-06 / MC-1:** the radio list's "leaving the group commits" rule is superseded by the dropdown's "leaving drops" |
+| **DR-CELL-3** focused value in error (CL-1) | A focused value in error draws the 1 px accent focus box with the 1 px danger box just outside it. An unfocused error is the danger box only. The rail, icon and message are unchanged | Mockup, brief §5.2, oracle CL-1 check; native test `PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused` |
+| **DR-CELL-4** angle reference (CB-2) | The angle-reference note stays focus-only, as approved | — |
+| **DR-CELL-5** links (CL-4) | Links get a **solid** underline; the dotted underline is reserved for editable values | Mockup ("Estimates · definitions"), DESIGN.md |
+
+DR-DEN-4 is ruled (context from the Coordinator): ⌘= / ⌘− zoom a focused model view; anywhere else they step the
+Text size.

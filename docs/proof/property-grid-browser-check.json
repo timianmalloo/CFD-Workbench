@@ -1,6 +1,6 @@
 {
  "file": "docs/mockups/property-grid.html",
- "date": "2026-10-02T01:27:31.087Z",
+ "date": "2026-10-02T12:46:40.224Z",
  "cells": 682,
  "errors": [],
  "fails": {},
@@ -365,7 +365,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 58,
     "defsH": 30.6,
     "wingH": 339,
@@ -384,7 +383,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 45,
     "defsH": 24,
     "wingH": 230,
@@ -405,7 +403,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 39.2,
     "defsH": 30.6,
     "wingH": 339,
@@ -424,7 +421,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 31,
     "defsH": 24,
     "wingH": 230,
@@ -445,7 +441,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 39.2,
     "defsH": 30.6,
     "wingH": 339,
@@ -464,7 +459,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 31,
     "defsH": 24,
     "wingH": 230,
@@ -485,7 +479,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 98.8,
     "defsH": 30.6,
     "wingH": 339,
@@ -504,7 +497,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 69,
     "defsH": 24,
     "wingH": 230,
@@ -525,7 +517,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 58,
     "defsH": 30.6,
     "wingH": 339,
@@ -544,7 +535,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 45,
     "defsH": 24,
     "wingH": 230,
@@ -565,7 +555,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 58,
     "defsH": 30.6,
     "wingH": 339,
@@ -584,7 +573,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 45,
     "defsH": 24,
     "wingH": 230,
@@ -605,7 +593,6 @@
     "fieldTarget": 28,
     "fieldDrawn": 28,
     "headH": 33,
-    "kindH": null,
     "identH": 58,
     "defsH": 30.6,
     "wingH": 339,
@@ -624,7 +611,6 @@
     "fieldTarget": 24,
     "fieldDrawn": 20,
     "headH": 24,
-    "kindH": null,
     "identH": 45,
     "defsH": 24,
     "wingH": 230,
@@ -679,7 +665,7 @@
    "pass": true
   },
   {
-   "name": "leaving the Tangent kind box with a pending kind drops it",
+   "name": "leaving the Tangent kind box with a pending kind drops it and says so (CL-2)",
    "pass": true
   },
   {
@@ -703,7 +689,7 @@
    "pass": true
   },
   {
-   "name": "leaving the Type box with a pending type does not commit (PG-19)",
+   "name": "leaving the Type box with a pending type does not commit and says so (PG-19, CL-2)",
    "pass": true
   },
   {
@@ -815,6 +801,10 @@
    "pass": true
   },
   {
+   "name": "a typed expression is visible whole in a subhead Length row at 200 px (CB-1, DC-1)",
+   "pass": true
+  },
+  {
    "name": "worst-case numbers are not clipped at the 200 px dock (DC-2)",
    "pass": true
   },
@@ -836,6 +826,22 @@
   },
   {
    "name": "⌘− steps the Text size down and never below 100 % (DN-5)",
+   "pass": true
+  },
+  {
+   "name": "focused differs from unfocused for every Tab stop, incl. a value in error (anchor) (CL-1)",
+   "pass": true
+  },
+  {
+   "name": "focused differs from unfocused for every Tab stop, incl. a value in error (field-error) (CL-1)",
+   "pass": true
+  },
+  {
+   "name": "focused differs from unfocused for every Tab stop, incl. a value in error (foil) (CL-1)",
+   "pass": true
+  },
+  {
+   "name": "a focused row and its expanded help stay in view at 200 % (CL-5)",
    "pass": true
   },
   {

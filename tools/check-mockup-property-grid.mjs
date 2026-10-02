@@ -101,7 +101,7 @@ check('an arrow on the closed Tangent kind box is pending, not committed', await
 await page.keyboard.press('Enter');
 check('Return commits the kind as one undo row', await undo() === u + 1 && /Handle toward the root/.test(await page.locator('#sel').innerText()));
 u = await undo(); await arrowPick('symmetric'); await page.keyboard.press('Tab');
-check('leaving the Tangent kind box with a pending kind drops it', await undo() === u && await page.locator('select[data-fk="kind"]').inputValue() === 'corner');
+check('leaving the Tangent kind box with a pending kind drops it and says so (CL-2)', /Tangent kind unchanged: Corner\./.test(await status()) && await undo() === u && await page.locator('select[data-fk="kind"]').inputValue() === 'corner');
 await page.selectOption('select[data-fk="kind"]', 'smooth');
 check('a pointer pick of the kind commits at once', await undo() === u + 1 && await page.locator('select[data-fk="kind"]').inputValue() === 'smooth');
 
@@ -120,7 +120,7 @@ check('Make control point reports the rail from the result, 14 → 12 (N-4, COPY
 await at('control'); await expand('pos'); u = await undo();
 await page.evaluate(() => { const s = document.querySelector('select[data-fk="type"]'); s.focus(); s.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); s.value = 'anchor'; s.dispatchEvent(new Event('change', { bubbles: true })); });
 await page.keyboard.press('Tab');
-check('leaving the Type box with a pending type does not commit (PG-19)', await undo() === u && await page.locator('select[data-fk="type"]').inputValue() === 'control'
+check('leaving the Type box with a pending type does not commit and says so (PG-19, CL-2)', /Type unchanged: Control point\./.test(await status()) && await undo() === u && await page.locator('select[data-fk="type"]').inputValue() === 'control'
   && !/Press Return to change the type/.test(await page.locator('#sel').innerText()) && await page.evaluate(() => document.querySelector('.ident h2').textContent) === 'Trailing edge · point 3 of 10');
 
 // --- field nudge (DR-UID-2 under MC-10, MC-18, PG-08)
@@ -189,6 +189,11 @@ for (const w of ['200', '260', '300']) for (const expr of ['#root_chord × 0.35'
   check(`a typed expression is visible whole in Aft at ${w} px: ${expr} (DC-1)`, await page.evaluate(() => { const i = document.querySelector('input[data-fk="p:aft"]'); return i.scrollWidth <= i.clientWidth; }));
   await page.press('input[data-fk="p:aft"]', 'Escape');
 }
+// --- CB-1: DC-1 also holds for a Length row under a handle subhead at the 200 px dock
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '200', density: 'b', text: '100' }); window.__pg.goState('worst-case'); });
+await page.fill('input[data-fk="h:lr"]', '#tip_chord × 0.1');
+check('a typed expression is visible whole in a subhead Length row at 200 px (CB-1, DC-1)', await page.evaluate(() => { const i = document.querySelector('input[data-fk="h:lr"]'), r = i.closest('.row'); return i.scrollWidth <= i.clientWidth && r.querySelector('.lbl').offsetParent !== null && getComputedStyle(r.querySelector('.unit')).display === 'none'; }));
+await page.press('input[data-fk="h:lr"]', 'Escape');
 // --- DC-2: worst-case numbers at the 200 px dock are not clipped
 await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '200', density: 'b', text: '100' }); window.__pg.goState('worst-case'); });
 check('worst-case numbers are not clipped at the 200 px dock (DC-2)', await page.evaluate(() => window.__pg.audit().filter(r => /clipped|ellipsized/.test(r.check)).every(r => r.pass !== false)));
@@ -210,6 +215,20 @@ await page.focus('[data-fk="w:tip"]'); await page.keyboard.press('Escape');
 await page.evaluate(() => window.__pg.setTextSize('100'));
 await page.focus('[data-fk="grp:foil"]').catch(() => {}); await page.keyboard.press('Meta+Minus');
 check('⌘− steps the Text size down and never below 100 % (DN-5)', await page.evaluate(() => document.querySelector('#app-text-size').value === '100' && document.querySelector('#frame').dataset.stacked === '0'));
+// --- CL-1 (DR-CELL-3): for every Tab stop, including a value in error, the focused look differs from the unfocused one
+for (const state of ['anchor', 'field-error', 'foil']) {
+  const same = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.goState(s);
+    const look = n => { const c = getComputedStyle(n); return [c.boxShadow, c.outlineStyle, c.outlineWidth, c.outlineColor, c.color, c.textDecorationLine].join('|'); };
+    return [...document.querySelectorAll('#pane input[data-fk], #pane select[data-fk], #pane .grp-h button')].filter(n => n.offsetParent).filter(n => {
+      n.blur(); const a = look(n); n.focus(); const b = look(n); n.blur(); return a === b; }).map(n => n.dataset.fk); }, state);
+  check(`focused differs from unfocused for every Tab stop, incl. a value in error (${state}) (CL-1)`, same.length === 0);
+}
+// --- CL-5: at 200 % a focused row stays in view when its help line expands
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b' }); window.__pg.setTextSize('200'); window.__pg.goState('anchor'); });
+await page.focus('select[data-fk="kind"]');
+check('a focused row and its expanded help stay in view at 200 % (CL-5)', await page.evaluate(() => { const r = document.querySelector('select[data-fk="kind"]').closest('.row'), d = r.querySelector('.desc'), s = document.querySelector('#sel').getBoundingClientRect(), b = r.getBoundingClientRect();
+  return d && getComputedStyle(d).display !== 'none' && b.top >= s.top - 1 && b.bottom <= s.bottom + 1; }));
+await page.evaluate(() => window.__pg.setTextSize('100'));
 // --- B accessibility 3(b): every editable value is a Tab stop and looks focused when it is one (SC 2.1.1, 2.4.7);
 //     the whole row (label + value) is the pointer target (SC 2.5.8)
 for (const state of ['anchor', 'handle', 'foil', 'twist-anchor']) {
