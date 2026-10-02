@@ -105,3 +105,13 @@ at bottom of the shell". The pick page (`docs/mockups/status-bar.html`, b7c03c5)
 | ID | Ruling | Consequence |
 |---|---|---|
 | **DR-VIEW-1** view gutter and frames (NS-4) | Verbatim finding: "there is no visible demarcation between the plan view and the 3d ISO view so it looks like they are part of the same design surface". **A 4 px gutter in the window/canvas background colour between views, and each view gets a 1 px frame in the line colour** (as Fusion/Rhino viewports). Applies to Plan + 3D, Four views and One view (frame only, no gutter); the view label strips stay inside each frame | DESIGN.md `spacing.view-gutter` (4 px); `ModelArea.axaml` frames each slot (`Border.viewFrame`) and `ModelArea.ApplyLayout` sets the grid spacing; the Four-view minimum (each view ≥ 320 × 240) is measured inside the frame and past the gutter (arrangement ≥ 648 × 488). Test: `ModelArea_Views_SeparatedByGutterAndFramed` (pixels, light and dark) |
+
+## M1.2b2 views (operator, 2026-10-02, after docs/mockups/m12b2-views.html)
+
+| Ruling | Decision |
+|---|---|
+| **DR-VIEW-2** (OI-9) | No perspective/orthographic toggle for now: named axis views orthographic, Iso and orbit perspective. |
+| **DR-VIEW-3** (OI-10) | Front and Side each fit themselves, each with its own scale bar. |
+| **DR-VIEW-4** | The selected station gets a 3 px station tick at its span in the Front band. |
+| **Build** | The operator approved the views mockup (7a96c05): "Yes, build it" — V3D, ELV, PNL. |
+

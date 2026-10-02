@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.2b2 views</title>
+<!--
+  Stop-and-show page (operator, 2026-10-02: "show me the 3D view and elevation mockups"). Four screens of the whole
+  1280 x 800 shell for the Example foil, drawn as M1.2b2 designs them (docs/design/m12b2-3d-elevations.md §11), in
+  today's shell: the structure-B Properties pane, the V2 status strip (DR-STATUS-1), DR-VIEW-1 gutters and frames.
+  Geometry is COMPUTED here from the fixture's numbers (src/CfdWorkbench.Desktop/Assets/example.foil): the B-spline
+  rails, twist and thickness channels, section-a, Rule A and the FoilDSL §6 placement
+  X = L + c(x cos φ + z sin φ), Z = D + c(z cos φ − x sin φ). The one change from the fixture: a 60 mm dihedral at the
+  tip (the fixture has none), so the Front view shows it. Display only; nothing is built from this page.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --station:#66ddc8; --lit:#3f6a6c; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.top button{ margin-left:auto; min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+main{ padding:16px 20px 40px; }
+section.screen{ margin:0 0 28px; }
+.screen h2{ margin:0 0 4px; font-size:14px; }
+.screen .what{ margin:0 0 8px; max-width:1280px; font-size:12px; color:var(--mute); }
+.screen .what b{ color:var(--ink); font-weight:600; }
+.choices{ max-width:1280px; font-size:12px; } .choices h2{ font-size:14px; margin:0 0 6px; }
+.choices li{ margin:0 0 6px; }
+
+/* ---------- the shell ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.tabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span:first-child{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.area{ flex:1; min-height:0; position:relative; background:var(--canvas); }
+/* DR-VIEW-1: 4 px gutter between views, 1 px frame per view in the line colour */
+.views{ position:absolute; inset:0; display:grid; gap:4px; }
+.views.plan3d{ grid-template-columns:2fr 1fr; } .views.quad{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; } .views.one{ grid-template-columns:1fr; }
+.view{ position:relative; min-width:0; min-height:0; background:var(--vp); border:1px solid var(--line); overflow:hidden; }
+.view canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.plate{ position:absolute; background:var(--vp-soft); color:var(--vp-ink); border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.vlabel{ left:6px; top:6px; min-height:24px; min-width:24px; padding:0 8px; border:0; display:flex; align-items:center; font-weight:600; cursor:pointer; }
+.vlabel[aria-pressed="true"]{ box-shadow:inset 0 -2px 0 var(--station); }
+.probe{ right:6px; top:6px; } .probe.wrap{ white-space:normal; max-width:46%; }
+.v3d .probe{ display:none; }
+.caption{ left:6px; bottom:6px; white-space:normal; max-width:calc(100% - 90px); } .lanecap{ left:6px; }
+.scalebar{ right:6px; bottom:6px; color:var(--vp-mute); }
+/* v10 navbar (Fit, Views ▾) + M1.2b2's Display ▾ and Fit Selection, chrome-coloured, bottom centre of the model area */
+.navbar{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:2px; padding:3px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:2; }
+.navbar button{ min-height:24px; padding:0 8px; border:0; border-radius:4px; background:none; cursor:pointer; white-space:nowrap; }
+.navbar button:hover{ background:var(--soft); } .navbar .sep{ width:1px; background:var(--line); margin:3px 2px; }
+.menu{ position:absolute; bottom:44px; min-width:150px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,0.16); padding:4px 0; z-index:3; }
+.menu div{ display:flex; gap:6px; align-items:center; min-height:24px; padding:0 10px; } .menu div[aria-checked="true"]{ font-weight:600; }
+.menu div span{ width:12px; color:var(--accent); }
+
+/* structure-B Properties (DR-CELL-1; as in property-grid.html) */
+.sel{ flex:1; min-height:0; overflow:hidden; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.ident svg{ width:12px; height:12px; flex:none; }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; } .gh .sum{ margin-left:auto; font-weight:400; color:var(--mute); }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; }
+.row.e{ min-height:24px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row.e .v{ color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
+.row .u{ width:24px; color:var(--mute); }
+.row .en{ color:var(--accent); } .row .en::after{ content:" ▾"; color:var(--mute); }
+.row.focus .v{ outline:1px solid var(--accent); outline-offset:1px; }
+.wing{ flex:none; border-top:1px solid var(--control); }
+.defs{ padding:0 8px 0 22px; min-height:24px; display:flex; align-items:center; color:var(--accent); text-decoration:underline; }
+/* V2 status strip (DR-STATUS-1) */
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .msg svg{ width:12px; height:12px; flex:none; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>M1.2b2 — the 3D view and the elevations, in today's shell</h1>
+  <p>Example foil · 900 mm span · −2° tip twist · 60 mm tip dihedral added for this page · computed, not hand-placed</p>
+  <button type="button" id="theme" aria-pressed="false">Dark theme</button>
+</header>
+<main id="screens"></main>
+<script>
+'use strict';
+// ---------------------------------------------------------------- geometry (from example.foil)
+const RAD = 0.017453292519943295, HALF = 450, LEAD = 0, TRAIL = 120, CHORD = TRAIL - LEAD, TC = 0.12;
+const K3 = [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1], K5 = [0, 0, 0, 0, 0, 0, 1 / 3, 2 / 3, 1, 1, 1, 1, 1, 1];
+const TWIST = [[0, 0], [0.1, 0], [0.3, -0.25], [0.5, -0.5], [0.7, -1], [0.9, -1.5], [1, -2]];
+const DIHEDRAL = [[0, 0], [0.1, 0], [0.3, 2], [0.5, 9], [0.7, 22], [0.9, 42], [1, 60]];   // added for this page (fixture: 0)
+const THICK = [[0, 12], [0.1, 12], [0.3, 12], [0.5, 12], [0.7, 12], [0.9, 12], [1, 12]];    // t/c in %
+const UPPER = [[0, 0], [0, 0.025], [0.15, 0.055], [0.35, 0.065], [0.55, 0.05], [0.75, 0.03], [0.9, 0.01], [1, 0]];
+const LOWER = UPPER.map(([x, z]) => [x, -z]);
+function deBoor(p, U, P, u){
+  const n = P.length - 1; u = Math.min(Math.max(u, U[p]), U[n + 1] - 1e-12);
+  let k = p; while (k < n && u >= U[k + 1]) k++;
+  const d = []; for (let j = 0; j <= p; j++) d.push(P[k - p + j].slice());
+  for (let r = 1; r <= p; r++) for (let j = p; j >= r; j--){
+    const i = k - p + j, den = U[i + p - r + 1] - U[i], a = den ? (u - U[i]) / den : 0;
+    d[j] = [(1 - a) * d[j - 1][0] + a * d[j][0], (1 - a) * d[j - 1][1] + a * d[j][1]]; }
+  return d[p];
+}
+// a channel curve (η, value): sample once, then read value at η by interpolation
+function channel(P){ const s = []; for (let i = 0; i <= 800; i++) s.push(deBoor(3, K3, P, i / 800));
+  return { samples:s, at(eta){ for (let i = 1; i < s.length; i++) if (s[i][0] >= eta){ const a = s[i - 1], b = s[i], w = b[0] === a[0] ? 0 : (eta - a[0]) / (b[0] - a[0]); return a[1] + w * (b[1] - a[1]); } return s[s.length - 1][1]; } }; }
+const twist = channel(TWIST), dihedral = channel(DIHEDRAL), thick = channel(THICK);
+// section-a under Rule A: C = (u + l)/2, T = (u − l)·max⁻¹; one profile → C ± T·t/2
+const NS = 36, RING = (() => {
+  let maxT = 0; for (let i = 0; i <= 400; i++){ const t = i / 400; maxT = Math.max(maxT, deBoor(5, K5, UPPER, t)[1] - deBoor(5, K5, LOWER, t)[1]); }
+  const up = [], lo = [];
+  for (let s = 0; s <= NS; s++){ const t = (1 - Math.cos(Math.PI * s / NS)) / 2, u = deBoor(5, K5, UPPER, t), l = deBoor(5, K5, LOWER, t);
+    const C = (u[1] + l[1]) / 2, T = (u[1] - l[1]) / maxT; up.push([u[0], C + T * TC / 2]); lo.push([l[0], C - T * TC / 2]); }
+  return up.concat(lo.slice(1, NS).reverse());       // closed: LE → TE over the top, back under
+})();
+const NR = RING.length;
+// FoilDSL §6 placement; e is signed span fraction (−1 port tip … +1 starboard tip)
+function place(e, [x, z]){ const eta = Math.abs(e), phi = twist.at(eta) * RAD, D = dihedral.at(eta), c = Math.cos(phi), s = Math.sin(phi);
+  return [LEAD + CHORD * (x * c + z * s), e * HALF, D + CHORD * (z * c - x * s)]; }
+const M = 20, MESH = [];                               // 41 span rows × NR ring points
+for (let i = 0; i <= 2 * M; i++){ const e = -1 + i / M; MESH.push(RING.map(p => place(e, p))); }
+const rowAt = e => RING.map(p => place(e, p));
+
+// ---------------------------------------------------------------- drawing helpers
+const C = { vp:'#17272c', soft:'#243a40', ink:'#edf4f2', mute:'#afc6c7', grid:'#344b50', foil:'#85c9c4', edge:'#c4e7df', station:'#66ddc8', lit:'#3f6a6c' };
+const f2 = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2), f3 = v => v.toFixed(3);
+function mix(a, b, t){ const p = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+function line(g, pts, color, w, dash){ g.save(); g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); }
+function chip(g, x, y, text){ g.save(); g.font = '600 11px system-ui, sans-serif'; const w = g.measureText(text).width + 12; g.fillStyle = C.soft; g.fillRect(x, y - 9, w, 18); g.strokeStyle = C.station; g.lineWidth = 1; g.strokeRect(x + .5, y - 8.5, w - 1, 17); g.fillStyle = C.ink; g.fillText(text, x + 6, y + 4); g.restore(); }
+// M1.2b Point-row glyphs: end = 14 px hollow diamond; control = 11 px filled circle; selected control = hollow, 2 px station, centre dot; focus ring r 13
+function glyph(g, x, y, kind, selected){
+  g.save(); g.lineWidth = 1.5;
+  if (kind === 'end'){ g.beginPath(); g.moveTo(x, y - 7); g.lineTo(x + 7, y); g.lineTo(x, y + 7); g.lineTo(x - 7, y); g.closePath(); g.fillStyle = C.vp; g.fill(); g.strokeStyle = C.foil; g.stroke(); }
+  else if (selected){ g.beginPath(); g.arc(x, y, 13, 0, 7); g.strokeStyle = C.vp; g.lineWidth = 5; g.stroke(); g.strokeStyle = C.station; g.lineWidth = 3; g.stroke();
+    g.beginPath(); g.arc(x, y, 5.5, 0, 7); g.fillStyle = C.vp; g.fill(); g.lineWidth = 2; g.strokeStyle = C.station; g.stroke(); g.beginPath(); g.arc(x, y, 1.8, 0, 7); g.fillStyle = C.station; g.fill(); }
+  else { g.beginPath(); g.arc(x, y, 5.5, 0, 7); g.fillStyle = C.foil; g.fill(); }
+  g.restore();
+}
+function polyGlyphs(g, pts, selectedIndex){ line(g, pts, 'rgba(133,201,196,0.55)', 1, [4, 3]); pts.forEach((p, i) => glyph(g, p[0], p[1], i === 0 || i === pts.length - 1 ? 'end' : 'ctrl', i === selectedIndex)); }
+const MEASURE = {};
+
+// ---------------------------------------------------------------- Plan (top; x aft down, starboard right)
+function drawPlan(g, w, h){
+  const s = Math.min((w - 80) / (2 * HALF), (h - 140) / CHORD), cx = w / 2, y0 = (h - CHORD * s) / 2 - 10;
+  MEASURE.planPxPerMm = +s.toFixed(3);
+  const P = (y, x) => [cx + y * s, y0 + x * s];
+  g.strokeStyle = C.grid; g.lineWidth = 1; for (let y = -500; y <= 500; y += 100){ line(g, [P(y, -60), P(y, 180)], C.grid, 1); } for (let x = -50; x <= 170; x += 50) line(g, [P(-500, x), P(500, x)], C.grid, 1);
+  line(g, [P(0, -40), P(0, 160)], C.mute, 1);
+  g.fillStyle = 'rgba(133,201,196,0.22)'; g.fillRect(P(-HALF, 0)[0], P(0, 0)[1], 2 * HALF * s, CHORD * s);
+  line(g, [P(-HALF, LEAD), P(HALF, LEAD)], C.foil, 1.5); line(g, [P(-HALF, TRAIL), P(HALF, TRAIL)], C.foil, 1.5);
+  line(g, [P(-HALF, LEAD), P(-HALF, TRAIL)], C.edge, 1); line(g, [P(0, LEAD), P(0, TRAIL)], C.edge, 1);
+  polyGlyphs(g, [[0, 0], [.1, 0], [.3, 0], [.5, 0], [.7, 0], [.9, 0], [1, 0]].map(([e]) => P(e * HALF, LEAD)));
+  polyGlyphs(g, [[0, 0], [.1, 0], [.3, 0], [.5, 0], [.7, 0], [.9, 0], [1, 0]].map(([e]) => P(e * HALF, TRAIL)));
+  line(g, [P(HALF, LEAD - 6), P(HALF, TRAIL + 6)], C.station, 3); chip(g, P(HALF, 0)[0] - 40, P(0, TRAIL + 22)[1], 'Tip');
+  return { pxmm:s, probe:'Tip station · η 1.000 · from root 450.00 mm · LE 0.00 mm · TE 120.00 mm · chord 120.00 mm', scale:`100 mm = ${Math.round(100 * s)} px` };
+}
+
+// ---------------------------------------------------------------- 3D (Iso, mild perspective; headlight; painter-sorted)
+function camera(azDeg, elDeg, R){
+  const az = azDeg * Math.PI / 180, el = elDeg * Math.PI / 180, dir = [Math.cos(el) * Math.cos(az), Math.cos(el) * Math.sin(az), Math.sin(el)];
+  const T = [60, 0, 30], eye = T.map((v, i) => v + R * dir[i]), fwd = dir.map(v => -v);
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nrm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+  const right = nrm(cross(fwd, [0, 0, 1])), up = cross(right, fwd), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  return { eye, dir, right, up, fwd, dot, cross, nrm, proj(p){ const d = [p[0] - eye[0], p[1] - eye[1], p[2] - eye[2]], zc = dot(d, fwd); return [dot(d, right) / zc, -dot(d, up) / zc, zc]; } };
+}
+function draw3D(g, w, h, wire){
+  const cam = camera(135, 28, 2600), PR = MESH.map(r => r.map(p => cam.proj(p)));
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; PR.flat().forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+  const top = 44, bot = 64, s = Math.min((w - 150) / (x1 - x0), (h - top - bot) / (y1 - y0)), ox = (w - (x1 - x0) * s) / 2 - x0 * s, oy = top + (h - top - bot - (y1 - y0) * s) / 2 - y0 * s;
+  const S = p => { const q = cam.proj(p); return [ox + q[0] * s, oy + q[1] * s, q[2]]; };
+  // ground grid at z = min z
+  const zmin = Math.min(...MESH.flat().map(p => p[2]));
+  for (let x = -100; x <= 220; x += 40) line(g, [S([x, -560, zmin]), S([x, 560, zmin])], C.grid, 1);
+  for (let y = -560; y <= 560; y += 80) line(g, [S([-100, y, zmin]), S([220, y, zmin])], C.grid, 1);
+  const V = MESH.map(r => r.map(S)), items = [];
+  const facing = [], shade = [];
+  for (let i = 0; i < 2 * M; i++){ facing.push([]); shade.push([]);
+    for (let j = 0; j < NR; j++){ const a = MESH[i][j], b = MESH[i + 1][j], d = MESH[i][(j + 1) % NR];
+      const n = cam.nrm(cam.cross([b[0] - a[0], b[1] - a[1], b[2] - a[2]], [d[0] - a[0], d[1] - a[1], d[2] - a[2]])), v = cam.nrm(cam.eye.map((e, k) => e - a[k]));
+      const dv = cam.dot(n, v); facing[i].push(dv > 0); shade[i].push(Math.min(1, Math.abs(dv))); } }
+  const seg = (p, q, color, width) => items.push({ z:(p[2] + q[2]) / 2 - 1.5, f(){ line(g, [p, q], color, width); } });
+  if (!wire) for (let i = 0; i < 2 * M; i++) for (let j = 0; j < NR; j++){
+    const q = [V[i][j], V[i + 1][j], V[i + 1][(j + 1) % NR], V[i][(j + 1) % NR]], col = mix(C.soft, C.lit, shade[i][j]);
+    items.push({ z:(q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4, f(){ g.beginPath(); q.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = col; g.fill(); g.strokeStyle = col; g.lineWidth = .6; g.stroke(); } }); }
+  if (wire) [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5].forEach(k => { const r = rowAt(k / 6).map(S); line(g, r.concat([r[0]]), C.mute, 1); });
+  // silhouette: edges between front- and back-facing quads
+  const silo = [];
+  for (let i = 0; i < 2 * M; i++) for (let j = 0; j < NR; j++){
+    if (facing[i][j] !== facing[i][(j + NR - 1) % NR]) silo.push([V[i][j], V[i + 1][j]]);
+    if (i > 0 && facing[i][j] !== facing[i - 1][j]) silo.push([V[i][j], V[i][(j + 1) % NR]]); }
+  const ring = (i, color, width) => { for (let j = 0; j < NR; j++) seg(V[i][j], V[i][(j + 1) % NR], color, width); };
+  const rail = (j, color, width) => { for (let i = 0; i < 2 * M; i++) seg(V[i][j], V[i + 1][j], color, width); };
+  if (!wire){ silo.forEach(([p, q]) => seg(p, q, C.foil, 1.5)); ring(M, C.edge, 1); ring(0, C.foil, 1.5); rail(0, C.foil, 1.5); rail(NS, C.foil, 1.5); ring(2 * M, C.station, 3); items.sort((a, b) => b.z - a.z).forEach(it => it.f()); }
+  else { const all = (pts, c, wd) => line(g, pts.concat([pts[0]]), c, wd); all(V[M], C.edge, 1); all(V[0], C.foil, 1.5); line(g, V.map(r => r[0]), C.foil, 1.5); line(g, V.map(r => r[NS]), C.foil, 1.5);
+    silo.forEach(([p, q]) => line(g, [p, q], C.foil, 1.5)); all(V[2 * M], C.station, 3); }
+  const tipTE = V[2 * M][NS]; chip(g, tipTE[0] + 8, tipTE[1] + 4, 'Tip');
+  cube(g, w - 76, 8, cam); triad(g, 10, h - 92, cam);
+  MEASURE.view3d = { triangles: 2 * 2 * M * NR, silhouetteEdges: silo.length };
+}
+function cube(g, x, y, cam){
+  g.save(); g.translate(x + 34, y + 34);
+  const R = [cam.right, cam.up.map(v => -v)], P = p => [p[0] * R[0][0] + p[1] * R[0][1] + p[2] * R[0][2], p[0] * R[1][0] + p[1] * R[1][1] + p[2] * R[1][2]].map(v => v * 17);
+  const faces = [{ n:[0, 0, 1], l:'T' }, { n:[0, 0, -1], l:'B' }, { n:[-1, 0, 0], l:'F' }, { n:[1, 0, 0], l:'K' }, { n:[0, 1, 0], l:'S' }, { n:[0, -1, 0], l:'P' }];
+  faces.filter(f => cam.dot(f.n, cam.dir) > 0).forEach(f => {
+    const a = f.n.findIndex(v => v !== 0), [u, v] = [0, 1, 2].filter(k => k !== a), c = [];
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([p, q]) => { const pt = [0, 0, 0]; pt[a] = f.n[a]; pt[u] = p; pt[v] = q; c.push(P(pt)); });
+    g.beginPath(); c.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = C.soft; g.fill(); g.strokeStyle = C.mute; g.lineWidth = 1; g.stroke();
+    const m = c.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4], [0, 0]); g.fillStyle = C.ink; g.font = '600 11px system-ui, sans-serif'; g.textAlign = 'center'; g.fillText(f.l, m[0], m[1] + 4); });
+  g.restore();
+}
+function triad(g, x, y, cam){
+  g.save(); g.fillStyle = C.soft; g.fillRect(x, y, 62, 56); g.translate(x + 26, y + 32);
+  [[[1, 0, 0], 'x'], [[0, 1, 0], 'y'], [[0, 0, 1], 'z']].forEach(([d, l]) => { const p = [cam.dot(d, cam.right) * 20, -cam.dot(d, cam.up) * 20];
+    line(g, [[0, 0], p], C.ink, 1.5); g.fillStyle = C.ink; g.font = '11px system-ui, sans-serif'; g.fillText(l, p[0] * 1.25 - 3, p[1] * 1.25 + 4); });
+  g.restore();
+}
+
+// ---------------------------------------------------------------- Side · from starboard (nose right) + Twist lane
+function drawSide(g, w, h, selectedTwist){
+  const bandH = Math.round(h * 0.6), sections = [rowAt(0), rowAt(1)];
+  const xs = sections.flat().map(p => p[0]), zs = sections.flat().map(p => p[2]);
+  const xa = Math.min(...xs), xb = Math.max(...xs), za = Math.min(...zs), zb = Math.max(...zs);
+  const s = Math.min((w - 120) / (xb - xa), (bandH - 80) / (zb - za)), right = (w + (xb - xa) * s) / 2, base = 40 + (bandH - 80 + (zb - za) * s) / 2;
+  const S = p => [right - (p[0] - xa) * s, base - (p[2] - za) * s];
+  MEASURE.sidePxPerMm = +s.toFixed(3);
+  line(g, [S([xa - 20, 0, 0]), S([xb + 20, 0, 0])], C.grid, 1);
+  const root = sections[0].map(S), tip = sections[1].map(S);
+  line(g, root.concat([root[0]]), C.edge, 1);
+  line(g, tip.concat([tip[0]]), selectedTwist ? C.edge : C.station, selectedTwist ? 1 : 3);
+  chip(g, tip[0][0] + 10, tip[0][1], 'Tip'); chip(g, root[0][0] + 10, root[0][1] + 2, 'Root');
+  const teTip = place(1, [1, 0]); MEASURE.tipTwistTeRiseMm = +(teTip[2] - 60).toFixed(2); MEASURE.tipTwistTeRisePx = +((teTip[2] - 60) * s).toFixed(1);
+  // lane
+  line(g, [[0, bandH + .5], [w, bandH + .5]], C.grid, 1);
+  const L = { x0:56, x1:w - 30, y0:bandH + 30, y1:h - 52, v0:-2.5, v1:0.5 }, LX = e => L.x0 + e * (L.x1 - L.x0), LY = v => L.y1 - (v - L.v0) / (L.v1 - L.v0) * (L.y1 - L.y0);
+  g.font = '11px system-ui, sans-serif'; g.fillStyle = C.mute;
+  [0, -1, -2].forEach(v => { line(g, [[L.x0 - 4, LY(v)], [L.x1, LY(v)]], v === 0 ? C.mute : C.grid, 1); g.fillText(`${v === 0 ? '0' : '−' + Math.abs(v)}°`, 14, LY(v) + 4); });
+  line(g, twist.samples.map(([e, v]) => [LX(e), LY(v)]), C.foil, 2);
+  polyGlyphs(g, TWIST.map(([e, v]) => [LX(e), LY(v)]), selectedTwist ? 4 : -1);
+  return { pxmm:s, probe: selectedTwist ? 'Twist · point 5 of 7 · η 0.700 · from root 315.00 mm · twist −1.00°' : 'Tip · η 1.000 · twist −2.00° · chord 120.00 mm',
+    lanecap:'Twist (°) · root → tip', laneTop:bandH + 6, scale:`20 mm = ${Math.round(20 * s)} px` };
+}
+
+// ---------------------------------------------------------------- Front · looking aft (starboard LEFT) + t/c lane
+function drawFront(g, w, h){
+  const bandH = Math.round(h * 0.6), rows = []; for (let i = 0; i <= 80; i++){ const e = -1 + i / 40, r = rowAt(e); rows.push({ y:e * HALF, lo:Math.min(...r.map(p => p[2])), hi:Math.max(...r.map(p => p[2])), le:r[0][2] }); }
+  const za = Math.min(...rows.map(r => r.lo)), zb = Math.max(...rows.map(r => r.hi));
+  const s = Math.min((w - 60) / (2 * HALF), (bandH - 80) / (zb - za)), cx = w / 2, base = 40 + (bandH - 80 + (zb - za) * s) / 2;
+  const S = (y, z) => [cx - y * s, base - (z - za) * s];
+  MEASURE.frontPxPerMm = +s.toFixed(3);
+  line(g, [S(0, za - 12), S(0, zb + 12)], C.mute, 1);
+  const topL = rows.map(r => S(r.y, r.hi)), botL = rows.map(r => S(r.y, r.lo)).reverse();
+  g.beginPath(); topL.concat(botL).forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = mix(C.soft, C.lit, .7); g.fill();
+  line(g, topL, C.foil, 1.5); line(g, botL, C.foil, 1.5);
+  line(g, dihedral.samples.map(([e, v]) => S(e * HALF, v)), C.foil, 2); line(g, dihedral.samples.map(([e, v]) => S(-e * HALF, v)), C.foil, 2);
+  polyGlyphs(g, DIHEDRAL.map(([e, v]) => S(e * HALF, v)));
+  g.font = '11px system-ui, sans-serif'; g.fillStyle = C.mute; g.fillText('starboard', 12, bandH - 10); g.fillText('port', w - 40, bandH - 10);
+  // t/c lane on the band's span axis (starboard half: tip left, root at the centre line)
+  line(g, [[0, bandH + .5], [w, bandH + .5]], C.grid, 1);
+  const L = { y0:bandH + 30, y1:h - 52, v0:0, v1:20 }, LY = v => L.y1 - (v - L.v0) / (L.v1 - L.v0) * (L.y1 - L.y0), LX = e => S(e * HALF, 0)[0];
+  [0, 10, 20].forEach(v => { line(g, [[LX(1) - 4, LY(v)], [cx, LY(v)]], C.grid, 1); g.fillStyle = C.mute; g.fillText(`${v} %`, cx + 6, LY(v) + 4); });
+  line(g, thick.samples.map(([e, v]) => [LX(e), LY(v)]), C.foil, 2);
+  polyGlyphs(g, THICK.map(([e, v]) => [LX(e), LY(v)]));
+  const eta = 0.412;
+  return { pxmm:s, probe:`η ${f3(eta)} · from root ${f2(eta * HALF)} mm · height ${f2(dihedral.at(eta))} mm · twist ${f2(twist.at(eta))}° · t/c ${f2(thick.at(eta))} % · chord ${f2(CHORD)} mm`,
+    lanecap:'Thickness t/c (%) · tip ← root', laneTop:bandH + 6, scale:`100 mm = ${Math.round(100 * s)} px` };
+}
+
+// ---------------------------------------------------------------- chrome: Properties, strip, views
+const IC = { station:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0V12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1.5"/></svg>',
+  ctrl:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>',
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>' };
+const r = (k, v, u, e = 0, cls = '') => `<div class="row${e ? ' e' : ''}${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`;
+const wing = () => `<div class="wing"><div class="gh">Wing</div>${r('Span', '900.00', 'mm', 1)}${r('Root chord', '120.00', 'mm', 1)}${r('Tip chord', '120.00', 'mm', 1)}<div class="defs">Estimates · definitions</div>
+  ${r('Mean chord', '≈ 120.0', 'mm')}${r('MAC', '≈ 120.0', 'mm')}${r('Max t/c', '≈ 12.0', '%')}${r('AR', '≈ 7.50', 'b²/S')}${r('Area', '≈ 1080', 'cm²')}</div>`;
+function properties(sel){
+  const body = sel === 'twist'
+    ? `<div class="ident">${IC.ctrl}Twist · point 5 of 7</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>
+        <div class="row e"><span class="k">Type</span><span class="en">Control point</span></div>${r('From root', '315.00', 'mm', 1)}${r('Twist', '−1.00', '°', 1, 'focus')}</div>
+       <div class="grp"><div class="gh"><span class="tw">›</span>Twist<span class="sum">cubic · 7 points</span></div></div>`
+    : `<div class="ident">${IC.station}Tip station</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Station<span class="sum">section-a</span></div>
+        ${r('From root', '450.00', 'mm')}${r('η', '1.000', '')}${r('Chord', '120.00', 'mm')}${r('Section', 'section-a', '')}</div>`;
+  return `<div class="dock"><div class="tabs"><span>Properties</span><span>Browser</span><span>Rail controls</span></div><div class="sel">${body}</div>${wing()}</div>`;
+}
+const SCREENS = [
+  { id:'plan3d', h:'1 · Plan + 3D (default layout)', layout:'plan3d', views:['plan', '3d'], sel:'station', display:'Shaded', viewsName:'Plan + 3D',
+    report:'Selected Tip station.',
+    what:'<b>Shows</b> the default layout: Plan 2* beside 3D · Iso 1*. The 3D view is the placed foil, both halves, shaded on the single-hue ramp with one headlight, its silhouette and LE / TE / tip outline in foil, the root section in foil-edge, the selected Tip station 3 px with its chip, the ground grid at the lowest z, the view cube top-right and the axis triad bottom-left. <b>Implements</b> m12b2 §11.1 (Plan + 3D, Overlays, 3D), §11.2 glyph and token rows; DESIGN.md <i>Shaded surface</i>, <i>View cube</i>, <i>Point (v10)</i>; DR-VIEW-1; DR-CELL-1 Properties; DR-STATUS-1 strip.' },
+  { id:'quad', h:'2 · Four views', layout:'quad', views:['plan', '3d', 'side', 'front'], sel:'station', display:'Shaded', viewsName:'Four views',
+    report:'Four views.',
+    what:'<b>Shows</b> Plan | 3D over Side | Front (v10\'s quad order, D-9). <b>Side · from starboard</b>: every authored section (root, tip) at its true placement, nose right; the tip sits 60 mm up and is turned −2° (its TE rises 4.19 mm); the Twist lane below, root → tip, zero line, the curve and its dashed polygon with M1.2b glyphs. <b>Front · looking aft</b>: starboard on the viewer\'s left; the silhouette; the dihedral curve on the LE line with its polygon and points on the starboard half; the t/c lane on the band\'s span axis. Probe plates top-right. <b>Implements</b> §11.1 (Four views, Front, Side, Probe); DESIGN.md <i>Elevation lane</i>; §11.7 rows "Side … nose right; twist lane" and "Front … starboard on the left".' },
+  { id:'wire', h:'3a · One view: 3D, Display ▾ Wireframe', layout:'one', views:['3d'], sel:'station', display:'Wireframe', viewsName:'One view', wire:true, menu:true,
+    report:'3D view: wireframe.',
+    what:'<b>Shows</b> One view (double-click or Return on a view label) with Display ▾ open and Wireframe chosen: no fill; silhouette, rails and authored sections as in Shaded; ten intermediate sections 1 px viewport-mute. <b>Implements</b> §11.1 (One view; 3D <i>Wireframe</i>); §11.7 row "Fit and Views ▾ … plus Display ▾ and Fit Selection"; DESIGN.md <i>Shaded surface</i> (wireframe state). The strip text "3D view: wireframe." is this page\'s; the design names no copy for it.' },
+  { id:'side1', h:'3b · One view: Side, a twist point selected', layout:'one', views:['side'], sel:'twist', display:'Shaded', viewsName:'One view', selectedTwist:true,
+    report:'Moved twist point 5 by −0.25°. Tip twist −2.00°.',
+    what:'<b>Shows</b> Side alone with twist point 5 of 7 selected and focused (hollow, 2 px station, centre dot, focus ring), the probe following it, the structure-B Properties for the point (Type, From root, Twist) and the commit report in the V2 strip. <b>Implements</b> §11.1 Side and Probe; §11.3 (Tab to a point; arrows nudge on the channel ladder); §11.4 Properties rows and the "Committed move" copy pattern; DESIGN.md <i>Point (v10)</i> selected and focus states; DR-STATUS-1. Illustrative: the move is a story; the curve drawn is the fixture\'s.' } ];
+const NAMES = { plan:'Plan', '3d':'3D · Iso', side:'Side · from starboard', front:'Front · looking aft' };
+function shellHTML(sc){
+  const views = sc.views.map((v, k) => `<div class="view v${v}" data-v="${v}"><canvas></canvas><button type="button" class="plate vlabel" aria-pressed="${k === 0}">${v === '3d' && sc.wire ? '3D · Iso · wireframe' : NAMES[v]}</button></div>`).join('');
+  const menu = sc.menu ? `<div class="menu" style="left:calc(50% - 40px)" role="menu" aria-label="Display"><div role="menuitemradio" aria-checked="false"><span></span>Shaded</div><div role="menuitemradio" aria-checked="true"><span>✓</span>Wireframe</div></div>` : '';
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — example.foil</b></div>
+    <div class="work">${properties(sc.sel)}<div class="main"><div class="tabs"><span>Model</span><span>Section sample</span><span>Foil source</span><span>Section</span></div>
+      <div class="area"><div class="views ${sc.layout}">${views}</div>
+        <div class="navbar"><button type="button">Views ▾ ${sc.viewsName}</button><button type="button" aria-haspopup="menu" aria-expanded="${!!sc.menu}">Display ▾ ${sc.display}</button><span class="sep"></span><button type="button">Fit</button><button type="button">Fit Selection</button></div>${menu}</div></div></div>
+    <div class="sb" role="status" aria-live="polite"><span class="msg">${IC.info}<span>${sc.report}</span></span><span class="item">${sc.sel === 'twist' ? 'Twist · pt 5 of 7' : 'Tip station'}</span><span class="item">mm</span><span class="item">≈ estimates</span><span class="item">Text 100 %</span></div></div>`;
+}
+function paint(){
+  document.querySelectorAll('section.screen').forEach(secEl => {
+    const sc = SCREENS.find(s => s.id === secEl.dataset.id);
+    secEl.querySelectorAll('.view').forEach(view => {
+      view.querySelectorAll('.plate:not(.vlabel)').forEach(n => n.remove());
+      const cv = view.querySelector('canvas'), w = view.clientWidth, h = view.clientHeight, dpr = window.devicePixelRatio || 1;
+      cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.vp; g.fillRect(0, 0, w, h);
+      const v = view.dataset.v, add = (cls, text, style) => { const p = document.createElement('div'); p.className = 'plate ' + cls; p.textContent = text; if (style) p.setAttribute('style', style); view.appendChild(p); };
+      if (v === '3d'){ draw3D(g, w, h, !!sc.wire); add('caption', 'Display · x aft, y starboard, z up · twist about the leading edge', 'left:78px'); return; }
+      const out = v === 'plan' ? drawPlan(g, w, h) : v === 'side' ? drawSide(g, w, h, !!sc.selectedTwist) : drawFront(g, w, h);
+      MEASURE[`${sc.id}.${v}PxPerMm`] = +out.pxmm.toFixed(3); if (v === 'side') MEASURE[`${sc.id}.tipTeRisePx`] = +(MEASURE.tipTwistTeRiseMm * out.pxmm).toFixed(1); add('probe' + (w < 560 ? ' wrap' : ''), out.probe); if (out.lanecap) add('lanecap', out.lanecap, `top:${out.laneTop}px`); add('scalebar', out.scale, out.lanecap ? `bottom:auto;top:${out.laneTop - 30}px` : '');
+    });
+  });
+  window.__measure = MEASURE;
+}
+document.getElementById('screens').innerHTML = SCREENS.map(sc => `<section class="screen" data-id="${sc.id}"><h2>${sc.h}</h2><p class="what">${sc.what}</p>${shellHTML(sc)}</section>`).join('') +
+  `<section class="choices"><h2>Where the design leaves a choice open (recommendations)</h2><ol>
+    <li><b>OI-9 — perspective or orthographic in 3D.</b> The design: named axis cameras orthographic, Iso and free orbit perspective, no toggle in M1.2b2 (one <code>Projection</code> flag already in <code>ViewCamera</code>). This page draws Iso in mild perspective (eye 2.6 m away). <b>Recommend:</b> keep that default and no toggle now; add the toggle to Display ▾ only when someone measures off the 3D view.</li>
+    <li><b>OI-10 — Front and Side sharing one vertical scale and z datum.</b> The design: each elevation fits itself. On this page the fitted scales differ (<span id="m-scales"></span>), because Front fits 900 mm of span and Side fits a 120 mm chord. A shared scale would shrink Side to Front's scale and hide the twist. <b>Recommend:</b> keep "each fits itself" and show a scale bar in every view (this page does), so the difference is stated, not hidden.</li>
+    <li><b>The selected station in the Front band.</b> §11.1 marks the selected station in 3D, Plan and Side but says nothing for Front. <b>Recommend:</b> a 3 px station tick at its span on the Front band (not drawn here), so selection reads the same in all four views. Also worth knowing: at Side's fitted scale the −2° tip twist moves the TE <span id="m-twist"></span>; the twist lane, not the band, is where twist is read.</li>
+  </ol></section>`;
+paint();
+document.getElementById('m-scales').textContent = `in Four views, Side ${MEASURE['quad.sidePxPerMm']} px/mm and Front ${MEASURE['quad.frontPxPerMm']} px/mm, a factor of ${(MEASURE['quad.sidePxPerMm'] / MEASURE['quad.frontPxPerMm']).toFixed(1)}`;
+document.getElementById('m-twist').textContent = `${MEASURE.tipTwistTeRiseMm} mm: ${MEASURE['quad.tipTeRisePx']} px in Four views, ${MEASURE['side1.tipTeRisePx']} px in One view`;
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; e.currentTarget.setAttribute('aria-pressed', String(d)); });
+</script>
+</body>
+</html>

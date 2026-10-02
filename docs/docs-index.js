@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2aad340a87936deb5be1a2c4aa9f2337ac10da74080c378d549df19abc70fbaf"
+      "sourceSha256": "561e8a52afa1baabadf3fe1b1f30c07740764837f7c66d479c122d7689784fc5"
     },
     {
       "id": "thick-client-shell",
@@ -2293,7 +2293,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2e6f57a84fd62121892672aa50c02a6d7f7475a69c428e9f428a8019f8790bdc"
+      "sourceSha256": "d85dd8cd7abce385a74b79f514d6c0729a6af6275d85f72693388cf4a3cdcf9d"
     },
     {
       "id": "design-section-editor",
@@ -2448,6 +2448,52 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
+    },
+    {
+      "id": "mockup-m12b2-views",
+      "path": "docs/mockups/m12b2-views.md",
+      "title": "M1.2b2 views — the 3D view and the Front and Side elevations in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator asked to see the 3D view and elevation mockups. Only workbench-v10.html existed, and the M1.2b2 design has moved on from it. This page draws four screens of the 1280 × 800 shell for the Example foil: Plan + 3D (default), Four views, One view 3D in Wireframe, and One view Side with a twist point selected. The shell is today's: structure-B Properties, the V2 status strip, and 4 px gutters with 1 px frames between views. The geometry is computed from the fixture's B-spline channels and the FoilDSL §6 placement rule, plus a 60 mm tip dihedral added so the Front view shows it. Three choices the design leaves open are listed with recommendations.",
+      "tags": [
+        "mockup",
+        "m12b2",
+        "3d-view",
+        "elevations",
+        "twist",
+        "dihedral",
+        "thickness",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b2b840d46b3afa2999952d00632c99eb259678ce31954e21847461f4f6ee57c3"
     },
     {
       "id": "mockup-property-grid",
@@ -9239,6 +9285,14 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     },
     {
+      "id": "surface-mockups-m12b2-views",
+      "path": "docs/mockups/m12b2-views.html",
+      "title": "M1.2b2 views",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-m12b2-views"
+    },
+    {
       "id": "surface-mockups-property-grid-cells",
       "path": "docs/mockups/property-grid-cells.html",
       "title": "Property sheet — three cell layouts",
@@ -9255,5 +9309,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ac4d70ce8492d7da37aac7f0419e6b08871eed4d59ac556c5d388ab132fe3f59"
+  "graphSha256": "9716d086551fbbe8ed9f37420de81edd8b264187cd2942d02f73f1dd40b44576"
 };
