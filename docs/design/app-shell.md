@@ -28,6 +28,7 @@ summary: >-
   layouts with clamping). Settles the layout-file schema with a version-first rollback rule, the selection model, the
   focus contract, the failure modes and the build tracks with exclusive file ownership and exact test names.
 review-suggested:
+  - { by: property-grid-rulings, on: 2026-10-02, reason: "DR-STATUS-1: reports render in a 24 px status strip at the bottom of the shell plus a transient warning toast; no scrollable message list sits in or docks to the bottom bar (V3 rejected). The M1.2c Messages pane (bottom panel, history of edit reports, role log) must not be a docked scrolling pane in the bottom bar; where history goes is open (docs/reviews/ui-status-bar.md D-4)." }
   - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
 ---
 
