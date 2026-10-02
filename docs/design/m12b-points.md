@@ -1005,7 +1005,7 @@ on this document at the gate (Gate record).
 `Plan_BracketKeys_MoveBetweenPoints_InTargetOrder` · `Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue` · `Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint` · `PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves` (DR-NAV-1) · `PlanCanvas_FocusOffscreenPoint_PansIntoView` (U1b) · `PlanCanvas_FocusUnderProbeOrChip_PansIntoView` (U1b) · `PlanCanvas_ProbeAndDelta_NotLiveRegions` (U1b) · `PlanCanvas_HoverProbe_ParksPointerFirst` (U1b) ·
 `PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke` (U1b) · `PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength` (U1b) ·
 `PlanCanvas_Brushes_AllFromThemeResources` (U1b) · `PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera` (U1b) ·
-`ModelArea_MinimumWindow_PlanAtLeast320x240` (U1b) · `ModelArea_SamplesTab_IsometricMovedUnchanged` (U1b).
+`ModelArea_MinimumWindow_PlanAtLeast320x240` (U1b) · `ModelArea_SamplesTab_IsometricMovedUnchanged` (retired with the 3D samples tab in M1.2b2 PRE; superseded by `ModelArea_SectionSampleTab_PlotDrawnAtMinimumWidth`) (U1b).
 
 **U2 — Properties, Wing, Browser, menus, retirement.**
 `Properties_ControlPoint_TypeSpanAftRows` (U2) · `Properties_NamedPoint_TypeReadOnlyWithConstraint` (U2) ·
