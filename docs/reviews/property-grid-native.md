@@ -207,3 +207,26 @@ size; the platform menu cannot tell a click from the key. Row B3.7 asks the oper
 Rows B2.2, B2.10 and B2.10a above describe the retired Kind radio list. On the B build, read them for the Tangent
 kind ▾: ↓ stages ("Press Return to make it corner, or Esc to keep smooth."), Return applies, and leaving says
 "Tangent kind unchanged: Smooth.".
+
+## Operator session — 2026-10-02 (structure B, build 3b0545e)
+
+Build 3b0545e (integration head = main 99758a8 + STATUS-CLOBBER fix), Release osx-arm64, review mode keyboard/empty/light. Operator-run; Coordinator captures and pixel measurements.
+
+| Row | Result | Evidence / notes |
+|---|---|---|
+| B3.3 | **FAIL (NS-1)** | Tab moves through the dock tabs, not the Properties values. Headless EveryEditableValueIsTabStop passes — native/headless mismatch; root-cause needed. |
+| B3.4 | PASS | Clicking a label focuses its value. |
+| B2.9 / B2.10 | PASS | Tangent kind edits work (operator). |
+| B2.11 | PASS | Space collapses and expands the group. |
+| B3.7 / B3.8 / B3.9 | PASS | Text size works (operator). |
+| B2.13, B3.6 | PASS | Operator: 'went through all ... all work except' NS-1/NS-2. |
+| NS-2 | Design request | Type-change report (anchor/control) should not render in the property sheet; operator wants a status bar at the bottom of the shell for reports. Needs a mockup and operator OK before build. |
+| B3.10 | Re-run | Operator quit at 100 %; re-running with 150 %. |
+| B3.10 | PASS | Set 150 %, quit, relaunched: display.json textSize 150 and the app opened at 150 % (capture b310.png). |
+| NS-3 | **FAIL (new defect)** | At 150 % after relaunch, the Wing's last row ('Area ≈ 996 cm²') renders BELOW the app window, over the terminal (b310-bottom.png). Content escapes the window — likely a separate popup/overlay surface; root-cause needed. |
+| B2.x (VoiceOver) | Deferred by operator | VoiceOver produced no speech for the operator; cause (system vs app) not established. Operator: accessibility is lower priority. |
+| B4.x / B3.1 (pixel contrast) | Deferred | Stopped on operator direction; captures u-light/dark/high-contrast.png kept in the scratchpad. |
+| B2.14/14b, B5, B6a | Not run | Session ended before Block 3. |
+| B8.x, Windows halves of B3.1/B3.6 | Not run | No Windows host. |
+
+Open from this session: **NS-1** Tab does not reach the Properties values natively (headless check passes); **NS-2** operator wants reports (e.g. the type-change report) in a status bar at the bottom of the shell, not in the property sheet — design change, mockup and operator OK first; **NS-3** at 150 % the Wing's last row renders outside the window ([capture](../proof/property-grid-native/ns3-wing-row-outside-window.png)). Operator direction: accessibility proof is lower priority than function and look.

@@ -1794,7 +1794,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "91dbbecdedda14bcb8e711f7d66de4c13f162a5c52471641e7a28bf8c9151c42"
+      "sourceSha256": "1bff5cf69371ad283a141ef2bcc16f49c9a8e6d161d343820966c37c3b8e6b3c"
     },
     {
       "id": "design-application-contracts",
@@ -3396,7 +3396,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d3559acd5a971e6a4a833ee60088fb69c2d8c581337dfc80fbd5e34764eec968"
+      "sourceSha256": "ca5db1e846a6337853a3475387ab45ab53d1791ca8099cfa5ca25506cac9a41e"
     },
     {
       "id": "domain-experts",
@@ -4133,7 +4133,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "27245b180d1f593745601bc2f05b2dd264e4166ce6ccc85847ba6fb9da20febb"
+      "sourceSha256": "003e0612ff265fc19e5f6f278543916de8aee9ce56bf029b5e9369698ee547a3"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -4270,7 +4270,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3fc9203414ad69aabb7fc98f462c9fa4b8bd2b62a8e927190a08a418a0855fb"
+      "sourceSha256": "71b6c431d00dca92309dfb1ec991ec1c33c02ea0056748e144245f8876e666f1"
     },
     {
       "id": "review-ui-property-grid-density",
@@ -9140,5 +9140,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     }
   ],
-  "graphSha256": "28845f72461b17929ea34c33a90a0bd716f9575a6668432f398db7529ae513da"
+  "graphSha256": "f5e4e0d6a79362ad7a42c6066df82c6f178b245f2089a2b215bfc1bcd5d272d2"
 };
