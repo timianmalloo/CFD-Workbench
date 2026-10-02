@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T23:21:55Z",
+  "generated": "2026-10-02T23:37:38Z",
   "audit": [
     {
       "actor": null,
@@ -22077,6 +22077,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T23:21:02Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M3ZFP15ZSDYFT21T3979QZGP",
+      "shortname": "join-m12b2-pre",
+      "datetime": "2026-10-02T23:37:38Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/m12b2-pre-sr1-samples into feature/ui-cad-direction",
+      "summary": "PRE (Sonnet 5.5): SR-1 contract (AftMeters/AftOnly/tuple conversion removed; PointModel_SrOneAliases_RemovedAtExit red-first; CLI keeps aftMeters JSON); 3D samples tab + Viewport 3D mode retired (ModelArea_SamplesTabRetired_NoReferencesRemain red-first; saved layouts drop the pane). CH1 30/30, VW1 41/41. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T23:36:47Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
