@@ -347,8 +347,7 @@ public partial class PropertiesPane : UserControl
         {
             var body = new StackPanel { Name = Part("Section", group.Id) };
             body.Classes.Add("prop-body");
-            var root = new Border { Child = body, BorderThickness = Thickness("PropRuleTop") };
-            root.Classes.Add("prop-rule");
+            var root = new StackPanel { Children = { RuleLine(), body } };
             sectionViews[group.Id] = section = new SectionView(root, body);
             WatchLead(body);
         }
@@ -397,10 +396,19 @@ public partial class PropertiesPane : UserControl
         Control? previous = null;
         foreach (var child in body.Children)
         {
-            if (child is Border { Tag: RowView } outer)
-                outer.BorderThickness = previous is Border { Tag: RowView } ? Thickness("PropRuleTop") : default;
+            if (child is Border { Tag: RowView view })
+                view.Rule.IsVisible = previous is Border { Tag: RowView };
             if (child.IsVisible) previous = child;
         }
+    }
+
+    /// <summary>B's half-strength rule: 1 px of the line colour at 50 % (no extra theme brush; PG-11 keeps the brush set fixed).</summary>
+    private static Border RuleLine()
+    {
+        var rule = new Border();
+        rule.Classes.Add("prop-rule");
+        AutomationProperties.SetAccessibilityView(rule, AccessibilityView.Raw);
+        return rule;
     }
 
     private void WatchLead(StackPanel container) =>
@@ -597,9 +605,9 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumnSpan(messageBox, 3);
         var root = new Border { Child = grid, Name = Part("Row", row.Key) };
         root.Classes.Add("prop-row");
-        var outer = new Border { Child = root };
-        outer.Classes.Add("prop-rule");
-        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon };
+        var rule = RuleLine();
+        var outer = new Border { Child = new StackPanel { Children = { rule, root } } };
+        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon, Rule = rule };
         outer.Tag = view;
 
         Control value;
@@ -1688,6 +1696,7 @@ public partial class PropertiesPane : UserControl
         public TextBlock? Value { get; set; }
         public Path? Lock { get; set; }
         public Path? MessageIcon { get; init; }
+        public required Border Rule { get; init; }     // the half-strength rule above the row, shown after another row
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
         public InputElement? Editor => (InputElement?)Input ?? Enum;
@@ -1707,5 +1716,5 @@ public partial class PropertiesPane : UserControl
         public ToggleButton? Header { get; set; }
     }
 
-    private sealed record SectionView(Border Root, StackPanel Body);
+    private sealed record SectionView(StackPanel Root, StackPanel Body);
 }
