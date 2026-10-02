@@ -395,13 +395,26 @@ public static class PropertiesCellsTests
             host.SetTextScale(2);
             Select(controller, window, Reload(controller, anchor));
             var scroll = Need<ScrollViewer>(host.Properties, "SelectionScroll");
-            scroll.Offset = default;
-            Settle(window);
             var kind = Need<ComboBox>(host.Properties, "KindControl");
-            kind.Focus();
-            Settle(window);
             var row = Need<Border>(host.Properties, "Row_t_kind");
             var help = Need<TextBlock>(host.Properties, "Description_t_kind");
+            // Precondition (honesty): put the row outside (clipped by) the viewport first, so only BringIntoView can bring it back.
+            Settle(window);
+            foreach (double offset in new[] { 0, scroll.Extent.Height })
+            {
+                scroll.Offset = new Vector(0, offset);
+                Settle(window);
+                var at = row.TranslatePoint(default, scroll)!.Value.Y;
+                if (at < -0.5 || at + row.Bounds.Height > scroll.Viewport.Height + 0.5) break;
+            }
+            double awayTop = row.TranslatePoint(default, scroll)!.Value.Y;
+            if (awayTop >= -0.5 && awayTop + row.Bounds.Height <= scroll.Viewport.Height + 0.5)
+                throw new InvalidOperationException(FormattableString.Invariant($"precondition: kind row {awayTop:0.#} is still fully in a {scroll.Viewport.Height:0.#} px viewport (extent {scroll.Extent.Height:0.#})"));
+            double awayOffset = scroll.Offset.Y;
+            kind.Focus();
+            Settle(window);
+            if (Math.Abs(scroll.Offset.Y - awayOffset) < 0.5)
+                throw new InvalidOperationException("BringIntoView did not move the scroll offset");
             var top = row.TranslatePoint(default, scroll)!.Value.Y;
             var bottom = help.TranslatePoint(new Point(0, help.Bounds.Height), scroll)!.Value.Y;
             Console.WriteLine(FormattableString.Invariant($"MEASURE CL-5 kind row {top:0.#}..{bottom:0.#} in a {scroll.Viewport.Height:0.#} px viewport, offset {scroll.Offset.Y:0.#}"));
@@ -689,11 +702,23 @@ public static class PropertiesCellsTests
             Select(controller, window, MakeAnchor(controller));
             var tip = Need<TextBox>(host.Properties, "TipChordInput");
             var scroll = Need<ScrollViewer>(host.Properties, "WingScroll");
-            scroll.Offset = default;
+            // Precondition (honesty): end the Wing's viewport just under the Tip chord, so the message the failed commit adds
+            // lands below the fold and only BringIntoView can bring it back.
             tip.Focus();
+            Settle(window);
+            scroll.Offset = default;
+            Settle(window);
+            scroll.MaxHeight = Math.Ceiling(tip.TranslatePoint(new Point(0, tip.Bounds.Height), scroll)!.Value.Y) + 1;   // the viewport ends just under the field
+            Settle(window);
+            double parkedBottom = tip.TranslatePoint(new Point(0, tip.Bounds.Height), scroll)!.Value.Y;
+            if (parkedBottom > scroll.Viewport.Height + 0.5 || parkedBottom < scroll.Viewport.Height - 4)
+                throw new InvalidOperationException(FormattableString.Invariant($"precondition: tip bottom {parkedBottom:0.#} is not at the {scroll.Viewport.Height:0.#} px viewport edge (offset {scroll.Offset.Y:0.#}, extent {scroll.Extent.Height:0.#})"));
+            double awayOffset = scroll.Offset.Y;
             tip.Text = "abc";
             Key(tip, Avalonia.Input.Key.Enter);
             Settle(window);
+            if (scroll.Offset.Y <= awayOffset + 0.5)
+                throw new InvalidOperationException("BringIntoView did not move the Wing's scroll offset");
             var message = Need<TextBlock>(host.Properties, "Message_w_tip");
             double top = tip.TranslatePoint(default, scroll)!.Value.Y;
             double bottom = message.TranslatePoint(new Point(0, message.Bounds.Height), scroll)!.Value.Y;
