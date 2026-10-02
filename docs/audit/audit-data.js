@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:58:30Z",
+  "generated": "2026-10-02T20:17:34Z",
   "audit": [
     {
       "actor": null,
@@ -21820,6 +21820,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:57:39Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3Z47PDAX4E5X5PBNKNEBZ0B",
+      "shortname": "join-native-session",
+      "datetime": "2026-10-02T20:17:34Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/native-session-20261002 into feature/ui-cad-direction",
+      "summary": "Operator native session on 3b0545e: NS-1 Tab defect, NS-2 status bar request, NS-3 (later not reproduced), B3.10 persistence pass; VoiceOver deferred (a11y lower priority). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T20:16:41Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
