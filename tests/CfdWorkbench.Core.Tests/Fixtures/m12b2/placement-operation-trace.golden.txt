@@ -1,0 +1,13 @@
+components.camber ((U+L)*half)
+components.unit ((U-L)*r)
+section.upper (((U+L)*half)+((((U-L)*r)*t)*half))
+section.lower (((U+L)*half)-((((U-L)*r)*t)*half))
+blend.upper ((((1-w)*Ca)+(w*Cb))+((((((1-w)*Ua)+(w*Ub))*r0)*t)*half))
+blend.lower ((((1-w)*Ca)+(w*Cb))-((((((1-w)*Ua)+(w*Ub))*r0)*t)*half))
+place.x (le+((te-le)*((x*cos)+(z*sin))))
+place.z (el+((te-le)*((z*cos)-(x*sin))))
+select 0 0 -1
+select 0.25 0 1
+select 0.5 1 -1
+select 0.75 1 -1
+select 1 1 -1
