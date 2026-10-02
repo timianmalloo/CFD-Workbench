@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-01T23:55:04Z",
+  "generated": "2026-10-02T00:31:22Z",
   "audit": [
     {
       "actor": null,
@@ -21465,6 +21465,44 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "dade554b0e7dddd25fab9998ef3611044f34479f",
         "short": "dade554b0",
+        "branch": "design/property-grid-density",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3X0BPC9N5Z9JCCZAWPW3S6S",
+      "shortname": "ui-design-property-grid-density-repair1",
+      "datetime": "2026-10-02T00:31:22Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Density repair cycle 1 of 2 (both reviewers cleared the density design with conditions at 4bc94e6). Record operator rulings DR-DEN-1 (accept 24 px targets), DR-DEN-2 (Wing pinned and scrolls at 200 %, focused field brought into view), DR-DEN-3 (11 px, nothing below 11; reviewers' 12 px reasons as residual risk; Windows-class 100 % capture in B-2), DN-5 (build an app Text size setting 100/125/150/200 %, Cmd+/Cmd-, persisted, one multiplier, stacked at >= 150 %). Close Marine-CAD DC-1 (focused/dirty input spans the free column), DC-2 (worst case at 200 px), DC-3 (decimals align), DC-4 (Corner side subheads), and UX&A DN-1 (1 px boundary every state, 2 px ring on the band), DN-2 (one-element TextBox), DN-3 (row copy items in the header menu), DN-6, DN-7, the target check covering the crumb and the How-measured link. Recompute the before/after table at 11 px; planted failures for DC-1 and DN-1.",
+      "summary": "Density repair cycle 1: rulings DR-DEN-1..3 and DN-5 recorded (rulings note, review §9, DESIGN.md); tokens moved to 11/14 with nothing below 11, fact rows 18, label/value/unit 78/72/28 (narrow 64/64/24); app Text size setting specified (§8.3) and built into the mockup title bar (Cmd+/Cmd-, persisted, stacked at >= 150 %); DC-1..4 and DN-1..7 done (one-element field, 1 px boundary, header-menu copy, focused field in view). Oracle 682 cells incl. 200 % text and the 1.4.12 override, 51/51 paths; planted DC-1 and DN-1 regressions red. Craft gate 6 Minor chrome/copy. 25 new named tests plus the B-5 set. New open decision DR-DEN-4 (Cmd=/Cmd- already zoom model views).",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-property-grid-density.md",
+        "docs/mockups/property-grid.html",
+        "DESIGN.md",
+        "docs/notes/property-grid-rulings.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close the density review conditions and record the operator rulings",
+      "done_when": "rulings recorded; 11 px tokens and table; Text size setting; DC/DN items; oracle green with planted failures red; committed",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-02T00:24:24Z",
+      "duration_seconds": 418.0,
+      "git": {
+        "sha": "4bc94e67f69717cc022cbebab3f4e9640f86d10f",
+        "short": "4bc94e67f",
         "branch": "design/property-grid-density",
         "pushed": null
       }

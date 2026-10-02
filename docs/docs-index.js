@@ -1633,10 +1633,14 @@ window.DOCS_INDEX = {
         {
           "to": "spec-cfd-workbench-v1",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32912b4696be2f0df2d250e324632ef33a32c549eb1ec99cfac8343e23d47f63"
+      "sourceSha256": "ffd77805413a4a819d98f114c3bc04f96788f0eac96f3068db59b1bfb3f06fdf"
     },
     {
       "id": "thick-client-shell",
@@ -2487,7 +2491,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7fbdd18a01915ccee9322f92cda3d0674939785406a6050821fbdcb29de0ba4a"
+      "sourceSha256": "855a2d3b8d5a8ef9aecea48e05b2ef27ad7ada50a7fc35d947a672fb5f351c48"
     },
     {
       "id": "mockup-workbench",
@@ -4194,7 +4198,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-30",
       "reviewSuggested": [],
-      "summary": "Elevate-mode density pass on the built property grid (dade554). The operator found the sheet \"too large\". The cause is measured in source: values at 14 px beside 12 px labels, rows at 28/32 px, 33 px group headers and 32 px Kind options from Avalonia Fluent defaults, 12 px insets, a value column far from its label. The proposal is one 12/16 type size, 20/24 px rows with a 24 px target around a 20 px field, 24 px headers, and the value next to its label. On the anchor state, selection content falls from 625 to 423 px and the Wing from 339 to 231 px, with every WCAG floor kept.",
+      "summary": "Elevate-mode density pass on the built property grid (dade554). The operator found the sheet \"too large\". The cause is measured in source: values at 14 px beside 12 px labels, rows at 28/32 px, 33 px group headers and 32 px Kind options from Avalonia Fluent defaults, 12 px insets, a value column far from its label. The proposal (after repair cycle 1 and the operator's 11 px ruling) is one 11/14 type size with nothing below 11, 18/24 px rows with a 24 px target around a 20 px field, 24 px headers, an app Text size setting, and the value next to its label. On the anchor state, selection content falls from 625 to 423 px and the Wing from 339 to 231 px, with every WCAG floor kept.",
       "tags": [
         "ui-review",
         "properties",
@@ -4223,7 +4227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0594d8191eb5e69694bae88d250ad01ca3797eadc72744c8a348e25804378b1c"
+      "sourceSha256": "61c24541f06e57f4dfc883e66add4fc45db6c2924f6d37c0a62ef3cf69d14181"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -9044,5 +9048,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d162fbaa0a27708f1e9e6403d518212ef34934c0d450ec4cc0e585705297124e"
+  "graphSha256": "d5f179888a94587b096fbb1daaa42f67838a73829da93b8bcc50efbaa5f25ac0"
 };

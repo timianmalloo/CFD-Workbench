@@ -11,6 +11,7 @@ links:
   - {to: design-language, rel: refines}
   - {to: design-m12b-points, rel: relates-to}
   - {to: spec-cfd-workbench-v1, rel: relates-to}
+  - {to: review-ui-property-grid-density, rel: relates-to}
 review-by: 2027-03-30
 summary: >-
   Operator rulings of 2026-10-01 on the property-grid review. Precision follows the quantity, not the row. The field
@@ -41,3 +42,16 @@ commit `2c014a6`. Repair cycle 1 applies them to the mockup, the oracle, DESIGN.
 or Space, or leaving the group, commits. That is one undo row per intent, and the list does not wrap. WAI-ARIA APG
 radio groups select on arrow. We depart from it because each kind change rewrites geometry (Symmetric equalises the
 handles), so selection-follows-focus would commit geometry the user only passed through.
+
+## Density rulings (2026-10-01, after the native build)
+
+Both lenses cleared the density design with conditions at `4bc94e6`
+(`docs/reviews/ui-property-grid-density.md`). The operator ruled:
+
+| ID | Ruling | Consequence |
+|---|---|---|
+| **DR-DEN-1** target size | **Accept 24 px targets** for the property grid, as the one exception to DESIGN.md §4's 32 px dense-control rule. SC 2.5.8 is met by size | DESIGN.md §4 records the exception |
+| **DR-DEN-2** Wing at large text | At 200 % text the Wing stays pinned and scrolls inside itself; **a focused field is always brought into view**, with its message line | Mockup and oracle (DN-6); build test `PropertiesPane_Density_FocusedWingFieldInViewAtLargeText` |
+| **DR-DEN-3** type size | **11 px, nothing below 11.** Labels, values, units, messages (errors, warnings, reasons), notes, descriptions, summaries and the crumb are all 11 px. No 10 px anywhere | `typography.prop` and `typography.prop-note` are 11/14. The reviewers recommended 12 px; their reasons are kept as residual risk: Windows' 100 % default UI text is about 12 px, and 11 px is harder to read on non-Retina displays. So the native B-2 capture includes a Windows-class 100 % (non-Retina) display check |
+| **DN-5** text resize | **Build an app Text size setting:** View ▸ Text size 100 / 125 / 150 / 200 %, ⌘+ / ⌘− (Ctrl on Windows), persisted per user. One multiplier scales every Prop type and row token; ≥ 150 % switches to stacked rows | Owner: the density build track. In the mockup the setting is the real control in the title bar |
+| **DR-DEN-4** shortcut scope (raised by this pass) | ⌘= / ⌘− already zoom the Plan and 3D views (M1.2b §0.1 step 10; M1.2b2 command table). Recommendation, pending the operator: in a model view they keep zooming the view; with focus anywhere else they step the Text size; the View menu items always work | Brief §8.5; flagged for the operator |
