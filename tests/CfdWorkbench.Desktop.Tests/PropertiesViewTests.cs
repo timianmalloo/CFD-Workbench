@@ -844,22 +844,41 @@ public static class PropertiesViewTests
 
     // ---------------- fixtures ----------------
 
-    /// <summary>Tabs from the pane's first stop until focus leaves it; a revisit inside the pane is a trap.</summary>
+    /// <summary>
+    /// Tabs from where focus really is after a pointer selection — the Plan, on the selected point — until focus enters the
+    /// pane, then on until it leaves it; a revisit inside the pane is a trap. Each step is a Tab key event on the focused
+    /// element, as the keyboard raises it. NS-1: a walk that began on the pane's first stop passed while natively Tab from
+    /// the Plan crossed the dock tabs and reached the Wing before the selection.
+    /// </summary>
     internal static List<IInputElement> TabWalk(Control pane, Window window)
     {
-        var navigation = (window as IInputRoot).KeyboardNavigationHandler!;
-        var first = pane.GetVisualDescendants().OfType<InputElement>().First(item => item.Focusable && item.IsTabStop && item.IsEffectivelyVisible && item.IsEffectivelyEnabled);
-        first.Focus(NavigationMethod.Tab);
+        var canvas = window.GetVisualDescendants().OfType<PlanCanvas>().First(item => item.IsEffectivelyVisible);
+        if (canvas.Controller?.Selection is Selection.Points { Items: [var selected] }) canvas.FocusPoint(selected);
+        else canvas.Focus(NavigationMethod.Pointer);
+        bool Inside() => window.FocusManager!.GetFocusedElement() is Visual visual && pane.IsVisualAncestorOf(visual);
+        for (int step = 0; step < 120 && !Inside(); step++) PressTab(window);
+        if (!Inside()) throw new InvalidOperationException("Tab from the Plan never reached the pane");
         var stops = new List<IInputElement>();
-        for (int step = 0; step < 80; step++)
+        for (int step = 0; step < 80 && Inside(); step++)
         {
-            var focused = window.FocusManager!.GetFocusedElement();
-            if (focused is not Visual visual || !pane.IsVisualAncestorOf(visual)) break;
+            var focused = window.FocusManager!.GetFocusedElement()!;
             if (stops.Contains(focused)) throw new InvalidOperationException("Tab revisited " + focused.GetType().Name + " inside the pane (trap)");
             stops.Add(focused);
-            navigation.Move(focused, NavigationDirection.Next);
+            PressTab(window);
         }
         return stops;
+    }
+
+    /// <summary>One Tab (Shift+Tab) key press on the focused element, routed as the keyboard device raises it.</summary>
+    internal static void PressTab(Window window, bool shift = false)
+    {
+        var target = window.FocusManager!.GetFocusedElement() as Avalonia.Interactivity.Interactive ?? window;
+        target.RaiseEvent(new KeyEventArgs
+        {
+            RoutedEvent = InputElement.KeyDownEvent, Source = target, Key = Avalonia.Input.Key.Tab,
+            KeyModifiers = shift ? KeyModifiers.Shift : KeyModifiers.None
+        });
+        Settle(window);
     }
 
     internal static void Pane(string name, Action<WorkbenchController, ShellHost, Window> body) => DesktopChecks.Check(name, () =>
