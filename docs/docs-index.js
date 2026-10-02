@@ -1640,7 +1640,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "34d25d5855e3053ed3187b8055c51d88cd45a496805805819e050a9faf01845e"
+      "sourceSha256": "001ffcc13a4fb21e51b8f6b24a10aa54469fefc0287f4b4c4277be83c8b59da0"
     },
     {
       "id": "thick-client-shell",
@@ -2488,10 +2488,49 @@ window.DOCS_INDEX = {
         {
           "to": "review-ui-property-grid-density",
           "rel": "tested-by"
+        },
+        {
+          "to": "review-ui-property-grid-cells",
+          "rel": "tested-by"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "855a2d3b8d5a8ef9aecea48e05b2ef27ad7ada50a7fc35d947a672fb5f351c48"
+      "sourceSha256": "cdae6ceea97aa6e177e8e9d702e6e1dacdef2020030b5a7b4cba4f1ea6508723"
+    },
+    {
+      "id": "mockup-property-grid-cells",
+      "path": "docs/mockups/property-grid-cells.md",
+      "title": "Property sheet — cell layouts for the operator to pick (Visual Studio Properties window first)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator rejected the row-and-box structure (\"it needs to look more like cells and labels\") and then picked the Visual Studio Properties window. The page shows the same anchor point and Wing content at the real 260 px pane, 11 px text. Primary: a faithful VS Properties grid. Secondary: Premiere Effect Controls and a VS Code compact table for comparison. Nothing is built from it yet.",
+      "tags": [
+        "mockup",
+        "properties",
+        "property-grid",
+        "cells",
+        "operator-pick"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
     },
     {
       "id": "mockup-workbench",
@@ -3357,7 +3396,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "021727106fad3bc16d0484bc49a075a4bf5f0831e6b6499385fbc6aaa5116b43"
+      "sourceSha256": "d3559acd5a971e6a4a833ee60088fb69c2d8c581337dfc80fbd5e34764eec968"
     },
     {
       "id": "domain-experts",
@@ -4187,6 +4226,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
+    },
+    {
+      "id": "review-ui-property-grid-cells",
+      "path": "docs/reviews/ui-property-grid-cells.md",
+      "title": "UI review — the property sheet in structure B (Premiere Effect Controls), promoted to the full design",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator picked variant B, Premiere Pro Effect Controls, \"as is\" (DR-CELL-1). B is now the property sheet's structure in every state of the mockup, carrying every ruling still in force. Measured against the PGRID build: 11 px one size, 20/24 px rows, 24 px twirl headers, the Wing from 339 to 230 px, the anchor selection from 549 to 313 px. Editability is shown by colour plus a dotted underline (the non-colour cue); focus shows a box. This brief supersedes the density brief where they conflict.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "premiere",
+        "structure-b",
+        "accessibility",
+        "build-brief"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-property-grid-cells",
+          "rel": "refines"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "refines"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e3fc9203414ad69aabb7fc98f462c9fa4b8bd2b62a8e927190a08a418a0855fb"
     },
     {
       "id": "review-ui-property-grid-density",
@@ -9046,7 +9130,15 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "spec-foildsl"
+    },
+    {
+      "id": "surface-mockups-property-grid-cells",
+      "path": "docs/mockups/property-grid-cells.html",
+      "title": "Property sheet — three cell layouts",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-property-grid-cells"
     }
   ],
-  "graphSha256": "842f8f26aad043b3d42bc9493b03c38a5ab5ecc2fdd9652c62dae8e5ccd47727"
+  "graphSha256": "32068214957813c16d6da2892b195306ad3107a2fe15f4e4fb53d8ceb7e01a11"
 };

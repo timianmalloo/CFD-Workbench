@@ -1350,3 +1350,17 @@ track whose diff touches `src/` or `tests/` runs `python3 tools/run-readiness.py
 and reports the receipt; the Coordinator's briefs carry that line. Control (partial): the adapters gate now derives its
 key count from the named key sets, so a new brush is one set entry, not a magic number. Uncontrolled until a join
 refuses a src/ branch without a green branch-tip receipt — recorded as the upgrade trigger: a third occurrence.
+
+**RENDER-NOT-STYLE · A computed style asserted as if it were the rendering.** The structure-B mockup gave editable
+values `text-decoration: underline dotted` (the non-colour editability cue, SC 1.4.1). The page audit read
+`getComputedStyle(...).textDecorationLine === 'underline'` and passed. But Chrome does not draw an `<input>`'s text
+underline when the input has an explicit height, so the capture showed no underline at all. Natively the same trap
+exists one level down: Avalonia 11.3.14's `TextBox` has no `TextDecorations` property.
+
+**Class → sweep → derive → prevent:** signature: an accessibility or look cue checked only through computed style or a
+property's presence, never through what is painted. Sweep (2026-10-01): the property-grid oracle's cue checks — the
+underline (found), ▾ via `::after` content (it renders), and the focus box via `box-shadow` (it renders). Derive: a cue
+that carries a floor gets one render-level control. Controls: the page audit's "underlined values have no fixed
+height" (a content-box proxy that goes red on a planted fixed height); the native test
+`PropertiesPane_B_EditableValueHasDottedUnderline` asserts painted pixels, not a property
+(`docs/reviews/ui-property-grid-cells.md` §5.3; uncontrolled natively until it lands red first).

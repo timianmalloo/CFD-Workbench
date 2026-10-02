@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property sheet — three cell layouts</title>
+<!--
+  Pick-one page for the operator: the same Properties content (an anchor point and the pinned Wing block) drawn three
+  ways at the real 260 px pane width, ~820 px tall. Self-contained, dependency-free, DESIGN.md colour tokens only.
+  A = Visual Studio Properties window / WinForms PropertyGrid · B = Adobe Premiere Pro Effect Controls ·
+  C = VS Code compact table (Keyboard Shortcuts editor / Variables view). 11 px text everywhere (operator ruling,
+  nothing below 11); editable rows 24 px (WCAG 2.5.8), read-only rows 20 px. All numbers Illustrative.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --sel:#d8eeea; --accent:#006c67; --on-accent:#ffffff; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --sel:#274c47; --accent:#88d8c6; --on-accent:#172326; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.4 var(--font); }
+button, input, select{ font:inherit; color:inherit; }
+.top{ display:flex; align-items:center; gap:16px; padding:12px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.top button{ margin-left:auto; min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.board{ display:flex; gap:28px; padding:20px; align-items:flex-start; flex-wrap:wrap; }
+.variant{ width:260px; }
+.variant h2{ margin:0 0 6px; font-size:13px; }
+.cap{ margin:8px 0 0; font-size:12px; color:var(--mute); line-height:1.4; }
+.cap b{ color:var(--ink); }
+
+/* the mock pane: a 260 px dock column, ~820 px tall; selection scrolls, Wing pinned */
+.pane{ width:260px; height:820px; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:6px; overflow:hidden; font-size:11px; line-height:14px; }
+.tabs{ flex:0 0 28px; display:flex; align-items:stretch; border-bottom:1px solid var(--line); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span:first-child{ color:var(--ink); border-bottom-color:var(--accent); }
+.sel{ flex:1; min-height:0; overflow:auto; }
+.wing{ flex:none; border-top:1px solid var(--control); }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; font-weight:600; line-height:18px; border-bottom:1px solid var(--line); }
+.ident svg{ width:12px; height:12px; flex:none; }
+.mini{ padding:6px 8px 8px; }
+.mini h3{ margin:0 0 4px; font-size:11px; color:var(--mute); font-weight:600; }
+.mini .pane-sub{ border:1px solid var(--line); border-radius:4px; overflow:hidden; background:var(--surface); font-size:11px; line-height:14px; }
+.num{ font-variant-numeric:tabular-nums lining-nums; }
+.approx{ color:var(--mute); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+input.cell-edit{ width:100%; min-width:0; border:0; background:transparent; padding:0; outline:none; font-variant-numeric:tabular-nums lining-nums; }
+select.cell-enum{ appearance:none; -webkit-appearance:none; width:100%; border:0; background:transparent; padding:0 14px 0 0; cursor:pointer; }
+.enum-wrap{ position:relative; display:flex; align-items:center; min-width:0; flex:1; }
+.enum-wrap::after{ content:"▾"; position:absolute; right:2px; color:var(--mute); pointer-events:none; }
+.caret{ display:inline-block; width:1px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:1px; }
+
+/* ===================== A — classic property grid (VS Properties / WinForms PropertyGrid) ===================== */
+.A .grid{ border-top:1px solid var(--line); }
+.A .cat{ display:flex; align-items:center; gap:4px; width:100%; min-height:24px; padding:0 6px; background:var(--soft); border:0; border-bottom:1px solid var(--line); font-weight:700; text-align:left; cursor:pointer; }
+.A .cat .tw{ width:12px; color:var(--mute); font-weight:400; }
+.A .subcat{ background:var(--canvas); font-weight:600; }
+.A{ --split:112px; }
+.A .row{ display:grid; grid-template-columns:var(--split) minmax(0,1fr); border-bottom:1px solid var(--line); cursor:default; }
+.A .row.selected > .k{ background:var(--sel); }
+/* VS Properties toolbar: Categorized / Alphabetical toggles */
+.A .tool{ flex:0 0 auto; display:flex; gap:2px; padding:2px 4px; border-bottom:1px solid var(--line); background:var(--surface); }
+.A .tool button{ width:24px; height:24px; display:grid; place-items:center; border:1px solid transparent; border-radius:3px; background:transparent; cursor:pointer; color:var(--ink); }
+.A .tool button[aria-pressed="true"]{ background:var(--sel); border-color:var(--accent); }
+.A .tool svg{ width:14px; height:14px; }
+/* the grid zone holds the scrolling categories and the pinned Wing; the splitter spans both */
+.A .zone{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+.A .split{ position:absolute; top:0; bottom:0; left:calc(var(--split) - 3px); width:7px; cursor:col-resize; z-index:2; background:transparent; border:0; padding:0; }
+.A .split:hover, .A .split:focus-visible{ background:color-mix(in srgb, var(--accent) 25%, transparent); }
+/* VS description panel: the selected property's name and its help text */
+.A .descp{ flex:0 0 76px; padding:6px 8px; border-top:1px solid var(--control); background:var(--canvas); overflow:auto; }
+.A .descp b{ display:block; margin-bottom:2px; }
+.A .descp span{ color:var(--ink); }
+.A .paneA{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.secondary{ opacity:1; } .secondary h2{ font-size:12px; color:var(--mute); }
+.A .row > .k{ display:flex; align-items:center; padding:0 6px 0 18px; background:var(--canvas); border-right:1px solid var(--control); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.A .row.sub > .k{ padding-left:28px; }
+.A .row > .v{ display:flex; align-items:center; gap:4px; padding:0 6px; background:var(--surface); min-width:0; }
+.A .row.e{ min-height:24px; } .A .row.r{ min-height:20px; }
+.A .row.r > .v{ color:var(--mute); }
+.A .row > .v .u{ margin-left:auto; color:var(--mute); }
+.A .row > .v:focus-within{ box-shadow:inset 0 0 0 1px var(--accent); background:var(--surface); }
+.A .row:focus-within > .k{ background:var(--sel); }
+.A .row.editing > .v{ box-shadow:inset 0 0 0 2px var(--accent); }
+.A .row.editing > .k{ background:var(--sel); }
+
+/* ===================== B — Premiere Pro Effect Controls ===================== */
+.B .grp{ border-bottom:1px solid var(--line); }
+.B .head{ display:flex; align-items:center; gap:6px; width:100%; min-height:24px; padding:0 8px; background:transparent; border:0; font-weight:600; text-align:left; cursor:pointer; }
+.B .head .tw{ width:10px; color:var(--mute); font-weight:400; }
+.B .subhead{ padding:4px 8px 0 22px; color:var(--mute); font-weight:600; }
+.B .row{ display:flex; align-items:center; gap:6px; padding:0 8px 0 22px; }
+.B .row.sub{ padding-left:32px; }
+.B .row.e{ min-height:24px; } .B .row.r{ min-height:20px; }
+.B .row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.B .row > .k{ flex:1; min-width:0; color:var(--mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.B .row > .v{ display:flex; align-items:center; justify-content:flex-end; gap:3px; min-width:0; }
+.B .row > .v input.cell-edit, .B .row > .v .ro{ width:62px; text-align:right; }
+.B .row.e > .v input.cell-edit{ color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; cursor:ew-resize; }
+.B .row.e > .v input.cell-edit:focus{ color:var(--ink); text-decoration:none; cursor:text; }
+.B .row > .v .u{ width:24px; color:var(--mute); }
+.B .row.r > .v .ro{ color:var(--ink); }
+.B .row .enum-wrap{ flex:0 0 auto; }
+.B .row select.cell-enum{ color:var(--accent); text-align:right; width:auto; }
+.B .row.editing > .v input.cell-edit, .B .row.editing > .v .edit-box{ color:var(--ink); }
+.B .edit-box{ display:inline-flex; align-items:center; justify-content:flex-end; width:62px; height:20px; padding:0 3px; border:1px solid var(--accent); border-radius:2px; background:var(--surface); }
+
+/* ===================== C — VS Code compact table (Keyboard Shortcuts editor / Variables view) ===================== */
+.C .th{ display:grid; grid-template-columns:50% 1fr; min-height:22px; border-bottom:1px solid var(--control); font-weight:600; color:var(--mute); }
+.C .th > span{ display:flex; align-items:center; padding:0 6px; } .C .th > span + span{ border-left:1px solid var(--line); }
+.C .node{ display:flex; align-items:center; gap:4px; width:100%; min-height:24px; padding:0 6px; border:0; background:transparent; font-weight:600; text-align:left; cursor:pointer; }
+.C .node.l1{ padding-left:16px; font-weight:600; color:var(--mute); }
+.C .node .tw{ width:10px; color:var(--mute); font-weight:400; }
+.C .row{ display:grid; grid-template-columns:50% 1fr; }
+.C .row:nth-of-type(even){ background:color-mix(in srgb, var(--soft) 55%, var(--surface)); }
+.C .row.e{ min-height:24px; } .C .row.r{ min-height:20px; }
+.C .row > .k{ display:flex; align-items:center; padding:0 6px 0 22px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.C .row.sub > .k{ padding-left:32px; }
+.C .row > .v{ display:flex; align-items:center; gap:4px; padding:0 6px; border-left:1px solid var(--line); min-width:0; }
+.C .row > .v .u{ margin-left:auto; color:var(--mute); }
+.C .row.r > .v{ color:var(--mute); }
+.C .row:focus-within{ background:var(--sel); box-shadow:inset 0 0 0 1px var(--accent); }
+.C .row.editing{ background:var(--sel); }
+.C .row.editing > .v{ box-shadow:inset 0 0 0 1px var(--accent); background:var(--surface); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>Property sheet — three cell layouts</h1><p>Same content, real 260 px pane, 11 px text. Pick one; nothing is built yet.</p></div>
+  <button type="button" id="theme" aria-pressed="false">Dark theme</button>
+</header>
+<main class="board" id="board"></main>
+
+<script>
+'use strict';
+const ANCHOR = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+// one content model for all three variants (Illustrative numbers from the New-foil fixture)
+const POINT = { title:'Point', rows:[
+  { k:'Type', enum:['Anchor point', 'Control point'] },
+  { k:'From root', v:'321.65', u:'mm' },
+  { k:'η', v:'0.643', ro:true },
+  { k:'Aft', v:'158.66', u:'mm', id:'aft' },
+  { k:'Tangent kind', enum:['Smooth', 'Symmetric', 'Corner'] },
+  { sub:'Handle toward the root' }, { k:'Angle', v:'−21.08', u:'°', s:1 }, { k:'Length', v:'18.20', u:'mm', s:1 },
+  { sub:'Handle toward the tip' }, { k:'Angle', v:'−21.08', u:'°', s:1 }, { k:'Length', v:'20.80', u:'mm', s:1 } ] };
+const WING = { title:'Wing', rows:[
+  { k:'Span', v:'1000.00', u:'mm' }, { k:'Root chord', v:'126.74', u:'mm' }, { k:'Tip chord', v:'12.67', u:'mm' },
+  { k:'Mean chord', v:'99.6', u:'mm', est:1 }, { k:'MAC', v:'107.1', u:'mm', est:1 }, { k:'Max t/c', v:'12.0', u:'%', est:1 },
+  { k:'AR', v:'10.04', u:'b²/S', est:1 }, { k:'Area', v:'996', u:'cm²', est:1 } ] };
+const HELP = {
+  'Type':'An anchor point is on the curve; its handles set the direction on each side. Choosing Anchor point adds handles (the rail gains up to 3 points).',
+  'From root':'Distance along the span from the centre line. ↑/↓ step 0.1 mm; with ⌘ 0.01; with ⇧ 1.',
+  'η':'From root ÷ half-span. Read-only.',
+  'Aft':'Distance aft of the leading-edge datum. ↑/↓ step 0.1 mm; with ⌘ 0.01; with ⇧ 1. Return applies; Esc restores.',
+  'Tangent kind':'Smooth: handles stay in line, lengths can differ. Symmetric: in line and equal. Corner: each handle moves on its own.',
+  'Angle':'Measured from the span axis, + aft; between −90° and 90°.',
+  'Length':'Handle length from the anchor point.',
+  'Span':'Span b: projected, tip to tip.',
+  'Root chord':'Chord at the centre line. Typing here rescales the planform; the TE root point\'s Aft moves only that point.',
+  'Tip chord':'Chord at the outermost station.',
+  'Mean chord':'≈ running estimate. Mean chord (geometric) = S / b.',
+  'MAC':'≈ running estimate. Mean aerodynamic chord, (2/S)∫c(y)² dy over the half span; not the same as S / b.',
+  'Max t/c':'≈ running estimate. Largest thickness over chord at any station.',
+  'AR':'≈ running estimate. AR (projected) = b² / S, dimensionless.',
+  'Area':'≈ running estimate. Projected planform area S, both halves.' };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const editor = (r, editing) => editing ? `<span class="num">118.52</span><span class="caret" aria-hidden="true"></span>`
+  : `<input class="cell-edit num" value="${esc(r.v)}" aria-label="${esc(r.k)}${r.u ? ' in ' + r.u : ''}">`;
+const enumCell = r => `<span class="enum-wrap"><select class="cell-enum" aria-label="${esc(r.k)}">${r.enum.map(o => `<option>${esc(o)}</option>`).join('')}</select></span>`;
+const roText = r => `<span class="ro num">${r.est ? '<span class="approx">≈ </span>' : ''}${esc(r.v)}</span>`;
+const readOnly = r => r.ro || r.est;
+
+/* A — two cells per row, hairline grid both ways, category rows full width */
+function A(g, opts = {}){
+  const rows = g.rows.map(r => {
+    if (r.sub) return `<button type="button" class="cat subcat" aria-expanded="true"><span class="tw">▾</span>${esc(r.sub)}</button>`;
+    const editing = opts.editAft && r.id === 'aft';
+    const v = r.enum ? enumCell(r) : readOnly(r) ? roText(r) : editor(r, editing);
+    return `<div class="row ${readOnly(r) ? 'r' : 'e'}${r.s ? ' sub' : ''}${editing ? ' editing' : ''}" data-help="${esc(r.hk || r.k)}"><span class="k">${esc(r.k)}</span><span class="v">${v}${r.u ? `<span class="u">${esc(r.u)}</span>` : ''}</span></div>`; }).join('');
+  return `<div class="grid">${opts.flat ? '' : `<button type="button" class="cat" aria-expanded="true"><span class="tw">▾</span>${g.title}</button>`}${rows}</div>`;
+}
+const ICON_CAT = '<svg viewBox="0 0 14 14" aria-hidden="true"><rect x="1" y="1.5" width="12" height="3" fill="currentColor"/><path d="M3 7h10M3 10h10M3 12.5h10" stroke="currentColor"/></svg>';
+const ICON_AZ = '<span aria-hidden="true" style="font-size:11px;font-weight:700;letter-spacing:-0.5px">AZ</span>';
+function pointRowsWithSides(){
+  let side = ''; return POINT.rows.map(r => { if (r.sub){ side = r.sub.endsWith('root') ? 'toward root' : 'toward tip'; return r; } return r.s ? { ...r, hk:r.k, k:r.k, side } : r; });
+}
+function paneA(alpha){
+  const pointRows = alpha ? pointRowsWithSides().filter(r => !r.sub).map(r => r.s ? { ...r, k:`${r.k} ${r.side}` } : r).sort((a, b) => a.k.localeCompare(b.k)) : POINT.rows;
+  return `<div class="tool" role="toolbar" aria-label="Properties view"><button type="button" data-mode="cat" aria-pressed="${!alpha}" aria-label="Categorized" title="Categorized">${ICON_CAT}</button><button type="button" data-mode="alpha" aria-pressed="${alpha}" aria-label="Alphabetical" title="Alphabetical">${ICON_AZ}</button></div>
+    <div class="ident">${ANCHOR}Trailing edge · point 7 of 14</div>
+    <div class="zone"><div class="sel">${A({ title:'Point', rows:pointRows }, { flat:alpha })}</div><div class="wing">${A(WING)}</div>
+      <button type="button" class="split" role="separator" aria-orientation="vertical" aria-label="Column splitter" aria-valuemin="64" aria-valuemax="180" aria-valuenow="112"></button></div>
+    <div class="descp" aria-live="polite"><b></b><span></span></div>`;
+}
+/* B — twirl groups, indented rows, accent value text right-aligned, no boxes until edited */
+function B(g, opts = {}){
+  const rows = g.rows.map(r => {
+    if (r.sub) return `<div class="subhead">${esc(r.sub)}</div>`;
+    const editing = opts.editAft && r.id === 'aft';
+    const v = r.enum ? enumCell(r) : readOnly(r) ? roText(r) : editing ? `<span class="edit-box"><span class="num">118.52</span><span class="caret" aria-hidden="true"></span></span>` : editor(r);
+    return `<div class="row ${readOnly(r) ? 'r' : 'e'}${r.s ? ' sub' : ''}${editing ? ' editing' : ''}"><span class="k">${esc(r.k)}</span><span class="v">${v}${r.enum ? '' : `<span class="u">${esc(r.u || '')}</span>`}</span></div>`; }).join('');
+  return `<div class="grp"><button type="button" class="head" aria-expanded="true"><span class="tw">▾</span>${g.title}</button>${rows}</div>`;
+}
+/* C — column header, striped rows, vertical divider, tree nodes with chevrons */
+function C(g, opts = {}){
+  let rows = '';
+  for (const r of g.rows){
+    if (r.sub){ rows += `<button type="button" class="node l1" aria-expanded="true"><span class="tw">⌄</span>${esc(r.sub)}</button>`; continue; }
+    const editing = opts.editAft && r.id === 'aft';
+    const v = r.enum ? enumCell(r) : readOnly(r) ? roText(r) : editor(r, editing);
+    rows += `<div class="row ${readOnly(r) ? 'r' : 'e'}${r.s ? ' sub' : ''}${editing ? ' editing' : ''}"><span class="k">${esc(r.k)}</span><span class="v">${v}${r.u ? `<span class="u">${esc(r.u)}</span>` : ''}</span></div>`; }
+  return `${opts.header ? '<div class="th"><span>Property</span><span>Value</span></div>' : ''}<button type="button" class="node" aria-expanded="true"><span class="tw">⌄</span>${g.title}</button>${rows}`;
+}
+const VARIANTS = [
+  ['A', 'A — Visual Studio Properties window (operator’s pick)', A, '<b>Visual Studio Properties window / WinForms PropertyGrid.</b> Categorized / Alphabetical toolbar; category rows with ▾/▸ across both columns; every property is a label cell and a value cell with hairline grid lines both ways; a draggable splitter between the columns; the value cell is the in-place editor (no floating box); enums are in-cell ▾ dropdowns; read-only values greyed; the description panel at the bottom shows the selected property’s name and help (where our reasons and help text live).'],
+  ['B', 'B — Effect Controls', B, '<b>Adobe Premiere Pro Effect Controls.</b> Twirl groups, indented rows, labels left in muted ink, values right-aligned in the accent colour (dotted underline = editable); no boxes until you click; a light rule between rows.'],
+  ['C', 'C — Compact table', C, '<b>VS Code Keyboard Shortcuts editor / Variables view.</b> A Property | Value header, alternating row stripes, a vertical column divider, compact rows, categories as tree nodes with chevrons and indent; the focused row is highlighted.']];
+const $board = document.getElementById('board');
+$board.innerHTML = VARIANTS.map(([id, name, fn, cap]) => `<section class="variant ${id}${id === 'A' ? '' : ' secondary'}" aria-label="${esc(name)}">
+  <h2>${esc(id === 'A' ? name : name + ' (secondary comparison)')}</h2>
+  <div class="pane"><div class="tabs" aria-hidden="true"><span>Properties</span><span>Browser</span></div>${id === 'A' ? `<div class="paneA">${paneA(false)}</div>` : `
+    <div class="sel"><div class="ident">${ANCHOR}Trailing edge · point 7 of 14</div>${fn(POINT, { header:true })}</div>
+    <div class="wing">${fn(WING, { header:id === 'C' })}</div>`}</div>
+  <p class="cap">${cap}</p>
+  <div class="mini"><h3>Edit state: Aft focused, caret after 118.52</h3><div class="pane-sub">${fn({ title:'Point', rows:POINT.rows.slice(1, 4) }, { editAft:true, header:id === 'C' })}</div></div>
+</section>`).join('');
+function wireA(){
+  const host = document.querySelector('.A .paneA'), pane = document.querySelector('.A .pane');
+  const select = row => { host.querySelectorAll('.row.selected').forEach(r => r.classList.remove('selected')); row.classList.add('selected');
+    const k = row.dataset.help; host.querySelector('.descp b').textContent = row.querySelector('.k').textContent; host.querySelector('.descp span').textContent = HELP[k] || ''; };
+  host.addEventListener('focusin', e => { const r = e.target.closest('.row'); if (r) select(r); });
+  host.addEventListener('pointerdown', e => { const r = e.target.closest('.row'); if (r) select(r); });
+  const aft = [...host.querySelectorAll('.row')].find(r => r.dataset.help === 'Aft'); if (aft) select(aft);
+  const split = host.querySelector('.split');
+  const setSplit = px => { px = Math.max(64, Math.min(180, Math.round(px))); pane.style.setProperty('--split', px + 'px'); split.setAttribute('aria-valuenow', String(px)); };
+  split.addEventListener('pointerdown', e => { split.setPointerCapture(e.pointerId); const x0 = pane.getBoundingClientRect().left;
+    const move = ev => setSplit(ev.clientX - x0); split.addEventListener('pointermove', move);
+    split.addEventListener('pointerup', () => split.removeEventListener('pointermove', move), { once:true }); });
+  split.addEventListener('keydown', e => { const now = Number(split.getAttribute('aria-valuenow'));
+    if (e.key === 'ArrowLeft'){ e.preventDefault(); setSplit(now - 8); } if (e.key === 'ArrowRight'){ e.preventDefault(); setSplit(now + 8); } });
+  host.querySelectorAll('.tool button').forEach(b => b.addEventListener('click', () => { host.innerHTML = paneA(b.dataset.mode === 'alpha'); wireTwirls(host); wireA(); }));
+}
+function wireTwirls(scope){
+  scope.querySelectorAll('.cat, .head, .node').forEach(b => b.addEventListener('click', () => {
+    const open = b.getAttribute('aria-expanded') !== 'false'; b.setAttribute('aria-expanded', String(!open));
+    b.querySelector('.tw').textContent = open ? (b.classList.contains('node') ? '›' : '▸') : (b.classList.contains('node') ? '⌄' : '▾');
+    let n = b.nextElementSibling; const stop = el => !el || el.matches('.cat:not(.subcat), .head, .node:not(.l1)') || (b.matches('.subcat, .l1') && el.matches('.subcat, .subhead, .l1'));
+    while (n && !stop(n)){ n.hidden = open; n = n.nextElementSibling; } }));
+}
+wireTwirls(document);
+wireA();
+document.getElementById('theme').addEventListener('click', e => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', String(dark)); e.currentTarget.textContent = dark ? 'Light theme' : 'Dark theme'; });
+</script>
+</body>
+</html>

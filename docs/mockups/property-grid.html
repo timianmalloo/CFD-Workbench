@@ -101,20 +101,12 @@ button,input,select{ font:inherit; color:inherit; }
 .val select{ width:100%; height:28px; padding:0 4px; font-family:var(--font); background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:var(--r-sm); }
 .val select:disabled{ border-style:dashed; }
 input:focus-visible, select:focus-visible, button:focus-visible{ outline:2px solid var(--focus); outline-offset:1px; }
-.radios button:focus-visible{ outline-offset:-2px; }   /* PG-05: inset, so no parent clip can hide it */
+
 .msg{ grid-column:1 / -1; display:flex; gap:6px; padding:2px 0 4px; font-size:12px; line-height:1.35; color:var(--mute); text-align:left; font-family:var(--font); }
 .msg svg{ width:12px; height:12px; flex:none; margin-top:2px; }
 .msg.warn{ color:var(--warn); } .msg.error{ color:var(--danger); } .msg.report, .msg.echo{ color:var(--ink); }
 .desc{ grid-column:1 / -1; font-size:12px; color:var(--mute); padding:0 0 4px; line-height:1.35; }
 
-/* Tangent kind (PG-02): a vertical radio list, one option per line, never truncated; checked = filled dot (shape) + weight */
-.radios{ display:flex; flex-direction:column; gap:0; }
-.radios button{ display:flex; align-items:center; gap:8px; min-height:26px; padding:0 4px; border:0; background:none; color:var(--ink); font-size:13px; text-align:left; cursor:pointer; white-space:normal; }
-.radios .dot{ flex:none; width:14px; height:14px; border-radius:50%; border:1.5px solid var(--control); display:grid; place-items:center; }
-.radios button[aria-checked="true"]{ font-weight:600; }
-.radios button[aria-checked="true"] .dot{ border-color:var(--accent); }
-.radios button[aria-checked="true"] .dot::after{ content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); }
-.radios[aria-disabled="true"] button{ cursor:not-allowed; }
 .row.span3 .val{ grid-column:2 / 4; text-align:left; font-family:var(--font); }
 
 .btn{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:var(--r-sm); background:var(--soft); color:var(--ink); cursor:pointer; }
@@ -162,7 +154,6 @@ details.defs .how{ color:var(--mute); } details.defs ul{ margin:2px 0 4px; paddi
 .frame[data-density="native"] .grp-h button, .frame[data-density="native"] .grp-h .static{ min-height:33px; font-size:14px; padding:0 0 0 16px; }
 .frame[data-density="native"] .grp-h .chev{ order:3; width:32px; height:12px; }
 .frame[data-density="native"] .grp-h .sum{ font-family:var(--font); }
-.frame[data-density="native"] .radios{ gap:4px; } .frame[data-density="native"] .radios button{ min-height:32px; font-size:14px; }
 .frame[data-density="native"] .ident{ padding:12px 0 8px; } .frame[data-density="native"] .ident h2{ font-size:14px; }
 .frame[data-density="native"] .wing{ padding:12px; border-top-width:1px; }
 .frame[data-density="native"] .wing .row{ padding-left:8px; }
@@ -170,64 +161,81 @@ details.defs .how{ color:var(--mute); } details.defs ul{ margin:2px 0 4px; paddi
 .frame[data-density="native"] details.defs > summary{ display:inline-flex; min-height:28px; padding:5px 8px 6px; font-size:14px; font-weight:400; background:var(--soft); border-radius:var(--r-sm); }
 .frame[data-density="native"] details.defs > summary::before{ content:""; }
 
-/* ---- dense (the proposal; DR-DEN-3: 11 px, nothing below 11) ---- */
-/* --pg-scale is the app's own Text size setting (View ▸ Text size 100/125/150/200 %, ⌘+ / ⌘−): it scales every type and
-   row token; at ≥ 150 % the rows reflow (data-stacked) — SC 1.4.4 on a platform with no system text scaling (DN-5) */
-.frame[data-density="dense"]{ --pg-fs:calc(11px * var(--pg-scale)); --pg-lh:calc(14px * var(--pg-scale)); --pg-note-fs:calc(11px * var(--pg-scale)); --pg-note-lh:calc(14px * var(--pg-scale)); }
-.frame[data-density="dense"] .row{ grid-template-columns:78px 72px 28px minmax(0,1fr); column-gap:0; margin:0 8px; padding:2px 0 2px 4px; min-height:calc(18px * var(--pg-scale)); align-items:baseline; }
-@container pane (max-width: 230px){ .frame[data-density="dense"] .row{ grid-template-columns:64px 64px 24px minmax(0,1fr); } }
-.frame[data-density="dense"] .row.edit{ padding-block:0; min-height:calc(24px * var(--pg-scale)); }
-.frame[data-density="dense"] .row > .lbl{ grid-column:1; grid-row:1; } .frame[data-density="dense"] .row > .val{ grid-column:2; grid-row:1; } .frame[data-density="dense"] .row > .unit{ grid-column:3; grid-row:1; }
-.frame[data-density="dense"] .row > .val.txt, .frame[data-density="dense"] .row.span3 > .val{ grid-column:2 / -1; }
-/* DC-1: a focused or dirty field takes value + unit + free columns, so a typed expression is visible whole; the unit
-   returns when the field is left (the typed text carries its own unit; the field's name still says it) */
-.frame[data-density="dense"] .row.edit:focus-within > .val, .frame[data-density="dense"] .row.edit.dirty > .val{ grid-column:2 / -1; }
-.frame[data-density="dense"] .row.edit:focus-within > .unit, .frame[data-density="dense"] .row.edit.dirty > .unit{ display:none; }
-/* DC-1 at the narrow dock: the editing row stacks — label above, the field across the whole row — so an expression fits */
-@container pane (max-width: 230px){
-  .frame[data-density="dense"] .row.edit:not(.span3):focus-within > .lbl, .frame[data-density="dense"] .row.edit.dirty > .lbl{ grid-column:1 / -1; grid-row:1; }
-  .frame[data-density="dense"] .row.edit:not(.span3):focus-within > .val, .frame[data-density="dense"] .row.edit.dirty > .val{ grid-column:1 / -1; grid-row:2; } }
-/* SC 1.4.4: at ≥ 150 % the row reflows — label on its own line, value and unit beneath — instead of clipping */
-.frame[data-density="dense"][data-stacked="1"] .row{ grid-template-columns:minmax(0,1fr) calc(28px * var(--pg-scale)); }
-.frame[data-density="dense"][data-stacked="1"] .row > .lbl{ grid-column:1 / -1; grid-row:1; }
-.frame[data-density="dense"][data-stacked="1"] .row > .val{ grid-column:1; grid-row:2; }
-.frame[data-density="dense"][data-stacked="1"] .row > .unit{ grid-column:2; grid-row:2; }
-.frame[data-density="dense"][data-stacked="1"] .row > .val.txt, .frame[data-density="dense"][data-stacked="1"] .row.span3 > .val,
-.frame[data-density="dense"][data-stacked="1"] .row.edit:focus-within > .val, .frame[data-density="dense"][data-stacked="1"] .row.edit.dirty > .val{ grid-column:1 / -1; grid-row:2; }
-.frame[data-density="dense"] .lbl, .frame[data-density="dense"] .val, .frame[data-density="dense"] .unit, .frame[data-density="dense"] .val input, .frame[data-density="dense"] .val select, .frame[data-density="dense"] .radios button{ font-size:var(--pg-fs); line-height:var(--pg-lh); }
-.frame[data-density="dense"] .val, .frame[data-density="dense"] .val input{ font-family:var(--font); font-variant-numeric:tabular-nums lining-nums; }
-/* DC-3: a fact's digits end where an input's digits end (2 px band + 4 px padding = 6 px in from the column edge) */
-.frame[data-density="dense"] .row:not(.edit) > .val:not(.txt) > span{ padding-right:6px; }
-.frame[data-density="dense"] .unit{ padding-left:4px; }
-/* DN-1 / DN-2: one element — a 24 px target whose 2 px transparent band is part of the control; the drawn box is 20 px with
-   a 1 px boundary in every state; focus is a 2 px ring on the band; error is 1 px danger + rail + icon + text */
-.frame[data-density="dense"] .val input, .frame[data-density="dense"] .val select{ height:calc(24px * var(--pg-scale)); padding:0 4px; border:2px solid transparent; background-clip:padding-box; box-shadow:inset 0 0 0 1px var(--control); border-radius:5px; }
-.frame[data-density="dense"] .val input[aria-invalid="true"]{ border:2px solid transparent; box-shadow:inset 0 0 0 1px var(--danger); }
-.frame[data-density="dense"] .val input:focus-visible, .frame[data-density="dense"] .val select:focus-visible{ outline:2px solid var(--focus); outline-offset:-2px; }
-.frame[data-density="dense"] .grp + .grp{ border-top:1px solid var(--line); }
-.frame[data-density="dense"] .grp-h button, .frame[data-density="dense"] .grp-h .static{ min-height:calc(24px * var(--pg-scale)); padding:0 8px; gap:4px; font-size:var(--pg-fs); line-height:var(--pg-lh); }
-.frame[data-density="dense"] .grp-h button:focus-visible{ outline-offset:-2px; }
-.frame[data-density="dense"] .grp-h .chev{ width:10px; height:10px; }
-.frame[data-density="dense"] .grp-h .sum, .frame[data-density="dense"] .chip{ font-family:var(--font); font-variant-numeric:tabular-nums; font-size:var(--pg-note-fs); }
-.frame[data-density="dense"] .radios button{ min-height:calc(24px * var(--pg-scale)); gap:6px; }
-/* DN-7: one dot size — a 12 px ring with a 6 px glyph */
-.frame[data-density="dense"] .radios .dot{ width:12px; height:12px; } .frame[data-density="dense"] .radios .dot::after{ width:6px; height:6px; }
-.frame[data-density="dense"] .ident{ padding:6px 8px 4px; grid-template-columns:12px minmax(0,1fr); gap:0 6px; }
-.frame[data-density="dense"] .ident svg{ width:12px; height:12px; }
-.frame[data-density="dense"] .ident h2{ font-size:calc(13px * var(--pg-scale)); line-height:calc(18px * var(--pg-scale)); }
-.frame[data-density="dense"] .ident .crumb, .frame[data-density="dense"] .desc, .frame[data-density="dense"] .msg, .frame[data-density="dense"] .note, .frame[data-density="dense"] .sub, .frame[data-density="dense"] details.defs ul, .frame[data-density="dense"] .banner{ font-size:var(--pg-note-fs); line-height:var(--pg-note-lh); }
-.frame[data-density="dense"] .note{ padding:0 8px 2px 15px; }
-/* DC-4: a Corner handle's side is a semibold subhead in ink, not a muted caption */
-.frame[data-density="dense"] .sub{ padding:4px 8px 0 15px; color:var(--ink); font-weight:600; }
-.frame[data-density="dense"] .desc, .frame[data-density="dense"] .msg{ padding:0 0 2px; }
-.frame[data-density="dense"] .banner{ padding:6px 8px; }
-.frame[data-density="dense"] .wing{ border-top-width:1px; }
-.frame[data-density="dense"] details.defs{ padding:0 8px 0 15px; }
-.frame[data-density="dense"] details.defs > summary{ min-height:calc(24px * var(--pg-scale)); font-size:var(--pg-note-fs); font-weight:400; color:var(--accent); text-decoration:underline; }
-.frame[data-density="dense"] details.defs > summary .how{ color:var(--accent); }
-/* SC 1.4.12 check: the WCAG text-spacing override (line 1.5, paragraph 2 em, letter 0.12 em, word 0.16 em) */
+/* ---- B: Premiere Pro Effect Controls (DR-CELL-1, the operator's pick; the LOOK IS FIXED — every value below is copied
+   from docs/mockups/property-grid-cells.html variant B, bd7dbc5) ----
+   Twirl groups, rows indented 22 px (sub-rows 32), label left in muted ink, value right-aligned: editable = accent text
+   with a dotted underline, read-only = ink, enums = accent text + ▾; units 24 px muted; a half-strength rule between
+   rows; no box until a value is focused, then a 1 px accent box 20 px tall inside the 24 px row band.
+   Floors carried (no visible change in the default states): 11 px, nothing below 11 (DR-DEN-3); editable rows 24 px and
+   the whole row (label + value) is the target (DR-DEN-1); labels wrap instead of ellipsizing (PG-03, only matters at the
+   200 px dock); help text shows under a row while it has focus (it is also the field's accessible description). */
+.frame[data-density="b"]{ --pg-fs:calc(11px * var(--pg-scale)); --pg-lh:calc(14px * var(--pg-scale)); }
+.frame[data-density="b"] .sel > .grp, .frame[data-density="b"] .wing .grp{ border-bottom:1px solid var(--line); }
+.frame[data-density="b"] .grp + .grp{ border-top:0; }
+.frame[data-density="b"] .grp-h button, .frame[data-density="b"] .grp-h .static{ min-height:calc(24px * var(--pg-scale)); padding:0 8px; gap:6px; background:transparent; font-size:var(--pg-fs); line-height:var(--pg-lh); font-weight:600; }
+.frame[data-density="b"] .grp-h button:focus-visible{ outline-offset:-2px; }
+.frame[data-density="b"] .grp-h .chev{ width:10px; height:10px; color:var(--mute); }
+.frame[data-density="b"] .grp-h .sum, .frame[data-density="b"] .chip{ font-family:var(--font); font-variant-numeric:tabular-nums; font-size:var(--pg-fs); }
+.frame[data-density="b"] .grp-b{ padding:0; }
+.frame[data-density="b"] .sel > .grp:has(+ .grp-cont){ border-bottom:0; }
+.frame[data-density="b"] .grp-cont > .grp-b{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.frame[data-density="b"] .row{ display:flex; flex-wrap:wrap; align-items:center; column-gap:3px; min-height:calc(20px * var(--pg-scale)); margin:0; padding:0 8px 0 19px; border-left:3px solid transparent; }
+.frame[data-density="b"] .row.edit{ min-height:calc(24px * var(--pg-scale)); }
+.frame[data-density="b"] .row[data-state="error"]{ border-left-color:var(--danger); } .frame[data-density="b"] .row[data-state="warning"], .frame[data-density="b"] .row[data-state="unavailable"]{ border-left-color:var(--warn); }
+.frame[data-density="b"] .row:focus-within:not([data-state]){ border-left-color:transparent; }
+.frame[data-density="b"] .sub ~ .row{ padding-left:29px; }   /* rows under a handle subhead indent to 32 px, as in B */
+.frame[data-density="b"] .row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.frame[data-density="b"] .row > .lbl{ flex:1 1 0; min-width:min-content; margin-right:3px; color:var(--mute); font-size:var(--pg-fs); line-height:var(--pg-lh); white-space:normal; overflow-wrap:break-word; cursor:pointer; }
+.frame[data-density="b"] .row:not(.edit) > .lbl{ cursor:default; }
+.frame[data-density="b"] .row > .val{ flex:0 0 auto; display:flex; justify-content:flex-end; align-items:center; position:relative; min-width:0; text-align:right; font-family:var(--font); font-size:var(--pg-fs); line-height:var(--pg-lh); font-variant-numeric:tabular-nums lining-nums; color:var(--ink); }
+.frame[data-density="b"] .row > .val > span{ min-width:calc(62px * var(--pg-scale)); padding-right:5px; text-align:right; }
+.frame[data-density="b"] .row > .val.txt{ flex:0 1 auto; min-width:0; } .frame[data-density="b"] .row > .val.txt > span{ min-width:0; white-space:normal; }
+.frame[data-density="b"] .row > .unit{ flex:0 0 calc(24px * var(--pg-scale)); padding:0; color:var(--mute); font-size:var(--pg-fs); line-height:var(--pg-lh); }
+/* the editable value: accent text + dotted underline (the non-colour cue, SC 1.4.1), no box; a 24 px hit band */
+.frame[data-density="b"] .val input{ width:calc(62px * var(--pg-scale)); height:auto; padding:calc(3px * var(--pg-scale)) 3px;   /* 14 + 6 + 4 = 24 px; an explicit height makes Chrome clip the underline */ border:2px solid transparent; border-radius:3px; background:transparent; background-clip:padding-box; box-shadow:none;
+  color:var(--accent); font-family:var(--font); font-size:var(--pg-fs); line-height:var(--pg-lh); font-variant-numeric:tabular-nums lining-nums; text-align:right;
+  text-decoration:underline dotted; text-decoration-thickness:1px; text-underline-offset:2px; cursor:text; }
+.frame[data-density="b"] .val input:hover{ background:transparent; }
+/* focused (pointer or keyboard): the box appears — 1 px accent, 20 px drawn inside the band — and the text turns ink (SC 2.4.7) */
+.frame[data-density="b"] .val input:focus{ outline:none; color:var(--ink); text-decoration:none; background:var(--surface); box-shadow:inset 0 0 0 1px var(--accent); }
+.frame[data-density="b"] .val input[aria-invalid="true"]{ color:var(--ink); text-decoration:none; background:var(--surface); box-shadow:inset 0 0 0 1px var(--danger); }
+/* DR-CELL-3: focused + error = the accent focus box at its usual place, the danger box 1 px outside it (in the band) */
+.frame[data-density="b"] .val input[aria-invalid="true"]:focus{ box-shadow:inset 0 0 0 1px var(--accent); outline:1px solid var(--danger); outline-offset:-2px; }
+/* DC-1: once the text differs from the committed value the field widens to the row, so an expression shows whole (B's
+   62 px edit box is kept on plain focus); the unit returns on leaving */
+.frame[data-density="b"] .row.edit.dirty > .val{ flex:1 1 auto; }
+.frame[data-density="b"] .row.edit.dirty > .lbl{ flex:0 0 auto; }
+.frame[data-density="b"] .row.edit.dirty .val input{ width:100%; }
+.frame[data-density="b"] .row.edit.dirty > .unit{ display:none; }
+/* enums (Type, Tangent kind): accent text + ▾, no box until focused */
+.frame[data-density="b"] .row[data-kind="select"] > .val{ flex:0 0 auto; margin-left:auto; padding-right:2px; }
+.frame[data-density="b"] .row[data-kind="select"] > .val::after{ content:"▾"; color:var(--mute); margin-left:4px; pointer-events:none; }
+.frame[data-density="b"] .val select{ appearance:none; -webkit-appearance:none; width:auto; height:calc(24px * var(--pg-scale)); padding:0 2px; border:2px solid transparent; border-radius:3px; background:transparent; box-shadow:none;
+  color:var(--accent); font-family:var(--font); font-size:var(--pg-fs); line-height:var(--pg-lh); text-align:right; text-align-last:right; cursor:pointer; }
+.frame[data-density="b"] .val select:focus{ outline:none; color:var(--ink); background:var(--surface); box-shadow:inset 0 0 0 1px var(--accent); }
+/* help text and the angle reference show under a row while it has focus (they are always the field's description) */
+.frame[data-density="b"] .row > .desc{ display:none; flex:1 1 100%; padding:0 0 3px; font-size:var(--pg-fs); line-height:var(--pg-lh); color:var(--mute); }
+.frame[data-density="b"] .row:focus-within > .desc, .frame[data-density="b"] .row > .desc.keep{ display:block; }   /* a ruled authority line (COPY-159) always shows */
+.frame[data-density="b"] .note.ref{ display:none; }
+.frame[data-density="b"] .grp-b:focus-within > .note.ref{ display:flex; }
+.frame[data-density="b"] .row > .msg{ flex:1 1 100%; padding:0 0 3px; font-size:var(--pg-fs); line-height:var(--pg-lh); }
+.frame[data-density="b"] .note, .frame[data-density="b"] .ident .crumb, .frame[data-density="b"] details.defs ul, .frame[data-density="b"] .banner{ font-size:var(--pg-fs); line-height:var(--pg-lh); }
+.frame[data-density="b"] .note{ padding:0 8px 3px 22px; }
+.frame[data-density="b"] .sub{ padding:4px 8px 0 22px; color:var(--mute); font-weight:600; font-size:var(--pg-fs); line-height:var(--pg-lh); }
+.frame[data-density="b"] .ident{ padding:6px 8px; grid-template-columns:12px minmax(0,1fr); gap:0 6px; }
+.frame[data-density="b"] .ident svg{ width:12px; height:12px; }
+.frame[data-density="b"] .ident h2{ font-size:calc(13px * var(--pg-scale)); line-height:calc(18px * var(--pg-scale)); }
+.frame[data-density="b"] .banner{ padding:6px 8px; }
+.frame[data-density="b"] .wing{ border-top:1px solid var(--control); }
+.frame[data-density="b"] details.defs{ padding:0 8px 0 22px; }
+.frame[data-density="b"] details.defs > summary{ min-height:calc(24px * var(--pg-scale)); font-size:var(--pg-fs); font-weight:400; color:var(--accent); text-decoration:underline solid; text-underline-offset:2px; }
+.frame[data-density="b"] details.defs > summary .how{ color:var(--accent); }
+/* text size ≥ 150 %: the value drops under its label, still right-aligned */
+.frame[data-density="b"][data-stacked="1"] .row > .lbl{ flex:1 1 100%; margin-right:0; }
+.frame[data-density="b"][data-stacked="1"] .row > .val{ margin-left:auto; }
+/* SC 1.4.12 check: the WCAG text-spacing override */
 .frame[data-spacing="1"] .pane *{ line-height:1.5 !important; letter-spacing:0.12em !important; word-spacing:0.16em !important; }
-.frame[data-spacing="1"] .pane p, .frame[data-spacing="1"] .pane .note, .frame[data-spacing="1"] .pane .desc{ margin-bottom:2em !important; }
+.frame[data-spacing="1"] .pane .note, .frame[data-spacing="1"] .pane .desc{ margin-bottom:2em !important; }
 /* the app's Text size control in the title bar (the real control the build adds; DN-5) */
 .titlebar{ gap:8px; padding:2px 10px; } .titlebar .app-text{ margin-left:auto; display:flex; align-items:center; gap:4px; font-size:11px; color:var(--mute); }
 .titlebar .app-text select{ height:24px; font-size:11px; background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:4px; }
@@ -248,7 +256,7 @@ details.defs .how{ color:var(--mute); } details.defs ul{ margin:2px 0 4px; paddi
   <label>Persona <select id="h-persona"><option value="designer">Designer (pointer)</option><option value="keyboard">Keyboard only</option><option value="sr">Screen reader (names)</option><option value="reviewer">Reviewer (column guides)</option></select></label>
   <label>Pane width <select id="h-width"><option value="200">200 px (narrowest dock)</option><option value="260" selected>260 px (dock-left)</option><option value="300">300 px (dock-right)</option></select></label>
   <label>Window <select id="h-height"><option value="800" selected>1280 × 800</option><option value="900">1440 × 900</option></select></label>
-  <label>Density <select id="h-density"><option value="dense" selected>Dense (proposal)</option><option value="native">As built (native, dade554)</option></select></label>
+  <label>Structure <select id="h-density"><option value="b" selected>B · Effect Controls (DR-CELL-1)</option><option value="native">As built (PGRID build, dade554)</option></select></label>
   <label><input type="checkbox" id="h-spacing"> Text spacing (SC 1.4.12)</label>
   <label>State <select id="h-state"></select></label>
   <label>Theme <select id="h-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
@@ -260,8 +268,8 @@ details.defs .how{ color:var(--mute); } details.defs ul{ margin:2px 0 4px; paddi
 <main class="stage">
   <div>
     <p class="cap" id="cap-after">Proposed — property grid</p>
-    <div class="frame" id="frame" data-theme="light" data-persona="designer" data-density="dense" data-text="100">
-      <div class="titlebar"><span aria-hidden="true">CFD Workbench — Untitled.foil</span><label class="app-text">View ▸ Text size <select id="app-text-size" aria-label="Text size" aria-keyshortcuts="Meta+Equal Meta+Minus Control+Equal Control+Minus"><option value="100">100 %</option><option value="125">125 %</option><option value="150">150 %</option><option value="200">200 %</option></select></label></div>
+    <div class="frame" id="frame" data-theme="light" data-persona="designer" data-density="b" data-text="100">
+      <div class="titlebar"><span aria-hidden="true">CFD Workbench</span><label class="app-text">Text size <select id="app-text-size" aria-label="Text size" aria-keyshortcuts="Meta+Equal Meta+Minus Control+Equal Control+Minus"><option value="100">100 %</option><option value="125">125 %</option><option value="150">150 %</option><option value="200">200 %</option></select></label></div>
       <div class="tabs" aria-hidden="true"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
       <section class="pane" id="pane" aria-label="Properties"></section>
       <div class="statusbar" id="status" role="status" aria-live="polite"></div>
@@ -419,23 +427,19 @@ function msgHtml(m, id, key){ if (!m) return ''; const ic = { warn:IC.warn, erro
   // PG-18: an error is an alert once; a later re-render keeps the text without re-announcing it
   const fresh = m.kind === 'error' && !S.alerted.has(key + '|' + m.text); if (fresh) S.alerted.add(key + '|' + m.text);
   return `<div class="msg ${m.kind}" id="${id}"${fresh ? ' role="alert"' : ''}>${ic}<span>${esc(m.text)}</span></div>`; }
-// kinds: input · fact (read-only) · estimate (≈) · select · radios · action
+// kinds: input · fact (read-only) · estimate (≈) · select · action
 function row(r){
   const id = nid('f'), mid = id + '-m', did = id + '-d', st = r.state || (S.invalid[r.fk] != null ? 'error' : S.msgs[r.fk]?.kind === 'warn' ? 'warning' : '');
   const m = (r.fk && S.msgs[r.fk]) || r.msg, describedby = [r.desc ? did : '', m ? mid : '', r.help ? 'nudge-help-' + r.help : ''].filter(Boolean).join(' ');
   const mixed = r.value === 'Mixed', unav = r.value === 'Unavailable', showUnit = r.unit && !mixed;
   const quant = r.q ? ` data-q="${esc(r.label)}" data-unit="${esc(r.unit || '')}" data-spoken="${esc(r.unit ? UNIT[r.unit].spoken : '')}"${r.dimless ? ' data-dimless="1"' : ''}${mixed ? ' data-mixed="1"' : ''}${unav ? ' data-unav="1"' : ''}` : '';
-  const editable = ['input', 'select', 'radios', 'action'].includes(r.kind);
+  const editable = ['input', 'select', 'action'].includes(r.kind);
   let val, spoken = '';
   if (r.kind === 'input'){
     const shown = S.invalid[r.fk] ?? r.value;
     val = `<input id="${id}" data-fk="${r.fk}" value="${esc(shown)}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${S.invalid[r.fk] != null ? ' aria-invalid="true"' : ''} autocomplete="off" spellcheck="false" inputmode="decimal">`;
   } else if (r.kind === 'select'){
     val = `<select id="${id}" data-fk="${r.fk}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' disabled' : ''}>${r.options.map(([v, t]) => `<option value="${v}"${v === r.value ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
-  } else if (r.kind === 'radios'){
-    const shown = r.pending ?? r.value;
-    val = `<div class="radios" role="radiogroup" id="${id}" data-group="${r.fk}" aria-label="${esc(r.name)}"${describedby ? ` aria-describedby="${describedby}"` : ''}${r.disabled ? ' aria-disabled="true"' : ''}>${r.options.map(([v, t]) =>
-      `<button type="button" role="radio" data-fk="${r.fk}:${v}" data-v="${v}" aria-checked="${v === shown}" tabindex="${v === shown ? 0 : -1}"${r.disabled ? ' aria-disabled="true"' : ''}><span class="dot" aria-hidden="true"></span><span class="rl">${esc(t)}</span></button>`).join('')}</div>`;
   } else if (r.kind === 'action'){
     val = `<button type="button" class="btn" data-fk="${r.fk}" id="${id}">${esc(r.value)}</button>`;
   } else {
@@ -445,13 +449,16 @@ function row(r){
     spoken = `${SPOKEN_LABEL[r.label] || r.label}, ${approx ? 'approximately ' : ''}${mixed ? 'mixed' : unav ? 'unavailable' : r.value.replace(MINUS, 'minus ')}${showUnit && !unav ? ' ' + UNIT[r.unit].spoken : ''}${r.locked ? ', locked' : ''}`;
   }
   const lbl = (r.kind === 'input' || r.kind === 'select') ? `<label class="lbl" for="${id}">${esc(r.label)}</label>`
-    : r.kind === 'radios' ? `<span class="lbl" aria-hidden="true">${esc(r.label)}</span>` : `<span class="lbl"${editable ? '' : ' aria-hidden="true"'}>${esc(r.label)}</span>`;
-  const span3 = r.kind === 'radios' || r.kind === 'select' || r.kind === 'action' ? ' span3' : '';
+    : `<span class="lbl"${editable ? '' : ' aria-hidden="true"'}>${esc(r.label)}</span>`;
+  const span3 = r.kind === 'select' || r.kind === 'action' ? ' span3' : '';
   const hideVal = editable ? '' : ' aria-hidden="true"';
   const unit = span3 ? '' : `<span class="unit" aria-hidden="true">${showUnit ? esc(r.unit) : ''}</span>`;
-  return `<div class="row${editable ? ' edit' : ''}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${spoken ? `<span class="sr">${esc(spoken)}</span>` : ''}${lbl}<div class="val${r.txt || unav ? ' txt' : ''}"${hideVal}>${val}</div>${unit}${r.desc ? `<div class="desc" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid, r.fk || r.label)}</div>`;
+  return `<div class="row${editable ? ' edit' : ''}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${spoken ? `<span class="sr">${esc(spoken)}</span>` : ''}${lbl}<div class="val${r.txt || unav ? ' txt' : ''}"${hideVal}>${val}</div>${unit}${r.desc ? `<div class="desc${r.descKeep ? ' keep' : ''}" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid, r.fk || r.label)}</div>`;
 }
 function group(g){
+  // B (DR-CELL-1) shows one "Point" group, as approved: the position and tangent rows share the Point twirl
+  if (frame.dataset.density === 'b' && g.id === 'tan') return `<div class="grp grp-cont"><div class="grp-b" role="group" aria-label="${esc(g.title)}"${S.collapsed.pos ? ' hidden' : ''}>${g.body.join('')}</div></div>`;
+  if (frame.dataset.density === 'b' && g.id === 'pos') g = { ...g, title:'Point' };
   const hid = nid('g'), bid = hid + '-b', open = g.static || !S.collapsed[g.id];
   const chip = g.chip ? `<span class="chip ${g.chip[0]}">${esc(g.chip[1])}</span>` : '';
   const head = g.static ? `<div class="static" id="${hid}">${esc(g.title)}${chip}</div>`
@@ -459,7 +466,7 @@ function group(g){
   // PG-17: a div, not a <section> — five region landmarks per pane is noise
   return `<div class="grp"><h3 class="grp-h">${head}</h3><div class="grp-b" id="${bid}" role="group" aria-labelledby="${hid}"${open ? '' : ' hidden'}>${g.body.join('')}</div></div>`;
 }
-const note = (text, icon = IC.info) => `<div class="note">${icon}<span>${esc(text)}</span></div>`;
+const note = (text, icon = IC.info, cls = '') => `<div class="note${cls ? ' ' + cls : ''}">${icon}<span>${esc(text)}</span></div>`;
 const sub = t => `<div class="sub">${esc(t)}</div>`;
 function ident(glyph, title, crumb){ return `<div class="ident">${IC[glyph]}<h2>${esc(title)}</h2>${crumb ? `<div class="crumb">${crumb}</div>` : ''}</div>`; }   // no crumb that repeats the Type row
 const sumKind = k => k[0].toUpperCase() + k.slice(1);
@@ -499,12 +506,14 @@ function wing(opts = {}){
 function typeRow(value, opts = {}){
   const shown = S.pendingType ?? value;
   return row({ kind:'select', fk:'type', label:'Type', value:shown, name:'Type', disabled:opts.disabled,
-    options:[['control', 'Control point'], ['anchor', COPY.c153]], desc:shown === 'control' ? COPY.c117 : COPY.c149,
+    options:[['control', 'Control point'], ['anchor', 'Anchor point']], desc:shown === 'control' ? COPY.c117 + ' Choosing Anchor point adds handles (the rail gains up to 3 points).' : COPY.c149,
     msg:S.pendingType ? { kind:'info', text:'Press Return to change the type, or Esc to keep it.' } : S.msgs.type });
 }
+const KINDS = [['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']];
 function kindRow(name, opts = {}){
-  const m = S.pendingKind && S.pendingKind !== S.kind ? { kind:'info', text:`Press Return or Space to make it ${S.pendingKind}, or Esc to keep ${S.kind}.` } : S.msgs.tangent;
-  return row({ kind:'radios', fk:'tangent', label:'Kind', value:S.kind, pending:S.pendingKind, name, options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY[S.pendingKind ?? S.kind], msg:m, disabled:opts.disabled });
+  const shown = S.pendingKind ?? S.kind;
+  const m = S.pendingKind && S.pendingKind !== S.kind ? { kind:'info', text:`Press Return to make it ${S.pendingKind}, or Esc to keep ${S.kind}.` } : S.msgs.tangent;
+  return row({ kind:'select', fk:'kind', label:'Tangent kind', value:shown, name, options:KINDS, desc:COPY[shown], msg:m, disabled:opts.disabled });
 }
 // the handle-row set is per curve (MC-17): rails type a handle by angle + length; twist and thickness by From root + value
 function railHandleRows(){
@@ -536,7 +545,7 @@ function anchorSel(){
   return ident('anchor', 'Trailing edge · point 7 of 14', '') +
     group({ id:'pos', title:'Position', sum:`${f2(from)}, ${f2(aft)} mm`, body:[typeRow('anchor'), fromRoot('p:from', 321.65), etaRow(from),
       row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(aft), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
-    group({ id:'tan', title:'Tangent', sum:sumKind(S.kind), body:[note(COPY.angleRef), kindRow('Tangent kind'), ...railHandleRows()] }) + railGroup('Trailing edge', 14);
+    group({ id:'tan', title:'Tangent', sum:sumKind(S.kind), body:[note(COPY.angleRef, IC.info, 'ref'), kindRow('Tangent kind'), ...railHandleRows()] }) + railGroup('Trailing edge', 14);
 }
 function handleSel(o = {}){
   const title = o.title || 'Handle toward the tip', crumb = o.crumb || 'Trailing edge · anchor point 7 of 14', target = o.target || 'anchor';
@@ -545,7 +554,7 @@ function handleSel(o = {}){
   const parent = o.noParent ? '' : group({ id:'atan', title:o.parentTitle || 'Anchor point 7', sum:sumKind(S.kind), body:[kindRow(o.kindName || 'Tangent kind of anchor point 7'),
     note(S.kind === 'corner' ? 'The other handle does not move.' : COPY.c162)] });
   return ident('handle', title, `of <button type="button" data-fk="goto:${target}">${esc(crumb)}</button> · Esc`) +
-    group({ id:'hdl', title:'Handle', sum:o.sum || `${f2(-21.08)}°, ${f2(20.80)} mm`, body:[...(o.noRef ? [] : [note(COPY.angleRef)]), ...rows, ...(o.notes || [])] }) + parent;
+    group({ id:'hdl', title:'Handle', sum:o.sum || `${f2(-21.08)}°, ${f2(20.80)} mm`, body:[...(o.noRef ? [] : [note(COPY.angleRef, IC.info, 'ref')]), ...rows, ...(o.notes || [])] }) + parent;
 }
 function twistAnchorSel(){
   const tw = (fk, label, def, nm) => row({ kind:'input', fk, label, value:f2(pv(fk, def)), unit:'°', q:1, name:nm, help:'ang' });
@@ -580,7 +589,7 @@ function model(){
         row({ kind:'input', fk:'h:lt', label:'Handle length', value:f2(pv('h:lt', 15.40)), unit:'mm', q:1, name:'Handle length in millimetres', help:'len' }), note(COPY.c156, IC.lock)] }) + railGroup('Leading edge', 10), wing:wing() };
     case 'root-te': return { body:ident('end', 'Trailing edge · root end', 'Anchor · root end') +
       group({ id:'pos', title:'Position', sum:`${f2(0)}, ${f2(D.rootMm)} mm`, body:[row({ kind:'fact', label:'Type', value:'Root end', txt:1, locked:true }),
-        fromRoot('', 0, { locked:true }), etaRow(0), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', D.rootMm)), unit:'mm', q:1, name:'Aft position in millimetres', desc:COPY.c159, help:'len' }), note(COPY.teRoot, IC.lock)] }) +
+        fromRoot('', 0, { locked:true }), etaRow(0), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', D.rootMm)), unit:'mm', q:1, name:'Aft position in millimetres', desc:COPY.c159, descKeep:true, help:'len' }), note(COPY.teRoot, IC.lock)] }) +
       group({ id:'tan', title:'Tangent', sum:'root mirror', body:[row({ kind:'fact', label:'Kind', value:'Square to the centre line', txt:1, locked:true }),
         row({ kind:'input', fk:'h:lt', label:'Handle length', value:f2(pv('h:lt', 17.10)), unit:'mm', q:1, name:'Handle length in millimetres', help:'len' }), note(COPY.c156, IC.lock)] }) + railGroup('Trailing edge', 10), wing:wing() };
     case 'root-handle': return { body:handleSel({ title:'Root handle', crumb:'Trailing edge · root end', target:'root-te', noParent:true, sum:`${f2(17.10)} mm`,
@@ -589,7 +598,7 @@ function model(){
     case 'tip-end': return { body:ident('end', 'Trailing edge · tip end', 'Anchor · tip end') +
       group({ id:'pos', title:'Position', sum:`${f2(500)}, ${f2(pv('p:aft', 108.79))} mm`, body:[row({ kind:'fact', label:'Type', value:'Tip end', txt:1, locked:true }),
         fromRoot('', 500, { locked:true }), etaRow(500), row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', 108.79)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' }), note(COPY.tipEnd, IC.lock)] }) +
-      group({ id:'tan', title:'Tip handle', sum:`${f2(-8.40)}°, ${f2(14.10)} mm`, body:[note(COPY.angleRef),
+      group({ id:'tan', title:'Tip handle', sum:`${f2(-8.40)}°, ${f2(14.10)} mm`, body:[note(COPY.angleRef, IC.info, 'ref'),
         row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -8.40)), unit:'°', q:1, name:'Angle of the tip handle, in degrees', help:'ang' }),
         row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 14.10)), unit:'mm', q:1, name:'Length of the tip handle, in millimetres', help:'len' })] }) + railGroup('Trailing edge', 10), wing:wing() };
     case 'tip-handle': return { body:handleSel({ title:'Tip handle', crumb:'Trailing edge · tip end', target:'tip-end', noParent:true, sum:`${f2(-8.40)}°, ${f2(14.10)} mm`,
@@ -620,7 +629,7 @@ function model(){
           row({ kind:'input', fk:'p:from', label:'From root', value:f2(pv('p:from', 1234.56)), unit:'mm', q:1, name:'From root, position along the span in millimetres', help:'len' }),
           row({ kind:'fact', label:'η', value:f3(1234.56 / 1450), q:1, dimless:1 }),
           row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', -175.60)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
-        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef), row({ kind:'radios', fk:'tangent', label:'Kind', value:'corner', name:'Tangent kind', options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY.corner }),
+        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef, IC.info, 'ref'), row({ kind:'select', fk:'kind', label:'Tangent kind', value:'corner', name:'Tangent kind', options:KINDS, desc:COPY.corner }),
           sub('Handle toward the root'),
           row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -84.95)), unit:'°', q:1, name:'Angle of the handle toward the root, in degrees', help:'ang' }),
           row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres', help:'len' })] }) + railGroup('Trailing edge', 16),
@@ -628,7 +637,7 @@ function model(){
     case 'worst-case': return { body:ident('anchor', 'Trailing edge · point 13 of 16', 'Worst-case numbers (DC-2)') +
         group({ id:'pos', title:'Position', sum:`${f2(1234.56)}, ${f2(-1234.56)} mm`, body:[typeRow('anchor'), fromRoot('p:from', 1234.56), row({ kind:'fact', label:'η', value:f3(1234.56 / 6000), q:1, dimless:1 }),
           row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', -1234.56)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
-        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef), row({ kind:'radios', fk:'tangent', label:'Kind', value:'corner', name:'Tangent kind', options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY.corner }),
+        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef, IC.info, 'ref'), row({ kind:'select', fk:'kind', label:'Tangent kind', value:'corner', name:'Tangent kind', options:KINDS, desc:COPY.corner }),
           sub('Handle toward the root'), row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -89.99)), unit:'\u00b0', q:1, name:'Angle of the handle toward the root, in degrees', help:'ang' }),
           row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres', help:'len' })] }),
         wing:wing({ d:{ ...D, spanMm:12000, rootMm:612.40, tipMm:138.15, areaMm2:3_812_500, macMm:441.73 } }) };
@@ -725,22 +734,17 @@ pane.addEventListener('keydown', e => {
       if (stop) S.msgs[fk] = { kind:'warn', text:stop }; else if (S.msgs[fk]?.kind === 'warn') delete S.msgs[fk];
       render(); }
   }
-  if (t.matches('.radios [role="radio"]')){
-    const opts = [...t.parentElement.children], i = opts.indexOf(t);
-    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)){
-      e.preventDefault(); if (t.getAttribute('aria-disabled') === 'true') return;
-      // PG-06 / MC-1 (ruled APG deviation): arrows move the check only — no commit, no wrap
-      const j = e.key === 'Home' ? 0 : e.key === 'End' ? opts.length - 1 : Math.max(0, Math.min(opts.length - 1, i + ((e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1)));
-      S.pendingKind = opts[j].dataset.v === S.kind ? null : opts[j].dataset.v; render(opts[j].dataset.fk); return; }
-    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); commitKind(t.dataset.v, t.dataset.fk); return; }
-    if (e.key === 'Escape' && S.pendingKind){ e.preventDefault(); const k = S.kind; S.pendingKind = null; render(`tangent:${k}`); return; }
+  if (t.matches('select[data-fk="kind"]')){
+    if (e.key === 'Enter' && S.pendingKind){ e.preventDefault(); commitKind(S.pendingKind, 'kind'); return; }
+    if (e.key === 'Escape' && S.pendingKind){ e.preventDefault(); S.pendingKind = null; render('kind'); return; }
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) S.kindArrow = true;
   }
   if (t.matches('select[data-fk="type"]')){
     if (e.key === 'Enter' && S.pendingType){ e.preventDefault(); commitType(S.pendingType); return; }
     if (e.key === 'Escape' && S.pendingType){ e.preventDefault(); S.pendingType = null; render('type'); return; }
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) S.typeArrow = true;
   }
-  if (e.key === 'Escape' && !t.matches('input, select') && !(t.matches('.radios [role="radio"]') && S.pendingKind)){
+  if (e.key === 'Escape' && !t.matches('input, select')){
     const back = { handle:'anchor', 'root-handle':'root-te', 'tip-handle':'tip-end', 'twist-handle':'twist-anchor' }[S.state];
     if (back){ e.preventDefault(); selectState(back); }
   }
@@ -757,11 +761,11 @@ pane.addEventListener('keyup', e => {
 pane.addEventListener('focusout', e => { const t = e.target; if (rendering) return;
   const next = e.relatedTarget && pane.contains(e.relatedTarget) ? e.relatedTarget.dataset.fk : null;
   if (t.matches('input[data-fk]') && !S.run && t.value !== t.defaultValue) commit(t, next);
-  // PG-06: leaving the Kind group commits the moved check (one row per intent)
-  if (t.matches('.radios [role="radio"]') && S.pendingKind && !(e.relatedTarget && t.parentElement.contains(e.relatedTarget))) commitKind(S.pendingKind, next);
   // PG-19 (D1): leaving the Type box with a pending type DROPS it — only Return or a pointer pick converts a point
-  if (t.matches('select[data-fk="type"]') && S.pendingType){ S.pendingType = null; render(next); }
+  if (t.matches('select[data-fk="type"]') && S.pendingType){ S.pendingType = null; S.report = `Type unchanged: ${typeLabel()}.`; render(next); }
+  if (t.matches('select[data-fk="kind"]') && S.pendingKind){ S.pendingKind = null; S.report = `Tangent kind unchanged: ${sumKind(S.kind)}.`; render(next); }
 });
+function typeLabel(){ return S.state === 'anchor' || S.state === 'overflow' || S.state === 'twist-anchor' || S.state === 'worst-case' ? 'Anchor point' : 'Control point'; }
 function commitKind(k, focusFk){ S.pendingKind = null; if (S.kind === k){ render(focusFk); return; }
   const was = S.kind; S.kind = k; S.undo++;
   const handle = /handle/.test(S.state);
@@ -769,21 +773,23 @@ function commitKind(k, focusFk){ S.pendingKind = null; if (S.kind === k){ render
   const rep = k === 'symmetric' ? (handle ? 'Tangent is now symmetric. Kept this handle; the handle toward the root moved.' : 'Tangent is now symmetric. Lined up the handle toward the tip.')
     : k === 'smooth' ? (handle ? 'Tangent is now smooth. Kept this handle; the handle toward the root turned into line.' : 'Tangent is now smooth.')
     : `Tangent is now a corner (was ${was}). The handles move independently.`;
-  S.msgs.tangent = { kind:'report', text:rep }; S.report = rep; render(focusFk || `tangent:${k}`); }
+  S.msgs.tangent = { kind:'report', text:rep }; S.report = rep; render(focusFk || 'kind'); }
 function commitType(v, focusFk){ S.pendingType = null; const toAnchor = v === 'anchor'; S.undo++; S.msgs = {};
   const txt = toAnchor ? COPY.c154('Trailing edge', 3, 10, 13, 0.84) : COPY.toControl('Trailing edge', 7, 14, 12, 0.62);
   S.state = toAnchor ? 'anchor' : 'control'; S.msgs.type = { kind:'report', text:txt }; S.report = txt; $('#h-state').value = S.state; render(focusFk || 'type'); }
 pane.addEventListener('change', e => { const t = e.target;
+  if (t.matches('select[data-fk="kind"]')){
+    if (S.kindArrow){ S.kindArrow = false; S.pendingKind = t.value === S.kind ? null : t.value; render('kind'); return; }
+    commitKind(t.value, 'kind'); return; }
   if (!t.matches('select[data-fk="type"]')) return;
   const current = S.state === 'anchor' || S.state === 'overflow' || S.state === 'twist-anchor' ? 'anchor' : 'control';
   // PG-07: a selection change made with arrows on the closed box is pending; pointer choice (DropDownClosed) or Return commits
   if (S.typeArrow){ S.typeArrow = false; S.pendingType = t.value === current ? null : t.value; render('type'); return; }
   if (t.value !== current) commitType(t.value); });
-pane.addEventListener('pointerdown', e => { if (e.target.matches('select[data-fk="type"]')) S.typeArrow = false; });   // a pointer pick of Type is DropDownClosed: it commits
+pane.addEventListener('pointerdown', e => { if (e.target.matches('select[data-fk="type"]')) S.typeArrow = false; if (e.target.matches('select[data-fk="kind"]')) S.kindArrow = false; });   // a pointer pick of Type is DropDownClosed: it commits
 pane.addEventListener('click', e => {
   const b = e.target.closest('button[data-fk]'); if (!b) return; const fk = b.dataset.fk;
   if (fk.startsWith('grp:')){ const id = fk.slice(4); S.collapsed[id] = !S.collapsed[id]; render(); return; }
-  if (fk.startsWith('tangent:')){ if (b.getAttribute('aria-disabled') !== 'true') commitKind(b.dataset.v, fk); return; }
   if (fk.startsWith('goto:')){ selectState(fk.slice(5)); return; }
   if (fk === 'retry'){ goState('foil'); return; }
   if (fk === 'rec-apply' || fk === 'rec-discard'){ S.report = fk === 'rec-apply' ? 'Recovered edit applied.' : 'Recovered edit discarded. Nothing changed.'; goState('control', true); }
@@ -817,7 +823,7 @@ $('#h-state').addEventListener('change', e => goState(e.target.value));
 function accText(el){
   let out = '';
   const walk = n => { if (n.nodeType === 3){ out += n.textContent + ' '; return; } if (n.nodeType !== 1 || n.getAttribute('aria-hidden') === 'true') return;
-    if (n.matches('input, select, [role="radiogroup"]')){ out += (n.getAttribute('aria-label') || '') + ' '; if (n.tagName === 'SELECT') return; if (n.tagName === 'INPUT') return; }
+    if (n.matches('input, select')){ out += (n.getAttribute('aria-label') || '') + ' '; if (n.tagName === 'SELECT') return; if (n.tagName === 'INPUT') return; }
     n.childNodes.forEach(walk); };
   walk(el); return out.replace(/\s+/g, ' ').trim();
 }
@@ -844,7 +850,7 @@ const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) 
 const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
 const PAIRS = [['--ink', '--surface', 'text', 'value on pane'], ['--mute', '--surface', 'text', 'label / unit on pane'], ['--mute', '--soft', 'text', 'summary on header band'], ['--ink', '--soft', 'text', 'header on band'],
   ['--warn', '--surface', 'text', 'warning text'], ['--danger', '--surface', 'text', 'error text'], ['--accent', '--surface', 'text', 'link / chip'],
-  ['--control', '--surface', 'ui', 'input and radio boundary'], ['--accent', '--surface', 'ui', 'checked radio dot'], ['--focus', '--surface', 'ui', 'focus ring'],
+  ['--control', '--surface', 'ui', 'control boundary'], ['--accent', '--surface', 'ui', 'edit cue: dotted underline and focus box'], ['--focus', '--surface', 'ui', 'focus ring'],
   ['--warn', '--soft', 'text', 'Unavailable chip on header band'], ['--accent', '--soft', 'text', 'preview chip on header band'], ['--focus', '--soft', 'ui', 'focus ring on header band'],
   ['--mute', '--soft', 'ui', 'Discard boundary on the banner (PG-13)']];
 function audit(){
@@ -859,9 +865,9 @@ function audit(){
   push('every quantity carries its unit', 'O-4 / TQ7', unitless.length === 0, `${q.length} quantities, ${unitless.length} without unit${unitless.length ? ': ' + unitless.map(r => r.dataset.q).join(', ') : ''}`);
   const unspoken = q.filter(r => r.dataset.spoken && !r.dataset.mixed && !r.dataset.unav && !accText(r).includes(r.dataset.spoken));
   push('every quantity’s accessible text carries its unit', 'PG-01: units reach the screen reader on facts and estimates too', unspoken.length === 0, unspoken.length ? unspoken.map(r => r.dataset.q).join(', ') : `${q.length} rows`);
-  const clipped = [...pane.querySelectorAll('.val input, .val > span, .lbl, .radios [role="radio"], .radios .rl')].filter(n => n.offsetParent && n.scrollWidth > n.clientWidth + 1);
+  const clipped = [...pane.querySelectorAll('.val input, .val select, .val > span, .lbl')].filter(n => n.offsetParent && n.scrollWidth > n.clientWidth + 1);
   push('nothing clipped at this width (values, labels, Kind options)', 'UI-36, PG-02, PG-03', clipped.length === 0, clipped.length ? clipped.map(n => n.value || n.textContent).join(', ') : 'none');
-  const ellipsized = [...pane.querySelectorAll('.lbl, .radios [role="radio"], .radios .rl')].filter(n => getComputedStyle(n).textOverflow === 'ellipsis');
+  const ellipsized = [...pane.querySelectorAll('.lbl')].filter(n => getComputedStyle(n).textOverflow === 'ellipsis');
   push('no label or option is ellipsized', 'PG-02, PG-03', ellipsized.length === 0, ellipsized.length ? ellipsized.length + ' ellipsized' : 'none');
   const ids = pane.querySelectorAll('.ident').length, open = !['empty', 'pane-error'].includes(S.state);
   push('one identity per selection', 'O-6: a handle does not reuse its anchor’s header', !open || ids === 1, `${ids} identity header(s)`);
@@ -869,8 +875,8 @@ function audit(){
   push('Wing block fully visible', 'UI-36 / operator: the estimates are always in view', !wg || wg.scrollHeight <= wg.clientHeight + 1, wg ? `Wing ${wg.scrollHeight}/${wg.clientHeight} px` : 'no Wing');
   const fits = sel.scrollHeight <= sel.clientHeight + 1;
   push('selection fits without scrolling', 'UI-36 at 1280 × 800 (recorded; see DR-UID-5)', null, `selection ${sel.scrollHeight}/${sel.clientHeight} px — ${fits ? 'fits' : 'scrolls'}`);
-  const labels = [...pane.querySelectorAll('.row .lbl')].filter(l => l.offsetParent).map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val:not(.txt)')].filter(v => v.offsetParent).map(v => Math.round(v.getBoundingClientRect().right));
-  push('one label column, one value edge', 'F-1: a grid, not a column of text', new Set(labels).size <= 1 && new Set(vals).size <= 1, `${new Set(labels).size} label x, ${new Set(vals).size} value right edges`);
+  const labels = [...pane.querySelectorAll('.row .lbl')].filter(l => l.offsetParent && !(frame.dataset.density === 'b' && l.closest('.row').matches('.sub ~ .row'))).map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val:not(.txt)')].filter(v => v.offsetParent).map(v => Math.round(v.getBoundingClientRect().right));
+  push('one label column, one value edge', 'F-1: a sheet, not a column of text (B: rows under a handle subhead indent one step)', new Set(labels).size <= 1 && new Set(vals).size <= 1, `${new Set(labels).size} label x, ${new Set(vals).size} value right edges`);
   const tgt = [...pane.querySelectorAll('input, select, button, summary')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect()).filter(r => r.width < 24 || r.height < 24);
   push('targets ≥ 24 × 24', 'SC 2.5.8', tgt.length === 0, `${pane.querySelectorAll('input, select, button').length} targets, ${tgt.length} under`);
   const named = [...pane.querySelectorAll('input')].filter(n => !/millimetres|degrees|percent/.test(n.getAttribute('aria-label') || ''));
@@ -878,15 +884,26 @@ function audit(){
   const lab = [...pane.querySelectorAll('.row')].filter(r => r.querySelector('input,select')).filter(r => !(r.querySelector('input,select').getAttribute('aria-label') || '').toLowerCase().includes(r.querySelector('.lbl').textContent.toLowerCase()));
   push('visible label inside the name', 'SC 2.5.3 Label in Name', lab.length === 0, lab.length ? lab.map(r => r.querySelector('.lbl').textContent).join(', ') : '');
   // density pins (dense, 100 % text): each names what it protects; the native build pins the same numbers (review §10)
-  if (frame.dataset.density === 'dense' && frame.dataset.text === '100'){ const m = densityMetrics();
+  if (frame.dataset.density === 'b' && frame.dataset.text === '100'){ const m = densityMetrics();
     if (m){ const eq = (a, b) => Math.abs(a - b) <= 0.5;
       push('one 11 px type size for label, value and unit (DR-DEN-3)', 'operator: "font sizing too large"; values were 14 px beside 12 px labels', eq(m.fontLabel, 11) && eq(m.fontValue, 11) && eq(m.fontUnit, 11), `${m.fontLabel} / ${m.fontValue} / ${m.fontUnit} px`);
       push('units on the value baseline', 'units sat ≈ 2 px low in the build', Math.abs(m.unitBaseline) <= 0.5, `offset ${m.unitBaseline} px`);
-      push('dense row pitch (fact 18, input 24)', 'operator: "spacing too large" (build: 28 / 32)', eq(m.factPitch, 18) && (!Number.isFinite(m.inputPitch) || eq(m.inputPitch, 24)), `fact ${m.factPitch}, input ${m.inputPitch} px`);
-      if (Number.isFinite(m.fieldTarget)) push('field target 24, drawn 20', 'SC 2.5.8 without the spacing exception', eq(m.fieldTarget, 24) && eq(m.fieldDrawn, 20), `target ${m.fieldTarget}, drawn ${m.fieldDrawn} px`);
-      push('header and Kind option 24', 'structure too large (build: 33 / 32); SC 2.5.8 floor', eq(m.headH, 24) && (Number.isNaN(m.kindH) || eq(m.kindH, 24)), `header ${m.headH}, Kind ${m.kindH} px`);
-      push('label start to value end ≤ 160 px', 'the eye travelled ≈ 125 px past the label in the build', m.labelToValue <= 160, `${m.labelToValue} px`); } }
-  if (frame.dataset.density === 'dense'){
+      push('row pitch (read-only 20, editable 24)', 'B as approved (build: 28 / 32)', eq(m.factPitch, 20) && (!Number.isFinite(m.inputPitch) || eq(m.inputPitch, 24)), `fact ${m.factPitch}, input ${m.inputPitch} px`);
+      if (Number.isFinite(m.fieldTarget)) push('editable value target 24', 'SC 2.5.8 (DR-DEN-1): the value band is 24 px; the label also focuses it', eq(m.fieldTarget, 24), `target ${m.fieldTarget}, drawn ${m.fieldDrawn} px`);
+      push('group header 24', 'B as approved (build: 33); SC 2.5.8 floor', eq(m.headH, 24), `header ${m.headH}, Kind ${m.kindH} px`);
+      } }
+  if (frame.dataset.density === 'b'){
+    // 3(a) SC 1.4.1: an editable value carries a non-colour cue — the dotted underline (text) or ▾ (enum); a read-only value carries neither
+    const edits = [...pane.querySelectorAll('.val input')].filter(n => n.offsetParent && n !== document.activeElement && n.getAttribute('aria-invalid') !== 'true');
+    const noCue = edits.filter(n => { const cs = getComputedStyle(n); return !(/underline/.test(cs.textDecorationLine) && cs.textDecorationStyle === 'dotted'); });
+    const enums = [...pane.querySelectorAll('.row[data-kind="select"] > .val')].filter(n => n.offsetParent && !/▾/.test(getComputedStyle(n, '::after').content));
+    push('editable values carry a non-colour cue (dotted underline or ▾)', 'SC 1.4.1 for B: editability is not colour alone', noCue.length === 0 && enums.length === 0, `${edits.length} values, ${noCue.length + enums.length} without a cue`);
+    const roCue = [...pane.querySelectorAll('.row:not(.edit) > .val > span')].filter(n => n.offsetParent && /underline/.test(getComputedStyle(n).textDecorationLine));
+    push('read-only values carry no edit cue', 'SC 1.4.1: read-only differs from editable without colour', roCue.length === 0, `${roCue.length} read-only values underlined`);
+    // a computed text-decoration is not a rendering: Chrome drops an input's underline when the input has an explicit height
+    // proxy: with height:auto the content box is exactly one line tall; a fixed height leaves it taller
+    const fixed = edits.filter(n => { const cs = getComputedStyle(n); const content = n.getBoundingClientRect().height - ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth'].reduce((s, k) => s + parseFloat(cs[k]), 0); return Math.abs(content - parseFloat(cs.lineHeight)) > 0.5; });
+    push('underlined values have no fixed height (the underline renders)', 'class UI-N: a computed style is not a rendering', fixed.length === 0, fixed.length ? fixed.map(n => n.dataset.fk).slice(0, 3).join(', ') : 'none');
     // nothing below 11 px anywhere in the pane (DR-DEN-3)
     const small = [...pane.querySelectorAll('*')].filter(n => n.offsetParent && n.childNodes.length && [...n.childNodes].some(c => c.nodeType === 3 && c.textContent.trim()) && parseFloat(getComputedStyle(n).fontSize) < 10.95);
     push('no text below 11 px', 'DR-DEN-3: nothing below 11', small.length === 0, small.length ? small.slice(0, 3).map(n => `${n.className || n.tagName} ${getComputedStyle(n).fontSize}`).join(', ') : 'none');
@@ -897,7 +914,7 @@ function audit(){
       const r = document.createRange(); r.selectNodeContents(fact); const tr = [...r.getClientRects()].filter(x => x.width > 0).pop();
       push('decimals align across facts and inputs', 'DC-3: one right edge for digits', tr && Math.abs(tr.right - inRight) <= 1, tr ? `fact ${tr.right.toFixed(1)} vs input ${inRight.toFixed(1)} px` : 'n/a'); }
     // DN-1: the drawn boundary of every field is 1 px, in every state (default, focus, error)
-    const thick = [...pane.querySelectorAll('.val input, .val select')].filter(n => { const m = /inset 0px 0px 0px (\d+(?:\.\d+)?)px/.exec(getComputedStyle(n).boxShadow) || /(\d+(?:\.\d+)?)px inset/.exec(getComputedStyle(n).boxShadow); return !m || Math.abs(parseFloat(m[1]) - 1) > 0.01; });
+    const thick = [...pane.querySelectorAll('.val input, .val select')].filter(n => n === document.activeElement || n.getAttribute('aria-invalid') === 'true').filter(n => { const m = /inset 0px 0px 0px (\d+(?:\.\d+)?)px/.exec(getComputedStyle(n).boxShadow) || /(\d+(?:\.\d+)?)px inset/.exec(getComputedStyle(n).boxShadow); return !m || Math.abs(parseFloat(m[1]) - 1) > 0.01; });
     push('drawn field boundary is 1 px in every state', 'DN-1: no 2 px box squeezing the text', thick.length === 0, thick.length ? thick.map(n => n.dataset.fk + ' ' + getComputedStyle(n).boxShadow).slice(0, 2).join('; ') : `${pane.querySelectorAll('.val input, .val select').length} fields`);
   }
   const cs = getComputedStyle(frame);
@@ -934,7 +951,6 @@ function densityMetrics(){
   out.inputPitch = spanRow && rootRow ? Math.round(rootRow.getBoundingClientRect().top - spanRow.getBoundingClientRect().top) : NaN;
   const inp = spanRow?.querySelector('input'); if (inp){ const cs = getComputedStyle(inp), transparent = cs.borderTopColor === 'rgba(0, 0, 0, 0)'; out.fieldTarget = h(inp); out.fieldDrawn = Math.round((inp.getBoundingClientRect().height - (transparent ? parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth) : 0)) * 10) / 10; }
   out.headH = h(pane.querySelector('.grp-h button') || pane.querySelector('.grp-h .static'));
-  out.kindH = h(pane.querySelector('.radios [role="radio"]'));
   out.identH = h(pane.querySelector('.ident'));
   out.defsH = h(pane.querySelector('details.defs > summary'));
   out.wingH = Math.round(wing.scrollHeight); const sel = $('#sel'), last = sel.lastElementChild; out.selH = last ? Math.round(last.getBoundingClientRect().bottom - sel.getBoundingClientRect().top + sel.scrollTop) : 0;
@@ -944,19 +960,19 @@ function densityMetrics(){
 }
 function densityBoth(){
   const keep = frame.dataset.density, res = {};
-  for (const d of ['native', 'dense']){ frame.dataset.density = d; res[d] = densityMetrics(); }
+  for (const d of ['native', 'b']){ frame.dataset.density = d; res[d] = densityMetrics(); }
   frame.dataset.density = keep; return res;
 }
 const DENS_ROWS = [['fontLabel', 'Label font (px)'], ['fontValue', 'Value font (px)'], ['fontUnit', 'Unit font (px)'], ['unitBaseline', 'Unit baseline − value baseline (px)'],
   ['labelToValue', 'Label start → value end (px, Mean chord)'], ['labelGap', 'Label text end → value text start (px, Mean chord)'], ['factPitch', 'Fact / estimate row pitch (px)'], ['inputPitch', 'Input row pitch (px)'], ['fieldTarget', 'Field target height (px)'],
-  ['fieldDrawn', 'Field drawn height (px)'], ['headH', 'Group header height (px)'], ['kindH', 'Kind option height (px)'], ['identH', 'Identity block height (px)'], ['defsH', '"How measured" control height (px)'],
+  ['fieldDrawn', 'Field drawn height (px)'], ['headH', 'Group header height (px)'], ['identH', 'Identity block height (px)'], ['defsH', '"How measured" control height (px)'],
   ['wingH', 'Wing block content height (px)'], ['selH', 'Selection content height (px; room at 1280 × 800 ≈ 448 dense, 340 as built)'], ['rowsVisible', 'Rows visible without scrolling']];
 function renderDensity(){
   const el = $('#dens-body'); if (!el) return; const b = densityBoth();
-  if (!b.native || !b.dense){ el.textContent = 'No Wing in this state: nothing to measure.'; return; }
+  if (!b.native || !b.b){ el.textContent = 'No Wing in this state: nothing to measure.'; return; }
   const cell = v => (typeof v === 'number' && !Number.isFinite(v)) || v == null ? '—' : String(v);
-  el.innerHTML = `<table><thead><tr><th>Metric</th><th>As built (emulated)</th><th>Dense</th><th>Native capture (Coordinator, pt ≈ px)</th></tr></thead><tbody>${DENS_ROWS.map(([k, t]) =>
-    `<tr><td>${esc(t)}</td><td>${esc(cell(b.native[k]))}</td><td>${esc(cell(b.dense[k]))}</td><td>${esc(NATIVE_CAPTURE[k] || '—')}</td></tr>`).join('')}</tbody></table>`;
+  el.innerHTML = `<table><thead><tr><th>Metric</th><th>As built (emulated)</th><th>B · Effect Controls</th><th>Native capture (Coordinator, pt ≈ px)</th></tr></thead><tbody>${DENS_ROWS.map(([k, t]) =>
+    `<tr><td>${esc(t)}</td><td>${esc(cell(b.native[k]))}</td><td>${esc(cell(b.b[k]))}</td><td>${esc(NATIVE_CAPTURE[k] || '—')}</td></tr>`).join('')}</tbody></table>`;
 }
 
 /* ---------------- the app's Text size setting (DN-5): one multiplier, persisted per user, ⌘+ / ⌘− (Ctrl on Windows) ---------------- */
