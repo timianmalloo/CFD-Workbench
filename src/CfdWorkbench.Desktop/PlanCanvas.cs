@@ -185,6 +185,13 @@ public sealed class PlanCanvas : Control
     public void FocusPoint(PointRef point)
     {
         focusedPoint = point;
+        // NS-1: Tab moves on from the point that has focus, however it got it (a click, Return from a field, Escape).
+        if (Controller?.Planform is { } plan)
+        {
+            int index = plan.Leading.Points.Concat(plan.Trailing.Points).ToList()
+                .FindIndex(item => item.Curve == point.Curve && item.Id == point.VertexId);
+            if (index >= 0) keyboardIndex = index;
+        }
         var view = targets.FirstOrDefault(item => item.Curve == point.Curve && item.Id == point.VertexId);
         if (view is not null)
         {
@@ -428,6 +435,18 @@ public sealed class PlanCanvas : Control
         base.OnPointerWheelChanged(e);
         ZoomAt(Math.Pow(1.1, e.Delta.Y), e.GetPosition(this));
         e.Handled = true;
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        base.OnGotFocus(e);
+        // NS-1 sibling: Tab into the Plan starts at its first target (Shift+Tab at its last), not where an earlier walk left off.
+        if (e.NavigationMethod != NavigationMethod.Tab || Controller?.Planform is not { } plan) return;
+        focusedPoint = null;
+        keyboardIndex = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+            ? plan.Leading.Points.Count + plan.Trailing.Points.Count + plan.Stations.Count
+            : -1;
+        InvalidateVisual();
     }
 
     protected override void OnKeyDown(KeyEventArgs e)

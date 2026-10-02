@@ -1365,3 +1365,23 @@ that carries a floor gets one render-level control. Controls: the page audit's "
 height" (a content-box proxy that goes red on a planted fixed height); the native test
 `PropertiesPane_B_EditableValueHasDottedUnderline` asserts painted pixels, not a property
 (`docs/reviews/ui-property-grid-cells.md` §5.3; uncontrolled natively until it lands red first).
+
+**FOCUS-START · A keyboard check that starts focus where native focus never is.** NS-1 (operator, 2026-10-02):
+natively, Tab from a clicked point walked 21 Plan targets and the three dock tabs, then reached the Wing before the
+selection. `PropertiesPane_B_EveryEditableValueIsTabStop` passed because its walk focused the pane's first stop
+directly, moved with `KeyboardNavigationHandler.Move`, and asserted reachability only. The walk never started where
+the user's focus is, and it never saw the order.
+
+**Class → sweep → derive → prevent:** signature: a keyboard-navigation test that puts focus inside the region under
+test (`Focus(NavigationMethod.Tab)` on its first stop) and asserts a set, not a sequence. Sweep (2026-10-02,
+`3b0545e`): both `TabWalk` callers (`EveryEditableValueIsTabStop`, `KeyboardWalk_NoTrap_KindBoxOneStop`) had the
+signature. The other `Focus(NavigationMethod.Tab)` uses in the tests check a focused control's own behaviour, such as
+its ring, its menu or its commit, not a walk. The sweep found four instances in the product, fixed in
+`fix/native-ns1-ns3` with red lines in `docs/reviews/property-grid-native.md`: the Plan's Tab index ignored a pointer
+focus, the Plan re-entry index was stale, the Wing came before the selection in tree order, and each tab was a Tab
+stop. It found one sibling left open: `SectionCanvas` Tab wraps with no exit, and its test asserts the wrap. Derive:
+a walk starts from the focus a real user would have at that moment (after the pointer action that leads there),
+drives the Tab *key*, and asserts order as well as reach. Control: `TabWalk` now starts on the Plan at the selected
+point and presses Tab as key events. `PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder` asserts the resume
+point, the stop count between regions, the top-to-bottom order and the re-entry, on the real `MainWindow`. It was red
+first at `3b0545e`.

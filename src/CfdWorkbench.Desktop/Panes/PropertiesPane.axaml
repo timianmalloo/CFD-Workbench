@@ -36,38 +36,7 @@
         <TextBlock Classes="caption" Text="Open or start a foil. Whatever you select in it shows its properties here." TextWrapping="Wrap" />
       </StackPanel>
 
-      <DockPanel x:Name="ContentPanel" IsVisible="False">
-        <!-- DR-UID-5: the Wing is pinned at the foot and always fully visible; the selection above it scrolls. -->
-        <Border x:Name="WingBlock" DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceBrush}"
-                BorderBrush="{DynamicResource ControlLineBrush}" BorderThickness="{StaticResource HairlineTop}">
-          <ScrollViewer x:Name="WingScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <Border Classes="prop-group-rule" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleBottom}">
-              <StackPanel x:Name="WingPanel">
-                <!-- The Wing never collapses (UI-36), so its header carries no chevron (DR-CELL-2, change 1). -->
-                <Grid x:Name="WingHeader" ColumnDefinitions="*,Auto" MinHeight="{DynamicResource PropHeadHeight}"
-                      Margin="{StaticResource PropHeadPadding}">
-                  <TextBlock x:Name="WingHeading" Classes="prop-group-title" Text="Wing" />
-                  <Border x:Name="WingChip" Grid.Column="1" Classes="prop-chip" IsVisible="False">
-                    <TextBlock x:Name="WingChipText" />
-                  </Border>
-                </Grid>
-                <StackPanel x:Name="WingDimensions" />
-                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleTop}" Margin="{StaticResource PropWingRuleMargin}" />
-                <ToggleButton x:Name="HowMeasuredButton" Classes="prop-link">
-                  <StackPanel Orientation="Horizontal" Spacing="{StaticResource PropChevronGap}">
-                    <Path x:Name="HowMeasuredChevron" Classes="prop-disclosure" AutomationProperties.AccessibilityView="Raw" Data="M0,0 L3,2.5 L0,5 Z" />
-                    <TextBlock Text="Estimates · definitions" />
-                  </StackPanel>
-                </ToggleButton>
-                <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False" Padding="{StaticResource PropNotePadding}"
-                           Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
-                <StackPanel x:Name="WingEstimates" />
-                <StackPanel x:Name="WingNotes" />
-              </StackPanel>
-            </Border>
-          </ScrollViewer>
-        </Border>
-
+      <Grid x:Name="ContentPanel" RowDefinitions="*,Auto" IsVisible="False">
         <ScrollViewer x:Name="SelectionScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
           <StackPanel x:Name="SelectionPanel">
             <Border x:Name="IdentityBlock" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleBottom}">
@@ -105,7 +74,39 @@
             <StackPanel x:Name="BlocksPanel" />
           </StackPanel>
         </ScrollViewer>
-      </DockPanel>
+
+        <!-- DR-UID-5: the Wing is pinned at the foot and always fully visible; the selection above it scrolls. It follows the
+             selection in the tree so Tab reaches the selection's values first, as they read top to bottom (NS-1). -->
+        <Border x:Name="WingBlock" Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource ControlLineBrush}" BorderThickness="{StaticResource HairlineTop}">
+          <ScrollViewer x:Name="WingScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Border Classes="prop-group-rule" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleBottom}">
+              <StackPanel x:Name="WingPanel">
+                <!-- The Wing never collapses (UI-36), so its header carries no chevron (DR-CELL-2, change 1). -->
+                <Grid x:Name="WingHeader" ColumnDefinitions="*,Auto" MinHeight="{DynamicResource PropHeadHeight}"
+                      Margin="{StaticResource PropHeadPadding}">
+                  <TextBlock x:Name="WingHeading" Classes="prop-group-title" Text="Wing" />
+                  <Border x:Name="WingChip" Grid.Column="1" Classes="prop-chip" IsVisible="False">
+                    <TextBlock x:Name="WingChipText" />
+                  </Border>
+                </Grid>
+                <StackPanel x:Name="WingDimensions" />
+                <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource PropRuleTop}" Margin="{StaticResource PropWingRuleMargin}" />
+                <ToggleButton x:Name="HowMeasuredButton" Classes="prop-link">
+                  <StackPanel Orientation="Horizontal" Spacing="{StaticResource PropChevronGap}">
+                    <Path x:Name="HowMeasuredChevron" Classes="prop-disclosure" AutomationProperties.AccessibilityView="Raw" Data="M0,0 L3,2.5 L0,5 Z" />
+                    <TextBlock Text="Estimates · definitions" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock x:Name="HowMeasuredBody" Classes="prop-note" IsVisible="False" Padding="{StaticResource PropNotePadding}"
+                           Text="Span b: projected, tip to tip. Root and tip chord: at the centre line and the outermost station. Mean chord (geometric): S / b. MAC: the mean aerodynamic chord, (2/S)∫c(y)² dy over the half span, not the same as S / b. Max t/c: the largest thickness over chord at any station. AR: b²/S, dimensionless. Area: the projected planform area S, both halves." />
+                <StackPanel x:Name="WingEstimates" />
+                <StackPanel x:Name="WingNotes" />
+              </StackPanel>
+            </Border>
+          </ScrollViewer>
+        </Border>
+      </Grid>
     </DockPanel>
   </Panel>
 </UserControl>

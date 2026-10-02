@@ -189,6 +189,69 @@ helper, so persistence is unsupported and the Text size is session-only by desig
 A clicked View ▸ Zoom in item takes the same route as its shortcut. With focus in a pane, that click steps the Text
 size; the platform menu cannot tell a click from the key. Row B3.7 asks the operator to accept this.
 
+### NS-1 and NS-3 — root causes (fix/native-ns1-ns3, after the operator session of 2026-10-02)
+
+The checks run on Avalonia.Native windows. They send the Tab key as key events on the focused element, the same
+route the keyboard device uses. The real key path on macOS was not driven, so its equality with these events is
+**Inferred**.
+
+**NS-1. Tab reached the values only after the Plan and the dock tabs, and reached the Wing first (Verified).** The
+trace on the real `MainWindow` at base `3b0545e` started with New foil and a click on a trailing-edge point. The walk
+went through 21 Plan targets, beginning at the first leading-edge point and not at the clicked point. It then went
+through the three tool tabs and reached Span, Root chord, Tip chord and "Estimates · definitions" (the Wing at the
+foot). Only after those came the crumb, the group header and the selection's values. Next came the pane menu and
+close buttons, Docs, and five document tabs. Back in the Plan, it took a single stop and left. The old headless walk
+focused the pane's first stop directly and checked only that each value was reached. So it passed, and both
+headless and native runs did reach every value. The two runs differ in where the walk starts and in the order. Four
+causes:
+
+| # | Cause (base `3b0545e`) | Red line | Fix |
+|---|---|---|---|
+| 1 | `PlanCanvas.FocusPoint` (`PlanCanvas.cs`:185-199) never set `keyboardIndex` (`:48`, starts at -1), and `FocusNext` (`:206-218`) counts from it. After a click, Tab restarts at the first target. | `first Tab went to cv-0, not cv-3 after the clicked point` | `FocusPoint` sets the index of the point that has focus |
+| 2 | `PropertiesPane.axaml`:39-41: the Wing is `DockPanel.Dock="Bottom"` and is declared before the selection. Avalonia's Tab order is tree order, so the values at the foot come first. | `values out of visual order: SpanInput@590, RootChordInput@615, TipChordInput@640, TypeControl@111, PointSpanInput@136, PointAftInput@182` | `ContentPanel` is a `Grid` (`*,Auto`) with the selection declared first. Bounds are unchanged: the Wing is 0, 334.5, 258 × 409.5 before and after at 150 %. |
+| 3 | Dock's tool and document tab rows make every tab a Tab stop: 3 + 5 stops. | `stops between the Plan and Properties: ToolTabStripItem:properties, …:browser, …:rail-controls` | `Styles.axaml`: each tab row is one stop (`TabNavigation=Once`). The arrow keys move along the row, and the check asserts that Right on the Properties tab reaches Browser. |
+| 4 | Sibling: after a walk had left the Plan, Tab back into it stopped once and left, because the index stayed at the end. | `Tab back into the Plan went to none, not its first target` (red by mutation: the fix removed) | `PlanCanvas.OnGotFocus`: Tab entry starts at the first target, and Shift+Tab entry at the last |
+
+Controls: `PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder` (real window, pointer click, Tab key events; this
+asserts the resume point, one stop between the Plan and Properties, values top to bottom, every value reached, the
+arrow route along the tab row, and re-entry). `TabWalk`, which `EveryEditableValueIsTabStop` and `KeyboardWalk_NoTrap`
+use, now starts on the Plan at the selected point and presses Tab. F6 is unchanged; `F6_RegionEntry_FocusesSelectedTabOrRow`
+and `FocusRing_HiddenRegionsAndFloats_Order` pass.
+
+Not changed, as approved: inside the Plan, Tab moves point to point, and Return on a point goes to its Span field
+(m12b-points §11.3). From a selected point, Tab still walks the Plan's later targets before it reaches Properties.
+**Decision for the operator:** should Tab from a selected point leave the Plan for its values? That would change §11.3.
+Sibling found and not fixed: `SectionCanvas` Tab wraps around its vertices with no exit (`SectionCanvas.cs`:344-375).
+F6 is the only way out, and `SectionCanvasTests` asserts the wrap.
+
+**NS-3. Not reproduced. No app-owned surface outside the window was found.** In-process on Avalonia.Native, with
+`display.json` at 150 and at 200, the Text size was loaded both before and after `Show`. The example was opened with
+nothing selected, at heights 800 and 700. Results:
+
+- The process owns one native window (CGWindowList by owner pid). Its frame is 1280 × 828 at (116, 47), inside the
+  1512 × 884 working area.
+- No `Popup` is open.
+- The clip-aware bounds of every Properties element lie inside the client area.
+- The "Area" row is inside the Wing's `ScrollViewer`, under the 55 % cap (DR-UID-5). It is clipped in the window,
+  and you scroll the Wing to see it.
+
+The capture does not fit content escaping the visible window:
+
+- The strip's pane edges do not line up with the visible window's pane. Its right edge is at about 430 px, against
+  about 555 px above it.
+- The strip sits under the terminal in z-order, in the terminal's shadow.
+
+This fits a second window that a CFD Workbench process owns (**Inferred**; owner not identified). When NS-3 recurs,
+run `swift tools/native-windows.swift <pid>` for each `pgrep -f CfdWorkbench` pid while it is on screen. That names
+the window that paints the strip.
+
+Popup sweep: the Type and Tangent lists, the context menus, the palette list and the Section tool tip are intended
+popups. No other content is hosted in a popup or an overlay.
+
+Residual: at 150 % on a 1280 × 800 window, the Wing (511 DIP) is taller than its cap (409 DIP), so its last rows
+need a scroll. That is the DR-UID-5 cap working as designed. It is not "always fully visible", so it is open for the
+UX lens.
+
 ### B2-2 / B3 — native rows (the author clears none)
 
 | # | Do | Pass when | Result |
