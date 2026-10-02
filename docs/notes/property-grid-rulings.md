@@ -99,3 +99,13 @@ at bottom of the shell". The pick page (`docs/mockups/status-bar.html`, b7c03c5)
 | ID | Ruling | Consequence |
 |---|---|---|
 | **DR-NAV-1** Tab leaves the Plan | After clicking a point in the Plan, **Tab leaves the Plan and lands on the selected point's first Properties value** (Type, structure B); **Shift+Tab** from the pane's first value returns to the Plan on the selected point. Movement between Plan points is **] / [** (next / previous in the target order: LE root→tip, TE root→tip, then station chips). With no point selected, Tab into the Plan focuses the first target and ] / [ walk from there. Escape, Return-to-field, arrows-nudge, ⌥-arrows pan and F6 are unchanged. The model area's view labels (VW1; a label opens on Return) stay Tab stops in the model region | **Amends** `docs/design/m12b-points.md` §11.3 (keyboard column and "Tab order inside the Plan") and answers the open decision in `docs/reviews/property-grid-native.md` (NS-1). `PlanCanvas` binds `Key.OemCloseBrackets` / `Key.OemOpenBrackets` (same keys on macOS and Windows layouts; layouts that need AltGr for brackets are not covered). Tests: `Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue`, `Plan_BracketKeys_MoveBetweenPoints_InTargetOrder`, `Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint` |
+
+## M1.2b2 views (operator, 2026-10-02, after docs/mockups/m12b2-views.html)
+
+| Ruling | Decision |
+|---|---|
+| **DR-VIEW-2** (OI-9) | No perspective/orthographic toggle for now: named axis views orthographic, Iso and orbit perspective. |
+| **DR-VIEW-3** (OI-10) | Front and Side each fit themselves, each with its own scale bar. |
+| **DR-VIEW-4** | The selected station gets a 3 px station tick at its span in the Front band. |
+| **Build** | The operator approved the views mockup (7a96c05): "Yes, build it" — V3D, ELV, PNL. |
+

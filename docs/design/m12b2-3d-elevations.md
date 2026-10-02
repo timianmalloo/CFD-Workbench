@@ -628,7 +628,7 @@ names every channel; the 3D and elevation captions say "display"; the shading ra
   top-right, 64 px); the axis triad bottom-left (x aft, y starboard, z up, letters); title top-left ("3D · Iso").
   **Wireframe:** no fill; silhouette, rails and authored sections as above; ten intermediate mesh rows 1 px
   `viewport-mute`.
-- **Front · looking aft** — band (top 60 %): the Front camera over the surface (orthographic, both halves) with its
+- **Front · looking aft** — (DR-VIEW-4, operator 2026-10-02: the selected station is marked by a 3 px `station` tick at its span on the band, so selection reads the same in all four views) band (top 60 %): the Front camera over the surface (orthographic, both halves) with its
   silhouette 1.5 px `foil` (the band's top and bottom outline, as v10 `:693` draws it); the centre line
   (`viewport-mute`); the **dihedral** curve on the LE line 2 px `foil`, its dashed control polygon and points (M1.2b
   glyphs) on the starboard half. Lane (bottom 40 %, caption "Thickness t/c (%) · tip ← root", ticks at round %): the
@@ -917,8 +917,8 @@ and claimed commit (HARNESS-SILENT-EXIT); two repair cycles, then stop (COORD-SP
 | OI-6 | 3D vertex dragging; double-click a 3D edge to open its elevation | not in M1.2b2 | a gizmo design |
 | OI-7 | Display cage (Box) | not in M1.2b2 | first define a section CV's placement under Rule A |
 | OI-8 | η-plot view; 3D surface probe | not in M1.2b2 | a later slice |
-| OI-9 | Perspective / orthographic toggle | axis presets orthographic, Iso and orbit perspective | one `Projection` flag already in `ViewCamera` |
-| OI-10 | Front and Side linked in vertical scale and z datum | each elevation fits itself | a shared vertical scale in the controller |
+| OI-9 | Perspective / orthographic toggle | axis presets orthographic, Iso and orbit perspective | one `Projection` flag already in `ViewCamera` **Ruled 2026-10-02 (operator, DR-VIEW-2): no toggle for now.** |
+| OI-10 | Front and Side linked in vertical scale and z datum | each elevation fits itself | a shared vertical scale in the controller **Ruled 2026-10-02 (operator, DR-VIEW-3): each elevation fits itself, with its own scale bar.** |
 | **OI-11 (PL0 review F2)** | The PL0 golden master pins outputs and refusals, not the operation tree (four math-preserving tree changes stayed green) | **CLOSED (TRACEPIN):** `Trace : IPlacementScalar<Trace>` (`tests/CfdWorkbench.Core.Tests/PlacementTrace.cs`) runs the one `PlacementRule` and `PlacementRule_OperationTree_TraceGolden` pins its operation strings (`Fixtures/m12b2/placement-operation-trace.golden.txt`; golden commit 798c926, test commit follows it). Its failure message names `QueryFeasibility`, `PlacementWidth` and `BlendPlacementWidth`. Four planted tree mutants (distributed chord, lerp-form blend, `unit*(t*½)`, reordered blend sum) each turn it red while the certificate golden stays green | a deliberate §6 change updates the trace golden only after the three bound models are hand-reviewed |
 
 ## 14. Build tracks (exclusive file ownership)
