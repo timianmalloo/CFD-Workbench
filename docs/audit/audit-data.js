@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T12:50:06Z",
+  "generated": "2026-10-02T13:59:38Z",
   "audit": [
     {
       "actor": null,
@@ -21661,6 +21661,33 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-02T12:49:07Z",
+      "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M3YEKP1YV8HGKAZMH31TP9SJ",
+      "shortname": "join-property-grid-cells-build",
+      "datetime": "2026-10-02T13:59:38Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/property-grid-cells-build into feature/ui-cad-direction",
+      "summary": "CELLS (Opus 5.5): structure B built — 11 px, 20/24 px rows, accent + dotted underline (template part, pixel-measured 6.11/8.60/17.62 at 1x/2x), focus/error boxes, dropdown Kind/Type, help on focus, DC-1 widening, View > Text size with DR-DEN-4 routing. 33/34 named tests (persistence deferred), readiness green at f59ea87. Operator approved the running build; UX&A build-stage cleared with conditions (C1 checklist retarget, C2 Windows text-size keys, C3 HC row, C4 test honesty). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/property-grid-native.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T13:58:39Z",
       "duration_seconds": 59.0
     }
   ],
