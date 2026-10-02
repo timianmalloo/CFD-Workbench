@@ -436,7 +436,7 @@ public static class PropertiesView
     public static (double AngleDegrees, double LengthMeters) HandleGeometry(PointView handle, PointView anchor)
     {
         double span = handle.SpanMeters - anchor.SpanMeters;
-        double aft = handle.AftMeters - anchor.AftMeters;
+        double aft = handle.Ordinate - anchor.Ordinate;
         if (handle.Index < anchor.Index) { span = -span; aft = -aft; }
         return (Math.Atan2(aft, span) * 180 / Math.PI, Math.Sqrt(span * span + aft * aft));
     }
@@ -518,7 +518,7 @@ public static class PropertiesView
             named || readOnly ? Prose("p:type", "Type", RoleText(point.Role)) with { State = RowState.Locked } : TypeRow(point)
         };
         bool spanFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
-        bool aftFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.AftOnly;
+        bool aftFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
         var target = new PointRef(point.Curve, point.Id);
         rows.Add(spanFree
             ? LengthInput("p:from", "From root", point.SpanMeters, "From root, position along the span in millimetres", target, nudge: true)
@@ -526,18 +526,18 @@ public static class PropertiesView
         rows.Add(Count("p:eta", "η", Quantity.Eta(point.Eta)));
         bool teRoot = point.Curve == "trailing" && point.Role == PointRole.RootEnd;
         rows.Add(aftFree
-            ? LengthInput("p:aft", curve.ValueLabel, point.AftMeters, $"{curve.ValueLabel} position in millimetres", target, nudge: true)
+            ? LengthInput("p:aft", curve.ValueLabel, point.Ordinate, $"{curve.ValueLabel} position in millimetres", target, nudge: true)
                 with { Description = teRoot ? PropertyCopy.RootChordAuthority : null, DescriptionAlwaysVisible = teRoot }
-            : Length("p:aft", curve.ValueLabel, point.AftMeters, locked: true));
+            : Length("p:aft", curve.ValueLabel, point.Ordinate, locked: true));
         var notes = new List<RowMessage>();
         string? lockNote = point.Role == PointRole.RootEnd && point.Curve == "leading" ? PropertyCopy.LeadingRootFixed
             : teRoot && point.Locks.Contains("root_mirror") ? PropertyCopy.TrailingRoot
-            : point.Role == PointRole.TipEnd && point.Freedom == PointFreedom.AftOnly ? PropertyCopy.TipEndMoves
+            : point.Role == PointRole.TipEnd && point.Freedom == PointFreedom.ValueOnly ? PropertyCopy.TipEndMoves
             : point.Freedom == PointFreedom.Fixed ? "Fixed."
             : null;
         if (lockNote is not null) notes.Add(new RowMessage(lockNote, MessageKind.Reason));
         string summary = point.Freedom == PointFreedom.Fixed ? "fixed"
-            : $"{Quantity.TypedLength(point.SpanMeters)}, {Quantity.TypedLength(point.AftMeters)} mm";
+            : $"{Quantity.TypedLength(point.SpanMeters)}, {Quantity.TypedLength(point.Ordinate)} mm";
         groups.Add(new PropertyGroup("pos", "Point", summary, true, Lock(rows, notes), notes));
 
         if (TangentGroup(point, rail, curve, readOnly) is { } tangent) groups.Add(tangent);
@@ -638,7 +638,7 @@ public static class PropertiesView
         var anchor = rail.Points.First(item => item.Id == handle.AnchorId);
         var (angle, length) = HandleGeometry(handle, anchor);
         var target = new PointRef(handle.Curve, handle.Id);
-        bool angleFree = !readOnly && handle.Freedom is PointFreedom.Free or PointFreedom.AftOnly;
+        bool angleFree = !readOnly && handle.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
         bool lengthFree = !readOnly && handle.Freedom != PointFreedom.Fixed;
         bool mirror = handle.Role == PointRole.RootHandle && handle.Freedom == PointFreedom.SpanOnly;
         var notes = new List<RowMessage>();

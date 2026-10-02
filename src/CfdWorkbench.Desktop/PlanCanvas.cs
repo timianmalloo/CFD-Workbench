@@ -135,7 +135,7 @@ public sealed class PlanCanvas : Control
         var plan = Controller?.Planform;
         if (plan is null) return default;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
-        return map.ToScreen(point.SpanMeters, point.AftMeters);
+        return map.ToScreen(point.SpanMeters, point.Ordinate);
     }
 
     public PointView? HitTestPoint(Point position)
@@ -153,7 +153,7 @@ public sealed class PlanCanvas : Control
         TooltipText = hoveredPoint is { } point
             ? $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of " +
               $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
-              $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm"
+              $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm"
             : null;
         var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
         double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
@@ -338,8 +338,8 @@ public sealed class PlanCanvas : Control
             var origin = targets.FirstOrDefault(item => item.Curve == reference.Curve && item.Id == reference.VertexId);
             if (origin is not null)
             {
-                if (Math.Abs(target.Span - origin.SpanMeters) > Math.Abs(target.Ordinate - origin.AftMeters))
-                    target.Ordinate = origin.AftMeters;
+                if (Math.Abs(target.Span - origin.SpanMeters) > Math.Abs(target.Ordinate - origin.Ordinate))
+                    target.Ordinate = origin.Ordinate;
                 else target.Span = origin.SpanMeters;
             }
         }
@@ -349,7 +349,7 @@ public sealed class PlanCanvas : Control
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
             if (origin is not null)
                 ProbeText += $" · Δ from root {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
-                    $" · Δ aft {(target.Ordinate - origin.AftMeters) * 1000:+0.00;-0.00;0.00} mm";
+                    $" · Δ aft {(target.Ordinate - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm";
         }
         InvalidateVisual();
         e.Handled = true;
@@ -571,7 +571,7 @@ public sealed class PlanCanvas : Control
         }
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller.GestureCrossing is not null;
-        if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.AftMeters);
+        if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);
         InvalidateVisual();
     }
 
@@ -632,7 +632,7 @@ public sealed class PlanCanvas : Control
             var combPen = new Pen(WarningBrush ?? Brushes.White, .9);
             foreach (var tooth in CfdWorkbench.Core.Planform.Comb(rail))
             {
-                var start = map.ToScreen(tooth.SpanMeters, tooth.AftMeters);
+                var start = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
                 context.DrawLine(combPen, start,
                     start + new Vector(tooth.NormalSpan, tooth.NormalAft) *
                     Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
@@ -744,8 +744,8 @@ public sealed class PlanCanvas : Control
         {
             var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
             double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
-            double minAft = Math.Min(plan.Leading.Samples.Min(item => item.AftMeters), points.Min(item => item.AftMeters));
-            double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.AftMeters), points.Max(item => item.AftMeters));
+            double minAft = Math.Min(plan.Leading.Samples.Min(item => item.Ordinate), points.Min(item => item.Ordinate));
+            double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.Ordinate), points.Max(item => item.Ordinate));
             double usableWidth = size.Width - 2 * (ChipHalfWidth + GlyphMargin);
             double usableHeight = size.Height - FitTop - ChipDrop - ScaleBarBand - GlyphMargin;
             double scale = Math.Max(1, Math.Min(usableWidth / (2 * halfWidth), usableHeight / Math.Max(0.01, maxAft - minAft)))
@@ -779,7 +779,7 @@ public sealed class PlanCanvas : Control
             double distance = 14 * 14;
             foreach (var candidate in targets)
             {
-                var centre = ToScreen(candidate.SpanMeters, candidate.AftMeters);
+                var centre = ToScreen(candidate.SpanMeters, candidate.Ordinate);
                 double squared = Math.Pow(position.X - centre.X, 2) + Math.Pow(position.Y - centre.Y, 2);
                 if (squared > distance) continue;
                 if (squared == distance && selection is Selection.Points selected &&
@@ -805,13 +805,13 @@ public sealed class PlanCanvas : Control
                 if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
                 {
                     double span = point.SpanMeters - anchor.SpanMeters;
-                    double aft = point.AftMeters - anchor.AftMeters;
+                    double aft = point.Ordinate - anchor.Ordinate;
                     double angle = Math.Atan2(aft, span) * 180 / Math.PI;
                     double length = Math.Sqrt(span * span + aft * aft) * 1000;
                     role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
                 }
                 return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
-                    $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.AftMeters * 1000:F2} mm";
+                    $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm";
             }
             protected override Rect GetBoundingRectangleCore()
             {
@@ -827,7 +827,7 @@ public sealed class PlanCanvas : Control
             Selection selection)
         {
             var railPen = new Pen(foil, 2);
-            double centreX = ToScreen(0, plan.Leading.Samples[0].AftMeters).X;
+            double centreX = ToScreen(0, plan.Leading.Samples[0].Ordinate).X;
             context.DrawLine(new Pen(mute, 1), new Point(centreX, 0), new Point(centreX, size.Height));
             foreach (double side in new[] { -1d, 1d })
             {
@@ -835,11 +835,11 @@ public sealed class PlanCanvas : Control
                 using (var path = fill.Open())
                 {
                     var first = plan.Leading.Samples[0];
-                    path.BeginFigure(ToScreen(first.SpanMeters * side, first.AftMeters), true);
+                    path.BeginFigure(ToScreen(first.SpanMeters * side, first.Ordinate), true);
                     foreach (var sample in plan.Leading.Samples.Skip(1))
-                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.AftMeters));
+                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.Ordinate));
                     foreach (var sample in plan.Trailing.Samples.Reverse())
-                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.AftMeters));
+                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.Ordinate));
                     path.EndFigure(true);
                 }
                 using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
@@ -852,8 +852,8 @@ public sealed class PlanCanvas : Control
                     {
                         var before = rail.Samples[index - 1];
                         var after = rail.Samples[index];
-                        context.DrawLine(railPen, ToScreen(before.SpanMeters * side, before.AftMeters),
-                            ToScreen(after.SpanMeters * side, after.AftMeters));
+                        context.DrawLine(railPen, ToScreen(before.SpanMeters * side, before.Ordinate),
+                            ToScreen(after.SpanMeters * side, after.Ordinate));
                     }
                 }
                 var polygon = new Pen(mute, 1, new DashStyle([3, 3], 0));
@@ -861,12 +861,12 @@ public sealed class PlanCanvas : Control
                 {
                     var before = rail.Points[index - 1];
                     var after = rail.Points[index];
-                    context.DrawLine(polygon, ToScreen(before.SpanMeters, before.AftMeters),
-                        ToScreen(after.SpanMeters, after.AftMeters));
+                    context.DrawLine(polygon, ToScreen(before.SpanMeters, before.Ordinate),
+                        ToScreen(after.SpanMeters, after.Ordinate));
                 }
                 foreach (var point in rail.Points)
                 {
-                    var centre = ToScreen(point.SpanMeters, point.AftMeters);
+                    var centre = ToScreen(point.SpanMeters, point.Ordinate);
                     bool selected = selection is Selection.Points picked &&
                         picked.Items.Any(item => item.Curve == point.Curve && item.VertexId == point.Id);
                     if (point.Role == PointRole.Control)

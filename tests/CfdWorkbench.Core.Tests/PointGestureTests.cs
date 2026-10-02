@@ -36,7 +36,7 @@ internal static class PointGestureTests
     {
         var a = Point(s, "leading", 3); var l = Point(s, "leading", 2); var r = Point(s, "leading", 4);
         Near(2 * a.SpanMeters, l.SpanMeters + r.SpanMeters);
-        Near(2 * a.AftMeters, l.AftMeters + r.AftMeters);
+        Near(2 * a.Ordinate, l.Ordinate + r.Ordinate);
     }
     internal static void Run()
     {
@@ -67,7 +67,7 @@ internal static class PointGestureTests
         Check("UpdatePointGesture_LeadingPoint_OnlyLeadingTextChanges", () =>
         {
             using var s = Open(); var point = Point(s, "leading", 2); var d = s.BeginPointGesture(Id(), "leading", point.Id);
-            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.AftMeters + 0.003);
+            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.Ordinate + 0.003);
             string before = Encoding.UTF8.GetString(d.Bytes), after = Encoding.UTF8.GetString(frame.Draft.Bytes);
             True(before != after, "the gesture changed the source");
             Equal(before[before.IndexOf("trailing", StringComparison.Ordinal)..], after[after.IndexOf("trailing", StringComparison.Ordinal)..]);
@@ -76,45 +76,45 @@ internal static class PointGestureTests
         Check("UpdatePointGesture_ControlPoint_QuantizedDeltaExactPosition", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            var f = s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters + 0.001234567, p.AftMeters + 0.002345678);
-            Near(p.AftMeters + 0.002346, f.AftMeters, 1e-9); Equal(1L, f.Draft.Generation);
+            var f = s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters + 0.001234567, p.Ordinate + 0.002345678);
+            Near(p.Ordinate + 0.002346, f.Ordinate, 1e-9); Equal(1L, f.Draft.Generation);
         });
         Check("UpdatePointGesture_Anchor_HandlesMoveBySameDelta", () =>
         {
             using var s = Open(Row()); var prior = Enumerable.Range(2, 3).Select(i => Point(s, "leading", i)).ToArray();
             var d = s.BeginPointGesture(Id(), "leading", prior[1].Id);
-            s.UpdatePointGesture(d.Id, d.Generation, prior[1].SpanMeters + 0.003, prior[1].AftMeters + 0.002);
-            for (int i = 0; i < 3; i++) { Near(0.003, Point(s, "leading", i + 2).SpanMeters - prior[i].SpanMeters, 1e-7); Near(0.002, Point(s, "leading", i + 2).AftMeters - prior[i].AftMeters); }
+            s.UpdatePointGesture(d.Id, d.Generation, prior[1].SpanMeters + 0.003, prior[1].Ordinate + 0.002);
+            for (int i = 0; i < 3; i++) { Near(0.003, Point(s, "leading", i + 2).SpanMeters - prior[i].SpanMeters, 1e-7); Near(0.002, Point(s, "leading", i + 2).Ordinate - prior[i].Ordinate); }
         });
         Check("UpdatePointGesture_SmoothHandleDrag_OppositeCollinear", () =>
         {
             using var s = Open(Row()); var h = Point(s, "leading", 2); var d = s.BeginPointGesture(Id(), "leading", h.Id);
-            s.UpdatePointGesture(d.Id, d.Generation, h.SpanMeters, h.AftMeters + 0.008);
+            s.UpdatePointGesture(d.Id, d.Generation, h.SpanMeters, h.Ordinate + 0.008);
             var a = Point(s, "leading", 3); var l = Point(s, "leading", 2); var r = Point(s, "leading", 4);
-            Near(0, (l.SpanMeters - a.SpanMeters) * (r.AftMeters - a.AftMeters) - (r.SpanMeters - a.SpanMeters) * (l.AftMeters - a.AftMeters));
+            Near(0, (l.SpanMeters - a.SpanMeters) * (r.Ordinate - a.Ordinate) - (r.SpanMeters - a.SpanMeters) * (l.Ordinate - a.Ordinate));
         });
         Check("UpdatePointGesture_SymmetricHandleDrag_Midpoint", () =>
         {
             using var s = Open(Row("symmetric")); var h = Point(s, "leading", 2); var d = s.BeginPointGesture(Id(), "leading", h.Id);
-            s.UpdatePointGesture(d.Id, d.Generation, h.SpanMeters, h.AftMeters + 0.008); Symmetric(s);
+            s.UpdatePointGesture(d.Id, d.Generation, h.SpanMeters, h.Ordinate + 0.008); Symmetric(s);
         });
         Check("UpdatePointGesture_SymmetricAnchorDragAfterRefit_RowHolds", () =>
         {
             using var s = Open(Row("symmetric")); var a = Point(s, "leading", 3); var d = s.BeginPointGesture(Id(), "leading", a.Id);
-            s.UpdatePointGesture(d.Id, d.Generation, a.SpanMeters + 0.003, a.AftMeters + 0.001); Symmetric(s);
+            s.UpdatePointGesture(d.Id, d.Generation, a.SpanMeters + 0.003, a.Ordinate + 0.001); Symmetric(s);
             Equal(true, FoilSource.Parse(s.Snapshot().Draft!.Bytes).IsParsed);
         });
         Check("UpdatePointGesture_TeRootEnd_HandleFollowsRootMirror", () =>
         {
             using var s = Open(FoilSource.NewDefault()); var p = Point(s, "trailing", 0); var h = Point(s, "trailing", 1);
             var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters + 0.01, p.AftMeters + 0.005);
-            Near(p.SpanMeters, Point(s, "trailing", 0).SpanMeters); Near(h.AftMeters + 0.005, Point(s, "trailing", 1).AftMeters);
+            s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters + 0.01, p.Ordinate + 0.005);
+            Near(p.SpanMeters, Point(s, "trailing", 0).SpanMeters); Near(h.Ordinate + 0.005, Point(s, "trailing", 1).Ordinate);
         });
         Check("UpdatePointGesture_PastNeighbour_ClampedOrderKept", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            Equal(true, s.UpdatePointGesture(d.Id, d.Generation, 1, p.AftMeters).Clamped); Order(s, "trailing");
+            Equal(true, s.UpdatePointGesture(d.Id, d.Generation, 1, p.Ordinate).Clamped); Order(s, "trailing");
         });
         Check("UpdatePointGesture_GapBelowOneMillimetre_ClampKeepsCurrentGap", () =>
         {
@@ -124,7 +124,7 @@ internal static class PointGestureTests
             double originalGap = n.SpanMeters - p.SpanMeters;
             True(originalGap < 0.001, "fixture starts below one millimetre");
             var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            Equal(true, s.UpdatePointGesture(d.Id, d.Generation, n.SpanMeters, p.AftMeters).Clamped);
+            Equal(true, s.UpdatePointGesture(d.Id, d.Generation, n.SpanMeters, p.Ordinate).Clamped);
             True(n.SpanMeters - Point(s, "trailing", 2).SpanMeters >= originalGap - 1e-9, "original tight gap retained");
         });
         Check("UpdatePointGesture_RandomTargets_OrderAndRowsHold", () =>
@@ -134,7 +134,7 @@ internal static class PointGestureTests
             for (int i = 0; i < 32; i++)
             {
                 d = s.Snapshot().Draft!;
-                s.UpdatePointGesture(d.Id, d.Generation, a.SpanMeters + (random.NextDouble() - 0.5) * 0.05, a.AftMeters + (random.NextDouble() - 0.5) * 0.04);
+                s.UpdatePointGesture(d.Id, d.Generation, a.SpanMeters + (random.NextDouble() - 0.5) * 0.05, a.Ordinate + (random.NextDouble() - 0.5) * 0.04);
                 Order(s, "leading"); Symmetric(s);
             }
             foreach (string kind in new[] { "smooth", "symmetric" })
@@ -147,7 +147,7 @@ internal static class PointGestureTests
                     handleDraft = handleSession.Snapshot().Draft!;
                     handleSession.UpdatePointGesture(handleDraft.Id, handleDraft.Generation,
                         handle.SpanMeters + (random.NextDouble() - 0.5) * 0.35,
-                        handle.AftMeters + (random.NextDouble() - 0.5) * 0.04);
+                        handle.Ordinate + (random.NextDouble() - 0.5) * 0.04);
                     Order(handleSession, "leading");
                     if (kind == "symmetric") Symmetric(handleSession);
                     else
@@ -155,8 +155,8 @@ internal static class PointGestureTests
                         var anchor = Point(handleSession, "leading", 3);
                         var left = Point(handleSession, "leading", 2);
                         var right = Point(handleSession, "leading", 4);
-                        Near(0, (left.SpanMeters - anchor.SpanMeters) * (right.AftMeters - anchor.AftMeters) -
-                            (right.SpanMeters - anchor.SpanMeters) * (left.AftMeters - anchor.AftMeters));
+                        Near(0, (left.SpanMeters - anchor.SpanMeters) * (right.Ordinate - anchor.Ordinate) -
+                            (right.SpanMeters - anchor.SpanMeters) * (left.Ordinate - anchor.Ordinate));
                     }
                 }
             }
@@ -164,24 +164,24 @@ internal static class PointGestureTests
         Check("UpdatePointGesture_StaleGeneration_DslConflict", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.AftMeters + 0.001);
-            Refuses("DSL-CONFLICT", () => s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.AftMeters + 0.002));
+            s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.Ordinate + 0.001);
+            Refuses("DSL-CONFLICT", () => s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.Ordinate + 0.002));
         });
         Check("UpdatePointGesture_BypassedClamp_DslPatch", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            var farSpan = s.UpdatePointGesture(d.Id, d.Generation, double.MaxValue, p.AftMeters);
+            var farSpan = s.UpdatePointGesture(d.Id, d.Generation, double.MaxValue, p.Ordinate);
             Equal(true, farSpan.Clamped); Order(s, "trailing");
             var farAft = s.UpdatePointGesture(farSpan.Draft.Id, farSpan.Draft.Generation, p.SpanMeters, double.MaxValue);
             Equal(true, farAft.Clamped); Order(s, "trailing");
             var parsed = FoilSource.Parse(s.Snapshot().Source);
             Refuses("DSL-PATCH", () => AuthoringSession.PatchGesture(parsed, "trailing",
-                new Dictionary<int, (double Eta, double Aft)> { [2] = (1.1, p.AftMeters) }));
+                new Dictionary<int, (double Eta, double Aft)> { [2] = (1.1, p.Ordinate) }));
         });
         Check("Gesture_DragManyFrames_OneAcceptedRow", () =>
         {
             using var s = Open(); var p = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", p.Id);
-            for (int i = 1; i <= 5; i++) { d = s.Snapshot().Draft!; s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.AftMeters + i * 0.001); }
+            for (int i = 1; i <= 5; i++) { d = s.Snapshot().Draft!; s.UpdatePointGesture(d.Id, d.Generation, p.SpanMeters, p.Ordinate + i * 0.001); }
             d = s.Snapshot().Draft!; int before = s.Envelope().Accepted.Length;
             s.Apply(Id(), s.Validate(d.Id, d.Generation)); Equal(before + 1, s.Envelope().Accepted.Length);
             var ended = s.ReadLocalEvents().Last(e => e.Operation == "gesture.end");

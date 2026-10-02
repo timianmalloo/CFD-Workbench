@@ -691,7 +691,7 @@ internal static class PlacementTests
         for (int index = 0; index < rows.Length; index++)
         {
             Same(where + " span " + index, rows[index].GetProperty("span").GetString(), Hex(actual[index].SpanMeters));
-            Same(where + " aft " + index, rows[index].GetProperty("aft").GetString(), Hex(actual[index].AftMeters));
+            Same(where + " aft " + index, rows[index].GetProperty("aft").GetString(), Hex(actual[index].Ordinate));
         }
     }
 

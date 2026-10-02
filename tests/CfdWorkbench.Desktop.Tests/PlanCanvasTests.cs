@@ -518,7 +518,7 @@ public static class PlanCanvasTests
             fixture.BeginDrag(point);
             fixture.MoveDrag(point, 32, 3, KeyModifiers.Shift);
             var moved = fixture.Controller.Planform!.Trailing.Points[4];
-            if (moved.AftMeters != point.AftMeters || moved.SpanMeters == point.SpanMeters)
+            if (moved.Ordinate != point.Ordinate || moved.SpanMeters == point.SpanMeters)
                 throw new Exception("Shift-drag did not lock the small aft component");
             fixture.ReleaseDrag(point, 32, 3);
         });
@@ -700,10 +700,10 @@ public static class PlanCanvasTests
             fixture.KeyUp(Key.Down);
             fixture.WaitGesture();
             var after = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handle.Id);
-            if (after.AftMeters == handle.AftMeters)
+            if (after.Ordinate == handle.Ordinate)
                 throw new Exception("Arrow did not move the focused handle");
             var partner = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handles[1].Id);
-            if (partner.AftMeters == handles[1].AftMeters)
+            if (partner.Ordinate == handles[1].Ordinate)
                 throw new Exception("Smooth opposite handle did not co-move");
         });
 
@@ -759,7 +759,7 @@ public static class PlanCanvasTests
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
-            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            double cross = fixture.Canvas.ScreenPoint(point with { Ordinate = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
             var field = typeof(PlanCanvas).GetField("advisoryCrossing",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 ?? throw new Exception("Advisory marker field missing");
@@ -809,7 +809,7 @@ public static class PlanCanvasTests
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
-            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            double cross = fixture.Canvas.ScreenPoint(point with { Ordinate = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
             var marker = typeof(PlanCanvas).GetField("advisoryCrossing",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 ?? throw new Exception("Advisory marker field missing");

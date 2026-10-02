@@ -205,7 +205,7 @@ public sealed class WorkbenchController : IDisposable
     /// because the rails' Bernstein hulls overlap, or null. Binary64 mirror of the certificate's
     /// <c>trailingLower &gt; leadingUpper</c> rule in <c>Geometry.Assess</c>; advisory only — the certificate decides.
     /// </summary>
-    public (double SpanMeters, double AftMeters)? GestureCrossing { get; private set; }
+    public (double SpanMeters, double Ordinate)? GestureCrossing { get; private set; }
 
     public PlanCamera PlanCamera { get; set; } = new();
     public bool CombVisible { get; set; }
@@ -643,7 +643,7 @@ public sealed class WorkbenchController : IDisposable
         if (Gesture == GestureState.Pressed)
         {
             double px = Math.Sqrt(Math.Pow(spanMeters - gestureOrigin.SpanMeters, 2) +
-                Math.Pow(aftMeters - gestureOrigin.AftMeters, 2)) * PlanCamera.PixelsPerMeter;
+                Math.Pow(aftMeters - gestureOrigin.Ordinate, 2)) * PlanCamera.PixelsPerMeter;
             if (px < 3) return;
             Gesture = GestureState.Dragging;
         }
@@ -709,7 +709,7 @@ public sealed class WorkbenchController : IDisposable
     /// Null when every trailing-rail Bernstein ordinate is strictly aft of every leading-rail one (the certificate's
     /// positive-chord rule); otherwise the dragged rail's offending Bernstein coefficient, in plan metres.
     /// </summary>
-    public static (double SpanMeters, double AftMeters)? EdgeHullCrossing(PlanformView plan, string draggedCurve)
+    public static (double SpanMeters, double Ordinate)? EdgeHullCrossing(PlanformView plan, string draggedCurve)
     {
         ArgumentNullException.ThrowIfNull(plan);
         var leading = BernsteinCoefficients(plan.Leading);
@@ -724,7 +724,7 @@ public sealed class WorkbenchController : IDisposable
     private static List<(double Eta, double Aft)> BernsteinCoefficients(CurveView curve)
     {
         var knots = curve.Knots.ToList();
-        var points = curve.Points.Select(point => (point.Eta, Aft: point.AftMeters)).ToList();
+        var points = curve.Points.Select(point => (point.Eta, Aft: point.Ordinate)).ToList();
         int degree = knots.Count - points.Count - 1;
         foreach (double knot in curve.Knots.Where(value => value > knots[0] && value < knots[^1]).Distinct().ToArray())
         {

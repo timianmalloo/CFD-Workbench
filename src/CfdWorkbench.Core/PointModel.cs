@@ -2,34 +2,21 @@ namespace CfdWorkbench.Core;
 
 public enum PointRole { RootEnd, RootHandle, Control, AnchorHandle, Anchor, TipHandle, TipEnd }
 public enum TangentKind { Corner, Smooth, Symmetric }
-public enum PointFreedom { Fixed, SpanOnly, ValueOnly, Free, AftOnly = ValueOnly }
+public enum PointFreedom { Fixed, SpanOnly, ValueOnly, Free }
 
 public static class PointModel
 {
-    // The five editable channels. Desktop still compiles against the AftMeters and AftOnly aliases.
+    // The five editable channels.
     public static IReadOnlySet<string> EditableCurves { get; } = new HashSet<string>(Channels.Names, StringComparer.Ordinal);
 }
 
 public sealed record PointView(string Curve, string Id, int Index, double Eta, double SpanMeters, double Ordinate,
-    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks)
-{
-    public double AftMeters { get => Ordinate; init => Ordinate = value; }
-}
-public sealed record PlanSample(double SpanMeters, double Ordinate)
-{
-    public double AftMeters { get => Ordinate; init => Ordinate = value; }
-}
+    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks);
+public sealed record PlanSample(double SpanMeters, double Ordinate);
 public sealed record CombTooth(double SpanMeters, double Ordinate, double NormalSpan, double NormalAft,
-    double Curvature, bool BreakBefore)
-{
-    public double AftMeters { get => Ordinate; init => Ordinate = value; }
-}
+    double Curvature, bool BreakBefore);
 
-public readonly record struct HandleTargetPoint(double SpanMeters, double Ordinate)
-{
-    public double AftMeters => Ordinate;
-    public static implicit operator (double Span, double Aft)(HandleTargetPoint point) => (point.SpanMeters, point.Ordinate);
-}
+public readonly record struct HandleTargetPoint(double SpanMeters, double Ordinate);
 public sealed record CurveView(string Curve, int Ceiling, IReadOnlyList<double> Knots,
     IReadOnlyList<PointView> Points, IReadOnlyList<PlanSample> Samples);
 public sealed record PlanformView(string SourceHash, string Basis, long Generation, string Version,

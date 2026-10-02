@@ -356,15 +356,15 @@ public static class PropertiesViewTests
             var aft = Need<TextBox>(host.Properties, "PointAftInput");
             var from = Need<TextBox>(host.Properties, "PointSpanInput");
             aft.Focus();
-            aft.Text = ((point.AftMeters + 0.002) * 1000).ToString("0.00", Inv);
+            aft.Text = ((point.Ordinate + 0.002) * 1000).ToString("0.00", Inv);
             from.Focus();
             WaitIdle(controller, window);
             var moved = Reload(controller, point);
-            if (Math.Abs(moved.AftMeters - point.AftMeters - 0.002) > 2e-6) throw new InvalidOperationException("blur did not commit: " + moved.AftMeters);
+            if (Math.Abs(moved.Ordinate - point.Ordinate - 0.002) > 2e-6) throw new InvalidOperationException("blur did not commit: " + moved.Ordinate);
             if (!from.IsFocused) throw new InvalidOperationException("focus left the field it was sent to");
             controller.Undo();
             Settle(window);
-            if (Math.Abs(Reload(controller, point).AftMeters - point.AftMeters) > 1e-6 || controller.CanUndo)
+            if (Math.Abs(Reload(controller, point).Ordinate - point.Ordinate) > 1e-6 || controller.CanUndo)
                 throw new InvalidOperationException("the blur commit was not exactly one undo row");
         });
 
@@ -458,7 +458,7 @@ public static class PropertiesViewTests
             aft.Focus(NavigationMethod.Tab);
             Key(aft, Avalonia.Input.Key.C, command | KeyModifiers.Shift);
             var lines = copied.SingleOrDefault()?.Split('\n') ?? [];
-            foreach (var want in new[] { "Type Control point", $"From root {Quantity.TypedLength(point.SpanMeters)} mm", $"η {Quantity.Eta(point.Eta)}", $"Aft {Quantity.TypedLength(point.AftMeters)} mm" })
+            foreach (var want in new[] { "Type Control point", $"From root {Quantity.TypedLength(point.SpanMeters)} mm", $"η {Quantity.Eta(point.Eta)}", $"Aft {Quantity.TypedLength(point.Ordinate)} mm" })
                 if (!lines.Contains(want)) throw new InvalidOperationException($"selection copy lacks '{want}': {string.Join(" / ", lines)}");
             copied.Clear();
             var rail = Need<Expander>(host.Properties, "Group_rail");
@@ -748,7 +748,7 @@ public static class PropertiesViewTests
             Key(aft, Avalonia.Input.Key.Up, up: true);
             WaitIdle(controller, window);
             var moved = Reload(controller, point);
-            if (Math.Abs(moved.AftMeters - point.AftMeters - 0.0002) > 2e-6) throw new InvalidOperationException("run moved " + (moved.AftMeters - point.AftMeters));
+            if (Math.Abs(moved.Ordinate - point.Ordinate - 0.0002) > 2e-6) throw new InvalidOperationException("run moved " + (moved.Ordinate - point.Ordinate));
             controller.Undo();
             Settle(window);
             if (controller.AcceptedSource != source || controller.CanUndo) throw new InvalidOperationException("KeyUp was not exactly one row");
@@ -799,7 +799,7 @@ public static class PropertiesViewTests
             WaitIdle(controller, window);
             host.RefreshPanes();
             Settle(window);
-            string want = $"Aft {Quantity.TypedLength(point.AftMeters + 0.001)} mm.";
+            string want = $"Aft {Quantity.TypedLength(point.Ordinate + 0.001)} mm.";
             if (polite.Count(text => text == want) != 1) throw new InvalidOperationException("status changes: " + string.Join(" | ", polite) + " want " + want);
         });
 
@@ -885,7 +885,7 @@ public static class PropertiesViewTests
             Key(aft, Avalonia.Input.Key.Up, KeyModifiers.Shift);
             Key(aft, Avalonia.Input.Key.Up, KeyModifiers.Shift, up: true);
             WaitIdle(controller, window);
-            string want = $"Aft {Quantity.TypedLength(point.AftMeters + 0.001)} mm.";
+            string want = $"Aft {Quantity.TypedLength(point.Ordinate + 0.001)} mm.";
             string strip = StatusStripTests.Text(host).Text ?? "";
             if (strip != want || Need<TextBlock>(host.Properties, "Message_p_aft").IsEffectivelyVisible)
                 throw new InvalidOperationException($"strip '{strip}' want '{want}', row '{Text(host.Properties, "Message_p_aft")}'");

@@ -55,17 +55,17 @@ internal static class ReopenPointEditTests
         Check("Reopen_TwoDGestureRow_UndoRedoRoundTrip", () =>
         {
             using var s = Open(); var point = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", point.Id);
-            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters + 0.002, point.AftMeters + 0.003);
+            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters + 0.002, point.Ordinate + 0.003);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
             using var reopened = Reopen(s);
             Near(frame.SpanMeters, Point(reopened, "trailing", 2).SpanMeters);
             reopened.Undo(Id()); reopened.Redo(Id());
-            Near(frame.AftMeters, Point(reopened, "trailing", 2).AftMeters);
+            Near(frame.Ordinate, Point(reopened, "trailing", 2).Ordinate);
         });
         Check("Reopen_CurveOnGestureReceipt_DocReference", () =>
         {
             using var s = Open(); var point = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", point.Id);
-            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.AftMeters + 0.003);
+            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.Ordinate + 0.003);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
             var env = s.Envelope(); var rows = env.Accepted.ToArray();
             rows[1] = rows[1] with { Edit = rows[1].Edit! with { Curve = "leading" } };
@@ -75,7 +75,7 @@ internal static class ReopenPointEditTests
         Check("Save_DragAndSpanOnlyHistory_NoNewReceiptKeys", () =>
         {
             using var s = Open(); var point = Point(s, "trailing", 2); var d = s.BeginPointGesture(Id(), "trailing", point.Id);
-            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.AftMeters + 0.003);
+            var frame = s.UpdatePointGesture(d.Id, d.Generation, point.SpanMeters, point.Ordinate + 0.003);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
             s.ApplyDimension(Id(), new("span", "1000"));
             string image = Encoding.UTF8.GetString(s.SaveImage());

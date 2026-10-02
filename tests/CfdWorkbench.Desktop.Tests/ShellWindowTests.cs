@@ -2416,7 +2416,7 @@ public static class ShellWindowTests
                 if (U2SelectedText(type) != "Control point")
                     throw new InvalidOperationException("Type shows " + U2SelectedText(type));
                 U2Near(U2ParseMm(U2Need<TextBox>(props, "PointSpanInput").Text), point.SpanMeters, "span");
-                U2Near(U2ParseMm(U2Need<TextBox>(props, "PointAftInput").Text), point.AftMeters, "aft");
+                U2Near(U2ParseMm(U2Need<TextBox>(props, "PointAftInput").Text), point.Ordinate, "aft");
                 if (!U2Need<TextBox>(props, "PointSpanInput").IsEnabled || !U2Need<TextBox>(props, "PointAftInput").IsEnabled)
                     throw new InvalidOperationException("Span or aft is locked on a free control point");
                 if (U2Text(props, "PointHelper") != ControlHelper)
@@ -2578,15 +2578,15 @@ public static class ShellWindowTests
                 U2Key(aft, Key.Enter);
                 U2WaitIdle(controller, window);
                 var now = U2Reload(controller, point.Curve, point.Id);
-                if (Math.Abs(now.SpanMeters - point.SpanMeters) < 0.005 && Math.Abs(now.AftMeters - point.AftMeters) < 0.001)
+                if (Math.Abs(now.SpanMeters - point.SpanMeters) < 0.005 && Math.Abs(now.Ordinate - point.Ordinate) < 0.001)
                     throw new InvalidOperationException("typed span and aft did not move the point");
                 U2Near(U2ParseMm(span.Text), now.SpanMeters, "echoed span");
-                U2Near(U2ParseMm(aft.Text), now.AftMeters, "echoed aft");
+                U2Near(U2ParseMm(aft.Text), now.Ordinate, "echoed aft");
                 if (!controller.CanUndo) throw new InvalidOperationException("typed edit has no undo");
                 controller.Undo();
                 Settle(window);
                 var restored = U2Reload(controller, point.Curve, point.Id);
-                if (Math.Abs(restored.SpanMeters - point.SpanMeters) > 0.0001 || Math.Abs(restored.AftMeters - point.AftMeters) > 0.0001)
+                if (Math.Abs(restored.SpanMeters - point.SpanMeters) > 0.0001 || Math.Abs(restored.Ordinate - point.Ordinate) > 0.0001)
                     throw new InvalidOperationException("one undo did not restore span and aft");
             }
             finally { window.Close(); }
@@ -2610,7 +2610,7 @@ public static class ShellWindowTests
                 double angle = double.Parse(angleBox.Text ?? "", inv);
                 double length = U2ParseMm(lengthBox.Text);
                 var shown = CfdWorkbench.Core.Planform.HandleTarget(controller.Planform!, handle.Curve, handle.Id, angle, length);
-                if (Math.Abs(shown.SpanMeters - handle.SpanMeters) > 5e-4 || Math.Abs(shown.AftMeters - handle.AftMeters) > 5e-4)
+                if (Math.Abs(shown.SpanMeters - handle.SpanMeters) > 5e-4 || Math.Abs(shown.Ordinate - handle.Ordinate) > 5e-4)
                     throw new InvalidOperationException("shown angle/length is not the handle");
                 lengthBox.Text = ((length + 0.02) * 1000).ToString("0.##", inv);
                 lengthBox.Focus();
@@ -2618,14 +2618,14 @@ public static class ShellWindowTests
                 U2WaitIdle(controller, window);
                 var moved = U2Reload(controller, handle.Curve, handle.Id);
                 var expected = CfdWorkbench.Core.Planform.HandleTarget(controller.Planform!, handle.Curve, handle.Id, angle, U2ParseMm(lengthBox.Text));
-                if (Math.Abs(expected.SpanMeters - moved.SpanMeters) > 5e-4 || Math.Abs(expected.AftMeters - moved.AftMeters) > 5e-4)
+                if (Math.Abs(expected.SpanMeters - moved.SpanMeters) > 5e-4 || Math.Abs(expected.Ordinate - moved.Ordinate) > 5e-4)
                     throw new InvalidOperationException("committed handle is not HandleTarget");
-                if (Math.Abs(moved.SpanMeters - handle.SpanMeters) < 0.005 && Math.Abs(moved.AftMeters - handle.AftMeters) < 0.005)
+                if (Math.Abs(moved.SpanMeters - handle.SpanMeters) < 0.005 && Math.Abs(moved.Ordinate - handle.Ordinate) < 0.005)
                     throw new InvalidOperationException("handle did not move");
                 controller.Undo();
                 Settle(window);
                 var restored = U2Reload(controller, handle.Curve, handle.Id);
-                if (Math.Abs(restored.SpanMeters - handle.SpanMeters) > 5e-4 || Math.Abs(restored.AftMeters - handle.AftMeters) > 5e-4)
+                if (Math.Abs(restored.SpanMeters - handle.SpanMeters) > 5e-4 || Math.Abs(restored.Ordinate - handle.Ordinate) > 5e-4)
                     throw new InvalidOperationException("one undo did not restore the handle");
             }
             finally { window.Close(); }
@@ -2733,7 +2733,7 @@ public static class ShellWindowTests
                 var point = U2Control(controller, "trailing");
                 if (!controller.BeginGesture(new PointRef(point.Curve, point.Id), GestureInput.Pointer))
                     throw new InvalidOperationException("gesture did not begin");
-                controller.UpdateGesture(point.SpanMeters + 0.04, point.AftMeters + 0.01);
+                controller.UpdateGesture(point.SpanMeters + 0.04, point.Ordinate + 0.01);
                 controller.FlushGestureFrame();
                 Settle(window);
                 if (controller.Gesture == GestureState.Idle)
@@ -3443,7 +3443,7 @@ public static class ShellWindowTests
         foreach (var sample in samples)
         {
             double span = sample.SpanMeters - point.SpanMeters;
-            double aft = sample.AftMeters - point.AftMeters;
+            double aft = sample.Ordinate - point.Ordinate;
             best = Math.Min(best, Math.Sqrt(span * span + aft * aft));
         }
         return best;

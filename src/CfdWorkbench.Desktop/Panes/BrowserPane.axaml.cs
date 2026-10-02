@@ -149,7 +149,7 @@ public partial class BrowserPane : UserControl
             var text = new TextBlock
             {
                 Text = point.Role + "  " + (point.SpanMeters * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm  " +
-                       (point.AftMeters * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm",
+                       (point.Ordinate * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm",
                 VerticalAlignment = VerticalAlignment.Center
             };
             var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
