@@ -84,3 +84,13 @@ at bottom of the shell". The pick page (`docs/mockups/status-bar.html`, b7c03c5)
 | ID | Ruling | Consequence |
 |---|---|---|
 | **DR-STATUS-1** status strip + warning toast | Verbatim: "i prefer V2 ... i really dont want the bottom bar being scrollable (like the message pane in 3) thats awful". **V2 is the design:** a status strip along the bottom of the shell plus a transient toast area above it for warnings. Field-level validation errors stay beside their field. Command reports move **out** of the property sheet into the strip: type change, kind change, the typed-chord fit report, the nudge value, "Selected …", and the pending drop "… unchanged". **No scrollable message list sits in, or docks to, the bottom bar** (V3 rejected) | DESIGN.md §4 *Status strip* and *Toast*; the inventory and build brief in `docs/reviews/ui-status-bar.md`. **Constrains M1.2c:** the planned Messages pane (`docs/design/m12b-points.md` §0.2 "a history list of edit reports … M1.2c (Messages pane)"; `docs/design/app-shell.md` §1 B1 bottom panel *Points, Messages* and §11 live regions) must not be a docked scrolling pane in the bottom bar. Both design docs are flagged review-suggested |
+
+## Status bar decisions (operator, 2026-10-02)
+
+| Ruling | Decision |
+|---|---|
+| **DR-STATUS-2** (D-1) | While a warning toast shows, the status strip shows the same warning text, so the report survives the toast closing. |
+| **DR-STATUS-3** (D-2) | Unit and expression echoes (incl. the set-once echo) go to the status strip, not under the field. |
+| **DR-STATUS-4** (D-3) | Drop the idle "No point change."; the strip is empty until something happens. |
+| D-4 | Edit-report history for M1.2c: open — decided at M1.2c design; constraint DR-STATUS-1 (no docked scrolling list in the bottom bar) holds. |
+

@@ -1644,7 +1644,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "097353860b6bbee079545351f02d19663ea467b68c9712d46c18abd5843462bf"
+      "sourceSha256": "e2d74893c66cfbb36921495f32978e5fb12a187a372bc4f302e4cf97b031503c"
     },
     {
       "id": "thick-client-shell",
@@ -9255,5 +9255,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "0001456a7e61f087e779d215700a478dbbea3d542d92848c18bfc11184a6ffa1"
+  "graphSha256": "0d8865263d5d61fbe8431604f14546289e2aee0dea7654741280d82391b90794"
 };
