@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status bar — where reports go</title>
+<!--
+  Pick-one page (operator, 2026-10-02: "the status … should not be in the property sheet … it should be in a status bar
+  at bottom of the shell"). The whole shell at 1280 × 800: the structure-B Properties pane (left dock, 260 px), the Plan
+  (graphite viewport), and a status bar along the bottom of the window, in three variants and three moments.
+  Self-contained, dependency-free, DESIGN.md colour tokens only; 11 px text (DR-DEN-3); interactive items ≥ 24 px.
+  All numbers Illustrative (the New-foil fixture). Not built; DESIGN.md not updated yet.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --sel:#d8eeea; --accent:#006c67; --on-accent:#ffffff; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --sel:#274c47; --accent:#88d8c6; --on-accent:#172326; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --station:#66ddc8; --danger-vp:#ffaeb5; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.4 var(--font); }
+button, select{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top label{ display:flex; gap:6px; align-items:center; font-size:12px; color:var(--mute); }
+.top select, .top button{ min-height:28px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.top button{ margin-left:auto; cursor:pointer; }
+.stage{ padding:16px 20px; }
+.note{ font-size:12px; color:var(--mute); margin:6px 0 0; max-width:1280px; }
+
+/* ---------- the shell (1280 × 800) ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.dtabs, .vtabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.dtabs span, .vtabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.dtabs span:first-child, .vtabs span:first-child{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.vp{ flex:1; min-height:0; position:relative; background:var(--vp); }
+.vp svg{ position:absolute; inset:0; width:100%; height:100%; }
+.probe{ position:absolute; right:10px; top:10px; padding:6px 8px; background:var(--vp-soft); color:var(--vp-ink); border-radius:4px; }
+.scale{ position:absolute; left:12px; bottom:10px; color:var(--vp-mute); }
+
+/* ---------- structure-B Properties (as built at 3b0545e) ---------- */
+.sel{ flex:1; min-height:0; overflow:hidden; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.ident svg{ width:12px; height:12px; }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; border-left:3px solid transparent; flex-wrap:wrap; }
+.row.e{ min-height:24px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row.e .v{ color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
+.row .u{ width:24px; color:var(--mute); }
+.row .en{ color:var(--accent); } .row .en::after{ content:" ▾"; color:var(--mute); }
+.row.warning{ border-left-color:var(--warn); } .row.error{ border-left-color:var(--danger); }
+.row .ico{ width:12px; height:12px; flex:none; }
+.row .msg{ flex:1 1 100%; padding:0 0 3px; display:flex; gap:6px; color:var(--mute); }
+.row .msg.warn{ color:var(--warn); } .row .msg.err{ color:var(--danger); } .row .msg.rep{ color:var(--ink); }
+.wing{ flex:none; border-top:1px solid var(--control); }
+.est .v{ color:var(--ink); text-decoration:none; }
+.defs{ padding:0 8px 0 22px; min-height:24px; display:flex; align-items:center; color:var(--accent); text-decoration:underline; }
+
+/* ---------- status bar variants (24 px, 11 px text; items are 24 px buttons) ---------- */
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); color:var(--ink); position:relative; }
+.sb .msgc{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; border:0; background:none; text-align:left; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .msgc svg{ width:12px; height:12px; flex:none; }
+.sb .item{ display:flex; align-items:center; gap:4px; min-height:24px; padding:0 8px; border:0; border-left:1px solid var(--line); background:none; color:var(--mute); cursor:pointer; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.sb .item:hover, .sb .msgc:hover{ background:var(--soft); }
+.sb .item b{ color:var(--ink); font-weight:600; }
+.k-info{ color:var(--ink); } .k-warn{ color:var(--warn); } .k-err{ color:var(--danger); }
+.sb.tone-warn{ box-shadow:inset 3px 0 0 var(--warn); } .sb.tone-err{ box-shadow:inset 3px 0 0 var(--danger); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+.history{ position:absolute; left:8px; bottom:28px; width:520px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,0.16); padding:6px 0; z-index:3; }
+.history h4{ margin:0; padding:2px 10px 6px; font-size:11px; color:var(--mute); }
+.history li{ list-style:none; display:flex; gap:6px; padding:3px 10px; } .history ul{ margin:0; padding:0; }
+.history svg{ width:12px; height:12px; flex:none; margin-top:1px; } .history time{ color:var(--mute); font-variant-numeric:tabular-nums; flex:none; width:48px; }
+/* V2 toast (transient, above the status bar, model area bottom-right) */
+.toast{ position:absolute; right:12px; bottom:12px; width:420px; display:flex; gap:8px; padding:8px 10px; background:var(--surface); border:1px solid var(--control); border-left:3px solid var(--warn); border-radius:4px; box-shadow:0 8px 24px rgba(0,0,0,0.16); color:var(--ink); }
+.toast.err{ border-left-color:var(--danger); } .toast svg{ width:14px; height:14px; flex:none; margin-top:1px; }
+.toast .x{ margin-left:auto; min-width:24px; min-height:24px; border:0; background:none; color:var(--mute); cursor:pointer; }
+/* V3 messages pane (collapsible bottom panel — the M1.2c Messages pane) */
+.msgs{ flex:0 0 132px; display:flex; flex-direction:column; border-top:1px solid var(--line); background:var(--surface); }
+.msgs .mh{ flex:0 0 24px; display:flex; align-items:center; gap:8px; padding:0 10px; border-bottom:1px solid var(--line); font-weight:600; }
+.msgs .mh span{ color:var(--mute); font-weight:400; }
+.msgs ul{ margin:0; padding:0; overflow:auto; }
+.msgs li{ list-style:none; display:flex; gap:8px; align-items:center; min-height:22px; padding:0 10px; border-bottom:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.msgs li svg{ width:12px; height:12px; flex:none; } .msgs time{ color:var(--mute); width:48px; flex:none; font-variant-numeric:tabular-nums; }
+.msgs li a{ margin-left:auto; color:var(--accent); text-decoration:underline; }
+
+/* contact sheet */
+.sheet{ display:grid; grid-template-columns:repeat(3, 434px); gap:14px; margin-top:18px; }
+.cell h3{ margin:0 0 4px; font-size:12px; } .cell .wrap{ width:434px; height:272px; overflow:hidden; border-radius:6px; }
+.cell .wrap .shell{ transform:scale(0.339); transform-origin:top left; }
+.policy{ margin-top:18px; border-collapse:collapse; font-size:12px; max-width:1280px; }
+.policy th, .policy td{ text-align:left; padding:4px 8px; border-bottom:1px solid var(--line); vertical-align:top; } .policy th{ color:var(--mute); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Status bar — where reports go</h1>
+  <label>Variant <select id="v"><option value="v2" selected>V2 · chosen (DR-STATUS-1): strip + warning toast</option><option value="v1">V1 · not chosen (record): VS Code strip + history</option><option value="v3">V3 · rejected (record): strip + scrolling Messages pane</option></select></label>
+  <label>Moment <select id="m"><option value="type">After a type change (anchor)</option><option value="chord">After a typed root chord, fit warning</option><option value="refused">After a refused edit (edges cross)</option></select></label>
+  <label><input type="checkbox" id="hist"> V1 history open</label>
+  <button type="button" id="theme" aria-pressed="false">Dark theme</button>
+</header>
+<main class="stage">
+  <div id="live"></div>
+  <p class="note"><b>DR-STATUS-1 (operator, 2026-10-02):</b> "i prefer V2 ... i really dont want the bottom bar being scrollable (like the message pane in 3) thats awful". V2 is the design. V1 and V3 stay on this page only as the record of the pick. No scrollable message list sits in, or docks to, the bottom bar.</p>
+  <p class="note" id="vnote"></p>
+  <table class="policy" aria-label="Where each kind of message goes">
+    <thead><tr><th>Message kind (today: where it renders)</th><th>V1 (not chosen)</th><th>V2 (chosen)</th><th>V3 (rejected)</th></tr></thead>
+    <tbody id="policy"></tbody>
+  </table>
+  <div class="sheet" id="sheet" aria-label="All variants × moments"></div>
+</main>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const IC = {
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  warn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.5 11H.5Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6 4.5v3M6 9v.8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  err:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 4l4 4M8 4 4 8" stroke="currentColor" stroke-width="1.2"/></svg>',
+  anchor:'<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  ctrl:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>'
+};
+// the three moments: the report (kind + text), the selection, and what the Properties field keeps
+const MOMENTS = {
+  type:{ kind:'info', text:'Trailing edge point 7 is now an anchor point with 2 handles. The rail gained 3 points (10 → 13). Largest change 0.84 mm.', sel:'TE · pt 7 of 14', point:'anchor' },
+  chord:{ kind:'warn', text:'Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a straight taper. Planform moved 15.84 mm so the leading edge stays at the root.', sel:'TE · pt 7 of 14', point:'anchor', root:'190.00' },
+  refused:{ kind:'err', text:'That would make the leading and trailing edges cross. The point is back where it was.', sel:'TE · pt 3 of 10', point:'control' } };
+const HISTORY = [ ['09:41:12', 'info', 'Selected Trailing edge · point 7 of 14.'], ['09:41:20', 'info', 'Trailing edge point 7 is now an anchor point with 2 handles. The rail gained 3 points (10 → 13). Largest change 0.84 mm.'],
+  ['09:41:31', 'info', 'Tangent is now symmetric. Lined up the handle toward the tip.'], ['09:41:44', 'warn', 'Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. …'], ['09:42:03', 'err', 'That would make the leading and trailing edges cross. The point is back where it was.'] ];
+
+function props(m){
+  const anchor = m.point === 'anchor', root = m.root || '126.74';
+  const r = (k, v, u, e = 1, cls = '') => `<div class="row${e ? ' e' : ''}${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`;
+  const en = (k, v) => `<div class="row e"><span class="k">${k}</span><span class="en">${v}</span></div>`;
+  const point = anchor ? [en('Type', 'Anchor point'), r('From root', '321.65', 'mm'), r('η', '0.643', '', 0), r('Aft', '158.66', 'mm'), en('Tangent kind', 'Smooth'),
+      r('Angle', '−21.08', '°'), r('To root', '18.20', 'mm'), r('To tip', '20.80', 'mm')]
+    : [en('Type', 'Control point'), r('From root', '178.26', 'mm'), r('η', '0.357', '', 0), r('Aft', '120.40', 'mm')];
+  // the chord warning keeps its field STATE (rail + icon) — the report text itself moves to the status bar
+  const rootRow = m.root ? `<div class="row e warning" title="${esc(m.text)}"><span class="k">Root chord</span>${IC.warn.replace('<svg', '<svg class="ico" style="color:var(--warn)"')}<span class="v">${root}</span><span class="u">mm</span></div>`
+    : r('Root chord', root, 'mm');
+  return `<div class="dock"><div class="dtabs"><span>Properties</span><span>Browser</span><span>Rail controls</span></div>
+    <div class="sel"><div class="ident">${anchor ? IC.anchor : IC.ctrl}Trailing edge · point ${anchor ? '7 of 14' : '3 of 10'}</div>
+      <div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${point.join('')}</div>
+      <div class="grp"><div class="gh"><span class="tw">›</span>Trailing edge <span style="margin-left:auto;font-weight:400;color:var(--mute)">cubic · ${anchor ? 14 : 10} points (16 max)</span></div></div></div>
+    <div class="wing"><div class="gh">Wing</div>${r('Span', '1000.00', 'mm')}${rootRow}${r('Tip chord', '12.67', 'mm')}<div class="defs">Estimates · definitions</div>
+      <div class="est">${r('Mean chord', '≈ 99.6', 'mm', 0)}${r('MAC', '≈ 107.1', 'mm', 0)}${r('Max t/c', '≈ 12.0', '%', 0)}${r('AR', '≈ 10.04', 'b²/S', 0)}${r('Area', '≈ 996', 'cm²', 0)}</div></div></div>`;
+}
+function plan(m){
+  const cross = m.kind === 'err' ? '<path d="M560 330 L780 330" stroke="var(--danger-vp)" stroke-width="4" stroke-dasharray="6 3"/><rect x="600" y="300" width="140" height="20" rx="3" fill="var(--vp-soft)"/><text x="610" y="314" fill="var(--danger-vp)" font-size="11">Edges would cross</text>' : '';
+  return `<div class="vp"><svg viewBox="0 0 1020 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <path d="M0 160H1020M0 320H1020M0 480H1020M255 0V640M510 0V640M765 0V640" stroke="var(--vp-grid)" stroke-width="1"/>
+    <path d="M510 40V600" stroke="var(--vp-mute)" stroke-width="1"/>
+    <path d="M90 250 Q300 238 510 236 Q720 238 930 250 Q930 262 900 270 Q720 330 510 380 Q300 330 120 270 Q90 262 90 250Z" fill="var(--foil)" fill-opacity="0.25" stroke="var(--foil)" stroke-width="2"/>
+    <path d="M510 236 L560 237 L640 240 L720 243 L800 246 L870 249" fill="none" stroke="var(--vp-mute)" stroke-dasharray="3 3"/>
+    <g fill="var(--foil)"><circle cx="560" cy="237" r="5"/><circle cx="640" cy="240" r="5"/><circle cx="720" cy="243" r="5"/><circle cx="800" cy="246" r="5"/></g>
+    ${m.point === 'anchor' ? '<rect x="655" y="345" width="12" height="12" fill="var(--station)"/><path d="M630 334 L692 368" stroke="var(--station)"/><circle cx="630" cy="334" r="4.5" fill="none" stroke="var(--station)" stroke-width="1.5"/><circle cx="692" cy="368" r="4.5" fill="none" stroke="var(--station)" stroke-width="1.5"/>'
+      : '<circle cx="660" cy="350" r="6" fill="none" stroke="var(--station)" stroke-width="2"/><circle cx="660" cy="350" r="2" fill="var(--station)"/>'}
+    ${cross}</svg>
+    <div class="probe">${m.point === "anchor" ? "η 0.643 · from root 321.65 mm · 64.3 % half-span<br>LE 6.12 mm · TE 158.66 mm · chord 152.54 mm" : "η 0.357 · from root 178.26 mm · 35.7 % half-span<br>LE 2.31 mm · TE 120.40 mm · chord 118.09 mm"}</div>
+    <div class="scale">50 mm · Plan · top</div></div>`;
+}
+function statusbar(v, m, open){
+  const kindIcon = IC[m.kind === 'warn' ? 'warn' : m.kind === 'err' ? 'err' : 'info'], k = `k-${m.kind}`;
+  const right = `<button type="button" class="item" aria-label="Selection: ${esc(m.sel)}">${esc(m.sel)}</button><button type="button" class="item" aria-label="Units: millimetres">mm</button>
+    <button type="button" class="item" aria-label="Estimates are running estimates">≈ estimates</button><button type="button" class="item" aria-label="Text size 100 percent">Text 100 %</button>`;
+  if (v === 'v1') return `<div class="sb${m.kind !== 'info' ? ' tone-' + m.kind : ''}" role="status" aria-live="polite"><button type="button" class="msgc ${k}" aria-label="Last report: ${esc(m.text)}. Show history" aria-expanded="${!!open}">${kindIcon}<span>${esc(m.text)}</span></button>${right}
+    ${open ? `<div class="history" role="dialog" aria-label="Recent reports"><h4>Recent reports</h4><ul>${HISTORY.map(([t, kk, s]) => `<li class="k-${kk}"><time>${t}</time>${IC[kk === 'warn' ? 'warn' : kk === 'err' ? 'err' : 'info']}<span>${esc(s)}</span></li>`).join('')}</ul></div>` : ''}</div>`;
+  if (v === 'v2') return `<div class="sb${m.kind !== 'info' ? ' tone-' + m.kind : ''}" role="status" aria-live="polite"><span class="msgc ${k}">${kindIcon}<span>${esc(m.text)}</span></span>${right}</div>`;
+  return `<div class="msgs"><div class="mh">Messages <span>3 · newest first</span><span style="margin-left:auto">⌄</span></div><ul role="log" aria-label="Messages">
+      <li class="${k}"><time>09:42:03</time>${kindIcon}<span>${esc(m.text)}</span><a>Show</a></li>
+      <li class="k-info"><time>09:41:31</time>${IC.info}<span>Tangent is now symmetric. Lined up the handle toward the tip.</span><a>Show</a></li>
+      <li class="k-info"><time>09:41:12</time>${IC.info}<span>Selected Trailing edge · point 7 of 14.</span><a>Show</a></li></ul></div>
+    <div class="sb"><button type="button" class="msgc ${k}" aria-label="Messages: ${m.kind === 'info' ? 'no warnings' : '1 ' + (m.kind === 'warn' ? 'warning' : 'error')}. Toggle the Messages pane">${kindIcon}<span>${esc(m.text)}</span></button><button type="button" class="item" aria-pressed="true"><b>Messages</b> 3</button>${right}</div>`;
+}
+function shell(v, mk, open){
+  const m = MOMENTS[mk];
+  const toast = v === 'v2' && m.kind === 'warn' ? `<div class="toast${m.kind === 'err' ? ' err' : ''}" aria-label="Warning">${m.kind === 'err' ? IC.err.replace('<svg', '<svg style="color:var(--danger)"') : IC.warn.replace('<svg', '<svg style="color:var(--warn)"')}<span>${esc(m.text)}</span><button type="button" class="x" aria-label="Dismiss">×</button></div>` : '';
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — Untitled.foil</b></div>
+    <div class="work">${props(m)}<div class="main"><div class="vtabs"><span>Plan</span><span>3D samples</span><span>Section sample</span><span>Foil source</span><span>Section</span></div>
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;position:relative">${plan(m)}${toast}</div></div></div>${statusbar(v, m, open)}</div>`;
+}
+const NOTES = { v1:'V1 (not chosen; record) — VS Code status bar: one 24 px strip; left = the last report with an icon by kind (replaced by the next report; warning and error tint the strip edge); click it for the recent-reports popover; right = selection, units, estimate note, Text size (24 px buttons). Nothing report-like stays in the Properties rows.',
+  v2:'V2 (chosen, DR-STATUS-1) — Premiere / Fusion: the strip always shows the last report with an icon by kind and is the one polite announcer. A WARNING also opens one toast above the strip at the bottom-right of the model area: it stays 8 s, pauses while hovered or focused, closes on × or Esc, and a newer warning replaces it. Errors stay where they arise: a field error under its field; a gesture refusal in the strip plus its marker on the Plan (no toast). Field STATE (a warning rail + icon on Root chord) stays; the report text does not.',
+  v3:'V3 (rejected by DR-STATUS-1: a scrolling list in the bottom bar) — status bar + collapsible Messages pane (the M1.2c Messages pane: m12b-points.md, a history list of edit reports; app-shell §11 live regions): every report is logged newest first with time and a Show link that selects its object; the strip shows the last one and a "Messages 3" toggle. While the pane is open the log speaks and the strip is silent, never both (app-shell §11, no double speech).' };
+const POLICY = [
+  ['Command reports — type change, kind change, nudge value, set value / expression echo, Span applied, Undo / Redo, Saved, Opened, zoom / comb / Text size, "Selected …" (today: a Properties row message <i>and</i> the model area\'s top status line via PG-26)', 'status bar only', 'status bar only', 'status bar + Messages log'],
+  ['Pending dropped — "Tangent kind unchanged: …" (today: status line)', 'status bar', 'status bar', 'status bar + log'],
+  ['Typed-chord fit report, above the limit (today: the Root chord row message, warning)', 'status bar (warning); field keeps rail + icon', 'strip (warning) + toast + field rail + icon', 'status bar + log; field rail + icon'],
+  ['Gesture refusals — edges cross, not assessed, locked point (today: model status line; the crossing marker on the Plan)', 'status bar (error); marker stays on the Plan', 'strip (error) + marker; no toast', 'status bar + log + marker'],
+  ['Field validation errors — COPY-118 / 106 / 158, clamp echo, t/c hint (today: under the field, assertive)', 'stay in the field', 'stay in the field', 'stay in the field + log (log is silent for these: the field already spoke, assertive)'],
+  ['Estimates availability — "Unavailable — …" (today: Wing note + status line once)', 'both: Wing note stays, status once', 'both', 'both + log'],
+  ['Banners that need an action — not checked, recovered edit, open failures (today: pane / model alert bands)', 'stay as bands', 'stay as bands', 'stay as bands + log'],
+  ['Busy — "Checking the last change…" (today: status line)', 'status bar', 'status bar', 'status bar'],
+  ['Developer-ish lines — "Accepted η 0.5 slice; 15 measured display points …", "No point change." (today: model status line)', 'drop "No point change."; slice line → history only', 'same', 'same, in the log'] ];
+
+function draw(){
+  const v = $('#v').value, m = $('#m').value;
+  $('#live').innerHTML = shell(v, m, v === 'v1' && $('#hist').checked);
+  $('#vnote').textContent = NOTES[v];
+  const btn = $('#live .sb .msgc'); if (btn && v === 'v1') btn.addEventListener('click', () => { $('#hist').checked = !$('#hist').checked; draw(); });
+}
+$('#policy').innerHTML = POLICY.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+$('#sheet').innerHTML = ['v2', 'v1', 'v3'].flatMap(v => ['type', 'chord', 'refused'].map(m => `<div class="cell"><h3>${v.toUpperCase()}${({ v1:' (not chosen)', v2:' (chosen)', v3:' (rejected)' })[v]} · ${({ type:'type change', chord:'fit warning', refused:'refused edit' })[m]}</h3><div class="wrap" aria-hidden="true" inert>${shell(v, m, false)}</div></div>`)).join('');
+['#v', '#m', '#hist'].forEach(s => $(s).addEventListener('change', draw));
+$('#theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; e.currentTarget.setAttribute('aria-pressed', String(d)); });
+draw();
+</script>
+</body>
+</html>

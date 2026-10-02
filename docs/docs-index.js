@@ -1794,7 +1794,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "91dbbecdedda14bcb8e711f7d66de4c13f162a5c52471641e7a28bf8c9151c42"
+      "sourceSha256": "1bff5cf69371ad283a141ef2bcc16f49c9a8e6d161d343820966c37c3b8e6b3c"
     },
     {
       "id": "design-application-contracts",
@@ -2531,6 +2531,50 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
+    },
+    {
+      "id": "mockup-status-bar",
+      "path": "docs/mockups/status-bar.md",
+      "title": "Status bar — where reports go (V2 chosen, DR-STATUS-1)",
+      "type": "design",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator asked for reports such as the point-type change to leave the Properties sheet and render in a status bar at the bottom of the shell. The page shows the whole shell at 1280 × 800 (structure-B Properties, the Plan, a 24 px bottom strip) in three variants and three moments. The operator chose V2 (DR-STATUS-1): a status strip plus a transient warning toast; errors stay where they arise. V1 and V3 remain only as the record of the pick; V3's scrolling Messages pane in the bottom bar is rejected.",
+      "tags": [
+        "mockup",
+        "status-bar",
+        "toast",
+        "shell",
+        "properties",
+        "operator-pick"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-property-grid-cells",
+          "rel": "relates-to"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3955284188f20f33b9d5a9d3a45ab4b0e15c590cab25b73b294da7d537219871"
     },
     {
       "id": "mockup-workbench",
@@ -3396,7 +3440,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d3559acd5a971e6a4a833ee60088fb69c2d8c581337dfc80fbd5e34764eec968"
+      "sourceSha256": "ca5db1e846a6337853a3475387ab45ab53d1791ca8099cfa5ca25506cac9a41e"
     },
     {
       "id": "domain-experts",
@@ -4133,7 +4177,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "27245b180d1f593745601bc2f05b2dd264e4166ce6ccc85847ba6fb9da20febb"
+      "sourceSha256": "ae3f01e25dcddfa08d0544b311eb421eb2551c9e5912afc99c54b3b64cd518af"
     },
     {
       "id": "review-proposal-gap-reconciliation",
@@ -4270,7 +4314,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3fc9203414ad69aabb7fc98f462c9fa4b8bd2b62a8e927190a08a418a0855fb"
+      "sourceSha256": "71b6c431d00dca92309dfb1ec991ec1c33c02ea0056748e144245f8876e666f1"
     },
     {
       "id": "review-ui-property-grid-density",
@@ -9138,7 +9182,15 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-property-grid-cells"
+    },
+    {
+      "id": "surface-mockups-status-bar",
+      "path": "docs/mockups/status-bar.html",
+      "title": "Status bar — where reports go",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "28845f72461b17929ea34c33a90a0bd716f9575a6668432f398db7529ae513da"
+  "graphSha256": "76ad96cd997b69f30f6625637008366f1f673fac7135a121405bea97872d55cc"
 };
