@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:15:28Z",
+  "generated": "2026-10-02T14:24:32Z",
   "audit": [
     {
       "actor": null,
@@ -21716,6 +21716,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:14:25Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M3YG191K5XC8AQHH1HXXDZXW",
+      "shortname": "join-m12b2-ch1",
+      "datetime": "2026-10-02T14:24:32Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12b2-ch1 into feature/ui-cad-direction",
+      "summary": "CH1 (Grok 4.7): five-channel editing, roles/freedoms, unit-free row rule, Core twist/t-c clamp (Clamped), EditReference, CLI channel points, SR-1 expand+migrate (aliases kept; Desktop call sites listed). PL0b: channel inversion folded into Placement, probe equality + planted mutant. CH1 29/30 (alias removal deferred by design). TESTCOST (Opus): binding sweeps ringed to readiness with fast subsets (mutants killed), Core readiness tier wired + check-docs control; wall 62 -> 48 s. The 5.00 s store 'waits' were the Coordinator's timer running without the harness TMPDIR (failures, not slow passes) - no store defect. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/test-ci-waste.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T14:23:41Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
