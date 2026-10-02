@@ -481,7 +481,7 @@ internal static class PlacementTests
         return samples;
     }
 
-    private static string RepoRoot([CallerFilePath] string here = "") =>
+    internal static string RepoRoot([CallerFilePath] string here = "") =>
         Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
 
     private static void CertificateGolden(bool assess)
