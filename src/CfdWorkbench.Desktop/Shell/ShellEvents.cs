@@ -25,7 +25,12 @@ public sealed record ShellEvent(
     double? RenderP95Ms = null,
     double? CommitMs = null,
     string? EditKind = null,
-    string? OperationId = null);
+    string? OperationId = null,
+    string? Basis = null,
+    int? Stations = null,
+    int? ChordSamples = null,
+    string? CurveFamily = null,
+    bool? ThreeDVisible = null);
 
 public static class ShellEvents
 {
@@ -66,7 +71,12 @@ public static class ShellEvents
         double? renderP95Ms = null,
         double? commitMs = null,
         string? editKind = null,
-        string? operationId = null)
+        string? operationId = null,
+        string? basis = null,
+        int? stations = null,
+        int? chordSamples = null,
+        string? curveFamily = null,
+        bool? threeDVisible = null)
     {
         lock (sync)
         {
@@ -74,7 +84,8 @@ public static class ShellEvents
             Record(new ShellEvent(
                 seq, name, outcome, durationMs, traceId, code, bytes, droppedCount, clampedCount,
                 trigger, pane, from, to, corner, exceptionType, publicationKnown, durabilityConfirmed, retried,
-                frames, updateP95Ms, estimatesP95Ms, renderP95Ms, commitMs, editKind, operationId));
+                frames, updateP95Ms, estimatesP95Ms, renderP95Ms, commitMs, editKind, operationId,
+                basis, stations, chordSamples, curveFamily, threeDVisible));
         }
     }
 

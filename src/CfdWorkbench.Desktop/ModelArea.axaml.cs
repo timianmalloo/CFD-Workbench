@@ -1,12 +1,23 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Panes;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop;
 
 public partial class ModelArea : UserControl
 {
+    /// <summary>Each view of Four views needs at least this much; below it the model area shows One view.</summary>
+    public static readonly Size MinimumFourViewSize = new(320, 240);
+
+    private WorkbenchController? controller;
+    private bool foilOpen;
+
     public ModelArea()
     {
         InitializeComponent();
@@ -22,13 +33,183 @@ public partial class ModelArea : UserControl
         };
         PlanCanvas.RenderRecovered += () => PlanRenderErrorBand.IsVisible = false;
         PlanRenderTryAgainButton.Click += (_, _) => PlanCanvas.RetryRender();
+
+        foreach (var (renderer, band, retry) in new[]
+        {
+            (ThreeDRenderer, ThreeDRenderErrorBand, ThreeDRenderTryAgainButton),
+            (SideRenderer, SideRenderErrorBand, SideRenderTryAgainButton),
+            (FrontRenderer, FrontRenderErrorBand, FrontRenderTryAgainButton)
+        })
+        {
+            renderer.RenderFailed += _ => Dispatcher.UIThread.Post(() => band.IsVisible = true, DispatcherPriority.Background);
+            renderer.RenderRecovered += () => band.IsVisible = false;
+            retry.Click += (_, _) =>
+            {
+                renderer.RetryRender();
+                controller?.RefreshSurface();
+            };
+        }
+        foreach (var (label, view) in Labels())
+        {
+            label.Click += (_, _) => { if (controller is not null) controller.TargetView = view; };
+            label.DoubleTapped += (_, args) =>
+            {
+                controller?.ToggleOneView(view);
+                args.Handled = true;
+            };
+            label.AddHandler(KeyDownEvent, (_, args) =>
+            {
+                if (args.Key != Key.Return || controller is null) return;
+                controller.ToggleOneView(view);
+                args.Handled = true;
+            }, RoutingStrategies.Tunnel);
+        }
+        // A view shown by a layout change gets its size only after that layout pass; its first camera fits then.
+        ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
+        foreach (var renderer in new[] { ThreeDRenderer, SideRenderer, FrontRenderer })
+            renderer.SizeChanged += (_, _) => Refresh();
+        AttachedToVisualTree += (_, _) => Bind();
+        DetachedFromVisualTree += (_, _) =>
+        {
+            if (controller is not null) controller.SurfaceWanted = false;
+        };
     }
+
+    /// <summary>The controller this area draws; the shell hands it to the Plan canvas, and the area follows it.</summary>
+    public WorkbenchController? Controller => controller;
 
     public void ShowFoilOpen(bool isOpen)
     {
         StartCardView.IsVisible = !isOpen;
         PlanContent.IsVisible = isOpen;
         Plan3DContent.IsVisible = isOpen;
+        foilOpen = isOpen;
+        Bind();
+        Refresh();
+    }
+
+    /// <summary>The arrangement actually shown: Four views falls back to One view when a quarter is under 320 × 240.</summary>
+    public ViewLayout EffectiveLayout
+    {
+        get
+        {
+            var chosen = controller?.Layout ?? ViewLayout.Plan3d;
+            var size = ViewArrangementGrid.Bounds.Size;
+            if (chosen.Arrangement == ViewArrangement.Four && size.Width > 0 &&
+                (size.Width / 2 < MinimumFourViewSize.Width || size.Height / 2 < MinimumFourViewSize.Height))
+                return ViewLayout.One(controller?.TargetView ?? SingleView.Plan);
+            return chosen;
+        }
+    }
+
+    private IEnumerable<(Button Label, SingleView View)> Labels() =>
+    [
+        (PlanLabel, SingleView.Plan), (ThreeDLabel, SingleView.ThreeD), (SideLabel, SingleView.Side), (FrontLabel, SingleView.Front)
+    ];
+
+    private void Bind()
+    {
+        var next = PlanCanvas.Controller;
+        if (ReferenceEquals(next, controller)) return;
+        if (controller is not null)
+        {
+            controller.Changed -= OnControllerChanged;
+            controller.SurfaceWanted = false;
+        }
+        controller = next;
+        if (controller is not null) controller.Changed += OnControllerChanged;
+    }
+
+    private void OnControllerChanged()
+    {
+        if (Dispatcher.UIThread.CheckAccess()) Refresh();
+        else Dispatcher.UIThread.Post(Refresh, DispatcherPriority.Background);
+    }
+
+    private bool refreshing;
+
+    private void Refresh()
+    {
+        // Fitting a first camera writes it back to the controller, which raises Changed into this method again.
+        if (controller is null || refreshing) return;
+        refreshing = true;
+        try { RefreshViews(controller); }
+        finally { refreshing = false; }
+    }
+
+    private void RefreshViews(WorkbenchController controller)
+    {
+        var layout = EffectiveLayout;
+        ApplyLayout(layout);
+        bool attached = TopLevel.GetTopLevel(this) is not null;
+        controller.SurfaceWanted = attached && foilOpen &&
+            (layout.Shows(SingleView.ThreeD) || layout.Shows(SingleView.Side) || layout.Shows(SingleView.Front));
+        if (!foilOpen) return;
+
+        var surface = controller.Surface;
+        bool certified = controller.Inspection?.Geometry.Status == GeometryStatus.Certified;
+        double? selectedEta = controller.Selection is Selection.Station station ? station.Eta : null;
+        string suffix = (certified ? "" : " · not checked") + (controller.SurfaceBehind ? " · Updating…" : "");
+
+        ThreeDDrawing.IsVisible = surface is null;
+        ThreeDNote.Text = controller.SurfaceNote;
+        ThreeDNote.IsVisible = controller.SurfaceNote is not null;
+        foreach (var (renderer, view) in new[] { (ThreeDRenderer, SingleView.ThreeD), (SideRenderer, SingleView.Side), (FrontRenderer, SingleView.Front) })
+        {
+            renderer.Surface = surface;
+            renderer.Display = controller.DisplayFor(view);
+            renderer.SelectedEta = selectedEta;
+            renderer.Dimmed = !certified;
+            renderer.Camera = CameraFor(view, renderer.Bounds.Size, surface);
+        }
+        ThreeDLabel.Content = "3D · " + (controller.Camera3d?.Title ?? "Iso") + suffix;
+        SideLabel.Content = "Side · from starboard" + suffix;
+        FrontLabel.Content = "Front · looking aft" + suffix;
+        PlanLabel.Content = "Plan" + (certified ? "" : " · not checked");
+        foreach (var (label, view) in Labels())
+            Avalonia.Automation.AutomationProperties.SetName(label,
+                label.Content + " view label. Double-click or Return shows " +
+                (layout.Arrangement == ViewArrangement.One ? "every view again." : "this view alone."));
+    }
+
+    // The first mesh fits the named camera to the view's own size; later meshes keep the user's camera.
+    private ViewCamera? CameraFor(SingleView view, Size size, SurfaceView? surface)
+    {
+        if (controller is null) return null;
+        var current = view == SingleView.ThreeD ? controller.Camera3d : controller.CameraFor(view);
+        if (current is not null || surface is null || size.Width <= 0 || size.Height <= 0) return current;
+        // Both halves: the port half is the starboard mesh mirrored in y.
+        var minimum = new Point3(surface.MinimumX, -surface.MaximumY, surface.MinimumZ);
+        var maximum = new Point3(surface.MaximumX, surface.MaximumY, surface.MaximumZ);
+        var fitted = ViewCamera.Named(view switch
+        {
+            SingleView.Side => NamedCamera.Side,
+            SingleView.Front => NamedCamera.Front,
+            _ => NamedCamera.Iso
+        }, minimum, maximum, size);
+        if (view == SingleView.ThreeD) controller.Camera3d = fitted;
+        else controller.SetCameraFor(view, fitted);
+        return fitted;
+    }
+
+    private void ApplyLayout(ViewLayout layout)
+    {
+        var grid = ViewArrangementGrid;
+        bool four = layout.Arrangement == ViewArrangement.Four;
+        bool one = layout.Arrangement == ViewArrangement.One;
+        grid.ColumnDefinitions[0].Width = new GridLength(four ? 1 : 2, GridUnitType.Star);
+        grid.ColumnDefinitions[1].Width = one ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+        grid.RowDefinitions[1].Height = four ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        foreach (var (slot, view, row, column) in new (Control, SingleView, int, int)[]
+        {
+            (PlanSlot, SingleView.Plan, 0, 0), (ThreeDSlot, SingleView.ThreeD, 0, 1),
+            (SideSlot, SingleView.Side, 1, 0), (FrontSlot, SingleView.Front, 1, 1)
+        })
+        {
+            slot.IsVisible = layout.Shows(view);
+            Grid.SetRow(slot, one ? 0 : row);
+            Grid.SetColumn(slot, one ? 0 : column);
+        }
     }
 
     public void ShowAlertBand(string message, bool showAcceptIds = false, bool showResumeRecovery = false)
