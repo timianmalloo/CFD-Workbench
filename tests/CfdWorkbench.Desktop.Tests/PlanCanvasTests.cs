@@ -395,20 +395,20 @@ public static class PlanCanvasTests
                 throw new Exception($"Plan minimum bounds are {fixture.Canvas.Bounds}");
         });
 
-        DesktopChecks.Check("ModelArea_SamplesTab_IsometricMovedUnchanged", () =>
+        DesktopChecks.Check("ModelArea_SectionSampleTab_PlotDrawnAtMinimumWidth", () =>
         {
             using var fixture = new PlanFixture();
             if (!ReferenceEquals(fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable,
                     fixture.Host.LayoutFactory.ModelDocument))
                 throw new Exception("Plan is not the initial document");
-            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SamplesDocument;
-            var viewport = fixture.Host.ModelView.FindControl<Viewport>("FoilViewport")!;
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SectionSampleDocument;
+            var viewport = fixture.Host.ModelView.FindControl<Viewport>("SectionViewport")!;
             for (int i = 0; i < 5 && (!viewport.IsEffectivelyVisible || viewport.Bounds.Width < 320 ||
                                       !ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)); i++)
                 fixture.Settle();
             if (!viewport.IsEffectivelyVisible || !ReferenceEquals(viewport.LastRecordedFrame,
                     fixture.Controller.Frame) || viewport.Bounds.Width < 320)
-                throw new Exception($"3D samples document lost the isometric plot: visible={viewport.IsEffectivelyVisible}, " +
+                throw new Exception($"Section sample document lost its plot: visible={viewport.IsEffectivelyVisible}, " +
                     $"bounds={viewport.Bounds}, frame={ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)}");
         });
 
@@ -438,7 +438,7 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             var before = fixture.RgbAtPoint(point);
-            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SamplesDocument;
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SectionSampleDocument;
             fixture.Settle();
             fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.ModelDocument;
             fixture.Settle();
@@ -518,7 +518,7 @@ public static class PlanCanvasTests
             fixture.BeginDrag(point);
             fixture.MoveDrag(point, 32, 3, KeyModifiers.Shift);
             var moved = fixture.Controller.Planform!.Trailing.Points[4];
-            if (moved.AftMeters != point.AftMeters || moved.SpanMeters == point.SpanMeters)
+            if (moved.Ordinate != point.Ordinate || moved.SpanMeters == point.SpanMeters)
                 throw new Exception("Shift-drag did not lock the small aft component");
             fixture.ReleaseDrag(point, 32, 3);
         });
@@ -700,10 +700,10 @@ public static class PlanCanvasTests
             fixture.KeyUp(Key.Down);
             fixture.WaitGesture();
             var after = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handle.Id);
-            if (after.AftMeters == handle.AftMeters)
+            if (after.Ordinate == handle.Ordinate)
                 throw new Exception("Arrow did not move the focused handle");
             var partner = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handles[1].Id);
-            if (partner.AftMeters == handles[1].AftMeters)
+            if (partner.Ordinate == handles[1].Ordinate)
                 throw new Exception("Smooth opposite handle did not co-move");
         });
 
@@ -759,7 +759,7 @@ public static class PlanCanvasTests
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
-            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            double cross = fixture.Canvas.ScreenPoint(point with { Ordinate = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
             var field = typeof(PlanCanvas).GetField("advisoryCrossing",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 ?? throw new Exception("Advisory marker field missing");
@@ -809,7 +809,7 @@ public static class PlanCanvasTests
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
-            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            double cross = fixture.Canvas.ScreenPoint(point with { Ordinate = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
             var marker = typeof(PlanCanvas).GetField("advisoryCrossing",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 ?? throw new Exception("Advisory marker field missing");

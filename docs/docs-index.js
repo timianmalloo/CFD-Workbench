@@ -2189,7 +2189,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "170dbed20336c3310e2279de6976217d437f41bd146035a3744d8ff03e58553b"
+      "sourceSha256": "5fb27d5217201b7c6cd435dd54736733f9f5803db1b27d77dba48cae183b6e10"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -9309,5 +9309,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "9716d086551fbbe8ed9f37420de81edd8b264187cd2942d02f73f1dd40b44576"
+  "graphSha256": "f55bc48fd51be8af825b30c0229435a7818c9537bebfaadc77b6d4e468e89c82"
 };

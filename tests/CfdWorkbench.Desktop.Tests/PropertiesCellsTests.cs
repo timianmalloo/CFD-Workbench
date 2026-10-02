@@ -735,7 +735,7 @@ public static class PropertiesCellsTests
             host.Properties.ClipboardWriter = text => { copied.Add(text); return Task.CompletedTask; };
             foreach (var header in new[] { "Copy Aft with unit", "Copy Type" })
                 items[header].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
-            string aft = Quantity.TypedLength(Reload(controller, PropertiesViewTests.Control(controller, "trailing")).AftMeters);
+            string aft = Quantity.TypedLength(Reload(controller, PropertiesViewTests.Control(controller, "trailing")).Ordinate);
             if (copied.Count != 2 || !copied[0].EndsWith(" mm", StringComparison.Ordinal) || copied[1] != "Anchor point")
                 throw new InvalidOperationException("copied: " + string.Join(" | ", copied) + " (aft " + aft + ")");
         });

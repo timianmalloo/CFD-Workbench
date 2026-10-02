@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (workbench.Inspection is null) shellHost.ModelView.StartCardView.StartNewButton.Focus();
-                    else shellHost.ModelView.FoilViewport.Focus();
+                    else shellHost.ModelView.PlanCanvas.Focus();
                 }, DispatcherPriority.Input);
             }
             else shellHost.FocusStartWhenReady();

@@ -29,10 +29,7 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
     int? Frames = null, string? CurveFamily = null);
 public sealed record DimensionCommand(string Name, string Text);
-public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped)
-{
-    public double AftMeters { get => Ordinate; init => Ordinate = value; }
-}
+public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
 {
     public sealed record MakeAnchor(string Curve, string VertexId) : PointCommand(Curve, VertexId);

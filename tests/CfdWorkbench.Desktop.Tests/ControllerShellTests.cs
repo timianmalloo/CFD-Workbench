@@ -501,7 +501,7 @@ public static class ControllerShellTests
     private static void Move(WorkbenchController controller, PointView point, double spanDelta, double aftDelta = 0)
     {
         dynamic target = controller;
-        target.UpdateGesture(point.SpanMeters + spanDelta, point.AftMeters + aftDelta);
+        target.UpdateGesture(point.SpanMeters + spanDelta, point.Ordinate + aftDelta);
     }
 
     private static dynamic End(WorkbenchController controller, string reason = "Release")
@@ -588,7 +588,7 @@ public static class ControllerShellTests
                 Move(controller, point, 0, 0.004);
                 Require(End(controller).GetType().Name == "Committed", "Release did not commit.");
                 var now = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0).Trailing.Points[3];
-                Require(Math.Abs(now.AftMeters - (point.AftMeters + 0.004)) < 0.000002, "Last pointer target was not committed.");
+                Require(Math.Abs(now.Ordinate - (point.Ordinate + 0.004)) < 0.000002, "Last pointer target was not committed.");
             }
         });
 
@@ -603,7 +603,7 @@ public static class ControllerShellTests
                     dynamic value = GestureEnum("NudgeModifier", modifier);
                     c.Nudge(0, 1, value);
                     var draftPoint = ((PlanformView)c.Planform).Trailing.Points[3];
-                    Require(Math.Abs(draftPoint.AftMeters - (point.AftMeters + expected)) < 0.000002, $"{modifier} ladder wrong.");
+                    Require(Math.Abs(draftPoint.Ordinate - (point.Ordinate + expected)) < 0.000002, $"{modifier} ladder wrong.");
                     End(controller, "Escape");
                 }
             }
@@ -771,7 +771,7 @@ public static class ControllerShellTests
                 Begin(controller, pointRef); Move(controller, point, 0, 0.004); End(controller);
                 string payload = System.Text.Json.JsonSerializer.Serialize(CfdWorkbench.Desktop.Shell.ShellEvents.Read());
                 Require(!payload.Contains(pointRef.VertexId, StringComparison.Ordinal) &&
-                    !payload.Contains(point.AftMeters.ToString("G17", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
+                    !payload.Contains(point.Ordinate.ToString("G17", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal),
                     "Telemetry leaked a point id or position.");
             }
         });
@@ -790,7 +790,7 @@ public static class ControllerShellTests
             Require(controller.CanUndo, "Nudge run has no undo row.");
             controller.Undo();
             var restored = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0).Trailing.Points[3];
-            Require(Math.Abs(restored.AftMeters - point.AftMeters) < 0.0000001 && !controller.CanUndo,
+            Require(Math.Abs(restored.Ordinate - point.Ordinate) < 0.0000001 && !controller.CanUndo,
                 "Nudge run was not one undo row.");
         }
     }

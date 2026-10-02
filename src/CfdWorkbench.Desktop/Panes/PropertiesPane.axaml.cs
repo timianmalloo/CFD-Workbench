@@ -1170,7 +1170,7 @@ public partial class PropertiesPane : UserControl
         if (view.Row.Key is "p:from" or "p:aft")
         {
             // One intent, one undo row: a dirty From root and Aft commit together.
-            double span = point.SpanMeters, aft = point.AftMeters;
+            double span = point.SpanMeters, aft = point.Ordinate;
             foreach (var other in new[] { "p:from", "p:aft" })
             {
                 if (!rows.TryGetValue(other + "|Input", out var field) || field.Input is not { } input) continue;
@@ -1189,8 +1189,9 @@ public partial class PropertiesPane : UserControl
             var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
             var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
             bool isAngle = view.Row.Family == UnitFamily.Angle;
-            destination = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id,
+            var reached = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id,
                 isAngle ? value : angle, isAngle ? length : value / 1000);
+            destination = (reached.SpanMeters, reached.Ordinate);
             if (UnitEntry.TryParse(box.Text, view.Row.Family, dims, out var entry) &&
                 UnitEntry.Echo(box.Text!, entry, view.Row.Unit ?? "") is { } echo)
                 echoes[view.Row.Key] = echo;
@@ -1279,7 +1280,7 @@ public partial class PropertiesPane : UserControl
                 controller.Select(selection);
             }
             var start = PropertiesView.Find(plan, target)!;
-            run = new NudgeRun(view, box, target, plan, origin, origin, (start.SpanMeters, start.AftMeters));
+            run = new NudgeRun(view, box, target, plan, origin, origin, (start.SpanMeters, start.Ordinate));
         }
         var active = run;
         // COPY-163: ⌘ (Ctrl on Windows) 0.01, Shift 1, plain 0.1 — in the field's unit (mm, °, %).
@@ -1316,14 +1317,15 @@ public partial class PropertiesPane : UserControl
         var point = PropertiesView.Find(active.Plan, active.Target)!;
         switch (active.View.Row.Key)
         {
-            case "p:from": return (value / 1000, point.AftMeters);
+            case "p:from": return (value / 1000, point.Ordinate);
             case "p:aft": return (point.SpanMeters, value / 1000);
         }
         var anchor = PropertiesView.Rail(active.Plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
         var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
         bool isAngle = active.View.Row.Family == UnitFamily.Angle;
-        return CfdWorkbench.Core.Planform.HandleTarget(active.Plan, point.Curve, point.Id,
+        var handle = CfdWorkbench.Core.Planform.HandleTarget(active.Plan, point.Curve, point.Id,
             isAngle ? value : angle, isAngle ? length : value / 1000);
+        return (handle.SpanMeters, handle.Ordinate);
     }
 
     private static double? ReadValue(PropertyRow row, PlanformView plan)
@@ -1332,7 +1334,7 @@ public partial class PropertiesPane : UserControl
         switch (row.Key)
         {
             case "p:from": return point.SpanMeters * 1000;
-            case "p:aft": return point.AftMeters * 1000;
+            case "p:aft": return point.Ordinate * 1000;
         }
         if (point.AnchorId is null) return null;
         var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);

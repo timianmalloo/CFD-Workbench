@@ -33,11 +33,11 @@ internal static class PointCommandTests
         {
             byte[] source = Encoding.UTF8.GetBytes(File.ReadAllText("docs/examples/foildsl/foil-basic.foil")
                 .Replace("(0.5, 0), (0.7, 0)", "(0.5, 4), (0.7, 0)", StringComparison.Ordinal));
-            using var s = Open(source); var p = Point(s, "leading", 3); double before = p.AftMeters;
+            using var s = Open(source); var p = Point(s, "leading", 3); double before = p.Ordinate;
             var outcome = Anchor(s, "leading", 3);
             var anchored = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.Single(item => item.Id == p.Id);
             Equal(PointRole.Anchor, anchored.Role);
-            Near(before, anchored.AftMeters, 1e-6);
+            Near(before, anchored.Ordinate, 1e-6);
             Near(before, Planform.Probe(Planform.View(s.Snapshot().Source, "Accepted", 0), p.Eta).LeadingAftMeters, 1e-6);
             True(outcome.PointsAfter > outcome.PointsBefore, "anchor adds handles");
         });
@@ -45,8 +45,8 @@ internal static class PointCommandTests
         {
             using var s = Open(); var prior = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading;
             Anchor(s, "leading", 3); var next = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading;
-            Near(prior.Points[0].AftMeters, next.Points[0].AftMeters);
-            Near(prior.Points[^1].AftMeters, next.Points[^1].AftMeters);
+            Near(prior.Points[0].Ordinate, next.Points[0].Ordinate);
+            Near(prior.Points[^1].Ordinate, next.Points[^1].Ordinate);
         });
         Check("MakeAnchor_NewFoil_TenToThirteenHeader41SmoothRow", () =>
         {
@@ -93,7 +93,7 @@ internal static class PointCommandTests
         {
             using var s = WithAnchor(); var prior = Point(s, "leading", 0);
             s.ApplyPointCommand(Id(), new PointCommand.MakeControl("leading", AnchorPoint(s).Id));
-            Near(prior.AftMeters, Point(s, "leading", 0).AftMeters);
+            Near(prior.Ordinate, Point(s, "leading", 0).Ordinate);
         });
         Check("MakeControl_Undo_RestoresExactly", () =>
         {
@@ -113,31 +113,31 @@ internal static class PointCommandTests
             using var s = Open(Row()); Tangent(s, TangentKind.Corner);
             var left = Point(s, "leading", 2); var right = Point(s, "leading", 4);
             var draft = s.BeginPointGesture(Id(), "leading", right.Id);
-            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, right.SpanMeters, right.AftMeters + 0.008);
+            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, right.SpanMeters, right.Ordinate + 0.008);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
             Tangent(s, TangentKind.Smooth, left.Id);
             Near(left.SpanMeters, Point(s, "leading", 2).SpanMeters);
-            Near(left.AftMeters, Point(s, "leading", 2).AftMeters);
+            Near(left.Ordinate, Point(s, "leading", 2).Ordinate);
         });
         Check("SetTangent_SmoothNoHandleSelected_BothOnBisector", () =>
         {
             using var s = Open(Row()); Tangent(s, TangentKind.Corner);
             var left = Point(s, "leading", 2);
             var draft = s.BeginPointGesture(Id(), "leading", left.Id);
-            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, left.SpanMeters, left.AftMeters + 0.008);
+            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, left.SpanMeters, left.Ordinate + 0.008);
             s.Apply(Id(), s.Validate(frame.Draft.Id, frame.Draft.Generation));
             var beforeLeft = Point(s, "leading", 2); var beforeRight = Point(s, "leading", 4);
             Tangent(s, TangentKind.Smooth);
             Equal(TangentKind.Smooth, Point(s, "leading", 3).Kind);
-            True(Math.Abs(Point(s, "leading", 2).AftMeters - beforeLeft.AftMeters) > 1e-6, "left handle moves to bisector");
-            True(Math.Abs(Point(s, "leading", 4).AftMeters - beforeRight.AftMeters) > 1e-6, "right handle moves to bisector");
+            True(Math.Abs(Point(s, "leading", 2).Ordinate - beforeLeft.Ordinate) > 1e-6, "left handle moves to bisector");
+            True(Math.Abs(Point(s, "leading", 4).Ordinate - beforeRight.Ordinate) > 1e-6, "right handle moves to bisector");
         });
         Check("SetTangent_SymmetricNextToNeighbour_OrderKept", () =>
         {
             using var s = Open(Row()); Tangent(s, TangentKind.Symmetric);
             var view = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading;
             for (int i = 1; i < view.Points.Count; i++) True(view.Points[i].Eta > view.Points[i - 1].Eta, "order");
-            Near(2 * view.Points[3].AftMeters, view.Points[2].AftMeters + view.Points[4].AftMeters);
+            Near(2 * view.Points[3].Ordinate, view.Points[2].Ordinate + view.Points[4].Ordinate);
         });
         Check("SetTangent_Corner_RowRemoved", () =>
         {

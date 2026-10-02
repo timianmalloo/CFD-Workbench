@@ -156,8 +156,8 @@ def contrast_checks(test_step: dict) -> dict[str, object]:
 # `THEME-ROW <theme>/<row> fg=#AARRGGBB bg=#AARRGGBB ratio=<F4> floor=<n>`; this gate re-derives each ratio.
 SHELL_THEME_ROWS = {
     "focus.tab": 3, "focus.tab.vs-fill": 3,
-    "tab.Plan.unselected.rest": 4.5, "tab.3D samples.selected.rest": 4.5, "select.tab.3D samples": 3,
-    "tab.Section sample.unselected.rest": 4.5, "tab.Foil source.unselected.rest": 4.5,
+    "tab.Plan.unselected.rest": 4.5, "tab.Section sample.selected.rest": 4.5, "select.tab.Section sample": 3,
+    "tab.Foil source.unselected.rest": 4.5,
     "tab.Section.unselected.rest": 4.5, "tab.Foil source.unselected.hover": 4.5,
     "focus.tab.selected-while-focused": 3, "focus.tab.selected-while-focused.vs-fill": 3,
     "tab.Foil source.selected.rest": 4.5, "select.tab.Foil source": 3, "tab.Foil source.selected.hover": 4.5,
@@ -168,7 +168,7 @@ SHELL_THEME_ROWS = {
     "browser.selected": 4.5, "browser.unselected": 4.5, "focus.browser": 3, "focus.browser.vs-fill": 3,
     "focus.browser.selected": 3, "focus.browser.selected.vs-fill": 3,
     "span.text": 4.5, "focus.span": 3, "source.text": 4.5,
-    "viewport.annotation": 4.5, "section.annotation": 4.5,
+    "section.annotation": 4.5,
     "modal.body": 4.5, "modal.save.rest": 4.5, "modal.save.hover": 4.5, "modal.discard.rest": 4.5,
     "modal.discard.hover": 4.5, "modal.cancel.rest": 4.5, "modal.cancel.hover": 4.5,
     # Pressed and returned (Styles.axaml Button:pressed, ListBoxItem :pressed / :selected:pressed); returned paints as rest.

@@ -124,7 +124,7 @@ public static class Cli
                     locks = point.Locks,
                     freedom = point.Freedom.ToString(),
                     ordinate = point.Ordinate,
-                    aftMeters = point.AftMeters
+                    aftMeters = point.Ordinate
                 }).ToArray();
                 pointModel = new
                 {

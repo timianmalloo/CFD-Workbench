@@ -27,12 +27,31 @@ internal static class PointModelTests
             Equal(PointFreedom.SpanOnly, view.Leading.Points[1].Freedom);
             Equal(PointFreedom.Free, view.Leading.Points[4].Freedom);
             Equal(PointFreedom.Free, view.Leading.Points[5].Freedom);
-            Equal(PointFreedom.AftOnly, view.Leading.Points[6].Freedom);
+            Equal(PointFreedom.ValueOnly, view.Leading.Points[6].Freedom);
             Equal(true, view.Leading.Points[0].Locks.Contains("root_mirror"));
             Equal(true, view.Leading.Points[1].Locks.Contains("root_mirror"));
             Equal(false, view.Leading.Points[2].Locks.Contains("root_mirror"));
             Equal(true, view.Leading.Points[3].Kind is null);
             Near(0.45, view.HalfSpanMeters, 1e-12);
+        });
+        Check("PointModel_SrOneAliases_RemovedAtExit", () =>
+        {
+            // Reflection over every Core type (public and internal), then a source scan of src/ for the Desktop tuple names.
+            var members = typeof(PointView).Assembly.GetTypes()
+                .SelectMany(type => type.GetMembers(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.DeclaredOnly)
+                    .Select(member => type.Name + "." + member.Name))
+                .Where(name => name.EndsWith(".AftMeters", StringComparison.Ordinal) || name.EndsWith(".AftOnly", StringComparison.Ordinal)
+                    || name == "HandleTargetPoint.op_Implicit")
+                .ToArray();
+            Equal(0, members.Length);
+            Equal(false, Enum.GetNames<PointFreedom>().Contains("AftOnly"));
+            string root = PlacementTests.RepoRoot();
+            var alias = new System.Text.RegularExpressions.Regex(@"\b(AftMeters|AftOnly)\b");
+            var hits = Directory.EnumerateFiles(System.IO.Path.Combine(root, "src"), "*.cs", SearchOption.AllDirectories)
+                .Where(file => !file.Contains(System.IO.Path.DirectorySeparatorChar + "obj" + System.IO.Path.DirectorySeparatorChar))
+                .Where(file => alias.IsMatch(File.ReadAllText(file))).ToArray();
+            Equal(0, hits.Length);
         });
         Check("PointModel_AnchorAtMultiplicityThree_HandlesAssigned", () =>
         {
@@ -52,10 +71,10 @@ internal static class PointModelTests
         {
             var view = Planform.View(File.ReadAllBytes(Example), "accepted", 1);
             Equal(PointFreedom.Fixed, view.Leading.Points[0].Freedom);
-            Equal(PointFreedom.AftOnly, view.Trailing.Points[0].Freedom);
+            Equal(PointFreedom.ValueOnly, view.Trailing.Points[0].Freedom);
             Equal(PointFreedom.SpanOnly, view.Leading.Points[1].Freedom);
-            Equal(PointFreedom.AftOnly, view.Leading.Points[^1].Freedom);
-            Equal(PointFreedom.AftOnly, view.Trailing.Points[^1].Freedom);
+            Equal(PointFreedom.ValueOnly, view.Leading.Points[^1].Freedom);
+            Equal(PointFreedom.ValueOnly, view.Trailing.Points[^1].Freedom);
         });
         Check("PointModel_MultiplicityTwoKnot_ControlPointsAndC1Marker", () =>
         {
@@ -94,7 +113,7 @@ internal static class PointModelTests
                 Rel(spline.Span, BernsteinOrdinate(span.X, u) * view.HalfSpanMeters);
                 Rel(spline.Aft, BernsteinOrdinate(span.Y, u));
                 Rel(spline.Span, view.Leading.Samples[index].SpanMeters);
-                Rel(spline.Aft, view.Leading.Samples[index].AftMeters);
+                Rel(spline.Aft, view.Leading.Samples[index].Ordinate);
             }
         });
         Check("Planform_Probe_ChordAndRailsAtEta", () =>
@@ -113,15 +132,15 @@ internal static class PointModelTests
             var right = Planform.HandleTarget(view, "leading", "cv-4", 0, 0.05);
             var left = Planform.HandleTarget(view, "leading", "cv-2", 0, 0.05);
             Near(0.275, right.SpanMeters, 1e-12);
-            Near(0, right.AftMeters, 1e-12);
+            Near(0, right.Ordinate, 1e-12);
             Near(0.175, left.SpanMeters, 1e-12);
-            Near(0, left.AftMeters, 1e-12);
+            Near(0, left.Ordinate, 1e-12);
         });
         Check("Comb_Anchor_TwoOneSidedTeeth", () =>
         {
             var view = Planform.View(File.ReadAllBytes(Fx("foil-41-tangents.foil")), "spline", 1);
             var anchor = view.Leading.Points[3];
-            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.AftMeters)) < 1e-6)
+            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
                 .OrderBy(tooth => tooth.SpanMeters).ToArray();
             Equal(2, near.Length);
             Equal(false, near[0].BreakBefore);
@@ -133,7 +152,7 @@ internal static class PointModelTests
             var view = Planform.View(Encoding.UTF8.GetBytes(text), "spline", 1);
             Equal(TangentKind.Corner, view.Leading.Points[3].Kind);
             var anchor = view.Leading.Points[3];
-            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.AftMeters)) < 1e-6)
+            var near = Planform.Comb(view.Leading).Where(tooth => Distance(tooth, (anchor.SpanMeters, anchor.Ordinate)) < 1e-6)
                 .OrderBy(tooth => tooth.SpanMeters).ToArray();
             Equal(2, near.Length);
             Equal(false, near[0].BreakBefore);
@@ -212,7 +231,7 @@ internal static class PointModelTests
     }
 
     private static double Distance(CombTooth tooth, (double Span, double Aft) place) =>
-        Math.Sqrt(Math.Pow(tooth.SpanMeters - place.Span, 2) + Math.Pow(tooth.AftMeters - place.Aft, 2));
+        Math.Sqrt(Math.Pow(tooth.SpanMeters - place.Span, 2) + Math.Pow(tooth.Ordinate - place.Aft, 2));
 
     private static void Near(double expected, double actual, double absolute)
     {

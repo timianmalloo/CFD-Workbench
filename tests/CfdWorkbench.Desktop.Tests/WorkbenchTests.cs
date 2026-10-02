@@ -183,28 +183,20 @@ finally { File.Delete(geometryPath); }
 using var workbench = new WorkbenchController();
 await workbench.OpenExampleAsync();
 var accessibleViewport = new Viewport { Frame = workbench.Frame };
-accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspection!);
+accessibleViewport.Semantics = ViewportSemantics.FromSection(workbench.Frame);
 var viewportPeer = ControlAutomationPeer.CreatePeerForElement(accessibleViewport);
 var visualChildren = accessibleViewport.SemanticControls;
 var semanticChildren = visualChildren.Select(ControlAutomationPeer.CreatePeerForElement).ToArray();
-int authoredSemanticCount = workbench.Inspection!.Authored.Assignments.Count +
-    workbench.Inspection.Authored.Rails.Sum(rail => rail.Controls.Count);
 if (viewportPeer.GetAutomationControlType() != AutomationControlType.Group ||
-    semanticChildren.Length != authoredSemanticCount ||
-    !semanticChildren.Any(child => child.GetName().Contains("station", StringComparison.OrdinalIgnoreCase)) ||
-    !semanticChildren.Any(child => child.GetName().Contains("locked", StringComparison.OrdinalIgnoreCase)) ||
-    !semanticChildren.Any(child => child.GetName().Contains("editable", StringComparison.OrdinalIgnoreCase)) ||
-    !semanticChildren.Any(child => child.GetName().Contains("trailing control vertex", StringComparison.OrdinalIgnoreCase)))
-    throw new Exception("Viewport peer lacks semantic station and constrained CV children");
+    semanticChildren.Length != 5 ||
+    semanticChildren.Count(child => child.GetName().Contains("upper", StringComparison.OrdinalIgnoreCase)) == 0 ||
+    semanticChildren.Count(child => child.GetName().Contains("lower", StringComparison.OrdinalIgnoreCase)) == 0 ||
+    !semanticChildren.All(child => child.GetName().Contains("segment error not assessed", StringComparison.OrdinalIgnoreCase)))
+    throw new Exception("Viewport peer lacks the five certified section-sample children");
 var stableChild = visualChildren.First();
-accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspection!);
+accessibleViewport.Semantics = ViewportSemantics.FromSection(workbench.Frame);
 if (!ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
-    throw new Exception("Refresh replaced a stable semantic station peer");
-accessibleViewport.Semantics = ViewportSemantics.FromInspection(workbench.Inspection!, "trailing", "cv-5");
-if (accessibleViewport.SemanticControls.Count != authoredSemanticCount ||
-    !accessibleViewport.SemanticControls[workbench.Inspection.Authored.Assignments.Count].Text!.Contains("trailing control vertex cv-5") ||
-    !ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
-    throw new Exception("Selected tip CV did not remain accessible with all authored controls");
+    throw new Exception("Refresh replaced a stable semantic section peer");
 if (accessibleViewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
     throw new Exception("Minimum-window geometry or dense annotation scrolling regressed");
 if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
