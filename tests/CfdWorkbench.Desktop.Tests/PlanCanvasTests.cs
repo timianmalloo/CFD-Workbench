@@ -627,10 +627,14 @@ public static class PlanCanvasTests
             var point = fixture.Controller.Planform!.Leading.Points[0];
             fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
             fixture.KeyDown(Key.Down);
+            // The rendered status line too: a polite pane announcement must not land after the lock copy (PG-36).
+            string? line = fixture.Host.ModelView.FindControl<TextBlock>("StatusText")?.Text;
             if (fixture.Controller.Gesture != GestureState.Idle ||
                 !fixture.Controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase) ||
+                line?.Contains("fixed", StringComparison.OrdinalIgnoreCase) != true ||
                 AutomationProperties.GetLiveSetting(fixture.Canvas) != AutomationLiveSetting.Assertive)
-                throw new Exception("Locked point nudge did not announce its lock assertively");
+                throw new Exception("Locked point nudge did not announce its lock assertively" +
+                    $" (gesture {fixture.Controller.Gesture}, status \"{fixture.Controller.Status}\", line \"{line}\", live {AutomationProperties.GetLiveSetting(fixture.Canvas)})");
         });
 
         DesktopChecks.Check("PlanCanvas_EscapeOnHandle_FocusBackToPoint", () =>

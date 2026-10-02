@@ -81,6 +81,23 @@ public static class ControllerShellTests
                 "Refused async Span changed source, history, or Busy state.");
         });
 
+        // STATUS-CLOBBER: the accepted-slice sampling started by an open finishes ~0.2 s later on the pool. Its report
+        // must replace only its own "Sampling…" placeholder, never a newer message such as the lock copy of a nudge.
+        DesktopChecks.Check("LockedNudge_DuringSampling_LockCopySurvivesCompletion", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var sampled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            controller.Changed += () => { if (controller.Provenance == "accepted") sampled.TrySetResult(); };
+            Require(controller.Provenance == "accepted — sampling", "Precondition: sampling finished before the nudge.");
+            var point = controller.Planform!.Leading.Points.First(item => item.Freedom == PointFreedom.Fixed);
+            Require(!controller.BeginGesture(new PointRef(point.Curve, point.Id), GestureInput.Keyboard) &&
+                controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase), "Locked nudge did not report its lock.");
+            Require(sampled.Task.Wait(TimeSpan.FromSeconds(30)), "Accepted sampling did not complete.");
+            Require(controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase),
+                $"Sampling completion overwrote the lock copy: '{controller.Status}'.");
+        });
+
         DesktopChecks.Check("OpenFailure_AccessDenied_Classified", () =>
         {
             var failure = OpenFailure.Classify(new UnauthorizedAccessException("Permission denied"), "/test/locked.foil");
