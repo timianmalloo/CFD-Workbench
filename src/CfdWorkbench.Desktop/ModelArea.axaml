@@ -3,6 +3,30 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              x:Class="CfdWorkbench.Desktop.ModelArea">
+  <UserControl.Styles>
+    <!-- View labels (v10 .vlabel, ≥ 24 × 24) and overlay text sit on a viewport-soft plate, never on the surface. -->
+    <Style Selector="Button.viewLabel">
+      <Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="{StaticResource Space2}" />
+      <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style Selector="TextBlock.viewOverlay">
+      <Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" />
+      <Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" />
+      <Setter Property="Padding" Value="{StaticResource Space2}" />
+    </Style>
+    <Style Selector="Border.viewError">
+      <Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="{StaticResource Space2}" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+  </UserControl.Styles>
   <Grid RowDefinitions="Auto,Auto,*">
     <!-- Alert Band -->
     <Border Grid.Row="0" x:Name="AlertBand" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceSoftBrush}"
@@ -34,25 +58,93 @@
       <!-- Start View (shown when no foil is open) -->
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
 
+      <!-- The model-area arrangement (M1.2b2 §11.1): Plan + 3D (2* · 1*), Four views (Plan | 3D over Side | Front),
+           or One view. ModelArea.ApplyLayout places the slots; each slot is a label row over its view. -->
       <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource ViewportBrush}">
-        <Grid>
-        <local:PlanCanvas x:Name="PlanCanvas" Focusable="True"
-                          BackgroundBrush="{DynamicResource ViewportBrush}"
-                          FoilBrush="{DynamicResource PlanFoilBrush}"
-                          SelectionBrush="{DynamicResource PlanSelectionBrush}"
-                          FocusBrush="{DynamicResource PlanFocusBrush}"
-                          MuteBrush="{DynamicResource PlanMuteBrush}"
-                          DangerBrush="{DynamicResource PlanDangerBrush}"
-                          WarningBrush="{DynamicResource PlanWarningBrush}"
-                          SoftBrush="{DynamicResource PlanSoftBrush}" />
-        <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
-                BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock x:Name="PlanRenderErrorText" VerticalAlignment="Center" />
-            <Button x:Name="PlanRenderTryAgainButton" Content="Try again" />
-          </StackPanel>
-        </Border>
+        <Grid x:Name="ViewArrangementGrid" ColumnDefinitions="2*,1*" RowDefinitions="*,0">
+          <Grid x:Name="PlanSlot" RowDefinitions="Auto,*">
+            <Button x:Name="PlanLabel" Grid.Row="0" Classes="viewLabel" Content="Plan"
+                    AutomationProperties.Name="Plan view label. Double-click or Return shows this view alone." />
+            <local:PlanCanvas Grid.Row="1" x:Name="PlanCanvas" Focusable="True"
+                              BackgroundBrush="{DynamicResource ViewportBrush}"
+                              FoilBrush="{DynamicResource PlanFoilBrush}"
+                              SelectionBrush="{DynamicResource PlanSelectionBrush}"
+                              FocusBrush="{DynamicResource PlanFocusBrush}"
+                              MuteBrush="{DynamicResource PlanMuteBrush}"
+                              DangerBrush="{DynamicResource PlanDangerBrush}"
+                              WarningBrush="{DynamicResource PlanWarningBrush}"
+                              SoftBrush="{DynamicResource PlanSoftBrush}" />
+            <Border Grid.Row="1" x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                    Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock x:Name="PlanRenderErrorText" VerticalAlignment="Center" />
+                <Button x:Name="PlanRenderTryAgainButton" Content="Try again" />
+              </StackPanel>
+            </Border>
+          </Grid>
+
+          <Grid x:Name="ThreeDSlot" Grid.Column="1" RowDefinitions="Auto,*">
+            <Button x:Name="ThreeDLabel" Grid.Row="0" Classes="viewLabel" Content="3D · Iso" />
+            <local:SurfaceRenderer Grid.Row="1" x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True"
+                                   BackgroundBrush="{DynamicResource ViewportBrush}"
+                                   ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
+                                   ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
+                                   FoilBrush="{DynamicResource PlanFoilBrush}"
+                                   FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
+                                   StationBrush="{DynamicResource PlanSelectionBrush}"
+                                   MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <TextBlock Grid.Row="1" x:Name="ThreeDDrawing" Classes="viewOverlay" Text="Drawing…" IsVisible="False"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <StackPanel Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="{StaticResource Space2}" Spacing="4">
+              <TextBlock x:Name="ThreeDNote" Classes="viewOverlay" IsVisible="False" TextWrapping="Wrap" />
+              <TextBlock x:Name="ThreeDCaption" Classes="viewOverlay" TextWrapping="Wrap"
+                         Text="Display · x aft, y starboard, z up · twist about the leading edge" />
+            </StackPanel>
+            <Border Grid.Row="1" x:Name="ThreeDRenderErrorBand" Classes="viewError" IsVisible="False">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock x:Name="ThreeDRenderErrorText" VerticalAlignment="Center" TextWrapping="Wrap"
+                           Text="3D view couldn't be drawn. Your foil hasn't changed." />
+                <Button x:Name="ThreeDRenderTryAgainButton" Content="Try again" />
+              </StackPanel>
+            </Border>
+          </Grid>
+
+          <Grid x:Name="SideSlot" Grid.Row="1" IsVisible="False" RowDefinitions="Auto,*">
+            <Button x:Name="SideLabel" Grid.Row="0" Classes="viewLabel" Content="Side · from starboard" />
+            <local:SurfaceRenderer Grid.Row="1" x:Name="SideRenderer" Pane="side" ClipToBounds="True"
+                                   BackgroundBrush="{DynamicResource ViewportBrush}"
+                                   ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
+                                   ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
+                                   FoilBrush="{DynamicResource PlanFoilBrush}"
+                                   FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
+                                   StationBrush="{DynamicResource PlanSelectionBrush}"
+                                   MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <Border Grid.Row="1" x:Name="SideRenderErrorBand" Classes="viewError" IsVisible="False">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Side view couldn't be drawn. Your foil hasn't changed." />
+                <Button x:Name="SideRenderTryAgainButton" Content="Try again" />
+              </StackPanel>
+            </Border>
+          </Grid>
+
+          <Grid x:Name="FrontSlot" Grid.Row="1" Grid.Column="1" IsVisible="False" RowDefinitions="Auto,*">
+            <Button x:Name="FrontLabel" Grid.Row="0" Classes="viewLabel" Content="Front · looking aft" />
+            <local:SurfaceRenderer Grid.Row="1" x:Name="FrontRenderer" Pane="front" ClipToBounds="True"
+                                   BackgroundBrush="{DynamicResource ViewportBrush}"
+                                   ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
+                                   ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
+                                   FoilBrush="{DynamicResource PlanFoilBrush}"
+                                   FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
+                                   StationBrush="{DynamicResource PlanSelectionBrush}"
+                                   MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <Border Grid.Row="1" x:Name="FrontRenderErrorBand" Classes="viewError" IsVisible="False">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Front view couldn't be drawn. Your foil hasn't changed." />
+                <Button x:Name="FrontRenderTryAgainButton" Content="Try again" />
+              </StackPanel>
+            </Border>
+          </Grid>
         </Grid>
       </Border>
 

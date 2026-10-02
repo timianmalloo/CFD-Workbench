@@ -142,10 +142,46 @@ public sealed class WorkbenchController : IDisposable
     private Task<CommitOutcome>? pendingDirectCommand;
     private string? gestureOperationId;
 
-    public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null)
+    // The surface channel (M1.2b2 §7): latest-wins, single-flight, keyed by a monotonic ticket. It has its own
+    // cancellation source and counter and never touches stateVersion, activeSampling or the commit path.
+    private readonly SurfaceCompute surfaceCompute;
+    private readonly TimeProvider time;
+    private long surfaceTicket;
+    private long surfaceSettledTicket;
+    private long surfaceRequestedAt;
+    private string? surfaceKey;
+    private SurfaceRequest? surfaceWaiting;
+    private CancellationTokenSource? surfaceRunning;
+    private bool surfaceBusy;
+    private ITimer? surfaceBehindTimer;
+    private TaskCompletionSource surfaceSettled = SettledSource();
+    private bool surfaceWanted;
+    private ViewLayout layout = ViewLayout.Plan3d;
+    private ViewArrangement arrangementBeforeOne = ViewArrangement.Plan3d;
+    private ViewCamera? camera3d;
+    private readonly Dictionary<SingleView, ViewCamera> elevationCameras = new();
+    private readonly Dictionary<SingleView, DisplayMode> displayModes = new();
+    private readonly Dictionary<string, CurveView> channelViews = new(StringComparer.Ordinal);
+    private string? channelViewsKey;
+
+    /// <summary>Computes one display mesh off the UI thread; the default is <see cref="Placement.Surface"/>.</summary>
+    public delegate Task<SurfaceView> SurfaceCompute(byte[] source, string basis, long generation, CancellationToken cancellation);
+
+    private sealed record SurfaceRequest(long Ticket, byte[] Bytes, string Basis, long Generation);
+
+    /// <summary>A mesh request older than this shows "· Updating…" (TQ reactive recompute).</summary>
+    public static readonly TimeSpan SurfaceBehindAfter = TimeSpan.FromMilliseconds(250);
+
+    public const string SurfaceKeptNote = "Showing the last shape that could be drawn.";
+
+    public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
+        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
+        this.surfaceCompute = surfaceCompute ?? ((source, basis, generation, cancellation) =>
+            Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
+        this.time = time ?? TimeProvider.System;
     }
     public event Action? Changed;
     public Selection Selection { get; private set; } = new Selection.None();
@@ -175,6 +211,262 @@ public sealed class WorkbenchController : IDisposable
     public bool CombVisible { get; set; }
     public int LastGestureFrames { get; private set; }
 
+    /// <summary>The newest completed display mesh: the accepted revision's, or the draft's during a gesture.</summary>
+    public SurfaceView? Surface { get; private set; }
+
+    /// <summary>"Showing the last shape that could be drawn." after a mesh failed and an earlier one is kept; else null.</summary>
+    public string? SurfaceNote { get; private set; }
+
+    /// <summary>Derived from tickets: the newest issued request has not settled yet.</summary>
+    public bool SurfaceUpdating => Interlocked.Read(ref surfaceTicket) != Interlocked.Read(ref surfaceSettledTicket);
+
+    /// <summary>The views show "· Updating…": a request has been outstanding for <see cref="SurfaceBehindAfter"/> or more.</summary>
+    public bool SurfaceBehind => SurfaceUpdating && time.GetElapsedTime(surfaceRequestedAt) >= SurfaceBehindAfter;
+
+    /// <summary>Completes when the newest issued mesh request has settled (shown, failed or replaced by none).</summary>
+    public Task WhenSurfaceSettledAsync() => surfaceSettled.Task;
+
+    /// <summary>
+    /// Set by the model area while a view that draws the mesh (3D, Side, Front) is on screen. Meshes are computed only
+    /// then, so a controller with no such view (the Plan alone, a headless test) never spends the 13–24 ms per change.
+    /// </summary>
+    public bool SurfaceWanted
+    {
+        get => surfaceWanted;
+        set
+        {
+            if (surfaceWanted == value) return;
+            surfaceWanted = value;
+            if (!value) surfaceKey = null;
+            Notify();
+        }
+    }
+
+    /// <summary>Session value (Type-1, not persisted; M1.2e persists layouts).</summary>
+    public ViewLayout Layout
+    {
+        get => layout;
+        set
+        {
+            if (layout == value) return;
+            if (value.Arrangement == ViewArrangement.One && layout.Arrangement != ViewArrangement.One)
+                arrangementBeforeOne = layout.Arrangement;
+            layout = value;
+            Notify();
+        }
+    }
+
+    /// <summary>Double-click or Return on a view label: that view alone, and again back to the layout before it.</summary>
+    public void ToggleOneView(SingleView view) =>
+        Layout = layout.Arrangement == ViewArrangement.One && layout.Single == view
+            ? new ViewLayout(arrangementBeforeOne, SingleView.Plan)
+            : ViewLayout.One(view);
+
+    /// <summary>The view that Display ▾, zoom and fit commands act on (its label was clicked last).</summary>
+    public SingleView TargetView
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            Notify();
+        }
+    } = SingleView.Plan;
+
+    /// <summary>The 3D view's one camera; null until the view first fits the Iso camera to a mesh.</summary>
+    public ViewCamera? Camera3d
+    {
+        get => camera3d;
+        set
+        {
+            if (camera3d == value) return;
+            camera3d = value;
+            Notify();
+        }
+    }
+
+    /// <summary>Front and Side keep their own pan and zoom; their direction is fixed.</summary>
+    public ViewCamera? CameraFor(SingleView elevation) =>
+        elevationCameras.TryGetValue(elevation, out var camera) ? camera : null;
+
+    public void SetCameraFor(SingleView elevation, ViewCamera camera)
+    {
+        if (elevation is not (SingleView.Front or SingleView.Side))
+            throw new ArgumentOutOfRangeException(nameof(elevation), elevation, "Only Front and Side keep an elevation camera.");
+        if (elevationCameras.TryGetValue(elevation, out var current) && current == camera) return;
+        elevationCameras[elevation] = camera;
+        Notify();
+    }
+
+    public DisplayMode DisplayFor(SingleView view) => displayModes.GetValueOrDefault(view, DisplayMode.Shaded);
+
+    public void SetDisplay(SingleView view, DisplayMode mode)
+    {
+        if (DisplayFor(view) == mode) return;
+        displayModes[view] = mode;
+        Notify();
+    }
+
+    /// <summary>The 3D view is on screen (the <c>gesture.end</c> field that reads the drag budget with 3D open).</summary>
+    public bool ThreeDVisible => surfaceWanted && layout.Shows(SingleView.ThreeD);
+
+    /// <summary>Try again after a failed mesh: a new request for the current source.</summary>
+    public void RefreshSurface()
+    {
+        surfaceKey = null;
+        RequestSurfaceIfChanged();
+    }
+
+    /// <summary>The selected station's starboard section, or the whole surface with its port half; null with no mesh.</summary>
+    public (Point3 Minimum, Point3 Maximum)? FitBounds()
+    {
+        if (Surface is not { } surface) return null;
+        if (Selection is Selection.Station station &&
+            surface.Sections.FirstOrDefault(section => section.Eta == station.Eta) is { } placed)
+            return SectionBounds(placed);
+        return (new Point3(surface.MinimumX, -surface.MaximumY, surface.MinimumZ),
+            new Point3(surface.MaximumX, surface.MaximumY, surface.MaximumZ));
+    }
+
+    public static (Point3 Minimum, Point3 Maximum) SectionBounds(PlacedSection section)
+    {
+        ArgumentNullException.ThrowIfNull(section);
+        double minX = double.PositiveInfinity, minY = double.PositiveInfinity, minZ = double.PositiveInfinity;
+        double maxX = double.NegativeInfinity, maxY = double.NegativeInfinity, maxZ = double.NegativeInfinity;
+        foreach (var point in section.Upper.Concat(section.Lower))
+        {
+            minX = Math.Min(minX, point.X); minY = Math.Min(minY, point.Y); minZ = Math.Min(minZ, point.Z);
+            maxX = Math.Max(maxX, point.X); maxY = Math.Max(maxY, point.Y); maxZ = Math.Max(maxZ, point.Z);
+        }
+        return (new Point3(minX, minY, minZ), new Point3(maxX, maxY, maxZ));
+    }
+
+    /// <summary>The points of any of the five channels in the shown revision or draft generation (rails via the Planform).</summary>
+    public CurveView? CurveFor(string curve)
+    {
+        if (curve == "leading") return Planform?.Leading;
+        if (curve == "trailing") return Planform?.Trailing;
+        if (Inspection is null || !PointModel.EditableCurves.Contains(curve)) return null;
+        string key = SourceKey();
+        if (channelViewsKey != key)
+        {
+            channelViews.Clear();
+            channelViewsKey = key;
+        }
+        if (channelViews.TryGetValue(curve, out var cached)) return cached;
+        CurveView view;
+        try
+        {
+            view = Channels.View(draft?.Bytes ?? session.Snapshot().Source, curve, draft is null ? "accepted" : "preview",
+                draft?.Generation ?? 0);
+        }
+        catch (ContractError) { return null; }
+        channelViews[curve] = view;
+        return view;
+    }
+
+    private string SourceKey() => draft is { } active
+        ? "d:" + active.Id + ":" + active.Generation.ToString(CultureInfo.InvariantCulture)
+        : "a:" + Inspection?.Authored.Binding.SourceHash;
+
+    private void RequestSurfaceIfChanged()
+    {
+        if (disposed || !surfaceWanted || Inspection is null) return;
+        string key = SourceKey();
+        if (key == surfaceKey) return;
+        surfaceKey = key;
+        if (draft is { } active) IssueSurface(active.Bytes, "preview", active.Generation);
+        else IssueSurface(session.Snapshot().Source, "accepted", 0);
+    }
+
+    private void IssueSurface(byte[] bytes, string basis, long generation)
+    {
+        long ticket = Interlocked.Increment(ref surfaceTicket);
+        surfaceRequestedAt = time.GetTimestamp();
+        if (surfaceSettled.Task.IsCompleted) surfaceSettled = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        // A newer request replaces the waiting one (it never runs) and cancels the running one.
+        if (surfaceWaiting is { } replaced) RecordSurface(replaced.Basis, "stale-dropped", 0, null, null);
+        surfaceWaiting = new SurfaceRequest(ticket, bytes, basis, generation);
+        surfaceRunning?.Cancel();
+        surfaceBehindTimer?.Dispose();
+        surfaceBehindTimer = time.CreateTimer(_ => OnUiThread(Notify), null, SurfaceBehindAfter, Timeout.InfiniteTimeSpan);
+        if (!surfaceBusy) StartSurface();
+    }
+
+    private void StartSurface()
+    {
+        if (surfaceWaiting is not { } next) return;
+        surfaceWaiting = null;
+        surfaceBusy = true;
+        var cancellation = new CancellationTokenSource();
+        surfaceRunning = cancellation;
+        _ = RunSurfaceAsync(next, cancellation);
+    }
+
+    private async Task RunSurfaceAsync(SurfaceRequest request, CancellationTokenSource cancellation)
+    {
+        long started = Stopwatch.GetTimestamp();
+        SurfaceView? view = null;
+        string outcome;
+        string? code = null;
+        try
+        {
+            view = await surfaceCompute(request.Bytes, request.Basis, request.Generation, cancellation.Token);
+            outcome = "ok";
+        }
+        catch (OperationCanceledException) { outcome = "stale-dropped"; }
+        catch (ContractError error) { outcome = "error"; code = error.Code; }
+        // Background boundary: a bug in the projection must not vanish unobserved; it is reported like a refusal.
+        catch (Exception error) when (error is not OutOfMemoryException) { outcome = "error"; code = error.GetType().Name; }
+        double milliseconds = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+        OnUiThread(() => CompleteSurface(request, cancellation, view, outcome, code, milliseconds));
+    }
+
+    private void CompleteSurface(SurfaceRequest request, CancellationTokenSource cancellation, SurfaceView? view,
+        string outcome, string? code, double milliseconds)
+    {
+        if (ReferenceEquals(surfaceRunning, cancellation)) surfaceRunning = null;
+        cancellation.Dispose();
+        surfaceBusy = false;
+        if (disposed) return;
+        bool newest = request.Ticket == Interlocked.Read(ref surfaceTicket);
+        if (!newest) outcome = "stale-dropped";
+        else if (outcome == "ok")
+        {
+            Surface = view;
+            SurfaceNote = null;
+        }
+        else if (outcome == "error") SurfaceNote = Surface is null ? null : SurfaceKeptNote;
+        if (newest) Interlocked.Exchange(ref surfaceSettledTicket, request.Ticket);
+        RecordSurface(request.Basis, outcome, milliseconds, code, outcome == "ok" ? view : null);
+        StartSurface();
+        if (newest)
+        {
+            surfaceBehindTimer?.Dispose();
+            surfaceBehindTimer = null;
+            surfaceSettled.TrySetResult();
+        }
+        Notify();
+    }
+
+    private static void RecordSurface(string basis, string outcome, double milliseconds, string? code, SurfaceView? view) =>
+        CfdWorkbench.Desktop.Shell.ShellEvents.Record("view.surface", outcome, milliseconds, Guid.NewGuid().ToString("N"),
+            code: code, basis: basis, stations: view?.Sections.Count, chordSamples: view?.Sections[0].Upper.Count);
+
+    private static void OnUiThread(Action action)
+    {
+        if (Application.Current is null || Dispatcher.UIThread.CheckAccess()) action();
+        else Dispatcher.UIThread.Post(action);
+    }
+
+    private static TaskCompletionSource SettledSource()
+    {
+        var source = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        source.SetResult();
+        return source;
+    }
+
     public AuthoredProjection? CurrentProjection => DraftProjection ?? Inspection?.Authored ?? PendingProjection;
 
     // Changed is raised after each accepted edit and cursor move; menu commands requery these values.
@@ -201,7 +493,15 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
-    public static Selection Reconcile(Selection current, AuthoredProjection? projection)
+    public static Selection Reconcile(Selection current, AuthoredProjection? projection) =>
+        Reconcile(current, projection, null);
+
+    private bool ChannelPointExists(PointRef item) =>
+        CurveFor(item.Curve)?.Points.Any(point => point.Id == item.VertexId) == true;
+
+    /// <summary>As <see cref="Reconcile(Selection, AuthoredProjection?)"/>; a point on a channel (dihedral, twist,
+    /// thickness) is kept while <paramref name="channelPointExists"/> finds it.</summary>
+    public static Selection Reconcile(Selection current, AuthoredProjection? projection, Func<PointRef, bool>? channelPointExists)
     {
         if (projection is null) return new Selection.None();
         if (current is Selection.None) return new Selection.Foil();
@@ -229,7 +529,8 @@ public sealed class WorkbenchController : IDisposable
             var kept = new List<PointRef>();
             foreach (var item in points.Items)
             {
-                if (PointExists(item, projection))
+                if (PointExists(item, projection) || item.Curve is not ("leading" or "trailing") &&
+                    channelPointExists?.Invoke(item) == true)
                     kept.Add(item);
             }
             if (kept.Count > 0)
@@ -291,9 +592,7 @@ public sealed class WorkbenchController : IDisposable
 
     public bool BeginGesture(PointRef point, GestureInput input)
     {
-        var plan = Planform;
-        var view = (point.Curve == "leading" ? plan?.Leading : point.Curve == "trailing" ? plan?.Trailing : null)?
-            .Points.FirstOrDefault(candidate => candidate.Id == point.VertexId);
+        var view = CurveFor(point.Curve)?.Points.FirstOrDefault(candidate => candidate.Id == point.VertexId);
         if (view is null) return false;
         if (Gesture == GestureState.Busy)
         {
@@ -355,10 +654,13 @@ public sealed class WorkbenchController : IDisposable
 
     public void Nudge(int spanDirection, int aftDirection, NudgeModifier modifier)
     {
-        if (Gesture != GestureState.Nudging || gestureOrigin is null) return;
-        double step = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
-        var current = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.AftMeters);
-        UpdateGestureTarget(current.Item1 + spanDirection * step, current.Item2 + aftDirection * step);
+        if (Gesture != GestureState.Nudging || gestureOrigin is null || gesturePoint is null) return;
+        // The channel's own ladder (§3.6): 0.01 · 0.1 · 1 mm on lengths, ° on twist, % on t/c. The span step stays in metres.
+        var unit = Channels.Unit(gesturePoint.Curve);
+        double spanStep = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
+        double step = modifier switch { NudgeModifier.Command => unit.NudgeFine, NudgeModifier.Shift => unit.NudgeCoarse, _ => unit.NudgePlain };
+        var current = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.Ordinate);
+        UpdateGestureTarget(current.Item1 + spanDirection * spanStep, current.Item2 + aftDirection * step);
         FlushGestureFrame();
     }
 
@@ -398,8 +700,8 @@ public sealed class WorkbenchController : IDisposable
         try { Estimates = WingEstimates.From(draft.Bytes, "preview", draft.Generation); }
         catch { Estimates = null; }
         gestureEstimateTimes.Add(timer.Elapsed.TotalMilliseconds);
-        GestureCrossing = Gesture == GestureState.Dragging && Planform is { } plan && gesturePoint is { } dragged
-            ? EdgeHullCrossing(plan, dragged.Curve) : null;
+        GestureCrossing = Gesture == GestureState.Dragging && gesturePoint is { Curve: "leading" or "trailing" } dragged &&
+            Planform is { } plan ? EdgeHullCrossing(plan, dragged.Curve) : null;
         Notify();
     }
 
@@ -456,8 +758,7 @@ public sealed class WorkbenchController : IDisposable
             if (reason == GestureEnd.Escape && Selection is Selection.Points selected)
             {
                 var chosen = selected.Items.FirstOrDefault();
-                var rail = chosen?.Curve == "leading" ? Planform?.Leading : Planform?.Trailing;
-                var handle = rail?.Points.FirstOrDefault(item => item.Id == chosen?.VertexId);
+                var handle = chosen is null ? null : CurveFor(chosen.Curve)?.Points.FirstOrDefault(item => item.Id == chosen.VertexId);
                 Select(handle?.AnchorId is { } anchorId
                     ? new Selection.Points([new PointRef(chosen!.Curve, anchorId)])
                     : new Selection.Foil());
@@ -475,10 +776,10 @@ public sealed class WorkbenchController : IDisposable
         FlushGestureFrame();
         if (draft is null || gestureOrigin is null)
             return Task.FromResult(CancelPointGesture(reason, true));
-        var point = (gesturePoint!.Curve == "leading" ? Planform!.Leading : Planform!.Trailing).Points
-            .First(candidate => candidate.Id == gesturePoint.VertexId);
+        var point = CurveFor(gesturePoint!.Curve)!.Points.First(candidate => candidate.Id == gesturePoint.VertexId);
+        // Half the channel's quantum of Δ (1 µm on lengths, 10⁻⁵ ° on twist, 10⁻⁷ on t/c) is "no change".
         if (Math.Abs(point.SpanMeters - gestureOrigin.SpanMeters) < 0.00000005 &&
-            Math.Abs(point.AftMeters - gestureOrigin.AftMeters) < 0.0000005)
+            Math.Abs(point.Ordinate - gestureOrigin.Ordinate) < Channels.Unit(gesturePoint.Curve).Quantum / 2)
             return Task.FromResult(CancelPointGesture(reason, true));
 
         Gesture = GestureState.Busy;
@@ -581,7 +882,8 @@ public sealed class WorkbenchController : IDisposable
             code: (outcome as GestureOutcome.Refused)?.Code, clampedCount: gestureClamped,
             trigger: reason.ToString().ToLowerInvariant(), frames: gestureFrames,
             updateP95Ms: Percentile95(gestureUpdateTimes), estimatesP95Ms: Percentile95(gestureEstimateTimes),
-            editKind: "gesture", operationId: gestureOperationId);
+            editKind: "gesture", operationId: gestureOperationId,
+            curveFamily: gesturePoint is null ? null : Channels.Family(gesturePoint.Curve), threeDVisible: ThreeDVisible);
     }
 
     private static double? Percentile95(List<double> values)
@@ -1403,6 +1705,12 @@ public sealed class WorkbenchController : IDisposable
         interiorEta = .5;
         acceptedFrame = null;
         Frame = null;
+        // A new document draws "Drawing…" until its first mesh; the cameras refit to it. Layout and display modes stay.
+        Surface = null;
+        SurfaceNote = null;
+        surfaceKey = null;
+        camera3d = null;
+        elevationCameras.Clear();
         draft = null;
         Gesture = GestureState.Idle;
         gesturePoint = null;
@@ -1505,7 +1813,7 @@ public sealed class WorkbenchController : IDisposable
                 {
                     var next = queuedSelection;
                     queuedSelection = null;
-                    var reconciled = Reconcile(next, CurrentProjection);
+                    var reconciled = Reconcile(next, CurrentProjection, ChannelPointExists);
                     if (Equals(Selection, reconciled))
                     {
                         if (queuedSelection is null)
@@ -1517,7 +1825,7 @@ public sealed class WorkbenchController : IDisposable
                 }
                 else
                 {
-                    var reconciled = Reconcile(Selection, CurrentProjection);
+                    var reconciled = Reconcile(Selection, CurrentProjection, ChannelPointExists);
                     if (!Equals(Selection, reconciled))
                     {
                         Selection = reconciled;
@@ -1525,6 +1833,7 @@ public sealed class WorkbenchController : IDisposable
                     }
                 }
 
+                RequestSurfaceIfChanged();
                 Changed?.Invoke();
 
                 if (queuedSelection is null)
@@ -1543,6 +1852,9 @@ public sealed class WorkbenchController : IDisposable
         disposed = true;
         Gesture = GestureState.Idle;
         CancelSampling();
+        surfaceRunning?.Cancel();
+        surfaceBehindTimer?.Dispose();
+        surfaceSettled.TrySetResult();
         store.Dispose();
         session.Dispose();
         Selection = new Selection.None();

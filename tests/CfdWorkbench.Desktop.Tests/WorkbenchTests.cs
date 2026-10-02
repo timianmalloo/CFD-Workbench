@@ -72,6 +72,14 @@ if (args.Contains("--plan-canvas", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+if (args.Contains("--views", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
+    CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 if (args.Contains("--properties-view", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -92,6 +100,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
 {
     CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
@@ -422,7 +431,7 @@ AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas",
+    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas", "--views",
     "--properties-view", "--properties-cells"));
 
 sealed class UncertainStore : IProjectStore

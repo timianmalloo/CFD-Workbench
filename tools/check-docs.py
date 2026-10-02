@@ -91,6 +91,9 @@ def join_ring_problems(contract):
     # nowhere until 2026-10-02 because nothing passed the switch.
     if not any("CfdWorkbench.Core.Tests" in line and "--readiness" in line for line in readiness):
         problems.append("readiness does not run the Core harness with --readiness")
+    # The Desktop harness's --readiness tier (render and frame budgets) was likewise run by nothing until VW1 found it.
+    if not any("CfdWorkbench.Desktop.Tests" in line and "--readiness" in line for line in readiness):
+        problems.append("readiness does not run the Desktop harness with --readiness")
     return problems
 
 
