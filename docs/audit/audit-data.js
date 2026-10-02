@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T12:46:59Z",
+  "generated": "2026-10-02T12:50:06Z",
   "audit": [
     {
       "actor": null,
@@ -21634,6 +21634,34 @@ window.AUDIT_DATA = {
         "branch": "design/property-grid-cells",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3YAMBWJZQ4DNTH96JVWE718",
+      "shortname": "join-property-grid-cells",
+      "datetime": "2026-10-02T12:50:06Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/property-grid-cells into feature/ui-cad-direction",
+      "summary": "Operator picked B visually from three cell layouts (DR-CELL-1) and OKed the visible changes (DR-CELL-2..5). B promoted to the full design: 31 states, 11 px, 20/24 px rows, accent+dotted editable values, focus/error boxes, dropdown Kind/Type, help on focus, text-size setting. UX&A and Marine-CAD cleared with conditions. Build brief: 34 named tests + 30 regression, underline spike first. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-property-grid-cells.md",
+        "docs/mockups/property-grid-cells.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T12:49:07Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
