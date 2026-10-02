@@ -124,7 +124,7 @@ input:focus-visible, select:focus-visible, button:focus-visible{ outline:2px sol
 
 details.defs{ padding:2px 12px 0 15px; } details.defs > summary{ min-height:24px; display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; font-weight:600; color:var(--ink); list-style:none; }
 details.defs > summary::-webkit-details-marker{ display:none; } details.defs > summary::before{ content:"▸"; color:var(--mute); } details.defs[open] > summary::before{ content:"▾"; }
-details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-size:12px; }
+details.defs .how{ color:var(--mute); } details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-size:12px; }
 
 .empty{ padding:16px 12px; } .empty h2{ margin:0 0 6px; font-size:14px; } .empty p{ margin:0; color:var(--mute); font-size:12px; }
 .skel{ height:12px; margin:10px 12px; border-radius:var(--r-sm); background:var(--soft); }
@@ -138,8 +138,104 @@ details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-si
 .asbuilt .hz{ display:flex; gap:8px; align-items:center; } .asbuilt .box{ border:1px solid var(--line); border-radius:var(--r-sm); padding:4px 8px; background:var(--surface); }
 .asbuilt .wingb{ border:1px solid var(--line); background:var(--soft); padding:12px; display:flex; flex-direction:column; gap:8px; }
 
+/* ==================== density (2026-10-01) ====================================================================
+   "As built (native)" emulates PropertiesPane at dade554 from source (Styles.axaml tokens, PropertiesPane.axaml.cs, Avalonia
+   11.3.14 Fluent templates): values 14 px proportional (Window BodySize), labels/units 12 px (CaptionSize), fact row
+   MinHeight 24 + StackGap1 4, TextBox MinHeight 28, Expander header = the 32 px chevron button, RadioButton template
+   grid 32 px, 12 px insets, 8 px between groups, "How these are measured" a filled ToggleButton.
+   "Dense" is the proposal (DESIGN.md §12.0f, tokens prop-*): one 12/16 type size for label, value and unit, tabular
+   lining figures, units on the value baseline, fact rows 20 px, input rows 24 px with a 20 px drawn field inside a 24 px
+   target (SC 2.5.8 without the spacing exception), 24 px headers and Kind options, 8 px insets, a fixed value column
+   next to the label, Definitions as a link. --pg-scale is the 200 % text check (SC 1.4.4): every height grows with it. */
+.frame{ --pg-scale:1; }
+
+/* ---- as built (native) ---- */
+.frame[data-density="native"] .sel > .grp, .frame[data-density="native"] .sel > .ident, .frame[data-density="native"] .sel > .note{ margin:0 12px; }
+.frame[data-density="native"] .sel > .grp + .grp{ margin-top:8px; border-top:0; }
+.frame[data-density="native"] .row{ grid-template-columns:88px minmax(0,1fr) 32px; column-gap:0; padding:0 0 0 8px; margin-bottom:4px; min-height:24px; align-items:center; }
+.frame[data-density="native"] .row.edit{ min-height:28px; }
+.frame[data-density="native"] .lbl{ font-size:12px; }
+.frame[data-density="native"] .val, .frame[data-density="native"] .val input{ font-family:var(--font); font-size:14px; font-variant-numeric:normal; }
+.frame[data-density="native"] .val input{ height:28px; padding:0 6px 0 10px; }
+.frame[data-density="native"] .val select{ height:28px; font-size:14px; }
+.frame[data-density="native"] .unit{ font-size:12px; padding-left:4px; }
+.frame[data-density="native"] .grp-h button, .frame[data-density="native"] .grp-h .static{ min-height:33px; font-size:14px; padding:0 0 0 16px; }
+.frame[data-density="native"] .grp-h .chev{ order:3; width:32px; height:12px; }
+.frame[data-density="native"] .grp-h .sum{ font-family:var(--font); }
+.frame[data-density="native"] .radios{ gap:4px; } .frame[data-density="native"] .radios button{ min-height:32px; font-size:14px; }
+.frame[data-density="native"] .ident{ padding:12px 0 8px; } .frame[data-density="native"] .ident h2{ font-size:14px; }
+.frame[data-density="native"] .wing{ padding:12px; border-top-width:1px; }
+.frame[data-density="native"] .wing .row{ padding-left:8px; }
+.frame[data-density="native"] details.defs{ padding:4px 0; }
+.frame[data-density="native"] details.defs > summary{ display:inline-flex; min-height:28px; padding:5px 8px 6px; font-size:14px; font-weight:400; background:var(--soft); border-radius:var(--r-sm); }
+.frame[data-density="native"] details.defs > summary::before{ content:""; }
+
+/* ---- dense (the proposal; DR-DEN-3: 11 px, nothing below 11) ---- */
+/* --pg-scale is the app's own Text size setting (View ▸ Text size 100/125/150/200 %, ⌘+ / ⌘−): it scales every type and
+   row token; at ≥ 150 % the rows reflow (data-stacked) — SC 1.4.4 on a platform with no system text scaling (DN-5) */
+.frame[data-density="dense"]{ --pg-fs:calc(11px * var(--pg-scale)); --pg-lh:calc(14px * var(--pg-scale)); --pg-note-fs:calc(11px * var(--pg-scale)); --pg-note-lh:calc(14px * var(--pg-scale)); }
+.frame[data-density="dense"] .row{ grid-template-columns:78px 72px 28px minmax(0,1fr); column-gap:0; margin:0 8px; padding:2px 0 2px 4px; min-height:calc(18px * var(--pg-scale)); align-items:baseline; }
+@container pane (max-width: 230px){ .frame[data-density="dense"] .row{ grid-template-columns:64px 64px 24px minmax(0,1fr); } }
+.frame[data-density="dense"] .row.edit{ padding-block:0; min-height:calc(24px * var(--pg-scale)); }
+.frame[data-density="dense"] .row > .lbl{ grid-column:1; grid-row:1; } .frame[data-density="dense"] .row > .val{ grid-column:2; grid-row:1; } .frame[data-density="dense"] .row > .unit{ grid-column:3; grid-row:1; }
+.frame[data-density="dense"] .row > .val.txt, .frame[data-density="dense"] .row.span3 > .val{ grid-column:2 / -1; }
+/* DC-1: a focused or dirty field takes value + unit + free columns, so a typed expression is visible whole; the unit
+   returns when the field is left (the typed text carries its own unit; the field's name still says it) */
+.frame[data-density="dense"] .row.edit:focus-within > .val, .frame[data-density="dense"] .row.edit.dirty > .val{ grid-column:2 / -1; }
+.frame[data-density="dense"] .row.edit:focus-within > .unit, .frame[data-density="dense"] .row.edit.dirty > .unit{ display:none; }
+/* DC-1 at the narrow dock: the editing row stacks — label above, the field across the whole row — so an expression fits */
+@container pane (max-width: 230px){
+  .frame[data-density="dense"] .row.edit:not(.span3):focus-within > .lbl, .frame[data-density="dense"] .row.edit.dirty > .lbl{ grid-column:1 / -1; grid-row:1; }
+  .frame[data-density="dense"] .row.edit:not(.span3):focus-within > .val, .frame[data-density="dense"] .row.edit.dirty > .val{ grid-column:1 / -1; grid-row:2; } }
+/* SC 1.4.4: at ≥ 150 % the row reflows — label on its own line, value and unit beneath — instead of clipping */
+.frame[data-density="dense"][data-stacked="1"] .row{ grid-template-columns:minmax(0,1fr) calc(28px * var(--pg-scale)); }
+.frame[data-density="dense"][data-stacked="1"] .row > .lbl{ grid-column:1 / -1; grid-row:1; }
+.frame[data-density="dense"][data-stacked="1"] .row > .val{ grid-column:1; grid-row:2; }
+.frame[data-density="dense"][data-stacked="1"] .row > .unit{ grid-column:2; grid-row:2; }
+.frame[data-density="dense"][data-stacked="1"] .row > .val.txt, .frame[data-density="dense"][data-stacked="1"] .row.span3 > .val,
+.frame[data-density="dense"][data-stacked="1"] .row.edit:focus-within > .val, .frame[data-density="dense"][data-stacked="1"] .row.edit.dirty > .val{ grid-column:1 / -1; grid-row:2; }
+.frame[data-density="dense"] .lbl, .frame[data-density="dense"] .val, .frame[data-density="dense"] .unit, .frame[data-density="dense"] .val input, .frame[data-density="dense"] .val select, .frame[data-density="dense"] .radios button{ font-size:var(--pg-fs); line-height:var(--pg-lh); }
+.frame[data-density="dense"] .val, .frame[data-density="dense"] .val input{ font-family:var(--font); font-variant-numeric:tabular-nums lining-nums; }
+/* DC-3: a fact's digits end where an input's digits end (2 px band + 4 px padding = 6 px in from the column edge) */
+.frame[data-density="dense"] .row:not(.edit) > .val:not(.txt) > span{ padding-right:6px; }
+.frame[data-density="dense"] .unit{ padding-left:4px; }
+/* DN-1 / DN-2: one element — a 24 px target whose 2 px transparent band is part of the control; the drawn box is 20 px with
+   a 1 px boundary in every state; focus is a 2 px ring on the band; error is 1 px danger + rail + icon + text */
+.frame[data-density="dense"] .val input, .frame[data-density="dense"] .val select{ height:calc(24px * var(--pg-scale)); padding:0 4px; border:2px solid transparent; background-clip:padding-box; box-shadow:inset 0 0 0 1px var(--control); border-radius:5px; }
+.frame[data-density="dense"] .val input[aria-invalid="true"]{ border:2px solid transparent; box-shadow:inset 0 0 0 1px var(--danger); }
+.frame[data-density="dense"] .val input:focus-visible, .frame[data-density="dense"] .val select:focus-visible{ outline:2px solid var(--focus); outline-offset:-2px; }
+.frame[data-density="dense"] .grp + .grp{ border-top:1px solid var(--line); }
+.frame[data-density="dense"] .grp-h button, .frame[data-density="dense"] .grp-h .static{ min-height:calc(24px * var(--pg-scale)); padding:0 8px; gap:4px; font-size:var(--pg-fs); line-height:var(--pg-lh); }
+.frame[data-density="dense"] .grp-h button:focus-visible{ outline-offset:-2px; }
+.frame[data-density="dense"] .grp-h .chev{ width:10px; height:10px; }
+.frame[data-density="dense"] .grp-h .sum, .frame[data-density="dense"] .chip{ font-family:var(--font); font-variant-numeric:tabular-nums; font-size:var(--pg-note-fs); }
+.frame[data-density="dense"] .radios button{ min-height:calc(24px * var(--pg-scale)); gap:6px; }
+/* DN-7: one dot size — a 12 px ring with a 6 px glyph */
+.frame[data-density="dense"] .radios .dot{ width:12px; height:12px; } .frame[data-density="dense"] .radios .dot::after{ width:6px; height:6px; }
+.frame[data-density="dense"] .ident{ padding:6px 8px 4px; grid-template-columns:12px minmax(0,1fr); gap:0 6px; }
+.frame[data-density="dense"] .ident svg{ width:12px; height:12px; }
+.frame[data-density="dense"] .ident h2{ font-size:calc(13px * var(--pg-scale)); line-height:calc(18px * var(--pg-scale)); }
+.frame[data-density="dense"] .ident .crumb, .frame[data-density="dense"] .desc, .frame[data-density="dense"] .msg, .frame[data-density="dense"] .note, .frame[data-density="dense"] .sub, .frame[data-density="dense"] details.defs ul, .frame[data-density="dense"] .banner{ font-size:var(--pg-note-fs); line-height:var(--pg-note-lh); }
+.frame[data-density="dense"] .note{ padding:0 8px 2px 15px; }
+/* DC-4: a Corner handle's side is a semibold subhead in ink, not a muted caption */
+.frame[data-density="dense"] .sub{ padding:4px 8px 0 15px; color:var(--ink); font-weight:600; }
+.frame[data-density="dense"] .desc, .frame[data-density="dense"] .msg{ padding:0 0 2px; }
+.frame[data-density="dense"] .banner{ padding:6px 8px; }
+.frame[data-density="dense"] .wing{ border-top-width:1px; }
+.frame[data-density="dense"] details.defs{ padding:0 8px 0 15px; }
+.frame[data-density="dense"] details.defs > summary{ min-height:calc(24px * var(--pg-scale)); font-size:var(--pg-note-fs); font-weight:400; color:var(--accent); text-decoration:underline; }
+.frame[data-density="dense"] details.defs > summary .how{ color:var(--accent); }
+/* SC 1.4.12 check: the WCAG text-spacing override (line 1.5, paragraph 2 em, letter 0.12 em, word 0.16 em) */
+.frame[data-spacing="1"] .pane *{ line-height:1.5 !important; letter-spacing:0.12em !important; word-spacing:0.16em !important; }
+.frame[data-spacing="1"] .pane p, .frame[data-spacing="1"] .pane .note, .frame[data-spacing="1"] .pane .desc{ margin-bottom:2em !important; }
+/* the app's Text size control in the title bar (the real control the build adds; DN-5) */
+.titlebar{ gap:8px; padding:2px 10px; } .titlebar .app-text{ margin-left:auto; display:flex; align-items:center; gap:4px; font-size:11px; color:var(--mute); }
+.titlebar .app-text select{ height:24px; font-size:11px; background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:4px; }
+
 :root[data-motion="reduce"] *{ transition:none !important; }
 @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+.dens{ margin:0 16px 16px; padding:12px; border:1px solid #49605b; border-radius:var(--r-md); background:#1e2d31; color:#ebf3f0; font-size:12px; }
+.dens h2{ margin:0 0 8px; font-size:13px; } .dens table{ border-collapse:collapse; } .dens td, .dens th{ text-align:left; padding:3px 8px; border-bottom:1px solid #2a3d40; } .dens th{ color:#b2c4bf; }
 
 .audit{ margin:0 16px 24px; padding:12px; border:1px solid #49605b; border-radius:var(--r-md); background:#1e2d31; color:#ebf3f0; font-size:12px; }
 .audit h2{ margin:0 0 8px; font-size:13px; } .audit table{ border-collapse:collapse; width:100%; } .audit td, .audit th{ text-align:left; padding:3px 6px; border-bottom:1px solid #2a3d40; vertical-align:top; } .audit th{ color:#b2c4bf; }
@@ -152,6 +248,8 @@ details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-si
   <label>Persona <select id="h-persona"><option value="designer">Designer (pointer)</option><option value="keyboard">Keyboard only</option><option value="sr">Screen reader (names)</option><option value="reviewer">Reviewer (column guides)</option></select></label>
   <label>Pane width <select id="h-width"><option value="200">200 px (narrowest dock)</option><option value="260" selected>260 px (dock-left)</option><option value="300">300 px (dock-right)</option></select></label>
   <label>Window <select id="h-height"><option value="800" selected>1280 × 800</option><option value="900">1440 × 900</option></select></label>
+  <label>Density <select id="h-density"><option value="dense" selected>Dense (proposal)</option><option value="native">As built (native, dade554)</option></select></label>
+  <label><input type="checkbox" id="h-spacing"> Text spacing (SC 1.4.12)</label>
   <label>State <select id="h-state"></select></label>
   <label>Theme <select id="h-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>
   <label><input type="checkbox" id="h-motion"> Reduced motion</label>
@@ -162,8 +260,8 @@ details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-si
 <main class="stage">
   <div>
     <p class="cap" id="cap-after">Proposed — property grid</p>
-    <div class="frame" id="frame" data-theme="light" data-persona="designer">
-      <div class="titlebar" aria-hidden="true">CFD Workbench — Untitled.foil</div>
+    <div class="frame" id="frame" data-theme="light" data-persona="designer" data-density="dense" data-text="100">
+      <div class="titlebar"><span aria-hidden="true">CFD Workbench — Untitled.foil</span><label class="app-text">View ▸ Text size <select id="app-text-size" aria-label="Text size" aria-keyshortcuts="Meta+Equal Meta+Minus Control+Equal Control+Minus"><option value="100">100 %</option><option value="125">125 %</option><option value="150">150 %</option><option value="200">200 %</option></select></label></div>
       <div class="tabs" aria-hidden="true"><span aria-current="page">Properties</span><span>Browser</span><span>Rail controls</span></div>
       <section class="pane" id="pane" aria-label="Properties"></section>
       <div class="statusbar" id="status" role="status" aria-live="polite"></div>
@@ -191,6 +289,11 @@ details.defs ul{ margin:2px 0 4px; padding-left:16px; color:var(--mute); font-si
   </div>
   <aside class="side" id="side" aria-label="Persona panel"></aside>
 </main>
+
+<section class="dens" aria-labelledby="dens-h">
+  <h2 id="dens-h">Density — as built (native, emulated from source) vs dense, measured in this state, theme and width; native capture from the Coordinator</h2>
+  <div id="dens-body"></div>
+</section>
 
 <section class="audit" aria-labelledby="audit-h">
   <h2 id="audit-h">In-artifact checks (this state, this theme, this width) — each names what it protects</h2>
@@ -273,7 +376,7 @@ const STATES = [
   ['station', 'Station'], ['drag', 'During a drag — ≈ preview'], ['busy', 'Checking the last change'], ['chord-warning', 'Typed chord above the fit limit (warning)'],
   ['field-error', 'Field validation error'], ['unavailable', 'Estimates unavailable (D-4 honest state)'], ['partial-unavailable', 'One estimate unavailable (MAC)'], ['tip-closes', 'Tip closes'],
   ['section', 'Section editor — Wing read-only'], ['not-certified', 'Foil not checked — read-only'], ['recovery', 'Recovered edit'],
-  ['overflow', 'Overflow — long name, extreme values'], ['twist', 'M1.2b2 — Twist control point'], ['twist-anchor', 'M1.2b2 — Twist anchor point'],
+  ['overflow', 'Overflow — long name, extreme values'], ['worst-case', 'Worst-case numbers (DC-2)'], ['twist', 'M1.2b2 — Twist control point'], ['twist-anchor', 'M1.2b2 — Twist anchor point'],
   ['twist-handle', 'M1.2b2 — Twist handle'], ['twist-clamped', 'M1.2b2 — Twist clamped during a drag'], ['tc-point', 'M1.2b2 — Thickness t/c point']
 ];
 $('#h-state').innerHTML = STATES.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('');
@@ -346,7 +449,7 @@ function row(r){
   const span3 = r.kind === 'radios' || r.kind === 'select' || r.kind === 'action' ? ' span3' : '';
   const hideVal = editable ? '' : ' aria-hidden="true"';
   const unit = span3 ? '' : `<span class="unit" aria-hidden="true">${showUnit ? esc(r.unit) : ''}</span>`;
-  return `<div class="row${editable ? ' edit' : ''}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${spoken ? `<span class="sr">${esc(spoken)}</span>` : ''}${lbl}<div class="val${r.txt ? ' txt' : ''}"${hideVal}>${val}</div>${unit}${r.desc ? `<div class="desc" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid, r.fk || r.label)}</div>`;
+  return `<div class="row${editable ? ' edit' : ''}${span3}" data-kind="${r.kind}"${st ? ` data-state="${st}"` : ''}${quant}>${spoken ? `<span class="sr">${esc(spoken)}</span>` : ''}${lbl}<div class="val${r.txt || unav ? ' txt' : ''}"${hideVal}>${val}</div>${unit}${r.desc ? `<div class="desc" id="${did}">${esc(r.desc)}</div>` : ''}${msgHtml(m, mid, r.fk || r.label)}</div>`;
 }
 function group(g){
   const hid = nid('g'), bid = hid + '-b', open = g.static || !S.collapsed[g.id];
@@ -383,7 +486,7 @@ function wing(opts = {}){
     row({ kind:'estimate', label:'Area', value:unav ? U : Math.round(e.cm2).toString(), unit:'cm²', q:1, state:st })];
   // precision follows the quantity (DR-UID-1): the tip station's chord IS the typed Tip chord, so 0.01 mm
   if (opts.station) estRows.push(row({ kind:'fact', label:'Chord here', value:f2(d.tipMm), unit:'mm', q:1 }), row({ kind:'estimate', label:'t/c here', value:'12.0', unit:'%', q:1 }));
-  const defs = `<details class="defs" data-fk="defs"${S.defs ? ' open' : ''}><summary>Estimates <span style="font-weight:400;color:var(--mute)">· definitions</span></summary><ul>
+  const defs = `<details class="defs" data-fk="defs"${S.defs ? ' open' : ''}><summary>Estimates <span class="how" style="font-weight:400">· definitions</span></summary><ul>
     <li>Span b: projected, tip to tip</li><li>Root and tip chord: at the centre line and the outermost station</li><li>Mean chord (geometric): S / b</li>
     <li>MAC: (2/S)∫₀^{b/2} c(y)² dy — the area-weighted mean; not the same as S / b</li><li>Max t/c: largest thickness over chord at any station</li><li>AR (projected, b²/S): dimensionless</li><li>Area: projected planform area S, both halves</li></ul></details>`;
   const body = [...dims, '<div class="rule"></div>', defs, ...estRows];
@@ -522,6 +625,13 @@ function model(){
           row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -84.95)), unit:'°', q:1, name:'Angle of the handle toward the root, in degrees', help:'ang' }),
           row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres', help:'len' })] }) + railGroup('Trailing edge', 16),
         wing:wing({ d:{ ...D, spanMm:2900, rootMm:212.4, tipMm:38.15, areaMm2:3_812_500, macMm:141.73 } }) }; }
+    case 'worst-case': return { body:ident('anchor', 'Trailing edge · point 13 of 16', 'Worst-case numbers (DC-2)') +
+        group({ id:'pos', title:'Position', sum:`${f2(1234.56)}, ${f2(-1234.56)} mm`, body:[typeRow('anchor'), fromRoot('p:from', 1234.56), row({ kind:'fact', label:'η', value:f3(1234.56 / 6000), q:1, dimless:1 }),
+          row({ kind:'input', fk:'p:aft', label:'Aft', value:f2(pv('p:aft', -1234.56)), unit:'mm', q:1, name:'Aft position in millimetres', help:'len' })] }) +
+        group({ id:'tan', title:'Tangent', sum:'Corner', body:[note(COPY.angleRef), row({ kind:'radios', fk:'tangent', label:'Kind', value:'corner', name:'Tangent kind', options:[['smooth', 'Smooth'], ['symmetric', 'Symmetric'], ['corner', 'Corner']], desc:COPY.corner }),
+          sub('Handle toward the root'), row({ kind:'input', fk:'h:ar', label:'Angle', value:f2(pv('h:ar', -89.99)), unit:'\u00b0', q:1, name:'Angle of the handle toward the root, in degrees', help:'ang' }),
+          row({ kind:'input', fk:'h:lr', label:'Length', value:f2(pv('h:lr', 1045.25)), unit:'mm', q:1, name:'Length of the handle toward the root, in millimetres', help:'len' })] }),
+        wing:wing({ d:{ ...D, spanMm:12000, rootMm:612.40, tipMm:138.15, areaMm2:3_812_500, macMm:441.73 } }) };
     case 'twist': return { body:ident('control', 'Twist · point 4 of 7', 'Channel preview (M1.2b2)') +
       group({ id:'pos', title:'Position', sum:`${f2(180)} mm, ${f2(-0.84)}°`, body:[typeRow('control'), fromRoot('p:from', 180), etaRow(180), twistRow(-0.84)] }) + railGroup('Twist', 7), wing:wing() };
     case 'twist-anchor': return { body:twistAnchorSel(), wing:wing() };
@@ -546,8 +656,8 @@ function render(nextFk){
   const help = ['len:mm', 'ang:°', 'pct:%'].map(x => { const [k, u] = x.split(':'); return `<span class="sr" id="nudge-help-${k}">${esc(COPY.nudgeHelp(u))}</span>`; }).join('');
   rendering = true; pane.innerHTML = `${help}<div class="sel" id="sel">${m.body}</div>${m.wing}`; rendering = false;
   const s = S.report || m.status || ''; if (statusEl.textContent !== s) statusEl.textContent = s;   // one polite region; no re-announce of an unchanged line
-  if (fk){ const t = pane.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if (t) t.focus(); }
-  side(); requestAnimationFrame(runAudit);
+  if (fk){ const t = pane.querySelector(`[data-fk="${CSS.escape(fk)}"]`); if (t){ t.focus(); const r = t.closest('.row'); if (r) r.scrollIntoView({ block:'nearest' }); } }
+  side(); requestAnimationFrame(() => { runAudit(); renderDensity(); });
 }
 
 /* ---------------- interaction ---------------- */
@@ -678,6 +788,8 @@ pane.addEventListener('click', e => {
   if (fk === 'retry'){ goState('foil'); return; }
   if (fk === 'rec-apply' || fk === 'rec-discard'){ S.report = fk === 'rec-apply' ? 'Recovered edit applied.' : 'Recovered edit discarded. Nothing changed.'; goState('control', true); }
 });
+pane.addEventListener('input', e => { const t = e.target; if (t.matches('input[data-fk]')) t.closest('.row').classList.toggle('dirty', t.value !== t.defaultValue); });
+pane.addEventListener('focusin', e => { const r = e.target.closest('.row'); if (r) r.scrollIntoView({ block:'nearest' }); });
 pane.addEventListener('toggle', e => { if (e.target.matches('details.defs')) S.defs = e.target.open; }, true);
 // PG-12: a selection change made from the pane is announced
 const TITLES = { anchor:'Trailing edge · anchor point 7 of 14', 'root-te':'Trailing edge · root end', 'tip-end':'Trailing edge · tip end', 'twist-anchor':'Twist · anchor point 4 of 7' };
@@ -694,10 +806,11 @@ function applyHarness(){
   const w = $('#h-width').value, h = Number($('#h-height').value), th = $('#h-theme').value;
   frame.style.width = w + 'px'; frame.style.height = (h - 32) + 'px';   // the dock column: the window height less the 32 px strip above the pane tabs seen in the operator captures (title bar, tabs and status bar are drawn inside the frame)
   frame.dataset.theme = th; $('#frame-before').dataset.theme = th; $('#frame-before').style.width = w + 'px'; $('#frame-before').style.height = (h - 32) + 'px';
+  frame.dataset.density = $('#h-density').value; frame.dataset.spacing = $('#h-spacing').checked ? '1' : '0'; applyTextSize();
   frame.dataset.persona = $('#h-persona').value; root.dataset.motion = $('#h-motion').checked ? 'reduce' : 'full';
   $('#compare-wrap').hidden = !$('#h-compare').checked; render();
 }
-['#h-width', '#h-height', '#h-theme', '#h-persona', '#h-motion', '#h-compare'].forEach(s => $(s).addEventListener('change', applyHarness));
+['#h-width', '#h-height', '#h-theme', '#h-persona', '#h-motion', '#h-compare', '#h-density', '#h-spacing'].forEach(s => $(s).addEventListener('change', applyHarness));
 $('#h-state').addEventListener('change', e => goState(e.target.value));
 
 /* ---------------- accessible text of a row: what a screen reader gets (text outside aria-hidden + control names) ---------------- */
@@ -756,14 +869,37 @@ function audit(){
   push('Wing block fully visible', 'UI-36 / operator: the estimates are always in view', !wg || wg.scrollHeight <= wg.clientHeight + 1, wg ? `Wing ${wg.scrollHeight}/${wg.clientHeight} px` : 'no Wing');
   const fits = sel.scrollHeight <= sel.clientHeight + 1;
   push('selection fits without scrolling', 'UI-36 at 1280 × 800 (recorded; see DR-UID-5)', null, `selection ${sel.scrollHeight}/${sel.clientHeight} px — ${fits ? 'fits' : 'scrolls'}`);
-  const labels = [...pane.querySelectorAll('.row .lbl')].filter(l => l.offsetParent).map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val')].filter(v => v.offsetParent).map(v => Math.round(v.getBoundingClientRect().right));
+  const labels = [...pane.querySelectorAll('.row .lbl')].filter(l => l.offsetParent).map(l => Math.round(l.getBoundingClientRect().left)), vals = [...pane.querySelectorAll('.row:not(.span3) .val:not(.txt)')].filter(v => v.offsetParent).map(v => Math.round(v.getBoundingClientRect().right));
   push('one label column, one value edge', 'F-1: a grid, not a column of text', new Set(labels).size <= 1 && new Set(vals).size <= 1, `${new Set(labels).size} label x, ${new Set(vals).size} value right edges`);
-  const tgt = [...pane.querySelectorAll('input, select, button')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect()).filter(r => r.width < 24 || r.height < 24);
+  const tgt = [...pane.querySelectorAll('input, select, button, summary')].filter(n => n.offsetParent).map(n => n.getBoundingClientRect()).filter(r => r.width < 24 || r.height < 24);
   push('targets ≥ 24 × 24', 'SC 2.5.8', tgt.length === 0, `${pane.querySelectorAll('input, select, button').length} targets, ${tgt.length} under`);
   const named = [...pane.querySelectorAll('input')].filter(n => !/millimetres|degrees|percent/.test(n.getAttribute('aria-label') || ''));
   push('every number field names its unit', 'screen-reader units (O-4)', named.length === 0, named.length ? named.map(n => n.dataset.fk).join(', ') : `${pane.querySelectorAll('input').length} fields`);
   const lab = [...pane.querySelectorAll('.row')].filter(r => r.querySelector('input,select')).filter(r => !(r.querySelector('input,select').getAttribute('aria-label') || '').toLowerCase().includes(r.querySelector('.lbl').textContent.toLowerCase()));
   push('visible label inside the name', 'SC 2.5.3 Label in Name', lab.length === 0, lab.length ? lab.map(r => r.querySelector('.lbl').textContent).join(', ') : '');
+  // density pins (dense, 100 % text): each names what it protects; the native build pins the same numbers (review §10)
+  if (frame.dataset.density === 'dense' && frame.dataset.text === '100'){ const m = densityMetrics();
+    if (m){ const eq = (a, b) => Math.abs(a - b) <= 0.5;
+      push('one 11 px type size for label, value and unit (DR-DEN-3)', 'operator: "font sizing too large"; values were 14 px beside 12 px labels', eq(m.fontLabel, 11) && eq(m.fontValue, 11) && eq(m.fontUnit, 11), `${m.fontLabel} / ${m.fontValue} / ${m.fontUnit} px`);
+      push('units on the value baseline', 'units sat ≈ 2 px low in the build', Math.abs(m.unitBaseline) <= 0.5, `offset ${m.unitBaseline} px`);
+      push('dense row pitch (fact 18, input 24)', 'operator: "spacing too large" (build: 28 / 32)', eq(m.factPitch, 18) && (!Number.isFinite(m.inputPitch) || eq(m.inputPitch, 24)), `fact ${m.factPitch}, input ${m.inputPitch} px`);
+      if (Number.isFinite(m.fieldTarget)) push('field target 24, drawn 20', 'SC 2.5.8 without the spacing exception', eq(m.fieldTarget, 24) && eq(m.fieldDrawn, 20), `target ${m.fieldTarget}, drawn ${m.fieldDrawn} px`);
+      push('header and Kind option 24', 'structure too large (build: 33 / 32); SC 2.5.8 floor', eq(m.headH, 24) && (Number.isNaN(m.kindH) || eq(m.kindH, 24)), `header ${m.headH}, Kind ${m.kindH} px`);
+      push('label start to value end ≤ 160 px', 'the eye travelled ≈ 125 px past the label in the build', m.labelToValue <= 160, `${m.labelToValue} px`); } }
+  if (frame.dataset.density === 'dense'){
+    // nothing below 11 px anywhere in the pane (DR-DEN-3)
+    const small = [...pane.querySelectorAll('*')].filter(n => n.offsetParent && n.childNodes.length && [...n.childNodes].some(c => c.nodeType === 3 && c.textContent.trim()) && parseFloat(getComputedStyle(n).fontSize) < 10.95);
+    push('no text below 11 px', 'DR-DEN-3: nothing below 11', small.length === 0, small.length ? small.slice(0, 3).map(n => `${n.className || n.tagName} ${getComputedStyle(n).fontSize}`).join(', ') : 'none');
+    // DC-3: a fact's last digit ends where an input's last digit ends
+    const wingEl = $('#wing'), inp = wingEl?.querySelector('input[data-fk="w:span"]'), fact = wingEl ? [...wingEl.querySelectorAll('.row')].find(r => r.dataset.q === 'Mean chord')?.querySelector('.val:not(.txt) > span') : null;
+    if (inp && fact && frame.dataset.stacked !== '1' && document.activeElement !== inp && !inp.closest('.row').classList.contains('dirty')){
+      const cs = getComputedStyle(inp), inRight = inp.getBoundingClientRect().right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight);
+      const r = document.createRange(); r.selectNodeContents(fact); const tr = [...r.getClientRects()].filter(x => x.width > 0).pop();
+      push('decimals align across facts and inputs', 'DC-3: one right edge for digits', tr && Math.abs(tr.right - inRight) <= 1, tr ? `fact ${tr.right.toFixed(1)} vs input ${inRight.toFixed(1)} px` : 'n/a'); }
+    // DN-1: the drawn boundary of every field is 1 px, in every state (default, focus, error)
+    const thick = [...pane.querySelectorAll('.val input, .val select')].filter(n => { const m = /inset 0px 0px 0px (\d+(?:\.\d+)?)px/.exec(getComputedStyle(n).boxShadow) || /(\d+(?:\.\d+)?)px inset/.exec(getComputedStyle(n).boxShadow); return !m || Math.abs(parseFloat(m[1]) - 1) > 0.01; });
+    push('drawn field boundary is 1 px in every state', 'DN-1: no 2 px box squeezing the text', thick.length === 0, thick.length ? thick.map(n => n.dataset.fk + ' ' + getComputedStyle(n).boxShadow).slice(0, 2).join('; ') : `${pane.querySelectorAll('.val input, .val select').length} fields`);
+  }
   const cs = getComputedStyle(frame);
   PAIRS.forEach(([fg, bg, kind, what]) => { const a = cs.getPropertyValue(fg).trim(), b = cs.getPropertyValue(bg).trim(); if (a === b && frame.dataset.theme === 'contrast') return;
     const r = ratio(a, b), need = kind === 'text' ? 4.5 : 3; push(`contrast ${what}`, kind === 'text' ? 'SC 1.4.3' : 'SC 1.4.11', r >= need, `${fg} ${a} on ${bg} ${b}: ${r.toFixed(2)}:1 (need ${need})`); });
@@ -774,7 +910,70 @@ function runAudit(){
   $('#audit-body').innerHTML = res.map(r => `<tr><td>${esc(r.check)}</td><td>${esc(r.protects)}</td><td class="${r.pass === null ? 'n' : r.pass ? 'p' : 'f'}">${r.pass === null ? 'recorded' : r.pass ? 'pass' : 'FAIL'}</td><td>${esc(r.detail)}</td></tr>`).join('');
   const v = $('#verdict'); v.textContent = fails ? `${fails} check(s) fail` : `${res.length} checks pass`; v.className = 'verdict ' + (fails ? 'fail' : 'pass');
 }
-window.__pg = { audit, goState, undo:() => S.undo, accText, setHarness:(o) => { for (const [k, v] of Object.entries(o)){ const el = $('#h-' + k); if (el.type === 'checkbox') el.checked = v; else el.value = v; } applyHarness(); }, states:STATES.map(s => s[0]) };
+/* ---------------- density metrics (measured from the rendered frame; never typed) ---------------- */
+const NATIVE_CAPTURE = { fontLabel:'≈ 13', fontValue:'≈ 15', fontUnit:'≈ 13', unitBaseline:'≈ 2 (unit lower)', labelToValue:'—', labelGap:'≈ 125', factPitch:'≈ 28', inputPitch:'≈ 32', fieldDrawn:'≈ 27', headH:'≈ 33', kindH:'not captured', identH:'≈ 15 pt title + subtitle', defsH:'≈ 25 (filled button)' };
+const metricCtx = document.createElement('canvas').getContext('2d');
+function fontMetrics(el){ const cs = getComputedStyle(el); metricCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; const m = metricCtx.measureText('0'); return { asc:m.fontBoundingBoxAscent, desc:m.fontBoundingBoxDescent }; }
+function baselineOf(el){
+  if (el.tagName === 'INPUT'){ const r = el.getBoundingClientRect(), fm = fontMetrics(el); return r.top + (r.height - (fm.asc + fm.desc)) / 2 + fm.asc; }
+  const range = document.createRange(); range.selectNodeContents(el); const rects = [...range.getClientRects()].filter(x => x.width > 0); if (!rects.length) return NaN;
+  return rects[0].bottom - fontMetrics(el).desc;
+}
+function rowByQ(scope, q){ return [...scope.querySelectorAll('.row')].find(r => r.dataset.q === q); }
+function densityMetrics(){
+  const wing = $('#wing'), out = {}; if (!wing) return null;
+  const mean = rowByQ(wing, 'Mean chord'), mac = rowByQ(wing, 'MAC'), spanRow = wing.querySelector('input[data-fk="w:span"]')?.closest('.row'), rootRow = wing.querySelector('input[data-fk="w:root"]')?.closest('.row');
+  const px = el => el ? parseFloat(getComputedStyle(el).fontSize) : NaN, h = el => el ? Math.round(el.getBoundingClientRect().height * 10) / 10 : NaN;
+  const lbl = mean?.querySelector('.lbl'), val = mean?.querySelector('.val > span'), unit = mean?.querySelector('.unit');
+  out.fontLabel = px(lbl); out.fontValue = px(val); out.fontUnit = px(unit);
+  out.unitBaseline = lbl && val && unit ? Math.round((baselineOf(unit) - baselineOf(val)) * 10) / 10 : NaN;
+  out.labelToValue = lbl && val ? Math.round(val.getBoundingClientRect().right - lbl.getBoundingClientRect().left) : NaN;
+  const textBox = el => { const r = document.createRange(); r.selectNodeContents(el); return [...r.getClientRects()].filter(x => x.width > 0)[0]; };
+  out.labelGap = lbl && val ? Math.round(textBox(val).left - textBox(lbl).right) : NaN;
+  out.factPitch = mean && mac ? Math.round(mac.getBoundingClientRect().top - mean.getBoundingClientRect().top) : NaN;
+  out.inputPitch = spanRow && rootRow ? Math.round(rootRow.getBoundingClientRect().top - spanRow.getBoundingClientRect().top) : NaN;
+  const inp = spanRow?.querySelector('input'); if (inp){ const cs = getComputedStyle(inp), transparent = cs.borderTopColor === 'rgba(0, 0, 0, 0)'; out.fieldTarget = h(inp); out.fieldDrawn = Math.round((inp.getBoundingClientRect().height - (transparent ? parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth) : 0)) * 10) / 10; }
+  out.headH = h(pane.querySelector('.grp-h button') || pane.querySelector('.grp-h .static'));
+  out.kindH = h(pane.querySelector('.radios [role="radio"]'));
+  out.identH = h(pane.querySelector('.ident'));
+  out.defsH = h(pane.querySelector('details.defs > summary'));
+  out.wingH = Math.round(wing.scrollHeight); const sel = $('#sel'), last = sel.lastElementChild; out.selH = last ? Math.round(last.getBoundingClientRect().bottom - sel.getBoundingClientRect().top + sel.scrollTop) : 0;
+  const visible = scroller => [...scroller.querySelectorAll('.row')].filter(r => { const a = r.getBoundingClientRect(), b = scroller.getBoundingClientRect(); return r.offsetParent && a.top >= b.top - 1 && a.bottom <= b.bottom + 1; }).length;
+  out.rowsVisible = visible($('#sel')) + visible(wing);
+  return out;
+}
+function densityBoth(){
+  const keep = frame.dataset.density, res = {};
+  for (const d of ['native', 'dense']){ frame.dataset.density = d; res[d] = densityMetrics(); }
+  frame.dataset.density = keep; return res;
+}
+const DENS_ROWS = [['fontLabel', 'Label font (px)'], ['fontValue', 'Value font (px)'], ['fontUnit', 'Unit font (px)'], ['unitBaseline', 'Unit baseline − value baseline (px)'],
+  ['labelToValue', 'Label start → value end (px, Mean chord)'], ['labelGap', 'Label text end → value text start (px, Mean chord)'], ['factPitch', 'Fact / estimate row pitch (px)'], ['inputPitch', 'Input row pitch (px)'], ['fieldTarget', 'Field target height (px)'],
+  ['fieldDrawn', 'Field drawn height (px)'], ['headH', 'Group header height (px)'], ['kindH', 'Kind option height (px)'], ['identH', 'Identity block height (px)'], ['defsH', '"How measured" control height (px)'],
+  ['wingH', 'Wing block content height (px)'], ['selH', 'Selection content height (px; room at 1280 × 800 ≈ 448 dense, 340 as built)'], ['rowsVisible', 'Rows visible without scrolling']];
+function renderDensity(){
+  const el = $('#dens-body'); if (!el) return; const b = densityBoth();
+  if (!b.native || !b.dense){ el.textContent = 'No Wing in this state: nothing to measure.'; return; }
+  const cell = v => (typeof v === 'number' && !Number.isFinite(v)) || v == null ? '—' : String(v);
+  el.innerHTML = `<table><thead><tr><th>Metric</th><th>As built (emulated)</th><th>Dense</th><th>Native capture (Coordinator, pt ≈ px)</th></tr></thead><tbody>${DENS_ROWS.map(([k, t]) =>
+    `<tr><td>${esc(t)}</td><td>${esc(cell(b.native[k]))}</td><td>${esc(cell(b.dense[k]))}</td><td>${esc(NATIVE_CAPTURE[k] || '—')}</td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------------- the app's Text size setting (DN-5): one multiplier, persisted per user, ⌘+ / ⌘− (Ctrl on Windows) ---------------- */
+const TEXT_SIZES = ['100', '125', '150', '200'], TEXT_KEY = 'cfdw.textSize';
+function readTextSize(){ try { const v = localStorage.getItem(TEXT_KEY); return TEXT_SIZES.includes(v) ? v : '100'; } catch { return '100'; } }
+function setTextSize(v){ if (!TEXT_SIZES.includes(v)) return; $('#app-text-size').value = v; try { localStorage.setItem(TEXT_KEY, v); } catch {} applyTextSize(); render(); }
+function applyTextSize(){ const v = $('#app-text-size').value, s = Number(v) / 100; frame.style.setProperty('--pg-scale', String(s)); frame.dataset.text = v; frame.dataset.stacked = s >= 1.5 ? '1' : '0'; }
+$('#app-text-size').value = readTextSize();
+$('#app-text-size').addEventListener('change', e => setTextSize(e.target.value));
+frame.addEventListener('keydown', e => {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+  const i = TEXT_SIZES.indexOf($('#app-text-size').value);
+  // DR-DEN-4: in a model view ⌘= / ⌘− zoom the view; everywhere else (Properties, Browser) they step the text size
+  if (e.key === '=' || e.key === '+'){ e.preventDefault(); setTextSize(TEXT_SIZES[Math.min(TEXT_SIZES.length - 1, i + 1)]); statusEl.textContent = `Text size ${$('#app-text-size').value} %.`; }
+  else if (e.key === '-' || e.key === '\u2212'){ e.preventDefault(); setTextSize(TEXT_SIZES[Math.max(0, i - 1)]); statusEl.textContent = `Text size ${$('#app-text-size').value} %.`; }
+});
+window.__pg = { audit, setTextSize, goState, undo:() => S.undo, accText, densityBoth, setHarness:(o) => { for (const [k, v] of Object.entries(o)){ if (k === 'text'){ $('#app-text-size').value = v; continue; } const el = $('#h-' + k); if (el.type === 'checkbox') el.checked = v; else el.value = v; } applyHarness(); }, states:STATES.map(s => s[0]) };
 applyHarness();
 </script>
 </body>

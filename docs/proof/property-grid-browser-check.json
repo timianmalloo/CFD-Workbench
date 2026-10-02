@@ -1,104 +1,558 @@
 {
  "file": "docs/mockups/property-grid.html",
- "date": "2026-10-01T21:44:47.078Z",
- "cells": 540,
+ "date": "2026-10-02T00:31:07.169Z",
+ "cells": 682,
  "errors": [],
  "fails": {},
  "selectionFitAt1280x800": {
-  "empty@200": "selection 677/677 px — fits",
-  "opening@200": "selection 677/677 px — fits",
-  "pane-error@200": "selection 677/677 px — fits",
-  "foil@200": "selection 389/389 px — fits",
-  "control@200": "selection 389/389 px — fits",
-  "anchor@200": "selection 581/389 px — scrolls",
-  "handle@200": "selection 417/389 px — scrolls",
-  "root-le@200": "selection 452/389 px — scrolls",
-  "root-te@200": "selection 542/389 px — scrolls",
-  "root-handle@200": "selection 389/389 px — fits",
-  "tip-end@200": "selection 402/389 px — scrolls",
-  "tip-handle@200": "selection 389/389 px — fits",
-  "multi@200": "selection 389/389 px — fits",
-  "station@200": "selection 389/389 px — fits",
-  "drag@200": "selection 389/389 px — fits",
-  "busy@200": "selection 389/389 px — fits",
-  "chord-warning@200 Wing": "Wing 406/371 px",
-  "chord-warning@200": "selection 305/305 px — fits",
-  "field-error@200": "selection 389/389 px — fits",
-  "unavailable@200 Wing": "Wing 430/371 px",
-  "unavailable@200": "selection 417/305 px — scrolls",
-  "partial-unavailable@200 Wing": "Wing 389/371 px",
-  "partial-unavailable@200": "selection 305/305 px — fits",
-  "tip-closes@200": "selection 351/351 px — fits",
-  "section@200 Wing": "Wing 375/371 px",
-  "section@200": "selection 305/305 px — fits",
-  "not-certified@200": "selection 389/389 px — fits",
-  "recovery@200": "selection 393/389 px — scrolls",
-  "overflow@200": "selection 640/389 px — scrolls",
-  "twist@200": "selection 389/389 px — fits",
-  "twist-anchor@200": "selection 721/389 px — scrolls",
-  "twist-handle@200": "selection 389/389 px — fits",
-  "twist-clamped@200": "selection 389/389 px — fits",
-  "tc-point@200": "selection 389/389 px — fits",
-  "empty@260": "selection 680/680 px — fits",
-  "opening@260": "selection 680/680 px — fits",
-  "pane-error@260": "selection 680/680 px — fits",
-  "foil@260": "selection 401/401 px — fits",
-  "control@260": "selection 401/401 px — fits",
-  "anchor@260": "selection 534/401 px — scrolls",
-  "handle@260": "selection 407/401 px — scrolls",
-  "root-le@260": "selection 401/401 px — fits",
-  "root-te@260": "selection 434/401 px — scrolls",
-  "root-handle@260": "selection 401/401 px — fits",
-  "tip-end@260": "selection 401/401 px — fits",
-  "tip-handle@260": "selection 401/401 px — fits",
-  "multi@260": "selection 401/401 px — fits",
-  "station@260": "selection 401/401 px — fits",
-  "drag@260": "selection 401/401 px — fits",
-  "busy@260": "selection 401/401 px — fits",
-  "chord-warning@260": "selection 318/318 px — fits",
-  "field-error@260": "selection 401/401 px — fits",
-  "unavailable@260": "selection 407/345 px — scrolls",
-  "partial-unavailable@260": "selection 328/328 px — fits",
-  "tip-closes@260": "selection 393/393 px — fits",
-  "section@260": "selection 354/354 px — fits",
-  "not-certified@260": "selection 401/401 px — fits",
-  "recovery@260": "selection 401/401 px — fits",
-  "overflow@260": "selection 560/401 px — scrolls",
-  "twist@260": "selection 401/401 px — fits",
-  "twist-anchor@260": "selection 670/401 px — scrolls",
-  "twist-handle@260": "selection 401/401 px — fits",
-  "twist-clamped@260": "selection 401/401 px — fits",
-  "tc-point@260": "selection 401/401 px — fits",
-  "empty@300": "selection 680/680 px — fits",
-  "opening@300": "selection 680/680 px — fits",
-  "pane-error@300": "selection 680/680 px — fits",
-  "foil@300": "selection 401/401 px — fits",
-  "control@300": "selection 401/401 px — fits",
-  "anchor@300": "selection 501/401 px — scrolls",
-  "handle@300": "selection 401/401 px — fits",
-  "root-le@300": "selection 401/401 px — fits",
-  "root-te@300": "selection 434/401 px — scrolls",
-  "root-handle@300": "selection 401/401 px — fits",
-  "tip-end@300": "selection 401/401 px — fits",
-  "tip-handle@300": "selection 401/401 px — fits",
-  "multi@300": "selection 401/401 px — fits",
-  "station@300": "selection 401/401 px — fits",
-  "drag@300": "selection 401/401 px — fits",
-  "busy@300": "selection 401/401 px — fits",
-  "chord-warning@300": "selection 334/334 px — fits",
-  "field-error@300": "selection 401/401 px — fits",
-  "unavailable@300": "selection 345/345 px — fits",
-  "partial-unavailable@300": "selection 345/345 px — fits",
-  "tip-closes@300": "selection 393/393 px — fits",
-  "section@300": "selection 354/354 px — fits",
-  "not-certified@300": "selection 401/401 px — fits",
-  "recovery@300": "selection 401/401 px — fits",
-  "overflow@300": "selection 544/401 px — scrolls",
-  "twist@300": "selection 401/401 px — fits",
-  "twist-anchor@300": "selection 637/401 px — scrolls",
-  "twist-handle@300": "selection 401/401 px — fits",
-  "twist-clamped@300": "selection 401/401 px — fits",
-  "tc-point@300": "selection 401/401 px — fits"
+  "empty@200": "selection 639/639 px — fits",
+  "opening@200": "selection 639/639 px — fits",
+  "pane-error@200": "selection 639/639 px — fits",
+  "foil@200": "selection 417/417 px — fits",
+  "control@200": "selection 417/417 px — fits",
+  "anchor@200": "selection 471/417 px — scrolls",
+  "handle@200": "selection 417/417 px — fits",
+  "root-le@200": "selection 417/417 px — fits",
+  "root-te@200": "selection 417/417 px — fits",
+  "root-handle@200": "selection 417/417 px — fits",
+  "tip-end@200": "selection 417/417 px — fits",
+  "tip-handle@200": "selection 417/417 px — fits",
+  "multi@200": "selection 417/417 px — fits",
+  "station@200": "selection 417/417 px — fits",
+  "drag@200": "selection 417/417 px — fits",
+  "busy@200": "selection 417/417 px — fits",
+  "chord-warning@200": "selection 317/317 px — fits",
+  "field-error@200": "selection 417/417 px — fits",
+  "unavailable@200": "selection 359/359 px — fits",
+  "partial-unavailable@200": "selection 345/345 px — fits",
+  "tip-closes@200": "selection 393/393 px — fits",
+  "section@200": "selection 369/369 px — fits",
+  "not-certified@200": "selection 417/417 px — fits",
+  "recovery@200": "selection 417/417 px — fits",
+  "overflow@200": "selection 521/417 px — scrolls",
+  "worst-case@200": "selection 464/417 px — scrolls",
+  "twist@200": "selection 417/417 px — fits",
+  "twist-anchor@200": "selection 567/417 px — scrolls",
+  "twist-handle@200": "selection 417/417 px — fits",
+  "twist-clamped@200": "selection 417/417 px — fits",
+  "tc-point@200": "selection 417/417 px — fits",
+  "empty@260": "selection 657/657 px — fits",
+  "opening@260": "selection 657/657 px — fits",
+  "pane-error@260": "selection 657/657 px — fits",
+  "foil@260": "selection 435/435 px — fits",
+  "control@260": "selection 435/435 px — fits",
+  "anchor@260": "selection 435/435 px — fits",
+  "handle@260": "selection 435/435 px — fits",
+  "root-le@260": "selection 435/435 px — fits",
+  "root-te@260": "selection 435/435 px — fits",
+  "root-handle@260": "selection 435/435 px — fits",
+  "tip-end@260": "selection 435/435 px — fits",
+  "tip-handle@260": "selection 435/435 px — fits",
+  "multi@260": "selection 435/435 px — fits",
+  "station@260": "selection 435/435 px — fits",
+  "drag@260": "selection 435/435 px — fits",
+  "busy@260": "selection 435/435 px — fits",
+  "chord-warning@260": "selection 363/363 px — fits",
+  "field-error@260": "selection 435/435 px — fits",
+  "unavailable@260": "selection 391/391 px — fits",
+  "partial-unavailable@260": "selection 377/377 px — fits",
+  "tip-closes@260": "selection 425/425 px — fits",
+  "section@260": "selection 401/401 px — fits",
+  "not-certified@260": "selection 435/435 px — fits",
+  "recovery@260": "selection 435/435 px — fits",
+  "overflow@260": "selection 457/435 px — scrolls",
+  "worst-case@260": "selection 435/435 px — fits",
+  "twist@260": "selection 435/435 px — fits",
+  "twist-anchor@260": "selection 525/435 px — scrolls",
+  "twist-handle@260": "selection 435/435 px — fits",
+  "twist-clamped@260": "selection 435/435 px — fits",
+  "tc-point@260": "selection 435/435 px — fits",
+  "empty@300": "selection 669/669 px — fits",
+  "opening@300": "selection 669/669 px — fits",
+  "pane-error@300": "selection 669/669 px — fits",
+  "foil@300": "selection 447/447 px — fits",
+  "control@300": "selection 447/447 px — fits",
+  "anchor@300": "selection 447/447 px — fits",
+  "handle@300": "selection 447/447 px — fits",
+  "root-le@300": "selection 447/447 px — fits",
+  "root-te@300": "selection 447/447 px — fits",
+  "root-handle@300": "selection 447/447 px — fits",
+  "tip-end@300": "selection 447/447 px — fits",
+  "tip-handle@300": "selection 447/447 px — fits",
+  "multi@300": "selection 447/447 px — fits",
+  "station@300": "selection 447/447 px — fits",
+  "drag@300": "selection 447/447 px — fits",
+  "busy@300": "selection 447/447 px — fits",
+  "chord-warning@300": "selection 389/389 px — fits",
+  "field-error@300": "selection 447/447 px — fits",
+  "unavailable@300": "selection 417/417 px — fits",
+  "partial-unavailable@300": "selection 403/403 px — fits",
+  "tip-closes@300": "selection 437/437 px — fits",
+  "section@300": "selection 413/413 px — fits",
+  "not-certified@300": "selection 447/447 px — fits",
+  "recovery@300": "selection 447/447 px — fits",
+  "overflow@300": "selection 447/447 px — fits",
+  "worst-case@300": "selection 447/447 px — fits",
+  "twist@300": "selection 447/447 px — fits",
+  "twist-anchor@300": "selection 525/447 px — scrolls",
+  "twist-handle@300": "selection 447/447 px — fits",
+  "twist-clamped@300": "selection 447/447 px — fits",
+  "tc-point@300": "selection 447/447 px — fits"
+ },
+ "textAt200Recorded": {
+  "foil": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "control": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "anchor": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "handle": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "root-le": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "root-te": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "root-handle": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "tip-end": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "tip-handle": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "multi": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "station": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "drag": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "busy": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "chord-warning": [
+   "Wing block fully visible: Wing 861/360 px"
+  ],
+  "field-error": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "unavailable": [
+   "Wing block fully visible: Wing 777/360 px"
+  ],
+  "partial-unavailable": [
+   "Wing block fully visible: Wing 805/360 px"
+  ],
+  "tip-closes": [
+   "Wing block fully visible: Wing 677/360 px"
+  ],
+  "section": [
+   "Wing block fully visible: Wing 765/360 px"
+  ],
+  "not-certified": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "recovery": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "overflow": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "worst-case": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "twist": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "twist-anchor": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "twist-handle": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "twist-clamped": [
+   "Wing block fully visible: Wing 635/360 px"
+  ],
+  "tc-point": [
+   "Wing block fully visible: Wing 635/360 px"
+  ]
+ },
+ "spacing1412Recorded": {
+  "foil": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "control": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "anchor": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "handle": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "root-le": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "root-te": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "root-handle": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "tip-end": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "tip-handle": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "multi": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "station": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "drag": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "busy": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "chord-warning": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "field-error": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "unavailable": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "partial-unavailable": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "tip-closes": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "section": [
+   "dense row pitch (fact 18, input 24): fact 21, input NaN px"
+  ],
+  "not-certified": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "recovery": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "overflow": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "worst-case": [
+   "nothing clipped at this width (values, labels, Kind options): −1234.56, 12000.00",
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "twist": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "twist-anchor": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "twist-handle": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "twist-clamped": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ],
+  "tc-point": [
+   "dense row pitch (fact 18, input 24): fact 21, input 24 px"
+  ]
+ },
+ "densityBeforeAfter": {
+  "foil": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": null,
+    "identH": 58,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 207,
+    "rowsVisible": 10
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": null,
+    "identH": 43,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 151,
+    "rowsVisible": 10
+   }
+  },
+  "control": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": null,
+    "identH": 39.2,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 284,
+    "rowsVisible": 12
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": null,
+    "identH": 29,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 202,
+    "rowsVisible": 12
+   }
+  },
+  "anchor": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": 32,
+    "identH": 39.2,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 625,
+    "rowsVisible": 12
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": 24,
+    "identH": 29,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 421,
+    "rowsVisible": 16
+   }
+  },
+  "handle": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": 32,
+    "identH": 98.8,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 468,
+    "rowsVisible": 10
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": 24,
+    "identH": 67,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 306,
+    "rowsVisible": 11
+   }
+  },
+  "root-te": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": null,
+    "identH": 58,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 527,
+    "rowsVisible": 12
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": null,
+    "identH": 43,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 349,
+    "rowsVisible": 14
+   }
+  },
+  "twist-anchor": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 82,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": 32,
+    "identH": 58,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 755,
+    "rowsVisible": 12
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 47,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": 24,
+    "identH": 43,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 525,
+    "rowsVisible": 15
+   }
+  },
+  "worst-case": {
+   "native": {
+    "fontLabel": 12,
+    "fontValue": 14,
+    "fontUnit": 12,
+    "unitBaseline": -1.6,
+    "labelToValue": 191,
+    "labelGap": 79,
+    "factPitch": 28,
+    "inputPitch": 32,
+    "fieldTarget": 28,
+    "fieldDrawn": 28,
+    "headH": 33,
+    "kindH": 32,
+    "identH": 58,
+    "defsH": 30.6,
+    "wingH": 339,
+    "selH": 587,
+    "rowsVisible": 12
+   },
+   "dense": {
+    "fontLabel": 11,
+    "fontValue": 11,
+    "fontUnit": 11,
+    "unitBaseline": 0,
+    "labelToValue": 150,
+    "labelGap": 40,
+    "factPitch": 18,
+    "inputPitch": 24,
+    "fieldTarget": 24,
+    "fieldDrawn": 20,
+    "headH": 24,
+    "kindH": 24,
+    "identH": 43,
+    "defsH": 24,
+    "wingH": 221,
+    "selH": 418,
+    "rowsVisible": 15
+   }
+  }
  },
  "interactions": [
   {
@@ -255,6 +709,54 @@
   },
   {
    "name": "AR carries its convention in the unit column (MC-8)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 200 px: #root_chord × 0.35 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 200 px: (#span − 2 cm) / 2 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 260 px: #root_chord × 0.35 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 260 px: (#span − 2 cm) / 2 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 300 px: #root_chord × 0.35 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "a typed expression is visible whole in Aft at 300 px: (#span − 2 cm) / 2 (DC-1)",
+   "pass": true
+  },
+  {
+   "name": "worst-case numbers are not clipped at the 200 px dock (DC-2)",
+   "pass": true
+  },
+  {
+   "name": "a focused field in error: text not clipped, 1 px boundary (DN-1)",
+   "pass": true
+  },
+  {
+   "name": "⌘+ steps the Text size 100 → 125 → 150 and stacks the rows at 150 % (DN-5)",
+   "pass": true
+  },
+  {
+   "name": "the Text size persists per user across a reload (DN-5)",
+   "pass": true
+  },
+  {
+   "name": "at 200 % a focused Wing field and its message are in view (DN-6)",
+   "pass": true
+  },
+  {
+   "name": "⌘− steps the Text size down and never below 100 % (DN-5)",
    "pass": true
   }
  ],

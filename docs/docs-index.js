@@ -1633,10 +1633,14 @@ window.DOCS_INDEX = {
         {
           "to": "spec-cfd-workbench-v1",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32912b4696be2f0df2d250e324632ef33a32c549eb1ec99cfac8343e23d47f63"
+      "sourceSha256": "34d25d5855e3053ed3187b8055c51d88cd45a496805805819e050a9faf01845e"
     },
     {
       "id": "thick-client-shell",
@@ -2480,10 +2484,14 @@ window.DOCS_INDEX = {
         {
           "to": "property-grid-rulings",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "tested-by"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "40b3fc471334ad21f6cbd0dd2890b54be2778cba9b696a060c1e5cdaae438efc"
+      "sourceSha256": "855a2d3b8d5a8ef9aecea48e05b2ef27ad7ada50a7fc35d947a672fb5f351c48"
     },
     {
       "id": "mockup-workbench",
@@ -3349,7 +3357,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4c4c9adb0d5071a7e9f687077102d441226132d47c2905788dc21e050ace2674"
+      "sourceSha256": "021727106fad3bc16d0484bc49a075a4bf5f0831e6b6499385fbc6aaa5116b43"
     },
     {
       "id": "domain-experts",
@@ -4179,6 +4187,47 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
+    },
+    {
+      "id": "review-ui-property-grid-density",
+      "path": "docs/reviews/ui-property-grid-density.md",
+      "title": "UI review — property grid density pass (after the native build)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "Elevate-mode density pass on the built property grid (dade554). The operator found the sheet \"too large\". The cause is measured in source: values at 14 px beside 12 px labels, rows at 28/32 px, 33 px group headers and 32 px Kind options from Avalonia Fluent defaults, 12 px insets, a value column far from its label. The proposal (after repair cycle 1 and the operator's 11 px ruling) is one 11/14 type size with nothing below 11, 18/24 px rows with a 24 px target around a 20 px field, 24 px headers, an app Text size setting, and the value next to its label. On the anchor state, selection content falls from 625 to 423 px and the Wing from 339 to 231 px, with every WCAG floor kept.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "density",
+        "native-ui",
+        "accessibility",
+        "typography"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "documents"
+        },
+        {
+          "to": "review-ui-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "46fa25b9c4998abf5d10fc9450855bcba33b6502572f86680506ee2686edcc99"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -8999,5 +9048,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "c4fd91e838fe5ec9529bf74b9e14a1512a4f93b48884136353b1982e9f039faf"
+  "graphSha256": "842f8f26aad043b3d42bc9493b03c38a5ab5ecc2fdd9652c62dae8e5ccd47727"
 };
