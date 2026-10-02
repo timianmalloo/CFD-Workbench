@@ -71,6 +71,9 @@ public partial class ModelArea : UserControl
         }
         // A view shown by a layout change gets its size only after that layout pass; its first camera fits then.
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
+        // The caption plate sits right of the axis triad (the approved mockup); View3d owns both positions.
+        ThreeDCaptionStack.Margin = View3d.CaptionMargin;
+        ThreeDView.Renderer = ThreeDRenderer;
         foreach (var renderer in new[] { ThreeDRenderer, SideRenderer, FrontRenderer })
             renderer.SizeChanged += (_, _) => Refresh();
         // Re-entering a document tab re-attaches the same controller: refresh so the views ask for a mesh again.
@@ -130,6 +133,7 @@ public partial class ModelArea : UserControl
             controller.SurfaceWanted = false;
         }
         controller = next;
+        ThreeDView.Controller = controller;
         if (controller is not null) controller.Changed += OnControllerChanged;
     }
 
@@ -175,7 +179,9 @@ public partial class ModelArea : UserControl
             renderer.Dimmed = !certified;
             renderer.Camera = CameraFor(view, renderer.Bounds.Size, surface);
         }
-        ThreeDLabel.Content = "3D · " + (controller.Camera3d?.Title ?? "Iso") + suffix;
+        ThreeDLabel.Content = "3D · " + (controller.Camera3d?.Title ?? "Iso") +
+            (controller.DisplayFor(SingleView.ThreeD) == DisplayMode.Wireframe ? " · wireframe" : "") + suffix;
+        ThreeDView.Refresh();
         SideLabel.Content = "Side · from starboard" + suffix;
         FrontLabel.Content = "Front · looking aft" + suffix;
         PlanLabel.Content = "Plan" + (certified ? "" : " · not checked");
