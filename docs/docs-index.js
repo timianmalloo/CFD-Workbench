@@ -1640,7 +1640,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "34d25d5855e3053ed3187b8055c51d88cd45a496805805819e050a9faf01845e"
+      "sourceSha256": "14a227bfc9c06717c64bf5da63e1d32c56ad0aecd057b85124374049b41d5df1"
     },
     {
       "id": "thick-client-shell",
@@ -9091,5 +9091,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     }
   ],
-  "graphSha256": "e2dad57d05a89d5059787dbd8d05f097e24a770e58b148ef4030992de5d54604"
+  "graphSha256": "0ccefd2b3d14f33c66835154a99e708f21b320596c28c476b806b37e23d6a22f"
 };
