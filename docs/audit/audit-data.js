@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T20:23:19Z",
+  "generated": "2026-10-02T20:39:51Z",
   "audit": [
     {
       "actor": null,
@@ -21948,6 +21948,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-02T20:22:27Z",
+      "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M3Z5GFG352PD579TSFAX6Z9P",
+      "shortname": "join-nav-tab",
+      "datetime": "2026-10-02T20:39:51Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/nav-tab-to-properties into feature/ui-cad-direction",
+      "summary": "DR-NAV-1 (Sonnet 5.5): Tab from a selected point lands on its first Properties value; Shift+Tab returns to the point; ] / [ walk points in target order; Tab into the Plan focuses the selected/first target; no trap. m12b-points §11.3 amended. Tracked: the Plan's TopLevel tunnel handler that finds the pane's first value moves into PropertiesPane after the status-bar track joins. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T20:38:59Z",
       "duration_seconds": 52.0
     }
   ],
