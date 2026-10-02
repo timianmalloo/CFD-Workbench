@@ -474,13 +474,32 @@ namespace CfdWorkbench.Desktop.Tests
     public static class DesktopChecks
     {
         private static int failures;
+        // The Core harness's subset selector (comma-separated check-name prefixes), so one check can run in a loop.
+        // A prefix that selects no check fails the run, so a subset can never pass empty (HARNESS-SILENT-EXIT).
+        private static readonly string[]? only = Environment.GetEnvironmentVariable("CFD_TEST_ONLY")?
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        private static readonly HashSet<string> matched = [];
 
-        /// <summary>The exit code of a named-check suite process: nonzero when any check failed.</summary>
-        public static int ExitCode => failures == 0 ? 0 : 1;
+        /// <summary>The exit code of a named-check suite process: nonzero when any check failed or a selector prefix matched none.</summary>
+        public static int ExitCode
+        {
+            get
+            {
+                string[] unmatched = only is null ? [] : only.Length == 0 ? ["(empty selector)"] : only.Where(prefix => !matched.Contains(prefix)).ToArray();
+                foreach (string prefix in unmatched) Console.WriteLine("FAIL SELECTOR " + prefix + " matched no check");
+                return failures == 0 && unmatched.Length == 0 ? 0 : 1;
+            }
+        }
 
         /// <summary>Runs one named check, prints <c>PASS name</c> or <c>FAIL name …</c>, and continues either way.</summary>
         public static void Check(string name, Action assertion)
         {
+            if (only is not null)
+            {
+                string? prefix = only.FirstOrDefault(candidate => name.StartsWith(candidate, StringComparison.Ordinal));
+                if (prefix is null) return;
+                matched.Add(prefix);
+            }
             // Test-runner boundary: report unexpected exceptions as failures and continue.
             try { assertion(); Console.WriteLine("PASS " + name); }
             catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
