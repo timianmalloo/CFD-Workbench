@@ -52,3 +52,9 @@ warning, and after a refused edit (the edges would cross).
 every shell 1280 × 800, no text under 11 px, no bar or toast button under 24 px. The strip is 24 px plus a 1 px top
 rule.
 
+
+## What follows
+
+The design rows (DESIGN.md §4 *Status strip* and *Toast*), the message inventory (where each message renders today and after V2), the build brief, 17 named checks and four open decisions are in
+[`docs/reviews/ui-status-bar.md`](../reviews/ui-status-bar.md). The ruling is DR-STATUS-1 in
+[`docs/notes/property-grid-rulings.md`](../notes/property-grid-rulings.md).

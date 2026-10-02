@@ -1637,10 +1637,14 @@ window.DOCS_INDEX = {
         {
           "to": "review-ui-property-grid-density",
           "rel": "relates-to"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "001ffcc13a4fb21e51b8f6b24a10aa54469fefc0287f4b4c4277be83c8b59da0"
+      "sourceSha256": "097353860b6bbee079545351f02d19663ea467b68c9712d46c18abd5843462bf"
     },
     {
       "id": "thick-client-shell",
@@ -1716,6 +1720,11 @@ window.DOCS_INDEX = {
       "phase": "design — M1.2a shell parts and M1.2e (spec 1.6)",
       "reviewBy": "2027-03-25",
       "reviewSuggested": [
+        {
+          "by": "property-grid-rulings",
+          "on": "2026-10-02",
+          "reason": "DR-STATUS-1: reports render in a 24 px status strip at the bottom of the shell plus a transient warning toast; no scrollable message list sits in or docks to the bottom bar (V3 rejected). The M1.2c Messages pane (bottom panel, history of edit reports, role log) must not be a docked scrolling pane in the bottom bar; where history goes is open (docs/reviews/ui-status-bar.md D-4)."
+        },
         {
           "by": "design-language",
           "on": "2026-09-30",
@@ -1794,7 +1803,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1bff5cf69371ad283a141ef2bcc16f49c9a8e6d161d343820966c37c3b8e6b3c"
+      "sourceSha256": "2c0cca60978d2aa2d5865997344ca854aa4485e61d82c586ffa1fbed27880349"
     },
     {
       "id": "design-application-contracts",
@@ -2066,6 +2075,11 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-03-29",
       "reviewSuggested": [
         {
+          "by": "property-grid-rulings",
+          "on": "2026-10-02",
+          "reason": "DR-STATUS-1: reports render in a 24 px status strip at the bottom of the shell plus a transient warning toast; no scrollable message list sits in or docks to the bottom bar (V3 rejected). The M1.2c Messages pane (bottom panel, history of edit reports, role log) must not be a docked scrolling pane in the bottom bar; where history goes is open (docs/reviews/ui-status-bar.md D-4)."
+        },
+        {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-09-30",
           "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
@@ -2175,7 +2189,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "17a458bd420e83c321c09ed642c694ff871866c4140c9cc00b1c6af6c3460968"
+      "sourceSha256": "8d1e9249525442dc0f62e7262de83b294aa319ed72fc3b6a49349aae6b9d6882"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2574,7 +2588,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3955284188f20f33b9d5a9d3a45ab4b0e15c590cab25b73b294da7d537219871"
+      "sourceSha256": "afcbb83a0896f242f7c7f978ad866db1068c97aae1f74f60d38d6c5868797eb8"
     },
     {
       "id": "mockup-workbench",
@@ -4356,6 +4370,55 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "46fa25b9c4998abf5d10fc9450855bcba33b6502572f86680506ee2686edcc99"
+    },
+    {
+      "id": "review-ui-status-bar",
+      "path": "docs/reviews/ui-status-bar.md",
+      "title": "Status strip and warning toast (DR-STATUS-1) — message inventory and build brief",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator chose V2 (DR-STATUS-1): a status strip along the bottom of the shell plus a transient toast for commit warnings; field errors stay at their field; command reports leave the property sheet. This brief lists every message the app shows today, where it renders now and where it renders after V2, then gives the build: the strip in ShellHost row 1, the toast in ModelArea, one report sink that replaces the model area's top status line and the pane's row reports, the STATUS-CLOBBER rule at the strip, 17 named red-first checks, and the existing checks that move. Four small decisions remain for the operator.",
+      "tags": [
+        "ui-review",
+        "status-bar",
+        "toast",
+        "shell",
+        "properties",
+        "build-brief",
+        "announcements"
+      ],
+      "links": [
+        {
+          "to": "mockup-status-bar",
+          "rel": "documents"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-property-grid-cells",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "52df9e692e0ef89c423521398bf02770bea372d40ed7a6a60e5d8b9afe232ccc"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -9192,5 +9255,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "76ad96cd997b69f30f6625637008366f1f673fac7135a121405bea97872d55cc"
+  "graphSha256": "0001456a7e61f087e779d215700a478dbbea3d542d92848c18bfc11184a6ffa1"
 };

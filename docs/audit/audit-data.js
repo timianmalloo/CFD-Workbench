@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T14:58:30Z",
+  "generated": "2026-10-02T19:43:28Z",
   "audit": [
     {
       "actor": null,
@@ -21820,6 +21820,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T14:57:39Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3Z29845WKWT8NMPACDXB7DV",
+      "shortname": "status-bar-v2",
+      "datetime": "2026-10-02T19:43:28Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Coordinator (UID track), status-bar STOP-AND-SHOW then promote. Operator: \"the status from the change of the point from anchor to tangent should not be in the property sheet... it should be in a status bar, we should have it render in a status bar at bottom of the shell\". Then, after the pick page: \"i prefer V2 ... i really dont want the bottom bar being scrollable (like the message pane in 3) thats awful\". Record DR-STATUS-1; finish the page V2-primary and commit; promote V2: DESIGN.md Status strip + Toast rows, the message inventory (where each renders after V2), a build brief in docs/reviews/ui-status-bar.md (Avalonia structure, announcement path, STATUS-CLOBBER, named red-first tests, tests/strings that move); flag M1.2c's Messages pane; gates derive, check-docs, design-lint; commit.",
+      "summary": "Status-bar pick page (V1/V2/V3 x 3 moments, 1280x800 shell); operator chose V2 (DR-STATUS-1). Promoted: DESIGN.md Status strip + Toast rows, tokens toast-w/toast-inset/toast-hold, Warning toast motion row; message inventory and build brief with 17 named red-first checks in docs/reviews/ui-status-bar.md; M1.2c Messages pane flagged on app-shell and m12b-points. Four operator decisions open (D-1..D-4).",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/status-bar.html",
+        "docs/reviews/ui-status-bar.md",
+        "DESIGN.md",
+        "docs/notes/property-grid-rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-10-02T19:33:21Z",
+      "duration_seconds": 607.0,
+      "git": {
+        "sha": "b7c03c5c24f63ba5a35ca267f4a9ff97799a0deb",
+        "short": "b7c03c5c2",
+        "branch": "design/status-bar",
+        "pushed": null
+      }
     }
   ],
   "changes": [
