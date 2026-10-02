@@ -32,6 +32,32 @@ public static class PropertiesCellsTests
     private static readonly (ThemeVariant Variant, string Name)[] Themes =
         [(ThemeVariant.Light, "light"), (ThemeVariant.Dark, "dark"), (NativeReviewThemes.HighContrast, "high-contrast")];
 
+    /// <summary>
+    /// The real window after New foil and a pointer click on a trailing-edge control point: the Plan holds focus on the
+    /// clicked point, which is the one selected point. Each Tab after it is a key event on the focused element.
+    /// </summary>
+    private static void ClickedPoint(Action<MainWindow, ShellHost, PlanCanvas, PointView> body)
+    {
+        var window = new MainWindow { Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            Settle(window);
+            var host = (ShellHost)window.Content!;
+            host.ModelView.FindControl<StartView>("StartCardView")!.FindControl<Button>("StartNewButton")!.Focus(NavigationMethod.Pointer);
+            Pump(host.OpenNewFoilAsync());
+            Settle(window);
+            var canvas = host.ModelView.GetVisualDescendants().OfType<PlanCanvas>().Single();
+            var clicked = host.Controller.Planform!.Trailing.Points.First(point => point.Role == PointRole.Control);
+            var at = canvas.TranslatePoint(canvas.ScreenPoint(clicked), window)!.Value;
+            canvas.RaiseEvent(new PointerPressedEventArgs(canvas, new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true), window, at, 0,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
+            Settle(window);
+            body(window, host, canvas, clicked);
+        }
+        finally { window.Close(); }
+    }
+
     public static void Run()
     {
         Pane("PropertiesPane_B_EditableValueHasDottedUnderline", (controller, host, window) =>
@@ -171,46 +197,48 @@ public static class PropertiesCellsTests
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
-        DesktopChecks.Check("PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder", () =>
-        {
-            // NS-1 (native session 2026-10-02): in the real window, after New foil and a pointer click on a point, Tab resumes
-            // after the clicked point, crosses the dock tab strip in one stop, and reaches the Properties values top to bottom
-            // (the selection, then the Wing), every one of them. The tool tabs stay reachable with the arrow keys.
-            var window = new MainWindow { Width = 1280, Height = 800 };
-            try
+        DesktopChecks.Check("Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue", () =>
+            ClickedPoint((window, host, canvas, clicked) =>
             {
-                window.Show();
-                Settle(window);
-                var host = (ShellHost)window.Content!;
-                host.ModelView.FindControl<StartView>("StartCardView")!.FindControl<Button>("StartNewButton")!.Focus(NavigationMethod.Pointer);
-                Pump(host.OpenNewFoilAsync());
-                Settle(window);
-                var canvas = host.ModelView.GetVisualDescendants().OfType<PlanCanvas>().Single();
-                var plan = host.Controller.Planform!;
-                var order = plan.Leading.Points.Concat(plan.Trailing.Points).ToList();
-                var clicked = plan.Trailing.Points.First(point => point.Role == PointRole.Control);
-                var at = canvas.TranslatePoint(canvas.ScreenPoint(clicked), window)!.Value;
-                canvas.RaiseEvent(new PointerPressedEventArgs(canvas, new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true), window, at, 0,
-                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None));
-                Settle(window);
+                // DR-NAV-1: after a pointer click on a point, one Tab leaves the Plan and lands on the first Properties value
+                // (Type), with nothing in between: no later Plan target, no dock tab. The selection is unchanged.
                 var failures = new List<string>();
                 if (!canvas.IsFocused) failures.Add("the click did not focus the Plan");
                 PressTab(window);
-                var next = order[order.FindIndex(point => point.Id == clicked.Id) + 1];
-                if (canvas.FocusedTarget?.VertexId != next.Id) failures.Add($"first Tab went to {canvas.FocusedTarget?.VertexId ?? "none"}, not {next.Id} after the clicked point");
+                var focused = window.FocusManager!.GetFocusedElement();
+                if (focused is not Control { Name: "TypeControl" } type || !host.Properties.IsVisualAncestorOf(type))
+                    failures.Add($"first Tab went to {(focused as Control)?.Name ?? focused?.GetType().Name ?? "none"}, not the Properties Type value");
+                if (host.Controller.Selection is not Selection.Points { Items: [var kept] } || kept.VertexId != clicked.Id)
+                    failures.Add("Tab changed the selection");
+                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+            }));
 
+        DesktopChecks.Check("Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint", () =>
+            ClickedPoint((window, host, canvas, clicked) =>
+            {
+                // DR-NAV-1: Shift+Tab from the pane's first value is the way back: the Plan, focused on the selected point.
+                PressTab(window);
+                if (window.FocusManager!.GetFocusedElement() is not Control { Name: "TypeControl" })
+                    throw new InvalidOperationException("setup: Tab did not reach the Type value");
+                PressTab(window, shift: true);
+                var failures = new List<string>();
+                if (!canvas.IsFocused) failures.Add("Shift+Tab did not return to the Plan: " + window.FocusManager!.GetFocusedElement()?.GetType().Name);
+                if (canvas.FocusedTarget?.VertexId != clicked.Id) failures.Add($"returned to {canvas.FocusedTarget?.VertexId ?? "no point"}, not the selected point");
+                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+            }));
+
+        DesktopChecks.Check("PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder", () =>
+            ClickedPoint((window, host, canvas, clicked) =>
+            {
+                // NS-1 (native session 2026-10-02), amended by DR-NAV-1: in the real window, after New foil and a pointer click
+                // on a point, Tab reaches the Properties values top to bottom (the selection, then the Wing), every one of
+                // them, with no trap. The tool tabs stay reachable with the arrow keys.
+                var plan = host.Controller.Planform!;
+                var order = plan.Leading.Points.Concat(plan.Trailing.Points).ToList();
+                var failures = new List<string>();
                 bool InPane() => window.FocusManager!.GetFocusedElement() is Visual visual && host.Properties.IsVisualAncestorOf(visual);
-                var between = new List<string>();
-                for (int step = 0; step < 80 && !InPane(); step++)
-                {
-                    PressTab(window);
-                    // The model area's own view labels (VW1: a view label opens on Return) belong to the model region;
-                    // only stops outside it count against "one stop between the Plan and Properties".
-                    if (window.FocusManager!.GetFocusedElement() is Control { } stop && stop is not PlanCanvas && !InPane()
-                        && stop.FindAncestorOfType<ModelArea>() is null)
-                        between.Add(stop.GetType().Name + ":" + (stop.DataContext as Dock.Model.Core.IDockable)?.Id);
-                }
-                if (between.Count != 1) failures.Add("stops between the Plan and Properties: " + string.Join(", ", between));
+                PressTab(window);
+                if (!InPane()) failures.Add("the first Tab from the clicked point did not reach the pane");
                 var stops = new List<Control>();
                 for (int step = 0; step < 80 && InPane(); step++)
                 {
@@ -226,23 +254,23 @@ public static class PropertiesCellsTests
                     .Select(item => item.Name).ToList();
                 if (missed.Count > 0 || values.Count == 0) failures.Add("not reached: " + string.Join(",", missed));
 
-                // Round the window back to the Plan: Tab into it starts at its first target, not where the last walk ended.
+                // Round the window back to the Plan. With no point selected, Tab into it focuses its first target.
+                host.Controller.Select(new Selection.Foil());
+                Settle(window);
                 for (int step = 0; step < 40 && !canvas.IsFocused; step++) PressTab(window);
-                PressTab(window);
-                if (canvas.FocusedTarget?.VertexId != order[0].Id) failures.Add($"Tab back into the Plan went to {canvas.FocusedTarget?.VertexId ?? "none"}, not its first target");
+                if (!canvas.IsFocused) failures.Add("Tab never came back to the Plan (trap)");
+                else if (canvas.FocusedTarget?.VertexId != order[0].Id) failures.Add($"Tab into the Plan went to {canvas.FocusedTarget?.VertexId ?? "none"}, not its first target");
 
-                var tab =host.DockHost.GetVisualDescendants().OfType<Dock.Avalonia.Controls.ToolTabStripItem>()
+                var tab = host.DockHost.GetVisualDescendants().OfType<Dock.Avalonia.Controls.ToolTabStripItem>()
                     .First(item => (item.DataContext as Dock.Model.Core.IDockable)?.Id == "properties");
                 tab.Focus(NavigationMethod.Tab);
                 tab.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = tab, Key = Avalonia.Input.Key.Right });
                 Settle(window);
                 if ((window.FocusManager!.GetFocusedElement() as Control)?.DataContext is not Dock.Model.Core.IDockable { Id: "browser" })
                     failures.Add("Right arrow on the Properties tab did not reach the Browser tab");
-                Console.WriteLine($"MEASURE tab from clicked point: {between.Count} stop(s) between, {stops.Count} pane stops, {values.Count} values");
+                Console.WriteLine($"MEASURE tab from clicked point: {stops.Count} pane stops, {values.Count} values");
                 if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-            }
-            finally { window.Close(); }
-        });
+            }));
 
         Pane("PropertiesPane_B_RowPressFocusesValue", (controller, host, window) =>
         {

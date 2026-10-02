@@ -94,3 +94,8 @@ at bottom of the shell". The pick page (`docs/mockups/status-bar.html`, b7c03c5)
 | **DR-STATUS-4** (D-3) | Drop the idle "No point change."; the strip is empty until something happens. |
 | D-4 | Edit-report history for M1.2c: open — decided at M1.2c design; constraint DR-STATUS-1 (no docked scrolling list in the bottom bar) holds. |
 
+## Keyboard navigation ruling (operator, 2026-10-02)
+
+| ID | Ruling | Consequence |
+|---|---|---|
+| **DR-NAV-1** Tab leaves the Plan | After clicking a point in the Plan, **Tab leaves the Plan and lands on the selected point's first Properties value** (Type, structure B); **Shift+Tab** from the pane's first value returns to the Plan on the selected point. Movement between Plan points is **] / [** (next / previous in the target order: LE root→tip, TE root→tip, then station chips). With no point selected, Tab into the Plan focuses the first target and ] / [ walk from there. Escape, Return-to-field, arrows-nudge, ⌥-arrows pan and F6 are unchanged. The model area's view labels (VW1; a label opens on Return) stay Tab stops in the model region | **Amends** `docs/design/m12b-points.md` §11.3 (keyboard column and "Tab order inside the Plan") and answers the open decision in `docs/reviews/property-grid-native.md` (NS-1). `PlanCanvas` binds `Key.OemCloseBrackets` / `Key.OemOpenBrackets` (same keys on macOS and Windows layouts; layouts that need AltGr for brackets are not covered). Tests: `Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue`, `Plan_BracketKeys_MoveBetweenPoints_InTargetOrder`, `Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint` |

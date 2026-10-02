@@ -94,8 +94,9 @@ nothing on it could be picked. **M1.2b is the slice that makes the Plan view a C
    accepted with a **warning**, "Root chord 190.00 mm. Fit 22.53 µm (limit 10 µm) — above the limit. 10.54 mm from a
    straight taper. Planform moved 15.84 mm so the leading edge stays at the root." (§3.9 spike; Ruling 56 DR-12.)
    **Tip chord** works the same way; `15 cm` and `#root_chord * 0.1` are accepted and echoed in mm.
-10. **Keyboard only:** Tab enters the Plan and moves point to point; arrows nudge; Return jumps to the point's Span
-    field; Escape returns to the point; Tab past the last target leaves the Plan. ⌥+arrows pan, ⌘= and ⌘− zoom, ⌘0
+10. **Keyboard only:** Tab enters the Plan (on the selected point, or the first target when none is selected); ] and [
+    move to the next and previous point; Tab from a selected point leaves the Plan for its first Properties value (DR-NAV-1);
+    arrows nudge; Return jumps to the point's Span field; Escape returns to the point. ⌥+arrows pan, ⌘= and ⌘− zoom, ⌘0
     fits.
 11. **Pointer navigation (Workbench preset, spec B7; trackpad per Ruling 56 DR-13):** the wheel zooms about the
     pointer; on the trackpad two-finger scroll pans and pinch zooms; middle-drag or Shift-drag on empty canvas pans;
@@ -676,7 +677,7 @@ point, with co-motion (B7; marine-CAD F4); the angle ladder (0.01 / 0.1 / 1 °) 
 | Rail recovery draft has no UI once the pane is removed | Ruling 55 Q1 | prevent | Plan + alert band | — | `Recovery_RailDraftResumed_PlanShowsDraftApplyCommits` (U2) |
 | 16-point rails with three anchors exceed the proof budget | DR-10 | detect | deterministic work bound in the fast ring; wall time at readiness | `apply` duration | `Assess_SixteenPointThreeAnchors_WorkCountBounded` (B0) |
 | Focus lands on a point hidden by zoom/pan | canvas focus | prevent | pan into view (2.4.11) | — | `PlanCanvas_FocusOffscreenPoint_PansIntoView` (U1b) |
-| Tab trapped in the canvas (F-2 shape) | keyboard model | prevent | Tab past the last target leaves | — | `PlanCanvas_TabPastLastPoint_LeavesCanvas` (U1b) |
+| Tab trapped in the canvas (F-2 shape) | keyboard model | prevent | Tab always leaves the Plan (to Properties from a selected point; to the next stop otherwise) | — | `Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue`, `PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves` (DR-NAV-1) |
 | Plan starved at the minimum window (NAV-STAR-COLLAPSE) | layout | prevent | Plan `*`, min 320 × 240 at 1024 × 700 | — | `ModelArea_MinimumWindow_PlanAtLeast320x240` (U1b) |
 | Hover probe polluted by the OS pointer (GUI-AMBIENT-INPUT) | hover | prevent | park the pointer off-window first | — | `PlanCanvas_HoverProbe_ParksPointerFirst` (U1b) |
 | Single-key C fires inside a text field | comb key | prevent | scoped to the focused canvas (2.1.4) | — | `PlanCanvas_CKeyInTipChordField_CombNotToggled` (U1b) |
@@ -743,11 +744,11 @@ The viewport stays graphite in the light theme (DESIGN.md; v10's light canvas is
 
 | Verb | Pointer | Keyboard |
 |---|---|---|
-| Select a point | click | Tab / Shift+Tab (focus selects while at most one point is selected); Browser rail row + Return |
-| Add to / remove from selection | Shift+click (< 3 px) / ⌘+click | Space selects the focused point only; Shift+Space toggles it; with several selected, Tab moves focus without changing the selection |
+| Select a point | click | ] / [ (next / previous point; focus selects while at most one point is selected); Browser rail row + Return |
+| Add to / remove from selection | Shift+click (< 3 px) / ⌘+click | Space selects the focused point only; Shift+Space toggles it; with several selected, ] / [ move focus without changing the selection |
 | Clear selection | click empty canvas | Escape (first dismisses an open tooltip) |
 | Move a point | drag; Shift-drag from a point locks to the span or aft axis | ←→ span, ↑↓ aft (screen up = forward): ⌘ 0.01 · plain 0.1 · Shift 1 mm; or type Span/Aft (expressions accepted, echoed in mm) |
-| Select a handle | click it | Tab from its anchor (handles follow their anchor) |
+| Select a handle | click it | ] from its anchor (handles follow their anchor) |
 | Move a handle | drag (co-motion by kind) | arrows as for a point (co-motion by kind); typed angle (from the span axis, positive aft, 0.01 °) and length (mm) in Properties |
 | Back from handle to point | click the point | Escape |
 | Type a precise value | double-click a point → its Span field; double-click a handle → its angle field | Return on a point → Span field; Return on a handle → angle field; Escape in the field → back to the canvas target |
@@ -757,11 +758,16 @@ The viewport stays graphite in the light theme (DESIGN.md; v10's light canvas is
 | Pan | two-finger trackpad scroll (DR-13, Ruling 56); middle-drag; Shift-drag on empty canvas | ⌥+arrows (10 % of the view) |
 | Fit | View ▸ Fit | ⌘0 |
 | Comb | View ▸ Curvature comb | C with the Plan focused (scoped, 2.1.4) |
-| Select station | click chip | Tab to chip; Browser row |
+| Select station | click chip | ] / [ to chip; Browser row |
 | Tracing probe | hover | follows the focused point |
 
-Tab order inside the Plan: LE points root → tip, TE points root → tip, then station chips; the selected anchor's handles
-follow it. Tab after the last target leaves the canvas; F6 cycles regions. No keyboard trap (2.1.2). Dragging has
+Target order inside the Plan: LE points root → tip, TE points root → tip, then station chips; the selected anchor's handles
+follow it. **DR-NAV-1:** ] and [ (`Key.OemCloseBrackets` / `Key.OemOpenBrackets`, the same keys on macOS and Windows layouts)
+move to the next and previous target and stop at the ends. Tab does not walk targets: with a point selected, Tab leaves the
+Plan and lands on that point's first Properties value (Type), and Shift+Tab from that value returns to the Plan on the
+selected point; Tab into the Plan focuses the selected point, or the first target when none is selected. With nothing
+selected, Tab from the Plan moves to the next stop in the window. Escape, Return, arrows and ⌥+arrows are unchanged. F6
+cycles regions. No keyboard trap (2.1.2): Tab always leaves. Dragging has
 single-pointer and keyboard alternatives (2.5.7). A focused point is panned into view (2.4.11), where "in view" excludes
 the probe, the scale bar and the station chips as obscuring rectangles.
 
@@ -821,7 +827,7 @@ screen reader can scan).
 
 ### 11.6 Accessibility (WCAG 2.2 AA) and performance
 
-- **Semantics:** the Plan is a `Group` named "Plan view. Tab to a point; arrows move it 0.1 mm, with Command 0.01, with
+- **Semantics:** the Plan is a `Group` named "Plan view. ] to a point; arrows move it 0.1 mm, with Command 0.01, with
   Shift 1. Return types a value. Escape clears." Each point and handle has a **custom peer** (`PlanPointPeer`) with its
   bounding rectangle, keyboard focus, a focus-changed event, the selection state and **Invoke** (runs the Return action),
   control type **Button**, name as in §11.4 starting with the stable identity and refreshed on commit; "locked, root
@@ -904,7 +910,7 @@ on this document at the gate (Gate record).
 5. **Native** (packaged `.app`, class **CO-UI-READY**) — rows N-B1 … N-B12 (the §0.1 steps) in `docs/reviews/m12b-native.md`.
    **Before any operator session every row carries an agent attach receipt** accepted by `tools/check-review-attach.mjs`
    (step 1 with a screenshot of the Plan showing both rails and points). If the attach is blocked (review F-ATTACH), U3
-   stops and reports; "operator-run, not done" is not an exit. A VoiceOver trace of Tab across points and an AX dump of
+   stops and reports; "operator-run, not done" is not an exit. A VoiceOver trace of ] and [ across points and an AX dump of
    the point peers are part of N-B10.
 6. **Token control (CD8)** — `ui-craft-gate.py` reads web source, not AXAML; the rung-2 control is `xaml-token-lint`
    (fast ring) plus `PlanCanvas_Brushes_AllFromThemeResources`.
@@ -990,13 +996,13 @@ on this document at the gate (Gate record).
 `PlanCanvas_RenderThrows_CopyTryAgainAndEvent` (U1b) · `PlanCanvas_HitTest_NearestWithin14Px` (U1b) ·
 `PlanCanvas_HoverPoint_TooltipCopyAndRing` (U1b) · `PlanCanvas_HoverRail_TracingProbeReadout` (U1b) · `PlanCanvas_DragDeltaReadout_Live` (U1b) ·
 `PlanCanvas_ShiftDragFromPoint_OrthoLocked` (U1b) · `PlanCanvas_ShiftClickAndCommandClick_ExtendAndToggle` (U1b) ·
-`PlanCanvas_SpaceAndShiftSpace_SelectAndToggle` (U1b) · `PlanCanvas_TabWithMultiSelection_KeepsSelection` (U1b) ·
+`PlanCanvas_SpaceAndShiftSpace_SelectAndToggle` (U1b) · `PlanCanvas_BracketWithMultiSelection_KeepsSelection` (U1b) ·
 `PlanCanvas_Escape_DismissTooltipThenClearSelection` (U1b) · `PlanCanvas_EscapeOnHandle_FocusBackToPoint` (U1b) ·
 `PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion` (U1b) · `PlanCanvas_ClickStationChip_SelectsStation` (U1b) · `PlanCanvas_DoubleClickPoint_RaisesTypeValueRequest` (U1b) ·
 `PlanCanvas_CKeyInTipChordField_CombNotToggled` (U1b) · `PlanCanvas_CombToggle_RenderedTeethOnSelectedRail` (U1b) ·
 `PlanCanvas_LockedNudge_AssertiveLockCopy` (U1b) · `PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft` (U1b) ·
-`PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser` (U1b) · `PlanCanvas_TabOrder_LeadingThenTrailingThenChips` (U1b) ·
-`PlanCanvas_TabPastLastPoint_LeavesCanvas` (U1b) · `PlanCanvas_FocusOffscreenPoint_PansIntoView` (U1b) · `PlanCanvas_FocusUnderProbeOrChip_PansIntoView` (U1b) · `PlanCanvas_ProbeAndDelta_NotLiveRegions` (U1b) · `PlanCanvas_HoverProbe_ParksPointerFirst` (U1b) ·
+`PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser` (U1b) · `PlanCanvas_TargetOrder_LeadingThenTrailingThenChips` (U1b) ·
+`Plan_BracketKeys_MoveBetweenPoints_InTargetOrder` · `Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue` · `Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint` · `PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves` (DR-NAV-1) · `PlanCanvas_FocusOffscreenPoint_PansIntoView` (U1b) · `PlanCanvas_FocusUnderProbeOrChip_PansIntoView` (U1b) · `PlanCanvas_ProbeAndDelta_NotLiveRegions` (U1b) · `PlanCanvas_HoverProbe_ParksPointerFirst` (U1b) ·
 `PlanCanvas_AutomationPeers_BoundsFocusSelectedInvoke` (U1b) · `PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength` (U1b) ·
 `PlanCanvas_Brushes_AllFromThemeResources` (U1b) · `PlanCanvas_ZoomPanFit_KeyboardAndPointerSameCamera` (U1b) ·
 `ModelArea_MinimumWindow_PlanAtLeast320x240` (U1b) · `ModelArea_SamplesTab_IsometricMovedUnchanged` (U1b).

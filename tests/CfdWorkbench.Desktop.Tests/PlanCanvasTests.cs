@@ -272,7 +272,7 @@ public static class PlanCanvasTests
                 throw new Exception("Shift+Space did not toggle focused point off");
         });
 
-        DesktopChecks.Check("PlanCanvas_TabOrder_LeadingThenTrailingThenChips", () =>
+        DesktopChecks.Check("PlanCanvas_TargetOrder_LeadingThenTrailingThenChips", () =>
         {
             using var fixture = new PlanFixture();
             var order = fixture.Canvas.KeyboardTargets;
@@ -281,15 +281,49 @@ public static class PlanCanvasTests
                 .Concat(plan.Trailing.Points.Select(point => point.Id)).ToArray();
             if (!order.Take(expected.Length).SequenceEqual(expected) ||
                 order.Count != expected.Length + plan.Stations.Count)
-                throw new Exception("Plan Tab order differs from LE, TE, station chips");
+                throw new Exception("Plan target order differs from LE, TE, station chips");
         });
 
-        DesktopChecks.Check("PlanCanvas_TabPastLastPoint_LeavesCanvas", () =>
+        DesktopChecks.Check("Plan_BracketKeys_MoveBetweenPoints_InTargetOrder", () =>
         {
+            // DR-NAV-1: ] and [ walk the target order (LE root to tip, TE root to tip, then the station chips) and stop at the
+            // ends. They are the OEM bracket keys, which are the same keys on macOS and Windows layouts.
             using var fixture = new PlanFixture();
-            for (int i = 0; i < fixture.Canvas.KeyboardTargets.Count; i++)
-                if (!fixture.Canvas.FocusNext()) throw new Exception("Tab left before the last target");
-            if (fixture.Canvas.FocusNext()) throw new Exception("Tab trapped focus after the last target");
+            var plan = fixture.Controller.Planform!;
+            var order = plan.Leading.Points.Concat(plan.Trailing.Points).Select(point => point.Id).ToList();
+            int count = fixture.Canvas.KeyboardTargets.Count;
+            fixture.Controller.Select(new Selection.Foil());
+            fixture.Canvas.Focus(NavigationMethod.Tab);
+            var walked = new List<string?> { fixture.Canvas.FocusedTarget?.VertexId };
+            for (int i = 1; i < count; i++)
+            {
+                if (!fixture.KeyDown(Key.OemCloseBrackets)) throw new Exception($"] was not handled at target {i - 1}");
+                walked.Add(fixture.Canvas.FocusedTarget?.VertexId);
+            }
+            if (!walked.Take(order.Count).SequenceEqual(order)) throw new Exception("] walked " + string.Join(",", walked) + " not " + string.Join(",", order));
+            if (fixture.Canvas.FocusedTarget is not null) throw new Exception("] past the points did not reach the station chips");
+            if (fixture.KeyDown(Key.OemCloseBrackets)) throw new Exception("] past the last target did not stop");
+            var down = new List<string>();
+            while (fixture.KeyDown(Key.OemOpenBrackets))
+                if (fixture.Canvas.FocusedTarget is { } target) down.Add(target.VertexId);
+            if (!down.SequenceEqual(Enumerable.Reverse(order))) throw new Exception("[ walked " + string.Join(",", down) + " not the reverse order");
+            if (fixture.Canvas.FocusedTarget?.VertexId != order[0]) throw new Exception("[ did not end on the first target");
+        });
+
+        DesktopChecks.Check("PlanCanvas_TabFromNoSelection_EntersFirstTarget_AndLeaves", () =>
+        {
+            // DR-NAV-1: with no point selected Tab into the Plan focuses the first target, and Tab from it is not taken by the
+            // Plan, so the window moves focus on (no trap, 2.1.2). Tab with a point selected is the Properties move (real-window check).
+            using var fixture = new PlanFixture();
+            var first = fixture.Controller.Planform!.Leading.Points[0];
+            fixture.Controller.Select(new Selection.Foil());
+            fixture.Canvas.Focus(NavigationMethod.Tab);
+            if (fixture.Canvas.FocusedTarget?.VertexId != first.Id) throw new Exception("Tab into the Plan did not focus the first target");
+            fixture.KeyDown(Key.Tab);
+            if (fixture.Canvas.IsFocused) throw new Exception("Tab from a target with no selection stayed in the Plan (trap)");
+            fixture.Canvas.Focus(NavigationMethod.Tab);
+            fixture.KeyDown(Key.Tab, KeyModifiers.Shift);
+            if (fixture.Canvas.IsFocused) throw new Exception("Shift+Tab stayed in the Plan (trap)");
         });
 
         DesktopChecks.Check("PlanCanvas_CombToggle_RenderedTeethOnSelectedRail", () =>
@@ -489,15 +523,16 @@ public static class PlanCanvasTests
             fixture.ReleaseDrag(point, 32, 3);
         });
 
-        DesktopChecks.Check("PlanCanvas_TabWithMultiSelection_KeepsSelection", () =>
+        DesktopChecks.Check("PlanCanvas_BracketWithMultiSelection_KeepsSelection", () =>
         {
             using var fixture = new PlanFixture();
             var points = fixture.Controller.Planform!.Leading.Points;
             fixture.Canvas.SelectPoint(new PointRef(points[3].Curve, points[3].Id), false, false);
             fixture.Canvas.SelectPoint(new PointRef(points[4].Curve, points[4].Id), true, false);
-            fixture.Canvas.FocusNext();
+            fixture.Canvas.FocusPoint(new PointRef(points[4].Curve, points[4].Id));
+            fixture.KeyDown(Key.OemCloseBrackets);
             if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 2)
-                throw new Exception("Tab collapsed multiple selection");
+                throw new Exception("] collapsed multiple selection");
         });
 
         DesktopChecks.Check("PlanCanvas_Escape_DismissTooltipThenClearSelection", () =>
@@ -982,16 +1017,18 @@ public static class PlanCanvasTests
             Settle();
         }
 
-        public void KeyDown(Key key, KeyModifiers modifiers = KeyModifiers.None)
+        public bool KeyDown(Key key, KeyModifiers modifiers = KeyModifiers.None)
         {
-            Canvas.RaiseEvent(new KeyEventArgs
+            var args = new KeyEventArgs
             {
                 RoutedEvent = InputElement.KeyDownEvent,
                 Source = Canvas,
                 Key = key,
                 KeyModifiers = modifiers
-            });
+            };
+            Canvas.RaiseEvent(args);
             Settle();
+            return args.Handled;
         }
 
         public void KeyUp(Key key)

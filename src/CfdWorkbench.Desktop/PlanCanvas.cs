@@ -4,10 +4,12 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Panes;
 using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
@@ -46,6 +48,7 @@ public sealed class PlanCanvas : Control
     private PointRef? focusedPoint;
     private PointView? hoveredPoint;
     private int keyboardIndex = -1;
+    private TopLevel? keyRoot;
     private bool advisoryCrossing;
     private Point advisoryPoint;
     private bool renderFailureNotified;
@@ -111,12 +114,17 @@ public sealed class PlanCanvas : Control
         AttachedToVisualTree += (_, _) =>
         {
             attached = true;
+            // DR-NAV-1: Shift+Tab from the Properties pane's first value returns here; the window sees it before the field does.
+            keyRoot = TopLevel.GetTopLevel(this);
+            keyRoot?.AddHandler(KeyDownEvent, OnWindowKeyDown, RoutingStrategies.Tunnel);
             if (controller is not null) controller.Changed += UpdatePlan;
             UpdatePlan();
         };
         DetachedFromVisualTree += (_, _) =>
         {
             attached = false;
+            keyRoot?.RemoveHandler(KeyDownEvent, OnWindowKeyDown);
+            keyRoot = null;
             if (controller is not null) controller.Changed -= UpdatePlan;
         };
         SizeChanged += (_, _) => UpdatePlan();
@@ -440,13 +448,36 @@ public sealed class PlanCanvas : Control
     protected override void OnGotFocus(GotFocusEventArgs e)
     {
         base.OnGotFocus(e);
-        // NS-1 sibling: Tab into the Plan starts at its first target (Shift+Tab at its last), not where an earlier walk left off.
+        // DR-NAV-1: Tab into the Plan focuses the selected point, or the first target when none is selected; ] and [ walk on from there.
         if (e.NavigationMethod != NavigationMethod.Tab || Controller?.Planform is not { } plan) return;
-        focusedPoint = null;
-        keyboardIndex = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
-            ? plan.Leading.Points.Count + plan.Trailing.Points.Count + plan.Stations.Count
-            : -1;
-        InvalidateVisual();
+        PointRef? target = Controller.Selection is Selection.Points { Items: [var selected, ..] }
+            ? selected
+            : plan.Leading.Points.Concat(plan.Trailing.Points).Select(point => new PointRef(point.Curve, point.Id)).Cast<PointRef?>().FirstOrDefault();
+        if (target is { } start) FocusPoint(start);
+        else { focusedPoint = null; keyboardIndex = -1; InvalidateVisual(); }
+    }
+
+    // DR-NAV-1: the pane's first value is where Tab from a selected point lands (Type for a point), and the one Shift+Tab leaves.
+    private TopLevel? PaneRoot => TopLevel.GetTopLevel(this);
+
+    private static Control? FirstValue(Visual root) => root.GetVisualDescendants().OfType<InputElement>()
+        .FirstOrDefault(item => item is TextBox or ComboBox && item.Focusable && item.IsEffectivelyVisible && item.IsEffectivelyEnabled) as Control;
+
+    private bool TabToProperties()
+    {
+        if (Controller?.Selection is not Selection.Points || PaneRoot is not { } root) return false;
+        var pane = root.GetVisualDescendants().OfType<PropertiesPane>().FirstOrDefault(item => item.IsEffectivelyVisible);
+        return pane is not null && FirstValue(pane) is { } value && value.Focus(NavigationMethod.Tab);
+    }
+
+    private void OnWindowKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Handled || e.Key != Key.Tab || !e.KeyModifiers.HasFlag(KeyModifiers.Shift)) return;
+        if (Controller?.Selection is not Selection.Points { Items: [var selected, ..] } || PaneRoot is not { } root) return;
+        var pane = root.GetVisualDescendants().OfType<PropertiesPane>().FirstOrDefault(item => item.IsEffectivelyVisible);
+        if (pane is null || !ReferenceEquals(root.FocusManager?.GetFocusedElement(), FirstValue(pane))) return;
+        FocusPoint(selected);
+        e.Handled = true;
     }
 
     protected override void OnKeyDown(KeyEventArgs e)
@@ -456,7 +487,12 @@ public sealed class PlanCanvas : Control
         bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
-        if (e.Key == Key.Tab) { e.Handled = FocusNext(shift); return; }
+        if (e.Key == Key.Tab) { e.Handled = !shift && TabToProperties(); return; }
+        if (e.Key is Key.OemCloseBrackets or Key.OemOpenBrackets && !command && !option)
+        {
+            e.Handled = FocusNext(reverse: e.Key == Key.OemOpenBrackets);
+            return;
+        }
         if (e.Key == Key.Space) { SelectFocused(shift); e.Handled = true; return; }
         if ((e.Key == Key.Apps || e.Key == Key.F10 && shift) && focusedPoint is { } menuTarget)
         {

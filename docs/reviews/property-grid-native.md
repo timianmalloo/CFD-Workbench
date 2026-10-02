@@ -218,9 +218,17 @@ arrow route along the tab row, and re-entry). `TabWalk`, which `EveryEditableVal
 use, now starts on the Plan at the selected point and presses Tab. F6 is unchanged; `F6_RegionEntry_FocusesSelectedTabOrRow`
 and `FocusRing_HiddenRegionsAndFloats_Order` pass.
 
-Not changed, as approved: inside the Plan, Tab moves point to point, and Return on a point goes to its Span field
-(m12b-points §11.3). From a selected point, Tab still walks the Plan's later targets before it reaches Properties.
-**Decision for the operator:** should Tab from a selected point leave the Plan for its values? That would change §11.3.
+**Superseded by DR-NAV-1 (2026-10-02, `docs/notes/property-grid-rulings.md`):** the operator ruled that Tab from a
+selected point leaves the Plan and lands on the point's first Properties value (Type), and Shift+Tab from that value
+returns to the selected point. ] and [ now move between Plan points. The keyboard rows above that describe Tab walking
+points (cause 1's resume point, "one stop between the Plan and Properties", Tab entry at the first target, Shift+Tab entry
+at the last) read as follows: after a click one Tab reaches the pane with no stop between; Tab into the Plan focuses the
+selected point or, with none selected, the first target; Shift+Tab entry is the same. New controls:
+`Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue`, `Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint`,
+`Plan_BracketKeys_MoveBetweenPoints_InTargetOrder`; `PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder` keeps
+values in order, every value reached, no trap, the tab-row arrow route and Tab re-entry.
+
+Unchanged: Return on a point goes to its Span field (m12b-points §11.3).
 Sibling found and not fixed: `SectionCanvas` Tab wraps around its vertices with no exit (`SectionCanvas.cs`:344-375).
 F6 is the only way out, and `SectionCanvasTests` asserts the wrap.
 
