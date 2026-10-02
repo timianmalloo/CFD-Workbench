@@ -170,13 +170,15 @@ ignores `tnum`. The macOS system face honours `tnum` but renders heavy at 11 px 
 not resolve it. So the pane uses Helvetica Neue on macOS (tabular digits) and Segoe UI elsewhere (honours `tnum`):
 `PropFontFamily` in `Styles.axaml`. Row **B3.6** checks the look on both platforms.
 
-### Text size (DN-5) — persistence is not built
+### Text size (DN-5) — persisted per user
 
 View ▸ Text size (Bigger, Smaller, 100 / 125 / 150 / 200 %) and the DR-DEN-4 routing are built and tested. ⌘= / ⌘−
-zoom a focused Plan, 3D or Section view and step the Text size anywhere else. **Persisting the setting is not built.**
-`PreferenceStore` has only the frozen `cfdw-layout` v1 document and the Recent list; storing a Text size needs a
-Persistence change, which this track may not make. `TextSize_PersistsPerUser` is deferred to a track that owns
-`src/CfdWorkbench.Persistence/`. Until then the setting lasts for the session.
+zoom a focused Plan, 3D or Section view and step the Text size anywhere else. **The setting is persisted per user**
+(track TSP): `<preference root>/display/display.json`, format `cfdw-display` v1 (`docs/design/app-shell.md` §4.6).
+The shell reads it at startup and writes each change. Headless: `TextSize_PersistsPerUser`,
+`TextSize_SaveNotKept_RecordedAndAnnouncedOnce` and the `PrefStore_TextSize_*` store checks. If the store cannot keep
+it, the status line says once "Text size will apply this session only: <reason>." On Windows the store has no native
+helper, so persistence is unsupported and the Text size is session-only by design. Row B3.10 checks both.
 
 A clicked View ▸ Zoom in item takes the same route as its shortcut. With focus in a pane, that click steps the Text
 size; the platform menu cannot tell a click from the key. Row B3.7 asks the operator to accept this.
@@ -194,6 +196,7 @@ size; the platform menu cannot tell a click from the key. Row B3.7 asks the oper
 | B3.7 | Text size: each step from the View menu, ⌘= / ⌘− in Properties and in the Plan view | Properties: the size steps and "Text size 150 %." is spoken; Plan: the view zooms. Operator accepts that a menu click on Zoom in also follows focus | |
 | B3.8 | Wing focus at 200 %: set Text size 200 %, Tab to Tip chord, type abc, Return | The field and its message are in view inside the Wing; the Wing scrolls inside itself (DR-DEN-2). Headless: `FocusedWingFieldInViewAtLargeText` | |
 | B3.9 | Stacked rows at 150 % and 200 % on the anchor and the 200 px dock | Each value sits under its label, right-aligned; nothing clipped | |
+| B3.10 | Text size persists: set 150 % from View ▸ Text size, quit (⌘Q), relaunch | macOS: Properties opens at 150 % and the 150 % item is checked. Windows: opens at 100 %; on the change the status line said once "Text size will apply this session only: …" (session-only by design). Headless: `TextSize_PersistsPerUser`, `TextSize_SaveNotKept_RecordedAndAnnouncedOnce` | |
 
 Rows B2.2, B2.10 and B2.10a above describe the retired Kind radio list. On the B build, read them for the Tangent
 kind ▾: ↓ stages ("Press Return to make it corner, or Esc to keep smooth."), Return applies, and leaving says
