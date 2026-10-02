@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T01:02:52Z",
+  "generated": "2026-10-02T01:10:51Z",
   "audit": [
     {
       "actor": null,
@@ -21533,6 +21533,32 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T01:01:53Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M3X2M02EG1N2WMJ1F7336JCJ",
+      "shortname": "ui-design-property-grid-cells",
+      "datetime": "2026-10-02T01:10:51Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Stop-and-show: operator rejected the structure (\"needs to look more like cells and labels — look at vs code or adobe premier property sheets\"), then picked \"the visual studio properties window\". One self-contained page showing the same anchor point + Wing content as A (VS Properties window, primary, faithful: toolbar, categories, cells, splitter, in-place editor, in-cell enums, greyed read-only, description panel), B (Premiere Effect Controls) and C (VS Code compact table), with the Aft edit state; PNG capture.",
+      "summary": "docs/mockups/property-grid-cells.html + hub; captures docs/proof/property-grid-cells/variants.png and variants-dark.png. Capture check: no page errors, no text under 11 px, no target under 24 px, nothing clipped.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid-cells.html",
+        "docs/proof/property-grid-cells/variants.png"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T0",
+      "git": {
+        "sha": "b437efa9cd94f3cd6d2c5af64ba30fa69dda3fd1",
+        "short": "b437efa9c",
+        "branch": "design/property-grid-cells",
+        "pushed": null
+      }
     }
   ],
   "changes": [

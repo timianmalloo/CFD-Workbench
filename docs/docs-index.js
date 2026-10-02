@@ -2494,6 +2494,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "855a2d3b8d5a8ef9aecea48e05b2ef27ad7ada50a7fc35d947a672fb5f351c48"
     },
     {
+      "id": "mockup-property-grid-cells",
+      "path": "docs/mockups/property-grid-cells.md",
+      "title": "Property sheet — cell layouts for the operator to pick (Visual Studio Properties window first)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator rejected the row-and-box structure (\"it needs to look more like cells and labels\") and then picked the Visual Studio Properties window. The page shows the same anchor point and Wing content at the real 260 px pane, 11 px text. Primary: a faithful VS Properties grid. Secondary: Premiere Effect Controls and a VS Code compact table for comparison. Nothing is built from it yet.",
+      "tags": [
+        "mockup",
+        "properties",
+        "property-grid",
+        "cells",
+        "operator-pick"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "refines"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bae2106d4be277ed9fb9094dab7a08caa3cc982ca9d101afad495202dad6d9e9"
+    },
+    {
       "id": "mockup-workbench",
       "path": "docs/mockups/workbench.md",
       "title": "CFD-Workbench interactive design prototype",
@@ -9046,7 +9081,15 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "spec-foildsl"
+    },
+    {
+      "id": "surface-mockups-property-grid-cells",
+      "path": "docs/mockups/property-grid-cells.html",
+      "title": "Property sheet — three cell layouts",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-property-grid-cells"
     }
   ],
-  "graphSha256": "842f8f26aad043b3d42bc9493b03c38a5ab5ecc2fdd9652c62dae8e5ccd47727"
+  "graphSha256": "e2dad57d05a89d5059787dbd8d05f097e24a770e58b148ef4030992de5d54604"
 };
