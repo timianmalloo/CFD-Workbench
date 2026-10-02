@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T00:31:22Z",
+  "generated": "2026-10-02T01:02:52Z",
   "audit": [
     {
       "actor": null,
@@ -21506,6 +21506,33 @@ window.AUDIT_DATA = {
         "branch": "design/property-grid-density",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M3X25C9M8TXMVX1RNB04K7C8",
+      "shortname": "join-property-grid-density",
+      "datetime": "2026-10-02T01:02:52Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/property-grid-density into feature/ui-cad-direction",
+      "summary": "ui-design elevate (density) of the built property grid after operator: 'too large'. 11 px nothing below 11, 18/24 px rows, 24 px single-element fields (20 drawn), compact headers, fixed label|value|unit columns, focused inputs widen for expressions, View > Text size 100-200 % with stacked rows. UX&A and Marine-CAD cleared with conditions; rulings DR-DEN-1..4. Browser oracle 682 combos, 51/51 paths. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/ui-property-grid-density.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-02T01:01:53Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
