@@ -585,6 +585,26 @@ public static class ControllerViewTests
             Console.WriteLine(FormattableString.Invariant(
                 $"MEASURE view_surface_41x101_ms median={durations[durations.Count / 2]:F1} max={durations[^1]:F1} n={durations.Count}"));
         });
+        DesktopChecks.Check("Readiness_ThreeDFrame_Measured", () =>
+        {
+            // One 3D frame at 1440 × 900 (mesh to screen, painter's sort, one Skia draw), as orbit will redraw it.
+            using var fixture = new AreaFixture(width: 1440, height: 900);
+            var renderer = fixture.Area.ThreeDRenderer;
+            var size = new PixelSize((int)renderer.Bounds.Width, (int)renderer.Bounds.Height);
+            var times = new List<double>();
+            for (int frame = 0; frame < 12; frame++)
+            {
+                fixture.Controller.Camera3d = fixture.Controller.Camera3d!.Value.Orbit(5, 0);
+                fixture.Settle();
+                using var bitmap = new RenderTargetBitmap(size);
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                bitmap.Render(renderer);
+                times.Add(watch.Elapsed.TotalMilliseconds);
+            }
+            times.Sort();
+            Console.WriteLine(FormattableString.Invariant(
+                $"MEASURE three_d_frame_ms median={times[times.Count / 2]:F1} max={times[^1]:F1} size={size.Width}x{size.Height}"));
+        });
         DesktopChecks.Check("Readiness_ChannelDragWith3dVisible_GestureEndP95", () =>
         {
             ShellEvents.Clear();
