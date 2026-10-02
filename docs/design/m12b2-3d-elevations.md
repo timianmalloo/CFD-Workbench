@@ -791,7 +791,13 @@ assertions do not count. 4. **Action** (UI-DEAD-CONTROL) — PNL. 5. **Native** 
 (the §0.1 steps) in `docs/reviews/m12b2-native.md`, each with an agent attach receipt before any operator session; a
 VoiceOver trace of Tab through the cube and a lane, and an AX dump showing the band groups' point children (UXR).
 6. **Readiness ring** (TEST-RING): `Readiness_Surface41x101_Under25Ms` (PL0), `Readiness_OrbitFrameP95Under33Ms` (V3D),
-`Readiness_ChannelDragWith3dFrameP95Under100Ms` (ELV), gathered by UXR. 7. **Budget:** `tools/run-tests.sh` stays under
+`Readiness_ChannelDragWith3dFrameP95Under100Ms` (ELV), gathered by UXR. **Plan render (VW1 decision, 2026-10-02):**
+M1.2b's `Readiness_PlanRender_Under8Ms` rendered the whole window once and only printed "met"/"miss"; with the 3D view
+beside the Plan it read 24.76 ms and still passed. It now measures what its budget names — the Plan canvas alone, in
+One view (the pre-VW1 size, 1174 × 747 at 1440 × 900), median of nine warm frames — and fails above 8 ms (measured
+3.55–4.14 ms). The whole window in Plan + 3D with the mesh drawn is a new check, `Readiness_WindowRenderPlan3d_Under33Ms`
+(one frame of the §1237 33 ms target; measured 21.21–21.46 ms median; the 3D view alone is 10.1 ms median at 391 × 747,
+`Readiness_ThreeDFrame_Measured`). Both were seen red under a planted 1 ms budget. 7. **Budget:** `tools/run-tests.sh` stays under
 60 s (TEST-COST); estimated addition 4–7 s (Inferred: ~150 cases); each track reports its measured seconds, and a track
 over budget moves its slowest rendered cases to readiness. 8. **Delegation hygiene:** foreground only; Return section
 and claimed commit (HARNESS-SILENT-EXIT); two repair cycles, then stop (COORD-SPIRAL).

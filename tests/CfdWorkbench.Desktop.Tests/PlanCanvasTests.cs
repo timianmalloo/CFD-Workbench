@@ -821,16 +821,52 @@ public static class PlanCanvasTests
     public static void RunReadiness()
     {
         AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+        // M1.2b §11 "Plan render ≤ 8 ms at 1440 × 900": the Plan canvas alone, at the size it had before VW1 put the 3D
+        // view beside it (One view: Plan), median of warm frames. It fails above its budget.
         DesktopChecks.Check("Readiness_PlanRender_Under8Ms", () =>
         {
             using var fixture = new PlanFixture(newFoil: true, width: 1440, height: 900);
-            using var bitmap = new RenderTargetBitmap(new PixelSize(1440, 900));
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            bitmap.Render(fixture.Window);
-            watch.Stop();
-            Console.WriteLine($"READINESS-MEASURE PlanRender {watch.Elapsed.TotalMilliseconds:F2} ms target 8.00 ms " +
-                (watch.Elapsed.TotalMilliseconds <= 8 ? "met" : "miss"));
+            fixture.Controller.Layout = ViewLayout.One(CfdWorkbench.Persistence.SingleView.Plan);
+            fixture.Settle();
+            var canvas = fixture.Canvas;
+            double median = MedianRenderMilliseconds(canvas);
+            Console.WriteLine(FormattableString.Invariant(
+                $"READINESS-MEASURE PlanRender median {median:F2} ms target 8.00 ms canvas {canvas.Bounds.Width:F0}x{canvas.Bounds.Height:F0}"));
+            if (median > 8) throw new Exception(FormattableString.Invariant($"Plan render median {median:F2} ms is over its 8 ms budget"));
         });
+        // The whole window in the default Plan + 3D layout, mesh drawn: one frame of the spec's 33 ms frame target
+        // (§1237). Baseline when this check was written (VW1, 2026-10-02): see docs/design/m12b2-3d-elevations.md §12.3.
+        DesktopChecks.Check("Readiness_WindowRenderPlan3d_Under33Ms", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true, width: 1440, height: 900);
+            var deadline = System.Diagnostics.Stopwatch.StartNew();
+            while (fixture.Controller.Surface is null || fixture.Controller.SurfaceUpdating)
+            {
+                if (deadline.Elapsed.TotalSeconds > 30) throw new TimeoutException("No mesh for the 3D view");
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Yield();
+            }
+            fixture.Settle();
+            double median = MedianRenderMilliseconds(fixture.Window);
+            Console.WriteLine(FormattableString.Invariant($"READINESS-MEASURE WindowRenderPlan3d median {median:F2} ms target 33.00 ms"));
+            if (median > 33) throw new Exception(FormattableString.Invariant($"Plan + 3D window render median {median:F2} ms is over 33 ms"));
+        });
+    }
+
+    // One warm-up render, then the median of nine; each frame is a fresh RenderTargetBitmap of the visual's size.
+    private static double MedianRenderMilliseconds(Visual visual)
+    {
+        var size = new PixelSize((int)visual.Bounds.Width, (int)visual.Bounds.Height);
+        var times = new List<double>();
+        for (int frame = 0; frame < 10; frame++)
+        {
+            using var bitmap = new RenderTargetBitmap(size);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            bitmap.Render(visual);
+            if (frame > 0) times.Add(watch.Elapsed.TotalMilliseconds);
+        }
+        times.Sort();
+        return times[times.Count / 2];
     }
 
     private static void Settle(Window window)
