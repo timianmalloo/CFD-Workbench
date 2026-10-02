@@ -233,7 +233,7 @@ Every Prop size token is computed as base × `PropTextScale`; heights are minimu
 - **One multiplier.** `PropTextScale` multiplies every Prop type token (font size, line height) and every Prop row
   token (row, field, header and Kind heights; column widths). At ≥ 1.5 the pane applies `prop-stacked`. The new value is
   announced in the polite status: "Text size 150 %.".
-- **DR-DEN-4 (shortcut scope, pending the operator).** ⌘= / ⌘− (Ctrl on Windows) already zoom the Plan and 3D views.
+- **DR-DEN-4 (shortcut scope, ruled).** ⌘= / ⌘− (Ctrl on Windows) already zoom the Plan and 3D views. **Ruled (operator, 2026-10-01): context — with a model view focused ⌘= / ⌘− zoom the view; anywhere else they change text size; the View ▸ Text size menu items always change text size.**
   Recommendation: in a model view they keep zooming; with focus in a pane (Properties, Browser) or a dialog they step
   the Text size; the menu items always work.
 
@@ -298,7 +298,7 @@ tests, B1). In particular these must stay green with the restyled RadioButton te
 | DR-DEN-2 | At 200 % text the Wing stays pinned and scrolls inside itself; a focused field is always brought into view |
 | DR-DEN-3 | **11 px, nothing below 11**, for labels, values, units, messages, notes, descriptions, summaries and the crumb. The reviewers' 12 px reasons are recorded as residual risk, and B-2 adds a Windows-class 100 % capture. DN-4 (messages at 12) is superseded: messages are 11, the same as values |
 | DN-5 | Build an app **Text size** setting (§8.3); in the mockup it is the real control in the title bar |
-| **DR-DEN-4 (open)** | Shortcut scope for ⌘= / ⌘−, which already zoom model views. Recommendation: zoom in a model view, Text size elsewhere, menu items always (§8.3) |
+| **DR-DEN-4 (ruled)** | Shortcut scope for ⌘= / ⌘−, which already zoom model views. Recommendation: zoom in a model view, Text size elsewhere, menu items always (§8.3) **Ruled (operator, 2026-10-01): context — with a model view focused ⌘= / ⌘− zoom the view; anywhere else they change text size; the View ▸ Text size menu items always change text size.** |
 
 ## 10. Deterministic control and browser check (a floor, not a verdict)
 

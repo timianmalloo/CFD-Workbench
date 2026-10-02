@@ -1640,7 +1640,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ffd77805413a4a819d98f114c3bc04f96788f0eac96f3068db59b1bfb3f06fdf"
+      "sourceSha256": "34d25d5855e3053ed3187b8055c51d88cd45a496805805819e050a9faf01845e"
     },
     {
       "id": "thick-client-shell",
@@ -4227,7 +4227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "61c24541f06e57f4dfc883e66add4fc45db6c2924f6d37c0a62ef3cf69d14181"
+      "sourceSha256": "46fa25b9c4998abf5d10fc9450855bcba33b6502572f86680506ee2686edcc99"
     },
     {
       "id": "review-ui-workbench-v1",
@@ -9048,5 +9048,5 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     }
   ],
-  "graphSha256": "d5f179888a94587b096fbb1daaa42f67838a73829da93b8bcc50efbaa5f25ac0"
+  "graphSha256": "842f8f26aad043b3d42bc9493b03c38a5ab5ecc2fdd9652c62dae8e5ccd47727"
 };
