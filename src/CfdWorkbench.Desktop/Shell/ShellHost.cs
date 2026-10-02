@@ -667,6 +667,9 @@ public sealed class ShellHost : Grid
         // Inside Properties, Return belongs to the focused control: it commits a pending Type or Kind, or toggles a
         // group header (docs/reviews/ui-property-grid.md §10.4).
         if (Properties.IsKeyboardFocusWithin) return;
+        // An open Type or Tangent kind list is a popup: focus is outside the pane's visual tree but its items are the pane's
+        // logical descendants, and Return there picks the focused item (CB-3).
+        if (e.Source is Avalonia.LogicalTree.ILogical source && Avalonia.LogicalTree.LogicalExtensions.IsLogicalAncestorOf(Properties, source)) return;
         if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox) return;
         if (SelectedPoint() is null) return;
         if (Properties.FindControl<TextBox>("PointSpanInput") is not { IsEnabled: true } span) return;

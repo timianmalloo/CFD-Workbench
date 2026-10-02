@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane" AutomationProperties.Name="Properties">
+             x:Class="CfdWorkbench.Desktop.Panes.PropertiesPane" AutomationProperties.Name="Properties"
+             FontFamily="{StaticResource PropFontFamily}">
   <!-- The property sheet in structure B (docs/reviews/ui-property-grid-cells.md §5). PropertiesView.Build supplies the rows;
        this markup holds only the frame and the persistent editors, which the pane places into rows so focus survives a
        re-render (UI-C). -->

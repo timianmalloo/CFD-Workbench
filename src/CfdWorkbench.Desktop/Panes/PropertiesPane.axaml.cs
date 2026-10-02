@@ -52,6 +52,10 @@ public partial class PropertiesPane : UserControl
     private const string ChevronOpen = "M1,3 L5,7 L9,3";
     private const string DisclosureClosed = "M0,0 L3,2.5 L0,5 Z";   // the definitions link's ▸ / ▾
     private const string DisclosureOpen = "M0,0 L5,0 L2.5,3 Z";
+    private const string IconError = "M5.5,0.5 A5,5 0 1 1 5.49,0.5 Z M3.5,3.5 L7.5,7.5 M7.5,3.5 L3.5,7.5";
+    private const string IconWarning = "M5.5,0.75 L10.5,10 L0.5,10 Z M5.5,4 L5.5,7 M5.5,8.25 L5.5,8.75";
+    private const string IconInfo = "M5.5,0.5 A5,5 0 1 1 5.49,0.5 Z M5.5,5 L5.5,8 M5.5,3 L5.5,3.5";
+    private const string IconReport = "M1.5,6 L4.5,9 L9.5,2.5";
     private const string LockGlyph = "M3,5 L3,3.5 A2,2 0 0 1 7,3.5 L7,5 M2,5 L8,5 L8,9.5 L2,9.5 Z";
 
     private readonly Dictionary<string, TextBox> pooledInputs;
@@ -524,6 +528,19 @@ public partial class PropertiesPane : UserControl
         if (view.Message.Text != text) view.Message.Text = text;
         view.Message.Classes.Set("error", message?.Kind == MessageKind.Error);
         view.Message.Classes.Set("warning", message?.Kind == MessageKind.Warning);
+        if (view.MessageIcon is { } icon && message is not null)
+        {
+            icon.Data = Avalonia.Media.Geometry.Parse(message.Kind switch
+            {
+                MessageKind.Error => IconError,
+                MessageKind.Warning => IconWarning,
+                MessageKind.Report => IconReport,
+                MessageKind.Reason => LockGlyph,
+                _ => IconInfo
+            });
+            icon.Classes.Set("error", message.Kind == MessageKind.Error);
+            icon.Classes.Set("warning", message.Kind == MessageKind.Warning);
+        }
         var live = message?.Kind == MessageKind.Error ? AutomationLiveSetting.Assertive : AutomationLiveSetting.Polite;
         AutomationProperties.SetLiveSetting(view.MessageBox, live);
         AutomationProperties.SetLiveSetting(view.Message, live);
@@ -562,20 +579,27 @@ public partial class PropertiesPane : UserControl
         {
             messageBox = Detach(SpanErrorPanel);
             messageText = SpanErrorText;
+            messageBox.Child = null;
         }
         else
         {
             messageText = new TextBlock { Name = MessageName(row.Key) };
             messageText.Classes.Add("prop-message");
-            messageBox = new Border { Child = messageText, IsVisible = false };
+            messageBox = new Border { IsVisible = false };
         }
+        // The state line: icon + text (DESIGN.md §12.0f: "always rail + icon + text"); the icon is decoration (Raw).
+        var messageIcon = new Path { Name = Part("MessageIcon", row.Key) };
+        messageIcon.Classes.Add("prop-icon");
+        AutomationProperties.SetAccessibilityView(messageIcon, AccessibilityView.Raw);
+        Grid.SetColumn(messageText, 1);
+        messageBox.Child = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Children = { messageIcon, messageText } };
         Grid.SetRow(messageBox, 3);
         Grid.SetColumnSpan(messageBox, 3);
         var root = new Border { Child = grid, Name = Part("Row", row.Key) };
         root.Classes.Add("prop-row");
         var outer = new Border { Child = root };
         outer.Classes.Add("prop-rule");
-        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row };
+        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon };
         outer.Tag = view;
 
         Control value;
@@ -659,9 +683,12 @@ public partial class PropertiesPane : UserControl
         double valueWidth = Token("PropValueMinWidth");
         double unitWidth = Token("PropUnitWidth") + gap;
         double height = Token(view.Row.IsEditable ? "PropRowInputHeight" : "PropRowReadOnlyHeight");
+        // DC-1: the label keeps its one-line width (B: flex 0 0 auto); an Auto column beside a star one measured it at 0.
+        if (dirty) view.Label.Measure(Size.Infinity);
         var columns = dirty
-            ? new ColumnDefinitions { new(GridLength.Auto), new(1, GridUnitType.Star) { MinWidth = valueWidth }, new(0, GridUnitType.Pixel) }
-            : new ColumnDefinitions { new(1, GridUnitType.Star), new(GridLength.Auto) { MinWidth = valueWidth }, new(unitWidth, GridUnitType.Pixel) };
+            ? new ColumnDefinitions { new(Math.Ceiling(view.Label.DesiredSize.Width), GridUnitType.Pixel), new(1, GridUnitType.Star) { MinWidth = valueWidth }, new(0, GridUnitType.Pixel) }
+            // A wide value spans every column, so its row fixes the value column at 62 px to keep one value edge (F-1).
+            : new ColumnDefinitions { new(1, GridUnitType.Star), view.Wide ? new(valueWidth, GridUnitType.Pixel) : new(GridLength.Auto) { MinWidth = valueWidth }, new(unitWidth, GridUnitType.Pixel) };
         if (!SameColumns(grid.ColumnDefinitions, columns)) grid.ColumnDefinitions = columns;
         grid.RowDefinitions[0].MinHeight = stacked ? 0 : height;
         grid.RowDefinitions[1].MinHeight = stacked ? height : 0;
@@ -673,7 +700,8 @@ public partial class PropertiesPane : UserControl
         Grid.SetRow(view.Unit, stacked ? 1 : 0);
         Grid.SetColumn(view.Unit, 2);
         view.Unit.IsVisible = !dirty && !view.Wide;
-        double reserve = view.Wide && !stacked ? view.Cell.Bounds.Width + 2 * gap : 2 * gap;
+        // A wide value reaches into the label column only by what the value and unit columns cannot hold.
+        double reserve = 2 * gap + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
         var margin = new Thickness(0, 0, stacked ? 0 : reserve, 0);
         if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
@@ -863,7 +891,8 @@ public partial class PropertiesPane : UserControl
     private void UpdateDirty(TextBox box)
     {
         if (!inputOwners.TryGetValue(box, out var view)) return;
-        bool dirty = box.IsEnabled && Dirty(box);
+        // A refused value keeps the 62 px box (the error state); only a fresh edit widens the field.
+        bool dirty = box.IsEnabled && Dirty(box) && !RefusedAlready(view, box);
         if (box.Classes.Contains("dirty") == dirty) return;
         box.Classes.Set("dirty", dirty);
         Layout(view);
@@ -1155,6 +1184,7 @@ public partial class PropertiesPane : UserControl
             view.Message.Text = message;
         }
         SetError(box, true);
+        UpdateDirty(box);
         AutomationProperties.SetHelpText(box, HelpText(view));
         Announced?.Invoke(message, AutomationLiveSetting.Assertive);
         return false;
@@ -1657,6 +1687,7 @@ public partial class PropertiesPane : UserControl
         public bool Wide { get; set; }
         public TextBlock? Value { get; set; }
         public Path? Lock { get; set; }
+        public Path? MessageIcon { get; init; }
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
         public InputElement? Editor => (InputElement?)Input ?? Enum;
