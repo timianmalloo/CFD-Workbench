@@ -83,7 +83,7 @@ public sealed class PlanCanvas : Control
         {
             var plan = Controller?.Planform;
             if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0) return [];
-            var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+            var map = Layer(plan);
             var result = new List<StationChip>();
             foreach (var (station, index) in plan.Stations.Select((station, index) => (station, index)))
             {
@@ -101,7 +101,7 @@ public sealed class PlanCanvas : Control
         get
         {
             var plan = Controller?.Planform;
-            return plan is null ? [] : AxisPointLayer.KeyboardTargets(plan);
+            return plan is null ? [] : PlanKeyboardTargets(plan);
         }
     }
 
@@ -134,15 +134,15 @@ public sealed class PlanCanvas : Control
     {
         var plan = Controller?.Planform;
         if (plan is null) return default;
-        var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+        var map = Layer(plan);
         return map.ToScreen(point.SpanMeters, point.Ordinate);
     }
 
     public PointView? HitTestPoint(Point position)
     {
         var plan = Controller?.Planform;
-        return plan is null ? null : new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera)
-            .HitTest(targets, position, Controller.Selection);
+        return plan is null ? null : Layer(plan)
+            .HitTest(targets, position, Controller!.Selection);
     }
 
     public void HoverAt(Point position)
@@ -155,7 +155,7 @@ public sealed class PlanCanvas : Control
               $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
               $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm"
             : null;
-        var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+        var map = Layer(plan);
         double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
         var probe = CfdWorkbench.Core.Planform.Probe(plan, eta);
         ProbeText = $"η {probe.Eta:F3} · from root {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
@@ -241,7 +241,7 @@ public sealed class PlanCanvas : Control
         {
             PixelsPerMeter = nextScale,
             PanSpanPixels = pivot.X - Bounds.Width / 2 - (pivot.X - Bounds.Width / 2 - camera.PanSpanPixels) * actual,
-            PanAftPixels = pivot.Y - AxisPointLayer.FitTop - (pivot.Y - AxisPointLayer.FitTop - camera.PanAftPixels) * actual
+            PanAftPixels = pivot.Y - FitTop - (pivot.Y - FitTop - camera.PanAftPixels) * actual
         };
         UpdatePlan();
     }
@@ -331,7 +331,7 @@ public sealed class PlanCanvas : Control
         if (Controller?.Gesture is not (GestureState.Pressed or GestureState.Dragging)) return;
         var plan = Controller.Planform;
         if (plan is null) return;
-        var map = new AxisPointLayer(plan, Bounds.Size, Controller.PlanCamera);
+        var map = Layer(plan);
         var target = map.FromScreen(position);
         if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && focusedPoint is { } reference)
         {
@@ -516,15 +516,16 @@ public sealed class PlanCanvas : Control
             e.Handled = true;
             return;
         }
-        var (span, aft) = AxisPointLayer.KeyboardDirection(e.Key);
-        if (span == 0 && aft == 0) return;
+        var screen = CurvePointLayer.ScreenDirection(e.Key);
+        if (screen == default) return;
         if (option)
         {
-            PanBy(span * Bounds.Width * .1, aft * Bounds.Height * .1);
+            PanBy(screen.X * Bounds.Width * .1, screen.Y * Bounds.Height * .1);
             e.Handled = true;
             return;
         }
         if (focusedPoint is not { } focus) return;
+        var (span, aft) = Layer(Controller.Planform).KeyboardDirection(e.Key);
         if (Controller.Gesture == GestureState.Idle && !Controller.BeginGesture(focus, GestureInput.Keyboard))
         {
             AutomationProperties.SetLiveSetting(this, AutomationLiveSetting.Assertive);
@@ -562,7 +563,7 @@ public sealed class PlanCanvas : Control
             InvalidateVisual();
             return;
         }
-        var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
+        var map = Layer(plan);
         targets.Clear();
         foreach (var curve in new[] { plan.Leading, plan.Trailing })
         foreach (var point in curve.Points)
@@ -570,7 +571,7 @@ public sealed class PlanCanvas : Control
             targets.Add(point);
         }
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
-        advisoryCrossing = Controller.GestureCrossing is not null;
+        advisoryCrossing = Controller!.GestureCrossing is not null;
         if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);
         InvalidateVisual();
     }
@@ -613,17 +614,15 @@ public sealed class PlanCanvas : Control
     {
         var plan = Controller?.Planform;
         if (plan is null) return;
-        var map = new AxisPointLayer(plan, Bounds.Size, Controller!.PlanCamera);
-        bool certified = Controller.Inspection?.Geometry.Status == GeometryStatus.Certified;
+        var map = Layer(plan);
+        bool certified = Controller!.Inspection?.Geometry.Status == GeometryStatus.Certified;
         RenderBanner = certified ? null : "Foil not certified. Point editing unavailable.";
         if (certified)
-            map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
-                BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White, Controller.Selection);
+            DrawPlan(context, map, plan, Controller.Selection);
         else
         {
             using (context.PushOpacity(.35))
-                map.Draw(context, FoilBrush ?? Brushes.White, SelectionBrush ?? Brushes.White,
-                    BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White, Controller.Selection);
+                DrawPlan(context, map, plan, Controller.Selection);
             DrawLabel(context, RenderBanner!, new Point(12, 12));
         }
         if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
@@ -666,12 +665,12 @@ public sealed class PlanCanvas : Control
             DrawLabel(context, "50 mm · Plan · top", new Point(16, y - 20));
         }
         if (hoveredPoint is { } hovered)
-            context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), ScreenPoint(hovered), 10, 10);
+            map.DrawHoverRing(context, hovered, MuteBrush ?? Brushes.White);
         if (focusedPoint is { } focus)
         {
             var target = targets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId);
             if (target is not null)
-                context.DrawEllipse(null, new Pen(FocusBrush ?? Brushes.White, 3), ScreenPoint(target), 13, 13);
+                map.DrawFocusRing(context, target, FocusBrush ?? Brushes.White);
         }
         if (ProbeText is { } probe)
         {
@@ -705,197 +704,91 @@ public sealed class PlanCanvas : Control
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
         protected override List<AutomationPeer>? GetChildrenCore() =>
-            owner.Controller?.Planform is { } plan
-                ? new AxisPointLayer(plan, owner.Bounds.Size, owner.Controller.PlanCamera).AutomationPeers(owner, owner.targets)
+            owner.Controller?.Planform is not null
+                ? owner.targets.Select(point => CurvePointLayer.Peer(owner, () => owner.PointName(point),
+                    () => owner.ScreenPoint(point), () => owner.RequestValue(point))).ToList()
                 : [];
     }
 
-    // Drawing, picking, automation and key directions share one axis mapping.
-    // The elevation view can supply a different projection for these same points.
-    private sealed record AxisMapping(
-        Func<double, double, Point> Project,
-        Func<Point, (double Span, double Ordinate)> Unproject);
-
-    private sealed class AxisPointLayer
+    private string PointName(PointView point)
     {
-        private readonly PlanformView plan;
-        private readonly AxisMapping axes;
-        private readonly Size size;
-
-        public AxisPointLayer(PlanformView plan, Size size, PlanCamera camera)
-            : this(plan, PlanAxes(plan, size, camera), size) { }
-
-        public AxisPointLayer(PlanformView plan, AxisMapping axes, Size size)
+        var plan = Controller?.Planform;
+        var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
+        string role = point.Role.ToString().ToLowerInvariant();
+        if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
         {
-            this.plan = plan;
-            this.axes = axes;
-            this.size = size;
+            double span = point.SpanMeters - anchor.SpanMeters;
+            double aft = point.Ordinate - anchor.Ordinate;
+            double angle = Math.Atan2(aft, span) * 180 / Math.PI;
+            double length = Math.Sqrt(span * span + aft * aft) * 1000;
+            role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
         }
+        return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
+            $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm";
+    }
 
-        // F-3: the fitted view keeps the planform, both halves, every point glyph and every station chip clear of the
-        // Tracing probe box (top band, 8 + 48 px) and the scale bar (bottom band, 50 px), with a margin.
-        private const double GlyphMargin = 8;
-        private const double ChipHalfWidth = 48;
-        private const double ChipDrop = 34;
-        private const double ScaleBarBand = 50;
-        public const double FitTop = 8 + 48 + 12 + GlyphMargin;
+    // F-3: the fitted view keeps the planform, both halves, every point glyph and every station chip clear of the
+    // Tracing probe box (top band, 8 + 48 px) and the scale bar (bottom band, 50 px), with a margin.
+    private const double GlyphMargin = 8;
+    private const double ChipHalfWidth = 48;
+    private const double ChipDrop = 34;
+    private const double ScaleBarBand = 50;
+    private const double FitTop = 8 + 48 + 12 + GlyphMargin;
 
-        private static AxisMapping PlanAxes(PlanformView plan, Size size, PlanCamera camera)
+    /// <summary>The Plan's axis mapping (span right, aft down) for the shared point layer (SR-2).</summary>
+    private CurvePointLayer Layer(PlanformView plan)
+    {
+        var size = Bounds.Size;
+        var camera = Controller!.PlanCamera;
+        var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
+        double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
+        double minAft = Math.Min(plan.Leading.Samples.Min(item => item.Ordinate), points.Min(item => item.Ordinate));
+        double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.Ordinate), points.Max(item => item.Ordinate));
+        double usableWidth = size.Width - 2 * (ChipHalfWidth + GlyphMargin);
+        double usableHeight = size.Height - FitTop - ChipDrop - ScaleBarBand - GlyphMargin;
+        double scale = Math.Max(1, Math.Min(usableWidth / (2 * halfWidth), usableHeight / Math.Max(0.01, maxAft - minAft)))
+            * camera.PixelsPerMeter / 1000;
+        return new CurvePointLayer(
+            (span, aft) => new Point(size.Width / 2 + span * scale + camera.PanSpanPixels,
+                FitTop + (aft - minAft) * scale + camera.PanAftPixels),
+            position => ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
+                (position.Y - FitTop - camera.PanAftPixels) / scale + minAft));
+    }
+
+    private static IReadOnlyList<string> PlanKeyboardTargets(PlanformView view) =>
+        view.Leading.Points.Select(point => point.Id)
+            .Concat(view.Trailing.Points.Select(point => point.Id))
+            .Concat(Enumerable.Range(0, view.Stations.Count).Select(index => $"station:{index}"))
+            .ToArray();
+
+    private void DrawPlan(DrawingContext context, CurvePointLayer map, PlanformView plan, Selection selection)
+    {
+        var foil = FoilBrush ?? Brushes.White;
+        var mute = MuteBrush ?? Brushes.White;
+        var brushes = new PointGlyphBrushes(foil, SelectionBrush ?? Brushes.White, BackgroundBrush ?? Brushes.Transparent, mute);
+        var railPen = new Pen(foil, 2);
+        double centreX = map.ToScreen(0, plan.Leading.Samples[0].Ordinate).X;
+        context.DrawLine(new Pen(mute, 1), new Point(centreX, 0), new Point(centreX, Bounds.Height));
+        foreach (double side in new[] { -1d, 1d })
         {
-            var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
-            double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
-            double minAft = Math.Min(plan.Leading.Samples.Min(item => item.Ordinate), points.Min(item => item.Ordinate));
-            double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.Ordinate), points.Max(item => item.Ordinate));
-            double usableWidth = size.Width - 2 * (ChipHalfWidth + GlyphMargin);
-            double usableHeight = size.Height - FitTop - ChipDrop - ScaleBarBand - GlyphMargin;
-            double scale = Math.Max(1, Math.Min(usableWidth / (2 * halfWidth), usableHeight / Math.Max(0.01, maxAft - minAft)))
-                * camera.PixelsPerMeter / 1000;
-            return new AxisMapping(
-                (span, aft) => new Point(size.Width / 2 + span * scale + camera.PanSpanPixels,
-                    FitTop + (aft - minAft) * scale + camera.PanAftPixels),
-                position => ((position.X - size.Width / 2 - camera.PanSpanPixels) / scale,
-                    (position.Y - FitTop - camera.PanAftPixels) / scale + minAft));
-        }
-
-        public Point ToScreen(double span, double aft) => axes.Project(span, aft);
-
-        public (double Span, double Ordinate) FromScreen(Point position) => axes.Unproject(position);
-
-        public static IReadOnlyList<string> KeyboardTargets(PlanformView view) =>
-            view.Leading.Points.Select(point => point.Id)
-                .Concat(view.Trailing.Points.Select(point => point.Id))
-                .Concat(Enumerable.Range(0, view.Stations.Count).Select(index => $"station:{index}"))
-                .ToArray();
-
-        public static (int Span, int Ordinate) KeyboardDirection(Key key) => key switch
-        {
-            Key.Right => (1, 0), Key.Left => (-1, 0),
-            Key.Down => (0, 1), Key.Up => (0, -1), _ => (0, 0)
-        };
-
-        public PointView? HitTest(IEnumerable<PointView> targets, Point position, Selection selection)
-        {
-            PointView? nearest = null;
-            double distance = 14 * 14;
-            foreach (var candidate in targets)
+            var fill = new StreamGeometry();
+            using (var path = fill.Open())
             {
-                var centre = ToScreen(candidate.SpanMeters, candidate.Ordinate);
-                double squared = Math.Pow(position.X - centre.X, 2) + Math.Pow(position.Y - centre.Y, 2);
-                if (squared > distance) continue;
-                if (squared == distance && selection is Selection.Points selected &&
-                    !selected.Items.Any(item => item.Curve == candidate.Curve && item.VertexId == candidate.Id)) continue;
-                nearest = candidate;
-                distance = squared;
+                var first = plan.Leading.Samples[0];
+                path.BeginFigure(map.ToScreen(first.SpanMeters * side, first.Ordinate), true);
+                foreach (var sample in plan.Leading.Samples.Skip(1))
+                    path.LineTo(map.ToScreen(sample.SpanMeters * side, sample.Ordinate));
+                foreach (var sample in plan.Trailing.Samples.Reverse())
+                    path.LineTo(map.ToScreen(sample.SpanMeters * side, sample.Ordinate));
+                path.EndFigure(true);
             }
-            return nearest;
+            using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
         }
-
-        public List<AutomationPeer> AutomationPeers(PlanCanvas owner, IEnumerable<PointView> targets) =>
-            targets.Select(point => (AutomationPeer)new PlanPointPeer(owner, point)).ToList();
-
-        private sealed class PlanPointPeer(PlanCanvas canvas, PointView point)
-            : ControlAutomationPeer(canvas), IInvokeProvider
+        foreach (var rail in new[] { plan.Leading, plan.Trailing })
         {
-            protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
-            protected override string GetNameCore()
-            {
-                var plan = canvas.Controller?.Planform;
-                var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
-                string role = point.Role.ToString().ToLowerInvariant();
-                if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
-                {
-                    double span = point.SpanMeters - anchor.SpanMeters;
-                    double aft = point.Ordinate - anchor.Ordinate;
-                    double angle = Math.Atan2(aft, span) * 180 / Math.PI;
-                    double length = Math.Sqrt(span * span + aft * aft) * 1000;
-                    role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
-                }
-                return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
-                    $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm";
-            }
-            protected override Rect GetBoundingRectangleCore()
-            {
-                if (canvas.GetVisualRoot() is not Visual root) return default;
-                var screen = canvas.ScreenPoint(point);
-                var topLeft = canvas.TranslatePoint(new Point(screen.X - 14, screen.Y - 14), root);
-                return topLeft is { } translated ? new Rect(translated, new Size(28, 28)) : default;
-            }
-            public void Invoke() => canvas.RequestValue(point);
-        }
-
-        public void Draw(DrawingContext context, IBrush foil, IBrush station, IBrush background, IBrush mute,
-            Selection selection)
-        {
-            var railPen = new Pen(foil, 2);
-            double centreX = ToScreen(0, plan.Leading.Samples[0].Ordinate).X;
-            context.DrawLine(new Pen(mute, 1), new Point(centreX, 0), new Point(centreX, size.Height));
             foreach (double side in new[] { -1d, 1d })
-            {
-                var fill = new StreamGeometry();
-                using (var path = fill.Open())
-                {
-                    var first = plan.Leading.Samples[0];
-                    path.BeginFigure(ToScreen(first.SpanMeters * side, first.Ordinate), true);
-                    foreach (var sample in plan.Leading.Samples.Skip(1))
-                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.Ordinate));
-                    foreach (var sample in plan.Trailing.Samples.Reverse())
-                        path.LineTo(ToScreen(sample.SpanMeters * side, sample.Ordinate));
-                    path.EndFigure(true);
-                }
-                using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
-            }
-            foreach (var rail in new[] { plan.Leading, plan.Trailing })
-            {
-                foreach (double side in new[] { -1d, 1d })
-                {
-                    for (int index = 1; index < rail.Samples.Count; index++)
-                    {
-                        var before = rail.Samples[index - 1];
-                        var after = rail.Samples[index];
-                        context.DrawLine(railPen, ToScreen(before.SpanMeters * side, before.Ordinate),
-                            ToScreen(after.SpanMeters * side, after.Ordinate));
-                    }
-                }
-                var polygon = new Pen(mute, 1, new DashStyle([3, 3], 0));
-                for (int index = 1; index < rail.Points.Count; index++)
-                {
-                    var before = rail.Points[index - 1];
-                    var after = rail.Points[index];
-                    context.DrawLine(polygon, ToScreen(before.SpanMeters, before.Ordinate),
-                        ToScreen(after.SpanMeters, after.Ordinate));
-                }
-                foreach (var point in rail.Points)
-                {
-                    var centre = ToScreen(point.SpanMeters, point.Ordinate);
-                    bool selected = selection is Selection.Points picked &&
-                        picked.Items.Any(item => item.Curve == point.Curve && item.VertexId == point.Id);
-                    if (point.Role == PointRole.Control)
-                    {
-                        context.DrawEllipse(selected ? background : foil, selected ? new Pen(station, 2) : null,
-                            centre, 5.5, 5.5);
-                        if (selected) context.DrawEllipse(station, null, centre, 2, 2);
-                    }
-                    else if (point.Role is PointRole.RootEnd or PointRole.TipEnd)
-                    {
-                        var diamond = new StreamGeometry();
-                        using (var path = diamond.Open())
-                        {
-                            path.BeginFigure(new Point(centre.X, centre.Y - 7), selected);
-                            path.LineTo(new Point(centre.X + 7, centre.Y));
-                            path.LineTo(new Point(centre.X, centre.Y + 7));
-                            path.LineTo(new Point(centre.X - 7, centre.Y));
-                            path.EndFigure(true);
-                        }
-                        context.DrawGeometry(selected ? station : null, new Pen(selected ? station : foil, 1.5), diamond);
-                    }
-                    else if (point.Role == PointRole.Anchor)
-                        context.DrawRectangle(selected ? station : background, new Pen(selected ? station : foil, 1.5),
-                            new Rect(centre.X - 6, centre.Y - 6, 12, 12));
-                    else
-                        context.DrawEllipse(selected ? station : background, new Pen(selected ? station : foil, 1),
-                            centre, 4.5, 4.5);
-                }
-            }
+                map.DrawCurve(context, rail.Samples, railPen, side);
+            map.DrawPoints(context, rail, brushes, selection);
         }
     }
 }
