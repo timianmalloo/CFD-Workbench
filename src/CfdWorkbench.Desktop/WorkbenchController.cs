@@ -612,7 +612,7 @@ public sealed class WorkbenchController : IDisposable
         Select(new Selection.Points([point]));
         if (view.Freedom == PointFreedom.Fixed)
         {
-            Status = $"This {view.Role} point is fixed by the foil definition.";
+            SetStatus($"This {view.Role} point is fixed by the foil definition.", ReportKind.Error);
             Notify();
             return false;
         }
@@ -837,12 +837,12 @@ public sealed class WorkbenchController : IDisposable
             UpdateEstimates();
             Notify();
         }
-        Status = outcome switch
+        SetStatus(outcome switch
         {
             GestureOutcome.Committed committed => committed.Report,
             GestureOutcome.Refused refused => refused.Copy,
             _ => "Point change cancelled."
-        };
+        }, outcome is GestureOutcome.Refused ? ReportKind.Error : ReportKind.Info);
         EmitGestureEnd(outcome, reason);
         gestureOperationId = null;
         Notify();
@@ -861,7 +861,8 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         GestureOutcome outcome = noChange ? new GestureOutcome.NoChange() :
             new GestureOutcome.Cancelled("Drag cancelled. The point is back where it was.");
-        Status = outcome is GestureOutcome.NoChange ? "No point change." : ((GestureOutcome.Cancelled)outcome).Copy;
+        // DR-STATUS-4: a gesture that changed nothing reports nothing; the strip stays as it was.
+        if (outcome is GestureOutcome.Cancelled cancelled) Status = cancelled.Copy;
         EmitGestureEnd(outcome, reason);
         gestureOperationId = null;
         Notify();
@@ -941,7 +942,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            Status = $"{error.Code}: This change wasn't applied. Nothing changed.";
+            SetStatus($"{error.Code}: This change wasn't applied. Nothing changed.", ReportKind.Error);
             Notify();
             return new CommitOutcome.Refused(error.Code, Status);
         }
@@ -971,9 +972,26 @@ public sealed class WorkbenchController : IDisposable
     public string? NativePath { get; private set; }
     public string? OpenedPath { get; private set; }
     // STATUS-CLOBBER: every write counts, so a background report replaces only the placeholder it wrote, never a newer message.
-    public string Status { get => status; private set { status = value; statusWrites++; } }
-    private string status = "Open Example or a .foil / .cfdw.json file.";
-    private long statusWrites;
+    public string Status { get => statusSlot.Text; private set => statusSlot.Write(value); }
+    private readonly StatusSlot statusSlot = new("Open Example or a .foil / .cfdw.json file.");
+
+    private void SetStatus(string text, ReportKind kind) => statusSlot.Write(text, kind);
+
+    /// <summary>How the status strip draws <see cref="Status"/>: Info unless the write that set it named Warning or Error.</summary>
+    public ReportKind StatusKind => statusSlot.Kind;
+
+    /// <summary>The status write counter: the shell reports <see cref="Status"/> only when this moved (docs/reviews/ui-status-bar.md §2.3).</summary>
+    public long StatusVersion => statusSlot.Version;
+
+    /// <summary>Status, kind and version read together (STATUS-CLOBBER across threads).</summary>
+    public (string Text, ReportKind Kind, long Version) StatusSnapshot() => statusSlot.Snapshot();
+
+    /// <summary>
+    /// STATUS-CLOBBER at the strip: a report shown from outside the controller (a Properties report, a shell message) is
+    /// newer than every status written so far, so it counts as a write and a background completion no longer replaces it.
+    /// Returns the version it took, so the caller records exactly that one.
+    /// </summary>
+    public long SupersedeStatus() => statusSlot.Supersede();
     public string Provenance { get; private set; } = "empty";
     public DisplayFrame? Frame { get; private set; }
     public IReadOnlyList<DisplayPoint> Points => Frame?.Points ?? [];
@@ -1157,7 +1175,7 @@ public sealed class WorkbenchController : IDisposable
                 ClearPendingImport();
                 PendingOriginal = bytes.ToArray();
                 PendingProjection = parsed.Authored();
-                Status = $"{code}: Refused. Original source retained read-only.";
+                SetStatus($"{code}: Refused. Original source retained read-only.", ReportKind.Error);
                 Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
                 Notify();
                 return new OpenOutcome.Refused(code, bytes);
@@ -1184,7 +1202,7 @@ public sealed class WorkbenchController : IDisposable
                 ClearPendingImport();
                 PendingOriginal = bytes.ToArray();
                 PendingProjection = parsed.Authored();
-                Status = $"{assessment.Code}: Refused. Original source retained read-only.";
+                SetStatus($"{assessment.Code}: Refused. Original source retained read-only.", ReportKind.Error);
                 Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
                 Notify();
                 return new OpenOutcome.Refused(assessment.Code, bytes);
@@ -1625,8 +1643,7 @@ public sealed class WorkbenchController : IDisposable
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
         Provenance = draft is null ? "accepted — sampling" : "draft — accepted sampling";
-        Status = $"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…";
-        long placeholder = statusWrites;
+        long placeholder = statusSlot.Write($"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…");
         Notify();
         try
         {
@@ -1642,9 +1659,10 @@ public sealed class WorkbenchController : IDisposable
             if (version != stateVersion || Inspection?.Authored.Binding.SourceHash != frame.SourceHash || interiorEta != frame.InteriorEta) return;
             Frame = acceptedFrame = frame;
             Provenance = draft is null ? "accepted" : "draft — accepted geometry shown";
-            // A message written since the placeholder (a lock refusal, an open's recovery notice) is newer than this report.
-            if (statusWrites == placeholder)
-                Status = $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.";
+            // A message written since the placeholder (a lock refusal, an open's recovery notice, a report the strip shows)
+            // is newer than this report; the compare and the write are one step on any thread (StatusSlot).
+            statusSlot.TryReplace(placeholder,
+                $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.");
             Notify();
         }
         catch (OperationCanceledException) { }

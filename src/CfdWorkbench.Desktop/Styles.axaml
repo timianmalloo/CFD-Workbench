@@ -231,6 +231,25 @@
     <x:Double x:Key="WindowHeight">800</x:Double>
     <x:Double x:Key="WindowMinWidth">1024</x:Double>
     <x:Double x:Key="WindowMinHeight">700</x:Double>
+    <!-- Status strip and warning toast (DR-STATUS-1; DESIGN.md §4 Status strip, Toast; docs/reviews/ui-status-bar.md §2.2). -->
+    <x:Double x:Key="ShellStatusbarHeight">24</x:Double>      <!-- spacing.shell-statusbar -->
+    <x:Double x:Key="CompactTargetSize">24</x:Double>         <!-- the 24 × 24 px minimum target (SC 2.5.8) -->
+    <x:Double x:Key="StatusIconSize">12</x:Double>
+    <x:Double x:Key="ToastIconSize">14</x:Double>
+    <x:Double x:Key="ToastWidth">420</x:Double>               <!-- spacing.toast-w -->
+    <x:Double x:Key="ToastHoldMilliseconds">8000</x:Double>   <!-- motion.toast-hold -->
+    <x:Double x:Key="RailWidth">3</x:Double>                  <!-- the 3 px warning / error rail -->
+    <Thickness x:Key="ToastInset">12</Thickness>              <!-- spacing.toast-inset -->
+    <Thickness x:Key="ToastPadding">10,8</Thickness>
+    <Thickness x:Key="HairlineLeft">1,0,0,0</Thickness>
+    <Thickness x:Key="ToastBorder">0,1,1,1</Thickness>        <!-- the left edge is the rail -->
+    <Thickness x:Key="StatusMessagePadding">10,0</Thickness>
+    <Thickness x:Key="StatusItemPadding">8,0</Thickness>
+    <Thickness x:Key="StatusIconGap">0,0,6,0</Thickness>
+    <Thickness x:Key="StatusActionGap">6,0,0,0</Thickness>
+    <Thickness x:Key="ToastTextGap">8,0</Thickness>
+    <CornerRadius x:Key="RoundedSm">4</CornerRadius>          <!-- rounded.sm -->
+    <BoxShadows x:Key="PopoverShadow">0 8 24 0 #29000000</BoxShadows>   <!-- elevation.popover: 0 8px 24px rgba(0,0,0,0.16) -->
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
@@ -365,4 +384,29 @@
     </Setter>
   </Style>
   <Style Selector="TextBox.prop-b, ComboBox.prop-b"><Setter Property="FocusAdorner" Value="{x:Null}" /></Style>
+
+  <!-- Status strip (DESIGN.md §4): the last report, one line, an icon and text coloured by kind and, for a warning or an
+       error, a 3 px rail at the left edge; read-only items on the right split by hairlines. Sizes read the prop tokens,
+       which the strip scales for Text size (DN-5). -->
+  <Style Selector="Border.status-strip"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="MinHeight" Value="{StaticResource ShellStatusbarHeight}" /></Style>
+  <Style Selector="Border.status-rule"><Setter Property="Height" Value="{StaticResource HairlineHeight}" /><Setter Property="VerticalAlignment" Value="Top" /><Setter Property="Background" Value="{DynamicResource LineBrush}" /></Style>
+  <Style Selector="Border.status-strip TextBlock"><Setter Property="FontFamily" Value="{StaticResource PropFontFamily}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="LineHeight" Value="{DynamicResource PropLineHeight}" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Border.status-strip TextBlock.status-text.warning"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.status-strip TextBlock.status-text.error"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.status-strip Border.status-item TextBlock"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  <Style Selector="Border.status-rail"><Setter Property="Width" Value="{StaticResource RailWidth}" /><Setter Property="Background" Value="Transparent" /></Style>
+  <Style Selector="Border.status-rail.warning, Border.toast-rail"><Setter Property="Background" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Border.status-rail.error"><Setter Property="Background" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Border.status-item"><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineLeft}" /><Setter Property="Padding" Value="{StaticResource StatusItemPadding}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /></Style>
+  <Style Selector="Path.status-icon"><Setter Property="Stroke" Value="{DynamicResource InkBrush}" /><Setter Property="StrokeThickness" Value="1.3" /><Setter Property="Width" Value="{StaticResource StatusIconSize}" /><Setter Property="Height" Value="{StaticResource StatusIconSize}" /><Setter Property="Stretch" Value="None" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+  <Style Selector="Path.status-icon.warning"><Setter Property="Stroke" Value="{DynamicResource WarningBrush}" /></Style>
+  <Style Selector="Path.status-icon.error"><Setter Property="Stroke" Value="{DynamicResource DangerBrush}" /></Style>
+  <Style Selector="Path.status-icon.toast-icon"><Setter Property="Width" Value="{StaticResource ToastIconSize}" /><Setter Property="Height" Value="{StaticResource ToastIconSize}" /><Setter Property="Stretch" Value="Uniform" /><Setter Property="VerticalAlignment" Value="Top" /></Style>
+  <Style Selector="Button.status-action"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="MinWidth" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource StatusItemPadding}" /><Setter Property="Margin" Value="{StaticResource StatusActionGap}" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+
+  <!-- Warning toast (DESIGN.md §4 Toast): one card at the model area's bottom-right; surface, a 1 px control-line border, a
+       3 px warning rail, rounded.sm and elevation.popover. No motion: it appears and disappears at once (PG-16). -->
+  <Style Selector="Border.toast"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource ToastBorder}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="BoxShadow" Value="{StaticResource PopoverShadow}" /><Setter Property="HorizontalAlignment" Value="Right" /><Setter Property="VerticalAlignment" Value="Bottom" /><Setter Property="Margin" Value="{StaticResource ToastInset}" /></Style>
+  <Style Selector="Border.toast TextBlock"><Setter Property="FontFamily" Value="{StaticResource PropFontFamily}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="LineHeight" Value="{DynamicResource PropLineHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
+  <Style Selector="Button.toast-dismiss"><Setter Property="Width" Value="{StaticResource CompactTargetSize}" /><Setter Property="Height" Value="{StaticResource CompactTargetSize}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="0" /><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Top" /></Style>
 </Styles>

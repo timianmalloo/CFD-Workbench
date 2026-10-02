@@ -94,6 +94,13 @@ if (args.Contains("--properties-cells", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+if (args.Contains("--status-strip", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.StatusStripTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
 // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
 if (args.Contains("--readiness", StringComparer.Ordinal))
@@ -432,7 +439,7 @@ Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42")
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas", "--views",
-    "--properties-view", "--properties-cells"));
+    "--properties-view", "--properties-cells", "--status-strip"));
 
 sealed class UncertainStore : IProjectStore
 {

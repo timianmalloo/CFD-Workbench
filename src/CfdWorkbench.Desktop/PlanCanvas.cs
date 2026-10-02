@@ -4,12 +4,10 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
-using CfdWorkbench.Desktop.Panes;
 using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
@@ -48,7 +46,6 @@ public sealed class PlanCanvas : Control
     private PointRef? focusedPoint;
     private PointView? hoveredPoint;
     private int keyboardIndex = -1;
-    private TopLevel? keyRoot;
     private bool advisoryCrossing;
     private Point advisoryPoint;
     private bool renderFailureNotified;
@@ -114,17 +111,12 @@ public sealed class PlanCanvas : Control
         AttachedToVisualTree += (_, _) =>
         {
             attached = true;
-            // DR-NAV-1: Shift+Tab from the Properties pane's first value returns here; the window sees it before the field does.
-            keyRoot = TopLevel.GetTopLevel(this);
-            keyRoot?.AddHandler(KeyDownEvent, OnWindowKeyDown, RoutingStrategies.Tunnel);
             if (controller is not null) controller.Changed += UpdatePlan;
             UpdatePlan();
         };
         DetachedFromVisualTree += (_, _) =>
         {
             attached = false;
-            keyRoot?.RemoveHandler(KeyDownEvent, OnWindowKeyDown);
-            keyRoot = null;
             if (controller is not null) controller.Changed -= UpdatePlan;
         };
         SizeChanged += (_, _) => UpdatePlan();
@@ -457,27 +449,17 @@ public sealed class PlanCanvas : Control
         else { focusedPoint = null; keyboardIndex = -1; InvalidateVisual(); }
     }
 
-    // DR-NAV-1: the pane's first value is where Tab from a selected point lands (Type for a point), and the one Shift+Tab leaves.
-    private TopLevel? PaneRoot => TopLevel.GetTopLevel(this);
+    /// <summary>DR-NAV-1: where Tab from a selected point goes; the shell points it at the Properties pane's first value.</summary>
+    public Func<bool>? TabOut { get; set; }
 
-    private static Control? FirstValue(Visual root) => root.GetVisualDescendants().OfType<InputElement>()
-        .FirstOrDefault(item => item is TextBox or ComboBox && item.Focusable && item.IsEffectivelyVisible && item.IsEffectivelyEnabled) as Control;
+    private bool TabToProperties() => Controller?.Selection is Selection.Points && TabOut?.Invoke() == true;
 
-    private bool TabToProperties()
+    /// <summary>DR-NAV-1: Shift+Tab from the Properties pane's first value returns here, to the selected point.</summary>
+    public bool FocusSelectedPoint()
     {
-        if (Controller?.Selection is not Selection.Points || PaneRoot is not { } root) return false;
-        var pane = root.GetVisualDescendants().OfType<PropertiesPane>().FirstOrDefault(item => item.IsEffectivelyVisible);
-        return pane is not null && FirstValue(pane) is { } value && value.Focus(NavigationMethod.Tab);
-    }
-
-    private void OnWindowKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Handled || e.Key != Key.Tab || !e.KeyModifiers.HasFlag(KeyModifiers.Shift)) return;
-        if (Controller?.Selection is not Selection.Points { Items: [var selected, ..] } || PaneRoot is not { } root) return;
-        var pane = root.GetVisualDescendants().OfType<PropertiesPane>().FirstOrDefault(item => item.IsEffectivelyVisible);
-        if (pane is null || !ReferenceEquals(root.FocusManager?.GetFocusedElement(), FirstValue(pane))) return;
+        if (Controller?.Selection is not Selection.Points { Items: [var selected, ..] }) return false;
         FocusPoint(selected);
-        e.Handled = true;
+        return true;
     }
 
     protected override void OnKeyDown(KeyEventArgs e)

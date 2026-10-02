@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Shell.StatusStrip">
+  <!-- DR-STATUS-1 (DESIGN.md §4 Status strip): one slot, no history, no scrolling, no list. StatusText is the window's one
+       polite status live region; the right items are read-only (not buttons in this slice). -->
+  <Border x:Name="StripRoot" Classes="status-strip">
+    <Grid ColumnDefinitions="Auto,*,Auto">
+      <Border x:Name="StatusRail" Grid.Column="0" Classes="status-rail" />
+      <DockPanel x:Name="StatusMessage" Grid.Column="1" HorizontalAlignment="Left" Margin="{StaticResource StatusMessagePadding}">
+        <Path x:Name="StatusKindIcon" DockPanel.Dock="Left" Classes="status-icon" IsVisible="False" Margin="{StaticResource StatusIconGap}"
+              AutomationProperties.AccessibilityView="Raw" />
+        <Button x:Name="StatusTryAgainButton" DockPanel.Dock="Right" Classes="status-action" Content="Try again" IsVisible="False" />
+        <TextBlock x:Name="StatusText" Classes="status-text" TextTrimming="CharacterEllipsis"
+                   AutomationProperties.LiveSetting="Polite" />
+      </DockPanel>
+      <StackPanel x:Name="StatusItems" Grid.Column="2" Orientation="Horizontal">
+        <Border x:Name="SelectionItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="SelectionItemText" /></Border>
+        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><TextBlock Text="mm" /></Border>
+        <Border x:Name="EstimateItem" Classes="status-item" IsVisible="False"><TextBlock Text="≈ estimates" /></Border>
+        <Border x:Name="TextSizeItem" Classes="status-item"><TextBlock x:Name="TextSizeItemText" Text="Text 100 %" /></Border>
+      </StackPanel>
+      <!-- The 1 px top rule is drawn over the row, so the strip stays one 24 px row with 24 px items. -->
+      <Border Grid.Column="0" Grid.ColumnSpan="3" Classes="status-rule" IsHitTestVisible="False" />
+    </Grid>
+  </Border>
+</UserControl>

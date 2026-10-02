@@ -40,6 +40,14 @@ public sealed class ShellHost : Grid
     public BrowserPane Browser { get; }
     public ModelArea ModelView { get; }
 
+    /// <summary>The status strip under every pane and dock (DR-STATUS-1): the window's one polite status region.</summary>
+    public StatusStrip StatusStrip { get; }
+
+    // STATUS-CLOBBER at the strip: the controller status version the strip last reflected. A controller status is shown only
+    // when its version moved past this one, and every report from outside the controller moves both (Report).
+    private long shownStatusVersion;
+    private GestureState lastGesture = GestureState.Idle;
+
     public Button LeftSidebarToggle { get; }
     private DocumentTabStrip? sidebarToggleStrip;
     public event Action<IReadOnlyList<RecentEntry>>? RecentLoaded;
@@ -92,7 +100,7 @@ public sealed class ShellHost : Grid
         Preferences = preferences;
         this.pickOpenFile = pickOpenFile;
 
-        RowDefinitions = new RowDefinitions("*");
+        RowDefinitions = new RowDefinitions("*,Auto");
         AttachedToVisualTree += (_, _) =>
         {
             RefreshPanes();
@@ -111,13 +119,15 @@ public sealed class ShellHost : Grid
         Properties = new PropertiesPane();
         Browser = new BrowserPane();
         ModelView = new ModelArea();
-        // PG-26: the pane's polite announcements (reports, availability, "Selected …") go to the always-attached polite
-        // status line; a field error stays on the field's own assertive message.
-        Properties.Announced += (text, live) =>
-        {
-            if (live == Avalonia.Automation.AutomationLiveSetting.Polite) ModelView.ShowStatus(text);
-        };
+        StatusStrip = new StatusStrip { Name = "StatusStrip" };
+        // The strip starts empty (DR-STATUS-4): the controller's opening prompt is the Start view's to show.
+        shownStatusVersion = controller.StatusVersion;
+        // PG-26 / DR-STATUS-1: the pane's reports (type, kind, nudge value, echoes, "Selected …", availability) go to the
+        // strip; a field error stays on the field's own assertive message and never reaches it.
+        Properties.Reported += Report;
         ModelView.PlanCanvas.Controller = controller;
+        // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.
+        ModelView.PlanCanvas.TabOut = Properties.FocusFirstValue;
         AddHandler(InputElement.KeyDownEvent, OnShellKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
 
         // Assign views to layout tools / documents
@@ -156,6 +166,8 @@ public sealed class ShellHost : Grid
         };
         SetRow(DockHost, 0);
         Children.Add(DockHost);
+        SetRow(StatusStrip, 1);
+        Children.Add(StatusStrip);
 
         PaletteSearch = new AutoCompleteBox
         {
@@ -197,7 +209,7 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
-        ModelView.StatusTryAgainButton.Click += async (_, _) => await ClearRecentAsync();
+        StatusStrip.StatusTryAgainButton.Click += async (_, _) => await ClearRecentAsync();
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -327,7 +339,7 @@ public sealed class ShellHost : Grid
 
             case OpenOutcome.Cancelled:
                 ModelView.StartCardView.CancelOpening();
-                ShowStatus("Opening cancelled. Nothing changed.");
+                Report(new StatusReport("Opening cancelled. Nothing changed."));
                 break;
 
             case OpenOutcome.NeedsIds:
@@ -403,20 +415,37 @@ public sealed class ShellHost : Grid
             string reason = save.Code == "LAYOUT-VERSION"
                 ? "it was saved by a newer version of CFD Workbench"
                 : "it couldn't be saved";
-            ShowStatus($"The recent-files list wasn't cleared: {reason}. The list is unchanged.", offerTryAgain: true);
+            Report(new StatusReport($"The recent-files list wasn't cleared: {reason}. The list is unchanged.", ReportKind.Error),
+                offerTryAgain: true);
         }
-        else if (ModelView.StatusTryAgainButton.IsVisible)
-        {
-            ModelView.StatusText.IsVisible = false;
-            ModelView.StatusTryAgainButton.IsVisible = false;
-        }
+        else if (StatusStrip.StatusTryAgainButton.IsVisible)
+            StatusStrip.Clear();
         await LoadRecentAsync();
     }
 
-    private void ShowStatus(string message, bool offerTryAgain = false)
+    /// <summary>
+    /// The one sink for reports from outside the controller (docs/reviews/ui-status-bar.md §2.3): the strip shows it and,
+    /// for a commit warning, the toast opens. STATUS-CLOBBER: the report supersedes every controller status written so far,
+    /// so neither a refresh nor a background completion that started earlier replaces it.
+    /// </summary>
+    public void Report(StatusReport report) => Report(report, offerTryAgain: false);
+
+    private void Report(StatusReport report, bool offerTryAgain)
     {
-        ModelView.ShowStatus(message);
-        ModelView.StatusTryAgainButton.IsVisible = offerTryAgain;
+        shownStatusVersion = Controller.SupersedeStatus();
+        StatusStrip.Show(report, offerTryAgain);
+        if (report.Toast) ModelView.ShowToast(report.Text);
+    }
+
+    // The controller's own reports reach the strip only when its status was written since the strip last reflected it, so a
+    // refresh never re-shows an older controller status over a newer report.
+    private void ReportControllerStatus()
+    {
+        // One read of text, kind and version: a write on another thread cannot pair a newer version with older text.
+        var (text, kind, version) = Controller.StatusSnapshot();
+        if (version <= shownStatusVersion) return;
+        shownStatusVersion = version;
+        if (!string.IsNullOrWhiteSpace(text)) StatusStrip.Show(new StatusReport(text, kind));
     }
 
     public async Task RemoveFailedRecentAsync()
@@ -456,10 +485,13 @@ public sealed class ShellHost : Grid
         Properties.Bind(Controller);
         Browser.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
-        if (!string.IsNullOrWhiteSpace(Controller.Status))
-            ModelView.ShowStatus(Controller.Status);
+        ReportControllerStatus();
+        // The toast closes when the next commit starts (DESIGN.md §4 Toast).
+        if (lastGesture == GestureState.Idle && Controller.Gesture != GestureState.Idle) ModelView.CloseToast();
+        lastGesture = Controller.Gesture;
 
         bool foilOpen = Controller.Inspection is not null;
+        StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale);
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
         {
@@ -500,13 +532,18 @@ public sealed class ShellHost : Grid
             .FirstOrDefault(item => ReferenceEquals(item.DataContext, LayoutFactory.MainDocumentDock.ActiveDockable)
                 && item.IsVisible && item.IsEnabled);
         var leftTarget = (Control?)browserRow ?? LeftSidebarToggle;
-        var targets = new[] { leftTarget, (Control?)documentTab };
-        int current = leftTarget.IsKeyboardFocusWithin ? 0 : documentTab?.IsKeyboardFocusWithin == true ? 1 : -1;
+        // While a warning toast is open it is one more stop, after the model area (DESIGN.md §4 Toast).
+        var toast = ModelView.ToastOpen ? ModelView.ToastDismissButton : null;
+        var targets = new[] { leftTarget, (Control?)documentTab, toast };
+        int current = leftTarget.IsKeyboardFocusWithin ? 0 : documentTab?.IsKeyboardFocusWithin == true ? 1
+            : ModelView.WarningToast.IsKeyboardFocusWithin ? 2 : -1;
         var available = targets.Select(target => target is { IsVisible: true, IsEnabled: true }).ToArray();
+        var origin = TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement();
         for (int attempt = 0; attempt < targets.Length; attempt++)
         {
             int next = FocusRing.NextRegionIndex(current, reverse, available);
             if (next < 0) return false;
+            if (next == 2 && current != 2) ModelView.ToastReturnFocus = origin;
             if (targets[next]?.Focus() == true) return true;
             available[next] = false;
             current = next;
@@ -566,8 +603,8 @@ public sealed class ShellHost : Grid
             if (Preferences is not null && !TextSizeLoaded.IsCompleted) TextSizeSaved = SaveTextSizeAsync(Preferences, step);
             return;
         }
-        Properties.ApplyTextScale(step);
-        ModelView.ShowStatus(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Text size {step * 100:0} %."));
+        ApplyTextScale(step);
+        Report(new StatusReport(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Text size {step * 100:0} %.")));
         TextScaleChanged?.Invoke(step);
         if (Preferences is not null) TextSizeSaved = SaveTextSizeAsync(Preferences, step);
     }
@@ -601,7 +638,7 @@ public sealed class ShellHost : Grid
         {
             if (textSizeNoticeShown) return;
             textSizeNoticeShown = true;
-            ModelView.ShowStatus("Text size will apply this session only: " + NotKeptReason(save.Outcome) + ".");
+            Report(new StatusReport("Text size will apply this session only: " + NotKeptReason(save.Outcome) + ".", ReportKind.Warning));
         });
     }
 
@@ -624,8 +661,29 @@ public sealed class ShellHost : Grid
         if (textSizeChosen) return;
         double step = CommandTable.TextSizes.MinBy(size => Math.Abs(size - percent / 100.0));
         if (Math.Abs(step - Properties.TextScale) < 1e-9) return;
-        Properties.ApplyTextScale(step);
+        ApplyTextScale(step);
         TextScaleChanged?.Invoke(step);
+    }
+
+    // DN-5: the panes, the strip and the toast draw their 11 px type at the same Text size.
+    private void ApplyTextScale(double step)
+    {
+        Properties.ApplyTextScale(step);
+        StatusStrip.ApplyTextScale(step);
+        ModelView.ApplyTextScale(step);
+        StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step);
+    }
+
+    /// <summary>The strip's selection item ("TE · pt 7 of 14"); absent with no point selected.</summary>
+    private string? SelectionItemText()
+    {
+        if (Controller.Planform is not { } plan || Controller.Selection is not Selection.Points { Items.Count: > 0 } points)
+            return null;
+        if (points.Items.Count > 1) return $"{points.Items.Count} points";
+        var item = points.Items[0];
+        var rail = item.Curve == "leading" ? plan.Leading : plan.Trailing;
+        var point = rail.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
+        return point is null ? null : $"{(item.Curve == "leading" ? "LE" : "TE")} · pt {point.Index + 1} of {rail.Points.Count}";
     }
 
     /// <summary>Bigger and Smaller step along the ladder and stop at 100 % and 200 %.</summary>
@@ -683,19 +741,19 @@ public sealed class ShellHost : Grid
                 return;
             case "view.zoom-in":
                 Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Controller.PlanCamera.PixelsPerMeter * 1.25 };
-                ModelView.ShowStatus("Zoomed in.");
+                Report(new StatusReport("Zoomed in."));
                 return;
             case "view.zoom-out":
                 Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Math.Max(50, Controller.PlanCamera.PixelsPerMeter / 1.25) };
-                ModelView.ShowStatus("Zoomed out.");
+                Report(new StatusReport("Zoomed out."));
                 return;
             case "view.comb":
                 Controller.CombVisible = !Controller.CombVisible;
-                ModelView.ShowStatus(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off.");
+                Report(new StatusReport(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off."));
                 return;
             case "view.fit":
                 Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = 1000, PanSpanPixels = 0, PanAftPixels = 0 };
-                ModelView.ShowStatus("Fit.");
+                Report(new StatusReport("Fit."));
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));

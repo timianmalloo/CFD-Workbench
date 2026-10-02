@@ -663,7 +663,7 @@ public static class PlanCanvasTests
             fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
             fixture.KeyDown(Key.Down);
             // The rendered status line too: a polite pane announcement must not land after the lock copy (PG-36).
-            string? line = fixture.Host.ModelView.FindControl<TextBlock>("StatusText")?.Text;
+            string? line = StatusStripTests.Text(fixture.Host).Text;
             if (fixture.Controller.Gesture != GestureState.Idle ||
                 !fixture.Controller.Status.Contains("fixed", StringComparison.OrdinalIgnoreCase) ||
                 line?.Contains("fixed", StringComparison.OrdinalIgnoreCase) != true ||
@@ -800,6 +800,29 @@ public static class PlanCanvasTests
             fixture.Settle();
             if (Marker()) throw new Exception("the marker stayed after Escape");
             fixture.ReleaseDrag(point, 0, cross);
+        });
+
+        DesktopChecks.Check("StatusStrip_GestureRefused_ErrorInStrip_NoToast", () =>
+        {
+            // DR-STATUS-1: a refused gesture shows in the strip as an error, with its marker on the Plan; errors never toast.
+            using var fixture = new PlanFixture(newFoil: true);
+            var plan = fixture.Controller.Planform!;
+            var point = plan.Trailing.Points[4];
+            var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
+            double cross = fixture.Canvas.ScreenPoint(point with { AftMeters = leading - .04 }).Y - fixture.Canvas.ScreenPoint(point).Y;
+            var marker = typeof(PlanCanvas).GetField("advisoryCrossing",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("Advisory marker field missing");
+            fixture.BeginDrag(point);
+            fixture.MoveDrag(point, 0, cross);
+            if (!(bool)marker.GetValue(fixture.Canvas)!) throw new Exception("no crossing marker on the Plan during the drag");
+            fixture.ReleaseDrag(point, 0, cross);
+            fixture.WaitGesture();
+            fixture.Settle();
+            string line = StatusStripTests.Text(fixture.Host).Text ?? "";
+            if (StatusStripTests.Kind(fixture.Host) != "error" || line != fixture.Controller.Status || line.Length == 0 ||
+                StatusStripTests.NeedToast(fixture.Host).IsVisible)
+                throw new Exception($"strip '{line}' kind {StatusStripTests.Kind(fixture.Host)}, toast {StatusStripTests.NeedToast(fixture.Host).IsVisible}");
         });
 
         DesktopChecks.Check("PlanCanvas_HoverProbe_ParksPointerFirst", () =>

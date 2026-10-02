@@ -191,7 +191,8 @@ public static class ShellWindowTests
             {
                 window.Show();
                 Settle(window);
-                if (host.RowDefinitions.Count != 1 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
+                // Two rows: the dock host and, under it, the status strip (DR-STATUS-1). No third row is a header band.
+                if (host.RowDefinitions.Count != 2 || Grid.GetRow(host.StatusStrip) != 1 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
                     host.GetVisualDescendants().OfType<TextBlock>().Any(text => text.IsEffectivelyVisible && text.Text == "Sidebar") ||
                     host.LeftSidebarToggle.Content is string { Length: > 2 })
                     throw new InvalidOperationException("Standalone Sidebar header band is visible");
@@ -1619,7 +1620,7 @@ public static class ShellWindowTests
             using var controller = new WorkbenchController();
             var host = new ShellHost(controller);
             host.HandleOpenOutcome(new OpenOutcome.Cancelled(), "sample.foil");
-            var status = host.ModelView.FindControl<TextBlock>("StatusText");
+            var status = StatusStripTests.Text(host);
             if (status?.Text != "Opening cancelled. Nothing changed.")
                 throw new InvalidOperationException("COPY-105 was not shown after Cancel");
         });
@@ -1813,8 +1814,8 @@ public static class ShellWindowTests
                     var host = new ShellHost(controller, item.Store);
                     Pump(host.ClearRecentAsync());
                     string expected = CopyRow(rows, "COPY-146").Replace("<reason>", CopyRow(rows, item.Reason), StringComparison.Ordinal);
-                    var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                    var retry = host.ModelView.FindControl<Button>("StatusTryAgainButton");
+                    var status = StatusStripTests.Text(host);
+                    var retry = StatusStripTests.Strip(host).FindControl<Button>("StatusTryAgainButton");
                     string built = status.Text + (retry?.IsVisible == true ? " · " + retry.Content : "");
                     if (built != expected || !status.IsVisible || !item.Unchanged())
                         throw new InvalidOperationException($"{item.Reason}: expected '{expected}', built '{built}', unchanged={item.Unchanged()}");
@@ -2243,6 +2244,10 @@ public static class ShellWindowTests
                     stations.SelectedIndex = 0;
                     Settle(window);
                     if (!rowItems[0].IsSelected) throw new InvalidOperationException("Example Browser row did not select");
+                    // DR-STATUS-1: the status strip takes 24 px of the 700 px window, so the second row can sit under the
+                    // Browser's fold; scroll it into view before measuring what paints behind its text.
+                    rowItems[1].BringIntoView();
+                    Settle(window);
                     Probe(theme, "browser.selected", () => TextRow(theme, "browser.selected", rowItems[0]));
                     Probe(theme, "browser.unselected", () => TextRow(theme, "browser.unselected", rowItems[1]));
                     foreach (var (item, state) in new[] { (rowItems[0], "selected"), (rowItems[1], "unselected") })
@@ -2466,8 +2471,10 @@ public static class ShellWindowTests
                 double gap = U2CurveGap(plan, now);
                 if (gap > 0.002)
                     throw new InvalidOperationException("curve misses the anchor by " + gap.ToString("G4", inv) + " m");
-                var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (!status.IsVisible || status.Text != U2Text(host.Properties, "Message_p_type")   /* PG-26: the type report from the operation */ || string.IsNullOrWhiteSpace(status.Text))
+                var status = StatusStripTests.Text(host);
+                // PG-26 / DR-STATUS-1: the type report from the operation is in the strip, and the row shows no message.
+                if (status.Text?.Contains("is now an anchor point with 2 handles", StringComparison.Ordinal) != true ||
+                    U2Need<TextBlock>(host.Properties, "Message_p_type").IsEffectivelyVisible)
                     throw new InvalidOperationException("status '" + status.Text + "' controller '" + controller.Status + "'");
                 controller.Undo();
                 Settle(window);
@@ -2496,9 +2503,11 @@ public static class ShellWindowTests
                 var now = U2Reload(controller, point.Curve, point.Id);
                 if (now.Kind != TangentKind.Symmetric)
                     throw new InvalidOperationException("kind: " + now.Kind);
-                var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (status.Text != U2Text(host.Properties, "Message_t_kind")   /* PG-33: the kind report */ || string.IsNullOrWhiteSpace(status.Text))
-                    throw new InvalidOperationException("tangent status not on the status line");
+                var status = StatusStripTests.Text(host);
+                // PG-33 / DR-STATUS-1: the kind report is in the strip, and the row shows no message.
+                if (status.Text?.Contains("is now Symmetric.", StringComparison.Ordinal) != true ||
+                    U2Need<TextBlock>(host.Properties, "Message_t_kind").IsEffectivelyVisible)
+                    throw new InvalidOperationException("tangent status not in the strip: " + status.Text);
                 controller.Undo();
                 Settle(window);
                 if (U2Reload(controller, point.Curve, point.Id).Kind != before)
@@ -2806,11 +2815,11 @@ public static class ShellWindowTests
                 U2Key(input, Key.Enter);
                 U2WaitIdle(controller, window);
                 if (controller.AcceptedSource == before) throw new InvalidOperationException("root chord was not committed");
-                var warning = U2Need<TextBlock>(host.Properties, "ChordWarningText");
-                if (!warning.IsVisible || warning.Text?.Contains("above the limit", StringComparison.Ordinal) != true)
-                    throw new InvalidOperationException("warning: " + warning.Text);
-                var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                // DR-STATUS-1: the warning is in the strip and the toast; the row keeps its rail, not the text.
+                var status = StatusStripTests.Text(host);
+                if (status.Text?.Contains("above the limit", StringComparison.Ordinal) != true || StatusStripTests.Kind(host) != "warning" ||
+                    !StatusStripTests.NeedToast(host).IsVisible || U2Need<TextBlock>(host.Properties, "ChordWarningText").IsEffectivelyVisible ||
+                    !U2Need<Border>(host.Properties, "Row_w_root").Classes.Contains("warning"))
                     throw new InvalidOperationException("status: " + status.Text);
             }
             finally { window.Close(); }
@@ -2829,8 +2838,10 @@ public static class ShellWindowTests
                 U2Key(input, Key.Enter);
                 U2WaitIdle(controller, window);
                 U2Near(U2ParseMm(input.Text), controller.Estimates!.TipChordMeters, "echoed tip cm");
-                var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
-                if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
+                // DR-STATUS-3: the unit echo is in the strip, not under the field.
+                var status = StatusStripTests.Text(host);
+                if (status.Text?.StartsWith("12 cm = ", StringComparison.Ordinal) != true ||
+                    U2Need<TextBlock>(host.Properties, "Message_w_tip").IsEffectivelyVisible)
                     throw new InvalidOperationException("tip status: " + status.Text);
                 controller.Undo();
                 Settle(window);
@@ -2930,7 +2941,7 @@ public static class ShellWindowTests
                 var point = U2Control(controller, "trailing");
                 Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)));
                 Settle(window);
-                var status = host.ModelView.FindControl<TextBlock>("StatusText") ?? throw new InvalidOperationException("missing StatusText");
+                var status = StatusStripTests.Text(host);
                 if (Avalonia.Automation.AutomationProperties.GetLiveSetting(status) != Avalonia.Automation.AutomationLiveSetting.Polite)
                     throw new InvalidOperationException("status live setting is not polite");
                 if (!status.IsVisible || status.Text != controller.Status || string.IsNullOrWhiteSpace(status.Text))
@@ -3014,15 +3025,44 @@ public static class ShellWindowTests
             try
             {
                 U2Open(host, window);
+                // Each step runs until its accepted sampling has settled, observed through Changed (Provenance goes through
+                // "… sampling" and back to "accepted"); bounded, no sleep. Every status written on the way is kept.
+                List<string> Settled(string step, Action act)
+                {
+                    var seen = new List<string>();
+                    bool sampling = false, settled = false;
+                    void OnChanged()
+                    {
+                        lock (seen)
+                        {
+                            seen.Add(controller.Status);
+                            if (controller.Provenance.Contains("sampling", StringComparison.Ordinal)) sampling = true;
+                            else if (sampling && controller.Provenance == "accepted") settled = true;
+                        }
+                    }
+                    controller.Changed += OnChanged;
+                    try
+                    {
+                        act();
+                        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+                        while (!Volatile.Read(ref settled) && DateTime.UtcNow < deadline)
+                            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    }
+                    finally { controller.Changed -= OnChanged; }
+                    Settle(window);
+                    if (!settled) throw new InvalidOperationException(step + ": sampling did not settle; provenance " + controller.Provenance);
+                    lock (seen) return [.. seen];
+                }
+                // The operation's own report, whichever path ran it. The status after settling differs by design: the
+                // Properties path's pane report supersedes the sampling line (STATUS-CLOBBER, DR-STATUS-1).
+                static string Report(List<string> seen) =>
+                    seen.FirstOrDefault(text => text.StartsWith("Point change applied.", StringComparison.Ordinal)) ?? "";
                 var trailingPoint = U2Control(controller, "trailing");
                 U2Select(controller, window, trailingPoint);
-                U2CommitType(U2Need<ComboBox>(host.Properties, "TypeControl"), TypeAnchorOption);
-                U2WaitIdle(controller, window);
-                string propertiesStatus = controller.Status;
+                var viaProperties = Settled("properties", () => U2CommitType(U2Need<ComboBox>(host.Properties, "TypeControl"), TypeAnchorOption));
                 if (U2Reload(controller, trailingPoint.Curve, trailingPoint.Id).Role != PointRole.Anchor)
                     throw new InvalidOperationException("properties did not make an anchor");
-                controller.Undo();
-                Settle(window);
+                Settled("undo", controller.Undo);
                 var leadingPoint = U2Control(controller, "leading");
                 var list = U2Need<ListBox>(host.Browser, "LeadingEdgeList");
                 var row = list.Items.OfType<ListBoxItem>().First(item => Equals(item.Tag, leadingPoint.Id));
@@ -3030,16 +3070,16 @@ public static class ShellWindowTests
                 var item = menu.Items.OfType<MenuItem>().FirstOrDefault(entry => entry.Header?.ToString() == "Make anchor")
                     ?? throw new InvalidOperationException("Make anchor item missing");
                 list.SelectedItem = row;
-                if (item.Command is not null) item.Command.Execute(row);
-                else item.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
-                U2WaitIdle(controller, window);
+                var viaMenu = Settled("context menu", () =>
+                {
+                    if (item.Command is not null) item.Command.Execute(row);
+                    else item.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+                });
                 if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Anchor)
                     throw new InvalidOperationException("context menu did not make an anchor");
-                string prefix = propertiesStatus.Split('.')[0];
-                if (!controller.Status.StartsWith(prefix, StringComparison.Ordinal))
-                    throw new InvalidOperationException("context status '" + controller.Status + "' properties '" + propertiesStatus + "'");
-                controller.Undo();
-                Settle(window);
+                if (Report(viaProperties).Length == 0 || Report(viaMenu).Length == 0)
+                    throw new InvalidOperationException("context reports '" + string.Join(" | ", viaMenu) + "' properties '" + string.Join(" | ", viaProperties) + "'");
+                Settled("context undo", controller.Undo);
                 if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Control)
                     throw new InvalidOperationException("context-menu undo did not restore the control point");
             }
@@ -3102,7 +3142,7 @@ public static class ShellWindowTests
                 host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.Focus();
                 double zoomBefore = controller.PlanCamera.PixelsPerMeter;
                 bool combBefore = controller.CombVisible;
-                string statusBefore = host.ModelView.FindControl<TextBlock>("StatusText")?.Text ?? "";
+                string statusBefore = StatusStripTests.Text(host).Text ?? "";
                 U2Invoke(host, "RunCommand", "view.zoom-in");
                 if (controller.PlanCamera.PixelsPerMeter <= zoomBefore)
                     throw new InvalidOperationException("zoom in did not change the camera");
@@ -3110,7 +3150,7 @@ public static class ShellWindowTests
                 U2Invoke(host, "RunCommand", "view.comb");
                 if (controller.CombVisible == combBefore)
                     throw new InvalidOperationException("comb did not toggle");
-                var status = host.ModelView.FindControl<TextBlock>("StatusText")!;
+                var status = StatusStripTests.Text(host);
                 if (!status.IsVisible || status.Text == statusBefore)
                     throw new InvalidOperationException("zoom/comb did not change the status line");
                 U2Invoke(host, "RunCommand", "point.make-anchor");
