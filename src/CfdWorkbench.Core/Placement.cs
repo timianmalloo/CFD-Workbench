@@ -106,34 +106,41 @@ internal readonly record struct Binary64(double Value) : IPlacementScalar<Binary
     }
 }
 
-// Display copy of the channel inversion. PL0b folds WingEstimates and Planform.View onto it.
+// The one binary64 channel inversion. WingEstimates and Planform.View read Value.
 internal static class ChannelEvaluator
 {
     internal static double At(Curve curve, double eta)
     {
         Placement.ChannelEvaluations++;
-        if (eta <= curve.Points[0][0]) return curve.Points[0][1];
-        if (eta >= curve.Points[^1][0]) return curve.Points[^1][1];
-        return Dot(curve, Parameter(curve, eta, 0), 1);
+        return Value(curve.Knots, curve.Degree, curve.Points, eta);
     }
 
-    private static double Parameter(Curve curve, double target, int coordinate)
+    internal static double Value(double[] knots, int degree, double[][] points, double eta)
     {
+        if (eta <= points[0][0]) return points[0][1];
+        if (eta >= points[^1][0]) return points[^1][1];
+        return Dot(knots, degree, points, Parameter(knots, degree, points, eta), 1);
+    }
+
+    internal static double Parameter(double[] knots, int degree, double[][] points, double eta)
+    {
+        if (eta <= points[0][0]) return 0;
+        if (eta >= points[^1][0]) return 1;
         double lo = 0, hi = 1;
         for (int step = 0; step < 60; step++)
         {
             double mid = (lo + hi) / 2;
-            if (Dot(curve, mid, coordinate) < target) lo = mid;
+            if (Dot(knots, degree, points, mid, 0) < eta) lo = mid;
             else hi = mid;
         }
         return (lo + hi) / 2;
     }
 
-    private static double Dot(Curve curve, double t, int coordinate)
+    private static double Dot(double[] knots, int degree, double[][] points, double t, int coordinate)
     {
-        double[] basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+        double[] basis = SplineBasis.Values(knots, degree, t);
         double value = 0;
-        for (int i = 0; i < basis.Length; i++) value += basis[i] * curve.Points[i][coordinate];
+        for (int i = 0; i < basis.Length; i++) value += basis[i] * points[i][coordinate];
         return value;
     }
 }

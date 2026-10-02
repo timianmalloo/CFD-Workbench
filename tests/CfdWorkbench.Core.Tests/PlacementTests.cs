@@ -36,6 +36,7 @@ internal static class PlacementTests
         // Characterization of today's bits. The call-site fold into WingEstimates and Planform.View is PL0b.
         Check("ChannelEvaluator_WingEstimatesFold_BitsUnchanged", WingGolden);
         Check("ChannelEvaluator_PlanformViewFold_SamplesUnchanged", PlanformGolden);
+        Check("Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures", ProbeEqualsEstimates);
     }
 
     internal static void RunReadiness()
@@ -520,6 +521,28 @@ internal static class PlacementTests
         string example = root.GetProperty("fixtures").EnumerateArray().First(item => item.GetProperty("name").GetString() == "example").GetProperty("source").GetString()!;
         foreach (var refusal in root.GetProperty("refusals").EnumerateArray())
             SameRefusal(refusal, example);
+    }
+
+    private static void ProbeEqualsEstimates()
+    {
+        string folder = Path.Combine(RepoRoot(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "m12b2");
+        string[] files = Directory.EnumerateFiles(folder, "*.foil").Order(StringComparer.Ordinal).ToArray();
+        Equal(true, files.Length >= 1);
+        foreach (string path in files)
+        {
+            byte[] source = File.ReadAllBytes(path);
+            var parsed = FoilSource.Parse(source);
+            if (parsed.Definition!.Curves.Values.Any(curve => curve.MissingIds))
+                source = FoilSource.MaterializeIds(parsed);
+            for (int sample = 0; sample <= 1000; sample++)
+            {
+                double eta = sample / 1000d;
+                double frame = Placement.Frame(source, eta).ChordMeters;
+                double wing = WingEstimates.ChordMeters(source, eta);
+                if (frame != wing)
+                    throw new InvalidOperationException(Path.GetFileName(path) + " chord bits differ at η " + eta.ToString("G17", CultureInfo.InvariantCulture));
+            }
+        }
     }
 
     private static void WingGolden()

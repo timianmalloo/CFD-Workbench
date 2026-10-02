@@ -227,13 +227,11 @@ public static class Planform
 
     private static double AftAt(CurveView curve, double eta, double halfSpan)
     {
-        double low = 0, high = 1;
-        for (int step = 0; step < 60; step++)
-        {
-            double mid = (low + high) / 2;
-            if (Evaluate(curve, mid, halfSpan).Span < eta * halfSpan) low = mid;
-            else high = mid;
-        }
-        return Evaluate(curve, (low + high) / 2, halfSpan).Aft;
+        // Span scaling is not part of the inversion. The shared evaluator inverts η directly.
+        _ = halfSpan;
+        var points = new double[curve.Points.Count][];
+        for (int index = 0; index < points.Length; index++)
+            points[index] = [curve.Points[index].Eta, curve.Points[index].AftMeters];
+        return ChannelEvaluator.Value(Knots(curve), 3, points, eta);
     }
 }
