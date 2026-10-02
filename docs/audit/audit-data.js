@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T22:45:19Z",
+  "generated": "2026-10-02T23:06:31Z",
   "audit": [
     {
       "actor": null,
@@ -21999,6 +21999,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T22:44:26Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M3ZDX24NM0B5G8KRWARP0E81",
+      "shortname": "m12b2-views-show",
+      "datetime": "2026-10-02T23:06:31Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Coordinator (UID track), STOP-AND-SHOW. Operator: \"show me the 3D view and elevation mockups\". One self-contained page docs/mockups/m12b2-views.html: the whole 1280x800 shell for the Example foil (900 mm span, -2 deg tip twist, 60 mm dihedral added) in Plan + 3D, Four views, One view 3D Wireframe and One view Side with a twist point selected; geometry computed from the real numbers; today's shell (structure-B Properties, V2 status strip, DR-VIEW-1 gutters and frames); graphite viewports; label screens with design rows; list the open choices with recommendations; capture docs/proof/m12b2-views/screens.png; hub with frontmatter, derive, check-docs, commit.",
+      "summary": "M1.2b2 views stop-and-show: four 1280x800 screens (Plan+3D, Four views, One view 3D Wireframe, One view Side with a twist point) computed from example.foil plus a 60 mm tip dihedral; today's shell; measured scales (Side 1.752 vs Front 0.494 px/mm in Four views; tip TE rise 4.19 mm); open choices OI-9, OI-10, Front station mark with recommendations.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/m12b2-views.html",
+        "docs/mockups/m12b2-views.md",
+        "docs/proof/m12b2-views/screens.png"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-10-02T22:58:20Z",
+      "duration_seconds": 491.0,
+      "git": {
+        "sha": "e888d5aaf360aa540a7615072d6ab9d69decec30",
+        "short": "e888d5aaf",
+        "branch": "design/m12b2-views",
+        "pushed": null
+      }
     }
   ],
   "changes": [

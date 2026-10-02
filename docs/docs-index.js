@@ -2450,6 +2450,52 @@ window.DOCS_INDEX = {
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
     },
     {
+      "id": "mockup-m12b2-views",
+      "path": "docs/mockups/m12b2-views.md",
+      "title": "M1.2b2 views — the 3D view and the Front and Side elevations in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator asked to see the 3D view and elevation mockups. Only workbench-v10.html existed, and the M1.2b2 design has moved on from it. This page draws four screens of the 1280 × 800 shell for the Example foil: Plan + 3D (default), Four views, One view 3D in Wireframe, and One view Side with a twist point selected. The shell is today's: structure-B Properties, the V2 status strip, and 4 px gutters with 1 px frames between views. The geometry is computed from the fixture's B-spline channels and the FoilDSL §6 placement rule, plus a 60 mm tip dihedral added so the Front view shows it. Three choices the design leaves open are listed with recommendations.",
+      "tags": [
+        "mockup",
+        "m12b2",
+        "3d-view",
+        "elevations",
+        "twist",
+        "dihedral",
+        "thickness",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-workbench-v10",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b2b840d46b3afa2999952d00632c99eb259678ce31954e21847461f4f6ee57c3"
+    },
+    {
       "id": "mockup-property-grid",
       "path": "docs/mockups/property-grid.md",
       "title": "CFD-Workbench — the Properties pane as a property grid",
@@ -9239,6 +9285,14 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     },
     {
+      "id": "surface-mockups-m12b2-views",
+      "path": "docs/mockups/m12b2-views.html",
+      "title": "M1.2b2 views",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-m12b2-views"
+    },
+    {
       "id": "surface-mockups-property-grid-cells",
       "path": "docs/mockups/property-grid-cells.html",
       "title": "Property sheet — three cell layouts",
@@ -9255,5 +9309,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "cdb405b0e01c040ac568d92b96ab3ce0caa3fc24a6de1a7fe05fe1d733749606"
+  "graphSha256": "94a662c595c7c19f929c5113ef35c30a2394e1344fa4a3390bebef159a3a8393"
 };
