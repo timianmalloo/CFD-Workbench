@@ -122,19 +122,15 @@ spacing:
   w-num-sm: 64px
   w-num-md: 80px
   w-num-lg: 160px
-  prop-label: 78px
-  prop-label-narrow: 64px
-  prop-value: 72px
-  prop-value-narrow: 64px
-  prop-unit: 28px
-  prop-unit-narrow: 24px
   prop-head: 24px
-  prop-row-ro: 18px
+  prop-row-ro: 20px
   prop-row-input: 24px
-  prop-field-drawn: 20px
-  prop-kind: 24px
+  prop-edit-box: 20px
+  prop-value: 62px
+  prop-unit: 24px
+  prop-indent: 22px
+  prop-indent-sub: 32px
   prop-inset: 8px
-  prop-row-pad: 4px
 elevation: { flat: "none", popover: "0 8px 24px rgba(0,0,0,0.16)" }
 motion: { fast: 120ms, base: 200ms, easing: "cubic-bezier(0.2,0,0,1)" }
 review-suggested:
@@ -239,8 +235,8 @@ Coordinates, scales, and chart axes never rely on a tooltip for their unit.
 | Viewport title bar (v5) | {spacing.viewport-title} row: the view name as a button (double-click or Return maximises), a `details` menu (`summary` with `aria-haspopup=menu`; View · Display · Body · Maximise) whose closed items are not rendered | current view checked in the menu; opening focuses the first item; arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave; maximised state restores with the same gesture | one viewport below 480 × 240 px; every viewport renders at its own pixel size (a scaled drawing is a defect, class UI-L) |
 | Station document | editor-group tab with a full 2D section view; palette on the toolbar; section Properties | catalog original · draft open (tab dot) · modified · infeasible | Return applies as a Modified Profile revision; Escape or × closes and returns focus to Edit section |
 | Selection identity (property grid, 2026-10-01; F-1, O-6) | the first block of Properties: the Plan view's glyph for the selection (square anchor, filled circle control, diamond end, small circle handle, three dots for several, dashed line for a station) at 12 px in {colors.ink}, the object's name in {typography.prop-title} ("Trailing edge · point 7 of 14", "Handle toward the tip", "3 points"), and a crumb in {typography.caption} {colors.ink-mute} only when it adds something the rows do not say (a handle's parent anchor as a link; never the Type value again) | one per selection, never two; a handle never reuses its anchor's name or helper | empty: COPY-136 + COPY-137, no identity · opening: the file name and skeleton rows · pane error: COPY-138 + Try again | the name wraps; it is never truncated |
-| Property group (property grid) | a header band {spacing.prop-head} high on {colors.surface-soft}: a 10 px disclosure chevron at the left (no 32 px chevron button), the group name in {typography.prop} 600, and — while collapsed — a one-line summary of its values in {typography.numeric} {colors.ink-mute}; then its rows; groups are separated by a {colors.hairline} rule | collapsed state is remembered per group across selections (Premiere's twirl-down memory); the header is a Button with `aria-expanded`; the Wing group is never collapsible (UI-36) and its header carries a state chip: "≈ preview" during a gesture, "Checking…" while a commit is checked, "Unavailable" when the estimates are | no rows → the group is not drawn | the summary truncates with an ellipsis; the name never does |
-| Property row (property grid) | one grid per row, density pass 2026-10-01: label {spacing.prop-label} ({spacing.prop-label-narrow} under 230 px) · value {spacing.prop-value} ({spacing.prop-value-narrow}), right-aligned · unit {spacing.prop-unit} ({spacing.prop-unit-narrow}) · free space last, so the value sits next to its label; label, value and unit all in {typography.prop} (11 px, nothing below 11, DR-DEN-3; values with tabular lining figures; units on the value baseline), the label in {colors.ink-mute}; rows inset {spacing.prop-inset} from the pane with {spacing.prop-row-pad} inside the rail; at large text (≥ 150 %) the row reflows to label above value and unit (SC 1.4.4); a 3 px state rail on the left; an optional description and one message line beneath, full row width | **kinds:** input (a {spacing.prop-row-input} target whose drawn box is {spacing.prop-field-drawn}, {colors.control-line} boundary, {rounded.sm}; SC 2.5.8 met by the target, not the spacing exception) · read-only fact (plain text, no border, row {spacing.prop-row-ro}; a lock glyph and a reason when it is locked) · estimate ("≈ " prefix, plain text); facts and estimates speak one line "<label>, <value> <unit>[, locked]" · select (Type: arrows on the closed box are pending, Return or a pointer pick commits) · Kind list (a vertical radio list, one option per line, never truncated; checked = filled dot **and** weight; arrows move the check only, Return/Space or leaving commits) · action; **states:** focus (the rail turns {colors.focus-ring}; no row fill, which would drop the input boundary under 3:1) · warning (rail + icon + text in {colors.warning}) · error (rail + 2 px {colors.danger} input border + COPY-118 / COPY-106 as an alert tied by `aria-describedby`) · unavailable ("Unavailable", never "≈ —", with the reason in the group) · mixed ("Mixed", read-only, no unit shown, OI-3) | Return or leaving the field commits (one undo step) and keeps focus where it was sent; Escape restores the shown value; a typed expression is echoed in the field's unit ("15 cm = 150.00 mm.", "0.35 rad = 20.05°."), and one with a reference says it is set once; point and handle fields nudge with ↑/↓ as the canvas gesture; every number field's accessible name contains its visible label and its unit ("From root, position along the span in millimetres") | values and labels wrap, never clip or ellipsize, at the 200 px dock; every quantity has a unit or is declared dimensionless |
+| Property group (property grid; structure B, DR-CELL-1) | a twirl row {spacing.prop-head} high with no band: a 10 px chevron in {colors.ink-mute} at the left, the group name in {typography.prop} 600; a {colors.hairline} rule under the group | collapsed state remembered per group; the header is a Button with `aria-expanded`; on a point, position and tangent rows share one "Point" group; the Wing group is never collapsible (UI-36) and carries a state chip ("≈ preview", "Checking…", "Unavailable") | no rows → the group is not drawn | the summary truncates with an ellipsis; the name never does |
+| Property row (property grid; structure B, DR-CELL-1 — the look is fixed by the operator) | one line per property, indented {spacing.prop-indent} ({spacing.prop-indent-sub} under a handle subhead): the label left in {typography.prop} {colors.ink-mute}; the value right-aligned, at least {spacing.prop-value} wide, in {typography.prop} with tabular lining figures; the unit after it in a {spacing.prop-unit} column in {colors.ink-mute}; a half-strength {colors.hairline} rule between rows; read-only rows {spacing.prop-row-ro}, editable rows {spacing.prop-row-input} | **editable value:** {colors.primary} text with a 1 px dotted underline offset 2 px (the non-colour cue, SC 1.4.1), no box; **enum** (Type, Tangent kind): {colors.primary} text + ▾ in {colors.ink-mute}; **read-only:** {colors.ink} text, no underline, no ▾ (a lock glyph and reason when locked); **estimate:** "≈ " prefix, read-only; **focused** (Tab or click): an {spacing.prop-edit-box} box with a 1 px {colors.primary} boundary inside the 24 px band and the text turns {colors.ink} (SC 2.4.7); **error:** 1 px {colors.danger} box + rail + icon + text; **warning / unavailable:** rail + icon + text | Return or leaving commits (one undo step); Escape restores; once the text differs from the committed value the field widens across the row so an expression shows whole (DC-1); the whole row is the target (clicking the label focuses the value); help text (descriptions, the angle reference) shows under the row while it has focus and is always its accessible description; a fact speaks "<label>, <value> <unit>[, locked]" | labels wrap, values never clip; at ≥ 150 % text the value drops under its label |
 
 All controls use {rounded.sm}; panels are square joins; floating dialogs use
 {rounded.md}. Primary actions are at least {spacing.target}; dense scientific
@@ -578,9 +574,12 @@ Windows/macOS are **Flagged** future implementation obligations.
 
 The Properties pane becomes a **property grid** (F-1 of the M1.2b native review). It is one reusable component —
 selection identity, property groups, property rows — built by a dedicated track after the M1.2b fix track and before
-M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). New tokens: {spacing.prop-label},
-{spacing.prop-label-narrow}, {spacing.prop-unit}, {spacing.prop-unit-narrow}, {spacing.prop-head},
-{spacing.prop-row-ro}. No new colour. Rules added to the language:
+M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). **Its structure is B, Premiere Pro Effect
+Controls (DR-CELL-1); the look is fixed by the operator** (`docs/mockups/property-grid-cells.html` is the record of the
+pick). Tokens: {spacing.prop-head}, {spacing.prop-row-ro}, {spacing.prop-row-input}, {spacing.prop-edit-box},
+{spacing.prop-value}, {spacing.prop-unit}, {spacing.prop-indent}, {spacing.prop-indent-sub}, {spacing.prop-inset},
+{typography.prop}, {typography.prop-title}, {typography.prop-note}. No new colour. Rules added to the language
+(where a rule below speaks of a grid column or a boxed field, structure B supersedes it — see "Structure B"):
 
 - **A grid, not a column of text.** Every row in a pane shares one label column and one right value edge; units have
   their own column. The browser check asserts one label x and one value edge per state.
@@ -635,37 +634,36 @@ M1.2b2's PNL track (ruling DR-UID-4, `docs/notes/property-grid-rulings.md`). New
 - **Facts are not Tab stops (D2).** A fact or estimate row is announced through its named container; copying a value
   is a Copy command. Leaving the Type box drops a pending type (D1). An error is announced once per failed commit
   (PG-22). Abbreviations are spoken in full: "aspect ratio", "t over c" (PG-24).
-- **Density (pass of 2026-10-01, repair cycle 1; operator rulings DR-DEN-1 to DR-DEN-4 in
-  `docs/notes/property-grid-rulings.md`).** The grid is a CAD inspector, not a settings page. Numbers are in
-  `docs/reviews/ui-property-grid-density.md` and pinned by the browser check.
-  - **11 px, nothing below 11 (DR-DEN-3).** Labels, values, units, messages, notes, descriptions, summaries and the
-    crumb are all {typography.prop} / {typography.prop-note} at 11/14, with tabular lining figures. Only the identity
-    title is larger ({typography.prop-title}, 13/18). Units sit on the value baseline.
-  - **Rows.** Facts and estimates use {spacing.prop-row-ro} (18 = a 14 px line + 2 + 2). Inputs use
-    {spacing.prop-row-input} (24): **one element**, a 24 px target whose drawn box is {spacing.prop-field-drawn} (20)
-    with a 1 px boundary in every state. Focus is a 2 px ring on the band; an error is a 1 px danger boundary plus rail,
-    icon and text (DN-1, DN-2).
-  - **Headers and Kind.** Group headers are {spacing.prop-head} (24) with a 10 px chevron. Each Kind option is
-    {spacing.prop-kind} (24) in the native RadioButton template, with one dot size: a 12 px ring and a 6 px glyph (DN-7).
-  - **Columns.** Label {spacing.prop-label} (78), value {spacing.prop-value} (72), unit {spacing.prop-unit} (28), free
-    space last. At the narrow dock: 64 / 64 / 24.
-  - **A focused or dirty field.** It takes value + unit + free columns so a typed expression shows whole; at the narrow
-    dock the editing row stacks, label above the field (DC-1).
-  - **Digits align.** A fact's digits end 6 px in from the column edge, the same place as an input's (DC-3).
-  - **Corner handles.** A Corner handle's side is a semibold ink subhead (DC-4).
-  - **Insets.** {spacing.prop-inset} (8); groups are separated by a rule.
-  - **Definitions.** "How these are measured" is the link-style disclosure "Estimates · definitions".
-- **Text size (DN-5).** The app has its own setting: View ▸ Text size 100 / 125 / 150 / 200 %, ⌘+ / ⌘− (Ctrl on
-  Windows), persisted per user. One multiplier ({typography.prop-text-scale}) scales every Prop type and row token; at
-  ≥ 150 % the rows stack (label above value). In a model view ⌘= / ⌘− keep zooming the view (DR-DEN-4).
-- **Density never trades a floor.**
-  - Every target stays ≥ 24 × 24 (SC 2.5.8), including the crumb link and the definitions link.
-  - Read-only rows are 18 and are not targets. They have no row context menu: per-row "Copy <label>" items live in the
-    group header's menu (DN-3).
-  - At 200 % text the Wing stays pinned and scrolls inside itself, and a focused field is always brought into view
-    (DR-DEN-2, DN-6).
-  - Under the SC 1.4.12 override, rows grow from 18 to about 21 px (16.5 px lines) and nothing is cut.
-  - Contrast and every cleared behaviour are unchanged.
+- **Structure B (DR-CELL-1, 2026-10-01; supersedes the density pass's grid columns and drawn field box).** The
+  operator saw three cell layouts and chose B, Premiere Pro Effect Controls, "as is". Its look is fixed. Numbers are in
+  `docs/reviews/ui-property-grid-cells.md` and pinned by the browser check.
+  - **Groups.** One twirl group per object; for a point, position and tangent share the "Point" group. Handle rows sit
+    under a muted semibold subhead, indented one more step.
+  - **Rows.** Label left in muted ink. Value right-aligned:
+    - editable values: {colors.primary} text with a dotted underline;
+    - enums: {colors.primary} text + ▾;
+    - read-only values: {colors.ink}, with no cue.
+    The unit follows in muted ink. A half-strength rule sits between rows. There is no box until a value has focus;
+    then a 20 px box appears inside the 24 px row band.
+  - **11 px, nothing below 11 (DR-DEN-3).** Every grid text, including messages, notes and the crumb, is
+    {typography.prop}. Only the identity title is larger.
+  - **Targets (DR-DEN-1).** Editable rows are 24 px, and the whole row is the target (clicking the label focuses the
+    value). Read-only rows are 20 px and are not targets; copying uses the group header menu and the keyboard (DN-3,
+    PG-25).
+  - **Help.** Descriptions and the angle reference show under a row while it has focus, and are always the field's
+    accessible description. The TE root's root-chord authority line (COPY-159) always shows.
+  - **Editing.** Kind and Type are enums with one commit rule: arrows on the closed box are pending, Return or a
+    pointer pick commits, Esc keeps, leaving drops. The field widens across the row once its text differs, so an
+    expression shows whole (DC-1).
+- **Text size (DN-5).** The app's setting: View ▸ Text size 100 / 125 / 150 / 200 %, ⌘+ / ⌘− (Ctrl on Windows),
+  persisted per user. One multiplier ({typography.prop-text-scale}) scales every Prop type and row token. At ≥ 150 % the
+  value drops under its label. In a model view ⌘= / ⌘− keep zooming the view (DR-DEN-4).
+- **B never trades a floor.**
+  - The underline is the non-colour cue for editability (SC 1.4.1). It is {colors.primary} at ≥ 3:1 in every theme,
+    and yellow in high contrast.
+  - A focused value always shows its box (SC 2.4.7), and every editable value is a Tab stop.
+  - At 200 % text the Wing stays pinned and scrolls inside itself; a focused field is brought into view (DR-DEN-2).
+  - Contrast tokens are unchanged.
 - **Motion.** One moment: the chevron turns in {motion.fast} with {motion.easing}; under reduced motion it is instant.
   Natively there is no chevron or Expander transition (PG-16).
 

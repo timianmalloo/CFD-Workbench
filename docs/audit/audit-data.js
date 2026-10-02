@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T01:10:51Z",
+  "generated": "2026-10-02T01:28:08Z",
   "audit": [
     {
       "actor": null,
@@ -21556,6 +21556,43 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "b437efa9cd94f3cd6d2c5af64ba30fa69dda3fd1",
         "short": "b437efa9c",
+        "branch": "design/property-grid-cells",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M3X3KMCGWV8N1CNWYZ0EXSXH",
+      "shortname": "ui-design-property-grid-b",
+      "datetime": "2026-10-02T01:28:08Z",
+      "session": "f19a2b12-uid",
+      "prompt": "Operator ruling DR-CELL-1: \"All look good... I like B as is\" — B (Premiere Pro Effect Controls) is the property sheet's structure and its look is fixed. Promote B to the full design: B as the main surface of docs/mockups/property-grid.html for every state with the harness kept; carry the rulings still in force (DR-DEN-1..4, DN-5, DC-1, PG-06/07/19, PG-25/DN-3, PG-26, PG-01, precision, From root + eta, set-once echo); answer the B-specific accessibility questions (editability by colour + dotted underline: 1.4.1, 1.4.11, high contrast; no box until clicked: 2.4.7, Tab reachability, read-only vs editable without colour); DESIGN.md §12.0f structure B and component rows; docs/reviews/ui-property-grid-cells.md with measurements, floor table and a build brief superseding the density brief; oracle extended to B with a planted failure; list any visible change as needing operator OK.",
+      "summary": "Structure B promoted: mockup renders B in 31 states (Point group, accent dotted-underline editable values, ink read-only, ▾ enums, box on focus), Kind now an enum with Type's commit rules; DESIGN.md §12.0f Structure B, component rows and tokens (rows 20/24, edit box 20, value 62, unit 24, indents 22/32; column and drawn-field tokens removed); review + build brief with 29 named tests plus the retargeted B-5 set. Found and controlled a UI-N: Chrome drops an input's underline under a fixed height (guard added). Oracle 682 cells, 60/60 paths; planted missing underline and fixed height both red. Visible changes needing operator OK: Wing header without the twirl chevron; labels wrap at the 200 px dock.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/property-grid.html",
+        "docs/reviews/ui-property-grid-cells.md",
+        "DESIGN.md",
+        "tools/check-mockup-property-grid.mjs",
+        "docs/proof/property-grid-browser-check.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Promote structure B to the full property-sheet design",
+      "done_when": "B in every state with harness; rulings carried; 3(a)/(b) answered; DESIGN.md and review/brief; oracle green with planted failure; committed",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-02T01:15:02Z",
+      "duration_seconds": 786.0,
+      "git": {
+        "sha": "b942e74b3df73114a2c4a860a36214298213384e",
+        "short": "b942e74b3",
         "branch": "design/property-grid-cells",
         "pushed": null
       }

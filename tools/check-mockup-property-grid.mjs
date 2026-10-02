@@ -19,10 +19,11 @@ page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(pathToFileURL(file).href);
 const states = await page.evaluate(() => window.__pg.states);
 const fails = {}, fit = {}; let cells = 0;
-// Density pass (2026-10-01): the sweep runs the Dense proposal at 100 % text, where the page audit also pins the density
-// (one type size, units on the value baseline, row pitch 20/24, field target 24 drawn 20, header and Kind 24).
+// Structure B (DR-CELL-1, Premiere Effect Controls): the sweep runs B at 100 % text, where the page audit also pins it — one
+// 11 px size, units on the value baseline, rows 20/24, a 24 px value target, 24 px headers, the non-colour edit cue
+// (dotted underline or ▾) that actually renders, no cue on read-only values.
 for (const height of ['800', '900']) for (const theme of ['light', 'dark', 'contrast']) for (const width of ['200', '260', '300']) for (const state of states) {
-  const res = await page.evaluate(([h, t, w, s]) => { window.__pg.setHarness({ height: h, theme: t, width: w, density: 'dense', text: '100' }); window.__pg.goState(s); return window.__pg.audit(); }, [height, theme, width, state]);
+  const res = await page.evaluate(([h, t, w, s]) => { window.__pg.setHarness({ height: h, theme: t, width: w, density: 'b', text: '100' }); window.__pg.goState(s); return window.__pg.audit(); }, [height, theme, width, state]);
   cells++;
   for (const r of res) {
     if (r.check === 'selection fits without scrolling') { if (height === '800' && theme === 'light') fit[`${state}@${width}`] = r.detail; continue; }
@@ -35,7 +36,7 @@ for (const height of ['800', '900']) for (const theme of ['light', 'dark', 'cont
 // or ellipsized and every target ≥ 24 px; fit and Wing visibility are recorded, not gated, at 200 %.
 const textScale = {};
 for (const theme of ['light', 'dark', 'contrast']) for (const state of states) {
-  const res = await page.evaluate(([t, s]) => { window.__pg.setHarness({ height: '800', theme: t, width: '260', density: 'dense', text: '200' }); window.__pg.goState(s); return window.__pg.audit(); }, [theme, state]);
+  const res = await page.evaluate(([t, s]) => { window.__pg.setHarness({ height: '800', theme: t, width: '260', density: 'b', text: '200' }); window.__pg.goState(s); return window.__pg.audit(); }, [theme, state]);
   cells++;
   for (const r of res) {
     const gated = /page rendered|clipped|ellipsized|targets|unfilled|accessible text carries/.test(r.check);
@@ -46,7 +47,7 @@ for (const theme of ['light', 'dark', 'contrast']) for (const state of states) {
 // SC 1.4.12: with the WCAG text-spacing override at 11 px, nothing is clipped or ellipsized in any state (light, 260 px)
 const spacing = {};
 for (const state of states) {
-  const res = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense', text: '100', spacing: true }); window.__pg.goState(s); return window.__pg.audit(); }, state);
+  const res = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100', spacing: true }); window.__pg.goState(s); return window.__pg.audit(); }, state);
   cells++;
   for (const r of res) {
     // inputs are single-line and scroll inside themselves under the override (content stays reachable); labels and facts must wrap
@@ -58,8 +59,8 @@ for (const state of states) {
 await page.evaluate(() => window.__pg.setHarness({ spacing: false }));
 // before/after density table (light, 260 px dock, 1280 x 800) for the review
 const density = {};
-for (const state of ['foil', 'control', 'anchor', 'handle', 'root-te', 'twist-anchor', 'worst-case']) density[state] = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense', text: '100' }); window.__pg.goState(s); return window.__pg.densityBoth(); }, state);
-await page.evaluate(() => window.__pg.setHarness({ density: 'dense', text: '100' }));
+for (const state of ['foil', 'control', 'anchor', 'handle', 'root-te', 'twist-anchor', 'worst-case']) density[state] = await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.goState(s); return window.__pg.densityBoth(); }, state);
+await page.evaluate(() => window.__pg.setHarness({ density: 'b', text: '100' }));
 const interactions = [];
 const check = (name, ok) => interactions.push({ name, pass: !!ok });
 const at = s => page.evaluate(st => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260' }); window.__pg.goState(st); }, s);
@@ -91,17 +92,18 @@ check('radians are converted and echoed in degrees (MC-4, COPY-157)', await page
 await page.fill('input[data-fk="h:ang"]', '95'); await page.press('input[data-fk="h:ang"]', 'Enter');
 check('an angle outside (−90°, 90°) is refused with COPY-158 (MC-13)', /Enter an angle between −90° and 90°, from the span axis, \+ aft\. Angle is unchanged\./.test(await page.locator('#sel').innerText()));
 
-// --- Tangent kind (PG-06 / MC-1: arrows move the check only, no wrap, commit on Return or on leaving)
+// --- Tangent kind is an enum in B (as approved; spec UI-37). Type's rules apply (PG-07 / PG-19): arrows on the closed
+//     box are pending, Return commits one undo row, a pointer pick commits, leaving with a pending kind drops it
 await at('anchor');
-let u = await undo(); await page.focus('[data-fk="tangent:smooth"]'); await page.keyboard.press('ArrowDown');
-check('an arrow on Kind moves the check without committing', await page.locator('[data-fk="tangent:symmetric"]').getAttribute('aria-checked') === 'true' && await undo() === u && await focused() === 'tangent:symmetric'
-  && await page.locator('input[data-fk="h:lr"]').count() === 1);
-await page.keyboard.press('ArrowDown'); await page.keyboard.press('ArrowDown');
-check('the Kind list does not wrap', await page.locator('[data-fk="tangent:corner"]').getAttribute('aria-checked') === 'true' && await undo() === u);
+const arrowPick = v => page.evaluate(v => { const s = document.querySelector('select[data-fk="kind"]'); s.focus(); s.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })); s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); }, v);
+let u = await undo(); await arrowPick('corner');
+check('an arrow on the closed Tangent kind box is pending, not committed', await undo() === u && /Press Return to make it corner, or Esc to keep smooth\./.test(await page.locator('#sel').innerText()) && await focused() === 'kind');
 await page.keyboard.press('Enter');
-check('Return commits the moved check as one undo row', await undo() === u + 1 && /Handle toward the root/.test(await page.locator('#sel').innerText()));
-u = await undo(); await page.keyboard.press('Home'); await page.keyboard.press('Tab');
-check('leaving the Kind group commits once', await undo() === u + 1 && await page.locator('[data-fk="tangent:smooth"]').getAttribute('aria-checked') === 'true');
+check('Return commits the kind as one undo row', await undo() === u + 1 && /Handle toward the root/.test(await page.locator('#sel').innerText()));
+u = await undo(); await arrowPick('symmetric'); await page.keyboard.press('Tab');
+check('leaving the Tangent kind box with a pending kind drops it', await undo() === u && await page.locator('select[data-fk="kind"]').inputValue() === 'corner');
+await page.selectOption('select[data-fk="kind"]', 'smooth');
+check('a pointer pick of the kind commits at once', await undo() === u + 1 && await page.locator('select[data-fk="kind"]').inputValue() === 'smooth');
 
 // --- Type (PG-07: arrows on the closed box are pending; Return commits)
 await at('control'); await expand('pos');
@@ -163,7 +165,7 @@ check('a Smooth twist anchor says how the other handle moves (MC-22)', /Changing
 
 // --- identity, selection, availability, authority, labels
 await at('handle');
-check('a handle shows its parent anchor kind, labelled (F-4)', await page.locator('[role="radiogroup"][aria-label="Tangent kind of anchor point 7"]').count() === 1);
+check('a handle shows its parent anchor kind, labelled (F-4)', await page.locator('select[data-fk="kind"][aria-label="Tangent kind of anchor point 7"]').count() === 1);
 check('a handle has its own identity (O-6)', await page.evaluate(() => document.querySelector('.ident h2').textContent) === 'Handle toward the tip');
 await page.focus('[data-fk="grp:hdl"]'); await page.keyboard.press('Escape');
 check('Escape on a handle selects its anchor and says so (PG-12)', await page.evaluate(() => document.querySelector('.ident h2').textContent) === 'Trailing edge · point 7 of 14' && /Selected Trailing edge · anchor point 7 of 14\./.test(await status()));
@@ -182,32 +184,52 @@ check('abbreviations are spoken in full (PG-24)', await page.evaluate(() => { co
 check('AR carries its convention in the unit column (MC-8)', await page.evaluate(() => [...document.querySelectorAll('#wing .row')].find(r => r.dataset.q === 'AR')?.querySelector('.unit').textContent === 'b²/S'));
 // --- DC-1: a focused or dirty field shows the whole expression, at every dock
 for (const w of ['200', '260', '300']) for (const expr of ['#root_chord × 0.35', '(#span − 2 cm) / 2']) {
-  await page.evaluate(w => { window.__pg.setHarness({ height: '800', theme: 'light', width: w, density: 'dense', text: '100' }); window.__pg.goState('anchor'); }, w);
+  await page.evaluate(w => { window.__pg.setHarness({ height: '800', theme: 'light', width: w, density: 'b', text: '100' }); window.__pg.goState('anchor'); }, w);
   await expand('pos'); await page.fill('input[data-fk="p:aft"]', expr);
   check(`a typed expression is visible whole in Aft at ${w} px: ${expr} (DC-1)`, await page.evaluate(() => { const i = document.querySelector('input[data-fk="p:aft"]'); return i.scrollWidth <= i.clientWidth; }));
   await page.press('input[data-fk="p:aft"]', 'Escape');
 }
 // --- DC-2: worst-case numbers at the 200 px dock are not clipped
-await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '200', density: 'dense', text: '100' }); window.__pg.goState('worst-case'); });
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '200', density: 'b', text: '100' }); window.__pg.goState('worst-case'); });
 check('worst-case numbers are not clipped at the 200 px dock (DC-2)', await page.evaluate(() => window.__pg.audit().filter(r => /clipped|ellipsized/.test(r.check)).every(r => r.pass !== false)));
 // --- DN-1: a focused field in error keeps its text unclipped and a 1 px boundary
-await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense', text: '100' }); window.__pg.goState('field-error'); });
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.goState('field-error'); });
 await page.focus('input[data-fk="p:aft"]');
 check('a focused field in error: text not clipped, 1 px boundary (DN-1)', await page.evaluate(() => { const i = document.querySelector('input[data-fk="p:aft"]'); return i.scrollWidth <= i.clientWidth && /inset 0px 0px 0px 1px|1px inset/.test(getComputedStyle(i).boxShadow) && window.__pg.audit().every(r => r.check !== 'drawn field boundary is 1 px in every state' || r.pass); }));
 // --- DN-5 / DN-6: the app's Text size setting — ⌘+ steps 100 → 125 → 150, stacks rows at 150, persists across a reload,
 //     and a focused Wing field with its message stays in view at 200 %
-await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense', text: '100' }); window.__pg.setTextSize('100'); window.__pg.goState('foil'); });
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.setTextSize('100'); window.__pg.goState('foil'); });
 await page.focus('[data-fk="grp:foil"]'); await page.keyboard.press('Meta+Equal'); await page.keyboard.press('Meta+Equal');
 check('⌘+ steps the Text size 100 → 125 → 150 and stacks the rows at 150 % (DN-5)', await page.evaluate(() => document.querySelector('#app-text-size').value === '150' && document.querySelector('#frame').dataset.stacked === '1'));
 await page.reload();
 check('the Text size persists per user across a reload (DN-5)', await page.evaluate(() => document.querySelector('#app-text-size').value === '150' && document.querySelector('#frame').dataset.stacked === '1'));
-await page.evaluate(() => { window.__pg.setTextSize('200'); window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'dense' }); window.__pg.goState('foil'); });
+await page.evaluate(() => { window.__pg.setTextSize('200'); window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b' }); window.__pg.goState('foil'); });
 await page.fill('input[data-fk="w:tip"]', 'abc'); await page.press('input[data-fk="w:tip"]', 'Enter');
 check('at 200 % a focused Wing field and its message are in view (DN-6)', await page.evaluate(() => { const r = document.querySelector('input[data-fk="w:tip"]').closest('.row').getBoundingClientRect(), w = document.querySelector('#wing').getBoundingClientRect(); return document.activeElement?.dataset.fk === 'w:tip' && r.top >= w.top - 1 && r.bottom <= w.bottom + 1; }));
 await page.focus('[data-fk="w:tip"]'); await page.keyboard.press('Escape');
 await page.evaluate(() => window.__pg.setTextSize('100'));
 await page.focus('[data-fk="grp:foil"]').catch(() => {}); await page.keyboard.press('Meta+Minus');
 check('⌘− steps the Text size down and never below 100 % (DN-5)', await page.evaluate(() => document.querySelector('#app-text-size').value === '100' && document.querySelector('#frame').dataset.stacked === '0'));
+// --- B accessibility 3(b): every editable value is a Tab stop and looks focused when it is one (SC 2.1.1, 2.4.7);
+//     the whole row (label + value) is the pointer target (SC 2.5.8)
+for (const state of ['anchor', 'handle', 'foil', 'twist-anchor']) {
+  await page.evaluate(s => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.goState(s); document.querySelectorAll('#pane [aria-expanded="false"]').forEach(b => b.click()); }, state);
+  const want = await page.evaluate(() => [...document.querySelectorAll('#pane input[data-fk], #pane select[data-fk]')].filter(n => n.offsetParent).map(n => n.dataset.fk));
+  await page.evaluate(() => document.querySelector('#pane button, #pane input, #pane select').focus());
+  const seen = new Set(), unfocusedLook = [];
+  for (let i = 0; i < 60; i++) {
+    const info = await page.evaluate(() => { const a = document.activeElement; if (!a || !document.querySelector('#pane').contains(a)) return null; const cs = getComputedStyle(a);
+      const visible = (cs.boxShadow && cs.boxShadow !== 'none') || (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0); return { fk: a.dataset.fk || a.tagName, visible }; });
+    if (!info) break; seen.add(info.fk); if (!info.visible) unfocusedLook.push(info.fk);
+    await page.keyboard.press('Tab');
+  }
+  const missing = want.filter(fk => !seen.has(fk));
+  check(`every editable value is reachable by Tab (${state}) (B, SC 2.1.1)`, missing.length === 0);
+  check(`every Tab stop looks focused (${state}) (B, SC 2.4.7)`, unfocusedLook.length === 0);
+}
+await page.evaluate(() => { window.__pg.setHarness({ height: '800', theme: 'light', width: '260', density: 'b', text: '100' }); window.__pg.goState('anchor'); });
+await page.click('#pane .row label[for]:text-is("Aft")');
+check('clicking a label focuses its value (the row band is the target, SC 2.5.8)', await focused() === 'p:aft');
 await browser.close();
 const ok = !errors.length && !Object.keys(fails).length && interactions.every(i => i.pass);
 const evidence = { file: path.relative(repo, file), date: new Date().toISOString(), cells, errors, fails, selectionFitAt1280x800: fit, textAt200Recorded: textScale, spacing1412Recorded: spacing, densityBeforeAfter: density, interactions, ok };

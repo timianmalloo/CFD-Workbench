@@ -15,6 +15,7 @@ links:
   - {to: review-ui-property-grid, rel: tested-by}
   - {to: property-grid-rulings, rel: relates-to}
   - {to: review-ui-property-grid-density, rel: tested-by}
+  - {to: review-ui-property-grid-cells, rel: tested-by}
 review-by: 2026-12-30
 summary: >-
   F-1 from the M1.2b native review, elevated: Properties becomes one reusable property grid — a selection identity,
@@ -81,7 +82,16 @@ fill it from `PropertiesView.Build` without new layout:
 
 The rulings are in [`docs/notes/property-grid-rulings.md`](../notes/property-grid-rulings.md).
 
-**Density pass (2026-10-01, after the native build).**
+**Structure B (DR-CELL-1, 2026-10-01).** The operator picked variant B of
+[`property-grid-cells.html`](property-grid-cells.html), Premiere Pro Effect Controls, "as is".
+- B is now the main surface here (harness **Structure: B · Effect Controls / As built**), in every state and at every
+  text size.
+- Its look is fixed: twirl groups; label left; accent, dotted-underline editable values right-aligned; ink read-only
+  values; ▾ enums; no box until focus.
+- Review and build brief: [`docs/reviews/ui-property-grid-cells.md`](../reviews/ui-property-grid-cells.md), which
+  supersedes the density brief where they conflict.
+
+**Density pass (2026-10-01, after the native build; its grid columns and drawn field box are superseded by B).**
 - The harness has **Density: Dense (proposal) / As built (native, dade554)** and a live before/after table under the
   pane.
 - Dense (after repair cycle 1): one 11/14 type size for label, value, unit and messages, with nothing below 11 px;

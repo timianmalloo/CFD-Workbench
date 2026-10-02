@@ -25,7 +25,11 @@ Open [`property-grid-cells.html`](property-grid-cells.html) over `file://`; the 
 dark theme. Captures: [`variants.png`](../proof/property-grid-cells/variants.png) (light) and
 [`variants-dark.png`](../proof/property-grid-cells/variants-dark.png).
 
-**A — Visual Studio Properties window / WinForms PropertyGrid (the operator's pick, primary).**
+**The pick (DR-CELL-1):** the operator chose **B**, "as is". B is now the structure of
+[`property-grid.html`](property-grid.html), with its review and brief in
+[`ui-property-grid-cells.md`](../reviews/ui-property-grid-cells.md). This page stays as the record of the choice.
+
+**A — Visual Studio Properties window / WinForms PropertyGrid (shown first after the operator's earlier note).**
 - **Toolbar:** Categorized and Alphabetical toggles.
 - **Categories:** each is a row with ▾/▸ spanning both columns.
 - **Properties:** each is a label cell and a value cell with hairline grid lines both ways.

@@ -2488,10 +2488,14 @@ window.DOCS_INDEX = {
         {
           "to": "review-ui-property-grid-density",
           "rel": "tested-by"
+        },
+        {
+          "to": "review-ui-property-grid-cells",
+          "rel": "tested-by"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "855a2d3b8d5a8ef9aecea48e05b2ef27ad7ada50a7fc35d947a672fb5f351c48"
+      "sourceSha256": "cdae6ceea97aa6e177e8e9d702e6e1dacdef2020030b5a7b4cba4f1ea6508723"
     },
     {
       "id": "mockup-property-grid-cells",
@@ -2526,7 +2530,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bae2106d4be277ed9fb9094dab7a08caa3cc982ca9d101afad495202dad6d9e9"
+      "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
     },
     {
       "id": "mockup-workbench",
@@ -4222,6 +4226,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
+    },
+    {
+      "id": "review-ui-property-grid-cells",
+      "path": "docs/reviews/ui-property-grid-cells.md",
+      "title": "UI review — the property sheet in structure B (Premiere Effect Controls), promoted to the full design",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator picked variant B, Premiere Pro Effect Controls, \"as is\" (DR-CELL-1). B is now the property sheet's structure in every state of the mockup, carrying every ruling still in force. Measured against the PGRID build: 11 px one size, 20/24 px rows, 24 px twirl headers, the Wing from 339 to 230 px, the anchor selection from 549 to 313 px. Editability is shown by colour plus a dotted underline (the non-colour cue); focus shows a box. This brief supersedes the density brief where they conflict.",
+      "tags": [
+        "ui-review",
+        "properties",
+        "property-grid",
+        "premiere",
+        "structure-b",
+        "accessibility",
+        "build-brief"
+      ],
+      "links": [
+        {
+          "to": "mockup-property-grid",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-property-grid-cells",
+          "rel": "refines"
+        },
+        {
+          "to": "review-ui-property-grid-density",
+          "rel": "refines"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "68d46c6f5569974935714be46968a7283692cba370592335a5dec95193ba8765"
     },
     {
       "id": "review-ui-property-grid-density",
@@ -9091,5 +9140,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     }
   ],
-  "graphSha256": "0ccefd2b3d14f33c66835154a99e708f21b320596c28c476b806b37e23d6a22f"
+  "graphSha256": "52e1c0e95274d23a81279c1a22c189477fa64c827e213993d5edb79982335e08"
 };
