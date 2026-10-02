@@ -620,6 +620,7 @@ names every channel; the 3D and elevation captions say "display"; the shading ra
   CAD-08's "Top · Perspective over Front · Starboard" puts Front bottom-left — deviation D-9). **One view:** the chosen
   view alone. Each view has a label button top-left (v10 `.vlabel`, ≥ 24 × 24): click selects the view as the target of
   Display ▾, zoom and fit commands; double-click or Return → One view and back.
+- **Gutter and frames (DR-VIEW-1, NS-4):** a 4 px gutter (`spacing.view-gutter`) in the window background colour separates the views, and each view has a 1 px `line` frame (One view: the frame only, no gutter); Four views keeps each view ≥ 320 × 240 inside its frame, so the arrangement needs 648 × 488.
 - **Overlays** (title, caption, triad, probe) sit on a `viewport-soft` plate, so their text never lies on the shaded
   surface; the title and the cube share one row with minimum widths, and the cube hides first when the row is short.
 - **3D** — focal point: the foil. Back to front: viewport fill; ground grid at z = min z (`viewport-grid`, 1 px); the

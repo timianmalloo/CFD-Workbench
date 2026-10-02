@@ -26,6 +26,12 @@
       <Setter Property="HorizontalAlignment" Value="Right" />
       <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
+    <!-- DR-VIEW-1: each view is framed in a 1 px line; the 4 px gutter between frames shows the canvas colour behind the grid. -->
+    <Style Selector="Border.viewFrame">
+      <Setter Property="Background" Value="{DynamicResource ViewportBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" />
+    </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto,*">
     <!-- Alert Band -->
@@ -54,9 +60,11 @@
 
       <!-- The model-area arrangement (M1.2b2 §11.1): Plan + 3D (2* · 1*), Four views (Plan | 3D over Side | Front),
            or One view. ModelArea.ApplyLayout places the slots; each slot is a label row over its view. -->
-      <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource ViewportBrush}">
-        <Grid x:Name="ViewArrangementGrid" ColumnDefinitions="2*,1*" RowDefinitions="*,0">
-          <Grid x:Name="PlanSlot" RowDefinitions="Auto,*">
+      <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource CanvasBrush}">
+        <Grid x:Name="ViewArrangementGrid" ColumnDefinitions="2*,1*" RowDefinitions="*,0"
+              ColumnSpacing="{StaticResource ViewGutter}" RowSpacing="{StaticResource ViewGutter}">
+          <Border x:Name="PlanFrame" Classes="viewFrame">
+            <Grid x:Name="PlanSlot" RowDefinitions="Auto,*">
             <Button x:Name="PlanLabel" Grid.Row="0" Classes="viewLabel" Content="Plan"
                     AutomationProperties.Name="Plan view label. Double-click or Return shows this view alone." />
             <local:PlanCanvas Grid.Row="1" x:Name="PlanCanvas" Focusable="True"
@@ -77,8 +85,10 @@
               </StackPanel>
             </Border>
           </Grid>
+          </Border>
 
-          <Grid x:Name="ThreeDSlot" Grid.Column="1" RowDefinitions="Auto,*">
+          <Border x:Name="ThreeDFrame" Classes="viewFrame" Grid.Column="1">
+            <Grid x:Name="ThreeDSlot" RowDefinitions="Auto,*">
             <Button x:Name="ThreeDLabel" Grid.Row="0" Classes="viewLabel" Content="3D · Iso" />
             <local:SurfaceRenderer Grid.Row="1" x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True"
                                    BackgroundBrush="{DynamicResource ViewportBrush}"
@@ -103,8 +113,10 @@
               </StackPanel>
             </Border>
           </Grid>
+          </Border>
 
-          <Grid x:Name="SideSlot" Grid.Row="1" IsVisible="False" RowDefinitions="Auto,*">
+          <Border x:Name="SideFrame" Classes="viewFrame" Grid.Row="1" IsVisible="False">
+            <Grid x:Name="SideSlot" RowDefinitions="Auto,*">
             <Button x:Name="SideLabel" Grid.Row="0" Classes="viewLabel" Content="Side · from starboard" />
             <local:SurfaceRenderer Grid.Row="1" x:Name="SideRenderer" Pane="side" ClipToBounds="True"
                                    BackgroundBrush="{DynamicResource ViewportBrush}"
@@ -121,8 +133,10 @@
               </StackPanel>
             </Border>
           </Grid>
+          </Border>
 
-          <Grid x:Name="FrontSlot" Grid.Row="1" Grid.Column="1" IsVisible="False" RowDefinitions="Auto,*">
+          <Border x:Name="FrontFrame" Classes="viewFrame" Grid.Row="1" Grid.Column="1" IsVisible="False">
+            <Grid x:Name="FrontSlot" RowDefinitions="Auto,*">
             <Button x:Name="FrontLabel" Grid.Row="0" Classes="viewLabel" Content="Front · looking aft" />
             <local:SurfaceRenderer Grid.Row="1" x:Name="FrontRenderer" Pane="front" ClipToBounds="True"
                                    BackgroundBrush="{DynamicResource ViewportBrush}"
@@ -139,6 +153,7 @@
               </StackPanel>
             </Border>
           </Grid>
+          </Border>
         </Grid>
       </Border>
 

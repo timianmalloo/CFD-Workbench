@@ -15,12 +15,16 @@ public partial class ModelArea : UserControl
     /// <summary>Each view of Four views needs at least this much; below it the model area shows One view.</summary>
     public static readonly Size MinimumFourViewSize = new(320, 240);
 
+    // DR-VIEW-1: a view is its slot inside a 1 px frame; the gutter (spacing.view-gutter) separates frames.
+    private const double FrameThickness = 1;
+
     private WorkbenchController? controller;
     private bool foilOpen;
 
     public ModelArea()
     {
         InitializeComponent();
+        Gutter = ViewArrangementGrid.ColumnSpacing;
 
         DismissAlertBandButton.Click += (_, _) => AlertBand.IsVisible = false;
         WireToast();
@@ -94,15 +98,19 @@ public partial class ModelArea : UserControl
         Refresh();
     }
 
-    /// <summary>The arrangement actually shown: Four views falls back to One view when a quarter is under 320 × 240.</summary>
+    // The gutter is the spacing.view-gutter token the XAML gives the grid; ApplyLayout drops it where a layout has no neighbour.
+    private double Gutter { get; }
+
+    /// <summary>The arrangement actually shown: Four views falls back to One view when a view, inside its frame and past the gutter, is under 320 × 240.</summary>
     public ViewLayout EffectiveLayout
     {
         get
         {
             var chosen = controller?.Layout ?? ViewLayout.Plan3d;
             var size = ViewArrangementGrid.Bounds.Size;
+            double chrome = 2 * FrameThickness;
             if (chosen.Arrangement == ViewArrangement.Four && size.Width > 0 &&
-                (size.Width / 2 < MinimumFourViewSize.Width || size.Height / 2 < MinimumFourViewSize.Height))
+                ((size.Width - Gutter) / 2 - chrome < MinimumFourViewSize.Width || (size.Height - Gutter) / 2 - chrome < MinimumFourViewSize.Height))
                 return ViewLayout.One(controller?.TargetView ?? SingleView.Plan);
             return chosen;
         }
@@ -206,15 +214,18 @@ public partial class ModelArea : UserControl
         grid.ColumnDefinitions[0].Width = new GridLength(four ? 1 : 2, GridUnitType.Star);
         grid.ColumnDefinitions[1].Width = one ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
         grid.RowDefinitions[1].Height = four ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-        foreach (var (slot, view, row, column) in new (Control, SingleView, int, int)[]
+        // One view is a frame with no gutter; a zero-size track would still be charged one.
+        grid.ColumnSpacing = one ? 0 : Gutter;
+        grid.RowSpacing = four ? Gutter : 0;
+        foreach (var (frame, view, row, column) in new (Control, SingleView, int, int)[]
         {
-            (PlanSlot, SingleView.Plan, 0, 0), (ThreeDSlot, SingleView.ThreeD, 0, 1),
-            (SideSlot, SingleView.Side, 1, 0), (FrontSlot, SingleView.Front, 1, 1)
+            (PlanFrame, SingleView.Plan, 0, 0), (ThreeDFrame, SingleView.ThreeD, 0, 1),
+            (SideFrame, SingleView.Side, 1, 0), (FrontFrame, SingleView.Front, 1, 1)
         })
         {
-            slot.IsVisible = layout.Shows(view);
-            Grid.SetRow(slot, one ? 0 : row);
-            Grid.SetColumn(slot, one ? 0 : column);
+            frame.IsVisible = layout.Shows(view);
+            Grid.SetRow(frame, one ? 0 : row);
+            Grid.SetColumn(frame, one ? 0 : column);
         }
     }
 

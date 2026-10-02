@@ -482,9 +482,10 @@ public static class ControllerViewTests
             if (!area.PlanSlot.IsEffectivelyVisible || !area.ThreeDSlot.IsEffectivelyVisible ||
                 area.SideSlot.IsEffectivelyVisible || area.FrontSlot.IsEffectivelyVisible)
                 throw new Exception("Plan + 3D shows the wrong views");
-            Near(2, area.PlanSlot.Bounds.Width / area.ThreeDSlot.Bounds.Width, 0.01, "Plan : 3D width");
+            // Frames split the width left after the 4 px gutter 2 : 1; each slot is its frame less 1 px a side.
+            Near(2, (area.PlanSlot.Bounds.Width + 2) / (area.ThreeDSlot.Bounds.Width + 2), 0.01, "Plan : 3D frame width");
             Near(area.PlanSlot.Bounds.Height, area.ThreeDSlot.Bounds.Height, 0, "same height");
-            if (!(area.ThreeDSlot.Bounds.X > area.PlanSlot.Bounds.X)) throw new Exception("3D is not right of the Plan");
+            if (!(FrameOf(area.ThreeDSlot).Bounds.X > FrameOf(area.PlanSlot).Bounds.X)) throw new Exception("3D is not right of the Plan");
         });
 
         DesktopChecks.Check("ModelArea_FourViews_PlanThreeDSideFront", () =>
@@ -495,7 +496,7 @@ public static class ControllerViewTests
             var area = fixture.Area;
             var slots = new[] { area.PlanSlot, area.ThreeDSlot, area.SideSlot, area.FrontSlot };
             if (slots.Any(slot => !slot.IsEffectivelyVisible)) throw new Exception("Four views hides a view");
-            var (plan, threeD, side, front) = (area.PlanSlot.Bounds, area.ThreeDSlot.Bounds, area.SideSlot.Bounds, area.FrontSlot.Bounds);
+            var (plan, threeD, side, front) = (FrameOf(area.PlanSlot).Bounds, FrameOf(area.ThreeDSlot).Bounds, FrameOf(area.SideSlot).Bounds, FrameOf(area.FrontSlot).Bounds);
             if (!(plan.X < threeD.X && plan.Y == threeD.Y && side.X == plan.X && side.Y > plan.Y && front.X == threeD.X && front.Y == side.Y))
                 throw new Exception($"Quad order: plan {plan}, 3D {threeD}, side {side}, front {front}");
             foreach (var (renderer, title) in new[] { (area.SideRenderer, "Side"), (area.FrontRenderer, "Front") })
@@ -507,6 +508,81 @@ public static class ControllerViewTests
             Equal("Front · looking aft", area.FrontLabel.Content?.ToString(), "Front label");
         });
 
+        DesktopChecks.Check("ModelArea_Views_SeparatedByGutterAndFramed", () =>
+        {
+            // DR-VIEW-1: a 4 px gutter in the window background colour between views, a 1 px line-colour frame on each view.
+            // Measured on pixels of the window at the screen's own resolution, in DIPs (a device pixel is 1 / scale DIP).
+            foreach (var theme in new[] { Avalonia.Styling.ThemeVariant.Light, Avalonia.Styling.ThemeVariant.Dark })
+                foreach (var (layout, name) in new[] { (ViewLayout.Plan3d, "Plan + 3D"), (ViewLayout.Four, "Four views"), (ViewLayout.One(SingleView.ThreeD), "One view") })
+                {
+                    using var fixture = new AreaFixture(width: 1400, height: 1000, theme: theme);
+                    fixture.Controller.Layout = layout;
+                    fixture.ShootAtDeviceResolution();
+                    double scale = fixture.ShotScale;
+                    if (theme == Avalonia.Styling.ThemeVariant.Light && layout == ViewLayout.Plan3d &&
+                        Environment.GetEnvironmentVariable("CFD_PROOF_PNG") is { Length: > 0 } png)
+                    {
+                        using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(fixture.Window.Bounds.Width * scale), (int)Math.Round(fixture.Window.Bounds.Height * scale)),
+                            new Vector(96 * scale, 96 * scale));
+                        bitmap.Render(fixture.Window);
+                        bitmap.Save(png);
+                    }
+                    var line = fixture.Brush("LineBrush");
+                    var canvas = fixture.Brush("CanvasBrush");
+                    string where = $"{theme} {name}";
+                    var area = fixture.Area;
+                    var rects = new[] { area.PlanSlot, area.ThreeDSlot, area.SideSlot, area.FrontSlot }.Where(slot => slot.IsEffectivelyVisible).Select(slot =>
+                    {
+                        var origin = slot.TranslatePoint(new Point(0, 0), fixture.Window) ?? throw new Exception("No window point");
+                        return new Rect(origin, slot.Bounds.Size);
+                    }).ToArray();
+                    int Device(double dip) => (int)Math.Round(dip * scale);
+                    bool Is((int X, int Y) at, (byte R, byte G, byte B) colour) => Distance(fixture.Rgb(at.X, at.Y), colour) <= 2;
+                    // Device pixels of one colour from a start, stepping one pixel; returned in DIPs.
+                    double Run(double x, double y, int dx, int dy, (byte R, byte G, byte B) colour)
+                    {
+                        int n = 0;
+                        while (Is((Device(x) + n * dx, Device(y) + n * dy), colour)) n++;
+                        return n / scale;
+                    }
+                    // The 1 px band just outside the slot is the line colour; the device pixel just inside it is not (a thicker frame would show).
+                    foreach (var r in rects)
+                        foreach (var (edge, band, inside) in new[]
+                        {
+                            ("left", new Point(r.X - 1, r.Center.Y), new Point(r.X, r.Center.Y)), ("right", new Point(r.Right, r.Center.Y), new Point(r.Right - 1 / scale, r.Center.Y)),
+                            ("top", new Point(r.Center.X, r.Y - 1), new Point(r.Center.X, r.Y)), ("bottom", new Point(r.Center.X, r.Bottom), new Point(r.Center.X, r.Bottom - 1 / scale))
+                        })
+                        {
+                            bool horizontal = edge is "left" or "right";
+                            for (int k = 0; k < (int)Math.Round(scale); k++)
+                                if (!Is((Device(band.X) + (horizontal ? k : 0), Device(band.Y) + (horizontal ? 0 : k)), line))
+                                    throw new Exception($"{where}: the view {r} has no 1 px line-colour frame on its {edge} edge");
+                            if (Is((Device(inside.X), Device(inside.Y)), line))
+                                throw new Exception($"{where}: the view {r} has a frame thicker than 1 px on its {edge} edge");
+                        }
+                    if (rects.Length == 1)
+                    {
+                        var host = area.PlanContent;
+                        Near(host.Bounds.Width, rects[0].Width + 2, 0, where + " one view fills the area, frame only (width)");
+                        Near(host.Bounds.Height, rects[0].Height + 2, 0, where + " one view fills the area, frame only (height)");
+                        Console.WriteLine($"  view-gutter {where}: no gutter; 1 px frame on all four edges, frame fills the area ({host.Bounds.Width} x {host.Bounds.Height})");
+                        continue;
+                    }
+                    var (left, right) = (rects[0], rects[1]);
+                    double columns = Run(left.Right + 1, left.Center.Y, 1, 0, canvas);
+                    if (columns < 4 || Math.Abs(right.X - 1 - (left.Right + 1 + columns)) > 0.001)
+                        throw new Exception($"{where}: {columns} px of canvas colour between the side-by-side views, not a 4 px gutter ending at the next frame");
+                    double rows = 0;
+                    if (rects.Length == 4)
+                    {
+                        rows = Run(left.Center.X, left.Bottom + 1, 0, 1, canvas);
+                        if (rows < 4 || Math.Abs(rects[2].Y - 1 - (left.Bottom + 1 + rows)) > 0.001)
+                            throw new Exception($"{where}: {rows} px of canvas colour between the upper and lower views, not a 4 px gutter");
+                    }
+                    Console.WriteLine($"  view-gutter {where}: scale {scale}, column gutter {columns} px" + (rows > 0 ? $", row gutter {rows} px" : "") + $", 1 px frame on every edge of {rects.Length} views");
+                }
+        });
+
         DesktopChecks.Check("ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack", () =>
         {
             using var fixture = new AreaFixture(width: 1400, height: 1000);
@@ -514,7 +590,7 @@ public static class ControllerViewTests
             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
             if (fixture.Controller.Layout != ViewLayout.One(SingleView.ThreeD) || area.PlanSlot.IsEffectivelyVisible ||
-                !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 1)
+                !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 2)
                 throw new Exception("Double-click on the 3D label did not show 3D alone");
             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
@@ -542,9 +618,10 @@ public static class ControllerViewTests
             fixture.Settle();
             var area = fixture.Area;
             var grid = area.ViewArrangementGrid;
-            AssertFourOrOne(area, grid.Bounds.Width >= 640 && grid.Bounds.Height >= 480, "minimum window " + grid.Bounds.Size);
-            // The boundary itself: an arrangement of exactly 640 × 480 keeps Four views; one pixel less in either axis shows one.
-            foreach (var (width, height, four) in new[] { (640d, 480d, true), (639d, 480d, false), (640d, 479d, false) })
+            AssertFourOrOne(area, grid.Bounds.Width >= 648 && grid.Bounds.Height >= 488, "minimum window " + grid.Bounds.Size);
+            // The boundary itself: each view is at least 320 × 240 inside its 1 px frame, past the 4 px gutter, so the arrangement
+            // is exactly 2 × (320 + 2) + 4 = 648 wide and 2 × (240 + 2) + 4 = 488 high; one pixel less in either axis shows one view.
+            foreach (var (width, height, four) in new[] { (648d, 488d, true), (647d, 488d, false), (648d, 487d, false) })
             {
                 area.PlanContent.Width = width;
                 area.PlanContent.Height = height;
@@ -776,6 +853,14 @@ public static class ControllerViewTests
             Settle();
         }
 
+        public void ShootAtDeviceResolution()
+        {
+            Settle();
+            shot = Shot.AtDeviceResolution(Window);
+        }
+
+        public double ShotScale => Current.Scale;
+
         public void Shoot()
         {
             Settle();
@@ -814,16 +899,24 @@ public static class ControllerViewTests
         private readonly WriteableBitmap pixels;
         private readonly ILockedFramebuffer frame;
 
-        private Shot(Window window)
+        private Shot(Window window, double scale)
         {
-            using var bitmap = new RenderTargetBitmap(new PixelSize((int)window.Bounds.Width, (int)window.Bounds.Height));
+            Scale = scale;
+            using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(window.Bounds.Width * scale), (int)Math.Round(window.Bounds.Height * scale)),
+                new Vector(96 * scale, 96 * scale));
             bitmap.Render(window);
             pixels = new WriteableBitmap(bitmap.PixelSize, new Vector(96, 96), PixelFormats.Bgra8888, AlphaFormat.Unpremul);
             frame = pixels.Lock();
             bitmap.CopyPixels(frame, AlphaFormat.Unpremul);
         }
 
-        public static Shot Of(Window window) => new(window);
+        /// <summary>Device pixels per DIP: 1 for <see cref="Of"/>; the window's render scaling for <see cref="AtDeviceResolution"/>.</summary>
+        public double Scale { get; }
+
+        public static Shot Of(Window window) => new(window, 1);
+
+        /// <summary>The window as the screen shows it: a half-DIP layout position stays on a device pixel instead of blurring.</summary>
+        public static Shot AtDeviceResolution(Window window) => new(window, window.RenderScaling);
 
         public (byte R, byte G, byte B) Rgb(int x, int y)
         {
@@ -946,6 +1039,9 @@ public static class ControllerViewTests
     private static (byte R, byte G, byte B) ResourceRgb(Window window, string key) =>
         window.TryFindResource(key, window.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
             ? (brush.Color.R, brush.Color.G, brush.Color.B) : throw new Exception("Theme resource " + key + " is missing");
+
+    /// <summary>The 1 px frame that wraps a view slot (DR-VIEW-1); its bounds are the view's place in the arrangement.</summary>
+    private static Control FrameOf(Control slot) => (Control)slot.Parent!;
 
     internal static void Settle(Window window)
     {
