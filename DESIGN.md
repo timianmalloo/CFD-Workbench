@@ -134,6 +134,7 @@ spacing:
   prop-inset: 8px
   toast-w: 420px
   toast-inset: 12px
+  view-gutter: 4px
 elevation: { flat: "none", popover: "0 8px 24px rgba(0,0,0,0.16)" }
 motion: { fast: 120ms, base: 200ms, toast-hold: 8000ms, easing: "cubic-bezier(0.2,0,0,1)" }
 review-suggested:
