@@ -61,6 +61,7 @@ internal static class IdentityTests
         FoilSourceTests.Run();
         GeometryTests.Run();
         PlacementTests.Run();
+        PlacementTraceTests.Run();
         BlendTests.Run();
         AuthoringSessionTests.Run();
         ProjectStoreTests.Run();
