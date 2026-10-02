@@ -75,7 +75,8 @@ public static class NativeMenuBuilder
     }
 
     private static bool IsPaneCommand(string id) =>
-        id.StartsWith("point.", StringComparison.Ordinal) || id is "view.comb" or "view.zoom-in" or "view.zoom-out" or "view.fit";
+        id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
+        id is "view.comb" or "view.zoom-in" or "view.zoom-out" or "view.fit";
 
     private static ShellHost? FindHost(Window window)
     {
@@ -111,35 +112,20 @@ public static class NativeMenuBuilder
 
             foreach (var row in rows)
             {
-                var item = new NativeMenuItem(row.Title);
-                if (row.Gesture is not null)
+                menu.Add(Item(row));
+
+                // Insert the Text size submenu after "view.zoom-out" (DN-5): Bigger, Smaller and the ladder as radio items.
+                if (row.Id == "view.zoom-out" && menuGroups.TryGetValue(CommandTable.TextSizeMenu, out var sizes))
                 {
-                    item.Gesture = ParseGesture(row.Gesture);
+                    var sizeMenu = new NativeMenu();
+                    foreach (var size in sizes) sizeMenu.Add(Item(size));
+                    menu.Add(new NativeMenuItem(CommandTable.TextSizeMenu) { Menu = sizeMenu });
+                    if (FindHost(window) is { } shell)
+                    {
+                        CheckTextSize(sizeMenu, shell.TextScale);
+                        shell.TextScaleChanged += scale => CheckTextSize(sizeMenu, scale);
+                    }
                 }
-
-                item.Command = new DelegateCommand(() =>
-                {
-                    if (row.IsEditVerb)
-                    {
-                        var focus = TopLevel.GetTopLevel(window)?.FocusManager?.GetFocusedElement();
-                        EditVerbRouter.Execute(row.Id.Replace("edit.", ""), focus, () => onAction?.Invoke(row.Id));
-                    }
-                    else if (IsPaneCommand(row.Id) && FindHost(window) is { } host)
-                    {
-                        _ = host.RunCommand(row.Id);
-                    }
-                    else
-                    {
-                        onAction?.Invoke(row.Id);
-                    }
-                }, () =>
-                {
-                    if (row.Id is "edit.undo" or "edit.redo") return canExecute?.Invoke(row.Id) ?? true;
-                    if (IsPaneCommand(row.Id) && FindHost(window) is { } host) return host.CanRun(row.Id);
-                    return true;
-                });
-
-                menu.Add(item);
 
                 // Insert Open Recent submenu after "file.open"
                 if (row.Id == "file.open")
@@ -171,6 +157,48 @@ public static class NativeMenuBuilder
 
         NativeMenu.SetMenu(window, rootMenu);
         return rootMenu;
+
+        NativeMenuItem Item(CommandRow row)
+        {
+            var item = new NativeMenuItem(row.Title);
+            if (row.Gesture is not null)
+            {
+                item.Gesture = ParseGesture(row.Gesture);
+            }
+            if (CommandTable.TextSizeOf(row.Id) is not null) item.ToggleType = NativeMenuItemToggleType.Radio;
+
+            item.Command = new DelegateCommand(() =>
+            {
+                if (row.IsEditVerb)
+                {
+                    var focus = TopLevel.GetTopLevel(window)?.FocusManager?.GetFocusedElement();
+                    EditVerbRouter.Execute(row.Id.Replace("edit.", ""), focus, () => onAction?.Invoke(row.Id));
+                }
+                else if (IsPaneCommand(row.Id) && FindHost(window) is { } host)
+                {
+                    _ = host.RunCommand(row.Id);
+                }
+                else
+                {
+                    onAction?.Invoke(row.Id);
+                }
+            }, () =>
+            {
+                if (row.Id is "edit.undo" or "edit.redo") return canExecute?.Invoke(row.Id) ?? true;
+                if (IsPaneCommand(row.Id) && FindHost(window) is { } host) return host.CanRun(row.Id);
+                return true;
+            });
+            return item;
+        }
+    }
+
+    /// <summary>Checks the Text size radio item that matches the current multiplier.</summary>
+    private static void CheckTextSize(NativeMenu menu, double scale)
+    {
+        foreach (var item in menu.Items.OfType<NativeMenuItem>())
+            if (CommandTable.Rows.FirstOrDefault(row => row.Menu == CommandTable.TextSizeMenu && Equals(row.Title, item.Header)) is { } row &&
+                CommandTable.TextSizeOf(row.Id) is { } size)
+                item.IsChecked = Math.Abs(size - scale) < 1e-9;
     }
 
     public static void PopulateRecentMenu(

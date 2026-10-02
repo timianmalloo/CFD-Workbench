@@ -480,8 +480,9 @@ public static class ShellWindowTests
             var window = new Window();
             var menu = NativeMenuBuilder.BuildForWindow(window);
             var expected = CommandTable.Rows.Select(row => row.Title).ToHashSet(StringComparer.Ordinal);
-            var actual = menu.Items.OfType<NativeMenuItem>()
-                .SelectMany(item => item.Menu?.Items.OfType<NativeMenuItem>() ?? [])
+            static IEnumerable<NativeMenuItem> Items(NativeMenu? level) =>
+                level?.Items.OfType<NativeMenuItem>().SelectMany(item => Items(item.Menu).Prepend(item)) ?? [];
+            var actual = menu.Items.OfType<NativeMenuItem>().SelectMany(item => Items(item.Menu))
                 .Select(item => item.Header?.ToString() ?? "").ToHashSet(StringComparer.Ordinal);
             if (!expected.IsSubsetOf(actual))
                 throw new InvalidOperationException("Native menu lacks: " + string.Join(", ", expected.Except(actual)));
@@ -1966,7 +1967,7 @@ public static class ShellWindowTests
             {
                 var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
                 var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
-                Measure(theme, row, Solid(presenter.Foreground, row + " ink"), Solid(border.Background, row + " backdrop"), 4.5);
+                Measure(theme, row, Solid(presenter.Foreground, row + " ink"), Backdrop(box, border, row + " backdrop"), 4.5);
             }
             void RingRow(string theme, string row, Control target, Window window)
             {
@@ -2078,7 +2079,7 @@ public static class ShellWindowTests
             {
                 var presenter = box.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
                 var border = box.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
-                (Color, Color) Paint() => (Solid(presenter.Foreground, prefix + " ink"), Solid(border.Background, prefix + " backdrop"));
+                (Color, Color) Paint() => (Solid(presenter.Foreground, prefix + " ink"), Backdrop(box, border, prefix + " backdrop"));
                 var rest = Paint();
                 if (editable)
                     Probe(theme, prefix + ".hover", () =>
@@ -2093,7 +2094,7 @@ public static class ShellWindowTests
                 if (editable)
                 {
                     Probe(theme, prefix + ".focus.caret", () =>
-                        Measure(theme, prefix + ".focus.caret", Solid(presenter.CaretBrush, prefix + " caret"), Solid(border.Background, prefix + " backdrop"), 3));
+                        Measure(theme, prefix + ".focus.caret", Solid(presenter.CaretBrush, prefix + " caret"), Backdrop(box, border, prefix + " backdrop"), 3));
                     Probe(theme, prefix + ".focus-hover", () =>
                     {
                         Hover(box, window, true);
@@ -2265,9 +2266,11 @@ public static class ShellWindowTests
                     {
                         var presenter = span.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.TextPresenter>().Single();
                         var border = span.GetVisualDescendants().OfType<Border>().Single(item => item.Name == "PART_BorderElement");
-                        presenter.Foreground = border.Background;
-                        double ratio = Contrast(Solid(presenter.Foreground, "mutated ink"), Solid(border.Background, "backdrop"));
-                        presenter.ClearValue(Avalonia.Controls.Documents.TextElement.ForegroundProperty);
+                        var backdrop = Backdrop(span, border, "backdrop");
+                        presenter.Foreground = new SolidColorBrush(backdrop);
+                        double ratio;
+                        try { ratio = Contrast(Solid(presenter.Foreground, "mutated ink"), backdrop); }
+                        finally { presenter.ClearValue(Avalonia.Controls.Documents.TextElement.ForegroundProperty); }
                         if (ratio >= 4.5) throw new InvalidOperationException("Painter oracle accepted a low-contrast mutation");
                     });
                     TextBoxStates(theme, "span", span, window, sidebar, editable: true);
@@ -2379,7 +2382,7 @@ public static class ShellWindowTests
 
     private static void U2Checks()
     {
-        const string ControlHelper = "A control point pulls the curve toward it. The curve does not pass through it.";
+        const string ControlHelper = "A control point pulls the curve toward it. The curve does not pass through it. Choosing Anchor point adds handles (the rail gains up to 3 points).";
         const string AnchorHelper = "An anchor point is on the curve. Its handles set the curve's direction on each side.";
         const string MixedCopy = "Select one point to change it.";
         const string TipClosedCopy = "Tip closes — edit the tip station";
@@ -2485,10 +2488,10 @@ public static class ShellWindowTests
                 Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)));
                 U2Select(controller, window, U2Reload(controller, point.Curve, point.Id));
                 var before = U2Reload(controller, point.Curve, point.Id).Kind;
-                var button = U2Need<Button>(host.Properties, "TangentSymmetricButton");
-                if (!button.IsEffectivelyVisible || !button.IsEnabled)
-                    throw new InvalidOperationException("Symmetric tangent is not an enabled control");
-                U2Click(button);
+                var kind = U2Need<ComboBox>(host.Properties, "KindControl");
+                if (!kind.IsEffectivelyVisible || !kind.IsEnabled)
+                    throw new InvalidOperationException("Tangent kind is not an enabled control");
+                U2CommitType(kind, "Symmetric");
                 U2WaitIdle(controller, window);
                 var now = U2Reload(controller, point.Curve, point.Id);
                 if (now.Kind != TangentKind.Symmetric)
@@ -2519,22 +2522,16 @@ public static class ShellWindowTests
                 var point = U2Control(controller, "trailing");
                 Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)));
                 var anchor = U2Reload(controller, point.Curve, point.Id);
-                string Checked()
-                {
-                    var choices = new[] { "TangentSmoothButton", "TangentSymmetricButton", "TangentCornerButton" }
-                        .Select(name => props.FindControl<Control>(name) as RadioButton
-                            ?? throw new InvalidOperationException(name + " is not a segmented choice")).ToArray();
-                    return string.Join(",", choices.Where(choice => choice.IsChecked == true).Select(choice => choice.Content));
-                }
+                string Checked() => U2SelectedText(U2Need<ComboBox>(props, "KindControl"));
                 U2Select(controller, window, anchor);
-                // The grid labels the group "Tangent" and the choice "Kind" (DESIGN.md §12.0f).
-                if (U2Text(props, "GroupTitle_tan") != "Tangent" || U2Text(props, "TangentLabel") != "Kind" ||
+                // B: the tangent rows continue the "Point" group, and the choice is labelled "Tangent kind" (DESIGN.md §12.0f).
+                if (U2Text(props, "GroupTitle_pos") != "Point" || U2Text(props, "TangentLabel") != "Tangent kind" ||
                     !U2Need<TextBlock>(props, "TangentLabel").IsEffectivelyVisible)
-                    throw new InvalidOperationException("the tangent group has no visible label");
+                    throw new InvalidOperationException("the tangent kind has no visible label");
                 if (Checked() != anchor.Kind.ToString()) throw new InvalidOperationException($"anchor kind {anchor.Kind} shown as '{Checked()}'");
                 var handle = controller.Planform!.Trailing.Points.First(p => p.AnchorId == anchor.Id);
                 U2Select(controller, window, handle);
-                if (!U2Need<Control>(props, "TangentGroup").IsEffectivelyVisible || Checked() != anchor.Kind.ToString())
+                if (!U2Need<Control>(props, "KindControl").IsEffectivelyVisible || Checked() != anchor.Kind.ToString())
                     throw new InvalidOperationException($"a selected handle does not show its anchor's kind: '{Checked()}'");
                 // O-6: one identity per selection — the handle by its own name, its anchor as the crumb link.
                 string heading = U2Text(props, "IdentityTitle");
@@ -2544,7 +2541,7 @@ public static class ShellWindowTests
                     throw new InvalidOperationException($"handle identity: {heading} / {crumb}");
                 if (Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(props).OfType<TextBlock>().Any(block => block.IsEffectivelyVisible && block.Text == AnchorHelper))
                     throw new InvalidOperationException("a handle reuses its anchor's helper");
-                U2Click(U2Need<Button>(props, "TangentSymmetricButton"));
+                U2CommitType(U2Need<ComboBox>(props, "KindControl"), "Symmetric");
                 U2WaitIdle(controller, window);
                 if (U2Reload(controller, anchor.Curve, anchor.Id).Kind != TangentKind.Symmetric || Checked() != "Symmetric")
                     throw new InvalidOperationException("Symmetric on a handle did not set its anchor: " + U2Reload(controller, anchor.Curve, anchor.Id).Kind);
@@ -2702,15 +2699,16 @@ public static class ShellWindowTests
                 if (!heading.Contains("Wing", StringComparison.Ordinal))
                     throw new InvalidOperationException("wing heading: " + heading);
                 var how = U2Need<Button>(host.Properties, "HowMeasuredButton");
-                if (how.Content?.ToString() != "How these are measured")
-                    throw new InvalidOperationException("how measured: " + how.Content);
+                string howText = string.Join(" ", how.GetVisualDescendants().OfType<TextBlock>().Select(block => block.Text));
+                if (howText != "Estimates · definitions")
+                    throw new InvalidOperationException("definitions link: " + howText);
                 U2Click(how);
                 Settle(window);
                 var body = U2Need<TextBlock>(host.Properties, "HowMeasuredBody");
                 if (!body.IsVisible || string.IsNullOrWhiteSpace(body.Text) || !body.Text.Contains("MAC", StringComparison.Ordinal))
                     throw new InvalidOperationException("how-measured body: " + body.Text);
                 // PG-31: the disclosure exposes its expanded state.
-                if (how is not ToggleButton { IsChecked: true }) throw new InvalidOperationException("How these are measured does not expose expanded");
+                if (how is not ToggleButton { IsChecked: true }) throw new InvalidOperationException("Estimates · definitions does not expose expanded");
             }
             finally { window.Close(); }
         });
@@ -3101,6 +3099,7 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("make-anchor changed a fixed root");
                 var point = U2Control(controller, "trailing");
                 U2Select(controller, window, point);
+                host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.Focus();
                 double zoomBefore = controller.PlanCamera.PixelsPerMeter;
                 bool combBefore = controller.CombVisible;
                 string statusBefore = host.ModelView.FindControl<TextBlock>("StatusText")?.Text ?? "";
@@ -3142,10 +3141,10 @@ public static class ShellWindowTests
                 Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(leadingControl.Curve, leadingControl.Id)));
                 var leading = U2Reload(controller, leadingControl.Curve, leadingControl.Id);
                 U2Select(controller, window, leading);
-                var symmetric = U2Need<Button>(host.Properties, "TangentSymmetricButton");
-                if (!symmetric.IsEffectivelyVisible || !symmetric.IsEnabled || !U2HasClick(symmetric))
-                    throw new InvalidOperationException("Symmetric tangent has no action");
-                U2Click(symmetric);
+                var kind = U2Need<ComboBox>(host.Properties, "KindControl");
+                if (!kind.IsEffectivelyVisible || !kind.IsEnabled)
+                    throw new InvalidOperationException("Tangent kind has no action");
+                U2CommitType(kind, "Symmetric");
                 U2WaitIdle(controller, window);
                 if (U2Reload(controller, leading.Curve, leading.Id).Kind != TangentKind.Symmetric)
                     throw new InvalidOperationException("tangent click did not set symmetric");
@@ -3333,7 +3332,7 @@ public static class ShellWindowTests
         ?? Avalonia.LogicalTree.LogicalExtensions.GetLogicalDescendants(root).OfType<T>().FirstOrDefault(item => item.Name == name)
         ?? throw new InvalidOperationException("missing " + name);
 
-    private const string TypeAnchorOption = "Anchor point — adds handles (rail gains up to 3 points)";
+    private const string TypeAnchorOption = "Anchor point";
 
     // PG-07: a type changes on a pick from the open list (an arrow on the closed box is only pending).
     private static void U2CommitType(ComboBox type, string text)
@@ -3511,6 +3510,10 @@ public static class ShellWindowTests
         brush is ISolidColorBrush { Color.A: 255 } solid && Math.Abs(brush.Opacity - 1) < 0.000001
             ? solid.Color
             : throw new InvalidOperationException($"Applied {label} has unresolved/nonopaque brush");
+
+    /// <summary>B: an editable value has no box at rest (a transparent band), so its backdrop is the surface behind it.</summary>
+    private static Color Backdrop(TextBox box, Border border, string label) =>
+        border.Background is ISolidColorBrush { Color.A: 0 } ? Backing(box) : Solid(border.Background, label);
 
     private static IBrush? PropertyBrush(object value, string name) =>
         value.GetType().GetProperty(name)?.GetValue(value) as IBrush;

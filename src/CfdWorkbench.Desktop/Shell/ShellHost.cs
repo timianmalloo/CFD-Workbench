@@ -539,9 +539,42 @@ public sealed class ShellHost : Grid
         }
     }
 
+    /// <summary>The Text size multiplier the panes are drawn at (DN-5).</summary>
+    public double TextScale => Properties.TextScale;
+
+    /// <summary>Raised after the Text size changes, so the View ▸ Text size radio items can follow.</summary>
+    public event Action<double>? TextScaleChanged;
+
+    /// <summary>
+    /// DN-5: sets the Text size to a step of the ladder and announces it politely ("Text size 150 %."). The setting is
+    /// not persisted yet: the preference store has no slot for it (docs/reviews/property-grid-native.md, Text size).
+    /// </summary>
+    public void SetTextScale(double scale)
+    {
+        double step = CommandTable.TextSizes.MinBy(size => Math.Abs(size - scale));
+        if (Math.Abs(step - Properties.TextScale) < 1e-9) return;
+        Properties.ApplyTextScale(step);
+        ModelView.ShowStatus(string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Text size {step * 100:0} %."));
+        TextScaleChanged?.Invoke(step);
+    }
+
+    /// <summary>Bigger and Smaller step along the ladder and stop at 100 % and 200 %.</summary>
+    private void StepTextSize(int direction)
+    {
+        var sizes = CommandTable.TextSizes;
+        int index = Math.Max(0, sizes.ToList().FindIndex(size => Math.Abs(size - Properties.TextScale) < 1e-9));
+        SetTextScale(sizes[Math.Clamp(index + direction, 0, sizes.Count - 1)]);
+    }
+
+    /// <summary>DR-DEN-4: a model view (Plan, 3D, Section) has keyboard focus, so ⌘= / ⌘− zoom it.</summary>
+    private bool ModelViewFocused() =>
+        TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is PlanCanvas or Viewport or SectionCanvas;
+
     public bool CanRun(string id)
     {
-        if (id is "view.zoom-in" or "view.zoom-out" or "view.comb" or "view.fit")
+        if (id is "view.zoom-in" or "view.zoom-out")
+            return Controller.Inspection is not null || !ModelViewFocused();
+        if (id is "view.comb" or "view.fit")
             return Controller.Inspection is not null;
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
         var point = SelectedPoint();
@@ -559,8 +592,25 @@ public sealed class ShellHost : Grid
     public async Task RunCommand(string id)
     {
         if (id.StartsWith("point.", StringComparison.Ordinal) && !CanRun(id)) return;
+        if (CommandTable.TextSizeOf(id) is { } size)
+        {
+            SetTextScale(size);
+            return;
+        }
         switch (id)
         {
+            case "view.text-bigger":
+                StepTextSize(+1);
+                return;
+            case "view.text-smaller":
+                StepTextSize(-1);
+                return;
+            case "view.zoom-in" or "view.zoom-out" when !ModelViewFocused():
+                // DR-DEN-4: with focus anywhere but a model view, ⌘= / ⌘− change the Text size.
+                StepTextSize(id == "view.zoom-in" ? +1 : -1);
+                return;
+            case "view.zoom-in" or "view.zoom-out" when Controller.Inspection is null:
+                return;
             case "view.zoom-in":
                 Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Controller.PlanCamera.PixelsPerMeter * 1.25 };
                 ModelView.ShowStatus("Zoomed in.");
@@ -617,6 +667,9 @@ public sealed class ShellHost : Grid
         // Inside Properties, Return belongs to the focused control: it commits a pending Type or Kind, or toggles a
         // group header (docs/reviews/ui-property-grid.md §10.4).
         if (Properties.IsKeyboardFocusWithin) return;
+        // An open Type or Tangent kind list is a popup: focus is outside the pane's visual tree but its items are the pane's
+        // logical descendants, and Return there picks the focused item (CB-3).
+        if (e.Source is Avalonia.LogicalTree.ILogical source && Avalonia.LogicalTree.LogicalExtensions.IsLogicalAncestorOf(Properties, source)) return;
         if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is TextBox) return;
         if (SelectedPoint() is null) return;
         if (Properties.FindControl<TextBox>("PointSpanInput") is not { IsEnabled: true } span) return;

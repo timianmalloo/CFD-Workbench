@@ -47,6 +47,7 @@ public sealed record PropertyRow
     public bool Dimensionless { get; init; }
     public RowState State { get; init; }
     public string? Description { get; init; }                  // help under the row (COPY-117, COPY-149, COPY-159 …)
+    public bool DescriptionAlwaysVisible { get; init; }        // a ruled authority line (COPY-159) shows without focus (B)
     public RowMessage? Message { get; init; }
     public string? AutomationName { get; init; }               // inputs, Type and Kind (§10.5)
     public string? HelperText { get; init; }                   // a locked fact's reason (§10.5 "Help text")
@@ -71,7 +72,8 @@ public sealed record PropertyGroup(
     IReadOnlyList<PropertyRow> Rows,
     IReadOnlyList<RowMessage> Notes,
     GroupChip? Chip = null,
-    RowMessage? Lead = null);
+    RowMessage? Lead = null,
+    bool Continues = false);   // B (DR-CELL-1): the rows continue the group before it, under its twirl (no header)
 
 public sealed record PropertiesModel(
     SelectionIdentity? Identity,
@@ -100,7 +102,8 @@ public static class PropertyCopy
     public const string Smooth = "Handles stay in line. Their lengths can differ.";                                                // COPY-150
     public const string Symmetric = "Handles stay in line and equal in length.";                                                   // COPY-151
     public const string Corner = "Each handle moves on its own. The curve can turn a corner here.";                                // COPY-152
-    public const string AnchorOption = "Anchor point — adds handles (rail gains up to 3 points)";                                   // COPY-153
+    public const string AnchorOption = "Anchor point";
+    public const string AddsHandles = " Choosing Anchor point adds handles (the rail gains up to 3 points).";                      // COPY-153
     public const string ControlOption = "Control point";
     public const string RootMirrorHandle = "Square to the centre line (root mirror). Only its length can change.";                // COPY-156
     public const string RootChordAuthority =
@@ -129,7 +132,7 @@ public static class PropertyCopy
     public static string UnavailableStatus(string what, string reason) => $"{what} unavailable — {reason}.";               // COPY-160
     public static string Unavailable(string reason) => $"Unavailable — {reason}. Undo, or edit again, to recompute.";             // COPY-155
     public static string PendingKind(string kind, string kept) =>
-        $"Press Return or Space to make it {kind}, or Esc to keep {kept}.";                                                        // COPY-167
+        $"Press Return to make it {kind}, or Esc to keep {kept}.";                                                                 // COPY-167 (an enum, DR-CELL-2)
     public static string FractionHint(string value) => $"{value} % — for 12 %, type 12 or 0.12 × 100.";                          // COPY-169
     public static string NudgeHelp(string unit) =>
         $"Up and Down arrows step 0.1 {unit}; with Command (Ctrl on Windows) 0.01; with Shift 1. Release to apply; Esc cancels."; // COPY-163
@@ -490,7 +493,7 @@ public static class PropertiesView
         var found = points.Items.Select(item => Find(plan, item)).OfType<PointView>().ToArray();
         var roles = found.Select(point => RoleText(point.Role)).Distinct().ToArray();
         string type = roles.Length == 1 ? roles[0] : "Mixed";
-        groups.Add(new PropertyGroup("pos", "Position", "Mixed", true,
+        groups.Add(new PropertyGroup("pos", "Point", "Mixed", true,
         [
             Prose("p:type", "Type", type) with { State = type == "Mixed" ? RowState.Mixed : RowState.Normal },
             Mixed("p:from", "From root"),
@@ -524,7 +527,7 @@ public static class PropertiesView
         bool teRoot = point.Curve == "trailing" && point.Role == PointRole.RootEnd;
         rows.Add(aftFree
             ? LengthInput("p:aft", curve.ValueLabel, point.AftMeters, $"{curve.ValueLabel} position in millimetres", target, nudge: true)
-                with { Description = teRoot ? PropertyCopy.RootChordAuthority : null }
+                with { Description = teRoot ? PropertyCopy.RootChordAuthority : null, DescriptionAlwaysVisible = teRoot }
             : Length("p:aft", curve.ValueLabel, point.AftMeters, locked: true));
         var notes = new List<RowMessage>();
         string? lockNote = point.Role == PointRole.RootEnd && point.Curve == "leading" ? PropertyCopy.LeadingRootFixed
@@ -535,7 +538,7 @@ public static class PropertiesView
         if (lockNote is not null) notes.Add(new RowMessage(lockNote, MessageKind.Reason));
         string summary = point.Freedom == PointFreedom.Fixed ? "fixed"
             : $"{Quantity.TypedLength(point.SpanMeters)}, {Quantity.TypedLength(point.AftMeters)} mm";
-        groups.Add(new PropertyGroup("pos", "Position", summary, true, Lock(rows, notes), notes));
+        groups.Add(new PropertyGroup("pos", "Point", summary, true, Lock(rows, notes), notes));
 
         if (TangentGroup(point, rail, curve, readOnly) is { } tangent) groups.Add(tangent);
         groups.Add(RailGroup(rail, curve));
@@ -569,7 +572,7 @@ public static class PropertiesView
             var rows = new List<PropertyRow> { KindRow(point, kind, "Tangent kind", readOnly) };
             if (curve.HandlesByAngle && !readOnly) rows.AddRange(AnchorHandleRows(point, handles, kind, curve));
             return new PropertyGroup("tan", "Tangent", kind.ToString(), true, rows, [],
-                Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info));
+                Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info), Continues: true);
         }
         if (point.Role is not (PointRole.RootEnd or PointRole.TipEnd) || handles.Length != 1) return null;
         var handle = handles[0];
@@ -581,7 +584,7 @@ public static class PropertiesView
             if (!readOnly && handle.Freedom != PointFreedom.Fixed)
                 mirrored.Add(LengthInput("h:length", "Handle length", length, "Handle length in millimetres", target, nudge: true) with { MustBePositive = true });
             return new PropertyGroup("tan", "Tangent", "root mirror", true, mirrored,
-                [new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason)]);
+                [new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason)], Continues: true);
         }
         string title = point.Role == PointRole.TipEnd ? "Tip handle" : "Root handle";
         string which = point.Role == PointRole.TipEnd ? "the tip handle" : "the root handle";
@@ -593,7 +596,7 @@ public static class PropertiesView
                 LengthInput("h:length", "Length", length, $"Length of {which}, in millimetres", target, nudge: true) with { MustBePositive = true }
             ];
         return new PropertyGroup("tan", title, $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm", true, endRows, [],
-            Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info));
+            Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info), Continues: true);
     }
 
     private static IEnumerable<PropertyRow> AnchorHandleRows(PointView anchor, PointView[] handles, TangentKind kind, CurveRows curve)
@@ -771,7 +774,7 @@ public static class PropertiesView
         Kind = RowKind.Choice,
         Value = point.Role == PointRole.Anchor ? "anchor" : "control",
         Options = [new RowOption("control", PropertyCopy.ControlOption), new RowOption("anchor", PropertyCopy.AnchorOption)],
-        Description = point.Role == PointRole.Anchor ? PropertyCopy.AnchorDescription : PropertyCopy.ControlDescription,
+        Description = point.Role == PointRole.Anchor ? PropertyCopy.AnchorDescription : PropertyCopy.ControlDescription + PropertyCopy.AddsHandles,
         AutomationName = "Type",
         Target = new PointRef(point.Curve, point.Id)
     };
@@ -779,7 +782,7 @@ public static class PropertiesView
     private static PropertyRow KindRow(PointView anchor, TangentKind kind, string name, bool readOnly) => new()
     {
         Key = "t:kind",
-        Label = "Kind",
+        Label = "Tangent kind",
         Kind = readOnly ? RowKind.Fact : RowKind.KindList,
         Value = kind.ToString(),
         Options = [new RowOption(nameof(TangentKind.Smooth), "Smooth"), new RowOption(nameof(TangentKind.Symmetric), "Symmetric"),

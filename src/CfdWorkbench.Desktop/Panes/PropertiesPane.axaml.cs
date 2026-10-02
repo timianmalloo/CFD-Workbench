@@ -5,7 +5,9 @@ using Avalonia.Animation;
 using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Path = Avalonia.Controls.Shapes.Path;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -29,36 +31,56 @@ public static class PropertiesFieldNudge
 }
 
 /// <summary>
-/// The Properties pane as a property grid (docs/reviews/ui-property-grid.md §10). It renders <see cref="PropertiesModel"/>
-/// generically: a selection identity, collapsible groups and label | value | unit rows on one shared column, with the Wing
-/// pinned at the foot (DR-UID-5). Editors persist per row key so a re-render never moves focus (UI-C).
+/// The Properties pane as a property sheet in structure B, Premiere Pro Effect Controls (DR-CELL-1;
+/// docs/reviews/ui-property-grid-cells.md §5). It renders <see cref="PropertiesModel"/> generically: a selection identity,
+/// twirl groups and label | value | unit rows, with the Wing pinned at the foot (DR-UID-5). Editors persist per row key so a
+/// re-render never moves focus (UI-C).
 /// </summary>
 public partial class PropertiesPane : UserControl
 {
-    private const double WingShare = 0.55;   // DR-UID-5: the Wing keeps at most 55 % of the pane's height
+    private const double WingShare = 0.55;     // DR-UID-5: the Wing keeps at most 55 % of the pane's height
+    private const double StackedFrom = 1.5;    // DN-5: at 150 % text and above the value drops under its label
+
+    /// <summary>The size tokens one Text size multiplier scales (DN-5; DESIGN.md typography.prop-text-scale).</summary>
+    public static readonly IReadOnlyList<string> ScaledTokens =
+    [
+        "PropFontSize", "PropLineHeight", "PropNoteSize", "PropNoteLineHeight", "PropTitleSize", "PropTitleLineHeight",
+        "PropHeadHeight", "PropRowReadOnlyHeight", "PropRowInputHeight", "PropEditBoxHeight", "PropValueMinWidth", "PropUnitWidth"
+    ];
+
+    private const string ChevronClosed = "M3,1 L7,5 L3,9";
+    private const string ChevronOpen = "M1,3 L5,7 L9,3";
+    private const string DisclosureClosed = "M0,0 L3,2.5 L0,5 Z";   // the definitions link's ▸ / ▾
+    private const string DisclosureOpen = "M0,0 L5,0 L2.5,3 Z";
+    private const string IconError = "M5.5,0.5 A5,5 0 1 1 5.49,0.5 Z M3.5,3.5 L7.5,7.5 M7.5,3.5 L3.5,7.5";
+    private const string IconWarning = "M5.5,0.75 L10.5,10 L0.5,10 Z M5.5,4 L5.5,7 M5.5,8.25 L5.5,8.75";
+    private const string IconInfo = "M5.5,0.5 A5,5 0 1 1 5.49,0.5 Z M5.5,5 L5.5,8 M5.5,3 L5.5,3.5";
+    private const string IconReport = "M1.5,6 L4.5,9 L9.5,2.5";
+    private const string LockGlyph = "M3,5 L3,3.5 A2,2 0 0 1 7,3.5 L7,5 M2,5 L8,5 L8,9.5 L2,9.5 Z";
 
     private readonly Dictionary<string, TextBox> pooledInputs;
     private readonly Dictionary<string, RowView> rows = new(StringComparer.Ordinal);
     private readonly Dictionary<string, TextBlock> subheads = new(StringComparer.Ordinal);
     private readonly Dictionary<string, GroupView> groupViews = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SectionView> sectionViews = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<TextBlock>> noteViews = new(StringComparer.Ordinal);
     private readonly Dictionary<string, bool> collapsed = new(StringComparer.Ordinal) { ["rail"] = true };
     private readonly Dictionary<TextBox, RowView> inputOwners = [];
     private readonly Dictionary<TextBox, string> shown = [];
+    private readonly Dictionary<TextBox, (EditCue Cue, Border Ring)> cues = [];
     private readonly Dictionary<string, RowMessage> messages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
-    private readonly RadioButton[] kindButtons;
+    private readonly EnumField typeField;
+    private readonly EnumField kindField;
 
     private WorkbenchController? boundController;
     private string selectionKey = "";
     private int holds;
     private bool bindPending;
     private bool rendering;
-    private bool narrow;
     private bool syncingChoice;
     private bool resumingRecovery;
-    private string? pendingType;
-    private TangentKind? pendingKind;
+    private double textScale = 1;
     private NudgeRun? run;
     private string? copyTarget;
     private PropertiesModel? shownModel;
@@ -77,8 +99,13 @@ public partial class PropertiesPane : UserControl
             ["h:angle"] = HandleAngleInput,
             ["h:length"] = HandleLengthInput
         };
-        kindButtons = [TangentSmoothButton, TangentSymmetricButton, TangentCornerButton];
-        foreach (var box in pooledInputs.Values) box.IsEnabled = false;
+        foreach (var box in pooledInputs.Values)
+        {
+            box.IsEnabled = false;
+            WireCue(box);
+        }
+        typeField = new EnumField(TypeControl, "p:type|Choice", "Type");
+        kindField = new EnumField(KindControl, "t:kind|KindList", "Tangent kind");
 
         TryAgainButton.Click += (_, _) =>
         {
@@ -90,20 +117,21 @@ public partial class PropertiesPane : UserControl
             // PG-31: a disclosure whose checked state is its expanded state.
             HowMeasuredBody.IsVisible = !HowMeasuredBody.IsVisible;
             HowMeasuredButton.IsChecked = HowMeasuredBody.IsVisible;
+            HowMeasuredChevron.Data = Avalonia.Media.Geometry.Parse(HowMeasuredBody.IsVisible ? DisclosureOpen : DisclosureClosed);
         };
         RecoveryApplyButton.Click += (_, _) => ApplyRecovery();
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
         IdentityCrumbLink.Click += (_, _) => GoToCrumb();
 
-        TypeControl.SelectionChanged += OnTypeSelectionChanged;
-        TypeControl.DropDownClosed += (_, _) => OnTypeDropDownClosed();
-        TypeControl.AddHandler(KeyDownEvent, OnTypeKeyDown, RoutingStrategies.Tunnel);
-        TypeControl.LostFocus += (_, _) => DropPendingType();
-
-        foreach (var button in kindButtons)
-            button.Click += (_, _) => CommitKind(KindOf(button));
-        TangentGroup.AddHandler(KeyDownEvent, OnKindKeyDown, RoutingStrategies.Tunnel);
-        TangentGroup.LostFocus += (_, _) => Dispatcher.UIThread.Post(CommitKindOnLeave, DispatcherPriority.Input);
+        foreach (var field in new[] { typeField, kindField })
+        {
+            var box = field.Box;
+            box.SelectionChanged += (_, _) => OnEnumSelectionChanged(field);
+            box.DropDownClosed += (_, _) => OnEnumDropDownClosed(field);
+            box.AddHandler(KeyDownEvent, (_, e) => OnEnumKeyDown(field, e), RoutingStrategies.Tunnel);
+            box.LostFocus += (_, _) => DropPending(field);
+            box.TemplateApplied += (_, e) => FitEnumTemplate(e.NameScope);
+        }
 
         AddHandler(KeyDownEvent, OnPaneKeyDown, RoutingStrategies.Bubble);
         // PG-25: a row the pointer chose is the Copy target only until focus moves.
@@ -117,6 +145,9 @@ public partial class PropertiesPane : UserControl
     /// <summary>Where the Copy command writes; null writes to the window's clipboard.</summary>
     public Func<string, Task>? ClipboardWriter { get; set; }
 
+    /// <summary>The Text size multiplier the pane is drawn at (DN-5): 1, 1.25, 1.5 or 2.</summary>
+    public double TextScale => textScale;
+
     public void FocusTypeValue() => PointSpanInput.Focus();
 
     public void ShowRenderFailure(bool foilOpen)
@@ -124,6 +155,26 @@ public partial class PropertiesPane : UserControl
         ErrorText.Text = "Properties couldn't be shown." + (foilOpen ? " Your foil hasn't changed." : "");
         ErrorPanel.IsVisible = true;
     }
+
+    /// <summary>
+    /// DN-5: one multiplier scales every Prop type and row token. The pane writes base × scale into its own resources, so
+    /// the styles' DynamicResource reads follow; at 150 % and above the rows stack.
+    /// </summary>
+    public void ApplyTextScale(double scale)
+    {
+        textScale = scale;
+        foreach (var key in ScaledTokens) Resources[key] = BaseToken(key) * scale;
+        var padding = Application.Current?.TryFindResource("PropEditPadding", out var value) == true && value is Thickness thickness
+            ? thickness : default;
+        Resources["PropEditPadding"] = new Thickness(padding.Left, padding.Top * scale, padding.Right, padding.Bottom * scale);
+        Resources["PropTextScale"] = scale;
+        Classes.Set("prop-stacked", scale >= StackedFrom);
+        foreach (var view in rows.Values) Layout(view);
+        if (boundController is { } controller && ContentPanel.IsVisible) Bind(controller);
+    }
+
+    private static double BaseToken(string key) =>
+        Application.Current?.TryFindResource(key, out var value) == true && value is double number ? number : 0;
 
     public void Bind(WorkbenchController controller, WingEstimates? projectedEstimates = null)
     {
@@ -159,8 +210,8 @@ public partial class PropertiesPane : UserControl
                 copyTarget = null;
                 messages.Clear();
                 errors.Clear();
-                pendingType = null;
-                pendingKind = null;
+                typeField.Pending = null;
+                kindField.Pending = null;
             }
             var model = PropertiesView.Build(controller.Selection, authored, estimates, ShellMode.Workspace, context);
             EmptyPanel.IsVisible = false;
@@ -194,6 +245,14 @@ public partial class PropertiesPane : UserControl
             ? (unit == "°" ? row.Value + "°" : row.Value + " " + unit)
             : row.Value;
 
+    /// <summary>The copy text of any row: an enum copies its option's words, a number its value (with its unit).</summary>
+    private static string RowCopyText(PropertyRow row, bool withUnit) => row.Kind is RowKind.Choice or RowKind.KindList
+        ? row.Options?.FirstOrDefault(option => option.Value == row.Value)?.Text ?? row.Value
+        : CopyText(row, withUnit);
+
+    private static bool CopiesWithUnit(PropertyRow row) =>
+        row.Unit is not null && row.State is not (RowState.Mixed or RowState.Unavailable) && row.Kind is not (RowKind.Choice or RowKind.KindList);
+
     // ---------------- rendering ----------------
 
     private void Render(PropertiesModel model, WorkbenchController controller)
@@ -216,12 +275,17 @@ public partial class PropertiesPane : UserControl
 
             var used = new HashSet<Control>();
             var groupControls = new List<Control>();
-            foreach (var group in model.Groups)
-                groupControls.Add(RenderGroup(group, used));
+            var groups = model.Groups;
+            for (int index = 0; index < groups.Count; index++)
+            {
+                if (groups[index].Continues) continue;   // drawn inside the group before it
+                var continued = groups.Skip(index + 1).TakeWhile(group => group.Continues).ToList();
+                groupControls.Add(RenderGroup(groups[index], continued, used));
+            }
             Sync(BlocksPanel, groupControls);
             if (model.Wing is { } wing) RenderWing(wing, used);
             // A pooled editor this selection does not show is neither enabled nor visible, wherever it was last placed.
-            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(TangentGroup).Where(control => !used.Contains(control)))
+            foreach (var control in pooledInputs.Values.Cast<Control>().Append(TypeControl).Append(KindControl).Where(control => !used.Contains(control)))
             {
                 control.IsEnabled = false;
                 control.IsVisible = false;
@@ -229,10 +293,13 @@ public partial class PropertiesPane : UserControl
             FitToPane();
         }
         finally { rendering = false; }
+        // DN-6: after a commit re-renders, the focused row and its message line are brought into view again.
+        if (FocusedRow() is { } focused) BringRowIntoView(focused);
     }
 
     private void RenderIdentity(SelectionIdentity? identity)
     {
+        IdentityBlock.IsVisible = identity is not null;
         IdentityPanel.IsVisible = identity is not null;
         if (identity is null) return;
         IdentityTitle.Text = identity.Title;
@@ -248,7 +315,7 @@ public partial class PropertiesPane : UserControl
         IdentityCrumb.Text = link ? "" : identity.Crumb ?? "";
     }
 
-    private Control RenderGroup(PropertyGroup group, HashSet<Control> used)
+    private Control RenderGroup(PropertyGroup group, IReadOnlyList<PropertyGroup> continued, HashSet<Control> used)
     {
         if (!groupViews.TryGetValue(group.Id, out var view))
             groupViews[group.Id] = view = CreateGroup(group.Id);
@@ -257,6 +324,7 @@ public partial class PropertiesPane : UserControl
         bool expanded = !collapsed.GetValueOrDefault(group.Id);
         if (view.Expander.IsExpanded != expanded) view.Expander.IsExpanded = expanded;
         view.Summary.IsVisible = !expanded && group.Summary.Length > 0;
+        view.Chevron.Data = Avalonia.Media.Geometry.Parse(expanded ? ChevronOpen : ChevronClosed);
         AutomationProperties.SetName(view.Expander, group.Title);
         AutomationProperties.SetHelpText(view.Expander, group.Summary);
         if (view.Header is { } header)
@@ -264,15 +332,43 @@ public partial class PropertiesPane : UserControl
             AutomationProperties.SetName(header, group.Title);
             AutomationProperties.SetHelpText(header, group.Summary);
         }
-        Sync(view.Body, BodyControls(group, used));
-        return view.Expander;
+        var body = BodyControls(group, view.Body, used);
+        foreach (var section in continued) body.Add(RenderSection(section, used));
+        Sync(view.Body, body);
+        RuleRows(view.Body);
+        FillCopyMenu(view.Menu, [group, .. continued]);
+        return view.Root;
     }
 
-    private List<Control> BodyControls(PropertyGroup group, HashSet<Control> used)
+    /// <summary>B: the tangent rows continue the Point group under its twirl, after a half-strength rule (DR-CELL-1).</summary>
+    private Control RenderSection(PropertyGroup group, HashSet<Control> used)
+    {
+        if (!sectionViews.TryGetValue(group.Id, out var section))
+        {
+            var body = new StackPanel { Name = Part("Section", group.Id) };
+            body.Classes.Add("prop-body");
+            var root = new StackPanel { Children = { RuleLine(), body } };
+            sectionViews[group.Id] = section = new SectionView(root, body);
+            WatchLead(body);
+        }
+        AutomationProperties.SetName(section.Body, group.Title);
+        Sync(section.Body, BodyControls(group, section.Body, used));
+        RuleRows(section.Body);
+        return section.Root;
+    }
+
+    private List<Control> BodyControls(PropertyGroup group, StackPanel container, HashSet<Control> used)
     {
         var body = new List<Control>();
         var notes = Notes(group.Id, group.Lead is null ? group.Notes : [group.Lead, .. group.Notes]);
-        if (group.Lead is not null) body.Add(notes[0]);
+        if (group.Lead is not null)
+        {
+            // DR-CELL-4: the angle reference shows only while focus is in its group; it stays in the tree.
+            notes[0].Classes.Set("lead", true);
+            notes[0].IsVisible = container.IsKeyboardFocusWithin;
+            body.Add(notes[0]);
+        }
+        bool underSubhead = false;
         foreach (var row in group.Rows)
         {
             if (row.Subhead is { } subhead)
@@ -284,12 +380,44 @@ public partial class PropertiesPane : UserControl
                 }
                 title.Text = subhead;
                 body.Add(title);
+                underSubhead = true;
             }
-            body.Add(RenderRow(row, used).Root);
+            var view = RenderRow(row, used);
+            view.Root.Classes.Set("sub", underSubhead);
+            body.Add(view.Outer);
         }
         body.AddRange(group.Lead is null ? notes : notes.Skip(1));
         return body;
     }
+
+    /// <summary>B: a half-strength rule between two adjacent rows, none above the first row after a header or subhead.</summary>
+    private void RuleRows(StackPanel body)
+    {
+        Control? previous = null;
+        foreach (var child in body.Children)
+        {
+            if (child is Border { Tag: RowView view })
+                view.Rule.IsVisible = previous is Border { Tag: RowView };
+            if (child.IsVisible) previous = child;
+        }
+    }
+
+    /// <summary>B's half-strength rule: 1 px of the line colour at 50 % (no extra theme brush; PG-11 keeps the brush set fixed).</summary>
+    private static Border RuleLine()
+    {
+        var rule = new Border();
+        rule.Classes.Add("prop-rule");
+        AutomationProperties.SetAccessibilityView(rule, AccessibilityView.Raw);
+        return rule;
+    }
+
+    private void WatchLead(StackPanel container) =>
+        container.PropertyChanged += (_, change) =>
+        {
+            if (change.Property != IsKeyboardFocusWithinProperty) return;
+            foreach (var note in container.Children.OfType<TextBlock>().Where(note => note.Classes.Contains("lead")))
+                note.IsVisible = container.IsKeyboardFocusWithin;
+        };
 
     private void RenderWing(PropertyGroup wing, HashSet<Control> used)
     {
@@ -303,9 +431,11 @@ public partial class PropertiesPane : UserControl
             _ => ""
         };
         Sync(WingDimensions, wing.Rows.Where(row => row.Key.StartsWith("w:", StringComparison.Ordinal))
-            .Select(row => (Control)RenderRow(row, used).Root).ToList());
+            .Select(row => (Control)RenderRow(row, used).Outer).ToList());
         Sync(WingEstimates, wing.Rows.Where(row => !row.Key.StartsWith("w:", StringComparison.Ordinal))
-            .Select(row => (Control)RenderRow(row, used).Root).ToList());
+            .Select(row => (Control)RenderRow(row, used).Outer).ToList());
+        RuleRows(WingDimensions);
+        RuleRows(WingEstimates);
         // PG-27: the first Wing note stays attached (hidden while empty) so a change is only a text change.
         var notes = Notes("wing", wing.Notes.Count > 0 ? wing.Notes : [new RowMessage("", MessageKind.Info)]);
         foreach (var note in notes)
@@ -314,6 +444,8 @@ public partial class PropertiesPane : UserControl
             note.IsVisible = note.Text?.Length > 0;
         }
         Sync(WingNotes, [.. notes]);
+        WingHeader.ContextMenu ??= new ContextMenu { Name = "WingMenu" };
+        FillCopyMenu(WingHeader.ContextMenu, [wing]);
     }
 
     private List<TextBlock> Notes(string groupId, IReadOnlyList<RowMessage> notes)
@@ -329,6 +461,8 @@ public partial class PropertiesPane : UserControl
         {
             if (views[index].Text != notes[index].Text) views[index].Text = notes[index].Text;
             views[index].Classes.Set("warning", notes[index].Kind == MessageKind.Warning);
+            views[index].Classes.Set("lead", false);
+            views[index].IsVisible = true;
         }
         return views.Take(notes.Count).ToList();
     }
@@ -339,7 +473,6 @@ public partial class PropertiesPane : UserControl
         if (!rows.TryGetValue(cacheKey, out var view)) rows[cacheKey] = view = CreateRow(row);
         view.Row = row;
         view.Label.Text = row.Label;
-        SetColumns(view.Grid);
         bool hasError = errors.TryGetValue(row.Key, out var error);
         var message = hasError ? new RowMessage(error.Error, MessageKind.Error)
             : messages.GetValueOrDefault(row.Key) ?? row.Message;
@@ -349,7 +482,6 @@ public partial class PropertiesPane : UserControl
         view.Root.Classes.Set("warning", state == RowState.Warning);
         view.Root.Classes.Set("error", state == RowState.Error);
         view.Root.Classes.Set("unavailable", state == RowState.Unavailable);
-        view.Description.IsVisible = row.Description is not null;
         view.Description.Text = row.Description ?? "";
         ShowMessage(view, message);
         bool showUnit = row.State is not (RowState.Mixed or RowState.Unavailable);
@@ -362,22 +494,22 @@ public partial class PropertiesPane : UserControl
                 break;
             case RowKind.Choice:
                 used.Add(TypeControl);
-                TypeControl.IsVisible = true;
-                RenderChoice(view, row);
+                RenderEnum(typeField, view, row);
                 break;
             case RowKind.KindList:
-                used.Add(TangentGroup);
-                TangentGroup.IsVisible = true;
-                TangentGroup.IsEnabled = true;
-                RenderKinds(view, row);
+                used.Add(KindControl);
+                RenderEnum(kindField, view, row);
                 break;
             default:
                 string text = row.Kind == RowKind.Estimate && row.State == RowState.Normal ? "≈ " + row.Value : row.Value;
                 if (view.Value!.Text != text) view.Value.Text = text;
+                view.Lock!.IsVisible = row.State == RowState.Locked;
                 AutomationProperties.SetName(view.Root, row.SpokenText);
                 AutomationProperties.SetHelpText(view.Root, row.HelperText);
                 break;
         }
+        ShowDescription(view);
+        Layout(view);
         return view;
     }
 
@@ -388,58 +520,13 @@ public partial class PropertiesPane : UserControl
         inputOwners[box] = view;
         box.IsEnabled = true;
         box.IsVisible = true;
-        box.Classes.Set("error", invalidText is not null);
+        SetError(box, invalidText is not null);
         AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
         AutomationProperties.SetHelpText(box, HelpText(view));
         string modelText = Quantity.ForField(row.Value);
         if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
         if (run?.Box == box) return;            // a field run owns its text
         if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
-    }
-
-    private void RenderChoice(RowView view, PropertyRow row)
-    {
-        var options = row.Options ?? [];
-        if (TypeControl.ItemCount != options.Count)
-            TypeControl.ItemsSource = options.Select(option => new ComboBoxItem { Content = option.Text, Tag = option.Value }).ToList();
-        string shownValue = pendingType ?? row.Value;
-        int index = options.ToList().FindIndex(option => option.Value == shownValue);
-        if (TypeControl.SelectedIndex != index)
-        {
-            syncingChoice = true;
-            try { TypeControl.SelectedIndex = index; }
-            finally { syncingChoice = false; }
-        }
-        TypeControl.IsEnabled = true;
-        AutomationProperties.SetName(TypeControl, row.AutomationName ?? row.Label);
-        string committedText = options.FirstOrDefault(option => option.Value == row.Value)?.Text ?? row.Value;
-        AutomationProperties.SetHelpText(TypeControl, pendingType is not null
-            ? $"Return applies; Esc keeps {committedText.ToLowerInvariant()}" : row.Description);
-        if (pendingType is not null) ShowMessage(view, new RowMessage(PropertyCopy.PendingType, MessageKind.Info));
-    }
-
-    private void RenderKinds(RowView view, PropertyRow row)
-    {
-        var committed = Enum.Parse<TangentKind>(row.Value);
-        var shownKind = pendingKind ?? committed;
-        AutomationProperties.SetName(TangentGroup, row.AutomationName);
-        AutomationProperties.SetControlTypeOverride(TangentGroup, AutomationControlType.Group);
-        AutomationProperties.SetHelpText(TangentGroup, PropertyCopy.KindDescription(shownKind));
-        for (int index = 0; index < kindButtons.Length; index++)
-        {
-            var button = kindButtons[index];
-            bool isChecked = KindOf(button) == shownKind;
-            if (button.IsChecked != isChecked) button.IsChecked = isChecked;
-            button.IsTabStop = isChecked;   // Tab lands on the checked option (§10.4)
-            AutomationProperties.SetPositionInSet(button, index + 1);
-            AutomationProperties.SetSizeOfSet(button, kindButtons.Length);
-            AutomationProperties.SetHelpText(button, pendingKind is not null
-                ? $"Return applies; Esc keeps {committed.ToString().ToLowerInvariant()}" : PropertyCopy.KindDescription(KindOf(button)));
-        }
-        view.Description.Text = PropertyCopy.KindDescription(shownKind);
-        if (pendingKind is { } pending && pending != committed)
-            ShowMessage(view, new RowMessage(PropertyCopy.PendingKind(pending.ToString().ToLowerInvariant(),
-                committed.ToString().ToLowerInvariant()), MessageKind.Info));
     }
 
     private static void ShowMessage(RowView view, RowMessage? message)
@@ -449,10 +536,28 @@ public partial class PropertiesPane : UserControl
         if (view.Message.Text != text) view.Message.Text = text;
         view.Message.Classes.Set("error", message?.Kind == MessageKind.Error);
         view.Message.Classes.Set("warning", message?.Kind == MessageKind.Warning);
+        if (view.MessageIcon is { } icon && message is not null)
+        {
+            icon.Data = Avalonia.Media.Geometry.Parse(message.Kind switch
+            {
+                MessageKind.Error => IconError,
+                MessageKind.Warning => IconWarning,
+                MessageKind.Report => IconReport,
+                MessageKind.Reason => LockGlyph,
+                _ => IconInfo
+            });
+            icon.Classes.Set("error", message.Kind == MessageKind.Error);
+            icon.Classes.Set("warning", message.Kind == MessageKind.Warning);
+        }
         var live = message?.Kind == MessageKind.Error ? AutomationLiveSetting.Assertive : AutomationLiveSetting.Polite;
         AutomationProperties.SetLiveSetting(view.MessageBox, live);
         AutomationProperties.SetLiveSetting(view.Message, live);
     }
+
+    /// <summary>B: help shows under a row while it has keyboard focus, or always for a ruled authority line (COPY-159).</summary>
+    private static void ShowDescription(RowView view) =>
+        view.Description.IsVisible = view.Description.Text?.Length > 0 &&
+                                     (view.Row.DescriptionAlwaysVisible || view.Root.IsKeyboardFocusWithin);
 
     private string HelpText(RowView view)
     {
@@ -467,15 +572,14 @@ public partial class PropertiesPane : UserControl
 
     private RowView CreateRow(PropertyRow row)
     {
-        var grid = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,Auto") };
+        var grid = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,Auto,Auto") };
         var label = new TextBlock { Name = Part("Label", row.Key) };
         label.Classes.Add("prop-label");
-        var unit = new TextBlock { Name = UnitName(row.Key) };
+        var unit = new TextBlock { Name = UnitName(row.Key), Margin = new Thickness(Token("PropColumnGap"), 0, 0, 0) };
         unit.Classes.Add("prop-unit");
-        Grid.SetColumn(unit, 2);
         var description = new TextBlock { Name = Part("Description", row.Key), IsVisible = false };
-        description.Classes.Add("prop-note");
-        Grid.SetRow(description, 1);
+        description.Classes.Add("prop-desc");
+        Grid.SetRow(description, 2);
         Grid.SetColumnSpan(description, 3);
         TextBlock messageText;
         Border messageBox;
@@ -483,25 +587,35 @@ public partial class PropertiesPane : UserControl
         {
             messageBox = Detach(SpanErrorPanel);
             messageText = SpanErrorText;
+            messageBox.Child = null;
         }
         else
         {
             messageText = new TextBlock { Name = MessageName(row.Key) };
             messageText.Classes.Add("prop-message");
-            messageBox = new Border { Child = messageText, IsVisible = false };
+            messageBox = new Border { IsVisible = false };
         }
-        Grid.SetRow(messageBox, 2);
+        // The state line: icon + text (DESIGN.md §12.0f: "always rail + icon + text"); the icon is decoration (Raw).
+        var messageIcon = new Path { Name = Part("MessageIcon", row.Key) };
+        messageIcon.Classes.Add("prop-icon");
+        AutomationProperties.SetAccessibilityView(messageIcon, AccessibilityView.Raw);
+        Grid.SetColumn(messageText, 1);
+        messageBox.Child = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Children = { messageIcon, messageText } };
+        Grid.SetRow(messageBox, 3);
         Grid.SetColumnSpan(messageBox, 3);
         var root = new Border { Child = grid, Name = Part("Row", row.Key) };
         root.Classes.Add("prop-row");
-        var view = new RowView(root, grid, label, unit, description, messageBox, messageText) { Row = row };
+        var rule = RuleLine();
+        var outer = new Border { Child = new StackPanel { Children = { rule, root } } };
+        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon, Rule = rule };
+        outer.Tag = view;
 
         Control value;
         switch (row.Kind)
         {
             case RowKind.Input:
                 var box = pooledInputs.TryGetValue(row.Key, out var pooled) ? Detach(pooled) : new TextBox { Name = Part("Input", row.Key) };
-                box.Classes.Add("prop-input");
+                box.Classes.Add("prop-b");
                 WireInput(box);
                 view.Input = box;
                 value = box;
@@ -510,67 +624,169 @@ public partial class PropertiesPane : UserControl
                 break;
             case RowKind.Choice:
                 value = Detach(TypeControl);
-                Grid.SetColumnSpan(value, 2);
+                view.Enum = TypeControl;
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 description.Name = row.Key == "p:type" ? "PointHelper" : description.Name;
                 break;
             case RowKind.KindList:
-                value = Detach(TangentGroup);
-                Grid.SetColumnSpan(value, 2);
+                value = Detach(KindControl);
+                view.Enum = KindControl;
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 label.Name = "TangentLabel";
                 break;
             default:
                 var text = new TextBlock { Name = ValueName(row.Key) };
                 text.Classes.Add("prop-value");
+                var lockGlyph = new Path { Data = Avalonia.Media.Geometry.Parse(LockGlyph), IsVisible = false };
+                lockGlyph.Classes.Add("prop-lock");
+                var cell = new StackPanel { Children = { lockGlyph, text } };
+                cell.Classes.Add("prop-value-cell");
                 view.Value = text;
-                value = text;
+                view.Lock = lockGlyph;
+                value = cell;
                 // PG-20 / D2: a fact is not a Tab stop; its container speaks one line and its parts are Raw (B9).
-                foreach (var part in new Control[] { label, text, unit, description })
+                foreach (var part in new Control[] { label, text, unit, description, lockGlyph, cell })
                     AutomationProperties.SetAccessibilityView(part, AccessibilityView.Raw);
                 AutomationProperties.SetAccessibilityView(root, AccessibilityView.Content);
                 AutomationProperties.SetControlTypeOverride(root, AutomationControlType.Text);
-                root.ContextMenu = CopyMenu(row.Key);
                 root.PointerPressed += (_, _) => copyTarget = row.Key + "|" + row.Kind;
                 break;
         }
-        Grid.SetColumn(value, 1);
+        view.Cell = value;
+        // A wide value (an enum, or words rather than a number) sits right-aligned across the row; the label wraps short of it.
+        view.Wide = row.Kind is RowKind.Choice or RowKind.KindList || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
+        if (view.Wide) value.SizeChanged += (_, _) => Layout(view);
+        if (row.IsEditable)
+        {
+            // DR-DEN-1 / SC 2.5.8: the whole 24 px row is the target; a press on the label or the gap focuses the value.
+            label.Cursor = new Cursor(StandardCursorType.Hand);
+            root.AddHandler(PointerPressedEvent, (_, e) =>
+            {
+                if (view.Editor is not { IsEffectivelyEnabled: true } editor) return;
+                editor.Focus(NavigationMethod.Pointer);
+                e.Handled = true;
+            }, RoutingStrategies.Bubble);
+        }
+        root.PropertyChanged += (_, change) =>
+        {
+            if (change.Property != IsKeyboardFocusWithinProperty) return;
+            ShowDescription(view);
+            if (view.Root.IsKeyboardFocusWithin) BringRowIntoView(view);
+        };
         grid.Children.AddRange([label, value, unit, description, messageBox]);
         return view;
     }
 
-    private ContextMenu CopyMenu(string key)
+    /// <summary>
+    /// B's row: label (wraps, never trims) · value (right-aligned, at least 62 px) · unit (24 px). DC-1: while the text
+    /// differs from the committed value the label column is Auto, the value takes the rest and the unit collapses.
+    /// DN-5: at 150 % text and above the value drops under its label, still right-aligned.
+    /// </summary>
+    private void Layout(RowView view)
     {
-        var menu = new ContextMenu { Name = Part("CopyMenu", key) };
-        foreach (var (header, withUnit) in new[] { ("Copy value", false), ("Copy value with unit", true) })
-        {
-            var item = new MenuItem { Header = header };
-            item.Click += (_, _) => CopyRow(key, withUnit);
-            menu.Items.Add(item);
-        }
-        return menu;
+        var grid = view.Grid;
+        bool stacked = textScale >= StackedFrom;
+        bool dirty = view.Input?.Classes.Contains("dirty") == true;
+        double gap = Token("PropColumnGap");
+        double valueWidth = Token("PropValueMinWidth");
+        double unitWidth = Token("PropUnitWidth") + gap;
+        double height = Token(view.Row.IsEditable ? "PropRowInputHeight" : "PropRowReadOnlyHeight");
+        // DC-1: the label keeps its one-line width (B: flex 0 0 auto); an Auto column beside a star one measured it at 0.
+        if (dirty) view.Label.Measure(Size.Infinity);
+        var columns = dirty
+            ? new ColumnDefinitions { new(Math.Ceiling(view.Label.DesiredSize.Width), GridUnitType.Pixel), new(1, GridUnitType.Star) { MinWidth = valueWidth }, new(0, GridUnitType.Pixel) }
+            // A wide value spans every column, so its row fixes the value column at 62 px to keep one value edge (F-1).
+            : new ColumnDefinitions { new(1, GridUnitType.Star), view.Wide ? new(valueWidth, GridUnitType.Pixel) : new(GridLength.Auto) { MinWidth = valueWidth }, new(unitWidth, GridUnitType.Pixel) };
+        if (!SameColumns(grid.ColumnDefinitions, columns)) grid.ColumnDefinitions = columns;
+        grid.RowDefinitions[0].MinHeight = stacked ? 0 : height;
+        grid.RowDefinitions[1].MinHeight = stacked ? height : 0;
+        Grid.SetRow(view.Label, 0);
+        Grid.SetColumnSpan(view.Label, stacked ? 3 : 1);
+        Grid.SetRow(view.Cell, stacked ? 1 : 0);
+        Grid.SetColumn(view.Cell, view.Wide ? 0 : 1);
+        Grid.SetColumnSpan(view.Cell, view.Wide ? 3 : 1);
+        Grid.SetRow(view.Unit, stacked ? 1 : 0);
+        Grid.SetColumn(view.Unit, 2);
+        view.Unit.IsVisible = !dirty && !view.Wide;
+        // A wide value reaches into the label column only by what the value and unit columns cannot hold.
+        double reserve = 2 * gap + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
+        var margin = new Thickness(0, 0, stacked ? 0 : reserve, 0);
+        if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
+
+    private static bool SameColumns(ColumnDefinitions current, ColumnDefinitions wanted) =>
+        current.Count == wanted.Count && current.Zip(wanted).All(pair =>
+            pair.First.Width == pair.Second.Width && Math.Abs(pair.First.MinWidth - pair.Second.MinWidth) < 0.01);
+
+    private RowView? FocusedRow() =>
+        rows.Values.FirstOrDefault(view => view.Root.IsKeyboardFocusWithin && view.Outer.IsAttachedToVisualTree());
+
+    /// <summary>DN-6 / CL-5: the focused row, with its help and message lines, is brought into view once laid out.</summary>
+    private void BringRowIntoView(RowView view) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (view.Outer.IsAttachedToVisualTree()) view.Outer.BringIntoView();
+        }, DispatcherPriority.Background);
+
+    private void FillCopyMenu(ContextMenu menu, IReadOnlyList<PropertyGroup> groups)
+    {
+        // DN-3: no row context menus; the group header's menu copies the group, or one row with or without its unit.
+        var keys = groups.SelectMany(group => group.Rows).Select(row => (row.Key, row.Label, CopiesWithUnit(row))).ToList();
+        var signature = string.Join("|", keys.Select(key => key.Key + key.Item3));
+        if (menu.Tag as string == signature) return;
+        menu.Tag = signature;
+        var ids = groups.Select(group => group.Id).ToHashSet(StringComparer.Ordinal);
+        var items = new List<MenuItem>();
+        var all = new MenuItem { Header = "Copy values" };
+        all.Click += (_, _) => CopyLines(CurrentGroups(ids));
+        items.Add(all);
+        foreach (var (key, label, withUnit) in keys)
+        {
+            var plain = new MenuItem { Header = $"Copy {label}" };
+            plain.Click += (_, _) => CopyRow(key, withUnit: false);
+            items.Add(plain);
+            if (!withUnit) continue;
+            var united = new MenuItem { Header = $"Copy {label} with unit" };
+            united.Click += (_, _) => CopyRow(key, withUnit: true);
+            items.Add(united);
+        }
+        menu.ItemsSource = items;
+    }
+
+    private List<PropertyGroup> CurrentGroups(IReadOnlySet<string> ids) =>
+        shownModel?.Blocks.Where(group => ids.Contains(group.Id)).ToList() ?? [];
 
     private void CopyRow(string key, bool withUnit)
     {
-        var view = rows.Values.FirstOrDefault(item => item.Row.Key == key && item.Value is not null);
-        if (view is null) return;
-        string text = CopyText(view.Row, withUnit);
+        var row = shownModel?.Blocks.SelectMany(group => group.Rows).FirstOrDefault(item => item.Key == key);
+        if (row is null) return;
+        Write(RowCopyText(row, withUnit));
+    }
+
+    private void Write(string text)
+    {
         var write = ClipboardWriter ?? (value => TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(value) ?? Task.CompletedTask);
         _ = write(text);
     }
 
     private GroupView CreateGroup(string id)
     {
-        var title = new TextBlock { Name = Part("GroupTitle", id) };
+        var chevron = new Path { Name = Part("GroupChevron", id), Data = Avalonia.Media.Geometry.Parse(ChevronOpen) };
+        chevron.Classes.Add("prop-chevron");
+        var title = new TextBlock { Name = Part("GroupTitle", id), Margin = Thickness("PropTitleGap") };
         title.Classes.Add("prop-group-title");
         var summary = new TextBlock { Name = Part("GroupSummary", id) };
         summary.Classes.Add("prop-summary");
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Children = { title, summary } };
-        AutomationProperties.SetAccessibilityView(title, AccessibilityView.Raw);
-        AutomationProperties.SetAccessibilityView(summary, AccessibilityView.Raw);
-        var body = new StackPanel();
+        // The summary sits at the right edge and truncates; the name never does (DESIGN.md §12.0f, property group).
+        summary.HorizontalAlignment = HorizontalAlignment.Right;
+        Grid.SetColumn(title, 1);
+        Grid.SetColumn(summary, 2);
+        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,Auto,*"), Children = { chevron, title, summary } };
+        foreach (var part in new Control[] { chevron, title, summary })
+            AutomationProperties.SetAccessibilityView(part, AccessibilityView.Raw);
+        var body = new StackPanel { Name = Part("Body", id) };
         body.Classes.Add("prop-body");
+        WatchLead(body);
         var expander = new Expander
         {
             Name = Part("Group", id),
@@ -581,11 +797,12 @@ public partial class PropertiesPane : UserControl
             ContentTransition = null   // PG-16 / B6: no native motion
         };
         expander.Classes.Add("prop-group");
-        // PG-25: a header's menu (Shift+F10 or the menu key on a focused header) copies its group as text.
-        var copy = new MenuItem { Header = "Copy values" };
-        copy.Click += (_, _) => CopyGroup(id);
-        expander.ContextMenu = new ContextMenu { Name = Part("GroupMenu", id), Items = { copy } };
-        var view = new GroupView(expander, title, summary, body);
+        // PG-25 / DN-3: a header's menu (Shift+F10 or the menu key on a focused header) copies its group or one row.
+        var menu = new ContextMenu { Name = Part("GroupMenu", id) };
+        expander.ContextMenu = menu;
+        var root = new Border { Child = expander, BorderThickness = Thickness("PropRuleBottom") };
+        root.Bind(Border.BorderBrushProperty, root.GetResourceObservable("LineBrush"));
+        var view = new GroupView(root, expander, chevron, title, summary, body, menu);
         expander.TemplateApplied += (_, args) =>
         {
             view.Header = args.NameScope.Find<ToggleButton>("ExpanderHeader")
@@ -605,6 +822,7 @@ public partial class PropertiesPane : UserControl
 
     private void Toggled(string id, GroupView view, bool expanded)
     {
+        view.Chevron.Data = Avalonia.Media.Geometry.Parse(expanded ? ChevronOpen : ChevronClosed);
         if (rendering) return;
         collapsed[id] = !expanded;
         view.Summary.IsVisible = !expanded && view.Summary.Text?.Length > 0;
@@ -621,30 +839,139 @@ public partial class PropertiesPane : UserControl
     private void FitToPane()
     {
         if (Bounds.Height > 0) WingBlock.MaxHeight = Bounds.Height * WingShare;
-        bool now = Bounds.Width > 0 && Bounds.Width < Token("PropNarrowPaneWidth");
-        if (now == narrow) return;
-        narrow = now;
-        foreach (var view in rows.Values) SetColumns(view.Grid);
-    }
-
-    private void SetColumns(Grid grid)
-    {
-        double label = Token(narrow ? "PropLabelNarrowWidth" : "PropLabelWidth");
-        double unit = Token(narrow ? "PropUnitNarrowWidth" : "PropUnitWidth");
-        if (grid.ColumnDefinitions.Count == 3 && grid.ColumnDefinitions[0].Width.Value == label &&
-            grid.ColumnDefinitions[2].Width.Value == unit) return;
-        grid.ColumnDefinitions = new ColumnDefinitions
-        {
-            new(label, GridUnitType.Pixel),
-            new(1, GridUnitType.Star),
-            new(unit, GridUnitType.Pixel)
-        };
     }
 
     // A pane bound before it is attached reads the application's tokens; it re-reads them on its first render attached.
     private double Token(string key) =>
         (this.TryFindResource(key, out var value) || Application.Current?.TryFindResource(key, out value) == true) && value is double number
             ? number : 0;
+
+    private Thickness Thickness(string key) =>
+        (this.TryFindResource(key, out var value) || Application.Current?.TryFindResource(key, out value) == true) && value is Thickness thickness
+            ? thickness : default;
+
+    // ---------------- the editable value's template parts (CL-3 option A, DR-CELL-3) ----------------
+
+    private void WireCue(TextBox box)
+    {
+        box.TemplateApplied += (_, e) =>
+        {
+            if (e.NameScope.Find<Border>("PART_BorderElement") is not { Parent: Panel panel } ||
+                e.NameScope.Find<TextPresenter>("PART_TextPresenter") is not { } presenter) return;
+            if (cues.TryGetValue(box, out var old)) panel.Children.RemoveAll([old.Cue, old.Ring]);
+            // DR-CELL-3: a focused value in error keeps its accent box; the danger box is drawn 1 px outside it.
+            var ring = new Border { Name = "PART_ErrorRing", IsHitTestVisible = false, IsVisible = false };
+            ring.Classes.Add("prop-error-ring");
+            var cue = new EditCue(box, presenter, Token("PropCueOffset"));
+            cue.Bind(EditCue.StrokeProperty, cue.GetResourceObservable("PrimaryBrush"));
+            panel.Children.Add(ring);
+            panel.Children.Add(cue);
+            cues[box] = (cue, ring);
+            UpdateCue(box);
+        };
+        box.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == IsFocusedProperty || change.Property == IsEnabledProperty) UpdateCue(box);
+        };
+        box.TextChanged += (_, _) =>
+        {
+            UpdateCue(box);
+            UpdateDirty(box);
+        };
+    }
+
+    private void SetError(TextBox box, bool error)
+    {
+        box.Classes.Set("error", error);
+        UpdateCue(box);
+    }
+
+    /// <summary>The dotted underline shows at rest only; focus or an error replaces it with a box (SC 1.4.1, 2.4.7).</summary>
+    private void UpdateCue(TextBox box)
+    {
+        if (!cues.TryGetValue(box, out var parts)) return;
+        bool error = box.Classes.Contains("error");
+        parts.Cue.IsVisible = !box.IsFocused && !error && !string.IsNullOrEmpty(box.Text);
+        parts.Ring.IsVisible = box.IsFocused && error;
+        parts.Cue.InvalidateVisual();
+    }
+
+    private void UpdateDirty(TextBox box)
+    {
+        if (!inputOwners.TryGetValue(box, out var view)) return;
+        // A refused value keeps the 62 px box (the error state); only a fresh edit widens the field.
+        bool dirty = box.IsEnabled && Dirty(box) && !RefusedAlready(view, box);
+        if (box.Classes.Contains("dirty") == dirty) return;
+        box.Classes.Set("dirty", dirty);
+        Layout(view);
+    }
+
+    private static void FitEnumTemplate(INameScope scope)
+    {
+        // Fluent reserves a 32 px column for the drop-down glyph; B draws a small ▾ right after the text.
+        if (scope.Find<PathIcon>("DropDownGlyph") is { Parent: Grid grid } && grid.ColumnDefinitions.Count == 2)
+            grid.ColumnDefinitions = new ColumnDefinitions("*,Auto");
+    }
+
+    /// <summary>
+    /// CL-3 option A: the dotted underline under an editable value's text, drawn inside the TextBox template. It is sized
+    /// to the text (the presenter's layout, after right alignment and scrolling) and snapped to whole DIPs, so the 1 px line
+    /// covers whole device pixels at 1× and 2×.
+    /// </summary>
+    public sealed class EditCue : Control
+    {
+        public static readonly StyledProperty<IBrush?> StrokeProperty = AvaloniaProperty.Register<EditCue, IBrush?>(nameof(Stroke));
+
+        private readonly TextBox box;
+        private readonly TextPresenter presenter;
+        private readonly double offset;
+
+        static EditCue() => AffectsRender<EditCue>(StrokeProperty);
+
+        public EditCue(TextBox box, TextPresenter presenter, double offset)
+        {
+            this.box = box;
+            this.presenter = presenter;
+            this.offset = offset;
+            Name = "PART_EditCue";
+            IsHitTestVisible = false;
+            presenter.LayoutUpdated += (_, _) => InvalidateVisual();
+        }
+
+        public IBrush? Stroke
+        {
+            get => GetValue(StrokeProperty);
+            set => SetValue(StrokeProperty, value);
+        }
+
+        /// <summary>The underline as drawn, in this control's coordinates; null when there is no text to underline.</summary>
+        public (Point Start, Point End)? Line()
+        {
+            string text = presenter.Text ?? box.Text ?? "";
+            if (text.Length == 0 || TopLevel.GetTopLevel(this) is not { } root) return null;
+            var layout = presenter.TextLayout;
+            var rects = layout.HitTestTextRange(0, text.Length).ToList();
+            if (rects.Count == 0) return null;
+            double left = rects.Min(rect => rect.Left), right = rects.Max(rect => rect.Right);
+            if (presenter.TranslatePoint(default, this) is not { } origin || this.TranslatePoint(default, root) is not { } absolute) return null;
+            double start = origin.X + left, end = origin.X + right;
+            if (presenter.FindAncestorOfType<ScrollViewer>() is { } viewer && viewer.TranslatePoint(default, this) is { } port)
+            {
+                start = Math.Max(start, port.X);
+                end = Math.Min(end, port.X + viewer.Bounds.Width);
+            }
+            double x0 = Math.Round(absolute.X + start) - absolute.X;
+            double x1 = Math.Round(absolute.X + end) - absolute.X;
+            double top = Math.Round(absolute.Y + origin.Y + layout.Baseline + offset) - absolute.Y;
+            return x1 > x0 ? (new Point(x0, top + 0.5), new Point(x1, top + 0.5)) : null;
+        }
+
+        public override void Render(DrawingContext context)
+        {
+            if (Stroke is not { } stroke || Line() is not { } line) return;
+            context.DrawLine(new Pen(stroke, 1, new DashStyle([1, 1], 0)), line.Start, line.End);
+        }
+    }
 
     // ---------------- inputs: commit, refuse, escape, nudge ----------------
 
@@ -654,6 +981,7 @@ public partial class PropertiesPane : UserControl
         box.AddHandler(KeyDownEvent, OnInputKeyDown, RoutingStrategies.Tunnel);
         box.AddHandler(KeyUpEvent, OnInputKeyUp, RoutingStrategies.Tunnel);
         box.LostFocus += OnInputLostFocus;
+        if (!pooledInputs.ContainsValue(box)) WireCue(box);
     }
 
     private void OnInputKeyDown(object? sender, KeyEventArgs e)
@@ -863,7 +1191,8 @@ public partial class PropertiesPane : UserControl
             view.Message.Text = "";
             view.Message.Text = message;
         }
-        box.Classes.Set("error", true);
+        SetError(box, true);
+        UpdateDirty(box);
         AutomationProperties.SetHelpText(box, HelpText(view));
         Announced?.Invoke(message, AutomationLiveSetting.Assertive);
         return false;
@@ -992,58 +1321,106 @@ public partial class PropertiesPane : UserControl
     private sealed record NudgeRun(RowView View, TextBox Box, PointRef Target, PlanformView Plan, double Origin, double Value,
         (double Span, double Aft) Accepted);
 
-    // ---------------- Type (PG-07, PG-19) ----------------
+    // ---------------- Type and Tangent kind: one enum rule (PG-07, PG-19, DR-CELL-2) ----------------
 
-    private void OnTypeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    /// <summary>An enum value and what it has staged: arrows on the closed box stage, Return or a pick applies, Esc keeps,
+    /// leaving drops and says so (DR-CELL-2 amends PG-06 / MC-1).</summary>
+    private sealed class EnumField(ComboBox box, string cacheKey, string noun)
     {
-        if (syncingChoice || rendering || TypeRowView() is not { } view) return;
-        string? value = (TypeControl.SelectedItem as ComboBoxItem)?.Tag as string;
-        if (value is null) return;
-        if (TypeControl.IsDropDownOpen) return;   // a pointer pick commits when the list closes
-        // Arrows on the closed box are pending; Return commits, Esc keeps, leaving drops it.
-        pendingType = value == view.Row.Value ? null : value;
-        RenderChoice(view, view.Row);
-        if (pendingType is null) ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+        public ComboBox Box { get; } = box;
+        public string CacheKey { get; } = cacheKey;
+        public string Noun { get; } = noun;
+        public string? Pending { get; set; }
     }
 
-    private void OnTypeDropDownClosed()
+    private void RenderEnum(EnumField field, RowView view, PropertyRow row)
     {
-        if (TypeRowView() is not { } view) return;
-        string? value = (TypeControl.SelectedItem as ComboBoxItem)?.Tag as string;
-        if (value is not null && value != view.Row.Value) CommitType(view, value);
-    }
-
-    private void OnTypeKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (TypeRowView() is not { } view) return;
-        if (e.Key == Key.Enter && !TypeControl.IsDropDownOpen)
+        var box = field.Box;
+        box.IsVisible = true;
+        var options = row.Options ?? [];
+        if (box.ItemCount != options.Count || !box.Items.OfType<ComboBoxItem>().Select(item => item.Tag as string).SequenceEqual(options.Select(option => option.Value)))
+            box.ItemsSource = options.Select(option => new ComboBoxItem { Content = option.Text, Tag = option.Value }).ToList();
+        string shownValue = field.Pending ?? row.Value;
+        int index = options.ToList().FindIndex(option => option.Value == shownValue);
+        if (box.SelectedIndex != index)
         {
-            e.Handled = true;
-            if (pendingType is { } pending) CommitType(view, pending);
+            syncingChoice = true;
+            try { box.SelectedIndex = index; }
+            finally { syncingChoice = false; }
         }
-        else if (e.Key == Key.Escape && pendingType is not null && !TypeControl.IsDropDownOpen)
+        box.IsEnabled = true;
+        AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
+        string committed = OptionText(row, row.Value);
+        string? description = field == kindField ? PropertyCopy.KindDescription(Enum.Parse<TangentKind>(shownValue)) : row.Description;
+        view.Description.Text = description ?? "";
+        // CB-4: while a value is staged the box says which keys apply it and which keep the committed one.
+        AutomationProperties.SetHelpText(box, field.Pending is not null ? $"Return applies; Esc keeps {committed.ToLowerInvariant()}" : description);
+        if (field.Pending is { } pending)
+            ShowMessage(view, new RowMessage(field == kindField
+                ? PropertyCopy.PendingKind(OptionText(row, pending).ToLowerInvariant(), committed.ToLowerInvariant())
+                : PropertyCopy.PendingType, MessageKind.Info));
+    }
+
+    private static string OptionText(PropertyRow row, string value) =>
+        row.Options?.FirstOrDefault(option => option.Value == value)?.Text ?? value;
+
+    private RowView? EnumRowView(EnumField field) =>
+        rows.TryGetValue(field.CacheKey, out var view) && view.Root.IsAttachedToVisualTree() ? view : null;
+
+    private void OnEnumSelectionChanged(EnumField field)
+    {
+        if (syncingChoice || rendering || EnumRowView(field) is not { } view) return;
+        if ((field.Box.SelectedItem as ComboBoxItem)?.Tag is not string value) return;
+        if (field.Box.IsDropDownOpen) return;   // a pick in the open list applies when the list closes (CB-3)
+        // Arrows on the closed box stage the value; Return applies it, Esc keeps the committed one, leaving drops it.
+        field.Pending = value == view.Row.Value ? null : value;
+        RenderEnum(field, view, view.Row);
+        if (field.Pending is null) ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+    }
+
+    private void OnEnumDropDownClosed(EnumField field)
+    {
+        if (EnumRowView(field) is not { } view) return;
+        // CB-3: a pick that closes the list applies once; arrows then Esc closed it on the committed value (no row).
+        if ((field.Box.SelectedItem as ComboBoxItem)?.Tag is string value && value != view.Row.Value) CommitEnum(field, view, value);
+    }
+
+    private void OnEnumKeyDown(EnumField field, KeyEventArgs e)
+    {
+        if (EnumRowView(field) is not { } view || field.Box.IsDropDownOpen) return;
+        if (e.Key == Key.Enter)
         {
             e.Handled = true;
-            pendingType = null;
-            RenderChoice(view, view.Row);
+            if (field.Pending is { } pending) CommitEnum(field, view, pending);
+        }
+        else if (e.Key == Key.Escape && field.Pending is not null)
+        {
+            e.Handled = true;
+            field.Pending = null;
+            RenderEnum(field, view, view.Row);
             ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
         }
     }
 
-    private void DropPendingType()
+    private void DropPending(EnumField field)
     {
-        if (pendingType is null || TypeControl.IsDropDownOpen || TypeRowView() is not { } view) return;
-        pendingType = null;   // D1 / PG-19: leaving the box with a pending type does not commit
-        RenderChoice(view, view.Row);
+        if (field.Pending is null || field.Box.IsDropDownOpen || EnumRowView(field) is not { } view) return;
+        field.Pending = null;   // D1 / PG-19 / DR-CELL-2: leaving the box with a staged value does not apply it
+        RenderEnum(field, view, view.Row);
         ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
+        // CL-2: the drop is announced politely, so leaving is never a silent loss.
+        Announced?.Invoke($"{field.Noun} unchanged: {OptionText(view.Row, view.Row.Value)}.", AutomationLiveSetting.Polite);
     }
 
-    private RowView? TypeRowView() =>
-        rows.TryGetValue("p:type|Choice", out var view) && view.Root.IsAttachedToVisualTree() ? view : null;
+    private void CommitEnum(EnumField field, RowView view, string value)
+    {
+        field.Pending = null;
+        if (field == kindField) CommitKind(Enum.Parse<TangentKind>(value));
+        else CommitType(view, value);
+    }
 
     private void CommitType(RowView view, string value)
     {
-        pendingType = null;
         if (boundController is not { } controller || controller.Planform is not { } plan || view.Row.Target is not { } target) return;
         var rail = PropertiesView.Rail(plan, target.Curve);
         var point = rail?.Points.FirstOrDefault(item => item.Id == target.VertexId);
@@ -1073,53 +1450,12 @@ public partial class PropertiesPane : UserControl
     [GeneratedRegex(@"Max deviation ([0-9.]+) mm")]
     private static partial Regex Deviation();
 
-    // ---------------- Kind (PG-06 = MC-1, the ruled APG deviation) ----------------
-
-    private void OnKindKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (!rows.TryGetValue("t:kind|KindList", out var view)) return;
-        var committed = Enum.Parse<TangentKind>(view.Row.Value);
-        int current = Array.FindIndex(kindButtons, button => KindOf(button) == (pendingKind ?? committed));
-        int next = e.Key switch
-        {
-            Key.Up or Key.Left => Math.Max(0, current - 1),     // no wrap
-            Key.Down or Key.Right => Math.Min(kindButtons.Length - 1, current + 1),
-            Key.Home => 0,
-            Key.End => kindButtons.Length - 1,
-            _ => -1
-        };
-        if (next >= 0)
-        {
-            e.Handled = true;
-            var kind = KindOf(kindButtons[next]);
-            pendingKind = kind == committed ? null : kind;   // arrows move the check only
-            RenderKinds(view, view.Row);
-            if (pendingKind is null) ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
-            kindButtons[next].Focus(NavigationMethod.Directional);
-        }
-        else if (e.Key == Key.Escape && pendingKind is not null)
-        {
-            e.Handled = true;
-            pendingKind = null;
-            RenderKinds(view, view.Row);
-            ShowMessage(view, messages.GetValueOrDefault(view.Row.Key));
-            kindButtons.First(button => KindOf(button) == committed).Focus(NavigationMethod.Directional);
-        }
-    }
-
-    private void CommitKindOnLeave()
-    {
-        if (pendingKind is { } kind && !TangentGroup.IsKeyboardFocusWithin) CommitKind(kind);
-    }
-
     private void CommitKind(TangentKind kind)
     {
-        pendingKind = null;
         if (rendering || boundController is not { } controller || controller.Planform is not { } plan ||
-            !rows.TryGetValue("t:kind|KindList", out var view) || view.Row.Target is not { } target ||
+            !rows.TryGetValue(kindField.CacheKey, out var view) || view.Row.Target is not { } target ||
             PropertiesView.Find(plan, target) is not { } anchor)
             return;
-        bool hadFocus = TangentGroup.IsKeyboardFocusWithin;
         if (anchor.Kind != kind)
         {
             // On a handle the kind keeps the selected handle and moves the other one (COPY-162).
@@ -1141,12 +1477,9 @@ public partial class PropertiesPane : UserControl
                 Announced?.Invoke(report, AutomationLiveSetting.Polite);
             }
         }
+        // Tangent_KindChange_KeepsFocusOnKindBox: the box is persistent, so a re-render leaves focus on it.
         Bind(controller);
-        // Tangent_KindChange_KeepsFocusOnChecked: focus stays on the checked option after the commit.
-        if (hadFocus) kindButtons.FirstOrDefault(button => button.IsChecked == true)?.Focus(NavigationMethod.Directional);
     }
-
-    private static TangentKind KindOf(RadioButton button) => Enum.Parse<TangentKind>(button.Content?.ToString() ?? "Corner");
 
     // ---------------- pane keys, crumb, recovery ----------------
 
@@ -1184,22 +1517,11 @@ public partial class PropertiesPane : UserControl
         }
     }
 
-    private void CopyGroup(string id) =>
-        CopyLines(shownModel?.Groups.Where(group => group.Id == id).ToList() ?? [], shownModel?.Wing is { } wing && wing.Id == id ? wing : null);
-
     /// <summary>The rows as "label value unit" lines, one per row (PG-25).</summary>
-    private void CopyLines(IReadOnlyList<PropertyGroup> groups, PropertyGroup? wing = null)
+    private void CopyLines(IReadOnlyList<PropertyGroup> groups)
     {
-        var lines = groups.Append(wing).OfType<PropertyGroup>().SelectMany(group => group.Rows).Select(row =>
-        {
-            string value = row.Kind == RowKind.Choice
-                ? row.Options?.FirstOrDefault(option => option.Value == row.Value)?.Text ?? row.Value
-                : CopyText(row, withUnit: true);
-            return $"{row.Label} {value}";
-        }).ToList();
-        if (lines.Count == 0) return;
-        var write = ClipboardWriter ?? (text => TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(text) ?? Task.CompletedTask);
-        _ = write(string.Join("\n", lines));
+        var lines = groups.SelectMany(group => group.Rows).Select(row => $"{row.Label} {RowCopyText(row, withUnit: true)}").ToList();
+        if (lines.Count > 0) Write(string.Join("\n", lines));
     }
 
     private void GoToCrumb()
@@ -1358,27 +1680,41 @@ public partial class PropertiesPane : UserControl
             Dispatcher.UIThread.RunJobs(DispatcherPriority.Background);
     }
 
-    private sealed class RowView(Border root, Grid grid, TextBlock label, TextBlock unit, TextBlock description, Border messageBox,
-        TextBlock message)
+    private sealed class RowView(Border outer, Border root, Grid grid, TextBlock label, TextBlock unit, TextBlock description,
+        Border messageBox, TextBlock message)
     {
-        public Border Root { get; } = root;
+        public Border Outer { get; } = outer;          // carries the half-strength rule above the row
+        public Border Root { get; } = root;            // the rail, the state classes and a fact's spoken name
         public Grid Grid { get; } = grid;
         public TextBlock Label { get; } = label;
         public TextBlock Unit { get; } = unit;
         public TextBlock Description { get; } = description;
         public Border MessageBox { get; } = messageBox;
         public TextBlock Message { get; } = message;
+        public Control Cell { get; set; } = label;
+        public bool Wide { get; set; }
         public TextBlock? Value { get; set; }
+        public Path? Lock { get; set; }
+        public Path? MessageIcon { get; init; }
+        public required Border Rule { get; init; }     // the half-strength rule above the row, shown after another row
         public TextBox? Input { get; set; }
+        public ComboBox? Enum { get; set; }
+        public InputElement? Editor => (InputElement?)Input ?? Enum;
         public required PropertyRow Row { get; set; }
     }
 
-    private sealed class GroupView(Expander expander, TextBlock title, TextBlock summary, StackPanel body)
+    private sealed class GroupView(Border root, Expander expander, Path chevron, TextBlock title, TextBlock summary, StackPanel body,
+        ContextMenu menu)
     {
+        public Border Root { get; } = root;            // carries the full-strength rule under the group
         public Expander Expander { get; } = expander;
+        public Path Chevron { get; } = chevron;
         public TextBlock Title { get; } = title;
         public TextBlock Summary { get; } = summary;
         public StackPanel Body { get; } = body;
+        public ContextMenu Menu { get; } = menu;
         public ToggleButton? Header { get; set; }
     }
+
+    private sealed record SectionView(StackPanel Root, StackPanel Body);
 }
