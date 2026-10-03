@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T00:37:29Z",
+  "generated": "2026-10-03T00:38:35Z",
   "audit": [
     {
       "actor": null,
@@ -22152,6 +22152,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T00:36:35Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M3ZK5KZYG1HP6ZZ4M6G8GH1K",
+      "shortname": "join-m12b2-elv",
+      "datetime": "2026-10-03T00:38:35Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12b2-elv into feature/ui-cad-direction",
+      "summary": "ELV (Opus 5.5): ElevationView (Front looking aft, Side from starboard), CurvePointLayer extracted from PlanCanvas (Plan suite unchanged), lanes, Front station tick (DR-VIEW-4), pixel drag threshold from the view; 26/26. Found D-7 (nudge does not accumulate). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T00:37:34Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [
