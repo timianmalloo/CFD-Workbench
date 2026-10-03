@@ -23,41 +23,72 @@ cd "$root"
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
 budget="${CFD_TEST_BUDGET_SECONDS:-60}"
 named=" Core Desktop "   # suites that print PASS <name>; add Desktop when its Check helper lands
+# Core (43 s alone, one core) runs as two interleaved parts (`--part=k/n`), so it is no longer the critical path
+# (docs/reviews/test-ci-waste.md §12). Longest first. A part's log is <project>.part<k>of<n>.log.
+jobs=("Core 1/2" "Core 2/2" "Desktop" "Cli")
+# A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
+# tools/check-named-tests.py, which reads every .tmp-tests/*.log.
+rm -f "$scratch"/*.log "$scratch"/*.seconds
 started=$SECONDS
 dotnet build CFDWorkbench.slnx -c "$configuration" -nologo -v q
 echo "build $((SECONDS - started)) s ($configuration)"
-projects=(Core Cli Desktop)
 pids=()
-for project in "${projects[@]}"; do
+names=()
+for job in "${jobs[@]}"; do
+  project="${job%% *}"
+  part=""
+  name="$project"
+  if [ "$job" != "$project" ]; then part="${job#* }"; name="$project.part${part/\//of}"; fi
+  names+=("$name")
   (
     suite_start=$SECONDS
     status=0
+    args=()
+    if [ -n "$part" ]; then args=(-- "--part=$part"); fi
     dotnet run -c "$configuration" --no-build --project "tests/CfdWorkbench.$project.Tests/CfdWorkbench.$project.Tests.csproj" \
-      > "$scratch/$project.log" 2>&1 || status=$?
-    echo "$((SECONDS - suite_start))" > "$scratch/$project.seconds"
+      ${args[@]+"${args[@]}"} > "$scratch/$name.log" 2>&1 || status=$?
+    echo "$((SECONDS - suite_start))" > "$scratch/$name.seconds"
     exit "$status"
   ) &
   pids+=("$!")
 done
 failed=0
-for index in "${!projects[@]}"; do
-  project="${projects[$index]}"
+for index in "${!jobs[@]}"; do
+  project="${jobs[$index]%% *}"
+  name="${names[$index]}"
+  label="CfdWorkbench.$project.Tests"
+  if [ "$name" != "$project" ]; then label="$label ${jobs[$index]#* }"; fi
   status=0
   wait "${pids[$index]}" || status=$?
-  passes=$(grep -c '^PASS ' "$scratch/$project.log" || true)
-  echo "== CfdWorkbench.$project.Tests $(cat "$scratch/$project.seconds") s, $passes PASS"
+  passes=$(grep -c '^PASS ' "$scratch/$name.log" || true)
+  echo "== $label $(cat "$scratch/$name.seconds") s, $passes PASS"
   if [ "$status" -eq 0 ] && [ "$passes" -eq 0 ] && [[ "$named" == *" $project "* ]]; then
-    echo "FAILED: CfdWorkbench.$project.Tests exited 0 but printed no PASS line"
+    echo "FAILED: $label exited 0 but printed no PASS line"
     failed=1
   elif [ "$status" -ne 0 ]; then
-    grep '^FAIL' "$scratch/$project.log" || true
-    tail -20 "$scratch/$project.log"
-    echo "FAILED: CfdWorkbench.$project.Tests (exit $status)"
+    grep '^FAIL' "$scratch/$name.log" || true
+    tail -20 "$scratch/$name.log"
+    echo "FAILED: $label (exit $status)"
     failed=1
   else
-    tail -1 "$scratch/$project.log"
+    tail -1 "$scratch/$name.log"
   fi
 done
+# The parts run each Core check once only if the jobs hold parts 1..n of one n and every part enumerated the
+# same registrations: one PARTITION line per part, one count. Otherwise a check could drop out silently.
+expected=""
+for job in "${jobs[@]}"; do
+  if [[ "$job" == "Core "* ]]; then expected="$expected${job#* }"$'\n'; fi
+done
+reported=$(cat "$scratch"/Core.part*.log | grep '^PARTITION ' | cut -d' ' -f2 | sort || true)
+counts=$( (cat "$scratch"/Core.part*.log | grep '^PARTITION ' || true) | sed 's/.* of //' | sort -u | wc -l | tr -d ' ')
+total=$(printf '%s' "$expected" | grep -c . || true)
+complete=$(seq 1 "$total" | sed "s|\$|/$total|" | sort)
+if [ "$reported" != "$(printf '%s' "$expected" | sort)" ] || [ "$reported" != "$complete" ] || [ "$counts" -ne 1 ]; then
+  echo "FAILED: Core parts are incomplete or enumerated different checks:"
+  grep -H '^PARTITION ' "$scratch"/Core.part*.log || true
+  failed=1
+fi
 wall=$((SECONDS - started))
 echo "wall $wall s (budget $budget s)"
 if [ "$failed" -ne 0 ]; then exit 1; fi

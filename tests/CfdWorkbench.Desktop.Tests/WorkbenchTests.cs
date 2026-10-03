@@ -432,9 +432,12 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+// Longest first, so the slots never wait on a long suite started last. The two longest suites (34 s and 32 s alone,
+// 2026-10-02) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--section-flow", "--section-tools", "--shell-model", "--controller-shell", "--shell-window", "--plan-canvas", "--views",
-    "--properties-view", "--properties-cells", "--status-strip"));
+    "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
+    "--properties-view", "--views", "--properties-cells", "--controller-shell", "--status-strip", "--section-flow",
+    "--section-tools", "--shell-model"));
 
 sealed class UncertainStore : IProjectStore
 {
@@ -490,15 +493,40 @@ namespace CfdWorkbench.Desktop.Tests
         private static readonly string[]? only = Environment.GetEnvironmentVariable("CFD_TEST_ONLY")?
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         private static readonly HashSet<string> matched = [];
+        // A suite split across processes (`--part=k/n`, an argument, never an environment variable an old shell could
+        // leak): this process runs the checks whose registration index i has i % n == k - 1. Every part enumerates the
+        // same registrations, so the parts together run each check exactly once; Spawn proves that from PARTITION lines.
+        private static readonly (int Index, int Count)? part = ParsePart(Environment.GetCommandLineArgs());
+        private static int registered, ran;
 
-        /// <summary>The exit code of a named-check suite process: nonzero when any check failed or a selector prefix matched none.</summary>
+        public static (int Index, int Count)? ParsePart(string[] args)
+        {
+            string? value = args.LastOrDefault(arg => arg.StartsWith("--part=", StringComparison.Ordinal))?["--part=".Length..];
+            if (value is null) return null;
+            string[] fields = value.Split('/');
+            if (fields.Length == 2 && int.TryParse(fields[0], out int index) && int.TryParse(fields[1], out int count) &&
+                index >= 1 && index <= count)
+                return (index, count);
+            throw new ArgumentException($"--part={value} is not k/n with 1 <= k <= n");
+        }
+
+        /// <summary>
+        /// The exit code of a named-check suite process: nonzero when any check failed, a selector prefix matched none, or
+        /// a part of a split suite ran no check. A part also prints <c>PARTITION k/n of N checks</c> for Spawn to compare.
+        /// </summary>
         public static int ExitCode
         {
             get
             {
                 string[] unmatched = only is null ? [] : only.Length == 0 ? ["(empty selector)"] : only.Where(prefix => !matched.Contains(prefix)).ToArray();
                 foreach (string prefix in unmatched) Console.WriteLine("FAIL SELECTOR " + prefix + " matched no check");
-                return failures == 0 && unmatched.Length == 0 ? 0 : 1;
+                bool emptyPart = part is not null && only is null && ran == 0;
+                if (part is { } p)
+                {
+                    Console.WriteLine($"PARTITION {p.Index}/{p.Count} of {registered} checks");
+                    if (emptyPart) Console.WriteLine($"FAIL PARTITION {p.Index}/{p.Count} ran no check");
+                }
+                return failures == 0 && unmatched.Length == 0 && !emptyPart ? 0 : 1;
             }
         }
 
@@ -511,6 +539,9 @@ namespace CfdWorkbench.Desktop.Tests
                 if (prefix is null) return;
                 matched.Add(prefix);
             }
+            // After the selector, so a prefix counts as matched in every part and a subset run splits like a full one.
+            if (part is { } p && registered++ % p.Count != p.Index - 1) return;
+            ran++;
             // Test-runner boundary: report unexpected exceptions as failures and continue. The STACK line keeps a one-off
             // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
             // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
@@ -524,14 +555,18 @@ namespace CfdWorkbench.Desktop.Tests
         }
 
         /// <summary>
-        /// Runs every suite mode as a child process, at most half the processors (capped at 4) at a time, and returns the
-        /// first nonzero child exit code in mode order, else 0. Each child's output is buffered and printed in mode order
-        /// once it finishes, so the log reads as a sequential run would. The children share no files, ports or state:
-        /// every scratch path is a GUID name under the temp directory (docs/reviews/test-ci-waste.md, Desktop suite profile).
+        /// Runs every suite mode as a child process, at most 3/8 of the processors at a time, and returns the first nonzero
+        /// child exit code in mode order, else 0. A mode may carry a part (`--shell-window --part=1/2`); the parts of one
+        /// suite must be 1..n and report one check count, or the run fails. Each child's output is buffered and printed in
+        /// mode order once it finishes, so the log reads as a sequential run would. The children share no files, ports or
+        /// state: every scratch path is a GUID name under the temp directory (docs/reviews/test-ci-waste.md §10 and §12).
         /// </summary>
         public static int Spawn(params string[] modes)
         {
-            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount / 2, 1, 4));
+            // A child uses about 1.4 cores. 3/8 (6 of 16) keeps the whole gate near 10 cores, so a second gate or a
+            // build beside it does not starve the product's 1 s proof budget: at 8 slots under 10 busy loops, 7 Core
+            // checks failed GEOMETRY-BUDGET; at 6 they passed (test-ci-waste.md §12, measured 2026-10-02).
+            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount * 3 / 8, 1, modes.Length));
             var runs = new Task<(List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)>[modes.Length];
             for (int index = 0; index < modes.Length; index++)
             {
@@ -540,22 +575,46 @@ namespace CfdWorkbench.Desktop.Tests
                 runs[index] = Task.Run(() => { try { return RunBuffered(mode); } finally { slots.Release(); } });
             }
             int exitCode = 0;
+            var partCounts = new Dictionary<string, List<string>>();
             for (int index = 0; index < modes.Length; index++)
             {
                 var (lines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
                 foreach (var (error, text) in lines) (error ? Console.Error : Console.Out).WriteLine(text);
                 Console.WriteLine($"SUITE {modes[index]} exit {childExit}");
                 Console.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));
+                string[] spec = modes[index].Split(' ');
+                if (spec.Length > 1)
+                {
+                    string counts = string.Join(",", lines.Where(line => !line.Error && line.Text.StartsWith("PARTITION ", StringComparison.Ordinal))
+                        .Select(line => line.Text.Split(" of ")[^1]));
+                    partCounts.TryAdd(spec[0], []);
+                    partCounts[spec[0]].Add(spec[1] + " " + counts);
+                }
                 if (childExit == 0) continue;
                 Console.WriteLine($"FAIL {modes[index]} exited {childExit}");
                 if (exitCode == 0) exitCode = childExit;
+            }
+            // The parts run each check once only if the mode list holds parts 1..n of one n, and each part enumerated the
+            // same registrations (one PARTITION line each, one count). Otherwise a check could drop out silently.
+            foreach (var (mode, reports) in partCounts)
+            {
+                var parts = reports.Select(report => report.Split(' ', 2)).ToArray();
+                int count = parts.Length;
+                bool complete = parts.Select(fields => fields[0]).Order(StringComparer.Ordinal)
+                    .SequenceEqual(Enumerable.Range(1, count).Select(k => $"--part={k}/{count}").Order(StringComparer.Ordinal));
+                var counts = parts.Select(fields => fields[1]).ToArray();
+                if (complete && counts.All(value => value.Length > 0 && !value.Contains(',')) && counts.Distinct().Count() == 1) continue;
+                Console.WriteLine($"FAIL PARTITION {mode} parts are incomplete or enumerated different checks: [{string.Join(" | ", reports)}]");
+                if (exitCode == 0) exitCode = 1;
             }
             return exitCode;
         }
 
         private static (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds) RunBuffered(string mode)
         {
-            var info = SelfLaunch.StartInfo(mode);
+            string[] spec = mode.Split(' ');
+            var info = SelfLaunch.StartInfo(spec[0]);
+            foreach (string argument in spec[1..]) info.ArgumentList.Add(argument);
             info.RedirectStandardOutput = true;
             info.RedirectStandardError = true;
             var lines = new List<(bool Error, string Text)>();
