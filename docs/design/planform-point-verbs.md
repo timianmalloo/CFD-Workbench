@@ -86,7 +86,7 @@ review-suggested:
 | A CLI write command | The CLI has `inspect` only (m12b D-3 precedent). `inspect --json` already shows every channel's points | With a CLI editing slice |
 | Insert anchor (keep shape) | The section editor has it (M1.2c §3.4); Ruling 62 names three verbs | A later request |
 | Removing several selected points with one ⌫ | Each removal is measured and reported on its own ("Remove points one at a time, so each change is measured.") | An operator report |
-| A New foil with fewer rail points | Not asked by Ruling 62; its elliptical tip costs 8.97 mm at 4 points and 1.36 mm at 5 (mockup) | Ask again with SPK's numbers |
+| ~~A New foil with fewer rail points~~ | **Moved into scope by Ruling 64** (operator: "New foil should not ship with 10 points that is too complex — it should be 4 points on TE and LE"): see §14 "New foil default" | — |
 
 ## 1. Grounding — what this design must satisfy
 
@@ -820,6 +820,17 @@ All tracks start **after M1.2c joins** (Ruling 62). They touch these files that 
 | **PVC** Core, FoilDSL, receipts, CLI | Grok or Codex | `FoilSource.cs`, `ChannelEdits.cs` (new), `PointModel.cs`, `AuthoringSession.cs` (point-command region, `EditReference`, replay guard, `PreviewRebuild`, events), `docs/specs/foildsl.md` §5 + `docs/examples/foildsl/`, `PointVerbTests.cs` (new), `ReopenPointEditTests.cs` additions, `Fixtures/planform-verbs/`, `docs/proof/planform-verbs-old-build/` | M1.2c joined | 135 min (P1 45 × 3, Ruling 54) | PVC names PASS; planted mutant (an alpha off by one span turns `AddPoint_Boehm_ShapeUnchangedWithin1e12Relative` red) |
 | **PVU** Desktop | Codex | `WorkbenchController.cs`, `PlanCanvas.cs`, `ElevationView.cs`, `CurvePointLayer.cs`, `RebuildPopover.axaml`(.cs) (new), `ModelArea.axaml`(.cs), `PropertiesView.cs`, `PointsView.cs`, `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`, Desktop tests | PVC | 141 min (D3a 47 × 3) | PVU names PASS; the UI-DEAD-CONTROL walk green with the new rows; planted mutants: dropping `Reason` in the catch turns `Controller_RefusalCopy_UsesCoreReasonNotCode` red, removing the slot guard turns `StatusStrip_VerbReport_NotClobberedBySampling` red |
 | **PVX** review and polish | Claude | `DESIGN.md` (COPY-190..205, the Rebuild popover component row), `docs/reviews/planform-verbs-native.md` (new), readiness rows | PVU | 60 min | marine-CAD re-review on the native build; the six screens captured from the packaged app and compared with the approved mockup (a review receipt, not a test); `Readiness_RebuildPreviews_Worst16PointCurveUnder100ms` PASS |
+
+**New foil default (Ruling 64, owned by PVC).** `FoilSource.NewDefault` ships **4** control vertices on the
+leading-edge and trailing-edge rails (today 10, `FoilSource.cs`:403); the other three channels keep their default
+unless SPK's numbers give a reason (report it, do not change it silently). Consequences PVC must cover, each with a
+named test written red first: New foil writes the FoilDSL **4.1** header (4.0's floor is 6); the New foil shape
+changes — report the measured rail deviation from today's 10-point New foil (the mockup puts it at TE 8.97 mm,
+LE 2.99 mm at 467.5 mm from root) and the tip direction change; every existing test or fixture that assumes a
+10-point New foil rail (the demo in §0.1 included) is updated with its new number, never deleted; the M1.2c
+ADR-0001 Amendment 1 note "New foil ships at 10, so under 6–10 it holds no interior anchor" is superseded (at 4 it
+holds none either; Add point first). SPK measures the 4-point New foil rails (κ′ energy, comb) so the default is
+evidence, not taste. PVX recaptures the §0.1 demo on the 4-point default.
 
 **Order:** {SPK ∥ PVC} → PVU → PVX → join. Critical path PVC → PVU → PVX = 336 min of boxes; measured priors suggest
 about 2.5 h of real time (Inferred). Width 2.
