@@ -139,6 +139,7 @@ public static class Cli
             {
                 schemaVersion = 1,
                 points = pointModel,
+                sectionPoints = Sections.Points(source),
                 acceptedSourceSha256 = view.SourceHash,
                 definitionHash = view.SurfaceHash,
                 evaluator = inspection.Authored.Binding.Evaluator,

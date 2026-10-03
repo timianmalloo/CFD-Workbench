@@ -267,6 +267,88 @@ public static class FoilSource
         return knot > 0 && knot < 1;
     }
 
+    internal static byte[] WriteSurfaces(byte[] source, string profile, double[] knots, double[][] upperPoints, string[] upperIds, double[][] lowerPoints, string[] lowerIds)
+    {
+        var (_, found) = ProfileOf(source, profile);
+        return RewriteCurves(source, found, knots, upperPoints, upperIds, lowerPoints, lowerIds);
+    }
+
+    internal static byte[] WriteSideTangents(byte[] source, string profileName, SurfaceSide side, TangentRow[] rows)
+    {
+        if (rows.Length > 0) source = EnsureHeader41(source);
+        var (_, profile) = ProfileOf(source, profileName);
+        var curve = side == SurfaceSide.Upper ? profile.Upper : profile.Lower;
+        string text = Utf8.GetString(source);
+        string body = FormatTangents(rows);
+        int window = Math.Min(curve.PointsEnd, curve.InsertAt);
+        int at = text.IndexOf("tangents", window, curve.InsertAt - window, StringComparison.Ordinal);
+        if (at >= 0)
+        {
+            int open = text.IndexOf('{', at);
+            int close = text.IndexOf('}', open);
+            int start = at > 0 && text[at - 1] == ' ' ? at - 1 : at;
+            text = string.Concat(text.AsSpan(0, start), body, text.AsSpan(close + 1));
+        }
+        else if (body.Length > 0)
+            text = text.Insert(curve.InsertAt, body);
+        else
+            return source;
+        byte[] candidate = Utf8.GetBytes(text);
+        var parsed = Parse(candidate);
+        if (!parsed.IsParsed)
+            throw new ContractError(parsed.Diagnostics.Count == 0 ? "DSL-PATCH" : parsed.Diagnostics[0].Code,
+                parsed.Diagnostics.Count == 0 ? "Tangent rows did not parse." : parsed.Diagnostics[0].Reason);
+        return candidate;
+    }
+
+    internal static (double[] Knots, double[][] Points, int Inserted) InsertOnce(double[] knots, double[][] points, int degree, double t) =>
+        InsertKnot(knots, points, degree, t);
+
+    internal static (double[] Knots, double[][] Points, int Removed) RemoveOnce(double[] knots, double[][] points, int degree, int r)
+    {
+        int removed = RemovedControl(knots, degree, r);
+        var kept = RemoveKnot(points, knots, degree, r);
+        var next = new double[knots.Length - 1];
+        Array.Copy(knots, next, r);
+        Array.Copy(knots, r + 1, next, r, knots.Length - r - 1);
+        return (next, kept, removed);
+    }
+
+    internal static int SelectRemovable(double[] knots, int degree, double knot)
+    {
+        int last = -1;
+        for (int index = 0; index < knots.Length; index++)
+            if (knots[index] == knot) last = index;
+        if (last < 0) throw new ContractError("DSL-CURVE", "The anchor knot is not in the vector.");
+        for (int r = last; r >= 0 && knots[r] == knot; r--)
+        {
+            int multiplicity = 1;
+            int scan = r;
+            while (scan > 0 && knots[scan - 1] == knot) { multiplicity++; scan--; }
+            int numer = 2 * r - multiplicity - degree;
+            if (numer % 2 == 0 && numer >= 0) return r;
+        }
+        throw new ContractError("DSL-CURVE", "The anchor knot cannot be removed.");
+    }
+
+    private static int RemovedControl(double[] knots, int degree, int r)
+    {
+        double knot = knots[r];
+        int multiplicity = 1;
+        int scan = r;
+        while (scan > 0 && knots[scan - 1] == knot) { multiplicity++; scan--; }
+        int numer = 2 * r - multiplicity - degree;
+        if (numer % 2 != 0) throw new ContractError("DSL-CURVE", "Knot removal index is not an integer.");
+        return numer / 2;
+    }
+
+    private static string FormatTangents(TangentRow[] rows)
+    {
+        if (rows.Length == 0) return "";
+        var parts = rows.Select(row => Jcs.Quote(row.Id) + " " + row.Kind + (row.Angle is double angle ? " " + ExactDecimal(angle) : ""));
+        return " tangents { " + string.Join(" ", parts) + " }";
+    }
+
     private static string CurveBody(Curve curve, int scale)
     {
         var text = new StringBuilder();
@@ -774,9 +856,9 @@ public static class FoilSource
                 (1 - alpha) * points[index - 1][1] + alpha * points[index][1]
             };
         }
-        int numer = 2 * (k + 1) - (multiplicity + 1) - degree;
-        Guard.Require(numer % 2 == 0, "DSL-CURVE");
-        int inserted = numer / 2;
+        int firstNew = k - degree + 1;
+        int lastNew = k - multiplicity;
+        int inserted = firstNew <= lastNew ? (firstNew + lastNew) / 2 : k - multiplicity + 1;
         Guard.Require((uint)inserted < (uint)next.Length && next.All(point => point is { Length: 2 }), "DSL-CURVE");
         return (nextKnots, next, inserted);
     }

@@ -1,7 +1,7 @@
 namespace CfdWorkbench.Core;
 
-public enum PointRole { RootEnd, RootHandle, Control, AnchorHandle, Anchor, TipHandle, TipEnd }
-public enum TangentKind { Corner, Smooth, Symmetric }
+public enum PointRole { RootEnd, RootHandle, Control, AnchorHandle, Anchor, TipHandle, TipEnd, Nose, NoseHandle, TrailingEnd, TrailingHandle }
+public enum TangentKind { Corner, Smooth, Symmetric, Horizontal, Vertical, Angle }
 public enum PointFreedom { Fixed, SpanOnly, ValueOnly, Free }
 
 public static class PointModel
@@ -11,7 +11,7 @@ public static class PointModel
 }
 
 public sealed record PointView(string Curve, string Id, int Index, double Eta, double SpanMeters, double Ordinate,
-    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks);
+    PointRole Role, string? AnchorId, TangentKind? Kind, PointFreedom Freedom, IReadOnlyList<string> Locks, double? AngleDegrees = null);
 public sealed record PlanSample(double SpanMeters, double Ordinate);
 public sealed record CombTooth(double SpanMeters, double Ordinate, double NormalSpan, double NormalAft,
     double Curvature, bool BreakBefore);
@@ -94,6 +94,16 @@ public static class Planform
         return new(anchor.SpanMeters + span, anchor.Ordinate + aft);
     }
 
+    private static TangentKind MapKind(string kind) => kind switch
+    {
+        "symmetric" => TangentKind.Symmetric,
+        "smooth" => TangentKind.Smooth,
+        "horizontal" => TangentKind.Horizontal,
+        "vertical" => TangentKind.Vertical,
+        "angle" => TangentKind.Angle,
+        _ => TangentKind.Corner
+    };
+
     internal static CurveView Project(Definition definition, string name, int ceiling)
     {
         var curve = definition.Curves[name];
@@ -116,18 +126,16 @@ public static class Planform
                 _ => null
             };
             TangentKind? kind = null;
-            if (anchor)
-            {
-                int row = Array.FindIndex(curve.Tangents, item => item.Id == curve.Ids[index]);
-                kind = row < 0 ? TangentKind.Corner : curve.Tangents[row].Kind == "symmetric" ? TangentKind.Symmetric : TangentKind.Smooth;
-            }
+            int row = anchor ? Array.FindIndex(curve.Tangents, item => item.Id == curve.Ids[index]) : -1;
+            if (anchor) kind = row < 0 ? TangentKind.Corner : MapKind(curve.Tangents[row].Kind);
             var freedom = Freedom(name, index, points.Length, mirror);
             string[] locks = definition.Locks.Where(item => item.Channel.Text == name &&
                 (item.Kind == "root_mirror" ? index < 2 : item.Id is null || item.Id.String == curve.Ids[index]))
                 .Select(item => item.Kind).Distinct().ToArray();
             double eta = curve.Points[index][0];
+            double? angle = anchor && row >= 0 ? curve.Tangents[row].Angle : null;
             points[index] = new(name, curve.Ids[index], index, eta, eta * definition.HalfSpan, curve.Points[index][1],
-                role, anchorId, kind, freedom, locks);
+                role, anchorId, kind, freedom, locks, angle);
         }
         var samples = new List<PlanSample>();
         for (int span = curve.Degree; span < curve.Points.Length; span++)
