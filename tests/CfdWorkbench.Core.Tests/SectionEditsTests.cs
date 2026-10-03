@@ -27,6 +27,7 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold), SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold);
         IdentityTests.Check(nameof(SectionEdits_PairedSetTangent_BothSurfacesSameKind), SectionEdits_PairedSetTangent_BothSurfacesSameKind);
         IdentityTests.Check(nameof(SectionEdits_PairedToAnchorWithKind_PartnerRowWritten), SectionEdits_PairedToAnchorWithKind_PartnerRowWritten);
+        IdentityTests.Check(nameof(SectionEdits_PairedToControl_PartnerRowRemoved), SectionEdits_PairedToControl_PartnerRowRemoved);
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
     }
 
@@ -239,7 +240,10 @@ internal static class SectionEditsTests
     {
         var angled = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Upper, "cv-4", TangentKind.Angle, 20, null), Anchor()));
         SameKindOnBoth(angled, "angle", 20);
-        var level = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Lower, "cv-4", TangentKind.Horizontal, null, null), Anchor()));
+        byte[] anchored = Anchor();
+        var anchoredProfile = ProfileOf(anchored);
+        string lowerId = anchoredProfile.Lower.Ids[Array.IndexOf(anchoredProfile.Upper.Ids, "cv-4")];
+        var level = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Lower, lowerId, TangentKind.Horizontal, null, null), anchored));
         SameKindOnBoth(level, "horizontal", null);
     }
 
@@ -251,9 +255,20 @@ internal static class SectionEditsTests
         IdentityTests.Equal(0, corner.Lower.Tangents.Length);
     }
 
+    private static void SectionEdits_PairedToControl_PartnerRowRemoved()
+    {
+        byte[] anchored = Anchor();
+        var profile = ProfileOf(anchored);
+        byte[] control = SectionEdits.Apply(anchored, 0, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", false)).Bytes;
+        var after = ProfileOf(control);
+        IdentityTests.Equal(0, after.Upper.Tangents.Length);
+        IdentityTests.Equal(0, after.Lower.Tangents.Length);
+        IdentityTests.Equal(profile.Upper.Points.Length - 2, after.Lower.Points.Length);
+    }
+
     private static void SameKindOnBoth(ProfileDefinition profile, string kind, double? angle)
     {
-        int index = Array.IndexOf(profile.Upper.Ids, "cv-4");
+        int index = profile.Upper.Tangents.Select(row => Array.IndexOf(profile.Upper.Ids, row.Id)).Single();
         var upper = profile.Upper.Tangents.Single(row => row.Id == profile.Upper.Ids[index]);
         var lower = profile.Lower.Tangents.Single(row => row.Id == profile.Lower.Ids[index]);
         IdentityTests.Equal(kind, upper.Kind);

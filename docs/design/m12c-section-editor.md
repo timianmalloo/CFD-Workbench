@@ -1085,7 +1085,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact` (SPTF) · `SectionEdits_PairedXMove_BothSurfacesSameAbscissa` (SPTF) ·
 `SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um` (SPTF) · `SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit` (SPTF) ·
 `SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold` (SPTF) ·
-`SectionEdits_PairedSetTangent_BothSurfacesSameKind` (SPTF) · `SectionEdits_PairedToAnchorWithKind_PartnerRowWritten` (SPTF).
+`SectionEdits_PairedSetTangent_BothSurfacesSameKind` (SPTF) · `SectionEdits_PairedToAnchorWithKind_PartnerRowWritten` (SPTF) · `SectionEdits_PairedToControl_PartnerRowRemoved` (SPTF).
 
 **SDR — the section draft in Core** (fixtures are shared-basis until GCRT merges).
 `SectionDraft_Begin_CursorZeroBytesEqualBase` (SDR) · `SectionDraft_StepThenUndoThenRedo_BytesRestoredExactly` (SDR) ·
