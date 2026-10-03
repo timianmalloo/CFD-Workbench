@@ -1,0 +1,32 @@
+17:nProcs : 6
+32:allowSystemOperations : Disallowing user-supplied system call operations
+84:Initial mesh : cells:120000  faces:367900  points:128061  unbalance:0.0092
+389:--> FOAM Warning : 
+1117:--> FOAM Warning : Displacement (1.4830699e-06 1.0414701e-18 -6.535206e-07) at mesh point 6056 coord (0.11986921 0.294 0.00024420983) points through the surrounding patch faces
+1186:--> FOAM Warning : Displacement (-5.066424e-09 -3.0018794e-18 8.6260867e-08) at mesh point 1283 coord (0.11538799 0.28875 0.00081812124) points through the surrounding patch faces
+1255:--> FOAM Warning : Displacement (2.1589021e-07 5.8713011e-18 2.0381791e-06) at mesh point 1283 coord (0.11538799 0.28875 0.0008182075) points through the surrounding patch faces
+1324:--> FOAM Warning : Displacement (5.5162725e-07 6.6528968e-19 5.1209558e-06) at mesh point 1283 coord (0.1153882 0.28875 0.00082024568) points through the surrounding patch faces
+1393:--> FOAM Warning : Displacement (9.1762922e-07 5.3797404e-18 8.5957347e-06) at mesh point 1283 coord (0.11538876 0.28875 0.00082536663) points through the surrounding patch faces
+1462:--> FOAM Warning : Displacement (1.2185538e-06 -1.4100546e-18 1.1434253e-05) at mesh point 1283 coord (0.11538967 0.28875 0.00083396237) points through the surrounding patch faces
+1531:--> FOAM Warning : Displacement (5.8900122e-07 -4.9457262e-18 3.9938641e-07) at mesh point 33277 coord (0.10430268 0.29025 0.0022768542) points through the surrounding patch faces
+1666:--> FOAM Warning : Displacement (3.4266614e-08 -6.8092598e-18 1.3874255e-06) at mesh point 33146 coord (0.10499305 0.29025 0.0022165002) points through the surrounding patch faces
+1814:--> FOAM Warning : Displacement (4.6009381e-07 -3.779792e-18 4.9872486e-06) at mesh point 33146 coord (0.10499309 0.29025 0.0022178876) points through the surrounding patch faces
+1962:--> FOAM Warning : Displacement (5.8057963e-07 -7.4787236e-18 5.5041618e-06) at mesh point 33146 coord (0.10499355 0.29025 0.0022228749) points through the surrounding patch faces
+2110:--> FOAM Warning : Displacement (4.7100853e-07 1.4875987e-17 4.15156e-06) at mesh point 33146 coord (0.10499413 0.29025 0.002228379) points through the surrounding patch faces
+2258:--> FOAM Warning : Displacement (2.7551439e-07 -5.196249e-19 2.3280539e-06) at mesh point 33146 coord (0.1049946 0.29025 0.0022325306) points through the surrounding patch faces
+2406:--> FOAM Warning : Displacement (1.1504321e-07 1.2182982e-17 9.5158739e-07) at mesh point 33146 coord (0.10499488 0.29025 0.0022348587) points through the surrounding patch faces
+2554:--> FOAM Warning : Displacement (3.1382825e-08 -8.7680593e-18 2.5737487e-07) at mesh point 33146 coord (0.10499499 0.29025 0.0022358102) points through the surrounding patch faces
+2715:--> FOAM Warning : Displacement (4.2812459e-09 -5.5511151e-17 3.4935543e-08) at mesh point 33146 coord (0.10499502 0.29025 0.0022360676) points through the surrounding patch faces
+3049:wing 128238   20     8e-06     0.00149 
+6749:Mesh with layers : cells:1950429  faces:6072988  points:2175520  unbalance:0.43469975
+6752:              target   mesh     [m]       [%]
+6754:wing 128238   20       6.56     0.00105   70.2    
+13809:Mesh with layers : cells:2747225  faces:8483586  points:2992496  unbalance:0.59865755
+13812:              target   mesh     [m]       [%]
+13814:wing 128238   20       12.8     0.00133   88.9    
+17214:Mesh with layers : cells:2752437  faces:8499752  points:2998248  unbalance:0.59941753
+17217:              target   mesh     [m]       [%]
+17219:wing 128238   20       12.8     0.00133   89      
+17233:Layer mesh : cells:2752437  faces:8499752  points:2998248  unbalance:0.0084110917
+17258:Finished meshing with 5676 illegal faces (concave, zero area or negative cell pyramid volume)
+17259:Finished meshing in = 414.57 s.

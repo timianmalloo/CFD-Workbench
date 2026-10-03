@@ -1,0 +1,6 @@
+file=postProcessing/yPlusWing/500/wing.vtk faces=125772 area_m2=1.196930e-01
+yPlus area-weighted p50=0.944 p95=1.264 max=2.286  gate(p95<=1, max<=2)=fail
+region leading_edge_3pct: faces=5322 p50=1.405 p95=2.058 max=2.286
+region main_surface: faces=112911 p50=0.939 p95=1.201 max=1.513
+region tip_cap_and_edge: faces=2407 p50=1.034 p95=1.207 max=2.022
+region trailing_edge_3pct: faces=5132 p50=0.628 p95=1.224 max=1.655

@@ -1,0 +1,123 @@
+name: spike03r2-m1b-ar8
+description: >-
+  SPIKE-03 round 2, runs M-0 + M-1a (plan docs/plans/fluids-round2.md §3.5; Ruling 65). AR 8 half wing, analysis
+  geometry with a finite trailing edge and a rounded tip (DR-F2-4, "TE blunted for analysis"), unattended
+  snappyHexMesh with wall-resolved absolute layer sizing (W3: first layer 8 um, ER 1.2, 20 layers), layer
+  featureAngle 180, layerTerminationAngle -180, nOuterIter 3 (route L1+L2, variant b: meshShrinker
+  displacementMotionSolver with displacementLaplacian, quadratic inverseDistance diffusivity). Gate read per DR-F2-3 / DR-F2-6. A 500-iteration SA run is a y+ screen only (M-1y), not a result.
+purpose:
+  spike: SPIKE-03
+  stage: 1
+  round: 2
+  run_id: M-1b
+  question: Does snappyHexMesh put >= 20 wall-resolved layers on >= 95 % of every wing region (>= 10 on 100 %) of a finite-TE, round-tip AR 8 wing, with a passing checkMesh and cellDeterminant >= 0.001?
+geometry:
+  airfoil: naca0012
+  chord: 0.12
+  span: 0.96
+  half_span: 0.48
+  aspect_ratio: 8.0
+  twist_deg: [0.0, 0.0]
+  te_thickness_m: 0.0005
+  te_method: >-
+    thicken: a linear thickness ramp x * t_TE / c added to the closed-TE NACA 0012, so chord and S_ref are unchanged
+    and the TE is a flat base of t_TE. assume: 0.5 mm stands in for the TE floor setting (spec :269, :1000), which
+    has no application default in the spec or the code (checked); 0.5 mm is the low end of the Flagged practitioner
+    band 0.5-1.5 mm for molded carbon (knowledge 12 :54). t/c at the TE = 0.42 %. If the operator's floor differs,
+    the mesh result transfers only if the TE refinement resolves the new base with >= 2 cells.
+  tip: round
+  tip_method: >-
+    the section half-thickness swept through a half circle about the chord line beyond the half span (analysis b
+    grows by up to 7.2 mm = 0.06 c locally); S_ref = half_span x chord (design value, unchanged).
+  label: TE blunted for analysis; fully turbulent; transition not modelled
+  source:
+    kind: built-planform
+    path: constant/triSurface/wing.stl
+    sha256: c8d4af76e74ece1dd7d09549434669607f383e1f45854500813e29665d3ad440
+    generator: cases/tools/mesh-gate-r2.sh cases/spike03r2-m1b-ar8.yaml 6 screen (make-wing-r2.py)
+    deviation: >-
+      Same planform basis as round 1 (Example: chord 120 mm, symmetric 12 % section, mirror_y half model) with the
+      DR-F2-4 analysis changes above; NACA 0012 instead of the Example's degree-5 profile; no twist; AR 8.
+conditions:
+  reynolds: 600000
+  mach: 0.0
+  alpha: 4.0
+  speed_m_s: 5.0
+  reference_length_m: 0.12
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    snappyHexMesh: d36f997edd31453f2b7a9a9025bafb4a9adbb5916166e65ec1c62288d8f7795a
+  activation: >-
+    cases/tools/of-run.sh (env -i allow-list, product HOME + FOAM_CONTROLDICT from cases/tools/foam-bundle, lint,
+    checkMesh pre-flight banner before the solver, argv launch)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: snappyHexMesh
+  target_y_plus: 1
+  first_cell_height_m: 8.0e-6
+  layers: { n: 20, expansion_ratio: 1.2 }
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+    min_layers_95pct: 20
+    min_layers_100pct: 10
+    y_plus_p95_max: 1
+    y_plus_max: 2
+  settings:
+    domain_m: { x: [-1.2, 2.64], z: [-1.2, 1.2], y_beyond_tip: 0.96 }
+    base_cell_m: 0.048
+    surface_level: [5, 6]
+    feature_levels: [[0.0005, 8], [0.002, 7]]
+    feature_included_angle_deg: 150
+    resolve_feature_angle_deg: 15
+    near_box_level: 3
+    near_box_pad_m: 0.06
+    wake_box_level: 3
+    wake_box_x_m: [0.1, 0.6]
+    te_box_level: 7
+    te_box_pad_m: 0.004
+    n_cells_between_levels: 3
+    min_thickness_m: 1.0e-6
+    layer_feature_angle_deg: 180
+    layer_termination_angle_deg: -180
+    max_thickness_to_medial_ratio: 0.3
+    n_layer_iter: 50
+    n_relaxed_iter: 20
+    n_outer_iter: 3
+    mesh_shrinker: displacementMotionSolver
+    min_tet_quality: 1.0e-15
+    location_in_mesh: [-0.6, 0.3, 0.6]
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
+  transition: none (fully turbulent; transition not modelled)
+  fluid: { name: "fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)", nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  freestream: { U_m_s: 5.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
+  symmetry: symmetryPlane (y = 0, wing root)
+  wing: noSlip; nuTilda 0; nut 0
+numerics:
+  schemes: { div_U: bounded Gauss linearUpwindV grad(U), div_nuTilda: bounded Gauss limitedLinear 1, laplacian: Gauss linear limited corrected 0.5 }
+  max_iterations: 500
+  residual_criterion: >-
+    none: the 500-iteration solve is a y+ screen (M-1y), not a convergence claim; the DR-F2-3 y+ gate needs an
+    A4-stationary field (SPIKE-03's later solve).
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - generator.txt (STL sha256, volume check), log.surfaceCheck, log.snappyHexMesh, log.checkMesh, log.checkMesh-det, log.topoSet-det
+  - layer-coverage.txt (per region, >= 20 and >= 10)
+  - yplus-area.txt (area-weighted y+ screen)
+  - time.<log> (peak RSS)
+run_dir: runs/20261003T222417Z-spike03r2-m1b-ar8

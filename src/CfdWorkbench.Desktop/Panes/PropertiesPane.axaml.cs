@@ -72,6 +72,9 @@ public partial class PropertiesPane : UserControl
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
     private readonly EnumField typeField;
     private readonly EnumField kindField;
+    // The section mode's third enum (Station t/c, §11.4), pooled like Type and Kind so focus survives a re-render.
+    private readonly ComboBox intentControl = new() { Name = "StationTcControl" };
+    private readonly EnumField intentField;
 
     private WorkbenchController? boundController;
     private string selectionKey = "";
@@ -106,6 +109,9 @@ public partial class PropertiesPane : UserControl
         }
         typeField = new EnumField(TypeControl, "p:type|Choice", "Type");
         kindField = new EnumField(KindControl, "t:kind|KindList", "Tangent kind");
+        intentField = new EnumField(intentControl, "sec:intent|Choice", "Station t/c");
+        intentControl.Classes.Add("prop-b");
+        FieldPool.Children.Add(intentControl);
 
         TryAgainButton.Click += (_, _) =>
         {
@@ -123,7 +129,7 @@ public partial class PropertiesPane : UserControl
         RecoveryDiscardButton.Click += (_, _) => boundController?.DiscardRecovery();
         IdentityCrumbLink.Click += (_, _) => GoToCrumb();
 
-        foreach (var field in new[] { typeField, kindField })
+        foreach (var field in new[] { typeField, kindField, intentField })
         {
             var box = field.Box;
             box.SelectionChanged += (_, _) => OnEnumSelectionChanged(field);
@@ -147,11 +153,20 @@ public partial class PropertiesPane : UserControl
     /// </summary>
     public event Action<StatusReport>? Reported;
 
+    /// <summary>The Station group's "Edit section…" link (COPY-172, CAD-20): the shell opens the section editor.</summary>
+    public event Action? EditSectionRequested;
+
+    /// <summary>A section step the pane asks the shell to apply (Station t/c; the shell reports it or its refusal).</summary>
+    public event Func<SectionStep, Task>? SectionStepRequested;
+
     /// <summary>Where the Copy command writes; null writes to the window's clipboard.</summary>
     public Func<string, Task>? ClipboardWriter { get; set; }
 
     /// <summary>The Text size multiplier the pane is drawn at (DN-5): 1, 1.25, 1.5 or 2.</summary>
     public double TextScale => textScale;
+
+    /// <summary>The model the pane last drew (the rendered checks read its rows).</summary>
+    public PropertiesModel? ShownModel => shownModel;
 
     public void FocusTypeValue() => PointSpanInput.Focus();
 
@@ -226,7 +241,8 @@ public partial class PropertiesPane : UserControl
                 Checking: controller.Gesture == GestureState.Busy,
                 NotChecked: controller.Inspection is { } inspection && inspection.Geometry.Status != GeometryStatus.Certified,
                 Curves: controller.CurveFor,
-                Frame: eta => StationFrameAt(controller, eta));
+                Frame: eta => StationFrameAt(controller, eta),
+                Section: SectionContext.Of(controller));
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {
@@ -520,9 +536,17 @@ public partial class PropertiesPane : UserControl
             case RowKind.Input:
                 RenderInput(view, row, hasError ? error.Text : null, used);
                 break;
+            case RowKind.Choice when row.Key == "sec:intent":
+                used.Add(intentControl);
+                RenderEnum(intentField, view, row);
+                break;
             case RowKind.Choice:
                 used.Add(TypeControl);
                 RenderEnum(typeField, view, row);
+                break;
+            case RowKind.Action:
+                view.Link!.Content = row.Value;
+                AutomationProperties.SetName(view.Link, row.AutomationName ?? row.Value);
                 break;
             case RowKind.KindList:
                 used.Add(KindControl);
@@ -633,7 +657,8 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumnSpan(description, 3);
         TextBlock messageText;
         Border messageBox;
-        if (row.Key == "w:span")
+        // The Span field owns the pooled error line; the read-only Span of the section mode (COPY-122) gets its own.
+        if (row.Key == "w:span" && row.Kind == RowKind.Input)
         {
             messageBox = Detach(SpanErrorPanel);
             messageText = SpanErrorText;
@@ -671,6 +696,20 @@ public partial class PropertiesPane : UserControl
                 value = box;
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 AutomationProperties.SetAccessibilityView(unit, AccessibilityView.Raw);   // the name carries the unit (PG-01)
+                break;
+            case RowKind.Choice when row.Key == "sec:intent":
+                value = Detach(intentControl);
+                view.Enum = intentControl;
+                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
+                break;
+            case RowKind.Action:
+                // CAD-20: the Station group's last row is a link, not a value (DR-CELL-5 solid underline).
+                var link = new HyperlinkButton { Name = Part("Link", row.Key), HorizontalAlignment = HorizontalAlignment.Left };
+                link.Classes.Add("prop-crumb");
+                link.Click += (_, _) => EditSectionRequested?.Invoke();
+                view.Link = link;
+                value = link;
+                Grid.SetColumnSpan(link, 3);
                 break;
             case RowKind.Choice:
                 value = Detach(TypeControl);
@@ -1162,9 +1201,96 @@ public partial class PropertiesPane : UserControl
         return meters is double value ? value * 1000 : typed;
     }
 
+    // ---------------- the section mode (§11.3–§11.4): one typed value is one step ----------------
+
+    /// <summary>
+    /// A typed x, y, handle angle or handle length of a section point: one step (§11.4). x takes % c or mm (converted at the
+    /// edited station's chord and echoed in % in the strip); y refuses mm with its reason. A refusal is a field error at the
+    /// field (UI-39) and makes no step.
+    /// </summary>
+    private bool CommitSectionPoint(RowView view, TextBox box, WorkbenchController controller, PointRef target)
+    {
+        if (controller.Section is not { } mode) return false;
+        var curve = controller.SectionCurve(SectionPoints.Side(target.Curve));
+        var point = curve?.Points.FirstOrDefault(item => item.Id == target.VertexId);
+        if (curve is null || point is null) return false;
+        double chord = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationChordMeters;
+        double x = point.SpanMeters, y = point.Ordinate;
+        string? echo = null;
+        var row = view.Row;
+        if (row.Axis is RowAxis.Span or RowAxis.Value)
+        {
+            string? refusal = SectionPoints.Parse(box.Text, row.Axis == RowAxis.Span, chord, out double fraction, out echo);
+            if (refusal is not null) return Refuse(view, box, refusal);
+            if (row.Axis == RowAxis.Span) x = fraction; else y = fraction;
+        }
+        else
+        {
+            var anchor = curve.Points.FirstOrDefault(item => Math.Abs(item.Index - point.Index) == 1 && item.Role == PointRole.Anchor);
+            if (anchor is null) return false;
+            if (!Parse(view, box, Dimensions(), out double typed)) return false;
+            var (angle, length) = PropertiesView.SectionHandle(point, anchor);
+            if (row.Axis == RowAxis.Angle) angle = typed;
+            else length = typed / 1000 / chord;
+            (x, y) = PropertiesView.SectionHandleAt(anchor, angle, length);
+        }
+        Task<string?> task;
+        using (Hold())
+        {
+            task = SectionPoints.CommitAsync(controller, target, x, y);
+            PumpUi(task);
+        }
+        string? refused = task.IsCompletedSuccessfully ? task.Result : "This change couldn't be checked, so it wasn't applied. Nothing changed.";
+        if (refused is not null) return Refuse(view, box, refused);
+        errors.Remove(row.Key);
+        messages.Remove(row.Key);
+        MarkShown([row.Key]);
+        Bind(controller);
+        if (echo is not null) Reported?.Invoke(new StatusReport(echo));
+        return true;
+    }
+
+    /// <summary>Type · both surfaces (Ruling 60): one step that sets the type on both surfaces.</summary>
+    private void CommitSectionType(PointRef target, string value) =>
+        RunSectionStep("p:type", new SectionStep.SetType(SectionPoints.Side(target.Curve), target.VertexId, value == "anchor"));
+
+    /// <summary>Kind · both surfaces: one step. A Fixed angle keeps the tail handle's present angle.</summary>
+    private void CommitSectionKind(PointRef target, TangentKind kind)
+    {
+        if (boundController is not { } controller) return;
+        double? angle = null;
+        if (kind == TangentKind.Angle && controller.SectionCurve(SectionPoints.Side(target.Curve)) is { } curve &&
+            curve.Points.FirstOrDefault(item => item.Id == target.VertexId) is { } anchor && anchor.Index + 1 < curve.Points.Count)
+            angle = PropertiesView.SectionHandle(curve.Points[anchor.Index + 1], anchor).AngleDegrees;
+        RunSectionStep("t:kind", new SectionStep.SetTangent(SectionPoints.Side(target.Curve), target.VertexId, kind, angle, null));
+    }
+
+    /// <summary>Station t/c (§11.4): From the Thickness curve, or From this section.</summary>
+    private void CommitIntent(string value) =>
+        RunSectionStep("sec:intent", new SectionStep.Thickness(value == "source" ? ThicknessIntent.UseSource : ThicknessIntent.KeepCurrent));
+
+    private void RunSectionStep(string key, SectionStep step)
+    {
+        if (boundController is not { } controller) return;
+        if (SectionStepRequested is { } shell)
+        {
+            using (Hold()) PumpUi(shell(step));
+        }
+        else
+        {
+            var task = controller.ApplySectionStepAsync(step);
+            using (Hold()) PumpUi(task);
+            if (task.Exception?.InnerException is ContractError error)
+                messages[key] = new RowMessage($"{error.Reason ?? error.Code} Nothing changed.", MessageKind.Error);
+        }
+        Bind(controller);
+    }
+
+
     private bool CommitPoint(RowView view, TextBox box)
     {
         if (boundController is not { } controller || view.Row.Target is not { } target) return false;
+        if (target.Curve is "upper" or "lower") return CommitSectionPoint(view, box, controller, target);
         Func<string, CurveView?> curves = controller.CurveFor;
         if (PropertiesView.Find(curves, target) is not { } point) return false;
         var dims = Dimensions();
@@ -1395,8 +1521,18 @@ public partial class PropertiesPane : UserControl
         var box = field.Box;
         box.IsVisible = true;
         var options = row.Options ?? [];
-        if (box.ItemCount != options.Count || !box.Items.OfType<ComboBoxItem>().Select(item => item.Tag as string).SequenceEqual(options.Select(option => option.Value)))
-            box.ItemsSource = options.Select(option => new ComboBoxItem { Content = option.Text, Tag = option.Value }).ToList();
+        if (box.ItemCount != options.Count || !box.Items.OfType<ComboBoxItem>().Select(item => (item.Tag as string, item.IsEnabled))
+                .SequenceEqual(options.Select(option => ((string?)option.Value, option.Enabled))))
+            box.ItemsSource = options.Select(option =>
+            {
+                var item = new ComboBoxItem { Content = option.Text, Tag = option.Value, IsEnabled = option.Enabled };
+                if (option.Reason is { } reason)
+                {
+                    ToolTip.SetTip(item, reason);
+                    AutomationProperties.SetHelpText(item, reason);
+                }
+                return item;
+            }).ToList();
         string shownValue = field.Pending ?? row.Value;
         int index = options.ToList().FindIndex(option => option.Value == shownValue);
         if (box.SelectedIndex != index)
@@ -1408,7 +1544,8 @@ public partial class PropertiesPane : UserControl
         box.IsEnabled = true;
         AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
         string committed = OptionText(row, row.Value);
-        string? description = field == kindField ? PropertyCopy.KindDescription(Enum.Parse<TangentKind>(shownValue)) : row.Description;
+        string? description = field == kindField && row.Target is not { Curve: "upper" or "lower" }
+            ? PropertyCopy.KindDescription(Enum.Parse<TangentKind>(shownValue)) : row.Description;
         view.Description.Text = description ?? "";
         // CB-4: while a value is staged the box says which keys apply it and which keep the committed one.
         AutomationProperties.SetHelpText(box, field.Pending is not null ? $"Return applies; Esc keeps {committed.ToLowerInvariant()}" : description);
@@ -1472,7 +1609,13 @@ public partial class PropertiesPane : UserControl
     private void CommitEnum(EnumField field, RowView view, string value)
     {
         field.Pending = null;
-        if (field == kindField) CommitKind(Enum.Parse<TangentKind>(value));
+        if (field == intentField) CommitIntent(value);
+        else if (view.Row.Target is { Curve: "upper" or "lower" } section)
+        {
+            if (field == kindField) CommitSectionKind(section, Enum.Parse<TangentKind>(value));
+            else CommitSectionType(section, value);
+        }
+        else if (field == kindField) CommitKind(Enum.Parse<TangentKind>(value));
         else CommitType(view, value);
     }
 
@@ -1767,7 +1910,8 @@ public partial class PropertiesPane : UserControl
         public required Border Rule { get; init; }     // the half-strength rule above the row, shown after another row
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
-        public InputElement? Editor => (InputElement?)Input ?? Enum;
+        public HyperlinkButton? Link { get; set; }
+        public InputElement? Editor => (InputElement?)Input ?? (InputElement?)Enum ?? Link;
         public required PropertyRow Row { get; set; }
     }
 

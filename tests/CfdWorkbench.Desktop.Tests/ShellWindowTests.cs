@@ -92,11 +92,8 @@ public static class ShellWindowTests
                     (host.LayoutFactory.SectionSampleDocument, host.ModelView.FindControl<Viewport>("SectionViewport")!,
                         () => ReferenceEquals(host.ModelView.FindControl<Viewport>("SectionViewport")!.LastRecordedFrame, controller.Frame)),
                     (host.LayoutFactory.FoilSourceDocument, host.ModelView.FindControl<TextBox>("SourceText")!,
-                        () => !string.IsNullOrWhiteSpace(host.ModelView.FindControl<TextBox>("SourceText")!.Text)),
-                    (host.LayoutFactory.SectionDocument,
-                        host.ModelView.FindControl<SectionEditorView>("SectionEditor")!.FindControl<SectionCanvas>("EditableSectionCanvas")!,
-                        () => host.ModelView.FindControl<SectionEditorView>("SectionEditor")!
-                            .FindControl<SectionCanvas>("EditableSectionCanvas")!.Profile is not null)
+                        () => !string.IsNullOrWhiteSpace(host.ModelView.FindControl<TextBox>("SourceText")!.Text))
+                    // M1.2c: the Section tab is retired; the section editor is the model area's Section mode (EDT).
                 };
                 foreach (var (document, surface, ready) in documents)
                 {
@@ -128,54 +125,8 @@ public static class ShellWindowTests
                     .Count(tab => tab.IsEffectivelyVisible);
                 int dockTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
                     .Count(tab => tab.IsEffectivelyVisible);
-                if (innerRows != 0 || dockTabs != 4)
+                if (innerRows != 0 || dockTabs != 3)
                     throw new InvalidOperationException($"Model area has {innerRows} inner tab rows and {dockTabs} Dock document tabs");
-            }
-            finally { window.Close(); }
-        });
-
-        DesktopChecks.Check("Shell_F9_SectionSelectedStation_DrawsProfile", () =>
-        {
-            using var controller = new WorkbenchController();
-            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
-            var host = new ShellHost(controller);
-            var window = new Window { Content = host, Width = 1280, Height = 800 };
-            try
-            {
-                window.Show();
-                Settle(window);
-                var station = controller.Inspection!.Authored.Assignments[0];
-                controller.Select(new Selection.Station(0, station.Eta));
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
-                Settle(window);
-                var canvas = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!
-                    .FindControl<SectionCanvas>("EditableSectionCanvas")!;
-                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || !canvas.IsEffectivelyVisible ||
-                    canvas.Bounds.Width <= 0 || canvas.Bounds.Height <= 0 ||
-                    canvas.Profile is null || canvas.Profile.UpperCurve.Count == 0 || canvas.FoilBrush is null)
-                    throw new InvalidOperationException("Selected station Section canvas has no realized profile drawing inputs");
-            }
-            finally { window.Close(); }
-        });
-
-        DesktopChecks.Check("Shell_F9_SectionNoStation_ShowsEmptyCopy", () =>
-        {
-            using var controller = new WorkbenchController();
-            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
-            var host = new ShellHost(controller);
-            var window = new Window { Content = host, Width = 1280, Height = 800 };
-            try
-            {
-                window.Show();
-                Settle(window);
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
-                Settle(window);
-                var editor = host.ModelView.FindControl<SectionEditorView>("SectionEditor")!;
-                var canvas = editor.FindControl<SectionCanvas>("EditableSectionCanvas")!;
-                var empty = editor.FindControl<TextBlock>("SectionEmptyText");
-                if (!ReferenceEquals(canvas.GetVisualRoot(), window) || canvas.Profile is not null ||
-                    empty is null || !empty.IsEffectivelyVisible || empty.Text != "No station selected.")
-                    throw new InvalidOperationException("Section document omitted its No station selected empty state");
             }
             finally { window.Close(); }
         });
@@ -766,7 +717,7 @@ public static class ShellWindowTests
             try { host = new ShellHost(controller); }
             catch (Exception error) { throw new InvalidOperationException(error.ToString(), error); }
             var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
-            if (!ids.SequenceEqual(["model", "section-sample", "foil-source", "section"]))
+            if (!ids.SequenceEqual(["model", "section-sample", "foil-source"]))
                 throw new InvalidOperationException("Model area document tabs are absent");
             var paneIds = host.LayoutFactory.LeftToolDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
             if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("rail-controls"))
@@ -784,7 +735,6 @@ public static class ShellWindowTests
                 {
                     host.LayoutFactory.SectionSampleDocument,
                     host.LayoutFactory.FoilSourceDocument,
-                    host.LayoutFactory.SectionDocument,
                     host.LayoutFactory.ModelDocument
                 })
                 {
@@ -2172,7 +2122,7 @@ public static class ShellWindowTests
 
                     var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                     string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
-                    if (!titles.SequenceEqual(["Plan", "Section sample", "Foil source", "Section"]))
+                    if (!titles.SequenceEqual(["Plan", "Section sample", "Foil source"]))
                         throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
                     var modelTab = docTabs[1];
                     var sourceTab = docTabs[2];
@@ -2373,8 +2323,9 @@ public static class ShellWindowTests
                         // The variant must follow a live switch on an open window, not only the one it opened with.
                         window.RequestedThemeVariant = ThemeVariant.Dark;
                         Settle(window);
-                        Probe(theme, "live-flip.dark.tab.Section.unselected",
-                            () => TextRow(theme, "live-flip.dark.tab.Section.unselected", docTabs[3]));
+                        // M1.2c: the Section tab is retired; the live flip probes the Plan tab, unselected here.
+                        Probe(theme, "live-flip.dark.tab.Plan.unselected",
+                            () => TextRow(theme, "live-flip.dark.tab.Plan.unselected", docTabs[0]));
                         Probe(theme, "live-flip.dark.select.tab.Foil source",
                             () => SelectedRow(theme, "live-flip.dark.select.tab.Foil source", sourceTab));
                     }

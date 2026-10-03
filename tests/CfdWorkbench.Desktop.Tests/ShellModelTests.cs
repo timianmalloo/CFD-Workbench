@@ -72,6 +72,43 @@ public static class ShellModelTests
             }
         });
 
+        DesktopChecks.Check("Presets_DesktopEqualsCodec_EveryWorkspace", () =>
+        {
+            // One table (LayoutCodec.Homes): the shell's presets are the codec's, byte for byte, in every workspace.
+            var registered = WorkspacePresets.RegisteredPanes.ToHashSet(StringComparer.Ordinal);
+            foreach (var workspace in new[] { WorkspaceId.Planform, WorkspaceId.Precision, WorkspaceId.Review })
+            {
+                var desktop = LayoutCodec.Serialize(WorkspacePresets.Preset(workspace));
+                var codec = LayoutCodec.Serialize(LayoutCodec.Presets(workspace, registered));
+                if (!desktop.AsSpan().SequenceEqual(codec)) throw new Exception($"{workspace}: desktop preset differs from the codec's");
+            }
+            if (registered.Contains("messages") || WorkspacePresets.ShownIn(WorkspaceId.Precision, "points") != RegionId.Right ||
+                WorkspacePresets.ShownIn(WorkspaceId.Planform, "points") is not null || WorkspacePresets.ShownIn(WorkspaceId.Review, "points") is not null ||
+                WorkspacePresets.ShownIn(WorkspaceId.Planform, "properties") != RegionId.Left)
+                throw new Exception("pane homes: " + string.Join(", ", LayoutCodec.Homes.Select(home => $"{home.Pane}@{home.Region}")));
+        });
+
+        DesktopChecks.Check("Layout_SavedMessagesPane_DroppedWithCode", () =>
+        {
+            // A layout saved before M1.2c names the retired Messages pane (OD-2 A): it drops with LAYOUT-PANE, the rest stays.
+            const string saved = """
+            {"format":"cfdw-layout","version":1,"active":"precision","workspaces":[{"id":"precision",
+             "views":{"arrangement":"plan-3d","single":"plan"},
+             "regions":[
+              {"id":"left","open":true,"size":260,"groups":[{"panes":["properties","browser"],"active":"properties","share":1}]},
+              {"id":"bottom","open":true,"size":190,"groups":[{"panes":["points","messages"],"active":"messages","share":1}]},
+              {"id":"right","open":false,"size":260,"groups":[]}],
+             "floats":[],"closed":["messages"]}]}
+            """;
+            var parsed = LayoutCodec.Parse(System.Text.Encoding.UTF8.GetBytes(saved), WorkspacePresets.RegisteredPanes.ToHashSet(StringComparer.Ordinal));
+            var workspace = parsed.Document.Workspaces.Single(item => item.Id == WorkspaceId.Precision);
+            var panes = workspace.Regions.SelectMany(region => region.Groups).SelectMany(group => group.Panes).Concat(workspace.Closed).ToList();
+            var bottom = workspace.Regions.Single(region => region.Id == RegionId.Bottom);
+            if (!parsed.Codes.Contains("LAYOUT-PANE") || parsed.DroppedPanes < 2 || parsed.NeverWrite || panes.Contains("messages") ||
+                panes.Count(pane => pane == "points") != 1 || bottom.Groups.Single().Active != "points" || parsed.Codes.Contains("LAYOUT-SCHEMA"))
+                throw new Exception($"codes [{string.Join(",", parsed.Codes)}] dropped {parsed.DroppedPanes} panes [{string.Join(",", panes)}]");
+        });
+
         DesktopChecks.Check("ProportionFor_Bounds", () =>
         {
             double p1 = WorkspacePresets.ProportionFor(260, 1040);
@@ -333,6 +370,10 @@ public static class ShellModelTests
                 // reached from the menu bar and the palette (and the cube's faces in Tab order, V3D).
                 bool choice = row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu ||
                               row.Menu == ViewCommands.CameraMenu && row.Id != "view.camera-iso";
+                // M1.2c §5.2 names keys for section.edit (↩), section.finish (⌘↩) and section.delete-point (⌫) only; the
+                // other section rows, Thickness ×2 and Window ▸ Points are "—": reached from the menus and the palette.
+                choice |= row.Menu == CommandTable.SectionMenu && row.Id is not ("section.edit" or "section.finish" or "section.delete-point") ||
+                          row.Id is "view.thickness-x2" or "window.points";
                 if (!pointCommand && !textSize && !choice && string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has no Gesture/key route");
             }

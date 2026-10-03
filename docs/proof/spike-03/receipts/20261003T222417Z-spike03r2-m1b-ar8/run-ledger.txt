@@ -1,0 +1,29 @@
+of-run: wait 2026-10-03T22:24:18Z join lock present
+of-run: wait 2026-10-03T22:24:48Z join lock present
+of-run: wait 2026-10-03T22:25:18Z join lock present
+of-run: wait 2026-10-03T22:25:48Z join lock present
+of-run: wait 2026-10-03T22:26:18Z join lock present
+of-run: wait 2026-10-03T22:26:48Z join lock present
+of-run: wait 2026-10-03T22:27:18Z join lock present
+of-run: wait 2026-10-03T22:27:48Z join lock present
+of-run: wait 2026-10-03T22:28:18Z join lock present
+of-run: wait 2026-10-03T22:28:48Z join lock present
+of-run: wait 2026-10-03T22:29:18Z join lock present
+of-run: wait 2026-10-03T22:29:48Z join lock present
+of-run: wait 2026-10-03T22:30:18Z join lock present
+of-run: wait 2026-10-03T22:30:48Z join lock present
+of-run: wait 2026-10-03T22:31:18Z join lock present
+of-run: wait 2026-10-03T22:31:48Z join lock present
+of-run: wait 2026-10-03T22:32:18Z join lock present
+of-run: start 2026-10-03T22:32:49Z load1=1.99 record=verified lint=clean bundle=f3debe8b5541 cmd=blockMesh
+of-run: end status=0 wall_s=0 load1=1.99 peak_rss_bytes=158072832 banner=Disallowing cmd=blockMesh
+of-run: start 2026-10-03T22:32:50Z load1=2.07 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=2.07 peak_rss_bytes=134414336 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-03T22:32:52Z load1=2.07 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: end status=0 wall_s=0 load1=2.07 peak_rss_bytes=41402368 banner=Disallowing cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: start 2026-10-03T22:32:53Z load1=2.07 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceFeatureExtract
+of-run: end status=0 wall_s=0 load1=2.07 peak_rss_bytes=44089344 banner=Disallowing cmd=surfaceFeatureExtract
+of-run: start 2026-10-03T22:32:54Z load1=2.07 record=verified lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=1 load1=2.06 peak_rss_bytes=166985728 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-03T22:32:56Z load1=2.06 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite
+of-run: end status=1 wall_s=38 load1=5.44 peak_rss_bytes=687751168 banner=Disallowing cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite

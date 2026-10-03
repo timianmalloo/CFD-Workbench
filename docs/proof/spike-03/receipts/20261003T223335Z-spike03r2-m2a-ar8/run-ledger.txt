@@ -1,0 +1,1 @@
+gmsh: status=1 (generator.txt: 'PLC Error: A segment and a facet intersect at point (-0.00136542,-1.38448e-05,0.43801)'; 'HXT 3D mesh failed'); no OpenFOAM process ran

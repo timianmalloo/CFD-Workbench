@@ -20,7 +20,8 @@ internal static class LayoutFileTests
         Check("LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9", Deepest);
     }
 
-    internal static IReadOnlySet<string> Panes() => new HashSet<string>(["properties", "browser", "points", "messages"], StringComparer.Ordinal);
+    // M1.2c (OD-2 A, OD-3 B): no Messages pane; Points lives in the right side bar (LayoutCodec.Homes).
+    internal static IReadOnlySet<string> Panes() => new HashSet<string>(["properties", "browser", "points"], StringComparer.Ordinal);
 
     internal static string Fixture(string name)
     {
@@ -110,7 +111,7 @@ internal static class LayoutFileTests
         var planform = parsed.Document.Workspaces.Single(workspace => workspace.Id == WorkspaceId.Planform);
         Equal(300d, Left(planform));
         var precision = parsed.Document.Workspaces.Single(workspace => workspace.Id == WorkspaceId.Precision);
-        Equal(true, precision.Regions.Single(region => region.Id == RegionId.Bottom).Open);
+        Equal(true, precision.Regions.Single(region => region.Id == RegionId.Right).Open);
         Equal(260d, Left(precision));
         var integer = LayoutCodec.Parse("""{"format":"cfdw-layout","version":1,"active":"planform","workspaces":[{"id":"planform","views":{"arrangement":"plan-3d","single":"plan"},"regions":[{"id":"left","open":true,"size":280,"groups":[{"panes":["properties","browser"],"active":"properties","share":1}]},{"id":"bottom","open":false,"size":190,"groups":[{"panes":["points","messages"],"active":"points","share":1}]},{"id":"right","open":false,"size":260,"groups":[]}],"floats":[],"closed":[]},{"id":1,"views":{"arrangement":"plan-3d","single":"plan"},"regions":[],"floats":[],"closed":[]}]}"""u8, Panes());
         Has(integer.Codes, "LAYOUT-WORKSPACE");
@@ -138,7 +139,7 @@ internal static class LayoutFileTests
         Equal(1, Count(workspace, "browser"));
         Equal(1, Count(workspace, "properties"));
         Equal(1, Count(workspace, "points"));
-        Equal(1, Count(workspace, "messages"));
+        Equal(0, Count(workspace, "messages"));
     }
 
     private static void UnknownPane()
@@ -151,25 +152,34 @@ internal static class LayoutFileTests
         Equal(1, Count(workspace, "browser"));
         Equal(1, Count(workspace, "properties"));
         Equal(1, Count(workspace, "points"));
-        Equal(1, Count(workspace, "messages"));
+        Equal(0, Count(workspace, "messages"));
         Equal(RegionId.Left, workspace.Regions[0].Id);
         Equal("browser", workspace.Regions[0].Groups[0].Panes[0]);
         Equal(true, workspace.Regions[0].Groups[0].Panes.Contains("properties"));
         Equal(0, workspace.Closed.Count);
     }
 
+    // A saved layout that never names a registered pane gets it in its home region (M1.2c: Points, the right side bar).
     private static void MissingPane()
     {
-        var parsed = LayoutCodec.Parse(File.ReadAllBytes(Fixture("missing-pane.json")), Panes());
+        const string saved = """
+        {"format":"cfdw-layout","version":1,"active":"planform","workspaces":[{"id":"planform",
+         "views":{"arrangement":"plan-3d","single":"plan"},
+         "regions":[
+          {"id":"left","open":true,"size":300,"groups":[{"panes":["properties","browser"],"active":"properties","share":1}]},
+          {"id":"bottom","open":false,"size":190,"groups":[]},
+          {"id":"right","open":false,"size":260,"groups":[]}],
+         "floats":[],"closed":[]}]}
+        """;
+        var parsed = LayoutCodec.Parse(Encoding.UTF8.GetBytes(saved), Panes());
         Has(parsed.Codes, "LAYOUT-PANE");
         Equal(true, parsed.DroppedPanes >= 1);
         var workspace = parsed.Document.Workspaces.Single();
         Equal(300d, Left(workspace));
-        var bottom = workspace.Regions.Single(region => region.Id == RegionId.Bottom);
-        Equal("points", bottom.Groups[0].Panes[0]);
-        Equal("messages", bottom.Groups[0].Panes[1]);
-        Equal("points", bottom.Groups[0].Active);
-        Equal(1, Count(workspace, "messages"));
+        var right = workspace.Regions.Single(region => region.Id == RegionId.Right);
+        Equal("points", right.Groups[0].Panes[0]);
+        Equal("points", right.Groups[0].Active);
+        Equal(1, Count(workspace, "points"));
     }
 
     private static void OutOfRange()
@@ -231,8 +241,8 @@ internal static class LayoutFileTests
         new WorkspaceLayout(WorkspaceId.Planform, new WorkspaceViews(ViewArrangement.Plan3d, SingleView.Plan),
         [
             new RegionLayout(RegionId.Left, true, 260, [new PaneGroup(["browser"], "browser", 1)]),
-            new RegionLayout(RegionId.Bottom, false, 190, [new PaneGroup(["points", "messages"], "points", 1)]),
-            new RegionLayout(RegionId.Right, false, 260, [])
+            new RegionLayout(RegionId.Bottom, false, 190, []),
+            new RegionLayout(RegionId.Right, false, 260, [new PaneGroup(["points"], "points", 1)])
         ],
         [
             new FloatLayout(["properties"], "properties", 1620, 140, 260, 520, new ScreenBounds(1512, 0, 2560, 1440), new FloatOrigin(RegionId.Left, 0, 0))
@@ -240,7 +250,7 @@ internal static class LayoutFileTests
         [])
     ]);
 
-    private static void AssertPreset(WorkspaceLayout workspace, WorkspaceId id, bool leftOpen, bool bottomOpen, ViewArrangement arrangement)
+    private static void AssertPreset(WorkspaceLayout workspace, WorkspaceId id, bool leftOpen, bool rightOpen, ViewArrangement arrangement)
     {
         Equal(id, workspace.Id);
         Equal(arrangement, workspace.Views.Arrangement);
@@ -249,17 +259,19 @@ internal static class LayoutFileTests
         Equal(260d, Left(workspace));
         Equal(2, workspace.Regions.Single(region => region.Id == RegionId.Left).Groups[0].Panes.Count);
         Equal("properties", workspace.Regions.Single(region => region.Id == RegionId.Left).Groups[0].Active);
+        // M1.2c: no pane's home is the bottom panel; Points is in the right side bar, open in Precision only (§11.8).
         var bottom = workspace.Regions.Single(region => region.Id == RegionId.Bottom);
-        Equal(bottomOpen, bottom.Open);
+        Equal(false, bottom.Open);
         Equal(190d, bottom.Size);
-        Equal("points", bottom.Groups[0].Active);
+        Equal(0, bottom.Groups.Count);
         var right = workspace.Regions.Single(region => region.Id == RegionId.Right);
-        Equal(false, right.Open);
-        Equal(0, right.Groups.Count);
+        Equal(rightOpen, right.Open);
+        Equal("points", right.Groups[0].Active);
         Equal(0, workspace.Floats.Count);
         Equal(0, workspace.Closed.Count);
-        foreach (var pane in new[] { "properties", "browser", "points", "messages" })
+        foreach (var pane in new[] { "properties", "browser", "points" })
             Equal(1, Count(workspace, pane));
+        Equal(0, Count(workspace, "messages"));
     }
 
     private static double Left(WorkspaceLayout workspace) => workspace.Regions.Single(region => region.Id == RegionId.Left).Size;

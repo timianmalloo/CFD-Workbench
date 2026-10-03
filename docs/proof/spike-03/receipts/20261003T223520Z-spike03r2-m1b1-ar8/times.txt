@@ -1,0 +1,209 @@
+== time.blockMesh
+        0.52 real         0.22 user         0.03 sys
+           158089216  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14784  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  17  voluntary context switches
+                 112  involuntary context switches
+          5092923092  instructions retired
+          1069938803  cycles elapsed
+           102007576  peak memory footprint
+== time.checkMesh
+       14.14 real        13.42 user         0.34 sys
+          3658940416  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              248680  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 579  involuntary context switches
+        222246619137  instructions retired
+         54968330435  cycles elapsed
+          3507752272  peak memory footprint
+== time.checkMesh-det
+        6.47 real         5.66 user         0.26 sys
+          2221506560  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              159623  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                5331  involuntary context switches
+         90458789420  instructions retired
+         21761072330  cycles elapsed
+          2138802504  peak memory footprint
+== time.checkMesh-preflight
+        0.54 real         0.20 user         0.02 sys
+           134365184  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               12565  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 122  involuntary context switches
+          4341884496  instructions retired
+           923827423  cycles elapsed
+            95028016  peak memory footprint
+== time.decomposePar
+        0.61 real         0.36 user         0.46 sys
+           167231488  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14783  page reclaims
+                  14  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+               31092  involuntary context switches
+          6756101362  instructions retired
+          2961329150  cycles elapsed
+           123126624  peak memory footprint
+== time.reconstructParMesh
+        2.21 real         1.52 user         0.38 sys
+          1989574656  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              174994  page reclaims
+                  17  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   4  voluntary context switches
+                 146  involuntary context switches
+         38139839697  instructions retired
+          7666915281  cycles elapsed
+          1768310848  peak memory footprint
+== time.snappyHexMesh
+      405.27 real      2415.33 user        12.69 sys
+          2108637184  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+             1877777  page reclaims
+                 574  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                 228  messages sent
+                 444  messages received
+                   0  signals received
+                 128  voluntary context switches
+              353837  involuntary context switches
+          2490475994  instructions retired
+          1524709193  cycles elapsed
+            14681096  peak memory footprint
+== time.surfaceCheck
+        0.36 real         0.08 user         0.01 sys
+            41664512  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                6679  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 115  involuntary context switches
+          1708382056  instructions retired
+           402656733  cycles elapsed
+            15221456  peak memory footprint
+== time.surfaceFeatureExtract
+        0.36 real         0.08 user         0.01 sys
+            43794432  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                6741  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 114  involuntary context switches
+          1761579776  instructions retired
+           414810831  cycles elapsed
+            17171152  peak memory footprint
+== time.topoSet-det
+        0.89 real         0.52 user         0.10 sys
+          1190756352  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               76796  page reclaims
+                  10  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 130  involuntary context switches
+         11881266474  instructions retired
+          2614875677  cycles elapsed
+          1165035032  peak memory footprint
+== time.writeCellCentres
+        1.90 real         2.00 user         0.87 sys
+           292945920  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              130515  page reclaims
+                 461  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                 228  messages sent
+                 444  messages received
+                   0  signals received
+                  61  voluntary context switches
+               13932  involuntary context switches
+          1504731395  instructions retired
+           398871313  cycles elapsed
+             8487872  peak memory footprint

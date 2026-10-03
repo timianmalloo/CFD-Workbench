@@ -19,12 +19,16 @@ public static class LayoutCodec
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
     private static readonly WorkspaceId[] WorkspaceOrder = [WorkspaceId.Planform, WorkspaceId.Precision, WorkspaceId.Review];
     private static readonly RegionId[] RegionOrder = [RegionId.Left, RegionId.Bottom, RegionId.Right];
-    private static readonly (string Pane, RegionId Region)[] Homes =
+    /// <summary>
+    /// Each registered pane's home region, in placement order: the one table the presets, the desktop's
+    /// <c>WorkspacePresets</c> and a repair of a saved file read. M1.2c (OD-2 A, OD-3 B): there is no Messages pane, and
+    /// Points lives in the right side bar. A saved file that still names "messages" loses it with LAYOUT-PANE.
+    /// </summary>
+    public static IReadOnlyList<(string Pane, RegionId Region)> Homes { get; } =
     [
         ("properties", RegionId.Left),
         ("browser", RegionId.Left),
-        ("points", RegionId.Bottom),
-        ("messages", RegionId.Bottom)
+        ("points", RegionId.Right)
     ];
 
     public readonly record struct LayoutPeek(string? Format, int? Version, bool Failed);
@@ -291,11 +295,13 @@ public static class LayoutCodec
         return TryWorkspace(id.GetString(), out var parsed) ? parsed : null;
     }
 
+    // §11.8: Precision = Planform plus the right side bar (Points); Review shows no panes. No pane's home is the bottom
+    // panel any more, so it is closed in every preset.
     private static (bool Open, double Size) Chrome(WorkspaceId id, RegionId region) => region switch
     {
         RegionId.Left => (id != WorkspaceId.Review, 260),
-        RegionId.Bottom => (id == WorkspaceId.Precision, 190),
-        _ => (false, 260)
+        RegionId.Bottom => (false, 190),
+        _ => (id == WorkspaceId.Precision, 260)
     };
 
     private static double Clamp(double value, double min, double max, ref int clamped, List<string> codes)

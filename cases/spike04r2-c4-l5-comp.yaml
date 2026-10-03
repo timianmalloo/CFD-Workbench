@@ -1,0 +1,112 @@
+name: spike04r2-c4-l5-comp
+description: >-
+  SPIKE-04 round 2, run C-4 (plan docs/plans/fluids-round2.md §2.4 option C2, §2.5; Ruling 65 DR-F2-2 = (c)). The
+  compressibility delta measured, not modelled: rhoSimpleFoam at the TMR conditions (M 0.15, Re_c 6e6, T 540 R =
+  300 K, Sutherland's law, Pr 0.72, gamma 1.4, adiabatic wall) on TMR Family II level 5, with the same SA-noft2
+  model, grid, schemes and relaxation as C-2. Delta_comp = C-4 minus C-2 (window means). Judged by A4 (DR-F2-1).
+purpose:
+  spike: SPIKE-04
+  stage: 1
+  round: 2
+  run_id: C-4
+  question: What are the compressible-minus-incompressible deltas in Cl and Cd on TMR level 5, same code, model, grid and numerics?
+geometry:
+  airfoil: naca0012 (TMR sharp-trailing-edge definition, 2DN00)
+  chord: 1.0
+  source:
+    kind: tmr-grid
+    path: n0012familyII.5.p2dfmt.gz
+    sha256: 63b34d470c5baa40e678b049cdf3da169fbc757e741079d103ca454672800d93
+    generator: >-
+      python3 cases/tools/fetch-tmr-grid.py <dir> n0012familyII.5.p2dfmt.gz; cases/tools/run-tmr-case.sh
+      cases/spike04r2-c4-l5-comp.yaml <dir>
+    reference: >-
+      https://tmbwg.github.io/turbmodels/naca0012numerics_val.html (conditions: M 0.15, Re 6 million per chord,
+      reference temperature 540 R, Pr 0.72, gamma 1.4, Sutherland mu0 1.716e-5 kg/(m s), T0 491.6 R, S 198.6 R,
+      adiabatic wall; read 2026-10-03)
+    deviation: >-
+      Pressure-based rhoSimpleFoam (SIMPLEC) rather than a density-based compressible code; SA-noft2 (ESI), not
+      SA-neg; standard (non-point-vortex) far field. Sutherland constants converted to OpenFOAM's form
+      mu = As sqrt(T)/(1 + Ts/T): As = mu0 (T0 + S)/T0^1.5 = 1.4579e-6, Ts = S = 110.33 K. Gas: molWeight 28.9,
+      Cp = 3.5 R = 1006.95 J/(kg K) so gamma = 1.4. p_inf is set so rho_inf gives Re_c = 6e6 at T 300 K (the
+      generator prints p, rho, mu, a). Turbulent Prandtl number not set: the v2512 default is 1.0
+      (src/TurbulenceModels/compressible/EddyDiffusivity/EddyDiffusivity.C:37), TMR specifies 0.90; the effect on an
+      adiabatic wall at M 0.15 is taken as negligible (Inferred, hydrodynamicist review).
+conditions:
+  reynolds: 6000000
+  mach: 0.15
+  alpha: 10.0
+  reference_length_m: 1.0
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    rhoSimpleFoam: ebb4aa62c5c3f3c53d3f3308c3556d064a4ae54f557d55904d1a9f2ef2512eab
+  activation: >-
+    cases/tools/of-run.sh <case> <log> <app> <args...>: env -i allow-list, product HOME and FOAM_CONTROLDICT from
+    cases/tools/foam-bundle/controlDict (sha256 f3debe8b...a6ef854), lint, checkMesh pre-flight banner, then
+    /bin/zsh -f <app>/Contents/Resources/etc/openfoam -- <app> <args...> (argv, no shell string)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: plot3d-direct
+  target_y_plus: null
+  first_cell_height_m: null
+  settings:
+    family: II
+    level: 5
+    dims: [449, 129]
+    span_m: 1.0
+    wake_cut: merged into internal faces by the converter
+  gate: { max_non_orthogonality_deg: 70, max_skewness: 4, min_cell_determinant: 0.001 }
+physics:
+  application: rhoSimpleFoam
+  flow: compressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0 and nut = 0 at the wall); adiabatic (T zeroGradient)
+  transition: none (fully turbulent)
+  fluid: { name: air (TMR), nu_m2_s: 8.69024e-6, mol_weight: 28.9, Cp: 1006.9537, As: 1.4579e-6, Ts: 110.33, Pr: 0.72 }
+  freestream: { T_K: 300.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity (M 0.15 at 10 deg) / freestreamPressure p_inf; T inletOutlet 300 K; nuTilda inletOutlet 3 nu_inf
+  airfoil: noSlip; T zeroGradient (adiabatic); nuTilda 0; nut 0; p zeroGradient; alphat calculated
+  frontAndBack: empty
+numerics:
+  schemes:
+    grad: Gauss linear
+    div_U: bounded Gauss linearUpwind grad(U)
+    div_e: bounded Gauss linearUpwind grad(e)
+    div_nuTilda: bounded Gauss upwind
+    laplacian: Gauss linear limited corrected 0.5
+    snGrad: limited corrected 0.5
+  consistent: "yes"
+  pMinFactor: 0.5
+  pMaxFactor: 1.5
+  relaxation: { U: 0.7, e: 0.7, nuTilda: 0.7, p: 1, rho: 1 }
+  max_iterations: 60000
+  a4:
+    residual_drop_orders: 3
+    window_iterations: 2000
+    cl_half_band_cap: 1.0e-5
+    cd_half_band_cap: 1.0e-6
+    clean_window: true
+    poll_every_iterations: 1000
+    gci_admission_ratio: 0.01
+    stop_mechanism: a4-monitor.py sends SIGUSR1; bundled controlDict stopAtWriteNowSignal 30
+  residual_criterion: >-
+    A4 (DR-F2-1, Ruling 65), stated before the run, as C-2: (1) every equation's initial residual (Ux, Uy, p, e,
+    nuTilda), max over the last 2 iterations, <= 1e-3 x its iteration-1 value; (2) over the last W = 2,000
+    iterations, U_I <= 1e-5 for Cl and <= 1e-6 for Cd; (3) zero "bounding nuTilda" lines inside W; (4) stopped by
+    cases/tools/a4-monitor.py. Ran to max_iterations without A4 = a gap. Delta_comp uses window means; U_Delta >=
+    the L5 numerical uncertainty (plan §2.4).
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - log.checkMesh (pre-flight banner), log.rhoSimpleFoam
+  - a4-monitor.log, a4-stop.txt, convergence.txt (A4 report)
+  - postProcessing/forceCoeffs1, postProcessing/solverInfo1, postProcessing/yPlus1, postProcessing/wallP
+  - time.<log> (peak RSS)
+run_dir: runs/20261003T215528Z-spike04r2-c4-l5-comp

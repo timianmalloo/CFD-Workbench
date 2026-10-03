@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T205313Z-spike04r2-c3-l4
+Date   : Oct 03 2026
+Time   : 13:53:30
+Host   : <HOST>
+PID    : 39407
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T205313Z-spike04r2-c3-l4
+nProcs : 6
+Hosts  :
+(
+    (Mac 6)
+)
+Pstream initialized with:
+    node communication : off [type=host] (6 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Create mesh for time = 0
+
+
+...
+smoothSolver:  Solving for Ux, Initial residual = 8.19942566734e-10, Final residual = 2.87573224328e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00799502648e-10, Final residual = 2.73279655672e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 3.00153995424e-11, Final residual = 1.38691164551e-12, No Iterations 27
+time step continuity errors : sum local = 7.80160573449e-16, global = 1.27978072467e-16, cumulative = -6.23207087214e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18021951429e-08, Final residual = 4.27660324457e-10, No Iterations 3
+ExecutionTime = 3698.66 s  ClockTime = 3699 s
+
+Time = 41051
+
+smoothSolver:  Solving for Ux, Initial residual = 8.19887804923e-10, Final residual = 2.87554086089e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00760278235e-10, Final residual = 2.73259924617e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 3.0012831703e-11, Final residual = 1.38643071926e-12, No Iterations 27
+time step continuity errors : sum local = 7.79956913555e-16, global = 1.2760630489e-16, cumulative = -6.23207074454e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18017664348e-08, Final residual = 4.27644921474e-10, No Iterations 3
+ExecutionTime = 3698.75 s  ClockTime = 3699 s
+
+Time = 41052
+
+smoothSolver:  Solving for Ux, Initial residual = 8.19833024686e-10, Final residual = 2.87535129e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00720833815e-10, Final residual = 2.73240070463e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 3.00118399379e-11, Final residual = 1.38636715523e-12, No Iterations 27
+time step continuity errors : sum local = 7.80139632937e-16, global = 1.27659835617e-16, cumulative = -6.23207061688e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18013377418e-08, Final residual = 4.27629519046e-10, No Iterations 3
+ExecutionTime = 3698.84 s  ClockTime = 3699 s
+
+Time = 41053
+
+smoothSolver:  Solving for Ux, Initial residual = 8.19778210529e-10, Final residual = 2.87516135125e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00681522106e-10, Final residual = 2.7322046208e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 3.00074921047e-11, Final residual = 1.3864233958e-12, No Iterations 27
+time step continuity errors : sum local = 7.79932922475e-16, global = 1.27569027886e-16, cumulative = -6.23207048931e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18009090639e-08, Final residual = 4.27614116992e-10, No Iterations 3
+ExecutionTime = 3698.93 s  ClockTime = 3699 s
+
+Time = 41054
+
+smoothSolver:  Solving for Ux, Initial residual = 8.19723495242e-10, Final residual = 2.8749710321e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00642090989e-10, Final residual = 2.73200536395e-11, No Iterations 2
+sigStopAtWriteNow : setting up write and stop at end of the next iteration
+
+GAMG:  Solving for p, Initial residual = 3.00066699901e-11, Final residual = 1.3862940415e-12, No Iterations 27
+time step continuity errors : sum local = 7.8000036057e-16, global = 1.27715494486e-16, cumulative = -6.23207036159e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18004804013e-08, Final residual = 4.27598715575e-10, No Iterations 3
+ExecutionTime = 3699.01 s  ClockTime = 3699 s
+
+Time = 41055
+
+smoothSolver:  Solving for Ux, Initial residual = 8.19668774431e-10, Final residual = 2.87478158403e-11, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 5.00603475212e-10, Final residual = 2.73180894342e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 3.00035507669e-11, Final residual = 1.38621355597e-12, No Iterations 27
+time step continuity errors : sum local = 7.80175247316e-16, global = 1.27514117813e-16, cumulative = -6.23207023408e-09
+smoothSolver:  Solving for nuTilda, Initial residual = 1.18000517538e-08, Final residual = 4.27583314768e-10, No Iterations 3
+ExecutionTime = 3699.11 s  ClockTime = 3699 s
+
+yPlus yPlus1 write:
+    writing field yPlus
+    patch airfoil y+ : min = 0.012360427312, max = 0.381518473899, average = 0.126156674374
+End
+
+Finalising parallel run
