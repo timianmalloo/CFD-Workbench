@@ -259,10 +259,11 @@ public static class FoilSource
 
     internal static bool IsAnchor(double[] knots, int count, int degree, int index)
     {
-        if (degree != 3 || index < 3 || index > count - 4) return false;
+        if (index < degree || index > count - degree - 1) return false;
         double knot = knots[index + 1];
-        if (knots[index + 2] != knot || knots[index + 3] != knot) return false;
-        if (knots[index] == knot || knots[index + 4] == knot) return false;
+        for (int offset = 2; offset <= degree; offset++)
+            if (knots[index + offset] != knot) return false;
+        if (knots[index] == knot || knots[index + degree + 1] == knot) return false;
         return knot > 0 && knot < 1;
     }
 
