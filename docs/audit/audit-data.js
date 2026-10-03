@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T16:28:39Z",
+  "generated": "2026-10-03T16:56:11Z",
   "audit": [
     {
       "actor": null,
@@ -22534,6 +22534,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T16:27:51Z",
       "duration_seconds": 48.0
+    },
+    {
+      "id": "al-01M41B3NCH0Z25J814NEZTS60V",
+      "shortname": "join-m12c-paired-mockup",
+      "datetime": "2026-10-03T16:56:11Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/m12c-paired-mockup into feature/ui-cad-direction",
+      "summary": "Paired mockup (Opus 5.5): screens 2/2b/2c/3 paired, pairing cue, one Type/Kind/x control for both surfaces, refused refit with both numbers; COPY-185..189 proposed. Ruling 60 (DR-11 parked, Codex gpt-6-sol, fluids lanes) and Ruling 61 (operator approved the mockup). Coordinator fix: design :446 said the smallest chord sets the 10 um limit - inverted; now largest, SPTF test renamed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T16:55:21Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
