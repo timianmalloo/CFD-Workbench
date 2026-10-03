@@ -155,17 +155,19 @@ internal static class SectionEdits
         var otherPoints = step.Side == SurfaceSide.Upper ? lowerPoints : upperPoints;
         double chord = LargestChord(stripped, assignment);
         var removedCurve = other with { Knots = upperKnots, Points = otherPoints };
-        double deviation = SegmentDeviation(other, removedCurve, leftX, rightX);
+        var (deviation, _) = SegmentDeviation(other, removedCurve, leftX, rightX);
         if (deviation * chord > 10e-6)
         {
             var fitted = Refit(other, upperKnots, otherPoints, leftX, rightX);
             var fittedCurve = other with { Knots = upperKnots, Points = fitted };
-            double fittedDeviation = SegmentDeviation(other, fittedCurve, leftX, rightX);
+            var (fittedDeviation, maximumX) = SegmentDeviation(other, fittedCurve, leftX, rightX);
             if (fittedDeviation * chord > 10e-6)
             {
                 double microns = fittedDeviation * chord * 1e6;
-                throw new ContractError("DSL-CURVE", "refit " + microns.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)
+                var error = new ContractError("DSL-CURVE", "refit " + microns.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)
                     + " µm exceeds 10 µm at the largest chord " + chord.ToString("G17", System.Globalization.CultureInfo.InvariantCulture) + " m");
+                error.Data["RefitMaximumChordX"] = maximumX;
+                throw error;
             }
             if (step.Side == SurfaceSide.Upper) lowerPoints = fitted;
             else upperPoints = fitted;
@@ -347,17 +349,19 @@ internal static class SectionEdits
         return next;
     }
 
-    private static double SegmentDeviation(Curve before, Curve after, double x0, double x1)
+    private static (double Deviation, double ChordX) SegmentDeviation(Curve before, Curve after, double x0, double x1)
     {
         double worst = 0;
+        double maximumX = x0;
         const int samples = 81;
         for (int sample = 0; sample < samples; sample++)
         {
             double x = x0 + (x1 - x0) * sample / (samples - 1.0);
             x = Math.Clamp(x, 0, 1);
-            worst = Math.Max(worst, Math.Abs(ProfileEvaluator.OrdinateAt(before, x) - ProfileEvaluator.OrdinateAt(after, x)));
+            double deviation = Math.Abs(ProfileEvaluator.OrdinateAt(before, x) - ProfileEvaluator.OrdinateAt(after, x));
+            if (deviation > worst) (worst, maximumX) = (deviation, x);
         }
-        return worst;
+        return (worst, maximumX);
     }
 
     private static double SegmentBound(Curve curve, int anchor, double knot, bool left)

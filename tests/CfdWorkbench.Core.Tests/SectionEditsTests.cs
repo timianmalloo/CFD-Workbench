@@ -203,6 +203,8 @@ internal static class SectionEditsTests
         var error = Throws(() => Control(KinkedLower()));
         IdentityTests.Equal("DSL-CURVE", error.Code);
         IdentityTests.Equal(true, Microns(error.Message) > 10);
+        IdentityTests.Equal(true, error.Data["RefitMaximumChordX"] is double x &&
+            double.IsFinite(x) && x > 0 && x < 1);
     }
 
     private static void SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold()
