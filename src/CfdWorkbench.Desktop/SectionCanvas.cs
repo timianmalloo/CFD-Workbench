@@ -130,6 +130,7 @@ public class SectionCanvas : Control
         get => GetValue(RefitMarkerProperty);
         set => SetValue(RefitMarkerProperty, value);
     }
+    public string? RefitMarkerLabel { get; set; }
 
     public double Padding { get; set; } = 24.0;
 
@@ -327,6 +328,9 @@ public class SectionCanvas : Control
             var at = ModelToScreen(marker.X, marker.Y);
             context.DrawLine(new Pen(danger, 2, new DashStyle([4, 3], 0)),
                 new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
+            if (RefitMarkerLabel is { Length: > 0 } label)
+                context.DrawText(new FormattedText(label, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28));
         }
     }
 

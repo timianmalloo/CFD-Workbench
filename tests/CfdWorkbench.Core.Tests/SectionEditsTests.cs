@@ -205,6 +205,8 @@ internal static class SectionEditsTests
         IdentityTests.Equal(true, Microns(error.Message) > 10);
         IdentityTests.Equal(true, error.Data["RefitMaximumChordX"] is double x &&
             double.IsFinite(x) && x > 0 && x < 1);
+        IdentityTests.Equal(true, error.Data["RefitDeviationMeters"] is double deviation && deviation > 10e-6);
+        IdentityTests.Equal(10e-6, error.Data["RefitLimitMeters"]);
     }
 
     private static void SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold()

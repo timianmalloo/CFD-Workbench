@@ -90,6 +90,9 @@ public partial class SectionEditorView : UserControl
                     : Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, refusal.ChordX).LowerY)
                 : null;
             ModeCanvas.RefitMarker = EditableSectionCanvas.RefitMarker;
+            ModeCanvas.RefitMarkerLabel = controller.SectionRefitRefusal is { } measured
+                ? $"{measured.Side.ToString().ToLowerInvariant()} would move {measured.DeviationMeters * 1000:F3} mm here (limit {measured.LimitMeters * 1000:F3} mm)"
+                : null;
             SectionEmptyText.IsVisible = false;
         }
         catch (ContractError)

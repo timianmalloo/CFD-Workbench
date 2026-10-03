@@ -211,7 +211,7 @@ public sealed class WorkbenchController : IDisposable
     public event Action? SelectionChanged;
     public event Action? SectionChanged;
     public SectionMode? Section { get; private set; }
-    public (SurfaceSide Side, double ChordX)? SectionRefitRefusal { get; private set; }
+    public (SurfaceSide Side, double ChordX, double DeviationMeters, double LimitMeters)? SectionRefitRefusal { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
@@ -640,7 +640,9 @@ public sealed class WorkbenchController : IDisposable
         catch (ContractError error)
         {
             SectionRefitRefusal = error.Data["RefitMaximumChordX"] is double x &&
-                error.Data["RefitAffectedSide"] is SurfaceSide side ? (side, x) : null;
+                error.Data["RefitAffectedSide"] is SurfaceSide side &&
+                error.Data["RefitDeviationMeters"] is double deviation &&
+                error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
             Status = error.Message;
             NotifySection();
             throw;
