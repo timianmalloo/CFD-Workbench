@@ -1,0 +1,20 @@
+17:nProcs : 6
+81:Initial mesh : cells:120000  faces:367900  points:128061  unbalance:0.00985
+568:--> FOAM Warning : 
+1189:--> FOAM Warning : 
+1257:--> FOAM Warning : 
+1325:--> FOAM Warning : 
+1393:--> FOAM Warning : 
+1461:--> FOAM Warning : 
+1529:--> FOAM Warning : 
+1610:--> FOAM Warning : 
+1757:--> FOAM Warning : 
+1904:--> FOAM Warning : 
+2051:--> FOAM Warning : 
+2356:wing 85006    15     0.000148  0.0046  
+3089:Mesh with layers : cells:1730250  faces:5332652  points:1873364  unbalance:0.61191504
+3092:              target   mesh     [m]       [%]
+3094:wing 85006    15       12.5     0.0044    94      
+3108:Layer mesh : cells:1730250  faces:5332652  points:1873364  unbalance:0.0048339835
+3131:Finished meshing without any errors
+3132:Finished meshing in = 35.1 s.

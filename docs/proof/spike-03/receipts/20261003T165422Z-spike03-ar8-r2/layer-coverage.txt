@@ -1,0 +1,4 @@
+wing_faces=85000 mean_layers=2.92 faces_with_target_15=6457 (7.6%) faces_ge_15=6457 (7.6%) faces_with_0=55644 (65.5%)
+first_layer_height_m p05=3.900e-04 p50=7.140e-04 p95=1.899e-03
+utau_flat_plate=0.2316 m/s (Re_x=3e+05, Cf=0.00429); y+_cell_centre_estimate p05=45.2 p50=82.7 p95=219.9
+layers_histogram=0:55644 1:2742 2:2217 3:1821 4:1742 5:1702 6:1653 7:1577 8:1490 9:1441 10:1386 11:1361 12:1323 13:1251 14:1193 15:6457

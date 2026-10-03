@@ -8069,6 +8069,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
+      "id": "proof-spike-03",
+      "path": "docs/proof/spike-03/verdict.md",
+      "title": "SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Stage 1 (AR 8): snappyHexMesh meshes the wing unattended in 31-35 s on 6 ranks and passes checkMesh, but the A5.10 mesh gate as written is not met: 15 layers reach 70.9 % of wing faces (0 % at the trailing edge and tip), the median cell-centre y+ is about 22 (below the 30-100 band), and 34 % of cells have an OpenFOAM cell determinant below 0.3. Stage 2 pending.",
+      "tags": [
+        "spike-03",
+        "openfoam",
+        "snappyhexmesh",
+        "mesh-gate",
+        "run",
+        "backend"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "973c22e8ba73cbebbc8d86f3b70070a3c54a5eb6133cf069ec118bad171920c8"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -9643,5 +9675,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "03f2c7f14f106218abc8c13a9c5d80a008be0b6b556307851375001e2751712d"
+  "graphSha256": "3c895a400b66fddd537ea9d53ec4e5800432d381e49dc08f64413a7ae083f2ac"
 };
