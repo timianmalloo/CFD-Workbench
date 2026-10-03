@@ -23,7 +23,7 @@ review-suggested: []
 
 # ADR-0010: one placement rule
 
-- **Status:** Accepted (Ruling 58, operator, 2026-10-01). Proposed 2026-09-30 by M1.2b2 `/design-slice`; gate record in `docs/design/m12b2-3d-elevations.md`
+- **Status:** Accepted (Ruling 58, operator, 2026-10-01). Proposed 2026-09-30 by M1.2b2 `/design-slice`; gate record in `docs/design/m12b2-3d-elevations.md`. **Amendment 1 (the section editor's profile display) accepted 2026-10-03**; see the end of this ADR.
 - **Date:** 2026-09-30
 - **Deciders:** the operator (Ruling 56 OI-1 made this the first decision of M1.2b2); Computational Geometry lens (hard
   veto, narrow); Patterns Expert and Simplifier.
@@ -111,3 +111,60 @@ pointwise binary64 path agrees with the enclosure midpoints to 3.7 × 10⁻¹⁵
 - A future evaluator (`cfdw-cv/3`) changes the rule in one place and both instantiations follow.
 - Rollback: the refactor is internal; reverting `Placement.cs` and the `Geometry.cs` call sites restores 3a37f5f
   behaviour exactly (the golden master proves both directions).
+
+## Amendment 1 — the section editor's profile display
+
+**Status:** accepted, 2026-10-03, by the ruling from the geometry review of the proof-budget work. The Coordinator
+records the Ruling in `docs/notes/rulings.md`.
+
+**Origin:** M1.2c design-slice (`docs/design/m12c-section-editor.md` §3.7, track DSP).
+
+### Context
+
+Decisions 3–4 above bound the 3D view and the elevations to the certificate, but never covered the section editor's
+own profile drawing. That drawing is `AuthoringSession.Sample`, behind `ProfileAt` and `ProfileView`
+(`AuthoringSession.cs`:536-550 at `4b9bc35`). It computes each display point through the **certificate's**
+`Bernstein.EncloseAt` at 10⁻⁸ accuracy, uniformly at x/100. Its own comment records about 970 ms on a degree-5,
+10-point rebuild, against a 1 s proof budget. That is both slow and a second use of the proof path for display.
+
+Meanwhile `Placement.cs` already carries a private binary64 profile evaluator: the `SplineBasis` jet with abscissa
+inversion (`Jet`, `ParameterFor`, `OrdinateAt`, used by `Prepare`). M1.2c's section projections
+(`Sections.View`/`Facts`/`Probe`/`Comb`) would otherwise add yet another.
+
+### Decision (extends decisions 3 and 4)
+
+1. **One binary64 display profile evaluator.** The `SplineBasis` jet and abscissa inversion move out of `Placement`'s
+   private members into a shared internal `ProfileEvaluator` in `Placement.cs`, beside `ChannelEvaluator`. That gives
+   x(t), y(t), their first and second derivatives, and y at a chord x by inversion.
+
+   Every binary64 profile reading uses it:
+   - `Placement.Prepare`, unchanged in bits;
+   - `AuthoringSession.Sample` and `ProfileView`;
+   - the M1.2c `Sections` projections.
+
+   **No fourth copy exists.** A source-scan test enforces this, in the style of
+   `PlacementRule_RadiansConstant_SingleSiteInSource`. The certificate keeps its Bernstein path (decision 3), so there
+   are still exactly two evaluators.
+2. **Displays receive profile geometry, never compute it.** The section canvas, the station-strip thumbnails, the comb
+   and the probe draw what `ProfileEvaluator` returns through Core. The Desktop applies only an axis mapping.
+3. **Bound by test.** Every display sample is within **10⁻⁹ chord** of the certified enclosure
+   `Bernstein.EncloseAt`, checked on fixtures that include:
+   - a Rebuild-produced profile with non-dyadic knots;
+   - a C⁰ knot (multiplicity p on a section anchor);
+   - the leading-edge vertical tangent (repeated zero abscissa).
+
+   The display maximum (own t/c) stays within its certified maximum, as decision 3 already requires for the 3D view.
+4. **Cosine spacing at the nose.** Display samples are spaced as x = (1 − cos θ)/2, replacing uniform x/100, so the LE
+   radius is drawn rather than cut by a chord. The sample count is a display choice, stated in the projection.
+5. **Captions say "display", and the certificate still decides validity.** The editor's plate and probe say
+   "display". Finish, crossing refusals and every accepted shape follow `Geometry.Assess` only; a display crossing is a
+   hint, never a verdict (M1.2c §7).
+
+### Consequences
+
+- `ProfileAt` no longer spends proof budget, so the 970 ms case becomes a binary64 loop (measured by the readiness
+  check `Readiness_ProfileViewRebuilt_Under5Ms`; Inferred until run).
+- The profile part of decision 3's "one binary64 `SplineBasis` channel evaluator" now reads: one channel evaluator
+  and one profile evaluator, both on `SplineBasis`, with the certificate separate.
+- Rollback: the fold is internal. The `Placement` golden master pins the 3D and elevation outputs across it, and
+  `ProfileView` samples move only within the 10⁻⁹ chord binding.

@@ -429,7 +429,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "36c9a375de9b0f8127c907371bda425df2fd2d3f07f5927d5b0a3b765289a365"
+      "sourceSha256": "d2c948f04982c223fd386f38e7c74a8400442166c94d22a56fc8ca4e33ac3358"
     },
     {
       "id": "adr-0008-section-library",
@@ -580,7 +580,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e22a365205227ae5adc2c52eb0357bd853ae1cf50bd39958ea43a89e9f29498a"
+      "sourceSha256": "f80244fbefc0ceb2f15b42560e959e19837f67f38169391b71969041a9c99cf1"
     },
     {
       "id": "adr-application-project-contract",
@@ -1561,6 +1561,55 @@ window.DOCS_INDEX = {
       "sourceSha256": "1e0f6c012b58b20223e3ffef24b40cef762c22c4c770f9a6ccc3c2d135817da1"
     },
     {
+      "id": "note-m12c-rulings",
+      "path": "docs/notes/m12c-rulings.md",
+      "title": "M1.2c — operator rulings on the section editor decisions, the ADR-0007 amendment and the section display path",
+      "type": "decision-note",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Operator and Owner rulings of 2026-10-03 on the M1.2c design, made after seeing the mockup. The editor opens in the model area. There is no Messages pane: blockers show where they block, plus Show in the status strip. The Points pane goes in the right side bar. A no-go spike ships paired point types. The ADR-0007 amendment (no step count in the receipt) is accepted. Section drawing uses the one binary64 display profile evaluator, bound to the certificate within 1e-9 chord (ADR-0010 Amendment 1).",
+      "tags": [
+        "m12c",
+        "section-editor",
+        "rulings",
+        "messages",
+        "points-pane",
+        "display",
+        "evaluator"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "refines"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a766fb09771fddd849dfc0acfb62de6f97cfbd199c69acf62705c901d675ccdc"
+    },
+    {
       "id": "note-sweep-replay-semantics",
       "path": "docs/notes/sweep-replay-semantics.md",
       "title": "Sweep playback selects an operating point, not physical time",
@@ -1652,10 +1701,14 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-status-bar",
           "rel": "relates-to"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9781b4f1569e6bf17cbaebd5392dbf980911e23b84bbcb0bdb210a8cd7040f5c"
+      "sourceSha256": "18ebe089416e70074ba2603f713aeb94fed158e5fbbab87ddaad1988fb30a76c"
     },
     {
       "id": "thick-client-shell",
@@ -2326,7 +2379,7 @@ window.DOCS_INDEX = {
       "phase": "design — M1.2c (operator 2026-10-03, \"Start M1.2c next\")",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Detailed design of slice M1.2c. A station's section becomes editable as a CAD mode: Edit section (from Properties, the Plan, the Side view or the Browser) replaces the views with a 2D editor of the profile record, and every move, type change and construction is a step of one section draft (ADR-0007) that Finish commits as one undo step. Section points get Anchor/Control types per surface (DR-11), which needs the deferred B6 certificate restarted as a spike first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset, resolves the planned Messages pane against DR-STATUS-1, and leaves four operator decisions open. Gate: four lenses, one repair cycle.",
+      "summary": "Detailed design of slice M1.2c. A station's section becomes editable as a CAD mode: Edit section (from Properties, the Plan, the Side view or the Browser) replaces the views with a 2D editor of the profile record, and every move, type change and construction is a step of one section draft (ADR-0007) that Finish commits as one undo step. Section points get Anchor/Control types per surface (DR-11), which needs the deferred B6 certificate restarted as a spike first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset, resolves the planned Messages pane against DR-STATUS-1, and records the operator's rulings of 2026-10-03 (OD-1 A, OD-2 A, OD-3 B, OD-4 a). Gate: four lenses, one repair cycle.",
       "tags": [
         "desktop",
         "core",
@@ -2374,6 +2427,14 @@ window.DOCS_INDEX = {
           "rel": "depends-on"
         },
         {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "depends-on"
+        },
+        {
           "to": "design-section-editor",
           "rel": "refines"
         },
@@ -2415,7 +2476,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0807f163de2b1ee77e1a3a21c9ac6d4034822d7867decb557523fa3b17c5d485"
+      "sourceSha256": "65d8dedf39d1e45ab83c7e012859c8eb555930b22f042d64f1e27b7561fb48a4"
     },
     {
       "id": "design-section-editor",
@@ -2662,10 +2723,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-language",
           "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3ae7588f9ac1e5bcbee34e3e39298b7702bd914e22905b2764ab8447abf5205e"
+      "sourceSha256": "68eba2bf644ab09e2878d1353b5f18f8687a638a5162dfa99dd982c3256f9282"
     },
     {
       "id": "mockup-property-grid",
@@ -9502,5 +9567,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c84f9aca6aba6e921ccbac2a2f1c681538fdc78569c5488a59244076e3be839d"
+  "graphSha256": "54746cf0dcd8791e79ba94927288f330334582f19fd11887b1effeeb32c78018"
 };

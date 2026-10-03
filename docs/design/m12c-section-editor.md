@@ -14,6 +14,8 @@ links:
   - { to: adr-0007-edit-transactions, rel: depends-on }
   - { to: adr-foildsl-authority, rel: depends-on }
   - { to: adr-0009-cad-first-shell, rel: depends-on }
+  - { to: adr-0010-one-placement-rule, rel: depends-on }
+  - { to: note-m12c-rulings, rel: depends-on }
   - { to: design-section-editor, rel: refines }
   - { to: design-m12b-points, rel: depends-on }
   - { to: design-m12b2-3d-elevations, rel: depends-on }
@@ -31,14 +33,18 @@ summary: >-
   type change and construction is a step of one section draft (ADR-0007) that Finish commits as one undo step. Section
   points get Anchor/Control types per surface (DR-11), which needs the deferred B6 certificate restarted as a spike
   first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset,
-  resolves the planned Messages pane against DR-STATUS-1, and leaves four operator decisions open. Gate: four lenses,
+  resolves the planned Messages pane against DR-STATUS-1, and records the operator's rulings of 2026-10-03 (OD-1 A, OD-2 A, OD-3 B, OD-4 a). Gate: four lenses,
   one repair cycle.
 review-suggested: []
 ---
 
 # Design: M1.2c — section editor mode, per-surface section points, the Points pane and the Precision workspace
 
-- **Status:** In review, repair cycle 1 of 2 applied (gate record at the end). Four operator decisions are open (§13).
+- **Status:** In review; repair cycle 1 of 2 applied (gate record at the end). **Rulings of 2026-10-03 applied**
+  ([`docs/notes/m12c-rulings.md`](../notes/m12c-rulings.md)):
+  - OD-1 A, OD-2 A, OD-3 B, OD-4 a;
+  - ADR-0007 Amendment 1 accepted;
+  - section drawing uses the fast display path (ADR-0010 Amendment 1; §3.7; track DSP).
 - **Spec / architecture:**
   - [spec rev 1.6](../specs/cfd-workbench-v1.md): CAD-10, CAD-11, CAD-15, CAD-17, CAD-20, A4.9, A4.15, UI-25, UI-37,
     UI-43, UX-30, UX-31, B1;
@@ -206,6 +212,11 @@ DR-STATUS-1..4, D-4, DR-NAV-1, DR-VIEW-1..8, MC-2/3/6) → `rulings` (53 DR-11, 
   definition's profile at that assignment (`AuthoringSession.cs`:1530-1531), and its rail set has no `"section"`
   (`:1521`, `:1529`). The Desktop's `ResumeRecovery` looks up a rail by name (`WorkbenchController.cs`:1672).
   **Verified** by the Data & Persistence lens.
+- **Sections are drawn through the certificate today.** `AuthoringSession.Sample` (`:536-550`, behind `ProfileAt` /
+  `ProfileView`) evaluates each of 101 uniform x/100 points through `Bernstein.EncloseAt` at 10⁻⁸. Its own comment
+  records about 970 ms on a degree-5, 10-point rebuild, against a 1 s proof budget. `Placement.cs` already has a
+  private binary64 profile jet and inversion (`Jet`, `ParameterFor`, `OrdinateAt`, `:403-430`) next to
+  `ChannelEvaluator` (`:110`). **Verified.** This is what the display-path ruling folds (§3.7).
 - `Selection.Points` already carries `PointRef(Curve, VertexId, Profile?)` (`Selection.cs`:12). `CurvePointLayer`
   draws the M1.2b glyphs, hit-tests at 14 px and maps arrow keys through any axis mapping. The Side view selects a
   station when its section is clicked (`ElevationView.cs`:733-741); it has no double-click or Return verb. **Verified.**
@@ -215,8 +226,9 @@ DR-STATUS-1..4, D-4, DR-NAV-1, DR-VIEW-1..8, MC-2/3/6) → `rulings` (53 DR-11, 
   (`Shell/CommandTable.cs`:120-122). **Verified.**
 - **Measured:** `geometry.validate` on the Example took 9.35–10.57 ms in the CLI session events (Debug build, this Mac,
   two runs). The session event ring holds 256 events (`AuthoringSession.cs`:96).
-- **Finding:** the brief cites DR-VIEW-1..10, but only DR-VIEW-1..8 are recorded under `docs/`. This design depends on
-  DR-VIEW-1 and -7 only.
+- **DR-VIEW-9/10/11** (Home beside the cube; the One-view plate picker; its "↩ Back" item) are recorded in
+  `docs/notes/property-grid-rulings.md` on the integration branch `feature/ui-cad-direction`. **Verified** with
+  `git grep`. They do not touch the section mode, which hides the views. This design depends on DR-VIEW-1 and -7.
 
 ## 2. Responsibility
 
@@ -519,14 +531,35 @@ A drag on the placed section would leave the pointer about 5× from the surface 
 the editor edits the **record** in chord coordinates, and shows the consequence: the Section group's per-station
 t/c rows and the probe's "at Root … mm".
 
+### 3.7 Section display path (ruling 2026-10-03; ADR-0010 Amendment 1; track DSP)
+
+**Section drawing uses the fast display path.** The certificate decides validity; it does not draw.
+
+- **One binary64 display profile evaluator.** `Placement.cs`'s private `Jet`, `ParameterFor` and `OrdinateAt` (the
+  `SplineBasis` jet with abscissa inversion) become the shared internal `ProfileEvaluator`, beside
+  `ChannelEvaluator`. Three readers use it, and nothing else may: `Placement.Prepare` (bits unchanged; the
+  `Placement` golden master pins it), `AuthoringSession.Sample` / `ProfileView` (the strip thumbnails), and every
+  M1.2c `Sections` projection (`View`, `Facts`, `Probe`, `Comb`, `DisplayCrossing`). **No fourth copy:** a source scan
+  fails the build on another profile inversion in `src/`. The certificate keeps its Bernstein path: two evaluators,
+  as note-20260926 and ADR-0010 decision 3 require.
+- **Bound by test** to the certificate: every display sample is within **10⁻⁹ chord** of `Bernstein.EncloseAt`. The
+  fixtures are section-a, a Rebuild-produced profile with non-dyadic knots, a C⁰ knot (multiplicity 5 on an anchor)
+  and the LE vertical tangent (repeated zero abscissa). The display maximum (own t/c) stays inside the certified
+  maximum.
+- **Cosine spacing at the nose:** x = (1 − cos θ)/2 replaces uniform x/100, so the LE radius is drawn, not chorded.
+- **Captions say "display"** on the editor plate and the probe. Finish, crossing refusals and every accepted shape
+  follow `Geometry.Assess` only (§7).
+- **Cost:** `ProfileAt` stops spending proof budget. The as-built 970 ms rebuild case becomes a binary64 loop:
+  `Readiness_ProfileViewRebuilt_Under5Ms` measures it at readiness (Inferred until run).
+
 ## 4. Persistence
 
 - **Source bytes, receipt and recovery:** §3.3. The old-build characterization receipt is SDR's.
 - **Layout (`cfdw-layout` v1): no schema change.**
-  - The Points pane's home moves to the region OD-3 rules.
+  - The Points pane's home moves to the **right side bar** (OD-3 B, ruled).
   - **One source of truth for pane homes:** `WorkspacePresets` reads `LayoutCodec.Homes` instead of repeating it
     (`Presets_DesktopEqualsCodec_EveryWorkspace`).
-  - `"messages"` leaves the registered panes if OD-2 A is ruled. A saved layout naming it drops that pane with code
+  - `"messages"` leaves the registered panes (OD-2 A, ruled). A saved layout naming it drops that pane with code
     `LAYOUT-PANE`. The other panes are kept, an emptied group is removed, and the first remaining pane becomes active.
     This is reversible, because `PlaceMissing` re-adds a re-registered pane.
 
@@ -566,7 +599,16 @@ SessionAssessment AssessSection(string draftId, long generation, CancellationTok
 string? FinishSection(string operationId, SessionAssessment assessment);   // one accepted row; null when bytes equal base (acts as Cancel)
 // Cancel, Snapshot, CaptureRecovery, ResumeRecovery: as built, now accepting the section draft.
 
-// SectionModel.cs (SPT) — derived views, binary64, display only
+// Placement.cs (DSP) — the one binary64 display profile evaluator (ADR-0010 Amendment 1); certificate unaffected
+internal static class ProfileEvaluator
+{
+    internal static ProfileJet Jet(Curve curve, double t);              // x, y and their first and second t-derivatives
+    internal static double ParameterFor(Curve curve, double x);         // abscissa inversion
+    internal static double OrdinateAt(Curve curve, double x);
+    internal static ProfilePoint[] Samples(Curve curve, int count);     // cosine-spaced at the nose
+}
+
+// SectionModel.cs (SPT) — derived views, binary64, display only, all through ProfileEvaluator
 public static class Sections
 {
     public static CurveView View(byte[] source, int assignment, SurfaceSide side, string basis, long generation);
@@ -714,7 +756,7 @@ scope chip.
 | Store | FoilDSL bytes (per-surface knots, profile `tangents` rows, header 4.1); receipt `rail "section"`; recovery `"section"`; layout pane homes | SDR, SPT; PNL |
 | Model | `IsAnchor` (degree-general); roles, freedoms and readouts; `TangentKind` +3; profile row rule; per-surface operations, `RewriteCurves` per side, `ConstrainedFit` anchor rows; x-overlay certificate | SPT, GCRT |
 | Service | `AuthoringSession` section draft, Finish, Cancel, recovery and legacy recovery; deletion of the M1.1 writers | SDR; CTL via S-3 |
-| Projection | `Sections.View`, `Facts`, `Probe`, `Comb`, `DisplayCrossing`; `SectionDraftView`; `SectionStepReport` | SPT, SDR |
+| Projection | `ProfileEvaluator` and `ProfileView` samples (DSP); `Sections.View`, `Facts`, `Probe`, `Comb`, `DisplayCrossing`; `SectionDraftView`; `SectionStepReport` | SPT, SDR |
 | Client type | `SectionMode`, the `PointRef` reconcile, `ModelArea.Mode` | CTL, EDT |
 | UI | mode bar, canvas, comb, probe, strip; Side double-click and Return; Properties rows and the Station link; Points pane; Show; commands and menus; presets | EDT, PNL |
 | Compute readers | `Geometry.Assess` (overlay); `Placement` and `WingEstimates` (unchanged readers of the new bytes); CLI `inspect` (section points, types, kinds) | GCRT, SPT |
@@ -729,6 +771,9 @@ scope chip.
 | Stale assessment | slow proof, newer step | **prevent**: generation ticket; the older result is dropped and emits `superseded` with no duration | `section.assess` outcome | `SectionMode_StaleAssessment_Dropped` (CTL) |
 | Assessment overwrites a newer report | async writer to the strip slot (STATUS-CLOBBER) | **prevent**: slot staleness check | — | `SectionMode_AssessCompletion_NewerStripMessageSurvives` (CTL) |
 | Display crossing ≠ certificate | binary64 near tangency | **prevent**: Finish follows the certificate only | — | `SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate` (CTL) |
+| Display profile drifts from the certificate | a change to the shared evaluator | **detect**: binding test ≤ 10⁻⁹ chord on four fixtures | — | `ProfileEvaluator_BoundToCertificate_Within1e9Chord` (DSP) |
+| A fourth binary64 profile evaluator appears | a projection inverts on its own | **prevent**: single-site source scan | — | `ProfileEvaluator_SingleSite_NoOtherProfileInversionInSource` (DSP) |
+| Drawing spends proof budget (≈ 970 ms on a rebuild) | the certificate used as a display | **prevent**: the display path only | readiness `READINESS` line | `ProfileView_RebuiltProfile_NeverUsesProofBudget` (DSP) |
 | ⌘Z at the entry falls through to document undo | routing | **prevent**: inner undo owns ⌘Z in the mode | — | `SectionMode_UndoAtEntry_DocumentUndoDepthUnchanged` (CTL) |
 | Undo or redo past the ends | cursor 0 or end | **prevent**: no-op, "Nothing to undo in this section." | — | `SectionDraft_CursorEnds_UndoRedoNoChange` (SDR) |
 | Step refused | order, lock, ceiling | **prevent**: no step; draft unchanged; code in the strip | `section.step` outcome + code | `SectionDraft_RefusedStep_DraftBytesUnchanged` (SDR) |
@@ -798,7 +843,7 @@ before EDT uses them.
 2. **Section editor** (the model area, top to bottom):
    - **Mode bar** (32 px): "Editing **Root** section", the scope chip, Section ▾, Curvature (pressed by default),
      Thickness ×2 (off by default), a spacer, Cancel, **Finish section**. The focal point is Finish.
-   - **Canvas** (1:1), with the plate "Section · Root · 0.00 mm from root":
+   - **Canvas** (1:1), with the plate "Section · Root · 0.00 mm from root · display" (ADR-0010 Amendment 1):
      - the chord axis, a 10 % grid and the chord line;
      - both curves (2 px `foil`);
      - each surface's dashed control polygon, the active one at full opacity and the other at 0.62 (UI-25);
@@ -945,7 +990,7 @@ Reused: COPY-117, COPY-119, COPY-122, COPY-123, COPY-124, and "Finish or cancel 
 
 ⌘1 / ⌘2 / ⌘3 apply the preset of that workspace: the panes per `WorkspacePresets` (which now reads
 `LayoutCodec.Homes`), and the view arrangement (Review = Four views, no panes). Precision = Planform plus the Points
-pane in its home region (OD-3).
+pane in the right side bar (OD-3 B).
 
 `simplify:` there is no per-workspace memory and no persistence of the switch. The ceiling is that a user's changes to
 a workspace are not remembered on return. The upgrade trigger is app-shell D4 (M1.2e), which owns memory and saved
@@ -990,6 +1035,7 @@ the verdict, the other list's names are cut from §12.4 (HYG-A).
 5. **Native:** UXR rows N-12C-1 … N-12C-11 (the §0.1 steps), each with an attach receipt (CO-UI-READY). These rows
    also cover VoiceOver speech and the comb drawing.
 6. **Readiness** (measured, not gated per track; gathered by UXR):
+   - `Readiness_ProfileViewRebuilt_Under5Ms` (Core `--readiness`);
    - `Readiness_SectionStepApply_Under5Ms` (Core `--readiness`);
    - `Readiness_SectionAssessExample_Under50Ms` (Core `--readiness`);
    - `Readiness_SectionDragFrameP95Under16Ms` (Desktop `--readiness`).
@@ -1010,6 +1056,11 @@ The UI craft gate runs on the mockup now, and on the built surface at UXR, with 
 ### 12.4 Named tests (the ledger; the checker reads this section and §9)
 
 Each name protects one behaviour. Names that protect nothing are not listed.
+
+**DSP — the display profile evaluator (ADR-0010 Amendment 1).**
+`ProfileEvaluator_BoundToCertificate_Within1e9Chord` (DSP) · `ProfileEvaluator_DisplayMaximum_WithinCertifiedMaximum` (DSP) ·
+`ProfileEvaluator_SingleSite_NoOtherProfileInversionInSource` (DSP) · `ProfileView_Samples_CosineSpacedAtNose` (DSP) ·
+`ProfileView_RebuiltProfile_NeverUsesProofBudget` (DSP) · `Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged` (DSP).
 
 **SPT — section points in Core, policy-free.**
 `IsAnchor_DegreeFive_OnlyMultiplicityFiveTrue` (SPT) · `Parse_ProfileHorizontalRowOnAnchor_Accepted` (SPT) ·
@@ -1072,7 +1123,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEditor_CombAutoScale_ClippedTeethMarked` (EDT) · `SectionEditor_ProbeFollowsPointer_PlacedMmAtStation` (EDT) ·
 `SectionEditor_StripThumbnails_OnePerStationCurrentMarked` (EDT) · `SectionEditor_ModeBar_NamesStationAndScopeChip` (EDT) ·
 `SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn` (EDT) · `SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart` (EDT) ·
-`SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY` (EDT).
+`SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY` (EDT) · `SectionEditor_PlateAndProbe_SayDisplay` (EDT).
 
 **PNL — panes, menus, workspaces.**
 `Properties_SectionPoint_TypeXYRowsInPercentChord` (PNL) · `Properties_SectionPointTypedX_OneStepExact` (PNL) ·
@@ -1082,8 +1133,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `StatusStrip_ShowAction_FramesBlockingPoint` (PNL) · `Workspace_Precision_ShowsPointsInHomeRegion` (PNL) ·
 `Workspace_Planform_HidesPoints` (PNL) · `Presets_DesktopEqualsCodec_EveryWorkspace` (PNL) · `Layout_SavedMessagesPane_DroppedWithCode` (PNL).
 
-The Points-pane and Layout names depend on the OD-2 and OD-3 rulings, and are re-cut at the ruling in the same way as
-SPTG and SPTF.
+OD-2 A and OD-3 B were ruled on 2026-10-03, so the Points-pane and Layout names are final.
 
 ## 13. Decisions, findings and open items
 
@@ -1091,16 +1141,20 @@ SPTG and SPTF.
 
 | ID | Question | Options | Recommendation |
 |---|---|---|---|
-| **OD-1** | How is a section edited from the Side view? | **A** Side selects the station, and Edit section (Return, double-click or the link) opens the editor **in the model area** in place of the views (CAD-20). **B** The editor opens **in the Side view's slot**; Plan, 3D and Front stay and redraw from the draft. **C** Drag points directly on the Side view's placed section | **A.** It is the spec and gives the most room. B costs a re-placement per step in three views. C is not recommended: the placed section is not the record (§3.6, measured, confirmed by two lenses). Marine-CAD agrees; it suggests B's lines-plan benefit come later as a drawing-only "as placed" overlay (OI-12C-3) |
-| **OD-2** | Messages (DR-STATUS-1, D-4): where do blockers and past reports go? | **A** No Messages pane: blockers show where they block (Finish reason, canvas marker) and in the strip with one **Show**; no history (⌘Z is the history). **B** A transient **Issues popover** from a strip item. **C** A Messages pane only in the right side bar or as a float | **A.** It is smallest and keeps DR-STATUS-1's intent; the strip's action slot exists. Marine-CAD: acceptable (the SolveSpace pattern) |
-| **OD-3** | Where does the Points pane live? | **A** the bottom panel (spec). **B** the **right side bar**. **C** no Points pane in M1.2c. **D** a Points tab in the **left** side bar beside Properties and Browser | **B.** Measured in the mockup at 1:1: **A** keeps 8.85 px per % chord but shows only 4 of 20 rows, a scrolling grid docked above the bottom bar. **B** shows 20 of 20 rows at 6.44 px per % chord. **C** and **D** keep 8.85; D shows all rows but hides Properties while the tab is up, so the Wing block is not visible, against CAD-17 ("with any selection or none"). Marine-CAD: B acceptable, A not (4 rows cannot compare upper and lower), and handles overlap at full chord in every layout, so Fit Selection does the precision work anyway. B needs a spec amendment of B1/UX-31 (flagged) |
-| **OD-4** | If the per-surface certificate cannot be built (GSPK no-go, or GCRT at its cap), what ships? | **a** ship with **paired** section point types (ADR-0005 §6; certifies today; tested as SPTF) and bring DR-11 back with the numbers. **b** hold M1.2c | **a.** Nothing else in M1.2c depends on the certificate |
+| **OD-1** | How is a section edited from the Side view? | **A** Side selects the station, and Edit section (Return, double-click or the link) opens the editor **in the model area** in place of the views (CAD-20). **B** The editor opens **in the Side view's slot**; Plan, 3D and Front stay and redraw from the draft. **C** Drag points directly on the Side view's placed section | **Ruled A** (operator, 2026-10-03; the recommendation). It is the spec and gives the most room. B costs a re-placement per step in three views. C is not recommended: the placed section is not the record (§3.6, measured, confirmed by two lenses). Marine-CAD agrees; it suggests B's lines-plan benefit come later as a drawing-only "as placed" overlay (OI-12C-3) |
+| **OD-2** | Messages (DR-STATUS-1, D-4): where do blockers and past reports go? | **A** No Messages pane: blockers show where they block (Finish reason, canvas marker) and in the strip with one **Show**; no history (⌘Z is the history). **B** A transient **Issues popover** from a strip item. **C** A Messages pane only in the right side bar or as a float | **Ruled A** (operator, 2026-10-03; the recommendation). It is smallest and keeps DR-STATUS-1's intent; the strip's action slot exists. Marine-CAD: acceptable (the SolveSpace pattern) |
+| **OD-3** | Where does the Points pane live? | **A** the bottom panel (spec). **B** the **right side bar**. **C** no Points pane in M1.2c. **D** a Points tab in the **left** side bar beside Properties and Browser | **Ruled B** (operator, 2026-10-03; the recommendation). Measured in the mockup at 1:1: **A** keeps 8.85 px per % chord but shows only 4 of 20 rows, a scrolling grid docked above the bottom bar. **B** shows 20 of 20 rows at 6.44 px per % chord. **C** and **D** keep 8.85; D shows all rows but hides Properties while the tab is up, so the Wing block is not visible, against CAD-17 ("with any selection or none"). Marine-CAD: B acceptable, A not (4 rows cannot compare upper and lower), and handles overlap at full chord in every layout, so Fit Selection does the precision work anyway. B needs a spec amendment of B1/UX-31 (flagged) |
+| **OD-4** | If the per-surface certificate cannot be built (GSPK no-go, or GCRT at its cap), what ships? | **a** ship with **paired** section point types (ADR-0005 §6; certifies today; tested as SPTF) and bring DR-11 back with the numbers. **b** hold M1.2c | **Ruled a** (operator, 2026-10-03; the recommendation). Nothing else in M1.2c depends on the certificate |
+
+**The variants that lost have no build path.** OD-1 B/C, OD-2 B/C, OD-3 A/C/D and OD-4 b are not built. They stay in
+the mockup as the record of the choice. The record of the rulings is `docs/notes/m12c-rulings.md`, and the numbered
+Ruling is the Coordinator's (`coord decide`).
 
 **Findings:**
 
 - **F-1:** the M1.1 Section-tab controls are dead (§1). M1.2c replaces the body, and the S-3 ledger maps the old tests.
 - **F-2:** the profile-row check would use the rail rule; SPT fixes it (§3.4).
-- **F-3:** DR-VIEW-9/10 are not recorded.
+- **F-3 (resolved):** DR-VIEW-9/10/11 are recorded on `feature/ui-cad-direction` (§1).
 - **F-4:** Precision versus D4 owning workspaces is resolved by §11.8's `simplify:`.
 - **F-5 (Computational Geometry):** the as-built patch and fit paths write one shared basis (§1). SPT owns making them
   per side.
@@ -1126,23 +1180,26 @@ Every brief: foreground only; the Return section required; two repair cycles; `t
 
 | Track | Harness | Owns (exclusive) | Depends on | Box | Exit |
 |---|---|---|---|---|---|
-| **PRE** contracts and harness | Coordinator inline | `Contracts.cs` (§5.1 records); empty Core classes + `Run()` lines in `IdentityTests.cs`; Core `--readiness` entry; `--section-editor` suite entry + empty `SectionEditorTests.cs`; `tools/check-event-subscribers.py` (re-date FocusedTargetChanged to D4) | — | 30 min | build green, empty suites listed |
-| **GSPK** certificate spike | Claude (Computational Geometry judgement) | `docs/proof/m12c-certificate-spike/**` only (probe, F1–F5, output, verdict) | PRE | 180 min (no same-class prior; measured time recorded) | the §3.5 go/no-go table against the admission proofs |
-| **SPT** section points | Grok | `SectionModel.cs` (new), `SectionEdits.cs` (new), `FoilSource.cs` (`IsAnchor`, per-side `RewriteCurves`/insert/delete, row writer), `ConstrainedFit.cs` (`ProfileFair` per surface, anchor KKT rows), `PointModel.cs` (roles, kinds, `AngleDegrees`), `Geometry.cs` (the profile row branch only; handed to GCRT at merge), `src/CfdWorkbench.Cli/Program.cs`, `SectionPointTests.cs`, `SectionEditsTests.cs`, `Fixtures/m12c/` | PRE; type operations wait for the GSPK verdict | 135 min (P1 45 × 3) | SPT names + the chosen list PASS; planted-mutant receipt |
+| **PRE** contracts and harness | Coordinator inline | `Contracts.cs` (§5.1 records); empty Core classes + `Run()` lines in `IdentityTests.cs`; Core `--readiness` entry; `--section-editor` suite entry + empty `SectionEditorTests.cs`; `SectionEdits.cs` signature stub (`Apply` throws for the type kinds; SPT owns the body, seam S-8); `tools/check-event-subscribers.py` (re-date FocusedTargetChanged to D4) | — | 30 min | build green, empty suites listed |
+| **GSPK** certificate spike | Claude (Computational Geometry judgement) | `docs/proof/m12c-certificate-spike/**` only (probe, F1–F5, output, verdict) | PRE | **120 min**, shortened from 180. It has two stages: 60 min for the decisive fixtures (F1 and F4 at 2 m: the per-surface case, and the blend that sank B6; a measured no-go there ends the spike), then 60 min for F2, F3 and F5. There is no same-class measured prior: the audit log holds no duration for the M1.1 B6 cycles or any certificate spike (searched 2026-10-03). The measured time is recorded and becomes the prior | the §3.5 go/no-go table against the admission proofs |
+| **DSP** display profile evaluator | Grok | `Placement.cs` (move `Jet`, `ParameterFor` and `OrdinateAt` into the shared internal `ProfileEvaluator` beside `ChannelEvaluator`; `Prepare` calls it); in `AuthoringSession.cs`, **`Sample` and its call in `ProfileAtCore` only** (seam S-7); `DisplayProfileTests.cs` (new); `Fixtures/m12c/display/` (Rebuild-produced non-dyadic knots, C⁰ knot, LE vertical tangent) | PRE | 90 min (C1 30 × 3: one fold plus one sampler and binding tests) | DSP names PASS; the `Placement` golden master still green; planted-mutant receipt (a shifted knot span turns the binding test red) |
+| **SPT** section points | Grok | `SectionModel.cs` (new), `SectionEdits.cs` (new), `FoilSource.cs` (`IsAnchor`, per-side `RewriteCurves`/insert/delete, row writer), `ConstrainedFit.cs` (`ProfileFair` per surface, anchor KKT rows), `PointModel.cs` (roles, kinds, `AngleDegrees`), `Geometry.cs` (the profile row branch only; handed to GCRT at merge), `src/CfdWorkbench.Cli/Program.cs`, `SectionPointTests.cs`, `SectionEditsTests.cs`, `Fixtures/m12c/` | PRE; **DSP** (its projections read `ProfileEvaluator`); type operations wait for the GSPK verdict | 135 min (P1 45 × 3) | SPT names + the chosen list PASS; planted-mutant receipt |
 | **SPTG** per-surface list | (SPT on a go) | as SPT | GSPK = go | in SPT's box | SPTG names PASS |
 | **SPTF** paired list | (SPT on a no-go) | as SPT | GSPK = no-go | in SPT's box | SPTF names PASS |
-| **SDR** section draft | Codex | `AuthoringSession.cs`, `SectionDraftTests.cs`, `ReopenSectionDraftTests.cs`, `docs/proof/m12c-old-build/` (the §3.3 characterization receipt, cases a–e, run on `4b9bc35`) | PRE; SPT's `SectionEdits` for SetType/SetTangent | 140 min (D3a 47 × 3) | SDR names PASS; old-build receipt |
+| **SDR** section draft | Codex | `AuthoringSession.cs`, `SectionDraftTests.cs`, `ReopenSectionDraftTests.cs`, `docs/proof/m12c-old-build/` (the §3.3 characterization receipt, cases a–e, run on `4b9bc35`) | PRE. It dispatches SetType/SetTangent to the PRE stub; their tests are registered when SPT merges (S-8). It rebases on DSP's `Sample` change (S-7) | 140 min (D3a 47 × 3) | SDR names PASS; old-build receipt |
 | **GCRT** per-surface certificate | Grok | `Geometry.cs` (after SPT merges), `SectionOverlay.cs` (new), `OverlayTests.cs` (new), `BlendTests.cs` additions | GSPK = go; SPT; SDR | 135 min (P1 45 × 3) | GCRT names PASS; planted-mutant receipt |
-| **CTL** controller and mode | Codex | `WorkbenchController.cs`, `Selection.cs`, `Shell/EditVerbRouter.cs`, `ControllerSectionTests.cs` (new); seam S-3: deleting the M1.1 writers in `AuthoringSession.cs`, `SectionFlowTests.cs`, `SectionToolsTests.cs` and their `WorkbenchTests.cs` rows | SDR | 140 min (D3a 47 × 3) | CTL names PASS; S-3 ledger |
+| **CTL** controller and mode | Codex | `WorkbenchController.cs`, `Selection.cs`, `Shell/EditVerbRouter.cs`, `ControllerSectionTests.cs` (new); seam S-3: deleting the M1.1 writers in `AuthoringSession.cs`, `SectionFlowTests.cs`, `SectionToolsTests.cs` and their `WorkbenchTests.cs` rows | SDR; SPT (the controller reads `Sections.View`) | 140 min (D3a 47 × 3) | CTL names PASS; S-3 ledger |
 | **EDT** editor surface | Codex | `SectionCanvas.cs` (rewrite), `SectionEditorView.axaml`(.cs), `ModelArea.axaml`(.cs), `ElevationView.cs` (double-click, Return, overlap cycle), `CurvePointLayer.cs` (section roles), `SectionCanvasTests.cs` (rewrite), `SectionEditorTests.cs`, `tools/check-event-subscribers.py` (after PRE) | CTL | 140 min (D3a 47 × 3) | EDT names PASS; no unwired event |
 | **PNL** panes, menus, workspaces | Claude | `PropertiesView.cs`, `Panes/PropertiesPane.axaml.cs`, `Panes/PointsPane.axaml`(.cs) (new), `PointsView.cs` (new), `Shell/ShellLayout.cs`, `Shell/ShellHost.cs`, `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`, `Shell/WorkspacePresets.cs`, `Shell/StatusStrip.axaml`(.cs), `src/CfdWorkbench.Persistence/LayoutCodec.cs`, `PointsPaneTests.cs` (new), additions to `PropertiesViewTests.cs`, `ShellModelTests.cs`, `StatusStripTests.cs`, `LayoutFileTests.cs`, port of the Section-tab rows in `ShellWindowTests.cs` | CTL | 135 min (P1 45 × 3) | PNL names PASS; the UI-DEAD-CONTROL walk green in the mode |
 | **UXR** review and polish | Claude | `DESIGN.md` (tokens, COPY-172..184, component rows), `Styles.axaml`, `docs/reviews/m12c-native.md` (new), the readiness rows in `tools/run-readiness.py` | EDT, PNL | 120 min (as written; measured time recorded) | marine-CAD re-review; native rows with attach receipts |
 
-**Order:** PRE → {GSPK ∥ SPT ∥ SDR} → (GSPK verdict → SPT's chosen list) → CTL → {EDT ∥ PNL}. On a go, GCRT runs in
-parallel from the SPT and SDR merges. UXR follows, then the join. The width cap is 3 concurrent delegated coding
-tracks.
+**Order:** PRE → {GSPK ∥ DSP ∥ SDR} → SPT (after DSP; its type operations after the GSPK verdict) → CTL (after SDR and
+SPT) → {EDT ∥ PNL} → UXR → join. On a go, GCRT runs in parallel from the SPT and SDR merges. EDT and PNL consume the
+display path through the controller (DSP → SPT → CTL). The width cap is 3 concurrent delegated coding tracks, and the
+first wave is exactly 3.
 
-Critical path: PRE → SDR → CTL → EDT → UXR = 570 min of boxes. Measured priors suggest about 3.5 h.
+Critical path: PRE → DSP → SPT → CTL → EDT → UXR = 30 + 90 + 135 + 140 + 140 + 120 = **655 min of boxes**. The SDR branch
+(PRE → SDR → CTL) is 85 min shorter. Measured priors (C1 30, P1 45, D3a 47) suggest about 3.7 h of real time.
 
 ### 14.2 Seams
 
@@ -1153,6 +1210,8 @@ Critical path: PRE → SDR → CTL → EDT → UXR = 570 min of boxes. Measured 
 | **S-3** M1.1 writers | CTL deletes them and their two Desktop suites after SDR merges; readers stay; every deleted behaviour points at a §12.4 name or "retired" | the Owner rules on a name that cannot be ported |
 | **S-4** `ShellHost.cs` | PNL only; EDT reaches the mode through `ModelArea.Mode` and the controller | — |
 | **S-5** D4 | M1.2c hands D4 a section draft that answers `IsDirty`, Finish and Cancel for its close and save rows (app-shell F11 S1/S10) | — |
+| **S-7** `AuthoringSession.cs` | DSP edits `Sample` and its call in `ProfileAtCore` only; SDR owns the rest of the file and rebases on DSP's merge (DSP is the shorter track) | if SDR merges first, DSP rebases its one method |
+| **S-8** `SectionEdits.cs` | PRE lands the signature stub; SPT owns the body after PRE. SDR's SetType/SetTangent tests are registered when SPT merges | — |
 | **S-6** `PointView` | `AngleDegrees` is non-positional with a default, so existing positional constructions compile unchanged | — |
 
 ## Adversarial analysis (STRIDE-lite)
@@ -1190,8 +1249,8 @@ is kept out of telemetry (`SectionTelemetry_Events_NoNamesIdsOrPositions`).
   | ID | Deviation | Why |
   |---|---|---|
   | D-1 | a mode bar replaces v10's app-bar toolbar | §11.7 |
-  | D-2 | the Points pane's home becomes the right side bar if OD-3 B is ruled | spec B1/UX-31 flagged |
-  | D-3 | no Messages pane if OD-2 A is ruled | spec B1/UX-31 flagged; app-shell §11's `role=log` obligation retired |
+  | D-2 | the Points pane's home is the right side bar (OD-3 B, ruled) | spec B1/UX-31 flagged |
+  | D-3 | no Messages pane (OD-2 A, ruled) | spec B1/UX-31 flagged; app-shell §11's `role=log` obligation retired |
   | D-4 | Precision has no memory | §11.8 |
   | D-5 | Vertical is disabled on interior section anchors | A4.15 lists it; flagged for the spec owner |
   | D-6 | old builds show "tangent row names an interior anchor" or "not assessed" instead of "saved by a newer version" | §3.3 |
@@ -1217,8 +1276,8 @@ is kept out of telemetry (`SectionTelemetry_Events_NoNamesIdsOrPositions`).
 | | |
 |---|---|
 | **Completed** | M1.2c detailed design (data model, contracts, failure modes, telemetry, UI, ledger, tracks); the mockup; the gate (four lenses, repair cycle 1) |
-| **Remaining** | the operator's rulings on OD-1..OD-4; Owner acceptance of the ADR-0007 Amendment 1; the lenses not convened (Patterns Expert, Simplifier, UX & Accessibility, Native Desktop); then the coordination plan; then the M1.2d and M1.2e designs |
-| **Best next action** | the operator reviews `docs/mockups/m12c-section-editor.html` and rules OD-1..OD-4; then PRE and GSPK dispatch |
+| **Remaining** | the Coordinator's numbered Ruling for the 2026-10-03 rulings; the spec owner's B1/UX-31 and A4.15 amendments (D-2, D-3, D-5); the lenses not convened (Patterns Expert, Simplifier, UX & Accessibility, Native Desktop); then the coordination plan; then the M1.2d and M1.2e designs |
+| **Best next action** | the coordination plan for §14, then PRE inline, then GSPK, DSP and SDR in parallel |
 
 ## Gate record
 
@@ -1230,6 +1289,11 @@ is kept out of telemetry (`SectionTelemetry_Events_NoNamesIdsOrPositions`).
 | Test Architect (hard veto) | **BLOCK** (1 Blocker, 12 Major) | Fallback claims untested; SPT unreachable under either verdict. Readiness names in the fast-ring checker. Old-build test unobservable in the new suite. No test for undo at entry, STATUS-CLOBBER, rendered announce, re-entry redraw, shared Finish or Make unique. S-3 ledger unenforced. Untested state-machine rows. Dead-control sweep missed the mode bar. D7 unstated | SPT / SPTG / SPTF split with §14 rows. Readiness moved to tier 6 with a Core `--readiness`. Old-build receipt moved to SDR (cases a–e). About 30 names added, renamed or cut. Every §6.1 row names a test. D3 and D7 lines. Planted-mutant receipts | **Veto cleared.** Two Minors (32-point ceiling retagged SPT; the report test made policy-free) applied after re-review |
 | Data & Persistence (hard veto) | Pass with conditions (4 Major) | A recovery after Make unique would refuse the whole project. The contract step orphaned legacy profile recoveries. `steps` had no compute reader (DM15). Old-build claims partly wrong. "section" checker arm unspecified. Pane homes defined in two places | Recovery pins the base profile name. Readers kept; legacy rows resume as a section draft. `steps` dropped, with ADR-0007 Amendment 1 proposed. Grain includes the no-op Finish. Old-build characterization receipt. "section" arm and idempotency tests. Presets read `LayoutCodec.Homes` | **Pass.** Minor (case c split into c1 `DOC-REFERENCE` / c2 `DOC-SCHEMA`, amendment text) and Nit (stale ADR frontmatter) applied after re-review |
 | Marine-CAD UX (soft veto) | Pass with conditions (6 Major) | Thickness wording a trap. LE radius and TE readouts deferred against A4.15. No curvature-break surfacing. No comb scale. No pointer probe. Vertical on interior anchors is a false model. Thickness ×2 default distorted measurements | Own t/c + per-station t/c with a consequence line. LE radius, TE gap and wedge in scope. Comb on, with break teeth and auto-scale. `Sections.Probe` at the pointer. Vertical disabled (D-5). 1:1 default and re-measured. Return → x. Kind column / control net. mm in x. ⌫ and double-click. Insert anchor (keep shape). Strip chord and t/c. OD-3 D variant. Finding 9 (handles only on selection) **declined with rationale** (§6.1) | **Pass with conditions → applied after re-review, not re-reviewed:** readouts as own **and** at each station (computed from placed Rule A; the mockup agrees with the lens's k² / k scaling); comb spaced by arc length; % units; OD-3 D breaks CAD-17 |
+
+**Post-gate rulings (2026-10-03):** OD-1 A, OD-2 A, OD-3 B, OD-4 a; ADR-0007 Amendment 1 accepted; the section
+display path (ADR-0010 Amendment 1), added as track DSP. These came after the gate and were not re-reviewed by the
+lenses. The display path takes the certificate out of drawing and adds a binding test, which is the Computational
+Geometry lens's "one authority, bound by test" shape.
 
 **Not convened, with reason (pending for the Coordinator):**
 

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T15:37:16Z",
+  "generated": "2026-10-03T15:47:11Z",
   "audit": [
     {
       "actor": null,
@@ -22332,6 +22332,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T14:40:35Z",
       "duration_seconds": 3401.0
+    },
+    {
+      "id": "al-01M41759T3AEQ6K9QARKT4WDTP",
+      "shortname": "m12c-rulings-display-path",
+      "datetime": "2026-10-03T15:47:10Z",
+      "session": "f19a2b12-m12c",
+      "prompt": "The operator reviewed the M1.2c mockup and ruled (2026-10-03): OD-1 = A (open the editor in the model area); OD-2 = A (no Messages pane; blockers where they block + one Show button in the status strip; ⌘Z is history); OD-3 = B (Points pane in the right side bar); OD-4 = a (if the GSPK spike is no-go, ship with paired point types and bring DR-11 back with the numbers). The operator (Owner) ACCEPTS the ADR-0007 amendment (drop the step count from the receipt). And a new ruling from the geometry review of the proof-budget work: section drawing uses the fast display path — AuthoringSession.Sample/ProfileView move to the one binary64 display profile evaluator (promote Placement.cs's SplineBasis jet + abscissa inversion OrdinateAt/Prepare to a shared internal next to ChannelEvaluator; no fourth copy), bound to the certificate by test within 1e-9 chord of Bernstein.EncloseAt on fixtures incl. a rebuilt profile with non-dyadic knots, a C⁰ knot and the LE vertical tangent; cosine spacing at the nose (replaces uniform x/100); captions say \"display\"; the certificate still decides validity. This needs an ADR-0010 amendment — write it. 1. Record OD-1..4 and the display ruling in docs/notes/property-grid-rulings.md (or a docs/notes/m12c-rulings.md linked from it); record the ADR-0007 amendment as accepted in the ADR; add the ADR-0010 amendment. 2. Update the design: remove the B/C variants' build paths that lost; add the display-evaluator work as its own track (DSP) placed so EDT/PNL consume it; adjust ownership/ordering (GSPK's 180 min box is long — keep it but state the measured prior, or shorten with reason); note DR-VIEW-9/10/11 are now recorded on the integration branch. 3. Mark the mockup's chosen variants and keep the others as the record. docs-graph derive, check-docs, commit.",
+      "summary": "Recorded the 2026-10-03 rulings in docs/notes/m12c-rulings.md (OD-1 A, OD-2 A, OD-3 B, OD-4 a; ADR-0007 Amendment 1 accepted; section display path). Wrote ADR-0010 Amendment 1 (one binary64 ProfileEvaluator beside ChannelEvaluator; bound within 1e-9 chord of Bernstein.EncloseAt; cosine spacing; captions say display). Design: new §3.7 and track DSP (90 min); GSPK shortened 180→120 min in two stages (no same-class prior in the audit log); order PRE → {GSPK, DSP, SDR} → SPT → CTL → {EDT, PNL} → UXR; critical path 655 min of boxes; losing variants have no build path; DR-VIEW-9/10/11 verified on feature/ui-cad-direction. Mockup marks chosen variants. 152 named tests, 0 checker errors.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/notes/m12c-rulings.md",
+        "docs/adr/0010-one-placement-rule.md",
+        "docs/design/m12c-section-editor.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record the M1.2c rulings, the ADR amendments and the display-path track",
+      "done_when": "check-docs passes and the commit sha exists",
+      "tier": "T1",
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      }
     }
   ],
   "changes": [
@@ -23050,6 +23077,28 @@ window.AUDIT_DATA = {
       "git": {
         "before": "4b9bc357d3fc8fc7f81235efcd14e5832d6985c9",
         "after": "4b9bc357d3fc8fc7f81235efcd14e5832d6985c9",
+        "branch": "design/m12c-section-editor",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M4175A1PY50SN48B863BYNTV",
+      "datetime": "2026-10-03T15:47:11Z",
+      "session": "f19a2b12-m12c",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Section drawing uses the one binary64 display profile evaluator, bound to the certificate (ADR-0010 Amendment 1); M1.2c operator rulings recorded",
+      "prompt": "The operator reviewed the M1.2c mockup and ruled (2026-10-03): OD-1 = A (open the editor in the model area); OD-2 = A (no Messages pane; blockers where they block + one Show button in the status strip; ⌘Z is history); OD-3 = B (Points pane in the right side bar); OD-4 = a (if the GSPK spike is no-go, ship with paired point types and bring DR-11 back with the numbers). The operator (Owner) ACCEPTS the ADR-0007 amendment (drop the step count from the receipt). And a new ruling from the geometry review of the proof-budget work: section drawing uses the fast display path — AuthoringSession.Sample/ProfileView move to the one binary64 display profile evaluator (promote Placement.cs's SplineBasis jet + abscissa inversion OrdinateAt/Prepare to a shared internal next to ChannelEvaluator; no fourth copy), bound to the certificate by test within 1e-9 chord of Bernstein.EncloseAt on fixtures incl. a rebuilt profile with non-dyadic knots, a C⁰ knot and the LE vertical tangent; cosine spacing at the nose (replaces uniform x/100); captions say \"display\"; the certificate still decides validity. This needs an ADR-0010 amendment — write it. 1. Record OD-1..4 and the display ruling in docs/notes/property-grid-rulings.md (or a docs/notes/m12c-rulings.md linked from it); record the ADR-0007 amendment as accepted in the ADR; add the ADR-0010 amendment. 2. Update the design: remove the B/C variants' build paths that lost; add the display-evaluator work as its own track (DSP) placed so EDT/PNL consume it; adjust ownership/ordering (GSPK's 180 min box is long — keep it but state the measured prior, or shorten with reason); note DR-VIEW-9/10/11 are now recorded on the integration branch. 3. Mark the mockup's chosen variants and keep the others as the record. docs-graph derive, check-docs, commit.",
+      "summary": "ADR-0010 Amendment 1 accepted; ADR-0007 Amendment 1 accepted; OD-1 A, OD-2 A, OD-3 B, OD-4 a; new track DSP.",
+      "rationale": "AuthoringSession.Sample drew sections through the certificate (about 970 ms on a rebuild per its own comment); one display evaluator bound by test keeps one authority and makes drawing fast; the operator ruled the four design decisions after the mockup.",
+      "artifacts": [
+        "docs/adr/0010-one-placement-rule.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "4c65770",
+        "after": "4c6577031bc40090073e6670a537800f36555d6c",
         "branch": "design/m12c-section-editor",
         "pushed": null,
         "commits": []

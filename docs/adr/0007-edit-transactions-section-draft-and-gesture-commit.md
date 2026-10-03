@@ -24,7 +24,7 @@ review-suggested:
 
 # ADR-0007: section draft, gesture commit and catalog Replace
 
-- **Status:** Proposed (architect council 2026-09-26)
+- **Status:** Proposed (architect council 2026-09-26). **Amendment 1 accepted by the Owner on 2026-10-03** (no step count in the section receipt; see the end of this ADR). The Coordinator records the Ruling in `docs/notes/rulings.md`.
 - **Date:** 2026-09-26
 - **Deciders:** the operator (DR-6 is theirs; this ADR designs to the default), Computational Geometry (DR-4), Data &
   Persistence (history grain)
@@ -105,7 +105,7 @@ workspace commits a point drag when it ends (DR-6 default).
   **`simplify:`** keep full byte copies; upgrade trigger: a measured draft over 64 MB.
 - **Follow-ups:** design-slice owns the step record shape and the Desktop mode state machine.
 
-## Amendment 1 (proposed 2026-10-03 by the M1.2c design-slice; pending Owner acceptance)
+## Amendment 1 — accepted (Owner, 2026-10-03); proposed the same day by the M1.2c design-slice
 
 - **Change:** decision 1 says a section Finish applies one accepted row "whose receipt carries the step count" and that
   recovery records "N steps before recovery". **Both are struck.**

@@ -13,6 +13,7 @@ links:
   - {to: spec-cfd-workbench-v1, rel: relates-to}
   - {to: review-ui-property-grid-density, rel: relates-to}
   - {to: mockup-status-bar, rel: relates-to}
+  - {to: note-m12c-rulings, rel: relates-to}
 review-by: 2027-03-30
 summary: >-
   Operator rulings of 2026-10-01 on the property-grid review. Precision follows the quantity, not the row. The field

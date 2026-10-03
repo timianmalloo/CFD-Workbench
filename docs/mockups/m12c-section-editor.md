@@ -12,6 +12,7 @@ links:
   - {to: mockup-status-bar, rel: relates-to}
   - {to: mockup-property-grid, rel: relates-to}
   - {to: design-language, rel: depends-on}
+  - {to: note-m12c-rulings, rel: relates-to}
 review-by: 2026-12-31
 summary: >-
   The operator asked to edit sections (2026-10-03). This page draws three screens of today's 1280 × 800 shell for the
@@ -72,6 +73,13 @@ The button at the top right switches the chrome to dark. The viewports stay grap
 **Implements:** §0.1 step 5, §9, CAD-20, COPY-123.
 
 ## The decisions
+
+**Ruled by the operator on 2026-10-03:** OD-1 A, OD-2 A, OD-3 B, OD-4 a. The rulings are recorded in
+[`docs/notes/m12c-rulings.md`](../notes/m12c-rulings.md).
+
+- On the page, each chosen card is marked "Chosen · operator 2026-10-03".
+- The other cards stay as the record, marked "Not chosen · kept as the record".
+- The editor's plate and probe now say "display", following the section display-path ruling (ADR-0010 Amendment 1).
 
 | Decision | Variants | Implements |
 |---|---|---|
