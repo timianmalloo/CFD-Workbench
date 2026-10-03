@@ -141,6 +141,24 @@ public static class ControllerViewTests
             if (controller.SurfaceBehind || controller.SurfaceUpdating) throw new Exception("Updating… outlived the mesh");
         });
 
+        // LIFE-A: the 250 ms timer fires on a pool thread and queues Notify on the UI thread; a window closed before the
+        // queue drains disposed the controller, and the queued Notify read the closed session (DOC-CLOSED).
+        DesktopChecks.Check("Controller_DisposedWithQueuedSurfaceNotify_NotifiesNoView", () =>
+        {
+            var time = new ManualTime();
+            var gate = new GatedSurfaces();
+            var controller = new WorkbenchController(surfaceCompute: gate.Compute, time: time);
+            Open(controller);
+            controller.SurfaceWanted = true;
+            int raised = 0;
+            controller.Changed += () => { raised++; _ = controller.Planform; };
+            controller.SelectionChanged += () => { raised++; _ = controller.Planform; };
+            Task.Run(() => time.Advance(TimeSpan.FromMilliseconds(250))).GetAwaiter().GetResult();
+            controller.Dispose();
+            Drain();
+            Equal(0, raised, "views notified by a disposed controller");
+        });
+
         DesktopChecks.Check("Controller_SurfaceComputeFails_KeepsLastMeshNoteErrorEvent", () =>
         {
             ShellEvents.Clear();

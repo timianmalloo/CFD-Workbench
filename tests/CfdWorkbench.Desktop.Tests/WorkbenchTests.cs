@@ -511,9 +511,16 @@ namespace CfdWorkbench.Desktop.Tests
                 if (prefix is null) return;
                 matched.Add(prefix);
             }
-            // Test-runner boundary: report unexpected exceptions as failures and continue.
+            // Test-runner boundary: report unexpected exceptions as failures and continue. The STACK line keeps a one-off
+            // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
+            // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
             try { assertion(); Console.WriteLine("PASS " + name); }
-            catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
+            catch (Exception failure)
+            {
+                failures++;
+                Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message);
+                Console.WriteLine("STACK " + name + " " + failure.ToString().ReplaceLineEndings(" | "));
+            }
         }
 
         /// <summary>
