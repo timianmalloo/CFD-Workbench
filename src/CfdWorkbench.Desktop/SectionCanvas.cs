@@ -12,6 +12,43 @@ namespace CfdWorkbench.Desktop;
 
 public class SectionCanvas : Control
 {
+    public WorkbenchController? Controller { get; set; }
+    public Control? CancelTarget { get; set; }
+    public bool CurvatureVisible { get; set; } = true;
+    public bool ThicknessDoubled { get; set; }
+    public string ProbeText { get; private set; } = "Pointer · display";
+    private double viewMinX;
+    private double viewSpan = 1;
+    private double viewCenterY;
+    private PointView? draggedPoint;
+    private Point? previewPoint;
+    private Point pressPoint;
+
+    public void Fit()
+    {
+        viewMinX = viewCenterY = 0;
+        viewSpan = 1;
+        InvalidateVisual();
+    }
+
+    public void FitSelection()
+    {
+        if (Controller?.Section is null || SelectedVertex is not { } selected) return;
+        var curve = Controller.SectionCurve(selected.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower);
+        if (curve is null) return;
+        int index = curve.Points.ToList().FindIndex(point => point.Id == selected.Id);
+        if (index < 1 || index + 1 >= curve.Points.Count) return;
+        var point = curve.Points[index];
+        double nearest = Math.Min(
+            Math.Sqrt(Math.Pow(point.SpanMeters - curve.Points[index - 1].SpanMeters, 2) + Math.Pow(point.Ordinate - curve.Points[index - 1].Ordinate, 2)),
+            Math.Sqrt(Math.Pow(point.SpanMeters - curve.Points[index + 1].SpanMeters, 2) + Math.Pow(point.Ordinate - curve.Points[index + 1].Ordinate, 2)));
+        double width = Math.Max(1, Bounds.Width - 2 * Padding);
+        viewSpan = Math.Clamp(nearest * width / 24, .02, 1);
+        viewMinX = point.SpanMeters - viewSpan / 2;
+        viewCenterY = point.Ordinate;
+        InvalidateVisual();
+    }
+
     public static readonly StyledProperty<ProfileView?> ProfileProperty =
         AvaloniaProperty.Register<SectionCanvas, ProfileView?>(nameof(Profile));
 
@@ -165,10 +202,10 @@ public class SectionCanvas : Control
         double width = Bounds.Width > 0 ? Bounds.Width : (Width > 0 ? Width : 800.0);
         double height = Bounds.Height > 0 ? Bounds.Height : (Height > 0 ? Height : 400.0);
         double availableWidth = Math.Max(1.0, width - 2.0 * Padding);
-        double scale = availableWidth / 1.0;
+        double scale = availableWidth / viewSpan;
         double originX = Padding;
         double originY = height / 2.0;
-        return new Point(originX + x * scale, originY - y * scale);
+        return new Point(originX + (x - viewMinX) * scale, originY - (y - viewCenterY) * scale * (ThicknessDoubled ? 2 : 1));
     }
 
     public (double X, double Y) ScreenToModel(Point point)
@@ -176,10 +213,10 @@ public class SectionCanvas : Control
         double width = Bounds.Width > 0 ? Bounds.Width : (Width > 0 ? Width : 800.0);
         double height = Bounds.Height > 0 ? Bounds.Height : (Height > 0 ? Height : 400.0);
         double availableWidth = Math.Max(1.0, width - 2.0 * Padding);
-        double scale = availableWidth / 1.0;
+        double scale = availableWidth / viewSpan;
         double originX = Padding;
         double originY = height / 2.0;
-        return ((point.X - originX) / scale, (originY - point.Y) / scale);
+        return (viewMinX + (point.X - originX) / scale, viewCenterY + (originY - point.Y) / scale / (ThicknessDoubled ? 2 : 1));
     }
 
     public override void Render(DrawingContext context)
@@ -198,6 +235,12 @@ public class SectionCanvas : Control
         var stationBrush = StationBrush ?? ResolveThemeBrush("StationBrush");
         var focusBrush = FocusBrush ?? ResolveThemeBrush("SystemControlFocusVisualPrimaryBrush") ?? ResolveThemeBrush("PrimaryBrush");
         var viewportBrush = bg ?? ResolveThemeBrush("ViewportBrush") ?? ResolveThemeBrush("SurfaceBrush");
+
+        if (Controller?.Section is not null && foilBrush is not null && stationBrush is not null && viewportBrush is not null)
+        {
+            RenderSection(context, foilBrush, stationBrush, viewportBrush, focusBrush);
+            return;
+        }
 
         // 1. Draw UpperCurve and LowerCurve as smooth polylines
         if (foilBrush is not null)
@@ -224,6 +267,66 @@ public class SectionCanvas : Control
             var at = ModelToScreen(marker.X, marker.Y);
             var pen = new Pen(danger, 2, new DashStyle([4, 3], 0));
             context.DrawLine(pen, new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
+        }
+    }
+
+    private void RenderSection(DrawingContext context, IBrush foil, IBrush station, IBrush background, IBrush? focus)
+    {
+        var grid = ResolveThemeBrush("ViewportGridBrush") ?? station;
+        var mute = ResolveThemeBrush("PlanMuteBrush") ?? station;
+        var layer = new CurvePointLayer(ModelToScreen, ScreenToModel);
+        var zero = ModelToScreen(0, 0);
+        var end = ModelToScreen(1, 0);
+        context.DrawLine(new Pen(grid, 1), zero, end);
+        for (int tick = 0; tick <= 10; tick++)
+        {
+            var at = ModelToScreen(tick / 10.0, 0);
+            context.DrawLine(new Pen(grid, 1, new DashStyle([2, 4], 0)),
+                new Point(at.X, 8), new Point(at.X, Bounds.Height - 8));
+        }
+        var curvePen = new Pen(foil, 2);
+        DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
+        DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));
+        var upper = Controller!.SectionCurve(SurfaceSide.Upper);
+        var lower = Controller.SectionCurve(SurfaceSide.Lower);
+        if (upper is null || lower is null) return;
+        var brushes = new PointGlyphBrushes(foil, station, background, mute);
+        foreach (var curve in new[] { upper, lower })
+        {
+            var polygon = new Pen(station, 1, new DashStyle([4, 3], 0));
+            for (int index = 1; index < curve.Points.Count; index++)
+                context.DrawLine(polygon, layer.ToScreen(curve.Points[index - 1]), layer.ToScreen(curve.Points[index]));
+            foreach (var point in curve.Points)
+            {
+                if (curve == lower && point.Role == PointRole.Nose) continue;
+                bool selected = SelectedVertex == (point.Curve, point.Id);
+                var at = selected && draggedPoint is not null && previewPoint is { } preview
+                    ? ModelToScreen(preview.X, preview.Y) : layer.ToScreen(point);
+                CurvePointLayer.DrawGlyph(context, point, at, brushes, selected);
+                if (selected && focus is not null) context.DrawEllipse(null, new Pen(focus, 3), at, 13, 13);
+            }
+        }
+        if (SelectedVertex is { } selectedPoint)
+        {
+            var own = selectedPoint.Side == "upper" ? upper : lower;
+            var other = selectedPoint.Side == "upper" ? lower : upper;
+            int index = own.Points.ToList().FindIndex(point => point.Id == selectedPoint.Id);
+            if (index >= 0 && index < other.Points.Count)
+            {
+                var from = layer.ToScreen(own.Points[index]);
+                var partner = layer.ToScreen(other.Points[index]);
+                context.DrawLine(new Pen(station, 1, new DashStyle([2, 3], 0)), from, partner);
+                context.DrawEllipse(null, new Pen(station, 1.5, new DashStyle([3, 2], 0)), partner, 10, 10);
+                var label = new FormattedText($"{other.Curve} pt {index + 1} · paired", CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, station);
+                context.DrawText(label, partner + new Vector(14, partner.Y > from.Y ? 16 : -10));
+            }
+        }
+        if (RefitMarker is { } marker && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } danger)
+        {
+            var at = ModelToScreen(marker.X, marker.Y);
+            context.DrawLine(new Pen(danger, 2, new DashStyle([4, 3], 0)),
+                new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
         }
     }
 
@@ -297,6 +400,40 @@ public class SectionCanvas : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
+        if (Controller?.Section is { } mode)
+        {
+            var position = e.GetPosition(this);
+            var upper = Controller.SectionCurve(SurfaceSide.Upper);
+            var lower = Controller.SectionCurve(SurfaceSide.Lower);
+            if (upper is null || lower is null) return;
+            var layer = new CurvePointLayer(ModelToScreen, ScreenToModel);
+            var hit = layer.HitTest(upper.Points.Concat(lower.Points), position, Controller.Selection);
+            if (hit is null)
+            {
+                if (e.ClickCount >= 2)
+                {
+                    var (x, y) = ScreenToModel(position);
+                    var probe = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, Math.Clamp(x, 0, 1));
+                    var side = Math.Abs(y - probe.UpperY) <= Math.Abs(y - probe.LowerY) ? SurfaceSide.Upper : SurfaceSide.Lower;
+                    _ = ApplyStepAsync(new SectionStep.Insert(side, Math.Clamp(x, 0, 1)));
+                    e.Handled = true;
+                }
+                return;
+            }
+            SelectedVertex = (hit.Curve, hit.Id);
+            var reference = new PointRef(hit.Curve, hit.Id, mode.Draft.Profile);
+            Controller.Select(new Selection.Points([reference]));
+            Focus();
+            if (hit.Freedom != PointFreedom.Fixed && e.ClickCount == 1 && Controller.BeginGesture(reference, GestureInput.Pointer))
+            {
+                draggedPoint = hit;
+                pressPoint = position;
+                e.Pointer.Capture(this);
+            }
+            InvalidateVisual();
+            e.Handled = true;
+            return;
+        }
         if (!Editable || Profile is null) return;
 
         var pos = e.GetPosition(this);
@@ -334,6 +471,31 @@ public class SectionCanvas : Control
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
+        if (Controller?.Section is { } mode)
+        {
+            var position = e.GetPosition(this);
+            var (x, y) = ScreenToModel(position);
+            if (draggedPoint is { } origin)
+            {
+                if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                {
+                    var from = ModelToScreen(origin.SpanMeters, origin.Ordinate);
+                    if (Math.Abs(position.X - from.X) > Math.Abs(position.Y - from.Y)) y = origin.Ordinate;
+                    else x = origin.SpanMeters;
+                }
+                Controller.UpdateGesture(x, y, Point.Distance(position, pressPoint));
+                previewPoint = new Point(x, y);
+                ProbeText = $"Δx {(x - origin.SpanMeters) * 100:F2} % c · Δy {(y - origin.Ordinate) * 100:F2} % c · display";
+            }
+            else
+            {
+                var reading = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, Math.Clamp(x, 0, 1));
+                ProbeText = $"Pointer x {reading.X * 100:F2} % · upper {reading.UpperY * 100:F2} % · lower {reading.LowerY * 100:F2} % · t here {reading.Thickness * 100:F2} % · at station {reading.PlacedThicknessMeters * 1000:F2} mm · display";
+            }
+            InvalidateVisual();
+            e.Handled = true;
+            return;
+        }
         if (!Editable || Profile is null || !isDragging || SelectedVertex is null) return;
 
         var v = FindVertex(SelectedVertex.Value.Side, SelectedVertex.Value.Id);
@@ -348,6 +510,15 @@ public class SectionCanvas : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
+        if (Controller?.Section is not null && draggedPoint is not null)
+        {
+            draggedPoint = null;
+            previewPoint = null;
+            e.Pointer.Capture(null);
+            _ = EndGestureAsync(GestureEnd.Release);
+            e.Handled = true;
+            return;
+        }
         if (isDragging)
         {
             isDragging = false;
@@ -356,9 +527,88 @@ public class SectionCanvas : Control
         }
     }
 
+    private async Task EndGestureAsync(GestureEnd reason)
+    {
+        try { if (Controller is not null) await Controller.EndGestureAsync(reason); }
+        catch (ContractError error) { ProbeText = error.Message; }
+        InvalidateVisual();
+    }
+
+    private async Task ApplyStepAsync(SectionStep step)
+    {
+        try { if (Controller is not null) await Controller.ApplySectionStepAsync(step); }
+        catch (ContractError error) { ProbeText = error.Message; }
+        InvalidateVisual();
+    }
+
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
+        if (Controller?.Section is { } mode)
+        {
+            bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
+            if (e.Key == Key.Tab) return;
+            if (e.Key is Key.OemCloseBrackets or Key.OemOpenBrackets)
+            {
+                var points = Controller.SectionCurve(SurfaceSide.Upper)!.Points
+                    .Concat(Controller.SectionCurve(SurfaceSide.Lower)!.Points.Skip(1)).ToArray();
+                int current = Array.FindIndex(points, point => SelectedVertex == (point.Curve, point.Id));
+                int direction = e.Key == Key.OemCloseBrackets ? 1 : -1;
+                int next = (current + direction + points.Length) % points.Length;
+                var target = points[next];
+                SelectedVertex = (target.Curve, target.Id);
+                Controller.Select(new Selection.Points([new PointRef(target.Curve, target.Id, mode.Draft.Profile)]));
+                InvalidateVisual();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.C && !command) { CurvatureVisible = !CurvatureVisible; InvalidateVisual(); e.Handled = true; return; }
+            if (e.Key == Key.F && !command) { FitSelection(); e.Handled = true; return; }
+            if (e.Key == Key.D0 && command) { Fit(); e.Handled = true; return; }
+            if (e.Key == Key.Escape)
+            {
+                if (Controller.Gesture != GestureState.Idle) _ = EndGestureAsync(GestureEnd.Escape);
+                else if (SelectedVertex is { } picked)
+                {
+                    var curve = Controller.SectionCurve(picked.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower);
+                    var point = curve?.Points.FirstOrDefault(item => item.Id == picked.Id);
+                    if (point?.AnchorId is { } anchor)
+                    {
+                        SelectedVertex = (picked.Side, anchor);
+                        Controller.Select(new Selection.Points([new PointRef(picked.Side, anchor, mode.Draft.Profile)]));
+                    }
+                    else
+                    {
+                        SelectedVertex = null;
+                        Controller.Select(new Selection.Station(mode.Draft.Assignment,
+                            Controller.Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta));
+                    }
+                }
+                else if (mode.IsDirty) CancelTarget?.Focus();
+                else Controller.CancelSection();
+                InvalidateVisual();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Back && SelectedVertex is { } deletion)
+            {
+                _ = ApplyStepAsync(new SectionStep.Delete(deletion.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower, deletion.Id));
+                e.Handled = true;
+                return;
+            }
+            if (e.Key is Key.Left or Key.Right or Key.Up or Key.Down && SelectedVertex is { } choice)
+            {
+                var reference = new PointRef(choice.Side, choice.Id, mode.Draft.Profile);
+                if (Controller.Gesture == GestureState.Idle && !Controller.BeginGesture(reference, GestureInput.Keyboard)) return;
+                var layer = new CurvePointLayer(ModelToScreen, ScreenToModel);
+                var (span, ordinate) = layer.KeyboardDirection(e.Key);
+                Controller.Nudge(span, ordinate, command ? NudgeModifier.Command :
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift) ? NudgeModifier.Shift : NudgeModifier.Plain);
+                e.Handled = true;
+                return;
+            }
+            return;
+        }
         if (!Editable || Profile is null) return;
 
         if (e.Key == Key.Escape)
@@ -426,6 +676,17 @@ public class SectionCanvas : Control
             double newX = v.X + dx;
             double newY = v.Y + dy;
             OnVertexMoved(v.Side, v.Id, newX, newY);
+            e.Handled = true;
+        }
+    }
+
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        base.OnKeyUp(e);
+        if (Controller?.Section is not null && Controller.Gesture == GestureState.Nudging &&
+            e.Key is Key.Left or Key.Right or Key.Up or Key.Down)
+        {
+            _ = EndGestureAsync(GestureEnd.KeyUp);
             e.Handled = true;
         }
     }

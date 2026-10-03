@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:CfdWorkbench.Desktop"
              x:Class="CfdWorkbench.Desktop.SectionEditorView">
-  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+  <Grid>
+  <ScrollViewer x:Name="LegacyEditor" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="{StaticResource Space4}" Spacing="8">
       <TextBlock Classes="heading" Text="Section scope" />
       <RadioButton x:Name="ScopeSharedRadio" GroupName="SectionScope" Content="Edit shared profile" IsChecked="True"
@@ -75,4 +76,41 @@
       </Grid>
     </StackPanel>
   </ScrollViewer>
+  <Grid x:Name="ModeEditor" RowDefinitions="32,*,84" IsVisible="False">
+    <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="8,0" ColumnSpacing="8">
+        <TextBlock x:Name="ModeTitle" Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" />
+        <Border Grid.Column="1" Background="{DynamicResource SurfaceSoftBrush}" Padding="6,2" VerticalAlignment="Center">
+          <TextBlock x:Name="ScopeChip" VerticalAlignment="Center" />
+        </Border>
+        <Button x:Name="ModeSectionButton" Grid.Column="2" Content="Section ▾" AutomationProperties.Name="Section actions" />
+        <ToggleButton x:Name="CurvatureToggle" Grid.Column="3" Content="Curvature" IsChecked="True" AutomationProperties.Name="Curvature comb" />
+        <ToggleButton x:Name="ThicknessToggle" Grid.Column="4" Content="Thickness ×2" AutomationProperties.Name="Thickness drawn times two" />
+        <Button x:Name="ModeCancelButton" Grid.Column="6" Content="Cancel" AutomationProperties.Name="Cancel section" />
+        <Button x:Name="ModeFinishButton" Grid.Column="7" Content="Finish section" AutomationProperties.Name="Finish section" />
+      </Grid>
+    </Border>
+    <Grid Grid.Row="1">
+      <local:SectionCanvas x:Name="ModeCanvas" BackgroundBrush="{DynamicResource ViewportBrush}"
+                           FoilBrush="{DynamicResource FoilBrush}" StationBrush="{DynamicResource StationBrush}"
+                           FocusBrush="{DynamicResource PrimaryBrush}" DangerBrush="{DynamicResource DangerBrush}" />
+      <TextBlock x:Name="ModePlate" Classes="viewOverlay" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12" IsHitTestVisible="False" />
+      <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="12" Background="{DynamicResource PlanSoftBrush}" Padding="8,4" IsHitTestVisible="False">
+        <TextBlock x:Name="ModeProbe" Text="Pointer · display" TextWrapping="Wrap" MaxWidth="420" />
+      </Border>
+      <Border x:Name="ModeReasonBox" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="12" IsVisible="False"
+              Background="{DynamicResource SurfaceSoftBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" Padding="8">
+        <TextBlock x:Name="ModeReason" TextWrapping="Wrap" />
+      </Border>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,12" Spacing="8">
+        <Button x:Name="ModeFitButton" Content="Fit" />
+        <Button x:Name="ModeFitSelectionButton" Content="Fit Selection" />
+      </StackPanel>
+    </Grid>
+    <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                  Background="{DynamicResource SurfaceBrush}">
+      <StackPanel x:Name="StationStrip" Orientation="Horizontal" Spacing="8" Margin="8" />
+    </ScrollViewer>
+  </Grid>
+  </Grid>
 </UserControl>
