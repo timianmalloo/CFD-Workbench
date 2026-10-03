@@ -1415,8 +1415,17 @@ public sealed class AuthoringSession : IDisposable
 
     private SessionAssessment AssessSectionCore(string draftId, long generation, CancellationToken cancellation)
     {
-        lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); RequireSection(draftId); }
-        return ValidateCore(draftId, generation, cancellation);
+        if (cancellation.IsCancellationRequested)
+            return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null);
+        try
+        {
+            lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); RequireSection(draftId); }
+            return ValidateCore(draftId, generation, cancellation);
+        }
+        catch (ContractError) when (cancellation.IsCancellationRequested)
+        {
+            return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null);
+        }
     }
 
     private string? FinishSectionCore(string operationId, SessionAssessment assessment)

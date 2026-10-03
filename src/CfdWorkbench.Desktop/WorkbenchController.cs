@@ -114,6 +114,7 @@ public sealed class WorkbenchController : IDisposable
     private AuthoringSession session = new();
     private IProjectStore store;
     private readonly Func<AuthoringSession, IProjectStore> storeFactory;
+    private readonly Func<long, Task>? sectionAssessmentGate;
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -187,13 +188,14 @@ public sealed class WorkbenchController : IDisposable
     public const string SurfaceKeptNote = "Showing the last shape that could be drawn.";
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
-        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null)
+        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
         this.surfaceCompute = surfaceCompute ?? ((source, basis, generation, cancellation) =>
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
         this.time = time ?? TimeProvider.System;
+        this.sectionAssessmentGate = sectionAssessmentGate;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -666,14 +668,16 @@ public sealed class WorkbenchController : IDisposable
         Notify();
         try
         {
+            // Test seam: a gate may delay the call, but the assessment itself always runs in Core.
+            if (sectionAssessmentGate is not null) await sectionAssessmentGate(mode.Draft.Generation);
             var result = await Task.Run(() => session.AssessSection(mode.Draft.DraftId, mode.Draft.Generation, linked.Token));
             if (disposed || ticket != sectionAssessmentTicket || Section?.Draft.Generation != mode.Draft.Generation) return;
             string? reason = result.Status switch
             {
                 GeometryStatus.Certified when !mode.IsDirty => "No section changes to Finish.",
                 GeometryStatus.Certified => null,
-                GeometryStatus.NotAssessed => "This section could not be checked. Finish is unavailable.",
                 _ when result.Code == "DSL-PROFILE-CROSS" => "Upper and lower surfaces cross. Move the point back to finish.",
+                GeometryStatus.NotAssessed => "This section could not be checked. Finish is unavailable.",
                 _ => result.Diagnostics.FirstOrDefault()?.Reason ?? result.Code
             };
             Section = mode with { Assessment = result, FinishReason = reason };

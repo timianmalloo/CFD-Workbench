@@ -33,6 +33,74 @@ public static class ControllerSectionTests
 
     public static void Run()
     {
+        DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
+        {
+            using var controller = Open();
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            Wait(controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, -.3)));
+            if (controller.Section?.Assessment?.Code != "DSL-PROFILE-CROSS" || controller.Section.CanFinish ||
+                !controller.Section.FinishReason!.Contains("surfaces cross", StringComparison.OrdinalIgnoreCase))
+                throw new Exception($"Crossing did not block Finish with COPY-123: {controller.Section?.Assessment?.Status}/{controller.Section?.Assessment?.Code}/{controller.Section?.FinishReason}");
+        });
+
+        DesktopChecks.Check("SectionMode_NotAssessed_FinishDisabledWithReason", () =>
+        {
+            using var controller = Open();
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            using var cancelled = new CancellationTokenSource();
+            cancelled.Cancel();
+            Wait(controller.ApplySectionStepAsync(Raise(controller), cancelled.Token));
+            if (controller.Section?.Assessment?.Status != GeometryStatus.NotAssessed || controller.Section.CanFinish ||
+                string.IsNullOrWhiteSpace(controller.Section.FinishReason))
+                throw new Exception("NotAssessed allowed Finish or omitted its reason");
+        });
+
+        DesktopChecks.Check("SectionMode_WingFieldsReadOnly_Copy122", () =>
+        {
+            using var controller = Open();
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            string source = controller.AcceptedSource;
+            try { controller.ApplySpan("2000 mm"); throw new Exception("Wing edit ran in section mode"); }
+            catch (ContractError error) when (error.Code == "DSL-DRAFT-OWNED") { }
+            if (controller.AcceptedSource != source || controller.Status != PropertyCopy.SetInWorkspace)
+                throw new Exception("Wing edit did not show COPY-122 without changing bytes");
+        });
+
+        DesktopChecks.Check("SectionMode_StaleAssessment_Dropped", () =>
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var controller = new WorkbenchController(sectionAssessmentGate: generation => generation == 1 ? gate.Task : Task.CompletedTask);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var first = controller.ApplySectionStepAsync(Raise(controller));
+            var second = controller.ApplySectionStepAsync(Raise(controller, .02));
+            Wait(second);
+            gate.SetResult();
+            Wait(first);
+            if (controller.Section?.Draft.Generation != 2 || controller.Section.Assessment?.Key?.Generation != 2)
+                throw new Exception("Stale assessment replaced the newer step");
+            var stale = controller.LocalEvents.LastOrDefault(item => item.Operation == "section.assess" && item.Outcome == "superseded");
+            if (stale is null || stale.DurationMilliseconds is not null)
+                throw new Exception("Stale assessment was not recorded as superseded without duration: " +
+                    string.Join(",", controller.LocalEvents.Where(item => item.Operation == "section.assess")
+                        .Select(item => item.Outcome + "/" + item.DurationMilliseconds)));
+        });
+
+        DesktopChecks.Check("SectionMode_AssessCompletion_NewerStripMessageSurvives", () =>
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var controller = new WorkbenchController(sectionAssessmentGate: _ => gate.Task);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var pending = controller.ApplySectionStepAsync(Raise(controller));
+            long newer = controller.SupersedeStatus();
+            gate.SetResult();
+            Wait(pending);
+            if (controller.StatusVersion != newer)
+                throw new Exception("Assessment completion overwrote the newer status slot");
+        });
+
         DesktopChecks.Check("LegacyProfileRecovery_ResumesSectionImmediately", () =>
         {
             using var source = new AuthoringSession();
