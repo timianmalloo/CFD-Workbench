@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:43:28Z",
+  "generated": "2026-10-03T23:59:15Z",
   "audit": [
     {
       "actor": null,
@@ -23022,6 +23022,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:42:34Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M423AAW8R4T84W01SWSX09ZJ",
+      "shortname": "join-readiness-fix-oct03",
+      "datetime": "2026-10-03T23:59:15Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/readiness-oct03 into feature/ui-cad-direction",
+      "summary": "Readiness on dc651b3 was red: STORE-SUBSET (3 M1.2c test lines used reads outside the allowed list), which hid a CLI check that ran a binary by relative bin path (moved to the CLI suite, in-process), and an adapters theme row for the retired Section tab. Both verifiers exit 0; run-tests 52 s. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:58:23Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
