@@ -8621,6 +8621,52 @@ window.DOCS_INDEX = {
       "sourceSha256": "d0c6bf0a757694bd1462894f12e3453df21111ab8ad4e7ce0d1011e0511c457a"
     },
     {
+      "id": "proof-spike-03-round2",
+      "path": "docs/proof/spike-03/verdict-round2.md",
+      "title": "SPIKE-03 round 2 verdict — wall-resolved meshing at AR 8 (snappyHexMesh and a Gmsh probe) and the solver-security launcher",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Meshing NO-GO at AR 8, so AR 5 and 12 were not run. snappyHexMesh with wall-resolved absolute layers (8 um, ER 1.2, 20 layers) on the finite-TE, round-tip analysis wing stops at 14-15 layers (0 % of faces reach 20; 10 or more on 89 % / 75 %). The Gmsh boundary-layer probe puts 20 layers on 100 % of the wing faces by construction. Every wall- resolved mesh fails the DR-F2-6 floor (cellDeterminant >= 0.001) on its thin wall cells, and the gate's non-orthogonality limit. Security: the product launcher printed Disallowing on every round-2 process; the probe set S-1..S-8 is ready for the operator, not yet run. macOS arm64 only.",
+      "tags": [
+        "spike-03",
+        "openfoam",
+        "snappyhexmesh",
+        "gmsh",
+        "mesh-gate",
+        "security",
+        "launcher",
+        "round-2"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03",
+          "rel": "supersedes"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0925a83f77cb1a4c610e648f8242445ab8437491baf21e1fae51fbbe1ab91902"
+    },
+    {
       "id": "proof-spike-04",
       "path": "docs/proof/spike-04/verdict.md",
       "title": "SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012 (OpenFOAM v2512)",
@@ -8656,6 +8702,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a485c7dac5a82f79da39958a07a1fa1494aff6aa0509c40b05e785c82f4d7a36"
+    },
+    {
+      "id": "proof-spike-04-round2",
+      "path": "docs/proof/spike-04/verdict-round2.md",
+      "title": "SPIKE-04 round 2 verdict — A4 convergence and three-grid study on NASA TMR NACA 0012 (OpenFOAM v2512)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "NO-GO on the GCI clause, GO on the iterative oracle. After two numerics repairs on level 6 (first-order upwind nuTilda, then relaxation 0.7), OpenFOAM v2512 simpleFoam SA-noft2 meets the A4 criterion on TMR Family II levels 6, 5 and 4 and rhoSimpleFoam meets it on level 5. The three-grid sequence is oscillatory for Cl and Cd (R = -0.010 and -0.053), so there is no observed order and no GCI. The measured compressible-minus-incompressible delta at TMR conditions on level 5 (one grid, alpha 10, Re 6e6, M 0.15) is +1.147 % in Cl and +0.81 % in Cd, U_Delta not stated. Fully turbulent air, 2-D. macOS arm64 only.",
+      "tags": [
+        "spike-04",
+        "openfoam",
+        "verification",
+        "gci",
+        "tmr",
+        "naca0012",
+        "spalart-allmaras",
+        "round-2",
+        "a4"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-04",
+          "rel": "supersedes"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ae61a05e9b0d015a4beb7bbb64a1c05fe75520ede1ecffe91e2aa0120066deb7"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -10252,5 +10345,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e6cf456efc3096965c6d12306a8232de420df605bcde569b2069bc79e662bafe"
+  "graphSha256": "c180c86e77759ca1f8a01037342ce0fab3ac3886b571ada4485b16c759405a7c"
 };

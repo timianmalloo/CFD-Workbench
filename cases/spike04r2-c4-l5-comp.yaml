@@ -29,7 +29,9 @@ geometry:
       SA-neg; standard (non-point-vortex) far field. Sutherland constants converted to OpenFOAM's form
       mu = As sqrt(T)/(1 + Ts/T): As = mu0 (T0 + S)/T0^1.5 = 1.4579e-6, Ts = S = 110.33 K. Gas: molWeight 28.9,
       Cp = 3.5 R = 1006.95 J/(kg K) so gamma = 1.4. p_inf is set so rho_inf gives Re_c = 6e6 at T 300 K (the
-      generator prints p, rho, mu, a).
+      generator prints p, rho, mu, a). Turbulent Prandtl number not set: the v2512 default is 1.0
+      (src/TurbulenceModels/compressible/EddyDiffusivity/EddyDiffusivity.C:37), TMR specifies 0.90; the effect on an
+      adiabatic wall at M 0.15 is taken as negligible (Inferred, hydrodynamicist review).
 conditions:
   reynolds: 6000000
   mach: 0.15

@@ -104,7 +104,7 @@ physics:
   turbulence_model: SpalartAllmaras
   wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
   transition: none (fully turbulent; transition not modelled)
-  fluid: { name: fresh water 20 C, nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  fluid: { name: "fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)", nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
   freestream: { U_m_s: 5.0, nuTilda_over_nu: 3.0 }
 boundary_conditions:
   farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
