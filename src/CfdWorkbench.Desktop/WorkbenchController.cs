@@ -211,6 +211,9 @@ public sealed class WorkbenchController : IDisposable
     public bool CombVisible { get; set; }
     public int LastGestureFrames { get; private set; }
 
+    /// <summary>The last ended gesture had a frame Core clamped (a twist or t/c past the domain, MC-19); read by Properties' echo.</summary>
+    public bool LastGestureClamped { get; private set; }
+
     /// <summary>The newest completed display mesh: the accepted revision's, or the draft's during a gesture.</summary>
     public SurfaceView? Surface { get; private set; }
 
@@ -833,10 +836,18 @@ public sealed class WorkbenchController : IDisposable
             pendingCommit = null;
             gestureInput = null;
             LastGestureFrames = gestureFrames;
+            LastGestureClamped = gestureClamped > 0;
             Gesture = GestureState.Idle;
             UpdateEstimates();
             Notify();
         }
+        // §11.4 "Committed move": one report for the Plan, the elevations and Properties, from the accepted point.
+        if (outcome is GestureOutcome.Committed accepted && gestureOrigin is { } origin && CurveFor(origin.Curve) is { } curve &&
+            curve.Points.FirstOrDefault(point => point.Id == origin.Id) is { } moved)
+            outcome = accepted with
+            {
+                Report = PropertyCopy.CommittedMove(origin, moved, curve, Estimates?.MacMeters, Estimates?.MaxThicknessRatio)
+            };
         SetStatus(outcome switch
         {
             GestureOutcome.Committed committed => committed.Report,
@@ -857,6 +868,7 @@ public sealed class WorkbenchController : IDisposable
         pendingGestureTarget = null;
         gestureInput = null;
         LastGestureFrames = gestureFrames;
+        LastGestureClamped = gestureClamped > 0;
         Gesture = GestureState.Idle;
         UpdateEstimates();
         GestureOutcome outcome = noChange ? new GestureOutcome.NoChange() :
@@ -897,8 +909,10 @@ public sealed class WorkbenchController : IDisposable
     public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command) => RunDirectCommandAsync(() =>
     {
         var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command);
-        return new CommitOutcome.Committed(result.AcceptedId,
-            $"Point change applied. Max deviation {result.MaxDeviationMeters * 1e3:F2} mm.");
+        // The deviation is in the curve's own SI unit (m, degrees, chord fraction); it is reported in its display unit.
+        var rows = PropertiesView.Curves[command.Curve];
+        string deviation = Quantity.WithUnit(Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]), rows.ValueUnit);
+        return new CommitOutcome.Committed(result.AcceptedId, $"Point change applied. Max deviation {deviation}.");
     });
 
     public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>

@@ -22,8 +22,8 @@ public partial class BrowserPane : UserControl
 
         StationList.KeyDown += OnStationKeyDown;
         StationList.SelectionChanged += OnStationSelectionChanged;
-        LeadingEdgeList.SelectionChanged += (_, _) => OnPointSelected(LeadingEdgeList, "leading");
-        TrailingEdgeList.SelectionChanged += (_, _) => OnPointSelected(TrailingEdgeList, "trailing");
+        foreach (var (list, curve) in CurveLists())
+            list.SelectionChanged += (_, _) => OnPointSelected(list, curve);
         TryAgainButton.Click += (_, _) =>
         {
             ErrorPanel.IsVisible = false;
@@ -116,20 +116,35 @@ public partial class BrowserPane : UserControl
         }
     }
 
+    /// <summary>One list per curve: the rails, then the Dihedral, Twist and Thickness groups (M1.2b2 §11.4).</summary>
+    private IEnumerable<(ListBox List, string Curve)> CurveLists() =>
+    [
+        (LeadingEdgeList, "leading"), (TrailingEdgeList, "trailing"), (DihedralList, "dihedral"), (TwistList, "twist"),
+        (ThicknessList, "thickness")
+    ];
+
     private void BindRails(WorkbenchController controller)
     {
         refreshing = true;
         try
         {
-            FillRail(LeadingEdgeList, controller.Planform?.Leading, "leading");
-            FillRail(TrailingEdgeList, controller.Planform?.Trailing, "trailing");
-            if (controller.Selection is Selection.Points { Items.Count: 1 } selected)
-            {
-                var list = selected.Items[0].Curve == "leading" ? LeadingEdgeList : TrailingEdgeList;
-                list.SelectedItem = list.Items.OfType<ListBoxItem>().FirstOrDefault(item => Equals(item.Tag, selected.Items[0].VertexId));
-            }
+            foreach (var (list, curve) in CurveLists()) FillRail(list, controller.CurveFor(curve), curve);
+            if (controller.Selection is Selection.Points { Items.Count: 1 } selected &&
+                CurveLists().FirstOrDefault(entry => entry.Curve == selected.Items[0].Curve).List is { } selectedList)
+                selectedList.SelectedItem = selectedList.Items.OfType<ListBoxItem>().FirstOrDefault(item => Equals(item.Tag, selected.Items[0].VertexId));
         }
         finally { refreshing = false; }
+    }
+
+    /// <summary>A point's row text: its role, From root in mm, and its value in the curve's unit.</summary>
+    private static string RowText(PointView point)
+    {
+        string from = (point.SpanMeters * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm";
+        if (point.Curve is "leading" or "trailing")
+            return point.Role + "  " + from + "  " + (point.Ordinate * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm";
+        var rows = PropertiesView.Curves[point.Curve];
+        return point.Role + "  " + from + "  " +
+               Quantity.WithUnit(Quantity.Typed(point.Ordinate * PropertiesView.FieldScale[rows.ValueFamily]), rows.ValueUnit);
     }
 
     private void FillRail(ListBox list, CurveView? curve, string curveName)
@@ -148,8 +163,7 @@ public partial class BrowserPane : UserControl
             };
             var text = new TextBlock
             {
-                Text = point.Role + "  " + (point.SpanMeters * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm  " +
-                       (point.Ordinate * 1000).ToString("0.00", CultureInfo.InvariantCulture) + " mm",
+                Text = RowText(point),
                 VerticalAlignment = VerticalAlignment.Center
             };
             var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };

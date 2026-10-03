@@ -26,6 +26,8 @@ public enum RowKind { Input, Fact, Estimate, Choice, KindList, Action }
 public enum UnitFamily { None, Length, Angle, Percent }
 public enum RowState { Normal, Warning, Error, Unavailable, Mixed, Locked }
 public enum MessageKind { Report, Echo, Warning, Error, Reason, Info }
+/// <summary>What a point or handle field moves: its span, its value (the curve's ordinate), or a handle's angle or length.</summary>
+public enum RowAxis { None, Span, Value, Angle, Length }
 public enum GroupChip { Preview, Checking, Unavailable }
 
 public sealed record RowMessage(string Text, MessageKind Kind);
@@ -57,6 +59,7 @@ public sealed record PropertyRow
     public bool AngleBounded { get; init; }                    // a rail or dihedral angle in (−90°, 90°) (COPY-158)
     public string? Subhead { get; init; }                      // "Handle toward the root" above a Corner handle's rows
     public PointRef? Target { get; init; }                     // the point an input or Kind list edits
+    public RowAxis Axis { get; init; }                         // what a point or handle input moves (None elsewhere)
 
     public bool IsEditable => Kind is RowKind.Input or RowKind.Choice or RowKind.KindList;
 
@@ -87,12 +90,18 @@ public sealed record PropertiesModel(
     public IReadOnlyList<PropertyGroup> Blocks => Wing is null ? Groups : [.. Groups, Wing];
 }
 
-/// <summary>What the model needs beyond the selection: the plan, and the shell's preview and checking states.</summary>
+/// <summary>
+/// What the model needs beyond the selection: the plan, the shell's preview and checking states, the points of any of
+/// the five curves (<see cref="WorkbenchController.CurveFor"/>; the plan's two rails when absent), and the placed frame
+/// at a station (<see cref="Placement.Frame"/>, F-12).
+/// </summary>
 public sealed record PropertiesContext(
     PlanformView? Plan = null,
     bool Preview = false,
     bool Checking = false,
-    bool NotChecked = false);
+    bool NotChecked = false,
+    Func<string, CurveView?>? Curves = null,
+    Func<double, StationFrame?>? Frame = null);
 
 /// <summary>Copy rows the grid shows (DESIGN.md §7; docs/reviews/ui-property-grid.md §9).</summary>
 public static class PropertyCopy
@@ -124,11 +133,67 @@ public static class PropertyCopy
     public const string TipEndMoves = "At the tip; moves fore and aft only.";
     public const string RootHandleMoves = "Moves along the span only (root mirror).";
     public const string NotChecked = "Points can’t be moved because this foil couldn’t be checked. Nothing changed.";
+    public const string DihedralAngleReference = "Angles are measured from the span axis, + up.";                            // COPY-164, Dihedral (MC-21)
+    // M1.2b2 §11.4 copy rows.
+    public const string LockedDihedralRoot = "The dihedral root is at the centre line. It can't be moved.";
+    public const string CoupledRoot = "The root end and its handle move together (root mirror).";
+    public const string ThicknessClamp = "t/c must stay above 0 % and below 100 %.";
+
+    /// <summary>The twist clamp reason, its number Core's domain through the placed-angle formatter the probe uses (§11.4).</summary>
+    public static string TwistClamp =>
+        $"Twist is limited to ±{Quantity.PlacedAngle(Geometry.TwistDomainDegrees)}° — larger angles can't be checked yet.";
+
+    /// <summary>COPY-168 (MC-19): a typed twist or t/c that Core clamped, with Core's number.</summary>
+    public static string Clamped(string typed, string reached, bool largest) =>
+        $"{typed.Trim()} typed; set to {reached}, the {(largest ? "largest" : "smallest")} that can be checked.";
+
+    /// <summary>COPY-171 (MC-22): under Smooth, a channel handle's value moves the other handle onto the line.</summary>
+    public static string SmoothChannel(string valueLabel) => $"Changing one handle's {valueLabel} moves the other onto the line.";
+
+    /// <summary>
+    /// §11.4 "Committed move", one site for the Plan, the elevations and Properties: the point, the change of its value in
+    /// the curve's display unit (or of its span when only the span moved), then the curve's summary quantity — MAC for
+    /// the rails, the tip height or twist, the largest t/c. The numbers are the operation's own.
+    /// </summary>
+    public static string CommittedMove(PointView before, PointView after, CurveView curve, double? macMeters, double? maxThicknessRatio)
+    {
+        ArgumentNullException.ThrowIfNull(before);
+        ArgumentNullException.ThrowIfNull(after);
+        ArgumentNullException.ThrowIfNull(curve);
+        var rows = PropertiesView.Curves[after.Curve];
+        string name = rows.Name.ToLowerInvariant() + " " + PointName(after, curve);
+        double scale = PropertiesView.FieldScale[rows.ValueFamily];
+        double valueDelta = (after.Ordinate - before.Ordinate) * scale;
+        string moved = Math.Abs(valueDelta) >= 0.005 || Math.Abs(after.SpanMeters - before.SpanMeters) < 0.000005
+            ? $"Moved {name} by {Quantity.WithUnit(Quantity.Typed(valueDelta), rows.ValueUnit)}."
+            : $"Moved {name} along the span by {Quantity.WithUnit(Quantity.TypedLength(after.SpanMeters - before.SpanMeters), "mm")}.";
+        var tip = curve.Points.FirstOrDefault(point => point.Role == PointRole.TipEnd);
+        string? summary = after.Curve switch
+        {
+            "dihedral" when tip is not null => $"Tip height {Quantity.WithUnit(Quantity.TypedLength(tip.Ordinate), "mm")}.",
+            "twist" when tip is not null => $"Tip twist {Quantity.WithUnit(Quantity.PlacedAngle(tip.Ordinate), "°")}.",
+            "thickness" when maxThicknessRatio is { } ratio && double.IsFinite(ratio) =>
+                $"Max t/c {Quantity.WithUnit(Quantity.PlacedPercent(ratio * 100), "%")}.",
+            "leading" or "trailing" when macMeters is { } mac && double.IsFinite(mac) => $"MAC {Quantity.WithUnit(Quantity.TypedLength(mac), "mm")}.",
+            _ => null
+        };
+        return summary is null ? moved : moved + " " + summary;
+    }
+
+    /// <summary>"point 5", "root end", "tip end", or "point 4 handle toward the tip".</summary>
+    private static string PointName(PointView point, CurveView curve)
+    {
+        if (point.Role == PointRole.RootEnd) return "root end";
+        if (point.Role == PointRole.TipEnd) return "tip end";
+        if (point.Role == PointRole.AnchorHandle && curve.Points.FirstOrDefault(item => item.Id == point.AnchorId) is { } anchor)
+            return $"point {anchor.Index + 1} handle toward the {(point.Index > anchor.Index ? "tip" : "root")}";
+        return $"point {point.Index + 1}";
+    }
 
     public static string NotANumber(string field) => $"Enter a number. {field} is unchanged.";                                    // COPY-118
     public static string NotPositive(string field) => $"Enter a length greater than 0 mm. {field} is unchanged.";                 // COPY-106
-    public static string AngleOutOfRange(string field) =>
-        $"Enter an angle between −90° and 90°, from the span axis, + aft. {field} is unchanged.";                                 // COPY-158
+    public static string AngleOutOfRange(string field, string sense = "aft") =>
+        $"Enter an angle between −90° and 90°, from the span axis, + {sense}. {field} is unchanged.";                             // COPY-158
     public static string UnavailableStatus(string what, string reason) => $"{what} unavailable — {reason}.";               // COPY-160
     public static string Unavailable(string reason) => $"Unavailable — {reason}. Undo, or edit again, to recompute.";             // COPY-155
     public static string PendingKind(string kind, string kept) =>
@@ -162,6 +227,9 @@ public static class Quantity
 
     /// <summary>A typed value in its field's unit (mm, °, %) at 0.01, as an echo shows it.</summary>
     public static string Typed(double fieldValue) => Text(fieldValue, "0.00");
+
+    /// <summary>A formatted value with its unit as copy writes it: "−1.00°", "12.40 mm", "0.30 %".</summary>
+    public static string WithUnit(string value, string unit) => unit == "°" ? value + "°" : value + " " + unit;
 
     /// <summary>The text an input shows: the same digits with an ASCII minus, which every keyboard can type back.</summary>
     public static string ForField(string shown) => shown.Replace(Minus, '-');
@@ -253,8 +321,7 @@ public static partial class UnitEntry
     public static string? Echo(string typed, ParsedEntry entry, string unit)
     {
         if (!entry.IsExpression) return null;
-        string value = Quantity.Typed(entry.Value);
-        string shown = unit == "°" ? value + "°" : value + " " + unit;
+        string shown = Quantity.WithUnit(Quantity.Typed(entry.Value), unit);
         if (entry.References.Count == 0) return $"{typed.Trim()} = {shown}.";
         string names = string.Join(" and ", entry.References.Select(name => ReferenceNames[name]));
         return $"{typed.Trim()} = {shown} (set once; doesn’t follow {names})";
@@ -369,22 +436,40 @@ public static partial class UnitEntry
     }
 }
 
-/// <summary>One curve's row set (§10.1, MC-17): rows are data, never layout.</summary>
+/// <summary>
+/// One curve's row set (§10.1, MC-17): rows are data, never layout. <see cref="ValueFamily"/> is the value's unit family
+/// (its scale is <see cref="PropertiesView.FieldScale"/>); <see cref="Noun"/> names the curve in copy ("the rail gains");
+/// <see cref="AngleSense"/> is the positive sense of a handle angle (COPY-158, COPY-164).
+/// </summary>
 public sealed record CurveRows(string Name, string ValueLabel, string ValueUnit, UnitFamily ValueFamily, string AngleLabel,
-    bool HandlesByAngle);
+    bool HandlesByAngle, string Noun = "rail", string AngleSense = "aft");
 
 public static class PropertiesView
 {
-    /// <summary>The per-curve table. M1.2b2 PNL fills the channel rows by data once Core publishes their points.</summary>
+    /// <summary>
+    /// The per-curve table. Which handles are typed by angle comes from Core's channel table
+    /// (<see cref="ChannelUnit.HandleTyping"/>); Twist and Thickness clamps are Core's (MC-19).
+    /// </summary>
     public static readonly IReadOnlyDictionary<string, CurveRows> Curves = new Dictionary<string, CurveRows>(StringComparer.Ordinal)
     {
-        ["leading"] = new("Leading edge", "Aft", "mm", UnitFamily.Length, "Angle", HandlesByAngle: true),
-        ["trailing"] = new("Trailing edge", "Aft", "mm", UnitFamily.Length, "Angle", HandlesByAngle: true),
-        ["dihedral"] = new("Dihedral", "Height", "mm", UnitFamily.Length, "Dihedral angle", HandlesByAngle: true),
-        // Twist and Thickness handles are set by From root + value; their clamps are Core's (MC-19).
-        ["twist"] = new("Twist", "Twist", "°", UnitFamily.Angle, "Twist", HandlesByAngle: false),
-        ["thickness"] = new("Thickness", "t/c", "%", UnitFamily.Percent, "t/c", HandlesByAngle: false)
+        ["leading"] = Row("leading", "Leading edge", "Aft", "mm", UnitFamily.Length, "Angle", "rail", "aft"),
+        ["trailing"] = Row("trailing", "Trailing edge", "Aft", "mm", UnitFamily.Length, "Angle", "rail", "aft"),
+        ["dihedral"] = Row("dihedral", "Dihedral", "Height", "mm", UnitFamily.Length, "Dihedral angle", "curve", "up"),
+        ["twist"] = Row("twist", "Twist", "Twist", "°", UnitFamily.Angle, "Twist", "curve", "aft"),
+        ["thickness"] = Row("thickness", "Thickness", "t/c", "%", UnitFamily.Percent, "t/c", "curve", "aft")
     };
+
+    /// <summary>The one unit table: a field's number per SI unit (metres → mm, degrees → °, chord fraction → %).</summary>
+    public static readonly IReadOnlyDictionary<UnitFamily, double> FieldScale = new Dictionary<UnitFamily, double>
+    {
+        [UnitFamily.Length] = 1000,
+        [UnitFamily.Angle] = 1,
+        [UnitFamily.Percent] = 100
+    };
+
+    private static CurveRows Row(string curve, string name, string value, string unit, UnitFamily family, string angle, string noun,
+        string sense) =>
+        new(name, value, unit, family, angle, Channels.Unit(curve).HandleTyping == Channels.AngleAndLength, noun, sense);
 
     public static PropertiesModel Build(
         Selection selection,
@@ -397,14 +482,15 @@ public static class PropertiesView
             return new PropertiesModel(null, [], null, Empty: new EmptyState(PropertyCopy.EmptyTitle, PropertyCopy.EmptyBody));
         context ??= new PropertiesContext();
         var plan = context.Plan;
+        Func<string, CurveView?>? curves = context.Curves ?? (plan is null ? null : curve => Rail(plan, curve));
         var groups = new List<PropertyGroup>();
         var identity = selection switch
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
-                StationRows(station, projection, plan, groups),
-            Selection.Points { Items.Count: > 1 } points when plan is not null => SeveralRows(points, plan, groups),
-            Selection.Points { Items.Count: 1 } points when plan is not null && Find(plan, points.Items[0]) is { } point =>
-                PointRows(point, plan, context.NotChecked, groups),
+                StationRows(station, projection, plan, context.Frame, groups),
+            Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups),
+            Selection.Points { Items.Count: 1 } points when curves is not null && Find(curves, points.Items[0]) is { } point =>
+                PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
             _ => FoilRows(projection, groups)
         };
         var banner = context.NotChecked && selection is Selection.Points
@@ -419,8 +505,15 @@ public static class PropertiesView
         WingEstimates? estimates,
         Mode mode) => Build(selection, projection, estimates, (ShellMode)mode);
 
-    public static PointView? Find(PlanformView plan, PointRef reference) =>
-        Rail(plan, reference.Curve)?.Points.FirstOrDefault(point => point.Id == reference.VertexId);
+    public static PointView? Find(PlanformView plan, PointRef reference) => Find(curve => Rail(plan, curve), reference);
+
+    /// <summary>The point a reference names, on any of the five curves.</summary>
+    public static PointView? Find(Func<string, CurveView?> curves, PointRef reference)
+    {
+        ArgumentNullException.ThrowIfNull(curves);
+        ArgumentNullException.ThrowIfNull(reference);
+        return curves(reference.Curve)?.Points.FirstOrDefault(point => point.Id == reference.VertexId);
+    }
 
     public static CurveView? Rail(PlanformView plan, string curve) => curve switch
     {
@@ -432,7 +525,10 @@ public static class PropertiesView
     public static bool IsHandle(PointView point) =>
         point.Role is PointRole.RootHandle or PointRole.TipHandle or PointRole.AnchorHandle;
 
-    /// <summary>A handle's direction from its anchor: the angle from the span axis (+ aft) and the length.</summary>
+    /// <summary>
+    /// A handle's direction from its anchor: the angle from the span axis (+ aft on the rails, + up on Dihedral) and the
+    /// length. Oriented root → tip for both handles, so the two handles of a Smooth anchor read one angle (§3.6).
+    /// </summary>
     public static (double AngleDegrees, double LengthMeters) HandleGeometry(PointView handle, PointView anchor)
     {
         double span = handle.SpanMeters - anchor.SpanMeters;
@@ -440,6 +536,61 @@ public static class PropertiesView
         if (handle.Index < anchor.Index) { span = -span; aft = -aft; }
         return (Math.Atan2(aft, span) * 180 / Math.PI, Math.Sqrt(span * span + aft * aft));
     }
+
+    /// <summary>The inverse of <see cref="HandleGeometry"/>: where a handle typed by angle and length sits (Dihedral).</summary>
+    public static (double SpanMeters, double Ordinate) HandleAt(PointView handle, PointView anchor, double angleDegrees, double lengthMeters)
+    {
+        double side = handle.Index < anchor.Index ? -1 : 1;
+        var (sin, cos) = double.SinCosPi(angleDegrees / 180);   // half-turn trigonometry: a handle direction, not a placement
+        return (anchor.SpanMeters + side * lengthMeters * cos, anchor.Ordinate + side * lengthMeters * sin);
+    }
+
+    /// <summary>The value a point or handle field shows now, in the field's unit; null when its point is gone.</summary>
+    public static double? ReadValue(PropertyRow row, Func<string, CurveView?> curves)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+        if (row.Target is not { } target || Find(curves, target) is not { } point) return null;
+        switch (row.Axis)
+        {
+            case RowAxis.Span: return point.SpanMeters * FieldScale[UnitFamily.Length];
+            case RowAxis.Value: return point.Ordinate * FieldScale[row.Family];
+        }
+        if (point.AnchorId is null || curves(point.Curve)?.Points.FirstOrDefault(item => item.Id == point.AnchorId) is not { } anchor)
+            return null;
+        var (angle, length) = HandleGeometry(point, anchor);
+        return row.Axis == RowAxis.Angle ? angle : length * FieldScale[UnitFamily.Length];
+    }
+
+    /// <summary>
+    /// Where a typed field value puts its point: a span or value replaces that coordinate; a handle's angle or length goes
+    /// through Core's rail handle target on the rails (it keeps Core's ordering clamp) and through
+    /// <see cref="HandleAt"/> on Dihedral. Core clamps the result again when the gesture applies it.
+    /// </summary>
+    public static (double SpanMeters, double Ordinate) Destination(PropertyRow row, PointView point, double fieldValue,
+        Func<string, CurveView?> curves, PlanformView? plan)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+        ArgumentNullException.ThrowIfNull(point);
+        switch (row.Axis)
+        {
+            case RowAxis.Span: return (fieldValue / FieldScale[UnitFamily.Length], point.Ordinate);
+            case RowAxis.Value: return (point.SpanMeters, fieldValue / FieldScale[row.Family]);
+        }
+        var anchor = curves(point.Curve)!.Points.First(item => item.Id == point.AnchorId);
+        var (angle, length) = HandleGeometry(point, anchor);
+        double typedAngle = row.Axis == RowAxis.Angle ? fieldValue : angle;
+        double typedLength = row.Axis == RowAxis.Length ? fieldValue / FieldScale[UnitFamily.Length] : length;
+        if (plan is not null && Rail(plan, point.Curve) is not null)
+        {
+            var reached = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id, typedAngle, typedLength);
+            return (reached.SpanMeters, reached.Ordinate);
+        }
+        return HandleAt(point, anchor, typedAngle, typedLength);
+    }
+
+    /// <summary>The positive sense of a handle angle on the row's curve: "aft" on the rails, "up" on Dihedral.</summary>
+    public static string AngleSense(PropertyRow row) =>
+        row.Target is { } target && Curves.TryGetValue(target.Curve, out var curve) ? curve.AngleSense : "aft";
 
     public static string RoleText(PointRole role) => role switch
     {
@@ -466,7 +617,7 @@ public static class PropertiesView
     }
 
     private static SelectionIdentity StationRows(Selection.Station station, AuthoredProjection projection, PlanformView? plan,
-        List<PropertyGroup> groups)
+        Func<double, StationFrame?>? frame, List<PropertyGroup> groups)
     {
         var assignment = projection.Assignments[station.Index];
         var rows = new List<PropertyRow>
@@ -482,62 +633,74 @@ public static class PropertiesView
                 ? Length("s:chord", "Chord", chord)
                 : Estimate("s:chord", "Chord", Quantity.DerivedLength(chord), "mm", double.IsFinite(chord)));
         }
+        // F-12: the placed t/c at the station, pointwise from Placement.Frame (a non-constant t/c is no longer refused).
+        if (frame?.Invoke(station.Eta) is { } placed)
+            rows.Add(new PropertyRow
+            {
+                Key = "s:tc", Label = "t/c", Kind = RowKind.Fact, Unit = "%", Family = UnitFamily.Percent,
+                Value = Quantity.PlacedPercent(placed.ThicknessRatio * FieldScale[UnitFamily.Percent])
+            });
         rows.Add(Prose("s:section", "Section", assignment.ProfileName));
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
         string title = station.Eta == 0 ? "Root station" : station.Eta == 1 ? "Tip station" : $"Station {station.Index + 1}";
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
     }
 
-    private static SelectionIdentity SeveralRows(Selection.Points points, PlanformView plan, List<PropertyGroup> groups)
+    private static SelectionIdentity SeveralRows(Selection.Points points, Func<string, CurveView?> curves, List<PropertyGroup> groups)
     {
-        var found = points.Items.Select(item => Find(plan, item)).OfType<PointView>().ToArray();
+        var found = points.Items.Select(item => Find(curves, item)).OfType<PointView>().ToArray();
         var roles = found.Select(point => RoleText(point.Role)).Distinct().ToArray();
         string type = roles.Length == 1 ? roles[0] : "Mixed";
+        var names = found.Select(point => point.Curve).Distinct().ToArray();
+        var shared = names.Length == 1 && Curves.TryGetValue(names[0], out var one) ? one : Curves["trailing"];
         groups.Add(new PropertyGroup("pos", "Point", "Mixed", true,
         [
             Prose("p:type", "Type", type) with { State = type == "Mixed" ? RowState.Mixed : RowState.Normal },
-            Mixed("p:from", "From root"),
-            Mixed("p:aft", "Aft")
+            Mixed("p:from", "From root", "mm", UnitFamily.Length),
+            Mixed("p:aft", shared.ValueLabel, shared.ValueUnit, shared.ValueFamily)
         ], [new RowMessage(PropertyCopy.SelectOne, MessageKind.Reason)]));
-        var curves = found.Select(point => point.Curve).Distinct().ToArray();
-        string crumb = curves.Length == 1
-            ? $"{Curves[curves[0]].Name} · points {Join(found.Select(point => (point.Index + 1).ToString(CultureInfo.InvariantCulture)))}"
-            : Join(curves.Select(curve => Curves.TryGetValue(curve, out var rows) ? rows.Name : curve));
+        string crumb = names.Length == 1
+            ? $"{Curves[names[0]].Name} · points {Join(found.Select(point => (point.Index + 1).ToString(CultureInfo.InvariantCulture)))}"
+            : Join(names.Select(curve => Curves.TryGetValue(curve, out var rows) ? rows.Name : curve));
         return new SelectionIdentity(IdentityGlyph.Several, $"{points.Items.Count} points", crumb);
     }
 
-    private static SelectionIdentity PointRows(PointView point, PlanformView plan, bool readOnly, List<PropertyGroup> groups)
+    private static SelectionIdentity PointRows(PointView point, CurveView rail, bool readOnly, List<PropertyGroup> groups)
     {
-        var rail = Rail(plan, point.Curve)!;
         var curve = Curves[point.Curve];
         if (IsHandle(point)) return HandleRows(point, rail, curve, readOnly, groups);
 
         bool named = point.Role is not (PointRole.Control or PointRole.Anchor);
         var rows = new List<PropertyRow>
         {
-            named || readOnly ? Prose("p:type", "Type", RoleText(point.Role)) with { State = RowState.Locked } : TypeRow(point)
+            named || readOnly ? Prose("p:type", "Type", RoleText(point.Role)) with { State = RowState.Locked } : TypeRow(point, curve)
         };
         bool spanFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
-        bool aftFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
+        bool valueFree = !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
         var target = new PointRef(point.Curve, point.Id);
         rows.Add(spanFree
             ? LengthInput("p:from", "From root", point.SpanMeters, "From root, position along the span in millimetres", target, nudge: true)
+                with { Axis = RowAxis.Span }
             : Length("p:from", "From root", point.SpanMeters, locked: true));
         rows.Add(Count("p:eta", "η", Quantity.Eta(point.Eta)));
         bool teRoot = point.Curve == "trailing" && point.Role == PointRole.RootEnd;
-        rows.Add(aftFree
-            ? LengthInput("p:aft", curve.ValueLabel, point.Ordinate, $"{curve.ValueLabel} position in millimetres", target, nudge: true)
+        rows.Add(valueFree
+            ? ValueInput("p:aft", curve.ValueLabel, point.Ordinate, curve, ValueName(curve), target)
                 with { Description = teRoot ? PropertyCopy.RootChordAuthority : null, DescriptionAlwaysVisible = teRoot }
-            : Length("p:aft", curve.ValueLabel, point.Ordinate, locked: true));
+            : ValueFact("p:aft", curve.ValueLabel, point.Ordinate, curve, locked: true));
         var notes = new List<RowMessage>();
+        bool mirrored = point.Locks.Contains("root_mirror");
         string? lockNote = point.Role == PointRole.RootEnd && point.Curve == "leading" ? PropertyCopy.LeadingRootFixed
-            : teRoot && point.Locks.Contains("root_mirror") ? PropertyCopy.TrailingRoot
-            : point.Role == PointRole.TipEnd && point.Freedom == PointFreedom.ValueOnly ? PropertyCopy.TipEndMoves
+            : point.Role == PointRole.RootEnd && point.Curve == "dihedral" && point.Freedom == PointFreedom.Fixed ? PropertyCopy.LockedDihedralRoot
+            : teRoot && mirrored ? PropertyCopy.TrailingRoot
+            : point.Role == PointRole.RootEnd && mirrored && point.Curve is "twist" or "thickness" ? PropertyCopy.CoupledRoot
+            : point.Role == PointRole.TipEnd && point.Freedom == PointFreedom.ValueOnly
+                ? curve.HandlesByAngle && curve.Noun == "rail" ? PropertyCopy.TipEndMoves : $"At the tip; only its {ValueNoun(curve)} changes."
             : point.Freedom == PointFreedom.Fixed ? "Fixed."
             : null;
         if (lockNote is not null) notes.Add(new RowMessage(lockNote, MessageKind.Reason));
         string summary = point.Freedom == PointFreedom.Fixed ? "fixed"
-            : $"{Quantity.TypedLength(point.SpanMeters)}, {Quantity.TypedLength(point.Ordinate)} mm";
+            : $"{Quantity.TypedLength(point.SpanMeters)} mm, {Quantity.WithUnit(Value(point.Ordinate, curve), curve.ValueUnit)}";
         groups.Add(new PropertyGroup("pos", "Point", summary, true, Lock(rows, notes), notes));
 
         if (TangentGroup(point, rail, curve, readOnly) is { } tangent) groups.Add(tangent);
@@ -567,36 +730,54 @@ public static class PropertiesView
     private static PropertyGroup? TangentGroup(PointView point, CurveView rail, CurveRows curve, bool readOnly)
     {
         var handles = rail.Points.Where(item => item.AnchorId == point.Id).OrderBy(item => item.Index).ToArray();
+        var lead = curve.HandlesByAngle ? new RowMessage(AngleReference(curve), MessageKind.Info) : null;
         if (point.Role == PointRole.Anchor && point.Kind is { } kind)
         {
             var rows = new List<PropertyRow> { KindRow(point, kind, "Tangent kind", readOnly) };
-            if (curve.HandlesByAngle && !readOnly) rows.AddRange(AnchorHandleRows(point, handles, kind, curve));
-            return new PropertyGroup("tan", "Tangent", kind.ToString(), true, rows, [],
-                Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info), Continues: true);
+            if (!readOnly) rows.AddRange(curve.HandlesByAngle ? AnchorHandleRows(point, handles, kind, curve) : ChannelHandleRows(point, handles, curve));
+            var notes = !curve.HandlesByAngle && kind == TangentKind.Smooth
+                ? new List<RowMessage> { new(PropertyCopy.SmoothChannel(ValueNoun(curve)), MessageKind.Info) } : [];
+            return new PropertyGroup("tan", "Tangent", kind.ToString(), true, rows, notes, Lead: lead, Continues: true);
         }
         if (point.Role is not (PointRole.RootEnd or PointRole.TipEnd) || handles.Length != 1) return null;
         var handle = handles[0];
         var (angle, length) = HandleGeometry(handle, point);
         var target = new PointRef(handle.Curve, handle.Id);
+        string title = point.Role == PointRole.TipEnd ? "Tip handle" : "Root handle";
+        if (!curve.HandlesByAngle)
+        {
+            // Twist and t/c: the end's handle is typed by From root and value, as a point (§3.6).
+            var endRows = new List<PropertyRow>
+            {
+                SpanRow("h:from", "From root", handle, readOnly, $"From root of the {title.ToLowerInvariant()}, in millimetres"),
+                ValueRow("h:value", curve.ValueLabel, handle, curve, readOnly, $"{curve.ValueLabel} of the {title.ToLowerInvariant()}, {Speech.Unit(curve.ValueUnit)}")
+            };
+            var endNotes = point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror")
+                ? new List<RowMessage> { new(PropertyCopy.CoupledRoot, MessageKind.Reason) } : [];
+            return new PropertyGroup("tan", title,
+                $"{Quantity.TypedLength(handle.SpanMeters)} mm, {Quantity.WithUnit(Value(handle.Ordinate, curve), curve.ValueUnit)}", true,
+                Lock(endRows, endNotes), endNotes, Continues: true);
+        }
         if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
         {
             var mirrored = new List<PropertyRow> { Prose("t:kind", "Kind", "Square to the centre line") with { State = RowState.Locked } };
             if (!readOnly && handle.Freedom != PointFreedom.Fixed)
-                mirrored.Add(LengthInput("h:length", "Handle length", length, "Handle length in millimetres", target, nudge: true) with { MustBePositive = true });
+                mirrored.Add(LengthInput("h:length", "Handle length", length, "Handle length in millimetres", target, nudge: true)
+                    with { MustBePositive = true, Axis = RowAxis.Length });
             return new PropertyGroup("tan", "Tangent", "root mirror", true, mirrored,
                 [new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason)], Continues: true);
         }
-        string title = point.Role == PointRole.TipEnd ? "Tip handle" : "Root handle";
         string which = point.Role == PointRole.TipEnd ? "the tip handle" : "the root handle";
-        var endRows = readOnly
+        var angleRows = readOnly
             ? new List<PropertyRow> { AngleFact("h:angle", curve.AngleLabel, angle), Length("h:length", "Length", length) }
             :
             [
                 AngleInput("h:angle", curve.AngleLabel, angle, $"Angle of {which}, in degrees", target),
-                LengthInput("h:length", "Length", length, $"Length of {which}, in millimetres", target, nudge: true) with { MustBePositive = true }
+                LengthInput("h:length", "Length", length, $"Length of {which}, in millimetres", target, nudge: true)
+                    with { MustBePositive = true, Axis = RowAxis.Length }
             ];
-        return new PropertyGroup("tan", title, $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm", true, endRows, [],
-            Lead: new RowMessage(PropertyCopy.AngleReference, MessageKind.Info), Continues: true);
+        return new PropertyGroup("tan", title, $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm", true, angleRows, [],
+            Lead: lead, Continues: true);
     }
 
     private static IEnumerable<PropertyRow> AnchorHandleRows(PointView anchor, PointView[] handles, TangentKind kind, CurveRows curve)
@@ -615,21 +796,35 @@ public static class PropertiesView
         {
             case TangentKind.Smooth:
                 yield return AngleInput("h:angle", curve.AngleLabel, tipAngle, "Angle, both handles, in degrees", tipRef);
-                yield return LengthInput("h:root-length", "To root", rootLength, "To root, handle length in millimetres", rootRef, nudge: true) with { MustBePositive = true };
-                yield return LengthInput("h:tip-length", "To tip", tipLength, "To tip, handle length in millimetres", tipRef, nudge: true) with { MustBePositive = true };
+                yield return HandleLength("h:root-length", "To root", rootLength, "To root, handle length in millimetres", rootRef);
+                yield return HandleLength("h:tip-length", "To tip", tipLength, "To tip, handle length in millimetres", tipRef);
                 break;
             case TangentKind.Symmetric:
                 yield return AngleInput("h:angle", curve.AngleLabel, tipAngle, "Angle, both handles, in degrees", tipRef);
-                yield return LengthInput("h:length", "Length", tipLength, "Length, both handles, in millimetres", tipRef, nudge: true) with { MustBePositive = true };
+                yield return HandleLength("h:length", "Length", tipLength, "Length, both handles, in millimetres", tipRef);
                 break;
             default:
                 yield return AngleInput("h:root-angle", curve.AngleLabel, rootAngle, "Angle of the handle toward the root, in degrees", rootRef)
                     with { Subhead = "Handle toward the root" };
-                yield return LengthInput("h:root-length", "Length", rootLength, "Length of the handle toward the root, in millimetres", rootRef, nudge: true) with { MustBePositive = true };
+                yield return HandleLength("h:root-length", "Length", rootLength, "Length of the handle toward the root, in millimetres", rootRef);
                 yield return AngleInput("h:tip-angle", curve.AngleLabel, tipAngle, "Angle of the handle toward the tip, in degrees", tipRef)
                     with { Subhead = "Handle toward the tip" };
-                yield return LengthInput("h:tip-length", "Length", tipLength, "Length of the handle toward the tip, in millimetres", tipRef, nudge: true) with { MustBePositive = true };
+                yield return HandleLength("h:tip-length", "Length", tipLength, "Length of the handle toward the tip, in millimetres", tipRef);
                 break;
+        }
+    }
+
+    /// <summary>Twist and t/c (MC-17): each handle of an anchor by From root and value, whatever the kind.</summary>
+    private static IEnumerable<PropertyRow> ChannelHandleRows(PointView anchor, PointView[] handles, CurveRows curve)
+    {
+        foreach (var (handle, side) in new[] { (handles.FirstOrDefault(item => item.Index < anchor.Index), "root"),
+                     (handles.FirstOrDefault(item => item.Index > anchor.Index), "tip") })
+        {
+            if (handle is null) continue;
+            string subject = $"the handle toward the {side}";
+            yield return SpanRow($"h:{side}-from", "From root", handle, false, $"From root of {subject}, in millimetres")
+                with { Subhead = $"Handle toward the {side}" };
+            yield return ValueRow($"h:{side}-value", curve.ValueLabel, handle, curve, false, $"{curve.ValueLabel} of {subject}, {Speech.Unit(curve.ValueUnit)}");
         }
     }
 
@@ -638,27 +833,42 @@ public static class PropertiesView
         var anchor = rail.Points.First(item => item.Id == handle.AnchorId);
         var (angle, length) = HandleGeometry(handle, anchor);
         var target = new PointRef(handle.Curve, handle.Id);
-        bool angleFree = !readOnly && handle.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
-        bool lengthFree = !readOnly && handle.Freedom != PointFreedom.Fixed;
         bool mirror = handle.Role == PointRole.RootHandle && handle.Freedom == PointFreedom.SpanOnly;
         var notes = new List<RowMessage>();
         if (mirror)
         {
             notes.Add(new RowMessage(PropertyCopy.RootHandleMoves, MessageKind.Reason));
-            notes.Add(new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason));
+            if (curve.HandlesByAngle) notes.Add(new RowMessage(PropertyCopy.RootMirrorHandle, MessageKind.Reason));
         }
-        var rows = new List<PropertyRow>
+        List<PropertyRow> rows;
+        string summary;
+        if (curve.HandlesByAngle)
         {
-            angleFree
-                ? AngleInput("h:angle", curve.AngleLabel, angle, "Angle in degrees, from the span axis, positive aft", target)
-                : AngleFact("h:angle", curve.AngleLabel, angle) with { State = RowState.Locked },
-            lengthFree
-                ? LengthInput("h:length", "Length", length, "Length in millimetres", target, nudge: true) with { MustBePositive = true }
-                : Length("h:length", "Length", length, locked: true)
-        };
-        string summary = mirror ? $"{Quantity.TypedLength(length)} mm" : $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm";
+            bool angleFree = !readOnly && handle.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
+            bool lengthFree = !readOnly && handle.Freedom != PointFreedom.Fixed;
+            rows =
+            [
+                angleFree
+                    ? AngleInput("h:angle", curve.AngleLabel, angle, $"Angle in degrees, from the span axis, positive {curve.AngleSense}", target)
+                    : AngleFact("h:angle", curve.AngleLabel, angle) with { State = RowState.Locked },
+                lengthFree
+                    ? HandleLength("h:length", "Length", length, "Length in millimetres", target)
+                    : Length("h:length", "Length", length, locked: true)
+            ];
+            summary = mirror ? $"{Quantity.TypedLength(length)} mm" : $"{Quantity.PlacedAngle(angle)}°, {Quantity.TypedLength(length)} mm";
+        }
+        else
+        {
+            // Twist and t/c: a handle is placed like a point, by From root and value (§3.6).
+            rows =
+            [
+                SpanRow("p:from", "From root", handle, readOnly, "From root, position along the span in millimetres"),
+                ValueRow("p:aft", curve.ValueLabel, handle, curve, readOnly, ValueName(curve))
+            ];
+            summary = $"{Quantity.TypedLength(handle.SpanMeters)} mm, {Quantity.WithUnit(Value(handle.Ordinate, curve), curve.ValueUnit)}";
+        }
         groups.Add(new PropertyGroup("hdl", "Handle", summary, true, Lock(rows, notes), notes,
-            Lead: mirror ? null : new RowMessage(PropertyCopy.AngleReference, MessageKind.Info)));
+            Lead: mirror || !curve.HandlesByAngle ? null : new RowMessage(AngleReference(curve), MessageKind.Info)));
 
         string title;
         string crumb;
@@ -694,6 +904,18 @@ public static class PropertiesView
             Count("r:points", "Points", $"{rail.Points.Count} of {rail.Ceiling} max")
         ], []);
     }
+
+    private static string AngleReference(CurveRows curve) =>
+        curve.AngleSense == "up" ? PropertyCopy.DihedralAngleReference : PropertyCopy.AngleReference;
+
+    /// <summary>The value's name in running text: "aft", "height", "twist", "t/c".</summary>
+    private static string ValueNoun(CurveRows curve) => curve.ValueLabel == "t/c" ? "t/c" : curve.ValueLabel.ToLowerInvariant();
+
+    private static string ValueName(CurveRows curve) => curve.ValueFamily == UnitFamily.Length && curve.Noun == "rail"
+        ? $"{curve.ValueLabel} position in millimetres"
+        : $"{curve.ValueLabel} in {Speech.Unit(curve.ValueUnit)}";
+
+    private static string Value(double ordinate, CurveRows curve) => Quantity.Typed(ordinate * FieldScale[curve.ValueFamily]);
 
     // ---------------- the Wing (always last; never collapsible) ----------------
 
@@ -767,14 +989,15 @@ public static class PropertiesView
     public static PropertyRow SpanField(double spanMeters) =>
         LengthInput("w:span", "Span", spanMeters, "Span in millimetres", null, nudge: false) with { MustBePositive = true };
 
-    private static PropertyRow TypeRow(PointView point) => new()
+    private static PropertyRow TypeRow(PointView point, CurveRows curve) => new()
     {
         Key = "p:type",
         Label = "Type",
         Kind = RowKind.Choice,
         Value = point.Role == PointRole.Anchor ? "anchor" : "control",
         Options = [new RowOption("control", PropertyCopy.ControlOption), new RowOption("anchor", PropertyCopy.AnchorOption)],
-        Description = point.Role == PointRole.Anchor ? PropertyCopy.AnchorDescription : PropertyCopy.ControlDescription + PropertyCopy.AddsHandles,
+        Description = point.Role == PointRole.Anchor ? PropertyCopy.AnchorDescription
+            : PropertyCopy.ControlDescription + PropertyCopy.AddsHandles.Replace("the rail", "the " + curve.Noun, StringComparison.Ordinal),
         AutomationName = "Type",
         Target = new PointRef(point.Curve, point.Id)
     };
@@ -817,10 +1040,40 @@ public static class PropertiesView
         Key = key, Label = label, Kind = RowKind.Fact, Unit = "°", Family = UnitFamily.Angle, Value = Quantity.PlacedAngle(degrees)
     };
 
-    private static PropertyRow Mixed(string key, string label) => new()
+    private static PropertyRow Mixed(string key, string label, string unit, UnitFamily family) => new()
     {
-        Key = key, Label = label, Kind = RowKind.Fact, Unit = "mm", Family = UnitFamily.Length, Value = "Mixed", State = RowState.Mixed
+        Key = key, Label = label, Kind = RowKind.Fact, Unit = unit, Family = family, Value = "Mixed", State = RowState.Mixed
     };
+
+    /// <summary>A curve's value (Aft, Height, Twist, t/c) as a typed field in the curve's display unit (§3.6).</summary>
+    private static PropertyRow ValueInput(string key, string label, double ordinate, CurveRows curve, string name, PointRef target) => new()
+    {
+        Key = key, Label = label, Kind = RowKind.Input, Unit = curve.ValueUnit, Family = curve.ValueFamily,
+        Value = double.IsFinite(ordinate) ? Value(ordinate, curve) : "", AutomationName = name, Nudge = true, Target = target,
+        Axis = RowAxis.Value
+    };
+
+    private static PropertyRow ValueFact(string key, string label, double ordinate, CurveRows curve, bool locked) => new()
+    {
+        Key = key, Label = label, Kind = RowKind.Fact, Unit = curve.ValueUnit, Family = curve.ValueFamily,
+        Value = double.IsFinite(ordinate) ? Value(ordinate, curve) : "Unavailable",
+        State = !double.IsFinite(ordinate) ? RowState.Unavailable : locked ? RowState.Locked : RowState.Normal
+    };
+
+    /// <summary>A handle's From root: a field when its freedom allows span motion, else a locked fact.</summary>
+    private static PropertyRow SpanRow(string key, string label, PointView point, bool readOnly, string name) =>
+        !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly
+            ? LengthInput(key, label, point.SpanMeters, name, new PointRef(point.Curve, point.Id), nudge: true) with { Axis = RowAxis.Span }
+            : Length(key, label, point.SpanMeters, locked: true);
+
+    /// <summary>A handle's value: a field when its freedom allows value motion, else a locked fact.</summary>
+    private static PropertyRow ValueRow(string key, string label, PointView point, CurveRows curve, bool readOnly, string name) =>
+        !readOnly && point.Freedom is PointFreedom.Free or PointFreedom.ValueOnly
+            ? ValueInput(key, label, point.Ordinate, curve, name, new PointRef(point.Curve, point.Id))
+            : ValueFact(key, label, point.Ordinate, curve, locked: true);
+
+    private static PropertyRow HandleLength(string key, string label, double meters, string name, PointRef target) =>
+        LengthInput(key, label, meters, name, target, nudge: true) with { MustBePositive = true, Axis = RowAxis.Length };
 
     private static PropertyRow Estimate(string key, string label, string value, string unit, bool available) => new()
     {
@@ -839,7 +1092,8 @@ public static class PropertiesView
     private static PropertyRow AngleInput(string key, string label, double degrees, string name, PointRef target) => new()
     {
         Key = key, Label = label, Kind = RowKind.Input, Unit = "°", Family = UnitFamily.Angle,
-        Value = Quantity.PlacedAngle(degrees), AutomationName = name, Nudge = true, AngleBounded = true, Target = target
+        Value = Quantity.PlacedAngle(degrees), AutomationName = name, Nudge = true, AngleBounded = true, Target = target,
+        Axis = RowAxis.Angle
     };
 
     /// <summary>Locked and mixed facts carry their group's reason note as help text (§10.5).</summary>

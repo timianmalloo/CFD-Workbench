@@ -224,7 +224,9 @@ public partial class PropertiesPane : UserControl
                 plan,
                 Preview: plan?.Basis == "preview" || estimates?.Basis == "preview",
                 Checking: controller.Gesture == GestureState.Busy,
-                NotChecked: controller.Inspection is { } inspection && inspection.Geometry.Status != GeometryStatus.Certified);
+                NotChecked: controller.Inspection is { } inspection && inspection.Geometry.Status != GeometryStatus.Certified,
+                Curves: controller.CurveFor,
+                Frame: eta => StationFrameAt(controller, eta));
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {
@@ -1162,49 +1164,70 @@ public partial class PropertiesPane : UserControl
 
     private bool CommitPoint(RowView view, TextBox box)
     {
-        if (boundController is not { } controller || controller.Planform is not { } plan || view.Row.Target is not { } target) return false;
-        if (PropertiesView.Find(plan, target) is not { } point) return false;
+        if (boundController is not { } controller || view.Row.Target is not { } target) return false;
+        Func<string, CurveView?> curves = controller.CurveFor;
+        if (PropertiesView.Find(curves, target) is not { } point) return false;
         var dims = Dimensions();
         var echoes = new Dictionary<string, string>(StringComparer.Ordinal);
+        var committedKeys = new List<string> { view.Row.Key };
         (double Span, double Aft) destination;
-        if (view.Row.Key is "p:from" or "p:aft")
+        RowMessage? hint = null;
+        if (view.Row.Axis is RowAxis.Span or RowAxis.Value)
         {
-            // One intent, one undo row: a dirty From root and Aft commit together.
-            double span = point.SpanMeters, aft = point.Ordinate;
-            foreach (var other in new[] { "p:from", "p:aft" })
+            // One intent, one undo row: a dirty From root and value of the same point commit together.
+            double span = point.SpanMeters, value = point.Ordinate;
+            foreach (var field in PositionFields(target))
             {
-                if (!rows.TryGetValue(other + "|Input", out var field) || field.Input is not { } input) continue;
+                if (field.Input is not { } input) continue;
                 bool include = field == view || input.IsEnabled && Dirty(input);
                 if (!include) continue;
-                if (!Parse(field, input, dims, out double value)) return false;
-                if (other == "p:from") span = value / 1000; else aft = value / 1000;
-                if (UnitEntry.TryParse(input.Text, UnitFamily.Length, dims, out var entry) && UnitEntry.Echo(input.Text!, entry, "mm") is { } echo)
-                    echoes[other] = echo;
+                if (!Parse(field, input, dims, out double typed)) return false;
+                (span, value) = field.Row.Axis == RowAxis.Span ? (typed / PropertiesView.FieldScale[UnitFamily.Length], value)
+                    : (span, typed / PropertiesView.FieldScale[field.Row.Family]);
+                if (!committedKeys.Contains(field.Row.Key)) committedKeys.Add(field.Row.Key);
+                if (UnitEntry.TryParse(input.Text, field.Row.Family, dims, out var entry))
+                {
+                    if (UnitEntry.Echo(input.Text!, entry, field.Row.Unit ?? "") is { } echo) echoes[field.Row.Key] = echo;
+                    hint ??= UnitEntry.Hint(entry, field.Row.Family);
+                }
             }
-            destination = (span, aft);
+            destination = (span, value);
         }
         else
         {
             if (!Parse(view, box, dims, out double value)) return false;
-            var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
-            var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
-            bool isAngle = view.Row.Family == UnitFamily.Angle;
-            var reached = CfdWorkbench.Core.Planform.HandleTarget(plan, point.Curve, point.Id,
-                isAngle ? value : angle, isAngle ? length : value / 1000);
-            destination = (reached.SpanMeters, reached.Ordinate);
+            destination = PropertiesView.Destination(view.Row, point, value, curves, controller.Planform);
             if (UnitEntry.TryParse(box.Text, view.Row.Family, dims, out var entry) &&
                 UnitEntry.Echo(box.Text!, entry, view.Row.Unit ?? "") is { } echo)
                 echoes[view.Row.Key] = echo;
         }
+        string typedText = box.Text ?? "";
         var outcome = RunTypedGesture(controller, target, destination);
         switch (outcome)
         {
             case GestureOutcome.Committed:
-                foreach (var key in new[] { view.Row.Key, "p:from", "p:aft" }) { errors.Remove(key); messages.Remove(key); }
-                MarkShown(view.Row.Key is "p:from" or "p:aft" ? ["p:from", "p:aft"] : [view.Row.Key]);
+                foreach (var key in committedKeys) { errors.Remove(key); messages.Remove(key); }
+                MarkShown(committedKeys);
                 Bind(controller);
-                // DR-STATUS-3: unit and expression echoes go to the strip, not under the field.
-                if (echoes.Count > 0) Reported?.Invoke(new StatusReport(string.Join(" ", echoes.Values)));
+                // DR-STATUS-3: unit and expression echoes go to the strip, not under the field. MC-19: a value Core clamped
+                // (twist or t/c past the domain) says so with Core's number, as a warning (COPY-168); MC-20: a t/c under
+                // 1 % warns with the fraction hint (COPY-169).
+                if (view.Row.Axis == RowAxis.Value && controller.LastGestureClamped &&
+                    PropertiesView.ReadValue(view.Row, curves) is { } reached &&
+                    UnitEntry.TryParse(typedText, view.Row.Family, dims, out var asked))
+                {
+                    string copy = PropertyCopy.Clamped(typedText, Quantity.WithUnit(Quantity.Typed(reached), view.Row.Unit ?? ""), asked.Value > reached);
+                    messages[view.Row.Key] = new RowMessage(copy, MessageKind.Warning);
+                    RenderRow(view.Row, []);
+                    Reported?.Invoke(new StatusReport(copy, ReportKind.Warning));
+                }
+                else if (hint is not null)
+                {
+                    messages[view.Row.Key] = hint;
+                    RenderRow(view.Row, []);
+                    Reported?.Invoke(new StatusReport(hint.Text, ReportKind.Warning));
+                }
+                else if (echoes.Count > 0) Reported?.Invoke(new StatusReport(string.Join(" ", echoes.Values)));
                 return true;
             case GestureOutcome.Refused refused:
                 return Refuse(view, box, refused.Copy);
@@ -1217,6 +1240,13 @@ public partial class PropertiesPane : UserControl
         }
     }
 
+    /// <summary>The shown From root and value fields of one point (or handle), which commit as one gesture.</summary>
+    private IEnumerable<RowView> PositionFields(PointRef target) =>
+        (shownModel?.Blocks ?? []).SelectMany(group => group.Rows)
+            .Where(row => row.Kind == RowKind.Input && row.Axis is RowAxis.Span or RowAxis.Value && row.Target == target)
+            .Select(row => rows.GetValueOrDefault(row.Key + "|Input")).OfType<RowView>();
+
+
     private bool Parse(RowView view, TextBox box, IReadOnlyDictionary<string, double> dims, out double value)
     {
         var row = view.Row;
@@ -1226,7 +1256,7 @@ public partial class PropertiesPane : UserControl
         if (row.MustBePositive && entry.Value <= 0)
             return Refuse(view, box, PropertyCopy.NotPositive(row.Label));
         if (row.AngleBounded && Math.Abs(entry.Value) >= 90)
-            return Refuse(view, box, PropertyCopy.AngleOutOfRange(row.Label));
+            return Refuse(view, box, PropertyCopy.AngleOutOfRange(row.Label, PropertiesView.AngleSense(row)));
         value = entry.Value;
         return true;
     }
@@ -1272,15 +1302,18 @@ public partial class PropertiesPane : UserControl
         if (boundController is not { } controller || view.Row.Target is not { } target) return;
         if (run is null)
         {
-            if (controller.Planform is not { } plan || ReadValue(view.Row, plan) is not { } origin) return;
+            // The run steps from where the point was when it began: a snapshot of its curve and the plan.
+            if (controller.CurveFor(target.Curve) is not { } startCurve) return;
+            CurveView? Start(string curve) => curve == target.Curve ? startCurve : null;
+            if (PropertiesView.ReadValue(view.Row, Start) is not { } origin) return;
             using (Hold())
             {
                 var selection = controller.Selection;
                 if (!controller.BeginGesture(target, GestureInput.Typed)) return;
                 controller.Select(selection);
             }
-            var start = PropertiesView.Find(plan, target)!;
-            run = new NudgeRun(view, box, target, plan, origin, origin, (start.SpanMeters, start.Ordinate));
+            var start = PropertiesView.Find(Start, target)!;
+            run = new NudgeRun(view, box, target, Start, controller.Planform, origin, origin, (start.SpanMeters, start.Ordinate));
         }
         var active = run;
         // COPY-163: ⌘ (Ctrl on Windows) 0.01, Shift 1, plain 0.1 — in the field's unit (mm, °, %).
@@ -1295,7 +1328,7 @@ public partial class PropertiesPane : UserControl
         var destination = RunTarget(active, next);
         controller.UpdateGesture(destination.Span, destination.Aft);
         controller.FlushGestureFrame();
-        double reached = controller.Planform is { } now && ReadValue(view.Row, now) is { } value ? value : next;
+        double reached = PropertiesView.ReadValue(view.Row, controller.CurveFor) is { } value ? value : next;
         if (view.Row.AngleBounded && Math.Abs(reached - active.Value) < step / 4)
         {
             // MC-23: Core's ordering clamp holds a handle short of ±90°. The run stops at its last position, so a run
@@ -1312,35 +1345,8 @@ public partial class PropertiesPane : UserControl
     /// <summary>MC-23: a run held at the angle bound stops there and says so (COPY-170) in the strip; a gesture warning never toasts.</summary>
     private void StopsHere() => Reported?.Invoke(new StatusReport(PropertyCopy.AngleRunStops, ReportKind.Warning));
 
-    private (double Span, double Aft) RunTarget(NudgeRun active, double value)
-    {
-        var point = PropertiesView.Find(active.Plan, active.Target)!;
-        switch (active.View.Row.Key)
-        {
-            case "p:from": return (value / 1000, point.Ordinate);
-            case "p:aft": return (point.SpanMeters, value / 1000);
-        }
-        var anchor = PropertiesView.Rail(active.Plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
-        var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
-        bool isAngle = active.View.Row.Family == UnitFamily.Angle;
-        var handle = CfdWorkbench.Core.Planform.HandleTarget(active.Plan, point.Curve, point.Id,
-            isAngle ? value : angle, isAngle ? length : value / 1000);
-        return (handle.SpanMeters, handle.Ordinate);
-    }
-
-    private static double? ReadValue(PropertyRow row, PlanformView plan)
-    {
-        if (row.Target is not { } target || PropertiesView.Find(plan, target) is not { } point) return null;
-        switch (row.Key)
-        {
-            case "p:from": return point.SpanMeters * 1000;
-            case "p:aft": return point.Ordinate * 1000;
-        }
-        if (point.AnchorId is null) return null;
-        var anchor = PropertiesView.Rail(plan, point.Curve)!.Points.First(item => item.Id == point.AnchorId);
-        var (angle, length) = PropertiesView.HandleGeometry(point, anchor);
-        return row.Family == UnitFamily.Angle ? angle : length * 1000;
-    }
+    private static (double Span, double Aft) RunTarget(NudgeRun active, double value) =>
+        PropertiesView.Destination(active.View.Row, PropertiesView.Find(active.Start, active.Target)!, value, active.Start, active.Plan);
 
     private void EndRun(GestureEnd reason)
     {
@@ -1357,8 +1363,8 @@ public partial class PropertiesPane : UserControl
         if (task.IsCompletedSuccessfully && task.Result is GestureOutcome.Committed)
         {
             // PG-08: the new value is reported once, in the strip, on release.
-            string value = Quantity.Typed(controller.Planform is { } plan && ReadValue(row, plan) is { } now ? now : active.Value);
-            report = $"{row.Label} {(row.Unit == "°" ? value + "°" : value + " " + row.Unit)}.";
+            string value = Quantity.Typed(PropertiesView.ReadValue(row, controller.CurveFor) is { } now ? now : active.Value);
+            report = $"{row.Label} {Quantity.WithUnit(value, row.Unit ?? "")}.";
             messages.Remove(row.Key);
         }
         else if (reason == GestureEnd.Escape)
@@ -1368,8 +1374,9 @@ public partial class PropertiesPane : UserControl
         if (report is not null) Reported?.Invoke(new StatusReport(report));
     }
 
-    private sealed record NudgeRun(RowView View, TextBox Box, PointRef Target, PlanformView Plan, double Origin, double Value,
-        (double Span, double Aft) Accepted);
+    private sealed record NudgeRun(RowView View, TextBox Box, PointRef Target, Func<string, CurveView?> Start, PlanformView? Plan,
+        double Origin, double Value, (double Span, double Aft) Accepted);
+
 
     // ---------------- Type and Tangent kind: one enum rule (PG-07, PG-19, DR-CELL-2) ----------------
 
@@ -1471,8 +1478,8 @@ public partial class PropertiesPane : UserControl
 
     private void CommitType(RowView view, string value)
     {
-        if (boundController is not { } controller || controller.Planform is not { } plan || view.Row.Target is not { } target) return;
-        var rail = PropertiesView.Rail(plan, target.Curve);
+        if (boundController is not { } controller || view.Row.Target is not { } target) return;
+        var rail = controller.CurveFor(target.Curve);
         var point = rail?.Points.FirstOrDefault(item => item.Id == target.VertexId);
         if (rail is null || point is null) return;
         PointCommand command = value == "anchor" ? new PointCommand.MakeAnchor(point.Curve, point.Id) : new PointCommand.MakeControl(point.Curve, point.Id);
@@ -1481,14 +1488,15 @@ public partial class PropertiesPane : UserControl
         if (task.IsCompletedSuccessfully && task.Result is CommitOutcome.Committed committed)
         {
             int before = rail.Points.Count;
-            int after = controller.Planform is { } now ? PropertiesView.Rail(now, target.Curve)!.Points.Count : before;
-            string curve = PropertiesView.Curves[target.Curve].Name;
-            // The deviation is the operation's own number (COPY-154 / COPY-165), read from its report.
+            int after = controller.CurveFor(target.Curve)?.Points.Count ?? before;
+            var rows = PropertiesView.Curves[target.Curve];
+            string curve = rows.Name;
+            // The deviation is the operation's own number in the curve's unit (COPY-154 / COPY-165), read from its report.
             string largest = Deviation().Match(committed.Report) is { Success: true } match
-                ? $" Largest change {match.Groups[1].Value} mm." : "";
+                ? $" Largest change {match.Groups[1].Value}." : "";
             string report = value == "anchor"
-                ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The rail gained {after - before} points ({before} → {after}).{largest}"
-                : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the rail has {after} points (was {before}).{largest}";
+                ? $"{curve} point {point.Index + 1} is now an anchor point with 2 handles. The {rows.Noun} gained {after - before} points ({before} → {after}).{largest}"
+                : $"{curve} point {point.Index + 1} is now a control point. Its handles are removed; the {rows.Noun} has {after} points (was {before}).{largest}";
             messages.Remove("p:type");
             Reported?.Invoke(new StatusReport(report));
         }
@@ -1497,20 +1505,21 @@ public partial class PropertiesPane : UserControl
         Bind(controller);
     }
 
-    [GeneratedRegex(@"Max deviation ([0-9.]+) mm")]
+    [GeneratedRegex(@"Max deviation ([0-9.]+(?: mm|°| %))")]
     private static partial Regex Deviation();
 
     private void CommitKind(TangentKind kind)
     {
-        if (rendering || boundController is not { } controller || controller.Planform is not { } plan ||
+        if (rendering || boundController is not { } controller ||
             !rows.TryGetValue(kindField.CacheKey, out var view) || view.Row.Target is not { } target ||
-            PropertiesView.Find(plan, target) is not { } anchor)
+            PropertiesView.Find(controller.CurveFor, target) is not { } anchor)
             return;
+        Func<string, CurveView?> curves = controller.CurveFor;
         if (anchor.Kind != kind)
         {
             // On a handle the kind keeps the selected handle and moves the other one (COPY-162).
             string? keep = controller.Selection is Selection.Points { Items.Count: 1 } points &&
-                           PropertiesView.Find(plan, points.Items[0]) is { AnchorId: { } owner } handle && owner == anchor.Id
+                           PropertiesView.Find(curves, points.Items[0]) is { AnchorId: { } owner } handle && owner == anchor.Id
                 ? handle.Id : null;
             var task = controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, kind, keep));
             using (Hold()) PumpUi(task);
@@ -1520,7 +1529,7 @@ public partial class PropertiesPane : UserControl
             {
                 // MC-11 / PG-33: the report comes from the operation — the kind, and on a handle which handle it kept.
                 string kept = keep is null ? ""
-                    : PropertiesView.Find(plan, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
+                    : PropertiesView.Find(curves, new PointRef(anchor.Curve, keep)) is { } keptHandle && keptHandle.Index > anchor.Index
                         ? " Kept the handle toward the tip; the other one moved." : " Kept the handle toward the root; the other one moved.";
                 string report = $"{PropertiesView.Curves[anchor.Curve].Name} point {anchor.Index + 1} is now {kind}.{kept}";
                 messages.Remove("t:kind");
@@ -1608,6 +1617,14 @@ public partial class PropertiesPane : UserControl
             ["root_chord"] = estimates?.RootChordMeters ?? 0,
             ["tip_chord"] = estimates?.TipChordMeters ?? 0
         };
+    }
+
+    /// <summary>F-12: the placed frame at a station of the accepted revision (Core's Placement.Frame), or null when it cannot be placed.</summary>
+    private static StationFrame? StationFrameAt(WorkbenchController controller, double eta)
+    {
+        if (controller.Inspection is null) return null;
+        try { return Placement.Frame(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), eta); }
+        catch (ContractError) { return null; }
     }
 
     private bool Dirty(TextBox box) => shown.TryGetValue(box, out var text) && (box.Text ?? "") != text;

@@ -109,6 +109,8 @@ public sealed partial class MainWindow : Window
             case "edit.redo": shellHost.RouteEditVerb("redo", FocusManager?.GetFocusedElement()); break;
             case "window.minimize": WindowState = WindowState.Minimized; break;
             case "window.zoom": WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized; break;
+            // The palette reaches the M1.2b2 view rows (layouts, display, cameras, pan, Fit Selection) through the shell.
+            case not ("view.zoom-in" or "view.zoom-out" or "view.fit") when ViewCommands.Handles(id): await shellHost.RunCommand(id); break;
         }
     }
 

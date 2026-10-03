@@ -669,16 +669,21 @@ public sealed class ShellHost : Grid
         StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step);
     }
 
-    /// <summary>The strip's selection item ("TE · pt 7 of 14"); absent with no point selected.</summary>
+    /// <summary>The strip's selection item ("TE · pt 7 of 14", "Twist · pt 5 of 7"); absent with no point selected.</summary>
     private string? SelectionItemText()
     {
-        if (Controller.Planform is not { } plan || Controller.Selection is not Selection.Points { Items.Count: > 0 } points)
-            return null;
+        if (Controller.Selection is not Selection.Points { Items.Count: > 0 } points) return null;
         if (points.Items.Count > 1) return $"{points.Items.Count} points";
         var item = points.Items[0];
-        var rail = item.Curve == "leading" ? plan.Leading : plan.Trailing;
-        var point = rail.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
-        return point is null ? null : $"{(item.Curve == "leading" ? "LE" : "TE")} · pt {point.Index + 1} of {rail.Points.Count}";
+        if (Controller.CurveFor(item.Curve) is not { } curve) return null;
+        var point = curve.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
+        string name = item.Curve switch
+        {
+            "leading" => "LE",
+            "trailing" => "TE",
+            _ => PropertiesView.Curves.TryGetValue(item.Curve, out var rows) ? rows.Name : item.Curve
+        };
+        return point is null ? null : $"{name} · pt {point.Index + 1} of {curve.Points.Count}";
     }
 
     /// <summary>Bigger and Smaller step along the ladder and stop at 100 % and 200 %.</summary>
@@ -689,16 +694,50 @@ public sealed class ShellHost : Grid
         SetTextScale(sizes[Math.Clamp(index + direction, 0, sizes.Count - 1)]);
     }
 
-    /// <summary>DR-DEN-4: a model view (Plan, 3D, Section) has keyboard focus, so ⌘= / ⌘− zoom it.</summary>
+    /// <summary>
+    /// DR-DEN-4: a model view has keyboard focus, so ⌘= / ⌘− zoom it. A model view is the Plan canvas, the section
+    /// canvas, or any focusable control inside a model-area view frame — the 3D view and its cube, the elevations and
+    /// their points — except the frame's view label: by place in the tree, not by a list of view types.
+    /// </summary>
     private bool ModelViewFocused() =>
-        TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is PlanCanvas or Viewport or SectionCanvas;
+        TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is Viewport or SectionCanvas || FocusedModelView() is not null;
+
+    /// <summary>The model-area view that holds keyboard focus, or null.</summary>
+    private SingleView? FocusedModelView()
+    {
+        if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is not Visual focused) return null;
+        if (focused is PlanCanvas) return SingleView.Plan;
+        if (focused is Button label && label.Classes.Contains("viewLabel")) return null;
+        foreach (var (frame, view) in ViewFrames())
+            if (frame.IsVisualAncestorOf(focused)) return view;
+        return null;
+    }
+
+    private IEnumerable<(Border Frame, SingleView View)> ViewFrames() =>
+    [
+        (ModelView.PlanFrame, SingleView.Plan), (ModelView.ThreeDFrame, SingleView.ThreeD),
+        (ModelView.SideFrame, SingleView.Side), (ModelView.FrontFrame, SingleView.Front)
+    ];
+
+    /// <summary>The drawn size of a model-area view: the control its camera projects into (the size its first fit used).</summary>
+    public Size ViewSize(SingleView view) => view switch
+    {
+        SingleView.Plan => ModelView.PlanCanvas.Bounds.Size,
+        SingleView.ThreeD => ModelView.ThreeDView.Bounds.Size,
+        SingleView.Side => ModelView.SideRenderer.Bounds.Size,
+        _ => ModelView.FrontRenderer.Bounds.Size
+    };
+
+    private ViewCommandContext ViewContext() =>
+        new(Controller, ViewSize, Report, FocusedModelView(), ModelView.ThreeDView.ApplyPreset);
 
     public bool CanRun(string id)
     {
         if (id is "view.zoom-in" or "view.zoom-out")
             return Controller.Inspection is not null || !ModelViewFocused();
-        if (id is "view.comb" or "view.fit")
+        if (id is "view.comb")
             return Controller.Inspection is not null;
+        if (ViewCommands.Handles(id)) return ViewCommands.CanRun(id, Controller);
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
         var point = SelectedPoint();
         if (point is null) return false;
@@ -732,23 +771,9 @@ public sealed class ShellHost : Grid
                 // DR-DEN-4: with focus anywhere but a model view, ⌘= / ⌘− change the Text size.
                 StepTextSize(id == "view.zoom-in" ? +1 : -1);
                 return;
-            case "view.zoom-in" or "view.zoom-out" when Controller.Inspection is null:
-                return;
-            case "view.zoom-in":
-                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Controller.PlanCamera.PixelsPerMeter * 1.25 };
-                Report(new StatusReport("Zoomed in."));
-                return;
-            case "view.zoom-out":
-                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = Math.Max(50, Controller.PlanCamera.PixelsPerMeter / 1.25) };
-                Report(new StatusReport("Zoomed out."));
-                return;
             case "view.comb":
                 Controller.CombVisible = !Controller.CombVisible;
                 Report(new StatusReport(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off."));
-                return;
-            case "view.fit":
-                Controller.PlanCamera = Controller.PlanCamera with { PixelsPerMeter = 1000, PanSpanPixels = 0, PanAftPixels = 0 };
-                Report(new StatusReport("Fit."));
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));
@@ -766,6 +791,17 @@ public sealed class ShellHost : Grid
                 await RunPoint(point => new PointCommand.SetTangent(point.Curve, point.Id, TangentKind.Corner, null));
                 return;
         }
+        // Zoom, fit, pan, layouts, display and cameras act on the target view (M1.2b2 §5.2) through one runner.
+        if (ViewCommands.Handles(id))
+        {
+            if (!ViewCommands.CanRun(id, Controller))
+            {
+                if (Controller.Inspection is not null && ViewCommands.DisabledReason(id, Controller) is { } reason)
+                    Report(new StatusReport(reason));
+                return;
+            }
+            ViewCommands.Run(id, ViewContext());
+        }
     }
 
     private async Task RunPoint(Func<PointView, PointCommand> command)
@@ -775,14 +811,12 @@ public sealed class ShellHost : Grid
         RefreshPanes();
     }
 
-    private PointView? SelectedPoint()
-    {
-        if (Controller.Selection is not Selection.Points { Items.Count: 1 } points || Controller.Planform is not { } plan)
-            return null;
-        var item = points.Items[0];
-        var rail = item.Curve == "leading" ? plan.Leading : plan.Trailing;
-        return rail.Points.FirstOrDefault(point => point.Id == item.VertexId);
-    }
+    /// <summary>The one selected point, on any of the five curves.</summary>
+    private PointView? SelectedPoint() =>
+        Controller.Selection is Selection.Points { Items.Count: 1 } points
+            ? PropertiesView.Find(Controller.CurveFor, points.Items[0])
+            : null;
+
 
     private void OnShellKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
     {
