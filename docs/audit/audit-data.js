@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T16:28:39Z",
+  "generated": "2026-10-03T17:08:47Z",
   "audit": [
     {
       "actor": null,
@@ -22534,6 +22534,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T16:27:51Z",
       "duration_seconds": 48.0
+    },
+    {
+      "id": "al-01M41BNYPC2KFEPTQ4SAW25MC6",
+      "shortname": "design-slice-area3-analysis",
+      "datetime": "2026-10-03T17:06:10Z",
+      "session": "fluids-f2",
+      "prompt": "Lane F2 (Ruling 60): run /design-slice for spec area 3 'Design revision + Operating point -> Analysis run (local tiers)' — section 2D and VLM + strip 3D tiers with every label, basis and omission; DDD model first; reading contract via ProfileEvaluator / AuthoringSession.ProfileAt; in-process vs process boundary per tier and the Run manifest method id/version/settings hash; the VLM + strip fixture suite with rings and cost; the CAD <-> analysis toggle preserving selection and camera; instrumentation. Convene hydrofoil-hydrodynamicist, cfd-numerical-verification-expert, computational-geometry-expert, data-persistence-architect, test-architect. Then the analysis mockup with /ui-design; collect every open decision as DR-ANA-n. Documents only.",
+      "summary": "docs/design/area3-analysis.md rev 2: data model (Analysis run fact, Strip load facts, derived totals/Trefftz/freshness, cfdw-project-2 expand with content hash and .v1.bak), reading contract (Snapshot + new Placement.Sections; never ProfileAt), tiers with method envelope, manifest, fixture suite F-1..F-17 with mutants, measured rings (run-tests 46 s, Desktop 41 s), story-to-test matrix, telemetry, DR-ANA-1..14. Five lenses: hydro BLOCK + test BLOCK on rev 1 (folded), CFD/geometry/data approve with changes.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/area3-analysis.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-10-03T16:41:00Z",
+      "duration_seconds": 1510.0
+    },
+    {
+      "id": "al-01M41BTQNB0TVRNFF0AFFTK7MF",
+      "shortname": "ui-design-area3-analysis",
+      "datetime": "2026-10-03T17:08:47Z",
+      "session": "fluids-f2",
+      "prompt": "Lane F2 (Ruling 60) step 2: the analysis surface mockup with /ui-design (create mode): self-contained HTML in docs/mockups/, the hard states (no result, running, failed, labels with omissions), consistent with the shipped shell (DESIGN.md tokens, the V2 status strip, the dock layout, the approved m12b2 views). The operator approves it before anything is built.",
+      "summary": "docs/mockups/area3-analysis.html: eight screens of the 1280x800 shell (no result/depth unset, running with prior Historical, wing result Current, station + Loads, Historical + preview hidden + Provenance, failed, outside envelope at 12 deg, tampered run); loads computed in-page by a 64x4 reference lattice. Audit clean light/dark 1280/1024; craft gate 1 Minor (side-tab = DESIGN.md status-strip rail, kept). UX lens PASS WITH CONDITIONS, no veto; repair cycle 1 folded 5 Majors.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/area3-analysis.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false
     }
   ],
   "changes": [
@@ -23275,6 +23313,28 @@ window.AUDIT_DATA = {
         "before": "4c65770",
         "after": "4c6577031bc40090073e6670a537800f36555d6c",
         "branch": "design/m12c-section-editor",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M41BNYZ8HR09CRAY938E9QNW",
+      "datetime": "2026-10-03T17:06:11Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Area 3 Analysis design: runs as append-only facts read from the accepted snapshot; own-code VLM + strip in process",
+      "prompt": "Lane F2 (Ruling 60): /design-slice for spec Area 3, documents only.",
+      "summary": "Design rev 2 with DR-ANA-1..14 for the operator; mockup docs/mockups/area3-analysis.html for approval before build.",
+      "rationale": "Data model first (DM5/DM7): freshness by run key, totals derived; one placement authority (ADR-0010) via Placement.Sections; no GPL code linked (COMMIT-02); lens re-runs showed the default lattice and two ANA-04 oracles needed changing (DR-ANA-7, DR-ANA-12).",
+      "artifacts": [
+        "docs/design/area3-analysis.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "b47fcba2d31746bee3e6670b3b62516b0549a951",
+        "after": "b47fcba2d31746bee3e6670b3b62516b0549a951",
+        "branch": "design/area3-analysis",
         "pushed": null,
         "commits": []
       }
