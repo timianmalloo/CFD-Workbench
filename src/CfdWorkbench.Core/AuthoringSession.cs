@@ -23,7 +23,7 @@ public sealed record SessionDraft(string Id, string Base, long Generation, strin
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
 public sealed record SessionView(string AcceptedId, string SourceHash, string SurfaceHash, byte[] Source, SessionDraft? Draft, RecoveryRow? Recovery, bool Dirty);
-public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double DurationMilliseconds, int? InputBytes,
+public sealed record SessionEvent(long Sequence, string Operation, string Outcome, double? DurationMilliseconds, int? InputBytes,
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
     double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
@@ -133,13 +133,15 @@ public sealed class AuthoringSession : IDisposable
                 _ => operation.StartsWith("geometry.", StringComparison.Ordinal) || operation.StartsWith("section.", StringComparison.Ordinal)
                     ? operation : "document." + operation
             };
-            Record(name, outcome, timer.Elapsed.TotalMilliseconds, inputBytes, null, generation, null, operation, editKind,
+            bool superseded = operation == "section.assess" && outcome == "DSL-CANCELLED";
+            Record(name, superseded ? "superseded" : outcome, superseded ? null : timer.Elapsed.TotalMilliseconds,
+                inputBytes, null, generation, null, operation, editKind,
                 stepKind: stepKind, independent: editKind == "section" ? SectionIndependent() : null);
             trace.Value = priorTrace;
         }
     }
     private string? pendingCurveFamily;
-    private void Record(string operation, string outcome, double elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null, string? curveFamily = null,
+    private void Record(string operation, string outcome, double? elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null, string? curveFamily = null,
         string? stepKind = null, int? steps = null, bool? independent = null)
     {
         lock (sync)
