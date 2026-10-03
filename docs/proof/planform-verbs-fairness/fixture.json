@@ -1,0 +1,31 @@
+{
+  "purpose": "SPK fixture (docs/design/planform-point-verbs.md section 14; ADR-0001 Amendment 2 evidence). Synthetic and manufactured curves, labelled as such.",
+  "exampleAnchors": {
+    "source": "docs/mockups/workbench-v5.html EXAMPLES.light ('Example - race light') and ETA: the six anchors per curve that ADR-0001's 2026-09-21 fixture fitted (spikes/degree-adr/fixture.json was never committed). Units as the mockup stores them: m, m, m, degrees, chord fraction.",
+    "eta": [0, 0.2, 0.4, 0.6, 0.8, 1],
+    "curves": [
+      { "name": "LE rail", "unit": "m", "values": [0, 0.004, 0.012, 0.024, 0.040, 0.062] },
+      { "name": "TE rail (chord)", "unit": "m", "values": [0.118, 0.114, 0.104, 0.088, 0.064, 0.028] },
+      { "name": "Dihedral", "unit": "m", "values": [0, -0.002, -0.006, -0.012, -0.020, -0.030] },
+      { "name": "Twist", "unit": "deg", "values": [0, 0, -0.2, -0.5, -1.0, -1.5] },
+      { "name": "Thickness t/c", "unit": "fraction", "values": [0.100, 0.100, 0.098, 0.095, 0.092, 0.090] }
+    ]
+  },
+  "shippedExample": "src/CfdWorkbench.Desktop/Assets/example.foil",
+  "counts": [4, 5, 7],
+  "newFoilCounts": [4, 5, 10],
+  "rebuildTargets": [4, 5],
+  "settings": {
+    "degree": 3,
+    "fitUniformSamples": 401,
+    "fitGaussPerSpan": 4,
+    "oracleUniformSamples": 201,
+    "supportSamples": 2001,
+    "supportThreshold": 1e-9,
+    "kappaSamplesPerSpan": 400,
+    "signTolerance": 1e-6,
+    "breakTolerance": 1e-6,
+    "breakOffset": 1e-9,
+    "signFloor": 1e-9
+  }
+}
