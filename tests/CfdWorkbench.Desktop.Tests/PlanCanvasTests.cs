@@ -1112,8 +1112,9 @@ public static class PlanCanvasTests
 
         public (byte R, byte G, byte B) RgbAtPoint(PointView point) => RgbNear(point, 0, 0);
 
+        // Empty viewport: above the model-area navbar, which covers the bottom 10–40 px at the area's centre (DR-VIEW-7 track).
         public (byte R, byte G, byte B) BackgroundPixel() => RgbAtCanvas(Canvas.Bounds.Width / 2 + 40,
-            Canvas.Bounds.Height - 30);
+            Canvas.Bounds.Height - 60);
 
         public (byte R, byte G, byte B) RgbNear(PointView point, int dx, int dy)
         {

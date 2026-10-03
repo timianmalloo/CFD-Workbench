@@ -4,8 +4,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Panes;
+using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop;
@@ -69,6 +71,7 @@ public partial class ModelArea : UserControl
                 args.Handled = true;
             }, RoutingStrategies.Tunnel);
         }
+        WireNavbar();
         // A view shown by a layout change gets its size only after that layout pass; its first camera fits then.
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
         // The caption plate sits right of the axis triad (the approved mockup); View3d owns both positions.
@@ -193,10 +196,96 @@ public partial class ModelArea : UserControl
         SideLabel.Content = "Side · from starboard" + suffix;
         FrontLabel.Content = "Front · looking aft" + suffix;
         PlanLabel.Content = "Plan" + (certified ? "" : " · not checked");
+        // The plate of the view that Display ▾, zoom and fit act on carries the station underline (the mockup's aria-pressed).
+        var target = ViewCommands.Target(controller, null);
         foreach (var (label, view) in Labels())
+        {
+            label.Classes.Set("target", view == target);
             Avalonia.Automation.AutomationProperties.SetName(label,
                 label.Content + " view label. Double-click or Return shows " +
                 (layout.Arrangement == ViewArrangement.One ? "every view again." : "this view alone."));
+        }
+        FitLabels();
+        RefreshNavbar(controller);
+    }
+
+    // V3D (§11.1): the 3D title and the cube share the top row. The title keeps the room left of the cube and trims; below
+    // View3d.MinimumCubeWidth the cube hides first and the title takes the row. Every other plate stays inside its view.
+    // simplify: the cube's 8 px inset and 68 px box are the mockup's (View3d keeps them private); read them from View3d
+    // if the cube's size ever changes.
+    private const double CubeRowReserve = 8 + 68;
+
+    private void FitLabels()
+    {
+        foreach (var (label, view) in Labels())
+        {
+            if (label.Parent is not Control slot || slot.Bounds.Width <= 0) continue;
+            double inset = label.Margin.Left;
+            double right = view == SingleView.ThreeD && ThreeDView.CubeVisible ? CubeRowReserve + inset : inset;
+            label.MaxWidth = Math.Max(label.MinWidth, slot.Bounds.Width - inset - right);
+        }
+    }
+
+    // ---------------- the navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection) ----------------
+    // Each control is a CommandTable row run through the shell's view-command runner, the path the View menu takes
+    // (NativeMenuBuilder → ShellHost.RunCommand); its radio state, enablement and reason come from ViewCommands, as the
+    // menu's do. No second implementation of any view verb lives here.
+
+    private const string FitId = "view.fit", FitSelectionId = "view.fit-selection";
+
+    private IEnumerable<(Button Button, string Menu)> NavMenus() =>
+        [(NavViewsButton, ViewCommands.ViewsMenu), (NavDisplayButton, ViewCommands.DisplayMenu)];
+
+    private static IEnumerable<MenuItem> NavItems(Button button) => ((MenuFlyout)button.Flyout!).Items.OfType<MenuItem>();
+
+    private void WireNavbar()
+    {
+        foreach (var (button, menu) in NavMenus())
+        {
+            var items = ((MenuFlyout)button.Flyout!).Items;
+            foreach (var row in CommandTable.Rows.Where(row => row.Menu == menu))
+            {
+                var item = new MenuItem { Header = row.Title, Tag = row.Id, ToggleType = MenuItemToggleType.Radio, GroupName = menu };
+                item.Click += (_, _) => RunViewCommand(row.Id);
+                items.Add(item);
+            }
+        }
+        NavFitButton.Click += (_, _) => RunViewCommand(FitId);
+        NavFitSelectionButton.Click += (_, _) => RunViewCommand(FitSelectionId);
+    }
+
+    // The menu bar's call: the shell runs the row, or reports why it cannot in the strip.
+    private void RunViewCommand(string id)
+    {
+        if (this.FindAncestorOfType<ShellHost>() is { } host) _ = host.RunCommand(id);
+    }
+
+    private void RefreshNavbar(WorkbenchController controller)
+    {
+        foreach (var (button, menu) in NavMenus())
+        {
+            string? chosen = null;
+            foreach (var item in NavItems(button))
+            {
+                var id = (string)item.Tag!;
+                item.IsChecked = ViewCommands.IsChecked(id, controller) == true;
+                item.IsEnabled = ViewCommands.CanRun(id, controller);
+                if (item.IsChecked) chosen = (string?)item.Header;
+            }
+            button.Content = $"{menu} ▾ {chosen}";
+            Avalonia.Automation.AutomationProperties.SetName(button, $"{menu}: {chosen}");
+            ShowReason(button, ViewCommands.DisabledReason((string)NavItems(button).First().Tag!, controller));
+        }
+        ShowReason(NavFitButton, ViewCommands.DisabledReason(FitId, controller));
+        ShowReason(NavFitSelectionButton, ViewCommands.DisabledReason(FitSelectionId, controller));
+
+        // A control that cannot run is disabled and says why (UI-DEAD-CONTROL); the style shows the tip while disabled.
+        static void ShowReason(Button button, string? reason)
+        {
+            button.IsEnabled = reason is null;
+            ToolTip.SetTip(button, reason);
+            Avalonia.Automation.AutomationProperties.SetHelpText(button, reason);
+        }
     }
 
     /// <summary>"3D · Iso", "3D · Free · az 212° · el 24°", with "· wireframe" and the view's state suffixes.</summary>

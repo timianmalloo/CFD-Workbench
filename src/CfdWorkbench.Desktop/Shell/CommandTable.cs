@@ -309,7 +309,7 @@ public static class ViewCommands
     }
 
     /// <summary>The focused model view, else the target view, else (when the target is not shown) the view the layout shows first.</summary>
-    private static SingleView Target(WorkbenchController controller, SingleView? focused)
+    internal static SingleView Target(WorkbenchController controller, SingleView? focused)
     {
         var layout = controller.Layout;
         foreach (var candidate in new[] { focused, controller.TargetView })

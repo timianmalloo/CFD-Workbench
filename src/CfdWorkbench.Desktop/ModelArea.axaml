@@ -4,15 +4,7 @@
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              x:Class="CfdWorkbench.Desktop.ModelArea">
   <UserControl.Styles>
-    <!-- View labels (v10 .vlabel, ≥ 24 × 24) and overlay text sit on a viewport-soft plate, never on the surface. -->
-    <Style Selector="Button.viewLabel">
-      <Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" />
-      <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="HorizontalContentAlignment" Value="Left" />
-      <Setter Property="Padding" Value="{StaticResource Space2}" />
-      <Setter Property="CornerRadius" Value="0" />
-    </Style>
+    <!-- Overlay text sits on a viewport-soft plate, never on the surface; the view-label plates are styled in Styles.axaml. -->
     <Style Selector="TextBlock.viewOverlay">
       <Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" />
       <Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" />
@@ -59,15 +51,17 @@
       <panes:StartView x:Name="StartCardView" IsVisible="True" />
 
       <!-- The model-area arrangement (M1.2b2 §11.1): Plan + 3D (2* · 1*), Four views (Plan | 3D over Side | Front),
-           or One view. ModelArea.ApplyLayout places the slots; each slot is a label row over its view. -->
+           or One view. ModelArea.ApplyLayout places the slots; each slot is its view with the label plate over its top-left
+           (DR-VIEW-7). The navbar follows the views, over them at the bottom centre and after them in Tab order. -->
       <Border x:Name="PlanContent" IsVisible="False" Background="{DynamicResource CanvasBrush}">
+        <Panel>
         <Grid x:Name="ViewArrangementGrid" ColumnDefinitions="2*,1*" RowDefinitions="*,0"
               ColumnSpacing="{StaticResource ViewGutter}" RowSpacing="{StaticResource ViewGutter}">
           <Border x:Name="PlanFrame" Classes="viewFrame">
-            <Grid x:Name="PlanSlot" RowDefinitions="Auto,*">
-            <Button x:Name="PlanLabel" Grid.Row="0" Classes="viewLabel" Content="Plan"
+            <Grid x:Name="PlanSlot">
+            <Button x:Name="PlanLabel" Classes="viewLabel" Content="Plan"
                     AutomationProperties.Name="Plan view label. Double-click or Return shows this view alone." />
-            <local:PlanCanvas Grid.Row="1" x:Name="PlanCanvas" Focusable="True"
+            <local:PlanCanvas x:Name="PlanCanvas" Focusable="True"
                               BackgroundBrush="{DynamicResource ViewportBrush}"
                               FoilBrush="{DynamicResource PlanFoilBrush}"
                               SelectionBrush="{DynamicResource PlanSelectionBrush}"
@@ -76,7 +70,7 @@
                               DangerBrush="{DynamicResource PlanDangerBrush}"
                               WarningBrush="{DynamicResource PlanWarningBrush}"
                               SoftBrush="{DynamicResource PlanSoftBrush}" />
-            <Border Grid.Row="1" x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+            <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                     Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">
               <StackPanel Orientation="Horizontal" Spacing="8">
@@ -88,9 +82,9 @@
           </Border>
 
           <Border x:Name="ThreeDFrame" Classes="viewFrame" Grid.Column="1">
-            <Grid x:Name="ThreeDSlot" RowDefinitions="Auto,*">
-            <Button x:Name="ThreeDLabel" Grid.Row="0" Classes="viewLabel" Content="3D · Iso" />
-            <local:SurfaceRenderer Grid.Row="1" x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True" ShowGround="True"
+            <Grid x:Name="ThreeDSlot">
+            <Button x:Name="ThreeDLabel" Classes="viewLabel" Content="3D · Iso" />
+            <local:SurfaceRenderer x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True" ShowGround="True"
                                    GridBrush="{DynamicResource ViewportGridBrush}"
                                    BackgroundBrush="{DynamicResource ViewportBrush}"
                                    ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
@@ -100,18 +94,18 @@
                                    StationBrush="{DynamicResource PlanSelectionBrush}"
                                    MuteBrush="{DynamicResource PlanMuteBrush}" />
             <!-- V3D: navigation, the view cube (top-right), the axis triad (bottom-left) and the station chip, over the surface. -->
-            <local:View3d Grid.Row="1" x:Name="ThreeDView"
+            <local:View3d x:Name="ThreeDView"
                           SoftBrush="{DynamicResource PlanSoftBrush}" InkBrush="{DynamicResource ViewportInkBrush}"
                           MuteBrush="{DynamicResource PlanMuteBrush}" StationBrush="{DynamicResource PlanSelectionBrush}"
                           FocusBrush="{DynamicResource PlanFocusBrush}" ViewportBrush="{DynamicResource ViewportBrush}" />
-            <TextBlock Grid.Row="1" x:Name="ThreeDDrawing" Classes="viewOverlay" Text="Drawing…" IsVisible="False"
+            <TextBlock x:Name="ThreeDDrawing" Classes="viewOverlay" Text="Drawing…" IsVisible="False"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <StackPanel Grid.Row="1" x:Name="ThreeDCaptionStack" VerticalAlignment="Bottom" HorizontalAlignment="Left" Spacing="4">
+            <StackPanel x:Name="ThreeDCaptionStack" VerticalAlignment="Bottom" HorizontalAlignment="Left" Spacing="4">
               <TextBlock x:Name="ThreeDNote" Classes="viewOverlay" IsVisible="False" TextWrapping="Wrap" />
               <TextBlock x:Name="ThreeDCaption" Classes="viewOverlay" TextWrapping="Wrap"
                          Text="Display · x aft, y starboard, z up · twist about the leading edge" />
             </StackPanel>
-            <Border Grid.Row="1" x:Name="ThreeDRenderErrorBand" Classes="viewError" IsVisible="False">
+            <Border x:Name="ThreeDRenderErrorBand" Classes="viewError" IsVisible="False">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBlock x:Name="ThreeDRenderErrorText" VerticalAlignment="Center" TextWrapping="Wrap"
                            Text="3D view couldn't be drawn. Your foil hasn't changed." />
@@ -122,10 +116,10 @@
           </Border>
 
           <Border x:Name="SideFrame" Classes="viewFrame" Grid.Row="1" IsVisible="False">
-            <Grid x:Name="SideSlot" RowDefinitions="Auto,*">
-            <Button x:Name="SideLabel" Grid.Row="0" Classes="viewLabel" Content="Side · from starboard" />
+            <Grid x:Name="SideSlot">
+            <Button x:Name="SideLabel" Classes="viewLabel" Content="Side · from starboard" />
             <!-- ELV (§11.1): band (the mesh through the Side camera) over the twist lane; the view styles its band. -->
-            <local:ElevationView Grid.Row="1" x:Name="SideElevation" View="Side" ClipToBounds="True"
+            <local:ElevationView x:Name="SideElevation" View="Side" ClipToBounds="True"
                                  BackgroundBrush="{DynamicResource ViewportBrush}"
                                  FoilBrush="{DynamicResource PlanFoilBrush}"
                                  FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
@@ -139,7 +133,7 @@
                                  ShadeLitBrush="{DynamicResource FoilShadeLitBrush}">
               <local:SurfaceRenderer x:Name="SideRenderer" Pane="side" ClipToBounds="True" />
             </local:ElevationView>
-            <Border Grid.Row="1" x:Name="SideRenderErrorBand" Classes="viewError" IsVisible="False">
+            <Border x:Name="SideRenderErrorBand" Classes="viewError" IsVisible="False">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Side view couldn't be drawn. Your foil hasn't changed." />
                 <Button x:Name="SideRenderTryAgainButton" Content="Try again" />
@@ -149,10 +143,10 @@
           </Border>
 
           <Border x:Name="FrontFrame" Classes="viewFrame" Grid.Row="1" Grid.Column="1" IsVisible="False">
-            <Grid x:Name="FrontSlot" RowDefinitions="Auto,*">
-            <Button x:Name="FrontLabel" Grid.Row="0" Classes="viewLabel" Content="Front · looking aft" />
+            <Grid x:Name="FrontSlot">
+            <Button x:Name="FrontLabel" Classes="viewLabel" Content="Front · looking aft" />
             <!-- ELV (§11.1): band (the mesh through the Front camera, dihedral on the LE line) over the t/c lane. -->
-            <local:ElevationView Grid.Row="1" x:Name="FrontElevation" View="Front" ClipToBounds="True"
+            <local:ElevationView x:Name="FrontElevation" View="Front" ClipToBounds="True"
                                  BackgroundBrush="{DynamicResource ViewportBrush}"
                                  FoilBrush="{DynamicResource PlanFoilBrush}"
                                  FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
@@ -166,7 +160,7 @@
                                  ShadeLitBrush="{DynamicResource FoilShadeLitBrush}">
               <local:SurfaceRenderer x:Name="FrontRenderer" Pane="front" ClipToBounds="True" />
             </local:ElevationView>
-            <Border Grid.Row="1" x:Name="FrontRenderErrorBand" Classes="viewError" IsVisible="False">
+            <Border x:Name="FrontRenderErrorBand" Classes="viewError" IsVisible="False">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Front view couldn't be drawn. Your foil hasn't changed." />
                 <Button x:Name="FrontRenderTryAgainButton" Content="Try again" />
@@ -175,6 +169,27 @@
           </Grid>
           </Border>
         </Grid>
+
+        <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
+             through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
+        <Border x:Name="Navbar" Classes="navbar">
+          <StackPanel Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
+            <Button x:Name="NavViewsButton" Classes="navbar" Content="Views ▾ Plan + 3D">
+              <Button.Flyout>
+                <MenuFlyout Placement="TopEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu" />
+              </Button.Flyout>
+            </Button>
+            <Button x:Name="NavDisplayButton" Classes="navbar" Content="Display ▾ Shaded">
+              <Button.Flyout>
+                <MenuFlyout Placement="TopEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu" />
+              </Button.Flyout>
+            </Button>
+            <Border Classes="navbar-separator" />
+            <Button x:Name="NavFitButton" Classes="navbar" Content="Fit" />
+            <Button x:Name="NavFitSelectionButton" Classes="navbar" Content="Fit Selection" />
+          </StackPanel>
+        </Border>
+        </Panel>
       </Border>
 
       <!-- These three bodies move to Dock documents before the shell is shown. -->

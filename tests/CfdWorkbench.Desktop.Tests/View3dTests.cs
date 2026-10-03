@@ -755,7 +755,7 @@ public static class View3dTests
 
     /// <summary>
     /// The operator's captures at the mockup's 1280 × 800 (docs/mockups/m12b2-views.html screens 1 and 3a), at the
-    /// window's render scaling: Plan + 3D with the tip station selected, and One view 3D in Wireframe.
+    /// window's render scaling: Plan + 3D with the tip station selected, Four views (screen 2), and One view 3D in Wireframe.
     /// </summary>
     private static void CaptureProof(string directory)
     {
@@ -767,6 +767,12 @@ public static class View3dTests
         fixture.Controller.Select(new Selection.Station(tip, 1));
         fixture.Settle();
         Save(fixture, Path.Combine(directory, "plan-3d.png"));
+        fixture.Controller.Layout = ViewLayout.Four;
+        fixture.Settle();
+        Pump(() => fixture.Controller.CameraFor(SingleView.Side) is not null && fixture.Controller.CameraFor(SingleView.Front) is not null,
+            "the elevations' first fit");
+        foreach (var elevation in fixture.Area.GetVisualDescendants().OfType<ElevationView>()) elevation.InvalidateVisual();
+        Save(fixture, Path.Combine(directory, "four-views.png"));
         fixture.Controller.Layout = ViewLayout.One(SingleView.ThreeD);
         fixture.Controller.SetDisplay(SingleView.ThreeD, DisplayMode.Wireframe);
         fixture.Settle();
