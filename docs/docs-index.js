@@ -2201,7 +2201,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "055b00dcf8b786eb5ce9455205e373585181d17ed5266d38a96850b79e1b1fa2"
+      "sourceSha256": "0335f2842f8e35b4b2312fc24edb95efb2d70999c54b1124a21aed2fa5050e75"
     },
     {
       "id": "design-authoring-decisions",
@@ -9914,5 +9914,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a04ae4cff8783f762f115c8a2e230bfa1b5582b9083c739055d028eb5400b77b"
+  "graphSha256": "65953200dfe5f1aaf0fcb52c2a8054ef5ca5f58dd5227fb7a50ca0a5a4291395"
 };

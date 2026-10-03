@@ -219,7 +219,9 @@ const partsOf = s => [Math.abs(s.aEff - A_L0) > 10 ? '|α_eff − α_L0|' : '', 
 const outsideOf = run => run.strips.filter(s => partsOf(s).length).length;
 const envRowOf = run => { const n = outsideOf(run), m = run.strips.length; if (!n) return `Inside the method envelope (${BOUND}) at all ${m} strips`;
   const ex = [...new Set(run.strips.flatMap(partsOf))].join(', '); return `Outside the method envelope (${BOUND}) — ${n} of ${m} strips; exceeded: ${ex}`; };
-const stripEnvOf = s => { const parts = partsOf(s), vals = `|α_eff − α_L0| ${f(Math.abs(s.aEff - A_L0), 2)}° ≤ 10° · Cl_local ${f(s.cl, 3)} ≤ 1.0 · sweep ${f(SWEEP, 0)}° ≤ 30°`;
+const cmp = over => over ? '>' : '≤';   // an exceeded part prints ">" — never a false "≤"
+const stripEnvOf = s => { const parts = partsOf(s), a = Math.abs(s.aEff - A_L0),
+  vals = `|α_eff − α_L0| ${f(a, 2)}° ${cmp(a > 10)} 10° · Cl_local ${f(s.cl, 3)} ${cmp(Math.abs(s.cl) > 1.0)} 1.0 · sweep ${f(SWEEP, 0)}° ${cmp(SWEEP > 30)} 30°`;
   return parts.length ? `Outside the method envelope at this strip — exceeded: ${parts.join(', ')} (${vals})` : `Inside the method envelope at this strip (${vals})`; };
 const eNoteOf = run => run.e > 1 ? `e above 1 on a planar wing is a lattice effect at ${NS} × ${NC} (it converges from above); see DR-ANA-7` : '';
 const SEL = R.strips.reduce((a, s) => Math.abs(s.y - 0.3) < Math.abs(a.y - 0.3) ? s : a), ETA_SEL = SEL.y / HALF;

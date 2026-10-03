@@ -832,3 +832,23 @@ without tests). Revision 2 answered both (§5.4 envelope, FM-21; §13.5 matrix, 
 revision 2 and still blocked, narrowly (B-H1: the station readout had no verdict or omissions; B-T1: clauses traced only
 to story level), with majors M-H1, M-T1…M-T3. Revision 3 is repair cycle 2 of 2 and folds every one (mapping in the
 review file, "Rev 3 repairs"). Clearance is still for the lens, not the author.
+
+**Re-review of revision 3 (2026-10-03).** Hydrodynamicist: **PASS-WITH-CONDITIONS, veto cleared** (B-H1, M-H1 and
+every Minor verified, including a node run of the page's script). Test architect: **PASS-WITH-CONDITIONS, design-time
+block cleared** (B-T1, M-T1…M-T3, F-2, F-13 verified; the note's lattice script re-run and matched); the build-time
+veto stays open until red-first and the Proof Pack exist. The repair cap (2 cycles) is reached, so the remaining findings
+are **conditions on the build track (A3a)**, not a third design cycle:
+
+- **BC-1 [Major, test architect]:** about ten §13.5 tests name no mutant, against §13.1's own rule (:731, :734, :749,
+  :750, :751, :757 — the ANA-23 vectors row — and :760). The build writes one mutant per row before the code, and
+  check-named-tests runs it.
+- **BC-2 [Minor, test architect]:** F-2, F-5 and F-15 share F-6's solves, so a per-check COST (C-5) depends on test
+  order and F-2 is not exempt from the 0.5 s limit. Time the shared fixture once as F-6, or exempt the sharers by name.
+- **BC-3 [Flagged, test architect]:** F-2's band is ±0.5 % around one discretisation; a C# lattice with different
+  spacing may fall outside it. Confirm at red-first; a miss is a ruling, not a widened band.
+- **BC-4 [Nit, hydrodynamicist]:** Re_local uses the local chord c(y), never the global chord (the mockup's rectangular
+  Example hides the difference).
+- Fixed by the Coordinator in this revision: an exceeded envelope part printed "≤" ("Cl_local 1.003 ≤ 1.0"); the
+  strip verdict now prints ">" for an exceeded part (mockup `stripEnvOf`).
+- Residual (both lenses): DR-ANA-14 bounds are Inferred until the polar brackets land; timing is estimated until the C#
+  build measures it; Windows parity is untested.
