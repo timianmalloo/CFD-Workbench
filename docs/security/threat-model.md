@@ -14,6 +14,7 @@ links:
   - {to: design-m12b-points, rel: documents}
   - {to: design-m12b2-3d-elevations, rel: documents}
   - {to: design-m12c-section-editor, rel: documents}
+  - {to: design-planform-point-verbs, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Rolls up the offline application's file, command, rendering and telemetry threat analysis.
@@ -89,8 +90,13 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 | [design-m12c-section-editor](../design/m12c-section-editor.md) | Telemetry ring | I: profile names, point ids or positions leak | mitigate | step kind, counts, durations, codes only | `SectionTelemetry_Events_NoNamesIdsOrPositions` |
 | [design-m12c-section-editor](../design/m12c-section-editor.md) | History | R: an edit without attribution | accept | single local user; the receipt names the profile | — |
 | [design-m12c-section-editor](../design/m12c-section-editor.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | Native envelope → reopen | T: a forged `point-remove` / `curve-rebuild` receipt | mitigate | closed `rail` set; the new `EditReference` arms | `Receipt_ForgedPointVerbReceipts_DocReference` (PVC) |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | FoilDSL file → parser | T: a hand-made 4.0 file with 4 points; D: a 3-point channel | mitigate | the version-gated floor; `DSL-CURVE` | `Parse_Channel40FiveVertices_DslCurve` (PVC), `Parse_Channel41ThreeVertices_DslCurve` (PVC) |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | Telemetry ring | I: point ids or positions leak | mitigate | kind, counts, deviation, durations, codes only | `PointVerbEvents_NoIdsOrPositions` (PVC) |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | History | R: an edit without attribution | accept | single local user; the receipt names the curve and the point | — |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
 
-<!-- rolled up from 6 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
+<!-- rolled up from 7 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
 
 
 ## Accepted-risk register

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T16:56:11Z",
+  "generated": "2026-10-03T17:36:47Z",
   "audit": [
     {
       "actor": null,
@@ -22559,6 +22559,28 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T16:55:21Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M41DDZBDQ684YV75WKQS0YR7",
+      "shortname": "design-slice-planform-point-verbs",
+      "datetime": "2026-10-03T17:36:46Z",
+      "session": "planform-verbs",
+      "prompt": "Read your brief at scratchpad/briefs/planform-verbs.md and execute it exactly (Ruling 62: planform outline floor 4 at degree 3; Add point, Remove point, Rebuild to N; ADR-0001 Amendment 2; /design-slice; /ui-design mockup; DR-PV batch). Documents only.",
+      "summary": "Design docs/design/planform-point-verbs.md (one-shot point commands, three receipt kinds, Boehm Add, local knot-removal refit Remove, Rebuild 4-10 with knots following current spacing and seven previews at open; all five channels; 4.1-gated floor), ADR-0001 Amendment 2, mockup with six screens measured in-page (New foil TE 10->4: 8.97 mm at 467.5 mm; LE remove 0.26 mm), DR-PV-1..5 for the operator. Gate: Geometry PWC, Test Architect veto cleared, Marine-CAD PWC, Simplifier soft veto cleared; 1 repair cycle.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/planform-point-verbs.md",
+        "docs/adr/0001-master-curve-degree.md",
+        "docs/mockups/planform-point-verbs.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-10-03T17:00:20Z",
+      "duration_seconds": 2186.0
     }
   ],
   "changes": [
@@ -23300,6 +23322,29 @@ window.AUDIT_DATA = {
         "before": "4c65770",
         "after": "4c6577031bc40090073e6670a537800f36555d6c",
         "branch": "design/m12c-section-editor",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M41DE0BBTWYYP99KG925Y34E",
+      "datetime": "2026-10-03T17:36:47Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Planform outline point verbs and channel floor 4 under FoilDSL 4.1",
+      "prompt": "Ruling 62: floor 4 at degree 3; Add point, Remove point, Rebuild to N; design and mockup now",
+      "summary": "Three one-shot point commands with new receipt kinds point-add/point-remove/curve-rebuild; ADR-0001 Amendment 2 (4-16 under 4.1); DR-PV-1..5 open",
+      "rationale": "Operator needs 3-4 point outlines; Boehm insertion is exact, removal and rebuild are measured on the A4.5 oracle and reported; the 4.1 gate keeps 4.0 meaning one thing",
+      "artifacts": [
+        "docs/design/planform-point-verbs.md",
+        "docs/adr/0001-master-curve-degree.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
+        "after": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
+        "branch": "design/planform-point-verbs",
         "pushed": null,
         "commits": []
       }

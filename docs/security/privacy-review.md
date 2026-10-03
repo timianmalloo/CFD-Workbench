@@ -14,6 +14,7 @@ links:
   - {to: design-m12b-points, rel: documents}
   - {to: design-m12b2-3d-elevations, rel: documents}
   - {to: design-m12c-section-editor, rel: documents}
+  - {to: design-planform-point-verbs, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Captures identifying source comments, names, local paths and retained recovery/history for the offline slice.
@@ -70,8 +71,9 @@ retains that distinction.
 | [design-m12b-points](../design/m12b-points.md) | gesture and apply events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | view and gesture events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 | [design-m12c-section-editor](../design/m12c-section-editor.md) | section events (local ring) | D: disclosure through logs | mitigate | no profile names, ids or positions | in-memory ring of 256; gone at exit |
+| [design-planform-point-verbs](../design/planform-point-verbs.md) | point-verb events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 
-<!-- rolled up from 6 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
+<!-- rolled up from 7 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
 
 
 ## Rights, telemetry and transfers
