@@ -11,5 +11,6 @@ sed -i '' "s#^run_dir: PENDING\$#run_dir: $run#" "$yaml"
 grid=$(sed -n 's/^    path: \(n0012family.*\)$/\1/p' "$yaml")
 np=$(sed -n 's/.*n_subdomains: \([0-9]*\),.*/\1/p' "$yaml")
 uv run --quiet --with pyyaml --with numpy python3 "$here/make-tmr-case.py" "$yaml" "$run" "$grids/$grid"
-"$here/solve-tmr.sh" "$run" "$np"
+python3 "$here/launcher-record.py" init "$run"
+"$here/solve-tmr.sh" "$run" "$np" "$yaml"
 echo "run=$run"

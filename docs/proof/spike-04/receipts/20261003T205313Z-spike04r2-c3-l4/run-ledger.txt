@@ -1,0 +1,11 @@
+of-run: start 2026-10-03T20:53:25Z load1=5.98 lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=5.98 peak_rss_bytes=627998720 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-03T20:53:27Z load1=5.98 lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=1 load1=5.98 peak_rss_bytes=231047168 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-03T20:53:28Z load1=5.98 lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T205313Z-spike04r2-c3-l4
+of-run: end status=0 wall_s=3701 load1=8.20 peak_rss_bytes=194838528 banner=Disallowing cmd=mpirun -np 6 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T205313Z-spike04r2-c3-l4
+of-run: refused 2026-10-03T21:55:10Z case tree differs from the launcher record (see log.record-reconstructPar) cmd=96
+of-run: start 2026-10-03T21:55:24Z load1=7.32 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=7.06 peak_rss_bytes=598425600 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-03T21:55:27Z load1=7.06 record=verified lint=clean bundle=f3debe8b5541 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=1 load1=7.06 peak_rss_bytes=334495744 banner=Disallowing cmd=reconstructPar -latestTime

@@ -1,0 +1,8 @@
+of-run: start 2026-10-03T20:36:15Z load1=2.15 lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=2.15 peak_rss_bytes=82198528 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-03T20:36:16Z load1=2.15 lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=1 load1=2.15 peak_rss_bytes=66846720 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-03T20:36:17Z load1=2.15 lint=clean bundle=f3debe8b5541 cmd=mpirun -np 2 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T203614Z-spike04r2-c1-l6
+of-run: end status=0 wall_s=238 load1=2.97 peak_rss_bytes=193626112 banner=Disallowing cmd=mpirun -np 2 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T203614Z-spike04r2-c1-l6
+of-run: start 2026-10-03T20:40:18Z load1=2.89 lint=clean bundle=f3debe8b5541 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=1 load1=2.89 peak_rss_bytes=68485120 banner=Disallowing cmd=reconstructPar -latestTime

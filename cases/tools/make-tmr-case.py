@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write an OpenFOAM v2512 simpleFoam + Spalart-Allmaras case on a NASA TMR NACA 0012 C-grid (PLOT3D 2-D).
+"""Write an OpenFOAM v2512 simpleFoam or rhoSimpleFoam + Spalart-Allmaras case on a NASA TMR NACA 0012 C-grid (PLOT3D 2-D).
 
 Run: uv run --with pyyaml --with numpy python3 cases/tools/make-tmr-case.py cases/<name>.yaml <run-dir> <grid.p2dfmt.gz>
 The C-grid wake cut is detected from coincident j=0 points and merged into internal faces (no stitching step).
@@ -7,6 +7,7 @@ Every physics and numerics knob is read from the YAML. Prints the grid sha256, c
 """
 import gzip
 import hashlib
+import json
 import math
 import pathlib
 import sys
@@ -140,11 +141,15 @@ types = {"airfoil": "wall", "farfield": "patch", "frontAndBack": "empty"}
     f"    {n}\n    {{\n        type {types[n]};\n        nFaces {k};\n        startFace {s};\n    }}\n" for n, k, s in bounds) + ")\n")
 
 
-# ---- case dictionaries ----
+# ---- case dictionaries (round 2: no regex keywords, no '#' directives; every file listed in cfdw-manifest.json) ----
+written = []
+
+
 def write(rel, cls, obj, body):
     path = run / rel
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(f"FoamFile\n{{\n    version 2.0;\n    format ascii;\n    class {cls};\n    object {obj};\n}}\n\n" + body)
+    written.append(rel)
 
 
 def vec(v):
@@ -152,33 +157,83 @@ def vec(v):
 
 
 ph, nm, d = case["physics"], case["numerics"], case["decomposition"]
-U = float(ph["freestream"]["U_m_s"])
-nu = float(ph["fluid"]["nu_m2_s"])
+app = ph["application"]
+compressible = app == "rhoSimpleFoam"
 alpha = math.radians(float(case["conditions"]["alpha"]))
-Uvec = (U * math.cos(alpha), U * math.sin(alpha), 0.0)
 nut_ratio = float(ph["freestream"]["nuTilda_over_nu"])
+if compressible:
+    # TMR 2DN00: M 0.15, Re_c 6e6, T 300 K, Sutherland's law, adiabatic wall. p_inf is chosen so rho_inf gives Re_c.
+    gas = ph["fluid"]
+    R = 8314.462618 / float(gas["mol_weight"])
+    gamma = float(gas["Cp"]) / (float(gas["Cp"]) - R)
+    T_inf = float(ph["freestream"]["T_K"])
+    a_inf = math.sqrt(gamma * R * T_inf)
+    U = float(case["conditions"]["mach"]) * a_inf
+    mu_inf = float(gas["As"]) * T_inf ** 1.5 / (T_inf + float(gas["Ts"]))
+    rho_inf = float(case["conditions"]["reynolds"]) * mu_inf / (U * float(case["conditions"]["reference_length_m"]))
+    p_inf = rho_inf * R * T_inf
+    nu = mu_inf / rho_inf
+else:
+    U = float(ph["freestream"]["U_m_s"])
+    nu = float(ph["fluid"]["nu_m2_s"])
+Uvec = (U * math.cos(alpha), U * math.sin(alpha), 0.0)
 nuTilda = nut_ratio * nu
 chi3 = nut_ratio ** 3
 nut = nuTilda * chi3 / (chi3 + 7.1 ** 3)
-write("constant/transportProperties", "dictionary", "transportProperties", f"transportModel Newtonian;\nnu {nu:.12g};\n")
+if compressible:
+    write("constant/thermophysicalProperties", "dictionary", "thermophysicalProperties", f"""thermoType
+{{
+    type hePsiThermo;
+    mixture pureMixture;
+    transport sutherland;
+    thermo hConst;
+    equationOfState perfectGas;
+    specie specie;
+    energy sensibleInternalEnergy;
+}}
+mixture
+{{
+    specie {{ molWeight {gas['mol_weight']}; }}
+    thermodynamics {{ Cp {gas['Cp']}; Hf 0; }}
+    transport {{ As {gas['As']}; Ts {gas['Ts']}; Pr {gas['Pr']}; }}
+}}
+""")
+else:
+    write("constant/transportProperties", "dictionary", "transportProperties", f"transportModel Newtonian;\nnu {nu:.12g};\n")
 write("constant/turbulenceProperties", "dictionary", "turbulenceProperties",
       f"simulationType RAS;\nRAS {{ RASModel {ph['turbulence_model']}; turbulence on; printCoeffs on; }}\n")
-fields = {
-    "U": ("volVectorField", "[0 1 -1 0 0 0 0]", f"uniform {vec(Uvec)}",
-          f"farfield {{ type freestreamVelocity; freestreamValue uniform {vec(Uvec)}; value uniform {vec(Uvec)}; }}\n    airfoil {{ type noSlip; }}"),
-    "p": ("volScalarField", "[0 2 -2 0 0 0 0]", "uniform 0",
-          "farfield { type freestreamPressure; freestreamValue uniform 0; value uniform 0; }\n    airfoil { type zeroGradient; }"),
-    "nuTilda": ("volScalarField", "[0 2 -1 0 0 0 0]", f"uniform {nuTilda:.12g}",
-                f"farfield {{ type inletOutlet; inletValue uniform {nuTilda:.12g}; value uniform {nuTilda:.12g}; }}\n    airfoil {{ type fixedValue; value uniform 0; }}"),
-    "nut": ("volScalarField", "[0 2 -1 0 0 0 0]", f"uniform {nut:.12g}",
-            f"farfield {{ type calculated; value uniform {nut:.12g}; }}\n    airfoil {{ type fixedValue; value uniform 0; }}"),
-}
+if compressible:
+    fields = {
+        "U": ("volVectorField", "[0 1 -1 0 0 0 0]", f"uniform {vec(Uvec)}",
+              f"farfield {{ type freestreamVelocity; freestreamValue uniform {vec(Uvec)}; value uniform {vec(Uvec)}; }}\n    airfoil {{ type noSlip; }}"),
+        "p": ("volScalarField", "[1 -1 -2 0 0 0 0]", f"uniform {p_inf:.12g}",
+              f"farfield {{ type freestreamPressure; freestreamValue uniform {p_inf:.12g}; value uniform {p_inf:.12g}; }}\n    airfoil {{ type zeroGradient; }}"),
+        "T": ("volScalarField", "[0 0 0 1 0 0 0]", f"uniform {T_inf:.12g}",
+              f"farfield {{ type inletOutlet; inletValue uniform {T_inf:.12g}; value uniform {T_inf:.12g}; }}\n    airfoil {{ type zeroGradient; }}"),
+        "alphat": ("volScalarField", "[1 -1 -1 0 0 0 0]", "uniform 0",
+                   "farfield { type calculated; value uniform 0; }\n    airfoil { type calculated; value uniform 0; }"),
+    }
+else:
+    fields = {
+        "U": ("volVectorField", "[0 1 -1 0 0 0 0]", f"uniform {vec(Uvec)}",
+              f"farfield {{ type freestreamVelocity; freestreamValue uniform {vec(Uvec)}; value uniform {vec(Uvec)}; }}\n    airfoil {{ type noSlip; }}"),
+        "p": ("volScalarField", "[0 2 -2 0 0 0 0]", "uniform 0",
+              "farfield { type freestreamPressure; freestreamValue uniform 0; value uniform 0; }\n    airfoil { type zeroGradient; }"),
+    }
+fields["nuTilda"] = ("volScalarField", "[0 2 -1 0 0 0 0]", f"uniform {nuTilda:.12g}",
+                     f"farfield {{ type inletOutlet; inletValue uniform {nuTilda:.12g}; value uniform {nuTilda:.12g}; }}\n    airfoil {{ type fixedValue; value uniform 0; }}")
+fields["nut"] = ("volScalarField", "[0 2 -1 0 0 0 0]", f"uniform {nut:.12g}",
+                 f"farfield {{ type calculated; value uniform {nut:.12g}; }}\n    airfoil {{ type fixedValue; value uniform 0; }}")
 for name, (cls, dims, internal_value, pbc) in fields.items():
     write(f"0/{name}", cls, name, f"dimensions {dims};\ninternalField {internal_value};\nboundaryField\n{{\n    frontAndBack {{ type empty; }}\n    {pbc}\n}}\n")
 lift = (-math.sin(alpha), math.cos(alpha), 0.0)
 drag = (math.cos(alpha), math.sin(alpha), 0.0)
-rc = nm["residual_floor"]
-write("system/controlDict", "dictionary", "controlDict", f"""application simpleFoam;
+rho_entry = f"rho rho; rhoInf {rho_inf:.12g}; pRef {p_inf:.12g};" if compressible else "rho rhoInf; rhoInf 1;"
+eqs = "U p e nuTilda" if compressible else "U p nuTilda"
+# A4 stop: the harvester (cases/tools/a4-monitor.py) sends SIGUSR1 (30); the bundled global controlDict sets
+# OptimisationSwitches stopAtWriteNowSignal 30, so the run writes and stops. runTimeModifiable stays false, so no
+# case file is re-read after the lint.
+write("system/controlDict", "dictionary", "controlDict", f"""application {app};
 startFrom startTime;
 startTime 0;
 stopAt endTime;
@@ -198,11 +253,11 @@ functions
     forceCoeffs1
     {{
         type forceCoeffs; libs (forces); writeControl timeStep; writeInterval 1; log no;
-        patches (airfoil); rho rhoInf; rhoInf 1;
+        patches (airfoil); {rho_entry}
         liftDir {vec(lift)}; dragDir {vec(drag)}; CofR (0.25 0 0); pitchAxis (0 0 -1);
-        magUInf {U}; lRef 1; Aref {dz};
+        magUInf {U:.12g}; lRef 1; Aref {dz};
     }}
-    solverInfo1 {{ type solverInfo; libs (utilityFunctionObjects); fields (U p nuTilda); writeResidualFields {'yes' if nm.get('write_residual_fields') else 'no'}; }}
+    solverInfo1 {{ type solverInfo; libs (utilityFunctionObjects); fields ({eqs}); writeResidualFields {'yes' if nm.get('write_residual_fields') else 'no'}; }}
     yPlus1 {{ type yPlus; libs (fieldFunctionObjects); writeControl writeTime; }}
     wallP
     {{
@@ -211,36 +266,52 @@ functions
     }}
 }}
 """)
+sc = nm["schemes"]
+if compressible:
+    div = f"""    div(phi,U) {sc['div_U']};
+    div(phi,e) {sc['div_e']};
+    div(phi,K) {sc['div_e']};
+    div(phi,Ekp) {sc['div_e']};
+    div(phi,nuTilda) {sc['div_nuTilda']};
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;"""
+else:
+    div = f"""    div(phi,U) {sc['div_U']};
+    div(phi,nuTilda) {sc['div_nuTilda']};
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;"""
 write("system/fvSchemes", "dictionary", "fvSchemes", f"""ddtSchemes {{ default steadyState; }}
-gradSchemes {{ default {nm['schemes']['grad']}; }}
+gradSchemes {{ default {sc['grad']}; }}
 divSchemes
 {{
     default none;
-    div(phi,U) {nm['schemes']['div_U']};
-    div(phi,nuTilda) {nm['schemes']['div_nuTilda']};
-    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+{div}
 }}
-laplacianSchemes {{ default {nm['schemes']['laplacian']}; }}
+laplacianSchemes {{ default {sc['laplacian']}; }}
 interpolationSchemes {{ default linear; }}
-snGradSchemes {{ default {nm['schemes']['snGrad']}; }}
+snGradSchemes {{ default {sc['snGrad']}; }}
 wallDist {{ method meshWave; correctWalls true; }}
 """)
 rel = nm["relaxation"]
+smooth = "solver smoothSolver; smoother symGaussSeidel; tolerance 1e-14; relTol 0.1; nSweeps 1;"
+eq_solvers = "\n".join(f"    {f} {{ {smooth} }}" for f in (("U", "e", "nuTilda") if compressible else ("U", "nuTilda")))
+extra_simple = f"\n    pMinFactor {nm['pMinFactor']};\n    pMaxFactor {nm['pMaxFactor']};" if compressible else ""
+eq_relax = " ".join(f"{f} {rel[f]};" for f in (("U", "e", "nuTilda") if compressible else ("U", "nuTilda")))
+field_relax = f"p {rel['p']}; rho {rel['rho']};" if compressible else f"p {rel['p']};"
 write("system/fvSolution", "dictionary", "fvSolution", f"""solvers
 {{
     p {{ solver GAMG; smoother GaussSeidel; tolerance 1e-14; relTol 0.05; }}
-    "(U|nuTilda)" {{ solver smoothSolver; smoother symGaussSeidel; tolerance 1e-14; relTol 0.1; nSweeps 1; }}
+{eq_solvers}
 }}
 SIMPLE
 {{
     nNonOrthogonalCorrectors 0;
-    consistent {nm['consistent']};
-    residualControl {{ p {rc}; U {rc}; nuTilda {rc}; }}
+    consistent {nm['consistent']};{extra_simple}
 }}
-relaxationFactors {{ equations {{ U {rel['U']}; nuTilda {rel['nuTilda']}; }} fields {{ p {rel['p']}; }} }}
+relaxationFactors {{ equations {{ {eq_relax} }} fields {{ {field_relax} }} }}
 """)
 write("system/decomposeParDict", "dictionary", "decomposeParDict", f"numberOfSubdomains {d['n_subdomains']};\nmethod {d['method']};\n")
+(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written + ["constant/polyMesh/boundary"]}, indent=1) + "\n")
 print(f"grid={grid.name} sha256={digest} dims={ni}x{nj} te_lower_i={ite} te_upper_i={iteu} airfoil_points={iteu - ite + 1}")
 print(f"points={len(points)} cells={nci * ncj} faces={len(faces)} internal={len(internal)} airfoil_faces={bounds[0][1]} farfield_faces={bounds[1][1]}")
 print(f"first_wall_spacing_min={np.min(np.hypot(X[ite:iteu + 1, 1] - X[ite:iteu + 1, 0], Y[ite:iteu + 1, 1] - Y[ite:iteu + 1, 0])):.3e}")
-print(f"freestream U={vec(Uvec)} nuTilda={nuTilda:.6g} nut={nut:.6g}")
+print(f"freestream U={vec(Uvec)} nu={nu:.6g} nuTilda={nuTilda:.6g} nut={nut:.6g}" +
+      (f" T={T_inf} p={p_inf:.6g} rho={rho_inf:.6g} mu={mu_inf:.6g} a={a_inf:.6g} gamma={gamma:.6g}" if compressible else ""))

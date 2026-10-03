@@ -1,0 +1,137 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Oct 03 2026
+Time   : 14:55:34
+Host   : <HOST>
+PID    : 59845
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T215528Z-spike04r2-c4-l5-comp
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [6] (region region0)
+
+Finished decomposition in 0.62 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 0
+    Number of cells = 9646
+    Number of points = 19754
+    Number of faces shared with processor 1 = 88
+    Number of faces shared with processor 2 = 77
+    Number of faces shared with processor 3 = 85
+    Number of faces shared with processor 5 = 66
+    Number of processor patches = 4
+    Number of processor faces = 316
+    Number of boundary faces = 19436
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 1
+    Number of cells = 9524
+    Number of points = 19508
+    Number of faces shared with processor 0 = 88
+    Number of faces shared with processor 2 = 143
+    Number of faces shared with processor 3 = 9
+    Number of faces shared with processor 4 = 90
+    Number of processor patches = 4
+    Number of processor faces = 330
+    Number of boundary faces = 19176
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 2
+    Number of cells = 9557
+    Number of points = 19546
+    Number of faces shared with processor 0 = 77
+    Number of faces shared with processor 1 = 143
+    Number of processor patches = 2
+    Number of processor faces = 220
+    Number of boundary faces = 19324
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 3
+    Number of cells = 9469
+    Number of points = 19372
+    Number of faces shared with processor 0 = 85
+    Number of faces shared with processor 1 = 9
+    Number of faces shared with processor 4 = 66
+    Number of faces shared with processor 5 = 146
+    Number of processor patches = 4
+    Number of processor faces = 306
+    Number of boundary faces = 19064
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 4
+    Number of cells = 9652
+    Number of points = 19760
+    Number of faces shared with processor 1 = 90
+    Number of faces shared with processor 3 = 66
+    Number of faces shared with processor 5 = 109
+    Number of processor patches = 3
+    Number of processor faces = 265
+    Number of boundary faces = 19493
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 5
+    Number of cells = 9496
+    Number of points = 19478
+    Number of faces shared with processor 0 = 66
+    Number of faces shared with processor 3 = 146
+    Number of faces shared with processor 4 = 109
+    Number of processor patches = 3
+    Number of processor faces = 321
+    Number of boundary faces = 19155
+
+Number of processor faces = 879
+Max number of cells = 9652 (0.990513392857% above average 9557.33333333)
+Max number of processor patches = 4 (20% above average 3.33333333333)
+Max number of faces between processors = 330 (12.6279863481% above average 293)
+
+Time = 0
+
+Processor 0: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 1: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 2: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 3: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 4: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 5: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+End
+

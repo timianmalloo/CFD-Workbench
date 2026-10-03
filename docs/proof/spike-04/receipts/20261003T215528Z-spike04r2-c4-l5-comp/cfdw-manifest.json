@@ -1,0 +1,15 @@
+{
+ "constant/thermophysicalProperties": "e4a7b9bb2f136409250530862a088f321a8da8175d7a55b2d72b00b49ab4e431",
+ "constant/turbulenceProperties": "02e4998d37cfb8ac1db64ae3ddfb1ec4aa456ded6074b6128b152e6e45443f12",
+ "0/U": "3b901a217d03d777cc9f1d3a2f3ab6b9fe3cfc8926447026645224d9516a35c4",
+ "0/p": "04a0c9c68f7cf4d119063cd624e3a2ba2af92f76be828a17e9112ba2a4b5e870",
+ "0/T": "ddadb8273b1e9acd9cd488a189c4667bdeafa21acdacec2b3be30874412c5a92",
+ "0/alphat": "1fc5706ead262169af14fa164438e3baa255b5579e39943c1ae9bb711678453a",
+ "0/nuTilda": "e639451f1189a467d5037a1f83ebc3e96e23175dd12300de3a566af633d07242",
+ "0/nut": "db2a133df65e765ff6000dc920e2fee50eced8b83421998f04ce4e3735086965",
+ "system/controlDict": "4a2c53f54b6eddeffbff3d0984303f3198b4f5fc9be5c1a403a6408e574e4ab4",
+ "system/fvSchemes": "158e19a576c5dedb4d3d84fac474eb502920315ef86561536b972c02f78145ce",
+ "system/fvSolution": "63b729c2a82dbe0fe7fb9fdb4d3f161c008ae71ee1fa1170891f93e52e7db6d9",
+ "system/decomposeParDict": "c49fd7a6fab26230831b2a9838b9f93ef41f7cd31727c36f93f691a8ffab8d9d",
+ "constant/polyMesh/boundary": "0562831d0adf0b0e085a5bb411eba19ba4e0129fd93be99d89c705d2c70cc8b5"
+}
