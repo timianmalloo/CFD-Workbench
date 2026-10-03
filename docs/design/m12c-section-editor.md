@@ -443,7 +443,7 @@ ADR-0005 §6 words it:
 - the other surface gets the same knots (exact);
 - Anchor → Control refits the other surface on the affected segment only, refuses above 10 µm at the station's local
   chord, and reports the number;
-- when a profile is shared by stations with different chords, the **smallest** local chord sets the limit;
+- when a profile is shared by stations with different chords, the **largest** local chord sets the limit (the refit is on the chord-normalised profile, so its deviation in mm is the normalised deviation × chord; corrected 2026-10-03 from "smallest", found by the paired-mockup track);
 - x moves stay paired.
 
 ### 3.5 The B6 restart — certifying per-surface bases (spike GSPK first)
@@ -1082,7 +1082,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 
 **SPTF — paired operations (written only on a no-go, OD-4).**
 `SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact` (SPTF) · `SectionEdits_PairedXMove_BothSurfacesSameAbscissa` (SPTF) ·
-`SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um` (SPTF) · `SectionEdits_PairedRefitSharedProfile_SmallestChordSetsLimit` (SPTF) ·
+`SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um` (SPTF) · `SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit` (SPTF) ·
 `SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold` (SPTF).
 
 **SDR — the section draft in Core** (fixtures are shared-basis until GCRT merges).

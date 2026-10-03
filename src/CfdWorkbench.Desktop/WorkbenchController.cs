@@ -1735,8 +1735,8 @@ public sealed class WorkbenchController : IDisposable
         foreach (double eta in new[] { 0d, interiorEta, 1d })
             foreach (var sample in new (double X, bool Upper)[] { (0, true), (.5, true), (1, true), (.5, false), (1, false) })
                 points.Add(new(eta, sample.X, sample.Upper,
-                    Geometry.PointAt(certificate, eta, sample.X, sample.Upper, timeBudget: TimeSpan.FromSeconds(1), cancellationToken: cancellation)));
-        var section = Geometry.SectionAt(certificate, interiorEta, .5, TimeSpan.FromSeconds(1), cancellation);
+                    Geometry.PointAt(certificate, eta, sample.X, sample.Upper, cancellationToken: cancellation)));
+        var section = Geometry.SectionAt(certificate, interiorEta, .5, cancellationToken: cancellation);
         return new(points.AsReadOnly(), section, interiorEta, watch.Elapsed.TotalMilliseconds, sourceHash, provenance);
     }
 

@@ -654,11 +654,11 @@ internal static class PlacementTests
         var certificate = Geometry.Assess(parsed).Certificate ?? throw new InvalidOperationException("example did not certify");
         (string Kind, string Code, string Status, string Reason) actual = name switch
         {
-            "point-budget" => Caught(() => Geometry.PointAt(certificate, .5, .5, true, timeBudget: TimeSpan.Zero)),
-            "section-budget" => Caught(() => Geometry.SectionAt(certificate, .5, .5, TimeSpan.Zero)),
+            "point-budget" => Caught(() => Geometry.PointAt(certificate, .5, .5, true, false, new ProofBudget(0))),
+            "section-budget" => Caught(() => Geometry.SectionAt(certificate, .5, .5, new ProofBudget(0))),
             "point-cancel" => Caught(() => Geometry.PointAt(certificate, .5, .5, true, cancellationToken: new CancellationToken(true))),
             "section-cancel" => Caught(() => Geometry.SectionAt(certificate, .5, .5, cancellationToken: new CancellationToken(true))),
-            "assess-budget" => Assessed(example, TimeSpan.Zero),
+            "assess-budget" => Assessed(example, new ProofBudget(0)),
             "taylor-domain" => Assessed(example.Replace("(1, -2)", "(1, -90)", StringComparison.Ordinal), null),
             "ten-nanometre-budget" => Assessed(Trailing(example), null),
             _ => throw new InvalidOperationException("Unknown refusal " + name),
@@ -676,11 +676,11 @@ internal static class PlacementTests
         throw new InvalidOperationException("Expected a contract refusal.");
     }
 
-    private static (string Kind, string Code, string Status, string Reason) Assessed(string text, TimeSpan? budget)
+    private static (string Kind, string Code, string Status, string Reason) Assessed(string text, ProofBudget? budget)
     {
         var parsed = Prepare(text);
         if (!parsed.IsParsed) return ("parse", parsed.Diagnostics[0].Code, "", parsed.Diagnostics[0].Reason);
-        var assessment = Geometry.Assess(parsed, budget);
+        var assessment = budget is not null ? Geometry.Assess(parsed, budget) : Geometry.Assess(parsed);
         return ("assess", assessment.Code, assessment.Status.ToString(), assessment.Reason);
     }
 

@@ -1478,6 +1478,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "e403ec1fa6749f66600021007d59dfa7500598d7dc70f5fca239831f1c7dc0dd"
     },
     {
+      "id": "note-area3-analysis-reading-contract",
+      "path": "docs/notes/area3-analysis-reading-contract.md",
+      "title": "Analysis reads the accepted revision through the snapshot and one Core read, never ProfileAt",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-03",
+      "reviewSuggested": [],
+      "summary": "Analysis takes the accepted bytes, AcceptedId and SurfaceHash from AuthoringSession.Snapshot(), never ProfileAt (which may return a profile draft), and takes every lattice coordinate from one new Core read, Placement.Sections, built on the existing internal placement rule — so analysis can neither draw over a preview nor disagree with the drawn foil.",
+      "tags": [
+        "analysis",
+        "reading-contract",
+        "placement",
+        "draft-safety",
+        "area-3"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6e65584b4d2ee7e013c1610b5499eea56e60c8930c8c4f81ed3a551f97bdebab"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -2026,6 +2061,107 @@ window.DOCS_INDEX = {
       "sourceSha256": "e696a409baf1ced3600e971e5dab68c598d0a629e710d66c5dc4d305883638e2"
     },
     {
+      "id": "design-area3-analysis",
+      "path": "docs/design/area3-analysis.md",
+      "title": "Design: Area 3 — Analysis (local tiers): the section (2D) tier, the VLM + strip (3D) tier, the Run manifest and the CAD ↔ Analysis toggle",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — Area 3 (Ruling 60, lane F2; documents only; architecture increment M3)",
+      "reviewBy": "2027-04-03",
+      "reviewSuggested": [],
+      "summary": "Detailed design of spec Area 3: Design revision + Operating point → Analysis run on the local tiers. The data model comes first: the Analysis run is an immutable fact (one evaluation of one Surface revision at one Operating point by one method version under one settings hash), Strip loads are its child facts, wing totals, Trefftz quantities and freshness are derived. Analysis reads the accepted revision by identity through the session snapshot and one new Core read built on the placement rule, never a draft. The estimator and VLM + strip tiers are own code in process; the polar tier is DR-ANA-1. Includes the fixture suite with mutants, rings and costs, a story-to-test matrix, the toggle contract, telemetry and fourteen decision requests.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "strip-theory",
+        "polar",
+        "estimator",
+        "run-manifest",
+        "run-key",
+        "freshness",
+        "loads",
+        "cavitation",
+        "depth",
+        "data-model",
+        "area-3",
+        "m3",
+        "fluids-f2"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "decision-freshness-by-run-key",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-application-stack",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-low-order-hydrodynamics",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "decision-seven-areas",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-m12b2-views",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "note-area3-analysis-reading-contract",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-area3-analysis-personas",
+          "rel": "tested-by"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c00b20053261d86a14884f0b602d101d9a699c3369ad8e314ba4eafc9f8d41f4"
+    },
+    {
       "id": "design-authoring-decisions",
       "path": "docs/design/authoring-decisions.md",
       "title": "Section authoring and design-decision interaction direction",
@@ -2476,7 +2612,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "41df1d4fe617cba6e0e53011a08ac5f31830621a02e2a4a38296db8e586f815d"
+      "sourceSha256": "9e74a5f9cb3f00ba5d4fd1ba6b4ded4f3093896b4478b7a497525911f42c1e05"
     },
     {
       "id": "design-section-editor",
@@ -2638,6 +2774,53 @@ window.DOCS_INDEX = {
       "sourceSha256": "b834c7381e6b2ed57ee0f816caa417d98f3f753d69af48a832a2eb92bfaba945"
     },
     {
+      "id": "mockup-area3-analysis",
+      "path": "docs/mockups/area3-analysis.md",
+      "title": "Area 3 analysis — the Analysis surface (local tiers) in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Eight screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the wing result Current with loading drawn on the geometry, a station selected with the Loads tab, Historical after a CAD edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval before any build.",
+      "tags": [
+        "mockup",
+        "area-3",
+        "analysis",
+        "vlm",
+        "loads",
+        "conditions-band",
+        "toggle",
+        "hard-states",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-m12b2-views",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "41900e59c7a8d4a74f553bb03e78c0ad2135cc096f3142814d8e55723d3e4795"
+    },
+    {
       "id": "mockup-m12b2-views",
       "path": "docs/mockups/m12b2-views.md",
       "title": "M1.2b2 views — the 3D view and the Front and Side elevations in today's shell",
@@ -2693,12 +2876,13 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "The operator asked to edit sections (2026-10-03). This page draws three screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with upper point 4 made an anchor on the upper surface only (comb, pointer probe, readouts); and a Finish blocked by crossing surfaces. It then shows the four open decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
+      "summary": "The operator asked to edit sections (2026-10-03). This page draws five screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with point 4 made an anchor on both surfaces (paired point types, Ruling 60; comb, pointer probe, readouts, the pairing cue); a paired x move; a paired Anchor → Control refused over 10 µm; and a Finish blocked by crossing surfaces. It then shows the four decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
       "tags": [
         "mockup",
         "m12c",
         "section-editor",
         "point-types",
+        "paired",
         "points-pane",
         "messages",
         "operator-show"
@@ -2727,10 +2911,18 @@ window.DOCS_INDEX = {
         {
           "to": "note-m12c-rulings",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-m12c-paired",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68eba2bf644ab09e2878d1353b5f18f8687a638a5162dfa99dd982c3256f9282"
+      "sourceSha256": "2d01610ad2fde60524ce1184f215ebb87428bb211a731e2483d65585616273b7"
     },
     {
       "id": "mockup-property-grid",
@@ -4220,6 +4412,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
     },
     {
+      "id": "review-area3-analysis-personas",
+      "path": "docs/reviews/area3-analysis-personas.md",
+      "title": "Area 3 analysis design — five lenses in Adversary Mode, and the folds",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design-slice",
+      "reviewBy": "2027-04-03",
+      "reviewSuggested": [],
+      "summary": "Gate record for design-area3-analysis revision 1. Hydrodynamicist and Test Architect blocked (VLM result without its method envelope; story clauses without tests); CFD verification, computational geometry and data persistence approved with changes. Every finding is folded into revision 2 or carried as a DR-ANA item; the mockup's UX and accessibility review is recorded at the end.",
+      "tags": [
+        "review",
+        "area-3",
+        "analysis",
+        "personas",
+        "gate",
+        "vlm",
+        "data-model",
+        "test-plan"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c75743a7bdcbe94014c470eb9ced420869cfa739363547bfea250041252cd5aa"
+    },
+    {
       "id": "review-authoring-v7-gaps",
       "path": "docs/reviews/authoring-v7-gaps.md",
       "title": "Remaining specification and UX decisions after v7",
@@ -4510,6 +4740,55 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2b8da62f2a38a7cd01584a657c60babad502999f9e1db69f28d96fa11a297c23"
+    },
+    {
+      "id": "review-ui-m12c-paired",
+      "path": "docs/reviews/ui-m12c-paired.md",
+      "title": "M1.2c section editor — paired point types, before/after against the approved mockup",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 60 ships paired section point types (the certificate spike was a no-go). This note lists every visible change to the approved M1.2c mockup so the operator can decide: the pairing cue on canvas, Points pane and Properties; one Type and Kind control for both surfaces; a new paired x-move screen; a new refused Anchor → Control screen with the measured 0.0185 mm against the 0.010 mm limit; and four proposed COPY rows. Two findings go to the design owner.",
+      "tags": [
+        "ui-review",
+        "m12c",
+        "section-editor",
+        "point-types",
+        "paired",
+        "sptf",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9b54214270823b4370fb73efecded0ed62d94facc547fd07d824a43c0c0d4e13"
     },
     {
       "id": "review-ui-property-grid",
@@ -5083,7 +5362,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f0a037f435cf1cb8230ec802395e1cc677827bb1f18a811b686c80e72aaa1246"
+      "sourceSha256": "59b8cc44e8547a0fac5897b2aef1ec8e142dd1597e4afc269ac31e2cbe96439a"
     },
     {
       "id": "kb-hw-glossary",
@@ -9460,6 +9739,14 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-mockups-area3-analysis",
+      "path": "docs/mockups/area3-analysis.html",
+      "title": "Area 3 analysis",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-area3-analysis"
+    },
+    {
       "id": "surface-mockups-workbench-v8",
       "path": "docs/mockups/workbench-v8.html",
       "title": "CFD Workbench — CAD-first direction (v8 r2)",
@@ -9643,5 +9930,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "161c89a7b46e2451ebf13c4493c723e38bf9604992f9486114890d9210caf650"
+  "graphSha256": "edf9c1add47f0b7124e3b9a3177d2b136b418cbe155dba73934213b65bed4236"
 };
