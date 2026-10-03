@@ -99,7 +99,7 @@ DR-STATUS-1 V2). The new 2 px row rails in the Points pane are not flagged.
 
 ## Findings for the design owner
 
-1. **The "smallest chord sets the limit" rule looks inverted.** Inferred from the arithmetic; the Computational
+1. **The "smallest chord sets the limit" rule was inverted — corrected 2026-10-03 by the Coordinator (design :446 and the test name now say largest).** From the arithmetic; the Computational
    Geometry lens should confirm. The design (§3.4 fallback) says the smallest local chord sets the 10 µm limit. A
    deviation δ in chord units is δ·c in mm, so the **largest** chord produces the largest physical deviation. Using
    the smallest chord gives the most lenient normalized limit (10 µm / c_min) and lets the largest station exceed

@@ -126,7 +126,7 @@ Everything in the viewports is computed in the page from `src/CfdWorkbench.Deskt
 - **Tangent kind, paired:** Horizontal levels both surfaces' handles.
 - **x move, paired:** the vertex's x is written on both surfaces.
 - **Anchor → Control, paired:** the upper loses its handles; the lower is refitted on the new basis by least squares at
-  equal x, with the nose and TE held, and measured against 10 µm at the smallest chord using the section.
+  equal x, with the nose and TE held, and measured against 10 µm at the largest chord using the section.
 - **Anchor → Control on the new anchor:** removes the handles and lowers the knot from multiplicity 5 to 3.
 - **Curvature** from the analytic B-spline derivatives, with derivative control points (never finite differences).
   This gives:

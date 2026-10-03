@@ -2476,7 +2476,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c926f990c9f9aff44414cb5baeb387ba397f3dc14b13bc33ced1e547e66d3492"
+      "sourceSha256": "9869a06ce3fe5c3e2b8d8e317280be2809e330e7e3320e83ae2f92b0de58ab6e"
     },
     {
       "id": "design-section-editor",
@@ -2739,7 +2739,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ca126876dbcf599564d33bcab031beac0d83c509674ebcb543a18b265cd1fee5"
+      "sourceSha256": "2d01610ad2fde60524ce1184f215ebb87428bb211a731e2483d65585616273b7"
     },
     {
       "id": "mockup-property-grid",
@@ -4567,7 +4567,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3f7cbed2704de1252bab995fb10ec7828e0bb3a40c9dadbe266441473529fc41"
+      "sourceSha256": "9b54214270823b4370fb73efecded0ed62d94facc547fd07d824a43c0c0d4e13"
     },
     {
       "id": "review-ui-property-grid",
@@ -9701,5 +9701,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "b6fec9c551fc44493417288657e49056f30c2585e67c17c32d4e158012649b99"
+  "graphSha256": "6ad53a2d1d2c74664a57f194fb1cbc1eff82eb36ed2b9f0b6d5677037fb89a7e"
 };
