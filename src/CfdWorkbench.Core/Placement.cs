@@ -145,6 +145,72 @@ internal static class ChannelEvaluator
     }
 }
 
+// The one binary64 profile evaluator (ADR-0010 Amendment 1). x(t), y(t) and their t-derivatives,
+// and y at a chord fraction by abscissa inversion. Placement.Prepare, AuthoringSession.Sample and
+// the section projections read this; the certificate keeps Bernstein.
+internal readonly record struct ProfileJet(double X, double Y, double Xt, double Yt, double Xtt, double Ytt);
+
+internal static class ProfileEvaluator
+{
+    internal static ProfileJet Jet(Curve curve, double t)
+    {
+        Placement.ProfileEvaluations++;
+        var jet = SplineBasis.Evaluate(curve.Knots, curve.Degree, t);
+        double x = 0, y = 0, xt = 0, yt = 0, xtt = 0, ytt = 0;
+        for (int i = 0; i < curve.Points.Length; i++)
+        {
+            x += jet.N[i] * curve.Points[i][0];
+            y += jet.N[i] * curve.Points[i][1];
+            xt += jet.D1[i] * curve.Points[i][0];
+            yt += jet.D1[i] * curve.Points[i][1];
+            xtt += jet.D2[i] * curve.Points[i][0];
+            ytt += jet.D2[i] * curve.Points[i][1];
+        }
+        return new(x, y, xt, yt, xtt, ytt);
+    }
+
+    internal static double ParameterFor(Curve curve, double x)
+    {
+        if (x <= curve.Points[0][0]) return 0;
+        if (x >= curve.Points[^1][0]) return 1;
+        double lo = 0, hi = 1;
+        for (int step = 0; step < 60; step++)
+        {
+            double mid = (lo + hi) / 2;
+            if (AbscissaAt(curve, mid) < x) lo = mid;
+            else hi = mid;
+        }
+        return (lo + hi) / 2;
+    }
+
+    internal static double OrdinateAt(Curve curve, double x) => Jet(curve, ParameterFor(curve, x)).Y;
+
+    // Display spacing: x = (1 - cos θ) / 2, so the nose has more samples than the tail.
+    internal static ProfilePoint[] Samples(Curve curve, int count)
+    {
+        if (count < 2) throw new ContractError("DSL-RANGE");
+        var samples = new ProfilePoint[count];
+        double step = count - 1;
+        for (int index = 0; index < count; index++)
+        {
+            double x = (1 - Math.Cos(Math.PI * index / step)) / 2;
+            if (index == 0) x = 0;
+            else if (index == count - 1) x = 1;
+            samples[index] = new ProfilePoint(x, OrdinateAt(curve, x));
+        }
+        return samples;
+    }
+
+    private static double AbscissaAt(Curve curve, double t)
+    {
+        Placement.ProfileEvaluations++;
+        var basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+        double x = 0;
+        for (int index = 0; index < curve.Points.Length; index++) x += basis[index] * curve.Points[index][0];
+        return x;
+    }
+}
+
 public static class Placement
 {
     internal static int ChannelEvaluations;
@@ -278,13 +344,13 @@ public static class Placement
         {
             if (!shared)
             {
-                upper[index] = OrdinateAt(profile.Upper, xs[index]);
-                lower[index] = OrdinateAt(profile.Lower, xs[index]);
+                upper[index] = ProfileEvaluator.OrdinateAt(profile.Upper, xs[index]);
+                lower[index] = ProfileEvaluator.OrdinateAt(profile.Lower, xs[index]);
                 continue;
             }
-            double t = ParameterFor(profile.Upper, xs[index]);
-            upper[index] = Jet(profile.Upper, t).Y;
-            lower[index] = Jet(profile.Lower, t).Y;
+            double t = ProfileEvaluator.ParameterFor(profile.Upper, xs[index]);
+            upper[index] = ProfileEvaluator.Jet(profile.Upper, t).Y;
+            lower[index] = ProfileEvaluator.Jet(profile.Lower, t).Y;
         }
         return new()
         {
@@ -297,17 +363,17 @@ public static class Placement
     {
         if (SameAbscissa(upper, lower)) return ParameterMaximum(upper, lower);
         var knots = KnotImages(upper).Concat(KnotImages(lower)).ToArray();
-        return Maximize(x => OrdinateAt(upper, x) - OrdinateAt(lower, x), x => ThicknessDerivative(upper, lower, x), knots);
+        return Maximize(x => ProfileEvaluator.OrdinateAt(upper, x) - ProfileEvaluator.OrdinateAt(lower, x), x => ThicknessDerivative(upper, lower, x), knots);
     }
 
     // Same abscissa: the thickness maximum is the maximum of y_upper(t) - y_lower(t). A knot
     // parameter is a candidate so a C0 peak that sits on a knot is not missed.
     private static double ParameterMaximum(Curve upper, Curve lower) => Maximize(
-        t => Jet(upper, t).Y - Jet(lower, t).Y,
+        t => ProfileEvaluator.Jet(upper, t).Y - ProfileEvaluator.Jet(lower, t).Y,
         t =>
         {
-            var high = Jet(upper, t);
-            var low = Jet(lower, t);
+            var high = ProfileEvaluator.Jet(upper, t);
+            var low = ProfileEvaluator.Jet(lower, t);
             return (high.Yt - low.Yt, high.Ytt - low.Ytt);
         },
         upper.Knots);
@@ -317,8 +383,8 @@ public static class Placement
         double complement = 1 - weight;
         var knots = KnotImages(a.UpperCurve).Concat(KnotImages(a.LowerCurve)).Concat(KnotImages(b.UpperCurve)).Concat(KnotImages(b.LowerCurve)).ToArray();
         return Maximize(
-            x => complement * (OrdinateAt(a.UpperCurve, x) - OrdinateAt(a.LowerCurve, x)) / a.Maximum
-                + weight * (OrdinateAt(b.UpperCurve, x) - OrdinateAt(b.LowerCurve, x)) / b.Maximum,
+            x => complement * (ProfileEvaluator.OrdinateAt(a.UpperCurve, x) - ProfileEvaluator.OrdinateAt(a.LowerCurve, x)) / a.Maximum
+                + weight * (ProfileEvaluator.OrdinateAt(b.UpperCurve, x) - ProfileEvaluator.OrdinateAt(b.LowerCurve, x)) / b.Maximum,
             x =>
             {
                 var da = ThicknessDerivative(a.UpperCurve, a.LowerCurve, x);
@@ -390,55 +456,11 @@ public static class Placement
 
     private static (double D1, double D2) Slope(Curve curve, double x)
     {
-        var jet = Jet(curve, ParameterFor(curve, x));
+        var jet = ProfileEvaluator.Jet(curve, ProfileEvaluator.ParameterFor(curve, x));
         if (Math.Abs(jet.Xt) < 1e-18) return (0, 0);
         double d1 = jet.Yt / jet.Xt;
         double d2 = (jet.Ytt * jet.Xt - jet.Yt * jet.Xtt) / (jet.Xt * jet.Xt * jet.Xt);
         return (d1, d2);
-    }
-
-    private readonly record struct CurveJet(double X, double Y, double Xt, double Yt, double Xtt, double Ytt);
-
-    private static CurveJet Jet(Curve curve, double t)
-    {
-        ProfileEvaluations++;
-        var jet = SplineBasis.Evaluate(curve.Knots, curve.Degree, t);
-        double x = 0, y = 0, xt = 0, yt = 0, xtt = 0, ytt = 0;
-        for (int i = 0; i < curve.Points.Length; i++)
-        {
-            x += jet.N[i] * curve.Points[i][0];
-            y += jet.N[i] * curve.Points[i][1];
-            xt += jet.D1[i] * curve.Points[i][0];
-            yt += jet.D1[i] * curve.Points[i][1];
-            xtt += jet.D2[i] * curve.Points[i][0];
-            ytt += jet.D2[i] * curve.Points[i][1];
-        }
-        return new(x, y, xt, yt, xtt, ytt);
-    }
-
-    private static double OrdinateAt(Curve curve, double x) => Jet(curve, ParameterFor(curve, x)).Y;
-
-    private static double ParameterFor(Curve curve, double x)
-    {
-        if (x <= curve.Points[0][0]) return 0;
-        if (x >= curve.Points[^1][0]) return 1;
-        double lo = 0, hi = 1;
-        for (int step = 0; step < 60; step++)
-        {
-            double mid = (lo + hi) / 2;
-            if (AbscissaAt(curve, mid) < x) lo = mid;
-            else hi = mid;
-        }
-        return (lo + hi) / 2;
-    }
-
-    private static double AbscissaAt(Curve curve, double t)
-    {
-        ProfileEvaluations++;
-        var basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
-        double x = 0;
-        for (int index = 0; index < curve.Points.Length; index++) x += basis[index] * curve.Points[index][0];
-        return x;
     }
 
     private static bool SameAbscissa(Curve left, Curve right)
@@ -455,7 +477,7 @@ public static class Placement
         foreach (double knot in curve.Knots)
         {
             if (knot < 0 || knot > 1 || !seen.Add(knot)) continue;
-            yield return Jet(curve, knot).X;
+            yield return ProfileEvaluator.Jet(curve, knot).X;
         }
     }
 
