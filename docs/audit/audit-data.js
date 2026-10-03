@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T22:35:37Z",
+  "generated": "2026-10-03T22:36:46Z",
   "audit": [
     {
       "actor": null,
@@ -22819,6 +22819,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T22:34:53Z",
       "duration_seconds": 44.0
+    },
+    {
+      "id": "al-01M41YK9J8A7XRFVDMKZT6PCQN",
+      "shortname": "join-spec-1.7",
+      "datetime": "2026-10-03T22:36:46Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/spec-1.7-amendments into feature/ui-cad-direction",
+      "summary": "Spec 1.7 (Opus 5.5 draft, operator approval Ruling 66): 49 amendments (CAD 24, Analysis 8, Run 7, Copy 3, Shell 7) each sourced to a ruling; OQ-1..13 answered as AM-37..49; rendered HTML checked; KB-1 ln->log10 fixed (Cf 8.6x, first cell 2.93x thinner); Ruling 65 cherry-picked. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T22:36:03Z",
+      "duration_seconds": 43.0
     }
   ],
   "changes": [
