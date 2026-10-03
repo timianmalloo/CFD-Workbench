@@ -20,6 +20,25 @@ public static class ControllerSectionTests
 
     public static void Run()
     {
+        DesktopChecks.Check("SectionDraft_ResumeRecovery_CurrentViewReadable", () =>
+        {
+            using var source = new AuthoringSession();
+            source.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+            var draft = source.BeginSectionDraft(Guid.NewGuid().ToString("D"), 0);
+            draft = source.ApplySectionStep(draft.DraftId, draft.Generation, new SectionStep.MakeUnique());
+            source.CaptureRecovery();
+            using var reopened = new AuthoringSession();
+            reopened.Reopen(source.SaveImage());
+            reopened.ResumeRecovery();
+            var reader = reopened.GetType().GetMethod("CurrentSectionDraft")
+                ?? throw new Exception("CurrentSectionDraft reader is absent");
+            var restored = (SectionDraftView?)reader.Invoke(reopened, null)
+                ?? throw new Exception("Recovered section view is absent");
+            if (restored.Cursor != 0 || restored.StepCount != 0 || restored.Profile != draft.Profile ||
+                !restored.Bytes.SequenceEqual(draft.Bytes))
+                throw new Exception("Recovered draft did not expose its cursor-zero view");
+        });
+
         DesktopChecks.Check("SectionTelemetry_CancelledAssessment_SupersededNoDuration", () =>
         {
             using var session = new AuthoringSession();

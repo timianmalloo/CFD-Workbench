@@ -202,6 +202,17 @@ public sealed class AuthoringSession : IDisposable
         Run("begin", () => BeginProfileRebuildCore(draftId, assignmentIndex, scope, vertexCount, tolerance, ends));
     public SectionDraftView BeginSectionDraft(string draftId, int assignmentIndex) =>
         Run("section.begin", () => BeginSectionDraftCore(draftId, assignmentIndex), editKind: "section");
+    /// <summary>Reads the open section draft, including recovered cursor-zero bytes.</summary>
+    public SectionDraftView? CurrentSectionDraft() => Run("section.view", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            if (draft is null || draft.Rail != "section") return null;
+            RequireSection(draft.Id);
+            return SectionView();
+        }
+    }, editKind: "section");
     /// <summary>Appends one step at the cursor (dropping any redo tail). Refuses a step that does not parse or pass structure; the draft is then unchanged.</summary>
     public SectionDraftView ApplySectionStep(string draftId, long generation, SectionStep step) =>
         Run("section.step", () => ApplySectionStepCore(draftId, generation, step), generation: generation, editKind: "section", stepKind: SectionStepKind(step));
