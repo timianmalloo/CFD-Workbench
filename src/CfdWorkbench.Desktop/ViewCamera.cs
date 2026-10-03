@@ -60,7 +60,8 @@ public readonly record struct ViewCamera(Point3 Target, double AzimuthDegrees, d
             NamedCamera.Bottom => (0d, -90d, Projection.Orthographic),
             NamedCamera.Back => (180d, 0d, Projection.Orthographic),
             NamedCamera.Port => (270d, 0d, Projection.Orthographic),
-            NamedCamera.Iso => (135d, 30d, Projection.Perspective),
+            // DR-VIEW-5: from the front, starboard and above (the approved mockup), leading edge toward the viewer.
+            NamedCamera.Iso => (45d, 30d, Projection.Perspective),
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         return new ViewCamera(default, azimuth, elevation, 1, projection) { Name = name }.Fit(minimum, maximum, viewport);
@@ -130,10 +131,44 @@ public readonly record struct ViewCamera(Point3 Target, double AzimuthDegrees, d
         }
         else
         {
-            // The bounding sphere's tangent cone fits the smaller half-extent of the viewport.
+            // DR-VIEW-6: the box's projection fills the view less the margin, centred as the mockup centres it. Perspective
+            // draws the near side larger, so the camera slides parallel to the screen until the projected bounds are
+            // centred, and at each step takes the nearest distance that keeps every corner inside the margin: a corner at
+            // screen offset a·f/(c + d) stays inside half-extent h while d ≥ |a|·f/h − c (closed form). Each slide is a
+            // Newton step: the two extreme corners move by f·s/(their depth), so it converges in a few steps; 64 is a cap.
+            var (right, up, forward) = Basis();
             double radius = Math.Max(1e-9, Length(Subtract(maximum, minimum)) / 2);
-            double halfAngleTangent = Math.Min(halfWidth, halfHeight) / focal;
-            distance = radius * Math.Sqrt(1 + halfAngleTangent * halfAngleTangent) / halfAngleTangent;
+            var corners = Corners(minimum, maximum).ToArray();
+            distance = 1;
+            for (int step = 0; step < 64; step++)
+            {
+                distance = double.NegativeInfinity;
+                foreach (var corner in corners)
+                {
+                    var offset = Subtract(corner, target);
+                    double along = Dot(offset, forward);
+                    distance = Math.Max(distance, Math.Max(Math.Abs(Dot(offset, right)) * focal / halfWidth,
+                        Math.Abs(Dot(offset, up)) * focal / halfHeight) - along);
+                    distance = Math.Max(distance, radius * 1e-3 - along);
+                }
+                // Screen offsets of the extreme corners on each axis, with the scale (f / depth) of each.
+                (double At, double Scale) left = (double.PositiveInfinity, 0), rightmost = (double.NegativeInfinity, 0);
+                (double At, double Scale) low = (double.PositiveInfinity, 0), high = (double.NegativeInfinity, 0);
+                foreach (var corner in corners)
+                {
+                    var offset = Subtract(corner, target);
+                    double scale = focal / (Dot(offset, forward) + distance);
+                    double x = Dot(offset, right) * scale, y = Dot(offset, up) * scale;
+                    if (x < left.At) left = (x, scale);
+                    if (x > rightmost.At) rightmost = (x, scale);
+                    if (y < low.At) low = (y, scale);
+                    if (y > high.At) high = (y, scale);
+                }
+                double shiftX = (left.At + rightmost.At) / 2, shiftY = (low.At + high.At) / 2;
+                if (Math.Abs(shiftX) < 1e-9 && Math.Abs(shiftY) < 1e-9) break;
+                // Sliding the camera by s along an axis moves a corner by −s·scale; centring the pair needs s = shift / mean scale.
+                target = Add(target, Add(Scale(right, shiftX * 2 / (left.Scale + rightmost.Scale)), Scale(up, shiftY * 2 / (low.Scale + high.Scale))));
+            }
         }
         return this with { Target = target, Distance = distance, FitDistance = distance };
     }
