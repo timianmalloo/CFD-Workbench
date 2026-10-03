@@ -77,6 +77,7 @@ if (args.Contains("--views", StringComparer.Ordinal))
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
     CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
+    CfdWorkbench.Desktop.Tests.View3dTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
@@ -108,6 +109,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.View3dTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

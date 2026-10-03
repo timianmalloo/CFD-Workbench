@@ -26,9 +26,12 @@ public static class ViewCameraTests
                 Near(y, forward.Y, 1e-12, name + " y");
                 Near(z, forward.Z, 1e-12, name + " z");
             }
-            // Iso looks from aft, starboard and above (az 135°, el 30°; the M1.2a isometric quadrant) toward the target.
+            // DR-VIEW-5 (operator, 2026-10-02; was the M1.2a aft quadrant, az 135°): Iso looks from the front, starboard and
+            // above (az 45°, el 30°, the approved mockup) — aft, inboard and down toward the target.
             var iso = Forward(Camera(NamedCamera.Iso));
-            if (!(iso.X < 0 && iso.Y < 0 && iso.Z < 0)) throw new Exception($"Iso looks along {iso}");
+            if (!(iso.X > 0 && iso.Y < 0 && iso.Z < 0)) throw new Exception($"Iso looks along {iso}");
+            Near(45, Camera(NamedCamera.Iso).AzimuthDegrees, 0, "Iso azimuth");
+            Near(30, Camera(NamedCamera.Iso).ElevationDegrees, 0, "Iso elevation");
             foreach (var name in Enum.GetValues<NamedCamera>())
                 if (Camera(name).Name != name || Camera(name).Title != name.ToString())
                     throw new Exception(name + " lost its name");
@@ -175,7 +178,8 @@ public static class ViewCameraTests
                 {
                     var camera = ViewCamera.Named(name, Minimum, Maximum, viewport);
                     AssertInside(camera, Minimum, Maximum, viewport, name.ToString());
-                    // Tight on at least one axis for the orthographic presets.
+                    // Tight on at least one axis for the orthographic presets; DR-VIEW-6: a perspective fit is tight too —
+                    // some corner reaches the margin (perspective is not symmetric about the target, so one side).
                     if (camera.Projection == Projection.Orthographic)
                     {
                         var (width, height) = Extent(camera, Minimum, Maximum, viewport);
@@ -183,6 +187,8 @@ public static class ViewCameraTests
                                 height / (viewport.Height - 2 * ViewCamera.FitMarginPixels)) < 0.999)
                             throw new Exception($"{name} at {viewport} does not fill the viewport");
                     }
+                    else if (Reach(camera, Minimum, Maximum, viewport) < 0.999)
+                        throw new Exception($"{name} at {viewport} reaches only {Reach(camera, Minimum, Maximum, viewport):P1} of the way to the margin");
                 }
         });
 
@@ -199,7 +205,7 @@ public static class ViewCameraTests
                 var (width, height) = Extent(camera, low, high, Viewport);
                 double fill = Math.Max(width / (Viewport.Width - 2 * ViewCamera.FitMarginPixels),
                     height / (Viewport.Height - 2 * ViewCamera.FitMarginPixels));
-                if (fill < (camera.Projection == Projection.Orthographic ? 0.999 : 0.5))
+                if (camera.Projection == Projection.Orthographic ? fill < 0.999 : Reach(camera, low, high, Viewport) < 0.999)
                     throw new Exception($"{name}: the station fills only {fill:P0} of the view");
             }
         });
@@ -221,9 +227,11 @@ public static class ViewCameraTests
                             Math.Exp(random.NextDouble() * 6 - 3), Viewport)
                     };
                 var refit = camera.Fit(Minimum, Maximum, Viewport);
-                var projected = refit.Project(middle, Viewport);
-                Near(centre.X, projected.X, 1e-9, "run " + run + " x");
-                Near(centre.Y, projected.Y, 1e-9, "run " + run + " y");
+                // Orthographic: the box centre comes to the view centre. Perspective (DR-VIEW-6): the projected bounds
+                // are centred, as the mockup centres them — the near side draws larger, so the box centre sits off-centre.
+                var projected = refit.Projection == Projection.Orthographic ? refit.Project(middle, Viewport) : BoundsCentre(refit, Minimum, Maximum, Viewport);
+                Near(centre.X, projected.X, 1e-6, "run " + run + " x");
+                Near(centre.Y, projected.Y, 1e-6, "run " + run + " y");
                 AssertInside(refit, Minimum, Maximum, Viewport, "run " + run);
             }
         });
@@ -261,6 +269,28 @@ public static class ViewCameraTests
                     if (at.X < margin || at.Y < margin || at.X > viewport.Width - margin || at.Y > viewport.Height - margin)
                         throw new Exception($"{label}: corner {x},{y},{z} at {at} is outside the {viewport} margin");
                 }
+    }
+
+    private static Point BoundsCentre(ViewCamera camera, Point3 low, Point3 high, Size viewport)
+    {
+        var points = new[] { low.X, high.X }.SelectMany(x => new[] { low.Y, high.Y }.SelectMany(y => new[] { low.Z, high.Z }
+            .Select(z => camera.Project(new Point3(x, y, z), viewport)))).ToArray();
+        return new Point((points.Min(p => p.X) + points.Max(p => p.X)) / 2, (points.Min(p => p.Y) + points.Max(p => p.Y)) / 2);
+    }
+
+    /// <summary>How far the farthest corner reaches from the view centre toward the margin (1 = on the margin).</summary>
+    private static double Reach(ViewCamera camera, Point3 low, Point3 high, Size viewport)
+    {
+        double halfWidth = viewport.Width / 2 - ViewCamera.FitMarginPixels, halfHeight = viewport.Height / 2 - ViewCamera.FitMarginPixels;
+        double reach = 0;
+        foreach (double x in new[] { low.X, high.X })
+            foreach (double y in new[] { low.Y, high.Y })
+                foreach (double z in new[] { low.Z, high.Z })
+                {
+                    var at = camera.Project(new Point3(x, y, z), viewport);
+                    reach = Math.Max(reach, Math.Max(Math.Abs(at.X - viewport.Width / 2) / halfWidth, Math.Abs(at.Y - viewport.Height / 2) / halfHeight));
+                }
+        return reach;
     }
 
     private static (double Width, double Height) Extent(ViewCamera camera, Point3 low, Point3 high, Size viewport)
