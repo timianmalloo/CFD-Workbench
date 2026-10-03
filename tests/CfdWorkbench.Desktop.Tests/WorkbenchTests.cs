@@ -96,6 +96,13 @@ if (args.Contains("--properties-cells", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+if (args.Contains("--section-editor", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 if (args.Contains("--status-strip", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -437,7 +444,7 @@ CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
     "--properties-view", "--views", "--properties-cells", "--controller-shell", "--status-strip", "--section-flow",
-    "--section-tools", "--shell-model"));
+    "--section-tools", "--shell-model", "--section-editor"));
 
 sealed class UncertainStore : IProjectStore
 {

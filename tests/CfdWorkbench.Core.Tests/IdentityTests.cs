@@ -33,6 +33,9 @@ internal static class IdentityTests
             PointModelTests.RunReadiness();
             PlacementTests.RunReadiness();
             ProofBudgetTests.RunReadiness();
+            DisplayProfileTests.RunReadiness();
+            SectionEditsTests.RunReadiness();
+            SectionDraftTests.RunReadiness();
             Console.WriteLine($"RESULT failures={failures}");
             return failures == 0 ? 0 : 1;
         }
@@ -98,6 +101,12 @@ internal static class IdentityTests
         ReopenPointEditTests.Run();
         ChannelEditTests.Run();
         ReopenChannelEditTests.Run();
+        DisplayProfileTests.Run();
+        SectionPointTests.Run();
+        SectionEditsTests.Run();
+        SectionDraftTests.Run();
+        ReopenSectionDraftTests.Run();
+        OverlayTests.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)
         {

@@ -84,3 +84,32 @@ public enum ThicknessIntent { KeepCurrent, UseSource }
 /// <summary>One preview of a thickness-channel edit. Targets are t/c at the scoped assignment stations; residuals are channel minus target.</summary>
 public sealed record ThicknessProposal(IReadOnlyList<double> TargetEta, IReadOnlyList<double> TargetThickness, IReadOnlyList<double> Residuals,
     double AffectedEtaStart, double AffectedEtaEnd);
+
+// M1.2c section editor contracts (docs/design/m12c-section-editor.md §5.1). Signatures only; later tracks own the behaviour.
+public enum SurfaceSide { Upper, Lower }
+
+/// <summary>One edit of a section draft. Positions are chord fractions.</summary>
+public abstract record SectionStep
+{
+    public sealed record Move(SurfaceSide Side, string VertexId, double X, double Y) : SectionStep;
+    public sealed record SetType(SurfaceSide Side, string VertexId, bool Anchor) : SectionStep;
+    /// <summary>Insert an anchor that keeps the shape.</summary>
+    public sealed record InsertAnchor(SurfaceSide Side, double X) : SectionStep;
+    public sealed record SetTangent(SurfaceSide Side, string VertexId, TangentKind Kind, double? AngleDegrees,
+        string? KeepHandleId) : SectionStep;
+    public sealed record Insert(SurfaceSide Side, double X) : SectionStep;
+    public sealed record Delete(SurfaceSide Side, string VertexId) : SectionStep;
+    /// <summary>A null side fairs each surface on its own knots.</summary>
+    public sealed record Fair(SurfaceSide? Side, double Tolerance, PreserveEnds Ends) : SectionStep;
+    public sealed record Rebuild(SurfaceSide? Side, int VertexCount, double Tolerance, PreserveEnds Ends) : SectionStep;
+    /// <summary>Both surfaces, shared basis.</summary>
+    public sealed record Import(byte[] Dat) : SectionStep;
+    public sealed record MakeUnique : SectionStep;
+    public sealed record Thickness(ThicknessIntent Intent) : SectionStep;
+}
+
+public sealed record SectionStepReport(string Kind, double MaxChange, string MaxChangeOracle, int UpperPoints, int LowerPoints,
+    ImportReport? Import, ThicknessProposal? Thickness, IReadOnlyList<string> RowsRemoved);
+
+public sealed record SectionDraftView(string DraftId, string BaseAcceptedId, int Assignment, string Profile,
+    SectionScope Scope, ThicknessIntent Intent, long Generation, int Cursor, int StepCount, byte[] Bytes, SectionStepReport? Last);
