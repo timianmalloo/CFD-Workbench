@@ -12,8 +12,20 @@ internal static class IdentityTests
         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     private static readonly HashSet<string> matched = [];
     private static int selected, skipped;
+    // tools/run-tests.sh splits this harness across processes with `--part=k/n` (an argument, never an inherited
+    // environment variable): a part runs the checks whose registration index i has i % n == k - 1. Every part
+    // enumerates the same registrations, so together they run each check once; run-tests.sh compares the PARTITION
+    // lines (docs/reviews/test-ci-waste.md §12). The Desktop harness's DesktopChecks carries the same rule.
+    private static (int Index, int Count)? part;
+    private static int registered, ran;
     private static int Main(string[] args)
     {
+        try { part = ParsePart(args); }
+        catch (ArgumentException error)
+        {
+            Console.WriteLine("FAIL PARTITION " + error.Message);
+            return 1;
+        }
         // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh, which
         // calls this harness with no arguments. PRE adds the switch; B0 fills PointModelTests.RunReadiness.
         if (args.Contains("--readiness"))
@@ -84,8 +96,25 @@ internal static class IdentityTests
         ReopenPointEditTests.Run();
         ChannelEditTests.Run();
         ReopenChannelEditTests.Run();
+        bool emptyPart = part is not null && only is null && ran == 0;
+        if (part is { } p)
+        {
+            Console.WriteLine($"PARTITION {p.Index}/{p.Count} of {registered} checks");
+            if (emptyPart) Console.WriteLine($"FAIL PARTITION {p.Index}/{p.Count} ran no check");
+        }
         Console.WriteLine($"RESULT failures={failures}");
-        return SelectionMatched() && failures == 0 ? 0 : 1;
+        return SelectionMatched() && failures == 0 && !emptyPart ? 0 : 1;
+    }
+
+    private static (int Index, int Count)? ParsePart(string[] args)
+    {
+        string? value = args.LastOrDefault(arg => arg.StartsWith("--part=", StringComparison.Ordinal))?["--part=".Length..];
+        if (value is null) return null;
+        string[] fields = value.Split('/');
+        if (fields.Length == 2 && int.TryParse(fields[0], out int index) && int.TryParse(fields[1], out int count) &&
+            index >= 1 && index <= count)
+            return (index, count);
+        throw new ArgumentException($"--part={value} is not k/n with 1 <= k <= n");
     }
 
     private static bool SelectionMatched()
@@ -105,6 +134,9 @@ internal static class IdentityTests
             if (hits.Length == 0) { skipped++; return; }
             matched.UnionWith(hits); selected++;
         }
+        // After the selector, so a prefix counts as matched in every part and a subset run splits like a full one.
+        if (part is { } p && registered++ % p.Count != p.Index - 1) return;
+        ran++;
         // Test-runner boundary: report unexpected exceptions as failures and continue.
         try { assertion(); Console.WriteLine("PASS " + name); }
         catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }

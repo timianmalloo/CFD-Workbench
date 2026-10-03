@@ -387,3 +387,122 @@ unwired file.
   budget tightens again.
 - Running the Core harness without `run-tests.sh`'s TMPDIR fails 21 store checks. Any ad hoc timer
   must set that TMPDIR, and it must report each check's status beside its time.
+
+## 12. Split suites and a CPU-bounded slot count (2026-10-02, track budget-split)
+
+**Result first.** `tools/run-tests.sh` went from **56–59 s to 43–44 s** on a quiet machine (16–17 s
+headroom on the unchanged 60 s budget), and from 60 s to 45–46 s under 10 busy loops. The PASS multiset
+is identical on every run, before and after: 949 sorted `PASS` lines (948 names;
+`Properties_TipCloses_TipChordIsText` prints twice, before and after), sha256 prefix
+`1c18fa1ff8845f68`, 0 `FAIL` lines. No check moved ring, and none was removed or weakened.
+
+**Why.** At 56–59 s, four tracks about to add tests would fire TEST-BUDGET. Raising the budget with no
+measured reason is TEST-COST.
+
+### What limited the wall (measured on `e98ce73`, not inferred)
+
+- `run-tests.sh` already ran Core, Cli and Desktop as three parallel processes.
+- The Desktop harness ran 10 child modes through `DesktopChecks.Spawn`, at most
+  `Math.Clamp(ProcessorCount / 2, 1, 4)` = **4** at a time, in a fixed order. The children summed to
+  173.5 s of wall. The two longest ran alone in 34.1 s (`--shell-window`, 111 checks) and 31.7 s
+  (`--plan-canvas`, 49 checks). So Desktop could not finish before about 5 s of in-process checks plus
+  34 s, and 4 slots could not finish 173.5 s of children before about 43 s.
+- Each child uses about 1.4 cores (alone: `--shell-window` real 34.1 s, user 47.5 s;
+  `--properties-view` real 28.1 s, user 44.7 s). The whole gate used 308 CPU-s in 56 s of wall: an average
+  of 5.5 busy cores out of 16. The limit was the scheduler, not the CPU.
+- Core runs on one core: alone it took real 43.4 s, user 43.9 s (with the gate's TMPDIR; see §11).
+  Once Desktop got faster, Core became the critical path (48 s).
+
+| Suite (seconds, gate run) | Before (4 slots) | After (6 slots, quiet run 1) |
+|---|---|---|
+| `--shell-window` | 36.1–36.3 | part 1/2: 20.5 · part 2/2: 23.5 |
+| `--plan-canvas` | 33.7–33.9 | part 1/2: 24.0 · part 2/2: 15.7 |
+| `--properties-view` | 30.1–30.2 | 31.8 |
+| `--views` | 23.5–23.7 | 25.7 |
+| `--properties-cells` | 20.1 | 21.7 |
+| `--controller-shell` | 9.5–9.7 | 10.3 |
+| `--status-strip` | 7.4–7.7 | 7.7 |
+| `--section-flow` / `--section-tools` / `--shell-model` | 6.2 / 6.0 / 0.4 | 6.5 / 6.2 / 0.4 |
+| Desktop harness | 55 | 42 |
+| Core harness | 46 | part 1/2: 18 · part 2/2: 32 |
+| `run-tests.sh` wall | 56–59 | 43–44 |
+
+### Change
+
+- **Interleaved parts.** Both check helpers (`DesktopChecks.Check`, Core's `IdentityTests.Check`) take
+  `--part=k/n` as a command-line argument, never as an environment variable an old shell could leak.
+  A part runs the checks whose registration index `i` has `i % n == k - 1`. The rule is applied after the
+  `CFD_TEST_ONLY` selector, so a prefix counts as matched in every part. A part prints
+  `PARTITION k/n of N checks`. A part that runs no check fails (`FAIL PARTITION k/n ran no check`), and a
+  malformed part fails with a named line (exit 1 in Core; the named startup-failure exit 70 in Desktop).
+- **Proof that the parts cover the suite.** The parts run each check exactly once only if they are parts
+  1..n of one n and every part enumerated the same registrations. `Spawn` (Desktop) and `run-tests.sh`
+  (Core) check both from the `PARTITION` lines and fail the run otherwise. This catches a registration
+  that depends on run-time state, which would otherwise drop a check silently.
+- **Split suites.** `--shell-window` and `--plan-canvas` run as 2 parts each. Core runs as 2 parts
+  (`run-tests.sh` jobs `Core 1/2`, `Core 2/2`; logs `Core.part1of2.log`, `Core.part2of2.log`).
+- **Order.** `Spawn` starts the longest modes first. The log still prints in that same mode order.
+- **Slots.** `Math.Clamp(ProcessorCount * 3 / 8, 1, modes.Length)` = 6 here (was capped at 4). See
+  the load result below for why it is not `ProcessorCount / 2`.
+- **Stale logs.** `run-tests.sh` now deletes `.tmp-tests/*.log` and `*.seconds` before it runs.
+  `check-named-tests.py` reads every `.tmp-tests/*.log`, so a `Core.log` left from the old layout would
+  have fed old `PASS` lines to it.
+
+### Slot count under load (why 6, not 8)
+
+| Desktop slots | Quiet wall | Wall under 10 × `yes` | Result under load |
+|---|---|---|---|
+| 4 (baseline code, `e98ce73`) | 56–59 s | 60 s | exit 0, multiset identical |
+| 8 (`ProcessorCount / 2`) | 39–43 s | 46 s | **exit 1, twice**: 7 Core checks `GEOMETRY-BUDGET` |
+| 6 (`ProcessorCount * 3 / 8`, shipped) | 43–45 s | 45–46 s | exit 0 on 3 runs, multiset identical |
+| 4 (with the splits) | 55 s | 56 s | exit 0, multiset identical |
+
+At 8 slots the gate peaks near 13 busy cores. Add 10 busy loops and the 16 logical CPUs are
+oversubscribed. Then the product's cooperative proof budget (`ProofBudget`, 1 s wall clock,
+`Geometry.cs`) runs out in 7 Core checks: `Rebuild_TenVertices_CertifiedOneUndoItem`,
+`Thickness_UseSource_SharedExample_FitsRootTipAndUndoRestores`,
+`Thickness_UseSource_ConflictingValueLock_RefusesApply`, `Profile_PatchUpper_LeavesLowerCurveBytes`,
+`Profile_UpperCrossesLower_ReportsCross`, `Profile_SharedEdit_ScopeApplyUndoRedo`,
+`Profile_IndependentEdit_ApplyUndoRedoKeepsOtherProfiles`. The same 7 failed in both runs. The baseline
+passed under the same load, so 8 slots would turn a second concurrent gate on this machine into a
+false red. At 6 slots the peak is about 10 cores, and it passed under load.
+
+### Proof
+
+| Run | Gate exit | Wall | PASS lines | Multiset vs baseline | FAIL lines |
+|---|---|---|---|---|---|
+| baseline 1 / 2 (`e98ce73`, quiet) | 0 / 0 | 59 / 56 s | 949 / 949 | — (the baseline) | 0 |
+| baseline, 10 busy loops (`e98ce73`) | 0 | 60 s | 949 | identical | 0 |
+| 6 slots, quiet 1 / 2 / 3 | 0 / 0 / 0 | 45 / 44 / 43 s | 949 | identical | 0 |
+| 6 slots, 10 busy loops 1 / 2 / 3 | 0 / 0 / 0 | 46 / 46 / 45 s | 949 | identical | 0 |
+
+Multiset: the sorted `^PASS ` lines of every `.tmp-tests/*.log`, compared with `diff` (the empty diff
+is the evidence), sha256 prefix `1c18fa1ff8845f68` on every row. Every `PASS` line comes from the two
+`Check` helpers or two literal Cli lines (grep over the three test projects), so no output path skips
+the part rule.
+
+**Red plants (one gate run, then restored byte-for-byte; none is in any commit).**
+(1) `run-tests.sh` ran only `Core 1/2`. (2) `Spawn` dropped `--plan-canvas --part=2/2`. (3) A
+`SPEED_Plant_Red` check threw inside the split `--shell-window` suite. The gate exited **1** and
+printed `FAILED: Core parts are incomplete or enumerated different checks`,
+`FAIL PARTITION --plan-canvas parts are incomplete or enumerated different checks: [--part=1/2 49 checks]`,
+`FAIL SPEED_Plant_Red InvalidOperationException: planted red` and `FAIL --shell-window --part=1/2 exited 1`.
+Direct probes: `--part=500/500` on Core and `--part=99/99` on `--shell-model` exit 1 with
+`FAIL PARTITION … ran no check`; `--part=3/2` (Core) and `--part=0/2` (Desktop) exit nonzero.
+
+### Residual risk and next steps
+
+- **The product's 1 s proof budget has a thin margin.** A comment in `AuthoringSession.Sample` records a
+  rebuild at about 970 ms against the 1 s `ProofBudget`. CPU starvation turns 7 checks red. So the
+  fast ring's verdict depends on machine load, and a slower user machine may refuse these edits with
+  `GEOMETRY-BUDGET`. That is a product question for the Core owner, not a gate setting. **Inferred**
+  for user machines; **Verified** for this machine at 8 slots under 10 busy loops.
+- Three or more gates at once on this machine (about 30 busy cores) were not measured. If a
+  concurrent-run red shows `GEOMETRY-BUDGET`, rerun alone before you debug.
+- The next Desktop pole is `--properties-view` (32–35 s, one process). It is the next suite to split,
+  with one string in the `Spawn` list. Core part 2/2 (32–38 s) is unbalanced against part 1/2 (18–21 s),
+  because its heaviest checks fall on odd indices. A third part or a different split is the next Core cut.
+  `SUITE-TIME` and the per-part `==` lines show when either is needed.
+- The part rule assumes each check is independent of the checks before it. That was true for all 949
+  today (the multiset is identical). A future check that depends on an earlier one would go red in its
+  part, which is loud, not silent.
