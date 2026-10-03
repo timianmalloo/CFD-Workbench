@@ -107,12 +107,12 @@ public static class Cli
                 {
                     foreach (var sample in new (double X, bool Upper)[] { (0, true), (.5, true), (1, true), (.5, false), (1, false) })
                     {
-                        var point = Geometry.PointAt(certificate, eta, sample.X, sample.Upper, timeBudget: TimeSpan.FromSeconds(1), cancellationToken: cancellation);
+                        var point = Geometry.PointAt(certificate, eta, sample.X, sample.Upper, cancellationToken: cancellation);
                         points.Add(new { eta, normalizedX = sample.X, side = sample.Upper ? "upper" : "lower", xMeters = point.X, yMeters = point.Y, zMeters = point.Z });
                     }
                 }
             }
-            var section = certificate is null ? null : Geometry.SectionAt(certificate, .5, .5, TimeSpan.FromSeconds(1), cancellation);
+            var section = certificate is null ? null : Geometry.SectionAt(certificate, .5, .5, cancellationToken: cancellation);
             object? pointModel = null;
             {
                 var plan = Planform.View(source, "accepted", 0);

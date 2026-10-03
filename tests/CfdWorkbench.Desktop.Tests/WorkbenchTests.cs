@@ -570,10 +570,10 @@ namespace CfdWorkbench.Desktop.Tests
         /// </summary>
         public static int Spawn(params string[] modes)
         {
-            // A child uses about 1.4 cores. 3/8 (6 of 16) keeps the whole gate near 10 cores, so a second gate or a
-            // build beside it does not starve the product's 1 s proof budget: at 8 slots under 10 busy loops, 7 Core
-            // checks failed GEOMETRY-BUDGET; at 6 they passed (test-ci-waste.md §12, measured 2026-10-02).
-            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount * 3 / 8, 1, modes.Length));
+            // A child uses about 1.4 cores. The proof budget now counts deterministic bit-work rather than wall time,
+            // so thread contention cannot starve proofs into GEOMETRY-BUDGET failures. 1/2 (8 of 16) uses the available
+            // headroom to parallelize child runs faster.
+            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount / 2, 1, modes.Length));
             var runs = new Task<(List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)>[modes.Length];
             for (int index = 0; index < modes.Length; index++)
             {

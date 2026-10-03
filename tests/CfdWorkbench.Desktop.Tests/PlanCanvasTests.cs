@@ -840,8 +840,7 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture(newFoil: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             var before = fixture.RgbAtPoint(point);
-            var parse = FoilSource.Parse(System.Text.Encoding.UTF8.GetBytes(fixture.Controller.AcceptedSource));
-            var uncertified = CfdWorkbench.Core.Geometry.Assess(parse, TimeSpan.Zero);
+            var uncertified = CfdWorkbench.Core.Geometry.Assess(FoilSource.Parse(System.Text.Encoding.UTF8.GetBytes(fixture.Controller.AcceptedSource.Replace("points [(0, 0)", "points [(0, 1)", StringComparison.Ordinal))));
             if (uncertified.Status == GeometryStatus.Certified) throw new Exception("Fixture did not force an uncertified assessment");
             typeof(WorkbenchController).GetProperty("Inspection")!.SetValue(fixture.Controller,
                 new AcceptedInspection(fixture.Controller.Inspection!.Authored, uncertified));

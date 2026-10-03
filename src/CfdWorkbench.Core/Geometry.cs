@@ -122,11 +122,9 @@ public static class Geometry
             "Whole-domain angle hull is outside the certified Taylor domain.");
     }
 
-    /// <param name="timeBudget">Source compatibility only: the proof limit counts work, never time. Zero allows no
-    /// work; any other admissible value (up to one second) means the default work limit.</param>
     public static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port = false,
-        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default) =>
-        PointAt(certificate, eta, x, upper, port, new ProofBudget(ProofBudget.LimitFor(timeBudget), cancellationToken));
+        CancellationToken cancellationToken = default) =>
+        PointAt(certificate, eta, x, upper, port, new ProofBudget(cancellationToken: cancellationToken));
 
     internal static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port, ProofBudget watch)
     {
@@ -153,10 +151,9 @@ public static class Geometry
         catch (ProofRefusal failure) { throw new ContractError(failure.Code is "GEOMETRY-BUDGET" or "GEOMETRY-CANCELLED" ? failure.Code : "GEOMETRY-CERTIFICATE-DEFECT"); }
     }
 
-    /// <param name="timeBudget">Source compatibility only; see <see cref="PointAt(GeometryCertificate, double, double, bool, bool, TimeSpan?, CancellationToken)"/>.</param>
     public static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x,
-        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default) =>
-        SectionAt(certificate, eta, x, new ProofBudget(ProofBudget.LimitFor(timeBudget), cancellationToken));
+        CancellationToken cancellationToken = default) =>
+        SectionAt(certificate, eta, x, new ProofBudget(cancellationToken: cancellationToken));
 
     internal static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x, ProofBudget watch)
     {
@@ -301,9 +298,8 @@ public static class Geometry
         return (new(sine - error, sine + error), new(cosine - error, cosine + error));
     }
 
-    /// <param name="timeBudget">Source compatibility only; see <see cref="PointAt(GeometryCertificate, double, double, bool, bool, TimeSpan?, CancellationToken)"/>.</param>
-    public static GeometryAssessment Assess(SourceParse source, TimeSpan? timeBudget = null) =>
-        Assess(source, new ProofBudget(ProofBudget.LimitFor(timeBudget)));
+    public static GeometryAssessment Assess(SourceParse source) =>
+        Assess(source, new ProofBudget());
 
     internal static GeometryAssessment Assess(SourceParse source, ProofBudget watch)
     {
