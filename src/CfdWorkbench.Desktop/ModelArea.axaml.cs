@@ -12,6 +12,8 @@ using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop;
 
+public enum ModelAreaMode { Views, Section }
+
 public partial class ModelArea : UserControl
 {
     /// <summary>Each view of Four views needs at least this much; below it the model area shows One view.</summary>
@@ -22,6 +24,8 @@ public partial class ModelArea : UserControl
 
     private WorkbenchController? controller;
     private bool foilOpen;
+
+    public ModelAreaMode Mode { get; private set; } = ModelAreaMode.Views;
 
     public ModelArea()
     {
@@ -116,7 +120,6 @@ public partial class ModelArea : UserControl
     public void ShowFoilOpen(bool isOpen)
     {
         StartCardView.IsVisible = !isOpen;
-        PlanContent.IsVisible = isOpen;
         foilOpen = isOpen;
         Bind();
         Refresh();
@@ -209,11 +212,16 @@ public partial class ModelArea : UserControl
         if (controller is not null)
         {
             controller.Changed -= OnControllerChanged;
+            controller.SectionChanged -= OnControllerChanged;
             controller.SurfaceWanted = false;
         }
         controller = next;
         ThreeDView.Controller = controller;
-        if (controller is not null) controller.Changed += OnControllerChanged;
+        if (controller is not null)
+        {
+            controller.Changed += OnControllerChanged;
+            controller.SectionChanged += OnControllerChanged;
+        }
         SideElevation.Controller = controller;
         FrontElevation.Controller = controller;
     }
@@ -237,6 +245,15 @@ public partial class ModelArea : UserControl
 
     private void RefreshViews(WorkbenchController controller)
     {
+        Mode = controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
+        PlanContent.IsVisible = foilOpen && Mode == ModelAreaMode.Views;
+        SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;
+        SectionModeEditor.Bind(controller);
+        if (Mode == ModelAreaMode.Section)
+        {
+            controller.SurfaceWanted = false;
+            return;
+        }
         var layout = EffectiveLayout;
         ApplyLayout(layout);
         bool attached = TopLevel.GetTopLevel(this) is not null;

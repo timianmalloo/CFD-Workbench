@@ -192,6 +192,8 @@
         </Panel>
       </Border>
 
+      <local:SectionEditorView x:Name="SectionModeEditor" IsVisible="False" />
+
       <!-- These three bodies move to Dock documents before the shell is shown. -->
       <Grid x:Name="DetachedDocumentBodies" IsVisible="False">
           <StackPanel x:Name="SectionSampleBody" Margin="{StaticResource Space4}" Spacing="8">

@@ -638,6 +638,12 @@ public sealed class ElevationView : Control
         bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        if (e.Key == Key.Return && controller.Selection is Selection.Station selectedStation)
+        {
+            _ = controller.EnterSectionAsync(selectedStation.Index, EntryOrigin.Side);
+            e.Handled = true;
+            return;
+        }
         // DR-NAV-1: Tab leaves the view (no trap, 2.1.2); ] and [ move between points.
         if (e.Key == Key.Tab) return;
         if (e.Key is Key.OemCloseBrackets or Key.OemOpenBrackets && !command && !option)
@@ -737,6 +743,7 @@ public sealed class ElevationView : Control
             if (!IsFront && pressed.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Shift) && SectionAt(position) is { } section)
             {
                 controller.Select(new Selection.Station(section.Index, section.Eta));
+                if (e.ClickCount >= 2) _ = controller.EnterSectionAsync(section.Index, EntryOrigin.Side);
                 e.Handled = true;
                 return;
             }
