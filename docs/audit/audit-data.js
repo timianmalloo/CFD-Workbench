@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T17:18:48Z",
+  "generated": "2026-10-03T17:20:05Z",
   "audit": [
     {
       "actor": null,
@@ -22622,6 +22622,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T17:18:03Z",
       "duration_seconds": 45.0
+    },
+    {
+      "id": "al-01M41CFDE5XXT30FHPZQKGNQDQ",
+      "shortname": "join-track-d-followups",
+      "datetime": "2026-10-03T17:20:05Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/track-d-followups into feature/ui-cad-direction",
+      "summary": "Agy (gemini-3.8-flash-high, launched by the operator after the auto-mode classifier refused skip-permissions): TimeSpan timeBudget parameters removed with callers (ce9341b); Desktop slots ProcessorCount/2 (422575d) - Desktop 43-45 s -> 38-39 s, wall 46-47 -> 39-40 s at equal or higher load; ProfileAt ProofRefusal item closed (Sample discards the budget since DSP, AuthoringSession.cs:558-564). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T17:19:21Z",
+      "duration_seconds": 44.0
     }
   ],
   "changes": [
