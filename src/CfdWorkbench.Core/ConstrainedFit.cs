@@ -396,7 +396,7 @@ internal static class ProfileFair
             }
             if (kind == "angle" && curve.Tangents[row].Angle is double degrees)
             {
-                double radians = degrees * Math.PI / 180.0;
+                double radians = degrees * PlacementRule.RadiansPerDegree;
                 double cos = Math.Cos(radians), sin = Math.Sin(radians);
                 var rightRay = new double[count];
                 rightRay[index + 1] = cos;

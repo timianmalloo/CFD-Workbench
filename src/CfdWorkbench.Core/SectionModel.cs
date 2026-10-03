@@ -50,11 +50,12 @@ public static class Sections
         bool mirror = Mirror(profile.Upper, profile.Lower);
         double upperStation = mirror ? shape.UpperRadius * k * k : PlacedRadius(profile.Upper, k);
         double lowerStation = mirror ? shape.LowerRadius * k * k : PlacedRadius(profile.Lower, k);
+        double toDegrees = 1 / PlacementRule.RadiansPerDegree;
         double wedge = mirror
-            ? 2 * Math.Atan(k * Math.Tan(shape.WedgeRadians / 2)) * 180 / Math.PI
-            : shape.WedgeRadians * 180 / Math.PI;
+            ? 2 * Math.Atan(k * Math.Tan(shape.WedgeRadians / 2)) * toDegrees
+            : shape.WedgeRadians * toDegrees;
         return new(shape.OwnThickness, shape.OwnThicknessX, shape.UpperRadius, shape.LowerRadius, shape.Gap,
-            shape.WedgeRadians * 180 / Math.PI, frame.ChordMeters, frame.ThicknessRatio,
+            shape.WedgeRadians * toDegrees, frame.ChordMeters, frame.ThicknessRatio,
             upperStation, lowerStation, shape.Gap * k, wedge);
     }
 

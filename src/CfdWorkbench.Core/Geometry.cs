@@ -455,7 +455,7 @@ public static class Geometry
             Require(left[0] == anchor[0] && right[0] == anchor[0] && (left[1] - anchor[1]) * (right[1] - anchor[1]) < 0, because, GeometryStatus.Invalid, "DSL-LOCK");
         else if (row.Kind == "angle")
         {
-            double radians = (row.Angle ?? double.NaN) * Math.PI / 180.0;
+            double radians = (row.Angle ?? double.NaN) * PlacementRule.RadiansPerDegree;
             Require(NearRay(anchor, right, radians, tau) && NearRay(anchor, left, radians + Math.PI, tau), because, GeometryStatus.Invalid, "DSL-LOCK");
         }
         else

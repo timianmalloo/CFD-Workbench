@@ -266,7 +266,7 @@ internal static class SectionEdits
         }
         if (step.Kind == TangentKind.Angle)
         {
-            double radians = (step.AngleDegrees ?? 0) * Math.PI / 180.0;
+            double radians = (step.AngleDegrees ?? 0) * PlacementRule.RadiansPerDegree;
             double cos = Math.Cos(radians), sin = Math.Sin(radians);
             bool keepLeft = step.KeepHandleId == ids[index - 1];
             bool keepRight = step.KeepHandleId == ids[index + 1];
