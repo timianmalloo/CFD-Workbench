@@ -518,7 +518,7 @@ public sealed class AuthoringSession : IDisposable
         var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
         string identity = parsed.Authored().Assignments[assignmentIndex].ProfileIdentity;
         return new(profile.Name, identity, Vertices(profile.Upper, "upper", profile.Closure), Vertices(profile.Lower, "lower", profile.Closure),
-            Sample(profile.Upper, new ProofBudget()), Sample(profile.Lower, new ProofBudget()), profile.Closure);
+            Sample(profile.Upper), Sample(profile.Lower), profile.Closure);
     }
     private ScopeImpact DescribeScopeCore(string profile, int assignmentIndex, SectionScope scope)
     {
@@ -535,21 +535,12 @@ public sealed class AuthoringSession : IDisposable
     }
     private static ProfileVertex[] Vertices(Curve curve, string side, string closure) => curve.Points.Select((point, index) =>
         new ProfileVertex(side, curve.Ids[index], point[0], point[1], index == 0 || (closure == "closed" && index == curve.Points.Length - 1))).ToArray();
-    internal static ProfilePoint[] Sample(Curve curve, ProofBudget watch)
+    // Display samples, cosine-spaced at the nose. Validity stays with Geometry.Assess.
+    // The optional budget is not charged: this path is not the certificate.
+    internal static ProfilePoint[] Sample(Curve curve, ProofBudget? watch = null)
     {
-        var spans = Bernstein.Spans(curve, watch);
-        // Display polyline at 1e-8, not the certificate's 1e-14 inverse. On a ten-vertex degree-5 rebuild this is
-        // still the most expensive proof (2026-10-03: 209M bit-work, ~0.45 s quiet; 98% in EncloseAt): 101 queries
-        // x ~22 bisections x ~90 exact operations on ~500-bit rationals, which a rebuild's non-dyadic knots produce.
-        var accuracy = Rational.From(1e-8);
-        var samples = new ProfilePoint[101];
-        for (int index = 0; index < samples.Length; index++)
-        {
-            double x = index / 100d;
-            var ordinate = Bernstein.EncloseAt(spans, Rational.From(x), watch, accuracy);
-            samples[index] = new(x, (ordinate.Lower.Down() + ordinate.Upper.Up()) / 2);
-        }
-        return samples;
+        _ = watch;
+        return ProfileEvaluator.Samples(curve, 101);
     }
     private static BlendInterval[] MergeIntervals(IReadOnlyList<AuthoredAssignment> stations, IReadOnlyList<int> affected)
     {

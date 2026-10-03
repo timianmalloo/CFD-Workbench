@@ -1,0 +1,11 @@
+Planted mutant, track DSP, 2026-10-03.
+
+Change, reverted before commit: ProfileEvaluator.FindSpan returned the next knot span
+(mid + 1 when that span exists) instead of the span that contains t.
+
+Command: CFD_TEST_ONLY=ProfileEvaluator_BoundToCertificate_ dotnet run -c Release --project tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj
+
+Red line:
+FAIL ProfileEvaluator_BoundToCertificate_Within1e9Chord InvalidOperationException: section-a x=0.00024671981713419999 outside=0.019879428601843187
+
+The same check is green with the span restored.
