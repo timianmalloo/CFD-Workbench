@@ -736,3 +736,20 @@ SEQUENCING: M1.2b2 PL0 owns WingEstimates.cs; the D-4 fix may touch it, so PL0 d
 NEXT: the Coordinator dispatches the M1.2b fix track (D-1..D-4, F-2..F-4), the property-grid ui-design track (F-1), then PL0.
 
 - request: req-01M3WK66H5M7ZHRV25CGSFP1BW · ruled by: operator-timianmalloo · at: 2026-10-01T20:41:29Z
+
+### Ruling 59 — M1.2c: OD-1 A, OD-2 A, OD-3 B, OD-4 a; ADR-0007 Amendment 1 accepted; section display path (ADR-0010 Amendment 1)
+
+DECISION: the operator ruled on 2026-10-03 after reviewing docs/mockups/m12c-section-editor.html (AskUserQuestion answers in Coordinator session f19a2b12, recorded under the operator's identity).
+
+OD-1 = A: a section is edited in the section editor mode opened in the model area (Edit section in Properties, Return on a selected station, or double-click a section in the Side view); not in the Side slot, not by dragging the placed section.
+OD-2 = A: no Messages pane; blockers show where they block, plus one Show button in the status strip; Undo is the history (consistent with DR-STATUS-1).
+OD-3 = B: the Points pane lives in the right side bar.
+OD-4 = a: if the GSPK certificate spike is no-go, M1.2c ships with paired section point types and per-surface types (DR-11) return with the measured numbers.
+ADR-0007 Amendment 1 (drop the step count from the section-draft receipt): ACCEPTED by the Owner.
+Section display path: AuthoringSession.Sample/ProfileView move to the one binary64 ProfileEvaluator, bound to the certificate within 1e-9 chord by test, cosine-spaced at the nose, captions 'display'; the certificate alone decides validity — ADR-0010 Amendment 1 ACCEPTED.
+
+EVIDENCE: docs/design/m12c-section-editor.md and its gate record (Computational Geometry, Test Architect, Data & Persistence, Marine-CAD UX); docs/notes/m12c-rulings.md; the Computational Geometry review of the proof-budget change. Confidence: the operator's answers are Verified (observed in session f19a2b12).
+
+NEXT: the Coordinator dispatches PRE, then GSPK, DSP and SDR in parallel per the design's §14.
+
+- request: req-01M4176W99TG0VZS3JX0K5DYQE · ruled by: operator-timianmalloo · at: 2026-10-03T15:48:14Z
