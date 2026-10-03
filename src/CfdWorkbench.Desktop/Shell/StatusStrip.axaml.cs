@@ -84,8 +84,10 @@ public partial class StatusStrip : UserControl
     }
 
     /// <summary>The read-only items: selection, units, the estimate note and Text size (DESIGN.md §4).</summary>
-    public void ShowItems(string? selection, bool foilOpen, bool estimates, double textScale)
+    public void ShowItems(string? selection, bool foilOpen, bool estimates, double textScale, string units = "mm")
     {
+        // The section mode measures in chord fractions (the mockup's strip reads "% chord" there).
+        if (UnitsItemText.Text != units) UnitsItemText.Text = units;
         SelectionItemText.Text = selection ?? "";
         AutomationProperties.SetName(SelectionItem, selection is null ? null : "Selection: " + selection);
         string size = string.Create(CultureInfo.InvariantCulture, $"Text {textScale * 100:0} %");

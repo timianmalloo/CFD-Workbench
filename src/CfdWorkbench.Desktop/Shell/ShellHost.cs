@@ -511,7 +511,7 @@ public sealed class ShellHost : Grid
         lastGesture = Controller.Gesture;
 
         bool foilOpen = Controller.Inspection is not null;
-        StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale);
+        StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
         {
@@ -689,8 +689,10 @@ public sealed class ShellHost : Grid
         Properties.ApplyTextScale(step);
         StatusStrip.ApplyTextScale(step);
         ModelView.ApplyTextScale(step);
-        StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step);
+        StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step, StripUnits());
     }
+
+    private string StripUnits() => Controller.Section is null ? "mm" : "% chord";
 
     /// <summary>The strip's selection item ("TE · pt 7 of 14", "Twist · pt 5 of 7"); absent with no point selected.</summary>
     private string? SelectionItemText()
@@ -890,8 +892,11 @@ public sealed class ShellHost : Grid
         if (shown)
         {
             // The right side bar opens at the preset's 260 DIP (LayoutCodec Chrome), as the left one does.
+            // Dock normalizes the siblings' proportions (left + model already sum to 1), so the share p of the width is
+            // written as p / (1 − p).
             double width = DockHost.Bounds.Width;
-            LayoutFactory.RightToolDock.Proportion = width > 0 ? WorkspacePresets.ProportionFor(DefaultLeftPaneWidth, width) : 0.2;
+            double share = width > 0 ? WorkspacePresets.ProportionFor(DefaultLeftPaneWidth, width) : 0.2;
+            LayoutFactory.RightToolDock.Proportion = share / (1 - share);
             docks.Add(LayoutFactory.RightSplitter);
             docks.Add(LayoutFactory.RightToolDock);
             LayoutFactory.RightToolDock.ActiveDockable = LayoutFactory.PointsTool;
@@ -914,11 +919,11 @@ public sealed class ShellHost : Grid
     /// <summary>The copy a section row names when the mode is not open.</summary>
     public const string NotInSection = "Open a section first: select a station and choose Edit section….";
 
-    /// <summary>Thickness ×2 (§11.2): the drawing scale of y in the section editor. Values are never scaled.</summary>
-    public bool ThicknessDoubled { get; private set; }
-
-    /// <summary>Raised when Thickness ×2 changes; the section editor redraws at the new scale.</summary>
-    public event Action<bool>? ThicknessDoubledChanged;
+    /// <summary>
+    /// Thickness ×2 (§11.2) is the section editor's drawing state, owned by its mode bar toggle (EDT). Until that toggle is
+    /// reachable from the shell the row names where it is, rather than flip a state nothing draws (UI-DEAD-CONTROL).
+    /// </summary>
+    public const string ThicknessOnModeBar = "Thickness ×2 is on the section editor's mode bar.";
 
     /// <summary>
     /// Show (design §5.2): selects the point a blocker names and asks the section editor to frame it with the location the
@@ -965,6 +970,8 @@ public sealed class ShellHost : Grid
                     PointRole.TrailingEnd => "The trailing-edge point is always an anchor. It can't be deleted.",
                     _ => null
                 };
+            case "view.thickness-x2":
+                return ThicknessOnModeBar;
             case "section.make-unique":
                 return mode.Draft.Scope == SectionScope.Independent ? "This station already has its own section." : null;
             case "section.thickness-channel":
@@ -991,11 +998,6 @@ public sealed class ShellHost : Grid
             case "window.points":
                 SetRightShown(true);
                 Report(new StatusReport("Points pane shown in the right side bar."));
-                return;
-            case "view.thickness-x2":
-                ThicknessDoubled = !ThicknessDoubled;
-                ThicknessDoubledChanged?.Invoke(ThicknessDoubled);
-                Report(new StatusReport(ThicknessDoubled ? "Thickness drawn ×2. Values are not scaled." : "Thickness drawn 1:1."));
                 return;
             case "section.edit":
                 await EnterSectionAsync(EntryOrigin.Palette);

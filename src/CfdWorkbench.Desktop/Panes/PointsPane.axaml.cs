@@ -15,6 +15,10 @@ namespace CfdWorkbench.Desktop.Panes;
 /// </summary>
 public partial class PointsPane : UserControl
 {
+    // The mockup's grid (docs/mockups/m12c-section-editor.html .pts .pr) is Point 34 · Type 1fr · x 46 · y 46 · Kind 58 px;
+    // x and y are 50 here because the shell font clips five tabular digits at 46 (captures in docs/proof/m12c-pnl).
+    private const string Columns = "34,*,50,50,58";
+
     private WorkbenchController? controller;
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
     private readonly HashSet<string> collapsed = new(StringComparer.Ordinal);
@@ -80,6 +84,7 @@ public partial class PointsPane : UserControl
         note.Text = model.Note ?? "";
         note.IsVisible = model.Note is not null;
         var columns = this.FindControl<Grid>("PointsColumns")!;
+        columns.ColumnDefinitions = new ColumnDefinitions(Columns);
         columns.Children.Clear();
         for (int index = 0; index < model.Columns.Count; index++)
         {
@@ -96,10 +101,9 @@ public partial class PointsPane : UserControl
     private Control Group(PointsGroup group)
     {
         bool open = !collapsed.Contains(group.Id);
-        var header = new ToggleButton
+        var header = new Button
         {
             Name = "PointsGroup_" + group.Id,
-            IsChecked = open,
             Content = new DockPanel
             {
                 Children =
@@ -112,6 +116,7 @@ public partial class PointsPane : UserControl
         };
         header.Classes.Add("pts-group");
         AutomationProperties.SetName(header, group.Title);
+        AutomationProperties.SetHelpText(header, open ? "Expanded" : "Collapsed");
         header.Click += (_, _) =>
         {
             if (!collapsed.Remove(group.Id)) collapsed.Add(group.Id);
@@ -127,7 +132,7 @@ public partial class PointsPane : UserControl
     private Control Row(PointsRow row)
     {
         string key = RowKey(row.Target);
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("2*,3*,3*,3*,3*"), RowDefinitions = new RowDefinitions("Auto,Auto") };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions(Columns), RowDefinitions = new RowDefinitions("Auto,Auto") };
         var point = new Button { Name = "PointButton_" + key, Content = (row.Selected || row.Partner ? "⇄ " : "") + row.Point };
         point.Classes.Add("pts-point");
         AutomationProperties.SetName(point, row.Name + (row.Selected ? ", selected" : row.Partner ? ", paired" : ""));

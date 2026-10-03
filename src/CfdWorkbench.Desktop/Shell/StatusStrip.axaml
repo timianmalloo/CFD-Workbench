@@ -15,7 +15,7 @@
       </DockPanel>
       <StackPanel x:Name="StatusItems" Grid.Column="2" Orientation="Horizontal">
         <Border x:Name="SelectionItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="SelectionItemText" /></Border>
-        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><TextBlock Text="mm" /></Border>
+        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="UnitsItemText" Text="mm" /></Border>
         <Border x:Name="EstimateItem" Classes="status-item" IsVisible="False"><TextBlock Text="≈ estimates" /></Border>
         <Border x:Name="TextSizeItem" Classes="status-item"><TextBlock x:Name="TextSizeItemText" Text="Text 100 %" /></Border>
       </StackPanel>

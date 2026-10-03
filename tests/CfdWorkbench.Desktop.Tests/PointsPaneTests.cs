@@ -23,6 +23,7 @@ public static class PointsPaneTests
 
     public static void Run()
     {
+        Capture();
         Pane("Workspace_Precision_ShowsPointsInHomeRegion", (controller, host, window) =>
         {
             host.ApplyWorkspace(WorkspaceId.Precision);
@@ -145,105 +146,6 @@ public static class PointsPaneTests
                 throw new InvalidOperationException($"y in mm made a step or no reason: '{error.Text}'");
         });
 
-        Section("Properties_SectionPoint_TypeXYRowsInPercentChord", (controller, host, window) =>
-        {
-            var point = SelectUpper(controller, "cv-3");
-            Settle(window);
-            var model = host.Properties.ShownModel ?? throw new InvalidOperationException("no Properties model");
-            var rows = model.Groups.Single(group => group.Id == "pos").Rows;
-            var upper = controller.SectionCurve(SurfaceSide.Upper)!;
-            if (rows[0] is not { Label: "Type · both surfaces", Kind: RowKind.Choice } ||
-                rows[1] is not { Label: "x · both surfaces", Unit: "% c", Kind: RowKind.Input } || rows[1].Value != Quantity.Typed(point.SpanMeters * 100) ||
-                rows[2] is not { Label: "y", Unit: "% c", Kind: RowKind.Input } || rows[2].Value != Quantity.Typed(point.Ordinate * 100) ||
-                model.Identity?.Title != $"Upper surface · point {point.Index + 1} of {upper.Points.Count}" ||
-                model.Identity.Crumb != PropertiesView.PairLine("lower", point.Index + 1))
-                throw new InvalidOperationException("section point rows: " + string.Join(" | ", rows.Select(row => $"{row.Label}={row.Value} {row.Unit}")) + $" · {model.Identity?.Title} · {model.Identity?.Crumb}");
-            var labels = host.Properties.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible).Select(text => text.Text).ToList();
-            if (!labels.Contains("x · both surfaces") || !labels.Contains("Type · both surfaces") || !labels.Contains("% c") ||
-                !labels.Contains(PropertiesView.PairLine("lower", point.Index + 1)))
-                throw new InvalidOperationException("section rows not rendered: " + string.Join(" | ", labels.Take(20)));
-        });
-
-        Section("Properties_SectionPointTypedX_OneStepExact", (controller, host, window) =>
-        {
-            SelectUpper(controller, "cv-5");
-            Settle(window);
-            int steps = controller.Section!.Draft.StepCount;
-            var (typed, expected) = Between(controller, "cv-5");
-            var box = Need<TextBox>(host.Properties, "PointSpanInput");
-            box.Focus();
-            box.Text = typed;
-            Key(box, Avalonia.Input.Key.Enter);
-            Settle(window);
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
-            if (controller.Section!.Draft.StepCount != steps + 1 || point.SpanMeters != expected)
-                throw new InvalidOperationException($"steps {steps} → {controller.Section.Draft.StepCount}; x {point.SpanMeters:R}");
-        });
-
-        Section("Properties_SectionPointTypedMmX_ConvertedAtStationChord", (controller, host, window) =>
-        {
-            SelectUpper(controller, "cv-5");
-            Settle(window);
-            double chord = Sections.Facts(controller.Section!.Draft.Bytes, controller.Section.Draft.Assignment).StationChordMeters;
-            var (typed, _) = Between(controller, "cv-5");
-            double millimetres = double.Parse(typed, System.Globalization.CultureInfo.InvariantCulture) / 100 * chord * 1000;
-            string mm = millimetres.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-            var box = Need<TextBox>(host.Properties, "PointSpanInput");
-            box.Focus();
-            box.Text = mm + " mm";
-            Key(box, Avalonia.Input.Key.Enter);
-            Settle(window);
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
-            double expected = double.Parse(mm, System.Globalization.CultureInfo.InvariantCulture) / 1000 / chord;
-            string strip = host.StatusStrip.Text;
-            if (point.SpanMeters != expected || !strip.Contains($"= {Quantity.Typed(expected * 100)} % chord", StringComparison.Ordinal))
-                throw new InvalidOperationException($"x {point.SpanMeters:R} (expected {expected:R} at chord {chord}); strip '{strip}'");
-        });
-
-        Pane("Properties_StationGroup_EndsWithEditSectionLink", (controller, host, window) =>
-        {
-            controller.Select(new Selection.Station(0, controller.CurrentProjection!.Assignments[0].Eta));
-            Settle(window);
-            var station = host.Properties.ShownModel!.Groups.Single(group => group.Id == "stn");
-            if (station.Rows[^1] is not { Kind: RowKind.Action, Value: PropertiesView.EditSection })
-                throw new InvalidOperationException("the Station group does not end with Edit section…");
-            var link = Need<HyperlinkButton>(host.Properties, "Link_s_edit");
-            if (!link.IsEffectivelyVisible || link.Content as string != PropertiesView.EditSection)
-                throw new InvalidOperationException("the Edit section… link is not drawn");
-            link.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            var start = DateTime.UtcNow;
-            while (controller.Section is null && DateTime.UtcNow - start < TimeSpan.FromSeconds(8)) Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-            if (controller.Section is not { Origin: EntryOrigin.Properties, Draft.Assignment: 0 })
-                throw new InvalidOperationException("the link did not open the section editor from Properties");
-        });
-
-        Section("Properties_SectionGroup_OwnTcAndPerStationTcConsequence", (controller, host, window) =>
-        {
-            SelectUpper(controller, "cv-3");
-            Settle(window);
-            var mode = controller.Section!;
-            var facts = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment);
-            var groups = host.Properties.ShownModel!.Groups;
-            var section = groups.Single(group => group.Id == "sec");
-            string own = $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}";
-            var stations = section.Rows.Where(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).ToList();
-            if (section.Rows[0] is not { Label: "Own t/c" } || section.Rows[0].Value != own || stations.Count != 2 ||
-                stations.Any(row => row.Unit != "%") || section.Notes[0].Text != PropertiesView.ThicknessNote ||
-                !groups.Single(group => group.Id == "sec-le").Rows.Any(row => row is { Key: "sec:intent", Value: "channel" }))
-                throw new InvalidOperationException("Section group: " + string.Join(" | ", section.Rows.Select(row => $"{row.Label}={row.Value}")));
-            string rootBefore = stations[0].Value;
-            // The consequence (R-3): a thicker section does not thicken the foil under "From the Thickness curve".
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
-            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.01)));
-            Settle(window);
-            section = host.Properties.ShownModel!.Groups.Single(group => group.Id == "sec");
-            if (section.Rows[0].Value == own || section.Rows.First(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).Value != rootBefore)
-                throw new InvalidOperationException($"own t/c {section.Rows[0].Value} (was {own}); station t/c moved");
-            var texts = host.Properties.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible).Select(text => text.Text).ToList();
-            if (!texts.Contains("Own t/c") || !texts.Contains(PropertiesView.ThicknessNote))
-                throw new InvalidOperationException("Section group not rendered");
-        });
-
         Section("StatusStrip_ShowAction_FramesBlockingPoint", (controller, host, window) =>
         {
             (PointRef? Point, (double, double)? Range)? shown = null;
@@ -347,6 +249,162 @@ public static class PointsPaneTests
                 failures.Add($"section.cancel: '{host.StatusStrip.Text}'");
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
+    }
+
+    /// <summary>Properties' section rows (§11.4), run from the properties-view suite so the window checks split across two.</summary>
+    public static void RunProperties()
+    {
+        Section("Properties_SectionPoint_TypeXYRowsInPercentChord", (controller, host, window) =>
+        {
+            var point = SelectUpper(controller, "cv-3");
+            Settle(window);
+            var model = host.Properties.ShownModel ?? throw new InvalidOperationException("no Properties model");
+            var rows = model.Groups.Single(group => group.Id == "pos").Rows;
+            var upper = controller.SectionCurve(SurfaceSide.Upper)!;
+            if (rows[0] is not { Label: "Type · both surfaces", Kind: RowKind.Choice } ||
+                rows[1] is not { Label: "x · both surfaces", Unit: "% c", Kind: RowKind.Input } || rows[1].Value != Quantity.Typed(point.SpanMeters * 100) ||
+                rows[2] is not { Label: "y", Unit: "% c", Kind: RowKind.Input } || rows[2].Value != Quantity.Typed(point.Ordinate * 100) ||
+                model.Identity?.Title != $"Upper surface · point {point.Index + 1} of {upper.Points.Count}" ||
+                model.Identity.Crumb != PropertiesView.PairLine("lower", point.Index + 1))
+                throw new InvalidOperationException("section point rows: " + string.Join(" | ", rows.Select(row => $"{row.Label}={row.Value} {row.Unit}")) + $" · {model.Identity?.Title} · {model.Identity?.Crumb}");
+            var labels = host.Properties.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible).Select(text => text.Text).ToList();
+            if (!labels.Contains("x · both surfaces") || !labels.Contains("Type · both surfaces") || !labels.Contains("% c") ||
+                !labels.Contains(PropertiesView.PairLine("lower", point.Index + 1)))
+                throw new InvalidOperationException("section rows not rendered: " + string.Join(" | ", labels.Take(20)));
+        });
+
+        Section("Properties_SectionPointTypedX_OneStepExact", (controller, host, window) =>
+        {
+            SelectUpper(controller, "cv-5");
+            Settle(window);
+            int steps = controller.Section!.Draft.StepCount;
+            var (typed, expected) = Between(controller, "cv-5");
+            var box = Need<TextBox>(host.Properties, "PointSpanInput");
+            box.Focus();
+            box.Text = typed;
+            Key(box, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
+            if (controller.Section!.Draft.StepCount != steps + 1 || point.SpanMeters != expected)
+                throw new InvalidOperationException($"steps {steps} → {controller.Section.Draft.StepCount}; x {point.SpanMeters:R}");
+        });
+
+        Section("Properties_SectionPointTypedMmX_ConvertedAtStationChord", (controller, host, window) =>
+        {
+            SelectUpper(controller, "cv-5");
+            Settle(window);
+            double chord = Sections.Facts(controller.Section!.Draft.Bytes, controller.Section.Draft.Assignment).StationChordMeters;
+            var (typed, _) = Between(controller, "cv-5");
+            double millimetres = double.Parse(typed, System.Globalization.CultureInfo.InvariantCulture) / 100 * chord * 1000;
+            string mm = millimetres.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+            var box = Need<TextBox>(host.Properties, "PointSpanInput");
+            box.Focus();
+            box.Text = mm + " mm";
+            Key(box, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
+            double expected = double.Parse(mm, System.Globalization.CultureInfo.InvariantCulture) / 1000 / chord;
+            string strip = host.StatusStrip.Text;
+            if (point.SpanMeters != expected || !strip.Contains($"= {Quantity.Typed(expected * 100)} % chord", StringComparison.Ordinal))
+                throw new InvalidOperationException($"x {point.SpanMeters:R} (expected {expected:R} at chord {chord}); strip '{strip}'");
+        });
+
+        Pane("Properties_StationGroup_EndsWithEditSectionLink", (controller, host, window) =>
+        {
+            controller.Select(new Selection.Station(0, controller.CurrentProjection!.Assignments[0].Eta));
+            Settle(window);
+            var station = host.Properties.ShownModel!.Groups.Single(group => group.Id == "stn");
+            if (station.Rows[^1] is not { Kind: RowKind.Action, Value: PropertiesView.EditSection })
+                throw new InvalidOperationException("the Station group does not end with Edit section…");
+            var link = Need<HyperlinkButton>(host.Properties, "Link_s_edit");
+            if (!link.IsEffectivelyVisible || link.Content as string != PropertiesView.EditSection)
+                throw new InvalidOperationException("the Edit section… link is not drawn");
+            link.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            var start = DateTime.UtcNow;
+            while (controller.Section is null && DateTime.UtcNow - start < TimeSpan.FromSeconds(8)) Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            if (controller.Section is not { Origin: EntryOrigin.Properties, Draft.Assignment: 0 })
+                throw new InvalidOperationException("the link did not open the section editor from Properties");
+        });
+
+        Section("Properties_SectionGroup_OwnTcAndPerStationTcConsequence", (controller, host, window) =>
+        {
+            SelectUpper(controller, "cv-3");
+            Settle(window);
+            var mode = controller.Section!;
+            var facts = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment);
+            var groups = host.Properties.ShownModel!.Groups;
+            var section = groups.Single(group => group.Id == "sec");
+            string own = $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}";
+            var stations = section.Rows.Where(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).ToList();
+            if (section.Rows[0] is not { Label: "Own t/c" } || section.Rows[0].Value != own || stations.Count != 2 ||
+                stations.Any(row => row.Unit != "%") || section.Notes[0].Text != PropertiesView.ThicknessNote ||
+                !groups.Single(group => group.Id == "sec-le").Rows.Any(row => row is { Key: "sec:intent", Value: "channel" }))
+                throw new InvalidOperationException("Section group: " + string.Join(" | ", section.Rows.Select(row => $"{row.Label}={row.Value}")));
+            string rootBefore = stations[0].Value;
+            // The consequence (R-3): a thicker section does not thicken the foil under "From the Thickness curve".
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.01)));
+            Settle(window);
+            section = host.Properties.ShownModel!.Groups.Single(group => group.Id == "sec");
+            if (section.Rows[0].Value == own || section.Rows.First(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).Value != rootBefore)
+                throw new InvalidOperationException($"own t/c {section.Rows[0].Value} (was {own}); station t/c moved");
+            var texts = host.Properties.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible).Select(text => text.Text).ToList();
+            if (!texts.Contains("Own t/c") || !texts.Contains(PropertiesView.ThicknessNote))
+                throw new InvalidOperationException("Section group not rendered");
+        });
+    }
+
+    /// <summary>
+    /// Review captures of the built shell (CFDW_PNL_CAPTURE=&lt;dir&gt;): Properties, the Points pane and the strip in the
+    /// mockup's paired states — s2 (point 4 an anchor, Horizontal), s2x (a paired x move), s3 (a crossing with
+    /// Show). s2r (the refused refit) is not reachable: Core writes a paired Kind on one surface only (see the PNL report) — light and dark. Off by default; never part of the gate.
+    /// </summary>
+    public static void Capture()
+    {
+        if (Environment.GetEnvironmentVariable("CFDW_PNL_CAPTURE") is not { Length: > 0 } directory) return;
+        Directory.CreateDirectory(directory);
+        foreach (var (variant, theme) in new[] { (Avalonia.Styling.ThemeVariant.Light, "light"), (Avalonia.Styling.ThemeVariant.Dark, "dark") })
+            Section("Capture_Pnl_" + theme, (controller, host, window) =>
+            {
+                window.RequestedThemeVariant = variant;
+                var upper = controller.SectionCurve(SurfaceSide.Upper)!;
+                string id = upper.Points[3].Id;   // the mockup's point 4
+                Pump(host.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, id, true)));
+                WaitAssessed(controller, window);
+                Pump(host.ApplySectionStepAsync(new SectionStep.SetTangent(SurfaceSide.Upper, id, TangentKind.Horizontal, null, null)));
+                WaitAssessed(controller, window);
+                SelectUpper(controller, id);
+                Settle(window);
+                Save(window, Path.Combine(directory, $"pnl-s2-{theme}.png"));
+                var control = controller.SectionCurve(SurfaceSide.Upper)!.Points.Last(point => point.Role == PointRole.Control);
+                var (typed, _) = Between(controller, control.Id);
+                SelectUpper(controller, control.Id);
+                Settle(window);
+                var box = Need<TextBox>(host.Properties, "PointSpanInput");
+                box.Focus();
+                box.Text = typed;
+                Key(box, Avalonia.Input.Key.Enter);
+                WaitAssessed(controller, window);
+                Save(window, Path.Combine(directory, $"pnl-s2x-{theme}.png"));
+                controller.UndoSectionStep();
+                WaitAssessed(controller, window);
+                var lower = controller.SectionCurve(SurfaceSide.Lower)!;
+                var low = lower.Points[lower.Points.Count - 3];
+                controller.Select(new Selection.Points([new PointRef("lower", low.Id, controller.Section!.Draft.Profile)]));
+                Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Lower, low.Id, low.SpanMeters, 0.10)));
+                WaitAssessed(controller, window);
+                Save(window, Path.Combine(directory, $"pnl-s3-{theme}.png"));
+                Console.WriteLine($"CAPTURE {theme} strip '{host.StatusStrip.Text}'");
+            });
+    }
+
+    private static void Save(Window window, string path)
+    {
+        Settle(window);
+        var size = new PixelSize((int)window.ClientSize.Width, (int)window.ClientSize.Height);
+        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size);
+        bitmap.Render(window);
+        bitmap.Save(path);
     }
 
     /// <summary>A window on the Example in the Precision workspace with the Root section open.</summary>
