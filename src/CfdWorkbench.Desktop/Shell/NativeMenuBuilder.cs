@@ -70,13 +70,18 @@ public static class NativeMenuBuilder
         };
 
         if (key == Key.None) return null;
-        if (modifiers == KeyModifiers.None && key == Key.C) return null;
+        // A single-character key (C, F) is bound on the view control, not the window, so it never fires in a text field
+        // (2.1.4); the menu shows it through the palette instead of claiming it as a key equivalent.
+        if (modifiers == KeyModifiers.None) return null;
         return new KeyGesture(key, modifiers);
     }
 
     private static bool IsPaneCommand(string id) =>
         id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
-        id is "view.comb" or "view.zoom-in" or "view.zoom-out" or "view.fit";
+        id is "view.comb" || ViewCommands.Handles(id);
+
+    /// <summary>The View submenus built from the table after Fit Selection (M1.2b2 §5.2), in this order.</summary>
+    private static readonly string[] ViewSubmenus = [ViewCommands.ViewsMenu, ViewCommands.DisplayMenu, ViewCommands.CameraMenu, ViewCommands.PanMenu];
 
     private static ShellHost? FindHost(Window window)
     {
@@ -127,6 +132,34 @@ public static class NativeMenuBuilder
                     }
                 }
 
+                // Views, Display, Camera and Pan after Fit Selection; the radio items follow the controller, whichever
+                // control changed the layout or the target view's display.
+                if (row.Id == "view.fit-selection")
+                {
+                    var built = new List<NativeMenuItem>();
+                    foreach (var name in ViewSubmenus)
+                    {
+                        if (!menuGroups.TryGetValue(name, out var choices)) continue;
+                        var subMenu = new NativeMenu();
+                        foreach (var choice in choices)
+                        {
+                            var choiceItem = Item(choice);
+                            subMenu.Add(choiceItem);
+                            built.Add(choiceItem);
+                        }
+                        menu.Add(new NativeMenuItem(name) { Menu = subMenu });
+                    }
+                    if (FindHost(window) is { } viewHost)
+                    {
+                        SyncViewItems(built, viewHost.Controller);
+                        viewHost.Controller.Changed += () =>
+                        {
+                            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) SyncViewItems(built, viewHost.Controller);
+                            else Avalonia.Threading.Dispatcher.UIThread.Post(() => SyncViewItems(built, viewHost.Controller));
+                        };
+                    }
+                }
+
                 // Insert Open Recent submenu after "file.open"
                 if (row.Id == "file.open")
                 {
@@ -165,7 +198,8 @@ public static class NativeMenuBuilder
             {
                 item.Gesture = ParseGesture(row.Gesture);
             }
-            if (CommandTable.TextSizeOf(row.Id) is not null) item.ToggleType = NativeMenuItemToggleType.Radio;
+            if (CommandTable.TextSizeOf(row.Id) is not null || row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu)
+                item.ToggleType = NativeMenuItemToggleType.Radio;
 
             item.Command = new DelegateCommand(() =>
             {
@@ -189,6 +223,18 @@ public static class NativeMenuBuilder
                 return true;
             });
             return item;
+        }
+    }
+
+    /// <summary>Checks the Views and Display radio items that match the controller, and refreshes every view item's enablement.</summary>
+    private static void SyncViewItems(IEnumerable<NativeMenuItem> items, WorkbenchController controller)
+    {
+        foreach (var item in items)
+        {
+            if (CommandTable.Rows.FirstOrDefault(row => ViewCommands.Handles(row.Id) && Equals(row.Title, item.Header)) is not { } row) continue;
+            if (ViewCommands.IsChecked(row.Id, controller) is { } isChecked) item.IsChecked = isChecked;
+            item.IsEnabled = item.Command?.CanExecute(null) ?? true;
+            (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
     }
 

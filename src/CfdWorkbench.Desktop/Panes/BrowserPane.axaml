@@ -27,6 +27,13 @@
         <TextBlock Classes="caption" Text="Accepted stations · normalized span η" />
         <ListBox x:Name="StationList" MaxHeight="{StaticResource NavigatorListHeight}"
                  AutomationProperties.Name="Accepted station assignments and profile identities" />
+        <!-- M1.2b2 §11.4: the channel groups, the equivalent path to close points on the elevations (2.5.8). -->
+        <TextBlock x:Name="DihedralHeader" Classes="caption" Text="Dihedral" />
+        <ListBox x:Name="DihedralList" AutomationProperties.Name="Dihedral points" />
+        <TextBlock x:Name="TwistHeader" Classes="caption" Text="Twist" />
+        <ListBox x:Name="TwistList" AutomationProperties.Name="Twist points" />
+        <TextBlock x:Name="ThicknessHeader" Classes="caption" Text="Thickness" />
+        <ListBox x:Name="ThicknessList" AutomationProperties.Name="Thickness points" />
       </StackPanel>
     </StackPanel>
   </ScrollViewer>

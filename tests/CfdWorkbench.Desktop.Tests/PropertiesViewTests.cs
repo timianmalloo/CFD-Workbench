@@ -132,8 +132,25 @@ public static class PropertiesViewTests
 
         DesktopChecks.Check("PropertiesView_RowSet_FollowsCurveTable", () =>
         {
-            // MC-17 (rails): handles by angle + length; an anchor's handle rows follow its kind. Twist and t/c rows are
-            // deferred to PNL / CH1 (Core publishes no channel points yet).
+            // MC-17: rails and Dihedral set handles by angle + length (an anchor's handle rows follow its kind); Twist and t/c
+            // set every point and handle by From root + value, in the channel's own unit (M1.2b2 §3.6).
+            using var channels = Opened();
+            string ChannelKeys(Selection selection) => string.Join(",", Build(channels, selection).Groups.SelectMany(group => group.Rows)
+                .Where(row => row.Kind is RowKind.Input or RowKind.KindList).Select(row => row.Key + ":" + row.Unit));
+            var channelChecks = new List<(string Name, string Actual, string Want)>
+            {
+                ("dihedral control", ChannelKeys(new Selection.Points([Ref(Channel(channels, "dihedral", 4))])), "p:from:mm,p:aft:mm"),
+                ("twist control", ChannelKeys(new Selection.Points([Ref(Channel(channels, "twist", 4))])), "p:from:mm,p:aft:°"),
+                ("thickness control", ChannelKeys(new Selection.Points([Ref(Channel(channels, "thickness", 4))])), "p:from:mm,p:aft:%")
+            };
+            var twistAnchor = AnchorOn(channels, "twist", 3, TangentKind.Corner);
+            channelChecks.Add(("twist corner anchor", ChannelKeys(new Selection.Points([Ref(twistAnchor)])),
+                "p:from:mm,p:aft:°,t:kind:,h:root-from:mm,h:root-value:°,h:tip-from:mm,h:tip-value:°"));
+            channelChecks.Add(("twist handle", ChannelKeys(new Selection.Points([Ref(Handles(channels, twistAnchor).Tip)])), "p:from:mm,p:aft:°,t:kind:"));
+            var dihedralAnchor = AnchorOn(channels, "dihedral", 3, TangentKind.Corner);
+            channelChecks.Add(("dihedral handle", ChannelKeys(new Selection.Points([Ref(Handles(channels, dihedralAnchor).Tip)])), "h:angle:°,h:length:mm,t:kind:"));
+            var channelWrong = channelChecks.Where(check => check.Actual != check.Want).Select(check => $"{check.Name}: {check.Actual}").ToList();
+            if (channelWrong.Count > 0) throw new InvalidOperationException(string.Join("; ", channelWrong));
             using var controller = Opened();
             var anchor = MakeAnchor(controller);
             string Keys(Selection selection) => string.Join(",", Build(controller, selection).Groups.SelectMany(group => group.Rows)
@@ -175,10 +192,18 @@ public static class PropertiesViewTests
                 throw new InvalidOperationException($"note '{wing.Notes.FirstOrDefault()?.Text}' chip {wing.Chip}");
         });
 
-        DesktopChecks.Check("PropertiesView_TypedTcBelowOnePercent_WarnsFractionHint", () =>
+        Pane("PropertiesView_TypedTcBelowOnePercent_WarnsFractionHint", (controller, host, window) =>
         {
-            // MC-20 (grammar): a bare 0.12 is 0.12 %, never silently 12 %, and it warns with COPY-169. The t/c row's commit
-            // is PNL's (no thickness channel in Core yet).
+            // MC-20: a bare 0.12 is 0.12 %, never silently 12 %; the t/c row commits it as typed and warns with COPY-169 in
+            // the status strip (DR-STATUS-1).
+            var point = Channel(controller, "thickness", 3);
+            Select(controller, window, point);
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "0.12");
+            var committed = Reload(controller, point);
+            string strip = Status(host).Text ?? "";
+            if (Math.Abs(committed.Ordinate - 0.0012) > 1e-7 || strip != "0.12 % — for 12 %, type 12 or 0.12 × 100." ||
+                StatusStripTests.Kind(host) != "warning")
+                throw new InvalidOperationException($"t/c {committed.Ordinate}, strip '{strip}' ({StatusStripTests.Kind(host)})");
             var none = new Dictionary<string, double>();
             if (!UnitEntry.TryParse("0.12", UnitFamily.Percent, none, out var bare) || bare.Value != 0.12)
                 throw new InvalidOperationException("0.12 became " + bare.Value);
@@ -925,6 +950,260 @@ public static class PropertiesViewTests
             string strip = StatusStripTests.Text(host).Text ?? "";
             if (strip != selected) throw new InvalidOperationException($"strip '{strip}' (controller '{controller.Status}'), want '{selected}'");
         });
+
+        ChannelRows();
+        ShellModelTests.RunWindowed();
+    }
+
+    // ---------------- M1.2b2 PNL: channel rows, typed channel values, copy (docs/design/m12b2-3d-elevations.md §11.4) ----------------
+
+    private static void ChannelRows()
+    {
+        DesktopChecks.Check("Properties_ChannelPoints_SpanAndValueRowsPerUnitTable", () =>
+        {
+            // §3.6 / §11.4: a channel point shows From root (mm), η and its value in the channel's display unit at 0.01 —
+            // Height (mm), Twist (°), t/c (%) — as typed fields; one row per channel.
+            using var controller = Opened();
+            var failures = new List<string>();
+            foreach (var (curve, label, unit, family, scale) in new[] {
+                ("dihedral", "Height", "mm", UnitFamily.Length, 1000.0), ("twist", "Twist", "°", UnitFamily.Angle, 1.0),
+                ("thickness", "t/c", "%", UnitFamily.Percent, 100.0) })
+            {
+                var point = Channel(controller, curve, 4);
+                var model = Build(controller, new Selection.Points([Ref(point)]));
+                var rows = model.Groups.FirstOrDefault(group => group.Id == "pos")?.Rows ?? [];
+                var from = rows.FirstOrDefault(row => row.Key == "p:from");
+                var value = rows.FirstOrDefault(row => row.Key == "p:aft");
+                string name = PropertiesView.Curves[curve].Name;
+                if (model.Identity?.Title != $"{name} · point 5 of 7") failures.Add($"{curve} identity '{model.Identity?.Title}'");
+                if (from is not { Kind: RowKind.Input, Unit: "mm", Label: "From root" } || from.Value != Quantity.TypedLength(point.SpanMeters))
+                    failures.Add($"{curve} from {from?.Kind} {from?.Unit} '{from?.Value}'");
+                if (rows.All(row => row.Key != "p:eta")) failures.Add($"{curve} has no η");
+                string want = Quantity.Typed(point.Ordinate * scale);
+                if (value is null || value.Kind != RowKind.Input || value.Label != label || value.Unit != unit || value.Family != family || value.Value != want)
+                    failures.Add($"{curve} value {value?.Kind} {value?.Label} {value?.Unit} {value?.Family} '{value?.Value}', want '{want}'");
+            }
+            // The approved mockup's screen 3b: twist point 5 of 7 at 315.00 mm from the root, −1.00°.
+            var twist = Build(controller, new Selection.Points([Ref(Channel(controller, "twist", 4))])).Groups
+                .FirstOrDefault(group => group.Id == "pos")?.Rows ?? [];
+            string reading = string.Join(",", twist.Where(row => row.Key is "p:from" or "p:aft").Select(row => row.Value));
+            if (reading != "315.00,−1.00") failures.Add("twist point 5 reads " + reading);
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+
+        DesktopChecks.Check("Properties_DihedralHandle_AngleIsLocalDihedralBothHandles", () =>
+        {
+            // §3.6: a Dihedral handle is typed as angle and length; the angle is the local dihedral angle of the tangent
+            // line, atan2(Δheight, Δspan) root → tip, for both handles, so a Smooth anchor shows one value on both.
+            using var controller = Opened();
+            var anchor = AnchorOn(controller, "dihedral", 3, TangentKind.Smooth);
+            var tip = Handles(controller, anchor).Tip;
+            MoveTo(controller, tip, tip.SpanMeters, tip.Ordinate + 0.012);   // tilt the tangent; co-motion keeps the line
+            anchor = Reload(controller, anchor);
+            var (root, after) = Handles(controller, anchor);
+            double expected = Math.Atan2(after.Ordinate - root.Ordinate, after.SpanMeters - root.SpanMeters) * 180 / Math.PI;
+            var failures = new List<string>();
+            if (Math.Abs(expected) < 0.5) failures.Add($"the tangent did not tilt ({expected}°)");
+            foreach (var handle in new[] { root, after })
+            {
+                var rows = Build(controller, new Selection.Points([Ref(handle)])).Groups.SelectMany(group => group.Rows).ToList();
+                var angle = rows.FirstOrDefault(row => row.Key == "h:angle");
+                if (angle is not { Kind: RowKind.Input, Label: "Dihedral angle", Unit: "°" } || angle.Value != Quantity.PlacedAngle(expected))
+                    failures.Add($"handle {handle.Index}: {angle?.Label} '{angle?.Value}', want '{Quantity.PlacedAngle(expected)}'");
+                if (rows.FirstOrDefault(row => row.Key == "h:length") is not { Unit: "mm", Kind: RowKind.Input })
+                    failures.Add($"handle {handle.Index} has no length field");
+            }
+            var anchorAngle = Build(controller, new Selection.Points([Ref(anchor)])).Groups.SelectMany(group => group.Rows)
+                .FirstOrDefault(row => row.Key == "h:angle");
+            if (anchorAngle?.Value != Quantity.PlacedAngle(expected)) failures.Add($"anchor angle '{anchorAngle?.Value}'");
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+
+        Pane("Properties_TwistHandle_SpanAndValueTyped", (controller, host, window) =>
+        {
+            // §3.6 / §11.4: a Twist handle has no angle (an angle in mm × ° means nothing); it is typed by From root and value.
+            var anchor = AnchorOn(controller, "twist", 3, TangentKind.Corner);
+            var tip = Handles(controller, anchor).Tip;
+            string keys = string.Join(",", Build(controller, new Selection.Points([Ref(tip)])).Groups.SelectMany(group => group.Rows)
+                .Where(row => row.Kind == RowKind.Input).Select(row => row.Key + ":" + row.Unit));
+            if (keys != "p:from:mm,p:aft:°") throw new InvalidOperationException("handle fields " + keys);
+            Select(controller, window, tip);
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "-0.75");
+            var valued = Reload(controller, tip);
+            if (Math.Abs(valued.Ordinate + 0.75) > 1e-5 || Math.Abs(valued.SpanMeters - tip.SpanMeters) > 1e-9)
+                throw new InvalidOperationException($"value commit: {valued.SpanMeters} m, {valued.Ordinate}°");
+            Type(controller, window, Need<TextBox>(host.Properties, "PointSpanInput"),
+                Quantity.ForField(Quantity.TypedLength(valued.SpanMeters + 0.005)));
+            var spanned = Reload(controller, tip);
+            if (Math.Abs(spanned.SpanMeters - valued.SpanMeters - 0.005) > 1e-5 || Math.Abs(spanned.Ordinate - valued.Ordinate) > 1e-5)
+                throw new InvalidOperationException($"span commit: {spanned.SpanMeters} m, {spanned.Ordinate}°");
+        });
+
+        Pane("Properties_TypedTwistExpression_DegreesEchoed", (controller, host, window) =>
+        {
+            // MC-4 on the Twist row: an angle expression commits in degrees and its echo (COPY-157) goes to the strip.
+            var point = Channel(controller, "twist", 4);
+            Select(controller, window, point);
+            var seen = Changes(Status(host));
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "-1.5 + 0.25");
+            var moved = Reload(controller, point);
+            if (Math.Abs(moved.Ordinate + 1.25) > 1e-5 || Math.Abs(moved.SpanMeters - point.SpanMeters) > 1e-9)
+                throw new InvalidOperationException($"twist {moved.Ordinate}° at {moved.SpanMeters} m");
+            if (!seen.Contains("-1.5 + 0.25 = −1.25°.")) throw new InvalidOperationException("strip: " + string.Join(" | ", seen));
+            string field = Need<TextBox>(host.Properties, "PointAftInput").Text ?? "";
+            if (field != "-1.25") throw new InvalidOperationException("field " + field);
+        });
+
+        Pane("Properties_TypedThicknessPercent_EchoedPercent", (controller, host, window) =>
+        {
+            // MC-4 on the t/c row: a % expression commits as a chord fraction and echoes in % (COPY-157).
+            var point = Channel(controller, "thickness", 4);
+            Select(controller, window, point);
+            var seen = Changes(Status(host));
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "12 + 0.5");
+            var moved = Reload(controller, point);
+            if (Math.Abs(moved.Ordinate - 0.125) > 1e-7) throw new InvalidOperationException("t/c " + moved.Ordinate);
+            if (!seen.Contains("12 + 0.5 = 12.50 %.")) throw new InvalidOperationException("strip: " + string.Join(" | ", seen));
+            string field = Need<TextBox>(host.Properties, "PointAftInput").Text ?? "";
+            if (field != "12.50") throw new InvalidOperationException("field " + field);
+        });
+
+        Pane("PropertiesView_TypedTwistBeyondDomain_ClampedEchoWarns", (controller, host, window) =>
+        {
+            // MC-19: a typed twist past the certificate's domain is clamped in Core, never refused; the echo (COPY-168) goes
+            // to the strip as a warning with Core's number. The pane holds no domain constant.
+            var tip = Channel(controller, "twist", 6);
+            Select(controller, window, tip);
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "70");
+            var clamped = Reload(controller, tip);
+            string limit = Quantity.PlacedAngle(CfdWorkbench.Core.Geometry.TwistDomainDegrees);
+            string want = $"70 typed; set to {limit}°, the largest that can be checked.";
+            string strip = Status(host).Text ?? "";
+            if (Math.Abs(clamped.Ordinate - CfdWorkbench.Core.Geometry.TwistDomainDegrees) > 1e-5 || !controller.LastGestureClamped ||
+                strip != want || StatusStripTests.Kind(host) != "warning")
+                throw new InvalidOperationException($"twist {clamped.Ordinate}, clamped {controller.LastGestureClamped}, strip '{strip}' ({StatusStripTests.Kind(host)})");
+            string field = Need<TextBox>(host.Properties, "PointAftInput").Text ?? "";
+            if (field != limit) throw new InvalidOperationException("field " + field);
+        });
+
+        Pane("StatusLine_ChannelCommitReport_PoliteLiveRegion", (controller, host, window) =>
+        {
+            // §11.4 "Committed move" and §11.6: a channel commit is reported once in the strip's polite status line, from
+            // the operation's own numbers.
+            var point = Channel(controller, "twist", 4);
+            var status = Status(host);
+            var seen = Changes(status);
+            MoveTo(controller, point, point.SpanMeters, -1.25);
+            Settle(window);
+            const string want = "Moved twist point 5 by −0.25°. Tip twist −2.00°.";
+            if (seen.Count(text => text == want) != 1 || AutomationProperties.GetLiveSetting(status) != AutomationLiveSetting.Polite)
+                throw new InvalidOperationException($"live {AutomationProperties.GetLiveSetting(status)}: " + string.Join(" | ", seen));
+        });
+
+        Pane("WingBlock_DuringThicknessDrag_MaxTcChangesBeforeRelease", (controller, host, window) =>
+        {
+            // §0.1: dragging a t/c point updates the Wing's Max t/c from the draft before release; Esc restores it.
+            var point = Channel(controller, "thickness", 3);
+            Select(controller, window, point);
+            string before = Text(host.Properties, "MaxTcText");
+            if (!controller.BeginGesture(Ref(point), GestureInput.Pointer)) throw new InvalidOperationException("no gesture");
+            controller.UpdateGesture(point.SpanMeters, 0.16);
+            controller.FlushGestureFrame();
+            Settle(window);
+            string during = Text(host.Properties, "MaxTcText");
+            var state = controller.Gesture;
+            Pump(controller.EndGestureAsync(GestureEnd.Escape));
+            Settle(window);
+            string after = Text(host.Properties, "MaxTcText");
+            static double Number(string text) => double.Parse(text.Replace("≈", "", StringComparison.Ordinal).Trim(), Inv);
+            if (state != GestureState.Dragging || !(Number(during) > Number(before)) || after != before)
+                throw new InvalidOperationException($"Max t/c {before} → {during} ({state}) → {after}");
+        });
+
+        DesktopChecks.Check("Copy_TwistClampReason_SameFormatterAsProbe", () =>
+        {
+            // §11.4: the clamp reason's number is Core's Geometry.TwistDomainDegrees through the placed-angle formatter that
+            // the probe and Properties use, so the reason and a clamped reading show the same digits.
+            string limit = Quantity.PlacedAngle(CfdWorkbench.Core.Geometry.TwistDomainDegrees);
+            string want = $"Twist is limited to ±{limit}° — larger angles can't be checked yet.";
+            if (PropertyCopy.TwistClamp != want) throw new InvalidOperationException("reason: " + PropertyCopy.TwistClamp);
+            using var controller = Opened();
+            var tip = Channel(controller, "twist", 6);
+            MoveTo(controller, tip, tip.SpanMeters, 90);
+            string reading = Build(controller, new Selection.Points([Ref(tip)])).Groups.First(group => group.Id == "pos").Rows
+                .First(row => row.Key == "p:aft").Value;
+            if (!controller.LastGestureClamped || reading != limit || !PropertyCopy.TwistClamp.Contains("±" + reading + "°", StringComparison.Ordinal))
+                throw new InvalidOperationException($"clamped {controller.LastGestureClamped}, reading '{reading}', reason '{PropertyCopy.TwistClamp}'");
+        });
+
+        DesktopChecks.Check("Copy_M12b2Outcomes_ExactStrings", () =>
+        {
+            // §11.4 copy table, exactly; numbers come from the operation (before/after points, the curve, the estimates).
+            static PointView P(string curve, int index, PointRole role, double span, double ordinate) =>
+                new(curve, "cv-" + index, index, span / 0.45, span, ordinate, role, null, null, PointFreedom.Free, []);
+            static CurveView C(string curve, double tip) =>
+                new(curve, 16, [], [P(curve, 0, PointRole.RootEnd, 0, 0), P(curve, 6, PointRole.TipEnd, 0.45, tip)], []);
+            var cases = new (string Actual, string Want)[]
+            {
+                (PropertyCopy.CommittedMove(P("dihedral", 4, PointRole.Control, 0.3, 0.0004), P("dihedral", 4, PointRole.Control, 0.3, 0.0124),
+                    C("dihedral", 0.0124), null, null), "Moved dihedral point 5 by 12.00 mm. Tip height 12.40 mm."),
+                (PropertyCopy.CommittedMove(P("twist", 6, PointRole.TipEnd, 0.45, -2), P("twist", 6, PointRole.TipEnd, 0.45, -3),
+                    C("twist", -3), null, null), "Moved twist tip end by −1.00°. Tip twist −3.00°."),
+                (PropertyCopy.CommittedMove(P("thickness", 1, PointRole.Control, 0.05, 0.12), P("thickness", 1, PointRole.Control, 0.05, 0.123),
+                    C("thickness", 0.12), null, 0.123), "Moved thickness point 2 by 0.30 %. Max t/c 12.30 %."),
+                (PropertyCopy.CommittedMove(P("trailing", 4, PointRole.Control, 0.2, 0.1), P("trailing", 4, PointRole.Control, 0.2, 0.10214),
+                    C("trailing", 0.1), 0.1013, null), "Moved trailing edge point 5 by 2.14 mm. MAC 101.30 mm."),
+                (PropertyCopy.LockedDihedralRoot, "The dihedral root is at the centre line. It can't be moved."),
+                (PropertyCopy.CoupledRoot, "The root end and its handle move together (root mirror)."),
+                (PropertyCopy.ThicknessClamp, "t/c must stay above 0 % and below 100 %."),
+                (WorkbenchController.SurfaceKeptNote, "Showing the last shape that could be drawn.")
+            };
+            var wrong = cases.Where(item => item.Actual != item.Want).Select(item => $"'{item.Actual}' ≠ '{item.Want}'").ToList();
+            if (wrong.Count > 0) throw new InvalidOperationException(string.Join("; ", wrong));
+        });
+    }
+
+    // ---------------- channel fixtures ----------------
+
+    /// <summary>The point at <paramref name="index"/> of a channel in the example foil (seven points, controls between the ends).</summary>
+    internal static PointView Channel(WorkbenchController controller, string curve, int index) =>
+        controller.CurveFor(curve)?.Points.FirstOrDefault(point => point.Index == index)
+        ?? throw new InvalidOperationException($"{curve} has no point {index}");
+
+    /// <summary>Makes a channel control point an anchor of <paramref name="kind"/> and returns it.</summary>
+    internal static PointView AnchorOn(WorkbenchController controller, string curve, int index, TangentKind kind)
+    {
+        var point = Channel(controller, curve, index);
+        Pump(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(curve, point.Id)));
+        var anchor = Reload(controller, point);
+        if (anchor.Kind != kind) Pump(controller.ApplyPointCommandAsync(new PointCommand.SetTangent(curve, anchor.Id, kind, null)));
+        return Reload(controller, anchor);
+    }
+
+    internal static (PointView Root, PointView Tip) Handles(WorkbenchController controller, PointView anchor)
+    {
+        var handles = controller.CurveFor(anchor.Curve)!.Points.Where(point => point.AnchorId == anchor.Id).OrderBy(point => point.Index).ToArray();
+        return (handles[0], handles[^1]);
+    }
+
+    /// <summary>One typed gesture to (span, ordinate): the path Properties and the elevations commit through.</summary>
+    internal static void MoveTo(WorkbenchController controller, PointView point, double spanMeters, double ordinate)
+    {
+        if (!controller.BeginGesture(Ref(point), GestureInput.Typed)) throw new InvalidOperationException("no gesture on " + point.Id);
+        controller.UpdateGesture(spanMeters, ordinate);
+        controller.FlushGestureFrame();
+        var outcome = controller.EndGestureAsync(GestureEnd.Release);
+        Pump(outcome);
+        if (outcome.Result is not GestureOutcome.Committed) throw new InvalidOperationException("move not committed: " + outcome.Result);
+    }
+
+    /// <summary>Types into a field and presses Return, then waits for the commit.</summary>
+    internal static void Type(WorkbenchController controller, Window window, TextBox field, string text)
+    {
+        field.Focus();
+        field.Text = text;
+        Key(field, Avalonia.Input.Key.Enter);
+        WaitIdle(controller, window);
     }
 
     // ---------------- fixtures ----------------
@@ -1004,7 +1283,7 @@ public static class PropertiesViewTests
 
     internal static PropertiesModel Build(WorkbenchController controller, Selection selection) =>
         PropertiesView.Build(selection, controller.CurrentProjection, controller.Estimates, ShellMode.Workspace,
-            new PropertiesContext(controller.Planform));
+            new PropertiesContext(controller.Planform, Curves: controller.CurveFor));
 
     private static IEnumerable<(string Name, PropertiesModel Model)> EverySelection(WorkbenchController controller)
     {
@@ -1032,7 +1311,7 @@ public static class PropertiesViewTests
         (curve == "leading" ? controller.Planform!.Leading : controller.Planform!.Trailing).Points.First(point => point.Role == PointRole.Control);
 
     internal static PointView Reload(WorkbenchController controller, PointView point) =>
-        PropertiesView.Find(controller.Planform!, Ref(point)) ?? throw new InvalidOperationException("point gone: " + point.Id);
+        PropertiesView.Find(controller.CurveFor, Ref(point)) ?? throw new InvalidOperationException("point gone: " + point.Id);
 
     internal static PointRef Ref(PointView point) => new(point.Curve, point.Id);
 
