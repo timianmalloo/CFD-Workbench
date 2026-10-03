@@ -25,6 +25,9 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit), SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit);
         IdentityTests.Check(nameof(SectionEdits_PairedAnchorToControlRefitOverLimit_Refused), SectionEdits_PairedAnchorToControlRefitOverLimit_Refused);
         IdentityTests.Check(nameof(SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold), SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold);
+        IdentityTests.Check(nameof(SectionEdits_PairedSetTangent_BothSurfacesSameKind), SectionEdits_PairedSetTangent_BothSurfacesSameKind);
+        IdentityTests.Check(nameof(SectionEdits_PairedToAnchorWithKind_PartnerRowWritten), SectionEdits_PairedToAnchorWithKind_PartnerRowWritten);
+        IdentityTests.Check(nameof(SectionEdits_PairedToControl_PartnerRowRemoved), SectionEdits_PairedToControl_PartnerRowRemoved);
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
     }
 
@@ -231,6 +234,47 @@ internal static class SectionEditsTests
         SectionPointTests.Near(ProfileEvaluator.OrdinateAt(ends.Upper, 0), ProfileEvaluator.OrdinateAt(anchored.Upper, 0), 1e-12);
         SectionPointTests.Near(ProfileEvaluator.OrdinateAt(ends.Upper, 1), ProfileEvaluator.OrdinateAt(anchored.Upper, 1), 1e-12);
         SectionPointTests.Near(0, LowerDeviation(ends, anchored), 1e-9);
+    }
+
+    private static void SectionEdits_PairedSetTangent_BothSurfacesSameKind()
+    {
+        var angled = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Upper, "cv-4", TangentKind.Angle, 20, null), Anchor()));
+        SameKindOnBoth(angled, "angle", 20);
+        byte[] anchored = Anchor();
+        var anchoredProfile = ProfileOf(anchored);
+        string lowerId = anchoredProfile.Lower.Ids[Array.IndexOf(anchoredProfile.Upper.Ids, "cv-4")];
+        var level = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Lower, lowerId, TangentKind.Horizontal, null, null), anchored));
+        SameKindOnBoth(level, "horizontal", null);
+    }
+
+    private static void SectionEdits_PairedToAnchorWithKind_PartnerRowWritten()
+    {
+        SameKindOnBoth(ProfileOf(Anchor()), "smooth", null);
+        var corner = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Upper, "cv-4", TangentKind.Corner, null, null), Anchor()));
+        IdentityTests.Equal(0, corner.Upper.Tangents.Length);
+        IdentityTests.Equal(0, corner.Lower.Tangents.Length);
+    }
+
+    private static void SectionEdits_PairedToControl_PartnerRowRemoved()
+    {
+        byte[] anchored = Anchor();
+        var profile = ProfileOf(anchored);
+        byte[] control = SectionEdits.Apply(anchored, 0, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", false)).Bytes;
+        var after = ProfileOf(control);
+        IdentityTests.Equal(0, after.Upper.Tangents.Length);
+        IdentityTests.Equal(0, after.Lower.Tangents.Length);
+        IdentityTests.Equal(profile.Upper.Points.Length - 2, after.Lower.Points.Length);
+    }
+
+    private static void SameKindOnBoth(ProfileDefinition profile, string kind, double? angle)
+    {
+        int index = profile.Upper.Tangents.Select(row => Array.IndexOf(profile.Upper.Ids, row.Id)).Single();
+        var upper = profile.Upper.Tangents.Single(row => row.Id == profile.Upper.Ids[index]);
+        var lower = profile.Lower.Tangents.Single(row => row.Id == profile.Lower.Ids[index]);
+        IdentityTests.Equal(kind, upper.Kind);
+        IdentityTests.Equal(kind, lower.Kind);
+        IdentityTests.Equal(angle, upper.Angle);
+        IdentityTests.Equal(angle, lower.Angle);
     }
 
     private static void SectionEdits_TwoProfiles_ControlToAnchor_Observed()
