@@ -280,6 +280,11 @@ window.DOCS_INDEX = {
           "by": "design-m12b2-3d-elevations",
           "on": "2026-09-30",
           "reason": "M1.2b2 applies tangent rows to the dihedral, twist and thickness channels with a unit-free rule (ordinate deviation from the handle line within tau_c: 1 um, 1e-6 deg, 1e-8) instead of the 0.1 deg direction tolerance, which is meaningless in a metres x degrees plane (docs/design/m12b2-3d-elevations.md 3.6)."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Settles DR-5. A Point is a control vertex of the clamped non-rational B-spline of record. An interior vertex is an Anchor point exactly when one interior knot of multiplicity p sits at it, so point type is derived from the knot vector and never stored. Tangent kinds are editing intent in an optional FoilDSL 4.1 `tangents` block outside geometry identity. Every type change is measured and reported on the A4.5 oracle. On a section the two surfaces share one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact on Anchor creation and refitted within 10 µm, reported, on Anchor removal.",
@@ -326,7 +331,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ae87d810f65bcd802df45cebcffcf372630154f94942752637da8b5b1d56602f"
+      "sourceSha256": "3d8c8faa6bc70040cb1434150f16181e77c77c1e78640d6dcd04e3d10ce439c6"
     },
     {
       "id": "adr-0006-driving-dimensions",
@@ -342,6 +347,11 @@ window.DOCS_INDEX = {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-09-30",
           "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Typed Span patches half_span only (exact). Typed Root or Tip chord refits the moved rail on its own knots and abscissae, ordinates only, with the typed end pinned exactly and every lock a hard row; the held line (DR-2) is one parameter and the quarter-chord option re-sets the frame. A spike shows the operator's linear chord blend cannot meet 10 µm on a rail with the default root-mirror lock (0.08–4 mm), so DR-9 asks which rule wins; until then A4.6 is strict and the residual against the operator's rule is always reported. Wing estimates are the FoilDSL metric definitions, computed by one pure Core function and never stored.",
@@ -382,7 +392,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dc42a0e4077031bd41f3cb8ebd5c89fcb4309bc3cba1d332172582f1dc93c167"
+      "sourceSha256": "6ae9eb2359808a1afda7195ae8d538121e77cacfa1345c49d1235856464ccabb"
     },
     {
       "id": "adr-0007-edit-transactions",
@@ -398,6 +408,11 @@ window.DOCS_INDEX = {
           "by": "design-m12c-section-editor",
           "on": "2026-10-03",
           "reason": "M1.2c names the section-draft step record (SectionStep), the receipt (rail section) and recovery (rail section), the mode state machine, and the contract-step deletion of the M1.1 single-vertex members (seam S-3)."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "The section editor holds one draft whose bytes advance through an ordered list of source-patch steps (moves, type changes, Replace, constructions); inner Undo pops a step, Cancel discards the draft, Finish applies it as exactly one accepted revision. A workspace point gesture (DR-6 default) is a draft opened at pointer-down and applied at release when certified. Catalog Replace (DR-4) reuses the as-built import fit as one draft step with its residual reported.",
@@ -435,7 +450,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d2c948f04982c223fd386f38e7c74a8400442166c94d22a56fc8ca4e33ac3358"
+      "sourceSha256": "6d8f7605ceb1d329654e97d053d8592f4c8faeded2a76e07cfa42910352a248b"
     },
     {
       "id": "adr-0008-section-library",
@@ -446,7 +461,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Designs to the DR-8 default location. The catalog is a bundled, read-only set of GEN coordinate sets with generator and hash; VEND and LINK rows ship metadata only. My sections is a per-user folder of create-only standalone FoilDSL section documents named by their SHA-256, each carrying its own name and a flat provenance (origin plus a modified flag); the current library is a folder scan. Rights class is derived from the origin. A foil that uses an entry gets an inline copy — a stated deviation from the spec's content-addressed pin.",
       "tags": [
         "catalog",
@@ -485,7 +506,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6d6a53e3478d1bd54c3a82f9cdecfaa6c136e8e71fabd1168f7fbdcf21ab0c40"
+      "sourceSha256": "bdadf3b3425d218c7f8f0b3d56e78bf42065e03e91516bd9a7416889e6f14141"
     },
     {
       "id": "adr-0009-cad-first-shell",
@@ -496,7 +517,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Adopts Dock for Avalonia 11.3.12.1 (MIT; the last release for Avalonia 11) for tabbed, dockable and floating panes; a spike observed a floated pane as its own NSWindow. Menus use Avalonia NativeMenu, exported to the macOS menu bar in the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file, not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize, monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.",
       "tags": [
         "desktop",
@@ -537,7 +564,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad4b3fc85b28efeeedc146c3ff95db39446ef6e05d6c82cc08e7d8d1a35a79c0"
+      "sourceSha256": "a211a52f861b431d72f7d2959a65b593d6d106599fe972f2fa76c16f5592093e"
     },
     {
       "id": "adr-0010-one-placement-rule",
@@ -774,6 +801,11 @@ window.DOCS_INDEX = {
           "by": "design-m12b2-3d-elevations",
           "on": "2026-09-30",
           "reason": "Ruling 56 adds slice M1.2b2 (after M1.2b, before M1.2c): 10.6 phasing needs its row; ADR-0010 makes FoilDSL 6 one generic Core rule instantiated by the certificate and every display."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Defines the accepted native modular monolith with one deterministic source-authoring core and GUI/CLI adapters. Defines the whole application's boundaries, durable source/history invariants and vertical delivery; the first offline slice stays behind independently reviewed numerical, persistence and native gates. §10 (proposed, spec 1.6) adds the CAD-first shell, point types, driving dimensions, Wing estimates, the section draft, catalog and My sections, with ADR-0005–0009 and slices M1.2a–e.",
@@ -851,7 +883,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  subgraph Desktop\n    Shell[Shell: Dock host, workspaces, NativeMenu] --> Cmd[Command table]\n    Cmd --> Ctl[WorkbenchController: selection, modes, gestures]\n    Ctl --> Props[Properties / Points / Messages / Browser panes]\n    Ctl --> Views[Plan · 3D · Side · Front · Section canvas]\n  end\n  subgraph Core\n    Session[Authoring session: drafts, section steps, ApplyDimension] --> Parser[FoilDSL 4.0/4.1 parser and patcher]\n    Session --> Fit[ConstrainedFit and import fit]\n    Session --> Kernel[Rational certificate: Geometry.Assess]\n    Basis[SplineBasis, binary64] --> Est[WingEstimates]\n    Points[Point model: derived type, tangent rows] --> Session\n    Catalog[Profile catalog, read-only]\n  end\n  subgraph Persistence\n    Store[Native project store]\n    Lib[Section library folder store]\n    Prefs[Layout preference store]\n  end\n  Ctl --> Session\n  Ctl --> Est\n  Ctl --> Catalog\n  Ctl --> Lib\n  Shell --> Prefs\n  Session --> Store"
         }
       ],
-      "sourceSha256": "337de5e2476f612b4d2da99b8383b4c0e6a558aeb134bb4e14447ea808613413"
+      "sourceSha256": "156df962dc794ac9c8b576c6751b2d45b325d0446cdfb5df98805c6e4a804d2b"
     },
     {
       "id": "cad-editing-views",
@@ -1492,7 +1524,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-04-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Analysis takes the accepted bytes, AcceptedId and SurfaceHash from AuthoringSession.Snapshot(), never ProfileAt (which may return a profile draft), and takes every lattice coordinate from one new Core read, Placement.Sections, built on the existing internal placement rule — so analysis can neither draw over a preview nor disagree with the drawn foil.",
       "tags": [
         "analysis",
@@ -1516,7 +1554,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6e65584b4d2ee7e013c1610b5499eea56e60c8930c8c4f81ed3a551f97bdebab"
+      "sourceSha256": "3affd6ce0568546f2313c65461cf7e5d18fbd92067839d05d63ba38da87ecc48"
     },
     {
       "id": "note-area3-fixture-arithmetic",
@@ -1742,7 +1780,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2027-03-30",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Operator rulings of 2026-10-01 on the property-grid review. Precision follows the quantity, not the row. The field nudge is adopted for point and handle fields only, as the canvas Nudging gesture. Drag-to-scrub is rejected. A dedicated track builds the component between the M1.2b fix track and PNL. Both root-chord fields stay editable and are labelled. Expressions are set once and say so. A point's spanwise coordinate is \"From root\", with η beside it.",
       "tags": [
         "ui",
@@ -1787,7 +1831,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "718d1f116a38c8566c0629dee80e966020dd7772b99cb6ad545f2196ea7c9f09"
+      "sourceSha256": "5898b7ef9a3b81056ca76f7c37cbd4c774cf0c0235ebb6737b36089aa9c9080e"
     },
     {
       "id": "thick-client-shell",
@@ -1877,6 +1921,11 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-30",
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Detailed design of the CAD-first shell for slices M1.2a (Start/Opening/open-failed, Planform workspace, left side bar, Properties with the Wing block and typed Span, one command table feeding per-window NativeMenus, Edit-verb routing) and M1.2e (owned OS-window floats, Maximize, focus-safe floats, Review workspace, per-workspace saved layouts with clamping). Settles the layout-file schema with a version-first rollback rule, the selection model, the focus contract, the failure modes and the build tracks with exclusive file ownership and exact test names.",
@@ -1951,7 +2000,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2025a43a0e812164a4f600b80a9a126aa7025921b2fee7bf6a6b3902225277af"
+      "sourceSha256": "b5f2874d14d6c4f2b40c994203f7cc5a5bbaf4e08ffb4005e129b4bc9064fd14"
     },
     {
       "id": "design-application-contracts",
@@ -2113,7 +2162,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — Area 3 (Ruling 60, lane F2; documents only; architecture increment M3)",
       "reviewBy": "2027-04-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Detailed design of spec Area 3: Design revision + Operating point → Analysis run on the local tiers. The data model comes first: the Analysis run is an immutable fact (one evaluation of one Surface revision at one Operating point by one method version under one settings hash), Strip loads are its child facts, wing totals, Trefftz quantities and freshness are derived. Analysis reads the accepted revision by identity through the session snapshot and one new Core read built on the placement rule, never a draft. The estimator and VLM + strip tiers are own code in process; the polar tier is DR-ANA-1. Includes the fixture suite with mutants, rings and costs, a story-to-test matrix, the toggle contract, telemetry and fourteen decision requests.",
       "tags": [
         "analysis",
@@ -2207,7 +2262,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0335f2842f8e35b4b2312fc24edb95efb2d70999c54b1124a21aed2fa5050e75"
+      "sourceSha256": "8fbebd0e1dfbcdd19c4c740ad5aadb1f7a10c2d70ea755fa1e0a7e73f55f45eb"
     },
     {
       "id": "design-authoring-decisions",
@@ -2361,6 +2416,11 @@ window.DOCS_INDEX = {
           "by": "property-grid-rulings",
           "on": "2026-10-01",
           "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 'Lengths display at 0.01 mm' covers typed dimensions only; status 'MAC 101.3 mm'); a point's spanwise coordinate is 'From root' with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
@@ -2447,7 +2507,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "467eb774ad58b3e853c23db1375c8bf85085b2132c0569259fa5af2aa6de2ad4"
+      "sourceSha256": "cee8a510b2b8fb5864f5303cd974120f962c8973cf4b629aac9a2c058051ff23"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2463,6 +2523,11 @@ window.DOCS_INDEX = {
           "by": "mockup-property-grid",
           "on": "2026-10-01",
           "reason": "PNL should fill the property-grid component (docs/reviews/ui-property-grid.md §10) from PropertiesView.Build by data; channel rows Height (mm), Twist (°), t/c (%) render in the same row kinds; the M1.2b fix track is recommended to build the component first (DR-UID-4)."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Detailed design of slice M1.2b2. FoilDSL §6 (Rule A and the twist/dihedral placement) is written once in Core and instantiated over the certificate's rational intervals (bits unchanged) and over binary64 for every display, bound by a measured test (at most 1 nm outside the certified enclosure). On that rule: a shaded or wireframe 3D view beside the Plan with orbit, pan, zoom, view cube and named cameras; Front and Side elevations drawing the placed foil with dihedral, t/c and twist lanes; and those three channels edited with M1.2b's point, handle and gesture model.",
@@ -2551,7 +2616,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9046c65aa2bead150820831eb8d39d34fcee502dabf2226bead23ec9b9cead53"
+      "sourceSha256": "794566ca4595bd209d91c8b6934c15198ceb227dc49513a86e25cc98f8edd6c2"
     },
     {
       "id": "design-m12c-section-editor",
@@ -2562,7 +2627,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — M1.2c (operator 2026-10-03, \"Start M1.2c next\")",
       "reviewBy": "2027-04-01",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Detailed design of slice M1.2c. A station's section becomes editable as a CAD mode: Edit section (from Properties, the Plan, the Side view or the Browser) replaces the views with a 2D editor of the profile record, and every move, type change and construction is a step of one section draft (ADR-0007) that Finish commits as one undo step. Section points get Anchor/Control types per surface (DR-11), which needs the deferred B6 certificate restarted as a spike first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset, resolves the planned Messages pane against DR-STATUS-1, and records the operator's rulings of 2026-10-03 (OD-1 A, OD-2 A, OD-3 B, OD-4 a). Gate: four lenses, one repair cycle.",
       "tags": [
         "desktop",
@@ -2660,7 +2731,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9e74a5f9cb3f00ba5d4fd1ba6b4ded4f3093896b4478b7a497525911f42c1e05"
+      "sourceSha256": "4ea5c6f97fe81e8c74bd1bf72a542a35f4b9ccdbbb98c981723c1fc72f13c6b9"
     },
     {
       "id": "design-planform-point-verbs",
@@ -2676,6 +2747,11 @@ window.DOCS_INDEX = {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-10-03",
           "reason": "Amendment 2 (Ruling 62): channels hold 4-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); the verbs Add point, Remove point and Rebuild to N are designed in docs/design/planform-point-verbs.md; foildsl.md 5 item 3, A4.1/A4.2/GEO-05 floor text need amendment (F-4)."
+        },
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
         }
       ],
       "summary": "Detailed design of the three planform-outline verbs of Ruling 62. Add point (double-click on a curve) inserts a vertex by exact Boehm knot insertion. Remove point (⌫) drops one knot and refits only the two replacement vertices, refused at the floor of 4 and on named, handle and anchor points with the reason; the change is measured and reported. Rebuild to N (4–10) previews the refit with the measured largest change in mm and the curvature-break count, and applies as one undo step. Each verb is a one-shot point command (one accepted row, a new receipt kind), on all five channels, gated on FoilDSL 4.1 for the lowered floor (ADR-0001 Amendment 2). Fit points is deferred with reasons.",
@@ -2755,7 +2831,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d0ec4ab59039cbe9b8303e231eb45bb589ec9f8bebab9049b9623069dd6211d0"
+      "sourceSha256": "ce861a5c7db7af59f0df9d260f02e22e95a3409fef24fc08209044d6d0d786d1"
     },
     {
       "id": "design-section-editor",
@@ -2925,7 +3001,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Nine screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the wing result Current with loading drawn on the geometry, the same result with depth unset, a station selected (the strip with its own envelope verdict, Re against the polar range and omissions) with the Loads tab, Historical after a CAD edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval before any build.",
       "tags": [
         "mockup",
@@ -2961,7 +3043,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0acf75207df60cdb894f8d766caa0431981fc6d4e14c33ae27bfcc0d5d382d4f"
+      "sourceSha256": "be86d3dee46e04b950f1aae878be23f6bef5ef5363915f5840e9f88696d0ef56"
     },
     {
       "id": "mockup-m12b2-views",
@@ -4358,7 +4440,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Round 2 plan, documents only. Convergence: judge the iterative part on ITTC's three-order residual drop plus a stated Cl/Cd stationarity band, run OpenFOAM simpleFoam SA with a TVD nuTilda scheme on TMR levels 6/5/4, and measure (not model) the compressibility delta; SU2 v8.5.0 (SA-neg, x86_64-only macOS binary) is a referee leg only on operator approval. Meshing: wall-resolved y+ <= 1 (the wall-function floor does not fit inside the boundary layer over most of the chord at Re_c 6e5), snappy with a finite trailing edge plus a Gmsh layer probe at AR 8, and the \"determinant > 0.3\" floor replaced (OpenFOAM's cellDeterminant is not the ITTC Jacobian measure). Security: pin a product-owned controlDict, prove refusal with an operator-run probe set. Core budget about 4.1 h wall.",
       "tags": [
         "plan",
@@ -4390,7 +4478,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4004b07bd7b6f18333cf5552df78e30841d9a229a391bc017f0d2de17a03bd81"
+      "sourceSha256": "58e3f7b591e63e1c9190c9bc6b14332b60cd43a509cbe02577015746bacec2ab"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -4651,7 +4739,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design-slice",
       "reviewBy": "2027-04-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Gate record for design-area3-analysis revision 1. Hydrodynamicist and Test Architect blocked (VLM result without its method envelope; story clauses without tests); CFD verification, computational geometry and data persistence approved with changes. Every finding is folded into revision 2 or carried as a DR-ANA item; the mockup's UX and accessibility review is recorded at the end. Revision 3 (repair cycle 2 of 2) folds the two lenses' rev 2 re-review (B-H1, M-H1, B-T1, M-T1…M-T3 and minors), mapped finding by finding with file:line.",
       "tags": [
         "review",
@@ -4678,7 +4772,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3044e0d4a251bdbc4ff3c7aa8c13764fb38fd2d0dede4c36bb43d1e4605b2934"
+      "sourceSha256": "888036d4f5c64d15feb620430c052d4e1157ef68a943202bf34aded884dac8d8"
     },
     {
       "id": "review-authoring-v7-gaps",
@@ -5030,7 +5124,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-30",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Elevate-mode review of the M1.2b Properties pane (build c43711a). Measured first: three equal headings, four value x-positions in one block, four of twelve quantities without a unit, nine of nine dark tokens drifted from DESIGN.md, input boundaries at 1.49:1 and no visible current tangent kind. Verdict BLOCK on the as-built pane. The fix is one reusable property grid (identity, groups, label | value | unit rows); building it is the highest-leverage change, and the implementation brief in section 10 maps it to Avalonia for the M1.2b fix track and M1.2b2's PNL track.",
       "tags": [
         "ui-review",
@@ -5076,7 +5176,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6a380b177639968240f5526414c289403d5eafeb84b7956fb9525f7139dbc4b"
+      "sourceSha256": "a4c9bf84ba547df3187a47d1da87621176d140ac0604c23992e466bed6ab9e50"
     },
     {
       "id": "review-ui-property-grid-cells",
@@ -6705,7 +6805,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-leader-fbfa35dc",
       "phase": "",
       "reviewBy": "2026-10-27",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Schedules the app-shell design's nine tracks plus one review-flag track across Claude Code, Grok and Agy with two concurrent coding lanes, a serial spine of Owner rulings, S8, G0 and D3a, and M1.2b-d and the M1.1b follow-ups as gated later waves.",
       "tags": [
         "coordination",
@@ -6743,7 +6849,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d19a802fe8a9046ed9ee813e7ad2353c7b5778439d8a0388d319f64cd77464ee"
+      "sourceSha256": "cba56d67549de2f3d909f5649e01199eab6b5a45a2f84f5095bf01368d5effdd"
     },
     {
       "id": "coordination-application-build",
@@ -7063,7 +7169,13 @@ window.DOCS_INDEX = {
       "owner": "@cfd-leader-fbfa35dc",
       "phase": "",
       "reviewBy": "2026-10-30",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Schedules the M1.2b design's seven tracks (B0, B1a, B1b, U1a, U1b, U2, U3) behind one precondition track (PRE: the checker's --design flag and the test-class stubs), on Grok, Codex and Claude with at most two concurrent coding tracks, boxes at 3x measured priors, join gates, the 2-cycle cap and a closing operator review.",
       "tags": [
         "coordination",
@@ -7102,7 +7214,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cb3e6f4176b2e58ff38e6168dac9533f4ee761451a77ebe0214dfd552fee6f5f"
+      "sourceSha256": "58b48f57cdf0861c1fef89081e40150be60eb7f03b062762e23756751fd3573e"
     },
     {
       "id": "coordination-r17-companions",
@@ -7453,7 +7565,13 @@ window.DOCS_INDEX = {
       "owner": "@track-d3a",
       "phase": "implementation — D3b completion",
       "reviewBy": "2026-10-27",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Every throw-new assertion in WorkbenchTests.cs (212, measured) is classified. All 60 ported rows have destination tests and recorded red evidence; 33 rows stay unchanged under Ruling 55. None are deleted.",
       "tags": [
         "app-shell",
@@ -7475,7 +7593,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "26730784e14cf0e60bc1beae9afb3f6547cc690b1529ddbfe8d4190ced964069"
+      "sourceSha256": "b0e48b1c582943f3a76882377969950043a57b6bfaac6c783948b4b11e76df0d"
     },
     {
       "id": "proof-application-adapters",
@@ -8449,7 +8567,13 @@ window.DOCS_INDEX = {
       "owner": "@track-newfoil",
       "phase": "implementation",
       "reviewBy": "2026-10-28",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "Red run of the New foil checks before FoilSource.NewDefault and WorkbenchController.NewFoilAsync existed. tools/run-tests.sh exited 1 at the Release build with nine missing-member errors and zero warnings.",
       "tags": [
         "app-shell",
@@ -8472,7 +8596,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0a8fae111d27b62989f3791fec1e6cadd331aaa144aebf350b126c9b8870070a"
+      "sourceSha256": "ea91f4960495f21b428612c898dd80b200b72d581580eb40aa349c099972fb6e"
     },
     {
       "id": "proof-openfix-red-runs",
@@ -8597,7 +8721,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "spike",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "NO-GO against the Appendix R words. snappyHexMesh meshes AR 5, 8 and 12 half wings unattended (35-63 s on 6 ranks, 1.1-2.6 M cells) and every mesh passes checkMesh, but none passes the ITTC/A5.10 floors: 15 layers reach 65-73 % of wing faces (0 % at the trailing edge and tip), measured mean y+ is 22 (below 30-100), and 32-35 % of cells have an OpenFOAM cell determinant below 0.3. macOS only; Windows not run. Dictionaries can run code by default (allowSystemOperations 1); a product-owned controlDict turns it off.",
       "tags": [
         "spike-03",
@@ -8618,7 +8748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d0c6bf0a757694bd1462894f12e3453df21111ab8ad4e7ce0d1011e0511c457a"
+      "sourceSha256": "18e3220d90ee8091b6a61665b7fd1ff05fa8bb8e847381b949b6838d39dd127c"
     },
     {
       "id": "proof-spike-04",
@@ -8629,7 +8759,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "spike",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-03",
+          "reason": "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar."
+        }
+      ],
       "summary": "NO-GO; stopped at Stage 1. On TMR Family II levels 6 and 5 (SA, alpha 10, Re 6e6), simpleFoam never met the stated residual floor (1e-7). With linearUpwind, bound() clipped negative nuTilda in 39,994 of 40,000 iterations and residuals froze at a fixed point. With TVD limitedLinear, a period-2 limiter cycle kept nuTilda at 4-5e-5. The repair cap (2) was reached, so the third grid and GCI were not run. v2512 has no SA-neg model.",
       "tags": [
         "spike-04",
@@ -8655,7 +8791,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a485c7dac5a82f79da39958a07a1fa1494aff6aa0509c40b05e785c82f4d7a36"
+      "sourceSha256": "055439ed8209cb8c795e1c6b94d5e64db4f837e80f5c9b3230e4de8cdf0aef5c"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -9573,6 +9709,88 @@ window.DOCS_INDEX = {
       "sourceSha256": "4ff7b199189535ba8d993358fe164d12549fd6cf35b68adab979f9f806794bf5"
     },
     {
+      "id": "spec-amendments-1-7",
+      "path": "docs/specs/amendments/spec-1.7.md",
+      "title": "Spec 1.7 amendment batch — every spec-owner request, as exact text for one approval",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "One batch for the spec owner. 36 amendments to cfd-workbench-v1 (CAD 18, Analysis 6, Run 5, Copy 2, Shell 5), each with the quoted 1.6 text, the exact 1.7 text, the ruling or recorded finding it comes from and the tests or designs it touches; revision 1.7 on this branch carries them all. Then 13 open questions that have no ruling behind them, each with options and a recommendation, and one knowledge-base correction (ITTC Eq. 10, ln against log10).",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "cad",
+        "analysis",
+        "run",
+        "shell",
+        "copy"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-ui-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hw-data-and-constants",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d7b60ac21e10d8ba70eb142936ad17ceb663a9ebdf3a8ea7d380c4c365a737ab"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -9655,12 +9873,12 @@ window.DOCS_INDEX = {
     {
       "id": "spec-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.md",
-      "title": "CFD-Workbench — product specification v1.6 (CAD-first editing, Wing estimates and section catalog)",
+      "title": "CFD-Workbench — product specification v1.7 (CAD-first editing, Wing estimates, section catalog and the 1.7 amendments)",
       "type": "spec",
       "status": "in-review",
       "owner": "@timianmalloo",
       "phase": "specification",
-      "reviewBy": "2027-03-26",
+      "reviewBy": "2027-04-01",
       "reviewSuggested": [
         {
           "by": "design-m12c-section-editor",
@@ -9723,7 +9941,7 @@ window.DOCS_INDEX = {
           "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..171 proposed; DR-UID-5 amends UI-36 to \\\"the Wing block is pinned and always fully visible; the selection section may scroll; groups stay collapsible and remember state\\\"; a typed twist or t/c past the domain is clamped in Core with a warning echo, as m12b2 says (MC-19)."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 36 spec-owner amendments, each traced to a ruling (Rulings 53–65, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar (Appendix H; the batch and its open questions are in amendments/spec-1.7.md).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -9866,7 +10084,7 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)",
-          "mermaid": "flowchart TD\nA[Choose Section or Wing] --> B{Operating point}\nB -->|From Goal state point n| B2[Speed, water, h_ref, load copied; read-only link]\nB -->|Custom| B3[Set speed, water, incidence or load; Goal state untouched]\nB2 --> C\nB3 --> C{Depth set?}\nC -->|No| D[σ, Fr_h, V_crit Unavailable; Set depth stays offered]\nD --> E\nC -->|Yes| E[Derive h/c, Fr_h, σ per station]\nE --> E2{Any h(y) ≤ 0?}\nE2 -->|Yes| E3[Station estimator Unavailable; surface-piercing flag only]\nE3 --> F\nE2 -->|No| F{Water record admitted for T and S?}\nF -->|No| G[Unavailable: outside the ITTC table; choose admitted range]\nG --> B\nF -->|Yes| H{Polar data at this Re and profile?}\nH -->|No| I[Unavailable: outside the Re grid or no backend; choose an admitted point]\nI --> B\nH -->|Yes| L[Compute at Ncrit pair against the pinned revision]\nL --> M{Outcome}\nM -->|Success| N[Results with labels, omissions, depth basis, band]\nM -->|Derived quantity outside a bound| K[Out-of-envelope observation: advisory finding; result kept]\nK --> N\nM -->|Failed| O[Keep Historical; inspect reason; retry]\nO --> B\nM -->|Find α or take-off: no crossing| O2[Reason enum shown; nothing extrapolated]\nO2 --> B\nN --> P[Compare revisions or tiers]\nP -->|Incompatible references| Q[Block delta until reconciled]\nQ -->|Reconcile reference quantities| P\nP -->|Compatible| R[Normalised per-point deltas; Discrepancy record]\nN -->|Definition, setting or method changed| S[Historical banner; recompute]\nS --> L\nN --> T[Checks drawer: envelope and label findings]\nN -->|Sweep this| U[Jump chip: define a Case schedule in Experiment]"
+          "mermaid": "flowchart TD\nA[Choose Section or Wing] --> B{Operating point}\nB -->|From Goal state point n| B2[Speed, water, h_ref, load copied; read-only link]\nB -->|Custom| B3[Set speed, water, incidence or load; Goal state untouched]\nB2 --> C\nB3 --> C{Depth set?}\nC -->|No| D[σ, Fr_h, V_crit Unavailable; Set depth stays offered]\nD --> E\nC -->|Yes| E[Derive h/c, Fr_h, σ per station]\nE --> E2{Any h(y) ≤ 0?}\nE2 -->|Yes| E3[Station estimator Unavailable; surface-piercing flag only]\nE3 --> F\nE2 -->|No| F{Water record admitted for T and S?}\nF -->|No| G[Unavailable: outside the ITTC table; choose admitted range]\nG --> B\nF -->|Yes| H{Polar data at this Re and profile?}\nH -->|No| I[Unavailable: outside the Re grid or no backend; choose an admitted point]\nI --> B\nH -->|Yes| L[Compute at Ncrit pair against the pinned revision]\nL --> M{Outcome}\nM -->|Success| N[Results with labels, omissions, depth basis, band]\nM -->|Derived quantity outside a bound| K[Out-of-envelope observation: advisory finding; result kept]\nK --> N\nM -->|Failed| O[Keep Historical; inspect reason; retry]\nO --> B\nM -->|Find α or take-off: no crossing| O2[Reason enum shown; nothing extrapolated]\nO2 --> B\nN --> P[Compare revisions or tiers]\nP -->|Incompatible references| Q[Block delta until reconciled]\nQ -->|Reconcile reference quantities| P\nP -->|Compatible| R[Normalised per-point deltas; Discrepancy record]\nN -->|Definition, setting or method changed| S[Historical banner until Evaluate is pressed - 1.7, DR-ANA-6]\nS --> L\nN --> T[Checks drawer: envelope and label findings]\nN -->|Sweep this| U[Jump chip: define a Case schedule in Experiment]"
         },
         {
           "kind": "flowchart",
@@ -9909,7 +10127,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "b3d2b09d92ea72ef2e47447716876d701357f06dd70a6b4d5a4cd16736d60f0c"
+      "sourceSha256": "0e7dd79309dbc89489f501c909cb8f2376dec120ee68ebb6044382eec1204ac3"
     },
     {
       "id": "spec-foildsl",
@@ -10252,5 +10470,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c9bc2ae3d8610fa104cf8771de3d2ab51beecb8b74adec2f8cda4127b253f4d9"
+  "graphSha256": "4aab4ef8ac8795791ab89cddafebccad180f554648d76cf0a2224426b165e386"
 };
