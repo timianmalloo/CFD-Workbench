@@ -660,9 +660,11 @@ public static class ControllerViewTests
             fixture.Settle();
             if (fixture.Controller.Layout != ViewLayout.One(SingleView.Side) || !area.SideSlot.IsEffectivelyVisible || area.PlanSlot.IsEffectivelyVisible)
                 throw new Exception("Return on the Side label did not show Side alone");
-            area.SideLabel.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Return, Source = area.SideLabel });
+            // DR-VIEW-10: in One view Return opens the plate's picker (ModelArea_OneView_PlatePicker_SwitchesView); the
+            // double-click and Views ▾ return to the arrangement before it.
+            area.SideLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
-            if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("Return again did not return to Four views");
+            if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("A double-click did not return to Four views");
             area.FrontLabel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Equal(SingleView.Front, fixture.Controller.TargetView, "a click makes the view the command target");
         });
@@ -844,6 +846,113 @@ public static class ControllerViewTests
                     throw new Exception($"{view}: target {target} but the plate's bottom edge is {underline}");
             }
             Console.WriteLine($"  view-plates: 4 plates at (6, 6), the views fill their slots; Plan {area.PlanLabel.Bounds.Size}, Side {area.SideLabel.Bounds.Size}");
+        });
+
+        DesktopChecks.Check("ModelArea_OneView_PlatePicker_SwitchesView", () =>
+        {
+            // DR-VIEW-10 (NS-7): in One view the label plate is a ▾ picker of Plan / 3D / Side / Front, opened by a click or by
+            // Return, Space or ↓; elsewhere the plate keeps DR-VIEW-7's behaviour and shows no ▾.
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var (area, controller) = (fixture.Area, fixture.Controller);
+            var labels = new (Button Label, SingleView View, string Title)[]
+            {
+                (area.PlanLabel, SingleView.Plan, "Plan"), (area.ThreeDLabel, SingleView.ThreeD, "3D"),
+                (area.SideLabel, SingleView.Side, "Side"), (area.FrontLabel, SingleView.Front, "Front")
+            };
+            foreach (var layout in new[] { ViewLayout.Plan3d, ViewLayout.Four })
+            {
+                controller.Layout = layout;
+                fixture.Settle();
+                foreach (var (label, view, _) in labels)
+                    if (label.Flyout is not null || label.Content?.ToString()?.Contains('▾', StringComparison.Ordinal) == true)
+                        throw new Exception($"{layout.Arrangement}: the {view} plate is a picker ({label.Content})");
+            }
+
+            // Pointer: a click on the plate opens the picker; choosing 3D shows 3D alone.
+            controller.Layout = ViewLayout.One(SingleView.Plan);
+            fixture.Settle();
+            AssertPicker(SingleView.Plan);
+            Click(area.PlanLabel);
+            Choose(Opened(area.PlanLabel, "a click"), "3D");
+            AssertOne(SingleView.ThreeD, "pointer");
+
+            // Keyboard: Return, Space and ↓ on the focused plate each open it.
+            foreach (var (key, next) in new[] { (Key.Return, SingleView.Side), (Key.Space, SingleView.Front), (Key.Down, SingleView.Plan) })
+            {
+                var shown = controller.Layout.Single;
+                var label = AssertPicker(shown);
+                if (!label.Focus(NavigationMethod.Tab)) throw new Exception($"The {shown} plate takes no keyboard focus");
+                label.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = key, Source = label });
+                label.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyUpEvent, Key = key, Source = label });
+                fixture.Settle();
+                Choose(Opened(label, key.ToString()), labels.Single(item => item.View == next).Title);
+                AssertOne(next, key.ToString());
+            }
+
+            // One layout implementation: picking writes the controller's layout, so double-click still returns to the
+            // arrangement chosen before One view.
+            area.PlanLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
+            fixture.Settle();
+            Equal(ViewLayout.Four, controller.Layout, "double-click after picking returns to Four views, chosen before One view");
+
+            // Four views with no room for four: the area shows One view, so the plate is a picker, and a pick changes the
+            // view shown (the target view) while Four views stays the chosen layout.
+            controller.Layout = ViewLayout.Four;
+            area.PlanContent.Width = 647;
+            area.PlanContent.Height = 488;
+            fixture.Settle();
+            var fallback = labels.Single(item => item.Label.IsEffectivelyVisible);
+            AssertPicker(fallback.View);
+            fallback.Label.Focus(NavigationMethod.Tab);
+            fallback.Label.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Down, Source = fallback.Label });
+            fixture.Settle();
+            Choose(Opened(fallback.Label, "↓ in the fallback"), "Front");
+            if (!area.FrontSlot.IsEffectivelyVisible || labels.Count(item => item.Label.IsEffectivelyVisible) != 1)
+                throw new Exception("The fallback pick did not show Front alone");
+            Equal(ViewLayout.Four, controller.Layout, "the fallback keeps Four views chosen");
+            Equal(SingleView.Front, controller.TargetView, "the fallback pick is the target view");
+
+            Button AssertPicker(SingleView view)
+            {
+                var label = labels.Single(item => item.View == view).Label;
+                if (!label.IsEffectivelyVisible) throw new Exception($"The {view} plate is not shown in One view");
+                if (label.Content?.ToString()?.StartsWith("▾ ", StringComparison.Ordinal) != true)
+                    throw new Exception($"The {view} plate shows no ▾ in One view: {label.Content}");
+                var items = (label.Flyout as MenuFlyout ?? throw new Exception($"The {view} plate has no picker")).Items.OfType<MenuItem>().ToArray();
+                if (!items.Select(item => item.Header as string).SequenceEqual(labels.Select(item => item.Title)))
+                    throw new Exception($"Picker items {string.Join(", ", items.Select(item => item.Header))}");
+                foreach (var item in items)
+                    Equal((string)item.Header! == labels.Single(row => row.View == view).Title, item.IsChecked, $"{item.Header} checked");
+                return label;
+            }
+
+            MenuFlyout Opened(Button label, string how) =>
+                (label.Flyout as MenuFlyout) is { IsOpen: true } menu ? menu : throw new Exception($"{how} on the plate did not open the picker");
+
+            void Choose(MenuFlyout menu, string title)
+            {
+                menu.Items.OfType<MenuItem>().Single(item => (string)item.Header! == title).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+                fixture.Settle();
+                if (menu.IsOpen) throw new Exception($"The picker stays open after {title}");
+            }
+
+            void AssertOne(SingleView view, string how)
+            {
+                Equal(ViewLayout.One(view), controller.Layout, $"{how}: the layout");
+                foreach (var (label, other, _) in labels)
+                    if (label.IsEffectivelyVisible != (other == view)) throw new Exception($"{how}: the {other} view is shown {label.IsEffectivelyVisible}");
+            }
+
+            void Click(Button label)
+            {
+                // The Button's own click (pointer release or AT Invoke both end in Button.OnClick). This harness commits no
+                // rendered frame, so the window cannot hit-test a synthetic pointer onto the plate; the native capture
+                // (docs/proof/m12b2-cube/one-view-picker-open.png) and the operator's run cover the pointer itself.
+                if (Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(label) is not Avalonia.Automation.Provider.IInvokeProvider invoke)
+                    throw new Exception("The plate has no Invoke pattern");
+                invoke.Invoke();
+                fixture.Settle();
+            }
         });
 
         DesktopChecks.Check("ModelArea_Navbar_ViewsDisplayFitFitSelection_SameActionsAsMenus", () =>
