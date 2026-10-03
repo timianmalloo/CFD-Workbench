@@ -1,12 +1,16 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Desktop;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -104,7 +108,8 @@ public static class SectionEditorTests
         DesktopChecks.Check("SectionEditor_PlateAndProbe_SayDisplay", () =>
         {
             fixture.Reset();
-            if (!fixture.Text("ModePlate").Text!.Contains("display") || !fixture.Text("ModeProbe").Text!.Contains("display"))
+            if (!fixture.Text("ModePlate").Text!.Contains("display") ||
+                !fixture.Text("ModeProbe").Text!.Contains("display", StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Plate and probe do not state display provenance");
         });
         DesktopChecks.Check("SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY", () =>
@@ -160,7 +165,291 @@ public static class SectionEditorTests
             if (fixture.Canvas.CombScale <= 0 || fixture.Canvas.CombClippedCount < 0)
                 throw new Exception("The rendered comb did not compute its automatic scale");
         });
+        DesktopChecks.Check("SectionEditor_ProbeFollowsPointer_PlacedMmAtStation", () =>
+        {
+            fixture.Reset();
+            using var pointer = fixture.NewPointer();
+            fixture.Move(pointer, fixture.Canvas.ModelToScreen(.42, 0));
+            string text = fixture.Text("ModeProbe").Text ?? "";
+            if (!text.StartsWith("Display · pointer x 42.00 %", StringComparison.Ordinal) || !text.Contains(" · at Root ") ||
+                !text.Contains(" mm (") || !text.EndsWith("% t/c)", StringComparison.Ordinal))
+                throw new Exception("Pointer probe did not report x, placed millimetres at Root, and display provenance: " + text);
+        });
+        DesktopChecks.Check("SectionCanvas_DragUpperPoint_StepAppliedInController", () =>
+        {
+            fixture.Reset();
+            var upper = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points;
+            var point = upper[3];
+            var from = fixture.Canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+            var to = fixture.Canvas.ModelToScreen(point.SpanMeters + .01, point.Ordinate);
+            int cursor = fixture.Controller.Section!.Draft.Cursor;
+            var pointer = fixture.Press(from);
+            fixture.Move(pointer, to);
+            fixture.Release(pointer, to);
+            WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1);
+            var changedUpper = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var changedLower = fixture.Controller.SectionCurve(SurfaceSide.Lower)!.Points[3];
+            if (Math.Abs(changedUpper.SpanMeters - point.SpanMeters - .01) > 1e-8 ||
+                Math.Abs(changedLower.SpanMeters - changedUpper.SpanMeters) > 1e-10)
+                throw new Exception("Drag did not append a paired controller step");
+        });
+        DesktopChecks.Check("SectionEditor_DragUnderPointer_WithinTwoPixels", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = fixture.Canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+            var to = fixture.Canvas.ModelToScreen(point.SpanMeters + .015, point.Ordinate + .01);
+            var pointer = fixture.Press(from);
+            fixture.Move(pointer, to);
+            using (var pixels = PropertiesCellsTests.Render(fixture.Window, 1))
+            {
+                var centre = fixture.Canvas.TranslatePoint(to, fixture.Window)!.Value;
+                int coloured = 0;
+                for (int y = (int)centre.Y - 2; y <= (int)centre.Y + 2; y++)
+                    for (int x = (int)centre.X - 2; x <= (int)centre.X + 2; x++)
+                    {
+                        var colour = pixels.At(x, y);
+                        if (colour.R + colour.G + colour.B > 200) coloured++;
+                    }
+                if (coloured < 2) throw new Exception("Dragged glyph did not render under the pointer");
+            }
+            fixture.Release(pointer, to);
+        });
+        DesktopChecks.Check("SectionEditor_StripSwitchWithEdits_RefusedByClick", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            Wait(fixture.Controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters + .001, point.Ordinate)));
+            var strip = fixture.View.FindControl<StackPanel>("StationStrip")!;
+            ((Button)strip.Children[1]).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Controller.Section!.Draft.Assignment != 0 ||
+                !fixture.Text("ModeReason").Text!.Contains("Finish or cancel"))
+                throw new Exception("Dirty station switch was not refused by its strip button");
+        });
+        DesktopChecks.Check("SectionEditor_EscapeWithEdits_FocusCancelNothingDiscarded", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            Wait(fixture.Controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters + .001, point.Ordinate)));
+            byte[] bytes = fixture.Controller.Section!.Draft.Bytes.ToArray();
+            fixture.Canvas.SelectedVertex = null;
+            fixture.Key(Key.Escape);
+            if (fixture.Controller.Section is null || !fixture.Controller.Section.Draft.Bytes.SequenceEqual(bytes) ||
+                !fixture.Button("ModeCancelButton").IsFocused ||
+                !fixture.Text("ModeReason").Text!.Contains("unsaved changes"))
+                throw new Exception("Escape with edits did not preserve bytes and focus Cancel with COPY-119");
+        });
+        DesktopChecks.Check("SectionEditor_EscapeCascade_DragPointSelectionThenLeave", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            fixture.Select(point);
+            Dispatcher.UIThread.RunJobs();
+            int cursor = fixture.Controller.Section!.Draft.Cursor;
+            var from = fixture.Canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+            var pointer = fixture.Press(from);
+            fixture.Move(pointer, from + new Vector(30, -20));
+            if (fixture.Controller.Gesture == GestureState.Idle) throw new Exception("The drag did not start a gesture");
+            fixture.Key(Key.Escape);
+            WaitUntil(() => fixture.Controller.Gesture == GestureState.Idle);
+            fixture.Release(pointer, from + new Vector(30, -20));
+            if (fixture.Controller.Section?.Draft.Cursor != cursor || fixture.Canvas.SelectedVertex != ("upper", point.Id))
+                throw new Exception("Escape during a drag did not cancel only the drag");
+            fixture.Key(Key.Escape);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Canvas.SelectedVertex is not null || fixture.Controller.Selection is not Selection.Station)
+                throw new Exception("Escape on a point did not step back to the station selection");
+            fixture.Key(Key.Escape);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Controller.Section is not null || fixture.Area.Mode != ModelAreaMode.Views || !fixture.Area.PlanCanvas.IsEffectivelyVisible)
+                throw new Exception("Escape with no edits and nothing selected did not leave to the views");
+
+            // The handle rung: a handle steps back to its anchor (paired anchor, Ruling 60), then to nothing, then (edits) to Cancel.
+            fixture.Reset();
+            var target = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            Wait(fixture.Controller.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
+            Dispatcher.UIThread.RunJobs();
+            var handle = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points.First(item => item.Role == PointRole.AnchorHandle);
+            fixture.Select(handle);
+            Dispatcher.UIThread.RunJobs();
+            fixture.Key(Key.Escape);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Canvas.SelectedVertex != ("upper", handle.AnchorId!)) throw new Exception("Escape on a handle did not select its anchor");
+            fixture.Key(Key.Escape);
+            Dispatcher.UIThread.RunJobs();
+            fixture.Key(Key.Escape);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Controller.Section is null || !fixture.Button("ModeCancelButton").IsFocused)
+                throw new Exception("Escape with edits left the mode instead of focusing Cancel");
+        });
+        DesktopChecks.Check("SectionEditor_Rendered_AnchorSquareControlCircleNamedDiamond", () =>
+        {
+            var (anchor, control, nose) = fixture.ResetWithAnchor();
+            using var pixels = PropertiesCellsTests.Render(fixture.Window, 1);
+            var (background, foil) = (fixture.Colour("ViewportBrush"), fixture.Colour("FoilBrush"));
+            // Anchor: a hollow 12 px square — background inside, outline at the edge midpoint and at the corner.
+            var a = fixture.Centre(anchor);
+            Expect(pixels, a, 0, 0, background, "anchor centre is hollow");
+            Expect(pixels, a, 6, 0, foil, "anchor square edge");
+            Expect(pixels, a, 6, 6, foil, "anchor square corner (a circle has none)");
+            // Control: an 11 px filled circle — foil at the centre, nothing at the bounding-box corner.
+            var c = fixture.Centre(control);
+            Expect(pixels, c, 0, 0, foil, "control circle is filled");
+            NotNear(pixels, c, 5, 5, foil, "control circle has no corner");
+            // Named point: a 14 px diamond — outline on the 45° edge, nothing at the square corner.
+            var n = fixture.Centre(nose);
+            Expect(pixels, n, 3.5, -3.5, foil, "nose diamond edge");
+            NotNear(pixels, n, 6, -6, foil, "nose diamond has no square corner");
+        });
+        DesktopChecks.Check("SectionEditor_SelectedVsUnselected_ShapeNotColourOnly", () =>
+        {
+            var (anchor, control, _) = fixture.ResetWithAnchor();
+            var (background, foil, station) = (fixture.Colour("ViewportBrush"), fixture.Colour("FoilBrush"), fixture.Colour("StationBrush"));
+            using (var unselected = PropertiesCellsTests.Render(fixture.Window, 1))
+            {
+                Expect(unselected, fixture.Centre(anchor), 0, 0, background, "unselected anchor is hollow");
+                Expect(unselected, fixture.Centre(control), 3, 0, foil, "unselected control is a solid disc");
+            }
+            fixture.Select(anchor);
+            Dispatcher.UIThread.RunJobs();
+            using (var selected = PropertiesCellsTests.Render(fixture.Window, 1))
+                Expect(selected, fixture.Centre(anchor), 0, 0, station, "selected anchor is filled");
+            fixture.Select(control);
+            Dispatcher.UIThread.RunJobs();
+            using (var selected = PropertiesCellsTests.Render(fixture.Window, 1))
+            {
+                Expect(selected, fixture.Centre(control), 3, 0, background, "selected control is a ring (hollow between dot and rim)");
+                Expect(selected, fixture.Centre(control), 0, 0, station, "selected control has its centre dot");
+            }
+        });
+        DesktopChecks.Check("SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart", () =>
+        {
+            var (anchor, _, _) = fixture.ResetWithAnchor();
+            fixture.Select(anchor);
+            Dispatcher.UIThread.RunJobs();
+            fixture.Key(Key.F);
+            var points = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points;
+            var centre = fixture.Centre(anchor);
+            foreach (var neighbour in new[] { points[anchor.Index - 1], points[anchor.Index + 1] })
+            {
+                double gap = Point.Distance(centre, fixture.Centre(neighbour));
+                if (gap < 24) throw new Exception($"Fit Selection left {neighbour.Role} {neighbour.Id} {gap:F1} px from the anchor");
+            }
+            fixture.Canvas.Fit();
+        });
+        DesktopChecks.Check("SectionEditor_FinishWhileBlocked_FocusesReason", () =>
+        {
+            fixture.Reset();
+            fixture.Cross();
+            fixture.Canvas.Focus();
+            fixture.Key(Key.Return, KeyModifiers.Meta);
+            Dispatcher.UIThread.RunJobs();
+            var reason = fixture.Text("ModeReason");
+            if (fixture.Controller.Section is null || fixture.Button("ModeFinishButton").IsEnabled ||
+                !reason.IsFocused || !reason.IsEffectivelyVisible || !reason.Text!.Contains("cross", StringComparison.Ordinal))
+                throw new Exception($"⌘↩ while blocked did not focus the reason: focused {reason.IsFocused}, '{reason.Text}'");
+        });
+
+        using (var shell = new ShellFixture())
+        {
+            DesktopChecks.Check("SectionEditor_ReturnToX_TabToType", () =>
+            {
+                shell.Enter();
+                var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                shell.Controller.Select(new Selection.Points([new PointRef("upper", point.Id, shell.Controller.Section!.Draft.Profile)]));
+                shell.Settle();
+                shell.Canvas.Focus();
+                shell.Key(shell.Canvas, Key.Return);
+                var focused = shell.Window.FocusManager?.GetFocusedElement();
+                if (focused is not TextBox { Name: "PointSpanInput" }) throw new Exception("Return on a section point did not focus its x: " + focused);
+                shell.Canvas.Focus();
+                shell.Key(shell.Canvas, Key.Tab);
+                focused = shell.Window.FocusManager?.GetFocusedElement();
+                if (focused is not ComboBox) throw new Exception("Tab from a section point did not land on its Type: " + focused);
+            });
+            DesktopChecks.Check("SectionEditor_Crossing_MarkerAndReasonRendered", () =>
+            {
+                shell.Enter();
+                var crossing = shell.Cross();
+                var view = shell.View;
+                var finish = view.FindControl<Button>("ModeFinishButton")!;
+                var reason = view.FindControl<TextBlock>("ModeReason")!;
+                if (finish.IsEnabled || !reason.IsEffectivelyVisible || reason.Text != shell.Controller.Section!.FinishReason ||
+                    !reason.Text!.Contains("cross", StringComparison.Ordinal) || AutomationProperties.GetHelpText(finish) != reason.Text)
+                    throw new Exception($"Crossing: Finish {finish.IsEnabled}, reason '{reason.Text}' visible {reason.IsEffectivelyVisible}");
+                // Show (the strip's action): the canvas frames the crossing, which then fills a good part of the width.
+                shell.Host.ShowBlocker(null, crossing);
+                shell.Settle();
+                var canvas = shell.Canvas;
+                double width = canvas.ModelToScreen(crossing.X1, 0).X - canvas.ModelToScreen(crossing.X0, 0).X;
+                if (width < canvas.Bounds.Width / 4) throw new Exception($"Show did not frame the crossing: {width:F0} px of {canvas.Bounds.Width:F0}");
+                double x = (crossing.X0 + crossing.X1) / 2;
+                var probe = Sections.Probe(shell.Controller.Section!.Draft.Bytes, 0, x);
+                var at = canvas.TranslatePoint(canvas.ModelToScreen(x, probe.UpperY), shell.Window)!.Value;
+                var danger = shell.Colour("DangerBrush");
+                using var pixels = PropertiesCellsTests.Render(shell.Window, 1);
+                int red = 0;
+                for (int dy = -14; dy <= 14; dy++)
+                    for (int dx = -14; dx <= 14; dx++)
+                        if (Distance(pixels.At((int)at.X + dx, (int)at.Y + dy), danger) < 60) red++;
+                if (red < 12) throw new Exception($"No crossing marker rendered at the crossing: {red} danger pixels");
+                shell.Controller.CancelSection();
+            });
+        }
+
+        // Last: it accepts a revision into the shared fixture's document.
+        DesktopChecks.Check("SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            double raised = point.Ordinate + .01;
+            Wait(fixture.Controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, raised)));
+            WaitUntil(() => fixture.Controller.Section!.CanFinish);
+            fixture.Canvas.Focus();
+            fixture.Key(Key.Return, KeyModifiers.Meta);
+            WaitUntil(() => fixture.Controller.Section is null);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Area.Mode != ModelAreaMode.Views || !fixture.Area.PlanCanvas.IsEffectivelyVisible || fixture.View.IsEffectivelyVisible)
+                throw new Exception("Finish did not return to the views");
+            fixture.Reset();
+            var moved = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            if (Math.Abs(moved.Ordinate - raised) > 1e-12) throw new Exception("Re-entry did not read the finished section");
+            fixture.Controller.Select(new Selection.Station(0, 0));
+            Dispatcher.UIThread.RunJobs();
+            using var pixels = PropertiesCellsTests.Render(fixture.Window, 1);
+            Expect(pixels, fixture.Centre(moved), 0, 0, fixture.Colour("FoilBrush"), "the finished point's glyph at its new place");
+        });
     }
+
+    private static int Distance(Color colour, Color target) =>
+        Math.Abs(colour.R - target.R) + Math.Abs(colour.G - target.G) + Math.Abs(colour.B - target.B);
+
+    private static void Expect(PropertiesCellsTests.Pixels pixels, Point centre, double dx, double dy, Color target, string what)
+    {
+        if (!Near(pixels, centre + new Vector(dx, dy), 0.5, target))
+            throw new Exception($"{what}: {pixels.At((int)Math.Round(centre.X + dx), (int)Math.Round(centre.Y + dy))} is not {target}");
+    }
+
+    private static void NotNear(PropertiesCellsTests.Pixels pixels, Point centre, double dx, double dy, Color target, string what)
+    {
+        var colour = pixels.At((int)Math.Round(centre.X + dx), (int)Math.Round(centre.Y + dy));
+        if (Distance(colour, target) < 60) throw new Exception($"{what}: {colour} is {target}");
+    }
+
+    // A pixel within radius (in whole pixels, rounding the centre) that is close to the target colour.
+    private static bool Near(PropertiesCellsTests.Pixels pixels, Point at, double radius, Color target)
+    {
+        int r = (int)Math.Ceiling(radius);
+        for (int y = (int)Math.Round(at.Y) - r; y <= (int)Math.Round(at.Y) + r; y++)
+            for (int x = (int)Math.Round(at.X) - r; x <= (int)Math.Round(at.X) + r; x++)
+                if (Distance(pixels.At(x, y), target) < 60) return true;
+        return false;
+    }
+
+    private static Color ColourOf(StyledElement scope, string key) =>
+        scope.TryFindResource(key, scope.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
+            ? brush.Color : throw new Exception("No theme brush " + key);
 
     private static void WaitUntil(Func<bool> condition)
     {
@@ -208,15 +497,125 @@ public static class SectionEditorTests
             Controller.Select(new Selection.Points([new PointRef(point.Curve, point.Id, Controller.Section!.Draft.Profile)]));
         }
 
-        internal void Key(Key key) => Canvas.RaiseEvent(new KeyEventArgs
+        internal void Key(Key key, KeyModifiers modifiers = KeyModifiers.None) => Canvas.RaiseEvent(new KeyEventArgs
         {
-            RoutedEvent = InputElement.KeyDownEvent, Source = Canvas, Key = key
+            RoutedEvent = InputElement.KeyDownEvent, Source = Canvas, Key = key, KeyModifiers = modifiers
         });
+
+        internal Point Local(PointView point) => Canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+        internal Point Centre(PointView point) => Canvas.TranslatePoint(Local(point), Window)!.Value;
+        internal Color Colour(string key) => ColourOf(Canvas, key);
+
+        /// <summary>Screen 2: upper point 4 made a (paired) anchor; nothing selected. Returns an anchor, a control and the nose.</summary>
+        internal (PointView Anchor, PointView Control, PointView Nose) ResetWithAnchor()
+        {
+            Reset();
+            var target = Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            Wait(Controller.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
+            Controller.Select(new Selection.Station(0, Controller.Inspection!.Authored.Assignments[0].Eta));
+            Dispatcher.UIThread.RunJobs();
+            var points = Controller.SectionCurve(SurfaceSide.Upper)!.Points;
+            return (points.First(point => point.Role == PointRole.Anchor), points.First(point => point.Role == PointRole.Control), points[0]);
+        }
+
+        /// <summary>Screen 3: upper cv-3 pulled through the lower surface; returns the crossing once it is assessed.</summary>
+        internal (double X0, double X1) Cross() => CrossSection(Controller);
 
         internal void KeyUp(Key key) => Canvas.RaiseEvent(new KeyEventArgs
         {
             RoutedEvent = InputElement.KeyUpEvent, Source = Canvas, Key = key
         });
+
+        internal Pointer NewPointer() => new(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+        private Point WindowPoint(Point local) => Canvas.TranslatePoint(local, Window)!.Value;
+        internal Pointer Press(Point local, int clicks = 1)
+        {
+            var pointer = NewPointer();
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, WindowPoint(local), 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None, clicks));
+            Dispatcher.UIThread.RunJobs();
+            return pointer;
+        }
+
+        internal void Move(Pointer pointer, Point local)
+        {
+            Canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, Canvas, pointer, Window, WindowPoint(local), 2,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.Other), KeyModifiers.None));
+            Dispatcher.UIThread.RunJobs();
+        }
+
+        internal void Release(Pointer pointer, Point local)
+        {
+            Canvas.RaiseEvent(new PointerReleasedEventArgs(Canvas, pointer, Window, WindowPoint(local), 3,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+            pointer.Dispose();
+            Dispatcher.UIThread.RunJobs();
+        }
+
+        public void Dispose() { Window.Close(); Controller.Dispose(); }
+    }
+
+    private static (double X0, double X1) CrossSection(WorkbenchController controller)
+    {
+        var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+        Wait(controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, -0.3)));
+        WaitUntil(() => controller.Section!.Assessment is not null);
+        Dispatcher.UIThread.RunJobs();
+        var mode = controller.Section!;
+        return Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment) ?? throw new Exception("The pulled point does not cross");
+    }
+
+    /// <summary>The whole shell (Side view, Properties, Show), for the Return/Tab and Show checks.</summary>
+    private sealed class ShellFixture : IDisposable
+    {
+        internal WorkbenchController Controller { get; } = new();
+        internal ShellHost Host { get; }
+        internal Window Window { get; }
+        internal ElevationView Side => Host.ModelView.FindControl<ElevationView>("SideElevation")!;
+        internal SectionEditorView View => Host.ModelView.FindControl<SectionEditorView>("SectionModeEditor")!;
+        internal SectionCanvas Canvas => View.FindControl<SectionCanvas>("ModeCanvas")!;
+        internal Color Colour(string key) => ColourOf(Canvas, key);
+
+        internal ShellFixture()
+        {
+            Wait(Controller.OpenExampleAsync());
+            Host = new ShellHost(Controller);
+            Window = new Window { Content = Host, Width = 1400, Height = 1000 };
+            Window.Show();
+            Host.RefreshPanes();
+            Controller.Layout = ViewLayout.Four;
+            WaitUntil(() => { Settle(); return Controller.Surface is not null && !Controller.SurfaceUpdating && Side.Camera is not null; });
+        }
+
+        internal void Settle()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Dispatcher.UIThread.RunJobs();
+                Window.UpdateLayout();
+            }
+        }
+
+        internal void Enter()
+        {
+            if (Controller.Section is not null) Controller.CancelSection();
+            Controller.Select(new Selection.Station(0, Controller.Inspection!.Authored.Assignments[0].Eta));
+            Wait(Controller.EnterSectionAsync(0, EntryOrigin.Side));
+            Settle();
+        }
+
+        internal (double X0, double X1) Cross()
+        {
+            var crossing = CrossSection(Controller);
+            Settle();
+            return crossing;
+        }
+
+        internal void Key(Control target, Key key)
+        {
+            target.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = target, Key = key });
+            Settle();
+        }
 
         public void Dispose() { Window.Close(); Controller.Dispose(); }
     }

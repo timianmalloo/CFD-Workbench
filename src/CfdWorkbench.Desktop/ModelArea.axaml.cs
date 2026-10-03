@@ -226,6 +226,35 @@ public partial class ModelArea : UserControl
         FrontElevation.Controller = controller;
     }
 
+    private ShellHost? showHost;
+
+    // §5.2 Show: the strip's Show asks the section editor to frame what a blocker names. The host is found, not passed,
+    // as the Properties pane finds it (S-4: ShellHost stays PNL's); the subscription lives exactly as long as the attachment.
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        showHost = this.FindAncestorOfType<ShellHost>();
+        if (showHost is not null) showHost.SectionShowRequested += FrameSectionBlocker;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (showHost is not null) showHost.SectionShowRequested -= FrameSectionBlocker;
+        showHost = null;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    /// <summary>Show: frames a blocker's chord range, or else the point it names, on the section canvas.</summary>
+    public void FrameSectionBlocker(PointRef? point, (double X0, double X1)? range)
+    {
+        if (Mode != ModelAreaMode.Section) return;
+        var canvas = SectionModeEditor.ModeCanvas;
+        if (point is not null) canvas.SelectedVertex = (point.Curve, point.VertexId);
+        if (range is { } at) canvas.FrameRange(at.X0, at.X1);
+        else canvas.FitSelection();
+        canvas.Focus();
+    }
+
     private void OnControllerChanged()
     {
         if (Dispatcher.UIThread.CheckAccess()) Refresh();

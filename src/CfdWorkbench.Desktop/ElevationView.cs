@@ -88,6 +88,8 @@ public sealed class ElevationView : Control
     private Point panLast;
     private bool panning;
     private bool panClicks;
+    // §11.3: a second click at the same spot on overlapping Side sections picks the next one.
+    private Point? lastSectionClick;
 
     static ElevationView()
     {
@@ -416,18 +418,36 @@ public sealed class ElevationView : Control
     public static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
 
     /// <summary>The authored section whose outline passes within 8 px of the pointer (Side band), or null.</summary>
-    public (int Index, double Eta, string Name)? SectionAt(Point position)
+    public (int Index, double Eta, string Name)? SectionAt(Point position) =>
+        SectionsAt(position) is [var nearest, ..] ? nearest : null;
+
+    /// <summary>Every authored section whose outline passes within 8 px of the pointer (Side band), nearest first.</summary>
+    public IReadOnlyList<(int Index, double Eta, string Name)> SectionsAt(Point position)
     {
-        if (!BandRect.Contains(position)) return null;
-        (int, double, string)? nearest = null;
-        double best = 8;
+        if (!BandRect.Contains(position)) return [];
+        var near = new List<(double Distance, (int, double, string) Section)>();
         foreach (var (index, eta, name, outline) in SideSections())
-            for (int k = 1; k < outline.Length; k++)
-            {
-                double distance = SegmentDistance(position, outline[k - 1], outline[k]);
-                if (distance <= best) { best = distance; nearest = (index, eta, name); }
-            }
-        return nearest;
+        {
+            double best = double.PositiveInfinity;
+            for (int k = 1; k < outline.Length; k++) best = Math.Min(best, SegmentDistance(position, outline[k - 1], outline[k]));
+            if (best <= 8) near.Add((best, (index, eta, name)));
+        }
+        // SideSections can list one station more than once (observed on the Example's Root), so candidates are per station.
+        return near.OrderBy(item => item.Distance).Select(item => item.Section).DistinctBy(item => item.Item1).ToArray();
+    }
+
+    // The section a press picks: the nearest; after a single click at the same spot (within 3 px), the one after the
+    // selected; a double-click keeps the one its first click picked, so it opens what the user sees selected.
+    private (int Index, double Eta, string Name)? PickSection(Point position, int clicks)
+    {
+        var candidates = SectionsAt(position);
+        if (candidates.Count == 0) return null;
+        bool samePlace = lastSectionClick is { } last && Point.Distance(last, position) <= 3;
+        lastSectionClick = position;
+        int current = controller?.Selection is Selection.Station selected && samePlace
+            ? candidates.ToList().FindIndex(item => item.Index == selected.Index) : -1;
+        if (current < 0) return candidates[0];
+        return clicks >= 2 ? candidates[current] : candidates[(current + 1) % candidates.Count];
     }
 
     private static double SegmentDistance(Point p, Point a, Point b)
@@ -740,7 +760,8 @@ public sealed class ElevationView : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
-            if (!IsFront && pressed.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Shift) && SectionAt(position) is { } section)
+            if (!IsFront && pressed.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Shift) &&
+                PickSection(position, e.ClickCount) is { } section)
             {
                 controller.Select(new Selection.Station(section.Index, section.Eta));
                 if (e.ClickCount >= 2) _ = controller.EnterSectionAsync(section.Index, EntryOrigin.Side);

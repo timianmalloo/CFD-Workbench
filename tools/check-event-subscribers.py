@@ -28,7 +28,6 @@ ALLOWED = {
     "VertexSelected": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "VertexMoved": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until app-shell D4 (M1.2e)",
-    "SectionShowRequested": "ShellHost (PNL): the section canvas frames the blocker from the strip's Show; EDT subscribes in M1.2c",
 }
 
 

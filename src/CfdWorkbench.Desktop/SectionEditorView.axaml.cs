@@ -2,7 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia;
 using Avalonia.Automation;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Shell;
 using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
@@ -11,6 +13,7 @@ public partial class SectionEditorView : UserControl
 {
     private WorkbenchController? controller;
     private string? focusedDraft;
+    private string? reasonDraft;   // the draft id and generation the reason box last followed
 
     public SectionEditorView()
     {
@@ -26,16 +29,23 @@ public partial class SectionEditorView : UserControl
         };
         ModeFitButton.Click += (_, _) => ModeCanvas.Fit();
         ModeFitSelectionButton.Click += (_, _) => ModeCanvas.FitSelection();
-        ModeCanvas.PointerMoved += (_, _) => ModeProbe.Text = ModeCanvas.ProbeText;
+        ModeCanvas.CancelTarget = ModeCancelButton;
+        ModeCanvas.ReasonTarget = ModeReason;
+        ModeCanvas.ReasonContainer = ModeReasonBox;
+        ModeCanvas.ProbeTarget = ModeProbe;
+        // DR-NAV-1 and §11.3: Tab goes to the point's Type and Return to its x, both in the shell's Properties pane.
+        ModeCanvas.TabOut = () => this.FindAncestorOfType<ShellHost>()?.Properties.FocusFirstValue() == true;
+        ModeCanvas.ValueOut = () => this.FindAncestorOfType<ShellHost>()?.Properties
+            .FindControl<TextBox>("PointSpanInput") is { IsEffectivelyEnabled: true, IsEffectivelyVisible: true } x && x.Focus();
     }
 
     private async Task FinishAsync()
     {
         if (controller is null) return;
         try { await controller.FinishSectionAsync(); }
-        catch (ContractError error)
+        catch (ContractError)
         {
-            ModeReason.Text = error.Message;
+            ModeReason.Text = controller.Section?.FinishReason ?? "This section cannot Finish yet.";
             ModeReasonBox.IsVisible = true;
             ModeReason.Focus();
         }
@@ -72,7 +82,6 @@ public partial class SectionEditorView : UserControl
             if (mode is not null)
             {
                 ModeCanvas.Controller = controller;
-                ModeCanvas.CancelTarget = ModeCancelButton;
                 ModeCanvas.Profile = EditableSectionCanvas.Profile;
                 ModeCanvas.SelectedVertex = controller.Selection is Selection.Points picked && picked.Items.Count > 0
                     ? (picked.Items[0].Curve, picked.Items[0].VertexId) : null;
@@ -83,8 +92,21 @@ public partial class SectionEditorView : UserControl
                 ModeFinishButton.IsEnabled = mode.CanFinish;
                 string? reason = mode.FinishReason;
                 AutomationProperties.SetHelpText(ModeFinishButton, reason);
-                ModeReason.Text = controller.SectionRefitRefusal is not null ? controller.Status : reason;
-                ModeReasonBox.IsVisible = controller.SectionRefitRefusal is not null || mode.IsDirty && !mode.CanFinish && reason is not null;
+                // A state reason (a refused refit, or why Finish is off) always shows. A gesture's refusal (⌫ on a named
+                // point, a refused step, a refused strip switch) has no state behind it: it stays until the draft changes.
+                string? stateReason = controller.SectionRefitRefusal is not null ? controller.Status
+                    : mode.IsDirty && !mode.CanFinish ? reason : null;
+                if (stateReason is not null)
+                {
+                    ModeReason.Text = stateReason;
+                    ModeReasonBox.IsVisible = true;
+                }
+                else if (reasonDraft != $"{mode.Draft.DraftId}:{mode.Draft.Generation}")
+                {
+                    ModeReason.Text = null;
+                    ModeReasonBox.IsVisible = false;
+                }
+                reasonDraft = $"{mode.Draft.DraftId}:{mode.Draft.Generation}";
                 RefreshStationStrip(controller, assignment.Value);
                 if (focusedDraft != mode.Draft.DraftId)
                 {
@@ -135,6 +157,14 @@ public partial class SectionEditorView : UserControl
     {
         if (controller is null) return;
         try { await controller.EnterSectionAsync(index, EntryOrigin.Side); }
+        catch (ContractError error) when (error.Code == "DSL-DRAFT-OWNED" && controller.Section is { } open && controller.Inspection is { } inspection)
+        {
+            // §6.1: "Finish or cancel <station> before editing <other>."
+            var assignments = inspection.Authored.Assignments;
+            ModeReason.Text = $"Finish or cancel {ElevationView.StationName(open.Draft.Assignment, assignments[open.Draft.Assignment].Eta)} " +
+                $"before editing {ElevationView.StationName(index, assignments[index].Eta)}.";
+            ModeReasonBox.IsVisible = true;
+        }
         catch (ContractError error)
         {
             ModeReason.Text = error.Message;

@@ -14,17 +14,33 @@ public class SectionCanvas : Control
 {
     public WorkbenchController? Controller { get; set; }
     public Control? CancelTarget { get; set; }
+    public TextBlock? ReasonTarget { get; set; }
+    public Control? ReasonContainer { get; set; }
+    /// <summary>The Tracing probe's text block (§11.1); the canvas writes it on every pointer move.</summary>
+    public TextBlock? ProbeTarget { get; set; }
+    /// <summary>DR-NAV-1: Tab from a selected point leaves the canvas to the Properties Type value.</summary>
+    public Func<bool>? TabOut { get; set; }
+    /// <summary>§11.3: Return on a selected point goes to its x value.</summary>
+    public Func<bool>? ValueOut { get; set; }
     public bool CurvatureVisible { get; set; } = true;
     public bool ThicknessDoubled { get; set; }
     public string ProbeText { get; private set; } = "Pointer · display";
     public int CombClippedCount { get; private set; }
     public double CombScale { get; private set; }
+    public (double X0, double X1)? CrossingInterval { get; private set; }
     private double viewMinX;
     private double viewSpan = 1;
     private double viewCenterY;
     private PointView? draggedPoint;
+    private IPointer? draggedPointer;
     private Point? previewPoint;
     private Point pressPoint;
+    private (string DraftId, long Generation, string Station, double ThicknessRatio)? probeStation;
+
+    // The named points' delete refusals (design §11.3: ⌫ is refused on named points with the reason).
+    public const string NoseNotDeleted = "The nose is always an anchor. It can't be deleted.";
+    public const string TrailingNotDeleted = "The trailing-edge point is always an anchor. It can't be deleted.";
+    public const string UnsavedChanges = "This section has unsaved changes. Cancel discards them; Finish keeps them.";   // COPY-119
 
     public void Fit()
     {
@@ -33,22 +49,62 @@ public class SectionCanvas : Control
         InvalidateVisual();
     }
 
+    /// <summary>§11.2: frames the selected point so its nearer neighbours (an anchor's handles) are at least 24 px away.</summary>
     public void FitSelection()
     {
         if (Controller?.Section is null || SelectedVertex is not { } selected) return;
         var curve = Controller.SectionCurve(selected.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower);
         if (curve is null) return;
         int index = curve.Points.ToList().FindIndex(point => point.Id == selected.Id);
-        if (index < 1 || index + 1 >= curve.Points.Count) return;
+        if (index < 0) return;
         var point = curve.Points[index];
-        double nearest = Math.Min(
-            Math.Sqrt(Math.Pow(point.SpanMeters - curve.Points[index - 1].SpanMeters, 2) + Math.Pow(point.Ordinate - curve.Points[index - 1].Ordinate, 2)),
-            Math.Sqrt(Math.Pow(point.SpanMeters - curve.Points[index + 1].SpanMeters, 2) + Math.Pow(point.Ordinate - curve.Points[index + 1].Ordinate, 2)));
+        double nearest = curve.Points.Where((_, other) => Math.Abs(other - index) == 1)
+            .Min(neighbour => Math.Sqrt(Math.Pow(point.SpanMeters - neighbour.SpanMeters, 2) + Math.Pow(point.Ordinate - neighbour.Ordinate, 2)));
         double width = Math.Max(1, Bounds.Width - 2 * Padding);
-        viewSpan = Math.Clamp(nearest * width / 24, .02, 1);
+        // 25 px, not 24: the rule is "at least 24 px", and rounding must never land a handle at 23.99.
+        viewSpan = Math.Clamp(nearest * width / 25, 1e-4, 1);
         viewMinX = point.SpanMeters - viewSpan / 2;
         viewCenterY = point.Ordinate;
         InvalidateVisual();
+    }
+
+    /// <summary>Show (§5.2): frames a blocker's chord range, a quarter of the width either side.</summary>
+    public void FrameRange(double x0, double x1)
+    {
+        double span = Math.Clamp(Math.Abs(x1 - x0) * 2, .02, 1);
+        viewSpan = span;
+        viewMinX = (x0 + x1) / 2 - span / 2;
+        if (Controller?.Section is { } mode)
+        {
+            var probe = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, Math.Clamp((x0 + x1) / 2, 0, 1));
+            viewCenterY = (probe.UpperY + probe.LowerY) / 2;
+        }
+        InvalidateVisual();
+    }
+
+    private void SetProbe(string text)
+    {
+        ProbeText = text;
+        if (ProbeTarget is not null) ProbeTarget.Text = text;
+    }
+
+    private void ShowReason(string text, bool focus)
+    {
+        if (ReasonTarget is null) return;
+        ReasonTarget.Text = text;
+        if (ReasonContainer is not null) ReasonContainer.IsVisible = true;
+        if (focus) ReasonTarget.Focus();
+    }
+
+    // The probe's "at <station> <mm> (<t/c>)" tail, computed once per draft and generation (Facts is not per-move work).
+    private (string Station, double ThicknessRatio) ProbeStation(SectionMode mode)
+    {
+        if (probeStation is { } cached && cached.DraftId == mode.Draft.DraftId && cached.Generation == mode.Draft.Generation) return (cached.Station, cached.ThicknessRatio);
+        double eta = Controller!.Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta;
+        string name = ElevationView.StationName(mode.Draft.Assignment, eta);
+        double ratio = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationThicknessRatio;
+        probeStation = (mode.Draft.DraftId, mode.Draft.Generation, name, ratio);
+        return (name, ratio);
     }
 
     public static readonly StyledProperty<ProfileView?> ProfileProperty =
@@ -326,6 +382,7 @@ public class SectionCanvas : Control
         DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
         DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));
         var crossing = Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment);
+        CrossingInterval = crossing;
         if (crossing is { } range && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } crossingBrush)
         {
             double atX = (range.X0 + range.X1) / 2;
@@ -559,6 +616,7 @@ public class SectionCanvas : Control
             if (hit.Freedom != PointFreedom.Fixed && e.ClickCount == 1 && Controller.BeginGesture(reference, GestureInput.Pointer))
             {
                 draggedPoint = hit;
+                draggedPointer = e.Pointer;
                 pressPoint = position;
                 e.Pointer.Capture(this);
             }
@@ -602,7 +660,6 @@ public class SectionCanvas : Control
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        base.OnPointerMoved(e);
         if (Controller?.Section is { } mode)
         {
             var position = e.GetPosition(this);
@@ -617,17 +674,23 @@ public class SectionCanvas : Control
                 }
                 Controller.UpdateGesture(x, y, Point.Distance(position, pressPoint));
                 previewPoint = new Point(x, y);
-                ProbeText = $"Δx {(x - origin.SpanMeters) * 100:F2} % c · Δy {(y - origin.Ordinate) * 100:F2} % c · display";
+                SetProbe(string.Create(CultureInfo.InvariantCulture,
+                    $"Display · Δx {(x - origin.SpanMeters) * 100:F2} % c · Δy {(y - origin.Ordinate) * 100:F2} % c"));
             }
             else
             {
+                // §11.1 and the approved mockup's probeText: record values, local thickness, what the station builds there.
                 var reading = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, Math.Clamp(x, 0, 1));
-                ProbeText = $"Pointer x {reading.X * 100:F2} % · upper {reading.UpperY * 100:F2} % · lower {reading.LowerY * 100:F2} % · t here {reading.Thickness * 100:F2} % · at station {reading.PlacedThicknessMeters * 1000:F2} mm · display";
+                var (station, ratio) = ProbeStation(mode);
+                SetProbe(string.Create(CultureInfo.InvariantCulture,
+                    $"Display · pointer x {reading.X * 100:F2} % · upper {reading.UpperY * 100:F2} % · lower {reading.LowerY * 100:F2} % · t here {reading.Thickness * 100:F2} % · at {station} {reading.PlacedThicknessMeters * 1000:F2} mm ({ratio * 100:F2} % t/c)"));
             }
+            base.OnPointerMoved(e);
             InvalidateVisual();
             e.Handled = true;
             return;
         }
+        base.OnPointerMoved(e);
         if (!Editable || Profile is null || !isDragging || SelectedVertex is null) return;
 
         var v = FindVertex(SelectedVertex.Value.Side, SelectedVertex.Value.Id);
@@ -644,9 +707,7 @@ public class SectionCanvas : Control
         base.OnPointerReleased(e);
         if (Controller?.Section is not null && draggedPoint is not null)
         {
-            draggedPoint = null;
-            previewPoint = null;
-            e.Pointer.Capture(null);
+            ReleaseDrag();
             _ = EndGestureAsync(GestureEnd.Release);
             e.Handled = true;
             return;
@@ -659,17 +720,25 @@ public class SectionCanvas : Control
         }
     }
 
+    private void ReleaseDrag()
+    {
+        draggedPoint = null;
+        previewPoint = null;
+        draggedPointer?.Capture(null);
+        draggedPointer = null;
+    }
+
     private async Task EndGestureAsync(GestureEnd reason)
     {
         try { if (Controller is not null) await Controller.EndGestureAsync(reason); }
-        catch (ContractError error) { ProbeText = error.Message; }
+        catch (ContractError error) { ShowReason(error.Message, focus: false); }
         InvalidateVisual();
     }
 
     private async Task ApplyStepAsync(SectionStep step)
     {
         try { if (Controller is not null) await Controller.ApplySectionStepAsync(step); }
-        catch (ContractError error) { ProbeText = error.Message; }
+        catch (ContractError error) { ShowReason(error.Message, focus: false); }
         InvalidateVisual();
     }
 
@@ -679,7 +748,24 @@ public class SectionCanvas : Control
         if (Controller?.Section is { } mode)
         {
             bool command = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || e.KeyModifiers.HasFlag(KeyModifiers.Control);
-            if (e.Key == Key.Tab) return;
+            // DR-NAV-1: Tab from a selected point goes to its Type; with nothing selected Tab leaves as usual.
+            if (e.Key == Key.Tab)
+            {
+                if (!e.KeyModifiers.HasFlag(KeyModifiers.Shift) && SelectedVertex is not null && TabOut?.Invoke() == true) e.Handled = true;
+                return;
+            }
+            if (command && e.Key == Key.Return)
+            {
+                if (mode.CanFinish) _ = FinishSectionAsync();
+                else ShowReason(mode.FinishReason ?? "This section cannot Finish yet.", focus: true);
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.Return && SelectedVertex is not null)
+            {
+                e.Handled = ValueOut?.Invoke() == true;
+                return;
+            }
             if (e.Key is Key.OemCloseBrackets or Key.OemOpenBrackets)
             {
                 var points = Controller.SectionCurve(SurfaceSide.Upper)!.Points
@@ -699,7 +785,11 @@ public class SectionCanvas : Control
             if (e.Key == Key.D0 && command) { Fit(); e.Handled = true; return; }
             if (e.Key == Key.Escape)
             {
-                if (Controller.Gesture != GestureState.Idle) _ = EndGestureAsync(GestureEnd.Escape);
+                if (Controller.Gesture != GestureState.Idle)
+                {
+                    ReleaseDrag();
+                    _ = EndGestureAsync(GestureEnd.Escape);
+                }
                 else if (SelectedVertex is { } picked)
                 {
                     var curve = Controller.SectionCurve(picked.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower);
@@ -716,7 +806,11 @@ public class SectionCanvas : Control
                             Controller.Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta));
                     }
                 }
-                else if (mode.IsDirty) CancelTarget?.Focus();
+                else if (mode.IsDirty)
+                {
+                    ShowReason(UnsavedChanges, focus: false);
+                    CancelTarget?.Focus();
+                }
                 else Controller.CancelSection();
                 InvalidateVisual();
                 e.Handled = true;
@@ -724,7 +818,11 @@ public class SectionCanvas : Control
             }
             if (e.Key == Key.Back && SelectedVertex is { } deletion)
             {
-                _ = ApplyStepAsync(new SectionStep.Delete(deletion.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower, deletion.Id));
+                var side = deletion.Side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower;
+                var role = Controller.SectionCurve(side)?.Points.FirstOrDefault(point => point.Id == deletion.Id)?.Role;
+                if (role == PointRole.Nose) ShowReason(NoseNotDeleted, focus: false);
+                else if (role == PointRole.TrailingEnd) ShowReason(TrailingNotDeleted, focus: false);
+                else _ = ApplyStepAsync(new SectionStep.Delete(side, deletion.Id));
                 e.Handled = true;
                 return;
             }
@@ -810,6 +908,12 @@ public class SectionCanvas : Control
             OnVertexMoved(v.Side, v.Id, newX, newY);
             e.Handled = true;
         }
+    }
+
+    private async Task FinishSectionAsync()
+    {
+        try { if (Controller is not null) await Controller.FinishSectionAsync(); }
+        catch (ContractError) { ShowReason(Controller?.Section?.FinishReason ?? "This section cannot Finish yet.", focus: true); }
     }
 
     protected override void OnKeyUp(KeyEventArgs e)
