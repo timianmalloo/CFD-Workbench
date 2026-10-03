@@ -56,7 +56,7 @@ public partial class ModelArea : UserControl
                 controller?.RefreshSurface();
             };
         }
-        oneViewPicker = WireOneViewPicker();
+        (oneViewPicker, backItem, backSeparator) = WireOneViewPicker();
         foreach (var (label, view) in Labels())
         {
             label.Click += (_, _) => { if (controller is not null) controller.TargetView = view; };
@@ -86,6 +86,9 @@ public partial class ModelArea : UserControl
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
         // The caption plate sits right of the axis triad (the approved mockup); View3d owns both positions.
         ThreeDCaptionStack.Margin = View3d.CaptionMargin;
+        // The navbar's place follows the model area and its own width (its menus name the layout and display).
+        PlanContent.SizeChanged += (_, _) => FitCaption();
+        Navbar.SizeChanged += (_, _) => FitCaption();
         ThreeDView.Renderer = ThreeDRenderer;
         // A drag frame redraws only the 3D view (its live camera); the controller takes the camera at release.
         ThreeDView.LiveCameraChanged += () =>
@@ -146,23 +149,44 @@ public partial class ModelArea : UserControl
     // In One view the shown view's plate opens Plan / 3D / Side / Front. A choice writes the same controller state the
     // View menu and the label double-click write (Layout, TargetView); there is no second layout implementation.
 
+    // DR-VIEW-11: the first item, set apart by a separator, goes back to the layout chosen before One view.
     private readonly MenuFlyout oneViewPicker;
+    private readonly MenuItem backItem;
+    private readonly Separator backSeparator;
     private bool oneView;
 
     private static readonly (SingleView View, string Title)[] PickerRows =
         [(SingleView.Plan, "Plan"), (SingleView.ThreeD, "3D"), (SingleView.Side, "Side"), (SingleView.Front, "Front")];
 
-    private MenuFlyout WireOneViewPicker()
+    private (MenuFlyout Picker, MenuItem Back, Separator Separator) WireOneViewPicker()
     {
         var picker = new MenuFlyout { Placement = PlacementMode.BottomEdgeAlignedLeft, FlyoutPresenterClasses = { "navbar-menu" } };
+        var back = new MenuItem { Header = "↩ Back" };
+        back.Click += (_, _) => GoBack();
+        var separator = new Separator();
+        picker.Items.Add(back);
+        picker.Items.Add(separator);
         foreach (var (view, title) in PickerRows)
         {
             var item = new MenuItem { Header = title, Tag = view, ToggleType = MenuItemToggleType.Radio, GroupName = "one-view" };
             item.Click += (_, _) => ShowAlone(view);
             picker.Items.Add(item);
         }
-        return picker;
+        return (picker, back, separator);
     }
+
+    // The plate double-click's toggle: from One view of the shown view back to the arrangement before it.
+    private void GoBack()
+    {
+        oneViewPicker.Hide();
+        if (controller is not { Layout.Arrangement: ViewArrangement.One } current) return;
+        current.ToggleOneView(current.Layout.Single);
+        Labels().Single(item => item.View == ViewCommands.Target(current, null)).Label.Focus();
+    }
+
+    // A layout's name is its View ▸ Views row title, so the picker and the menus say the same thing.
+    private static string LayoutTitle(ViewArrangement arrangement) =>
+        CommandTable.Rows.Single(row => row.Id == (arrangement == ViewArrangement.Four ? "view.layout-four" : "view.layout-plan3d")).Title;
 
     private void ShowAlone(SingleView view)
     {
@@ -240,7 +264,11 @@ public partial class ModelArea : UserControl
         ThreeDView.Refresh();
         oneView = layout.Arrangement == ViewArrangement.One;
         if (!oneView) oneViewPicker.Hide();
-        foreach (var item in oneViewPicker.Items.OfType<MenuItem>()) item.IsChecked = oneView && (SingleView)item.Tag! == layout.Single;
+        foreach (var item in oneViewPicker.Items.OfType<MenuItem>().Where(item => item.Tag is SingleView))
+            item.IsChecked = oneView && (SingleView)item.Tag! == layout.Single;
+        // A Four-views fallback (no room for four) is not a chosen One view, so it has no layout to go back to.
+        backItem.IsVisible = backSeparator.IsVisible = controller.Layout.Arrangement == ViewArrangement.One;
+        backItem.Header = "↩ Back to " + LayoutTitle(controller.ArrangementBeforeOne);
         // The plate of the view that Display ▾, zoom and fit act on carries the station underline (the mockup's aria-pressed).
         var target = ViewCommands.Target(controller, null);
         foreach (var (label, view) in Labels())
@@ -260,6 +288,29 @@ public partial class ModelArea : UserControl
         }
         FitLabels();
         RefreshNavbar(controller);
+        FitCaption();
+    }
+
+    // The 3D caption sits right of the axis triad at the view's bottom; the navbar floats over the views at the bottom
+    // centre. The caption stops short of the navbar or, with too little room beside it, rises above it.
+    private const double CaptionNavbarGap = 8, MinimumCaptionWidth = 160;
+
+    private void FitCaption()
+    {
+        var margin = View3d.CaptionMargin;
+        double maxWidth = double.PositiveInfinity;
+        if (ThreeDSlot.Bounds.Width > 0 && Navbar.IsVisible && Navbar.Bounds.Width > 0 && Navbar.TranslatePoint(default, ThreeDSlot) is { } bar)
+        {
+            double left = margin.Left, right = ThreeDSlot.Bounds.Width - margin.Right;
+            bool besideSlot = bar.Y >= ThreeDSlot.Bounds.Height || bar.Y + Navbar.Bounds.Height <= 0;
+            if (!besideSlot && bar.X < right && bar.X + Navbar.Bounds.Width > left)
+            {
+                if (bar.X - CaptionNavbarGap - left >= MinimumCaptionWidth) maxWidth = bar.X - CaptionNavbarGap - left;
+                else margin = new Thickness(margin.Left, margin.Top, margin.Right, ThreeDSlot.Bounds.Height - bar.Y + CaptionNavbarGap);
+            }
+        }
+        ThreeDCaptionStack.MaxWidth = maxWidth;
+        ThreeDCaptionStack.Margin = margin;
     }
 
     // V3D (§11.1): the 3D title and the cube row (Home and the cube, DR-VIEW-9) share the top of the view. The title keeps

@@ -660,11 +660,16 @@ public static class ControllerViewTests
             fixture.Settle();
             if (fixture.Controller.Layout != ViewLayout.One(SingleView.Side) || !area.SideSlot.IsEffectivelyVisible || area.PlanSlot.IsEffectivelyVisible)
                 throw new Exception("Return on the Side label did not show Side alone");
-            // DR-VIEW-10: in One view Return opens the plate's picker (ModelArea_OneView_PlatePicker_SwitchesView); the
-            // double-click and Views ▾ return to the arrangement before it.
-            area.SideLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
+            // Changed by DR-VIEW-10/11: in One view Return opens the plate's picker, and the way back is its first item,
+            // "↩ Back to <layout>" (ModelArea_OneView_PickerBack_RestoresPreviousLayout), for pointer and keyboard alike.
+            area.SideLabel.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Return, Source = area.SideLabel });
             fixture.Settle();
-            if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("A double-click did not return to Four views");
+            var back = (area.SideLabel.Flyout as MenuFlyout) is { IsOpen: true } picker ? picker.Items.OfType<MenuItem>().First()
+                : throw new Exception("Return on the Side label in One view did not open its picker");
+            Equal("↩ Back to Four views", back.Header as string, "the picker's way back");
+            back.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            fixture.Settle();
+            if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("Back to Four views did not return to Four views");
             area.FrontLabel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Equal(SingleView.Front, fixture.Controller.TargetView, "a click makes the view the command target");
         });
@@ -848,6 +853,90 @@ public static class ControllerViewTests
             Console.WriteLine($"  view-plates: 4 plates at (6, 6), the views fill their slots; Plan {area.PlanLabel.Bounds.Size}, Side {area.SideLabel.Bounds.Size}");
         });
 
+        DesktopChecks.Check("ModelArea_OneView_PickerBack_RestoresPreviousLayout", () =>
+        {
+            // DR-VIEW-11: the picker's first item, set apart from the views by a separator, is "↩ Back to <layout>" and
+            // restores the layout chosen before One view. It is the pointer way back and the keyboard way back (Return on
+            // the plate opens the picker; ↑/↓ move; Return picks).
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var (area, controller) = (fixture.Area, fixture.Controller);
+            foreach (var (before, name) in new[] { (ViewLayout.Plan3d, "Plan + 3D"), (ViewLayout.Four, "Four views") })
+                foreach (bool keyboard in new[] { false, true })
+                {
+                    string how = $"{name}, {(keyboard ? "keyboard" : "pointer")}";
+                    controller.Layout = before;
+                    fixture.Settle();
+                    controller.ToggleOneView(SingleView.Side);   // the plate's double-click
+                    fixture.Settle();
+                    var label = area.SideLabel;
+                    if (keyboard)
+                    {
+                        if (!label.Focus(NavigationMethod.Tab)) throw new Exception($"{how}: the plate takes no focus");
+                        label.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Return, Source = label });
+                    }
+                    else if (Avalonia.Automation.Peers.ControlAutomationPeer.CreatePeerForElement(label) is Avalonia.Automation.Provider.IInvokeProvider invoke)
+                        invoke.Invoke();   // the Button's own click (see ModelArea_OneView_PlatePicker_SwitchesView)
+                    fixture.Settle();
+                    var menu = (label.Flyout as MenuFlyout) is { IsOpen: true } open ? open : throw new Exception($"{how}: the picker did not open");
+                    var items = menu.Items.ToArray();
+                    if (items.Length != 6 || items[0] is not MenuItem back || items[1] is not Separator)
+                        throw new Exception($"{how}: the picker is not Back, a separator and the four views: {string.Join(", ", items.Select(item => (item as MenuItem)?.Header ?? item?.GetType().Name))}");
+                    Equal("↩ Back to " + name, back.Header as string, $"{how}: Back names the layout before One view");
+                    if (!items.Skip(2).OfType<MenuItem>().Select(item => item.Header as string).SequenceEqual(new[] { "Plan", "3D", "Side", "Front" }))
+                        throw new Exception($"{how}: the views after the separator are not Plan, 3D, Side, Front");
+                    if (keyboard)
+                    {
+                        // ↓ from the open picker, then ↑ back to the top: the item the keys land on is the one Return picks.
+                        var root = TopLevel.GetTopLevel(back) ?? throw new Exception($"{how}: the picker has no window");
+                        Press(root, Key.Down);
+                        Press(root, Key.Up);
+                        if (!ReferenceEquals(root.FocusManager?.GetFocusedElement(), back))
+                            throw new Exception($"{how}: ↓ ↑ land on {(root.FocusManager?.GetFocusedElement() as MenuItem)?.Header ?? root.FocusManager?.GetFocusedElement()}, not Back");
+                        Press(root, Key.Return);
+                    }
+                    else back.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+                    fixture.Settle();
+                    Equal(before, controller.Layout, $"{how}: Back restores the layout");
+                    if (menu.IsOpen) throw new Exception($"{how}: the picker stays open after Back");
+                    if (!area.PlanSlot.IsEffectivelyVisible || !area.ThreeDSlot.IsEffectivelyVisible) throw new Exception($"{how}: the layout's views are not shown");
+                }
+
+            void Press(TopLevel root, Key key)
+            {
+                var target = root.FocusManager?.GetFocusedElement() as Interactive ?? root;
+                target.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = key, Source = target });
+                fixture.Settle();
+            }
+        });
+
+        DesktopChecks.Check("ModelArea_ThreeDCaption_ClearOfNavbar", () =>
+        {
+            // The 3D caption (right of the axis triad) and the navbar (bottom centre, over the views) never overlap: the
+            // caption stops short of the navbar or rises above it (One view cut the caption at the navbar, 2026-10-03).
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var (area, controller) = (fixture.Area, fixture.Controller);
+            var caption = area.ThreeDCaptionStack;
+            foreach (var layout in new[] { ViewLayout.One(SingleView.ThreeD), ViewLayout.Plan3d, ViewLayout.Four })
+                foreach (var width in new[] { double.NaN, 760d })
+                {
+                    controller.Layout = layout;
+                    area.PlanContent.Width = width;
+                    fixture.Settle();
+                    fixture.Settle();
+                    var at = caption.TranslatePoint(default, fixture.Window) ?? throw new Exception("No caption point");
+                    var bar = area.Navbar.TranslatePoint(default, fixture.Window) ?? throw new Exception("No navbar point");
+                    var captionBox = new Rect(at, caption.Bounds.Size);
+                    var navbarBox = new Rect(bar, area.Navbar.Bounds.Size);
+                    string where = $"{layout.Arrangement} at {(double.IsNaN(width) ? "full" : width.ToString(System.Globalization.CultureInfo.InvariantCulture))} width";
+                    if (captionBox.Intersects(navbarBox)) throw new Exception($"{where}: the caption {captionBox} runs under the navbar {navbarBox}");
+                    var inSlot = caption.TranslatePoint(default, area.ThreeDSlot) ?? throw new Exception("No slot point");
+                    Near(View3d.CaptionMargin.Left, inSlot.X, 0.5, $"{where}: the caption starts right of the triad");
+                    if (inSlot.X + caption.Bounds.Width > area.ThreeDSlot.Bounds.Width + 0.5 || inSlot.Y < 0)
+                        throw new Exception($"{where}: the caption leaves its view");
+                }
+            area.PlanContent.Width = double.NaN;
+        });
+
         DesktopChecks.Check("ModelArea_OneView_PlatePicker_SwitchesView", () =>
         {
             // DR-VIEW-10 (NS-7): in One view the label plate is a ▾ picker of Plan / 3D / Side / Front, opened by a click or by
@@ -918,7 +1007,9 @@ public static class ControllerViewTests
                 if (!label.IsEffectivelyVisible) throw new Exception($"The {view} plate is not shown in One view");
                 if (label.Content?.ToString()?.StartsWith("▾ ", StringComparison.Ordinal) != true)
                     throw new Exception($"The {view} plate shows no ▾ in One view: {label.Content}");
-                var items = (label.Flyout as MenuFlyout ?? throw new Exception($"The {view} plate has no picker")).Items.OfType<MenuItem>().ToArray();
+                // The views (the Back item ahead of them is DR-VIEW-11's, checked by ModelArea_OneView_PickerBack_RestoresPreviousLayout).
+                var items = (label.Flyout as MenuFlyout ?? throw new Exception($"The {view} plate has no picker")).Items.OfType<MenuItem>()
+                    .Where(item => (item.Header as string)?.StartsWith("↩", StringComparison.Ordinal) != true).ToArray();
                 if (!items.Select(item => item.Header as string).SequenceEqual(labels.Select(item => item.Title)))
                     throw new Exception($"Picker items {string.Join(", ", items.Select(item => item.Header))}");
                 foreach (var item in items)
@@ -1564,6 +1655,7 @@ internal static class ModelAreaParts
         public SurfaceRenderer ThreeDRenderer => area.Part<SurfaceRenderer>("ThreeDRenderer");
         public SurfaceRenderer SideRenderer => area.Part<SurfaceRenderer>("SideRenderer");
         public SurfaceRenderer FrontRenderer => area.Part<SurfaceRenderer>("FrontRenderer");
+        public StackPanel ThreeDCaptionStack => area.Part<StackPanel>("ThreeDCaptionStack");
         public TextBlock ThreeDDrawing => area.Part<TextBlock>("ThreeDDrawing");
         public Border ThreeDRenderErrorBand => area.Part<Border>("ThreeDRenderErrorBand");
         public TextBlock ThreeDRenderErrorText => area.Part<TextBlock>("ThreeDRenderErrorText");
