@@ -342,6 +342,8 @@ public static class ShellWindowTests
                             button is not ToggleButton { TemplatedParent: Expander }))   // a group header's action is expand/collapse
                     {
                         if (button.Command is not null) continue;
+                        // A menu button's action is its menu (the navbar's Views ▾ and Display ▾); an empty menu is still dead.
+                        if (button.Flyout is MenuFlyout { Items.Count: > 0 }) continue;
                         var store = typeof(Avalonia.Interactivity.Interactive).GetField("_eventHandlers",
                             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                             .GetValue(button) as System.Collections.IDictionary;
