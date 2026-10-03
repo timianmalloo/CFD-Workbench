@@ -25,6 +25,16 @@ public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
 public enum GestureEnd { Release, KeyUp, Escape, CaptureLost, FocusLost, Deactivated, Save, Close, Open, New }
 public enum NudgeModifier { Command, Plain, Shift }
+public enum EntryOrigin { Properties, Plan, Side, Browser, Palette, Recovery }
+
+/// <summary>One section visit. The draft's cursor bytes are the only preview source.</summary>
+public sealed record SectionMode(SectionDraftView Draft, byte[] BaseBytes, EntryOrigin Origin,
+    SessionAssessment? Assessment = null, string? FinishReason = null)
+{
+    public bool IsDirty => !Draft.Bytes.AsSpan().SequenceEqual(BaseBytes);
+    public bool CanFinish => IsDirty && Assessment?.Status == GeometryStatus.Certified;
+    public SectionStepReport? LastReport => Draft.Last;
+}
 
 /// <summary>Plan coordinates are metres; screen distance is used only for gesture activation.</summary>
 public sealed record PlanCamera(double PixelsPerMeter = 1000, double PanSpanPixels = 0, double PanAftPixels = 0);
@@ -104,6 +114,7 @@ public sealed class WorkbenchController : IDisposable
     private AuthoringSession session = new();
     private IProjectStore store;
     private readonly Func<AuthoringSession, IProjectStore> storeFactory;
+    private readonly Func<long, Task>? sectionAssessmentGate;
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -124,6 +135,8 @@ public sealed class WorkbenchController : IDisposable
     private bool disposed;
     private bool draftInputValid = true;
     private readonly Dictionary<int, (string Key, ProfileView View)> sectionViews = new();
+    private CancellationTokenSource? sectionAssessmentCancellation;
+    private long sectionAssessmentTicket;
 
     private long openRequestGeneration;
     private bool isNotifying;
@@ -175,13 +188,14 @@ public sealed class WorkbenchController : IDisposable
     public const string SurfaceKeptNote = "Showing the last shape that could be drawn.";
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
-        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null)
+        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
         this.surfaceCompute = surfaceCompute ?? ((source, basis, generation, cancellation) =>
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
         this.time = time ?? TimeProvider.System;
+        this.sectionAssessmentGate = sectionAssessmentGate;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -195,6 +209,8 @@ public sealed class WorkbenchController : IDisposable
 
     public Selection Selection { get; private set; } = new Selection.None();
     public event Action? SelectionChanged;
+    public event Action? SectionChanged;
+    public SectionMode? Section { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
@@ -499,6 +515,7 @@ public sealed class WorkbenchController : IDisposable
 
     private (bool Undo, bool Redo) HistoryAvailability()
     {
+        if (Section is { } mode) return (mode.Draft.Cursor > 0, mode.Draft.Cursor < mode.Draft.StepCount);
         if (Inspection is null || draft is not null || Gesture != GestureState.Idle) return (false, false);
         var history = session.Envelope();
         var (current, redo) = NativeProject.Replay(history);
@@ -571,10 +588,158 @@ public sealed class WorkbenchController : IDisposable
         if (rail is not null && rail.Controls.Any(c => c.Id == item.VertexId))
             return true;
 
-        if (item.Profile is not null && projection.Assignments.Any(a => a.ProfileName == item.Profile))
-            return true;
-
         return false;
+    }
+
+    /// <summary>The section's display curve, derived from the current draft bytes.</summary>
+    public CurveView? SectionCurve(SurfaceSide side) => Section is { } mode
+        ? Sections.View(mode.Draft.Bytes, mode.Draft.Assignment, side, "preview", mode.Draft.Generation)
+        : null;
+
+    public Task EnterSectionAsync(int assignment, EntryOrigin origin)
+    {
+        if (disposed) throw new ContractError("DOC-CLOSED");
+        if (Section is { } open)
+        {
+            if (open.IsDirty) throw new ContractError("DSL-DRAFT-OWNED", "Finish or cancel this section before editing another.");
+            CancelSectionAssessment();
+            session.Cancel(open.Draft.DraftId);
+            Section = null;
+            draft = null;
+        }
+        if (draft is not null || Gesture != GestureState.Idle)
+            throw new ContractError("DSL-DRAFT-OWNED");
+        if (Inspection?.Geometry.Status != GeometryStatus.Certified)
+            throw new ContractError("DSL-NOT-ASSESSED");
+        var baseBytes = session.Snapshot().Source;
+        var view = session.BeginSectionDraft(Guid.NewGuid().ToString("D"), assignment);
+        draft = session.Snapshot().Draft;
+        Section = new SectionMode(view, baseBytes, origin);
+        interiorEta = Inspection.Authored.Assignments[assignment].Eta;
+        var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
+        Select(new Selection.Points([new PointRef("upper", first.Id, view.Profile)]));
+        CfdWorkbench.Desktop.Shell.ShellEvents.Record("section.mode.enter", "OK", 0,
+            Guid.NewGuid().ToString("N"), trigger: origin.ToString().ToLowerInvariant(), editKind: "section");
+        SectionChanged?.Invoke();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>Appends one structural step, then checks its bytes with the real Core certificate.</summary>
+    public async Task ApplySectionStepAsync(SectionStep step, CancellationToken cancellation = default)
+    {
+        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        CancelSectionAssessment();
+        var next = session.ApplySectionStep(mode.Draft.DraftId, mode.Draft.Generation, step);
+        draft = session.Snapshot().Draft;
+        Section = mode with { Draft = next, Assessment = null, FinishReason = "Checking…" };
+        NotifySection();
+        await AssessCurrentSectionAsync(cancellation);
+    }
+
+    public void UndoSectionStep()
+    {
+        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        CancelSectionAssessment();
+        var next = session.UndoSectionStep(mode.Draft.DraftId);
+        draft = session.Snapshot().Draft;
+        Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No earlier step." : "Checking…" };
+        NotifySection();
+        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+    }
+
+    public void RedoSectionStep()
+    {
+        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        CancelSectionAssessment();
+        var next = session.RedoSectionStep(mode.Draft.DraftId);
+        draft = session.Snapshot().Draft;
+        Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No later step." : "Checking…" };
+        NotifySection();
+        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+    }
+
+    private async Task AssessCurrentSectionAsync(CancellationToken cancellation = default)
+    {
+        if (Section is not { } mode) return;
+        var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        sectionAssessmentCancellation = linked;
+        long ticket = ++sectionAssessmentTicket;
+        long placeholder = statusSlot.Write("Checking section geometry…");
+        Notify();
+        try
+        {
+            // Test seam: a gate may delay the call, but the assessment itself always runs in Core.
+            if (sectionAssessmentGate is not null) await sectionAssessmentGate(mode.Draft.Generation);
+            var result = await Task.Run(() => session.AssessSection(mode.Draft.DraftId, mode.Draft.Generation, linked.Token));
+            if (disposed || ticket != sectionAssessmentTicket || Section?.Draft.Generation != mode.Draft.Generation) return;
+            string? reason = result.Status switch
+            {
+                GeometryStatus.Certified when !mode.IsDirty => "No section changes to Finish.",
+                GeometryStatus.Certified => null,
+                _ when result.Code == "DSL-PROFILE-CROSS" => "Upper and lower surfaces cross. Move the point back to finish.",
+                GeometryStatus.NotAssessed => "This section could not be checked. Finish is unavailable.",
+                _ => result.Diagnostics.FirstOrDefault()?.Reason ?? result.Code
+            };
+            Section = mode with { Assessment = result, FinishReason = reason };
+            statusSlot.TryReplace(placeholder, reason ?? "Surfaces no longer cross. Finish is available.",
+                reason is null ? ReportKind.Info : ReportKind.Warning);
+            NotifySection();
+        }
+        catch (ContractError error) when (error.Code is "DSL-CONFLICT" or "DSL-VALIDATION-BUSY") { }
+        finally
+        {
+            if (ReferenceEquals(sectionAssessmentCancellation, linked)) sectionAssessmentCancellation = null;
+            linked.Dispose();
+        }
+    }
+
+    private void CancelSectionAssessment()
+    {
+        ++sectionAssessmentTicket;
+        sectionAssessmentCancellation?.Cancel();
+        sectionAssessmentCancellation = null;
+    }
+
+    private void NotifySection()
+    {
+        if (disposed) return;
+        SectionChanged?.Invoke();
+        Notify();
+    }
+
+    public async Task FinishSectionAsync()
+    {
+        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        if (mode.Assessment is null) await AssessCurrentSectionAsync();
+        mode = Section ?? throw new ContractError("DSL-CONFLICT");
+        if (!mode.CanFinish || mode.Assessment is null)
+        {
+            Status = mode.FinishReason ?? "This section cannot Finish yet.";
+            NotifySection();
+            throw new ContractError("DSL-NOT-ASSESSED");
+        }
+        CancelSectionAssessment();
+        session.FinishSection(Guid.NewGuid().ToString("D"), mode.Assessment);
+        Section = null;
+        draft = null;
+        Inspection = session.InspectAccepted();
+        sectionViews.Clear();
+        UpdateEstimates();
+        Status = "Section finished as one accepted source revision. Save to persist it.";
+        Select(new Selection.Station(mode.Draft.Assignment, Inspection.Authored.Assignments[mode.Draft.Assignment].Eta));
+        NotifySection();
+    }
+
+    public void CancelSection()
+    {
+        if (Section is not { } mode) return;
+        CancelSectionAssessment();
+        session.Cancel(mode.Draft.DraftId);
+        Section = null;
+        draft = null;
+        Status = "Section cancelled. Accepted source and history are unchanged.";
+        Select(new Selection.Station(mode.Draft.Assignment, Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta));
+        NotifySection();
     }
 
     private void UpdateEstimates()
@@ -597,6 +762,12 @@ public sealed class WorkbenchController : IDisposable
 
     public void ApplySpan(string text)
     {
+        if (Section is not null)
+        {
+            Status = PropertyCopy.SetInWorkspace;
+            Notify();
+            throw new ContractError("DSL-DRAFT-OWNED");
+        }
         // The existing pane still calls this entry point until its owner ports that call to ApplySpanAsync.
         RequireCertifiedFoil();
         if (draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
@@ -616,6 +787,21 @@ public sealed class WorkbenchController : IDisposable
 
     public bool BeginGesture(PointRef point, GestureInput input)
     {
+        if (Section is { } mode)
+        {
+            if (Gesture != GestureState.Idle || point.Profile != mode.Draft.Profile || point.Curve is not ("upper" or "lower")) return false;
+            var side = point.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower;
+            var sectionPoint = SectionCurve(side)?.Points.FirstOrDefault(item => item.Id == point.VertexId);
+            if (sectionPoint is null || sectionPoint.Freedom == PointFreedom.Fixed) return false;
+            gesturePoint = point;
+            gestureOrigin = sectionPoint;
+            gestureInput = input;
+            pendingGestureTarget = null;
+            gestureStarted = Stopwatch.GetTimestamp();
+            Gesture = input == GestureInput.Pointer ? GestureState.Pressed : GestureState.Nudging;
+            Select(new Selection.Points([point]));
+            return true;
+        }
         var view = CurveFor(point.Curve)?.Points.FirstOrDefault(candidate => candidate.Id == point.VertexId);
         if (view is null) return false;
         if (Gesture == GestureState.Busy)
@@ -682,6 +868,12 @@ public sealed class WorkbenchController : IDisposable
             if (px < 3) return;
             Gesture = GestureState.Dragging;
         }
+        if (Section is not null)
+        {
+            pendingGestureTarget = (spanMeters, aftMeters);
+            Notify();
+            return;
+        }
         EnsurePointDraft();
         pendingGestureTarget = (spanMeters, aftMeters);
         ScheduleGestureFrame();
@@ -690,6 +882,13 @@ public sealed class WorkbenchController : IDisposable
     public void Nudge(int spanDirection, int aftDirection, NudgeModifier modifier)
     {
         if (Gesture != GestureState.Nudging || gestureOrigin is null || gesturePoint is null) return;
+        if (Section is not null)
+        {
+            double sectionStep = modifier switch { NudgeModifier.Command => .0001, NudgeModifier.Shift => .01, _ => .001 };
+            var sectionAt = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.Ordinate);
+            UpdateGestureTarget(sectionAt.Item1 + spanDirection * sectionStep, sectionAt.Item2 + aftDirection * sectionStep);
+            return;
+        }
         // The channel's own ladder (§3.6): 0.01 · 0.1 · 1 mm on lengths, ° on twist, % on t/c. The span step stays in metres.
         var unit = Channels.Unit(gesturePoint.Curve);
         double spanStep = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
@@ -791,6 +990,7 @@ public sealed class WorkbenchController : IDisposable
 
     public Task<GestureOutcome> EndGestureAsync(GestureEnd reason, CancellationToken cancellation = default)
     {
+        if (Section is not null) return EndSectionGestureAsync(reason, cancellation);
         if (Gesture == GestureState.Busy) return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
         if (Gesture == GestureState.Idle)
         {
@@ -827,6 +1027,27 @@ public sealed class WorkbenchController : IDisposable
         long version = stateVersion;
         pendingCommit = CommitPointGestureAsync(capture, reason, version, cancellation);
         return pendingCommit;
+    }
+
+    private async Task<GestureOutcome> EndSectionGestureAsync(GestureEnd reason, CancellationToken cancellation)
+    {
+        if (Gesture == GestureState.Idle) return new GestureOutcome.NoChange();
+        if (reason == GestureEnd.KeyUp && Gesture != GestureState.Nudging) return new GestureOutcome.NoChange();
+        var target = pendingGestureTarget;
+        var origin = gestureOrigin;
+        var point = gesturePoint;
+        pendingGestureTarget = null;
+        gestureOrigin = null;
+        gesturePoint = null;
+        gestureInput = null;
+        Gesture = GestureState.Idle;
+        if (reason is GestureEnd.Escape or GestureEnd.CaptureLost || target is null || origin is null || point is null)
+            return new GestureOutcome.NoChange();
+        if (Math.Abs(target.Value.Span - origin.SpanMeters) < 1e-12 && Math.Abs(target.Value.Aft - origin.Ordinate) < 1e-12)
+            return new GestureOutcome.NoChange();
+        var side = point.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower;
+        await ApplySectionStepAsync(new SectionStep.Move(side, point.VertexId, target.Value.Span, target.Value.Aft), cancellation);
+        return new GestureOutcome.Committed(Section!.Draft.DraftId, "Section step added.");
     }
 
     private async Task<GestureOutcome> CommitPointGestureAsync(SessionDraft capture, GestureEnd reason, long version,
@@ -1381,75 +1602,6 @@ public sealed class WorkbenchController : IDisposable
         return view;
     }
 
-    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId,
-        ThicknessIntent thickness = ThicknessIntent.KeepCurrent)
-    {
-        if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
-        var started = session.BeginProfileEdit(Guid.NewGuid().ToString("D"), assignmentIndex, scope, side, vertexId, thickness);
-        CancelSampling();
-        draft = started;
-        draftInputValid = true;
-        if ((uint)assignmentIndex < (uint)Inspection.Authored.Assignments.Count)
-            interiorEta = Inspection.Authored.Assignments[assignmentIndex].Eta;
-        Frame = acceptedFrame = null;
-        currentAssessment = null;
-        SectionReport = null;
-        sectionViews.Clear();
-        Status = $"Draft {started.Id} owns station {assignmentIndex} {side} {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
-        Provenance = "draft — accepted sampling";
-        Notify();
-        _ = RefreshAcceptedAsync();
-    }
-
-    public void UpdateSectionDraft(double x, double y)
-    {
-        if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
-        CancelSampling();
-        draft = session.UpdateProfileDraft(draft.Id, draft.Generation, x, y);
-        draftInputValid = true;
-        currentAssessment = null;
-        SectionReport = null;
-        Frame = acceptedFrame;
-        Provenance = "draft — accepted geometry shown";
-        Status = $"Draft owns station {draft.Assignment} {draft.Rail} {draft.VertexId}. Draft generation {draft.Generation} changed. Preview to assess geometry.";
-        Notify();
-    }
-
-    public void BeginSectionInsert(int assignmentIndex, SectionScope scope, double x)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileInsert(Guid.NewGuid().ToString("D"), assignmentIndex, scope, x);
-        OpenConstructedDraft(started, assignmentIndex, "insert");
-    }
-
-    public void BeginSectionDelete(int assignmentIndex, SectionScope scope, int vertexIndex)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileDelete(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexIndex);
-        OpenConstructedDraft(started, assignmentIndex, "delete");
-    }
-
-    public void BeginSectionFair(int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileFair(Guid.NewGuid().ToString("D"), assignmentIndex, scope, tolerance, ends);
-        OpenConstructedDraft(started, assignmentIndex, "fair");
-    }
-
-    public void BeginSectionRebuild(int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileRebuild(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexCount, tolerance, ends);
-        OpenConstructedDraft(started, assignmentIndex, "rebuild");
-    }
-
-    public void BeginSectionImport(int assignmentIndex, byte[] dat)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileImport(Guid.NewGuid().ToString("D"), assignmentIndex, dat);
-        OpenConstructedDraft(started, assignmentIndex, "import");
-    }
-
     public void InvalidateDraftInput(string? reason = null)
     {
         if (draft is null) return;
@@ -1544,6 +1696,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Undo()
     {
+        if (Section is not null) { UndoSectionStep(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
         session.Undo(Guid.NewGuid().ToString("D"));
@@ -1558,6 +1711,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Redo()
     {
+        if (Section is not null) { RedoSectionStep(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
         session.Redo(Guid.NewGuid().ToString("D"));
@@ -1573,6 +1727,12 @@ public sealed class WorkbenchController : IDisposable
     public async Task<SaveResult> SaveAsync(string path, CancellationToken cancellation = default)
     {
         await CompleteGestureBeforeDocumentActionAsync(GestureEnd.Save);
+        if (Section is not null)
+        {
+            Status = "Finish or Cancel the section before saving.";
+            Notify();
+            throw new ContractError("DSL-DRAFT-OWNED");
+        }
         if (!path.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase)) throw new ContractError("DOC-TYPE");
         if (!draftInputValid) throw new ContractError("DSL-INVALID-NUMERIC");
         if (uncertainImage is not null) throw new ContractError("DOC-SAVE-UNCERTAIN");
@@ -1672,6 +1832,18 @@ public sealed class WorkbenchController : IDisposable
         draft = session.Snapshot().Draft;
         draftInputValid = true;
         MarkSavedDraft(session.Snapshot());
+        if (session.CurrentSectionDraft() is { } sectionView)
+        {
+            Section = new SectionMode(sectionView, session.Snapshot().Source, EntryOrigin.Recovery);
+            interiorEta = Inspection!.Authored.Assignments[sectionView.Assignment].Eta;
+            Frame = acceptedFrame;
+            Provenance = "recovery section — accepted geometry shown";
+            Status = "Section recovery resumed. Inner undo starts here.";
+            var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
+            Select(new Selection.Points([new PointRef("upper", first.Id, sectionView.Profile)]));
+            NotifySection();
+            return;
+        }
         interiorEta = Inspection?.Authored.Rails.Single(r => r.Name == draft!.Rail).Controls
             .Single(c => c.Id == draft!.VertexId).Eta ?? .5;
         Frame = acceptedFrame = null;
@@ -1822,22 +1994,6 @@ public sealed class WorkbenchController : IDisposable
         if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
     }
 
-    private void OpenConstructedDraft(SessionDraft started, int assignmentIndex, string kind)
-    {
-        CancelSampling();
-        draft = started;
-        draftInputValid = true;
-        if (Inspection is { } inspected && (uint)assignmentIndex < (uint)inspected.Authored.Assignments.Count)
-            interiorEta = inspected.Authored.Assignments[assignmentIndex].Eta;
-        Frame = acceptedFrame = null;
-        currentAssessment = null;
-        SectionReport = null;
-        sectionViews.Clear();
-        Status = $"Draft {started.Id} owns station {assignmentIndex} {kind}.";
-        Provenance = "draft — accepted sampling";
-        AssessDraftNow();
-    }
-
     private void AssessDraftNow()
     {
         if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
@@ -1900,7 +2056,7 @@ public sealed class WorkbenchController : IDisposable
                 {
                     var next = queuedSelection;
                     queuedSelection = null;
-                    var reconciled = Reconcile(next, CurrentProjection, ChannelPointExists);
+                    var reconciled = ReconcileCurrent(next);
                     if (Equals(Selection, reconciled))
                     {
                         if (queuedSelection is null)
@@ -1912,7 +2068,7 @@ public sealed class WorkbenchController : IDisposable
                 }
                 else
                 {
-                    var reconciled = Reconcile(Selection, CurrentProjection, ChannelPointExists);
+                    var reconciled = ReconcileCurrent(Selection);
                     if (!Equals(Selection, reconciled))
                     {
                         Selection = reconciled;
@@ -1931,6 +2087,18 @@ public sealed class WorkbenchController : IDisposable
         {
             isNotifying = false;
         }
+    }
+
+    private Selection ReconcileCurrent(Selection current)
+    {
+        if (Section is { } mode && current is Selection.Points points)
+        {
+            var kept = points.Items.Where(item => item.Profile == mode.Draft.Profile &&
+                item.Curve is "upper" or "lower" &&
+                SectionCurve(item.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower)!.Points.Any(p => p.Id == item.VertexId)).ToArray();
+            if (kept.Length > 0) return new Selection.Points(kept);
+        }
+        return Reconcile(current, CurrentProjection, ChannelPointExists);
     }
 
     private void NotifyCamera(SingleView view)

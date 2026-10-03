@@ -29,22 +29,6 @@ if (args.Contains("--section-canvas", StringComparer.Ordinal))
     Environment.Exit(0);
 }
 
-if (args.Contains("--section-flow", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.SectionFlowTests.Run();
-    Console.WriteLine("Section flow tests passed.");
-    Environment.Exit(0);
-}
-
-if (args.Contains("--section-tools", StringComparer.Ordinal))
-{
-    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
-    CfdWorkbench.Desktop.Tests.SectionToolsTests.Run();
-    Console.WriteLine("Section tools tests passed.");
-    Environment.Exit(0);
-}
-
 // Named-check suites (docs/design/app-shell.md §12.2): each prints PASS/FAIL lines and exits nonzero if any failed.
 if (args.Contains("--shell-model", StringComparer.Ordinal))
 {
@@ -99,6 +83,7 @@ if (args.Contains("--properties-cells", StringComparer.Ordinal))
 if (args.Contains("--section-editor", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
     CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -192,23 +177,6 @@ finally { File.Delete(geometryPath); }
 
 using var workbench = new WorkbenchController();
 await workbench.OpenExampleAsync();
-var accessibleViewport = new Viewport { Frame = workbench.Frame };
-accessibleViewport.Semantics = ViewportSemantics.FromSection(workbench.Frame);
-var viewportPeer = ControlAutomationPeer.CreatePeerForElement(accessibleViewport);
-var visualChildren = accessibleViewport.SemanticControls;
-var semanticChildren = visualChildren.Select(ControlAutomationPeer.CreatePeerForElement).ToArray();
-if (viewportPeer.GetAutomationControlType() != AutomationControlType.Group ||
-    semanticChildren.Length != 5 ||
-    semanticChildren.Count(child => child.GetName().Contains("upper", StringComparison.OrdinalIgnoreCase)) == 0 ||
-    semanticChildren.Count(child => child.GetName().Contains("lower", StringComparison.OrdinalIgnoreCase)) == 0 ||
-    !semanticChildren.All(child => child.GetName().Contains("segment error not assessed", StringComparison.OrdinalIgnoreCase)))
-    throw new Exception("Viewport peer lacks the five certified section-sample children");
-var stableChild = visualChildren.First();
-accessibleViewport.Semantics = ViewportSemantics.FromSection(workbench.Frame);
-if (!ReferenceEquals(stableChild, accessibleViewport.SemanticControls.First()))
-    throw new Exception("Refresh replaced a stable semantic section peer");
-if (accessibleViewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
-    throw new Exception("Minimum-window geometry or dense annotation scrolling regressed");
 if (workbench.Inspection?.Geometry.Status != GeometryStatus.Certified) throw new Exception("Example is not certified");
 if (workbench.Points.Count != 15) throw new Exception("Expected 15 certified samples");
 string source = workbench.AcceptedSource;
@@ -226,22 +194,18 @@ try
         throw new Exception("Rejected native project replaced the active accepted document");
 }
 finally { File.Delete(invalidNativePath); }
-// The draft lifecycle (Preview, Cancel, Apply, Undo, Redo) runs on a station-section draft; the per-control draft is retired.
-var sectionVertex = workbench.SectionView(0).Upper.First(vertex => !vertex.Fixed);
-workbench.BeginSectionEdit(0, SectionScope.Shared, sectionVertex.Side, sectionVertex.Id);
-workbench.UpdateSectionDraft(sectionVertex.X, sectionVertex.Y + .01);
-await workbench.PreviewAsync();
-if (workbench.Provenance != "preview") throw new Exception("Preview was not shown");
-if (workbench.Points.Count != 15) throw new Exception("Preview did not sample bounded geometry");
-workbench.Cancel();
+await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
+var sectionVertex = workbench.SectionCurve(SurfaceSide.Upper)!.Points.First(vertex => vertex.Freedom != PointFreedom.Fixed);
+await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
+    sectionVertex.Ordinate + .01));
+if (workbench.Section?.Draft.Cursor != 1) throw new Exception("Section step was not shown");
+workbench.CancelSection();
 if (workbench.AcceptedSource != source) throw new Exception("Cancel changed accepted source");
-for (int attempt = 0; attempt < 100 && workbench.Provenance != "accepted"; attempt++) await Task.Delay(10);
-if (workbench.Provenance != "accepted") throw new Exception("Cancel did not restore accepted view");
-workbench.BeginSectionEdit(0, SectionScope.Shared, sectionVertex.Side, sectionVertex.Id);
-workbench.UpdateSectionDraft(sectionVertex.X, sectionVertex.Y + .01);
-await workbench.PreviewAsync();
-workbench.Apply();
-if (workbench.AcceptedSource == source) throw new Exception("Apply did not change source");
+await workbench.EnterSectionAsync(0, EntryOrigin.Properties);
+await workbench.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, sectionVertex.Id, sectionVertex.SpanMeters,
+    sectionVertex.Ordinate + .01));
+await workbench.FinishSectionAsync();
+if (workbench.AcceptedSource == source) throw new Exception("Finish did not change source");
 workbench.Changed += () =>
 {
     if (workbench.Provenance.StartsWith("accepted", StringComparison.Ordinal) &&
@@ -348,26 +312,6 @@ try
         throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
 }
 finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
-using (var invalidInput = new WorkbenchController())
-{
-    await invalidInput.OpenExampleAsync();
-    var invalidVertex = invalidInput.SectionView(0).Upper.First(vertex => !vertex.Fixed);
-    invalidInput.BeginSectionEdit(0, SectionScope.Shared, invalidVertex.Side, invalidVertex.Id);
-    invalidInput.UpdateSectionDraft(invalidVertex.X, invalidVertex.Y + .01);
-    invalidInput.InvalidateDraftInput();
-    if (invalidInput.DraftInputValid) throw new Exception("Invalid visible numeric input still permits preview");
-    try { await invalidInput.PreviewAsync(); throw new Exception("Preview accepted invalid visible numeric input"); }
-    catch (ContractError error) when (error.Code == "DSL-INVALID-NUMERIC") { }
-    try
-    {
-        await invalidInput.SaveAsync(Path.Combine(Path.GetTempPath(), $"invalid-input-{Guid.NewGuid():N}.cfdw.json"));
-        throw new Exception("Save persisted an earlier draft value while visible input was invalid");
-    }
-    catch (ContractError error) when (error.Code == "DSL-INVALID-NUMERIC") { }
-    invalidInput.UpdateSectionDraft(invalidVertex.X, invalidVertex.Y + .011);
-    await invalidInput.PreviewAsync();
-    if (invalidInput.Provenance != "preview") throw new Exception("Corrected numeric input did not restore Preview");
-}
 var renderFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
 var renderViewport = new Viewport { Frame = renderFrame };
 long initialRevision = renderViewport.FrameRevision;
@@ -443,8 +387,8 @@ CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 // 2026-10-02) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
-    "--properties-view", "--views", "--properties-cells", "--controller-shell", "--status-strip", "--section-flow",
-    "--section-tools", "--shell-model", "--section-editor"));
+    "--properties-view", "--views", "--properties-cells", "--controller-shell", "--status-strip",
+    "--shell-model", "--section-editor"));
 
 sealed class UncertainStore : IProjectStore
 {

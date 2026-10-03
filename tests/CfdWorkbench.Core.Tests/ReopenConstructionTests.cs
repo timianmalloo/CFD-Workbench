@@ -23,33 +23,33 @@ internal static class ReopenConstructionTests
         Check("Reopen_Insert_AcceptedRoundtripsUndoRedo", () =>
         {
             using var session = Opened();
-            AppliedRoundtrip(session, (s, draft) => s.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37));
+            AppliedRoundtrip(session, (s, draft) => s.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37));
         });
         Check("Reopen_Delete_AcceptedRoundtripsUndoRedo", () =>
         {
             using var session = Opened();
-            AppliedRoundtrip(session, (s, draft) => s.BeginProfileDelete(draft, 0, SectionScope.Shared, 3));
+            AppliedRoundtrip(session, (s, draft) => s.BeginSectionDelete(draft, 0, SectionScope.Shared, 3));
         });
         Check("Reopen_Fair_AcceptedRoundtripsUndoRedo", () =>
         {
             using var session = Opened();
-            AppliedRoundtrip(session, (s, draft) => s.BeginProfileFair(draft, 0, SectionScope.Shared, 1e-4, PreserveEnds.Position));
+            AppliedRoundtrip(session, (s, draft) => s.BeginSectionFair(draft, 0, SectionScope.Shared, 1e-4, PreserveEnds.Position));
         });
         Check("Reopen_Rebuild_AcceptedRoundtripsUndoRedo", () =>
         {
             using var session = Opened();
-            AppliedRoundtrip(session, (s, draft) => s.BeginProfileRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position));
+            AppliedRoundtrip(session, (s, draft) => s.BeginSectionRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position));
         });
         Check("Reopen_RecoveryMidInsert_ResumesSameDraftBytes", () =>
         {
             using var session = Opened(); string draft = Id();
-            session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37);
+            session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37);
             RecoveryRoundtrip(session, draft);
         });
         Check("Reopen_RecoveryMidRebuild_ResumesSameDraftBytes", () =>
         {
             using var session = Opened(); string draft = Id();
-            session.BeginProfileRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position);
+            session.BeginSectionRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position);
             RecoveryRoundtrip(session, draft);
         });
         Check("Reopen_BogusEditRail_StillRefusesDocReference", () =>
@@ -66,13 +66,14 @@ internal static class ReopenConstructionTests
         Check("Reopen_InsertThenDelete_NeverThrows", () =>
         {
             using var session = Opened();
-            var inserted = session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 0.37);
+            var beforeIds = session.ProfileAt(0).Upper.Select(point => point.Id).ToHashSet(StringComparer.Ordinal);
+            var inserted = session.BeginSectionInsert(Id(), 0, SectionScope.Shared, 0.37);
             var insertAssessment = session.Validate(inserted.Id, inserted.Generation);
             Equal(GeometryStatus.Certified, insertAssessment.Status);
             session.Apply(Id(), insertAssessment);
-            int insertedIndex = Array.FindIndex(session.ProfileAt(0).Upper.ToArray(), v => v.Id == inserted.VertexId);
+            int insertedIndex = Array.FindIndex(session.ProfileAt(0).Upper.ToArray(), v => !beforeIds.Contains(v.Id));
             Equal(true, insertedIndex >= 0);
-            var deleted = session.BeginProfileDelete(Id(), 0, SectionScope.Shared, insertedIndex);
+            var deleted = session.BeginSectionDelete(Id(), 0, SectionScope.Shared, insertedIndex);
             var deleteAssessment = session.Validate(deleted.Id, deleted.Generation);
             session.Apply(Id(), deleteAssessment);
             byte[] saved = session.SaveImage();
@@ -87,7 +88,7 @@ internal static class ReopenConstructionTests
         Check("Reopen_ForcedBudgetExhaustion_OpensNotAssessed", () =>
         {
             using var session = Opened();
-            AppliedRoundtrip(session, (s, draft) => s.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37));
+            AppliedRoundtrip(session, (s, draft) => s.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37));
             byte[] saved = session.SaveImage();
             using var reopened = AuthoringSession.WithProofWorkLimit(0);
             reopened.Reopen(saved);

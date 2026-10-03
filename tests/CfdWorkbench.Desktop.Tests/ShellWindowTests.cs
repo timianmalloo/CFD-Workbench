@@ -805,10 +805,11 @@ public static class ShellWindowTests
             if (host.ModelView.FindControl<Control>("Plan3DContent") is not null || host.ModelView.FindControl<Control>("FoilViewport") is not null)
                 throw new InvalidOperationException("The 3D samples body is still in the model area");
             // The retired names must not reappear in the Desktop source: the document, its body, its viewport, its provenance line,
-            // the Viewport 3D mode and the inspection semantics only that mode used.
+            // the Viewport 3D mode and the inspection semantics only that mode used. The old Viewport flag is matched by its
+            // usage (attribute, bool property, viewport read), because M1.2c reuses the name SectionMode for the editor mode.
             string root = RepoRootFromSource();
             var retired = new System.Text.RegularExpressions.Regex(
-                @"SamplesDocument|Plan3DContent|FoilViewport|ViewportProvenance|3d-samples|3D samples|SectionMode|FromInspection");
+                @"SamplesDocument|Plan3DContent|FoilViewport|ViewportProvenance|3d-samples|3D samples|SectionMode=""|bool SectionMode\b|viewport\.SectionMode\b|FromInspection");
             var hits = Directory.EnumerateFiles(Path.Combine(root, "src", "CfdWorkbench.Desktop"), "*.*", SearchOption.AllDirectories)
                 .Where(file => file.EndsWith(".cs", StringComparison.Ordinal) || file.EndsWith(".axaml", StringComparison.Ordinal))
                 .Where(file => !file.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar))

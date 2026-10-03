@@ -110,7 +110,7 @@ internal static class ProofBudgetTests
         var session = new AuthoringSession();
         session.Open(FoilSourceTests.Example, Id(), true);
         string draft = Id();
-        var begun = session.BeginProfileRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position);
+        var begun = session.BeginSectionRebuild(draft, 0, SectionScope.Shared, 10, 1e-2, PreserveEnds.Position);
         session.Apply(Id(), session.Validate(draft, begun.Generation));
         return session;
     }

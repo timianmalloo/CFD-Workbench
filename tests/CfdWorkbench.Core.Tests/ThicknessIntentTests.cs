@@ -18,8 +18,8 @@ internal static class ThicknessIntentTests
             string thickness = CurveBlock(Encoding.UTF8.GetString(original), "thickness");
             var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
             Equal(thickness, CurveBlock(Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes), "thickness"));
             var assessment = session.Validate(draft, updated.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
@@ -34,8 +34,8 @@ internal static class ThicknessIntentTests
             byte[] original = session.Snapshot().Source;
             var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3", ThicknessIntent.UseSource);
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3", ThicknessIntent.UseSource);
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
             var assessment = session.Validate(draft, updated.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
             var proposal = assessment.Thickness ?? throw new InvalidOperationException("Missing thickness proposal.");
@@ -66,8 +66,8 @@ internal static class ThicknessIntentTests
             session.Open(ThreeStations(), Id(), true);
             var vertex = session.ProfileAt(1).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 1, SectionScope.Independent, "upper", "cv-3", ThicknessIntent.UseSource);
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
+            var begun = session.BeginSectionEdit(draft, 1, SectionScope.Independent, "upper", "cv-3", ThicknessIntent.UseSource);
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
             var assessment = session.Validate(draft, updated.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
             var proposal = assessment.Thickness ?? throw new InvalidOperationException("Missing thickness proposal.");
@@ -93,9 +93,9 @@ internal static class ThicknessIntentTests
             using var session = Opened();
             var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3", ThicknessIntent.UseSource);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3", ThicknessIntent.UseSource);
             ReplaceDraft(session, WithValueLock(begun.Bytes, 0.05));
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.02);
             var assessment = session.Validate(draft, updated.Generation);
             if (assessment.Status == GeometryStatus.Certified)
                 throw new InvalidOperationException("Conflicting thickness lock was certified.");

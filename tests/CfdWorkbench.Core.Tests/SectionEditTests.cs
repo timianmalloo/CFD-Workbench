@@ -36,8 +36,8 @@ internal static class SectionEditTests
             var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
             string lower = CurveText(Encoding.UTF8.GetString(session.Snapshot().Source), "lower");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
             Equal(begun.Generation + 1, updated.Generation);
             Equal(lower, CurveText(Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes), "lower"));
             Equal(vertex.Y + 0.015, session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3").Y);
@@ -50,8 +50,8 @@ internal static class SectionEditTests
             int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
             const double moved = 0.4;
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, moved, before.Upper[index].Y);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, moved, before.Upper[index].Y);
             Equal(begun.Generation + 1, updated.Generation);
             var after = session.ProfileAt(0);
             Equal(moved, after.Upper[index].X);
@@ -70,10 +70,10 @@ internal static class SectionEditTests
             var before = session.ProfileAt(0);
             int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
             const double crossed = -3;
             Equal(true, crossed < before.Lower[index].Y);
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, before.Upper[index].X, crossed);
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, before.Upper[index].X, crossed);
             var assessment = session.Validate(draft, updated.Generation);
             Equal("DSL-PROFILE-CROSS", assessment.Code);
             Equal("DSL-PROFILE-CROSS", assessment.Diagnostics[0].Code);
@@ -82,14 +82,20 @@ internal static class SectionEditTests
         Check("Profile_FixedVertex_RefusesLock", () =>
         {
             using var session = Opened();
-            Refuses("DSL-LOCK", () => session.BeginProfileEdit(Id(), 0, SectionScope.Shared, "upper", "cv-0"));
-            Refuses("DSL-LOCK", () => session.BeginProfileEdit(Id(), 0, SectionScope.Shared, "lower", "cv-7"));
+            foreach (var (side, id) in new[] { ("upper", "cv-0"), ("lower", "cv-7") })
+            {
+                string draft = Id();
+                var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, side, id);
+                var point = (side == "upper" ? session.ProfileAt(0).Upper : session.ProfileAt(0).Lower).Single(item => item.Id == id);
+                Refuses("DSL-LOCK", () => session.UpdateSectionPoint(draft, begun.Generation, point.X, point.Y + .01));
+                session.Cancel(draft);
+            }
         });
         Check("Profile_AbscissaPastNeighbour_RefusesOrder", () =>
         {
             using var session = Opened(); string draft = Id();
-            session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            Refuses("DSL-PROFILE-ORDER", () => session.UpdateProfileDraft(draft, 0, 0.9, 0.08));
+            session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            Refuses("DSL-PROFILE-ORDER", () => session.UpdateSectionPoint(draft, 0, 0.9, 0.08));
             Equal(0L, session.Snapshot().Draft!.Generation);
             Equal(true, session.Snapshot().Source.AsSpan().SequenceEqual(session.Snapshot().Draft!.Bytes));
         });
@@ -109,8 +115,8 @@ internal static class SectionEditTests
             double kept = session.ProfileAt(1).Upper.Single(item => item.Id == "cv-3").Y;
             Equal(101, session.ProfileAt(0).UpperCurve.Count); Equal(101, session.ProfileAt(0).LowerCurve.Count);
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
             Equal(vertex.Y + 0.015, session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3").Y);
             Equal(kept, session.ProfileAt(1).Upper.Single(item => item.Id == "cv-3").Y);
             var assessment = session.Validate(draft, updated.Generation);
@@ -131,8 +137,8 @@ internal static class SectionEditTests
             using var session = Opened();
             byte[] original = session.Snapshot().Source;
             string draft = Id();
-            session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            session.UpdateProfileDraft(draft, 0, 0.4, 0.08);
+            session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            session.UpdateSectionPoint(draft, 0, 0.4, 0.08);
             session.Cancel(draft);
             Equal(true, original.AsSpan().SequenceEqual(session.Snapshot().Source));
             Equal(null, session.Snapshot().Draft);
@@ -140,8 +146,8 @@ internal static class SectionEditTests
         Check("Profile_Retry_SameOperationIsIdempotent", () =>
         {
             using var session = Opened(); string draft = Id(), operation = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-4");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, 0.55, 0.06);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-4");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, 0.55, 0.06);
             var assessment = session.Validate(draft, updated.Generation);
             string first = session.Apply(operation, assessment);
             string second = session.Apply(operation, assessment);
@@ -156,8 +162,8 @@ internal static class SectionEditTests
             int index = beforeView.Upper.ToList().FindIndex(item => item.Id == "cv-6");
             int degree = knots.Length - before.Length - 1;
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-6");
-            session.UpdateProfileDraft(draft, begun.Generation, beforeView.Upper[index].X, beforeView.Upper[index].Y + 0.01);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-6");
+            session.UpdateSectionPoint(draft, begun.Generation, beforeView.Upper[index].X, beforeView.Upper[index].Y + 0.01);
             double[][] after = Controls(session.ProfileAt(0).Upper);
             double t0 = knots[index], t1 = knots[index + degree + 1];
             const double margin = 1e-6;
@@ -201,12 +207,12 @@ internal static class SectionEditTests
             using var session = Opened();
             var vertex = session.ProfileAt(0).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.01);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.01);
             session.CaptureRecovery(); byte[] saved = session.SaveImage();
             using var reopened = new AuthoringSession(); reopened.Reopen(saved); reopened.ResumeRecovery();
             Equal(updated.Generation, reopened.Snapshot().Draft!.Generation);
-            var again = reopened.UpdateProfileDraft(draft, updated.Generation, vertex.X, vertex.Y + 0.02);
+            var again = reopened.UpdateSectionPoint(draft, updated.Generation, vertex.X, vertex.Y + 0.02);
             var assessment = reopened.Validate(draft, again.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
         });
@@ -224,8 +230,8 @@ internal static class SectionEditTests
         Check("Session_RecoveryEnvelope_MissingProfileTarget_RefusesAtLoad", () =>
         {
             using var session = Opened(); string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
-            session.UpdateProfileDraft(draft, begun.Generation, 0.36, 0.08);
+            var begun = session.BeginSectionEdit(draft, 0, SectionScope.Shared, "upper", "cv-3");
+            session.UpdateSectionPoint(draft, begun.Generation, 0.36, 0.08);
             var recovery = session.CaptureRecovery();
             var envelope = session.Envelope() with { Recovery = recovery with { Profile = "missing-profile" } };
             byte[] saved = NativeProject.Encode(envelope);
@@ -244,9 +250,9 @@ internal static class SectionEditTests
             string kept = ProfileBlock(Encoding.UTF8.GetString(original), "section-a");
             var vertex = session.ProfileAt(1).Upper.Single(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
+            var begun = session.BeginSectionEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
             Equal(true, Encoding.UTF8.GetString(begun.Bytes).Contains("section-a-i1", StringComparison.Ordinal));
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, vertex.X, vertex.Y + 0.015);
             var assessment = session.Validate(draft, updated.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
             session.Apply(Id(), assessment);
@@ -264,8 +270,8 @@ internal static class SectionEditTests
             var before = session.ProfileAt(1);
             int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
             string draft = Id();
-            var begun = session.BeginProfileEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
-            var updated = session.UpdateProfileDraft(draft, begun.Generation, 0.4, before.Upper[index].Y);
+            var begun = session.BeginSectionEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
+            var updated = session.UpdateSectionPoint(draft, begun.Generation, 0.4, before.Upper[index].Y);
             var assessment = session.Validate(draft, updated.Generation);
             Equal("DSL-GEOMETRY", assessment.Code);
             Equal("Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.", assessment.Diagnostics[0].Reason);
@@ -354,5 +360,65 @@ internal static class SectionEditTests
                 values[j][1] = (1 - alpha) * values[j - 1][1] + alpha * values[j][1];
             }
         return values[degree];
+    }
+}
+
+// The M1.1 test fixtures retain their original oracles while their setup now goes through the one-draft,
+// step-based section API. This adapter holds only the selected point for a later Move step.
+internal static class SectionDraftPort
+{
+    private static readonly Dictionary<string, (SurfaceSide Side, string VertexId)> targets = new(StringComparer.Ordinal);
+
+    public static SessionDraft BeginSectionEdit(this AuthoringSession session, string id, int assignment,
+        SectionScope scope, string side, string vertexId, ThicknessIntent intent = ThicknessIntent.KeepCurrent)
+    {
+        var view = session.BeginSectionDraft(id, assignment);
+        if (scope == SectionScope.Independent)
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
+        if (intent == ThicknessIntent.UseSource)
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.Thickness(intent));
+        targets[id] = (side == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower, vertexId);
+        return session.Snapshot().Draft!;
+    }
+
+    public static SessionDraft UpdateSectionPoint(this AuthoringSession session, string id, long generation, double x, double y)
+    {
+        var target = targets[id];
+        session.ApplySectionStep(id, generation, new SectionStep.Move(target.Side, target.VertexId, x, y));
+        return session.Snapshot().Draft!;
+    }
+
+    public static SessionDraft BeginSectionInsert(this AuthoringSession session, string id, int assignment, SectionScope scope, double x) =>
+        Begin(session, id, assignment, scope, new SectionStep.Insert(SurfaceSide.Upper, x));
+
+    public static SessionDraft BeginSectionDelete(this AuthoringSession session, string id, int assignment, SectionScope scope, int index)
+    {
+        var view = session.BeginSectionDraft(id, assignment);
+        if (scope == SectionScope.Independent)
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
+        var points = Sections.View(view.Bytes, assignment, SurfaceSide.Upper, "preview", view.Generation).Points;
+        if ((uint)index >= (uint)points.Count) throw new ContractError("DSL-PROFILE-TARGET");
+        session.ApplySectionStep(id, view.Generation, new SectionStep.Delete(SurfaceSide.Upper, points[index].Id));
+        return session.Snapshot().Draft!;
+    }
+
+    public static SessionDraft BeginSectionFair(this AuthoringSession session, string id, int assignment, SectionScope scope,
+        double tolerance, PreserveEnds ends) =>
+        Begin(session, id, assignment, scope, new SectionStep.Fair(null, tolerance, ends));
+
+    public static SessionDraft BeginSectionRebuild(this AuthoringSession session, string id, int assignment, SectionScope scope,
+        int count, double tolerance, PreserveEnds ends) =>
+        Begin(session, id, assignment, scope, new SectionStep.Rebuild(null, count, tolerance, ends));
+
+    public static SessionDraft BeginSectionImport(this AuthoringSession session, string id, int assignment, byte[] dat) =>
+        Begin(session, id, assignment, SectionScope.Shared, new SectionStep.Import(dat));
+
+    private static SessionDraft Begin(AuthoringSession session, string id, int assignment, SectionScope scope, SectionStep step)
+    {
+        var view = session.BeginSectionDraft(id, assignment);
+        if (scope == SectionScope.Independent)
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
+        session.ApplySectionStep(id, view.Generation, step);
+        return session.Snapshot().Draft!;
     }
 }
