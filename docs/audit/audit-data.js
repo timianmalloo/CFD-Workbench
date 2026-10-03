@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T00:39:42Z",
+  "generated": "2026-10-03T01:28:53Z",
   "audit": [
     {
       "actor": null,
@@ -22202,6 +22202,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T00:38:39Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M3ZP1Q1ZWKA1W97XM4GCH699",
+      "shortname": "join-test-budget-split",
+      "datetime": "2026-10-03T01:28:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/test-budget-split into feature/ui-cad-direction",
+      "summary": "Budget (Opus SRE): --part=k/n selector in both check helpers with a coverage guard (parts 1..n, same N, named FAIL PARTITION); shell-window, plan-canvas and Core in 2 parts; longest-first spawn; 6 Desktop slots (8 starved the 1 s ProofBudget under load); stale logs cleared. 949 PASS lines identical (sha 1c18fa1f). Finding: ProofBudget 1 s margin ~3 % on a rebuild - product decision. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T01:28:05Z",
+      "duration_seconds": 48.0
     }
   ],
   "changes": [
