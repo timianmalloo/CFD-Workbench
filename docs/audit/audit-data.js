@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:21:37Z",
+  "generated": "2026-10-03T23:24:54Z",
   "audit": [
     {
       "actor": null,
@@ -22869,6 +22869,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:20:54Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M421BE5SDGRHXF52WR7F50XW",
+      "shortname": "join-m12c-pnl",
+      "datetime": "2026-10-03T23:24:54Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-pnl into feature/ui-cad-direction",
+      "summary": "PNL (Opus 5.5): Points pane, section Properties rows (Type/Kind/x for both surfaces), strip Show, Precision/Planform workspaces (no Messages pane), section commands, CTL-ledger replacement checks. PNL 18/18; red-first proven afterwards for 10 by product mutants. Found: paired Kind written on one surface (fix track); event checker missed tuple-typed events (fixed). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:23:54Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
