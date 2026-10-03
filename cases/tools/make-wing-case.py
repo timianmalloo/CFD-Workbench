@@ -224,7 +224,7 @@ for name, (cls, dims, internal, patches) in fields.items():
           f"dimensions {dims};\ninternalField {internal};\nboundaryField\n{{\n    symmetry {{ type symmetryPlane; }}\n    {patches}\n}}\n")
 lift = (-math.sin(alpha), 0.0, math.cos(alpha))
 drag = (math.cos(alpha), 0.0, math.sin(alpha))
-iters = case["numerics"]["max_iterations"]
+iters = max(1, case["numerics"]["max_iterations"])  # a mesh-only case (0) still needs a valid controlDict
 write("system/controlDict", "dictionary", "controlDict", f"""application simpleFoam;
 startFrom startTime;
 startTime 0;

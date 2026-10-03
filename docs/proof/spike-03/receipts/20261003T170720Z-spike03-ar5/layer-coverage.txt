@@ -1,0 +1,9 @@
+wing_faces=54280 mean_layers=11.89 faces_with_target_15=35292 (65.0%) faces_ge_15=35292 (65.0%) faces_with_0=1734 (3.2%)
+first_layer_height_m p05=9.875e-05 p50=1.975e-04 p95=8.019e-04
+utau_flat_plate=0.2316 m/s (Re_x=3e+05, Cf=0.00429); y+_cell_centre_estimate p05=11.4 p50=22.9 p95=92.9
+region leading_edge_3pct: faces=5572 full=91.3% zero=0.0%
+region main_surface: faces=41832 full=70.5% zero=3.2%
+region root_junction: faces=840 full=82.9% zero=0.0%
+region tip_cap_and_edge: faces=2056 full=0.0% zero=19.6%
+region trailing_edge_3pct: faces=3980 full=0.0% zero=0.0%
+layers_histogram=0:1734 1:1770 2:1666 3:1552 4:1416 5:1290 6:1176 7:1090 8:1090 9:1074 10:1070 11:1070 12:1050 13:998 14:942 15:35292

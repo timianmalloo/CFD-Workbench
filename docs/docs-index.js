@@ -8073,12 +8073,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/spike-03/verdict.md",
       "title": "SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512",
       "type": "proof-pack",
-      "status": "draft",
+      "status": "in-review",
       "owner": "@fluids-f1",
       "phase": "spike",
       "reviewBy": "2026-11-03",
       "reviewSuggested": [],
-      "summary": "Stage 1 (AR 8): snappyHexMesh meshes the wing unattended in 31-35 s on 6 ranks and passes checkMesh, but the A5.10 mesh gate as written is not met: 15 layers reach 70.9 % of wing faces (0 % at the trailing edge and tip), the median cell-centre y+ is about 22 (below the 30-100 band), and 34 % of cells have an OpenFOAM cell determinant below 0.3. Stage 2 pending.",
+      "summary": "NO-GO against the Appendix R words. snappyHexMesh meshes AR 5, 8 and 12 half wings unattended (35-63 s on 6 ranks, 1.1-2.6 M cells) and every mesh passes checkMesh, but none passes the ITTC/A5.10 floors: 15 layers reach 65-73 % of wing faces (0 % at the trailing edge and tip), measured mean y+ is 22 (below 30-100), and 32-35 % of cells have an OpenFOAM cell determinant below 0.3. macOS only; Windows not run. Dictionaries can run code by default (allowSystemOperations 1); a product-owned controlDict turns it off.",
       "tags": [
         "spike-03",
         "openfoam",
@@ -8098,7 +8098,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "973c22e8ba73cbebbc8d86f3b70070a3c54a5eb6133cf069ec118bad171920c8"
+      "sourceSha256": "d0c6bf0a757694bd1462894f12e3453df21111ab8ad4e7ce0d1011e0511c457a"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -9675,5 +9675,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3c895a400b66fddd537ea9d53ec4e5800432d381e49dc08f64413a7ae083f2ac"
+  "graphSha256": "ebb884cbb43711b3b0e1d21206f25789704c76be6ef9c4a24a96ea21ec156b9a"
 };

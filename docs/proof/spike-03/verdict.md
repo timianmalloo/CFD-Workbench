@@ -2,7 +2,7 @@
 id: proof-spike-03
 title: SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512
 type: proof-pack
-status: draft
+status: in-review
 owner: "@fluids-f1"
 phase: spike
 tags: [spike-03, openfoam, snappyhexmesh, mesh-gate, run, backend]
@@ -11,10 +11,11 @@ links:
   - {to: rulings, rel: depends-on}
 review-by: 2026-11-03
 summary: >-
-  Stage 1 (AR 8): snappyHexMesh meshes the wing unattended in 31-35 s on 6 ranks and passes checkMesh, but the
-  A5.10 mesh gate as written is not met: 15 layers reach 70.9 % of wing faces (0 % at the trailing edge and tip),
-  the median cell-centre y+ is about 22 (below the 30-100 band), and 34 % of cells have an OpenFOAM cell
-  determinant below 0.3. Stage 2 pending.
+  NO-GO against the Appendix R words. snappyHexMesh meshes AR 5, 8 and 12 half wings unattended (35-63 s on 6
+  ranks, 1.1-2.6 M cells) and every mesh passes checkMesh, but none passes the ITTC/A5.10 floors: 15 layers reach
+  65-73 % of wing faces (0 % at the trailing edge and tip), measured mean y+ is 22 (below 30-100), and 32-35 % of
+  cells have an OpenFOAM cell determinant below 0.3. macOS only; Windows not run. Dictionaries can run code by
+  default (allowSystemOperations 1); a product-owned controlDict turns it off.
 review-suggested: []
 ---
 
@@ -27,7 +28,18 @@ Worktree branch `spike/fluids-spike-03-04`. Every number below is read from a fi
 
 ## Verdict
 
-**Stage 1 (AR 8): unattended meshing — GO. A5.10 mesh gate as specified — NOT MET.** Stage 2 pending.
+**NO-GO** against Appendix R: "unattended `snappyHexMesh` across AR 5/8/12 wings on both OSes passing the ITTC
+mesh floors".
+
+| Clause | Result | Evidence |
+|---|---|---|
+| unattended `snappyHexMesh` | **met** — no human step, exit 0, AR 5 / 8 / 12 | ledgers in [receipts/](receipts/) |
+| across AR 5/8/12 | **met** with one frozen setting | Stage 1 and 2 tables |
+| passing the ITTC mesh floors | **not met** — layer floor, y+ band and the determinant floor fail at every AR; `checkMesh` default checks pass | tables below |
+| on both OSes | **not met** — macOS arm64 only; Windows (WSL2 or Docker) not run | — |
+
+Run and Results acceptance stays gated. A third settings iteration (outside the cap) and a Windows run are the
+open work.
 
 ## Backend (step 0)
 
@@ -90,6 +102,9 @@ decomposePar → mpirun -np 6 snappyHexMesh -parallel → reconstructParMesh →
 Settings were iterated **twice** (the repair cap): iteration 2 ([spike03-ar8-r2](../../../cases/spike03-ar8-r2.yaml):
 absolute first layer 0.39 mm, expansion 1.03, layer featureAngle 180) was worse — 15 layers on 7.6 % of faces,
 none on 65.5 % — so iteration 1 is frozen and was re-run as [spike03-ar8-final](../../../cases/spike03-ar8-final.yaml).
+(Record note: `spike03-ar8` and `spike03-ar8-r2` were generated while their case files read `max_iterations: 150`;
+the files were set to 0 afterwards to record that no solve ran. Only `controlDict` `endTime` differs; the mesh
+inputs are identical.)
 
 | Measure (AR 8, frozen settings) | Value | A5.10 / ITTC floor | Result |
 |---|---|---|---|
@@ -126,4 +141,51 @@ refer to (**Inferred**; confirm which metric A5.10 meant).
 |---|---|---|---|
 | 0 — backend facts, smoke, security checks, schema | 16:43 | 16:49 | 6 min |
 | 1 — AR 8, two settings iterations, repeat, short solve | 16:49 | 17:04 | 15 min |
-| 2 — AR 5, AR 12 | pending | | |
+| 2 — AR 5, AR 12 (includes about 9 min waiting on load > 10 and the join lock) | 17:05 | 17:21 | 16 min |
+
+Compute per mesh: snappyHexMesh 35 s (AR 5), 31-35 s (AR 8), 63 s internal / 105 s wall under host load 57 (AR 12);
+the whole pipeline including `checkMesh -allGeometry` is under 2.5 min per AR. Peak 1-minute host load observed
+during this spike: 57.66 (at the end of the AR 12 snappy run, with other tracks building). Peak RSS: **Not
+recorded** (no RSS probe was run; A5.10 status needs one).
+
+## What the backend ADR must decide
+
+1. **Substrate and pin.** Native `OpenFOAM-v2512.app` (gerlero; ad-hoc signature, not notarised; pin = DMG sha256
+   `5eb2ab10…393439` + build `_87ed40d256-20251219`) or a Docker image by digest. This spike used the native app only.
+2. **macOS vs Windows route.** Not exercised. The A5.10 WSL2 argv rule ("confirm at SPIKE-03") is **not confirmed**.
+3. **Code execution in dictionaries.** Ship a product-owned controlDict with `allowSystemOperations 0` for every
+   OpenFOAM process and fail closed unless the banner says "Disallowing". The `-info-switch` flag does not do it.
+4. **Mesh gate definition.** (a) Name the determinant metric: OpenFOAM's "cell determinant (wellposedness)" fails
+   0.3 on 32-35 % of every layer mesh here. (b) State the layer floor as a coverage rule per region (sharp TE and
+   tip will not take 15 layers with these settings). (c) Choose the wall treatment band for hydrofoil Re
+   (≈ 6e5 at 120 mm and 5 m/s): wall functions with y+ 30-100 need first cells about 0.26-0.9 mm, and 15 layers
+   of them are thicker than the boundary layer.
+5. **Mesh identity.** Parallel snappy is not repeatable to the cell (1,730,250 vs 1,730,124 cells, same inputs),
+   so the mesh hash must be computed from the written mesh, never assumed from the inputs.
+6. **Resource limits.** 6 ranks, nice 10, a load wait and a join lock worked without starving joins. Peak RSS is
+   still to be measured.
+
+## Stage 2 — AR 5 and AR 12 (frozen settings)
+
+Cases [spike03-ar5](../../../cases/spike03-ar5.yaml) and [spike03-ar12](../../../cases/spike03-ar12.yaml). The
+first AR 5 attempt is marked `VOID.txt`: the generator wrote `writeInterval 0` for a mesh-only case and
+`surfaceFeatureExtract` refused it before any meshing. The generator now writes a valid controlDict for mesh-only
+cases.
+
+| Measure | AR 5 (half span 300 mm) | AR 8 (480 mm) | AR 12 (720 mm) | Floor |
+|---|---|---|---|---|
+| snappy exit · internal time | 0 · 35.1 s | 0 · 35.1 s | 0 · 62.7 s | unattended |
+| Cells | 1,100,301 | 1,730,124 | 2,563,735 | — |
+| `checkMesh` default | Mesh OK | Mesh OK | Mesh OK | pass |
+| Max non-orthogonality | 64.87° | 64.97° | 64.99° | ≤ 70 |
+| Max skewness | 1.31 | 1.50 | 1.37 | ≤ 4 |
+| Min volume | 2.94e-11 m³ | 3.60e-11 m³ | 2.94e-11 m³ | > 0 |
+| Cells with determinant < 0.3 | 351,536 (31.9 %) | 589,667 (34.1 %) | 897,254 (35.0 %) | none |
+| Concave cells (`-allGeometry`) | 40,826 | 59,684 | 86,369 | flag |
+| Wing faces · mean layers | 54,280 · 11.89 | 85,006 · 12.53 | 126,520 · 12.82 | 15 |
+| Faces with 15 layers | **65.0 %** | **70.9 %** | **73.2 %** | 100 % |
+| TE 3 % / tip faces with 15 | 0 % / 0 % | 0 % / 0 % | 0 % / 0 % | |
+| y+ **Estimate**, cell centre p50 | 22.9 | 22.9 (measured avg 22.2) | 22.9 | 30-100 |
+
+Coverage rises with AR only because the trailing-edge and tip strips are a smaller share of a longer wing; the
+failing regions are the same at every AR.
