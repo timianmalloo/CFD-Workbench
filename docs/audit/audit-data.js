@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T00:38:35Z",
+  "generated": "2026-10-03T00:39:42Z",
   "audit": [
     {
       "actor": null,
@@ -22177,6 +22177,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T00:37:34Z",
       "duration_seconds": 61.0
+    },
+    {
+      "id": "al-01M3ZK7N6GV83MMHMP8QVP0A8B",
+      "shortname": "join-doc-closed",
+      "datetime": "2026-10-03T00:39:42Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flake-undo-doc-closed into feature/ui-cad-direction",
+      "summary": "Root cause: a queued surface Notify from a disposed controller reached the old ShellHost and read a closed session. Guard in Notify; red-first Controller_DisposedWithQueuedSurfaceNotify_NotifiesNoView; loaded 4/12 -> 0/46; STACK line on Desktop FAILs. Open sibling: Adopt after Dispose. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T00:38:39Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
