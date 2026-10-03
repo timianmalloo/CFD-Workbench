@@ -673,7 +673,11 @@ public sealed class WorkbenchController : IDisposable
         var unit = Channels.Unit(gesturePoint.Curve);
         double spanStep = modifier switch { NudgeModifier.Command => 0.00001, NudgeModifier.Shift => 0.001, _ => 0.0001 };
         double step = modifier switch { NudgeModifier.Command => unit.NudgeFine, NudgeModifier.Shift => unit.NudgeCoarse, _ => unit.NudgePlain };
-        var current = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.Ordinate);
+        // D-7: a run steps from where the draft has the point now (FlushGestureFrame clears the pending target), so N
+        // presses or repeats add N quantized steps (§3.7) and a clamp holds without banking steps past it.
+        var at = draft is null ? gestureOrigin
+            : CurveFor(gesturePoint.Curve)?.Points.FirstOrDefault(item => item.Id == gesturePoint.VertexId) ?? gestureOrigin;
+        var current = pendingGestureTarget ?? (at.SpanMeters, at.Ordinate);
         UpdateGestureTarget(current.Item1 + spanDirection * spanStep, current.Item2 + aftDirection * step);
         FlushGestureFrame();
     }

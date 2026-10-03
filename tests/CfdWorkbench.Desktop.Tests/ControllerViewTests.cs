@@ -229,6 +229,10 @@ public static class ControllerViewTests
             }
         });
 
+        // D-7 (§0.1 step 5, §6.2): each press or key repeat in one run adds a step; release is one undo row, Esc none.
+        DesktopChecks.Check("Nudge_HeldKeyRun_AccumulatesStepsOneUndoRow", () => CheckNudgeRun("trailing"));
+        DesktopChecks.Check("Nudge_ChannelLaneRun_Accumulates", () => CheckNudgeRun("twist"));
+
         DesktopChecks.Check("Controller_GestureEnd_CurveFamilyAndThreeDVisible", () =>
         {
             ShellEvents.Clear();
@@ -1047,6 +1051,42 @@ public static class ControllerViewTests
         var a = surface.Sections[row].Upper[sample];
         var b = surface.Sections[row + 1].Upper[sample + 1];
         return new Point3((a.X + b.X) / 2, (a.Y + b.Y) / 2, (a.Z + b.Z) / 2);
+    }
+
+    /// <summary>Three presses on each ladder add three steps; a reversal takes one back; KeyUp is one row, Esc restores.</summary>
+    private static void CheckNudgeRun(string curve)
+    {
+        using var controller = new WorkbenchController();
+        Open(controller);
+        var reference = new PointRef(curve, "cv-3");
+        double Ordinate() => controller.CurveFor(curve)!.Points.Single(item => item.Id == "cv-3").Ordinate;
+        var unit = Channels.Unit(curve);
+        double origin = Ordinate();
+        foreach (var (modifier, step) in new[]
+            { (NudgeModifier.Command, unit.NudgeFine), (NudgeModifier.Plain, unit.NudgePlain), (NudgeModifier.Shift, unit.NudgeCoarse) })
+        {
+            Equal(true, controller.BeginGesture(reference, GestureInput.Keyboard), curve + " " + modifier + " begin");
+            for (int press = 1; press <= 3; press++)
+            {
+                controller.Nudge(0, 1, modifier);
+                Near(origin + press * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} press {press}");
+            }
+            controller.Nudge(0, -1, modifier);
+            Near(origin + 2 * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} reversal");
+            Await(controller.EndGestureAsync(GestureEnd.Escape));
+            Near(origin, Ordinate(), 0, $"{curve} {modifier} Esc restores the origin");
+            Equal(false, controller.CanUndo, $"{curve} {modifier} Esc left an undo row");
+
+            Equal(true, controller.BeginGesture(reference, GestureInput.Keyboard), curve + " " + modifier + " second run");
+            foreach (var _ in Enumerable.Range(0, 3)) controller.Nudge(0, 1, modifier);
+            var release = controller.EndGestureAsync(GestureEnd.KeyUp);
+            Await(release);
+            Equal("Committed", release.Result.GetType().Name, $"{curve} {modifier} KeyUp outcome");
+            Near(origin + 3 * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} committed run");
+            controller.Undo();
+            Near(origin, Ordinate(), 0, $"{curve} {modifier} undo");
+            Equal(false, controller.CanUndo, $"{curve} {modifier} run was more than one undo row");
+        }
     }
 
     private static void Open(WorkbenchController controller) => Await(controller.OpenExampleAsync());
