@@ -958,6 +958,19 @@ still notifies and adopts a live session. View-side posts (`ShellHost`
 `RefreshOnUiThread`, `ModelArea.OnControllerChanged`) queued before `Dispose`
 still read the controller.
 
+*Closed 2026-10-02 — an open that completes after `Dispose`.* `Adopt` is the one
+choke point for the four adopt sites (`OpenAsync`, `CommitPreparedFoil` for New
+and `.foil`, `OpenFoilAsync`, `AcceptCandidateAsync`). On a disposed controller
+it now disposes the late session, makes no store, raises nothing, and returns
+false; the two outcome-returning sites map that to `Superseded`. A native read
+that the closed store refuses (`DOC-CLOSED`) is also `Superseded`, not `Failed`.
+A generation bump in `Dispose` alone was not enough, because
+`CompleteGestureBeforeDocumentActionAsync` awaits before the generation is taken.
+Proven red-first by `Controller_OpenCompletesAfterDispose_SupersededNoEventsNoLeak`
+(`--views`): gated `IProjectStore.ReadAsync`, Dispose, release — once with a
+read that finishes (was `Opened`) and once with a read the closed store refuses
+(was `Failed`). The view-side posts named above remain open.
+
 **UI-REVIEW-WINDOW · Review launches accumulate native windows after their proof ends.**
 Serial R29/R37 review checkpoints left six exact receipt-bound old app processes
 alive while the newest Dark window was under inspection; an earlier first app

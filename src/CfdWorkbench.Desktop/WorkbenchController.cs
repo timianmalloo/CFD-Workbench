@@ -1127,6 +1127,11 @@ public sealed class WorkbenchController : IDisposable
         {
             return new OpenOutcome.Cancelled();
         }
+        catch (Exception) when (disposed)
+        {
+            // The store was closed under the read (DOC-CLOSED): Dispose superseded this open; it did not fail.
+            return new OpenOutcome.Superseded();
+        }
         catch (Exception ex)
         {
             return new OpenOutcome.Failed(OpenFailure.Classify(ex, path));
@@ -1169,7 +1174,8 @@ public sealed class WorkbenchController : IDisposable
             return new OpenOutcome.Superseded();
         }
 
-        Adopt(preparedSession);
+        if (!Adopt(preparedSession))
+            return new OpenOutcome.Superseded();
         expectedDiskSha = nativeRead?.DiskSha256;
         NativePath = path;
         OpenedPath = path;
@@ -1262,7 +1268,8 @@ public sealed class WorkbenchController : IDisposable
             return new OpenOutcome.Superseded();
         }
 
-        Adopt(preparedSession);
+        if (!Adopt(preparedSession))
+            return new OpenOutcome.Superseded();
         if (openedPath is not null)
             OpenedPath = openedPath;
         UpdateEstimates();
@@ -1320,7 +1327,7 @@ public sealed class WorkbenchController : IDisposable
         var next = new AuthoringSession();
         try { next.Open(bytes, Guid.NewGuid().ToString("D"), false); }
         catch { next.Dispose(); throw; }
-        Adopt(next);
+        if (!Adopt(next)) return;
         OpenedPath = label;
         UpdateEstimates();
         await RefreshAcceptedAsync(cancellation);
@@ -1332,7 +1339,7 @@ public sealed class WorkbenchController : IDisposable
         var next = new AuthoringSession();
         try { next.Open(PendingOriginal, Guid.NewGuid().ToString("D"), true); }
         catch { next.Dispose(); throw; }
-        Adopt(next);
+        if (!Adopt(next)) return;
         await RefreshAcceptedAsync(cancellation);
     }
 
@@ -1733,8 +1740,17 @@ public sealed class WorkbenchController : IDisposable
         savedAcceptedId = view.AcceptedId;
     }
 
-    private void Adopt(AuthoringSession next)
+    /// <summary>
+    /// Makes <paramref name="next"/> the document. False on a disposed controller: an open that completes after Dispose
+    /// is superseded, so its session is disposed here, no store is made and no view hears of it (UI-LIFETIME).
+    /// </summary>
+    private bool Adopt(AuthoringSession next)
     {
+        if (disposed)
+        {
+            next.Dispose();
+            return false;
+        }
         CancelSampling();
         store.Dispose();
         session.Dispose();
@@ -1777,6 +1793,7 @@ public sealed class WorkbenchController : IDisposable
             SelectionChanged?.Invoke();
         }
         Notify();
+        return true;
     }
 
     private void RequireCertifiedFoil()

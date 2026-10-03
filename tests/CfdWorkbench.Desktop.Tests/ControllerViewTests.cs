@@ -159,6 +159,15 @@ public static class ControllerViewTests
             Equal(0, raised, "views notified by a disposed controller");
         });
 
+        // UI-LIFETIME (DOC-CLOSED sibling): an open whose read completes after Dispose adopts nothing — no event reaches a
+        // view, and no session or store is made for a disposed controller. The store may finish the read (a fake) or refuse
+        // it as closed (ProjectStore's DOC-CLOSED); either way Dispose superseded the open.
+        DesktopChecks.Check("Controller_OpenCompletesAfterDispose_SupersededNoEventsNoLeak", () =>
+        {
+            CheckLateOpen(closedStoreRefuses: false);
+            CheckLateOpen(closedStoreRefuses: true);
+        });
+
         DesktopChecks.Check("Controller_SurfaceComputeFails_KeepsLastMeshNoteErrorEvent", () =>
         {
             ShellEvents.Clear();
@@ -1090,6 +1099,70 @@ public static class ControllerViewTests
     }
 
     private static void Open(WorkbenchController controller) => Await(controller.OpenExampleAsync());
+
+    private static void CheckLateOpen(bool closedStoreRefuses)
+    {
+        string label = closedStoreRefuses ? "closed store: " : "finished read: ";
+        var stores = new List<GatedReadStore>();
+        var controller = new WorkbenchController(_ =>
+        {
+            var made = new GatedReadStore(closedStoreRefuses);
+            stores.Add(made);
+            return made;
+        });
+        Open(controller);
+        Equal("OK", Run(controller.SaveAsync("late-open.cfdw.json")).Code, label + "save");
+        var reading = stores[^1];
+        int raised = 0;
+        controller.Changed += () => raised++;
+        controller.SelectionChanged += () => raised++;
+        var open = controller.OpenAsync("late-open.cfdw.json");
+        Pump(() => reading.Started.Task.IsCompleted, "the read to start");
+        controller.Dispose();
+        int made = stores.Count;
+        reading.Release();
+        Pump(() => open.IsCompleted, "the late open");
+        Equal("Superseded", open.Result.GetType().Name, label + "late open outcome");
+        Drain();
+        Equal(0, raised, label + "events raised by a disposed controller");
+        Equal(made, stores.Count, label + "stores made after Dispose");
+        Equal(true, stores.All(store => store.Disposed), label + "every store disposed");
+    }
+
+    private static T Run<T>(Task<T> task)
+    {
+        Await(task);
+        return task.Result;
+    }
+
+    /// <summary>
+    /// Keeps the saved image in memory and holds every read until <see cref="Release"/>; with
+    /// <paramref name="closedRefuses"/> a read released after Dispose fails DOC-CLOSED as <see cref="ProjectStore"/> does.
+    /// </summary>
+    private sealed class GatedReadStore(bool closedRefuses) : IProjectStore
+    {
+        private readonly TaskCompletionSource gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private byte[]? image;
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public bool Disposed { get; private set; }
+        public void Release() => gate.SetResult();
+        public void Dispose() => Disposed = true;
+
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default)
+        {
+            image = request.Image;
+            return Task.FromResult(new SaveResult("OK", Identity.Sha256(image), true, true));
+        }
+
+        public async Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default)
+        {
+            Started.TrySetResult();
+            await gate.Task.WaitAsync(cancellation);
+            if (closedRefuses && Disposed) throw new ContractError("DOC-CLOSED");
+            byte[] bytes = image ?? throw new InvalidOperationException("nothing saved");
+            return new ReadResult(bytes, Identity.Sha256(bytes));
+        }
+    }
 
     private static string Outcomes() =>
         string.Join(",", ShellEvents.Read().Where(item => item.Name == "view.surface").Select(item => item.Outcome));
