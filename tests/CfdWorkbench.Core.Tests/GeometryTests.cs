@@ -32,8 +32,8 @@ internal static class GeometryTests
         Check("Ruling18_QueryEnvironmentalOutcomes_SeparateFromDeterministicCaps", () =>
         {
             var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
-            Refuses("GEOMETRY-BUDGET", () => Geometry.PointAt(certificate, .5, .5, true, timeBudget: TimeSpan.Zero));
-            Refuses("GEOMETRY-BUDGET", () => Geometry.SectionAt(certificate, .5, .5, TimeSpan.Zero));
+            Refuses("GEOMETRY-BUDGET", () => Geometry.PointAt(certificate, .5, .5, true, false, new ProofBudget(0)));
+            Refuses("GEOMETRY-BUDGET", () => Geometry.SectionAt(certificate, .5, .5, new ProofBudget(0)));
             using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
             Refuses("GEOMETRY-CANCELLED", () => Geometry.PointAt(certificate, .5, .5, true, cancellationToken: cancellation.Token));
             Refuses("GEOMETRY-CANCELLED", () => Geometry.SectionAt(certificate, .5, .5, cancellationToken: cancellation.Token));
@@ -78,8 +78,6 @@ internal static class GeometryTests
         {
             Refuses("DSL-RANGE", () => _ = new ProofBudget(ProofBudget.DefaultWorkLimit + 1));
             Refuses("DSL-RANGE", () => _ = new ProofBudget(-1));
-            // The public time parameter keeps its ceiling for source compatibility.
-            Refuses("DSL-RANGE", () => Geometry.Assess(Prepared(DyadicProfile()), TimeSpan.FromSeconds(2)));
         });
         Check("Geometry_PlacedRootPoint_EnclosesIndependentZeroTwistCoordinates", () =>
         {
