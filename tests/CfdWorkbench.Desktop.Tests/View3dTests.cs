@@ -692,6 +692,7 @@ public static class View3dTests
                 var draws = new List<double>();
                 var raises = new List<double>();
                 var jobs = new List<double>();
+                var frames = new List<double>();
                 long refreshesBefore = fixture.Host.PaneRefreshes;
                 int changedEvents = 0;
                 void OnChanged() => changedEvents++;
@@ -713,6 +714,7 @@ public static class View3dTests
                         long laidOut = System.Diagnostics.Stopwatch.GetTimestamp();
                         Dispatcher.UIThread.RunJobs();
                         jobs.Add(System.Diagnostics.Stopwatch.GetElapsedTime(laidOut).TotalMilliseconds);
+                        frames.Add(steps[^1] + jobs[^1]);   // what the screen waits for: the step and the window pass
                         if (fixture.Controller.Camera3d == before && fixture.Controller.CameraFor(SingleView.Side) == sideBefore)
                             throw new Exception(name + " step " + index + " did not move a camera");
                         long drawn = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -725,7 +727,7 @@ public static class View3dTests
                 var warm = steps.Skip(8).Order().ToArray();
                 double p95 = P95(steps);
                 Console.WriteLine(FormattableString.Invariant(
-                    $"READINESS Readiness_CameraStep_NoPaneRefresh_Under8Ms step={name} value_ms={p95:F3} target_ms=8 median_ms={warm[warm.Length / 2]:F3} event_p95_ms={P95(raises):F3} window_pass_p95_ms={P95(jobs):F3} draw_p95_ms={P95(draws):F3} samples={warm.Length} pane_refreshes={refreshes} changed_events={changedEvents} size={size.Width}x{size.Height}"));
+                    $"READINESS Readiness_CameraStep_NoPaneRefresh_Under8Ms step={name} value_ms={p95:F3} target_ms=8 median_ms={warm[warm.Length / 2]:F3} event_p95_ms={P95(raises):F3} window_pass_p95_ms={P95(jobs):F3} frame_p95_ms={P95(frames):F3} draw_p95_ms={P95(draws):F3} samples={warm.Length} pane_refreshes={refreshes} changed_events={changedEvents} size={size.Width}x{size.Height}"));
                 if (refreshes != 0) failures.Add(FormattableString.Invariant($"{name}: {refreshes} pane refreshes for {steps.Count} camera steps"));
                 if (p95 > 8) failures.Add(FormattableString.Invariant($"{name}: step p95 {p95:F1} ms is over 8 ms"));
             }
