@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T16:27:47Z",
+  "generated": "2026-10-03T16:28:39Z",
   "audit": [
     {
       "actor": null,
@@ -22509,6 +22509,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T16:27:01Z",
       "duration_seconds": 46.0
+    },
+    {
+      "id": "al-01M419H7TN6J8X9PED129EG5VH",
+      "shortname": "join-m12c-dsp",
+      "datetime": "2026-10-03T16:28:39Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-dsp into feature/ui-cad-direction",
+      "summary": "DSP (Grok 4.7): Placement's profile jet/inversion moved into internal ProfileEvaluator (placed-mesh hash, PL0 certificate golden, OI-11 trace golden and a new surface-bit pin unchanged); AuthoringSession.Sample on the display evaluator with nose cosine spacing, no proof budget; Sample 488/416 ms per side -> ProfileAt 1.91 ms warm; binding within 1e-9 chord; planted FindSpan mutant red. 6/6 DSP names. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T16:27:51Z",
+      "duration_seconds": 48.0
     }
   ],
   "changes": [
