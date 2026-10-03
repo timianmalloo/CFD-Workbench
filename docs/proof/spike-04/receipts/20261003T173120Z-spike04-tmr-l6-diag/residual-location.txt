@@ -1,0 +1,28 @@
+initialResidual:nuTilda: cells=14336 sum|r|=5.094e-05 max=1.175e-06
+share of sum|r| in top 10 cells: 0.204; top 100: 0.918
+  r from mid-chord in [0, 1): share 0.059
+  r from mid-chord in [1, 10): share 0.600
+  r from mid-chord in [10, 100): share 0.341
+  r from mid-chord in [100, 1000000000.0): share 0.000
+  cell 8940: r=1.175e-06 at (3.8821, 0.6286)
+  cell 10513: r=1.120e-06 at (11.843, 4.1509)
+  cell 10738: r=1.114e-06 at (15.129, 5.443)
+  cell 10288: r=1.112e-06 at (9.3219, 3.1684)
+  cell 10069: r=1.022e-06 at (32.25, 2.3716)
+  cell 8715: r=1.010e-06 at (3.2116, 0.48391)
+  cell 8489: r=9.717e-07 at (2.3047, 0.3823)
+  cell 10063: r=9.627e-07 at (7.3873, 2.4212)
+initialResidual:Uy: cells=14336 sum|r|=1.369e-04 max=6.245e-06
+share of sum|r| in top 10 cells: 0.314; top 100: 0.797
+  r from mid-chord in [0, 1): share 0.985
+  r from mid-chord in [1, 10): share 0.011
+  r from mid-chord in [10, 100): share 0.003
+  r from mid-chord in [100, 1000000000.0): share 0.001
+  cell 118: r=6.245e-06 at (0.00086064, 0.0051013)
+  cell 117: r=5.270e-06 at (0.00049619, 0.0038828)
+  cell 566: r=4.236e-06 at (0.00083697, 0.0051004)
+  cell 107: r=4.125e-06 at (0.00026759, -0.0028577)
+  cell 555: r=4.094e-06 at (0.0002391, -0.0028572)
+  cell 116: r=4.038e-06 at (0.00026759, 0.0028577)
+  cell 108: r=3.989e-06 at (0.00013047, -0.0020018)
+  cell 554: r=3.910e-06 at (0.00047048, -0.0038821)

@@ -8390,6 +8390,75 @@ window.DOCS_INDEX = {
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
+      "id": "proof-spike-03",
+      "path": "docs/proof/spike-03/verdict.md",
+      "title": "SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "NO-GO against the Appendix R words. snappyHexMesh meshes AR 5, 8 and 12 half wings unattended (35-63 s on 6 ranks, 1.1-2.6 M cells) and every mesh passes checkMesh, but none passes the ITTC/A5.10 floors: 15 layers reach 65-73 % of wing faces (0 % at the trailing edge and tip), measured mean y+ is 22 (below 30-100), and 32-35 % of cells have an OpenFOAM cell determinant below 0.3. macOS only; Windows not run. Dictionaries can run code by default (allowSystemOperations 1); a product-owned controlDict turns it off.",
+      "tags": [
+        "spike-03",
+        "openfoam",
+        "snappyhexmesh",
+        "mesh-gate",
+        "run",
+        "backend"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d0c6bf0a757694bd1462894f12e3453df21111ab8ad4e7ce0d1011e0511c457a"
+    },
+    {
+      "id": "proof-spike-04",
+      "path": "docs/proof/spike-04/verdict.md",
+      "title": "SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012 (OpenFOAM v2512)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "NO-GO; stopped at Stage 1. On TMR Family II levels 6 and 5 (SA, alpha 10, Re 6e6), simpleFoam never met the stated residual floor (1e-7). With linearUpwind, bound() clipped negative nuTilda in 39,994 of 40,000 iterations and residuals froze at a fixed point. With TVD limitedLinear, a period-2 limiter cycle kept nuTilda at 4-5e-5. The repair cap (2) was reached, so the third grid and GCI were not run. v2512 has no SA-neg model.",
+      "tags": [
+        "spike-04",
+        "openfoam",
+        "verification",
+        "gci",
+        "tmr",
+        "naca0012",
+        "spalart-allmaras"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a485c7dac5a82f79da39958a07a1fa1494aff6aa0509c40b05e785c82f4d7a36"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -9972,5 +10041,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "de0bcbec0f8396058ae56990a9ecf22c81401941abceb76d43cd1770b752db2b"
+  "graphSha256": "562359f80dcdff4edf74cab86a75b7c0c0960e25d81d5b30cce030d37ea5a0f0"
 };

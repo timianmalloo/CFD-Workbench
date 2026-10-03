@@ -1,0 +1,22 @@
+of-run: start 2026-10-03T17:08:20Z load1=8.33 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: end status=0 wall_s=0 load1=8.33 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: start 2026-10-03T17:08:20Z load1=8.33 cmd=surfaceFeatureExtract
+of-run: end status=0 wall_s=1 load1=8.33 cmd=surfaceFeatureExtract
+of-run: start 2026-10-03T17:08:21Z load1=8.33 cmd=blockMesh
+of-run: end status=0 wall_s=1 load1=8.33 cmd=blockMesh
+of-run: start 2026-10-03T17:08:22Z load1=8.33 cmd=decomposePar -force
+of-run: end status=0 wall_s=0 load1=8.33 cmd=decomposePar -force
+of-run: start 2026-10-03T17:08:22Z load1=8.33 cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite
+of-run: end status=0 wall_s=37 load1=20.94 cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite
+of-run: start 2026-10-03T17:12:59Z load1=9.56 cmd=reconstructParMesh -constant
+of-run: end status=0 wall_s=1 load1=9.56 cmd=reconstructParMesh -constant
+of-run: start 2026-10-03T17:13:00Z load1=9.56 cmd=checkMesh -constant -allGeometry -allTopology
+of-run: end status=0 wall_s=6 load1=8.96 cmd=checkMesh -constant -allGeometry -allTopology
+of-run: start 2026-10-03T17:13:06Z load1=8.96 cmd=mpirun -np 6 postProcess -parallel -func writeCellCentres -time 0
+of-run: end status=0 wall_s=2 load1=8.96 cmd=mpirun -np 6 postProcess -parallel -func writeCellCentres -time 0
+of-run: start 2026-10-03T17:13:08Z load1=8.96 cmd=checkMesh -constant
+of-run: end status=0 wall_s=2 load1=8.48 cmd=checkMesh -constant
+of-run: start 2026-10-03T17:13:10Z load1=8.48 cmd=checkMesh -constant -allGeometry -writeFields '(cellDeterminant)'
+of-run: end status=0 wall_s=3 load1=8.48 cmd=checkMesh -constant -allGeometry -writeFields '(cellDeterminant)'
+of-run: start 2026-10-03T17:13:13Z load1=8.48 cmd=topoSet -constant -dict system/topoSetDict.det
+of-run: end status=0 wall_s=1 load1=7.96 cmd=topoSet -constant -dict system/topoSetDict.det

@@ -1,0 +1,124 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Oct 03 2026
+Time   : 09:57:21
+Host   : Mac
+PID    : 75596
+I/O    : uncollated
+Case   : /Users/mallalieut/projects/CFD-Workbench-spike-fluids-spike-03-04/runs/20261003T165718Z-spike03-ar8-final
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [6] (region region0)
+
+Finished decomposition in 0.57 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 20194
+    Number of points = 22739
+    Number of faces shared with processor 1 = 1266
+    Number of faces shared with processor 4 = 561
+    Number of faces shared with processor 5 = 65
+    Number of processor patches = 3
+    Number of processor faces = 1892
+    Number of boundary faces = 3020
+
+Processor 1
+    Number of cells = 19876
+    Number of points = 22399
+    Number of faces shared with processor 0 = 1266
+    Number of faces shared with processor 2 = 1236
+    Number of faces shared with processor 3 = 41
+    Number of faces shared with processor 5 = 504
+    Number of processor patches = 4
+    Number of processor faces = 3047
+    Number of boundary faces = 1817
+
+Processor 2
+    Number of cells = 20160
+    Number of points = 22661
+    Number of faces shared with processor 1 = 1236
+    Number of faces shared with processor 3 = 480
+    Number of faces shared with processor 5 = 24
+    Number of processor patches = 3
+    Number of processor faces = 1740
+    Number of boundary faces = 3084
+
+Processor 3
+    Number of cells = 19988
+    Number of points = 22464
+    Number of faces shared with processor 1 = 41
+    Number of faces shared with processor 2 = 480
+    Number of faces shared with processor 5 = 1259
+    Number of processor patches = 3
+    Number of processor faces = 1780
+    Number of boundary faces = 2996
+
+Processor 4
+    Number of cells = 19821
+    Number of points = 22377
+    Number of faces shared with processor 0 = 561
+    Number of faces shared with processor 5 = 1305
+    Number of processor patches = 2
+    Number of processor faces = 1866
+    Number of boundary faces = 3062
+
+Processor 5
+    Number of cells = 19961
+    Number of points = 22541
+    Number of faces shared with processor 0 = 65
+    Number of faces shared with processor 1 = 504
+    Number of faces shared with processor 2 = 24
+    Number of faces shared with processor 3 = 1259
+    Number of faces shared with processor 4 = 1305
+    Number of processor patches = 5
+    Number of processor faces = 3157
+    Number of boundary faces = 1821
+
+Number of processor faces = 6741
+Max number of cells = 20194 (0.97% above average 20000)
+Max number of processor patches = 5 (50% above average 3.3333333)
+Max number of faces between processors = 3157 (40.498442% above average 2247)
+
+Time = 0
+
+Processor 0: field transfer
+Processor 1: field transfer
+Processor 2: field transfer
+Processor 3: field transfer
+Processor 4: field transfer
+Processor 5: field transfer
+
+End
+

@@ -1,0 +1,1 @@
+VOID (as a solve): checkMesh only. 206 wake faces exceed 70 deg non-orthogonality, so the laplacian/snGrad schemes were changed to 'limited corrected 0.5' in the case file before any solve; regenerated as the next spike04-tmr-l6 run.

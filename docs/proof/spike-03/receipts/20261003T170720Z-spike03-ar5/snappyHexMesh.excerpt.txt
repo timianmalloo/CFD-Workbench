@@ -1,0 +1,20 @@
+17:nProcs : 6
+81:Initial mesh : cells:104000  faces:319380  points:111537  unbalance:0.0097884615
+546:--> FOAM Warning : 
+1180:--> FOAM Warning : Displacement (5.5558842e-06 0 5.9923468e-06) at mesh point 153 coord (0.11953111 0.246 4.8539904e-18) points through the surrounding patch faces
+1245:--> FOAM Warning : Displacement (1.9920494e-05 0 9.3482703e-06) at mesh point 153 coord (0.11953667 0.246 5.9923468e-06) points through the surrounding patch faces
+1310:--> FOAM Warning : Displacement (4.1363719e-05 0 8.6878058e-06) at mesh point 153 coord (0.11955659 0.246 1.5340617e-05) points through the surrounding patch faces
+1375:--> FOAM Warning : Displacement (6.549331e-05 0 4.2130472e-06) at mesh point 153 coord (0.11959795 0.246 2.4028423e-05) points through the surrounding patch faces
+1440:--> FOAM Warning : Displacement (8.4867761e-05 0 -2.0191377e-06) at mesh point 153 coord (0.11966344 0.246 2.824147e-05) points through the surrounding patch faces
+1505:--> FOAM Warning : Displacement (9.0958014e-05 0 -7.0173624e-06) at mesh point 153 coord (0.11974831 0.246 2.6222332e-05) points through the surrounding patch faces
+1583:--> FOAM Warning : Displacement (7.8879983e-05 0 -8.5599934e-06) at mesh point 153 coord (0.11983927 0.246 1.920497e-05) points through the surrounding patch faces
+1727:--> FOAM Warning : Displacement (5.2410895e-05 -6.750156e-16 -6.6174233e-06) at mesh point 153 coord (0.11991815 0.246 1.0644977e-05) points through the surrounding patch faces
+1871:--> FOAM Warning : Displacement (2.3847005e-05 0 -3.2402265e-06) at mesh point 153 coord (0.11997056 0.246 4.0275533e-06) points through the surrounding patch faces
+2015:--> FOAM Warning : Displacement (5.58978e-06 0 -7.8732681e-07) at mesh point 153 coord (0.11999441 0.246 7.8732681e-07) points through the surrounding patch faces
+2304:wing 54280    15     0.000147  0.00456 
+3151:Mesh with layers : cells:1100301  faces:3396751  points:1197169  unbalance:0.58922149
+3154:              target   mesh     [m]       [%]
+3156:wing 54280    15       11.9     0.00426   91.6    
+3170:Layer mesh : cells:1100301  faces:3396751  points:1197169  unbalance:0.0099927202
+3193:Finished meshing without any errors
+3194:Finished meshing in = 35.08 s.

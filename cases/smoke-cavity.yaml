@@ -1,0 +1,54 @@
+name: smoke-cavity
+description: >-
+  Backend smoke run: the bundled lid-driven cavity tutorial (icoFoam) on OpenFOAM-v2512.app, serial. It proves
+  activation and a solver run end to end. Also used for the dictionary code-execution switch checks (checkMesh only).
+purpose:
+  spike: smoke
+  stage: 0
+  question: Does the bundled OpenFOAM v2512 activate in a non-interactive shell and run a tutorial case to its final time?
+geometry:
+  airfoil: none (lid-driven cavity, 0.1 m square)
+  source:
+    kind: tutorial
+    path: system/blockMeshDict
+    sha256: 1585d47710325fb71091330c2d6539250958651248cea9fcd1b7c7b105c16f42
+    reference: $FOAM_TUTORIALS/incompressible/icoFoam/cavity/cavity
+conditions:
+  reynolds: 10
+  mach: 0.0
+  alpha: 0.0
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+  activation: /Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam -c "<command>" (via cases/tools/of-run.sh)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: blockMesh
+  settings: { cells: [20, 20, 1] }
+  target_y_plus: null
+  first_cell_height_m: null
+physics:
+  application: icoFoam
+  flow: incompressible-transient
+  turbulence_model: laminar
+  fluid: { nu_m2_s: 0.01 }
+boundary_conditions:
+  movingWall: fixedValue U (1 0 0)
+  fixedWalls: noSlip
+  frontAndBack: empty
+numerics:
+  max_iterations: 100
+  residual_criterion: tutorial defaults (endTime 0.5 s, deltaT 0.005 s)
+decomposition: { method: none, n_subdomains: 1, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - log.blockMesh
+  - log.icoFoam
+  - time directories 0.1 .. 0.5
+run_dir: runs/20261003T164323Z-smoke-cavity

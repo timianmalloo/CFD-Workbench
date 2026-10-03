@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cfd-workbench.local/schemas/cfd-case.schema.json",
+  "title": "CFD Case",
+  "description": "One CFD run. Base: the operator template ~/dev/templates/cfd-project/schemas/cfd-case.schema.json (copied verbatim: name, description, geometry.airfoil/span/chord, conditions, solver, output). Extension for CFD-Workbench (Ruling 60): purpose, geometry source + hash, backend + version + hash, mesh settings, physics, boundary conditions, numerics, decomposition/cores, expected outputs. Every extension member is required so the case file is the audit trail.",
+  "type": "object",
+  "required": ["name", "geometry", "conditions", "solver",
+               "purpose", "backend", "mesh", "physics", "boundary_conditions", "numerics", "decomposition", "outputs_expected"],
+  "properties": {
+    "name": { "type": "string", "description": "Case id; equals the YAML file stem.", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "description": { "type": "string" },
+    "geometry": {
+      "type": "object",
+      "required": ["airfoil", "source"],
+      "properties": {
+        "airfoil": { "type": "string", "description": "NACA 4-digit or file path" },
+        "span": { "type": "number", "description": "Full span, metres (template field)." },
+        "chord": { "type": "number", "description": "Chord, metres (template field)." },
+        "half_span": { "type": "number", "description": "Modelled half span, metres (half model on a symmetry plane)." },
+        "aspect_ratio": { "type": "number" },
+        "twist_deg": { "type": "array", "items": { "type": "number" }, "description": "Root and tip twist, degrees." },
+        "source": {
+          "type": "object",
+          "required": ["kind", "path", "sha256"],
+          "properties": {
+            "kind": { "enum": ["cli-export", "built-planform", "tmr-grid", "tutorial"] },
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "generator": { "type": "string", "description": "Script and arguments that produced the file." },
+            "deviation": { "type": "string", "description": "How this geometry differs from the design of record, if it does." },
+            "reference": { "type": "string", "description": "URL or citation for an external geometry." }
+          }
+        }
+      }
+    },
+    "conditions": {
+      "type": "object",
+      "required": ["reynolds", "mach", "alpha"],
+      "properties": {
+        "reynolds": { "type": "number" },
+        "mach": { "type": "number" },
+        "alpha": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "array", "items": { "type": "number" } }
+          ]
+        },
+        "altitude_m": { "type": "number" },
+        "speed_m_s": { "type": "number" },
+        "reference_length_m": { "type": "number" }
+      }
+    },
+    "solver": {
+      "type": "string",
+      "enum": ["aerosandbox", "neuralfoil", "openfoam", "su2"]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "plots": { "type": "array", "items": { "type": "string" } },
+        "csv": { "type": "boolean" }
+      }
+    },
+    "purpose": {
+      "type": "object",
+      "required": ["spike", "stage", "question"],
+      "properties": {
+        "spike": { "enum": ["SPIKE-03", "SPIKE-04", "smoke"] },
+        "stage": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "question": { "type": "string" }
+      }
+    },
+    "backend": {
+      "type": "object",
+      "required": ["name", "version", "build", "binary_sha256", "activation", "docker_used"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "build": { "type": "string" },
+        "distribution": { "type": "string" },
+        "distribution_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "binary_sha256": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "minProperties": 1
+        },
+        "activation": { "type": "string" },
+        "docker_used": { "type": "boolean" },
+        "image_digest": { "type": ["string", "null"] }
+      }
+    },
+    "mesh": {
+      "type": "object",
+      "required": ["generator", "settings"],
+      "properties": {
+        "generator": { "enum": ["snappyHexMesh", "blockMesh", "plot3d-direct", "gmsh"] },
+        "settings": { "type": "object" },
+        "target_y_plus": { "type": ["number", "null"] },
+        "first_cell_height_m": { "type": ["number", "null"] },
+        "layers": {
+          "type": "object",
+          "properties": {
+            "n": { "type": "integer" },
+            "expansion_ratio": { "type": "number" }
+          }
+        },
+        "gate": {
+          "type": "object",
+          "description": "Mesh gate thresholds applied before solving (spec A5.10).",
+          "properties": {
+            "max_non_orthogonality_deg": { "type": "number" },
+            "max_skewness": { "type": "number" },
+            "min_determinant": { "type": "number" }
+          }
+        }
+      }
+    },
+    "physics": {
+      "type": "object",
+      "required": ["application", "flow", "turbulence_model", "fluid"],
+      "properties": {
+        "application": { "type": "string" },
+        "flow": { "enum": ["incompressible-steady", "incompressible-transient", "compressible-steady"] },
+        "turbulence_model": { "type": "string" },
+        "wall_treatment": { "type": "string" },
+        "transition": { "type": "string" },
+        "fluid": {
+          "type": "object",
+          "required": ["nu_m2_s"],
+          "properties": {
+            "name": { "type": "string" },
+            "nu_m2_s": { "type": "number" },
+            "rho_kg_m3": { "type": "number" }
+          }
+        },
+        "freestream": { "type": "object" }
+      }
+    },
+    "boundary_conditions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string" },
+      "description": "Patch name -> condition summary."
+    },
+    "numerics": {
+      "type": "object",
+      "required": ["max_iterations", "residual_criterion"],
+      "properties": {
+        "schemes": { "type": "object" },
+        "max_iterations": { "type": "integer" },
+        "residual_criterion": { "type": "string" }
+      }
+    },
+    "decomposition": {
+      "type": "object",
+      "required": ["n_subdomains", "nice"],
+      "properties": {
+        "method": { "type": "string" },
+        "n_subdomains": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "nice": { "type": "integer", "minimum": 10 },
+        "max_load_1min": { "type": "number" }
+      }
+    },
+    "outputs_expected": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "run_dir": { "type": "string", "description": "runs/<timestamp>-<name>/ — never reused.", "pattern": "^runs/[0-9]{8}T[0-9]{6}Z-[a-z0-9-]+/?$" }
+  }
+}

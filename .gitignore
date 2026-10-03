@@ -28,3 +28,6 @@ docs/proof/_*.json
 bin/
 obj/
 .tmp-tests/
+
+# CFD run artifacts (operator rule, Ruling 60): runs/<timestamp>/ is never committed and never overwritten
+/runs/

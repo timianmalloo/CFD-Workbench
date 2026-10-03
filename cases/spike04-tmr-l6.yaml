@@ -1,0 +1,95 @@
+name: spike04-tmr-l6
+description: >-
+  SPIKE-04 stage 1, coarsest of three grids, first numerics (2nd-order linearUpwind for nuTilda). NASA TMR 2D
+  NACA 0012 (2DN00) on the Family II C-grid level 6 (225 x 65), Spalart-Allmaras, alpha 10 deg, Re 6e6, simpleFoam.
+  Result: a recorded gap. Residuals froze at nuTilda 1.9e-4 and Uy 3.7e-7 from about 14000 iterations while Cl
+  stayed fixed to 1e-11; bound() clipped negative nuTilda (min -6.1e-6) in 39994 of 40000 iterations.
+  Superseded by spike04-tmr-l6-tvd.
+purpose:
+  spike: SPIKE-04
+  stage: 1
+  question: Does OpenFOAM v2512 converge the TMR NACA 0012 SA case to the residual floor on this grid, and with what Cl and Cd?
+geometry:
+  airfoil: naca0012 (TMR sharp-trailing-edge definition, 2DN00)
+  chord: 1.0
+  source:
+    kind: tmr-grid
+    path: n0012familyII.6.p2dfmt.gz
+    sha256: 5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244
+    generator: >-
+      python3 cases/tools/fetch-tmr-grid.py <dir> n0012familyII.6.p2dfmt.gz; uv run --with pyyaml --with numpy
+      python3 cases/tools/make-tmr-case.py cases/spike04-tmr-l6.yaml <run_dir> <dir>/n0012familyII.6.p2dfmt.gz
+    reference: >-
+      https://tmbwg.github.io/turbmodels/naca0012numerics_grids.html (grid page; zip
+      https://www.nasa.gov/wp-content/uploads/2026/02/naca0012numerics-grids.zip, member
+      u/piyer/nasa_tmr/gitlab/turbmodels/NACA0012numerics_grids/n0012familyII.6.p2dfmt.gz)
+    deviation: >-
+      Incompressible simpleFoam (the hydrofoil solver) instead of the TMR compressible M 0.15 run with Sutherland's
+      law and an adiabatic wall; standard (non-point-vortex) far field; SA-noft2 (the ESI SpalartAllmaras model).
+      assume: compressibility at M 0.15 raises the reference Cl by about 1 % over an incompressible result
+      (Prandtl-Glauert 1/sqrt(1-0.15^2) = 1.0114); confirm against the incompressible-to-reference gap measured on
+      the finest grid; if false, the Cl comparison below is mis-attributed.
+conditions:
+  reynolds: 6000000
+  mach: 0.0
+  alpha: 10.0
+  speed_m_s: 1.0
+  reference_length_m: 1.0
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+  activation: /Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam -c "<command>" (via cases/tools/of-run.sh)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: plot3d-direct
+  target_y_plus: null
+  first_cell_height_m: null
+  settings:
+    family: II
+    level: 6
+    dims: [225, 65]
+    span_m: 1.0
+    wake_cut: merged into internal faces by the converter
+  gate: { max_non_orthogonality_deg: 70, max_skewness: 4 }
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0 and nut = 0 at the wall)
+  transition: none (fully turbulent)
+  fluid: { name: non-dimensional, nu_m2_s: 1.6666666666666667e-7 }
+  freestream: { U_m_s: 1.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity (cos 10, sin 10, 0) / freestreamPressure 0; nuTilda inletOutlet 3 nu; about 500 c
+  airfoil: noSlip; nuTilda 0; nut 0; p zeroGradient
+  frontAndBack: empty
+numerics:
+  schemes:
+    grad: Gauss linear
+    div_U: bounded Gauss linearUpwind grad(U)
+    div_nuTilda: bounded Gauss linearUpwind grad(nuTilda)
+    laplacian: Gauss linear limited corrected 0.5
+    snGrad: limited corrected 0.5
+  consistent: "yes"
+  relaxation: { U: 0.9, nuTilda: 0.9, p: 1 }
+  residual_floor: 1.0e-7
+  max_iterations: 40000
+  residual_criterion: >-
+    Converged = simpleFoam residualControl stops the run with the initial residuals of p, Ux, Uy and nuTilda all
+    at or below 1e-7. A run that reaches max_iterations without that is a recorded gap, not a number.
+decomposition: { method: scotch, n_subdomains: 2, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - log.checkMesh
+  - log.simpleFoam
+  - postProcessing/forceCoeffs1 (Cl, Cd, CmPitch per iteration)
+  - postProcessing/solverInfo1
+  - postProcessing/yPlus1
+  - postProcessing/wallP (surface p on the airfoil, raw)
+run_dir: runs/20261003T172635Z-spike04-tmr-l6

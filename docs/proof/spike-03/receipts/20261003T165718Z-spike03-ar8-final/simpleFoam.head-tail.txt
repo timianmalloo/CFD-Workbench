@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -parallel
+Date   : Oct 03 2026
+Time   : 09:58:50
+Host   : Mac
+PID    : 89270
+I/O    : uncollated
+Case   : /Users/mallalieut/projects/CFD-Workbench-spike-fluids-spike-03-04/runs/20261003T165718Z-spike03-ar8-final
+nProcs : 6
+Hosts  :
+(
+    (Mac 6)
+)
+Pstream initialized with:
+    node communication : off [type=host] (6 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 150 steps.
+...
+time step continuity errors : sum local = 1.8992433e-07, global = 2.0459671e-08, cumulative = 3.7211108e-07
+smoothSolver:  Solving for omega, Initial residual = 2.0406131e-06, Final residual = 1.640322e-07, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 2.5345645e-06, Final residual = 2.3365779e-07, No Iterations 2
+ExecutionTime = 144.89 s  ClockTime = 154 s
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.018255348	0.009598291	0.0086570571	0
+    Cd(f):	0.56516464	0.56130769	0.00385695	0
+    Cd(r):	-0.5469093	-0.5517094	0.0048001072	0
+    Cl:	0.30558271	0.30580023	-0.00021751834	0
+    Cl(f):	0.15827346	0.15831989	-4.6428588e-05	0
+    Cl(r):	0.14730925	0.14748034	-0.00017108975	0
+    CmPitch:	0.0054821085	0.0054197779	6.2330582e-05	0
+    CmRoll:	0.55603697	0.55650855	-0.00047157861	0
+    CmYaw:	-0.036813116	-0.01959544	-0.017217676	0
+    Cs:	0.0035221257	0.0035205578	1.5678663e-06	0
+    Cs(f):	-0.035052053	-0.017835161	-0.017216892	0
+    Cs(r):	0.038574178	0.021355718	0.01721846	0
+
+    writing force and moment coefficient files.
+
+Time = 150
+
+smoothSolver:  Solving for Ux, Initial residual = 1.7352067e-05, Final residual = 1.385282e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0.00079147713, Final residual = 5.4362331e-05, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.00012877153, Final residual = 1.0541964e-05, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.00015316971, Final residual = 9.5182585e-07, No Iterations 5
+GAMG:  Solving for p, Initial residual = 1.5891813e-05, Final residual = 1.350959e-07, No Iterations 4
+time step continuity errors : sum local = 1.852864e-07, global = 1.9687729e-08, cumulative = 3.9179881e-07
+smoothSolver:  Solving for omega, Initial residual = 1.9824287e-06, Final residual = 1.5878135e-07, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 2.5027083e-06, Final residual = 2.3034407e-07, No Iterations 2
+ExecutionTime = 145.9 s  ClockTime = 155 s
+
+forceCoeffs forceCoeffs1 write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	0.018256848	0.0095999435	0.0086569041	0
+    Cd(f):	0.56562467	0.56176761	0.0038570652	0
+    Cd(r):	-0.54736783	-0.55216766	0.0047998389	0
+    Cl:	0.30585414	0.30607154	-0.00021739807	0
+    Cl(f):	0.15836471	0.15841098	-4.6265656e-05	0
+    Cl(r):	0.14748943	0.14766056	-0.00017113242	0
+    CmPitch:	0.005437641	0.0053752076	6.243338e-05	0
+    CmRoll:	0.55649625	0.55696764	-0.00047138682	0
+    CmYaw:	-0.036817329	-0.019600028	-0.017217301	0
+    Cs:	0.0035230856	0.0035215329	1.5526593e-06	0
+    Cs(f):	-0.035055786	-0.017839262	-0.017216524	0
+    Cs(r):	0.038578871	0.021360794	0.017218077	0
+
+    writing force and moment coefficient files.
+
+yPlus yPlus1 write:
+    writing field yPlus
+    patch wing y+ : min = 3.4346095, max = 149.56305, average = 22.21532
+wallShearStress wallShearStress1 write:
+    writing field wallShearStress
+    min/max(wing) = (-0.11842606 -0.017484217 -0.11265483), (-0.0003822674 0.0063935599 0.042190793)
+End
+
+Finalising parallel run

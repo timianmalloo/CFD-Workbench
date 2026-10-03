@@ -1,0 +1,8 @@
+of-run: start 2026-10-03T17:33:04Z load1=5.13 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=5.13 cmd=checkMesh
+of-run: start 2026-10-03T17:33:05Z load1=5.13 cmd=decomposePar -force
+of-run: end status=0 wall_s=1 load1=5.52 cmd=decomposePar -force
+of-run: start 2026-10-03T17:33:06Z load1=5.52 cmd=mpirun -np 2 simpleFoam -parallel
+of-run: end status=0 wall_s=258 load1=9.75 cmd=mpirun -np 2 simpleFoam -parallel
+of-run: start 2026-10-03T17:37:24Z load1=9.75 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=1 load1=9.75 cmd=reconstructPar -latestTime

@@ -1,0 +1,96 @@
+name: spike03-ar8-final
+description: >-
+  SPIKE-03 stage 1, frozen settings (iteration 1). Unattended snappyHexMesh of the AR 8 half wing, the mesh gate,
+  then a 150-iteration simpleFoam run that is not converged: only to show the yPlus and wallShearStress function
+  objects write and to measure the y+ the layers achieve. Also a repeat of spike03-ar8: same cells or not.
+purpose:
+  spike: SPIKE-03
+  stage: 1
+  question: Does an AR 8 wing mesh unattended to the A5.10 mesh gate (checkMesh pass, ITTC layer floor) on OpenFOAM v2512?
+geometry:
+  airfoil: naca0012
+  chord: 0.12
+  span: 0.96
+  half_span: 0.48
+  aspect_ratio: 8.0
+  twist_deg: [0.0, 0.0]
+  source:
+    kind: built-planform
+    path: constant/triSurface/wing.stl
+    sha256: 05fddf940901c6db42549c0bb3c37ec60c099119d9068d2641150320a2d6f2fe
+    generator: uv run --with pyyaml python3 cases/tools/make-wing-case.py cases/spike03-ar8-final.yaml <run_dir>
+    deviation: >-
+      The CLI (src/CfdWorkbench.Cli) only has `inspect <..> --json`; it cannot write a surface. Equivalent planform
+      from the Example (src/CfdWorkbench.Desktop/Assets/example.foil, sha256 373a939f...2bda64): rectangular, chord
+      120 mm, symmetric 12 % section, mirror_y half model. Differences: section is NACA 0012 with the closed trailing
+      edge (-0.1036 x^4 term), not the Example's manufactured degree-5 profile; twist 0 deg, not the Example's
+      0 to -2 deg washout; half span 480 mm (AR 8), not 450 mm (AR 7.5); flat tip cap.
+conditions:
+  reynolds: 600000
+  mach: 0.0
+  alpha: 4.0
+  speed_m_s: 5.0
+  reference_length_m: 0.12
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    snappyHexMesh: d36f997edd31453f2b7a9a9025bafb4a9adbb5916166e65ec1c62288d8f7795a
+  activation: /Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam -c "<command>" (via cases/tools/of-run.sh)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: snappyHexMesh
+  target_y_plus: 40
+  first_cell_height_m: null
+  layers: { n: 15, expansion_ratio: 1.1 }
+  gate: { max_non_orthogonality_deg: 70, max_skewness: 4, min_determinant: 0.3 }
+  settings:
+    domain_m: { x: [-1.2, 2.64], z: [-1.2, 1.2], y_beyond_tip: 0.96 }
+    base_cell_m: 0.048
+    surface_level: [5, 6]
+    feature_level: 6
+    resolve_feature_angle_deg: 15
+    near_box_level: 3
+    near_box_pad_m: 0.06
+    wake_box_level: 3
+    wake_box_x_m: [0.1, 0.6]
+    n_cells_between_levels: 3
+    layers_relative_sizes: true
+    final_layer_thickness: 0.5
+    min_thickness: 0.1
+    layer_feature_angle_deg: 130
+    max_thickness_to_medial_ratio: 0.3
+    n_layer_iter: 50
+    location_in_mesh: [-0.6, 0.3, 0.6]
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: kOmegaSST
+  wall_treatment: wall functions (nutkWallFunction, kqRWallFunction, omegaWallFunction)
+  transition: none (fully turbulent)
+  fluid: { name: fresh water 20 C, nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  freestream: { U_m_s: 5.0, turbulence_intensity: 0.01, nut_over_nu: 1.0 }
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; k, omega inletOutlet
+  symmetry: symmetryPlane (y = 0, wing root)
+  wing: noSlip; k, omega, nut wall functions
+numerics:
+  schemes: { div_U: bounded Gauss linearUpwind grad(U), div_turb: bounded Gauss upwind, laplacian: Gauss linear corrected }
+  max_iterations: 150
+  residual_criterion: none; the 150-iteration solve is not a convergence claim (function-object presence and achieved y+ only)
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - log.blockMesh
+  - log.snappyHexMesh (layer coverage table)
+  - log.checkMesh (-allGeometry -allTopology)
+  - postProcessing/yPlus
+  - postProcessing/wallShearStress
+  - postProcessing/forceCoeffs
+  - postProcessing/solverInfo
+run_dir: runs/20261003T165718Z-spike03-ar8-final

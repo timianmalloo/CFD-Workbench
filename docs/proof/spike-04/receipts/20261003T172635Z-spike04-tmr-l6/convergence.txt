@@ -1,0 +1,8 @@
+iterations=40000 stopped_by_residualControl=no
+final_initial_residuals Ux_initial=8.157e-08 Uy_initial=3.730e-07 p_initial=5.358e-08 nuTilda_initial=1.912e-04
+max_final_initial_residual=1.912e-04
+Cd=0.015090764 last1000_band=1.179e-06
+Cl=1.056940418 last1000_band=1.469e-05
+CmPitch=0.008839307 last1000_band=4.167e-06
+execution_s=230.12 clock_s=231
+yPlus(time patch min max avg)=40000 airfoil 5.518569199640e-02 3.165739490132e+00 7.510015617618e-01
