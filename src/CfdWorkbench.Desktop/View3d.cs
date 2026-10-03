@@ -362,11 +362,14 @@ public sealed class View3d : Panel
         if (section is null) return;
         string name = station.Eta == 0 ? "Root" : station.Eta == 1 ? "Tip" : "Station " + (station.Index + 1).ToString(CultureInfo.InvariantCulture);
         var text = Text(name, InkBrush, FontWeight.SemiBold);
+        // Beside the starboard trailing edge, as the mockup places it, but below the section's drawing so it never
+        // covers the 3 px station stroke it names (from the front the section runs right from its trailing edge).
         var trailing = camera.Project(section.Upper[^1], Bounds.Size);
+        double bottom = section.Upper.Concat(section.Lower).Max(point => camera.Project(point, Bounds.Size).Y);
         double width = text.Width + 12, height = 18;
         double left = Math.Clamp(trailing.X + 8, CubeInset, Math.Max(CubeInset, Bounds.Width - CubeInset - width));
-        double top = Math.Clamp(trailing.Y + 4 - height / 2, CubeInset, Math.Max(CubeInset, Bounds.Height - CubeInset - height));
-        var chip = new Rect(left, top, width, height);
+        double top = Math.Clamp(Math.Max(trailing.Y + 4 - height / 2, bottom + 4), CubeInset, Math.Max(CubeInset, Bounds.Height - CubeInset - height));
+        var chip = new Rect(Math.Round(left), Math.Round(top), Math.Ceiling(width), height);   // whole pixels: a crisp 1 px border
         context.FillRectangle(SoftBrush ?? Brushes.Black, chip);
         context.DrawRectangle(new Pen(StationBrush ?? Brushes.White, 1), chip.Deflate(0.5));
         context.DrawText(text, new Point(chip.X + 6, chip.Y + (height - text.Height) / 2));

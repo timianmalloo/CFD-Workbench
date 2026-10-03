@@ -50,9 +50,9 @@ public static class View3dTests
             var face = fixture.RgbAt(UpperFace(surface, 20, 40));
             if (!Between(face, grazing, lit) || face == fixture.Brush("ViewportBrush"))
                 throw new Exception($"Shaded face {face} is not on the ramp {grazing} → {lit}");
-            // The ground grid at z = min z: a grid line aft of the root trailing edge, clear of the foil.
+            // The ground grid at z = min z: the y = 0 line ahead of the root leading edge, clear of the foil.
             var grid = fixture.Brush("ViewportGridBrush");
-            var aft = new Point3(surface.MaximumX + 0.5 * (surface.MaximumX - surface.MinimumX), 0, surface.MinimumZ);
+            var aft = new Point3(surface.MinimumX - 0.5 * (surface.MaximumX - surface.MinimumX), 0, surface.MinimumZ);
             var gridPixel = fixture.NearestTo(aft, grid, 1);
             // A 1 px anti-aliased line: the nearest pixel is much closer to the grid token than to the viewport.
             if (Distance(gridPixel, grid) * 2 > Distance(gridPixel, fixture.Brush("ViewportBrush"))) throw new Exception($"No ground-grid pixel at {fixture.ViewPoint(aft)}: nearest {gridPixel}, grid {grid}");
@@ -78,6 +78,41 @@ public static class View3dTests
             if (inkPixels < 40) throw new Exception($"Triad shows {inkPixels} ink pixels");
         });
 
+        DesktopChecks.Check("View3d_DefaultIso_FromFrontFillsWidth", () =>
+        {
+            // DR-VIEW-5: Iso looks from the front, starboard and above (the approved mockup): the leading edge is nearer
+            // the eye and the cube shows F, S and T. DR-VIEW-6: the fitted wing spans the view's width less the fit margin.
+            var fixture = Fixture.Shared();
+            var camera = fixture.Camera;
+            var view = fixture.View;
+            var surface = fixture.Controller.Surface!;
+            Equal(NamedCamera.Iso, camera.Name, "Iso");
+            Equal("F,S,T", string.Join(",", view.Faces.Select(face => face.Letter).Order()), "Iso cube faces");
+            var root = surface.Sections[0];
+            if (!(camera.Depth(root.Upper[0]) < camera.Depth(root.Upper[^1])))
+                throw new Exception($"The leading edge is not nearer the eye: LE {camera.Depth(root.Upper[0]):F4} m, TE {camera.Depth(root.Upper[^1]):F4} m");
+            double left = double.PositiveInfinity, right = double.NegativeInfinity;
+            foreach (var section in surface.Sections)
+                foreach (var point in section.Upper.Concat(section.Lower))
+                    foreach (var placed in new[] { point, point.Port() })
+                    {
+                        double x = fixture.ViewPoint(placed).X;
+                        left = Math.Min(left, x);
+                        right = Math.Max(right, x);
+                    }
+            double width = view.Bounds.Width, margin = ViewCamera.FitMarginPixels;
+            // The fit holds the bounding box's corners inside the margin; the wing reaches those corners at its tips to
+            // within the tips' few-millimetre thickness, so allow 4 px.
+            if (right - left < width - 2 * margin - 4)
+                throw new Exception($"The fitted wing spans {right - left:F1} px of a {width:F0} px view (margin {margin} px)");
+            if (left < margin - 1e-6 || right > width - margin + 1e-6) throw new Exception($"The wing leaves the margin: {left:F1} … {right:F1}");
+            fixture.Shoot();
+            var foil = fixture.Brush("PlanFoilBrush");
+            var starboardTip = surface.Sections[^1].Upper[0];
+            if (Distance(fixture.NearestTo(starboardTip, foil, 1), foil) > 40) throw new Exception("No outline at the starboard tip's leading edge");
+            if (!(fixture.ViewPoint(starboardTip).X < fixture.ViewPoint(starboardTip.Port()).X)) throw new Exception("Starboard is not on the viewer's left");
+        });
+
         DesktopChecks.Check("View3d_DisplayWireframeShaded_RenderedPerMode", () =>
         {
             var fixture = Fixture.Shared();
@@ -87,13 +122,25 @@ public static class View3dTests
             fixture.Controller.SetDisplay(SingleView.ThreeD, DisplayMode.Wireframe);
             fixture.Shoot();
             Equal("3D · Iso · wireframe", fixture.Area.ThreeDLabel.Content as string, "wireframe title");
-            Equal(background, fixture.RgbAt(UpperFace(surface, 22, 50)), "wireframe interior");
+            // No fill: across the upper surface's interior many pixels are the viewport — the 1 px ground-grid lines and
+            // the thin mesh rows cross the rest; a fill leaves none (shaded, every one of these samples is on the ramp).
+            int samples = 0, empty = 0;
+            for (int row = 16; row <= 28; row += 2)
+                for (int sample = 30; sample <= 70; sample += 10)
+                {
+                    samples++;
+                    if (fixture.RgbAt(UpperFace(surface, row, sample)) == background) empty++;
+                }
+            if (empty < 0.4 * samples) throw new Exception($"Wireframe interior: {empty} of {samples} samples are the viewport colour");
             var edge = fixture.NearestTo(surface.Sections[20].Upper[0], fixture.Brush("PlanFoilBrush"), 1);
             if (Distance(edge, fixture.Brush("PlanFoilBrush")) > 30) throw new Exception("Wireframe lost the outline: " + edge);
             fixture.Controller.SetDisplay(SingleView.ThreeD, DisplayMode.Shaded);
             fixture.Shoot();
             Equal("3D · Iso", fixture.Area.ThreeDLabel.Content as string, "shaded title");
             if (!Between(fixture.RgbAt(UpperFace(surface, 22, 50)), grazing, lit)) throw new Exception("Shaded did not return the fill");
+            for (int row = 16; row <= 28; row += 2)
+                for (int sample = 30; sample <= 70; sample += 10)
+                    if (fixture.RgbAt(UpperFace(surface, row, sample)) == background) throw new Exception($"Shaded leaves row {row} sample {sample} unfilled");
         });
 
         DesktopChecks.Check("View3d_SignFixture_ExampleTipTrailingEdgeRenderedHigher", () =>
@@ -128,7 +175,7 @@ public static class View3dTests
             fixture.Drag(centre, new Vector(40, -20), MouseButton.Left, KeyModifiers.Alt);
             var expected = start.Orbit(40 * View3d.OrbitDegreesPerPixel, -20 * View3d.OrbitDegreesPerPixel);
             Equal(expected, fixture.Camera, "orbit by the drag");
-            Equal("3D · Free · az 155° · el 20°", fixture.Area.ThreeDLabel.Content as string, "title after the orbit");
+            Equal("3D · Free · az 65° · el 20°", fixture.Area.ThreeDLabel.Content as string, "title after the orbit");
             Equal(Projection.Perspective, fixture.Camera.Projection, "orbit is perspective");
         });
 
@@ -324,11 +371,11 @@ public static class View3dTests
             Equal("3D view: Side.", fixture.Host.StatusStrip.Text, "announced in the status strip");
             Equal("3D · Side", fixture.Area.ThreeDLabel.Content as string, "title");
             fixture.Reset(ViewCamera.Named(NamedCamera.Iso, minimum, maximum, size));
-            var back = fixture.View.FaceButton(NamedCamera.Back) ?? throw new Exception("The K face is not a button at Iso");
-            back.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            var front = fixture.View.FaceButton(NamedCamera.Front) ?? throw new Exception("The F face is not a button at Iso");
+            front.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             fixture.Settle();
-            Equal(ViewCamera.Named(NamedCamera.Back, minimum, maximum, size), fixture.Camera, "the K face button");
-            Equal("3D view: Back.", fixture.Host.StatusStrip.Text, "announced");
+            Equal(ViewCamera.Named(NamedCamera.Front, minimum, maximum, size), fixture.Camera, "the F face button");
+            Equal("3D view: Front.", fixture.Host.StatusStrip.Text, "announced");
         });
 
         DesktopChecks.Check("View3d_CubeChevron_Orbits90", () =>
@@ -354,7 +401,7 @@ public static class View3dTests
         {
             var fixture = Fixture.Shared();
             var view = fixture.View;
-            Equal("K,S,T", string.Join(",", view.Faces.Select(face => face.Letter).Order()), "Iso faces with area (aft, starboard, above)");
+            Equal("F,S,T", string.Join(",", view.Faces.Select(face => face.Letter).Order()), "Iso faces with area (front, starboard, above)");
             foreach (var face in view.Faces)
             {
                 double fits = Inscribed(face);
@@ -461,7 +508,7 @@ public static class View3dTests
             if (!fixture.Host.Properties.GetVisualDescendants().OfType<TextBlock>().Any(text => text.Text == "Tip station"))
                 throw new Exception("Properties does not show the tip station");
             // Empty space picks nothing and keeps the selection.
-            fixture.ClickView(new Point(20, fixture.View.Bounds.Height / 2));
+            fixture.ClickView(new Point(fixture.View.Bounds.Width / 2, 100));
             Equal(new Selection.Station(index, tip.Eta), fixture.Controller.Selection, "a click on empty space");
         });
 
@@ -483,6 +530,8 @@ public static class View3dTests
                 throw new Exception("Chip outside the view: " + chip);
             Equal(fixture.Brush("PlanSoftBrush"), fixture.RgbAtView(new Point(chip.Right - 2.5, chip.Center.Y)), "chip plate");
             if (Distance(fixture.RgbAtView(new Point(chip.Center.X, chip.Y + 0.5)), station) > 30) throw new Exception("Chip border is not station");
+            if (tip.Upper.Concat(tip.Lower).Select(fixture.ViewPoint).Any(point => chip.Contains(point)))
+                throw new Exception("The chip covers the station it names");
             fixture.Controller.Select(new Selection.Foil());
             fixture.Shoot();
             if (fixture.View.ChipBounds is not null) throw new Exception("Chip stays without a selected station");
@@ -501,13 +550,13 @@ public static class View3dTests
             fixture.MoveDrag(fixture.Centre + new Vector(20, 0), KeyModifiers.Alt);
             fixture.MoveDrag(fixture.Centre + new Vector(40, 10), KeyModifiers.Alt);
             if (view.CurrentCamera == start) throw new Exception("The drag did not orbit");
-            Equal("3D · Free · az 155° · el 35°", fixture.Area.ThreeDLabel.Content as string, "the title follows the drag");
+            Equal("3D · Free · az 65° · el 35°", fixture.Area.ThreeDLabel.Content as string, "the title follows the drag");
             Equal(start, fixture.Camera, "the controller takes the camera at release, not per frame");
             Equal("3D view, camera Iso", AutomationProperties.GetName(view), "name during the drag");
             fixture.EndDrag(fixture.Centre + new Vector(40, 10));
-            Equal("3D view, camera Free, azimuth 155°, elevation 35°", AutomationProperties.GetName(view), "name at the end of the drag");
+            Equal("3D view, camera Free, azimuth 65°, elevation 35°", AutomationProperties.GetName(view), "name at the end of the drag");
             fixture.Key(Key.Right, KeyModifiers.Alt);
-            Equal("3D view, camera Free, azimuth 170°, elevation 35°", AutomationProperties.GetName(view), "name after one key step");
+            Equal("3D view, camera Free, azimuth 80°, elevation 35°", AutomationProperties.GetName(view), "name after one key step");
             view.ApplyPreset(NamedCamera.Front);
             fixture.Settle();
             Equal("3D view, camera Front", AutomationProperties.GetName(view), "name after a preset");
@@ -524,7 +573,7 @@ public static class View3dTests
                 View3d.HelpText, "help copy (§11.4)");
             var children = peer.GetChildren();
             var names = children.Select(child => (child.GetAutomationControlType(), child.GetName())).ToArray();
-            foreach (var expected in new[] { "Back view", "Side view", "Orbit left 90°", "Orbit up 90°", "Orbit down 90°", "Orbit right 90°" })
+            foreach (var expected in new[] { "Front view", "Side view", "Orbit left 90°", "Orbit up 90°", "Orbit down 90°", "Orbit right 90°" })
                 if (!names.Contains((AutomationControlType.Button, expected)))
                     throw new Exception($"No Button peer '{expected}': {string.Join(", ", names.Select(item => item.Item1 + " " + item.Item2))}");
             if (names.Any(item => item.Item2 == "Top view")) throw new Exception("The Iso top face is under 24 px but has a peer");
@@ -542,10 +591,10 @@ public static class View3dTests
             var cameras = new List<ViewCamera?>();
             void Record() => cameras.Add(fixture.Controller.Camera3d);
             fixture.Controller.Changed += Record;
-            var target = ViewCamera.Named(NamedCamera.Back, minimum, maximum, size);
+            var target = ViewCamera.Named(NamedCamera.Side, minimum, maximum, size);
             try
             {
-                fixture.View.FaceButton(NamedCamera.Back)!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                fixture.View.FaceButton(NamedCamera.Side)!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 Equal(target, fixture.Controller.Camera3d, "the preset camera, before any frame");
                 for (int frame = 0; frame < 20; frame++) fixture.Settle();
             }
