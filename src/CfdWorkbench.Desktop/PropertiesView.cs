@@ -32,7 +32,8 @@ public enum GroupChip { Preview, Checking, Unavailable }
 
 public sealed record RowMessage(string Text, MessageKind Kind);
 
-public sealed record RowOption(string Value, string Text);
+/// <summary>One option of an enum row; a disabled option names its reason (UI-DEAD-CONTROL, §11.4 Vertical).</summary>
+public sealed record RowOption(string Value, string Text, bool Enabled = true, string? Reason = null);
 
 public sealed record SelectionIdentity(IdentityGlyph Glyph, string Title, string? Crumb = null, PointRef? CrumbTarget = null);
 
@@ -101,7 +102,37 @@ public sealed record PropertiesContext(
     bool Checking = false,
     bool NotChecked = false,
     Func<string, CurveView?>? Curves = null,
-    Func<double, StationFrame?>? Frame = null);
+    Func<double, StationFrame?>? Frame = null,
+    SectionContext? Section = null);
+
+/// <summary>
+/// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
+/// facts at the edited station, and the facts at each station that uses the section (its name and placed readouts).
+/// </summary>
+public sealed record SectionContext(
+    SectionMode Mode,
+    CurveView Upper,
+    CurveView Lower,
+    SectionFacts Facts,
+    string Station,
+    IReadOnlyList<(string Station, SectionFacts Facts)> Stations)
+{
+    /// <summary>The context of the controller's open section, or null outside the mode.</summary>
+    public static SectionContext? Of(WorkbenchController controller)
+    {
+        ArgumentNullException.ThrowIfNull(controller);
+        if (controller.Section is not { } mode || controller.CurrentProjection is not { } projection ||
+            controller.SectionCurve(SurfaceSide.Upper) is not { } upper || controller.SectionCurve(SurfaceSide.Lower) is not { } lower)
+            return null;
+        var bytes = mode.Draft.Bytes;
+        var stations = new List<(string, SectionFacts)>();
+        for (int index = 0; index < projection.Assignments.Count; index++)
+            if (index == mode.Draft.Assignment || projection.Assignments[index].ProfileName == mode.Draft.Profile)
+                stations.Add((SectionPoints.StationName(projection, index), Sections.Facts(bytes, index)));
+        return new SectionContext(mode, upper, lower, Sections.Facts(bytes, mode.Draft.Assignment),
+            SectionPoints.StationName(projection, mode.Draft.Assignment), stations);
+    }
+}
 
 /// <summary>Copy rows the grid shows (DESIGN.md §7; docs/reviews/ui-property-grid.md §9).</summary>
 public static class PropertyCopy
@@ -460,6 +491,9 @@ public static class PropertiesView
     };
 
     /// <summary>The one unit table: a field's number per SI unit (metres → mm, degrees → °, chord fraction → %).</summary>
+    // The one degrees-per-radian site in this file (PlacementRule_RadiansConstant_SingleSiteInSource).
+    private const double DegreesPerRadian = 180 / Math.PI;
+
     public static readonly IReadOnlyDictionary<UnitFamily, double> FieldScale = new Dictionary<UnitFamily, double>
     {
         [UnitFamily.Length] = 1000,
@@ -484,6 +518,17 @@ public static class PropertiesView
         var plan = context.Plan;
         Func<string, CurveView?>? curves = context.Curves ?? (plan is null ? null : curve => Rail(plan, curve));
         var groups = new List<PropertyGroup>();
+        if (context.Section is { } section)
+        {
+            // The section mode (§11.4): a section point's rows, the Section group always, the Wing read-only (COPY-122).
+            var sectionIdentity = selection is Selection.Points { Items.Count: 1 } chosen &&
+                                  chosen.Items[0] is { Curve: "upper" or "lower" } reference &&
+                                  (reference.Curve == "upper" ? section.Upper : section.Lower).Points.Any(point => point.Id == reference.VertexId)
+                ? SectionPointRows(reference, section, groups)
+                : SectionOnly(section, groups);
+            var (sectionWing, sectionAvailability) = Wing(projection, estimates, ShellMode.SectionEditor, context);
+            return new PropertiesModel(sectionIdentity, groups, sectionWing, AvailabilityStatus: sectionAvailability);
+        }
         var identity = selection switch
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
@@ -534,7 +579,7 @@ public static class PropertiesView
         double span = handle.SpanMeters - anchor.SpanMeters;
         double aft = handle.Ordinate - anchor.Ordinate;
         if (handle.Index < anchor.Index) { span = -span; aft = -aft; }
-        return (Math.Atan2(aft, span) * 180 / Math.PI, Math.Sqrt(span * span + aft * aft));
+        return (Math.Atan2(aft, span) * DegreesPerRadian, Math.Sqrt(span * span + aft * aft));
     }
 
     /// <summary>The inverse of <see cref="HandleGeometry"/>: where a handle typed by angle and length sits (Dihedral).</summary>
@@ -641,6 +686,8 @@ public static class PropertiesView
                 Value = Quantity.PlacedPercent(placed.ThicknessRatio * FieldScale[UnitFamily.Percent])
             });
         rows.Add(Prose("s:section", "Section", assignment.ProfileName));
+        // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
+        rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
         string title = station.Eta == 0 ? "Root station" : station.Eta == 1 ? "Tip station" : $"Station {station.Index + 1}";
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
@@ -916,6 +963,201 @@ public static class PropertiesView
         : $"{curve.ValueLabel} in {Speech.Unit(curve.ValueUnit)}";
 
     private static string Value(double ordinate, CurveRows curve) => Quantity.Typed(ordinate * FieldScale[curve.ValueFamily]);
+
+    // ---------------- the section mode (design §11.4; paired types, Ruling 60) ----------------
+
+    /// <summary>COPY-189 (proposed): the partner line under a section point's identity.</summary>
+    public static string PairLine(string other, int index) => $"⇄ Paired with {other} point {index}. Type, kind and x are shared.";
+
+    public const string NoseType = "The nose is always an anchor. It stays at the leading edge with a vertical tangent.";   // COPY-177
+    public const string TrailingType = "The trailing-edge point is always an anchor. It moves up and down only.";           // COPY-178
+    public const string TrailingClosedType = "The trailing-edge point is always an anchor. It stays on the chord line: the trailing edge is closed.";
+    public const string SectionAngles = "Angles are in the section's own chord coordinates.";                                 // COPY-183 (as drawn)
+    public const string ThicknessNote = "From the Thickness curve. At each station this shape is scaled to that t/c.";
+    public const string EditSection = "Edit section…";                                                                         // COPY-172
+
+    private static SelectionIdentity SectionPointRows(PointRef reference, SectionContext section, List<PropertyGroup> groups)
+    {
+        var curve = reference.Curve == "upper" ? section.Upper : section.Lower;
+        var other = reference.Curve == "upper" ? section.Lower : section.Upper;
+        var point = curve.Points.First(item => item.Id == reference.VertexId);
+        string surface = SectionPoints.Surface(reference.Curve);
+        string otherSide = SectionPoints.Other(reference.Curve);
+        bool nose = point.Role == PointRole.Nose;
+        bool trailing = point.Role == PointRole.TrailingEnd;
+        bool handle = point.Role is PointRole.NoseHandle or PointRole.TrailingHandle or PointRole.AnchorHandle;
+        var rows = new List<PropertyRow>();
+        var notes = new List<RowMessage>();
+        if (nose || trailing)
+        {
+            string help = nose ? NoseType : point.Freedom == PointFreedom.Fixed ? TrailingClosedType : TrailingType;
+            rows.Add(Prose("p:type", "Type", PropertyCopy.AnchorOption) with
+            {
+                State = RowState.Locked, Description = help, DescriptionAlwaysVisible = true, HelperText = help
+            });
+        }
+        else if (handle)
+            rows.Add(Prose("p:type", "Type", "Handle") with { State = RowState.Locked });
+        else
+        {
+            rows.Add(new PropertyRow
+            {
+                Key = "p:type", Label = "Type · both surfaces", Kind = RowKind.Choice,
+                Value = point.Role == PointRole.Anchor ? "anchor" : "control",
+                Options = [new RowOption("control", PropertyCopy.ControlOption), new RowOption("anchor", PropertyCopy.AnchorOption)],
+                AutomationName = "Type, both surfaces", Target = reference
+            });
+            if (point.Role == PointRole.Control) notes.Add(new RowMessage(PropertyCopy.ControlDescription, MessageKind.Info));
+        }
+        bool xFree = point.Freedom is PointFreedom.Free or PointFreedom.SpanOnly;
+        bool yFree = point.Freedom is PointFreedom.Free or PointFreedom.ValueOnly;
+        rows.Add(SectionValue("p:from", nose ? "x" : "x · both surfaces", point.SpanMeters, xFree, reference, RowAxis.Span,
+            "x, both surfaces, in percent of chord"));
+        rows.Add(SectionValue("p:aft", "y", point.Ordinate, yFree, reference, RowAxis.Value, "y in percent of chord"));
+        groups.Add(new PropertyGroup("pos", "Point", $"{Quantity.Typed(point.SpanMeters * 100)} % c, {Quantity.Typed(point.Ordinate * 100)} % c",
+            true, rows, notes));
+        if (point.Role == PointRole.Anchor && point.Kind is { } kind)
+            groups.Add(SectionTangentGroup(point, curve, reference, kind, section));
+        groups.AddRange(SectionGroups(section));
+        string title = nose ? "Nose" : $"{surface} surface · point {point.Index + 1} of {curve.Points.Count}";
+        var glyph = nose || trailing ? IdentityGlyph.End : point.Role == PointRole.Anchor ? IdentityGlyph.Anchor
+            : handle ? IdentityGlyph.Handle : IdentityGlyph.Control;
+        string? pair = nose || point.Index >= other.Points.Count ? null : PairLine(otherSide, point.Index + 1);
+        return new SelectionIdentity(glyph, title, pair);
+    }
+
+    private static PropertyRow SectionValue(string key, string label, double fraction, bool free, PointRef target, RowAxis axis, string name) =>
+        free
+            ? new PropertyRow
+            {
+                Key = key, Label = label, Kind = RowKind.Input, Unit = "% c", Family = UnitFamily.Percent,
+                Value = Quantity.Typed(fraction * 100), AutomationName = name, Target = target, Axis = axis
+            }
+            : new PropertyRow
+            {
+                Key = key, Label = label, Kind = RowKind.Fact, Unit = "% c", Family = UnitFamily.Percent,
+                Value = Quantity.Typed(fraction * 100), State = RowState.Locked
+            };
+
+    private static PropertyGroup SectionTangentGroup(PointView anchor, CurveView curve, PointRef reference, TangentKind kind, SectionContext section)
+    {
+        var rows = new List<PropertyRow>
+        {
+            new()
+            {
+                Key = "t:kind", Label = "Kind · both surfaces", Kind = RowKind.KindList, Value = kind.ToString(),
+                Options = Sections.KindChoices(anchor).Select(choice => new RowOption(choice.Kind.ToString(), KindName(choice.Kind),
+                    choice.Kind == kind || choice.Enabled, choice.Reason)).ToArray(),
+                AutomationName = "Kind, both surfaces", Target = reference
+            }
+        };
+        string surface = SectionPoints.Surface(reference.Curve);
+        foreach (var (handle, toward) in new[] { (anchor.Index - 1, "nose"), (anchor.Index + 1, "tail") })
+        {
+            if (handle < 0 || handle >= curve.Points.Count) continue;
+            var point = curve.Points[handle];
+            var target = reference with { VertexId = point.Id };
+            var (angle, length) = SectionHandle(point, anchor);
+            double chord = section.Facts.StationChordMeters;
+            rows.Add(new PropertyRow
+            {
+                Key = $"h:{toward}-angle", Label = "Angle", Kind = RowKind.Input, Unit = "°", Family = UnitFamily.Angle,
+                Value = Quantity.PlacedAngle(angle), AutomationName = $"{surface} handle toward the {toward}, angle in degrees",
+                Target = target, Axis = RowAxis.Angle, Subhead = $"{surface} handle toward the {toward}"
+            });
+            // OQ-4 (Ruling 66): a section handle's length is in mm at the station chord, with % c beside it.
+            rows.Add(new PropertyRow
+            {
+                Key = $"h:{toward}-length", Label = "Length", Kind = RowKind.Input, Unit = "mm", Family = UnitFamily.Length,
+                Value = Quantity.Typed(length * chord * 1000), AutomationName = $"{surface} handle toward the {toward}, length in millimetres",
+                Description = $"{Quantity.Typed(length * 100)} % c", DescriptionAlwaysVisible = true, MustBePositive = true,
+                Target = target, Axis = RowAxis.Length
+            });
+        }
+        return new PropertyGroup("tan", "Tangent", KindName(kind), true, rows, [new RowMessage(SectionAngles, MessageKind.Info)]);
+    }
+
+    private static string KindName(TangentKind kind) => kind == TangentKind.Angle ? "Fixed angle" : kind.ToString();
+
+    /// <summary>A section handle's direction from its anchor in the section's own chord coordinates, and its length (chord fractions).</summary>
+    public static (double AngleDegrees, double Length) SectionHandle(PointView handle, PointView anchor)
+    {
+        ArgumentNullException.ThrowIfNull(handle);
+        ArgumentNullException.ThrowIfNull(anchor);
+        double dx = handle.SpanMeters - anchor.SpanMeters, dy = handle.Ordinate - anchor.Ordinate;
+        return (Math.Atan2(dy, dx) * DegreesPerRadian, Math.Sqrt(dx * dx + dy * dy));
+    }
+
+    /// <summary>The inverse of <see cref="SectionHandle"/>: where a handle typed by angle and length sits.</summary>
+    public static (double X, double Y) SectionHandleAt(PointView anchor, double angleDegrees, double length)
+    {
+        ArgumentNullException.ThrowIfNull(anchor);
+        var (sin, cos) = double.SinCosPi(angleDegrees / 180);
+        return (anchor.SpanMeters + length * cos, anchor.Ordinate + length * sin);
+    }
+
+    /// <summary>
+    /// The Section group (always present in the mode): own t/c and where, t/c at each station that uses the section with
+    /// the consequence line, the station t/c intent, LE radius, TE gap and wedge own and at the station, and the counts.
+    /// </summary>
+    internal static IReadOnlyList<PropertyGroup> SectionGroups(SectionContext section)
+    {
+        var facts = section.Facts;
+        int degree = section.Upper.Knots.Count - section.Upper.Points.Count - 1;
+        var rows = new List<PropertyRow>
+        {
+            Prose("sec:own", "Own t/c", $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}") with { Unit = "% c" }
+        };
+        foreach (var (name, station) in section.Stations)
+            rows.Add(new PropertyRow
+            {
+                Key = "sec:tc-" + name, Label = "t/c at " + name, Kind = RowKind.Fact, Unit = "%", Family = UnitFamily.Percent,
+                Value = Quantity.PlacedPercent(station.StationThicknessRatio * 100)
+            });
+        var thickness = rows;
+        rows = [];
+        rows.Add(new PropertyRow
+        {
+            Key = "sec:intent", Label = "Station t/c", Kind = RowKind.Choice,
+            Value = section.Mode.Draft.Intent == ThicknessIntent.UseSource ? "source" : "channel",
+            Options = [new RowOption("channel", "From the Thickness curve"), new RowOption("source", "From this section")],
+            AutomationName = "Station t/c"
+        });
+        rows.Add(Pair("sec:le", "LE radius own", facts.UpperLeRadius * 100, facts.LowerLeRadius * 100, "% c"));
+        var first = section.Stations.Count > 0 ? section.Stations[0] : (section.Station, facts);
+        bool same = section.Stations.All(item => Math.Abs(item.Facts.StationThicknessRatio - first.Item2.StationThicknessRatio) < 1e-12 &&
+                                                Math.Abs(item.Facts.StationChordMeters - first.Item2.StationChordMeters) < 1e-12);
+        foreach (var (name, station) in same ? [first] : section.Stations)
+            rows.Add(Pair("sec:le-" + name, "LE radius at " + name, station.StationUpperLeRadius * 100, station.StationLowerLeRadius * 100, "% c"));
+        string others = string.Join(" and ", section.Stations.Select(item => item.Station).Where(name => name != first.Item1));
+        string leNote = same && others.Length > 0 ? $"Upper · lower. {others} is the same (same t/c)." : "Upper · lower.";
+        var radius = rows;
+        rows = [];
+        rows.Add(Pair("sec:te-gap", $"TE gap own · {first.Item1}", facts.TrailingGap * 100, first.Item2.StationTrailingGap * 100, "% c"));
+        rows.Add(Pair("sec:te-wedge", $"TE wedge own · {first.Item1}", facts.TrailingWedgeDegrees, first.Item2.StationTrailingWedgeDegrees, "°"));
+        rows.Add(Prose("sec:points", "Points", $"{section.Upper.Points.Count} upper · {section.Lower.Points.Count} lower"));
+        // The notes sit where the mockup draws them: under the t/c rows and under the LE radius rows (B continuations).
+        return
+        [
+            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · degree {degree}", true, thickness,
+                [new RowMessage(ThicknessNote, MessageKind.Info)]),
+            new PropertyGroup("sec-le", "Section", "", true, radius, [new RowMessage(leNote, MessageKind.Info)], Continues: true),
+            new PropertyGroup("sec-te", "Section", "", true, rows, [], Continues: true)
+        ];
+    }
+
+    private static PropertyRow Pair(string key, string label, double first, double second, string unit) => new()
+    {
+        Key = key, Label = label, Kind = RowKind.Fact, Unit = unit,
+        Value = $"{Quantity.Typed(first)} · {Quantity.Typed(second)}"
+    };
+
+
+    private static SelectionIdentity SectionOnly(SectionContext section, List<PropertyGroup> groups)
+    {
+        groups.AddRange(SectionGroups(section));
+        return new SelectionIdentity(IdentityGlyph.Station, $"{section.Station} section", "Select a point to change it.");
+    }
 
     // ---------------- the Wing (always last; never collapsible) ----------------
 

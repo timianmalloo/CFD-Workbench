@@ -63,6 +63,7 @@ public static class NativeMenuBuilder
             "M" => Key.M,
             "F" => Key.F,
             "R" => Key.R,
+            "↩" => Key.Return,
             "=" => Key.OemPlus,
             "-" => Key.OemMinus,
             "−" => Key.OemMinus,
@@ -78,7 +79,7 @@ public static class NativeMenuBuilder
 
     private static bool IsPaneCommand(string id) =>
         id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
-        id is "view.comb" || ViewCommands.Handles(id);
+        id is "view.comb" || ViewCommands.Handles(id) || ShellHost.IsShellCommand(id);
 
     /// <summary>The View submenus built from the table after Fit Selection (M1.2b2 §5.2), in this order.</summary>
     private static readonly string[] ViewSubmenus = [ViewCommands.ViewsMenu, ViewCommands.DisplayMenu, ViewCommands.CameraMenu, ViewCommands.PanMenu];
@@ -106,8 +107,8 @@ public static class NativeMenuBuilder
             .GroupBy(r => r.Menu, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
-        // Standard menu order: File, Edit, View, Window
-        foreach (var menuTitle in new[] { "File", "Edit", "View", "Window" })
+        // Standard menu order: File, Edit, View, then the section editor's menu (M1.2c §5.2), then Window
+        foreach (var menuTitle in new[] { "File", "Edit", "View", CommandTable.SectionMenu, "Window" })
         {
             var menu = new NativeMenu();
             var topItem = new NativeMenuItem(menuTitle) { Menu = menu };

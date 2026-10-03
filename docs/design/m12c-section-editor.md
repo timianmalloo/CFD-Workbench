@@ -1132,7 +1132,8 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `Properties_SectionGroup_OwnTcAndPerStationTcConsequence` (PNL) · `PointsPane_SectionMode_ControlNetGroupsWithKind` (PNL) ·
 `PointsPane_RowClick_SelectsPointInCanvas` (PNL) · `PointsPane_CanvasSelection_RowSelected` (PNL) · `PointsPane_TypedX_OneStep` (PNL) ·
 `StatusStrip_ShowAction_FramesBlockingPoint` (PNL) · `Workspace_Precision_ShowsPointsInHomeRegion` (PNL) ·
-`Workspace_Planform_HidesPoints` (PNL) · `Presets_DesktopEqualsCodec_EveryWorkspace` (PNL) · `Layout_SavedMessagesPane_DroppedWithCode` (PNL).
+`Workspace_Planform_HidesPoints` (PNL) · `Presets_DesktopEqualsCodec_EveryWorkspace` (PNL) · `Layout_SavedMessagesPane_DroppedWithCode` (PNL) ·
+`StatusStrip_SectionInsertReport_CountAndDeviation` (PNL) (CTL retirement ruling 1, 2026-10-03: replaces the M1.1 Insert report's exact oracle; the strip reports the inserted point and the measured deviation, 0 for an exact insert).
 
 OD-2 A and OD-3 B were ruled on 2026-10-03, so the Points-pane and Layout names are final.
 
