@@ -1075,7 +1075,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEdits_FirstRow_HeaderBecomes41` (SPT) · `Assess_ProfileVerticalRowOffByOneUlp_Invalid` (SPT) ·
 `Assess_ProfileSmoothRowNearVertical_Certified` (SPT) · `Cli_Inspect_ListsSectionPointTypesAndKinds` (SPT).
 
-**SPTG — per-surface operations (written only on a GSPK go).**
+**SPTG — per-surface operations (written only on a GSPK go). CUT 2026-10-03: GSPK no-go (S-2, OD-4 a); `docs/proof/m12c-certificate-spike/verdict.md`.**
 `SectionEdits_UpperMove_LowerBytesIdentical` (SPTG) · `SectionEdits_UpperAnchor_LowerBytesIdentical` (SPTG) ·
 `SectionEdits_InsertOnUpper_ShapeExactLowerUnchanged` (SPTG) · `SectionEdits_AnchorToControl_MultiplicityThreeLocalOnly` (SPTG) ·
 `SectionEdits_RebuildPerSurface_NoBasisCollapse` (SPTG) · `SectionEdits_RandomSections_OtherSurfaceAndLocalityHold` (SPTG).
@@ -1187,7 +1187,7 @@ Every brief: foreground only; the Return section required; two repair cycles; `t
 | **SPTG** per-surface list | (SPT on a go) | as SPT | GSPK = go | in SPT's box | SPTG names PASS |
 | **SPTF** paired list | (SPT on a no-go) | as SPT | GSPK = no-go | in SPT's box | SPTF names PASS |
 | **SDR** section draft | Codex | `AuthoringSession.cs`, `SectionDraftTests.cs`, `ReopenSectionDraftTests.cs`, `docs/proof/m12c-old-build/` (the §3.3 characterization receipt, cases a–e, run on `4b9bc35`) | PRE. It dispatches SetType/SetTangent to the PRE stub; their tests are registered when SPT merges (S-8). It rebases on DSP's `Sample` change (S-7) | 140 min (D3a 47 × 3) | SDR names PASS; old-build receipt |
-| **GCRT** per-surface certificate | Grok | `Geometry.cs` (after SPT merges), `SectionOverlay.cs` (new), `OverlayTests.cs` (new), `BlendTests.cs` additions | GSPK = go; SPT; SDR | 135 min (P1 45 × 3) | GCRT names PASS; planted-mutant receipt |
+| **GCRT** per-surface certificate (**CUT 2026-10-03**: GSPK no-go, OD-4 a) | Grok | `Geometry.cs` (after SPT merges), `SectionOverlay.cs` (new), `OverlayTests.cs` (new), `BlendTests.cs` additions | GSPK = go; SPT; SDR | 135 min (P1 45 × 3) | GCRT names PASS; planted-mutant receipt |
 | **CTL** controller and mode | Codex | `WorkbenchController.cs`, `Selection.cs`, `Shell/EditVerbRouter.cs`, `ControllerSectionTests.cs` (new); seam S-3: deleting the M1.1 writers in `AuthoringSession.cs`, `SectionFlowTests.cs`, `SectionToolsTests.cs` and their `WorkbenchTests.cs` rows | SDR; SPT (the controller reads `Sections.View`) | 140 min (D3a 47 × 3) | CTL names PASS; S-3 ledger |
 | **EDT** editor surface | Codex | `SectionCanvas.cs` (rewrite), `SectionEditorView.axaml`(.cs), `ModelArea.axaml`(.cs), `ElevationView.cs` (double-click, Return, overlap cycle), `CurvePointLayer.cs` (section roles), `SectionCanvasTests.cs` (rewrite), `SectionEditorTests.cs`, `tools/check-event-subscribers.py` (after PRE) | CTL | 140 min (D3a 47 × 3) | EDT names PASS; no unwired event |
 | **PNL** panes, menus, workspaces | Claude | `PropertiesView.cs`, `Panes/PropertiesPane.axaml.cs`, `Panes/PointsPane.axaml`(.cs) (new), `PointsView.cs` (new), `Shell/ShellLayout.cs`, `Shell/ShellHost.cs`, `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`, `Shell/WorkspacePresets.cs`, `Shell/StatusStrip.axaml`(.cs), `src/CfdWorkbench.Persistence/LayoutCodec.cs`, `PointsPaneTests.cs` (new), additions to `PropertiesViewTests.cs`, `ShellModelTests.cs`, `StatusStripTests.cs`, `LayoutFileTests.cs`, port of the Section-tab rows in `ShellWindowTests.cs` | CTL | 135 min (P1 45 × 3) | PNL names PASS; the UI-DEAD-CONTROL walk green in the mode |
