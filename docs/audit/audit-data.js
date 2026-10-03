@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T19:24:02Z",
+  "generated": "2026-10-03T19:25:11Z",
   "audit": [
     {
       "actor": null,
@@ -22697,6 +22697,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T19:23:19Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M41KMFS1KJ52WDR2Z2X7XT8S",
+      "shortname": "join-fluids-spikes",
+      "datetime": "2026-10-03T19:25:11Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/fluids-spike-03-04 into feature/ui-cad-direction",
+      "summary": "F1 (Opus 5.5): SPIKE-03 NO-GO - unattended snappyHexMesh works at AR 5/8/12 (31-63 s, 1.1-2.6 M cells, checkMesh OK) but layer coverage 65-73 % (0 % at TE and tip) and y+ median ~22 fail the A5.10 floors; tuning capped. SPIKE-04 NO-GO at stage 1 - TMR NACA 0012 L6/L5 never reach the 1e-7 residual floor (nuTilda clipping, limiter cycles); no GCI. Backend: OpenFOAM-v2512.app arm64, allowSystemOperations 1 by default (security). schemas/cfd-case.schema.json from the operator template; 10 case YAMLs; runs/ ignored. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T19:24:29Z",
+      "duration_seconds": 42.0
     }
   ],
   "changes": [
