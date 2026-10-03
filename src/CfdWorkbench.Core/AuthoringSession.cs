@@ -104,7 +104,7 @@ public sealed class AuthoringSession : IDisposable
     {
         lock (sync)
         {
-            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
+            closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null; importBasisFallback = null;
             section = null;
@@ -185,21 +185,6 @@ public sealed class AuthoringSession : IDisposable
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: command is PointCommand.SetTangent ? "tangent-kind" : "point-type");
     public ProfileView ProfileAt(int assignmentIndex) => Run("profile", () => ProfileAtCore(assignmentIndex));
     public ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope) => Run("scope", () => DescribeScopeCore(profile, assignmentIndex, scope));
-    public SessionDraft BeginProfileEdit(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId,
-        ThicknessIntent thickness = ThicknessIntent.KeepCurrent) =>
-        Run("begin", () => BeginProfileEditCore(draftId, assignmentIndex, scope, side, vertexId, thickness));
-    public SessionDraft BeginProfileImport(string draftId, int assignmentIndex, byte[] dat) =>
-        Run("begin", () => BeginProfileImportCore(draftId, assignmentIndex, dat));
-    public SessionDraft UpdateProfileDraft(string draftId, long generation, double x, double y) =>
-        Run("update", () => UpdateProfileDraftCore(draftId, generation, x, y), 2 * sizeof(double), generation);
-    public SessionDraft BeginProfileInsert(string draftId, int assignmentIndex, SectionScope scope, double x) =>
-        Run("begin", () => BeginProfileInsertCore(draftId, assignmentIndex, scope, x));
-    public SessionDraft BeginProfileDelete(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex) =>
-        Run("begin", () => BeginProfileDeleteCore(draftId, assignmentIndex, scope, vertexIndex));
-    public SessionDraft BeginProfileFair(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends) =>
-        Run("begin", () => BeginProfileFairCore(draftId, assignmentIndex, scope, tolerance, ends));
-    public SessionDraft BeginProfileRebuild(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends) =>
-        Run("begin", () => BeginProfileRebuildCore(draftId, assignmentIndex, scope, vertexCount, tolerance, ends));
     public SectionDraftView BeginSectionDraft(string draftId, int assignmentIndex) =>
         Run("section.begin", () => BeginSectionDraftCore(draftId, assignmentIndex), editKind: "section");
     /// <summary>Reads the open section draft, including recovered cursor-zero bytes.</summary>
@@ -278,7 +263,6 @@ public sealed class AuthoringSession : IDisposable
     readonly Dictionary<string, (string Payload, string Result)> operations = [];
     readonly HashSet<string> retiredDraftIds = [];
     readonly HashSet<string> capturedSaveHashes = [];
-    readonly Dictionary<string, (double MaxDeviation, double Tolerance, int VertexCount, bool WithinTolerance, bool PiecesIncreased)> pendingFairAssessment = [];
     SessionDraft? draft;
     double? pendingFitUm, pendingDeviationUm, pendingShiftUm;
     bool? pendingFitAboveLimit;
@@ -598,31 +582,6 @@ public sealed class AuthoringSession : IDisposable
         }
         return merged.ToArray();
     }
-    private SessionDraft BeginProfileEditCore(string draftId, int assignmentIndex, SectionScope scope, string side, string vertexId, ThicknessIntent thickness)
-    {
-        lock (sync)
-        {
-            Guard.Require(!closed, "DOC-CLOSED");
-            NativeProject.Uuid(draftId); Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
-            Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
-            var definition = ParseOwned(CurrentBytes).Definition!;
-            Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)definition.Assignments.Length && side is "upper" or "lower", "DSL-PROFILE-TARGET");
-            var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
-            var curve = side == "upper" ? profile.Upper : profile.Lower;
-            int index = Array.IndexOf(curve.Ids, vertexId);
-            Guard.Require(index >= 0, "DSL-PROFILE-TARGET");
-            Guard.Require(index != 0 && (profile.Closure != "closed" || index != curve.Points.Length - 1), "DSL-LOCK");
-            byte[] bytes = CurrentBytes; string target = profile.Name;
-            if (scope == SectionScope.Independent)
-            {
-                var made = FoilSource.MakeIndependent(bytes, profile.Name, assignmentIndex);
-                bytes = made.Source; target = made.NewProfile;
-            }
-            retiredDraftIds.Add(draftId);
-            activeImportReport = null; importBasisFallback = null;
-            draft = new(draftId, current!, 0, side, vertexId, bytes, target, assignmentIndex, thickness); return Copy(draft);
-        }
-    }
     private static List<(double[] Knots, double[] X, int Degree)> NeighbourBases(Definition definition, int assignmentIndex)
     {
         var found = new List<(double[] Knots, double[] X, int Degree)>();
@@ -645,24 +604,8 @@ public sealed class AuthoringSession : IDisposable
         }
         return found;
     }
-    private SessionDraft BeginProfileImportCore(string draftId, int assignmentIndex, byte[] dat)
-    {
-        lock (sync)
-        {
-            Guard.Require(!closed, "DOC-CLOSED");
-            NativeProject.Uuid(draftId);
-            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
-            Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
-            var (candidate, profileName, report, fallback) = ImportPatch(CurrentBytes, assignmentIndex, dat);
-            retiredDraftIds.Add(draftId);
-            activeImportReport = report;
-            importBasisFallback = fallback;
-            draft = new(draftId, current!, 0, "profile", profileName, candidate, profileName, assignmentIndex);
-            return Copy(draft);
-        }
-    }
     // Fits a DAT to a new profile and assigns it at one station: on a neighbour's shared basis when that fits within
-    // 1e-5, else on its own spacing with the fallback reason. Shared by the M1.1 import draft and the section Import step.
+    // 1e-5, else on its own spacing with the fallback reason.
     private static (byte[] Candidate, string Profile, ImportReport Report, string? Fallback) ImportPatch(byte[] bytes, int assignmentIndex, byte[] dat)
     {
         var definition = FoilSource.Parse(bytes).Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
@@ -720,187 +663,53 @@ public sealed class AuthoringSession : IDisposable
         Guard.Require(FoilSource.Parse(candidate).IsParsed, "DSL-PATCH");
         return (candidate, profileName, report, fallback);
     }
-    private SessionDraft UpdateProfileDraftCore(string draftId, long expectedGeneration, double x, double y)
-    {
-        lock (sync)
-        {
-            Guard.Require(!closed, "DOC-CLOSED");
-            Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == expectedGeneration && expectedGeneration < 9007199254740991, "DSL-CONFLICT");
-            Guard.Require(draft!.Profile is not null && draft.Rail is "upper" or "lower", "DSL-PROFILE-TARGET");
-            string profileName = draft.Profile!, side = draft.Rail;
-            Guard.Require(double.IsFinite(x) && double.IsFinite(y), "DSL-PROFILE-ORDER");
-            var profile = ParseOwned(draft.Bytes).Definition!.Profiles.First(item => item.Name == profileName);
-            var curve = side == "upper" ? profile.Upper : profile.Lower;
-            int index = Array.IndexOf(curve.Ids, draft.VertexId);
-            Guard.Require(index >= 0, "DSL-PROFILE-TARGET");
-            double previous = index == 0 ? double.NegativeInfinity : curve.Points[index - 1][0];
-            double next = index + 1 == curve.Points.Length ? double.PositiveInfinity : curve.Points[index + 1][0];
-            Guard.Require(x >= previous && x <= next, "DSL-PROFILE-ORDER");
-            byte[] bytes = draft.Bytes;
-            if (x != curve.Points[index][0])
-            {
-                var other = side == "upper" ? profile.Lower : profile.Upper;
-                Guard.Require((uint)index < (uint)other.Points.Length, "DSL-PROFILE-TARGET");
-                double otherPrevious = index == 0 ? double.NegativeInfinity : other.Points[index - 1][0];
-                double otherNext = index + 1 == other.Points.Length ? double.PositiveInfinity : other.Points[index + 1][0];
-                Guard.Require(x >= otherPrevious && x <= otherNext, "DSL-PROFILE-ORDER");
-                bytes = FoilSource.PatchProfilePoint(bytes, profileName, side == "upper" ? "lower" : "upper", other.Ids[index], x, other.Points[index][1]);
-            }
-            bytes = FoilSource.PatchProfilePoint(bytes, profileName, side, draft.VertexId, x, y);
-            if (draft.Intent == ThicknessIntent.UseSource) bytes = ThicknessFit.Fit(bytes, profileName);
-            draft = draft with { Generation = expectedGeneration + 1, Bytes = bytes };
-            return Copy(draft);
-        }
-    }
-    private SessionDraft BeginProfileInsertCore(string draftId, int assignmentIndex, SectionScope scope, double x)
-    {
-        lock (sync)
-        {
-            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
-            Guard.Require(double.IsFinite(x) && x > 0 && x < 1, "DSL-PROFILE-TARGET");
-            if (profile.Upper.Points.Length >= 32) throw new ContractError("DSL-CURVE");
-            var patched = FoilSource.InsertProfileKnot(bytes, target, x);
-            return OpenConstruction(draftId, "insert", patched.VertexId, patched.Source, target, assignmentIndex);
-        }
-    }
-    private SessionDraft BeginProfileDeleteCore(string draftId, int assignmentIndex, SectionScope scope, int vertexIndex)
-    {
-        lock (sync)
-        {
-            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
-            int count = profile.Upper.Points.Length;
-            Guard.Require(count == profile.Lower.Points.Length && (uint)vertexIndex < (uint)count, "DSL-PROFILE-TARGET");
-            Guard.Require(vertexIndex != 0 && vertexIndex != count - 1, "DSL-LOCK");
-            if (count <= 7) throw new ContractError("DSL-CURVE", "Delete would leave fewer than p + 2 = 7 vertices");
-            var patched = FoilSource.DeleteProfileVertex(bytes, target, vertexIndex);
-            return OpenConstruction(draftId, "delete", patched.VertexId, patched.Source, target, assignmentIndex);
-        }
-    }
-    private SessionDraft BeginProfileFairCore(string draftId, int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
-    {
-        lock (sync)
-        {
-            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
-            var (patched, result) = FoilSource.FairProfile(bytes, target, tolerance, ends);
-            RecordFairAssessment(draftId, result, tolerance);
-            return OpenConstruction(draftId, "fair", profile.Upper.Ids[0], patched, target, assignmentIndex);
-        }
-    }
-    private SessionDraft BeginProfileRebuildCore(string draftId, int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
-    {
-        lock (sync)
-        {
-            var (bytes, target, profile) = PrepareConstruction(draftId, assignmentIndex, scope);
-            var (patched, result) = FoilSource.RebuildProfile(bytes, target, vertexCount, tolerance, ends);
-            RecordFairAssessment(draftId, result, tolerance);
-            return OpenConstruction(draftId, "rebuild", profile.Upper.Ids[0], patched, target, assignmentIndex);
-        }
-    }
-    // Recorded once at Begin (fair/rebuild drafts have no Update step) and read back by
-    // ValidateCore, since the requested tolerance itself is not part of the draft's bytes.
-    private void RecordFairAssessment(string draftId, FairResult result, double tolerance) =>
-        pendingFairAssessment[draftId] = (result.MaxDeviation, tolerance, result.Upper.Points.Length, result.WithinTolerance, result.MonotonePiecesAfter > result.MonotonePiecesBefore);
-    private (byte[] Bytes, string Profile, ProfileDefinition Definition) PrepareConstruction(string draftId, int assignmentIndex, SectionScope scope)
-    {
-        Guard.Require(!closed, "DOC-CLOSED");
-        NativeProject.Uuid(draftId);
-        Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
-        Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
-        var definition = ParseOwned(CurrentBytes).Definition!;
-        Guard.Require(scope is SectionScope.Shared or SectionScope.Independent && (uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
-        var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
-        byte[] bytes = CurrentBytes;
-        string target = profile.Name;
-        if (scope == SectionScope.Independent)
-        {
-            var made = FoilSource.MakeIndependent(bytes, profile.Name, assignmentIndex);
-            bytes = made.Source;
-            target = made.NewProfile;
-            profile = ParseOwned(bytes).Definition!.Profiles.First(item => item.Name == target);
-        }
-        return (bytes, target, profile);
-    }
-    private SessionDraft OpenConstruction(string draftId, string kind, string vertexId, byte[] bytes, string profile, int assignmentIndex)
-    {
-        retiredDraftIds.Add(draftId);
-        draft = new(draftId, current!, 0, kind, vertexId, bytes, profile, assignmentIndex);
-        return Copy(draft);
-    }
     private static Diagnostic ThicknessDiagnostic(SessionDraft capture, string fault) => new(fault, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, "thickness",
         fault == "DSL-LOCK" ? "A thickness lock contradicts the source-thickness target." : "The thickness fit is singular or its residual exceeds 1e-9.",
         "Keep the current thickness or relax the lock.");
     private SessionAssessment ValidateCore(string draftId, long generation, CancellationToken cancellation = default)
     {
         SessionDraft capture;
-        byte[]? origin = null;
         byte[] baseline;
         string? basisFallback;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
-            if (capture.Rail is "insert" or "delete" && capture.Profile is not null) origin = BaseBytes(capture.Base);
             baseline = CurrentBytes;
             basisFallback = importBasisFallback;
         }
-        ConstructionReport? construction = null;
-        string? fairIssue = null;
         try
         {
             if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", null, null, DraftBinding(capture), null, importReport: activeImportReport);
             var timer = System.Diagnostics.Stopwatch.StartNew(); var parsed = FoilSource.Parse(capture.Bytes);
             Record("language.parse", parsed.IsParsed ? "OK" : parsed.Diagnostics[0].Code, timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, parsed.IsParsed ? "cfdw-cv/2" : null);
-            if (parsed.IsParsed && origin is not null) construction = MeasureConstruction(capture, parsed, origin);
-            if (parsed.IsParsed && capture.Rail is "fair" or "rebuild" && pendingFairAssessment.TryGetValue(capture.Id, out var fair))
-            {
-                construction = new ConstructionReport(fair.MaxDeviation, fair.Tolerance, fair.VertexCount);
-                fairIssue = !fair.WithinTolerance ? "Fair result exceeds tolerance" : fair.PiecesIncreased ? "Fair increased monotone pieces" : null;
-            }
             if (!parsed.IsParsed) return new(authorityId, parsed.Diagnostics[0].Code == "DSL-LIMIT" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid,
-                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, construction, importReport: activeImportReport);
+                parsed.Diagnostics[0].Code, null, null, DraftBinding(capture, parsed), parsed.Diagnostics, importReport: activeImportReport);
             timer.Restart(); var key = Key(parsed, capture);
             Record("identity.canonicalize", "OK", timer.Elapsed.TotalMilliseconds, capture.Bytes.Length, null, generation, "cfdw-cv/2");
             ThicknessFit.View? thickness = capture.Intent == ThicknessIntent.UseSource && capture.Profile is not null
                 ? ThicknessFit.Describe(capture.Bytes, capture.Profile, baseline) : null;
             if (thickness?.Fault is string fault)
                 return new(authorityId, fault == "DSL-LOCK" ? GeometryStatus.Invalid : GeometryStatus.NotAssessed, fault, key, null,
-                    DraftBinding(capture, parsed), [ThicknessDiagnostic(capture, fault)], construction, thickness.Value.Proposal);
+                    DraftBinding(capture, parsed), [ThicknessDiagnostic(capture, fault)], thickness: thickness.Value.Proposal);
             var result = AssessOwned(parsed, generation);
-            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), null, construction, importReport: activeImportReport);
+            if (cancellation.IsCancellationRequested) return new(authorityId, GeometryStatus.NotAssessed, "DSL-CANCELLED", key, null, DraftBinding(capture, parsed), importReport: activeImportReport);
             GeometryStatus status = result.Status; string code = result.Code; string reason = result.Reason;
-            if (fairIssue is not null && status == GeometryStatus.Certified) { status = GeometryStatus.Invalid; code = "DSL-GEOMETRY"; reason = fairIssue; }
             var diagnostics = new List<Diagnostic>();
             if (status != GeometryStatus.Certified)
                 diagnostics.Add(new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision."));
             if (basisFallback is not null)
                 diagnostics.Add(new("DSL-GEOMETRY", "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, basisFallback, "Import the profile at every station that shares it, or Rebuild the neighbouring profiles."));
-            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, construction, thickness?.Proposal, importReport: activeImportReport);
+            return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, thickness: thickness?.Proposal, importReport: activeImportReport);
         }
         catch (ContractError error)
-        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), null, construction, importReport: activeImportReport); }
+        { return new(authorityId, error.Code is "DSL-LIMIT" or "DSL-UNSUPPORTED" ? GeometryStatus.NotAssessed : GeometryStatus.Invalid, error.Code, null, null, DraftBinding(capture), importReport: activeImportReport); }
         finally { Interlocked.Exchange(ref validating, 0); }
     }
     private byte[] BaseBytes(string acceptedId)
     {
         var row = accepted.Single(item => item.Id == acceptedId);
         return Decode(sources.Single(item => item.Id == row.SourceId).Utf8Base64Chunks);
-    }
-    private static ConstructionReport? MeasureConstruction(SessionDraft capture, SourceParse parsed, byte[] origin)
-    {
-        if (parsed.Definition is null || capture.Profile is null) return null;
-        var originParse = FoilSource.Parse(origin);
-        if (originParse.Definition is null || (uint)capture.Assignment >= (uint)originParse.Definition.Assignments.Length) return null;
-        string assigned = originParse.Definition.Profiles[originParse.Definition.Assignments[capture.Assignment].Profile].Name;
-        if (!string.Equals(assigned, capture.Profile, StringComparison.Ordinal))
-        {
-            var made = FoilSource.MakeIndependent(origin, assigned, capture.Assignment);
-            originParse = FoilSource.Parse(made.Source);
-            if (originParse.Definition is null) return null;
-        }
-        var prior = originParse.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
-        var next = parsed.Definition.Profiles.FirstOrDefault(item => item.Name == capture.Profile);
-        if (prior is null || next is null) return null;
-        return new(FoilSource.MaxOrdinateDeviation(prior, next), null, next.Upper.Points.Length);
     }
     private string ApplyDimensionCore(string operationId, DimensionCommand command)
     {

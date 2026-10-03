@@ -44,6 +44,36 @@ public static class ControllerSectionTests
                 throw new Exception($"Crossing did not block Finish with COPY-123: {controller.Section?.Assessment?.Status}/{controller.Section?.Assessment?.Code}/{controller.Section?.FinishReason}");
         });
 
+        DesktopChecks.Check("SectionAssess_DisplayCrossingVsCertificate_FinishFollowsCertificate", () =>
+        {
+            using var certifiedController = Open();
+            Wait(certifiedController.EnterSectionAsync(0, EntryOrigin.Properties));
+            Wait(certifiedController.ApplySectionStepAsync(Raise(certifiedController)));
+            var certified = certifiedController.Section!;
+            if (certified.Assessment?.Status != GeometryStatus.Certified ||
+                Sections.DisplayCrossing(certified.Draft.Bytes, 0) is not null)
+                throw new Exception("Certified fixture is not display clear");
+
+            using var crossingController = Open();
+            Wait(crossingController.EnterSectionAsync(0, EntryOrigin.Properties));
+            var point = crossingController.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            Wait(crossingController.ApplySectionStepAsync(
+                new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, -.3)));
+            var crossing = crossingController.Section!;
+            if (crossing.Assessment?.Code != "DSL-PROFILE-CROSS" ||
+                Sections.DisplayCrossing(crossing.Draft.Bytes, 0) is null)
+                throw new Exception("Crossing fixture lacks display and certificate crossing");
+
+            // Inject the two possible disagreements at the mode boundary. The display bytes
+            // determine only the marker; the assessment determines Finish availability.
+            var displayCrossingCertified = certified with { Draft = certified.Draft with { Bytes = crossing.Draft.Bytes } };
+            var displayClearInvalid = crossing with { Draft = crossing.Draft with { Bytes = certified.Draft.Bytes } };
+            if (Sections.DisplayCrossing(displayCrossingCertified.Draft.Bytes, 0) is null || !displayCrossingCertified.CanFinish)
+                throw new Exception("Display crossing overrode a certified Finish");
+            if (Sections.DisplayCrossing(displayClearInvalid.Draft.Bytes, 0) is not null || displayClearInvalid.CanFinish)
+                throw new Exception("Clear display overrode a crossing certificate");
+        });
+
         DesktopChecks.Check("SectionMode_NotAssessed_FinishDisabledWithReason", () =>
         {
             using var controller = Open();

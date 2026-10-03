@@ -19,7 +19,7 @@ internal static class ConstructionTests
             double[] beforeKnots = Knots(Encoding.UTF8.GetString(original), "upper");
             double chord = before.Upper[^1].X - before.Upper[0].X;
             string draft = Id();
-            var begun = session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37);
+            var begun = session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37);
             string text = Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes);
             string[] upperIds = Ids(text, "upper");
             string[] lowerIds = Ids(text, "lower");
@@ -40,10 +40,9 @@ internal static class ConstructionTests
                 Equal(BitConverter.DoubleToUInt64Bits(upper[i]), BitConverter.DoubleToUInt64Bits(lower[i]));
             var assessment = session.Validate(draft, begun.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
-            Equal(true, assessment.Construction is not null);
-            Equal(null, assessment.Construction!.Tolerance);
-            Equal(upperIds.Length, assessment.Construction.VertexCount);
-            Equal(true, assessment.Construction.MaxDeviation <= 1e-12 * chord);
+            var report = session.CurrentSectionDraft()!.Last!;
+            Equal(upperIds.Length, report.UpperPoints);
+            Equal(true, report.MaxChange <= 1e-12 * chord);
             string operation = Id();
             session.Apply(operation, assessment);
             byte[] inserted = session.Snapshot().Source.ToArray();
@@ -61,15 +60,15 @@ internal static class ConstructionTests
             double[][] beforeUpper = Points(original, "upper");
             double[][] beforeLower = Points(original, "lower");
             string draft = Id();
-            var begun = session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37);
+            var begun = session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37);
             string inserted = Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes);
             int index = Array.IndexOf(Ids(inserted, "upper"), "cv-8");
             Equal(true, index > 0);
             session.Apply(Id(), session.Validate(draft, begun.Generation));
             draft = Id();
-            begun = session.BeginProfileDelete(draft, 0, SectionScope.Shared, index);
+            begun = session.BeginSectionDelete(draft, 0, SectionScope.Shared, index);
             var assessment = session.Validate(draft, begun.Generation);
-            Equal(true, assessment.Construction is not null && assessment.Construction!.MaxDeviation <= 1e-12);
+            Equal(true, session.CurrentSectionDraft()!.Last!.MaxChange <= 1e-12);
             string text = Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes);
             double[] knots = Knots(text, "upper");
             double[][] restoredUpper = Points(text, "upper");
@@ -82,16 +81,16 @@ internal static class ConstructionTests
         {
             using var session = Opened();
             string draft = Id();
-            var begun = session.BeginProfileDelete(draft, 0, SectionScope.Shared, 3);
+            var begun = session.BeginSectionDelete(draft, 0, SectionScope.Shared, 3);
             var assessment = session.Validate(draft, begun.Generation);
-            Equal(true, assessment.Construction is { MaxDeviation: > 0 });
+            Equal(true, session.CurrentSectionDraft()!.Last!.MaxChange > 0);
             Equal(true, assessment.Status == GeometryStatus.Certified || assessment.Code is "DSL-GEOMETRY" or "DSL-PROFILE-CROSS" or "DSL-PROFILE-ORDER" or "DSL-CURVE" or "GEOMETRY-CERTIFICATE-DEFECT");
             if (assessment.Status == GeometryStatus.Certified)
             {
                 session.Apply(Id(), assessment);
                 var remaining = Ids(Encoding.UTF8.GetString(session.Snapshot().Source), "upper").ToHashSet(StringComparer.Ordinal);
                 Equal(false, remaining.Contains("cv-3"));
-                session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 0.37);
+                session.BeginSectionInsert(Id(), 0, SectionScope.Shared, 0.37);
                 string added = Ids(Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes), "upper").Except(remaining).Single();
                 Equal(false, added == "cv-3");
                 Equal(true, added.StartsWith("cv-", StringComparison.Ordinal));
@@ -101,14 +100,14 @@ internal static class ConstructionTests
         {
             using var session = Opened(Six());
             string draft = Id();
-            var begun = session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.4);
+            var begun = session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.4);
             var assessment = session.Validate(draft, begun.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
             session.Apply(Id(), assessment);
             Equal(7, Ids(Encoding.UTF8.GetString(session.Snapshot().Source), "upper").Length);
             try
             {
-                session.BeginProfileDelete(Id(), 0, SectionScope.Shared, 3);
+                session.BeginSectionDelete(Id(), 0, SectionScope.Shared, 3);
                 throw new InvalidOperationException("expected refusal");
             }
             catch (ContractError error)
@@ -117,21 +116,22 @@ internal static class ConstructionTests
                 Equal("Delete would leave fewer than p + 2 = 7 vertices", error.Reason);
             }
             using var example = Opened();
-            Refuses("DSL-LOCK", () => example.BeginProfileDelete(Id(), 0, SectionScope.Shared, 0));
-            Refuses("DSL-LOCK", () => example.BeginProfileDelete(Id(), 0, SectionScope.Shared, example.ProfileAt(0).Upper.Count - 1));
+            Refuses("DSL-LOCK", () => example.BeginSectionDelete(Id(), 0, SectionScope.Shared, 0));
+            example.Cancel(example.Snapshot().Draft!.Id);
+            Refuses("DSL-LOCK", () => example.BeginSectionDelete(Id(), 0, SectionScope.Shared, example.ProfileAt(0).Upper.Count - 1));
         });
         Check("Profile_Insert_CancelRestoresBytes_OneUndoItem", () =>
         {
             using var session = Opened();
             byte[] original = session.Snapshot().Source.ToArray();
             string draft = Id();
-            session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37);
+            session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37);
             session.Cancel(draft);
             Equal(true, original.AsSpan().SequenceEqual(session.Snapshot().Source));
             Equal(null, session.Snapshot().Draft);
             Equal(1, session.Envelope().Accepted.Length);
             draft = Id();
-            var begun = session.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37);
+            var begun = session.BeginSectionInsert(draft, 0, SectionScope.Shared, 0.37);
             session.Apply(Id(), session.Validate(draft, begun.Generation));
             Equal(2, session.Envelope().Accepted.Length);
             session.Undo(Id());
@@ -141,15 +141,16 @@ internal static class ConstructionTests
         Check("Profile_Insert_RefusesOutsideChord", () =>
         {
             using var session = Opened();
-            Refuses("DSL-PROFILE-TARGET", () => session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 0));
-            Refuses("DSL-PROFILE-TARGET", () => session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 1));
-            Refuses("DSL-PROFILE-TARGET", () => session.BeginProfileInsert(Id(), 0, SectionScope.Shared, -0.2));
-            Refuses("DSL-PROFILE-TARGET", () => session.BeginProfileInsert(Id(), 0, SectionScope.Shared, 1.2));
+            foreach (double x in new[] { 0, 1, -0.2, 1.2 })
+            {
+                Refuses("DSL-PROFILE-TARGET", () => session.BeginSectionInsert(Id(), 0, SectionScope.Shared, x));
+                session.Cancel(session.Snapshot().Draft!.Id);
+            }
         });
         Check("Profile_Insert_IndependentCopiesFirst", () =>
         {
             using var session = Opened();
-            var begun = session.BeginProfileInsert(Id(), 0, SectionScope.Independent, 0.37);
+            var begun = session.BeginSectionInsert(Id(), 0, SectionScope.Independent, 0.37);
             string text = Encoding.UTF8.GetString(begun.Bytes);
             int copy = text.IndexOf("profile \"section-a-i1\"", StringComparison.Ordinal);
             Equal(true, copy > 0);

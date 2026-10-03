@@ -46,8 +46,8 @@ internal static class DatImportTests
             session.Open(originalBytes, Id(), true);
 
             string draftId = Id();
-            var draft = session.BeginProfileImport(draftId, 0, seligBytes);
-            Equal(0L, draft.Generation);
+            var draft = session.BeginSectionImport(draftId, 0, seligBytes);
+            Equal(1L, draft.Generation);
             Equal("naca-0012", draft.Profile);
             Equal(0, draft.Assignment);
 
@@ -147,7 +147,7 @@ internal static class DatImportTests
         byte[] opened = session.Snapshot().Source.ToArray();
 
         string draftId = Id();
-        var draft = session.BeginProfileImport(draftId, 1, dat);
+        var draft = session.BeginSectionImport(draftId, 1, dat);
         Equal(1, draft.Assignment);
 
         var assessment = session.Validate(draftId, draft.Generation);

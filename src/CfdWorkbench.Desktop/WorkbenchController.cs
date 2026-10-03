@@ -1602,75 +1602,6 @@ public sealed class WorkbenchController : IDisposable
         return view;
     }
 
-    public void BeginSectionEdit(int assignmentIndex, SectionScope scope, string side, string vertexId,
-        ThicknessIntent thickness = ThicknessIntent.KeepCurrent)
-    {
-        if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
-        var started = session.BeginProfileEdit(Guid.NewGuid().ToString("D"), assignmentIndex, scope, side, vertexId, thickness);
-        CancelSampling();
-        draft = started;
-        draftInputValid = true;
-        if ((uint)assignmentIndex < (uint)Inspection.Authored.Assignments.Count)
-            interiorEta = Inspection.Authored.Assignments[assignmentIndex].Eta;
-        Frame = acceptedFrame = null;
-        currentAssessment = null;
-        SectionReport = null;
-        sectionViews.Clear();
-        Status = $"Draft {started.Id} owns station {assignmentIndex} {side} {vertexId}. Sampling accepted geometry at η {interiorEta:G3}.";
-        Provenance = "draft — accepted sampling";
-        Notify();
-        _ = RefreshAcceptedAsync();
-    }
-
-    public void UpdateSectionDraft(double x, double y)
-    {
-        if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
-        CancelSampling();
-        draft = session.UpdateProfileDraft(draft.Id, draft.Generation, x, y);
-        draftInputValid = true;
-        currentAssessment = null;
-        SectionReport = null;
-        Frame = acceptedFrame;
-        Provenance = "draft — accepted geometry shown";
-        Status = $"Draft owns station {draft.Assignment} {draft.Rail} {draft.VertexId}. Draft generation {draft.Generation} changed. Preview to assess geometry.";
-        Notify();
-    }
-
-    public void BeginSectionInsert(int assignmentIndex, SectionScope scope, double x)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileInsert(Guid.NewGuid().ToString("D"), assignmentIndex, scope, x);
-        OpenConstructedDraft(started, assignmentIndex, "insert");
-    }
-
-    public void BeginSectionDelete(int assignmentIndex, SectionScope scope, int vertexIndex)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileDelete(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexIndex);
-        OpenConstructedDraft(started, assignmentIndex, "delete");
-    }
-
-    public void BeginSectionFair(int assignmentIndex, SectionScope scope, double tolerance, PreserveEnds ends)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileFair(Guid.NewGuid().ToString("D"), assignmentIndex, scope, tolerance, ends);
-        OpenConstructedDraft(started, assignmentIndex, "fair");
-    }
-
-    public void BeginSectionRebuild(int assignmentIndex, SectionScope scope, int vertexCount, double tolerance, PreserveEnds ends)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileRebuild(Guid.NewGuid().ToString("D"), assignmentIndex, scope, vertexCount, tolerance, ends);
-        OpenConstructedDraft(started, assignmentIndex, "rebuild");
-    }
-
-    public void BeginSectionImport(int assignmentIndex, byte[] dat)
-    {
-        RequireCertifiedFoil();
-        var started = session.BeginProfileImport(Guid.NewGuid().ToString("D"), assignmentIndex, dat);
-        OpenConstructedDraft(started, assignmentIndex, "import");
-    }
-
     public void InvalidateDraftInput(string? reason = null)
     {
         if (draft is null) return;
@@ -2061,22 +1992,6 @@ public sealed class WorkbenchController : IDisposable
     private void RequireCertifiedFoil()
     {
         if (Inspection?.Geometry.Status != GeometryStatus.Certified) throw new ContractError("DSL-NOT-ASSESSED");
-    }
-
-    private void OpenConstructedDraft(SessionDraft started, int assignmentIndex, string kind)
-    {
-        CancelSampling();
-        draft = started;
-        draftInputValid = true;
-        if (Inspection is { } inspected && (uint)assignmentIndex < (uint)inspected.Authored.Assignments.Count)
-            interiorEta = inspected.Authored.Assignments[assignmentIndex].Eta;
-        Frame = acceptedFrame = null;
-        currentAssessment = null;
-        SectionReport = null;
-        sectionViews.Clear();
-        Status = $"Draft {started.Id} owns station {assignmentIndex} {kind}.";
-        Provenance = "draft — accepted sampling";
-        AssessDraftNow();
     }
 
     private void AssessDraftNow()
