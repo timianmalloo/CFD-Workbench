@@ -177,6 +177,7 @@ internal static class GeometryTests
             double domain = Geometry.TwistDomainDegrees;
             Console.WriteLine("MEASURE twist_domain_degrees=" + domain.ToString("G17", System.Globalization.CultureInfo.InvariantCulture));
             Equal(true, domain > 57 && domain < 58);
+            Equal(BitConverter.DoubleToInt64Bits(Geometry.LargestAdmissibleTwist()), BitConverter.DoubleToInt64Bits(domain));
             Equal(true, TwistAdmissible(domain) && TwistAdmissible(0 - domain));
             Equal(false, TwistAdmissible(Math.BitIncrement(domain)));
             Equal(false, TwistAdmissible(Math.BitDecrement(0 - domain)));

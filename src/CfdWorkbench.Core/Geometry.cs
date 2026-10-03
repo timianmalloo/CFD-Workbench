@@ -83,12 +83,16 @@ public sealed class GeometryAssessment
 
 public static class Geometry
 {
-    public static double TwistDomainDegrees { get; } = LargestAdmissibleTwist();
+    // Pinned literal (design §5.1), not computed on first use: a static initializer's exact-rational search would be
+    // charged to whichever proof first touched it, so the same proof's work would depend on order (DET-CLOCK).
+    // Geometry_TwistDomain_LargestAssessableDegreesPinned requires it to equal LargestAdmissibleTwist() bit for bit.
+    public const double TwistDomainDegrees = 57.295779513082323;
     // Certificate hull stays the open interval (0, 1). This quantum grid is what the gesture clamp reads.
     // Geometry_ThicknessImmediatelyBelowOne_Admitted pins a value above the quantum upper end.
-    public static (double Lower, double Upper) ThicknessDomain { get; } = (1e-7, 1 - 1e-7);
+    public static (double Lower, double Upper) ThicknessDomain => (1e-7, 1 - 1e-7);
 
-    private static double LargestAdmissibleTwist()
+    /// <summary>Test oracle for <see cref="TwistDomainDegrees"/>: the largest binary64 whose ± twist the Taylor proof admits.</summary>
+    internal static double LargestAdmissibleTwist()
     {
         long low = BitConverter.DoubleToInt64Bits(0);
         long high = BitConverter.DoubleToInt64Bits(60);
@@ -762,8 +766,11 @@ internal sealed class ProofBudget
     // Calibrated 2026-10-03 over every budget the Core, Desktop, Cli and Core readiness suites construct (11,780):
     // the largest accepted proof spent 225,137,163 units (display samples of a ten-vertex degree-5 rebuild,
     // AuthoringSession.Sample); the largest Assess spent 14,097,010. The limit is 4.4x the worst accepted proof.
-    // Measured ~2.1 ns per unit (median, Release, Apple silicon), so the limit is ~2 s of quiet-machine work.
-    // Readiness_ProofWork_WorstFixtureWithinQuarterOfLimit fails when the worst case passes a quarter of it.
+    // A unit's cost grows with operand width (GCD and multiply are superlinear), so the limit bounds work, not a
+    // fixed time. Measured (Release, Apple silicon, quiet): ~2.1 ns per unit at the accepted proofs' widths (median;
+    // widest accepted operand 3,971 bits), so the worst accepted proof is ~0.5 s and the limit ~2 s at those widths;
+    // ~10 ns per unit at the 32768-bit cap, so a refusal near the cap can take ~10 s. Readiness_ProofWork_
+    // WorstFixtureWithinQuarterOfLimit reports both and fails when the worst case passes a quarter of the limit.
     internal const long DefaultWorkLimit = 1_000_000_000;
     internal static int Entries;
     private readonly long start = Rational.Work;
@@ -814,12 +821,18 @@ internal readonly struct Rational : IComparable<Rational>
     /// <summary>Bit-work on this thread: the summed operand bit lengths of every rational constructed, before
     /// normalization. ProofBudget's unit; it tracked measured proof time with r = 0.99 (2026-10-03).</summary>
     internal static long Work => work;
+    [ThreadStatic] private static long widest;
+    /// <summary>The widest constructor operand on this thread, in bits, since <see cref="ResetWidest"/>. A unit's cost
+    /// grows with operand width, so the calibration reports it beside the work.</summary>
+    internal static long WidestOperandBits => widest;
+    internal static void ResetWidest() => widest = 0;
     internal Rational(BigInteger n, BigInteger d)
     {
         Geometry.Require(d != 0, "Exact arithmetic denominator is zero.");
         long numeratorBits = n.GetBitLength(), denominatorBits = d.GetBitLength();
         Geometry.Require(numeratorBits <= 32768 && denominatorBits <= 32768, "Exact arithmetic size budget exhausted.");
         work += numeratorBits + denominatorBits;
+        widest = Math.Max(widest, Math.Max(numeratorBits, denominatorBits));
         if (d.Sign < 0) { n = -n; d = -d; }
         var divisor = BigInteger.GreatestCommonDivisor(n, d);
         numerator = n / divisor; denominator = d / divisor;
@@ -1000,6 +1013,10 @@ internal static class Bernstein
         var pending = spans.Select(coefficients => (Coefficients: coefficients, Depth: 0)).ToList();
         Rational lower = pending.SelectMany(item => new[] { item.Coefficients[0], item.Coefficients[^1] }).Max();
         var tolerance = Rational.From(1e-12);
+        // simplify: each node rescans every pending node's coefficients, so the cost is quadratic in nodes, and those
+        // comparisons (CompareTo) are not charged as bit-work. Ceiling: the node budget (4096; 256 for blends). Measured
+        // 2026-10-03: Maximum is 5.3% of all proof work over 11,780 budgets. Upgrade trigger: the node budget rises,
+        // or Maximum passes 25% of any proof's work; then keep pending nodes in a max-heap keyed on their maximum.
         for (int nodes = 0; nodes < nodeBudget; nodes++)
         {
             Budget(watch);

@@ -21,7 +21,17 @@ internal static class ProofBudgetTests
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             Equal("", string.Join(",", fields.Where(field => clocks.Contains(field.FieldType)).Select(field => field.Name)));
         });
+        // Structural: a type initializer on a proof-path type runs inside whichever proof first touches the type, so
+        // that proof's work would depend on order (TwistDomainDegrees once cost the first proof 57,835 units).
+        Check("ProofBudget_ProofPathTypes_HaveNoTypeInitializer", () =>
+        {
+            Type[] path = [typeof(Geometry), typeof(ProofBudget), typeof(Rational), typeof(RationalInterval), typeof(Bernstein),
+                typeof(QueryFeasibility), typeof(PlacementRule), typeof(ThicknessFit)];
+            Equal("", string.Join(",", path.Where(type => type.TypeInitializer is not null).Select(type => type.Name)));
+        });
         // The limit is exact: a proof that spends W certifies under W + 1 and refuses under W, naming the limit.
+        // Order-independent: no proof-path type has lazy static work (the check above), so the first proof in a
+        // process spends what every later one does.
         Check("ProofBudget_SameProof_SameWorkAndExactBoundary", () =>
         {
             var parsed = Prepared(FoilSourceTests.Example);
@@ -64,16 +74,25 @@ internal static class ProofBudgetTests
             using var session = Rebuilt();
             var parsed = FoilSource.Parse(session.Snapshot().Source);
             var profile = parsed.Definition!.Profiles[parsed.Definition.Assignments[0].Profile];
-            long sample = Math.Max(SampleWork(profile.Upper), SampleWork(profile.Lower));
+            var upper = SampleWork(profile.Upper);
+            var lower = SampleWork(profile.Lower);
+            long sample = Math.Max(upper.Work, lower.Work);
+            long widest = Math.Max(upper.Widest, lower.Widest);
             long assess = 0;
             string fixtures = Path.Combine(PlacementTests.RepoRoot(), "tests", "CfdWorkbench.Core.Tests", "Fixtures");
             foreach (string path in Directory.EnumerateFiles(fixtures, "*.foil", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
             {
-                var assessment = Geometry.Assess(Prepared(File.ReadAllBytes(path)));
-                if (assessment.Status == GeometryStatus.Certified) assess = Math.Max(assess, assessment.ProofWork);
+                var fixture = Prepared(File.ReadAllBytes(path));
+                Rational.ResetWidest();
+                var assessment = Geometry.Assess(fixture);
+                if (assessment.Status != GeometryStatus.Certified) continue;
+                assess = Math.Max(assess, assessment.ProofWork);
+                widest = Math.Max(widest, Rational.WidestOperandBits);
             }
+            // A unit's cost grows with operand width (2026-10-03, this harness: ~2-3 ns at 512 bits, ~10 ns at the
+            // 32768-bit cap), so the widest accepted operand is reported beside the work.
             Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-                $"MEASURE proof_work rebuild_sample={sample} fixture_assess_max={assess} limit={ProofBudget.DefaultWorkLimit}"));
+                $"MEASURE proof_work rebuild_sample={sample} fixture_assess_max={assess} widest_operand_bits={widest} limit={ProofBudget.DefaultWorkLimit}"));
             Equal(true, assess > 0);
             Equal(true, Math.Max(sample, assess) <= ProofBudget.DefaultWorkLimit / 4);
         });
@@ -96,11 +115,12 @@ internal static class ProofBudgetTests
         return session;
     }
 
-    private static long SampleWork(Curve curve)
+    private static (long Work, long Widest) SampleWork(Curve curve)
     {
+        Rational.ResetWidest();
         var budget = new ProofBudget();
         _ = AuthoringSession.Sample(curve, budget);
-        return budget.Spent;
+        return (budget.Spent, Rational.WidestOperandBits);
     }
 
     private static string Outcome(AuthoringSession session)
