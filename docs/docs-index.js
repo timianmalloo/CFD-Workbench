@@ -2693,12 +2693,13 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "The operator asked to edit sections (2026-10-03). This page draws three screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with upper point 4 made an anchor on the upper surface only (comb, pointer probe, readouts); and a Finish blocked by crossing surfaces. It then shows the four open decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
+      "summary": "The operator asked to edit sections (2026-10-03). This page draws five screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with point 4 made an anchor on both surfaces (paired point types, Ruling 60; comb, pointer probe, readouts, the pairing cue); a paired x move; a paired Anchor → Control refused over 10 µm; and a Finish blocked by crossing surfaces. It then shows the four decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
       "tags": [
         "mockup",
         "m12c",
         "section-editor",
         "point-types",
+        "paired",
         "points-pane",
         "messages",
         "operator-show"
@@ -2727,10 +2728,18 @@ window.DOCS_INDEX = {
         {
           "to": "note-m12c-rulings",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-m12c-paired",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68eba2bf644ab09e2878d1353b5f18f8687a638a5162dfa99dd982c3256f9282"
+      "sourceSha256": "ca126876dbcf599564d33bcab031beac0d83c509674ebcb543a18b265cd1fee5"
     },
     {
       "id": "mockup-property-grid",
@@ -4510,6 +4519,55 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2b8da62f2a38a7cd01584a657c60babad502999f9e1db69f28d96fa11a297c23"
+    },
+    {
+      "id": "review-ui-m12c-paired",
+      "path": "docs/reviews/ui-m12c-paired.md",
+      "title": "M1.2c section editor — paired point types, before/after against the approved mockup",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 60 ships paired section point types (the certificate spike was a no-go). This note lists every visible change to the approved M1.2c mockup so the operator can decide: the pairing cue on canvas, Points pane and Properties; one Type and Kind control for both surfaces; a new paired x-move screen; a new refused Anchor → Control screen with the measured 0.0185 mm against the 0.010 mm limit; and four proposed COPY rows. Two findings go to the design owner.",
+      "tags": [
+        "ui-review",
+        "m12c",
+        "section-editor",
+        "point-types",
+        "paired",
+        "sptf",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3f7cbed2704de1252bab995fb10ec7828e0bb3a40c9dadbe266441473529fc41"
     },
     {
       "id": "review-ui-property-grid",
@@ -9643,5 +9701,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "03f2c7f14f106218abc8c13a9c5d80a008be0b6b556307851375001e2751712d"
+  "graphSha256": "b6fec9c551fc44493417288657e49056f30c2585e67c17c32d4e158012649b99"
 };
