@@ -1425,3 +1425,114 @@ drives the Tab *key*, and asserts order as well as reach. Control: `TabWalk` now
 point and presses Tab as key events. `PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder` asserts the resume
 point, the stop count between regions, the top-to-bottom order and the re-entry, on the real `MainWindow`. It was red
 first at `3b0545e`.
+
+## 2026-10-03 — coordination, design-trace and proof-order classes
+
+**JOIN-RESOURCE-RACE · A resource rule written as prose, with no shared signal.** The rule "no solver during a join" lived
+in briefs. A join's 60 s test run (`tools/run-tests.sh`) collided with a 6-rank `snappyHexMesh` (wall 83 s, 1-minute load
+76), so both the join's timing and the mesh were distorted.
+
+**Class → sweep → derive → prevent:** signature: two actors compete for the machine and the only agreement between them is
+a sentence. Sweep: the two launchers of heavy work are the join (`conductor-join.py`) and the solver wrapper
+(`cases/tools/of-run.sh`); `of-run.sh` already waited on a lock file (Ruling 60) but nothing created it. Derive: one lock
+file, one owner each side. Control (added): `tools/coordination/join-when-quiet.sh` takes the join lock first, waits for
+the running job and for load < 10, runs the join, releases on exit; `of-run.sh` waits on the same
+`<git common dir>/coord/join.lock` (override `CFDW_JOIN_LOCK` or `CFDW_COORD_DIR`). The lock comes first so a solver track
+that starts jobs back to back cannot starve a join. Gap: a join started without the script still ignores the lock;
+upgrade trigger is a second collision.
+
+**PROC-MATCH-BY-CMDLINE · A process check by command-line text matches an unrelated shell.** A `pgrep -f
+'snappyHexMesh|...'` guard matched another agent's wait loop whose command line merely named the solver, so the join waited
+for the solver and the solver track waited for the join: a deadlock.
+
+**Class → sweep → derive → prevent:** signature: `pgrep -f` or `pkill -f` used to ask "is program X running". Sweep
+(2026-10-03) of `tools/` and `cases/tools/`: one hit, a comment in `tools/native-windows.swift` advising `pgrep -f`; it now
+says `-x`. Derive: match the process name exactly. Control (added): `join-when-quiet.sh` uses `pgrep -x` over a name list,
+and `tools/coordination/check-process-match.py` (fast ring, run by `tools/check-docs.py`) fails on any `pgrep|pkill -f`
+under those two trees; observed red on a planted `pgrep -f x`.
+
+**DELETE-WITHOUT-CALLERS · A design deletes an API and lists its replacements, not its callers.** Design seam S-3 named the
+M1.1 writers to delete and two Desktop suites, but not the seven Core test files that call them. The CTL track stopped.
+Design commit `747766c` amended S-3.
+
+**Class → sweep → derive → prevent:** signature: a deletion or signature change whose surface list was written from the
+definitions, not from a reference search. Derive: the surface list is the reference search result (E7). Sweep done: the
+amended S-3 now lists the seven files. Control (prose-only gap): the design gate asks for the search command and its count
+next to every delete; nothing fails mechanically if it is missing. Upgrade trigger: a second stop of this shape, then a
+`design-slice` check that each "delete X" row cites a grep count.
+
+**OWNERSHIP-MISSES-DATA-SOURCE · A promised visible behaviour is traced to its UI, not to the file that produces its data.**
+Screen 2c promised a marker at the largest change; the data came from the refusal in `SectionEdits.cs`, which did not carry
+the position, and no track owned that file. The EDT track stopped. Same family as DELETE-WITHOUT-CALLERS: the dispatch
+list was incomplete for a reason the design could have shown.
+
+**Class → sweep → derive → prevent:** signature: a behaviour in a mockup or design whose data crosses a file that no track
+owns. Derive: before dispatch, trace each promised visible behaviour back to the file that produces its data, and put that
+file in some track's ownership. Control (prose-only gap, recorded honestly): no coordination brief template exists in
+`docs/ai-forward-pack/templates/` or `docs/coordination/` (the briefs are per-build plans), so the check has no row to live
+in. It is a checklist item for the Coordinator's pre-dispatch step. Upgrade trigger: a third stop, then a `join.json`-style
+ownership manifest with a check that every named data file has an owner.
+
+**SCANNER-TOO-BROAD · A retired-name scanner matches a bare word that a later design legitimately reuses.** The retirement
+scan in `ShellWindowTests.cs` matched the bare word `SectionMode`, which blocked the M1.2c design's new type of that name.
+Commit `8b07ca5` narrowed it to the old usage (attribute, bool property, viewport read), checked against both shapes.
+
+**Class → sweep → derive → prevent:** signature: a "must not reappear" pattern made of a common identifier rather than the
+retired usage. Sweep: the other names in that regex (`SamplesDocument`, `Plan3DContent`, `FoilViewport`, `ViewportProvenance`,
+`FromInspection`) are specific to the retired surface; `3D samples` is a phrase, left as is. Other retirement tests in
+`tests/` were not swept (not done today). Control (existing, per instance): the scan itself, now red on the old shape and
+green on the new one. Related to CONTROL-GAMED-BY-RENAME from the other side: a retirement control asks about usage, not
+spelling.
+
+**INVERTED-SCALING-RULE · A design states which input binds a limit in the wrong direction.** Design line 446 said the
+smallest chord sets the 10 um limit. The deviation in mm is normalised deviation times chord, so the largest chord binds.
+The paired-mockup track found it. Fixed in `b200ebb` (design, mockup and review text).
+
+**Class → sweep → derive → prevent:** signature: a "the smallest/largest X sets the limit" sentence with no worked number.
+Derive: write the formula and one numeric example beside the sentence. Sweep: the fix commit touched the design, the mockup
+and `docs/reviews/ui-m12c-paired.md`. Control (existing): SPT's test was renamed so the old wording would fail
+(a name that states the rule); no repo-wide lint is possible for the sentence shape.
+
+**HARNESS-STDIN-STALL · A background agent CLI waits on stdin for its whole limit.** A background `codex exec` blocked on
+stdin for the full 2 h background limit and did no work, with no signal until the limit fired.
+
+**Class → sweep → derive → prevent:** signature: a headless CLI started in the background without its stdin closed and
+without an early progress check. Derive: close stdin and check output growth within minutes. Control (prose-only gap, to be
+placed in the delegation recipe): start with `< /dev/null`, then confirm the output file grew within 3 minutes or kill and
+report. No script in this repo launches those CLIs (swept `*.md` and `*.sh` for `codex exec`: none); the recipe lives in
+the operator's memory notes, outside the repo.
+
+**PAIRED-CLAIM-ONE-SIDE-TESTED · A claim about two surfaces is proven on one.** "Kind · both surfaces" passed SPTF because
+the tests checked knots on both surfaces but the tangent row on one. PNL found it from a capture. Fix branch
+`fix/m12c-paired-kind` (`29e9111` red tests, `6f0adf4` the writes) added both-surface tests and swept every per-side write in
+`SectionEdits.cs` (set-tangent, to-anchor, to-control).
+
+**Class → sweep → derive → prevent:** signature: a spec sentence with "both", "each side" or "paired" and a test that asserts
+one side. Derive: the test enumerates the sides. Control (existing for the instance): the tests added in `29e9111`, red
+first. Standing rule for new paired operations: assert the partner row for every write kind, not only the one the
+operation names.
+
+**CHECKER-PATTERN-GAP · A static checker's declaration pattern misses a legal syntax.** `tools/check-event-subscribers.py`
+matched event declarations with a regex that had no parentheses, so a tuple-typed event was never checked. Fixed in
+`41ea562`: 25 events are seen, it was 24.
+
+**Class → sweep → derive → prevent:** signature: a checker whose recall is never reported. Derive: the checker prints how
+many items it saw. Sweep: the checker now reports that count and the count rose by one. Control (existing): that count
+is the visible check; the pin is not yet asserted (upgrade trigger: a miss of this kind again, then a floor on the count in
+`join.json`).
+
+**RED-FIRST-SKIPPED-UNDER-BOX · Code written before tests under a time box.** PNL wrote code before tests for 10 named
+tests. Afterwards product mutants proved the tests (`docs/proof/m12c-pnl/red-first-receipt.md`), so the proof exists but the
+order did not.
+
+**Class → sweep → derive → prevent:** signature: a branch whose test names appear without a recorded red run. Derive: red
+first is a property of history, which `tools/check-named-tests.py` cannot see (it checks names, not order). Control
+(prose-only gap, after-the-fact substitute): a red-first receipt that names each test and the product mutant that turns it
+red, as recorded for PNL. Proposed mechanical control: the track's Return lists the commit where each new test was red, and
+a join script checks that a test-only commit precedes the first `src/` commit touching its subject. Not built today.
+
+**JOIN-LOG-CONFLICT · Append-only logs and the derived index conflict at nearly every join.** Today's join tooling resolves
+the case where only `docs/docs-index.js` and the two audit logs conflict. Control (added):
+`tools/coordination/check-jsonl.py` fails a log that has a non-JSON line or a duplicate id after the conflict markers are
+removed; `join-when-quiet.sh` runs it before it continues. Self-test fixture run: a good file passes (exit 0), a file with a
+duplicate id fails (exit 1), a file with a bad line fails (exit 1).

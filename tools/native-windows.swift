@@ -1,6 +1,6 @@
 // Lists every native window one process owns, with its bounds in screen points (top-left origin), layer and alpha.
 // Use it to name the surface that shows a piece of the UI (NS-3): `swift tools/native-windows.swift <pid>`,
-// with the pid from `pgrep -f CfdWorkbench`. macOS only; reads CGWindowList and needs no screen-recording permission
+// with the pid from `pgrep -x <exact process name>` (never `-f`: it matches command-line text). macOS only; reads CGWindowList and needs no screen-recording permission
 // for bounds (window names may be empty without it).
 import CoreGraphics
 import Foundation

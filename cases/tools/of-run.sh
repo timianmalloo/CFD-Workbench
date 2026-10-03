@@ -32,7 +32,7 @@ bundle_sha256_pinned="f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a
 app_launcher="/Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam"
 stop_file="$repo/runs/.security-stop"
 max_load=10
-join_lock="${CFDW_JOIN_LOCK:-/private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/f19a2b12-f8df-4dcc-bc84-7353cfbcda0f/scratchpad/join.lock}"
+join_lock="${CFDW_JOIN_LOCK:-${CFDW_COORD_DIR:-$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)/coord}/join.lock}"
 APPS=" checkMesh blockMesh gmshToFoam decomposePar reconstructPar reconstructParMesh snappyHexMesh surfaceCheck surfaceFeatureExtract simpleFoam rhoSimpleFoam postProcess topoSet "
 ledger="$case_dir/run-ledger.txt"
 now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
