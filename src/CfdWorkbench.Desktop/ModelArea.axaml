@@ -90,7 +90,8 @@
           <Border x:Name="ThreeDFrame" Classes="viewFrame" Grid.Column="1">
             <Grid x:Name="ThreeDSlot" RowDefinitions="Auto,*">
             <Button x:Name="ThreeDLabel" Grid.Row="0" Classes="viewLabel" Content="3D · Iso" />
-            <local:SurfaceRenderer Grid.Row="1" x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True"
+            <local:SurfaceRenderer Grid.Row="1" x:Name="ThreeDRenderer" Pane="3d" ClipToBounds="True" ShowGround="True"
+                                   GridBrush="{DynamicResource ViewportGridBrush}"
                                    BackgroundBrush="{DynamicResource ViewportBrush}"
                                    ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
                                    ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
@@ -98,9 +99,14 @@
                                    FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
                                    StationBrush="{DynamicResource PlanSelectionBrush}"
                                    MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <!-- V3D: navigation, the view cube (top-right), the axis triad (bottom-left) and the station chip, over the surface. -->
+            <local:View3d Grid.Row="1" x:Name="ThreeDView"
+                          SoftBrush="{DynamicResource PlanSoftBrush}" InkBrush="{DynamicResource ViewportInkBrush}"
+                          MuteBrush="{DynamicResource PlanMuteBrush}" StationBrush="{DynamicResource PlanSelectionBrush}"
+                          FocusBrush="{DynamicResource PlanFocusBrush}" ViewportBrush="{DynamicResource ViewportBrush}" />
             <TextBlock Grid.Row="1" x:Name="ThreeDDrawing" Classes="viewOverlay" Text="Drawing…" IsVisible="False"
                        HorizontalAlignment="Center" VerticalAlignment="Center" />
-            <StackPanel Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="{StaticResource Space2}" Spacing="4">
+            <StackPanel Grid.Row="1" x:Name="ThreeDCaptionStack" VerticalAlignment="Bottom" HorizontalAlignment="Left" Spacing="4">
               <TextBlock x:Name="ThreeDNote" Classes="viewOverlay" IsVisible="False" TextWrapping="Wrap" />
               <TextBlock x:Name="ThreeDCaption" Classes="viewOverlay" TextWrapping="Wrap"
                          Text="Display · x aft, y starboard, z up · twist about the leading edge" />

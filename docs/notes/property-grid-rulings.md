@@ -113,5 +113,9 @@ at bottom of the shell". The pick page (`docs/mockups/status-bar.html`, b7c03c5)
 | **DR-VIEW-2** (OI-9) | No perspective/orthographic toggle for now: named axis views orthographic, Iso and orbit perspective. |
 | **DR-VIEW-3** (OI-10) | Front and Side each fit themselves, each with its own scale bar. |
 | **DR-VIEW-4** | The selected station gets a 3 px station tick at its span in the Front band. |
+| **DR-VIEW-5** (V3D deviation 1) | Iso looks **from the front**, as in the mockup: leading edge toward the viewer, the cube shows F, S and T, starboard on the viewer's left. Built: `ViewCamera.Named` Iso az 45°, el 30° (was az 135°, the M1.2a aft quadrant). Tests: `View3d_DefaultIso_FromFrontFillsWidth`, `ViewCamera_Presets_TopFrontSideIsoBottomBackPort`. |
+| **DR-VIEW-6** (V3D deviation 2) | The Iso fit **fills the view width with a small margin**, as in the mockup. Built: a perspective `Fit` holds the box's corners on the 24 px fit margin and centres their projection (was a bounding-sphere fit about the box centre). Tests: `View3d_DefaultIso_FromFrontFillsWidth`, `ViewCamera_Fit_BoundsInsideViewportMargin`, `ViewCamera_FitSelection_StationBoundsFill`, `ViewCamera_RandomVerbs_FitRecentres`. |
+| **DR-VIEW-7** (V3D deviation 3) | View labels become a small plate top-left, as in the mockup — **not now**: it lands as a separate step after ELV joins (ELV adds the Side and Front slots in `ModelArea`). |
+| **DR-VIEW-8** (V3D deviation 4) | Wireframe density **stays as built**: a thin section every 0.1 of η on each half (the mockup drew ten in all). |
 | **Build** | The operator approved the views mockup (7a96c05): "Yes, build it" — V3D, ELV, PNL. |
 

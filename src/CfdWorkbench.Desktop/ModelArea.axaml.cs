@@ -71,6 +71,15 @@ public partial class ModelArea : UserControl
         }
         // A view shown by a layout change gets its size only after that layout pass; its first camera fits then.
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
+        // The caption plate sits right of the axis triad (the approved mockup); View3d owns both positions.
+        ThreeDCaptionStack.Margin = View3d.CaptionMargin;
+        ThreeDView.Renderer = ThreeDRenderer;
+        // A drag frame redraws only the 3D view (its live camera); the controller takes the camera at release.
+        ThreeDView.LiveCameraChanged += () =>
+        {
+            ThreeDRenderer.Camera = ThreeDView.CurrentCamera;
+            if (controller is not null) ThreeDLabel.Content = ThreeDTitle(controller);
+        };
         foreach (var renderer in new[] { ThreeDRenderer, SideRenderer, FrontRenderer })
             renderer.SizeChanged += (_, _) => Refresh();
         // Re-entering a document tab re-attaches the same controller: refresh so the views ask for a mesh again.
@@ -130,6 +139,7 @@ public partial class ModelArea : UserControl
             controller.SurfaceWanted = false;
         }
         controller = next;
+        ThreeDView.Controller = controller;
         if (controller is not null) controller.Changed += OnControllerChanged;
         SideElevation.Controller = controller;
         FrontElevation.Controller = controller;
@@ -177,7 +187,9 @@ public partial class ModelArea : UserControl
             renderer.Dimmed = !certified;
             renderer.Camera = CameraFor(view, renderer.Bounds.Size, surface);
         }
-        ThreeDLabel.Content = "3D · " + (controller.Camera3d?.Title ?? "Iso") + suffix;
+        ThreeDRenderer.Camera = ThreeDView.CurrentCamera ?? ThreeDRenderer.Camera;
+        ThreeDLabel.Content = ThreeDTitle(controller);
+        ThreeDView.Refresh();
         SideLabel.Content = "Side · from starboard" + suffix;
         FrontLabel.Content = "Front · looking aft" + suffix;
         PlanLabel.Content = "Plan" + (certified ? "" : " · not checked");
@@ -185,6 +197,15 @@ public partial class ModelArea : UserControl
             Avalonia.Automation.AutomationProperties.SetName(label,
                 label.Content + " view label. Double-click or Return shows " +
                 (layout.Arrangement == ViewArrangement.One ? "every view again." : "this view alone."));
+    }
+
+    /// <summary>"3D · Iso", "3D · Free · az 212° · el 24°", with "· wireframe" and the view's state suffixes.</summary>
+    private string ThreeDTitle(WorkbenchController controller)
+    {
+        bool certified = controller.Inspection?.Geometry.Status == GeometryStatus.Certified;
+        return "3D · " + (ThreeDView.CurrentCamera?.Title ?? "Iso") +
+            (controller.DisplayFor(SingleView.ThreeD) == DisplayMode.Wireframe ? " · wireframe" : "") +
+            (certified ? "" : " · not checked") + (controller.SurfaceBehind ? " · Updating…" : "");
     }
 
     // The first mesh fits the named camera to the view's own size; later meshes keep the user's camera.

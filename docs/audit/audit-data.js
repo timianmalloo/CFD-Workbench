@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-02T23:37:38Z",
+  "generated": "2026-10-03T00:18:23Z",
   "audit": [
     {
       "actor": null,
@@ -22102,6 +22102,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-02T23:36:47Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M3ZJ0M70CWVMSJNXJWER0ATM",
+      "shortname": "join-m12b2-v3d",
+      "datetime": "2026-10-03T00:18:23Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12b2-v3d into feature/ui-cad-direction",
+      "summary": "V3D (Opus 5.5): View3d with cube and peers, orbit/pan/zoom, presets, Display shaded/wireframe, ground grid, triad, mesh topology cache, live drag camera (orbit p95 18.7-23.3 ms); 25/25 named tests. Operator rulings DR-VIEW-5 Iso from the front, DR-VIEW-6 fit fills the view (built); DR-VIEW-7 label plates after ELV; DR-VIEW-8 wireframe as built. Flake seen: Focus_UndoFromCanvas_StaysOnCanvas DOC-CLOSED once under load. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T00:17:26Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [

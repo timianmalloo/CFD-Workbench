@@ -44,6 +44,10 @@ public sealed class SurfaceRenderer : Control
         AvaloniaProperty.Register<SurfaceRenderer, IBrush?>(nameof(StationBrush));
     public static readonly StyledProperty<IBrush?> MuteBrushProperty =
         AvaloniaProperty.Register<SurfaceRenderer, IBrush?>(nameof(MuteBrush));
+    public static readonly StyledProperty<IBrush?> GridBrushProperty =
+        AvaloniaProperty.Register<SurfaceRenderer, IBrush?>(nameof(GridBrush));
+    public static readonly StyledProperty<bool> ShowGroundProperty =
+        AvaloniaProperty.Register<SurfaceRenderer, bool>(nameof(ShowGround));
 
     /// <summary>The share of the ramp a grazing face keeps (ambient); a face toward the headlight reaches the lit brush.</summary>
     public const double Ambient = 0.15;
@@ -56,7 +60,7 @@ public sealed class SurfaceRenderer : Control
     {
         AffectsRender<SurfaceRenderer>(SurfaceProperty, CameraProperty, DisplayProperty, SelectedEtaProperty, DimmedProperty,
             BackgroundBrushProperty, ShadeGrazingBrushProperty, ShadeLitBrushProperty, FoilBrushProperty,
-            FoilEdgeBrushProperty, StationBrushProperty, MuteBrushProperty);
+            FoilEdgeBrushProperty, StationBrushProperty, MuteBrushProperty, GridBrushProperty, ShowGroundProperty);
     }
 
     public SurfaceView? Surface { get => GetValue(SurfaceProperty); set => SetValue(SurfaceProperty, value); }
@@ -71,6 +75,13 @@ public sealed class SurfaceRenderer : Control
     public IBrush? FoilEdgeBrush { get => GetValue(FoilEdgeBrushProperty); set => SetValue(FoilEdgeBrushProperty, value); }
     public IBrush? StationBrush { get => GetValue(StationBrushProperty); set => SetValue(StationBrushProperty, value); }
     public IBrush? MuteBrush { get => GetValue(MuteBrushProperty); set => SetValue(MuteBrushProperty, value); }
+    public IBrush? GridBrush { get => GetValue(GridBrushProperty); set => SetValue(GridBrushProperty, value); }
+
+    /// <summary>The 3D view's ground grid at z = min z, behind the surface (§11.1); the elevations leave it off.</summary>
+    public bool ShowGround { get => GetValue(ShowGroundProperty); set => SetValue(ShowGroundProperty, value); }
+
+    /// <summary>Raised after each frame with the milliseconds the UI thread spent building it (<c>view.navigate.end</c>).</summary>
+    public event Action<double>? FrameRendered;
 
     /// <summary>Test seam, as PlanCanvas.RenderGuard: runs before the scene is built, so a test can make rendering throw.</summary>
     public Action? RenderGuard { get; set; }
@@ -86,6 +97,7 @@ public sealed class SurfaceRenderer : Control
     {
         base.Render(context);
         var size = Bounds.Size;
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
         if (BackgroundBrush is not null) context.FillRectangle(BackgroundBrush, new Rect(size));
         try
         {
@@ -93,7 +105,7 @@ public sealed class SurfaceRenderer : Control
             RenderGuard?.Invoke();
             if (Surface is { } surface && Camera is { } camera && size.Width > 0 && size.Height > 0)
                 context.Custom(new MeshOperation(new Rect(size), SurfaceMesh.Build(surface, camera, size, Display,
-                    SelectedEta, Palette(), DimmedTowards()), this));
+                    SelectedEta, Palette(), DimmedTowards(), ShowGround), this));
         }
         catch (Exception error) when (error is not OutOfMemoryException)
         {
@@ -108,6 +120,7 @@ public sealed class SurfaceRenderer : Control
             }
         }
         RenderSerial++;
+        FrameRendered?.Invoke(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
     }
 
     public void RetryRender()
@@ -120,7 +133,7 @@ public sealed class SurfaceRenderer : Control
     }
 
     private SurfacePalette Palette() => new(Color(ShadeGrazingBrush), Color(ShadeLitBrush), Color(FoilBrush),
-        Color(FoilEdgeBrush), Color(StationBrush), Color(MuteBrush));
+        Color(FoilEdgeBrush), Color(StationBrush), Color(MuteBrush), Color(GridBrush));
 
     private SKColor? DimmedTowards() => Dimmed ? Color(BackgroundBrush) ?? SKColors.Transparent : null;
 
@@ -151,7 +164,8 @@ public sealed class SurfaceRenderer : Control
 }
 
 /// <summary>The resolved colours of one draw; a null colour leaves its layer out.</summary>
-internal sealed record SurfacePalette(SKColor? Grazing, SKColor? Lit, SKColor? Foil, SKColor? FoilEdge, SKColor? Station, SKColor? Mute);
+internal sealed record SurfacePalette(SKColor? Grazing, SKColor? Lit, SKColor? Foil, SKColor? FoilEdge, SKColor? Station, SKColor? Mute,
+    SKColor? Grid = null);
 
 /// <summary>One run of the painter's order: filled triangles (per-vertex colours) or stroke segments of one paint.</summary>
 internal sealed record MeshBatch(SKPoint[] Points, SKColor[]? Colors, SKColor StrokeColor, float StrokeWidth);
@@ -183,7 +197,7 @@ internal sealed class MeshFrame
 internal static class SurfaceMesh
 {
     public static MeshFrame Build(SurfaceView surface, ViewCamera camera, Size size, DisplayMode display, double? selectedEta,
-        SurfacePalette palette, SKColor? dimTowards)
+        SurfacePalette palette, SKColor? dimTowards, bool ground = false)
     {
         var mesh = Topology.Of(surface);
         var screen = new SKPoint[mesh.Positions.Count];
@@ -256,6 +270,7 @@ internal static class SurfaceMesh
 
         items.Sort((left, right) => right.Depth != left.Depth ? right.Depth.CompareTo(left.Depth) : left.Layer.CompareTo(right.Layer));
         var batches = new List<MeshBatch>();
+        if (ground && palette.Grid is { } grid) batches.AddRange(Ground(surface, camera, size, near, Dim(grid, dimTowards)));
         var points = new List<SKPoint>();
         var colors = new List<SKColor>();
         int open = int.MinValue;
@@ -290,6 +305,29 @@ internal static class SurfaceMesh
     }
 
     private const double Ambient = SurfaceRenderer.Ambient;
+
+    /// <summary>
+    /// The ground grid at z = min z under both halves (the approved mockup's grid): lines a third of the chord extent
+    /// apart from one extent ahead of the leading edge to two behind it, and a fifth of the half span apart out to
+    /// 1.2 half spans each side. Lines whose ends are not both in front of the eye are left out.
+    /// </summary>
+    internal static IEnumerable<MeshBatch> Ground(SurfaceView surface, ViewCamera camera, Size size, double near, SKColor color)
+    {
+        double chord = Math.Max(1e-9, surface.MaximumX - surface.MinimumX), half = Math.Max(1e-9, surface.MaximumY);
+        double z = surface.MinimumZ, x0 = surface.MinimumX - chord, x1 = surface.MinimumX + 2 * chord, y = 1.2 * half;
+        var points = new List<SKPoint>();
+        void Line(Point3 a, Point3 b)
+        {
+            if (!(camera.Depth(a) > near) || !(camera.Depth(b) > near)) return;
+            var p = camera.Project(a, size);
+            var q = camera.Project(b, size);
+            points.Add(new SKPoint((float)p.X, (float)p.Y));
+            points.Add(new SKPoint((float)q.X, (float)q.Y));
+        }
+        for (int k = -3; k <= 6; k++) Line(new Point3(surface.MinimumX + k * chord / 3, -y, z), new Point3(surface.MinimumX + k * chord / 3, y, z));
+        for (int k = -6; k <= 6; k++) Line(new Point3(x0, k * half / 5, z), new Point3(x1, k * half / 5, z));
+        if (points.Count > 0) yield return new MeshBatch(points.ToArray(), null, color, 1);
+    }
 
     /// <summary>η = i/10: the wireframe's intermediate rows, a subset of the 41 uniform mesh rows (never interpolated).</summary>
     private static bool IsTenth(double eta) => Math.Abs(eta * 10 - Math.Round(eta * 10)) < 1e-9;
@@ -340,7 +378,12 @@ internal static class SurfaceMesh
         private int samples;
         private int[,,,] index = new int[0, 0, 0, 0];   // [half, surface, section, sample]
 
-        public static Topology Of(SurfaceView surface)
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SurfaceView, Topology> Cache = new();
+
+        /// <summary>The topology of one mesh, built once per <see cref="SurfaceView"/> instance (orbit redraws reuse it).</summary>
+        public static Topology Of(SurfaceView surface) => Cache.GetValue(surface, Build);
+
+        private static Topology Build(SurfaceView surface)
         {
             int sections = surface.Sections.Count, samples = surface.Sections[0].Upper.Count;
             var mesh = new Topology { Sections = sections, samples = samples, index = new int[2, 2, sections, samples] };
