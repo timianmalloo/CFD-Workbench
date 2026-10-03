@@ -26,6 +26,7 @@ ALLOWED = {
     "VertexSelected": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "VertexMoved": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until app-shell D4 (M1.2e)",
+    "SectionChanged": "WorkbenchController: the section-editor surface and panes subscribe in M1.2c EDT and PNL (CTL added it first)",
 }
 
 
