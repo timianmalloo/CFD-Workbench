@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T14:25:02Z",
+  "generated": "2026-10-03T14:25:53Z",
   "audit": [
     {
       "actor": null,
@@ -22276,6 +22276,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-03T14:24:15Z",
+      "duration_seconds": 47.0
+    },
+    {
+      "id": "al-01M412GETVFM2PS1JF7PVGKM0X",
+      "shortname": "join-track-c",
+      "datetime": "2026-10-03T14:25:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/track-c-plates-navbar into feature/ui-cad-direction",
+      "summary": "Track C (Opus 5.5): top-left viewport-soft label plates; navbar (Views, Display, Fit, Fit Selection) running the same commands as the menus; red-first checks; captures. Notes for UXR: shell Return handler takes Return from a focused navbar button when a point is selected; clicking the navbar moves focus off the model view (DR-DEN-4 then changes Text size). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T14:25:06Z",
       "duration_seconds": 47.0
     }
   ],
