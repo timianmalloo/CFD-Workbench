@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T00:18:23Z",
+  "generated": "2026-10-03T00:37:29Z",
   "audit": [
     {
       "actor": null,
@@ -22127,6 +22127,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T00:17:26Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M3ZK3M2DC1XME5ZP066THXZW",
+      "shortname": "join-m12b2-pnl",
+      "datetime": "2026-10-03T00:37:29Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12b2-pnl into feature/ui-cad-direction",
+      "summary": "PNL (Opus 5.5): Properties channel rows by data (dihedral, twist, t/c) with unit-scaled commits; Browser channel groups; Views/Display/Camera/Pan menus and palette; DR-DEN-4 by model-view frame (3D included); F-12 retargeted to Station rows; committed-move copy; LastGestureClamped; 18/18 + the 3 deferred property-grid tests. Model-area navbar not built (ModelArea polish follow-up). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T00:36:35Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
