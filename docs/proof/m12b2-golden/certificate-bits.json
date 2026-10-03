@@ -13026,7 +13026,7 @@
       "kind": "assess",
       "code": "GEOMETRY-BUDGET",
       "status": "NotAssessed",
-      "reason": "Cooperative proof time budget exhausted."
+      "reason": "Proof work limit of 0 bit-work units reached."
     },
     {
       "name": "taylor-domain",

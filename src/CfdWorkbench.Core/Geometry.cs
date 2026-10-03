@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Numerics;
 
 namespace CfdWorkbench.Core;
@@ -78,6 +77,8 @@ public sealed class GeometryAssessment
     public GeometryCertificate? Certificate { get; }
     public string Code { get; }
     public string Reason { get; }
+    /// <summary>Deterministic proof work spent, in bit-work units (see <c>ProofBudget</c>); identical on every machine.</summary>
+    public long ProofWork { get; internal set; }
 }
 
 public static class Geometry
@@ -117,12 +118,16 @@ public static class Geometry
             "Whole-domain angle hull is outside the certified Taylor domain.");
     }
 
+    /// <param name="timeBudget">Source compatibility only: the proof limit counts work, never time. Zero allows no
+    /// work; any other admissible value (up to one second) means the default work limit.</param>
     public static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port = false,
-        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default)
+        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default) =>
+        PointAt(certificate, eta, x, upper, port, new ProofBudget(ProofBudget.LimitFor(timeBudget), cancellationToken));
+
+    internal static PlacedPointEnclosure PointAt(GeometryCertificate certificate, double eta, double x, bool upper, bool port, ProofBudget watch)
     {
         ArgumentNullException.ThrowIfNull(certificate);
         Domain(eta, x);
-        var watch = new ProofBudget(timeBudget, cancellationToken);
         try
         {
             var section = SectionExact(certificate, eta, x, watch);
@@ -144,12 +149,15 @@ public static class Geometry
         catch (ProofRefusal failure) { throw new ContractError(failure.Code is "GEOMETRY-BUDGET" or "GEOMETRY-CANCELLED" ? failure.Code : "GEOMETRY-CERTIFICATE-DEFECT"); }
     }
 
+    /// <param name="timeBudget">Source compatibility only; see <see cref="PointAt(GeometryCertificate, double, double, bool, bool, TimeSpan?, CancellationToken)"/>.</param>
     public static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x,
-        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default)
+        TimeSpan? timeBudget = null, CancellationToken cancellationToken = default) =>
+        SectionAt(certificate, eta, x, new ProofBudget(ProofBudget.LimitFor(timeBudget), cancellationToken));
+
+    internal static SectionEnclosure SectionAt(GeometryCertificate certificate, double eta, double x, ProofBudget watch)
     {
         ArgumentNullException.ThrowIfNull(certificate);
         Domain(eta, x);
-        var watch = new ProofBudget(timeBudget, cancellationToken);
         try
         {
             var section = SectionExact(certificate, eta, x, watch);
@@ -289,11 +297,21 @@ public static class Geometry
         return (new(sine - error, sine + error), new(cosine - error, cosine + error));
     }
 
-    public static GeometryAssessment Assess(SourceParse source, TimeSpan? timeBudget = null)
+    /// <param name="timeBudget">Source compatibility only; see <see cref="PointAt(GeometryCertificate, double, double, bool, bool, TimeSpan?, CancellationToken)"/>.</param>
+    public static GeometryAssessment Assess(SourceParse source, TimeSpan? timeBudget = null) =>
+        Assess(source, new ProofBudget(ProofBudget.LimitFor(timeBudget)));
+
+    internal static GeometryAssessment Assess(SourceParse source, ProofBudget watch)
+    {
+        var assessment = AssessWithin(source, watch);
+        assessment.ProofWork = watch.Spent;
+        return assessment;
+    }
+
+    private static GeometryAssessment AssessWithin(SourceParse source, ProofBudget watch)
     {
         var definition = source.Definition;
         if (definition is null) return new(null, "Static parsing did not succeed.");
-        var watch = new ProofBudget(timeBudget);
         try
         {
             watch.Check();
@@ -733,37 +751,75 @@ internal sealed class ProofRefusal(string reason, GeometryStatus status = Geomet
     internal string Code { get; } = code;
 }
 
+/// <summary>
+/// Cooperative, deterministic proof limit. It counts work, never time (operator ruling 2026-10-02; defect class
+/// DET-CLOCK): the unit is bit-work, the summed operand bit lengths of every exact <see cref="Rational"/> the proof
+/// constructs on its thread (<see cref="Rational.Work"/>). The same proof spends the same work on every machine at
+/// any load, so a busy machine refuses exactly what a quiet one refuses. Cancellation stays a user action.
+/// </summary>
 internal sealed class ProofBudget
 {
+    // Calibrated 2026-10-03 over every budget the Core, Desktop, Cli and Core readiness suites construct (11,780):
+    // the largest accepted proof spent 225,137,163 units (display samples of a ten-vertex degree-5 rebuild,
+    // AuthoringSession.Sample); the largest Assess spent 14,097,010. The limit is 4.4x the worst accepted proof.
+    // Measured ~2.1 ns per unit (median, Release, Apple silicon), so the limit is ~2 s of quiet-machine work.
+    // Readiness_ProofWork_WorstFixtureWithinQuarterOfLimit fails when the worst case passes a quarter of it.
+    internal const long DefaultWorkLimit = 1_000_000_000;
     internal static int Entries;
-    private readonly Stopwatch watch = Stopwatch.StartNew();
-    private readonly TimeSpan limit;
+    private readonly long start = Rational.Work;
+    private readonly int thread = Environment.CurrentManagedThreadId;
     private readonly CancellationToken cancellation;
-    internal ProofBudget(TimeSpan? requested = null, CancellationToken cancellationToken = default)
+    internal ProofBudget(long? workLimit = null, CancellationToken cancellationToken = default)
     {
         Entries++;
         cancellation = cancellationToken;
-        limit = requested ?? TimeSpan.FromSeconds(1);
-        Guard.Require(limit >= TimeSpan.Zero && limit <= TimeSpan.FromSeconds(1), "DSL-RANGE");
+        Limit = workLimit ?? DefaultWorkLimit;
+        Guard.Require(Limit >= 0 && Limit <= DefaultWorkLimit, "DSL-RANGE");
+    }
+    internal long Limit { get; }
+    internal long Spent
+    {
+        get
+        {
+            // Rational.Work is per thread; a proof that hopped threads would count another proof's work.
+            if (Environment.CurrentManagedThreadId != thread) throw new InvalidOperationException("A proof budget is bound to the thread that created it.");
+            return Rational.Work - start;
+        }
+    }
+    /// <summary>The public time parameter's mapping, kept for source compatibility: zero is no work; any admissible
+    /// positive time is the default work limit; beyond one second is refused as before.</summary>
+    internal static long? LimitFor(TimeSpan? time)
+    {
+        if (time is not { } requested) return null;
+        Guard.Require(requested >= TimeSpan.Zero && requested <= TimeSpan.FromSeconds(1), "DSL-RANGE");
+        return requested == TimeSpan.Zero ? 0 : null;
     }
     internal void Check()
     {
         Geometry.Require(!cancellation.IsCancellationRequested, "Query cancelled.", GeometryStatus.NotAssessed, "GEOMETRY-CANCELLED");
-        Geometry.Require(watch.Elapsed < limit, "Cooperative proof time budget exhausted.", GeometryStatus.NotAssessed, "GEOMETRY-BUDGET");
+        if (Spent >= Limit)
+            throw new ProofRefusal("Proof work limit of " + Limit.ToString(System.Globalization.CultureInfo.InvariantCulture) +
+                " bit-work units reached.", GeometryStatus.NotAssessed, "GEOMETRY-BUDGET");
     }
 }
 
 /// <summary>Bounded exact arithmetic for binary64-defined polynomial coefficients.</summary>
 internal readonly struct Rational : IComparable<Rational>
 {
+    [ThreadStatic] private static long work;
     private readonly BigInteger numerator;
     private readonly BigInteger denominator;
     internal BigInteger Numerator => numerator;
     internal BigInteger Denominator => denominator;
+    /// <summary>Bit-work on this thread: the summed operand bit lengths of every rational constructed, before
+    /// normalization. ProofBudget's unit; it tracked measured proof time with r = 0.99 (2026-10-03).</summary>
+    internal static long Work => work;
     internal Rational(BigInteger n, BigInteger d)
     {
         Geometry.Require(d != 0, "Exact arithmetic denominator is zero.");
-        Geometry.Require(n.GetBitLength() <= 32768 && d.GetBitLength() <= 32768, "Exact arithmetic size budget exhausted.");
+        long numeratorBits = n.GetBitLength(), denominatorBits = d.GetBitLength();
+        Geometry.Require(numeratorBits <= 32768 && denominatorBits <= 32768, "Exact arithmetic size budget exhausted.");
+        work += numeratorBits + denominatorBits;
         if (d.Sign < 0) { n = -n; d = -d; }
         var divisor = BigInteger.GreatestCommonDivisor(n, d);
         numerator = n / divisor; denominator = d / divisor;

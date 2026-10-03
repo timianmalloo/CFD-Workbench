@@ -76,20 +76,12 @@ internal static class ReopenConstructionTests
             var deleteAssessment = session.Validate(deleted.Id, deleted.Generation);
             session.Apply(Id(), deleteAssessment);
             byte[] saved = session.SaveImage();
-            var watch = System.Diagnostics.Stopwatch.StartNew();
             using var reopened = new AuthoringSession();
             Exception? thrown = null;
             try { reopened.Reopen(saved); } catch (Exception failure) { thrown = failure; }
-            watch.Stop();
             Equal((Exception?)null, thrown);
-            var inspection = reopened.InspectAccepted();
-            string outcome = inspection.Geometry.Status == GeometryStatus.Certified ? "Certified" : inspection.Geometry.Status.ToString();
-            Console.WriteLine($"BUDGET-CASE: {outcome} {watch.Elapsed.TotalMilliseconds:F1}");
-            if (inspection.Geometry.Status != GeometryStatus.Certified)
-            {
-                Equal(GeometryStatus.NotAssessed, inspection.Geometry.Status);
-                Equal("GEOMETRY-BUDGET", inspection.Geometry.Code);
-            }
+            // The proof limit counts work, so this edit certifies on every machine at any load (DET-CLOCK).
+            Equal(GeometryStatus.Certified, reopened.InspectAccepted().Geometry.Status);
             Equal(true, session.Snapshot().Source.AsSpan().SequenceEqual(reopened.Snapshot().Source));
         });
         Check("Reopen_ForcedBudgetExhaustion_OpensNotAssessed", () =>
@@ -97,7 +89,7 @@ internal static class ReopenConstructionTests
             using var session = Opened();
             AppliedRoundtrip(session, (s, draft) => s.BeginProfileInsert(draft, 0, SectionScope.Shared, 0.37));
             byte[] saved = session.SaveImage();
-            using var reopened = new AuthoringSession(TimeSpan.Zero);
+            using var reopened = AuthoringSession.WithProofWorkLimit(0);
             reopened.Reopen(saved);
             var inspection = reopened.InspectAccepted();
             Equal(GeometryStatus.NotAssessed, inspection.Geometry.Status);

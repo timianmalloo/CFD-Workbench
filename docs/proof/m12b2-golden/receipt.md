@@ -59,3 +59,15 @@ The edit was reverted. `git diff` on `Geometry.cs` was empty afterwards.
 ## What the golden master pins
 
 The golden master pins the outputs (outward bits, witnesses) and the refusals. It does not pin the operation tree. The PL0 review probes found four more math-preserving tree changes that kept it green, because outward rounding absorbs them. The planted mutant above was red only because it changed the mathematics. A structural trace pin is required before the first change to design §6 and before VW1: an `IPlacementScalar<Trace>` instantiation of the same rule whose operation string is goldened. It is not built yet; design §13 OI-11 tracks it.
+
+## Deliberate change, 2026-10-03: the proof limit counts work (DET-CLOCK)
+
+Operator ruling 2026-10-02: the geometry proof limit counts work, not clock. `ProofBudget` now refuses on deterministic bit-work, not on elapsed time. One entry changed: the `assess-budget` refusal reason. The new reason names the work limit:
+
+| Entry | Field | Before | After |
+|---|---|---|---|
+| `assess-budget` | `reason` | `Cooperative proof time budget exhausted.` | `Proof work limit of 0 bit-work units reached.` |
+
+The entry keeps its kind (`assess`), its code (`GEOMETRY-BUDGET`) and its status (`NotAssessed`). The fixture call is unchanged too: `Geometry.Assess(parsed, TimeSpan.Zero)`, where zero time now maps to zero work. `point-budget` and `section-budget` are unchanged: a contract refusal's reason is its code, `GEOMETRY-BUDGET`.
+
+How it was found and checked: after the code change, `PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged` failed with `assess-budget reason changed`. That one string was edited in `certificate-bits.json`, which is a 1-line diff. Then `CFD_TEST_ONLY=PlacementRule_` (Release) passed `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged`, `PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged` and `PlacementRule_OperationTree_TraceGolden`. So every certificate output bit, every witness and every other refusal is identical, and the OI-11 trace golden is green.
