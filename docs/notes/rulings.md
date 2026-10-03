@@ -753,3 +753,9 @@ EVIDENCE: docs/design/m12c-section-editor.md and its gate record (Computational 
 NEXT: the Coordinator dispatches PRE, then GSPK, DSP and SDR in parallel per the design's §14.
 
 - request: req-01M4176W99TG0VZS3JX0K5DYQE · ruled by: operator-timianmalloo · at: 2026-10-03T15:48:14Z
+
+### Ruling 60 — M1.2c paired point types (DR-11 parked); Codex gpt-6-sol; fluids lanes F1 and F2 start now
+
+Operator 2026-10-03, by running the coordination prompt (scratchpad prompts/m12c-plus-fluids-coordination.md): (1) DR-11 — M1.2c ships paired section point types (OD-4 a, SPTF); per-surface points are parked as OI-12C-DR11, reopened only by a reviewed proof tightening that passes F4 +0.20 at 2 m within 1e9 work and 1 s. (2) The paired behaviour is shown in an updated mockup; EDT and PNL wait for the operator's yes. (3) Codex tracks (CTL, EDT) use gpt-6-sol, not gpt-6-astra, on price (operator: 'use sol instead of astra given price difference'). (4) Fluids lanes start now: F1 SPIKE-03 then SPIKE-04 on OpenFOAM v2512 (≤ 6 cores, nice 10, no solve during a join or readiness); F2 the Area 3 Analysis design, documents only. (5) The backend ADR waits on the F1 verdicts. (6) CFD runs follow the operator's global rule: cases/ YAML per run, schemas/cfd-case.schema.json, runs/<timestamp>/ git-ignored, receipts in docs/proof/.
+
+- request: req-01M41A4NQ3QXNFHNY24QJGCRT3 · ruled by: operator-timianmalloo · at: 2026-10-03T16:39:22Z
