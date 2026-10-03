@@ -107,7 +107,7 @@ public sealed class AuthoringSession : IDisposable
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear(); pendingFairAssessment.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
             draft = null; recovery = null; current = null; activeImportReport = null; importBasisFallback = null;
-            section = null; legacyResumeDraftId = null;
+            section = null;
         }
     }
     private T Run<T>(string operation, Func<T> action, int? inputBytes = null, long? generation = null, string? editKind = null, string? stepKind = null)
@@ -1295,7 +1295,6 @@ public sealed class AuthoringSession : IDisposable
         internal int Cursor { get; set; }
     }
     private SectionState? section;
-    private string? legacyResumeDraftId;
     private const string ProfileChangeOracle = "FoilSource.MaxOrdinateDeviation";
 
     private static string SectionStepKind(SectionStep? step) => step switch
@@ -1356,17 +1355,10 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
-    // The open section draft with this id. A resumed legacy profile recovery becomes one here, at cursor 0 on its bytes.
+    // The open section draft with this id. Legacy profile recoveries are converted on ResumeRecovery.
     private SectionState RequireSection(string draftId)
     {
         Guard.Require(draft is not null && draft.Id == draftId, "DSL-CONFLICT");
-        if (section is null && legacyResumeDraftId == draftId && draft!.Profile is not null)
-        {
-            string profile = SectionProfileName(draft.Bytes, draft.Assignment);
-            StartSection(draft.Profile, draft.Bytes, profile, draft.Intent);
-            draft = draft with { Rail = "section", VertexId = profile, Profile = profile };
-            legacyResumeDraftId = null;
-        }
         Guard.Require(section is not null && draft!.Rail == "section", "DSL-CONFLICT");
         return section!;
     }
@@ -1627,11 +1619,16 @@ public sealed class AuthoringSession : IDisposable
                 StartSection(recovery.Profile!, bytes, profile, recovery.Intent);
                 return;
             }
+            if (recovery.Profile is not null)
+            {
+                string entryProfile = SectionProfileName(BaseBytes(recovery.BaseAcceptedId), recovery.Assignment);
+                string profile = SectionProfileName(bytes, recovery.Assignment);
+                draft = new(recovery.DraftId, recovery.BaseAcceptedId, recovery.Generation, "section", profile, bytes,
+                    profile, recovery.Assignment, recovery.Intent);
+                StartSection(entryProfile, bytes, profile, recovery.Intent);
+                return;
+            }
             draft = new(recovery.DraftId, recovery.BaseAcceptedId, recovery.Generation, recovery.Rail, recovery.VertexId, bytes, recovery.Profile, recovery.Assignment, recovery.Intent);
-            // A legacy profile recovery (M1.1–M1.2b2 rails) resumes as built and becomes a section draft at cursor 0 on its
-            // first section call (RequireSection). simplify: the as-built shape stays while the M1.1 writers exist; upgrade
-            // trigger: CTL deletes them (seam S-3), after which this resume starts the section draft directly.
-            legacyResumeDraftId = recovery.Profile is not null ? recovery.DraftId : null;
         }
     }
     private void DiscardRecoveryCore() { lock (sync) { Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft is null, "DSL-DRAFT-OWNED"); recovery = null; } }

@@ -33,6 +33,28 @@ public static class ControllerSectionTests
 
     public static void Run()
     {
+        DesktopChecks.Check("LegacyProfileRecovery_ResumesSectionImmediately", () =>
+        {
+            using var source = new AuthoringSession();
+            source.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+            var started = source.BeginSectionDraft(Guid.NewGuid().ToString("D"), 0);
+            var point = Sections.View(started.Bytes, 0, SurfaceSide.Upper, "preview", 0).Points.Single(item => item.Id == "cv-3");
+            var changed = source.ApplySectionStep(started.DraftId, started.Generation,
+                new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, point.Ordinate + .01));
+            source.CaptureRecovery();
+            var envelope = source.Envelope();
+            var legacy = envelope with { Recovery = envelope.Recovery! with
+            {
+                Rail = "upper", VertexId = point.Id, Profile = "section-a", Assignment = 0
+            } };
+            using var reopened = new AuthoringSession();
+            reopened.Reopen(NativeProject.Encode(legacy));
+            reopened.ResumeRecovery();
+            var view = reopened.CurrentSectionDraft();
+            if (view is not { Cursor: 0, StepCount: 0 } || !view.Bytes.SequenceEqual(changed.Bytes))
+                throw new Exception("Legacy profile recovery did not become a section draft at cursor zero");
+        });
+
         DesktopChecks.Check("Controller_ResumeSectionRecovery_EntersSectionMode", () =>
         {
             using var source = new AuthoringSession();
