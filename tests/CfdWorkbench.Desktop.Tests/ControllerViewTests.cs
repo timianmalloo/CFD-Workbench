@@ -659,6 +659,8 @@ public static class ControllerViewTests
             }
         });
 
+        PlateAndNavbarChecks();
+
         DesktopChecks.Check("ModelArea_LayoutRoundTripAndTabReentry_AllViewsRenderPixels", () =>
         {
             using var controller = new WorkbenchController();
@@ -762,6 +764,174 @@ public static class ControllerViewTests
             fixture.Shoot();
             if (area.ThreeDRenderErrorBand.IsEffectivelyVisible) throw new Exception("Try again did not restore the 3D view");
         });
+    }
+
+    /// <summary>DR-VIEW-7 label plates and the model-area navbar, as the approved mockup draws them (docs/mockups/m12b2-views.html).</summary>
+    private static void PlateAndNavbarChecks()
+    {
+        DesktopChecks.Check("ModelArea_ViewLabels_AreTopLeftPlates_NotStrips", () =>
+        {
+            // .vlabel: a viewport-soft plate 6 px in from the view's top-left, at least 24 × 24, over a view that fills its
+            // whole slot (the drawing gains the old strip's height); the target view's plate has a 2 px station underline.
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            fixture.Controller.Layout = ViewLayout.Four;
+            fixture.Shoot();
+            var area = fixture.Area;
+            var plate = fixture.Brush("PlanSoftBrush");
+            var station = fixture.Brush("PlanSelectionBrush");
+            foreach (var (slot, label, view, drawing) in new (Grid, Button, SingleView, Control)[]
+            {
+                (area.PlanSlot, area.PlanLabel, SingleView.Plan, area.PlanCanvas), (area.ThreeDSlot, area.ThreeDLabel, SingleView.ThreeD, area.ThreeDRenderer),
+                (area.SideSlot, area.SideLabel, SingleView.Side, area.SideElevation), (area.FrontSlot, area.FrontLabel, SingleView.Front, area.FrontElevation)
+            })
+            {
+                var inSlot = label.TranslatePoint(new Point(0, 0), slot) ?? throw new Exception("No slot point");
+                Near(6, inSlot.X, 0, $"{view} plate left inset");
+                Near(6, inSlot.Y, 0, $"{view} plate top inset");
+                if (label.Bounds.Width < 24 || label.Bounds.Height < 24) throw new Exception($"{view} label is under 24 × 24: {label.Bounds.Size}");
+                if (label.Bounds.Width > slot.Bounds.Width / 2)
+                    throw new Exception($"{view} label is a strip: {label.Bounds.Width} of the view's {slot.Bounds.Width}");
+                var drawn = drawing.TranslatePoint(new Point(0, 0), slot) ?? throw new Exception("No slot point");
+                Near(0, drawn.Y, 0, $"{view} drawing starts at the slot's top");
+                Near(slot.Bounds.Height, drawing.Bounds.Height, 0, $"{view} drawing fills the slot's height");
+                var origin = label.TranslatePoint(new Point(0, 0), fixture.Window) ?? throw new Exception("No window point");
+                var onPlate = fixture.Rgb((int)origin.X + 2, (int)(origin.Y + label.Bounds.Height / 2));
+                if (Distance(onPlate, plate) > 6) throw new Exception($"{view}: no viewport-soft plate under its label ({onPlate})");
+                var beside = fixture.Rgb((int)(origin.X + label.Bounds.Width) + 8, (int)origin.Y + 3);
+                if (Distance(beside, plate) <= 6) throw new Exception($"{view}: the label row continues past its plate ({beside}) — a strip");
+                var underline = fixture.Rgb((int)(origin.X + label.Bounds.Width / 2), (int)(origin.Y + label.Bounds.Height) - 1);
+                bool target = fixture.Controller.TargetView == view;
+                if (target != Distance(underline, station) <= 6)
+                    throw new Exception($"{view}: target {target} but the plate's bottom edge is {underline}");
+            }
+            Console.WriteLine($"  view-plates: 4 plates at (6, 6), the views fill their slots; Plan {area.PlanLabel.Bounds.Size}, Side {area.SideLabel.Bounds.Size}");
+        });
+
+        DesktopChecks.Check("ModelArea_Navbar_ViewsDisplayFitFitSelection_SameActionsAsMenus", () =>
+        {
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var (area, controller, host) = (fixture.Area, fixture.Controller, fixture.Host);
+            // .navbar: centred at the bottom of the model area, 10 px above its bottom edge, over the views.
+            var navbar = area.Navbar;
+            var at = navbar.TranslatePoint(new Point(0, 0), area.PlanContent) ?? throw new Exception("No navbar point");
+            Near(area.PlanContent.Bounds.Width / 2, at.X + navbar.Bounds.Width / 2, 0.5, "navbar centre");
+            Near(area.PlanContent.Bounds.Height - 10, at.Y + navbar.Bounds.Height, 0.5, "navbar bottom");
+            Equal("Views ▾ Plan + 3D", area.NavViewsButton.Content as string, "Views ▾ names the layout");
+            Equal("Display ▾ Shaded", area.NavDisplayButton.Content as string, "Display ▾ names the target view's display");
+            Equal("Fit", area.NavFitButton.Content as string, "Fit");
+            Equal("Fit Selection", area.NavFitSelectionButton.Content as string, "Fit Selection");
+            foreach (var button in new[] { area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton })
+                if (button.Bounds.Height < 24 || button.Bounds.Width < 24) throw new Exception($"{button.Content} is under 24 × 24");
+            // The radio items are the menu rows (CommandTable, Views and Display), checked as the menu checks them.
+            foreach (var (button, menu) in new[] { (area.NavViewsButton, ViewCommands.ViewsMenu), (area.NavDisplayButton, ViewCommands.DisplayMenu) })
+            {
+                var rows = CommandTable.Rows.Where(row => row.Menu == menu).Select(row => row.Title).ToArray();
+                var items = NavItems(button);
+                if (!items.Select(item => item.Header as string).SequenceEqual(rows))
+                    throw new Exception($"{menu} ▾ items {string.Join(", ", items.Select(item => item.Header))}, not the menu's {string.Join(", ", rows)}");
+                foreach (var item in items)
+                {
+                    var id = CommandTable.Rows.Single(row => row.Menu == menu && row.Title == (string)item.Header!).Id;
+                    Equal(ViewCommands.IsChecked(id, controller), item.IsChecked, $"{item.Header} checked as the menu");
+                }
+            }
+
+            var plan = controller.Planform!;
+            int tip = Enumerable.Range(0, plan.Stations.Count).Single(i => plan.Stations[i].Eta == 1);
+            controller.Select(new Selection.Station(tip, 1));
+            fixture.Settle();
+            var home = controller.Camera3d ?? throw new Exception("No 3D camera");
+            var size = area.ThreeDRenderer.Bounds.Size;
+            Action Item(Button button, string header) => () =>
+                NavItems(button).Single(item => (string)item.Header! == header).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            Action Press(Button button) => () => button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            foreach (var (id, act) in new (string, Action)[]
+            {
+                ("view.layout-four", Item(area.NavViewsButton, "Four views")), ("view.layout-one", Item(area.NavViewsButton, "One view")),
+                ("view.layout-plan3d", Item(area.NavViewsButton, "Plan + 3D")), ("view.display-wireframe", Item(area.NavDisplayButton, "Wireframe")),
+                ("view.display-shaded", Item(area.NavDisplayButton, "Shaded")), ("view.fit", Press(area.NavFitButton)),
+                ("view.fit-selection", Press(area.NavFitSelectionButton))
+            })
+            {
+                var start = Start(id);
+                act();
+                fixture.Settle();
+                var viaNavbar = State();
+                Start(id);
+                Await(host.RunCommand(id));
+                fixture.Settle();
+                var viaMenu = State();
+                if (viaNavbar != viaMenu) throw new Exception($"{id}: the navbar gave {viaNavbar}, the menu row {viaMenu}");
+                if (viaNavbar == start || viaNavbar.Strip == "·") throw new Exception($"{id}: the navbar changed nothing ({viaNavbar})");
+                Console.WriteLine($"  navbar {id}: same as the menu row — {viaNavbar.Strip}");
+            }
+
+            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) Start(string id)
+            {
+                controller.Layout = id == "view.layout-four" ? ViewLayout.Plan3d : ViewLayout.Four;
+                controller.TargetView = SingleView.ThreeD;
+                controller.SetDisplay(SingleView.ThreeD, id == "view.display-shaded" ? DisplayMode.Wireframe : DisplayMode.Shaded);
+                fixture.Settle();
+                controller.Camera3d = home.ZoomAbout(new Point(size.Width / 3, size.Height / 3), 2, size);
+                host.Report(new StatusReport("·"));
+                fixture.Settle();
+                return State();
+            }
+
+            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) State() =>
+                (controller.Layout, controller.DisplayFor(SingleView.ThreeD), controller.Camera3d, host.StatusStrip.Text);
+        });
+
+        DesktopChecks.Check("ModelArea_Navbar_NotApplicable_DisabledWithReason", () =>
+        {
+            var gate = new GatedSurfaces();
+            using var fixture = new AreaFixture(gate: gate);
+            var area = fixture.Area;
+            fixture.Controller.TargetView = SingleView.ThreeD;
+            fixture.Settle();
+            foreach (var button in new[] { area.NavFitButton, area.NavFitSelectionButton })
+            {
+                if (button.IsEnabled) throw new Exception($"{button.Content} is enabled while the 3D view is still being drawn");
+                Equal("The 3D view is still being drawn.", ToolTip.GetTip(button) as string, $"{button.Content} reason");
+                if (!ToolTip.GetShowOnDisabled(button)) throw new Exception($"{button.Content} hides its reason while disabled");
+            }
+            if (!area.NavViewsButton.IsEnabled || !area.NavDisplayButton.IsEnabled) throw new Exception("Views ▾ or Display ▾ is disabled with a foil open");
+            gate.Release(0);
+            Await(fixture.Controller.WhenSurfaceSettledAsync());
+            fixture.Settle();
+            foreach (var button in new[] { area.NavFitButton, area.NavFitSelectionButton })
+            {
+                if (!button.IsEnabled) throw new Exception($"{button.Content} stays disabled after the first mesh");
+                if (ToolTip.GetTip(button) is not null) throw new Exception($"{button.Content} keeps a stale reason: {ToolTip.GetTip(button)}");
+            }
+        });
+
+        DesktopChecks.Check("ModelArea_Navbar_KeyboardPath_TabAfterTheViews", () =>
+        {
+            // §11.3: every pointer verb has a keyboard path. The navbar follows the views in Tab order, Views ▾ → Display ▾
+            // → Fit → Fit Selection, and Shift+Tab from Views ▾ returns into the views.
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var area = fixture.Area;
+            var buttons = new[] { area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton };
+            for (int k = 0; k + 1 < buttons.Length; k++)
+                if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(buttons[k], NavigationDirection.Next), buttons[k + 1]))
+                    throw new Exception($"Tab from {buttons[k].Content} does not reach {buttons[k + 1].Content}");
+            if (KeyboardNavigationHandler.GetNext(buttons[0], NavigationDirection.Previous) is not { } before ||
+                before is not Visual visual || !Avalonia.VisualTree.VisualExtensions.IsVisualAncestorOf(area.ViewArrangementGrid, visual))
+                throw new Exception("Shift+Tab from Views ▾ does not return into the views");
+            if (KeyboardNavigationHandler.GetNext(before, NavigationDirection.Next) != buttons[0])
+                throw new Exception("Tab from the last view stop does not reach Views ▾");
+            if (buttons.Any(button => !button.Focus(NavigationMethod.Tab))) throw new Exception("A navbar button takes no keyboard focus");
+            area.NavViewsButton.Focus(NavigationMethod.Tab);
+            area.NavViewsButton.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Space, Source = area.NavViewsButton });
+            area.NavViewsButton.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyUpEvent, Key = Key.Space, Source = area.NavViewsButton });
+            fixture.Settle();
+            if (area.NavViewsButton.Flyout is not { IsOpen: true } flyout) throw new Exception("Space on Views ▾ does not open its menu");
+            flyout.Hide();
+        });
+
+        static MenuItem[] NavItems(Button button) =>
+            (button.Flyout as MenuFlyout ?? throw new Exception($"{button.Content} has no menu")).Items.OfType<MenuItem>().ToArray();
     }
 
     internal static void RunReadiness()
@@ -1136,6 +1306,13 @@ internal static class ModelAreaParts
         public Button ThreeDLabel => area.Part<Button>("ThreeDLabel");
         public Button SideLabel => area.Part<Button>("SideLabel");
         public Button FrontLabel => area.Part<Button>("FrontLabel");
+        public ElevationView SideElevation => area.Part<ElevationView>("SideElevation");
+        public ElevationView FrontElevation => area.Part<ElevationView>("FrontElevation");
+        public Border Navbar => area.Part<Border>("Navbar");
+        public Button NavViewsButton => area.Part<Button>("NavViewsButton");
+        public Button NavDisplayButton => area.Part<Button>("NavDisplayButton");
+        public Button NavFitButton => area.Part<Button>("NavFitButton");
+        public Button NavFitSelectionButton => area.Part<Button>("NavFitSelectionButton");
         public SurfaceRenderer ThreeDRenderer => area.Part<SurfaceRenderer>("ThreeDRenderer");
         public SurfaceRenderer SideRenderer => area.Part<SurfaceRenderer>("SideRenderer");
         public SurfaceRenderer FrontRenderer => area.Part<SurfaceRenderer>("FrontRenderer");

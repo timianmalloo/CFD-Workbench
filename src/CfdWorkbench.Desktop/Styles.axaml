@@ -241,6 +241,21 @@
     <x:Double x:Key="RailWidth">3</x:Double>                  <!-- the 3 px warning / error rail -->
     <Thickness x:Key="ToastInset">12</Thickness>              <!-- spacing.toast-inset -->
     <x:Double x:Key="ViewGutter">4</x:Double>                 <!-- spacing.view-gutter (DR-VIEW-1) -->
+    <!-- DR-VIEW-7 and the model-area navbar, as the approved mockup draws them (docs/mockups/m12b2-views.html .plate,
+         .vlabel, .navbar, .menu): DESIGN.md names no token for these sizes. -->
+    <Thickness x:Key="ViewPlateInset">6</Thickness>           <!-- .vlabel left / top 6 px -->
+    <Thickness x:Key="ViewPlatePadding">8,0</Thickness>
+    <CornerRadius x:Key="ViewPlateRadius">3</CornerRadius>
+    <Thickness x:Key="ViewPlateTargetEdge">0,0,0,2</Thickness> <!-- the target view: an inset 2 px station underline -->
+    <Thickness x:Key="NavbarInset">0,0,0,10</Thickness>       <!-- bottom centre, 10 px above the model area's bottom -->
+    <Thickness x:Key="NavbarPadding">3</Thickness>
+    <CornerRadius x:Key="NavbarRadius">6</CornerRadius>
+    <x:Double x:Key="NavbarGap">2</x:Double>
+    <Thickness x:Key="NavbarButtonPadding">8,0</Thickness>
+    <Thickness x:Key="NavbarSeparatorMargin">2,3</Thickness>
+    <Thickness x:Key="NavbarMenuPadding">0,4</Thickness>
+    <Thickness x:Key="NavbarMenuItemPadding">10,0</Thickness>
+    <x:Double x:Key="NavbarMenuMinWidth">150</x:Double>
     <Thickness x:Key="ToastPadding">10,8</Thickness>
     <Thickness x:Key="HairlineLeft">1,0,0,0</Thickness>
     <Thickness x:Key="ToastBorder">0,1,1,1</Thickness>        <!-- the left edge is the rail -->
@@ -410,4 +425,20 @@
   <Style Selector="Border.toast"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource ToastBorder}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="BoxShadow" Value="{StaticResource PopoverShadow}" /><Setter Property="HorizontalAlignment" Value="Right" /><Setter Property="VerticalAlignment" Value="Bottom" /><Setter Property="Margin" Value="{StaticResource ToastInset}" /></Style>
   <Style Selector="Border.toast TextBlock"><Setter Property="FontFamily" Value="{StaticResource PropFontFamily}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="LineHeight" Value="{DynamicResource PropLineHeight}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
   <Style Selector="Button.toast-dismiss"><Setter Property="Width" Value="{StaticResource CompactTargetSize}" /><Setter Property="Height" Value="{StaticResource CompactTargetSize}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="0" /><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Top" /></Style>
+
+  <!-- DR-VIEW-7 (v10 .vlabel, ≥ 24 × 24): each view's label is a small viewport-soft plate over the view's top-left, drawn
+       above the view (ZIndex) and first in the view's Tab order; the target view's plate carries a station underline. -->
+  <Style Selector="Button.viewLabel"><Setter Property="ZIndex" Value="1" /><Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" /><Setter Property="BorderThickness" Value="{StaticResource NoInset}" /><Setter Property="HorizontalAlignment" Value="Left" /><Setter Property="VerticalAlignment" Value="Top" /><Setter Property="Margin" Value="{StaticResource ViewPlateInset}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="MinWidth" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource ViewPlatePadding}" /><Setter Property="CornerRadius" Value="{StaticResource ViewPlateRadius}" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="Button.viewLabel /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="TextTrimming" Value="CharacterEllipsis" /></Style>
+  <Style Selector="Button.viewLabel.target"><Setter Property="BorderBrush" Value="{DynamicResource PlanSelectionBrush}" /><Setter Property="BorderThickness" Value="{StaticResource ViewPlateTargetEdge}" /></Style>
+
+  <!-- The model-area navbar (v10 navbar + M1.2b2's Display ▾ and Fit Selection): chrome-coloured, bottom centre. -->
+  <Style Selector="Border.navbar"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource NavbarRadius}" /><Setter Property="Padding" Value="{StaticResource NavbarPadding}" /><Setter Property="HorizontalAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Bottom" /><Setter Property="Margin" Value="{StaticResource NavbarInset}" /></Style>
+  <Style Selector="Border.navbar-separator"><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineLeft}" /><Setter Property="Margin" Value="{StaticResource NavbarSeparatorMargin}" /></Style>
+  <Style Selector="Button.navbar"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="MinWidth" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NavbarButtonPadding}" /><Setter Property="BorderThickness" Value="{StaticResource NoInset}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="ToolTip.ShowOnDisabled" Value="True" /></Style>
+  <Style Selector="Button.navbar:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Button.navbar:disabled /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  <Style Selector="MenuFlyoutPresenter.navbar-menu"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource NavbarRadius}" /><Setter Property="Padding" Value="{StaticResource NavbarMenuPadding}" /><Setter Property="MinWidth" Value="{StaticResource NavbarMenuMinWidth}" /></Style>
+  <Style Selector="MenuFlyoutPresenter.navbar-menu MenuItem"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NavbarMenuItemPadding}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="MenuFlyoutPresenter.navbar-menu MenuItem:checked"><Setter Property="FontWeight" Value="SemiBold" /></Style>
 </Styles>
