@@ -73,7 +73,8 @@ public sealed class ElevationView : Control
     private SurfaceRenderer? band;
     private WorkbenchController? controller;
     private bool attached;
-    private readonly List<PointView> targets = [];
+    private readonly List<PointView> targetList = [];
+    private bool targetsStale = true;
     private readonly Dictionary<string, (double Low, double High, double Step)> laneRanges = new(StringComparer.Ordinal);
     private PointRef? focusedPoint;
     private PointView? hoveredPoint;
@@ -198,9 +199,9 @@ public sealed class ElevationView : Control
 
     public ViewCamera? Camera => controller?.CameraFor(View);
 
-    public IReadOnlyList<string> KeyboardTargets => targets.Select(point => point.Curve + ":" + point.Id).ToArray();
+    public IReadOnlyList<string> KeyboardTargets => CurrentTargets.Select(point => point.Curve + ":" + point.Id).ToArray();
 
-    public IReadOnlyList<PointView> Targets => targets;
+    public IReadOnlyList<PointView> Targets => CurrentTargets;
 
     /// <summary>The probe plate's box, or an empty rect with no probe.</summary>
     public Rect ProbeBounds => ProbeText is { } text ? ProbeLayout(text).Box : default;
@@ -362,7 +363,7 @@ public sealed class ElevationView : Control
         foreach (string curve in Curves)
         {
             var layer = LayerFor(curve);
-            if (layer?.HitTest(targets.Where(point => point.Curve == curve), position, controller.Selection) is not { } hit) continue;
+            if (layer?.HitTest(CurrentTargets.Where(point => point.Curve == curve), position, controller.Selection) is not { } hit) continue;
             double distance = Point.Distance(layer.ToScreen(hit), position);
             if (distance < best) { best = distance; nearest = hit; }
         }
@@ -473,8 +474,7 @@ public sealed class ElevationView : Control
     private StationFrame? Frame(double eta)
     {
         if (controller?.Inspection is null) return null;
-        byte[] source = controller.Draft?.Bytes ?? Encoding.UTF8.GetBytes(controller.AcceptedSource);
-        try { return Placement.Frame(source, eta); }
+        try { return Placement.Frame(controller.Draft?.Bytes ?? Encoding.UTF8.GetBytes(controller.AcceptedSource), eta); }
         catch (ContractError) { return null; }
     }
 
@@ -554,11 +554,11 @@ public sealed class ElevationView : Control
     public void FocusPoint(PointRef point)
     {
         focusedPoint = point;
-        int index = targets.FindIndex(item => item.Curve == point.Curve && item.Id == point.VertexId);
+        int index = CurrentTargets.FindIndex(item => item.Curve == point.Curve && item.Id == point.VertexId);
         if (index >= 0)
         {
             keyboardIndex = index;
-            var view = targets[index];
+            var view = CurrentTargets[index];
             var position = ScreenPoint(view);
             double desiredX = Math.Clamp(position.X, 24, Math.Max(24, Bounds.Width - 24));
             double desiredY = position.Y;
@@ -578,10 +578,10 @@ public sealed class ElevationView : Control
 
     public bool FocusNext(bool reverse = false)
     {
-        if (targets.Count == 0) return false;
+        if (CurrentTargets.Count == 0) return false;
         int next = keyboardIndex + (reverse ? -1 : 1);
-        if (next < 0 || next >= targets.Count) return false;
-        FocusPoint(new PointRef(targets[next].Curve, targets[next].Id));
+        if (next < 0 || next >= CurrentTargets.Count) return false;
+        FocusPoint(new PointRef(CurrentTargets[next].Curve, CurrentTargets[next].Id));
         return true;
     }
 
@@ -589,10 +589,10 @@ public sealed class ElevationView : Control
     {
         base.OnGotFocus(e);
         // DR-NAV-1: Tab into an elevation focuses its selected point, or its first point; ] and [ walk on from there.
-        if (e.NavigationMethod != NavigationMethod.Tab || targets.Count == 0) return;
+        if (e.NavigationMethod != NavigationMethod.Tab || CurrentTargets.Count == 0) return;
         var selected = controller?.Selection is Selection.Points { Items: var items }
-            ? items.FirstOrDefault(item => targets.Any(point => point.Curve == item.Curve && point.Id == item.VertexId)) : null;
-        FocusPoint(selected ?? new PointRef(targets[0].Curve, targets[0].Id));
+            ? items.FirstOrDefault(item => CurrentTargets.Any(point => point.Curve == item.Curve && point.Id == item.VertexId)) : null;
+        FocusPoint(selected ?? new PointRef(CurrentTargets[0].Curve, CurrentTargets[0].Id));
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
@@ -695,7 +695,7 @@ public sealed class ElevationView : Control
     }
 
     private PointView? Focused() => focusedPoint is { } focus
-        ? targets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId) : null;
+        ? CurrentTargets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId) : null;
 
     // ---------------------------------------------------------------- pointer
 
@@ -873,13 +873,27 @@ public sealed class ElevationView : Control
             Dispatcher.UIThread.Post(Update);
             return;
         }
-        targets.Clear();
-        if (controller?.Inspection is not null)
-            foreach (string curve in Curves)
-                if (controller.CurveFor(curve) is { } view) targets.AddRange(view.Points);
-        if (focusedPoint is { } focus && !targets.Any(point => point.Curve == focus.Curve && point.Id == focus.VertexId))
-            focusedPoint = null;
+        // A hidden elevation (Plan + 3D) does no channel work per change; it rebuilds when next drawn or read.
+        targetsStale = true;
+        if (IsEffectivelyVisible) _ = CurrentTargets;
         Redraw();
+    }
+
+    /// <summary>The channel points of this view's curves in Tab order, rebuilt after a change when first needed.</summary>
+    private List<PointView> CurrentTargets
+    {
+        get
+        {
+            if (!targetsStale) return targetList;
+            targetsStale = false;
+            targetList.Clear();
+            if (controller?.Inspection is not null)
+                foreach (string curve in Curves)
+                    if (controller.CurveFor(curve) is { } view) targetList.AddRange(view.Points);
+            if (focusedPoint is { } focus && !targetList.Any(point => point.Curve == focus.Curve && point.Id == focus.VertexId))
+                focusedPoint = null;
+            return targetList;
+        }
     }
 
     private void Redraw()
@@ -1121,7 +1135,7 @@ public sealed class ElevationView : Control
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
         protected override string GetNameCore() => view.GroupName;
         protected override List<AutomationPeer>? GetChildrenCore() =>
-            view.targets.Select(point => CurvePointLayer.Peer(view, () => view.PointName(point), () => view.ScreenPoint(point),
+            view.CurrentTargets.Select(point => CurvePointLayer.Peer(view, () => view.PointName(point), () => view.ScreenPoint(point),
                 () => view.LastValueRequest = $"{point.Curve}:{point.Id}")).ToList();
     }
 
