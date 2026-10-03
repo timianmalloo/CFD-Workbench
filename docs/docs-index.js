@@ -1708,7 +1708,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18ebe089416e70074ba2603f713aeb94fed158e5fbbab87ddaad1988fb30a76c"
+      "sourceSha256": "718d1f116a38c8566c0629dee80e966020dd7772b99cb6ad545f2196ea7c9f09"
     },
     {
       "id": "thick-client-shell",
@@ -2476,7 +2476,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "65d8dedf39d1e45ab83c7e012859c8eb555930b22f042d64f1e27b7561fb48a4"
+      "sourceSha256": "c926f990c9f9aff44414cb5baeb387ba397f3dc14b13bc33ced1e547e66d3492"
     },
     {
       "id": "design-section-editor",
@@ -3737,7 +3737,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ed4234adfd0dd014eb1e205e1460e3aee29d9584711673f5405b69b90fdf03f"
+      "sourceSha256": "b058b95a9a9b9b534d88040fb363bce094374221f973349da28d0cc746bdba25"
     },
     {
       "id": "domain-experts",
@@ -7802,7 +7802,43 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "afa2eb389b44da436b0398fd36ab0dacea18ff046a5b266d6b83f3f5173ad3a0"
+      "sourceSha256": "99274226e8833a52ba2f38a59a360d5957354bee74413f55fd770a458ca9a2d2"
+    },
+    {
+      "id": "proof-m12c-old-build",
+      "path": "docs/proof/m12c-old-build/README.md",
+      "title": "M1.2c old-build characterization of section files",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2026-12-30",
+      "reviewSuggested": [],
+      "summary": "What the 4b9bc35 CLI and app controller do with M1.2c section files (cases a–e of design §3.3): every file is refused or read-only, no edit or Save succeeds, and every file's bytes are unchanged.",
+      "tags": [
+        "m12c",
+        "sdr",
+        "foildsl",
+        "characterization",
+        "section",
+        "downgrade"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7d0bcfae3ee831072f629ec8d9f3a4cacf1971b608aa58287b13606ab9ff36e6"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -9567,5 +9603,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "dbb46bb9f11e3190d1b5b2d4628e5c8697540be3560a6a87ebf4ee963abce2b1"
+  "graphSha256": "3bc8d4b4c9a3baebdbf5e6ccc8ce6f6e1d354720c5bbe237c5d7513f17541e8b"
 };

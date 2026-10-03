@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T15:52:54Z",
+  "generated": "2026-10-03T16:18:22Z",
   "audit": [
     {
       "actor": null,
@@ -22459,6 +22459,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T15:52:05Z",
       "duration_seconds": 48.0
+    },
+    {
+      "id": "al-01M418YD8014RYHK3S492YJ8P8",
+      "shortname": "join-m12c-sdr",
+      "datetime": "2026-10-03T16:18:22Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-sdr into feature/ui-cad-direction",
+      "summary": "SDR (Opus 5.5): section draft in AuthoringSession (byte steps + cursor, Finish = one 'section' row, no-op Finish = Cancel, recovery names base profile, 7 section.* events); SetType/SetTangent/InsertAnchor dispatch to the SectionEdits stub (S-8); old-build receipt on 4b9bc35: all refused or read-only, SHA unchanged; c2/d2/e2 observe DSL-LOCK, e1 DSL-NOT-ASSESSED (design §3.3 updated). 29/29 SDR names; run-tests 46 s. CTL findings: assess-cancel duration, post-resume view reader, legacy recovery shape. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T16:17:32Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
