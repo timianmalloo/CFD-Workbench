@@ -28,6 +28,9 @@ public static class PropertiesViewTests
 
     public static void Run()
     {
+        // Track PNL: the section mode's rows on the realized window (PointsPaneTests holds them beside the Points pane).
+        PointsPaneTests.RunProperties();
+
         // ---------------- the model (PropertiesView.cs) ----------------
 
         DesktopChecks.Check("PropertiesView_EveryQuantityRow_HasUnitOrIsDimensionless", () =>

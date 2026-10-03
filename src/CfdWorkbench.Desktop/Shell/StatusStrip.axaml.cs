@@ -3,8 +3,12 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media;
+using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Desktop.Shell;
+
+/// <summary>The strip's one action (DR-STATUS-1): Try again, or Show (design §5.2), with what it runs.</summary>
+public sealed record StripAction(string Label, Action Run);
 
 /// <summary>
 /// The status strip along the bottom of the shell (DR-STATUS-1; DESIGN.md §4 Status strip). It shows the last report only:
@@ -25,7 +29,15 @@ public partial class StatusStrip : UserControl
     {
         InitializeComponent();
         SizeChanged += (_, _) => FitItems();
+        // The one action slot: whatever the shown report carries runs here (UI-DEAD-CONTROL: never a dead button).
+        StatusTryAgainButton.Click += (_, _) => Action?.Run();
     }
+
+    /// <summary>What Try again runs (the shell sets it); a report that offers Try again carries it as its action.</summary>
+    public Action? TryAgain { get; set; }
+
+    /// <summary>The action the shown report carries, or null.</summary>
+    public StripAction? Action { get; private set; }
 
     /// <summary>The kind of the report the strip shows.</summary>
     public ReportKind Kind { get; private set; }
@@ -34,8 +46,13 @@ public partial class StatusStrip : UserControl
     public string Text => StatusText.Text ?? "";
 
     /// <summary>Replaces the shown report. <paramref name="offerTryAgain"/> shows the one action after the message.</summary>
-    public void Show(StatusReport report, bool offerTryAgain = false)
+    public void Show(StatusReport report, bool offerTryAgain = false) =>
+        Show(report, offerTryAgain ? new StripAction("Try again", () => TryAgain?.Invoke()) : null);
+
+    /// <summary>Replaces the shown report; <paramref name="action"/> (Try again or Show) is the one action after it.</summary>
+    public void Show(StatusReport report, StripAction? action)
     {
+        ArgumentNullException.ThrowIfNull(report);
         Kind = report.Kind;
         StatusText.Text = report.Text;
         // Nothing is lost when the strip trims: the full text is the tooltip and the accessible name.
@@ -46,14 +63,17 @@ public partial class StatusStrip : UserControl
             control.Classes.Set("warning", report.Kind == ReportKind.Warning);
             control.Classes.Set("error", report.Kind == ReportKind.Error);
         }
-        StatusKindIcon.Data = Geometry.Parse(report.Kind switch
+        StatusKindIcon.Data = Avalonia.Media.Geometry.Parse(report.Kind switch
         {
             ReportKind.Warning => IconWarning,
             ReportKind.Error => IconError,
             _ => IconInfo
         });
         StatusKindIcon.IsVisible = report.Text.Length > 0;
-        StatusTryAgainButton.IsVisible = offerTryAgain;
+        Action = action;
+        StatusTryAgainButton.Content = action?.Label ?? "Try again";
+        AutomationProperties.SetName(StatusTryAgainButton, action?.Label);
+        StatusTryAgainButton.IsVisible = action is not null;
     }
 
     /// <summary>Empties the strip (the recent-files list was cleared after all).</summary>
@@ -64,8 +84,10 @@ public partial class StatusStrip : UserControl
     }
 
     /// <summary>The read-only items: selection, units, the estimate note and Text size (DESIGN.md §4).</summary>
-    public void ShowItems(string? selection, bool foilOpen, bool estimates, double textScale)
+    public void ShowItems(string? selection, bool foilOpen, bool estimates, double textScale, string units = "mm")
     {
+        // The section mode measures in chord fractions (the mockup's strip reads "% chord" there).
+        if (UnitsItemText.Text != units) UnitsItemText.Text = units;
         SelectionItemText.Text = selection ?? "";
         AutomationProperties.SetName(SelectionItem, selection is null ? null : "Selection: " + selection);
         string size = string.Create(CultureInfo.InvariantCulture, $"Text {textScale * 100:0} %");
@@ -114,4 +136,101 @@ public partial class StatusStrip : UserControl
                 StripRoot.Resources[key] = size * scale;
         FitItems();
     }
+}
+
+/// <summary>One step's strip report and the point it moved (the point Show selects when the step makes a crossing).</summary>
+public sealed record SectionStepCopy(string Text, PointRef? Moved);
+
+/// <summary>
+/// The section steps' strip reports (design §11.4 COPY-174..176; paired copy COPY-185 and COPY-186, Ruling 60; the
+/// insert report that replaces M1.1's Insert report, CTL retirement ruling 1). Every number is the step's own measurement:
+/// the largest change is Core's <c>MaxChange</c> on its oracle, and point counts are read from the bytes.
+/// </summary>
+public static class SectionStrip
+{
+    private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+
+    public static SectionStepCopy? Report(WorkbenchController controller, byte[] before, SectionMode mode, string station)
+    {
+        ArgumentNullException.ThrowIfNull(controller);
+        ArgumentNullException.ThrowIfNull(mode);
+        if (mode.LastReport is not { } report) return null;
+        int assignment = mode.Draft.Assignment;
+        var oldUpper = Sections.View(before, assignment, SurfaceSide.Upper, "accepted", 0);
+        var oldLower = Sections.View(before, assignment, SurfaceSide.Lower, "accepted", 0);
+        var upper = controller.SectionCurve(SurfaceSide.Upper)!;
+        var lower = controller.SectionCurve(SurfaceSide.Lower)!;
+        string largest = $"Largest change {Pct(report.MaxChange)} % chord.";
+        string counts = oldUpper.Points.Count == oldLower.Points.Count && upper.Points.Count == lower.Points.Count
+            ? $"{oldUpper.Points.Count} → {upper.Points.Count} points each"
+            : $"upper {oldUpper.Points.Count} → {upper.Points.Count}, lower {oldLower.Points.Count} → {lower.Points.Count} points";
+        switch (report.Kind)
+        {
+            case "move":
+                return Moved(before, mode, station, oldUpper, oldLower, upper, lower);
+            case "insert" or "insert-anchor":
+            {
+                var added = Added(oldUpper, upper) ?? Added(oldLower, lower);
+                if (added is null) return new($"Inserted a point ({counts}). {largest}", null);
+                string what = report.Kind == "insert-anchor" ? "an anchor" : "a point";
+                return new($"Inserted {what} at {Pct(added.SpanMeters)} % chord: now point {added.Index + 1} on both surfaces ({counts}). {largest}", null);
+            }
+            case "delete":
+                return new($"Deleted a point on both surfaces ({counts}). {largest}", null);
+            case "set-type" when upper.Points.Count > oldUpper.Points.Count:
+            {
+                // COPY-185 (proposed): the point became an anchor on both surfaces.
+                var anchor = upper.Points.Where(point => point.Role == PointRole.Anchor)
+                    .FirstOrDefault(point => !oldUpper.Points.Any(old => old.Id == point.Id && old.Role == PointRole.Anchor));
+                if (anchor is null) return new($"The point is now an anchor on both surfaces ({counts}). {largest}", null);
+                return new($"Point {anchor.Index + 1} is now an anchor on both surfaces (point {anchor.Index + 1} of {upper.Points.Count}; {counts}). " +
+                    $"{largest} Curvature now breaks at {Pct(anchor.SpanMeters)} % chord.", null);
+            }
+            case "set-type":
+                return new($"The point is now a control point on both surfaces ({counts}). {largest}", null);   // COPY-175, paired
+            case "set-tangent":
+                return new($"Tangent changed on both surfaces. {largest}", null);
+            case "fair" or "rebuild":
+                return new($"Smoothed the section ({counts}). {largest}", null);
+            case "import":
+                return new(report.Import is { } import
+                    ? $"Imported the .dat section: {import.VertexCount} points, largest residual {Pct(import.MaxResidual)} % chord."
+                    : $"Imported the .dat section. {largest}", null);
+            case "make-unique":
+                return new($"{station} now has its own copy of the section. The other stations keep {mode.Draft.Profile}.", null);
+            case "thickness":
+                return new(mode.Draft.Intent == ThicknessIntent.UseSource
+                    ? "Station t/c now comes from this section."
+                    : "Station t/c now comes from the Thickness curve.", null);
+            default:
+                return new($"Section changed. {largest}", null);
+        }
+    }
+
+    private static PointView? Added(CurveView before, CurveView after) =>
+        after.Points.FirstOrDefault(point => before.Points.All(old => old.Id != point.Id));
+
+    // COPY-176 (a y move on one surface) and COPY-186 (an x move, shared by both surfaces).
+    private static SectionStepCopy? Moved(byte[] before, SectionMode mode, string station, CurveView oldUpper, CurveView oldLower,
+        CurveView upper, CurveView lower)
+    {
+        var facts = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment);
+        string tail = $"Own t/c {Pct(facts.OwnThickness)} %; {station} stays {Pct(facts.StationThicknessRatio)} % t/c.";
+        foreach (var (side, old, now) in new[] { ("upper", oldUpper, upper), ("lower", oldLower, lower) })
+        {
+            foreach (var point in now.Points)
+            {
+                var was = old.Points.FirstOrDefault(item => item.Id == point.Id);
+                if (was is null || was.SpanMeters == point.SpanMeters && was.Ordinate == point.Ordinate) continue;
+                var moved = new PointRef(side, point.Id, mode.Draft.Profile);
+                if (was.SpanMeters != point.SpanMeters)
+                    return new($"Moved point {point.Index + 1} on both surfaces: x {Pct(was.SpanMeters)} → {Pct(point.SpanMeters)} % chord. {tail}", moved);
+                double distance = Math.Abs(point.Ordinate - was.Ordinate);
+                return new($"Moved {side} point {point.Index + 1} by {Pct(distance)} % chord. {tail}", moved);
+            }
+        }
+        return null;
+    }
+
+    private static string Pct(double fraction) => (fraction * 100).ToString("0.00", Inv).Replace('-', Quantity.Minus);
 }

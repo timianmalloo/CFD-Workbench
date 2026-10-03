@@ -38,6 +38,9 @@ public static class CommandTable
 {
     private static readonly DelegateCommand NoOp = new(() => { });
 
+    /// <summary>The menu that holds the section editor's rows (§5.2).</summary>
+    public const string SectionMenu = "Section";
+
     /// <summary>The View submenu that holds the Text size items.</summary>
     public const string TextSizeMenu = "Text size";
 
@@ -97,6 +100,8 @@ public static class CommandTable
         new("view.pan-up", "Pan up", ViewCommands.PanMenu, "⇧↑ / ⌥↑", false, NoOp),
         new("view.pan-down", "Pan down", ViewCommands.PanMenu, "⇧↓ / ⌥↓", false, NoOp),
         new("view.comb", "Curvature comb", "View", "C", false, NoOp),
+        // M1.2c §5.2: Thickness ×2 draws y at twice its scale in the section editor; values are never scaled.
+        new("view.thickness-x2", "Thickness ×2", "View", null, false, NoOp),
         new("view.zoom-in", "Zoom in", "View", "⌘=", false, NoOp),
         new("view.zoom-out", "Zoom out", "View", "⌘−", false, NoOp),
 
@@ -114,12 +119,26 @@ public static class CommandTable
         new("point.tangent-symmetric", "Symmetric tangent", "Edit", null, false, NoOp),
         new("point.tangent-corner", "Corner tangent", "Edit", null, false, NoOp),
 
+        // Section (M1.2c §5.2): the section editor's rows. Each runs, or names why it cannot (ShellHost.ShellCommandReason).
+        new("section.edit", "Edit section…", SectionMenu, "↩", false, NoOp),
+        new("section.finish", "Finish section", SectionMenu, "⌘↩", false, NoOp),
+        new("section.cancel", "Cancel section", SectionMenu, null, false, NoOp),
+        new("section.insert-point", "Insert point", SectionMenu, null, false, NoOp),
+        new("section.insert-anchor", "Insert anchor (keep shape)", SectionMenu, null, false, NoOp),
+        new("section.delete-point", "Delete point", SectionMenu, "⌫", false, NoOp),
+        new("section.smooth", "Smooth", SectionMenu, null, false, NoOp),
+        new("section.import-dat", "Import .dat…", SectionMenu, null, false, NoOp),
+        new("section.make-unique", "Make unique to this station", SectionMenu, null, false, NoOp),
+        new("section.thickness-channel", "Station t/c from the Thickness curve", SectionMenu, null, false, NoOp),
+        new("section.thickness-source", "Station t/c from this section", SectionMenu, null, false, NoOp),
+
         // Window
         new("window.minimize", "Minimize", "Window", "⌘M", false, NoOp),
         new("window.zoom", "Zoom", "Window", "⌃⌘F", false, NoOp),
         new("window.workspace-planform", "Planform", "Window", "⌘1", false, NoOp),
         new("window.workspace-precision", "Precision", "Window", "⌘2", false, NoOp),
         new("window.workspace-review", "Review", "Window", "⌘3", false, NoOp),
+        new("window.points", "Points", "Window", null, false, NoOp),
         new("window.reset-layout", "Reset layout", "Window", "⌥⌘R", false, NoOp),
         new("window.maximize-pane", "Maximize pane", "Window", "⇧⌘M", false, NoOp)
     ];

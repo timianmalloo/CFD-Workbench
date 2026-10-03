@@ -19,14 +19,16 @@ for _stream in (sys.stdout, sys.stderr):
         except (ValueError, OSError):
             pass
 
-DECLARATION = re.compile(r"\bevent\s+[\w<>,.?\[\] ]+?\s+(\w+)\s*[;{=]")
+# "()" admits tuple types: without it `event Action<PointRef?, (double X0, double X1)?>? SectionShowRequested` was never
+# seen, so an unwired event passed (found by M1.2c PNL).
+DECLARATION = re.compile(r"\bevent\s+[\w<>,.?\[\]() ]+?\s+(\w+)\s*[;{=]")
 
 ALLOWED = {
     "CanExecuteChanged": "ICommand member; the framework subscribes through command bindings, not src/",
     "VertexSelected": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "VertexMoved": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until app-shell D4 (M1.2e)",
-    "SectionChanged": "WorkbenchController: the section-editor surface and panes subscribe in M1.2c EDT and PNL (CTL added it first)",
+    "SectionShowRequested": "ShellHost (PNL): the section canvas frames the blocker from the strip's Show; EDT subscribes in M1.2c",
 }
 
 

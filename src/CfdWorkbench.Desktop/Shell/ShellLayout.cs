@@ -13,8 +13,12 @@ public sealed class ShellLayoutFactory : Factory
     public IDocument ModelDocument { get; private set; } = null!;
     public IDocument SectionSampleDocument { get; private set; } = null!;
     public IDocument FoilSourceDocument { get; private set; } = null!;
-    public IDocument SectionDocument { get; private set; } = null!;
+    /// <summary>The Points pane (§11.4). Its home is the right side bar (OD-3 B), shown by the Precision workspace.</summary>
+    public ITool PointsTool { get; private set; } = null!;
     public IToolDock LeftToolDock { get; private set; } = null!;
+    /// <summary>The right side bar. It is in the layout only while a workspace or the user shows it.</summary>
+    public IToolDock RightToolDock { get; private set; } = null!;
+    public IProportionalDockSplitter RightSplitter { get; } = new ProportionalDockSplitter();
     public IDocumentDock MainDocumentDock { get; private set; } = null!;
     public IProportionalDock TopProportionalDock { get; private set; } = null!;
     public IRootDock RootLayout { get; private set; } = null!;
@@ -72,12 +76,13 @@ public sealed class ShellLayoutFactory : Factory
             CanFloat = false
         };
 
-        SectionDocument = new Document
+        PointsTool = new Tool
         {
-            Id = "section",
-            Title = "Section",
-            CanClose = false,
-            CanFloat = false
+            Id = "points",
+            Title = "Points",
+            CanPin = false,
+            CanClose = true,
+            CanFloat = true
         };
 
         LeftToolDock = new ToolDock
@@ -95,15 +100,25 @@ public sealed class ShellLayoutFactory : Factory
             Id = "Docs",
             Title = "Model area",
             ActiveDockable = ModelDocument,
-            VisibleDockables = CreateList<IDockable>(ModelDocument, SectionSampleDocument, FoilSourceDocument, SectionDocument),
+            VisibleDockables = CreateList<IDockable>(ModelDocument, SectionSampleDocument, FoilSourceDocument),
             CanCreateDocument = false
+        };
+
+        RightToolDock = new ToolDock
+        {
+            Id = "RightDock",
+            Title = "Right side bar",
+            Proportion = 0.2,
+            Alignment = Alignment.Right,
+            ActiveDockable = PointsTool,
+            VisibleDockables = CreateList<IDockable>(PointsTool)
         };
 
         TopProportionalDock = new ProportionalDock
         {
             Id = "Top",
             Orientation = Orientation.Horizontal,
-            VisibleDockables = CreateList<IDockable>(LeftToolDock, new ProportionalDockSplitter(), MainDocumentDock)
+            VisibleDockables = CreateList<IDockable>(LeftToolDock, new ProportionalDockSplitter(), MainDocumentDock, RightSplitter, RightToolDock)
         };
 
         var root = CreateRootDock();
@@ -114,6 +129,9 @@ public sealed class ShellLayoutFactory : Factory
 
         RootLayout = root;
         InitLayout(root);
+        // The right side bar is initialized with the layout, then held out of it until a workspace shows it (§11.8).
+        TopProportionalDock.VisibleDockables!.Remove(RightToolDock);
+        TopProportionalDock.VisibleDockables!.Remove(RightSplitter);
         return root;
     }
 
@@ -125,7 +143,7 @@ public sealed class ShellLayoutFactory : Factory
         "model" => ModelDocument,
         "section-sample" => SectionSampleDocument,
         "foil-source" => FoilSourceDocument,
-        "section" => SectionDocument,
+        "points" => PointsTool,
         _ => FindDockable(RootLayout, id)
     };
 

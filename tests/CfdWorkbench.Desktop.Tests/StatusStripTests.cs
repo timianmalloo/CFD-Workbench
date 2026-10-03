@@ -192,6 +192,8 @@ public static class StatusStripTests
         });
 
         Capture();
+        // Track PNL's window checks (the section strip, Show, the Points pane, Properties' section rows, workspaces).
+        PointsPaneTests.Run();
     }
 
     /// <summary>

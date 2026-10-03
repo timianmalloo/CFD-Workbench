@@ -38,6 +38,11 @@ public sealed class ShellHost : Grid
 
     public PropertiesPane Properties { get; }
     public BrowserPane Browser { get; }
+    /// <summary>The Points pane (§11.4); its home is the right side bar (OD-3 B).</summary>
+    public PointsPane Points { get; }
+
+    /// <summary>The workspace last applied (⌘1 / ⌘2 / ⌘3); Planform at start (§11.8, no memory: simplify).</summary>
+    public WorkspaceId Workspace { get; private set; } = WorkspaceId.Planform;
     public ModelArea ModelView { get; }
 
     /// <summary>The status strip under every pane and dock (DR-STATUS-1): the window's one polite status region.</summary>
@@ -91,7 +96,9 @@ public sealed class ShellHost : Grid
         string? id = runSelection ? PaletteMatches.FirstOrDefault()?.Id : null;
         paletteOverlay.IsVisible = false;
         paletteOrigin?.Focus();
-        if (id is not null) PaletteCommand?.Invoke(id);
+        if (id is null) return;
+        if (IsShellCommand(id)) _ = RunCommand(id);
+        else PaletteCommand?.Invoke(id);
     }
 
     public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null, Func<Task<string?>>? pickOpenFile = null)
@@ -118,6 +125,7 @@ public sealed class ShellHost : Grid
 
         Properties = new PropertiesPane();
         Browser = new BrowserPane();
+        Points = new PointsPane { Name = "PointsPane" };
         ModelView = new ModelArea();
         StatusStrip = new StatusStrip { Name = "StatusStrip" };
         // The strip starts empty (DR-STATUS-4): the controller's opening prompt is the Start view's to show.
@@ -125,6 +133,9 @@ public sealed class ShellHost : Grid
         // PG-26 / DR-STATUS-1: the pane's reports (type, kind, nudge value, echoes, "Selected …", availability) go to the
         // strip; a field error stays on the field's own assertive message and never reaches it.
         Properties.Reported += Report;
+        Points.Reported += Report;
+        Properties.EditSectionRequested += () => _ = EnterSectionAsync(EntryOrigin.Properties);
+        Properties.SectionStepRequested += ApplySectionStepAsync;
         ModelView.PlanCanvas.Controller = controller;
         // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.
         ModelView.PlanCanvas.TabOut = Properties.FocusFirstValue;
@@ -134,18 +145,17 @@ public sealed class ShellHost : Grid
         LayoutFactory.PropertiesTool.Context = Properties;
         LayoutFactory.BrowserTool.Context = Browser;
         LayoutFactory.RailControlsTool.Context = null;
+        LayoutFactory.PointsTool.Context = Points;
 
         // A view has one logical parent. Dock owns the only document tab strip.
         var sectionSample = ModelView.SectionSampleBody;
         var foilSource = ModelView.FoilSourceBody;
-        var sectionEditor = ModelView.SectionEditor;
+        // M1.2c: the Section tab is gone; the section editor is the model area's Section mode (ModelArea.Mode, EDT).
         ModelView.DetachedDocumentBodies.Children.Remove(sectionSample);
         ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
-        ModelView.DetachedDocumentBodies.Children.Remove(sectionEditor);
         LayoutFactory.ModelDocument.Context = ModelView;
         LayoutFactory.SectionSampleDocument.Context = sectionSample;
         LayoutFactory.FoilSourceDocument.Context = foilSource;
-        LayoutFactory.SectionDocument.Context = sectionEditor;
 
         DockHost = new DockControl
         {
@@ -199,6 +209,7 @@ public sealed class ShellHost : Grid
         // Wire Controller updates
         Controller.Changed += OnControllerChanged;
         Controller.SelectionChanged += OnSelectionChanged;
+        Controller.SectionChanged += OnSectionChanged;
 
         // Wire StartView actions in ModelView.
         ModelView.StartCardView.StartNewButton.Click += async (_, _) => await OpenNewFoilAsync();
@@ -206,7 +217,7 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartExampleButton.Click += async (_, _) => await OpenExampleAsync();
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
-        StatusStrip.StatusTryAgainButton.Click += async (_, _) => await ClearRecentAsync();
+        StatusStrip.TryAgain = () => _ = ClearRecentAsync();
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -425,12 +436,16 @@ public sealed class ShellHost : Grid
     /// for a commit warning, the toast opens. STATUS-CLOBBER: the report supersedes every controller status written so far,
     /// so neither a refresh nor a background completion that started earlier replaces it.
     /// </summary>
-    public void Report(StatusReport report) => Report(report, offerTryAgain: false);
+    public void Report(StatusReport report) => Report(report, (StripAction?)null);
 
-    private void Report(StatusReport report, bool offerTryAgain)
+    private void Report(StatusReport report, bool offerTryAgain) =>
+        Report(report, offerTryAgain ? new StripAction("Try again", () => _ = ClearRecentAsync()) : null);
+
+    /// <summary>A report with the strip's one action (Try again or Show, design §5.2).</summary>
+    public void Report(StatusReport report, StripAction? action)
     {
         shownStatusVersion = Controller.SupersedeStatus();
-        StatusStrip.Show(report, offerTryAgain);
+        StatusStrip.Show(report, action);
         if (report.Toast) ModelView.ShowToast(report.Text);
     }
 
@@ -442,6 +457,9 @@ public sealed class ShellHost : Grid
         var (text, kind, version) = Controller.StatusSnapshot();
         if (version <= shownStatusVersion) return;
         shownStatusVersion = version;
+        // In the section mode the strip carries the step's own report; the assessment's placeholder and its crossing
+        // transitions are drawn from the mode by OnSectionChanged, so COPY-124 is shown once, on a real clearing.
+        if (Controller.Section is not null && text is SectionChecking or SectionCrossing or SectionCleared) return;
         if (!string.IsNullOrWhiteSpace(text)) StatusStrip.Show(new StatusReport(text, kind));
     }
 
@@ -485,6 +503,7 @@ public sealed class ShellHost : Grid
         PaneRefreshes++;
         Properties.Bind(Controller);
         Browser.Bind(Controller);
+        Points.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
         ReportControllerStatus();
         // The toast closes when the next commit starts (DESIGN.md §4 Toast).
@@ -492,7 +511,7 @@ public sealed class ShellHost : Grid
         lastGesture = Controller.Gesture;
 
         bool foilOpen = Controller.Inspection is not null;
-        StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale);
+        StatusStrip.ShowItems(SelectionItemText(), foilOpen, Controller.Estimates is not null, Properties.TextScale, StripUnits());
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
         {
@@ -670,8 +689,10 @@ public sealed class ShellHost : Grid
         Properties.ApplyTextScale(step);
         StatusStrip.ApplyTextScale(step);
         ModelView.ApplyTextScale(step);
-        StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step);
+        StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step, StripUnits());
     }
+
+    private string StripUnits() => Controller.Section is null ? "mm" : "% chord";
 
     /// <summary>The strip's selection item ("TE · pt 7 of 14", "Twist · pt 5 of 7"); absent with no point selected.</summary>
     private string? SelectionItemText()
@@ -679,6 +700,15 @@ public sealed class ShellHost : Grid
         if (Controller.Selection is not Selection.Points { Items.Count: > 0 } points) return null;
         if (points.Items.Count > 1) return $"{points.Items.Count} points";
         var item = points.Items[0];
+        if (item.Curve is "upper" or "lower")
+        {
+            // "Upper · pt 7 of 13 ⇄ lower" (Ruling 60's partner cue); the nose is one shared point.
+            var surface = Controller.SectionCurve(SectionPoints.Side(item.Curve));
+            var vertex = surface?.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
+            if (surface is null || vertex is null) return null;
+            if (vertex.Role == PointRole.Nose) return "Nose";
+            return $"{SectionPoints.Surface(item.Curve)} · pt {vertex.Index + 1} of {surface.Points.Count} ⇄ {SectionPoints.Other(item.Curve)}";
+        }
         if (Controller.CurveFor(item.Curve) is not { } curve) return null;
         var point = curve.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
         string name = item.Curve switch
@@ -737,6 +767,7 @@ public sealed class ShellHost : Grid
 
     public bool CanRun(string id)
     {
+        if (IsShellCommand(id)) return ShellCommandReason(id) is null;
         if (id is "view.zoom-in" or "view.zoom-out")
             return Controller.Inspection is not null || !ModelViewFocused();
         if (id is "view.comb")
@@ -761,6 +792,11 @@ public sealed class ShellHost : Grid
         if (CommandTable.TextSizeOf(id) is { } size)
         {
             SetTextScale(size);
+            return;
+        }
+        if (IsShellCommand(id))
+        {
+            await RunShellCommandAsync(id);
             return;
         }
         switch (id)
@@ -807,6 +843,369 @@ public sealed class ShellHost : Grid
             ViewCommands.Run(id, ViewContext());
         }
     }
+
+    // ---------------- workspaces (§11.8) ----------------
+
+    /// <summary>
+    /// Applies one workspace's preset (⌘1 / ⌘2 / ⌘3): the side bars its regions open, from <see cref="WorkspacePresets"/>
+    /// (the codec's homes), and its view arrangement. Precision = Planform plus the Points pane in the right side bar.
+    /// simplify: no per-workspace memory and no persistence of the switch; the ceiling is that a user's changes to a
+    /// workspace are not remembered on return; the upgrade trigger is app-shell D4 (M1.2e).
+    /// </summary>
+    public void ApplyWorkspace(WorkspaceId workspace)
+    {
+        Workspace = workspace;
+        var layout = WorkspacePresets.Preset(workspace).Workspaces.Single(item => item.Id == workspace);
+        SetLeftShown(layout.Regions.Any(region => region.Id == RegionId.Left && region.Open && region.Groups.Count > 0));
+        SetRightShown(WorkspacePresets.ShownIn(workspace, "points") == RegionId.Right);
+        if (Controller.Inspection is not null && Controller.Section is null)
+            Controller.Layout = layout.Views.Arrangement == ViewArrangement.Four ? ViewLayout.Four : ViewLayout.Plan3d;
+        Report(new StatusReport($"{WorkspaceName(workspace)} workspace."));
+    }
+
+    private static string WorkspaceName(WorkspaceId workspace) => workspace switch
+    {
+        WorkspaceId.Precision => "Precision",
+        WorkspaceId.Review => "Review",
+        _ => "Planform"
+    };
+
+    /// <summary>The right side bar is in the layout.</summary>
+    public bool RightSidebarShown => LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.RightToolDock) == true;
+
+    private void SetLeftShown(bool shown)
+    {
+        var docks = LayoutFactory.TopProportionalDock.VisibleDockables;
+        if (docks is null || docks.Contains(LayoutFactory.LeftToolDock) == shown) return;
+        if (shown) docks.Insert(0, LayoutFactory.LeftToolDock);
+        else
+        {
+            if (Properties.IsKeyboardFocusWithin || Browser.IsKeyboardFocusWithin) LeftSidebarToggle.Focus();
+            docks.Remove(LayoutFactory.LeftToolDock);
+        }
+    }
+
+    private void SetRightShown(bool shown)
+    {
+        var docks = LayoutFactory.TopProportionalDock.VisibleDockables;
+        if (docks is null || RightSidebarShown == shown) return;
+        if (shown)
+        {
+            // The right side bar opens at the preset's 260 DIP (LayoutCodec Chrome), as the left one does.
+            // Dock normalizes the siblings' proportions (left + model already sum to 1), so the share p of the width is
+            // written as p / (1 − p).
+            double width = DockHost.Bounds.Width;
+            double share = width > 0 ? WorkspacePresets.ProportionFor(DefaultLeftPaneWidth, width) : 0.2;
+            LayoutFactory.RightToolDock.Proportion = share / (1 - share);
+            docks.Add(LayoutFactory.RightSplitter);
+            docks.Add(LayoutFactory.RightToolDock);
+            LayoutFactory.RightToolDock.ActiveDockable = LayoutFactory.PointsTool;
+        }
+        else
+        {
+            if (Points.IsKeyboardFocusWithin) LeftSidebarToggle.Focus();
+            docks.Remove(LayoutFactory.RightToolDock);
+            docks.Remove(LayoutFactory.RightSplitter);
+        }
+    }
+
+    // ---------------- section commands (§5.2) and the section strip ----------------
+
+    /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane and the workspaces.</summary>
+    public static bool IsShellCommand(string id) =>
+        id.StartsWith("section.", StringComparison.Ordinal) || id is "view.thickness-x2" or "window.points" ||
+        id.StartsWith("window.workspace-", StringComparison.Ordinal);
+
+    /// <summary>The copy a section row names when the mode is not open.</summary>
+    public const string NotInSection = "Open a section first: select a station and choose Edit section….";
+
+    /// <summary>
+    /// Thickness ×2 (§11.2) is the section editor's drawing state, owned by its mode bar toggle (EDT). Until that toggle is
+    /// reachable from the shell the row names where it is, rather than flip a state nothing draws (UI-DEAD-CONTROL).
+    /// </summary>
+    public const string ThicknessOnModeBar = "Thickness ×2 is on the section editor's mode bar.";
+
+    /// <summary>
+    /// Show (design §5.2): selects the point a blocker names and asks the section editor to frame it with the location the
+    /// blocker measured (a chord-fraction range, or null when it has none). The editor's Fit Selection does the framing.
+    /// </summary>
+    public event Action<PointRef?, (double X0, double X1)?>? SectionShowRequested;
+
+    /// <summary>COPY-182's sibling for a blocker with no place on the section.</summary>
+    public const string CannotShow = "This can't be shown on the section.";
+
+    private const string SectionChecking = "Checking section geometry…";
+    private const string SectionCrossing = "Upper and lower surfaces cross. Move the point back to finish.";   // COPY-123
+    private const string SectionCleared = "Surfaces no longer cross. Finish is available.";                    // COPY-124
+
+    private long sectionGeneration = -1;
+    private bool sectionCrossing;
+    private byte[]? sectionBytes;
+    private PointRef? sectionMoved;
+
+    /// <summary>Why a shell row cannot run now, or null when it can (UI-DEAD-CONTROL: every row runs or names why).</summary>
+    public string? ShellCommandReason(string id)
+    {
+        if (id.StartsWith("window.workspace-", StringComparison.Ordinal) || id == "window.points") return null;
+        var mode = Controller.Section;
+        if (id == "section.edit")
+        {
+            if (Controller.Inspection is null) return "Open a foil to edit a section.";
+            if (mode is not null) return "The section editor is already open.";
+            return Controller.Selection is Selection.Station ? null : "Select a station to edit its section.";
+        }
+        if (mode is null) return NotInSection;
+        switch (id)
+        {
+            case "section.finish":
+                return mode.CanFinish ? null : mode.FinishReason ?? (mode.IsDirty ? "This section is still being checked." : "No section changes to Finish.");
+            case "section.insert-point" or "section.insert-anchor":
+                if (SelectedSectionPoint() is not { } at) return "Select a point on the section to insert beside it.";
+                return at.Point.Role == PointRole.TrailingEnd ? "Select a point before the trailing edge to insert after it." : null;
+            case "section.delete-point":
+                if (SelectedSectionPoint() is not { } doomed) return "Select a point on the section to delete it.";
+                return doomed.Point.Role switch
+                {
+                    PointRole.Nose => "The nose is always an anchor. It can't be deleted.",
+                    PointRole.TrailingEnd => "The trailing-edge point is always an anchor. It can't be deleted.",
+                    _ => null
+                };
+            case "view.thickness-x2":
+                return ThicknessOnModeBar;
+            case "section.make-unique":
+                return mode.Draft.Scope == SectionScope.Independent ? "This station already has its own section." : null;
+            case "section.thickness-channel":
+                return mode.Draft.Intent == ThicknessIntent.KeepCurrent ? "Station t/c already comes from the Thickness curve." : null;
+            case "section.thickness-source":
+                return mode.Draft.Intent == ThicknessIntent.UseSource ? "Station t/c already comes from this section." : null;
+            default:
+                return null;
+        }
+    }
+
+    private async Task RunShellCommandAsync(string id)
+    {
+        if (ShellCommandReason(id) is { } reason)
+        {
+            Report(new StatusReport(reason));
+            return;
+        }
+        switch (id)
+        {
+            case "window.workspace-planform": ApplyWorkspace(WorkspaceId.Planform); return;
+            case "window.workspace-precision": ApplyWorkspace(WorkspaceId.Precision); return;
+            case "window.workspace-review": ApplyWorkspace(WorkspaceId.Review); return;
+            case "window.points":
+                SetRightShown(true);
+                Report(new StatusReport("Points pane shown in the right side bar."));
+                return;
+            case "section.edit":
+                await EnterSectionAsync(EntryOrigin.Palette);
+                return;
+            case "section.finish":
+                await FinishSectionAsync();
+                return;
+            case "section.cancel":
+                CancelSection();
+                return;
+            case "section.import-dat":
+                await ImportDatAsync();
+                return;
+        }
+        if (SectionStepFor(id) is { } step) await ApplySectionStepAsync(step);
+    }
+
+    /// <summary>Edit section (COPY-172): the selected station's section opens in the model area.</summary>
+    public async Task EnterSectionAsync(EntryOrigin origin)
+    {
+        if (Controller.Selection is not Selection.Station station) return;
+        try
+        {
+            await Controller.EnterSectionAsync(station.Index, origin);
+        }
+        catch (ContractError error)
+        {
+            Report(new StatusReport(error.Reason ?? error.Code, ReportKind.Warning));
+            return;
+        }
+        if (Controller.CurrentProjection is { } projection)
+            Report(new StatusReport($"Editing {SectionPoints.StationName(projection, station.Index)} section."));
+    }
+
+    private async Task FinishSectionAsync()
+    {
+        var mode = Controller.Section!;
+        string station = StationNameOf(mode);
+        int changes = mode.Draft.Cursor;
+        try { await Controller.FinishSectionAsync(); }
+        catch (ContractError)
+        {
+            Report(new StatusReport(Controller.Section?.FinishReason ?? "This section cannot Finish yet.", ReportKind.Warning));
+            return;
+        }
+        // COPY-179
+        Report(new StatusReport($"Finished {station} section: {changes} {(changes == 1 ? "change" : "changes")} in one undo step."));
+    }
+
+    private void CancelSection()
+    {
+        string station = StationNameOf(Controller.Section!);
+        Controller.CancelSection();
+        Report(new StatusReport($"Cancelled. {station} section is as it was."));   // COPY-180
+    }
+
+    private string StationNameOf(SectionMode mode) =>
+        Controller.CurrentProjection is { } projection ? SectionPoints.StationName(projection, mode.Draft.Assignment) : "This";
+
+    private (PointRef Ref, PointView Point, CurveView Curve)? SelectedSectionPoint()
+    {
+        if (Controller.Selection is not Selection.Points { Items.Count: 1 } points || points.Items[0] is not { Curve: "upper" or "lower" } item)
+            return null;
+        var curve = Controller.SectionCurve(SectionPoints.Side(item.Curve));
+        var point = curve?.Points.FirstOrDefault(candidate => candidate.Id == item.VertexId);
+        return curve is null || point is null ? null : (item, point, curve);
+    }
+
+    private SectionStep? SectionStepFor(string id)
+    {
+        var selected = SelectedSectionPoint();
+        double Between()
+        {
+            var (_, point, curve) = selected!.Value;
+            var next = curve.Points[Math.Min(point.Index + 1, curve.Points.Count - 1)];
+            return (point.SpanMeters + next.SpanMeters) / 2;
+        }
+        return id switch
+        {
+            "section.insert-point" => new SectionStep.Insert(SectionPoints.Side(selected!.Value.Ref.Curve), Between()),
+            "section.insert-anchor" => new SectionStep.InsertAnchor(SectionPoints.Side(selected!.Value.Ref.Curve), Between()),
+            "section.delete-point" => new SectionStep.Delete(SectionPoints.Side(selected!.Value.Ref.Curve), selected.Value.Ref.VertexId),
+            // simplify: Smooth fairs both surfaces at the 10⁻³ chord tolerance the section draft is tested at; the
+            // upgrade trigger is a Smooth dialog with its own tolerance (OI).
+            "section.smooth" => new SectionStep.Fair(null, 1e-3, PreserveEnds.Position),
+            "section.make-unique" => new SectionStep.MakeUnique(),
+            "section.thickness-channel" => new SectionStep.Thickness(ThicknessIntent.KeepCurrent),
+            "section.thickness-source" => new SectionStep.Thickness(ThicknessIntent.UseSource),
+            _ => null
+        };
+    }
+
+    private async Task ImportDatAsync()
+    {
+        string? path = null;
+        if (pickOpenFile is not null) path = await pickOpenFile();
+        else if (TopLevel.GetTopLevel(this) is { } top)
+        {
+            var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "Import .dat section", AllowMultiple = false });
+            if (files.Count > 0) { using var file = files[0]; path = file.Path.LocalPath; }
+        }
+        if (path is null)
+        {
+            Report(new StatusReport("Import cancelled. Nothing changed."));
+            return;
+        }
+        byte[] dat;
+        try { dat = await File.ReadAllBytesAsync(path); }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            Report(new StatusReport($"The .dat file couldn't be read. Nothing changed.", ReportKind.Error));
+            return;
+        }
+        await ApplySectionStepAsync(new SectionStep.Import(dat));
+    }
+
+    /// <summary>
+    /// One step from a shell row or a pane (one step in the section mode, §11.4). A refusal names its reason in the strip;
+    /// the paired refit refusal (COPY-187) carries Show.
+    /// </summary>
+    public async Task ApplySectionStepAsync(SectionStep step)
+    {
+        ArgumentNullException.ThrowIfNull(step);
+        try { await Controller.ApplySectionStepAsync(step); }
+        catch (ContractError error)
+        {
+            ReportRefusal(step, error);
+        }
+    }
+
+    private void ReportRefusal(SectionStep step, ContractError error)
+    {
+        if (step is SectionStep.SetType { Anchor: false } toControl && RefitRefusal(toControl, error) is { } copy)
+        {
+            var named = new PointRef(toControl.Side == SurfaceSide.Upper ? "upper" : "lower", toControl.VertexId, Controller.Section?.Draft.Profile);
+            Report(new StatusReport(copy, ReportKind.Warning), new StripAction("Show", () => ShowBlocker(named, null)));
+            return;
+        }
+        Report(new StatusReport($"{error.Reason ?? error.Code} Nothing changed.", ReportKind.Warning));
+    }
+
+    // COPY-187 from Core's refusal "refit <µm> µm exceeds 10 µm at the largest chord <m> m".
+    private string? RefitRefusal(SectionStep.SetType step, ContractError error)
+    {
+        var match = System.Text.RegularExpressions.Regex.Match(error.Reason ?? "", @"refit ([0-9.]+) µm exceeds 10 µm at the largest chord ([0-9.Ee+-]+) m");
+        if (!match.Success || Controller.SectionCurve(step.Side)?.Points.FirstOrDefault(point => point.Id == step.VertexId) is not { } point)
+            return null;
+        var invariant = System.Globalization.CultureInfo.InvariantCulture;
+        double microns = double.Parse(match.Groups[1].Value, invariant);
+        double chord = double.Parse(match.Groups[2].Value, invariant);
+        string other = step.Side == SurfaceSide.Upper ? "lower" : "upper";
+        return string.Create(invariant,
+            $"Point {point.Index + 1} stays an anchor. As a control point the {other} surface would move {microns / 1000:0.000} mm, over the 0.010 mm limit at {chord * 1000:0.00} mm chord. Nothing changed.");
+    }
+
+    /// <summary>Show: select what the blocker names and frame it; a blocker with no place says so.</summary>
+    public void ShowBlocker(PointRef? point, (double X0, double X1)? range)
+    {
+        if (point is null && range is null)
+        {
+            Report(new StatusReport(CannotShow));
+            return;
+        }
+        if (point is not null) Controller.Select(new Selection.Points([point]));
+        SectionShowRequested?.Invoke(point, range);
+    }
+
+    private void OnSectionChanged()
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(OnSectionChanged);
+            return;
+        }
+        if (Controller.Section is not { } mode)
+        {
+            sectionGeneration = -1;
+            sectionCrossing = false;
+            sectionBytes = null;
+            sectionMoved = null;
+            return;
+        }
+        // A new step: its report goes to the strip (COPY-174..176, 185, 186 and the insert report).
+        if (mode.Draft.Generation != sectionGeneration)
+        {
+            bool stepped = sectionBytes is not null && mode.Draft.Generation > sectionGeneration && mode.Draft.Cursor == mode.Draft.StepCount &&
+                           mode.LastReport is not null;
+            if (stepped && SectionStrip.Report(Controller, sectionBytes!, mode, StationNameOf(mode)) is { } report)
+            {
+                sectionMoved = report.Moved ?? sectionMoved;
+                Report(new StatusReport(report.Text));
+            }
+            sectionGeneration = mode.Draft.Generation;
+            sectionBytes = mode.Draft.Bytes;
+        }
+        if (mode.Assessment is not { } assessment) return;
+        bool crossing = assessment.Code == "DSL-PROFILE-CROSS";
+        if (crossing && !sectionCrossing)
+        {
+            var range = Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment);
+            var moved = sectionMoved;
+            Report(new StatusReport(SectionCrossing, ReportKind.Warning), new StripAction("Show", () => ShowBlocker(moved, range)));
+        }
+        else if (!crossing && sectionCrossing && assessment.Status == GeometryStatus.Certified)
+            Report(new StatusReport(SectionCleared));   // COPY-124, once per clearing
+        sectionCrossing = crossing;
+    }
+
 
     private async Task RunPoint(Func<PointView, PointCommand> command)
     {
@@ -863,6 +1262,13 @@ public sealed class ShellHost : Grid
 
     public void ShowPane(string id)
     {
+        if (id == "points")
+        {
+            // The Points pane's home is the right side bar (OD-3 B).
+            SetRightShown(true);
+            FocusDockableTab(LayoutFactory.PointsTool);
+            return;
+        }
         var dockable = LayoutFactory.FindDockable(id);
         if (dockable != null)
         {
