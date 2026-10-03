@@ -17,6 +17,8 @@ public class SectionCanvas : Control
     public bool CurvatureVisible { get; set; } = true;
     public bool ThicknessDoubled { get; set; }
     public string ProbeText { get; private set; } = "Pointer · display";
+    public int CombClippedCount { get; private set; }
+    public double CombScale { get; private set; }
     private double viewMinX;
     private double viewSpan = 1;
     private double viewCenterY;
@@ -286,9 +288,55 @@ public class SectionCanvas : Control
                 new Point(at.X, 8), new Point(at.X, Bounds.Height - 8));
         }
         var curvePen = new Pen(foil, 2);
+        var mode = Controller!.Section!;
+        var ghostPen = new Pen(mute, 1, new DashStyle([4, 4], 0));
+        foreach (var side in new[] { SurfaceSide.Upper, SurfaceSide.Lower })
+        {
+            var entry = Sections.View(mode.BaseBytes, mode.Draft.Assignment, side, "entry", 0);
+            DrawPolyline(context, ghostPen, Enumerable.Range(0, 101)
+                .Select(index => Jet(entry, index / 100.0))
+                .Select(jet => ModelToScreen(jet.X, jet.Y)));
+        }
+        if (CurvatureVisible)
+        {
+            var teeth = new[] { Controller.SectionCurve(SurfaceSide.Upper)!, Controller.SectionCurve(SurfaceSide.Lower)! }
+                .SelectMany(Comb).ToArray();
+            var magnitudes = teeth.Select(tooth => Math.Abs(tooth.Curvature)).Order().ToArray();
+            double p90 = magnitudes.Length == 0 ? 0 : magnitudes[(int)Math.Floor(.9 * (magnitudes.Length - 1))];
+            CombScale = p90 <= 1e-12 ? 0 : 30 / p90;
+            CombClippedCount = 0;
+            foreach (var tooth in teeth)
+            {
+                double raw = Math.Abs(tooth.Curvature) * CombScale;
+                bool clipped = raw > 60;
+                if (clipped) CombClippedCount++;
+                var start = ModelToScreen(tooth.X, tooth.Y);
+                double sign = Math.Sign(tooth.Curvature);
+                var tip = start + new Vector(tooth.Nx * Math.Min(raw, 60) * sign,
+                    -tooth.Ny * Math.Min(raw, 60) * sign * (ThicknessDoubled ? 2 : 1));
+                context.DrawLine(new Pen(station, 1), start, tip);
+                if (clipped)
+                {
+                    context.DrawLine(new Pen(station, 1), tip + new Vector(-3, -3), tip + new Vector(3, 3));
+                    context.DrawLine(new Pen(station, 1), tip + new Vector(-3, 3), tip + new Vector(3, -3));
+                }
+            }
+        }
+        else { CombScale = 0; CombClippedCount = 0; }
         DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
         DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));
-        var upper = Controller!.SectionCurve(SurfaceSide.Upper);
+        var crossing = Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment);
+        if (crossing is { } range && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } crossingBrush)
+        {
+            double atX = (range.X0 + range.X1) / 2;
+            var probe = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, atX);
+            foreach (double y in new[] { probe.UpperY, probe.LowerY })
+            {
+                var at = ModelToScreen(atX, y);
+                context.DrawEllipse(null, new Pen(crossingBrush, 4, new DashStyle([3, 2], 0)), at, 12, 12);
+            }
+        }
+        var upper = Controller.SectionCurve(SurfaceSide.Upper);
         var lower = Controller.SectionCurve(SurfaceSide.Lower);
         if (upper is null || lower is null) return;
         var brushes = new PointGlyphBrushes(foil, station, background, mute);
@@ -331,6 +379,86 @@ public class SectionCanvas : Control
             if (RefitMarkerLabel is { Length: > 0 } label)
                 context.DrawText(new FormattedText(label, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28));
+        }
+    }
+
+    private readonly record struct JetPoint(double X, double Y, double Nx, double Ny, double Curvature);
+
+    private static JetPoint Jet(CurveView curve, double parameter)
+    {
+        const int degree = 5;
+        var knots = curve.Knots;
+        int count = curve.Points.Count;
+        double t = parameter == 1 ? Math.BitDecrement(1.0) : parameter;
+        var levels = new double[degree + 1][];
+        levels[0] = new double[count + degree];
+        for (int i = 0; i < levels[0].Length && i + 1 < knots.Count; i++)
+            levels[0][i] = knots[i] <= t && t < knots[i + 1] ? 1 : 0;
+        for (int k = 1; k <= degree; k++)
+        {
+            levels[k] = new double[count + degree - k];
+            for (int i = 0; i < levels[k].Length && i + k + 1 < knots.Count; i++)
+            {
+                double a = knots[i + k] - knots[i];
+                double b = knots[i + k + 1] - knots[i + 1];
+                levels[k][i] = (a == 0 ? 0 : (t - knots[i]) / a * levels[k - 1][i]) +
+                    (b == 0 ? 0 : (knots[i + k + 1] - t) / b * levels[k - 1][i + 1]);
+            }
+        }
+        double x = 0, y = 0, dx = 0, dy = 0, ddx = 0, ddy = 0;
+        for (int i = 0; i < count; i++)
+        {
+            double d = BasisDerivative(i, degree, levels, knots);
+            double dd = BasisSecond(i, degree, levels, knots);
+            x += levels[degree][i] * curve.Points[i].SpanMeters;
+            y += levels[degree][i] * curve.Points[i].Ordinate;
+            dx += d * curve.Points[i].SpanMeters;
+            dy += d * curve.Points[i].Ordinate;
+            ddx += dd * curve.Points[i].SpanMeters;
+            ddy += dd * curve.Points[i].Ordinate;
+        }
+        double speed = Math.Sqrt(dx * dx + dy * dy);
+        double curvature = speed <= 1e-12 ? 0 : (dx * ddy - dy * ddx) / (speed * speed * speed);
+        return new(x, y, speed <= 1e-12 ? 0 : -dy / speed, speed <= 1e-12 ? 0 : dx / speed, curvature);
+    }
+
+    private static double BasisDerivative(int index, int degree, double[][] levels, IReadOnlyList<double> knots)
+    {
+        double a = knots[index + degree] - knots[index];
+        double b = knots[index + degree + 1] - knots[index + 1];
+        return (a == 0 ? 0 : degree / a * levels[degree - 1][index]) -
+            (b == 0 ? 0 : degree / b * levels[degree - 1][index + 1]);
+    }
+
+    private static double BasisSecond(int index, int degree, double[][] levels, IReadOnlyList<double> knots)
+    {
+        static double Derivative(int i, int k, double[][] rows, IReadOnlyList<double> values)
+        {
+            double a = values[i + k] - values[i], b = values[i + k + 1] - values[i + 1];
+            return (a == 0 ? 0 : k / a * rows[k - 1][i]) - (b == 0 ? 0 : k / b * rows[k - 1][i + 1]);
+        }
+        double left = knots[index + degree] - knots[index];
+        double right = knots[index + degree + 1] - knots[index + 1];
+        return (left == 0 ? 0 : degree / left * Derivative(index, degree - 1, levels, knots)) -
+            (right == 0 ? 0 : degree / right * Derivative(index + 1, degree - 1, levels, knots));
+    }
+
+    private static IEnumerable<JetPoint> Comb(CurveView curve)
+    {
+        var samples = Enumerable.Range(0, 161).Select(index => Jet(curve, index / 160.0)).ToArray();
+        var distances = new double[samples.Length];
+        for (int i = 1; i < samples.Length; i++)
+            distances[i] = distances[i - 1] + Math.Sqrt(Math.Pow(samples[i].X - samples[i - 1].X, 2) +
+                Math.Pow(samples[i].Y - samples[i - 1].Y, 2));
+        if (distances[^1] <= 0) yield break;
+        for (int tooth = 1; tooth < 40; tooth++)
+        {
+            double target = distances[^1] * tooth / 40;
+            int right = Array.BinarySearch(distances, target);
+            if (right < 0) right = ~right;
+            right = Math.Clamp(right, 1, samples.Length - 1);
+            double fraction = (target - distances[right - 1]) / (distances[right] - distances[right - 1]);
+            yield return Jet(curve, (right - 1 + fraction) / 160);
         }
     }
 
@@ -715,6 +843,28 @@ public class SectionCanvas : Control
         var list = new List<ViewportSemantic>();
         var tbList = new List<TextBlock>();
         var textList = new List<string>();
+
+        if (Controller?.Section is not null)
+        {
+            foreach (var point in Controller.SectionCurve(SurfaceSide.Upper)!.Points
+                .Concat(Controller.SectionCurve(SurfaceSide.Lower)!.Points.Skip(1)))
+            {
+                string type = Sections.PointType(point);
+                string name = $"{point.Curve} surface · point {point.Index + 1} · {type} · x {point.SpanMeters * 100:F2} % c · y {point.Ordinate * 100:F2} % c";
+                string id = $"section-{point.Curve}-{point.Id}";
+                list.Add(new ViewportSemantic(id, name, type));
+                textList.Add(name);
+                var block = new TextBlock { Text = name };
+                AutomationProperties.SetName(block, name);
+                AutomationProperties.SetAutomationId(block, id);
+                AutomationProperties.SetControlTypeOverride(block, AutomationControlType.ListItem);
+                tbList.Add(block);
+            }
+            Semantics = list;
+            SemanticControls = tbList;
+            AccessibleTexts = textList;
+            return;
+        }
 
         foreach (var v in Profile.Upper.Concat(Profile.Lower))
         {

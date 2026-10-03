@@ -10,6 +10,7 @@ namespace CfdWorkbench.Desktop;
 public partial class SectionEditorView : UserControl
 {
     private WorkbenchController? controller;
+    private string? focusedDraft;
 
     public SectionEditorView()
     {
@@ -53,6 +54,7 @@ public partial class SectionEditorView : UserControl
     {
         this.controller = controller;
         var mode = controller.Section;
+        if (mode is null) focusedDraft = null;
         ModeEditor.IsVisible = mode is not null;
         LegacyEditor.IsVisible = mode is null;
         int? assignment = mode?.Draft.Assignment ?? (controller.Selection is Selection.Station station ? station.Index : null);
@@ -70,6 +72,7 @@ public partial class SectionEditorView : UserControl
             if (mode is not null)
             {
                 ModeCanvas.Controller = controller;
+                ModeCanvas.CancelTarget = ModeCancelButton;
                 ModeCanvas.Profile = EditableSectionCanvas.Profile;
                 ModeCanvas.SelectedVertex = controller.Selection is Selection.Points picked && picked.Items.Count > 0
                     ? (picked.Items[0].Curve, picked.Items[0].VertexId) : null;
@@ -83,6 +86,11 @@ public partial class SectionEditorView : UserControl
                 ModeReason.Text = controller.SectionRefitRefusal is not null ? controller.Status : reason;
                 ModeReasonBox.IsVisible = controller.SectionRefitRefusal is not null || mode.IsDirty && !mode.CanFinish && reason is not null;
                 RefreshStationStrip(controller, assignment.Value);
+                if (focusedDraft != mode.Draft.DraftId)
+                {
+                    focusedDraft = mode.Draft.DraftId;
+                    ModeCanvas.Focus();
+                }
             }
             EditableSectionCanvas.RefitMarker = mode is not null && controller.SectionRefitRefusal is { } refusal
                 ? new Point(refusal.ChordX, refusal.Side == SurfaceSide.Upper
