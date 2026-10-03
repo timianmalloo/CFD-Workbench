@@ -615,7 +615,8 @@ public sealed class WorkbenchController : IDisposable
         Select(new Selection.Points([point]));
         if (view.Freedom == PointFreedom.Fixed)
         {
-            SetStatus($"This {view.Role} point is fixed by the foil definition.", ReportKind.Error);
+            SetStatus(view is { Curve: "dihedral", Role: PointRole.RootEnd } ? DihedralRootLocked
+                : $"This {view.Role} point is fixed by the foil definition.", ReportKind.Error);
             Notify();
             return false;
         }
@@ -632,20 +633,30 @@ public sealed class WorkbenchController : IDisposable
         return true;
     }
 
-    public void UpdateGesture(double spanMeters, double aftMeters)
+    /// <summary>§11.4: pressing the dihedral root end (it stays on the centre line, FoilDSL :298).</summary>
+    public const string DihedralRootLocked = "The dihedral root is at the centre line. It can't be moved.";
+
+    public void UpdateGesture(double spanMeters, double aftMeters) => UpdateGesture(spanMeters, aftMeters, null);
+
+    /// <summary>
+    /// A pointer drag frame. <paramref name="pixelsFromPress"/> is the pointer's screen distance from the press, measured by
+    /// the view that knows its own axis mapping (an elevation lane's ordinate is degrees or a chord fraction, not metres);
+    /// null measures it on the Plan's metre scale.
+    /// </summary>
+    public void UpdateGesture(double spanMeters, double aftMeters, double? pixelsFromPress)
     {
         if (Gesture == GestureState.Nudging && gestureInput == GestureInput.Keyboard) return;
-        UpdateGestureTarget(spanMeters, aftMeters);
+        UpdateGestureTarget(spanMeters, aftMeters, pixelsFromPress);
     }
 
-    private void UpdateGestureTarget(double spanMeters, double aftMeters)
+    private void UpdateGestureTarget(double spanMeters, double aftMeters, double? pixelsFromPress = null)
     {
         if (Gesture is not (GestureState.Pressed or GestureState.Dragging or GestureState.Nudging) || gestureOrigin is null)
             return;
         if (!double.IsFinite(spanMeters) || !double.IsFinite(aftMeters)) return;
         if (Gesture == GestureState.Pressed)
         {
-            double px = Math.Sqrt(Math.Pow(spanMeters - gestureOrigin.SpanMeters, 2) +
+            double px = pixelsFromPress ?? Math.Sqrt(Math.Pow(spanMeters - gestureOrigin.SpanMeters, 2) +
                 Math.Pow(aftMeters - gestureOrigin.Ordinate, 2)) * PlanCamera.PixelsPerMeter;
             if (px < 3) return;
             Gesture = GestureState.Dragging;
